@@ -10,7 +10,7 @@ This writes randomly-named files to disk temporarily. You may want to consider t
 The module writes a random 10-15 character file containing HTML to a directory you can specify via `WRITABLE_DIR`.
 
 ### Running processes
-On non-meterpreter sessions, a headless Chrome process will be left running after module execution is completed. You can still find and kill this process manually after the module execution is completed.
+On non-Windows non-meterpreter sessions, a headless Chrome process will be left running after module execution is completed. You can still find and kill this process manually after the module execution is completed.
 
 ## Vulnerable Application
 

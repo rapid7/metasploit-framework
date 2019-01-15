@@ -180,7 +180,8 @@ class MetasploitModule < Msf::Post
       # read_file within if/else block because kill was terminating sessions on OSX during testing
       chrome_output = read_file(@cookie_storage_path)
 
-      # Kills meterpreter only non-windows sessions
+      # Kills spawned chrome process in windows meterpreter sessions.
+      # In OSX and Linux the meterpreter sessions would stop as well.
       if session.platform == 'windows'
         kill_output = cmd_exec "#{kill_cmd} #{chrome_pid}"
       end
