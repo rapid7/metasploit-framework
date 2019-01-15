@@ -218,11 +218,8 @@ module System
   # @return [String]
   #
   def pid_uid(pid)
-    file_pid = "/proc/" + pid.to_s + "/status"
-    result = read_file(file_pid)
-    return result
+    read_file("/proc/#{pid}/status").to_s
   end
-
 
   #
   # Checks if `file_path` is mounted on a noexec mount point
