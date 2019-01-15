@@ -18,7 +18,9 @@ class MetasploitModule < Msf::Post
         'harmj0y', # Invoke-Kerberoast
         'phra' # MSF Module
       ],
-      'References' => ['https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1'],
+      'References' => [
+        ['URL', 'https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1']
+      ],
       'Platform' => [ 'win' ],
       'Arch' => [ 'x86', 'x64' ],
       'SessionTypes' => [ 'meterpreter' ]
