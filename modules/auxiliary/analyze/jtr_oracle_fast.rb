@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status "Cracking #{format} hashes in normal wordlist mode..."
       # Turn on KoreLogic rules if the user asked for it
-      if datastore['KoreLogic']
+      if datastore['KORELOGIC']
         cracker_instance.rules = 'KoreLogicRules'
         print_status "Applying KoreLogic ruleset..."
       end
