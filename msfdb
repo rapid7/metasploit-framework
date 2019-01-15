@@ -64,7 +64,8 @@ require 'msf/util/helper'
     ws_env: ENV['RACK_ENV'] || 'production',
     retry_max: 10,
     retry_delay: 5.0,
-    ws_user: nil
+    ws_user: nil,
+    delete_existing_data: nil
 }
 
 
@@ -207,8 +208,7 @@ def init_db
     return
   end
 
-  if File.exist?(@db_conf) &&
-      !ask_yn("Found database config at #{@db_conf}, do you want to overwrite it?")
+  if File.exist?(@db_conf) && !@options[:delete_existing_data]
     if !load_db_config
       puts "Failed to load existing database config. Please reinit and overwrite the file."
       return
@@ -366,12 +366,12 @@ def delete_db
   if Dir.exist?(@db)
     stop_db
 
-    if ask_yn("Delete all data at #{@db}?")
+    if @options[:delete_existing_data]
       puts "Deleting all data at #{@db}"
       FileUtils.rm_rf(@db)
     end
 
-    if File.file?(@db_conf) && ask_yn("Delete database configuration at #{@db_conf}?")
+    if @options[:delete_existing_data]
       File.delete(@db_conf)
     end
   else
@@ -452,8 +452,7 @@ def init_web_service
   end
   File.chmod(0640, @ws_conf)
 
-  if @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
-      (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+  if should_generate_web_service_ssl
     generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
   end
 
@@ -541,7 +540,7 @@ end
 
 def delete_web_service
   stop_web_service
-  if File.file?(@ws_conf) && ask_yn("Delete MSF web service configuration at #{@ws_conf}?")
+  if File.file?(@ws_conf) && @options[:delete_existing_data]
     File.delete(@ws_conf)
   end
 end
@@ -553,8 +552,7 @@ end
 
 def generate_web_service_ssl(key:, cert:)
   @ws_generated_ssl = true
-  if (File.file?(key) || File.file?(cert)) &&
-      !ask_yn("Either MSF web service SSL key #{key} or certificate #{cert} already exist, overwrite both?")
+  if (File.file?(key) || File.file?(cert)) && !@options[:delete_existing_data]
     return
   end
 
@@ -941,6 +939,36 @@ def has_requirements
 end
 
 
+def should_generate_web_service_ssl
+  @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
+      (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+end
+
+def prompt_for_deletion(command)
+  destructive_operations = [:init, :reinit, :delete]
+
+  if destructive_operations.include? command
+    if command == :init
+      if (@options[:component] == :all || @options[:component] == :webservice) &&
+          should_generate_web_service_ssl && (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
+        puts should_generate_web_service_ssl
+        @options[:delete_existing_data] = should_delete
+        return
+      elsif (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
+        @options[:delete_existing_data] = should_delete
+        return
+      end
+    else
+      @options[:delete_existing_data] = should_delete
+    end
+  end
+end
+
+
+def should_delete
+  ask_yn("Would you like to delete your existing data and configurations?")
+end
+
 
 if $PROGRAM_NAME == __FILE__
   # Bomb out if we're root
@@ -978,6 +1006,7 @@ if $PROGRAM_NAME == __FILE__
   parse_args(ARGV)
 
   command = ARGV[0].to_sym
+  prompt_for_deletion(command)
   if @options[:component] == :all
     @components.each { |component|
       invoke_command(commands, component.to_sym, command)
