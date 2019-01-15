@@ -380,7 +380,10 @@ module Auxiliary::Report
   # +filename+ and +info+ are only stored as metadata, and therefore both are
   # ignored if there is no database
   #
-  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil)
+  # +keeppath+ if true, the file will be named by it's original path and saved
+  # into a new folder named as the object host
+  #
+  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil, keeppath=false)
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
@@ -388,7 +391,7 @@ module Auxiliary::Report
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
-      if parts.length > 1 and parts[-1].length < 4
+      if parts.length > 1
         ext = parts[-1]
       end
     end
@@ -405,10 +408,20 @@ module Auxiliary::Report
       Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
       (host || 'unknown') + '_' + ltype[0,16] + '_' +
       Rex::Text.rand_text_numeric(6) + '.' + ext
-
     name.gsub!(/[^a-z0-9\.\_]+/i, '')
 
-    path = File.join(Msf::Config.loot_directory, name)
+    if keeppath
+      loot_dir = Msf::Config.loot_directory + ::File::Separator + (host || 'unknown')
+      if ! ::File.directory?(loot_dir)
+        FileUtils.mkdir_p(loot_dir)
+      end
+      if info.match(/[A-Za-z0-9]:\\/)
+        name = Time.now.strftime("%Y%m%d%H%M%S%L") + "_" + info.split(/\\/).join('_')
+        path = File.join(loot_dir,name)
+      end
+    else
+      path = File.join(Msf::Config.loot_directory, name)
+    end
     full_path = ::File.expand_path(path)
     File.open(full_path, "wb") do |fd|
       fd.write(data)
