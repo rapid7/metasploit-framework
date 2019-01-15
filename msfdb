@@ -508,7 +508,6 @@ def generate_web_service_ssl(key:, cert:)
   end
 
   puts 'Generating SSL key and certificate for MSF web service'
-  # @ssl_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
   @ssl_key, @ssl_cert, @ssl_extra_chain_cert = Rex::Socket::Ssl.ssl_generate_certificate
 
   # write PEM format key and certificate
