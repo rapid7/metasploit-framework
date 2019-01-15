@@ -22,3 +22,6 @@ end
 # Executable generation and encoding
 require 'msf/util/exe'
 require 'msf/util/helper'
+
+# Java deserialization payload generators
+require 'msf/util/java_deserialization'
