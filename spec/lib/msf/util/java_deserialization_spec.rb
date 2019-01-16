@@ -28,9 +28,9 @@ RSpec.describe Msf::Util::JavaDeserialization do
     end
 
     context 'when default payload is not JSON format' do
-      it 'raises a JSON::ParserError error' do
+      it 'raises a RuntimeError error' do
         allow(File).to receive(:read).and_return('BAD DATA')
-        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(JSON::ParserError)
+        expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(RuntimeError)
       end
     end
 
