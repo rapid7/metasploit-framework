@@ -99,6 +99,7 @@ module Msf::DBManager::Loot
   def update_loot(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      # Prevent changing the data field to ensure the file contents remain the same as what was originally looted.
       raise ArgumentError, "Updating the data attribute is not permitted." if opts[:data]
       opts[:workspace] = wspace if wspace
 
