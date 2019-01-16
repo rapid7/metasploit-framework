@@ -26,9 +26,7 @@ module LootServlet
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.loots(sanitized_params)
         includes = [:host]
-        data.each do |loot|
-          loot.data = Base64.urlsafe_encode64(loot.data) if loot.data
-        end
+        data = encode_loot_data(data)
         data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data, includes: includes)
       rescue => e
@@ -48,7 +46,8 @@ module LootServlet
           opts[:data] = Base64.urlsafe_decode64(opts[:data])
         end
 
-        get_db.report_loot(opts)
+        data = get_db.report_loot(opts)
+        encode_loot_data(data)
       }
       exec_report_job(request, &job)
     }
@@ -62,6 +61,7 @@ module LootServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_loot(opts)
+        data = encode_loot_data(data)
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the loot:', code: 500)
@@ -75,6 +75,10 @@ module LootServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_loot(opts)
+        # The rails delete operation returns a frozen object. We need to Base64 encode the data
+        # before converting to JSON. So we'll work with a duplicate of the original if it is frozen.
+        data.map! { |loot| loot.dup if loot.frozen? }
+        data = encode_loot_data(data)
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error deleting the loot:', code: 500)

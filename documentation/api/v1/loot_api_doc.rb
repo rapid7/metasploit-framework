@@ -10,7 +10,8 @@ module LootApiDoc
   LTYPE_EXAMPLE = "'file', 'image', 'config_file', etc."
   PATH_DESC = 'The on-disk path to the loot file.'
   PATH_EXAMPLE = '/path/to/file.txt'
-  DATA_DESC = 'The contents of the file.'
+  DATA_DESC = "Base64 encoded copy of the file's contents."
+  DATA_EXAMPLE = 'dGhpcyBpcyB0aGUgZmlsZSdzIGNvbnRlbnRz'
   CONTENT_TYPE_DESC = 'The mime/content type of the file at {#path}.  Used to server the file correctly so browsers understand whether to render or download the file.'
   CONTENT_TYPE_EXAMPLE = 'text/plain'
   NAME_DESC = 'The name of the loot.'
@@ -19,8 +20,6 @@ module LootApiDoc
   MODULE_RUN_ID_DESC = 'The ID of the module run record this loot is associated with.'
 
   # Some of the attributes expect different data when doing a create.
-  CREATE_DATA_DESC = "Base64 encoded copy of the file's contents."
-  CREATE_DATA_EXAMPLE = 'dGhpcyBpcyB0aGUgZmlsZSdzIGNvbnRlbnRz'
   CREATE_PATH_DESC = 'The name to give the file on the server.'
   CREATE_PATH_EXAMPLE = 'password_file.txt'
 
@@ -33,7 +32,7 @@ module LootApiDoc
     property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
     property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE
     property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE
-    property :data, type: :string, description: DATA_DESC
+    property :data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
     property :content_type, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC
@@ -93,7 +92,7 @@ module LootApiDoc
           property :service,  '$ref': :Service
           property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
           property :path, type: :string, description: CREATE_PATH_DESC, example: CREATE_PATH_EXAMPLE, required: true
-          property :data, type: :string, description: CREATE_DATA_DESC, example: CREATE_DATA_EXAMPLE
+          property :data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
           property :ctype, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE, required: true
           property :info, type: :string, description: INFO_DESC
