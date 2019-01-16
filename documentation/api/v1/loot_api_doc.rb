@@ -210,7 +210,14 @@ module LootApiDoc
         key :description, 'The updated attributes to overwrite to the loot.'
         key :required, true
         schema do
-          key :'$ref', :Loot
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
+          property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
+          property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
+          property :path, type: :string, description: CREATE_PATH_DESC, example: CREATE_PATH_EXAMPLE, required: true
+          property :ctype, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
+          property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE, required: true
+          property :info, type: :string, description: INFO_DESC
         end
       end
 
