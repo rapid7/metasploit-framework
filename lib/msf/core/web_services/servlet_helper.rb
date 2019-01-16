@@ -133,7 +133,7 @@ module ServletHelper
 
   def encode_loot_data(data)
     Array.wrap(data).each do |loot|
-      loot.data = Base64.urlsafe_encode64(loot.data) if loot.data
+      loot.data = Base64.urlsafe_encode64(loot.data) if loot.data && !loot.data.empty?
     end
     data
   end
