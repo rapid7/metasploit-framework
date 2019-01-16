@@ -33,10 +33,10 @@ module Msf::Post::File
         return session.shell_command_token("echo %CD%")
       else
         if command_exists?("pwd")
-          return session.shell_command_token("pwd")
+          return session.shell_command_token("pwd").to_s.strip
         else
           # Result on systems without pwd command
-          return session.shell_command_token("echo $PWD")
+          return session.shell_command_token("echo $PWD").to_s.strip
         end
       end
     end
@@ -151,6 +151,19 @@ module Msf::Post::File
       return false unless f =~ /true/
       true
     end
+  end
+
+  #
+  # See if +path+ on the remote system exists and is writable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is writable
+  #
+  def writable?(path)
+    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
   end
 
   #
@@ -371,6 +384,23 @@ module Msf::Post::File
   end
 
   #
+  # Sets the permissions on a remote file
+  #
+  # @param path [String] Path on the remote filesystem
+  # @param mode [Fixnum] Mode as an octal number
+  def chmod(path, mode = 0700)
+    if session.platform == 'windows'
+      raise "`chmod' method does not support Windows systems"
+    end
+
+    if session.type == 'meterpreter' && session.commands.include?('stdapi_fs_chmod')
+      session.fs.file.chmod(path, mode)
+    else
+      cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
+    end
+  end
+
+  #
   # Delete remote files
   #
   # @param remote_files [Array<String>] List of remote filenames to
@@ -442,22 +472,22 @@ protected
   #
   # @return [String]
   def _read_file_meterpreter(file_name)
-    begin
-      fd = session.fs.file.new(file_name, "rb")
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Failed to open file: #{file_name}: #{e}")
-      return nil
-    end
+    fd = session.fs.file.new(file_name, "rb")
 
     data = fd.read
-    begin
-      until fd.eof?
-        data << fd.read
-      end
-    ensure
-      fd.close
+    until fd.eof?
+      data << fd.read
     end
+
     data
+  rescue EOFError
+    # Sometimes fd isn't marked EOF in time?
+    ''
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    print_error("Failed to open file: #{file_name}: #{e}")
+    return nil
+  ensure
+    fd.close if fd
   end
 
   #

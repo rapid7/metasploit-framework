@@ -70,13 +70,14 @@ class MetasploitModule < Msf::Auxiliary
   def do_login(user, pass, ip)
     factory = ssh_socket_factory
     opts = {
-      auth_methods:    ['password'],
-      port:            rport,
-      config:          false,
-      use_agent:       false,
-      password:        pass,
-      proxy:           factory,
-      non_interactive: true
+      :auth_methods    => ['password'],
+      :port            => rport,
+      :config          => false,
+      :use_agent       => false,
+      :password        => pass,
+      :proxy           => factory,
+      :non_interactive => true,
+      :verify_host_key => :never
     }
 
     opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']

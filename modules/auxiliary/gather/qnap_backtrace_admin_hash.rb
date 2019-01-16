@@ -24,10 +24,10 @@ class MetasploitModule < Msf::Auxiliary
         'Donald Knuth' # Algorithm
       ],
       'References'     => [
-        ['URL', 'http://seclists.org/fulldisclosure/2017/Feb/2'],
+        ['URL', 'https://seclists.org/fulldisclosure/2017/Feb/2'],
         ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm']
       ],
-      'DisclosureDate' => 'Jan 31 2017',
+      'DisclosureDate' => '2017-01-31',
       'License'        => MSF_LICENSE,
       'Actions'        => [
         ['Automatic', 'Description' => 'Automatic targeting'],

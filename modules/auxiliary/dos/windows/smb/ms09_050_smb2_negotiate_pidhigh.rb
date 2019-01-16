@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '36299'],
           ['OSVDB', '57799'],
           ['MSB', 'MS09-050'],
-          ['URL', 'http://seclists.org/fulldisclosure/2009/Sep/0039.html'],
+          ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/0039.html'],
           ['URL', 'http://www.microsoft.com/technet/security/advisory/975497.mspx']
         ]
     ))

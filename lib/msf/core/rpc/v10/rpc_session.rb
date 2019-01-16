@@ -76,12 +76,6 @@ class RPC_Session < RPC_Base
 
   # Reads the output of a shell session (such as a command output).
   #
-  # @note Shell read is now a positon-aware reader of the shell's associated
-  #       ring buffer. For more direct control of the pointer into a ring
-  #       buffer, a client can instead use ring_read, and note the returned
-  #       sequence number on their own (making multiple views into the same
-  #       session possible, regardless of position in the stream)
-  # @see #rpc_ring_read
   # @param [Integer] sid Session ID.
   # @param [Integer] ptr Pointer.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
@@ -94,17 +88,13 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_read', 2)
   def rpc_shell_read( sid, ptr=nil)
-    _valid_session(sid,"shell")
-    # @session_sequence tracks the pointer into the ring buffer
-    # data of sessions (by sid) in order to emulate the old behavior
-    # of shell_read
-    @session_sequence ||= {}
-    @session_sequence[sid] ||= 0
-    ring_buffer = rpc_ring_read(sid,(ptr || @session_sequence[sid]))
-    if not (ring_buffer["seq"].nil? || ring_buffer["seq"].empty?)
-      @session_sequence[sid] = ring_buffer["seq"].to_i
+    s = _valid_session(sid,"shell")
+    begin
+      res = s.shell_read()
+      { "seq" => 0, "data" => res.to_s}
+    rescue ::Exception => e
+      error(500, "Session Disconnected: #{e.class} #{e}")
     end
-    return ring_buffer
   end
 
 
@@ -112,8 +102,6 @@ class RPC_Session < RPC_Base
   # enf of your input so the system will process it.
   # You may want to use #rpc_shell_read to retrieve the output.
   #
-  # @note shell_write is a wrapper of #rpc_ring_put.
-  # @see #rpc_ring_put
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -125,8 +113,13 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_write', 2, "DATA")
   def rpc_shell_write( sid, data)
-    _valid_session(sid,"shell")
-    rpc_ring_put(sid,data)
+    s = _valid_session(sid,"shell")
+    begin
+      res = s.shell_write(data)
+      { "write_count" => res.to_s}
+    rescue ::Exception => e
+      error(500, "Session Disconnected: #{e.class} #{e}")
+    end
   end
 
 
@@ -177,7 +170,7 @@ class RPC_Session < RPC_Base
   # Reads from a session (such as a command output).
   #
   # @param [Integer] sid Session ID.
-  # @param [Integer] ptr Pointer.
+  # @param [Integer] ptr Pointer (ignored)
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -187,11 +180,11 @@ class RPC_Session < RPC_Base
   #  * 'data' [String] Read data.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_read', 2)
-  def rpc_ring_read( sid, ptr=nil)
+  def rpc_ring_read(sid, ptr = nil)
     s = _valid_session(sid,"ring")
     begin
-      res = s.ring.read_data(ptr)
-      { "seq" => res[0].to_s, "data" => res[1].to_s }
+      res = s.shell_read()
+      { "seq" => 0, "data" => res.to_s }
     rescue ::Exception => e
       error(500, "Session Disconnected: #{e.class} #{e}")
     end
@@ -210,7 +203,7 @@ class RPC_Session < RPC_Base
   #  * 'write_count' [String] Number of bytes written.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_put', 2, "DATA")
-  def rpc_ring_put( sid, data)
+  def rpc_ring_put(sid, data)
     s = _valid_session(sid,"ring")
     begin
       res = s.shell_write(data)
@@ -230,9 +223,9 @@ class RPC_Session < RPC_Base
   #  * 'seq' [String] Sequence.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_last', 2)
-  def rpc_ring_last( sid)
+  def rpc_ring_last(sid)
     s = _valid_session(sid,"ring")
-    { "seq" => s.ring.last_sequence.to_s }
+    { "seq" => 0 }
   end
 
 
@@ -246,14 +239,8 @@ class RPC_Session < RPC_Base
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_clear', 2)
-  def rpc_ring_clear( sid)
-    s = _valid_session(sid,"ring")
-    res = s.ring.clear_data
-    if res.compact.empty?
-      { "result" => "success"}
-    else # Doesn't seem like this can fail. Maybe a race?
-      { "result" => "failure"}
-    end
+  def rpc_ring_clear(sid)
+    { "result" => "success" }
   end
 
 

@@ -196,6 +196,9 @@
 #define SERVICE_WIN32 0x00000030
 #define SERVICE_WIN32_OWN_PROCESS 0x00000010
 #define SERVICE_WIN32_SHARE_PROCESS 0x00000020
+#define MAKEWORD(a,b) ((WORD)(((BYTE)(a))|(((WORD)((BYTE)(b)))<<8)))
+#define RtlZeroMemory(Destination,Length) memset((Destination),0,(Length))
+#define ZeroMemory RtlZeroMemory
 
 typedef struct _SECURITY_ATTRIBUTES {
   DWORD nLength;
@@ -249,6 +252,16 @@ typedef struct _OVERLAPPED {
 } OVERLAPPED, *LPOVERLAPPED;
 
 typedef DWORD SERVICE_STATUS_HANDLE;
+typedef VOID(WINAPI *LPHANDLER_FUNCTION)(DWORD);
+
+typedef void (WINAPI *LPSERVICE_MAIN_FUNCTION)(DWORD,LPSTR*);
+
+typedef struct _SERVICE_TABLE_ENTRY {
+	LPSTR lpServiceName;
+	LPSERVICE_MAIN_FUNCTION lpServiceProc;
+} SERVICE_TABLE_ENTRY,*LPSERVICE_TABLE_ENTRY;
+
+typedef SERVICE_TABLE_ENTRY SERVICE_TABLE_ENTRY,*LPSERVICE_TABLE_ENTRY;
 
 typedef enum _SC_ENUM_TYPE {
         SC_ENUM_PROCESS_INFO = 0
@@ -319,6 +332,13 @@ typedef struct _ENUM_SERVICE_STATUS {
   LPTSTR         lpDisplayName;
   SERVICE_STATUS ServiceStatus;
 } ENUM_SERVICE_STATUS, *LPENUM_SERVICE_STATUS;
+
+typedef struct _GUID {
+  DWORD Data1;
+  WORD  Data2;
+  WORD  Data3;
+  BYTE  Data4[8];
+} GUID;
 
 typedef VOID (CALLBACK *LPOVERLAPPED_COMPLETION_ROUTINE)(DWORD,DWORD,LPOVERLAPPED);
 
@@ -409,11 +429,6 @@ typedef enum _FINDEX_SEARCH_OPS {
   FindExSearchLimitToDevices
 } FINDEX_SEARCH_OPS;
 
-WORD MAKEWORD(
-   BYTE bLow,
-   BYTE bHigh
-);
-
 WINAPI void OutputDebugString __attribute__((dllimport))(LPCTSTR);
 WINAPI HGLOBAL GlobalAlloc __attribute__((dllimport))(UINT, size_t);
 WINAPI LPVOID GlobalLock __attribute__((dllimport))(HGLOBAL);
@@ -440,7 +455,6 @@ WINAPI BOOL WriteProcessMemory __attribute__((dllimport))(HANDLE, LPVOID, LPCVOI
 WINAPI BOOL ReadProcessMemory __attribute__((dllimport))(HANDLE, LPCVOID, LPVOID, size_t, size_t*);
 WINAPI HANDLE CreateThread __attribute__((dllimport))(LPSECURITY_ATTRIBUTES, size_t, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD );
 WINAPI HANDLE CreateRemoteThread __attribute__((dllimport))(HANDLE, LPSECURITY_ATTRIBUTES, size_t, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD );
-WINAPI void ZeroMemory __attribute__((dllimport))(PVOID, size_t);
 WINAPI DWORD GetProcessId __attribute__((dllimport))(HANDLE);
 WINAPI BOOL CreateProcess __attribute__((dllimport))(LPCTSTR, LPTSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCTSTR, LPSTARTUPINFO, LPPROCESS_INFORMATION);
 WINAPI BOOL CreateProcessAsUser __attribute__((dllimport))(HANDLE, LPCTSTR, LPTSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCTSTR, LPSTARTUPINFO, LPPROCESS_INFORMATION);
@@ -536,3 +550,6 @@ WINAPI BOOL IsDebuggerPresent __attribute__((dllimport))(void);
 WINAPI BOOL CheckRemoteDebuggerPresent __attribute__((dllimport))(HANDLE, PBOOL);
 WINAPI NTSTATUS NtQueryInformationProcess __attribute__((dllimport))(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 WINAPI void SetLastError __attribute__((dllimport))(DWORD);
+WINAPI SERVICE_STATUS_HANDLE RegisterServiceCtrlHandler __attribute__((dllimport))(LPCSTR, LPHANDLER_FUNCTION);
+BOOL WINAPI StartServiceCtrlDispatcher __attribute__((dllimport))(LPSERVICE_TABLE_ENTRY);
+LPTSTR WINAPI GetCommandLine __attribute__((dllimport))(void);

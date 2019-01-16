@@ -64,6 +64,7 @@ class DataStore < Hash
   # Case-insensitive wrapper around delete
   #
   def delete(k)
+    @aliases.delete_if { |_, v| v.casecmp(k) == 0 }
     super(find_key_case(k))
   end
 

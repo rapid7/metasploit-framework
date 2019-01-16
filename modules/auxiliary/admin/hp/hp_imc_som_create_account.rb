@@ -68,32 +68,6 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
   def run
 
     print_status("Trying to find the service desk service strong name...")
@@ -255,14 +229,16 @@ class MetasploitModule < Msf::Auxiliary
       login_url = ssl ? "https://" : "http://"
       login_url << "#{rhost}:#{rport}/servicedesk/ServiceDesk.jsp"
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: (ssl ? "https" : "http"),
-        user: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
-        proof: "#{login_url}\n#{res.body}"
-      )
+      connection_details = {
+          module_fullname: self.fullname,
+          username: datastore['USERNAME'],
+          private_data: datastore['PASSWORD'],
+          private_type: :password,
+          workspace_id: myworkspace_id,
+          proof: "#{login_url}\n#{res.body}",
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
 
       print_good("Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
       print_status("Use it to log into #{login_url}")

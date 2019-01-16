@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       cracker_instance.format = format
       print_status "Cracking #{format} hashes in normal wordlist mode..."
       # Turn on KoreLogic rules if the user asked for it
-      if datastore['KoreLogic']
+      if datastore['KORELOGIC']
         cracker_instance.rules = 'KoreLogicRules'
         print_status "Applying KoreLogic ruleset..."
       end
@@ -92,6 +92,15 @@ class MetasploitModule < Msf::Auxiliary
       hash.cores.each do |core|
         user = core.public.username
         hash_string = "#{hash.data}"
+        id = core.id
+        hashlist.puts "#{user}:#{hash_string}:#{id}:"
+      end
+    end
+    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
+      if core.private.jtr_format =~ /mssql|mssql05|mssql12/
+        @formats << core.private.jtr_format
+        user = core.public.username
+        hash_string = core.private.data
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end

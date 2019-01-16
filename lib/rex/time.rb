@@ -11,24 +11,18 @@ module Rex
     # minutes, and second.
     #
     def self.sec_to_s(seconds)
-      parts = [31536000, 86400, 3600, 60, 1].map do |d|
-        if (c = seconds / d) > 0
-          seconds -= c.truncate * d
-          c.truncate
-        else
-          0
+      return "0 secs" if seconds.to_i <= 0
+      [[31536000, 'year'], [86400, 'day'], [3600, 'hour'], [60, 'min'], [1, 'sec']].map! { |count, name|
+        if (c = seconds / count) > 0
+          c = c.truncate
+          seconds -= c * count
+          if c == 1
+            "#{c} #{name}"
+          elsif c > 1
+            "#{c} #{name}s"
+          end
         end
-      end
-
-      str = ''
-
-      ['year', 'day', 'hour', 'min', 'sec'].each_with_index do |name, idx|
-        next if !parts[idx] || parts[idx].zero?
-
-        str << "#{parts[idx]} #{name + ((parts[idx] != 1) ? 's' : '')} "
-      end
-
-      str.empty? ? "0 secs" : str.strip
+      }.compact.join(' ')
     end
   end
 end

@@ -18,7 +18,7 @@ module Priv
       if clean_user_id.empty?
         raise "Could not determine UID: #{user_id.inspect}"
       end
-      return clean_user_id.match(/^0$/) ? true : false
+      return (clean_user_id == '0')
     end
     user = whoami
     data = cmd_exec('while read line; do echo $line; done </etc/passwd')
@@ -29,9 +29,9 @@ module Priv
     false
   end
 
-#
-# Multiple functions to simulate native commands added
-#
+  #
+  # Multiple functions to simulate native commands added
+  #
 
   def download_cmd(remote_path, local_path)
     file_origin = read_file(remote_path)

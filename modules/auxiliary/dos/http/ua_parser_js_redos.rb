@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
+          ['CVE', '2017-16086'],
           ['URL', 'https://github.com/faisalman/ua-parser-js/commit/25e143ee7caba78c6405a57d1d06b19c1e8e2f79'],
           ['CWE', '400'],
         ],
