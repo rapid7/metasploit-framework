@@ -41,7 +41,7 @@ module LootServlet
       job = lambda { |opts|
         if opts[:data]
           filename = File.basename(opts[:path])
-          local_path = File.join(Msf::Config.loot_directory, filename)
+          local_path = File.join(Msf::Config.loot_directory, "#{SecureRandom.hex(10)}-#{filename}")
           opts[:path] = process_file(opts[:data], local_path)
           opts[:data] = Base64.urlsafe_decode64(opts[:data])
         end
@@ -60,6 +60,10 @@ module LootServlet
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
+        if opts[:path]
+          filename = File.basename(opts[:path])
+          opts[:path] = File.join(Msf::Config.loot_directory, "#{SecureRandom.hex(10)}-#{filename}")
+        end
         data = get_db.update_loot(opts)
         data = encode_loot_data(data)
         set_json_data_response(response: data)

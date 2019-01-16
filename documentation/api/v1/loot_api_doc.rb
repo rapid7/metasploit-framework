@@ -20,7 +20,7 @@ module LootApiDoc
   MODULE_RUN_ID_DESC = 'The ID of the module run record this loot is associated with.'
 
   # Some of the attributes expect different data when doing a create.
-  CREATE_PATH_DESC = 'The name to give the file on the server.'
+  CREATE_PATH_DESC = 'The name to give the file on the server. Note that this will prepend a unique string to the given value.'
   CREATE_PATH_EXAMPLE = 'password_file.txt'
 
 # Swagger documentation for loot model
