@@ -99,6 +99,7 @@ module Msf::DBManager::Loot
   def update_loot(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      raise ArgumentError, "Updating the data attribute is not allowed." if opts[:data]
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
