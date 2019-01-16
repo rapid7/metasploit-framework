@@ -960,7 +960,6 @@ def prompt_for_deletion(command)
     if command == :init
       if (@options[:component] == :all || @options[:component] == :webservice) &&
           should_generate_web_service_ssl && (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
-        puts should_generate_web_service_ssl
         @options[:delete_existing_data] = should_delete
         return
       elsif (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
