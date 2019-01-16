@@ -69,6 +69,34 @@ require 'msf/util/helper'
 }
 
 
+class String
+  def red
+    "\e[1;91;40m#{self}\e[0m"
+  end
+
+  def green
+    "\e[1;92;40m#{self}\e[0m"
+  end
+
+  def blue
+    "\e[1;94;40m#{self}\e[0m"
+  end
+
+  def cyan
+    "\e[0;36;40m#{self}\e[0m"
+  end
+
+  def cyan_bold
+    "\e[1;36;40m#{self}\e[0m"
+  end
+
+  def cyan_bold_underline
+    "\e[4;1;36;40m#{self}\e[0m"
+  end
+
+end
+
+
 def run_cmd(cmd, input: nil, env: {})
   exitstatus = 0
   err = out = ""
@@ -139,10 +167,10 @@ def started_db
   run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
   sleep(2)
   if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
-    puts 'failed'
+    puts "#{'failed'.red}"
     false
   else
-    puts 'success'
+    puts "#{'success'.green}"
     true
   end
 end
@@ -338,7 +366,7 @@ end
 
 def ask_yn(question)
   loop do
-    print "#{question}: "
+    print "#{'[?]'.blue} #{question}: "
     yn = STDIN.gets
     case yn
     when /^[Yy]/
@@ -352,7 +380,7 @@ def ask_yn(question)
 end
 
 def ask_value(question, default_value)
-  print "#{question}[#{default_value}]: "
+  print "#{'[?]'.blue} #{question}[#{default_value}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
     return default_value
@@ -438,7 +466,7 @@ def start_web_service(expect_auth: true)
   end
 
   # daemonize MSF web service
-  puts 'Attempting to start MSF web service...'
+  print 'Attempting to start MSF web service...'
   if run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
@@ -454,18 +482,22 @@ def start_web_service(expect_auth: true)
       is_online = response_data[:state] != :offline
     end
 
-    if response_data[:state] == :online
+      if response_data[:state] == :online
+      puts "#{'success'.green}"
       puts 'MSF web service started and online'
       return true
-    elsif response_data[:state] == :error
+      elsif response_data[:state] == :error
+      puts "#{'failed'.red}"
       puts 'MSF web service appears to be started, but may not operate as expected.'
       puts "#{response_data[:message]}"
-    else
+      else
+      puts "#{'failed'.red}"
       puts 'MSF web service does not appear to be started.'
     end
     puts "Please see #{@ws_log} for additional details."
     return false
   else
+    puts "#{'failed'.red}"
     puts 'Failed to start MSF web service'
     return false
   end
@@ -554,7 +586,7 @@ def add_web_service_workspace(name: 'default')
   response = response_data[:response]
   puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :name) != name
-    puts "Error creating MSF web service workspace '#{name}'"
+    puts "#{'Error'.red} creating MSF web service workspace '#{name}'"
     return false
   end
   return true
@@ -575,11 +607,21 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: create user response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :username) != @msf_ws_user
-    puts "Error creating MSF web service user #{@msf_ws_user}"
+    puts "#{'Error'.red} creating MSF web service user #{@msf_ws_user}"
     return false
   end
-  puts "\nMSF web service username: #{@msf_ws_user}"
-  puts "MSF web service password: #{msf_ws_pass}"
+
+  puts "\n\n#{'    ############################################################'.cyan}"
+  print "#{'    ##              '.cyan}"
+  print"#{'MSF Web Service Credentials'.cyan_bold_underline}"
+  puts"#{'               ##'.cyan}"
+  puts "#{'    ##                                                        ##'.cyan}"
+  puts "#{'    ##        Please store these credentials securely.        ##'.cyan}"
+  puts "#{'    ##    You will need them to connect to the webservice.    ##'.cyan}"
+  puts "#{'    ############################################################'.cyan}"
+
+  puts "\n\n#{'MSF web service username'.cyan_bold}: #{@msf_ws_user}"
+  puts "#{'MSF web service password'.cyan_bold}: #{msf_ws_pass}"
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
@@ -588,11 +630,10 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
-    puts 'Error creating MSF web service user API token'
+    puts "#{'Error'.red} creating MSF web service user API token"
     return false
   end
-  puts "MSF web service user API token: #{@ws_api_token}"
-  puts 'Please store these credentials securely.'
+  puts "#{'MSF web service user API token'.cyan_bold}: #{@ws_api_token}"
   return true
 end
 
@@ -860,7 +901,7 @@ def invoke_command(commands, component, command)
   if !method.nil?
     send(method)
   else
-    puts "Error: unrecognized command '#{command}' for #{component}"
+    puts "#{'Error'.red}: unrecognized command '#{command}' for #{component}"
   end
 end
 
