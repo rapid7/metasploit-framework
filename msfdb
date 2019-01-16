@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'io/console'
 require 'json'
 require 'net/http'
 require 'net/https'
@@ -380,7 +381,7 @@ def ask_yn(question)
 end
 
 def ask_value(question, default_value)
-  print "#{'[?]'.blue} #{question}[#{default_value}]: "
+  print "#{'[?]'.blue} #{question} [#{default_value}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
     return default_value
@@ -389,6 +390,16 @@ def ask_value(question, default_value)
   end
 end
 
+def ask_password(question)
+  print "#{'[?]'.blue} #{question}: "
+  input = STDIN.noecho(&:gets).chomp
+  print "\n"
+  if input.nil? || input.empty?
+    return pw_gen
+  else
+    return input
+  end
+end
 
 def delete_db
   if Dir.exist?(@db)
@@ -430,6 +441,12 @@ def init_web_service
     @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
   else
     @msf_ws_user = @options[:ws_user]
+  end
+
+  if @options[:ws_pass].nil?
+    @msf_ws_pass = ask_password('Initial MSF web service account password? (Leave blank for random password)')
+  else
+    @msf_ws_pass = @options[:ws_pass]
   end
 
   if should_generate_web_service_ssl
@@ -596,8 +613,7 @@ def add_web_service_user
   puts "Creating MSF web service user #{@msf_ws_user}"
 
   # Generate new web service user password
-  msf_ws_pass = pw_gen
-  cred_data = { username: @msf_ws_user, password: msf_ws_pass }
+  cred_data = { username: @msf_ws_user, password: @msf_ws_pass }
 
   # Send request to create new admin user
   user_data = cred_data.merge({ admin: true })
@@ -611,7 +627,7 @@ def add_web_service_user
     return false
   end
 
-  puts "\n\n#{'    ############################################################'.cyan}"
+  puts "\n#{'    ############################################################'.cyan}"
   print "#{'    ##              '.cyan}"
   print"#{'MSF Web Service Credentials'.cyan_bold_underline}"
   puts"#{'               ##'.cyan}"
@@ -620,8 +636,8 @@ def add_web_service_user
   puts "#{'    ##    You will need them to connect to the webservice.    ##'.cyan}"
   puts "#{'    ############################################################'.cyan}"
 
-  puts "\n\n#{'MSF web service username'.cyan_bold}: #{@msf_ws_user}"
-  puts "#{'MSF web service password'.cyan_bold}: #{msf_ws_pass}"
+  puts "\n#{'MSF web service username'.cyan_bold}: #{@msf_ws_user}"
+  puts "#{'MSF web service password'.cyan_bold}: #{@msf_ws_pass}"
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
@@ -638,7 +654,7 @@ def add_web_service_user
 end
 
 def output_web_service_information
-  puts ''
+  puts "\n\n"
   puts 'MSF web service configuration complete'
   puts 'Connect to the data service in msfconsole using the command:'
   puts "#{get_db_connect_command}"
@@ -880,6 +896,10 @@ def parse_args(args)
 
     opts.on('--user USER', 'Initial web service admin username') { |u|
       @options[:ws_user] = u
+    }
+
+    opts.on('--pass PASS', 'Initial web service admin password') { |p|
+      @options[:ws_pass] = p
     }
 
     opts.separator('')
