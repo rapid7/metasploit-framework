@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  Unitronics Vision PLCs
+  Unitronics Vision PLCs using PCOM protocol
 
 ## Verification Steps
 
