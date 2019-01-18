@@ -94,7 +94,6 @@ class String
   def cyan_bold_underline
     "\e[4;1;36;40m#{self}\e[0m"
   end
-
 end
 
 
@@ -423,20 +422,47 @@ def reinit_db
   init_db
 end
 
-def status_web_service
+class WebServicePIDStatus
+  RUNNING = 0
+  INACTIVE = 1
+  NO_PID_FILE = 2
+end
+
+def web_service_pid
+  File.file?(@ws_pid) ? tail(@ws_pid) : nil
+end
+
+def web_service_pid_status
   if File.file?(@ws_pid)
     ws_pid = tail(@ws_pid)
     if ws_pid.nil? || !process_active?(ws_pid.to_i)
-      puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
+      WebServicePIDStatus::INACTIVE
     else
-      puts "MSF web service is running as PID #{ws_pid}"
+      WebServicePIDStatus::RUNNING
     end
   else
+    WebServicePIDStatus::NO_PID_FILE
+  end
+end
+
+def status_web_service
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::NO_PID_FILE
     puts "MSF web service is not running: no PID file found at #{@ws_pid}"
   end
 end
 
 def init_web_service
+  if web_service_pid_status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{web_service_pid}"
+    return false
+  end
+
   if @options[:ws_user].nil?
     @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
   else
@@ -470,16 +496,15 @@ def start_web_service(expect_auth: true)
   end
 
   # check if MSF web service is already started
-  if File.file?(@ws_pid)
-    ws_pid = tail(@ws_pid)
-    if ws_pid.nil? || !process_active?(ws_pid.to_i)
-      puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
-      puts "Deleting MSF web service PID file #{@ws_pid}"
-      File.delete(@ws_pid)
-    else
-      puts "MSF web service is already running as PID #{ws_pid}"
-      return false
-    end
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{ws_pid}"
+    return false
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
+    puts "Deleting MSF web service PID file #{@ws_pid}"
+    File.delete(@ws_pid)
   end
 
   # daemonize MSF web service
@@ -521,16 +546,17 @@ def start_web_service(expect_auth: true)
 end
 
 def stop_web_service
-  ws_pid = tail(@ws_pid)
-  if ws_pid.nil? || !process_active?(ws_pid.to_i)
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "Stopping MSF web service PID #{ws_pid}"
+    run_cmd("#{thin_cmd} stop")
+  else
     puts 'MSF web service is no longer running'
-    if File.file?(@ws_pid)
+    if status == WebServicePIDStatus::INACTIVE
       puts "Deleting MSF web service PID file #{@ws_pid}"
       File.delete(@ws_pid)
     end
-  else
-    puts "Stopping MSF web service PID #{ws_pid}"
-    run_cmd("#{thin_cmd} stop")
   end
 end
 
@@ -958,11 +984,13 @@ def prompt_for_deletion(command)
 
   if destructive_operations.include? command
     if command == :init
-      if (@options[:component] == :all || @options[:component] == :webservice) &&
-          should_generate_web_service_ssl && (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
+      return if web_service_pid_status == WebServicePIDStatus::RUNNING
+      if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
+          (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
         @options[:delete_existing_data] = should_delete
         return
-      elsif (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
+      end
+      if (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
         @options[:delete_existing_data] = should_delete
         return
       end
