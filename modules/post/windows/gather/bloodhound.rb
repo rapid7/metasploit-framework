@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         'BloodHound Gang', # Invoke-BloodHound
         'phra' # MSF Module
       ],
-      'References' => [''],
+      'References' => [ 'https://github.com/BloodHoundAD/BloodHound' ],
       'Platform' => [ 'win' ],
       'Arch' => [ 'x86', 'x64' ],
       'SessionTypes' => [ 'meterpreter' ]
@@ -28,8 +28,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CMD', [ true, 'The command to execute (eg. Invoke-BloodHound)', 'Get-Help Invoke-BloodHound' ])
-      ],
-      self.class
+      ]
     )
   end
 
