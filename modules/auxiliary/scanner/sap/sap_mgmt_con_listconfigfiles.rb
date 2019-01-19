@@ -54,12 +54,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def enum_instance(rhost)
     print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
-    success = false
-    soapenv='http://schemas.xmlsoap.org/soap/envelope/'
-    xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xs='http://www.w3.org/2001/XMLSchema'
-    sapsess='http://www.sap.com/webas/630/soap/features/session/'
-    ns1='ns1:ListConfigFiles'
+
+    soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
+    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
+    xs = 'http://www.w3.org/2001/XMLSchema'
+    sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
+    ns1 = 'ns1:ListConfigFiles'
 
     data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' + soapenv + '"  xmlns:xsi="' + xsi
@@ -74,58 +74,39 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Body>' + "\r\n"
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
-    begin
-      res = send_request_raw({
-        'uri'      => normalize_uri(datastore['URI']),
-        'method'   => 'POST',
-        'data'     => data,
-        'headers'  =>
-          {
-            'Content-Length' => data.length,
-            'SOAPAction'     => '""',
-            'Content-Type'   => 'text/xml; charset=UTF-8',
-          }
-      }, 15)
+    res = send_request_raw({
+      'uri'      => normalize_uri(datastore['URI']),
+      'method'   => 'POST',
+      'data'     => data,
+      'headers'  =>
+        {
+          'Content-Length' => data.length,
+          'SOAPAction'     => '""',
+          'Content-Type'   => 'text/xml; charset=UTF-8',
+        }
+    }, 15)
 
-      if res.nil?
-        print_error("#{rhost}:#{rport} [SAP] Unable to connect")
-        return
-      end
-
-      env = []
-      if res and res.code == 200
-	case res.body
-	when /<item>([^<]+)<\/item>/i
-	  body = []
-	  body = res.body
-          env = body.scan(/<item>([^<]+)<\/item>/i)
-          success = true
-        end
-      elsif res.code == 500
-        case res.body
-        when /<faultstring>(.*)<\/faultstring>/i
-          faultcode = $1.strip
-          fault = true
-        end
-      end
-
-    rescue ::Rex::ConnectionError
+    unless res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     end
 
-    if success
-      print_good("#{rhost}:#{rport} [SAP] List of Config Files")
-      env.each do |output|
-        print_good(output[0])
-      end
-      return
-    elsif fault
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
-      return
-    else
-      print_error("#{rhost}:#{rport} [SAP] Failed to identify instance properties")
+    if res.code == 500 && res.body =~ %r{<faultstring>(.*)</faultstring>}i
+      print_error("#{rhost}:#{rport} [SAP] Error code: #{$1.strip}")
       return
     end
+
+    if res.code == 200 && res.body =~ %r{<item>([^<]+)</item>}i
+      env = res.body.scan(%r{<item>([^<]+)</item>}i)
+      print_good("#{rhost}:#{rport} [SAP] List of Config Files")
+      env.each do |output|
+        print_good(output.first)
+      end
+      return
+    end
+
+    print_error("#{rhost}:#{rport} [SAP] Failed to identify instance properties")
+  rescue ::Rex::ConnectionError
+    print_error("#{rhost}:#{rport} [SAP] Unable to connect")
   end
 end
