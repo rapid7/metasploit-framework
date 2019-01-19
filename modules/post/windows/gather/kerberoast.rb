@@ -29,8 +29,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CMD', [ true, 'The command to execute (eg. Invoke-Kerberoast | fl)', 'Get-Help Invoke-Kerberoast' ])
-      ],
-      self.class
+      ]
     )
   end
 
