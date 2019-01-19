@@ -64,7 +64,6 @@ func run_onprem_enum(params map[string]interface{}) {
 func determineValidUsers(host string, avgResponse time.Duration, userlist []string, threads int) []string {
 	limit := threads
 	var wg sync.WaitGroup
-	mux := &sync.Mutex{}
 	queue := make(chan string)
 
 	/*Keep in mind you, nothing has been added to handle successful auths
@@ -101,14 +100,10 @@ func determineValidUsers(host string, avgResponse time.Duration, userlist []stri
 				elapsedTime := time.Since(startTime)
 
 				if float64(elapsedTime) < float64(avgResponse)*0.77 {
-					mux.Lock()
-					module.LogInfo("[+] " + user + " - " + elapsedTime.String())
+					module.LogGood(user + " - " + elapsedTime.String())
 					validusers = append(validusers, user)
-					mux.Unlock()
 				} else {
-					mux.Lock()
-					module.LogInfo("[-] " + user + " - " + elapsedTime.String())
-					mux.Unlock()
+					module.LogError(user + " - " + elapsedTime.String())
 				}
 			}
 		}(i)

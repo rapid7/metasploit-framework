@@ -170,7 +170,9 @@ module Msf::DBManager::Service
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     id = opts.delete(:id)
-    Mdm::Service.update(id, opts)
+    service = Mdm::Service.find(id)
+    service.update!(opts)
+    return service
   }
   end
 end

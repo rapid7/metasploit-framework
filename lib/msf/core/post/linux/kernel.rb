@@ -55,6 +55,27 @@ module Kernel
   end
 
   #
+  # Returns the kernel boot config
+  #
+  # @return [Array]
+  #
+  def kernel_config
+    return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
+
+    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+
+    return if output.empty?
+
+    config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
+
+    return if config.empty?
+
+    config
+  rescue
+    raise 'Could not retrieve kernel config'
+  end
+
+  #
   # Returns the kernel modules
   #
   # @return [Array]
@@ -179,6 +200,15 @@ module Kernel
     mmap_min_addr
   rescue
     raise 'Could not determine system mmap_min_addr'
+  end
+
+  #
+  # Returns true if Linux Kernel Runtime Guard (LKRG) kernel module is installed
+  #
+  def lkrg_installed?
+    cmd_exec('test -d /proc/sys/lkrg && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine LKRG status'
   end
 
   #

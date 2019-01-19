@@ -28,3 +28,6 @@ require 'msf/util/host'
 
 # DBManager helpers
 require 'msf/util/db_manager'
+
+# Java deserialization payload generators
+require 'msf/util/java_deserialization'

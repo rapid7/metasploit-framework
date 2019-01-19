@@ -1,3 +1,5 @@
+require 'json'
+
 module Authentication
   module Strategies
     class UserPassword < Warden::Strategies::Base
@@ -16,21 +18,31 @@ module Authentication
       # Check if request contains valid data and should be authenticated.
       # @return [Boolean] true if strategy should be run for the request; otherwise, false.
       def valid?
-        params['username'] && params['password']
+        begin
+          body = JSON.parse(request.body.read, symbolize_names: true)
+          body[:username] && body[:password]
+        ensure
+          request.body.rewind # Reset the StringIO buffer so any further consumers can read the body
+        end
       end
 
       # Authenticate the request.
       def authenticate!
-        db_manager = env['msf.db_manager']
-        user = db_manager.users(username: params['username']).first
+        begin
+          body = JSON.parse(request.body.read, symbolize_names: true)
 
-        if user.nil? || !db_manager.authenticate_user(id: user.id, password: params['password'])
-          fail("Invalid username or password.")
-        else
-          success!(user)
+          db_manager = env['msf.db_manager']
+          user = db_manager.users(username: body[:username]).first
+
+          if user.nil? || !db_manager.authenticate_user(id: user.id, password: body[:password])
+            fail("Invalid username or password.")
+          else
+            success!(user)
+          end
+        ensure
+          request.body.rewind # Reset the StringIO buffer so any further consumers can read the body
         end
       end
-
     end
   end
 end

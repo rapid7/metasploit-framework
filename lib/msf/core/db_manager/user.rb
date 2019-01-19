@@ -1,5 +1,5 @@
 require 'bcrypt'
-require 'sysrandom/securerandom'
+require 'securerandom'
 
 module Msf::DBManager::User
 
@@ -75,7 +75,9 @@ module Msf::DBManager::User
   def update_user(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
-      Mdm::User.update(id, opts)
+      user = Mdm::User.find(id)
+      user.update!(opts)
+      return user
     }
   end
 
@@ -133,7 +135,9 @@ module Msf::DBManager::User
 
     token_length = opts[:token_length] || MIN_TOKEN_LENGTH
     # NOTE: repurposing persistence_token in the database as the API token
-    Mdm::User.update(opts[:id], {persistence_token: SecureRandom.hex(token_length)}).persistence_token
+    user = Mdm::User.find(opts[:id])
+    user.update!({persistence_token: SecureRandom.hex(token_length)})
+    user.persistence_token
   end
 
 end

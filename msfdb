@@ -8,7 +8,7 @@ require 'open3'
 require 'optparse'
 require 'rex/socket'
 require 'rex/text'
-require 'sysrandom/securerandom'
+require 'securerandom'
 require 'uri'
 require 'yaml'
 
@@ -20,18 +20,19 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+require 'msf/base/config'
 require 'msf/util/helper'
 
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
-@localconf = "#{ENV['HOME']}/.msf4"
+@localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
 
 @ws_tag = 'msf-ws'
-@ws_conf = "#{@localconf}/#{@ws_tag}-config.ru"
+@ws_conf = File.join(@framework, "#{@ws_tag}.ru")
 @ws_ssl_key_default = "#{@localconf}/#{@ws_tag}-key.pem"
 @ws_ssl_cert_default = "#{@localconf}/#{@ws_tag}-cert.pem"
 @ws_log = "#{@localconf}/logs/#{@ws_tag}.log"
@@ -397,59 +398,11 @@ def status_web_service
 end
 
 def init_web_service
-  if File.file?(@ws_conf)
-    puts "Found web service config at #{@ws_conf}, checking to see if it is started"
-    start_web_service(expect_auth: true)
-    return
-  end
-
   if @options[:ws_user].nil?
     @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
   else
     @msf_ws_user = @options[:ws_user]
   end
-
-  # Write a default Rack config file for the web service
-  Dir.mkdir(@localconf) unless File.directory?(@localconf)
-  # TODO: free the REST API from all of these requirements
-  File.open(@ws_conf, 'w') do |f|
-    f.puts <<~EOF
-      # #{File.basename(@ws_conf)}
-      # created on: #{Time.now.utc}
-
-      @framework_path = '#{@framework}'
-      $LOAD_PATH << @framework_path unless $LOAD_PATH.include?(@framework_path)
-
-      require File.expand_path('./config/boot', @framework_path)
-      require 'metasploit/framework/parsed_options/remote_db'
-      require 'msf/core/web_services/metasploit_api_app'
-
-      def require_environment!(parsed_options)
-        # RAILS_ENV must be set before requiring 'config/application.rb'
-        parsed_options.environment!
-        ARGV.replace(parsed_options.positional)
-
-        # allow other Rails::Applications to use this command
-        if !defined?(Rails) || Rails.application.nil?
-          # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
-          require File.expand_path('./config/application', @framework_path)
-        end
-
-        # have to configure before requiring environment because
-        # config/environment.rb calls initialize! and the initializers will use
-        # the configuration from the parsed options.
-        parsed_options.configure(Rails.application)
-
-        Rails.application.require_environment!
-      end
-
-      parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
-      require_environment!(parsed_options)
-
-      run MetasploitApiApp
-    EOF
-  end
-  File.chmod(0640, @ws_conf)
 
   if @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
       (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
@@ -540,9 +493,6 @@ end
 
 def delete_web_service
   stop_web_service
-  if File.file?(@ws_conf) && ask_yn("Delete MSF web service configuration at #{@ws_conf}?")
-    File.delete(@ws_conf)
-  end
 end
 
 def reinit_web_service
@@ -558,7 +508,6 @@ def generate_web_service_ssl(key:, cert:)
   end
 
   puts 'Generating SSL key and certificate for MSF web service'
-  # @ssl_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
   @ssl_key, @ssl_cert, @ssl_extra_chain_cert = Rex::Socket::Ssl.ssl_generate_certificate
 
   # write PEM format key and certificate
@@ -636,7 +585,7 @@ def add_web_service_user
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response_data = http_request(uri: generate_token_uri, query: cred_data, method: :get,
+  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
@@ -921,16 +870,17 @@ def has_requirements
   ret_val = true
   postgresql_cmds = %w(psql pg_ctl initdb createdb)
   other_cmds = %w(bundle thin)
-  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+  missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
-  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
-    puts missing_msg % { name: 'PostgreSQL' }
+  postgresql_cmds.each do |cmd|
+    next unless Msf::Util::Helper.which(cmd).nil?
+    puts missing_msg % { name: 'PostgreSQL', prog: cmd }
     ret_val = false
   end
 
   other_cmds.each do |cmd|
     if Msf::Util::Helper.which(cmd).nil?
-      puts missing_msg % { name: "'#{cmd}'" }
+      puts missing_msg % { name: "'#{cmd}'", prog: cmd }
       ret_val = false
     end
   end

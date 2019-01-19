@@ -178,6 +178,22 @@ module Msf::DBManager::Session
     }
   end
 
+  # Update the attributes of a session entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Session] The updated Mdm::Session object.
+  def update_session(opts)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      session = ::Mdm::Session.find(id)
+      session.update!(opts)
+      return session
+    }
+  end
+
   # Clean out any stale sessions that have been orphaned by a dead framework instance.
   # @param last_seen_interval [Integer] interval, in seconds, open sessions are marked as alive
   def remove_stale_sessions(last_seen_interval)
