@@ -14,17 +14,17 @@ class MetasploitModule < Msf::Auxiliary
       'Description'  => %q{
         This module attempts to list the config files
         through the SAP Management Console SOAP Interface.
-	Returns a list of config files found in the SAP configuration with its
-	absolute paths inside the server filesystem.
+        Returns a list of config files found in the SAP configuration with its
+        absolute paths inside the server filesystem.
         },
       'References'   =>
         [
           # General
-	  [ 'URL', 'http://blog.c22.cc' ]
+          [ 'URL', 'http://blog.c22.cc' ]
         ],
-      'Author'       => [ 
-	      'Chris John Riley', # Original msf module
-	      'Jacobo Avariento Gimeno' # Minor changes to adapt it for ListConfigFiles webmethod
+      'Author'       => [
+        'Chris John Riley', # Original msf module
+        'Jacobo Avariento Gimeno' # Minor changes to adapt it for ListConfigFiles webmethod
       ],
       'License'      => MSF_LICENSE
     ))
