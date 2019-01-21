@@ -195,7 +195,7 @@ module LootApiDoc
 
     # Swagger documentation for /api/v1/loots/{id} PUT
     operation :put do
-      key :description, 'Update the attributes an existing loot.'
+      key :description, 'Update the attributes on an existing loot.'
       key :tags, [ 'loot' ]
 
       parameter :update_id

