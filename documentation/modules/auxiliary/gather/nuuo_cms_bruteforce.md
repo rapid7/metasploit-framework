@@ -42,9 +42,9 @@ Secondly, due to the nature of this application, it is normal to have the softwa
 It is worth noticing that when a user logs in, the session has to be maintained by periodically sending a PING request. To bruteforce the session, we send each guess with a PING request until a 200 OK message is received. 
 
 # The following versions were tested:
-# - 1.5.2 OK (with new table)
-# - 2.1.0 OK
-# - 2.3.0 OK
+ - 1.5.2 OK
+ - 2.1.0 OK
+ - 2.3.0 OK
 
 ## References
 https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02
