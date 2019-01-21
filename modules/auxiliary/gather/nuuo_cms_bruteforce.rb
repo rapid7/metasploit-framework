@@ -5,11 +5,6 @@
 
 require 'benchmark'
 
-# The following versions were tested:
-# - 1.5.2 OK (with new table)
-# - 2.1.0 OK
-# - 2.3.0 OK
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Nuuo
