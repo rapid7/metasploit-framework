@@ -41,6 +41,10 @@ Secondly, due to the nature of this application, it is normal to have the softwa
 
 It is worth noticing that when a user logs in, the session has to be maintained by periodically sending a PING request. To bruteforce the session, we send each guess with a PING request until a 200 OK message is received. 
 
+This module works in the following way:
+- if a SESSION number is present, uses that to login
+- if not, tries to authenticate with USERNAME and PASSWORD
+
 # The following versions were tested:
 # - 1.5.2 OK (with new table)
 # - 2.1.0 OK
