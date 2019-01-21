@@ -3,18 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# The following versions were tested:
-# - 1.5.2 OK
-# - 2.1.0 OK
-# - 2.3.2 OK
-# - 2.4.0 OK
-# - 2.6.0 OK
-# - 2.9.0 OK
-# - 2.10.0 OK
-# - 3.1 OK
-# - 3.3 OK
-# - 3.5 OK
-#
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Nuuo
