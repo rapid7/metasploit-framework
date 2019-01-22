@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     nucs_login
 
     if @nucs_session == nil
-      fail_with(Failure::Unknown, "Failed to login to Nuuo CMS")
+      fail_with(Failure::NoAccess, "Failed to login to Nuuo CMS")
     end
 
     cmserver = nucs_download_file('CMServer.cfg', true)
