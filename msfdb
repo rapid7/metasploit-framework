@@ -71,29 +71,30 @@ require 'msf/util/helper'
 
 
 class String
+  def bold
+    "\e[1m#{self}\e[0m"
+  end
+
+  def underline
+    "\e[4m#{self}\e[0m"
+  end
+
   def red
-    "\e[1;91;40m#{self}\e[0m"
+    "\e[91m#{self}\e[0m"
   end
 
   def green
-    "\e[1;92;40m#{self}\e[0m"
+    "\e[92m#{self}\e[0m"
   end
 
   def blue
-    "\e[1;94;40m#{self}\e[0m"
+    "\e[34m#{self}\e[0m"
   end
 
   def cyan
-    "\e[0;36;40m#{self}\e[0m"
+    "\e[36m#{self}\e[0m"
   end
 
-  def cyan_bold
-    "\e[1;36;40m#{self}\e[0m"
-  end
-
-  def cyan_bold_underline
-    "\e[4;1;36;40m#{self}\e[0m"
-  end
 end
 
 
@@ -167,10 +168,10 @@ def started_db
   run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
   sleep(2)
   if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
-    puts "#{'failed'.red}"
+    puts "#{'failed'.red.bold}"
     false
   else
-    puts "#{'success'.green}"
+    puts "#{'success'.green.bold}"
     true
   end
 end
@@ -356,7 +357,7 @@ end
 
 def ask_yn(question)
   loop do
-    print "#{'[?]'.blue} #{question}: "
+    print "#{'[?]'.blue.bold} #{question}: "
     yn = STDIN.gets
     case yn
     when /^[Yy]/
@@ -370,7 +371,7 @@ def ask_yn(question)
 end
 
 def ask_value(question, default_value)
-  print "#{'[?]'.blue} #{question} [#{default_value}]: "
+  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
     return default_value
@@ -380,7 +381,7 @@ def ask_value(question, default_value)
 end
 
 def ask_password(question)
-  print "#{'[?]'.blue} #{question}: "
+  print "#{'[?]'.blue.bold} #{question}: "
   input = STDIN.noecho(&:gets).chomp
   print "\n"
   if input.nil? || input.empty?
@@ -391,7 +392,7 @@ def ask_password(question)
 end
 
 def print_error(error)
-  puts "#{'[!]'.red} #{error}"
+  puts "#{'[!]'.red.bold} #{error}"
 end
 
 def delete_db
@@ -519,21 +520,21 @@ def start_web_service(expect_auth: true)
     end
 
       if response_data[:state] == :online
-      puts "#{'success'.green}"
+      puts "#{'success'.green.bold}"
       puts 'MSF web service started and online'
       return true
       elsif response_data[:state] == :error
-      puts "#{'failed'.red}"
-      puts 'MSF web service appears to be started, but may not operate as expected.'
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service appears to be started, but may not operate as expected.'
       puts "#{response_data[:message]}"
       else
-      puts "#{'failed'.red}"
-      puts 'MSF web service does not appear to be started.'
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service does not appear to be started.'
     end
     puts "Please see #{@ws_log} for additional details."
     return false
   else
-    puts "#{'failed'.red}"
+    puts "#{'failed'.red.bold}"
     puts 'Failed to start MSF web service'
     return false
   end
@@ -623,7 +624,7 @@ def add_web_service_workspace(name: 'default')
   response = response_data[:response]
   puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :name) != name
-    puts "#{'Error'.red} creating MSF web service workspace '#{name}'"
+    print_error "Error creating MSF web service workspace '#{name}'"
     return false
   end
   return true
@@ -643,21 +644,21 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: create user response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :username) != @msf_ws_user
-    puts "#{'Error'.red} creating MSF web service user #{@msf_ws_user}"
+    print_error "Error creating MSF web service user #{@msf_ws_user}"
     return false
   end
 
   puts "\n#{'    ############################################################'.cyan}"
   print "#{'    ##              '.cyan}"
-  print"#{'MSF Web Service Credentials'.cyan_bold_underline}"
+  print"#{'MSF Web Service Credentials'.cyan.bold.underline}"
   puts"#{'               ##'.cyan}"
   puts "#{'    ##                                                        ##'.cyan}"
   puts "#{'    ##        Please store these credentials securely.        ##'.cyan}"
   puts "#{'    ##    You will need them to connect to the webservice.    ##'.cyan}"
   puts "#{'    ############################################################'.cyan}"
 
-  puts "\n#{'MSF web service username'.cyan_bold}: #{@msf_ws_user}"
-  puts "#{'MSF web service password'.cyan_bold}: #{@msf_ws_pass}"
+  puts "\n#{'MSF web service username'.cyan.bold}: #{@msf_ws_user}"
+  puts "#{'MSF web service password'.cyan.bold}: #{@msf_ws_pass}"
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
@@ -666,10 +667,10 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
-    puts "#{'Error'.red} creating MSF web service user API token"
+    print_error "Error creating MSF web service user API token"
     return false
   end
-  puts "#{'MSF web service user API token'.cyan_bold}: #{@ws_api_token}"
+  puts "#{'MSF web service user API token'.cyan.bold}: #{@ws_api_token}"
   return true
 end
 
@@ -941,7 +942,7 @@ def invoke_command(commands, component, command)
   if !method.nil?
     send(method)
   else
-    puts "#{'Error'.red}: unrecognized command '#{command}' for #{component}"
+    print_error "Error: unrecognized command '#{command}' for #{component}"
   end
 end
 
@@ -978,7 +979,7 @@ def prompt_for_deletion(command)
 
   if destructive_operations.include? command
     if command == :init
-      return if web_service_pid_status == WebServicePIDStatus::RUNNING
+      return if web_service_pid_status != WebServicePIDStatus::NO_PID_FILE
       if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
           (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
         @options[:delete_existing_data] = should_delete
