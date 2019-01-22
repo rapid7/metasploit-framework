@@ -151,7 +151,7 @@ module Msf
               elsif dump_json
                 print(Serializer::Json.dump_module(mod) + "\n")
               elsif show_doc
-                f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
+                f = Tempfile.new(["#{mod.shortname}_doc", '.html'])
                 begin
                   print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
                   Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
