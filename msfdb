@@ -183,23 +183,13 @@ def start_db
 
   update_db_port
 
-  while !started_db
+  if !started_db
     last_log = tail("#{@db}/log")
     puts last_log
-    fixed = false
     if last_log =~ /not compatible/
       puts 'Please attempt to upgrade the database manually using pg_upgrade.'
     end
-    if !fixed
-      if ask_yn('Your database may be corrupt, would you like to reinitialize it?')
-        fixed = reinit_db
-      end
-    end
-    if !fixed
-      if !ask_yn('Database not started, try again?')
-        return
-      end
-    end
+    print_error "Your database may be corrupt. Try reinitializing by running #{'msfdb reinit --component database'.underline}."
   end
 end
 
@@ -398,6 +388,10 @@ def ask_password(question)
   else
     return input
   end
+end
+
+def print_error(error)
+  puts "#{'[!]'.red} #{error}"
 end
 
 def delete_db
