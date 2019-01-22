@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
 
         ],
       'Platform'       => ['win'],
-      'Privileged'     => true,
       'DisclosureDate'  => 'Oct 11 2018'))
   end
 
@@ -119,8 +118,8 @@ class MetasploitModule < Msf::Auxiliary
   def session_bruteforce_list(weighted_array)
     list = session_number_list(weighted_array)
     for session in list
-      @session = session
-      data = send_msg(["PING"])
+      @nucs_session = session
+      data = nucs_send_msg(["PING"])
       @counter += 1
       if data[0] =~ /OK/ || data[0] =~ /612/
         return session
