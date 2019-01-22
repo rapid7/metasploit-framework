@@ -79,7 +79,7 @@ they cannot be decrypted in Metasploit.")
 password NUCMS2007! to unzip them.")
     print_status("Annoy the Metasploit developers until this gets fixed!")
 
-    if datastore['FILE'] != nil
+    if not datastore['FILE'].empty? 
       filedata = nucs_download_file(datastore['FILE'])
       filename = datastore['FILE'].gsub('..\\', '')
       path = store_loot(filename, "application/octet-stream", datastore['RHOST'],
