@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'            => 'John the Ripper AIX Password Cracker',
       'Description'     => %Q{
           This module uses John the Ripper to identify weak passwords that have been
-        acquired from passwd files on AIX systems.
+        acquired from passwd files on AIX systems.  These utilize DES hashing.
       },
       'Author'          =>
         [
@@ -28,8 +28,11 @@ class MetasploitModule < Msf::Auxiliary
   def run
     cracker = new_john_cracker
 
-    # generate our wordlist and close the file handle
-    wordlist = wordlist_file
+    # create the hash file first, so if there aren't any hashes we can quit early
+    cracker.hash_path = hash_file
+
+    # generate our wordlist and close the file handle.  max length of DES is 8
+    wordlist = wordlist_file(8)
     unless wordlist
       print_error('This module cannot run without a database connected. Use db_connect to connect to a database.')
       return
@@ -38,26 +41,27 @@ class MetasploitModule < Msf::Auxiliary
     wordlist.close
     print_status "Wordlist file written out to #{wordlist.path}"
     cracker.wordlist = wordlist.path
-    cracker.hash_path = hash_file
 
-    ['des'].each do |format|
+    cleanup_files = [cracker.hash_path, wordlist.path]
+
+    ['descrypt'].each do |format|
       # dupe our original cracker so we can safely change options between each run
       cracker_instance = cracker.dup
       cracker_instance.format = format
       print_status "Cracking #{format} hashes in normal wordlist mode..."
       # Turn on KoreLogic rules if the user asked for it
-      if datastore['KoreLogic']
+      if datastore['KORELOGIC']
         cracker_instance.rules = 'KoreLogicRules'
         print_status "Applying KoreLogic ruleset..."
       end
       cracker_instance.crack do |line|
-        print_status line.chomp
+        vprint_status line.chomp
       end
 
       print_status "Cracking #{format} hashes in single mode..."
       cracker_instance.rules = 'single'
       cracker_instance.crack do |line|
-        print_status line.chomp
+        vprint_status line.chomp
       end
 
       print_status "Cracking #{format} hashes in incremental mode (Digits)..."
@@ -65,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       cracker_instance.wordlist = nil
       cracker_instance.incremental = 'Digits'
       cracker_instance.crack do |line|
-        print_status line.chomp
+        vprint_status line.chomp
       end
 
       print_status "Cracked Passwords this run:"
@@ -82,9 +86,13 @@ class MetasploitModule < Msf::Auxiliary
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
+    cleanup_files.each do |f|
+      File.delete(f)
+    end
   end
 
   def hash_file
+    wrote_hash = false
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       if core.private.jtr_format =~ /des/
@@ -92,9 +100,14 @@ class MetasploitModule < Msf::Auxiliary
         hash_string = core.private.data
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
+        wrote_hash = true
       end
     end
     hashlist.close
+    unless wrote_hash # check if we wrote anything and bail early if we didn't
+      hashlist.delete
+      fail_with Failure::NotFound, 'No DES hashes in database to crack'
+    end
     print_status "Hashes Written out to #{hashlist.path}"
     hashlist.path
   end

@@ -165,7 +165,7 @@ module Metasploit
         #
         # @return [String] the path to the default john.conf file
         def john_config_file
-          ::File.join( ::Msf::Config.data_directory, "john.conf" )
+          ::File.join( ::Msf::Config.data_directory, "jtr", "john.conf" )
         end
 
         # This method returns the path to a default john.pot file.
