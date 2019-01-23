@@ -71,17 +71,11 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status line.chomp
       end
 
-      if format == 'lm'
-        print_status "Cracking #{format} hashes in incremental mode (All4)..."
-        cracker_instance.rules = nil
-        cracker_instance.wordlist = nil
-        cracker_instance.incremental = 'All4'
-        cracker_instance.crack do |line|
-          vprint_status line.chomp
-        end
-      end
-
       print_status "Cracking #{format} hashes in incremental mode (Digits)..."
+      if format == 'nt'
+        # https://github.com/magnumripper/JohnTheRipper/commit/f4467dd3c58d5223fc804741bc1bcce77d3d898f#diff-c499d11af6e80a995563b547db7ce022R341
+        cracker_instance.max_length = 8
+      end
       cracker_instance.rules = nil
       cracker_instance.wordlist = nil
       cracker_instance.incremental = 'Digits'
