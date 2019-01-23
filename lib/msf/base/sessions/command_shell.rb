@@ -34,13 +34,14 @@ class CommandShell
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Executes the supplied script, must be specified as full path.
-  #
-  # Msf::Session::Scriptable implementor
+  # Runs the shell session script or resource file.
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Shell.new(self, full_path)
-    o.run(args)
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Shell.new(self, full_path).run(args)
+    else
+      load_resource(full_path)
+    end
   end
 
   #
@@ -237,7 +238,7 @@ class CommandShell
       return cmd_sessions_help
     end
 
-    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
+    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case.
     # 1. Using python
     # 1.1 Check Python installed or not
     # We do not need to care about the python version
@@ -280,7 +281,7 @@ class CommandShell
 
     print_error("Can not pop up an interactive shell")
   end
-  
+
   #
   # Check if there is a binary in PATH env
   #
@@ -486,7 +487,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd)
+    shell_write(cmd + "\n")
   end
 
   #
