@@ -13,6 +13,8 @@ require 'securerandom'
 require 'uri'
 require 'yaml'
 
+include Rex::Text::Color
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
@@ -23,7 +25,6 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'msf/base/config'
 require 'msf/util/helper'
-
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
@@ -70,30 +71,35 @@ require 'msf/util/helper'
     delete_existing_data: nil
 }
 
+def supports_color?
+  return true if Rex::Compat.is_windows
+  term = Rex::Compat.getenv('TERM')
+  term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil
+end
 
 class String
   def bold
-    "\e[1m#{self}\e[0m"
+    substitute_colors("%bld#{self}%clr")
   end
 
   def underline
-    "\e[4m#{self}\e[0m"
+    substitute_colors("%und#{self}%clr")
   end
 
   def red
-    "\e[91m#{self}\e[0m"
+    substitute_colors("%red#{self}%clr")
   end
 
   def green
-    "\e[92m#{self}\e[0m"
+    substitute_colors("%grn#{self}%clr")
   end
 
   def blue
-    "\e[34m#{self}\e[0m"
+    substitute_colors("%blu#{self}%clr")
   end
 
   def cyan
-    "\e[36m#{self}\e[0m"
+    substitute_colors("%cya#{self}%clr")
   end
 
 end
