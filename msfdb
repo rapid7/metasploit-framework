@@ -475,7 +475,7 @@ def init_web_service
     @msf_ws_pass = @options[:ws_pass]
   end
 
-  if should_generate_web_service_ssl
+  if should_generate_web_service_ssl && @options[:delete_existing_data]
     generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
   end
 
