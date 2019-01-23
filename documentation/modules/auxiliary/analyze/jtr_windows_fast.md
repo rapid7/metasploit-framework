@@ -119,48 +119,53 @@ resource (hashes.rb)> run
 msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_windows_fast 
 msf5 auxiliary(analyze/jtr_windows_fast) > run
 
-[*] Hashes Written out to /tmp/hashes_tmp20190119-20823-17yr3qf
-[*] Wordlist file written out to /tmp/jtrtmp20190119-20823-vf6pz9
+[*] Hashes Written out to /tmp/hashes_tmp20190123-2730-1wr8x6o
+[*] Wordlist file written out to /tmp/jtrtmp20190123-2730-lx6cxy
 [*] Cracking lm hashes in normal wordlist mode...
+Using default input encoding: UTF-8
+Using default target encoding: CP850
 Warning: poor OpenMP scalability for this hash type, consider --fork=8
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (Sat 19 Jan 2019 05:28:23 AM EST) 0g/s 3858Kp/s 3858Kc/s 3858KC/s STEFFAN..VAGRANT
+0g 0:00:00:00 DONE (2019-01-23 16:00) 0g/s 2573Kp/s 2573Kc/s 2573KC/s STEEPER..VAGRANT
 Session completed
 [*] Cracking lm hashes in single mode...
+Using default input encoding: UTF-8
+Using default target encoding: CP850
 Warning: poor OpenMP scalability for this hash type, consider --fork=8
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:03 DONE (Sat 19 Jan 2019 05:28:26 AM EST) 0g/s 5146Kp/s 5146Kc/s 5146KC/s APE1902..E1900
+0g 0:00:00:02 DONE (2019-01-23 16:01) 0g/s 5927Kp/s 5927Kc/s 5927KC/s HAS1907..E1900
 Session completed
-[*] Cracking lm hashes in incremental mode (All4)...
-Warning: poor OpenMP scalability for this hash type, consider --fork=8
-Will run 8 OpenMP threads
-fopen: /usr/share/john/all.chr: No such file or directory
 [*] Cracking lm hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
+Using default target encoding: CP850
 Warning: poor OpenMP scalability for this hash type, consider --fork=8
 Will run 8 OpenMP threads
-Warning: MaxLen = 8 is too large for the current hash type, reduced to 7
+Warning: MaxLen = 20 is too large for the current hash type, reduced to 7
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (Sat 19 Jan 2019 05:28:27 AM EST) 0g/s 38314Kp/s 38314Kc/s 38314KC/s 0766269..0769743
+0g 0:00:00:00 DONE (2019-01-23 16:01) 0g/s 39682Kp/s 39682Kc/s 39682KC/s 0766269..0769743
 Session completed
 [*] Cracked Passwords this run:
 [+] lm_password:password
 [+] lm_passphrase:passphrase
 [*] Cracking nt hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 Warning: no OpenMP support for this hash type, consider --fork=8
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (Sat 19 Jan 2019 05:28:27 AM EST) 0g/s 4855Kp/s 4855Kc/s 4855KC/s zebras..zookeeper
+0g 0:00:00:00 DONE (2019-01-23 16:01) 0g/s 3836Kp/s 3836Kc/s 3836KC/s yardarm..yipped
 Session completed
 [*] Cracking nt hashes in single mode...
+Using default input encoding: UTF-8
 Warning: no OpenMP support for this hash type, consider --fork=8
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:07 DONE (Sat 19 Jan 2019 05:28:34 AM EST) 0g/s 9873Kp/s 9873Kc/s 9873KC/s zitella1900..zookeeper1900
+0g 0:00:00:04 DONE (2019-01-23 16:01) 0g/s 15131Kp/s 15131Kc/s 15131KC/s yankee1900..yipped1900
 Session completed
 [*] Cracking nt hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 Warning: no OpenMP support for this hash type, consider --fork=8
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:02 DONE (Sat 19 Jan 2019 05:28:37 AM EST) 0g/s 53418Kp/s 53418Kc/s 53418KC/s 73673897..73673952
+0g 0:00:00:02 DONE (2019-01-23 16:01) 0g/s 40700Kp/s 40700Kc/s 40700KC/s 73673897..73673952
 Session completed
 [*] Cracked Passwords this run:
 [+] lm_password:password

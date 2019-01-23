@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
         username = fields.shift
         core_id  = fields.pop
         password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
-        print_good password_line
+        print_good "#{username}:#{password}"
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
