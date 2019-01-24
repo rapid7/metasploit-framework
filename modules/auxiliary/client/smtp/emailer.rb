@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
       name = nem[0].split(' ')
       fname = name[0]
       lname = name[1]
-      email = nem[1]
+      email = nem[1].strip
 
 
       if add_name
