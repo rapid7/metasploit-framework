@@ -67,6 +67,8 @@ require 'msf/util/helper'
     retry_max: 10,
     retry_delay: 5.0,
     ws_user: nil,
+    add_data_service: true,
+    data_service_name: nil,
     use_defaults: false,
     delete_existing_data: nil
 }
@@ -699,19 +701,29 @@ def output_web_service_information
 end
 
 def persist_data_service
-  if @options[:use_defaults] || ask_yn('Add data service connection to local msfconsole and persist as default?')
-    data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
-    data_service_name = ask_value('Data service connection name?', data_service_name) unless @options[:use_defaults]
-    # execute msfconsole commands to add and persist the data service connection
-    connect_cmd = get_db_connect_command(name: data_service_name)
-    cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
-    if run_cmd(cmd) != 0
-      # attempt to execute msfconsole in the current working directory
-      if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
-        puts 'Failed to run msfconsole and persist the data service connection'
-      end
+  default_data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+  if !@options[:add_data_service]
+    return
+  elsif !@options[:data_service_name].nil?
+    data_service_name = @options[:data_service_name]
+  elsif @options[:use_defaults]
+    data_service_name = default_data_service_name
+  elsif ask_yn('Add data service connection to local msfconsole and persist as default?')
+    data_service_name = ask_value('Data service connection name?', default_data_service_name)
+  else
+    return
+  end
+
+  # execute msfconsole commands to add and persist the data service connection
+  connect_cmd = get_db_connect_command(name: data_service_name)
+  cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
+  if run_cmd(cmd) != 0
+    # attempt to execute msfconsole in the current working directory
+    if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+      puts 'Failed to run msfconsole and persist the data service connection'
     end
   end
+
 end
 
 def get_db_connect_command(name: nil)
@@ -935,6 +947,14 @@ def parse_args(args)
 
     opts.on('--pass PASS', 'Initial web service admin password') { |p|
       @options[:ws_pass] = p
+    }
+
+    opts.on('--[no-]msf-data-service NAME', 'Local msfconsole data service connection name') { |n|
+      if !n
+        @options[:add_data_service] = false
+      else
+        @options[:data_service_name] = n
+      end
     }
 
     opts.separator('')
