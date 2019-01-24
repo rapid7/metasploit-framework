@@ -146,8 +146,6 @@ class MetasploitModule < Msf::Auxiliary
         })
 
       print_status("Writing payload to #{attachment_file}")
-      # XXX If Rex::Zip will let us zip a buffer instead of a file,
-      # there's no reason to write this out
       File.open(attachment_file, "wb") do |f|
         f.write(exe)
       end
