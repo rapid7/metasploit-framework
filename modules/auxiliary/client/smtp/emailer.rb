@@ -161,7 +161,8 @@ class MetasploitModule < Msf::Auxiliary
 
       if zip_payload
         zip_file = attachment_file.sub(/\.\w+$/, '.zip')
-        system("zip -r #{zip_file} #{attachment_file}> /dev/null 2>&1");
+        print_status("Zipping payload to #{zip_file}")
+        File.write(zip_file, Msf::Util::EXE.to_zip([fname: File.basename(attachment_file), data: exe]))
         attachment_file      = zip_file
         attachment_file_type = 'application/zip'
       else
