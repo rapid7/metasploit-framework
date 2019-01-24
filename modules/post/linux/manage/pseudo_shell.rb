@@ -38,9 +38,6 @@ HELP_COMMANDS.each do |linea|
   LIST.insert(-1, linea[0])
 end
 
-@vhostname = ""
-@vusername = ""
-
   def initialize
     super(
       'Name'         => 'Pseudo-Shell Post-Exploitation Module',
@@ -57,6 +54,7 @@ end
   def run
     @vhostname = get_hostname
     @vusername = whoami
+    @vpromptchar = is_root? ? '#' : '$'
     prompt()
   end
 
@@ -102,7 +100,7 @@ end
   end
 
   def prompt_show()
-    promptshell = @vusername + "@" + @vhostname + ":" + pwd.strip() + "# "
+    promptshell = "#{@vusername}@#{@vhostname}:#{pwd.strip}#{@vpromptchar} "
     comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
     Readline.completion_append_character = " "
     Readline.completion_proc = comp
