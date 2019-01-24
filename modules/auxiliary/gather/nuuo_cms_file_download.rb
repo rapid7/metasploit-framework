@@ -35,8 +35,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2018-17934' ],
           [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02' ],
-          [ 'URL', 'FULLDISC_URL_TODO' ],
-          [ 'URL', 'GITHUB_URL_TODO' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2019/Jan/51' ],
+          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-cms-ownage.txt' ]
 
         ],
       'Platform'        => ['win'],
