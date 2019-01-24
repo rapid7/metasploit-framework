@@ -487,7 +487,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd + "\n")
+    shell_write(cmd.chomp + "\n")
   end
 
   #
