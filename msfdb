@@ -70,7 +70,7 @@ require 'msf/util/helper'
     add_data_service: true,
     data_service_name: nil,
     use_defaults: false,
-    delete_existing_data: nil
+    delete_existing_data: false
 }
 
 def supports_color?
