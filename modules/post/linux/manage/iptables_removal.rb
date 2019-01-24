@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
       'Author'       => 'Alberto Rafael Rodriguez Iglesias <albertocysec[at]gmail.com>',
       'License'      => MSF_LICENSE,
       'Platform'     => ['linux'],
-      'SessionTypes' => ['shell']
+      'SessionTypes' => ['shell', 'meterpreter']
     )
   end
 
