@@ -93,7 +93,7 @@ module Msf::Post::Unix
   # @return [String] with username
   #
   def whoami
-    shellpid = get_shell_pid()
+    shellpid = get_session_pid()
     statuspid = pid_uid(shellpid)
     statuspid.each_line do |line|
       split = line.split(":")

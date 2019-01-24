@@ -208,6 +208,14 @@ module System
   end
 
   #
+  # Gets the pid of the current session
+  # @return [String]
+  #
+  def get_session_pid
+    cmd_exec("echo $PPID").to_s
+  end
+
+  #
   # Checks if the system has gcc installed
   # @return [Boolean]
   #
