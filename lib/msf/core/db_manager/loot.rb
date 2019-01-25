@@ -105,6 +105,13 @@ module Msf::DBManager::Loot
 
       id = opts.delete(:id)
       loot = Mdm::Loot.find(id)
+
+      # If the user updates the path attribute (or filename) we need to update the file
+      # on disk to reflect that.
+      if opts[:path] && File.exists?(loot.path)
+        File.rename(loot.path, opts[:path])
+      end
+
       loot.update!(opts)
       return loot
     }
