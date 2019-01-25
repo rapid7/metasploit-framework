@@ -694,7 +694,14 @@ end
 def output_web_service_information
   puts "\n\n"
   puts 'MSF web service configuration complete'
-  puts 'Connect to the data service in msfconsole using the command:'
+  if @options[:add_data_service]
+    data_service_name = @options[:data_service_name] || "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+    puts "The web service has been configured as your default data service in msfconsole with the name \"#{data_service_name}\""
+  else
+    puts "No data service has been configured in msfconsole."
+  end
+  puts ''
+  puts 'If needed, manually reconnect to the data service in msfconsole using the command:'
   puts "#{get_db_connect_command}"
   puts ''
   puts 'The username and password are credentials for the API account:'
