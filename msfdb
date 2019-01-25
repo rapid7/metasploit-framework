@@ -701,17 +701,11 @@ def output_web_service_information
 end
 
 def persist_data_service
-  default_data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+  data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
   if !@options[:add_data_service]
     return
   elsif !@options[:data_service_name].nil?
     data_service_name = @options[:data_service_name]
-  elsif @options[:use_defaults]
-    data_service_name = default_data_service_name
-  elsif ask_yn('Add data service connection to local msfconsole and persist as default?')
-    data_service_name = ask_value('Data service connection name?', default_data_service_name)
-  else
-    return
   end
 
   # execute msfconsole commands to add and persist the data service connection
