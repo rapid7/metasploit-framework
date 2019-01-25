@@ -10,17 +10,17 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(opts)
-    data = opts.delete(:data)
-    # Remove path from search conditions as this won't accommodate remote data
-    # service usage where the client and server storage locations differ.
-    opts.delete(:path)
-    search_term = opts.delete(:search_term)
-
     ::ActiveRecord::Base.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Loot.find(opts[:id]))
       end
+
+      # Remove path from search conditions as this won't accommodate remote data
+      # service usage where the client and server storage locations differ.
+      opts.delete(:path)
+      search_term = opts.delete(:search_term)
+      data = opts.delete(:data)
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
       opts[:workspace_id] = wspace.id
