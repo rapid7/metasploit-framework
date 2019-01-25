@@ -124,10 +124,8 @@ resource (hashes.rb)> run
 [+] Adding des_password:rEK1ecacw.7.c:des
 [+] Adding md5_password:$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/:md5,des,bsdi,crypt
 [+] Adding bsdi_password:_J9..K0AyUubDrfOgO4s:md5,des,bsdi,crypt
-[+] Adding crypt_password:SDbsugeBiC58A:md5,des,bsdi,crypt
 [+] Adding sha256_password:$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5:md5,des,bsdi,crypt
 [+] Adding sha512_password:$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1:md5,des,bsdi,crypt
-[+] Adding crypt16_password:qi8H8R7OM4xMUNMPuRAZxlY.:md5,des,bsdi,crypt
 [+] Adding blowfish_password:$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe:bcrypt
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
@@ -191,12 +189,10 @@ host           origin         service       public             private          
                111.111.1.111                md5_password       $1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/                                                                         Nonreplayable hash
                                             bsdi_password      password                                                                                                   Password
                111.111.1.111                bsdi_password      _J9..K0AyUubDrfOgO4s                                                                                       Nonreplayable hash
-               111.111.1.111                crypt_password     SDbsugeBiC58A                                                                                              Nonreplayable hash
                                             sha256_password    password                                                                                                   Password
                111.111.1.111                sha256_password    $5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5                                                    Nonreplayable hash
                                             sha512_password    password                                                                                                   Password
                111.111.1.111                sha512_password    $6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1         Nonreplayable hash
-               111.111.1.111                crypt16_password   qi8H8R7OM4xMUNMPuRAZxlY.                                                                                   Nonreplayable hash
                                             blowfish_password  password                                                                                                   Password
                111.111.1.111                blowfish_password  $2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe                                               Nonreplayable hash
 111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu             ubuntu                                                                                                     Password
