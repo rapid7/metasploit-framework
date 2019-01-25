@@ -14,7 +14,7 @@ module RemoteLootDataService
     data = parsed_body[:data]
     data.each do |loot|
       # TODO: Add an option to toggle whether the file data is returned or not
-      if loot[:data]
+      if loot[:data] && !loot[:data].empty?
         local_path = File.join(Msf::Config.loot_directory, File.basename(loot[:path]))
         rv[data.index(loot)].path = process_file(loot[:data], local_path)
       end
