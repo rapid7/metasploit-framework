@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 module Msf
+require 'pry'
 
 ###
 #
@@ -416,9 +417,12 @@ module Auxiliary::Report
         FileUtils.mkdir_p(loot_dir)
       end
       if info.match(/[A-Za-z0-9]:\\/)
-        name = Time.now.strftime("%Y%m%d%H%M%S%L") + "_" + info.split(/\\/).join('_')
-        path = File.join(loot_dir,name)
+        name = Time.now.strftime("%Y%m%d%H%M%S%L") + "_"+ ws+ "_"+ info.split(/\\/).join('_')
+      else
+        name = Time.now.strftime("%Y%m%d%H%M%S%L") + "_"+ ws+ "_"+ ltype[0,16]+ "_"+ info+ ext
       end
+      name.gsub!(/[^a-z0-9\.\_]+/i, '')
+      path = File.join(loot_dir,name)
     else
       path = File.join(Msf::Config.loot_directory, name)
     end
