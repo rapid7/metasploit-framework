@@ -1,20 +1,5 @@
 module Msf::DBManager::Loot
   #
-  # Loot collection
-  #
-  #
-  # This method iterates the loot table calling the supplied block with the
-  # instance of each entry.
-  #
-  def each_loot(wspace=workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.loots.each do |note|
-      block.call(note)
-    end
-  }
-  end
-
-  #
   # Find or create a loot matching this type/data
   #
   def find_or_create_loot(opts)
@@ -25,20 +10,34 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(opts)
-    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-    opts[:workspace_id] = wspace.id
-    search_term = opts.delete(:search_term)
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Loot.find(opts[:id]))
+      end
+
+      # Remove path from search conditions as this won't accommodate remote data
+      # service usage where the client and server storage locations differ.
+      opts.delete(:path)
+      search_term = opts.delete(:search_term)
+      data = opts.delete(:data)
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts[:workspace_id] = wspace.id
+
       if search_term && !search_term.empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
-        Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
+        results = Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
       else
-        Mdm::Loot.includes(:host).where(opts)
+        results = Mdm::Loot.includes(:host).where(opts)
       end
+
+      # Compare the deserialized data from the DB to the search data since the column is serialized.
+      unless data.nil?
+        results = results.select { |loot| loot.data == data }
+      end
+
+      results
     }
   end
   alias_method :loot, :loots
@@ -46,10 +45,7 @@ module Msf::DBManager::Loot
   def report_loot(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
     host = nil
@@ -101,15 +97,23 @@ module Msf::DBManager::Loot
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Loot] The updated Mdm::Loot object.
   def update_loot(opts)
-    wspace = opts.delete(:workspace)
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      # Prevent changing the data field to ensure the file contents remain the same as what was originally looted.
+      raise ArgumentError, "Updating the data attribute is not permitted." if opts[:data]
+      opts[:workspace] = wspace if wspace
+
       id = opts.delete(:id)
-      Mdm::Loot.update(id, opts)
+      loot = Mdm::Loot.find(id)
+
+      # If the user updates the path attribute (or filename) we need to update the file
+      # on disk to reflect that.
+      if opts[:path] && File.exists?(loot.path)
+        File.rename(loot.path, opts[:path])
+      end
+
+      loot.update!(opts)
+      return loot
     }
   end
 

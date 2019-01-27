@@ -1,19 +1,36 @@
 module Msf::DBManager::Session
 
-  def get_all_sessions()
+  #
+  # Returns a list of all sessions in the database that are selected
+  # via the key-value pairs in the specified options.
+  #
+  def sessions(opts)
     return if not active
+
     ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::Session.all
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Session.find(opts[:id]))
+      end
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Session, search_term)
+        wspace.sessions.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.sessions.includes(:host).where(opts)
+      end
     }
   end
-
 
   # Returns a session based on opened_time, host address, and workspace
   # (or returns nil)
   def get_session(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts[:workspace] || opts[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     addr   = opts[:addr] || opts[:address] || opts[:host] || return
     host = get_host(:workspace => wspace, :host => addr)
     time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
@@ -119,12 +136,13 @@ module Msf::DBManager::Session
     return if not active
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      workspace = find_workspace(session_dto[:workspace])
       host_data = session_dto[:host_data]
-      h_opts = {}
-      h_opts[:host]      = host_data[:host]
-      h_opts[:arch]      = host_data[:arch]
-      h_opts[:workspace] = workspace
+      workspace = workspaces({ name: host_data[:workspace] }).first
+      h_opts = {
+        host: host_data[:host],
+        workspace: workspace
+      }
+      h_opts[:arch] = host_data[:arch] if !host_data[:arch].nil? && !host_data[:arch].empty?
       host = find_or_create_host(h_opts)
 
       session_data = session_dto[:session_data]
@@ -157,6 +175,22 @@ module Msf::DBManager::Session
         infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
       end
       session_db_record
+    }
+  end
+
+  # Update the attributes of a session entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Session] The updated Mdm::Session object.
+  def update_session(opts)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      session = ::Mdm::Session.find(id)
+      session.update!(opts)
+      return session
     }
   end
 
@@ -218,7 +252,7 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
-      vuln = framework.db.report_vuln(vuln_info)
+      vuln = report_vuln(vuln_info)
 
       attempt_info = {
         host: host,
@@ -233,7 +267,7 @@ module Msf::DBManager::Session
         run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
-      framework.db.report_exploit_success(attempt_info)
+      report_exploit_success(attempt_info)
 
       vuln
     }
@@ -245,10 +279,12 @@ module Msf::DBManager::Session
       raise ArgumentError.new("Invalid :session, expected Msf::Session") unless session.kind_of? Msf::Session
 
       wspace = opts[:workspace] || find_workspace(session.workspace)
-      h_opts = { }
-      h_opts[:host]      = Msf::Util::Host.normalize_host(session)
-      h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
-      h_opts[:workspace] = wspace
+      h_opts = {
+        host: Msf::Util::Host.normalize_host(session),
+        workspace: wspace
+      }
+      h_opts[:arch] = session.arch if session.respond_to?(:arch) && !session.arch.nil? && !session.arch.empty?
+
       host = find_or_create_host(h_opts)
       sess_data = {
         datastore: session.exploit_datastore.to_h,
@@ -332,7 +368,7 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
-      vuln = framework.db.report_vuln(vuln_info)
+      vuln = report_vuln(vuln_info)
 
       attempt_info = {
           host: host,
@@ -347,7 +383,7 @@ module Msf::DBManager::Session
           run_id: vuln_info_dto[:run_id]
       }
 
-      framework.db.report_exploit_success(attempt_info)
+      report_exploit_success(attempt_info)
 
       vuln
     }

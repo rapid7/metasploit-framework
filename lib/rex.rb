@@ -48,8 +48,10 @@ require 'rex/text'
 require 'rex/random_identifier'
 # library for creating Powershell scripts for exploitation purposes
 require 'rex/powershell'
-# Library for processing and creating Zip compatbile archives
+# Library for processing and creating Zip compatible archives
 require 'rex/zip'
+# Library for processing and creating tar compatible archives (not really a gem)
+require 'rex/tar'
 # Library for parsing offline Windows Registry files
 require 'rex/registry'
 # Library for parsing Java serialized streams
@@ -111,6 +113,10 @@ require 'rex/compat'
 # SSLScan 
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
+
+# Cryptography
+require 'rex/crypto/aes256'
+require 'rex/crypto/rc4'
 
 
 # Overload the Kernel.sleep() function to be thread-safe

@@ -20,16 +20,15 @@ module WorkspaceDataService
     raise 'WorkspaceDataService#workspace= is not implemented'
   end
 
-  def workspaces
+  def workspaces(opts)
     raise 'WorkspaceDataService#workspaces is not implemented'
   end
 
-  def workspace_associations_counts()
-    raise 'WorkspaceDataService#workspace_associations_counts is not implemented'
+  def delete_workspaces(opts)
+    raise 'WorkspaceDataService#delete_workspaces is not implemented'
   end
 
-  def rename_workspace(from_name, to_name)
-    raise 'WorkspaceDataService#rename_workspace is not implemented'
+  def update_workspace(opts)
+    raise 'WorkspaceDataService#update_workspace is not implemented'
   end
-
 end

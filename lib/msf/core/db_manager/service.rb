@@ -21,9 +21,9 @@ module Msf::DBManager::Service
 
   # Iterates over the services table calling the supplied block with the
   # service instance of each entry.
-  def each_service(wspace=workspace, &block)
+  def each_service(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    services(wspace).each do |service|
+    wspace.services.each do |service|
       block.call(service)
     end
   }
@@ -48,11 +48,13 @@ module Msf::DBManager::Service
   # +:host+::  the host where this service is running
   # +:port+::  the port where this service listens
   # +:proto+:: the transport layer protocol (e.g. tcp, udp)
+  # +:workspace+:: the workspace for the service
   #
   # opts may contain
   # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
   # +:sname+:: an alias for the above
-  # +:workspace+:: the workspace for the service
+  # +:info+:: Detailed information about the service such as name and version information
+  # +:state+:: The current listening state of the service (one of: open, closed, filtered, unknown)
   #
   def report_service(opts)
     return if !active
@@ -61,7 +63,7 @@ module Msf::DBManager::Service
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
     host  = nil
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
     hopts[:mac]  = hmac  if hmac
@@ -141,17 +143,24 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    opts.delete(:workspace) # Mdm::Service apparently doesn't have an upstream Mdm::Workspace association
     search_term = opts.delete(:search_term)
-    opts["hosts.address"] = opts.delete(:addresses)
-    opts.compact!
+
+    order_args = [:port]
+    order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
 
   ::ActiveRecord::Base.connection_pool.with_connection {
+    # If we have the ID, there is no point in creating a complex query.
+    if opts[:id] && !opts[:id].to_s.empty?
+      return Array.wrap(Mdm::Service.find(opts[:id]))
+    end
+
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
-      Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).where(column_search_conditions).order(*order_args)
     else
-      Mdm::Service.includes(:host).where(opts).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).order(*order_args)
     end
   }
   end
@@ -161,7 +170,9 @@ module Msf::DBManager::Service
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     id = opts.delete(:id)
-    Mdm::Service.update(id, opts)
+    service = Mdm::Service.find(id)
+    service.update!(opts)
+    return service
   }
   end
 end

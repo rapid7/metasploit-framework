@@ -6,7 +6,7 @@ RSpec.describe Msf::ModuleSet do
   }
 
   let(:module_type) {
-    FactoryGirl.generate :mdm_module_detail_mtype
+    FactoryBot.generate :mdm_module_detail_mtype
   }
 
   context '#rank_modules' do

@@ -481,7 +481,6 @@ module Payload::Windows::ReverseHttp_x64
         test eax, eax                 ; are we done?
         jnz download_more             ; keep going
         pop rax                       ; clear up reserved space
-        pop rax                       ; realign again
 
       execute_stage:
         ret                           ; return to the stored stage address

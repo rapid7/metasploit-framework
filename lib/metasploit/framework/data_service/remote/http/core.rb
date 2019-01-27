@@ -14,20 +14,30 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  ONLINE_TEST_URL = "/api/v1/online"
+  DEFAULT_USER_AGENT = "metasploit v#{Metasploit::Framework::VERSION}"
+
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
   DELETE_REQUEST = 'DELETE'
   PUT_REQUEST = 'PUT'
 
+  attr_reader :endpoint, :https_opts, :api_token
+
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint, https_opts = {})
+  def initialize(endpoint, opts = {})
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
-    @https_opts = https_opts
+    @https_opts = opts[:https_opts]
+    @api_token = opts[:api_token]
+
+    @headers = {}
+    user_agent = !opts[:user_agent].nil? ? opts[:user_agent] : DEFAULT_USER_AGENT
+    set_header('User-Agent', user_agent)
+    set_header('Authorization', "Bearer #{@api_token}") unless @api_token.nil?
+
     build_client_pool(5)
   end
 
@@ -39,8 +49,32 @@ class RemoteHTTPDataService
 
   end
 
+  def name
+    "remote_data_service: (#{@endpoint})"
+  end
+
+  def active
+    # checks if data service is online when @active is falsey and makes the assignment
+    # this is to prevent repetitive calls to check if data service is online
+    # logic should be enhanced to considering data service connectivity
+    # and future data service implementations
+    @active ||= is_online?
+  end
+
+  def active=(value)
+    @active = value
+  end
+
+  def is_local?
+    false
+  end
+
   def error
     'none'
+  end
+
+  def driver
+    'http'
   end
 
   #
@@ -121,20 +155,21 @@ class RemoteHTTPDataService
   def make_request(request_type, path, data_hash = nil, query = nil)
     begin
       # simplify query by removing nil values
-      query_str = (!query.nil? && !query.empty?) ? append_workspace(query).compact.to_query : nil
+      query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
-      dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
+      # TODO: Re-enable this logging when framework handles true log levels.
+      #dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
-      client = @client_pool.pop()
+      client = @client_pool.pop
       case request_type
         when GET_REQUEST
-          request = Net::HTTP::Get.new(uri.request_uri)
+          request = Net::HTTP::Get.new(uri.request_uri, initheader=@headers)
         when POST_REQUEST
-          request = Net::HTTP::Post.new(uri.request_uri)
+          request = Net::HTTP::Post.new(uri.request_uri, initheader=@headers)
         when DELETE_REQUEST
-          request = Net::HTTP::Delete.new(uri.request_uri)
+          request = Net::HTTP::Delete.new(uri.request_uri, initheader=@headers)
         when PUT_REQUEST
-          request = Net::HTTP::Put.new(uri.request_uri)
+          request = Net::HTTP::Put.new(uri.request_uri, initheader=@headers)
         else
           raise Exception, 'A request_type must be specified'
       end
@@ -151,7 +186,7 @@ class RemoteHTTPDataService
     rescue EOFError => e
       elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
       return FailedResponse.new('')
-    rescue Exception => e
+    rescue => e
       elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
       return FailedResponse.new('')
     ensure
@@ -159,21 +194,37 @@ class RemoteHTTPDataService
     end
   end
 
-  #
-  # TODO: fix this
-  #
-  def active
-    return true
-  end
-
-  def name
-    "remote_data_service: (#{@endpoint})"
-  end
-
   def set_header(key, value)
-    @headers = Hash.new() if @headers.nil?
-
     @headers[key] = value
+  end
+
+  #
+  # Checks if the data service is online by making a request
+  # for the Metasploit version number from the remote endpoint
+  #
+  def is_online?
+    response = self.get_msf_version
+    if response && !response[:metasploit_version].empty?
+      return true
+    end
+
+    return false
+  end
+
+  # Select the correct path for GET request based on the options parameters provided.
+  # If 'id' is present, the user is requesting a single record and should use
+  # api/<version>/<resource>/ID path.
+  #
+  # @param [Hash] opts The parameters for the request
+  # @param [String] path The base resource path for the endpoint
+  #
+  # @return [String] The correct path for the request.
+  def get_path_select(opts, path)
+    if opts.key?(:id)
+      path = "#{path}/#{opts[:id]}"
+      opts.delete(:id)
+    end
+    path
   end
 
   #########
@@ -219,19 +270,6 @@ class RemoteHTTPDataService
     raise 'Endpoint cannot be nil' if endpoint.nil?
   end
 
-  def append_workspace(data_hash)
-    workspace = data_hash[:workspace]
-    workspace = data_hash.delete(:wspace) unless workspace
-
-    if workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace))
-      data_hash[:workspace] = workspace.name
-    end
-
-    data_hash[:workspace] = current_workspace_name if workspace.nil?
-
-    data_hash
-  end
-
   def build_request(request, data_hash)
     request.content_type = 'application/json'
     if !data_hash.nil? && !data_hash.empty?
@@ -244,14 +282,8 @@ class RemoteHTTPDataService
           data_hash.delete(k)
         end
       end
-      json_body = append_workspace(data_hash).to_json
+      json_body = data_hash.to_json
       request.body = json_body
-    end
-
-    if !@headers.nil? && !@headers.empty?
-      @headers.each do |key, value|
-        request[key] = value
-      end
     end
 
     request
@@ -264,7 +296,7 @@ class RemoteHTTPDataService
       if @endpoint.is_a?(URI::HTTPS)
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        unless @https_opts.empty?
+        if @https_opts && !@https_opts.empty?
           if @https_opts[:skip_verify]
             http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           else

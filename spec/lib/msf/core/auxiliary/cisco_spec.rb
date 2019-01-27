@@ -32,21 +32,21 @@ RSpec.describe Msf::Auxiliary::Cisco do
   
   subject(:aux_cisco) { DummyClass.new }
   
-  let!(:workspace) { FactoryGirl.create(:mdm_workspace) }
+  let!(:workspace) { FactoryBot.create(:mdm_workspace) }
     
   context '#create_credential_and_login' do
     
-    let(:session) { FactoryGirl.create(:mdm_session) }
+    let(:session) { FactoryBot.create(:mdm_session) }
 
-    let(:task) { FactoryGirl.create(:mdm_task, workspace: workspace)}
+    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
 
-    let(:user) { FactoryGirl.create(:mdm_user)}
+    let(:user) { FactoryBot.create(:mdm_user)}
 
     subject(:test_object) { DummyClass.new }
     
-    let(:workspace) { FactoryGirl.create(:mdm_workspace) }
-    let(:service) { FactoryGirl.create(:mdm_service, host: FactoryGirl.create(:mdm_host, workspace: workspace)) }
-    let(:task) { FactoryGirl.create(:mdm_task, workspace: workspace) }
+    let(:workspace) { FactoryBot.create(:mdm_workspace) }
+    let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
+    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
     
     let(:login_data) {
       {

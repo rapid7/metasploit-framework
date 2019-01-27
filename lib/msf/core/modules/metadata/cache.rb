@@ -6,6 +6,7 @@ require 'msf/core/modules/metadata'
 require 'msf/core/modules/metadata/obj'
 require 'msf/core/modules/metadata/search'
 require 'msf/core/modules/metadata/store'
+require 'msf/core/modules/metadata/maps'
 
 #
 # Core service class that provides storage of module metadata as well as operations on the metadata.
@@ -19,6 +20,7 @@ class Cache
   include Singleton
   include Msf::Modules::Metadata::Search
   include Msf::Modules::Metadata::Store
+  include Msf::Modules::Metadata::Maps
 
   #
   # Refreshes cached module metadata as well as updating the store
@@ -79,7 +81,10 @@ class Cache
         end
       end
 
-      update_store if has_changes
+      if has_changes
+        update_store
+        clear_maps
+      end
     }
   end
 
@@ -131,7 +136,7 @@ class Cache
     # Remove all instances of modules pointing to the same path. This prevents stale data hanging
     # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
     @module_metadata_cache.delete_if {|_, module_metadata|
-      module_metadata.path.eql? metadata_obj.path
+      module_metadata.path.eql? metadata_obj.path && module_metadata.type != module_metadata.type
     }
 
     @module_metadata_cache[get_cache_key(module_instance)] = metadata_obj
@@ -146,6 +151,7 @@ class Cache
   end
 
   def initialize
+    super
     @mutex = Mutex.new
     @module_metadata_cache = {}
     @store_loaded = false

@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         This module retrieves SIP and IAX2 user extensions and credentials from
         Asterisk Call Manager service. Valid manager credentials are required.
       },
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'      => 'bcoles',
       'References'  =>
         [
           ['URL', 'http://www.asterisk.name/sip1.html'],

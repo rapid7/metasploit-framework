@@ -32,46 +32,9 @@ module Auxiliary::Cisco
     end
     clear
   end
-  
-  def create_credential_and_login(opts={})
-    return nil unless active_db?
-
-    if self.respond_to?(:[]) and self[:task]
-      opts[:task_id] ||= self[:task].record.id
-    end
-
-    core               = opts.fetch(:core, create_credential(opts))
-    access_level       = opts.fetch(:access_level, nil)
-    last_attempted_at  = opts.fetch(:last_attempted_at, nil)
-    status             = opts.fetch(:status, Metasploit::Model::Login::Status::UNTRIED)
-
-    login_object = nil
-    retry_transaction do
-      service_object = create_credential_service(opts)
-      login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_initialize
-
-      if opts[:task_id]
-        login_object.tasks << Mdm::Task.find(opts[:task_id])
-      end
-
-      login_object.access_level      = access_level if access_level
-      login_object.last_attempted_at = last_attempted_at if last_attempted_at
-      if status == Metasploit::Model::Login::Status::UNTRIED
-        if login_object.last_attempted_at.nil?
-          login_object.status = status
-        end
-      else
-        login_object.status = status
-      end
-      login_object.save!
-    end
-
-    login_object
-  end
-  
 
   def cisco_ios_config_eater(thost, tport, config)
-    
+
     credential_data = {
       address: thost,
       port: tport,
@@ -125,7 +88,7 @@ module Auxiliary::Cisco
             shash = cisco_ios_decrypt7(shash) rescue shash
             print_good("#{thost}:#{tport} Decrypted Enable Password: #{shash}")
             store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
-            
+
             cred = credential_data.dup
             cred[:private_data] = shash
             cred[:private_type] = :password
@@ -168,27 +131,27 @@ module Auxiliary::Cisco
           spass = cisco_ios_decrypt7(spass) rescue spass
 
           print_good("#{thost}:#{tport} Decrypted VTY Password: #{spass}")
-          
+
           cred = credential_data.dup
           cred[:private_data] = spass
           cred[:private_type] = :password
           create_credential_and_login(cred)
-          
+
 
         when /^\s*(password|secret) 5 (.*)/i
           shash = $2.strip
           print_good("#{thost}:#{tport} MD5 Encrypted VTY Password: #{shash}")
           store_loot("cisco.ios.vty_password", "text/plain", thost, shash, "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)")
-          
+
           cred = credential_data.dup
           cred[:private_data] = shash
           cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
-          
+
         when /^\s*password (0 |)([^\s]+)/i
           spass = $2.strip
           print_good("#{thost}:#{tport} Unencrypted VTY Password: #{spass}")
-          
+
           cred = credential_data.dup
           cred[:private_data] = spass
           cred[:private_type] = :nonreplayable_hash
@@ -249,7 +212,7 @@ module Auxiliary::Cisco
           cred[:private_data] = spass
           cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
-          
+
         when /^\s*interface tunnel(\d+)/i
           tuniface = $1
 
@@ -259,24 +222,24 @@ module Auxiliary::Cisco
 
           print_good("#{thost}:#{tport} GRE Tunnel Key #{spass} for Interface Tunnel #{siface}")
           store_loot("cisco.ios.gre_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key")
-          
+
           cred = credential_data.dup
           cred[:private_data] = spass
           cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
-          
+
         when /^\s*ip nhrp authentication ([^\s]+)/i
           spass = $1
           siface = tuniface
 
           print_good("#{thost}:#{tport} NHRP Authentication Key #{spass} for Interface Tunnel #{siface}")
           store_loot("cisco.ios.nhrp_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "nhrp_tunnel_key.txt", "Cisco NHRP Authentication Key")
-          
+
           cred = credential_data.dup
           cred[:private_data] = spass
           cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
-          
+
 
 #
 # Various authentication secrets
@@ -316,6 +279,20 @@ module Auxiliary::Cisco
             cred[:private_type] = :password
             create_credential_and_login(cred)
           end
+
+        # This regex captures ephones from Cisco Unified Communications Manager Express (CUE) which come in forms like:
+        # username &#34;phonefour&#34; password 444444
+        # username test password test
+        # This is used for the voicemail system
+        when /^\s*username (?:&#34;)([^\s]+)(?:&#34;) password ([^\s]+)/i
+          user  = $1
+          spass = $2
+          print_good("#{thost}:#{tport} ePhone Username '#{user}' with Password: #{spass}")
+          store_loot("cisco.ios.ephone.username_password", "text/plain", thost, "#{user}:#{spass}", "ephone_username_password.txt", "Cisco IOS ephone Username and Password")
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
 
         when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
           user  = $1
@@ -361,7 +338,7 @@ module Auxiliary::Cisco
           if stype == 5
             print_good("#{thost}:#{tport} PPP Username #{suser} MD5 Encrypted Password: #{spass}")
             store_loot("cisco.ios.ppp_username_password_hash", "text/plain", thost, "#{suser}:#{spass}", "ppp_username_password_hash.txt", "Cisco IOS PPP Username and Password Hash (MD5)")
-            
+
             cred = credential_data.dup
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
@@ -371,7 +348,7 @@ module Auxiliary::Cisco
           if stype == 0
             print_good("#{thost}:#{tport} PPP Username: #{suser} Password: #{spass}")
             store_loot("cisco.ios.ppp_username_password", "text/plain", thost, "#{suser}:#{spass}", "ppp_username_password.txt", "Cisco IOS PPP Username and Password")
-            
+
             cred = credential_data.dup
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash

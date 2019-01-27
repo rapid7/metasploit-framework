@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
   def load_file(fname)
     begin
       data = cmd_exec("cat #{fname}")
-    rescue RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Failed to retrieve file. #{e.message}")
       data = ''
     end

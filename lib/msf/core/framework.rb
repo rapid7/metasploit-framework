@@ -142,6 +142,10 @@ class Framework
     return modules.post
   end
 
+  def evasion
+    return modules.evasion
+  end
+
   #
   # Returns the framework version in Major.Minor format.
   #
@@ -237,7 +241,7 @@ class Framework
   def search(match, logger: nil)
     # Do an in-place search
     matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
       mset.each do |m|
         begin
           o = mset.create(m[0])
@@ -272,10 +276,12 @@ protected
   private
 
   def get_db
-    if !options['DisableDatabase']
+    unless options['DisableDatabase']
       db_manager = Msf::DBManager.new(self)
-      db_manager.init_db(options)
       options[:db_manager] = db_manager
+      unless options['SkipDatabaseInit']
+        db_manager.init_db(options)
+      end
     end
 
     Metasploit::Framework::DataService::DataProxy.new(options)

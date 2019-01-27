@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'net/http'
 require 'nokogiri'
 require 'thread'

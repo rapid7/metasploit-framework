@@ -15,9 +15,12 @@ module DataProxyAutoLoader
   autoload :LootDataProxy, 'metasploit/framework/data_service/proxy/loot_data_proxy'
   autoload :SessionEventDataProxy, 'metasploit/framework/data_service/proxy/session_event_data_proxy'
   autoload :CredentialDataProxy, 'metasploit/framework/data_service/proxy/credential_data_proxy'
+  autoload :LoginDataProxy, 'metasploit/framework/data_service/proxy/login_data_proxy'
   autoload :NmapDataProxy, 'metasploit/framework/data_service/proxy/nmap_data_proxy'
   autoload :DbExportDataProxy, 'metasploit/framework/data_service/proxy/db_export_data_proxy'
+  autoload :DbImportDataProxy, 'metasploit/framework/data_service/proxy/db_import_data_proxy'
   autoload :VulnAttemptDataProxy, 'metasploit/framework/data_service/proxy/vuln_attempt_data_proxy'
+  autoload :MsfDataProxy, 'metasploit/framework/data_service/proxy/msf_data_proxy'
 
   include ServiceDataProxy
   include HostDataProxy
@@ -31,7 +34,10 @@ module DataProxyAutoLoader
   include LootDataProxy
   include SessionEventDataProxy
   include CredentialDataProxy
+  include LoginDataProxy
   include NmapDataProxy
   include DbExportDataProxy
+  include DbImportDataProxy
   include VulnAttemptDataProxy
+  include MsfDataProxy
 end

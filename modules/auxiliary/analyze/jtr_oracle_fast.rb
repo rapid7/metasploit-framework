@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status "Cracking #{format} hashes in normal wordlist mode..."
       # Turn on KoreLogic rules if the user asked for it
-      if datastore['KoreLogic']
+      if datastore['KORELOGIC']
         cracker_instance.rules = 'KoreLogicRules'
         print_status "Applying KoreLogic ruleset..."
       end
@@ -86,10 +86,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def hash_file(format)
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: format).each do |hash|
-      hash.cores.each do |core|
+    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
+      if core.private.jtr_format =~ /#{format}/
         user = core.public.username
-        hash_string = "#{hash.data.split(':')[1]}"
+        hash_string = core.private.data.split(':')[1]
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end
