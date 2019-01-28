@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def run
-    args = datastore.merge(
+    args = datastore.to_h.merge(
       # XXX: JSON-RPC requires UTF-8, so we Base64-encode the binary payload
       payload_encoded: Rex::Text.encode_base64(payload.encoded),
       payload_raw: Rex::Text.encode_base64(payload.raw),
