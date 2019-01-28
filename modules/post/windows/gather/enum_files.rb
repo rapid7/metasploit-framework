@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -83,7 +82,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # When the location is set, make sure we have a valid path format
-    location = datastore['SEARCH_FROM'].split(",").each do |location|
+    datastore['SEARCH_FROM'].split(",").each do |location|
       location = location.strip
       if location and location !~ /^([a-z])\:[\\|\/].*/i
         print_error("Invalid SEARCH_FROM option: #{location}")
@@ -117,4 +116,5 @@ class MetasploitModule < Msf::Post
       print_status("Done at the #{location}!")
     end
   end
+
 end

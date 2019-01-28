@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 module Msf
-require 'pry'
 
 ###
 #
@@ -388,7 +387,6 @@ module Auxiliary::Report
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
-
     ext = 'bin'
     if filename
       parts = filename.to_s.split('.')
@@ -405,7 +403,7 @@ module Auxiliary::Report
     host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
-    name =
+    name = 
       Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
       (host || 'unknown') + '_' + ltype[0,16] + '_' +
       Rex::Text.rand_text_numeric(6) + '.' + ext
