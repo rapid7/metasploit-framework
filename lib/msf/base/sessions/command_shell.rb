@@ -487,7 +487,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd.chomp + "\n")
+    shell_write(cmd + "\n")
   end
 
   #
@@ -652,7 +652,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        run_single(user_input.gets)
+        run_single((user_input.gets || '').chomp("\n"))
       end
       Thread.pass
     end
