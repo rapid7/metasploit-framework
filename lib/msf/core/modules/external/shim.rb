@@ -20,6 +20,8 @@ class Msf::Modules::External::Shim
       single_host_login_scanner(mod)
     when 'multi_scanner'
       multi_scanner(mod)
+    when 'evasion'
+      evasion(mod)
     else
       nil
     end
@@ -142,6 +144,27 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     render_template('dos.erb', meta)
+  end
+
+  def self.evasion(mod)
+    meta = mod_meta_common(mod)
+    meta[:platform]    = mod.meta['targets'].map do |t|
+      t['platform'].dump
+    end.uniq.join(",\n          ")
+    meta[:arch]        = mod.meta['targets'].map do |t|
+      t['arch'].dump
+    end.uniq.join(",\n          ")
+    meta[:references]  = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+    meta[:targets]     = mod.meta['targets'].map do |t|
+      if t['name']
+        "[#{t['name'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
+      else
+        "[#{t['platform'].dump} + ' ' + #{t['arch'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
+      end
+    end.join(",\n          ")
+    render_template('evasion.erb', meta)
   end
 
   #
