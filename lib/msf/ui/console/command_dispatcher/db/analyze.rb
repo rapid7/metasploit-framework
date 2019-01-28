@@ -1,7 +1,7 @@
 module Msf::Ui::Console::CommandDispatcher::Analyze
 
   def cmd_analyze(*args)
-    if !active?
+    unless active?
       print_error "Not currently connected to a data service for analysis."
       return []
     end

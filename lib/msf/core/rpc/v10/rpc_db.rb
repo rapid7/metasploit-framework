@@ -687,8 +687,8 @@ public
   #  * 'host' [Array<Hash>] Each hash in the array contains the following:
   #    * 'address' [String] Address.
   #    * 'modules' [Array<Hash>] Each hash in the array modules contains the following:
-  #      * 'mtype' []String] Module type.
-  #      * 'nmame' [String] Module name. For example: 'windows/wlan/wlan_profile'
+  #      * 'mtype' [String] Module type.
+  #      * 'mname' [String] Module name. For example: 'windows/wlan/wlan_profile'
   # @example Here's how you would use this from the client:
   #  rpc.call('db.analyze_host', {:host => ip})
 def rpc_analyze_host(xopts)
@@ -701,7 +701,7 @@ def rpc_analyze_host(xopts)
     h = self.framework.db.get_host(opts)
     h_result = self.framework.analyze.host(h)
     host_detail = {}
-    host_detail[:address] = host
+    host_detail[:address] = h.address
     # for now only modules can be returned, in future maybe process whole result map
     unless h_result[:modules].empty?
       host_detail[:modules] = []
@@ -710,6 +710,7 @@ def rpc_analyze_host(xopts)
         mod_detail[:mtype]  = mod.mtype
         mod_detail[:mname]  = mod.full_name
       end
+      host_detail[:modules] = mod_detail
     end
     ret[:host] << host_detail
     ret

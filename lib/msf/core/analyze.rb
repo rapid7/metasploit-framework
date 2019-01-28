@@ -61,28 +61,21 @@ class Msf::Analyze
   # This is a fail-open gate; if there's a doubt, assume the module will work on this target.
   def exploit_matches_host_os(mod, host)
     hos = host.os_name
-    return true if not hos
-    return true if hos.length == 0
+    return true if hos.nil? || hos.empty?
 
     set = mod.platform.split(',').map{ |x| x.downcase }
-    return true if set.length == 0
+    return true if set.empty?
 
     # Special cases
     return true if set.include?("unix") and hos !~ /windows/i
 
-    # Skip archaic old HPUX bugs if we have a solid match against another OS
-    if set.include?("unix") and set.include?("hpux") and mod.refname.index("hpux") and hos =~ /linux|irix|solaris|aix|bsd/i
-      return false
-    end
-
-    # Skip AIX bugs if we have a solid match against another OS
-    if set.include?("unix") and set.include?("aix") and mod.refname.index("aix") and hos =~ /linux|irix|solaris|hpux|bsd/i
-      return false
-    end
-
-    # Skip IRIX bugs if we have a solid match against another OS
-    if set.include?("unix") and set.include?("irix") and mod.refname.index("irix") and hos =~ /linux|solaris|hpux|aix|bsd/i
-      return false
+    if set.include?("unix")
+      # Skip archaic old HPUX bugs if we have a solid match against another OS
+      return false if set.include?("hpux") and mod.refname.index("hpux") and hos =~ /linux|irix|solaris|aix|bsd/i
+      # Skip AIX bugs if we have a solid match against another OS
+      return false if set.include?("aix") and mod.refname.index("aix") and hos =~ /linux|irix|solaris|hpux|bsd/i
+      # Skip IRIX bugs if we have a solid match against another OS
+      return false if set.include?("irix") and mod.refname.index("irix") and hos =~ /linux|solaris|hpux|aix|bsd/i
     end
 
     return true if set.include?("php")
