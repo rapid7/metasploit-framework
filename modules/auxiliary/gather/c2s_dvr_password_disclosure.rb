@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
       'Name'         => 'C2S DVR Management Password Disclosure',
       'Description'  => %q{
         C2S DVR allows an unauthenticated user to disclose the username
-        & password by requesting the javascript page 'read.cgi?page=2'
+        & password by requesting the javascript page 'read.cgi?page=2'.
       },
-      'References'   => [[ 'EDB', '40265' ]],
+      'References'   => [['EDB', '40265']],
       'Author'       =>
         [
           'Yakir Wizman', # discovery
@@ -25,10 +25,9 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Aug 19 2016'
     )
 
-    register_options(
-      [
-        OptString.new('TARGETURI', [false, 'URL of the C2S DVR root', '/'])
-      ])
+    register_options([
+      OptString.new('TARGETURI', [false, 'URL of the C2S DVR root', '/'])
+    ])
   end
 
   def run_host(rhost)
