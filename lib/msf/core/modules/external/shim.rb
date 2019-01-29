@@ -50,6 +50,14 @@ class Msf::Modules::External::Shim
     meta[:advanced_options] = mod_meta_common_options(mod, 'advanced_options', ignore_options: ignore_options)
     meta[:capabilities]     = mod.meta['capabilities']
     meta[:notes]            = transform_notes(mod.meta['notes'])
+
+    if mod.meta['default_options'].nil?
+      mod.meta['default_options'] = {}
+    end
+    meta[:default_options]  = mod.meta['default_options'].map do |name, value|
+      "#{name.dump} => #{value.inspect}"
+    end.join(",\n          ")
+
     meta
   end
 

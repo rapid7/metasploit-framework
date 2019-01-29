@@ -7,16 +7,20 @@ class MetasploitModule < Msf::Evasion
   def initialize
     super({
     <%= common_metadata meta %>
-      'References'  =>
+      'References'      =>
         [
           <%= meta[:references] %>
         ],
-      'Platform'       => [<%= meta[:platform] %>],
-      'Arch'           => [<%= meta[:arch] %>],
-      'Targets'        =>
+      'Platform'        => [<%= meta[:platform] %>],
+      'Arch'            => [<%= meta[:arch] %>],
+      'Targets'         =>
         [
           <%= meta[:targets] %>
         ],
+      'DefaultOptions' =>
+        {
+          <%= meta[:default_options] %>
+        }
       })
 
       register_options([
