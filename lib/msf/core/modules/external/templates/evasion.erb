@@ -22,6 +22,10 @@ class MetasploitModule < Msf::Evasion
       register_options([
         <%= meta[:options] %>
       ])
+
+      register_advanced_options([
+        <%= meta[:advanced_options] %>
+      ])
   end
 
   def run
