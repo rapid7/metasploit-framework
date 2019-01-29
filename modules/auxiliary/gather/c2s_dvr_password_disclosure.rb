@@ -14,6 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'  => %q{
         C2S DVR allows an unauthenticated user to disclose the username
         & password by requesting the javascript page 'read.cgi?page=2'.
+        This may also work on some cameras including IRDOME-II-C2S, IRBOX-II-C2S.
       },
       'References'   => [['EDB', '40265']],
       'Author'       =>
