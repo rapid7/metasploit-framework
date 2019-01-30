@@ -653,7 +653,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     end
 
-    return self.session_setup_clear(*args)
+    return self.session_setup_clear(user, pass, domain)
   end
 
   # Authenticate using clear-text passwords

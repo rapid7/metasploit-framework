@@ -148,7 +148,7 @@ class Console::CommandDispatcher::Core
     print_line
     print_line('Supported pivot types:')
     print_line('     - pipe (using named pipes over SMB)')
-    print_line('Supported arhiectures:')
+    print_line('Supported architectures:')
     @@pivot_supported_archs.each do |a|
       print_line('     - ' + a)
     end
