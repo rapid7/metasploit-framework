@@ -218,9 +218,6 @@ module Metasploit
 
         private
 
-
-
-
       end
 
     end

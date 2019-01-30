@@ -136,10 +136,8 @@ class MetasploitModule < Msf::Auxiliary
     wrote_hash = false
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NTLMHash').each do |core|
-      user = core.public.username
-      hash_string = core.private.data
-      id = core.id
-      hashlist.puts "#{user}:#{id}:#{hash_string}:::#{id}"
+      next if core.private.type == 'Metasploit::Credential::Origin::CrackedPassword'
+      hashlist.puts hash_to_jtr(core)
       wrote_hash = true
     end
     hashlist.close

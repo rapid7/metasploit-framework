@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         username = fields.shift
         core_id  = fields.pop
         4.times { fields.pop }
-        password = fields.join('') # Anything left must be the password. This accounts for passwords with : in them
+        password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
         print_good "#{username}:#{password}"
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
@@ -98,10 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       if core.private.jtr_format =~ /md5|des|bsdi|crypt|bf/
-        user = core.public.username
-        hash_string = core.private.data
-        id = core.id
-        hashlist.puts "#{user}:#{hash_string}:::::#{id}:"
+        hashlist.puts hash_to_jtr(core)
         wrote_hash = true
       end
     end

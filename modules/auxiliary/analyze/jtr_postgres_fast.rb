@@ -151,15 +151,11 @@ class MetasploitModule < Msf::Auxiliary
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::PostgresMD5').each do |core|
       if core.private.jtr_format =~ /postgres|raw-md5/
-        user = core.public.username
-        @username_set << user
-        hash_string = core.private.data
-        hash_string.gsub!(/^md5/, '')
-        id = core.id
-        # john --list=subformats | grep 'PostgreSQL MD5'
-        #UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
-        hashlist.puts "#{user}:$dynamic_1034$#{hash_string}"
-        reconstruct_list << "#{user}:$dynamic_1034$#{hash_string}:#{id}"
+        @username_set << core.public.username
+        hash = hash_to_jtr(core)
+        hashlist.puts hash
+        hash = hash.split('$dynamic_1034$')[1]
+        reconstruct_list << "#{core.public.username}:$dynamic_1034$#{hash}:#{core.id}"
         wrote_hash = true
       end
     end

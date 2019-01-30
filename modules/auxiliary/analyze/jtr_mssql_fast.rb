@@ -108,10 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       if core.private.jtr_format =~ /mssql|mssql05|mssql12/
         @formats << core.private.jtr_format
-        user = core.public.username
-        hash_string = core.private.data
-        id = core.id
-        hashlist.puts "#{user}:#{hash_string}:#{id}:"
+        hashlist.puts hash_to_jtr(core)
         wrote_hash = true
       end
     end

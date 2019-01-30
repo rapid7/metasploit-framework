@@ -95,10 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       if core.private.jtr_format =~ /mysql|mysql-sha1/
-        user = core.public.username
-        hash_string = core.private.data
-        id = core.id
-        hashlist.puts "#{user}:#{hash_string}:#{id}:"
+        hashlist.puts hash_to_jtr(core)
         wrote_hash = true
       end
     end
