@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_good("#{shost}:#{sport} #{info}")
+    print_good("#{shost}:#{sport} Ubiquiti Discovery metadata: #{info}")
     report_service(
       host: shost,
       proto: 'udp',
