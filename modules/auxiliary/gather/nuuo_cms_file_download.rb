@@ -82,9 +82,14 @@ password NUCMS2007! to unzip them.")
     if datastore['FILE'] != nil
       filedata = nucs_download_file(datastore['FILE'])
       filename = datastore['FILE'].gsub('..\\', '')
-      path = store_loot(filename, "application/octet-stream", datastore['RHOST'],
-                        filedata, filename, "File downloaded from Nuuo CMS server")
-      print_good("Downloaded #{filename} to #{path}")
+
+      if filedata != nil and filedata.length > 0
+        path = store_loot(filename, "application/octet-stream", datastore['RHOST'],
+                          filedata, filename, "File downloaded from Nuuo CMS server")
+        print_good("Downloaded #{filename} to #{path}")
+      else
+        print_error("Failed to download \"#{filename}\", are you sure it exists?")
+      end
     end
   end
 end
