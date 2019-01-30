@@ -87,12 +87,27 @@ module Kernel
   end
 
   #
+  # Returns a list of CPU flags
+  #
+  # @return [Array]
+  #
+  def cpu_flags
+    cpuinfo = cmd_exec('cat /proc/cpuinfo').to_s
+
+    return unless cpuinfo.include? 'flags'
+
+    cpuinfo.scan(/^flags\s*:(.*)$/).flatten.join(' ').split(/\s/).map(&:strip).reject(&:empty?).uniq
+  rescue
+    raise'Could not retrieve CPU flags'
+  end
+
+  #
   # Returns true if kernel and hardware supports Supervisor Mode Access Prevention (SMAP), false if not.
   #
   # @return [Boolean]
   #
   def smap_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'smap'
+    cpu_flags.include? 'smap'
   rescue
     raise 'Could not determine SMAP status'
   end
@@ -103,7 +118,7 @@ module Kernel
   # @return [Boolean]
   #
   def smep_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'smep'
+    cpu_flags.include? 'smep'
   rescue
     raise 'Could not determine SMEP status'
   end
@@ -114,9 +129,20 @@ module Kernel
   # @return [Boolean]
   #
   def kaiser_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'kaiser'
+    cpu_flags.include? 'kaiser'
   rescue
     raise 'Could not determine KAISER status'
+  end
+
+  #
+  # Returns true if Kernel Page-Table Isolation (KPTI) is enabled, false if not.
+  #
+  # @return [Boolean]
+  #
+  def kpti_enabled?
+    cpu_flags.include? 'pti'
+  rescue
+    raise 'Could not determine KPTI status'
   end
 
   #

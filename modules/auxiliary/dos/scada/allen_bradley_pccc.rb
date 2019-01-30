@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       },
         'Author'         => [
           'José Diogo Monteiro <jdlopes[at]student.dei.uc.pt>',
-          'Luis Rosa <lmrosa[at]dei.uc.pt)>',
+          'Luis Rosa <lmrosa[at]dei.uc.pt>',
           'Miguel Borges de Freitas <miguelbf[at]dei.uc.pt>'
       ],
       'License'        => MSF_LICENSE,
