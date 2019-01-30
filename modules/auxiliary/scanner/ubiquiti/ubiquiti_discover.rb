@@ -52,26 +52,32 @@ class MetasploitModule < Msf::Auxiliary
       remaining -= 4
 
       field_data = data.slice(offset, length)
+      if field_data.empty?
+        next
+      end
       offset += length
       remaining -= length
+      # name
       if type == 0x0b
         info['name'] = field_data
+      # MAC
       elsif type == 0x01
-        # process the MAC
         info['macs'] << field_data.each_byte.map { |b| b.to_s(16) }.join(':')
+      # MAC and IP
       elsif type == 0x02
-        # process a MAC and IP
         info['macs'] << field_data.slice(0,6).each_byte.map { |b| b.to_s(16) }.join(':')
         info['ips'] << field_data.slice(6,4).each_byte.map { |b| b.to_i }.join('.')
-        #info['macs'].append(':'.join("{:02x}".format(b) for b in struct.unpack("BBBBBB", field_data[:6])))
-        #info['ips'].append('.'.join(str(int(b)) for b in struct.unpack("BBBB", field_data[6:10])))
+      # long model
       elsif type == 0x14
         info['model_long'] = field_data
+      # short model
       elsif type == 0x0c
         info['model_short'] = field_data
+      # firmware version
       elsif type == 0x03
         info['firmware'] = field_data
-      elsif  type == 0x0d
+      # essid in some situations
+      elsif type == 0x0d
         info['essid'] = field_data
       else
       end
