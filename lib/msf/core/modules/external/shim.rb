@@ -46,8 +46,8 @@ class Msf::Modules::External::Shim
     meta[:description]      = mod.meta['description'].dump
     meta[:authors]          = mod.meta['authors'].map(&:dump).join(",\n          ")
     meta[:license]          = mod.meta['license'].nil? ? 'MSF_LICENSE' : mod.meta['license']
-    meta[:options]          = mod_meta_common_options(mod, 'options', ignore_options: ignore_options)
-    meta[:advanced_options] = mod_meta_common_options(mod, 'advanced_options', ignore_options: ignore_options)
+    meta[:options]          = mod_meta_common_options(mod, ignore_options: ignore_options)
+    meta[:advanced_options] = mod_meta_common_options(mod, ignore_options: ignore_options, advanced: true)
     meta[:capabilities]     = mod.meta['capabilities']
     meta[:notes]            = transform_notes(mod.meta['notes'])
 
@@ -61,15 +61,16 @@ class Msf::Modules::External::Shim
     meta
   end
 
-  def self.mod_meta_common_options(mod, opts_name, ignore_options: [])
+  def self.mod_meta_common_options(mod, ignore_options: [], advanced: false)
     # Set modules without options to have an empty map
-    if mod.meta[opts_name].nil?
-      mod.meta[opts_name] = {}
+    if mod.meta['options'].nil?
+      mod.meta['options'] = {}
     end
 
-    options = mod.meta[opts_name].reject {|n, _| ignore_options.include? n}
+    options = mod.meta['options'].map do |n, o|
+      next if ignore_options.include? n
+      next unless o.fetch('advanced', false) == advanced
 
-    opts_str = options.map do |n, o|
       if o['values']
         "Opt#{o['type'].camelize}.new(#{n.dump},
           [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}, #{o['values'].inspect}])"
@@ -77,9 +78,9 @@ class Msf::Modules::External::Shim
         "Opt#{o['type'].camelize}.new(#{n.dump},
           [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
       end
-    end.join(",\n          ")
-
-    opts_str
+    end
+    options.reject! { |o| o.nil? }
+    options.join(",\n          ")
   end
 
   def self.mod_meta_exploit(mod, meta = {})
