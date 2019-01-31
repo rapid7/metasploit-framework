@@ -369,12 +369,13 @@ module Metasploit
         # This method takes all the options provided and streams the generated wordlist out
         # to a {Rex::Quickfile} and returns the {Rex::Quickfile}.
         #
+        # @param max_len [Integer] max length of a word in the wordlist, 0 default for ignored value
         # @return [Rex::Quickfile] The {Rex::Quickfile} object that the wordlist has been written to
-        def to_file
+        def to_file(max_len = 0)
           valid!
           wordlist_file = Rex::Quickfile.new("jtrtmp")
           each_word do |word|
-            wordlist_file.puts word
+            wordlist_file.puts max_len == 0 ? word : word[0...max_len]
           end
           wordlist_file
         end

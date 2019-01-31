@@ -211,7 +211,7 @@ module VulnApiDoc
 
     # Swagger documentation for /api/v1/vulns/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing vuln.'
+      key :description, 'Update the attributes on an existing vuln.'
       key :tags, [ 'vuln' ]
 
       parameter :update_id
