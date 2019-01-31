@@ -26,10 +26,6 @@ class Obj
   # @return [Array<String>]
   attr_reader :references
   # @return [Boolean]
-  attr_reader :is_server
-  # @return [Boolean]
-  attr_reader :is_client
-  # @return [String]
   attr_reader :platform
   # @return [String]
   attr_reader :arch
@@ -70,8 +66,6 @@ class Obj
     @description        = module_instance.description.to_s.strip
     @author             = module_instance.author.map{|x| x.to_s}
     @references         = module_instance.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-    @is_server          = module_instance.respond_to?(:exploit_type) && module_instance.exploit_type == Exploit::Type::Remote
-    @is_client          = module_instance.respond_to?(:exploit_type) && !@is_server
     @post_auth          = module_instance.post_auth?
     @default_credential = module_instance.default_cred?
 
@@ -123,8 +117,6 @@ class Obj
       'author'             => @author,
       'description'        => @description,
       'references'         => @references,
-      'is_server'          => @is_server,
-      'is_client'          => @is_client,
       'platform'           => @platform,
       'arch'               => @arch,
       'rport'              => @rport,
@@ -174,8 +166,6 @@ class Obj
     @description        = obj_hash['description']
     @author             = obj_hash['author'].nil? ? [] : obj_hash['author']
     @references         = obj_hash['references']
-    @is_server          = obj_hash['is_server']
-    @is_client          = obj_hash['is_client']
     @platform           = obj_hash['platform']
     @arch               = obj_hash['arch']
     @rport              = obj_hash['rport']

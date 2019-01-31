@@ -147,7 +147,6 @@ module Msf::DBManager::ModuleCache
   # This provides a standard set of search filters for every module.
   #
   # Supported keywords with the format <keyword>:<search_value>:
-  # +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
   # +author+:: Matches modules with the given author email or name.
   # +bid+:: Matches modules with the given Bugtraq ID.
   # +cve+:: Matches modules with the given CVE ID.
@@ -212,15 +211,6 @@ module Msf::DBManager::ModuleCache
         formatted_values = match_values(value_set)
 
         case keyword
-          when 'app'
-            formatted_values = value_set.collect { |value|
-              formatted_value = 'aggressive'
-              if value == 'client'
-                formatted_value = 'passive'
-              end
-              formatted_value
-            }
-            @stances << formatted_values
           when 'arch'
             @archs << formatted_values
           when 'author'
