@@ -235,6 +235,14 @@ module Msf::Post::Common
     nil
   end
 
-  private
+  #
+  # Checks if the `cmd` is installed on the system
+  # @return [Boolean]
+  #
+  def command_exists?(cmd)
+    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+  rescue
+    raise "Unable to check if command `#{cmd}' exists"
+  end
 
 end
