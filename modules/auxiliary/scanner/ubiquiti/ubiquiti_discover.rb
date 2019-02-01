@@ -35,13 +35,13 @@ class MetasploitModule < Msf::Auxiliary
   def scanner_process(data, shost, sport)
     offset = 0
     if data.length < 4
-        return
+      return
     end
 
     type, length = data.unpack("vn")
     offset += 4
     if type != 1 || length != data.length - offset
-        return
+      return
     end
 
     remaining = data.length - offset
@@ -52,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
       remaining -= 4
 
       field_data = data.slice(offset, length)
+      offset += length
+      remaining -= length
       if field_data.empty?
         next
       end
-      offset += length
-      remaining -= length
       # name
       if type == 0x0b
         info['name'] = field_data
@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       elsif type == 0x0d
         info['essid'] = field_data
       else
+        vprint_warning("#{shost}:#{sport} skipping unhandled #{length}-byte field type '#{type}': '#{field_data.unpack("H*")}'")
       end
     end
 
