@@ -58,26 +58,27 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
       # name
-      if type == 0x0b
+      case type
+      when 0x0b
         info['name'] = field_data
       # MAC
-      elsif type == 0x01
+      when 0x01
         info['macs'] << field_data.each_byte.map { |b| b.to_s(16) }.join(':')
       # MAC and IP
-      elsif type == 0x02
+      when 0x02
         info['macs'] << field_data.slice(0,6).each_byte.map { |b| b.to_s(16) }.join(':')
         info['ips'] << field_data.slice(6,4).each_byte.map { |b| b.to_i }.join('.')
       # long model
-      elsif type == 0x14
+      when 0x14
         info['model_long'] = field_data
       # short model
-      elsif type == 0x0c
+      when 0x0c
         info['model_short'] = field_data
       # firmware version
-      elsif type == 0x03
+      when 0x03
         info['firmware'] = field_data
       # essid in some situations
-      elsif type == 0x0d
+      when 0x0d
         info['essid'] = field_data
       else
         vprint_warning("#{shost}:#{sport} skipping unhandled #{length}-byte field type '#{type}': '#{field_data.unpack("H*")}'")
