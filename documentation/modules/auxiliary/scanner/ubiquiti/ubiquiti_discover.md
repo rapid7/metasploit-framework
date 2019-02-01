@@ -7,8 +7,8 @@ Many devices produced by Ubiquiti are affected by this issue.
   1. Locate a network known or suspected to house Ubiquiti devices
   2. Start msfconsole
   3. Do: `use auxiliary/scanner/ubiquiti_discovery`
-  3. Do: `set RHOSTS <some_targets>`
-  4. Do: `run`
+  4. Do: `set RHOSTS <some_targets>`
+  5. Do: `run`
 
 ## Scenarios
 
