@@ -421,6 +421,8 @@ class Driver < Msf::Ui::Driver
         handle_console_logging(val) if (glob)
       when "loglevel"
         handle_loglevel(val) if (glob)
+      when "sshversion"
+        handle_sshversion(val)
     end
   end
 
@@ -573,6 +575,33 @@ protected
   def handle_loglevel(val)
     set_log_level(Rex::LogSource, val)
     set_log_level(Msf::LogSource, val)
+  end
+
+  #
+  # This method monkeypatches Net::SSH's identification string.
+  #
+  def handle_sshversion(val)
+    return false unless val && val.kind_of?(String) && !val.empty?
+
+    begin
+      require 'net/ssh'
+    rescue LoadError
+      return false
+    end
+
+    # HACK: Suppress already initialized constant warning
+    verbose, $VERBOSE = $VERBOSE, nil
+
+    begin
+      # HACK: Bypass dynamic constant assignment error
+      ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
+    rescue NameError
+      return false
+    end
+
+    $VERBOSE = verbose
+
+    true
   end
 
   # Require the appropriate readline library based on the user's preference.
