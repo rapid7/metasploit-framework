@@ -60,15 +60,15 @@ class MetasploitModule < Msf::Auxiliary
     # lanman, and other assorted nuances
     ['lm', 'nt', 'dynamic_1034', 'oracle11', 'oracle12c', 'dynamic_1506',
      'oracle', 'md5crypt', 'descrypt', 'bcrypt', 'crypt', 'mysql', 'mysql-sha1',
-     'mssql', 'mssql05', 'mssql12'].each do |format|
+     'mssql', 'mssql05', 'mssql12', 'bsdicrypt'].each do |format|
  
       print_status("Checking #{format} hashes against pot file")
       cracker.format = format
       cracker.each_cracked_password do |password_line|
         password_line.chomp!
         next if password_line.blank? || password_line.nil?
-        print_bad("#{password_line}")
         fields = password_line.split(":")
+        core_id = nil
         case format
         when 'descrypt'
           next unless fields.count >=3
@@ -113,9 +113,14 @@ class MetasploitModule < Msf::Auxiliary
         end
         password = fields.join(':')        
         print_good "#{username}:#{password}"
+        unless core_id.nil?
+          create_cracked_credential( username: username, password: password, core_id: core_id)
+          next
+        else
+          print_bad("#{password_line}")
+        end
         lookups.each do |h|
           next 
-          create_cracked_credential( username: username, password: password, core_id: core_id)
         end
       end
     end
