@@ -161,7 +161,7 @@ class Msf::Modules::External::Shim
   end
 
   def self.evasion(mod)
-    meta = mod_meta_common(mod)
+    meta = mod_meta_common(mod, ignore_options: ['payload_raw', 'payload_encoded', 'target'])
     meta[:platform]    = mod.meta['targets'].map do |t|
       t['platform'].dump
     end.uniq.join(",\n          ")
