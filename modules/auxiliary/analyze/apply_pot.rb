@@ -22,20 +22,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # Not all hash formats include an 'id' field, which coresponds which db entry
-  # an item is to its hash.  This can be problematic, especially when a username
-  # is used as a salt.  Due to all the variations, we make a small HashLookup
-  # class to handle all the fields for easier lookup later.
-  class HashLookup
-    def initialize(db_hash, jtr_hash, username, id)
-      @db_hash = db_hash
-      @jtr_hash = jtr_hash
-      @username = username
-      @id = id
-    end
-  end
-
-
   def run
     cracker = new_john_cracker
 
@@ -96,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
           # get the NT and LM hashes
           nt_hash = fields.pop
           lm_hash = fields.pop
-          id = fields.pop
+          core_id = fields.pop
           password = fields.join(':')
           if format == 'lm'
             if password.blank?
@@ -115,12 +101,6 @@ class MetasploitModule < Msf::Auxiliary
         print_good "#{username}:#{password}"
         unless core_id.nil?
           create_cracked_credential( username: username, password: password, core_id: core_id)
-          next
-        else
-          print_bad("#{password_line}")
-        end
-        lookups.each do |h|
-          next 
         end
       end
     end
