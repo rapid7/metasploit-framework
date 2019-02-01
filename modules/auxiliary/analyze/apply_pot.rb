@@ -3,12 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
-## redo all this and let john --show do the work.
-## also create a hash file with everything in it to test.
-
-
+require 'msf/core/auxiliary/jtr'
 
 class MetasploitModule < Msf::Auxiliary
   #include Msf::Auxiliary::Report
@@ -25,79 +20,107 @@ class MetasploitModule < Msf::Auxiliary
       'Author'          => ['h00die'],
       'License'         => MSF_LICENSE
     )
-    register_options([
-      OptPath.new('POT', [true, '.pot file to apply to password hashes', '/'])
-    ])
-
   end
+
+  # Not all hash formats include an 'id' field, which coresponds which db entry
+  # an item is to its hash.  This can be problematic, especially when a username
+  # is used as a salt.  Due to all the variations, we make a small HashLookup
+  # class to handle all the fields for easier lookup later.
+  class HashLookup
+    def initialize(db_hash, jtr_hash, username, id)
+      @db_hash = db_hash
+      @jtr_hash = jtr_hash
+      @username = username
+      @id = id
+    end
+  end
+
 
   def run
     cracker = new_john_cracker
 
-    # this is our lookup table for translating hashes to jtr style
-    # to what is in the database
-    hashes = []
+    lookups = []
 
-    class HashLookup
-      def initialize(db_hash, jtr_hash, username, id)
-        @db_hash = db_hash
-        @jtr_hash = jtr_hash
-        @username = username
-        @id = id
-      end
-    end
-
-    # create a hash file with all the hashes
+    # create one massive hash file with all the hashes 
+    hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace).each do |core|
-      next if type == 'Metasploit::Credential::Password'
-        user = core.public.username
-        case core.private.jtr_type
-        when 'oracle12c'
-          if core.private.data =~ /T:([\dA-F]{160})/
-            jtr_hash = "$oracle12c$#{$1.downcase}"
+      next if core.private.type == 'Metasploit::Credential::Password'
+      jtr_hash = hash_to_jtr(core)
+      hashlist.puts jtr_hash
+      lookups << HashLookup.new(core.private.data, jtr_hash, core.public, core.id)
+    end
+    hashlist.close
+    cracker.hash_path = hashlist.path
+    print_status "Hashes Written out to #{hashlist.path}"
+    cleanup_files = [cracker.hash_path]
+
+    # cycle through all hash types we dump asking jtr to show us
+    # cracked passwords.  The advantage to this vs just comparing
+    # john.pot to the hashes directly is we use jtr to recombine
+    # lanman, and other assorted nuances
+    ['lm', 'nt', 'dynamic_1034', 'oracle11', 'oracle12c', 'dynamic_1506',
+     'oracle', 'md5crypt', 'descrypt', 'bcrypt', 'crypt', 'mysql', 'mysql-sha1',
+     'mssql', 'mssql05', 'mssql12'].each do |format|
+ 
+      print_status("Checking #{format} hashes against pot file")
+      cracker.format = format
+      cracker.each_cracked_password do |password_line|
+        password_line.chomp!
+        next if password_line.blank? || password_line.nil?
+        print_bad("#{password_line}")
+        fields = password_line.split(":")
+        case format
+        when 'descrypt'
+          next unless fields.count >=3
+          username = fields.shift
+          core_id  = fields.pop
+          4.times { fields.pop } # Get rid of extra :
+        when 'md5crypt', 'descrypt', 'bsdicrypt', 'crypt', 'bcrypt'
+          next unless fields.count >=7
+          username = fields.shift
+          core_id  = fields.pop
+          4.times { fields.pop }
+        when 'mssql', 'mssql05', 'mssql12', 'mysql', 'mysql-sha1',
+             'oracle', 'dynamic_1506', 'oracle11', 'oracle12c'
+          next unless fields.count >=3
+          username = fields.shift
+          core_id  = fields.pop
+        when 'dynamic_1034' #postgres
+          next unless fields.count >=2
+          username = fields.shift
+        when 'lm', 'nt'
+          next unless fields.count >=7
+          username = fields.shift
+          core_id = fields.pop
+          2.times{ fields.pop }
+          # get the NT and LM hashes
+          nt_hash = fields.pop
+          lm_hash = fields.pop
+          id = fields.pop
+          password = fields.join(':')
+          if format == 'lm'
+            if password.blank?
+              if nt_hash == Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+                password = ''
+              else
+                next
+              end
+            end
+            password = john_lm_upper_to_ntlm(password, nt_hash)
+            next if password.nil?
           end
-        when 'oracle11'
-          if core.private.data =~ /S:([\dA-F]{60})/
-            jtr_hash_string = $1
-          end
-        when 'dynamic_1506'
-          if core.private.data =~ /H:([\dA-F]{32})/
-            user = user.upcase
-            jtr_hash = "$dynamic_1506$#{$1}"
-          end
-        when /postgres|raw-md5/
-          jtr_hash = core.private.data
-          jtr_hash.gsub!(/^md5/, '')
-          jtr_hash = "#{user}:$dynamic_1034$#{jtr_hash}"
-        else
-          #des, md5, sha1, crypt, bf, bsdi
-          #mssql, mssql05, mssql12
-          #mysql, mysql-sha1
+          fields = password.split(':') #for consistency on the following join out of the case
         end
-        hash = HashLooup.new(core.private.data, jtr_hash, user, core.id)
-    end
-
-    # Load the pot file
-    unless ::File.file?(datastore['POT'])
-      fail_with Failure::NotFound, ".pot file #{datastore['POT']} not found"
-    end
-    f = ::File.open(datastore['POT'], 'rb')
-    pot = f.read(f.stat.size)
-    f.close
-
-    framework.db.creds(workspace: myworkspace).each do |core|
-      next if type == 'Metasploit::Credential::Password'
-      pot.each_line do |p|
-        p = p.split(":")
-        pot_hash = p.shift
-        password = p.join(":")
-        username = core.public.username
-        db_hash = core.private.data
-        # we need to do some manipulation here to make sure everything matches up correctly
-        next unless db_hash == pot_hash
-        print_good("Found #{username}:#{password}")
-        create_cracked_credential( username: username, password: password, core_id: core.id)
+        password = fields.join(':')        
+        print_good "#{username}:#{password}"
+        lookups.each do |h|
+          next 
+          create_cracked_credential( username: username, password: password, core_id: core_id)
+        end
       end
+    end
+    cleanup_files.each do |f|
+      #File.delete(f)
     end
   end
 end
