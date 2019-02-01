@@ -240,7 +240,13 @@ module Msf::Post::Common
   # @return [Boolean]
   #
   def command_exists?(cmd)
-    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+    if session.platform == 'windows'
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
+      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
+    else
+      cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+    end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
   end
