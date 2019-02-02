@@ -3,7 +3,7 @@ The Metasploit web service allows interaction with Metasploit's various data mod
 ## Managing the Web Service
 
 ### Requirements
-To use the web service you will need a PostgreSQL database to serve as the backend data store. The `msfdb` tool allows you to manage both the Metasploit Framework database and web service. If you are going configure the database manually you can find more information on the [Managing the Database](https://metasploit.help.rapid7.com/docs/managing-the-database) page.
+To use the web service you will need a PostgreSQL database to serve as the backend data store. The `msfdb` tool allows you to manage both the Metasploit Framework database and web service. If you are going to configure the database manually you can find more information on the [Managing the Database](https://metasploit.help.rapid7.com/docs/managing-the-database) page.
 
 ### Getting Started
 
