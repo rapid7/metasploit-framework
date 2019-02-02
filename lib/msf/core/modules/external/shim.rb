@@ -51,10 +51,10 @@ class Msf::Modules::External::Shim
     meta[:capabilities]     = mod.meta['capabilities']
     meta[:notes]            = transform_notes(mod.meta['notes'])
 
-    if mod.meta['default_options'].nil?
-      mod.meta['default_options'] = {}
+    if mod.meta['describe_payload_options'].nil?
+      mod.meta['describe_payload_options'] = {}
     end
-    meta[:default_options]  = mod.meta['default_options'].map do |name, value|
+    meta[:default_options]  = mod.meta['describe_payload_options'].map do |name, value|
       "#{name.dump} => #{value.inspect}"
     end.join(",\n          ")
 
