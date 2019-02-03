@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     cleanup_files.each do |f|
-      #File.delete(f)
+      File.delete(f)
     end
   end
 end
