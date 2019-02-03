@@ -1136,6 +1136,17 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
   end
 
+  # self.to_linux_armle_elf_dll
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf-so
+  def self.to_linux_armle_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_armle_linux_dll.bin", code)
+  end
+  
   # self.to_linux_aarch64_elf
   #
   # @param framework [Msf::Framework]
