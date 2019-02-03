@@ -132,6 +132,7 @@ class Creds
       user:         'Public, usually a username',
       password:     'Private, private_type Password.',
       ntlm:         'Private, private_type NTLM Hash.',
+      postgres:     'Private, private_type postgres MD5',
       'ssh-key' =>  'Private, private_type SSH key, must be a file path.',
       hash:         'Private, private_type Nonreplayable hash',
       jtr:          'Private, private_type John the Ripper hash type.',
@@ -152,6 +153,8 @@ class Creds
     print_line "   creds add user:admin ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
     print_line "   # Add a NTLMHash"
     print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
+    print_line "   # Add a Postgres MD5"
+    print_line "   creds add user:postgres postgres:md5be86a79bf2043622d58d5453c47d4860"
     print_line "   # Add a user with an SSH key"
     print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
     print_line "   # Add a user and a NonReplayableHash"
@@ -177,23 +180,23 @@ class Creds
 
     print_line
     print_line "Examples, John the Ripper hash types:"
-    print_line "Operating Systems"
-    print_line "  Blowfish          : bf,crypt"
-    print_line "  DES               : des,crypt"
-    print_line "  MD5               : md5,crypt"
-    print_line "  SHA256            : sha256,crypt"
-    print_line "  SHA512            : sha512,crypt"
-    print_line "Databases"
-    print_line "  MSSQL             : mssql"
-    print_line "  MSSQL 2005        : mssql05"
-    print_line "  MSSQL 2012/2014   : mssql12"
-    print_line "  MySQL < 4.1       : mysql"
-    print_line "  MySQL >= 4.1      : mysql-sha1"
-    print_line "  Oracle            : des,oracle"
-    print_line "  Oracle 11         : raw-sha1,oracle11"
-    print_line "  Oracle 11 (H type): dynamic_1506"
-    print_line "  Oracle 12c        : oracle12c"
-    print_line "  Postgres          : postgres,raw-md5"
+    print_line "  Operating Systems"
+    print_line "    Blowfish          : bf"
+    print_line "    DES               : des,crypt"
+    print_line "    MD5               : md5"
+    print_line "    SHA256            : sha256,crypt"
+    print_line "    SHA512            : sha512,crypt"
+    print_line "  Databases"
+    print_line "    MSSQL             : mssql"
+    print_line "    MSSQL 2005        : mssql05"
+    print_line "    MSSQL 2012/2014   : mssql12"
+    print_line "    MySQL < 4.1       : mysql"
+    print_line "    MySQL >= 4.1      : mysql-sha1"
+    print_line "    Oracle            : des,oracle"
+    print_line "    Oracle 11         : raw-sha1,oracle11"
+    print_line "    Oracle 11 (H type): dynamic_1506"
+    print_line "    Oracle 12c        : oracle12c"
+    print_line "    Postgres          : postgres,raw-md5"
 
     print_line
     print_line "Examples, listing:"
@@ -225,14 +228,14 @@ class Creds
     end
 
     begin
-      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr')
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'postgres')
     rescue ArgumentError => e
       print_error(e.message)
     end
 
     # Verify we only have one type of private
-    if params.slice('password','ntlm','ssh-key','hash').length > 1
-      private_keys = params.slice('password','ntlm','ssh-key','hash').keys
+    if params.slice('password','ntlm','ssh-key','hash', 'postgres').length > 1
+      private_keys = params.slice('password','ntlm','ssh-key','hash', 'postgres').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
       return
     end
@@ -290,6 +293,16 @@ class Creds
       data[:private_type] = :nonreplayable_hash
       data[:private_data] = params['hash']
       data[:jtr_format] = params['jtr'] if params.key? 'jtr'
+    end
+
+    if params.key? 'postgres'
+      data[:private_type] = :postgres_md5
+      if params['postgres'].downcase.start_with?('md5')
+        data[:private_data] = params['postgres']
+        data[:jtr_format] = 'postgres'
+      else
+        print_error("Postgres MD5 hashes should start wtih 'md5'")
+      end
     end
 
     begin

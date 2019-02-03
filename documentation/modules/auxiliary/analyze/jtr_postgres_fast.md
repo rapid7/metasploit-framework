@@ -33,7 +33,7 @@
    The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
    `USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
 
-   **ITERATION_TIMOUT**
+   **ITERATION_TIMEOUT**
 
    The max-run-time for each iteration of cracking
 
@@ -65,7 +65,7 @@
 
    The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
    records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
-   Default is `metasploit-framework/data/john.pot`.
+   Default is `~/.msf4/john.pot`.
 
    **USE_CREDS**
 

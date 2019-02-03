@@ -27,7 +27,7 @@ module Auxiliary::JohnTheRipper
       [
         OptPath.new('CONFIG',               [false, 'The path to a John config file to use instead of the default']),
         OptPath.new('CUSTOM_WORDLIST',      [false, 'The path to an optional custom wordlist']),
-        OptInt.new('ITERATION_TIMOUT',      [false, 'The max-run-time for each iteration of cracking']),
+        OptInt.new('ITERATION_TIMEOUT',     [false, 'The max-run-time for each iteration of cracking']),
         OptPath.new('JOHN_PATH',            [false, 'The absolute path to the John the Ripper executable']),
         OptBool.new('KORELOGIC',            [false, 'Apply the KoreLogic rules to Wordlist Mode(slower)', false]),
         OptBool.new('MUTATE',               [false, 'Apply common mutations to the Wordlist (SLOW)', false]),
