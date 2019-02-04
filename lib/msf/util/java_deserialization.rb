@@ -19,10 +19,10 @@ class JavaDeserialization
     end
 
     # Extract the specified payload type (including cmd, bash, powershell, none)
-		payloads_json = json[modified_type.to_s]
-		if payloads_json.nil?
-			raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
-		end
+    payloads_json = json[modified_type.to_s]
+    if payloads_json.nil?
+      raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
+    end
 
     # Extract the specified payload (status, lengthOffset, bufferOffset, bytes)
     payload = payloads_json[payload_name]
