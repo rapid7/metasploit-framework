@@ -5,30 +5,29 @@ module Util
 
 require 'json'
 
-# TODO:
-# Support ysoserial alongside ysoserial-modified payloads (including cmd, bash, powershell, none)
-
 class JavaDeserialization
 
   PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
-  def self.ysoserial_payload(payload_name, command=nil, modified_type:'original')
+  def self.ysoserial_payload(payload_name, command=nil, modified_type: 'original')
     # Open the JSON file and parse it
     begin
       path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
       json = JSON.parse(File.read(path))
-      json = json[modified_type.to_s]
-      if json.nil?
-        raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
-      end
     rescue Errno::ENOENT, JSON::ParserError
       raise RuntimeError, "Unable to load JSON data from 'data/#{PAYLOAD_FILENAME}'"
     end
 
-    raise ArgumentError, "#{payload_name} payload not found in ysoserial payloads" if json[payload_name].nil?
+    # Extract the specified payload type (including cmd, bash, powershell, none)
+		payloads_json = json[modified_type.to_s]
+		if payloads_json.nil?
+			raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
+		end
 
     # Extract the specified payload (status, lengthOffset, bufferOffset, bytes)
-    payload = json[payload_name]
+    payload = payloads_json[payload_name]
+
+    raise ArgumentError, "#{payload_name} payload not found in ysoserial payloads" if payload.nil?
 
     # Based on the status, we'll raise an exception, return a static payload, or
     # generate a dynamic payload with modifications at the specified offsets
@@ -68,6 +67,6 @@ class JavaDeserialization
     end
   end
 
-end
-end
-end
+end # JavaDeserialization
+end # Util
+end # Msf
