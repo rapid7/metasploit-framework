@@ -180,12 +180,13 @@ class Creds
 
     print_line
     print_line "Examples, John the Ripper hash types:"
-    print_line "  Operating Systems"
-    print_line "    Blowfish          : bf"
+    print_line "  Operating Systems (starts with)"
+    print_line "    Blowfish ($2a$)   : bf"
+    print_line "    BSDi     (_)      : bsdi"
     print_line "    DES               : des,crypt"
-    print_line "    MD5               : md5"
-    print_line "    SHA256            : sha256,crypt"
-    print_line "    SHA512            : sha512,crypt"
+    print_line "    MD5      ($1$)    : md5"
+    print_line "    SHA256   ($5$)    : sha256,crypt"
+    print_line "    SHA512   ($6$)    : sha512,crypt"
     print_line "  Databases"
     print_line "    MSSQL             : mssql"
     print_line "    MSSQL 2005        : mssql05"
