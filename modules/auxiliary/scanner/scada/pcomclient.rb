@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('ADDRESS', [true, "PCOM memory address (0 - 65535)", 0]),
         OptInt.new('LENGTH', [true, "Number of values to read (1 - 255) (read only)", 3]),
         OptString.new('VALUES', [false, "Values to write (0 - 65535 each) (comma separated) (write only)"]),
-        OptEnum.new("OPERAND", [true, 'Operand type', "MI", ["Input", "Output", "SB", "MB", "MI", "SI", "ML", "SL"]])
+        OptEnum.new("OPERAND", [true, 'Operand type', "MI", ["Input", "Output", "SB", "MB", "MI", "SI", "ML", "SL", "SDW","MDW"]])
       ])
   end
 
@@ -89,6 +89,10 @@ class MetasploitModule < Msf::Auxiliary
       cc = "RNL"
     when "SL"
       cc = "RNH"
+    when "SDW"
+      cc = "RNJ"
+    when "MDW"
+      cc = "RND"
     else
       print_error("Unknown operand #{datastore['OPERAND']}")
       return
@@ -148,6 +152,10 @@ class MetasploitModule < Msf::Auxiliary
       cc = "SNL"
     when "SL"
       cc = "SNH"
+    when "SDW"
+      cc = "SDJ"
+    when "MDW"
+      cc = "SND"
     else
       print_error("Unknown operand #{datastore['OPERAND']}")
       return
