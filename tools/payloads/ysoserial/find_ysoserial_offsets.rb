@@ -24,8 +24,8 @@ end
 debug = ARGV.include?('-d')
 @ysoserial_modified = ARGV.include?('-m')
 if @ysoserial_modified
-  payload_type = ARGV[ARGV.find_index('-m')+1]
-  unless ['cmd', 'bash', 'powershell', 'none'].include?(payload_type)
+  @payload_type = ARGV[ARGV.find_index('-m')+1]
+  unless ['cmd', 'bash', 'powershell', 'none'].include?(@payload_type)
     STDERR.puts 'ERROR: Invalid payload type specified'
     abort
   end
@@ -37,7 +37,7 @@ def generate_payload(payload_name,search_string_length)
 
   # Build the command line with ysoserial parameters
   if @ysoserial_modified
-    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar',payload_name.to_s,payload_type.to_s,searchString.to_s)
+    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar',payload_name.to_s,@payload_type.to_s,searchString.to_s)
   else
     stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar',payload_name.to_s,searchString.to_s)
   end
@@ -61,7 +61,7 @@ def generate_payload(payload_name,search_string_length)
     #STDERR.puts "  Successfully generated #{payload_name} using #{YSOSERIAL_BINARY}"
 
     # Strip out the semi-randomized ysoserial string and trailing newline
-    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]+/, 'ysoserial/Pwner00000000000000')
+    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]{14}/, 'ysoserial/Pwner00000000000000')
     return payload
   end
 end
@@ -170,7 +170,7 @@ payloadList.each do |payload|
 
       # Compare this byte and the following byte to identify length and buffer offsets
       length_offsets.push(current_byte.position) if isLengthOffset?(current_byte,next_byte)
-      buffer_offsets.push(current_byte.position) if isBufferOffset?(current_byte,next_byte)
+      buffer_offsets.push(current_byte.position - i) if isBufferOffset?(current_byte,next_byte)
     end
   end
 
