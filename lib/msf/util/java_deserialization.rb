@@ -12,11 +12,15 @@ class JavaDeserialization
 
   PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
-  def self.ysoserial_payload(payload_name, command=nil)
+  def self.ysoserial_payload(payload_name, command=nil, modified_type:'original')
     # Open the JSON file and parse it
     begin
       path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
       json = JSON.parse(File.read(path))
+      json = json[modified_type.to_s]
+      if json.nil?
+        raise ArgumentError, "#{modified_type} type not found in ysoserial payloads"
+      end
     rescue Errno::ENOENT, JSON::ParserError
       raise RuntimeError, "Unable to load JSON data from 'data/#{PAYLOAD_FILENAME}'"
     end
