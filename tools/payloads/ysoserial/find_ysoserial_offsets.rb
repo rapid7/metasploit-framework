@@ -19,7 +19,7 @@ if ARGV.include?("-h")
   puts '  -h             Help'
   puts '  -d             Debug mode (output offset information only)'
   puts "  -m [type]      Use 'ysoserial-modified' with the specified payload type"
-  puts "  -p [payloads]  Specified ysoserial payload (payloads1,payloads2,...)"
+  puts '  -p [payloads]  Specified ysoserial payload (payloads1,payloads2,...)'
   puts '  -a             Generate all types of payloads'
   puts
   abort
@@ -39,15 +39,15 @@ if index = ARGV.index('-p')
   @ysoserial_payloads = ARGV[index+1].split(',')
 end
 
-def generate_payload(payload_name,search_string_length)
+def generate_payload(payload_name, search_string_length)
   # Generate a string of specified length and embed it into an ASCII-encoded ysoserial payload
   searchString = 'A' * search_string_length
 
   # Build the command line with ysoserial parameters
   if @ysoserial_modified
-    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar',payload_name.to_s,@payload_type.to_s,searchString.to_s)
+    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar', payload_name, @payload_type, searchString)
   else
-    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar',payload_name.to_s,searchString.to_s)
+    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar', payload_name, searchString)
   end
 
   payload = stdout
@@ -78,7 +78,7 @@ def generate_payload_array(payload_name)
   # Generate and return a number of payloads, each with increasingly longer strings, for future comparison
   payload_array = []
   (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
-    payload = generate_payload(payload_name,i)
+    payload = generate_payload(payload_name, i)
     return nil if payload.nil?
     payload_array[i] = payload
   end
@@ -86,7 +86,7 @@ def generate_payload_array(payload_name)
   payload_array
 end
 
-def isLengthOffset?(current_byte, next_byte)
+def length_offset?(current_byte, next_byte)
   # If this byte has been changed, and is different by one, then it must be a length value
   if next_byte && current_byte.position == next_byte.position && current_byte.action == "-"
     if next_byte.element.ord - current_byte.element.ord == 1
@@ -97,7 +97,7 @@ def isLengthOffset?(current_byte, next_byte)
   false
 end
 
-def isBufferOffset?(current_byte, next_byte)
+def buffer_offset?(current_byte, next_byte)
   # If this byte has been inserted, then it must be part of the increasingly large payload buffer
   if (current_byte.action == '+' && (next_byte.nil? || (current_byte.position != next_byte.position)))
     return true
@@ -106,18 +106,10 @@ def isBufferOffset?(current_byte, next_byte)
   false
 end
 
-def diff(a,b)
+def diff(a, b)
   return nil if a.nil? or b.nil?
-
-  diffs = []
-  obj = Diff::LCS.diff(a,b)
-  obj.each do |i|
-    i.each do |j|
-      diffs.push(j)
-    end
-  end
-
-  diffs
+  diffs = Diff::LCS.diff(a, b)
+  diffs.flatten
 end
 
 def get_payload_list
@@ -130,23 +122,23 @@ def get_payload_list
   abort unless payloads[0] == 'Y SO SERIAL?'
   payloads = payloads.drop(5)
 
-  payloadList = []
+  payload_list = []
   payloads.each do |line|
     # Skip the header rows
     next unless line.start_with? "     "
-    payloadList.push(line.scan(/^     ([^ ]*) .*/).first.last)
+    payload_list.push(line.match(/^ +([^ ]+)/)[1])
   end
 
-  payloadList
+  payload_list
 end
 
 #YSOSERIAL_MODIFIED_TYPES.unshift('original')
 def generated_ysoserial_payloads
   results = {}
-  @payloadList.each do |payload|
+  @payload_list.each do |payload|
     STDERR.puts "Generating payloads for #{payload}..."
 
-    empty_payload = generate_payload(payload,0)
+    empty_payload = generate_payload(payload, 0)
 
     if empty_payload.nil?
       STDERR.puts "  ERROR: Errored while generating '#{payload}' and it will not be supported"
@@ -162,24 +154,24 @@ def generated_ysoserial_payloads
     # Comparing diffs of various payload lengths to find length and buffer offsets
     (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
       # Compare this binary with the next one
-      diffs = diff(payload_array[i],payload_array[i+1])
+      diffs = diff(payload_array[i], payload_array[i+1])
 
       break if diffs.nil?
 
       # Iterate through each diff, searching for offsets of the length and the payload
-      (0..diffs.length-1).each do |j|
+      diffs.length.times do |j|
         current_byte = diffs[j]
         next_byte = diffs[j+1]
-        prevByte = diffs[j-1]
+        prev_byte = diffs[j-1]
 
         if j > 0
           # Skip this if we compared these two bytes on the previous iteration
-          next if prevByte.position == current_byte.position
+          next if prev_byte.position == current_byte.position
         end
 
         # Compare this byte and the following byte to identify length and buffer offsets
-        length_offsets.push(current_byte.position) if isLengthOffset?(current_byte,next_byte)
-        buffer_offsets.push(current_byte.position - i) if isBufferOffset?(current_byte,next_byte)
+        length_offsets.push(current_byte.position) if length_offset?(current_byte, next_byte)
+        buffer_offsets.push(current_byte.position - i) if buffer_offset?(current_byte, next_byte)
       end
     end
 
@@ -194,30 +186,30 @@ def generated_ysoserial_payloads
       STDERR.puts "  PAYLOAD LENGTH: #{empty_payload.length}"
     end
 
-    payloadBytes = Base64.strict_encode64(empty_payload).gsub(/\n/,"")
+    payload_bytes = Base64.strict_encode64(empty_payload)
     if buffer_offsets.length > 0
       results[payload] = {
         'status': 'dynamic',
         'lengthOffset': length_offsets.uniq,
         'bufferOffset': buffer_offsets.uniq,
-        'bytes': payloadBytes
+        'bytes': payload_bytes
       }
     else
       #TODO: Turns out ysoserial doesn't have any static payloads.  Consider removing this.
       results[payload] = {
         'status': 'static',
-        'bytes': payloadBytes
+        'bytes': payload_bytes
       }
     end
   end
   results
 end
 
-@payloadList = get_payload_list
+@payload_list = get_payload_list
 if @ysoserial_payloads
-  unkown_list = @ysoserial_payloads - @payloadList
+  unkown_list = @ysoserial_payloads - @payload_list
   if unkown_list.empty?
-    @payloadList = @ysoserial_payloads
+    @payload_list = @ysoserial_payloads
   else
     STDERR.puts "ERROR: Invalid payloads specified: #{unkown_list.join(', ')}"
     abort
@@ -238,18 +230,21 @@ else
   results[@payload_type] = generated_ysoserial_payloads
 end
 
-payloadCount = {}
-payloadCount['skipped'] = 0
-payloadCount['static']  = 0
-payloadCount['dynamic'] = 0
+payload_count = {}
+payload_count['skipped'] = 0
+payload_count['static']  = 0
+payload_count['dynamic'] = 0
 
-results.each do |k,v|
-  if v[:status] == 'unsupported'
-    payloadCount['skipped'] += 1
-  elsif v[:status] == 'static'
-    payloadCount['static'] += 1
-  elsif v[:status] == 'dynamic'
-    payloadCount['dynamic'] += 1
+results.each_value do |vs|
+  vs.each_value do |v|
+    case v[:status]
+    when 'unsupported'
+      payload_count['skipped'] += 1
+    when 'static'
+      payload_count['static'] += 1
+    when 'dynamic'
+      payload_count['dynamic'] += 1
+    end
   end
 end
 
@@ -257,4 +252,4 @@ unless @debug
   puts JSON.pretty_generate(results)
 end
 
-STDERR.puts "DONE!  Successfully generated #{payloadCount['static']} static payloads and #{payloadCount['dynamic']} dynamic payloads.  Skipped #{payloadCount['skipped']} unsupported payloads."
+STDERR.puts "DONE!  Successfully generated #{payload_count['static']} static payloads and #{payload_count['dynamic']} dynamic payloads.  Skipped #{payload_count['skipped']} unsupported payloads."
