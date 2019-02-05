@@ -346,6 +346,7 @@ DEPENDENCIES
   rspec-rails
   rspec-rerun
   simplecov
+  sqlite3 (~> 1.3)
   timecop
   yard
 
