@@ -29,14 +29,12 @@ $query = new CGI;
 print $query->header( -type=> "text/javascript"),
 $query->import_names( 'Q' );
 my $data = <<'DATA';
-var pw_enflag = "1";
-var pw_adminpw = "12345";
-var pw_retype1 = "12345";
-var pw_userpw = "56789";
-var pw_retype2 = "56789";
-var pw_autolock = "0";
+var Adm_ID="admin";
+var Adm_Pass1="password";
+var Language="en";
+var Logoff_Time="0";
 DATA
-if ($Q::page == 2) {
+if ($Q::query == "ADMINID") {
   print $data;
 }
 ```
