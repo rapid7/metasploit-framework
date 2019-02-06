@@ -30,7 +30,11 @@ class MetasploitModule < Msf::Auxiliary
         ['Cook', 'Description' => 'Cook stuff'],
         ['Stop', 'Description' => 'Stop cooking']
       ],
-      'DefaultAction' => 'Cook'
+      'DefaultAction' => 'Cook',
+      'Notes'         => {
+        'Stability'   => [CRASH_SAFE],
+        'SideEffects' => [PHYSICAL_EFFECTS]
+      }
     ))
 
     register_options([
