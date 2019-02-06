@@ -32,6 +32,8 @@ class ReadableText
         return dump_auxiliary_module(mod, indent)
       when Msf::MODULE_POST
         return dump_post_module(mod, indent)
+      when Msf::MODULE_EVASION
+        return dump_evasion_module(mod, indent)
       else
         return dump_generic_module(mod, indent)
     end
@@ -62,6 +64,23 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_evasion_targets(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    mod.targets.each_with_index { |target, idx|
+      tbl << [ idx.to_s, target.name || 'All' ]
+    }
+
+    tbl.to_s + "\n"
+  end
+
   # Dumps the exploit's selected target
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -70,6 +89,27 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_target(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    tbl << [ mod.target_index, mod.target.name || 'All' ]
+
+    tbl.to_s + "\n"
+  end
+
+  # Dumps the evasion module's selected target
+  #
+  # @param mod [Msf::Evasion] The evasion module.
+  # @param indent [String] The indentation to use (only the length matters)
+  # @param h [String] The string to display as the table heading.
+  # @return [String] The strong form of the table.
+  def self.dump_evasion_target(mod, indent = '', h = nil)
     tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
@@ -155,6 +195,36 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_traits(mod, indent=' ')
+    output = ''
+
+    unless mod.side_effects.empty?
+      output << "Module side effects:\n"
+      mod.side_effects.each { |side_effect|
+        output << indent + side_effect + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.stability.empty?
+      output << "Module stability:\n"
+      mod.stability.each { |stability|
+        output << indent + stability + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.reliability.empty?
+      output << "Module reliability:\n"
+      mod.reliability.each { |reliability|
+        output << indent + reliability + "\n"
+      }
+      output << "\n"
+    end
+
+    output
+  end
+
   # Dumps information about an exploit module.
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -178,6 +248,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Targets
     output << "Available targets:\n"
@@ -242,6 +314,8 @@ class ReadableText
     }
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Actions
     if mod.action
       output << "Available actions:\n"
@@ -295,6 +369,8 @@ class ReadableText
     end
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Compatible session types
     if mod.session_types
       output << "Compatible session types:\n"
@@ -327,6 +403,52 @@ class ReadableText
 
     # AKA
     output << dump_aka(mod, indent)
+
+    return output
+  end
+
+  # Dumps information about an evasion module.
+  #
+  # @param mod [Msf::Evasion] The evasion module instance.
+  # @param indent [String] The indentation to use.
+  # @return [String] The string form of the information
+  def self.dump_evasion_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "    License: #{mod.license}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+
+    # Options
+    if (mod.options.has_options?)
+      output << "Basic options:\n"
+      output << dump_options(mod, indent)
+      output << "\n"
+    end
+
+    # Description
+    output << "Description:\n"
+    output << word_wrap(Rex::Text.compress(mod.description))
+    output << "\n"
+
+    # References
+    output << dump_references(mod, indent)
 
     return output
   end
@@ -391,6 +513,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Description
     output << "Description:\n"
@@ -768,8 +892,8 @@ class ReadableText
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      if session.respond_to?(:platform)
-        sess_type << " " + session.platform
+      if session.respond_to?(:platform) && session.platform
+        sess_type << " #{session.platform}"
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin

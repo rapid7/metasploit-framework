@@ -264,8 +264,9 @@ class Msf::Payload::Apk
     fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
 
     print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
-    run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
+    apktool_output = run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
     unless File.readable?(injected_apk)
+      print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
     end
 

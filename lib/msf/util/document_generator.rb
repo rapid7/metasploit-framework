@@ -63,6 +63,9 @@ module Msf
             mod_rank:          mod.rank,
             mod_platforms:     mod.send(:module_info)['Platform'],
             mod_options:       mod.options,
+            mod_side_effects:  mod.side_effects,
+            mod_reliability:   mod.reliability,
+            mod_stability:     mod.stability,
             mod_demo:          mod
         }
 

@@ -34,13 +34,14 @@ class CommandShell
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Executes the supplied script, must be specified as full path.
-  #
-  # Msf::Session::Scriptable implementor
+  # Runs the shell session script or resource file.
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Shell.new(self, full_path)
-    o.run(args)
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Shell.new(self, full_path).run(args)
+    else
+      load_resource(full_path)
+    end
   end
 
   #
@@ -93,10 +94,11 @@ class CommandShell
         'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
-        'resource'     => 'Run the commands stored in a file',
+        'resource'     => 'Run a meta commands script stored in a local file',
         'shell'        => 'Spawn an interactive shell (*NIX Only)',
         'download'     => 'Download files (*NIX Only)',
         'upload'       => 'Upload files (*NIX Only)',
+        'source'       => 'Run a shell script on remote machine (*NIX Only)',
     }
   end
 
@@ -199,7 +201,9 @@ class CommandShell
       end
       end
       if good_res
+        print_status("Executing resource script #{good_res}")
         load_resource(good_res)
+        print_status("Resource script #{good_res} complete")
       else
         print_error("#{res} is not a valid resource file")
         next
@@ -234,7 +238,7 @@ class CommandShell
       return cmd_sessions_help
     end
 
-    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
+    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case.
     # 1. Using python
     # 1.1 Check Python installed or not
     # We do not need to care about the python version
@@ -277,7 +281,7 @@ class CommandShell
 
     print_error("Can not pop up an interactive shell")
   end
-  
+
   #
   # Check if there is a binary in PATH env
   #
@@ -430,6 +434,43 @@ class CommandShell
     return data_repr
   end
 
+  def cmd_source_help
+    print_line("Usage: source [file] [background]")
+    print_line
+    print_line("Execute a local shell script file on remote machine")
+    print_line("This meta command will upload the script then execute it on the remote machine")
+    print_line
+    print_line("background")
+    print_line("`y` represent execute the script in background, `n` represent on foreground")
+  end
+
+  def cmd_source(*args)
+    if args.length != 2
+      # no argumnets, just print help message
+      return cmd_source_help
+    end
+
+    background = args[1].downcase == 'y'
+
+    local_file = args[0]
+    remote_file = "/tmp/." + ::Rex::Text.rand_text_alpha(32) + ".sh"
+
+    cmd_upload(local_file, remote_file)
+
+    # Change file permission in case of TOCTOU
+    shell_command("chmod 0600 #{remote_file}")
+
+    if background
+      print_status("Executing on remote machine background")
+      print_line(shell_command("nohup sh -x #{remote_file} &"))
+    else
+      print_status("Executing on remote machine foreground")
+      print_line(shell_command("sh -x #{remote_file}"))
+    end
+    print_status("Cleaning temp file on remote machine")
+    shell_command("rm -rf #{remote_file}")
+  end
+
   #
   # Explicitly runs a single line command.
   #
@@ -446,7 +487,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd)
+    shell_write(cmd + "\n")
   end
 
   #
@@ -611,7 +652,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        run_single(user_input.gets)
+        run_single((user_input.gets || '').chomp("\n"))
       end
       Thread.pass
     end

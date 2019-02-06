@@ -254,11 +254,10 @@ class Msftidy
     line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
+  # This check also enforces namespace module name reversibility
   def check_snake_case_filename
-    sep = File::SEPARATOR
-    good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
-    unless @name =~ good_name
-      warn "Filenames should be alphanum and snake case."
+    if @name !~ /^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/
+      warn('Filenames must be lowercase alphanumeric snake case.')
     end
   end
 
@@ -441,10 +440,10 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
-    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+?)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
-      if d =~ /^... \d{1,2}\,* \d{4}/
+      if d =~ /^... (?:\d{1,2},? )?\d{4}$/
         # Flag if month format is wrong
         m = d.split[0]
         months = [
@@ -453,6 +452,13 @@ class Msftidy
         ]
 
         error('Incorrect disclosure month format') if months.index(m).nil?
+      # XXX: yyyy-mm is interpreted as yyyy-01-mm by Date::iso8601
+      elsif d =~ /^\d{4}-\d{2}-\d{2}$/
+        begin
+          Date.iso8601(d)
+        rescue ArgumentError
+          error('Incorrect ISO 8601 disclosure date format')
+        end
       else
         error('Incorrect disclosure date format')
       end
@@ -482,6 +488,7 @@ class Msftidy
     end
 
     prefix_super_map = {
+      'evasion' => /^Msf::Evasion$/,
       'auxiliary' => /^Msf::Auxiliary$/,
       'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
       'encoders' => /^(?:Msf|Rex)::Encoder/,

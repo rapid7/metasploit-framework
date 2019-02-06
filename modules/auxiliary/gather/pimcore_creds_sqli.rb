@@ -31,6 +31,10 @@ class MetasploitModule < Msf::Auxiliary
                             [ 'CVE', '2018-14058' ],
                             [ 'EDB', '45208' ]
                           ],
+      'Notes'          =>
+        {
+          'SideEffects' => [ IOC_IN_LOGS ]
+        },
       'DisclosureDate' => 'Aug 13, 2018'
     ))
 

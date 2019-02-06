@@ -33,6 +33,11 @@ module CredentialApiDoc
   DATA_EXAMPLE = "'password123', '$1$5nfRD/bA$y7ZZD0NimJTbX9FtvhHJX1', or '$NT$7f8fe03093cc84b267b109625f6bbf4b'"
   JTR_FORMAT_DESC = 'Comma-separated list of the formats for John the ripper to use to try and crack this.'
   JTR_FORMAT_EXAMPLE = 'md5,des,bsdi,crypt'
+  KEY_DESC = 'The name of the key for the realm.'
+  KEY_EXAMPLE = 'Active Directory Domain'
+  VALUE_DESC = 'The value of the key for the realm.'
+  VALUE_EXAMPLE = 'contoso.com'
+
   PUBLIC_TYPE_ENUM = [ 'Metasploit::Credential::BlankUsername', 'Metasploit::Credential::Username' ]
   PRIVATE_TYPE_CLASS_ENUM = [
       'Metasploit::Credential::ReplayableHash',
@@ -104,6 +109,15 @@ module CredentialApiDoc
     property :data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
     property :type, type: :string, description: PRIVATE_TYPE_DESC, enum: PRIVATE_TYPE_CLASS_ENUM
     property :jtr_format, type: :string, description: JTR_FORMAT_DESC, example: JTR_FORMAT_EXAMPLE
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+  end
+
+  swagger_schema :Realm do
+    key :required, [:key, :value]
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :key, type: :string, description: KEY_DESC, example: KEY_EXAMPLE
+    property :value, type: :string, description: VALUE_DESC, example: VALUE_EXAMPLE
     property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
     property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
@@ -197,6 +211,8 @@ module CredentialApiDoc
           property :username, type: :string, description: USERNAME_DESC, example: USERNAME_EXAMPLE
           property :private_data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
           property :private_type, type: :string, description: PRIVATE_TYPE_DESC, enum: PRIVATE_TYPE_ENUM
+          property :realm_key, type: :string, description: KEY_DESC, enum: PRIVATE_TYPE_ENUM
+          property :realm_value, type: :string, description: VALUE_DESC, enum: PRIVATE_TYPE_ENUM
           property :jtr_format, type: :string, description: JTR_FORMAT_DESC, example: JTR_FORMAT_EXAMPLE
           property :address, type: :string, format: :ipv4, required: true, description: ADDRESS_DESC, example: ADDRESS_EXAMPLE
           property :port, type: :int32, format: :int32, description: PORT_DESC, example: PORT_EXAMPLE
@@ -312,7 +328,7 @@ module CredentialApiDoc
 
     #Swagger documentation for /api/v1/credentials/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing credential.'
+      key :description, 'Update the attributes on an existing credential.'
       key :tags, [ 'credential' ]
 
       parameter :update_id
