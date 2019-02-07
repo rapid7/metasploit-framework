@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
 
     # Report output
-    print_good("Command completed successfuly!")
+    print_good("Command completed successfully!")
     print_status("Output for \"#{datastore['COMMAND']}\":\n")
     print_line("#{output}\n")
     report_note(

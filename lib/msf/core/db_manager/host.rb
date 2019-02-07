@@ -241,7 +241,7 @@ module Msf::DBManager::Host
       host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
       # Set default fields if needed
-      host.state = Msf::HostState::Alive unless host.state
+      host.state = Msf::HostState::Alive if host.state.nil? || host.state.empty?
       host.comm = '' unless host.comm
       host.workspace = wspace unless host.workspace
 
@@ -283,7 +283,9 @@ module Msf::DBManager::Host
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Host.update(id, opts)
+      host = Mdm::Host.find(id)
+      host.update!(opts)
+      return host
     }
   end
 

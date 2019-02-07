@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
 
+require 'msf/core/post/linux/system'
+
 module Msf::Post::Unix
+
 
   #
   # Returns an array of hashes each representing a user
@@ -82,8 +85,33 @@ module Msf::Post::Unix
     user_dirs.compact!
     user_dirs.sort!
     user_dirs.uniq!
-
     user_dirs
   end
 
+  #
+  # It returns the username of the current user
+  # @return [String] with username
+  #
+  def whoami
+    shellpid = get_session_pid()
+    statuspid = pid_uid(shellpid)
+    statuspid.each_line do |line|
+      split = line.split(":")
+      if split[0] == "Uid"
+        regex = /.*\s(.*)\s/
+        useridtmp = split[1]
+        userid = useridtmp[regex, 1]
+        uid = userid.to_s
+        passwd = read_file("/etc/passwd")
+        passwd.each_line do |line|
+          parts = line.split(":")
+          uid_passwd = parts[2].to_s
+          user = parts[0].to_s
+          if uid_passwd == uid
+            return user
+          end
+        end
+      end
+    end
+  end
 end
