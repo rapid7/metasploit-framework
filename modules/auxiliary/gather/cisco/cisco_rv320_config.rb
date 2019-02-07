@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     body = res.body
     if body.match(/####sysconfig####/)
       parse_config(body)
-    else body.match(/refresh content='0; url=\/default.htm/)
+    else body.include?"meta http-equiv=refresh content='0; url=/default.htm'"
       fail_with(Failure::NotVulnerable, "Response suggests device is patched")
     end
   end
