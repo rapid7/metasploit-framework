@@ -8,8 +8,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Cisco RV320/RV326 Configuration Disclosure',
-      'Description'  => %q{
+      'Name'           => 'Cisco RV320/RV326 Configuration Disclosure',
+      'Description'    => %q{
           A vulnerability in the web-based management interface of Cisco Small Business
           RV320 and RV325 Dual Gigabit WAN VPN Routers could allow an unauthenticated,
           remote attacker to retrieve sensitive information. The vulnerability is due
@@ -19,6 +19,12 @@ class MetasploitModule < Msf::Auxiliary
           download the router configuration or detailed diagnostic information. Cisco
           has released firmware updates that address this vulnerability.
         },
+      'Author'         =>
+        [
+          'RedTeam Pentesting GmbH <release@redteam-pentesting.de>',
+          'Aaron Soto <asoto@rapid7.com>'
+        ],
+      'License'        => MSF_LICENSE,
       'References'     =>
         [
           ['EDB', '46262'],
@@ -28,19 +34,16 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
           ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
         ],
-      'Author'         =>
-        [
-          'RedTeam Pentesting GmbH <release@redteam-pentesting.de>',
-          'Aaron Soto <asoto@rapid7.com>'
-        ],
-      'License'      => MSF_LICENSE
+      'DefaultOptions' =>
+        {
+          'RPORT' => 443
+        }
     ))
 
     register_options(
       [
-        Opt::RPORT(443),
         OptString.new('TARGETURI', [true, 'Path to the device configuration file', '/cgi-bin/config.exp']),
-        OptBool.new('SSL', [true, 'Use SSL', true])
+        OptBool.new(  'SSL',       [true, 'Use SSL', true])
       ])
   end
 
