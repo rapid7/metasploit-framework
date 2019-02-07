@@ -1,0 +1,45 @@
+require 'msf/core/modules/external/bridge'
+require 'msf/core/module/external'
+
+class MetasploitModule < Msf::Evasion
+  include Msf::Module::External
+
+  def initialize
+    super({
+    <%= common_metadata meta %>
+      'References'      =>
+        [
+          <%= meta[:references] %>
+        ],
+      'Platform'        => [<%= meta[:platform] %>],
+      'Arch'            => [<%= meta[:arch] %>],
+      'Targets'         =>
+        [
+          <%= meta[:targets] %>
+        ],
+      'DefaultOptions' =>
+        {
+          <%= meta[:default_options] %>
+        }
+      })
+
+      register_options([
+        <%= meta[:options] %>
+      ])
+
+      register_advanced_options([
+        <%= meta[:advanced_options] %>
+      ])
+  end
+
+  def run
+    args = datastore.to_h.merge(
+      # XXX: JSON-RPC requires UTF-8, so we Base64-encode the binary payload
+      payload_encoded: Rex::Text.encode_base64(payload.encoded),
+      payload_raw: Rex::Text.encode_base64(payload.raw),
+      target: target.name
+    )
+
+    execute_module(<%= meta[:path] %>, args: args)
+  end
+end
