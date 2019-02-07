@@ -362,17 +362,24 @@ class Msf::Modules::Loader::Base
   # @return [nil] if any module name along the chain does not exist.
   def current_module(module_names)
     # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
-    named_module = module_names.inject(Object) { |parent, module_name|
+    named_module = module_names.reduce(Object) do |parent, module_name|
       # Since we're searching parent namespaces first anyway, this is
       # semantically equivalent to providing false for the 1.9-only
       # "inherit" parameter to const_defined?. If we ever drop 1.8
       # support, we can save a few cycles here by adding it back.
-      if parent.const_defined?(module_name)
-        parent.const_get(module_name)
-      else
-        break
+      begin
+        if parent.const_defined?(module_name)
+          parent.const_get(module_name)
+        else
+          break
+        end
+      # HACK: This doesn't slow load time as much as checking proactively
+      rescue NameError
+        reversed_name = self.class.reverse_relative_name(module_name)
+        # TODO: Consolidate this with Msftidy#check_snake_case_filename ?
+        raise Msf::ModuleLoadError, "#{reversed_name} must be lowercase alphanumeric snake case"
       end
-    }
+    end
 
     named_module
   end
@@ -472,10 +479,11 @@ class Msf::Modules::Loader::Base
     module_path
   end
 
+  # Tries to determine if a file might be executable,
   def script_path?(path)
     File.executable?(path) &&
       !File.directory?(path) &&
-      File.read(path, 2) == "#!"
+      ['#!', '//'].include?(File.read(path, 2))
   end
 
   # Changes a file name path to a canonical module reference name.
@@ -522,7 +530,7 @@ class Msf::Modules::Loader::Base
   # @return [String] The module full name
   #
   # @see namespace_module_names
-  def reverse_relative_name(relative_name)
+  def self.reverse_relative_name(relative_name)
     relative_name.split('__').map(&:downcase).join('/')
   end
 

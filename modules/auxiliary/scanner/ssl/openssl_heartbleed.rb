@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://gist.github.com/takeshixx/10107280' ],
           [ 'URL', 'http://filippo.io/Heartbleed/' ]
         ],
-      'DisclosureDate' => 'Apr 7 2014',
+      'DisclosureDate' => '2014-04-07',
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [

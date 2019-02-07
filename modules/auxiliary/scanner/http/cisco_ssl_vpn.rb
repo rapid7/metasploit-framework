@@ -99,68 +99,39 @@ class MetasploitModule < Msf::Auxiliary
     false
   end
 
+  def get_login_resource
+    send_request_cgi(
+      'uri' => '/+CSCOE+/logon.html',
+      'method' => 'GET',
+      'vars_get' => { 'fcadbadd' => "1" }
+    )
+  end
+
   def enumerate_vpn_groups
-    res = send_request_cgi(
-            'uri' => '/+CSCOE+/logon.html',
-            'method' => 'GET',
-          )
-
-    if res &&
-       res.code == 302
-
-      res = send_request_cgi(
-              'uri' => '/+CSCOE+/logon.html',
-              'method' => 'GET',
-              'vars_get' => { 'fcadbadd' => "1" }
-            )
-    end
-
     groups = Set.new
     group_name_regex = /<select id="group_list"  name="group_list" style="z-index:1(?:; float:left;)?" onchange="updateLogonForm\(this\.value,{(.*)}/
 
-    if res &&
-       match = res.body.match(group_name_regex)
-
+    res = get_login_resource
+    if res && match = res.body.match(group_name_regex)
       group_string = match[1]
       groups = group_string.scan(/'([\w\-0-9]+)'/).flatten.to_set
     end
 
-    return groups
+    groups
   end
 
   # Verify whether we're working with SSL VPN or not
   def is_app_ssl_vpn?
-    res = send_request_cgi(
-            'uri' => '/+CSCOE+/logon.html',
-            'method' => 'GET',
-          )
-
-    if res &&
-       res.code == 302
-
-      res = send_request_cgi(
-              'uri' => '/+CSCOE+/logon.html',
-              'method' => 'GET',
-              'vars_get' => { 'fcadbadd' => "1" }
-            )
-    end
-
-    if res &&
-       res.code == 200 &&
-       res.body.match(/webvpnlogin/)
-
-      return true
-    else
-      return false
-    end
+    res = get_login_resource
+    res && res.code == 200 && res.body.match(/webvpnlogin/)
   end
 
   def do_logout(cookie)
-    res = send_request_cgi(
-            'uri' => '/+webvpn+/webvpn_logout.html',
-            'method' => 'GET',
-            'cookie'    => cookie
-          )
+    send_request_cgi(
+      'uri' => '/+webvpn+/webvpn_logout.html',
+      'method' => 'GET',
+      'cookie' => cookie
+    )
   end
 
   def report_cred(opts)
@@ -189,7 +160,6 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 
   # Brute-force the login page
   def do_login(user, pass, group)

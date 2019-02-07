@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         but does not support AUTHINFO GENERIC or AUTHINFO SASL
         authentication methods.
       },
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'      => 'bcoles',
       'License'     => MSF_LICENSE,
       'References'  => [ [ 'CVE', '1999-0502' ], # Weak password
                          [ 'URL', 'https://tools.ietf.org/html/rfc3977' ],

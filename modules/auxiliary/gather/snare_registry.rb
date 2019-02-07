@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         to become unresponsive until the server completes the request.
       },
       'Platform'      => 'win',
-      'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
+      'Author'        => [ 'bcoles' ],
       'License'       => MSF_LICENSE,
       'References'    =>
         [

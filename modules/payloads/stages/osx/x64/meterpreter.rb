@@ -115,8 +115,9 @@ module MetasploitModule
     )
     midstager = Metasm::Shellcode.assemble(Metasm::X64.new, midstager_asm).encode_string
     print_status("Transmitting first stager...(#{midstager.length} bytes)")
-
     conn.put(midstager) == midstager.length
+
+    Rex::sleep(0.1)
     print_status("Transmitting second stager...(#{output_data.length} bytes)")
     conn.put(output_data) == output_data.length
   end

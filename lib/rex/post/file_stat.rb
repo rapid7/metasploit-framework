@@ -73,11 +73,19 @@ class FileStat
   end
 
   def update(buf)
+    skeys = %W{st_dev st_mode st_nlink st_uid st_gid st_rdev st_ino st_size st_ctime st_atime st_mtime}
+    svals = buf.unpack("VVVVVVQQQQQ")
+    skeys.each_index do |i|
+      self.stathash[ skeys[i] ] = svals[i]
+    end
+  end
 
-    # XXX: This needs to understand more than just 'stat' structures
-    # Windows can also return _stat32, _stat32i64, _stat64i32, and _stat64 structures
-
-    skeys = %W{st_dev st_ino st_mode st_wtf st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
+  #
+  # This handles the old 32bit st_size buf from old stageless meterpreters for backwards compatibility
+  # Maybe we can remove this in the future
+  #
+  def update32(buf)
+    skeys = %W{st_dev st_ino st_mode st_pad st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
     svals = buf.unpack("VvvvvvvVVVVV")
     skeys.each_index do |i|
       self.stathash[ skeys[i] ] = svals[i]

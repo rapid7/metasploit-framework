@@ -123,7 +123,7 @@ module Msf
                 if dump_json
                   print(Serializer::Json.dump_module(active_module) + "\n")
                 elsif show_doc
-                  f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+                  f = Tempfile.new(["#{active_module.shortname}_doc", '.html'])
                   begin
                     print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
                     Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
@@ -151,7 +151,7 @@ module Msf
               elsif dump_json
                 print(Serializer::Json.dump_module(mod) + "\n")
               elsif show_doc
-                f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
+                f = Tempfile.new(["#{mod.shortname}_doc", '.html'])
                 begin
                   print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
                   Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
@@ -346,7 +346,7 @@ module Msf
               'ref'         => 'Modules with a matching ref',
               'reference'   => 'Modules with a matching reference',
               'target'      => 'Modules affecting this target',
-              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 12}:  #{description}"
             end
@@ -513,8 +513,6 @@ module Msf
                   show_auxiliary
                 when 'post'
                   show_post
-                when 'evasion'
-                  show_evasion
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
@@ -539,7 +537,7 @@ module Msf
                   if (mod)
                     show_evasion_options(mod)
                   else
-                    print_error("No module selected.")
+                    show_evasion
                   end
                 when 'sessions'
                   if (active_module and active_module.respond_to?(:compatible_sessions))
@@ -1022,8 +1020,8 @@ module Msf
             end
           end
 
-          def show_evasion(mod)
-            puts "Place holder for show_evasion"
+          def show_evasion(regex = nil, minrank = nil, opts = nil) # :nodoc:
+            show_module_set('evasion', framework.evasion, regex, minrank, opts)
           end
 
           def show_global_options
@@ -1114,7 +1112,7 @@ module Msf
           def show_plugins # :nodoc:
             tbl = Table.new(
               Table::Style::Default,
-              'Header'  => 'Plugins',
+              'Header'  => 'Loaded Plugins',
               'Prefix'  => "\n",
               'Postfix' => "\n",
               'Columns' => [ 'Name', 'Description' ]
@@ -1124,6 +1122,9 @@ module Msf
               tbl << [ plugin.name, plugin.desc ]
             }
 
+            # create an instance of core to call the list_plugins
+            core = Msf::Ui::Console::CommandDispatcher::Core.new(driver)
+            core.list_plugins
             print(tbl.to_s)
           end
 
