@@ -267,7 +267,7 @@ class Msftidy
     end
     if @source =~ /^# This module requires Metasploit: http:/
       warn("Module license comment link does not use https:// URL scheme.")
-      fixed('# This module requires Metasploit: https://metasploit.com/download', idx)
+      fixed('# This module requires Metasploit: https://metasploit.com/download', 1)
     end
   end
 
