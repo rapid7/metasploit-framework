@@ -36,14 +36,14 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultOptions' =>
         {
-          'RPORT' => 443
+          'RPORT' => 443,
+          'SSL'   => true
         }
     ))
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'Path to the device configuration file', '/cgi-bin/config.exp']),
-        OptBool.new(  'SSL',       [true, 'Use SSL', true])
       ])
   end
 
