@@ -37,13 +37,13 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Jan 24 2019'
       'DefaultOptions' =>
         {
-          'RPORT' => 443,
           'SSL'   => true
         }
     ))
 
     register_options(
       [
+        Opt::RPORT(443),
         OptString.new('TARGETURI', [true, 'Path to the device configuration file', '/cgi-bin/config.exp']),
       ])
   end
