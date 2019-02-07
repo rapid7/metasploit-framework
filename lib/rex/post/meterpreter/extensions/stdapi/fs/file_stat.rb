@@ -24,17 +24,16 @@ class FileStat < Rex::Post::FileStat
 
   @@struct_stat = [
     'st_dev',     4,  # 0
-    'st_ino',     2,  # 4
-    'st_mode',    2,  # 6
-    'st_nlink',   2,  # 8
-    'st_uid',     2,  # 10
-    'st_gid',     2,  # 12
-    'pad1',       2,  # 14
-    'st_rdev',    4,  # 16
-    'st_size',    8,  # 20
-    'st_atime',   8,  # 28
-    'st_mtime',   8,  # 36
-    'st_ctime',   8,  # 44
+    'st_mode',    4,  # 4
+    'st_nlink',   4,  # 8
+    'st_uid',     4,  # 12
+    'st_gid',     4,  # 16
+    'st_rdev',    4,  # 20
+    'st_ino',     8,  # 24
+    'st_size',    8,  # 32
+    'st_atime',   8,  # 40
+    'st_mtime',   8,  # 48
+    'st_ctime',   8,  # 56
   ]
 
   @@struct_stat32 = [
