@@ -113,6 +113,9 @@ class MetasploitModule < Msf::Auxiliary
         user = body.match(/^user (.*)/)[1]
         hash = body.match(/^password (.*)/)[1]
         report_cred(user, hash)
+      else body.match(/refresh content='0; url=\/default.htm/)
+        fail_with(Failure::NotVulnerable, "Response suggests device is patched")
+        return
       end
     end
   end
