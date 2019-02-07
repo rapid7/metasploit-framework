@@ -96,7 +96,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :nonreplayable_hash,
+          private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -124,7 +124,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -145,6 +145,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -196,7 +197,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :nonreplayable_hash,
+          private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -291,6 +292,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
+          jtr_format: "md5",
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
@@ -314,7 +316,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :nonreplayable_hash,
+          private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -337,7 +339,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :nonreplayable_hash,
+          private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -376,7 +378,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -402,6 +404,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -545,7 +548,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -573,6 +576,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -629,7 +633,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -656,6 +660,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -713,7 +718,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -740,6 +745,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -796,7 +802,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :nonreplayable_hash,
+            private_type: :password,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -823,6 +829,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
+            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
