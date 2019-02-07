@@ -80,15 +80,15 @@ class MetasploitModule < Msf::Auxiliary
         'uri'     => uri,
         'method'  => 'GET',
       }, 60)
+    rescue OpenSSL::SSL::SSLError
+      fail_with(Failure::UnexpectedReply, "SSL handshake failed.  Consider setting 'SSL' to 'false' and trying again.")
     end
 
     if res.nil?
-      print_error("#{rhost} - Failed! Got back an empty response.")
-      print_error("Please validate the RHOST and TARGETURI options and try again.")
+      fail_with(Failure::UnexpectedReply, "Empty response.  Please validate the RHOST and TARGETURI options and try again.")
       return
     elsif res.code != 200
-      print_error("#{rhost} - Failed! Got back a #{res.code} HTTP response.")
-      print_error("Please validate the RHOST and TARGETURI options and try again.")
+      fail_with(Failure::UnexpectedReply, "Unexpected HTTP #{res.code} response.  Please validate the RHOST and TARGETURI options and try again.")
       return
     else
       body = res.body
