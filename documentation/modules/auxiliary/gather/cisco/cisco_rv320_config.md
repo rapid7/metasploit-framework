@@ -2,7 +2,7 @@
 
 [CVE-2019-1653](https://nvd.nist.gov/vuln/detail/CVE-2019-1653) (aka Cisco Bugtracker ID [CSCvg85922](https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190123-rv-info)) is an unauthenticated disclosure of device configuration information for the Cisco RV320/RV325 small business router.  The vulnerability was responsibly disclosed by [RedTeam Pentesting GmbH](https://seclists.org/fulldisclosure/2019/Jan/52).
 
-An exposed remote administration interface (on :443) would allow an attacker to retrieve password hashes and other sensitive device configuration information.  There has also been some discussion of an exposed port `:8007` that is WAN accessible, but my testing has not shown this port open on version `1.2.14.17`.  On version `1.2.14.15`, the vulnerabilty is exploitable via the WAN interface on port 8007 (by default) or 443 (if remote administration is enabled).
+An exposed remote administration interface (on :443) would allow an attacker to retrieve password hashes and other sensitive device configuration information.  On version `1.2.14.15`, the vulnerabilty is exploitable via the WAN interface on port 8007 (by default) or 443 (if remote administration is enabled), in addition to port 443 on the LAN side.  On version `1.2.4.17`, only LAN port 443 is accessible by default, but user configuration can open port 443 for remote management on the WAN side, making the device vulnerable externally.
 
 More context is available from [Rapid7's blog post](https://blog.rapid7.com/2019/01/29/cisco-r-rv320-rv325-router-unauthenticated-configuration-export-vulnerability-cve-2019-1653-what-you-need-to-know/).
 
