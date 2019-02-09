@@ -49,29 +49,35 @@ class MetasploitModule < Msf::Post
 
   # The sauce starts here
   def run
-    patches = []
-
-    datastore['KB'].split(',').each do |kb|
-      patches << kb.strip
-    end
+    patches = datastore['KB'].split(',').map(&:strip)
 
     if datastore['MSFLOCALS']
-      patches = patches + MSF_MODULES.keys
+      patches.concat MSF_MODULES.keys
     end
 
-    extapi_loaded = load_extapi
-    if extapi_loaded
-      begin
-        objects = session.extapi.wmi.query("SELECT HotFixID FROM Win32_QuickFixEngineering")
-      rescue RuntimeError
-        print_error "Known bug in WMI query, try migrating to another process"
-        return
-      end
-      kb_ids = objects[:values].map { |kb| kb[0] }
-      report_info(patches, kb_ids)
-    else
-      print_error "ExtAPI failed to load"
+    unless load_extapi
+      print_error 'ExtAPI failed to load'
+      return
     end
+
+    begin
+      objects = session.extapi.wmi.query("SELECT HotFixID FROM Win32_QuickFixEngineering")
+    rescue RuntimeError
+      print_error "Known bug in WMI query, try migrating to another process"
+      return
+    end
+
+    if objects[:values].nil?
+      kb_ids = []
+    else
+      kb_ids = objects[:values].reject(&:nil?).map { |kb| kb[0] }
+    end
+
+    if kb_ids.empty?
+      print_status 'Found no patches installed'
+    end
+
+    report_info(patches, kb_ids)
   end
 
   def report_info(patches, kb_ids)

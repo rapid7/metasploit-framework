@@ -1642,8 +1642,12 @@ class Core
       res << 'PAYLOAD'
       res << 'NOP'
       res << 'TARGET'
-    end
-    if (mod.exploit? or mod.payload?)
+      res << 'ENCODER'
+    elsif (mod.evasion?)
+      res << 'PAYLOAD'
+      res << 'TARGET'
+      res << 'ENCODER'
+    elsif (mod.payload?)
       res << 'ENCODER'
     end
 
@@ -1651,7 +1655,7 @@ class Core
       res << "ACTION"
     end
 
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
@@ -2161,6 +2165,9 @@ class Core
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
       return option_values_encoders() if opt.upcase == 'STAGEENCODER'
+    elsif (mod.evasion?)
+      return option_values_payloads() if opt.upcase == 'PAYLOAD'
+      return option_values_targets()  if opt.upcase == 'TARGET'
     end
 
     # Well-known option names specific to modules with actions
@@ -2168,8 +2175,8 @@ class Core
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
-    # The ENCODER option works for payloads and exploits
-    if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
+    # The ENCODER option works for evasions, payloads and exploits
+    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
       return option_values_encoders()
     end
 
@@ -2184,7 +2191,7 @@ class Core
     end
 
     # How about the selected payload?
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
       if p = framework.payloads.create(mod.datastore['PAYLOAD'])
         p.options.each_key do |key|
           res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase

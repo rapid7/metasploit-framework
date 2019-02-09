@@ -652,7 +652,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        run_single(user_input.gets)
+        run_single((user_input.gets || '').chomp("\n"))
       end
       Thread.pass
     end
