@@ -8,24 +8,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Unitronics PCOM client',
-                      'Description'   => %q{
+      'Name'          => 'Unitronics PCOM Client',
+      'Description'   => %q{
         Unitronics Vision PLCs allow unauthenticated PCOM commands
         to query PLC registers.
-        This module was inspired in 'modbusclient.rb'},
-          'Author'         => [ 'Luis Rosa <lmrosa[at]dei.uc.pt>' ],
-          'License'        => MSF_LICENSE,
-          'References'     =>
+      },
+      'Author'         => [ 'Luis Rosa <lmrosa[at]dei.uc.pt>' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
         [
           [ 'URL', 'https://unitronicsplc.com/Download/SoftwareUtilities/Unitronics%20PCOM%20Protocol.pdf' ]
         ],
-        'Actions'        =>
+      'Actions'        =>
         [
           ['READ', { 'Description' => 'Read values from PLC memory' } ],
           ['WRITE', { 'Description' => 'Write values to PLC memory' } ]
         ],
-        'DefaultAction' => 'READ'
-                     ))
+      'DefaultAction' => 'READ'
+    ))
+
     register_options(
       [
         Opt::RPORT(20256),
