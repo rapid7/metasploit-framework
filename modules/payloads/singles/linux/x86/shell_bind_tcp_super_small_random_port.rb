@@ -19,7 +19,7 @@ module MetasploitModule
       },
       'Author'        => 'Aleh Boitsau <infosecurity[at]ya.ru>',
       'License'       => BSD_LICENSE,
-      'References'    => ['URL', 'https://www.exploit-db.com/exploits/41631'],
+      'References'    => ['EDB', '41631'],
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86
      ))
