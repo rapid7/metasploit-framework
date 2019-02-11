@@ -5,8 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  HttpFingerprint = {pattern: [/Unspecified, UPnP\/1\.0, Unspecified/]}
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'    => '/setup.xml'
     )
 
-    if res && res.code == 200 && res.headers['X-User-Agent'] == 'redsonic'
+    if res && res.code == 200 && res.body.include?('urn:Belkin:device:')
       if res.body.include?('urn:Belkin:device:crockpot:1')
         vprint_good('Wemo-enabled Crock-Pot detected')
         return Exploit::CheckCode::Appears
