@@ -93,7 +93,7 @@ class Creds
     return unless active?
 
     # Short-circuit help
-    if args.delete "-h"
+    if args.delete("-h") || args.delete("--help")
       cmd_creds_help
       return
     end
@@ -153,8 +153,6 @@ class Creds
     print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
     print_line "   # Add a user with an SSH key"
     print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
-    print_line "   # Add a SSH key"
-    print_line "   creds add ssh-key:/path/to/id_rsa"
     print_line "   # Add a user and a NonReplayableHash"
     print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283"
     print_line "   # Add a NonReplayableHash"
@@ -164,7 +162,7 @@ class Creds
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv format"
-    print_line "  -d                    Delete one or more credentials"
+    print_line "  -d,--delete           Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
@@ -172,13 +170,15 @@ class Creds
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
-    print_line "  -O,--origins          List creds that match these origins"
+    print_line "  -O,--origins <IP>     List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
+    print_line "  -S,--search-term      Search across all fields using regex"
 
     print_line
     print_line "Examples, listing:"
     print_line "  creds               # Default, returns all credentials"
-    print_line "  creds 1.2.3.4/24    # nmap host specification"
+    print_line "  creds 1.2.3.4/24    # Return credentials with logins in this range"
+    print_line "  creds -O 1.2.3.4/24 # Return credentials with origins in this range"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
     print_line "  creds -t ntlm       # All NTLM creds"
@@ -223,7 +223,7 @@ class Creds
     end
 
     data = {
-      workspace_id: framework.db.workspace,
+      workspace_id: framework.db.workspace.id,
       origin_type: :import,
       filename: 'msfconsole'
     }
@@ -275,9 +275,9 @@ class Creds
         data[:port] = params['port']
         data[:protocol] = params['protocol']
         data[:service_name] = params['service-name']
-        create_credential_and_login(data)
+        framework.db.create_credential_and_login(data)
       else
-        create_credential(data)
+        framework.db.create_credential(data)
       end
     rescue ActiveRecord::RecordInvalid => e
       print_error("Failed to add #{data['private_type']}: #{e}")
@@ -290,6 +290,7 @@ class Creds
     port_ranges   = []
     svcs          = []
     rhosts        = []
+    opts          = {}
 
     set_rhosts = false
 
@@ -304,52 +305,58 @@ class Creds
       when '-o'
         output_file = args.shift
         if (!output_file)
-          print_error("Invalid output filename")
+          print_error('Invalid output filename')
           return
         end
         output_file = ::File.expand_path(output_file)
-      when "-p","--port"
+      when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
         end
-      when "-t","--type"
+      when '-t', '--type'
         ptype = args.shift
+        opts[:ptype] = ptype
         if (!ptype)
-          print_error("Argument required for -t")
+          print_error('Argument required for -t')
           return
         end
-      when "-s","--service"
+      when '-s', '--service'
         service = args.shift
         if (!service)
-          print_error("Argument required for -s")
+          print_error('Argument required for -s')
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
-      when "-P","--password"
+        opts[:svcs] = svcs
+      when '-P', '--password'
         pass = args.shift
+        opts[:pass] = pass
         if (!pass)
-          print_error("Argument required for -P")
+          print_error('Argument required for -P')
           return
         end
-      when "-u","--user"
+      when '-u', '--user'
         user = args.shift
+        opts[:user] = user
         if (!user)
-          print_error("Argument required for -u")
+          print_error('Argument required for -u')
           return
         end
-      when "-d"
+      when '-d', '--delete'
         mode = :delete
       when '-R', '--rhosts'
         set_rhosts = true
       when '-O', '--origins'
         hosts = args.shift
+        opts[:hosts] = hosts
         if !hosts
-          print_error("Argument required for -O")
+          print_error('Argument required for -O')
           return
         end
         arg_host_range(hosts, origin_ranges)
       when '-S', '--search-term'
         search_term = args.shift
+        opts[:search_term] = search_term
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -374,8 +381,11 @@ class Creds
              end
     end
 
+    opts[:type] = type if type
+
     # normalize
     ports = port_ranges.flatten.uniq
+    opts[:ports] = ports unless ports.empty?
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
@@ -384,120 +394,106 @@ class Creds
     }
 
     tbl = Rex::Text::Table.new(tbl_opts)
+    opts[:workspace] = framework.db.workspace
+    query = framework.db.creds(opts)
+    matched_cred_ids = []
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
-      query = query.includes(logins: [ :service, { service: :host } ])
+    query.each do |core|
 
-      if type.present?
-        query = query.where(metasploit_credential_privates: { type: type })
+      # Exclude non-blank username creds if that's what we're after
+      if user == "" && core.public && !(core.public.username.blank?)
+        next
       end
 
-      if svcs.present?
-        query = query.where(Mdm::Service[:name].in(svcs))
+      # Exclude non-blank password creds if that's what we're after
+      if pass == "" && core.private && !(core.private.data.blank?)
+        next
       end
 
-      if ports.present?
-        query = query.where(Mdm::Service[:port].in(ports))
+      origin = ''
+      if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+        service = framework.db.services(id: core.origin.service_id).first
+        origin = service.host.address
+      elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+        session = framework.db.sessions(id: core.origin.session_id).first
+        origin = session.host.address
       end
 
-      if user.present?
-        # If we have a user regex, only include those that match
-        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      if origin_ranges.present? && !origin_ranges.any? { |range| range.include?(origin) }
+        next
       end
 
-      if pass.present?
-        # If we have a password regex, only include those that match
-        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
-      end
+      if core.logins.empty?
+        next if host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
 
-      if host_ranges.any? || ports.any? || svcs.any?
-        # Only find Cores that have non-zero Logins if the user specified a
-        # filter based on host, port, or service name
-        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
-      end
+        matched_cred_ids << core.id
+        public_val = core.public ? core.public.username : ""
+        private_val = core.private ? core.private.to_s : ""
+        realm_val = core.realm ? core.realm.value : ""
+        human_val = core.private ? core.private.class.model_name.human : ""
 
-      query.find_each do |core|
-
-        # Exclude non-blank username creds if that's what we're after
-        if user == "" && core.public && !(core.public.username.blank?)
-          next
-        end
-
-        # Exclude non-blank password creds if that's what we're after
-        if pass == "" && core.private && !(core.private.data.blank?)
-          next
-        end
-
-        origin = ''
-        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
-          origin = core.origin.service.host.address
-        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
-          origin = core.origin.session.host.address
-        end
-
-        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
-          next
-        end
-
-        if core.logins.empty? && origin_ranges.empty?
-          tbl << [
-            "", # host
-            "", # cred
-            "", # service
-            core.public,
-            core.private,
-            core.realm,
-            core.private ? core.private.class.model_name.human : "",
-          ]
-        else
-          core.logins.each do |login|
-            # If none of this Core's associated Logins is for a host within
-            # the user-supplied RangeWalker, then we don't have any reason to
-            # print it out. However, we treat the absence of ranges as meaning
-            # all hosts.
-            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
-              next
-            end
-
-            row = [ login.service.host.address ]
-            row << origin
-            rhosts << login.service.host.address
-            if login.service.name.present?
-              row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
-            else
-              row << "#{login.service.port}/#{login.service.proto}"
-            end
-
-            row += [
-              core.public,
-              core.private,
-              core.realm,
-              core.private ? core.private.class.model_name.human : "",
-            ]
-            tbl << row
-          end
-        end
-        if mode == :delete
-          core.destroy
-          delete_count += 1
-        end
-      end
-
-      if output_file.nil?
-        print_line(tbl.to_s)
+        tbl << [
+          "", # host
+          origin, # origin
+          "", # service
+          public_val,
+          private_val,
+          realm_val,
+          human_val
+        ]
       else
-        # create the output file
-        ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-        print_status("Wrote creds to #{output_file}")
-      end
+        core.logins.each do |login|
+          service = framework.db.services(id: login.service_id).first
+          # If none of this Core's associated Logins is for a host within
+          # the user-supplied RangeWalker, then we don't have any reason to
+          # print it out. However, we treat the absence of ranges as meaning
+          # all hosts.
+          if host_ranges.present? && !host_ranges.any? { |range| range.include?(service.host.address) }
+            next
+          end
 
-      # Finally, handle the case where the user wants the resulting list
-      # of hosts to go into RHOSTS.
-      set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-      print_status("Deleted #{delete_count} creds") if delete_count > 0
-    }
+          row = [ service.host.address ]
+          row << origin
+          rhosts << service.host.address
+          if service.name.present?
+            row << "#{service.port}/#{service.proto} (#{service.name})"
+          else
+            row << "#{service.port}/#{service.proto}"
+          end
+
+          matched_cred_ids << core.id
+          public_val = core.public ? core.public.username : ""
+          private_val = core.private ? core.private.to_s : ""
+          realm_val = core.realm ? core.realm.value : ""
+          human_val = core.private ? core.private.class.model_name.human : ""
+
+          row += [
+            public_val,
+            private_val,
+            realm_val,
+            human_val
+          ]
+          tbl << row
+        end
+      end
+    end
+    if mode == :delete
+      result = framework.db.delete_credentials(ids: matched_cred_ids)
+      delete_count = result.size
+    end
+
+    if output_file.nil?
+      print_line(tbl.to_s)
+    else
+      # create the output file
+      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      print_status("Wrote creds to #{output_file}")
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+    print_status("Deleted #{delete_count} creds") if delete_count > 0
   end
 
   def cmd_creds_tabs(str, words)

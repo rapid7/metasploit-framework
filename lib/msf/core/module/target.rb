@@ -129,22 +129,29 @@ class Msf::Module::Target
   # 	Payload-specific options, such as append, prepend, and other values that
   # 	can be set on a per-exploit or per-target basis.
   #
+  # DefaultOptions
+  #
+  #   DefaultOptions hash to be imported into the datastore.
+  #
   def initialize(name, opts)
-    opts = {} if (!opts)
+    opts = {} unless opts
 
-    self.name           = name
-    self.platform       = opts['Platform'] ? Msf::Module::PlatformList.transform(opts['Platform']) : nil
-    self.save_registers = opts['SaveRegisters']
-    self.ret            = opts['Ret']
-    self.opts           = opts
+    self.name            = name
+    self.opts            = opts
+    self.save_registers  = opts['SaveRegisters']
+    self.ret             = opts['Ret']
+    self.default_options = opts['DefaultOptions']
 
-    if (opts['Arch'])
-      self.arch = Rex::Transformer.transform(opts['Arch'], Array,
-        [ String ], 'Arch')
+    if opts['Platform']
+      self.platform = Msf::Module::PlatformList.transform(opts['Platform'])
+    end
+
+    if opts['Arch']
+      self.arch = Rex::Transformer.transform(opts['Arch'], Array, [String], 'Arch')
     end
 
     # Does this target have brute force information?
-    if (opts['Bruteforce'])
+    if opts['Bruteforce']
       self.bruteforce = Bruteforce.new(opts['Bruteforce'])
     end
   end
@@ -213,6 +220,13 @@ class Msf::Module::Target
   end
 
   #
+  # Whether NOP generation should be enabled or disabled
+  #
+  def payload_disable_nops
+    opts['Payload'] ? opts['Payload']['DisableNops'] : nil
+  end
+
+  #
   # Payload max nops information for this target.
   #
   def payload_max_nops
@@ -231,6 +245,22 @@ class Msf::Module::Target
   #
   def payload_space
     opts['Payload'] ? opts['Payload']['Space'] : nil
+  end
+
+  #
+  # The payload encoder or encoders that can be used when generating the
+  # encoded payload (such as x86/shikata_ga_nai and so on).
+  #
+  def payload_encoder
+    opts['Payload'] ? opts['Payload']['Encoder'] : nil
+  end
+
+  #
+  # The payload NOP generator or generators that can be used when generating the
+  # encoded payload (such as x86/opty2 and so on).
+  #
+  def payload_nop
+    opts['Payload'] ? opts['Payload']['Nop'] : nil
   end
 
   #
@@ -289,10 +319,15 @@ class Msf::Module::Target
   # option is passed to the constructor of the class.
   #
   attr_reader :bruteforce
+  #
+  # DefaultOptions hash to be imported into the datastore.
+  #
+  attr_reader :default_options
 
 protected
 
   attr_writer :name, :platform, :arch, :opts, :ret, :save_registers # :nodoc:
   attr_writer :bruteforce # :nodoc:
+  attr_writer :default_options # :nodoc:
 
 end

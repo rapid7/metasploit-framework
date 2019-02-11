@@ -3,22 +3,25 @@
 
 To run `msfconsole`
 ```bash
-docker-compose build
-docker-compose run --rm --service-ports ms
-```
-or
-```bash
 ./docker/bin/msfconsole
 ```
 
-To run `msfvenom`
+or
+
 ```bash
 docker-compose build
-docker-compose run --rm --no-deps ms ./msfvenom
+docker-compose run --rm --service-ports -e MSF_UID=$(id -u) -e MSF_GID=$(id -g) ms
 ```
-or
+To run `msfvenom`
 ```bash
 ./docker/bin/msfvenom
+```
+
+or
+
+```bash
+docker-compose build
+docker-compose run --rm --no-deps -e MSF_UID=$(id -u) -e MSF_GID=$(id -g) ms ./msfvenom
 ```
 
 You can pass any command line arguments to the binstubs or the docker-compose command and they will be passed to `msfconsole` or `msfvenom`. If you need to rebuild an image (for example when the Gemfile changes) you need to build the docker image using `docker-compose build` or supply the `--rebuild` parameter to the binstubs.

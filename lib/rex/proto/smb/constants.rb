@@ -1398,6 +1398,17 @@ class Constants
     [ 'Payload', 'ByteCount',  nil, true ]
   )
 
+  # A template for SMB echo request/reply
+  SMB_ECHO_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+    ['template', 'SMB',      SMB_HDR],
+    ['uint16v',  'EchoCount',      0],
+    ['uint16v',  'ByteCount',      0],
+    ['string',   'Payload', nil, '' ]
+  ).create_restraints(
+    [ 'Payload', 'ByteCount',  nil, true ]
+  )
+  SMB_ECHO_RES_PKT = self.make_nbs(SMB_ECHO_RES_HDR_PKT)
+
 end
 end
 end

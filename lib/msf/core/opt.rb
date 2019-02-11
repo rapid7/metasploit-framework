@@ -25,8 +25,8 @@ module Msf
       Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
     end
 
-    # @return [OptAddress]
-    def self.LHOST(default=nil, required=true, desc="The listen address")
+    # @return [OptAddressLocal]
+    def self.LHOST(default=nil, required=true, desc="The listen address (an interface may be specified)")
       Msf::OptAddressLocal.new(__method__.to_s, [ required, desc, default ])
     end
 
@@ -40,9 +40,13 @@ module Msf
       Msf::OptString.new(__method__.to_s, [ required, desc, default ])
     end
 
-    # @return [OptAddress]
-    def self.RHOST(default=nil, required=true, desc="The target address")
-      Msf::OptAddress.new(__method__.to_s, [ required, desc, default ])
+    # @return [OptAddressRange]
+    def self.RHOSTS(default=nil, required=true, desc="The target address range or CIDR identifier")
+      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ])
+    end
+
+    def self.RHOST(default=nil, required=true, desc="The target address range or CIDR identifier")
+      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     # @return [OptPort]
@@ -50,18 +54,11 @@ module Msf
       Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
     end
 
-    def self.ssl_supported_options
-      @m ||= ['Auto', 'TLS'] + OpenSSL::SSL::SSLContext::METHODS \
-             .select{|m| !m.to_s.include?('client') && !m.to_s.include?('server')} \
-             .select{|m| OpenSSL::SSL::SSLContext.new(m) && true rescue false} \
-             .map{|m| m.to_s.sub(/v/, '').sub('_', '.')}
-    end
-
     # @return [OptEnum]
     def self.SSLVersion
       Msf::OptEnum.new('SSLVersion',
         'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)',
-        enums: self.ssl_supported_options
+        enums: Rex::Socket::SslTcp.supported_ssl_methods
       )
     end
 
@@ -114,6 +111,7 @@ module Msf
     LPORT = LPORT()
     Proxies = Proxies()
     RHOST = RHOST()
+    RHOSTS = RHOSTS()
     RPORT = RPORT()
     SSLVersion = SSLVersion()
   end

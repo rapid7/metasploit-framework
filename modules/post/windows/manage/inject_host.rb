@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
     begin
       # Download the remote file to the temporary file
       client.fs.file.download_file(temp_path, 'C:\\WINDOWS\\System32\\drivers\\etc\\hosts')
-    rescue RequestError => re
+    rescue Rex::Post::Meterpreter::RequestError => re
       # If the file doesn't exist, then it's okay.  Otherwise, throw the
       # error.
       if re.result != 2

@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'sqlite3', '~>1.3.0'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -19,15 +21,13 @@ group :development do
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
-  gem 'metasploit-aggregator' if [
-    'x86-mingw32', 'x64-mingw32',
-    'x86_64-linux', 'x86-linux',
-    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
+  # disabled during 2.5 transition until aggregator is available
+  #gem 'metasploit-aggregator'
 end
 
 group :development, :test do
   # automatically include factories from spec/factories
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   # Make rspec output shorter and more useful
   gem 'fivemat'
   # running documentation generation tasks and rspec tasks
@@ -36,6 +36,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
+  gem 'swagger-blocks'
 end
 
 group :test do

@@ -1,12 +1,17 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
-# This script takes a list of ranges and converts it to a per line ip list.
+# This script takes a list of ranges and converts it to a per line IP list.
 # Demonstration:
 # echo 192.168.100.0-50 >> rangelist.txt
 # echo 192.155-156.0.1 >> rangelist.txt
 # echo 192.168.200.0/25 >> rangelist.txt
-# ruby tools/makeiplist.rb
+# ruby tools/recon/makeiplist.rb
 #
 # Author:
 # mubix
@@ -25,10 +30,10 @@ require 'optparse'
 
 class OptsConsole
   def self.parse(args)
-    options = {'output' => 'iplist.txt'}
+    options = {}
 
     opts = OptionParser.new do |opts|
-      opts.banner = %Q|This script takes a list of ranges and converts it to a per line ip list.
+      opts.banner = %Q|This script takes a list of ranges and converts it to a per line IP list.
 Usage: #{__FILE__} [options]|
 
       opts.separator ""
@@ -51,25 +56,28 @@ Usage: #{__FILE__} [options]|
       end
     end
 
+    opts.parse!(args)
+    if options.empty?
+      puts "[*] No options specified, try -h for usage"
+      exit
+    end
+
     begin
-      opts.parse!(args)
       if options['input'] == nil
         puts opts
-        raise OptionParser::MissingArgument, "-i is a required option"
+        raise OptionParser::MissingArgument, '-i is a required argument'
       end
       unless ::File.exist?(options['input'])
         raise OptionParser::InvalidArgument, "Not found: #{options['input']}"
+      end
+      if options['output'] == nil
+        options['output'] = 'iplist.txt'
       end
     rescue OptionParser::InvalidOption
       puts "[*] Invalid option, try -h for usage"
       exit
     rescue OptionParser::InvalidArgument => e
       puts "[*] #{e.message}"
-      exit
-    end
-
-    if options.empty?
-      puts "[*] No options specified, try -h for usage"
       exit
     end
 

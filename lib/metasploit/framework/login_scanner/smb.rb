@@ -93,10 +93,9 @@ module Metasploit
           proof = nil
 
           begin
-
-            realm       = credential.realm   || ""
-            username    = credential.public  || ""
-            password    = credential.private || ""
+            realm       = (credential.realm   || "").force_encoding('UTF-8')
+            username    = (credential.public  || "").force_encoding('UTF-8')
+            password    = (credential.private || "").force_encoding('UTF-8')
             client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
@@ -118,24 +117,24 @@ module Metasploit
             end
 
             case status_code.name
-              when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
-                status = Metasploit::Model::Login::Status::DENIED_ACCESS
-              when 'STATUS_SUCCESS'
+              when 'STATUS_SUCCESS', 'STATUS_PASSWORD_MUST_CHANGE', 'STATUS_PASSWORD_EXPIRED'
                 status = Metasploit::Model::Login::Status::SUCCESSFUL
               when 'STATUS_ACCOUNT_LOCKED_OUT'
                 status = Metasploit::Model::Login::Status::LOCKED_OUT
               when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
                 status = Metasploit::Model::Login::Status::INCORRECT
+              when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
+                status = Metasploit::Model::Login::Status::DENIED_ACCESS
               else
                 status = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError, Errno::EINVAL => e
+          rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
           ensure
-            client.disconnect!
+            client.disconnect! if client
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?

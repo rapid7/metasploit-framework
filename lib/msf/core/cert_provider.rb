@@ -57,7 +57,7 @@ module Ssl
 
       cert.version    = opts[:version] || 2
       cert.serial     = opts[:serial]  || (rand(0xFFFFFFFF) << 32) + rand(0xFFFFFFFF)
-      cert.subject    = OpenSSL::X509::Name.new([["C", subject]])
+      cert.subject    = OpenSSL::X509::Name.parse(subject)
       cert.issuer     = opts[:ca_cert] || cert.subject
       cert.not_before = vf
       cert.not_after  = vt
@@ -90,7 +90,7 @@ module Ssl
       if ekuse and !ekuse.empty?
         cert.extensions << ef.create_extension("extendedKeyUsage", ekuse)
       end
-  
+
       cert.sign(key, OpenSSL::Digest::SHA256.new)
 
       [key, cert, nil]

@@ -1,4 +1,6 @@
-MS17-010 are psexec are two of the most popular exploits against Microsoft Windows. This module bolts the two together.
+## Introduction
+
+MS17-010 and psexec are two of the most popular exploits against Microsoft Windows. This module bolts the two together.
 
 You can run any command as SYSTEM. Note: unlike EternalBlue, kernel shellcode is not used to stage Meterpreter, so you might have to evade your payloads.
 
@@ -18,6 +20,11 @@ To be able to use auxiliary/admin/smb/ms17_010_command:
 5. The target must allow anonymous IPC$ and a Named Pipe.
 
 You can check all of these with the SMB MS17-010 and Pipe Auditor auxiliary scanner modules.
+
+If you're having trouble configuring an anonymous named pipe,
+Microsoft's
+[documentation](https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-named-pipes-that-can-be-accessed-anonymously)
+on the topic may be helpful.
 
 ## Verification Steps
 

@@ -58,7 +58,7 @@ class Framework
   require 'msf/core/module_manager'
   require 'msf/core/session_manager'
   require 'msf/core/plugin_manager'
-  require 'msf/core/db_manager'
+  require 'metasploit/framework/data_service/proxy/core'
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
   require 'msf/core/cert_provider'
@@ -142,6 +142,10 @@ class Framework
     return modules.post
   end
 
+  def evasion
+    return modules.evasion
+  end
+
   #
   # Returns the framework version in Major.Minor format.
   #
@@ -193,13 +197,13 @@ class Framework
   #
   attr_reader   :browser_profiles
 
-  # The framework instance's db manager. The db manager
-  # maintains the database db and handles db events
   #
-  # @return [Msf::DBManager]
+  # The framework instance's data service proxy
+  #
+  # @return [Metasploit::Framework::DataService::DataProxy]
   def db
     synchronize {
-      @db ||= Msf::DBManager.new(self, options)
+      @db ||= get_db
     }
   end
 
@@ -237,7 +241,7 @@ class Framework
   def search(match, logger: nil)
     # Do an in-place search
     matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
       mset.each do |m|
         begin
           o = mset.create(m[0])
@@ -268,6 +272,21 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :uuid_db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
+
+  private
+
+  def get_db
+    unless options['DisableDatabase']
+      db_manager = Msf::DBManager.new(self)
+      options[:db_manager] = db_manager
+      unless options['SkipDatabaseInit']
+        db_manager.init_db(options)
+      end
+    end
+
+    Metasploit::Framework::DataService::DataProxy.new(options)
+  end
+
 end
 
 class FrameworkEventSubscriber
@@ -326,7 +345,7 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_command(command)
-    if framework.db.active
+    if (framework.db and framework.db.active)
       report_event(:name => "ui_command", :info => {:command => command})
     end
   end
@@ -334,7 +353,7 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_stop()
-    if framework.db.active
+    if (framework.db and framework.db.active)
       report_event(:name => "ui_stop")
     end
   end

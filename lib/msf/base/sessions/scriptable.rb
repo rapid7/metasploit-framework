@@ -165,7 +165,7 @@ module Scriptable
       full_path = self.class.find_script_path(script_name)
 
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
+        print_error("The specified #{self.type} session script could not be found: #{script_name}")
         return
       end
 

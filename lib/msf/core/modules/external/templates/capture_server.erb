@@ -19,8 +19,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     print_status("Starting server...")
-    mod = Msf::Modules::External::Bridge.open(<%= meta[:path] %>)
-    mod.run(datastore)
-    wait_status(mod)
+    execute_module(<%= meta[:path] %>)
   end
 end

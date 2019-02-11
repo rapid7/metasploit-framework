@@ -14,7 +14,7 @@ module Msf
     end
 
     def desc
-      "Nessus Bridge for Metasploit"
+      PLUGIN_DESCRIPTION
     end
 
     class ConsoleCommandDispatcher
@@ -1062,7 +1062,7 @@ module Msf
           return
         end
         targets = ""
-        framework.db.hosts(framework.db.workspace).each do |host|
+        framework.db.hosts.each do |host|
           targets << host.address
           targets << ","
         end

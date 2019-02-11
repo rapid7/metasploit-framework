@@ -31,7 +31,7 @@ Windows and Linux.
             [ 'CVE', '2016-6601'],
             [ 'CVE', '2016-6602'],
             [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
-            [ 'URL', 'http://seclists.org/fulldisclosure/2016/Aug/54' ]
+            [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
           ],
         'DisclosureDate' => 'Jul 4 2016'
       )
@@ -102,7 +102,14 @@ Windows and Linux.
         if password && username
           plaintext_password = super_redacted_deobfuscation(password)
           cred_table << [ username, plaintext_password ]
-          register_creds(username, plaintext_password)
+          connection_details = {
+              module_fullname: self.fullname,
+              username: username,
+              private_data: plaintext_password,
+              private_type: :password,
+              status: Metasploit::Model::Login::Status::UNTRIED
+          }.merge(service_details)
+          create_credential_and_login(connection_details)
         end
       }
 
@@ -242,34 +249,7 @@ Windows and Linux.
     final
   end
 
-  def register_creds(username, password)
-    credential_data = {
-      origin_type: :service,
-      module_fullname: self.fullname,
-      workspace_id: myworkspace_id,
-      private_data: password,
-      private_type: :password,
-      username: username
-    }
-
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'WebNMS-' + (ssl ? 'HTTPS' : 'HTTP'),
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data.merge!(service_data)
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      workspace_id: myworkspace_id
-    }
-
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+  def service_details
+    super.merge({service_name: 'WebNMS-' + (ssl ? 'HTTPS' : 'HTTP')}) # this should possibly be removed
   end
 end

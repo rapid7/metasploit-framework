@@ -3,7 +3,7 @@ module Msf::DBManager::Note
   # This method iterates the notes table calling the supplied block with the
   # note instance of each entry.
   #
-  def each_note(wspace=workspace, &block)
+  def each_note(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.notes.each do |note|
       block.call(note)
@@ -21,10 +21,32 @@ module Msf::DBManager::Note
   #
   # This methods returns a list of all notes in the database
   #
-  def notes(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.notes
-  }
+  def notes(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Note.find(opts[:id]))
+      end
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
+      data = opts.delete(:data)
+      search_term = opts.delete(:search_term)
+      results = wspace.notes.includes(:host).where(opts)
+
+      # Compare the deserialized data from the DB to the search data since the column is serialized.
+      unless data.nil?
+        results = results.select { |note| note.data == data }
+      end
+
+      if search_term && !search_term.empty?
+        re_search_term = /#{search_term}/mi
+        results = results.select { |note|
+          note.attribute_names.any? { |a| note[a.intern].to_s.match(re_search_term) }
+        }
+      end
+      results
+    }
   end
 
   #
@@ -55,10 +77,7 @@ module Msf::DBManager::Note
   def report_note(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     seen = opts.delete(:seen) || false
     crit = opts.delete(:critical) || false
     host = nil
@@ -68,7 +87,7 @@ module Msf::DBManager::Note
       if opts[:host].kind_of? ::Mdm::Host
         host = opts[:host]
       else
-        addr = normalize_host(opts[:host])
+        addr = Msf::Util::Host.normalize_host(opts[:host])
         host = report_host({:workspace => wspace, :host => addr})
       end
       # Do the same for a service if that's also included.
@@ -80,12 +99,16 @@ module Msf::DBManager::Note
         when 'tcp','udp'
           proto = proto_lower
           sname = opts[:sname] if opts[:sname]
+        # XXX: These normalizations are lazy af
+        when 'http', 'smb'
+          proto = 'tcp'
+          sname = proto_lower
         when 'dns','snmp','dhcp'
           proto = 'udp'
-          sname = opts[:proto]
+          sname = proto_lower
         else
           proto = 'tcp'
-          sname = opts[:proto]
+          sname = proto_lower
         end
         sopts = {
           :workspace => wspace,
@@ -105,18 +128,12 @@ module Msf::DBManager::Note
     if addr and not host
       host = get_host(:workspace => wspace, :host => addr)
     end
-    if host and (opts[:port] and opts[:proto])
-      service = get_service(wspace, host, opts[:proto], opts[:port])
+    if host and (opts[:port] and proto)
+      service = get_service(wspace, host, proto, opts[:port])
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end
-=begin
-    if host
-      host.updated_at = host.created_at
-      host.state      = HostState::Alive
-      host.save!
-    end
-=end
+
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
     data   = opts[:data]
     note   = nil
@@ -170,5 +187,45 @@ module Msf::DBManager::Note
     note.save!
     ret[:note] = note
   }
+  end
+
+  # Update the attributes of a note entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Note] The updated Mdm::Note object.
+  def update_note(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts[:workspace] = wspace if wspace
+
+      id = opts.delete(:id)
+      note = Mdm::Note.find(id)
+      note.update!(opts)
+      return note
+    }
+  end
+
+  # Deletes note entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the note entries to delete.
+  # @return [Array] Array containing the Mdm::Note objects that were successfully deleted.
+  def delete_note(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |note_id|
+        note = Mdm::Note.find(note_id)
+        begin
+          deleted << note.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{note}")
+          deleted << note.delete
+        end
+      end
+
+      return deleted
+    }
   end
 end

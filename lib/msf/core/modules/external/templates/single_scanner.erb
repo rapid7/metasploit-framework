@@ -1,0 +1,29 @@
+require 'msf/core/modules/external/bridge'
+require 'msf/core/module/external'
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Scanner
+  include Msf::Module::External
+
+  def initialize
+    super({
+	  <%= common_metadata meta %>
+      'References'  =>
+        [
+          <%= meta[:references] %>
+        ],
+      'DisclosureDate' => <%= meta[:date] %>,
+      })
+
+      register_options([
+        <%= meta[:options] %>
+      ])
+  end
+
+  def run_host(ip)
+    print_status("Running for #{ip}...")
+    rhost = datastore.delete('RHOST')
+    datastore['rhost'] = rhost
+    execute_module(<%= meta[:path] %>)
+  end
+end

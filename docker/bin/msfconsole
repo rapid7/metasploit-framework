@@ -27,4 +27,4 @@ if [[ $PARAMS == *"--rebuild"* ]]; then
   exit $?
 fi
 
-docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"
+docker-compose run --rm --service-ports -e MSF_UID=$(id -u) -e MSF_GID=$(id -g) ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"

