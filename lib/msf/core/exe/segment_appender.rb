@@ -36,7 +36,6 @@ module Exe
         s.name = '.' + Rex::Text.rand_text_alpha_lower(4)
       else
         s.name = '.' + secname.downcase
-        $stderr.puts "Created custom section \"#{s.name}\""
       end
       s.encoded = payload_stub prefix
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
