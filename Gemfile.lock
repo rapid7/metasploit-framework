@@ -38,7 +38,7 @@ PATH
       patch_finder
       pcaprub
       pdf-reader
-      pg (= 0.20.0)
+      pg (~> 0.20)
       railties
       rb-readline
       recog
@@ -215,7 +215,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (0.20.0)
+    pg (0.21.0)
     pg_array_parser (0.0.9)
     postgres_ext (3.0.1)
       activerecord (~> 4.0)
