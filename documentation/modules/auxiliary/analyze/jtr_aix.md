@@ -5,10 +5,7 @@
 
   * `DES` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
-
+  Sources of hashes can be found here:
   [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
 ## Verification Steps
@@ -90,74 +87,50 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-[*] Deleted 3 creds
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:40085 -> 111.111.1.111:22) at 2019-01-19 04:00:54 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding des_passphrase:qiyh4XPJGsOZ2MEAyLkfWqeQ:des
-[+] Adding des_password:rEK1ecacw.7.c:des
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:des_password hash:rEK1ecacw.7.c jtr:des
+creds add user:des_passphrase hash:qiyh4XPJGsOZ2MEAyLkfWqeQ jtr:des
 ```
-```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_aix 
-msf5 auxiliary(analyze/jtr_aix) > run
 
-[*] Hashes Written out to /tmp/hashes_tmp20190119-17882-1wvuebb
-[*] Wordlist file written out to /tmp/jtrtmp20190119-17882-u2m52i
+Crack them:
+
+```
+[*] Hashes Written out to /tmp/hashes_tmp20190211-5021-1p3x0lx
+[*] Wordlist file written out to /tmp/jtrtmp20190211-5021-66w3u0
 [*] Cracking descrypt hashes in normal wordlist mode...
-[*] Loaded 3 password hashes with 3 different salts (descrypt, traditional crypt(3) [DES 256/256 AVX2-16])
+Using default input encoding: UTF-8
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-[*] password         (des_password)
-[*] se               (des_passphrase:2)
-2g 0:00:00:00 DONE (Sat 19 Jan 2019 04:01:15 AM EST) 50.00g/s 2111Kp/s 5041Kc/s 5041KC/s sanserif..vagrant
-Warning: passwords printed above might be partial
-Use the "--show" option to display all of the cracked passwords reliably
+0g 0:00:00:00 DONE (2019-02-11 19:29) 0g/s 4206Kp/s 4206Kc/s 4206KC/s scandal..vagrant
 Session completed
 [*] Cracking descrypt hashes in single mode...
-[*] Loaded 3 password hashes with 3 different salts (descrypt, traditional crypt(3) [DES 256/256 AVX2-16])
+Using default input encoding: UTF-8
 Will run 8 OpenMP threads
-[*] Remaining 1 password hash
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:07 DONE (Sat 19 Jan 2019 04:01:22 AM EST) 0g/s 4867Kp/s 4867Kc/s 4867KC/s hms1902..tude1900
+0g 0:00:00:05 DONE (2019-02-11 19:29) 0g/s 6681Kp/s 6681Kc/s 6681KC/s qt1902..tude1900
 Session completed
 [*] Cracking descrypt hashes in incremental mode (Digits)...
-[*] Loaded 3 password hashes with 3 different salts (descrypt, traditional crypt(3) [DES 256/256 AVX2-16])
+Using default input encoding: UTF-8
 Will run 8 OpenMP threads
-[*] Remaining 1 password hash
+Warning: MaxLen = 20 is too large for the current hash type, reduced to 8
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:05 DONE (Sat 19 Jan 2019 04:01:28 AM EST) 0g/s 18864Kp/s 18864Kc/s 18864KC/s 73602400..73673952
+0g 0:00:00:05 DONE (2019-02-11 19:29) 0g/s 21083Kp/s 21083Kc/s 21083KC/s 73602400..73673952
 Session completed
 [*] Cracked Passwords this run:
-[+] des_passphrase:????????se:3213:
-[+] des_password:password:3214:
+[+] des_password:password
+[+] des_passphrase:????????se
 [*] Auxiliary module execution completed
 msf5 auxiliary(analyze/jtr_aix) > creds
 Credentials
 ===========
 
-host           origin         service       public          private                   realm  private_type
-----           ------         -------       ------          -------                   -----  ------------
-               111.111.1.111                des_passphrase  qiyh4XPJGsOZ2MEAyLkfWqeQ         Nonreplayable hash
-               111.111.1.111                des_password    rEK1ecacw.7.c                    Nonreplayable hash
-                                            des_passphrase  ????????se                       Password
-                                            des_password    password                         Password
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu          ubuntu                           Password
+host  origin  service  public          private                   realm  private_type        JtR Format
+----  ------  -------  ------          -------                   -----  ------------        ----------
+                       des_passphrase  ????????se                       Password            
+                       des_passphrase  qiyh4XPJGsOZ2MEAyLkfWqeQ         Nonreplayable hash  des
+                       des_password    rEK1ecacw.7.c                    Nonreplayable hash  des
+                       des_password    password                         Password            
+
 ```

@@ -6,9 +6,8 @@
   * `mysql` (pre 4.1) based passwords
   * `mysql-sha1` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
+  Sources of hashes can be found here:
+  [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
 ## Verification Steps
 
@@ -89,56 +88,47 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:46211 -> 111.111.1.111:22) at 2019-01-19 17:24:54 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding mysql_probe:445ff82636a7ba59:mysql
-[+] Adding mssql-sha1_tere:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB:mysql-sha1
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:mysql_probe hash:445ff82636a7ba59 jtr:mysql
+creds add user:mysql-sha1_tere hash:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB jtr:mysql-sha1
 ```
+
+Crack them:
+
 ```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_mysql_fast 
+msf5 > use auxiliary/analyze/jtr_mysql_fast 
 msf5 auxiliary(analyze/jtr_mysql_fast) > run
 
-[*] Hashes Written out to /tmp/hashes_tmp20190119-30962-19gqf2v
-[*] Wordlist file written out to /tmp/jtrtmp20190119-30962-qrof08
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-o7pt47
+[*] Wordlist file written out to /tmp/jtrtmp20190211-6421-3t366y
 [*] Cracking mysql hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracking mysql hashes in single mode...
+Using default input encoding: UTF-8
 [*] Cracking mysql hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] mysql_probe:probe
 [*] Cracking mysql-sha1 hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracking mysql-sha1 hashes in single mode...
+Using default input encoding: UTF-8
 [*] Cracking mysql-sha1 hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
-[+] mssql-sha1_tere:tere
+[+] mysql-sha1_tere:tere
 [*] Auxiliary module execution completed
 msf5 auxiliary(analyze/jtr_mysql_fast) > creds
 Credentials
 ===========
 
-host           origin         service       public              private                                                                                                                                         realm  private_type
-----           ------         -------       ------              -------                                                                                                                                         -----  ------------
-                                            mysql_probe         probe                                                                                                                                                  Password
-               111.111.1.111                mysql_probe         445ff82636a7ba59                                                                                                                                       Nonreplayable hash
-                                            mssql-sha1_tere     tere                                                                                                                                                   Password
-               111.111.1.111                mssql-sha1_tere     *5AD8F88516BD021DD43F171E2C785C69F8E54ADB                                                                                                              Nonreplayable hash
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu              ubuntu                                                                                                                                                 Password
+host  origin  service  public           private                                    realm  private_type        JtR Format
+----  ------  -------  ------           -------                                    -----  ------------        ----------
+                       mysql_probe      probe                                             Password            
+                       mysql_probe      445ff82636a7ba59                                  Nonreplayable hash  mysql
+                       mysql-sha1_tere  tere                                              Password            
+                       mysql-sha1_tere  *5AD8F88516BD021DD43F171E2C785C69F8E54ADB         Nonreplayable hash  mysql-sha1
+
 ```

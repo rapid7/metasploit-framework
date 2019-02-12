@@ -8,9 +8,8 @@
   * Oracle 11 and 12c backwards compatibility `H` field (MD5)
   * `oracle12c` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
+  Sources of hashes can be found here:
+  [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
   For a detailed explanation of Oracle 11/12c formats, see
   [www.trustwave.com](https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/changes-in-oracle-database-12c-password-hashes/).
@@ -97,39 +96,24 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:45369 -> 111.111.1.111:22) at 2019-01-21 15:35:19 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding simon:4F8BC1809CB2AF77:des,oracle
-[+] Adding SYSTEM:9EEDFA0AD26C6D52:des,oracle
-[+] Adding DEMO:S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C:raw-sha1,oracle
-[+] Adding oracle11_epsilon:S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C:raw-sha1,oracle
-[+] Adding oracle12c_epsilon:H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B:pbkdf2,oracle12c
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle
+creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle
+creds add user:DEMO hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C' jtr:raw-sha1,oracle
+creds add user:oracle11_epsilon hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C' jtr:raw-sha1,oracle
+creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B' jtr:pbkdf2,oracle12c
 ```
+
+Crack them:
+
 ```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_oracle_fast 
+msf5 > use auxiliary/analyze/jtr_oracle_fast 
 msf5 auxiliary(analyze/jtr_oracle_fast) > run
 
-[*] Wordlist file written out to /tmp/jtrtmp20190121-21358-1qgil9r
-[*] Hashes Written out to /tmp/hashes_tmp20190121-21358-1mz3zna
+[*] Wordlist file written out to /tmp/jtrtmp20190211-6421-v6a8wg
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-123367o
 [*] Cracking oracle hashes in normal wordlist mode...
 Using default input encoding: UTF-8
 [*] Cracking oracle hashes in single mode...
@@ -137,22 +121,13 @@ Using default input encoding: UTF-8
 [*] Cracked passwords this run:
 [+] simon:A
 [+] SYSTEM:THALES
-[*] Hashes Written out to /tmp/hashes_tmp20190121-21358-1hm4xok
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-1skc10b
 [*] Cracking dynamic_1506 hashes in normal wordlist mode...
 Using default input encoding: UTF-8
-Warning: no OpenMP support for this hash type, consider --fork=8
-Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (2019-01-21 15:35) 0g/s 4861Kp/s 9722Kc/s 9722KC/s waneta..vagrant
-Session completed
 [*] Cracking dynamic_1506 hashes in single mode...
 Using default input encoding: UTF-8
-Warning: no OpenMP support for this hash type, consider --fork=8
-Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:14 DONE (2019-01-21 15:36) 0g/s 5680Kp/s 11361Kc/s 11361KC/s ximenes1900..vagrant1900
-Session completed
 [*] Cracked passwords this run:
-[+] DEMO:epsilon
-[*] Hashes Written out to /tmp/hashes_tmp20190121-21358-h0fjvl
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-1qwsyoy
 [*] Cracking oracle11 hashes in normal wordlist mode...
 Using default input encoding: UTF-8
 [*] Cracking oracle11 hashes in single mode...
@@ -160,7 +135,7 @@ Using default input encoding: UTF-8
 [*] Cracked passwords this run:
 [+] DEMO:epsilon
 [+] oracle11_epsilon:epsilon
-[*] Hashes Written out to /tmp/hashes_tmp20190121-21358-5hgfu5
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-1f9piv4
 [*] Cracking oracle12c hashes in normal wordlist mode...
 Using default input encoding: UTF-8
 [*] Cracking oracle12c hashes in single mode...
@@ -172,17 +147,17 @@ msf5 auxiliary(analyze/jtr_oracle_fast) > creds
 Credentials
 ===========
 
-host           origin         service       public              private                                                                                                                                                                                                                                                               realm  private_type
-----           ------         -------       ------              -------                                                                                                                                                                                                                                                               -----  ------------
-                                            simon               A                                                                                                                                                                                                                                                                            Password
-               111.111.1.111                simon               4F8BC1809CB2AF77                                                                                                                                                                                                                                                             Nonreplayable hash
-                                            SYSTEM              THALES                                                                                                                                                                                                                                                                       Password
-               111.111.1.111                SYSTEM              9EEDFA0AD26C6D52                                                                                                                                                                                                                                                             Nonreplayable hash
-                                            DEMO                epsilon                                                                                                                                                                                                                                                                      Password
-               111.111.1.111                DEMO                S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C         Nonreplayable hash
-                                            oracle11_epsilon    epsilon                                                                                                                                                                                                                                                                      Password
-               111.111.1.111                oracle11_epsilon    S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C         Nonreplayable hash
-                                            oracle12c_epsilon   epsilon                                                                                                                                                                                                                                                                      Password
-               111.111.1.111                oracle12c_epsilon   H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B                                                                        Nonreplayable hash
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu              ubuntu                                                                                                                                                                                                                                                                       Password
+host  origin  service  public             private                                                                                                                                                                                                                                                               realm  private_type        JtR Format
+----  ------  -------  ------             -------                                                                                                                                                                                                                                                               -----  ------------        ----------
+                       simon              A                                                                                                                                                                                                                                                                            Password            
+                       simon              4F8BC1809CB2AF77                                                                                                                                                                                                                                                             Nonreplayable hash  des,oracle
+                       SYSTEM             THALES                                                                                                                                                                                                                                                                       Password            
+                       SYSTEM             9EEDFA0AD26C6D52                                                                                                                                                                                                                                                             Nonreplayable hash  des,oracle
+                       DEMO               epsilon                                                                                                                                                                                                                                                                      Password            
+                       DEMO               S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C         Nonreplayable hash  raw-sha1,oracle
+                       oracle11_epsilon   epsilon                                                                                                                                                                                                                                                                      Password            
+                       oracle11_epsilon   S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C         Nonreplayable hash  raw-sha1,oracle
+                       oracle12c_epsilon  epsilon                                                                                                                                                                                                                                                                      Password            
+                       oracle12c_epsilon  H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B                                                                        Nonreplayable hash  pbkdf2,oracle12c
+
 ```

@@ -11,9 +11,8 @@
     * `SHA256` based passwords
     * `SHA512` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
+  Sources of hashes can be found here:
+  [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
   The definition of `crypt` according to JTR and waht algorithms it decodes can be found
   [here](https://github.com/magnumripper/JohnTheRipper/blob/ae24a410baac45bb36884d793c429adeb7197336/src/c3_fmt.c#L731)
@@ -101,77 +100,52 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:34849 -> 111.111.1.111:22) at 2019-01-19 11:52:44 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding des_passphrase:qiyh4XPJGsOZ2MEAyLkfWqeQ:des
-[+] Adding des_password:rEK1ecacw.7.c:des
-[+] Adding md5_password:$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/:md5,des,bsdi,crypt
-[+] Adding bsdi_password:_J9..K0AyUubDrfOgO4s:md5,des,bsdi,crypt
-[+] Adding sha256_password:$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5:md5,des,bsdi,crypt
-[+] Adding sha512_password:$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1:md5,des,bsdi,crypt
-[+] Adding blowfish_password:$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe:bcrypt
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:des_password hash:rEK1ecacw.7.c jtr:des
+creds add user:md5_password hash:$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/ jtr:md5
+creds add user:bsdi_password hash:_J9..K0AyUubDrfOgO4s jtr:bsdi
+creds add user:sha256_password hash:$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5 jtr:sha256,crypt
+creds add user:sha512_password hash:$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1 jtr:sha512,crypt
+creds add user:blowfish_password hash:$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe jtr:bf
 ```
+
+Crack them:
+
 ```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_linux 
+msf5 > use auxiliary/analyze/jtr_linux 
 msf5 auxiliary(analyze/jtr_linux) > set crypt true
 crypt => true
 msf5 auxiliary(analyze/jtr_linux) > run
 
-[*] Hashes Written out to /tmp/hashes_tmp20190119-25843-1igh5zx
-[*] Wordlist file written out to /tmp/jtrtmp20190119-25843-1fmcnd
+[*] Hashes Written out to /tmp/hashes_tmp20190211-5021-hqwf2h
+[*] Wordlist file written out to /tmp/jtrtmp20190211-5021-1ixz59k
 [*] Cracking md5crypt hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] md5_password:password
 [*] Cracking descrypt hashes in normal wordlist mode...
-Will run 8 OpenMP threads
-Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (Sat 19 Jan 2019 11:53:04 AM EST) 0g/s 2102Kp/s 6308Kc/s 8411KC/s scapula..vagrant
-Session completed
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
-[+] des_passphrase:????????se
 [+] des_password:password
 [*] Cracking bsdicrypt hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] bsdi_password:password
 [*] Cracking crypt hashes in normal wordlist mode...
-Warning: hash encoding string length 24, type id #3
-appears to be unsupported on this system; will not load such hashes.
 Warning: hash encoding string length 20, type id #4
 appears to be unsupported on this system; will not load such hashes.
 Warning: hash encoding string length 60, type id $2
 appears to be unsupported on this system; will not load such hashes.
-Will run 8 OpenMP threads
-Press 'q' or Ctrl-C to abort, almost any other key for status
-Warning: Only 59 candidates left, minimum 96 needed for performance.
-0g 0:00:00:00 DONE (Sat 19 Jan 2019 11:53:05 AM EST) 0g/s 540061p/s 540061c/s 540061C/s zubeneschamali..vagrant
-Session completed
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
-Warning: hash encoding string length 24, type id #3
-appears to be unsupported on this system; will not load such hashes.
 [+] des_password:password
 [+] md5_password:password
 [+] sha256_password:password
 [+] sha512_password:password
 [*] Cracking bcrypt hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] blowfish_password:password
 [*] Auxiliary module execution completed
@@ -179,21 +153,19 @@ msf5 auxiliary(analyze/jtr_linux) > creds
 Credentials
 ===========
 
-host           origin         service       public             private                                                                                             realm  private_type
-----           ------         -------       ------             -------                                                                                             -----  ------------
-                                            des_passphrase     ????????se                                                                                                 Password
-               111.111.1.111                des_passphrase     qiyh4XPJGsOZ2MEAyLkfWqeQ                                                                                   Nonreplayable hash
-                                            des_password       password                                                                                                   Password
-               111.111.1.111                des_password       rEK1ecacw.7.c                                                                                              Nonreplayable hash
-                                            md5_password       password                                                                                                   Password
-               111.111.1.111                md5_password       $1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/                                                                         Nonreplayable hash
-                                            bsdi_password      password                                                                                                   Password
-               111.111.1.111                bsdi_password      _J9..K0AyUubDrfOgO4s                                                                                       Nonreplayable hash
-                                            sha256_password    password                                                                                                   Password
-               111.111.1.111                sha256_password    $5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5                                                    Nonreplayable hash
-                                            sha512_password    password                                                                                                   Password
-               111.111.1.111                sha512_password    $6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1         Nonreplayable hash
-                                            blowfish_password  password                                                                                                   Password
-               111.111.1.111                blowfish_password  $2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe                                               Nonreplayable hash
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu             ubuntu                                                                                                     Password
+host  origin  service  public             private                                                                                             realm  private_type        JtR Format
+----  ------  -------  ------             -------                                                                                             -----  ------------        ----------
+                       bsdi_password      password                                                                                                   Password            
+                       des_password       password                                                                                                   Password            
+                       sha256_password    $5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5                                                    Nonreplayable hash  sha256,crypt
+                       md5_password       password                                                                                                   Password            
+                       md5_password       $1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/                                                                         Nonreplayable hash  md5
+                       bsdi_password      _J9..K0AyUubDrfOgO4s                                                                                       Nonreplayable hash  bsdi
+                       sha512_password    password                                                                                                   Password            
+                       blowfish_password  $2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe                                               Nonreplayable hash  bf
+                       sha512_password    $6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1         Nonreplayable hash  sha512,crypt
+                       sha256_password    password                                                                                                   Password            
+                       des_password       rEK1ecacw.7.c                                                                                              Nonreplayable hash  des
+                       blowfish_password  password                                                                                                   Password            
+
 ```

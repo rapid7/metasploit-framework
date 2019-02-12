@@ -6,9 +6,8 @@
   * `postgres` based passwords
   * `raw-md5` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
+  Sources of hashes can be found here:
+  [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
   PostgreSQL is a `raw-md5` format with the username appended to the password.  This format was
   added to JtR as `dynamic_1034` [here](https://github.com/magnumripper/JohnTheRipper/commit/e57d740bed5c4f4e40a0ff346bcdde270a8173e6)
@@ -92,35 +91,20 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:36917 -> 111.111.1.111:22) at 2019-01-20 21:07:44 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding example:md5be86a79bf2043622d58d5453c47d4860:postgres
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
 ```
+
+Crack them:
+
 ```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_postgres_fast 
+msf5 > use auxiliary/analyze/jtr_postgres_fast 
 msf5 auxiliary(analyze/jtr_postgres_fast) > run
 
-[*] Hashes written out to /tmp/hashes_tmp20190120-11480-173dub0
-[*] Wordlist file written out to /tmp/jtrtmp20190120-11480-1hbm42j
+[*] Hashes written out to /tmp/hashes_tmp20190211-6421-1hooxft
+[*] Wordlist file written out to /tmp/jtrtmp20190211-6421-1hv6clq
 [*] Cracking dynamic_1034 hashes in normal wordlist mode...
 Using default input encoding: UTF-8
 [*] Cracking dynamic_1034 hashes in single mode...
@@ -134,9 +118,9 @@ msf5 auxiliary(analyze/jtr_postgres_fast) > creds
 Credentials
 ===========
 
-host           origin         service       public              private                                                                                                                                         realm  private_type
-----           ------         -------       ------              -------                                                                                                                                         -----  ------------
-                                            example             password                                                                                                                                               Password
-               111.111.1.111                example             md5be86a79bf2043622d58d5453c47d4860                                                                                                                    Postgres md5
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu              ubuntu                                                                                                                                                 Password
+host  origin  service  public   private                              realm  private_type  JtR Format
+----  ------  -------  ------   -------                              -----  ------------  ----------
+                       example  md5be86a79bf2043622d58d5453c47d4860         Postgres md5  raw-md5,postgres
+                       example  password                                    Password      
+
 ```

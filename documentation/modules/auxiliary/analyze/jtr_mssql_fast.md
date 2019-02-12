@@ -7,9 +7,8 @@
   * `mssql05` based passwords
   * `mssql12` based passwords
 
-  The following can be used to add credentials to the database for cracking:
-
-  * https://github.com/rapid7/metasploit-framework/pull/11264#issuecomment-455762574
+  Sources of hashes can be found here:
+  [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
 ## Verification Steps
 
@@ -90,54 +89,48 @@
 
 ## Scenarios
 
-Utilizing the `make_hashes` file listed in the Vulnerable Application section:
+Create hashes:
 
 ```
-resource (hashes.rb)> use auxiliary/scanner/ssh/ssh_login
-resource (hashes.rb)> set username ubuntu
-username => ubuntu
-resource (hashes.rb)> set password ubuntu
-password => ubuntu
-resource (hashes.rb)> set rhosts 111.111.1.111
-rhosts => 111.111.1.111
-resource (hashes.rb)> run
-[+] 111.111.1.111:22 - Success: 'ubuntu:ubuntu' 'uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare) Linux ubuntu1604 4.4.0-138-generic #164-Ubuntu SMP Tue Oct 2 17:16:02 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux '
-[*] Command shell session 1 opened (2.2.2.2:40997 -> 111.111.1.111:22) at 2019-01-19 16:56:46 -0500
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-resource (hashes.rb)> use post/test/make_hashes
-resource (hashes.rb)> set session 1
-session => 1
-resource (hashes.rb)> run
-[+] Adding mssql05_toto:0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908:mssql05
-[+] Adding mssql_foo:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254:mssql
-[+] Adding mssql12_Password1!:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16:mssql12
-[*] Post module execution completed
-[*] Starting persistent handler(s)...
+creds add user:mssql05_toto hash:0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908 jtr:mssql05
+creds add user:mssql_foo hash:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254 jtr:mssql
+creds add user:mssql12_Password1! hash:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16 jtr:mssql12 
 ```
+
+Crack them:
+
 ```
-msf5 post(test/make_hashes) > use auxiliary/analyze/jtr_mssql_fast 
+msf5 > use auxiliary/analyze/jtr_mssql_fast 
 msf5 auxiliary(analyze/jtr_mssql_fast) > run
 
-[*] Hashes Written out to /tmp/hashes_tmp20190119-30098-16dm2ip
-[*] Wordlist file written out to /tmp/jtrtmp20190119-30098-t4zx7s
+[*] Hashes Written out to /tmp/hashes_tmp20190211-6421-u353o8
+[*] Wordlist file written out to /tmp/jtrtmp20190211-6421-hcwr36
 [*] Cracking mssql05 hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql05 hashes in single mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql05 hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] mssql05_toto:toto
 [+] mssql_foo:foo
 [+] mssql05_toto:toto
 [+] mssql_foo:foo
 [*] Cracking mssql hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql hashes in single mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] mssql_foo:FOO
 [+] mssql_foo:FOO
 [*] Cracking mssql12 hashes in normal wordlist mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql12 hashes in single mode...
+Using default input encoding: UTF-8
 [*] Cracking mssql12 hashes in incremental mode (Digits)...
+Using default input encoding: UTF-8
 [*] Cracked Passwords this run:
 [+] mssql12_Password1!:Password1!
 [+] mssql12_Password1!:Password1!
@@ -146,15 +139,14 @@ msf5 auxiliary(analyze/jtr_mssql_fast) > creds
 Credentials
 ===========
 
-host           origin         service       public              private                                                                                                                                         realm  private_type
-----           ------         -------       ------              -------                                                                                                                                         -----  ------------
-                                            mssql05_toto        toto                                                                                                                                                   Password
-               111.111.1.111                mssql05_toto        0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908                                                                                                 Nonreplayable hash
-                                            mssql_foo           FOO                                                                                                                                                    Password
-                                            mssql_foo           foo                                                                                                                                                    Password
-               111.111.1.111                mssql_foo           0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254                                                         Nonreplayable hash
-                                            mssql12_Password1!  Password1!                                                                                                                                             Password
-               111.111.1.111                mssql12_Password1!  0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16         Nonreplayable hash
-111.111.1.111  111.111.1.111  22/tcp (ssh)  ubuntu              ubuntu                                                                                                                                                 Password
+host  origin  service  public              private                                                                                                                                         realm  private_type        JtR Format
+----  ------  -------  ------              -------                                                                                                                                         -----  ------------        ----------
+                       mssql05_toto        toto                                                                                                                                                   Password            
+                       mssql05_toto        0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908                                                                                                 Nonreplayable hash  mssql05
+                       mssql_foo           FOO                                                                                                                                                    Password            
+                       mssql_foo           foo                                                                                                                                                    Password            
+                       mssql_foo           0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254                                                         Nonreplayable hash  mssql
+                       mssql12_Password1!  Password1!                                                                                                                                             Password            
+                       mssql12_Password1!  0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16         Nonreplayable hash  mssql12
 
 ```
