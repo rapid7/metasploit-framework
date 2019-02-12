@@ -2,6 +2,29 @@
 
 This module will connect to a provided range of web severs and determine if directory listings are enabled on them.
 
+## Vulnerable Application
+
+This module has been verified against the web server listed below.
+
+### Mock Vulnerable Server
+
+These instructions will create a web sever using `apache` with directory listing vulnerability enabled on it.
+
+#### Setup
+
+1. Make a `.htaccess` file in `/var/www/html/` by simply `touch .htaccess`.
+2. Create the vulnerable server by writing the following text to `/var/www/html/.htaccess`
+
+```
+Options +Indexes
+```
+
+3. Start the apache server `service apache2 start`.
+
+#### Note 
+Make sure you dont have a `index.html` file in your `/var/www/html` for the vulnerability to work.
+
+
 ## Verification Steps
 
 1. Do: ```use auxiliary/scanner/http/dir_listing```
@@ -11,25 +34,26 @@ This module will connect to a provided range of web severs and determine if dire
 
 ## Scenarios
 
+### Against the Mock server listed above
+
 ```
 msf > use auxiliary/scanner/http/dir_listing
-msf auxiliary(dir_listing) > set RHOSTS 192.168.1.200-254
-RHOSTS => 192.168.1.200-254
-msf auxiliary(dir_listing) > set THREADS 55
-THREADS => 55
-msf auxiliary(dir_listing) > run
+msf auxiliary(scanner/http/dir_listing) > set RHOSTS 192.168.1.10-14
+RHOSTS => 192.168.1.10-14
+msf auxiliary(scanner/http/dir_listing) > set THREADS 4
+THREADS => 4
+msf auxiliary(scanner/http/dir_listing) > set verbose true
+verbose => true
+msf auxiliary(scanner/http/dir_listing) > run
 
-[*] NOT Vulnerable to directory listing http://192.168.1.209:80/
-[*] NOT Vulnerable to directory listing http://192.168.1.211:80/
-[*] Found Directory Listing http://192.168.1.223:80/
-[*] NOT Vulnerable to directory listing http://192.168.1.234:80/
-[*] NOT Vulnerable to directory listing http://192.168.1.230:80/
-[*] Scanned 27 of 55 hosts (049% complete)
-[*] Scanned 50 of 55 hosts (090% complete)
-[*] Scanned 52 of 55 hosts (094% complete)
-[*] Scanned 53 of 55 hosts (096% compelte)
-[*] Scanned 54 of 55 hosts (098% complete)
-[*] Scanned 55 of 55 hosts (100% complete)
+[-] The connection was refused by the remote host (192.168.1.13:80).
+[*] NOT Vulnerable to directory listing http://192.168.1.13:80/
+[-] The connection was refused by the remote host (192.168.1.12:80).
+[*] NOT Vulnerable to directory listing http://192.168.1.12:80/
+[*] NOT Vulnerable to directory listing http://192.168.1.11:80/
+[*] Scanned 3 of 4 hosts (75% complete)
+[+] Found Directory Listing http://192.168.1.14:80/
+[*] Scanned 4 of 4 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(dir_listing) >
+msf auxiliary(scanner/http/dir_listing) >
 ```
