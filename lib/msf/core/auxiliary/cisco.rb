@@ -120,18 +120,19 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} MD5 Encrypted Enable Password: #{shash}")
             store_loot("cisco.ios.enable_hash", "text/plain", thost, shash, "enable_password_hash.txt", "Cisco IOS Enable Password Hash (MD5)")
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = shash
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
           end
 
-          if stype == 0
+          if stype == 0 #unencrypted
             print_good("#{thost}:#{tport} Enable Password: #{shash}")
             store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
 
             cred = credential_data.dup
             cred[:private_data] = shash
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
 
           end
@@ -153,7 +154,7 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :nonreplayable_hash
+          cred[:private_type] = :password
           create_credential_and_login(cred)
 
 #
@@ -196,6 +197,7 @@ module Auxiliary::Cisco
           store_loot("cisco.ios.vty_password", "text/plain", thost, shash, "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)")
 
           cred = credential_data.dup
+          cred[:jtr_format] = 'md5'
           cred[:private_data] = shash
           cred[:private_type] = :nonreplayable_hash
           create_credential_and_login(cred)
@@ -206,7 +208,7 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :nonreplayable_hash
+          cred[:private_type] = :password
           create_credential_and_login(cred)
 
 #
@@ -226,6 +228,7 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} Wireless WPA-PSK MD5 Password Hash: #{spass}")
             store_loot("cisco.ios.wireless_wpapsk_hash", "text/plain", thost, spass, "wireless_wpapsk_hash.txt", "Cisco IOS Wireless WPA-PSK Password Hash (MD5)")
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
@@ -236,7 +239,7 @@ module Auxiliary::Cisco
             store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password")
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -306,6 +309,7 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{spass}")
             store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}_level#{priv}:#{spass}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
@@ -317,7 +321,7 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -343,7 +347,7 @@ module Auxiliary::Cisco
           store_loot("cisco.ios.ephone.username_password", "text/plain", thost, "#{user}:#{spass}", "ephone_username_password.txt", "Cisco IOS ephone Username and Password")
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :nonreplayable_hash
+          cred[:private_type] = :password
           create_credential_and_login(cred)
 
         when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
@@ -355,6 +359,7 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{spass}")
             store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}:#{spass}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
@@ -366,7 +371,7 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -392,6 +397,7 @@ module Auxiliary::Cisco
             store_loot("cisco.ios.ppp_username_password_hash", "text/plain", thost, "#{suser}:#{spass}", "ppp_username_password_hash.txt", "Cisco IOS PPP Username and Password Hash (MD5)")
 
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
@@ -403,7 +409,7 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -426,6 +432,7 @@ module Auxiliary::Cisco
             print_good("#{thost}:#{tport} PPP CHAP MD5 Encrypted Password: #{spass}")
             store_loot("cisco.ios.ppp_password_hash", "text/plain", thost, spass, "ppp_password_hash.txt", "Cisco IOS PPP Password Hash (MD5)")
             cred = credential_data.dup
+            cred[:jtr_format] = 'md5'
             cred[:private_data] = spass
             cred[:private_type] = :nonreplayable_hash
             create_credential_and_login(cred)
@@ -437,7 +444,7 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
+            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
