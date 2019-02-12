@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(49152),
       OptEnum.new('TEMP', [true, 'Temperature', 'Off', modes.keys]),
-      OptInt.new('TIME',  [true, 'Cook time in seconds', 0])
+      OptInt.new('TIME',  [true, 'Cook time in minutes', 0])
     ])
 
     register_advanced_options([
@@ -81,10 +81,10 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'Cook'
-      print_status("Cooking on #{datastore['TEMP']} for #{datastore['TIME']}s")
+      print_status("Cooking on #{datastore['TEMP']} for #{datastore['TIME']}m")
       res = send_request_cook(datastore['TEMP'], datastore['TIME'])
     when 'Stop'
-      print_status('Setting temperature to Off and cook time to 0s')
+      print_status('Setting temperature to Off and cook time to 0m')
       res = send_request_cook('Off', 0)
     end
 
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_good("Cook time set to #{time.text}s")
+    print_good("Cook time set to #{time.text}m")
   end
 
   def send_request_cook(temp, time)

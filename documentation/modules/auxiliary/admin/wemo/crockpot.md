@@ -29,7 +29,7 @@ Set this to the desired temperature for cooking. Valid values are `Off`,
 
 **TIME**
 
-Set this to the desired cook time in full seconds.
+Set this to the desired cook time in full minutes.
 
 **DefangedMode**
 
