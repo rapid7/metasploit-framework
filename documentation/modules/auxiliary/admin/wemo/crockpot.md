@@ -31,6 +31,11 @@ Set this to the desired temperature for cooking. Valid values are `Off`,
 
 Set this to the desired cook time in full seconds.
 
+**DefangedMode**
+
+Set this to `false` to disable defanged mode and enable module
+functionality. Set this only if you're SURE you want to proceed.
+
 ## Usage
 
 ```
