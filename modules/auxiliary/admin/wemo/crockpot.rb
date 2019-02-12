@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptBool.new('DefangedMode', [true, 'Run in defanged mode', true]),
-      OptBool.new('ForceRun',     [true, 'Override check result', false])
+      OptBool.new('ForceExploit', [true, 'Override check result', false])
     ])
   end
 
@@ -72,8 +72,10 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if (checkcode = check) != Exploit::CheckCode::Appears
-      print_error("#{checkcode[1]} Set ForceRun to override.")
+    checkcode = check
+
+    unless checkcode == Exploit::CheckCode::Appears || datastore['ForceExploit']
+      print_error("#{checkcode[1]}. Set ForceExploit to override.")
       return
     end
 
@@ -86,7 +88,9 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cook('Off', 0)
     end
 
-    unless res && res.code == 200 && (time = res.get_xml_document.at('//time'))
+    time = res.get_xml_document.at('//time')
+
+    unless res && res.code == 200 && time
       print_error("Failed to #{action.name.downcase}, aborting!")
       return
     end
