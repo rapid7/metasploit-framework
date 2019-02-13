@@ -87,6 +87,14 @@ class CommandShell
   end
 
   #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'shell_session')
+  end
+
+  #
   # List of supported commands.
   #
   def commands

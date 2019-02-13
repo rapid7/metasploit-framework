@@ -75,6 +75,14 @@ module CommandDispatcher
   end
 
   #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'msfconsole')
+  end
+
+  #
   # Generate an array of job or session IDs from a given range String.
   # Always returns an Array.
   #
