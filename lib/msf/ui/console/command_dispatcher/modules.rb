@@ -327,7 +327,6 @@ module Msf
             print_line "Keywords:"
             {
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
-              'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
@@ -352,7 +351,7 @@ module Msf
             end
             print_line
             print_line "Examples:"
-            print_line "  search cve:2009 type:exploit app:client"
+            print_line "  search cve:2009 type:exploit"
             print_line
           end
 
