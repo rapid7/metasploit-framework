@@ -411,8 +411,7 @@ protected
       end
 
       if str.include?('%L')
-        ip = ::Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
-        str.gsub!('%L', ip.ip_address)
+        str.gsub!('%L', Rex::Socket.source_address)
       end
 
       if str.include?('%D')
