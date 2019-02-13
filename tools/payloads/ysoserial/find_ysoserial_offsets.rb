@@ -129,7 +129,7 @@ def get_payload_list
     payload_list.push(line.match(/^ +([^ ]+)/)[1])
   end
 
-  payload_list
+  payload_list - ['JRMPClient', 'JRMPListener']
 end
 
 #YSOSERIAL_MODIFIED_TYPES.unshift('original')
