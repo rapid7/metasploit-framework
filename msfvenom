@@ -97,7 +97,7 @@ def parse_args(args)
     opts[:encoder] = e
   end
 
-  opt.on('--sec-name        <value>', String, 'The new section name to use when generating Windows binaries. Default: random 4-character alpha string') do |s|
+  opt.on('--sec-name        <value>', String, 'The new section name to use when generating large Windows binaries. Default: random 4-character alpha string') do |s|
     opts[:secname] = s
   end
 
@@ -138,7 +138,7 @@ def parse_args(args)
     opts[:nops] = n.to_i
   end
 
-  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, thus performing a subtraction to prepend a nopsled of quantity (nops minus payload length)') do
+  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)') do
     opts[:padnops] = true
   end
 
