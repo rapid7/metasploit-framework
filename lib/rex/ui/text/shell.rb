@@ -411,7 +411,7 @@ protected
       end
 
       if str.include?('%L')
-        ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+        ip = ::Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
         str.gsub!('%L', ip.ip_address)
       end
 
