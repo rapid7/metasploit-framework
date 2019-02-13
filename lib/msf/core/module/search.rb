@@ -42,8 +42,6 @@ module Msf::Module::Search
     k = res
 
     refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-    is_server    = (self.respond_to?(:stance) and self.stance == "aggressive")
-    is_client    = (self.respond_to?(:stance) and self.stance == "passive")
 
     [0,1].each do |mode|
       match = false
@@ -79,9 +77,6 @@ module Msf::Module::Search
               match = [t,w] if self.datastore['RPORT'].to_s =~ r
             when 'type'
               match = [t,w] if Msf::MODULE_TYPES.any? { |modt| w == modt and self.type == modt }
-            when 'app'
-              match = [t,w] if (w == "server" and is_server)
-              match = [t,w] if (w == "client" and is_client)
             when 'cve'
               match = [t,w] if refs.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
             when 'bid'
