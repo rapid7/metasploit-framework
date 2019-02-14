@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  This module applys a john the ripper (or hashcat) style .pot file to hashes in the database.
+  This module applies a john the ripper (or hashcat) style .pot file to hashes in the database.
   This will allow very fast cracking of all supported hash types which have already been cracked.
 
 ## Verification Steps
