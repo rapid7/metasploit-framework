@@ -17,7 +17,7 @@ These instructions will create a web sever using `apache` with directory listing
 
 #### Note 
 
-ake sure you dont have an `index.html` file in your `/var/www/html` for the vulnerability to work.
+Make sure you dont have an `index.html` file in your `/var/www/html` for the vulnerability to work.
 
 
 ## Verification Steps
