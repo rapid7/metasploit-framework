@@ -2377,7 +2377,7 @@ class Core
 
     # List all hosts in the database
     else
-      framework.db.each_host(framework.db.workspace) do |host|
+      framework.db.hosts.each do |host|
         res << host.address
       end
     end
