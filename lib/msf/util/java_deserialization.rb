@@ -58,7 +58,7 @@ class JavaDeserialization
       end
 
       # Replace "ysoserial\/Pwner" timestamp and "ysoserial" string with randomness for evasion
-       bytes.gsub!('ysoserial/Pwner00000000000000', Rex::Text.rand_text_alphanumeric(29))
+      bytes.gsub!('ysoserial/Pwner00000000000000', Rex::Text.rand_text_alphanumeric(29))
       bytes.gsub!(/ysoserial/, Rex::Text.rand_text_alphanumeric(9))
 
       return bytes
