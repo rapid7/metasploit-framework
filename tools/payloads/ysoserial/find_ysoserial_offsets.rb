@@ -35,7 +35,7 @@ if @ysoserial_modified
     abort
   end
 end
-if index = ARGV.index('-p')
+if (index = ARGV.index('-p'))
   @ysoserial_payloads = ARGV[index+1].split(',')
 end
 
