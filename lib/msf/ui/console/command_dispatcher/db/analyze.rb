@@ -18,6 +18,8 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
       end
     end
 
+    host_ranges.push(nil) if host_ranges.empty?
+
     host_ids = []
     suggested_modules = {}
     each_host_range_chunk(host_ranges) do |host_search|
@@ -29,7 +31,7 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     end
 
     if host_ids.empty?
-      print_status("No host found for #{host_ranges}.")
+      print_status("No existing hosts stored to analyze.")
     else
 
       host_ids.each do |id|
