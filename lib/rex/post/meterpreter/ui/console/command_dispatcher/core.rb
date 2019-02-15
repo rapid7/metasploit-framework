@@ -1405,7 +1405,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.empty? || args.length == 1 && args.include?('-h') 
+    if args.empty? || args.first == '-h'
       cmd_run_help
       return true
     end
@@ -1475,7 +1475,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.empty? || args.length == 1 && args.include?('-h')
+    if args.empty? || args.first == '-h'
       print_line('Usage: bgrun <script> [arguments]')
       print_line
       print_line('Executes a ruby script in the context of the meterpreter session.')
