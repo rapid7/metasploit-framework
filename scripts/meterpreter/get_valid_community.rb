@@ -15,6 +15,7 @@ session = client
 
 def usage()
   print("\nPull the SNMP community string from a Windows Meterpreter session\n\n")
+  print_error 'Deprecation warning: This script has been replaced by the post/windows/gather/enum_snmp module'
   completed
 end
 
