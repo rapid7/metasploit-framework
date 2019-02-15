@@ -622,6 +622,7 @@ public
   # Returns information about a host.
   #
   # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -676,6 +677,7 @@ public
   # Returns analysis of module suggestions for known data about a host.
   #
   # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -722,6 +724,7 @@ end
   # Reports a new host to the database.
   #
   # @param [Hash] xopts Information to report about the host. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host IP address. You msut supply this.
   # @option xopts [String] :state One of the Msf::HostState constants. (See Most::HostState Documentation)
   # @option xopts [String] :os_name Something like "Windows", "Linux", or "Mac OS X".
@@ -756,6 +759,7 @@ end
   # Reports a service to the database.
   #
   # @param [Hash] xopts Information to report about the service. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host Required. The host where this service is running.
   # @option xopts [String] :port Required. The port where this service listens.
   # @option xopts [String] :proto Required. The transport layer protocol (e.g. tcp, udp).
@@ -944,6 +948,7 @@ end
   # Reports a client connection.
   #
   # @param [Hash] xopts Information about the client.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_string Required. User-Agent string.
   # @option xopts [String] :host Required. Host IP.
   # @option xopts [String] :ua_name One of the Msf::HttpClients constants. (See Msf::HttpClient Documentation.)
@@ -1015,6 +1020,7 @@ end
   # Returns notes from the database.
   #
   # @param [Hash] xopts Filters for the search. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :address Host address.
   # @option xopts [String] :names Names (separated by ',').
   # @option xopts [String] :ntype Note type.
@@ -1657,6 +1663,7 @@ end
   # Returns browser clients information.
   #
   # @param [Hash] xopts Filters that narrow down the search.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_name User-Agent name.
   # @option xopts [String] :ua_ver Browser version.
   # @option xopts [Array] :addresses Addresses.
