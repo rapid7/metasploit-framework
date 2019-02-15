@@ -699,6 +699,7 @@ def rpc_analyze_host(xopts)
     ret[:host] = []
     opts = fix_options(xopts)
     h = self.framework.db.get_host(opts)
+    return ret unless h
     h_result = self.framework.analyze.host(h)
     host_detail = {}
     host_detail[:address] = h.address
@@ -707,10 +708,10 @@ def rpc_analyze_host(xopts)
       host_detail[:modules] = []
       h_result[:modules].each do |mod|
         mod_detail = {}
-        mod_detail[:mtype]  = mod.mtype
+        mod_detail[:mtype]  = mod.type
         mod_detail[:mname]  = mod.full_name
+        host_detail[:modules] << mod_detail
       end
-      host_detail[:modules] = mod_detail
     end
     ret[:host] << host_detail
     ret
