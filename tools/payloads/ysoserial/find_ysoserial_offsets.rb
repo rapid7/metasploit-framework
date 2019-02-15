@@ -207,7 +207,7 @@ end
 
 @payload_list = get_payload_list
 if @ysoserial_payloads
-  unkown_list = @ysoserial_payloads - @payload_list
+  unknown_list = @ysoserial_payloads - @payload_list
   if unkown_list.empty?
     @payload_list = @ysoserial_payloads
   else
