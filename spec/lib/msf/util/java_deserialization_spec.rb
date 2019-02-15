@@ -70,7 +70,7 @@ RSpec.describe Msf::Util::JavaDeserialization do
 
       context 'when a modified type is not found' do
         it 'raises an argument error' do
-          type = 'unkown_type'
+          type = 'unknown_type'
           expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command, modified_type: type)}.to raise_error(ArgumentError)
         end
       end

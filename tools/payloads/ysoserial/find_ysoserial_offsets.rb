@@ -208,10 +208,10 @@ end
 @payload_list = get_payload_list
 if @ysoserial_payloads
   unknown_list = @ysoserial_payloads - @payload_list
-  if unkown_list.empty?
+  if unknown_list.empty?
     @payload_list = @ysoserial_payloads
   else
-    STDERR.puts "ERROR: Invalid payloads specified: #{unkown_list.join(', ')}"
+    STDERR.puts "ERROR: Invalid payloads specified: #{unknown_list.join(', ')}"
     abort
   end
 end
