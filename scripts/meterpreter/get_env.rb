@@ -36,6 +36,8 @@ opts.parse(args) { |opt, idx, val|
   when "-h"
     print_line "Meterpreter Script for extracting a list of all System and User environment variables."
     print_line(opts.usage)
+    print_error "Deprecation warning: This script has been replaced by the post/multi/gather/env module"
+
     raise Rex::Script::Completed
 
   end
