@@ -28,6 +28,9 @@
 
   This option should contain a URL under the attacker's control. This is where the Exchange will try to authenticate.
 
+  **The PASSWORD option**
+  This can be either the password or the NTLM hash of any domain user with a mailbox configured on Exchange.
+
 ## Scenarios
 
   This module can be used to make a request to the Exchange server and force it to authenticate to a URL under our control. 
