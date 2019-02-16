@@ -5,7 +5,6 @@
 
 require 'rex/proto/ntlm/message'
 require 'rex/proto/http'
-require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
