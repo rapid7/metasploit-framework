@@ -187,15 +187,13 @@ class MetasploitModule < Msf::Auxiliary
         :type => "system.name",
         :data => sys_name
       )
+      if anonymous_access?(res)
+        print_good("No login necessary. Server allows anonymous access.")
+        return
+      end
+      init_loginscanner(ip)
+      bruteforce(ip)
     end
-
-    if anonymous_access?(res)
-      print_good("No login necessary. Server allows anonymous access.")
-      return
-    end
-
-    init_loginscanner(ip)
-    bruteforce(ip)
   end
 end
 
