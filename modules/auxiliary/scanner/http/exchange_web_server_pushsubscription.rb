@@ -30,10 +30,10 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USERNAME', [ true, "Username for authentication", nil ]),
-        OptString.new('PASSWORD', [ true, "Password for authentication", nil ]),
+        OptString.new('USERNAME', [ true, "Username of any domain user with a mailbox on Exchange", nil ]),
+        OptString.new('PASSWORD', [ true, "Password or password hash (in LM:NT format) of the user", nil ]),
         OptString.new('DOMAIN', [ true, "The Active Directory domain name", nil ]),
-        OptString.new('TARGETURI', [ true, "The location of the NTLM service", "/EWS/Exchange.asmx" ]),
+        OptString.new('TARGETURI', [ true, "Exchange Web Services API endpoint", "/EWS/Exchange.asmx" ]),
         OptString.new('EXCHANGE_VERSION', [ true, "Version of Exchange (2013|2016)", "2016" ]),
         OptString.new('ATTACKER_URL', [ true, "Attacker URL", nil ]),
         OptBool.new('SSL', [true, "Negotiate SSL/TLS for outgoing connections", true]),
