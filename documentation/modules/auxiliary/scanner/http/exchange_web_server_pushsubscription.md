@@ -10,18 +10,17 @@
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
+  Example steps:
 
-  1. Install IBM MQ Server 7.5, 8, or 9
-  2. Start msfconsole
-  3. Do: ```use auxiliary/scanner/http/exchange_web_server_pushsubscription```
-  4. Do: ```set attacker_url <url>```
-  6. Do: ```set rport <target_port>```
+  1. Start msfconsole
+  2. Do: ```use auxiliary/scanner/http/exchange_web_server_pushsubscription```
+  3. Do: ```set attacker_url <url>```
+  4. Do: ```set rport <target_port>```
   5. Do: ```set rhost <target_IP>```
   6. Do: ```set domain <domain_name>```
-  6. Do: ```set password <user_pass>```
-  6. Do: ```set username <user_pass>```
-  7. Do: ```run```
+  7. Do: ```set password <user_pass>```
+  8. Do: ```set username <user_pass>```
+  9. Do: ```run```
 
 ## Options
 
