@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
+        OptString.new('DOMAIN', [false, "Domain/Realm to use for each account", ''])
       ])
   end
 
@@ -134,9 +135,14 @@ class MetasploitModule < Msf::Auxiliary
       post_params = {
         'ajax'  => '1',
         'username' => user,
-        'realm' => '',
         'credential' => pass
       }
+      #check if domain is empty
+      if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
+        post_params['realm'] = ""
+      else
+        post_params['realm'] = datastore['DOMAIN']
+      end
 
       res = send_request_cgi(
               'uri' => '/remote/logincheck',
@@ -154,9 +160,16 @@ class MetasploitModule < Msf::Auxiliary
         print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         do_logout(res.get_cookies)
+        if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
+          print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+          report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
+          report_note(ip: rhost, type: "fortinet.ssl.vpn",data: "User: #{user}")
+        else
+          print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}:#{datastore["DOMAIN"]}")
+          report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
+          report_note(ip: rhost, type: "fortinet.ssl.vpn",data: "User: #{user} / Domain: #{datastore["DOMAIN"]}")
+        end
 
-        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
-        report_note(ip: rhost, type: "fortinet.ssl.vpn",data: "User: #{user}")
         return :next_user
 
       else
@@ -173,4 +186,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-
