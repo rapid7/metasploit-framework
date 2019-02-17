@@ -122,6 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
 
     begin
+      cookie = ""
       post_params = {
         'ajax'  => '1',
         'username' => user,
