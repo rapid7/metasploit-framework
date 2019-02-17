@@ -18,10 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         This module scans for Fortinet SSL VPN web login portals and
         performs login brute force to identify valid credentials.
       },
-      'Author'         =>
-        [
-          'Max Michels <kontakt[at]maxmichels.de>'
-        ],
+      'Author'         => [ 'Max Michels <kontakt[at]maxmichels.de>' ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
         {
@@ -56,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Verify whether the connection is working or not
+  # Verify if server is responding
   def check_conn?
     begin
       res = send_request_cgi('uri' => '/', 'method' => 'GET')
@@ -82,7 +79,6 @@ class MetasploitModule < Msf::Auxiliary
   # Verify whether we're working with SSL VPN or not
   def is_app_ssl_vpn?
     res = get_login_resource
-    vprint_good("HTTP Response code: #{res.code}")
     res && res.code == 200 && res.body.match(/fortinet/)
   end
 
@@ -137,7 +133,8 @@ class MetasploitModule < Msf::Auxiliary
         'username' => user,
         'credential' => pass
       }
-      #check if domain is empty
+
+      #check to use domain/realm or not
       if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
         post_params['realm'] = ""
       else
@@ -156,8 +153,6 @@ class MetasploitModule < Msf::Auxiliary
          res.code == 200 &&
          res.body.match(/redir=/) &&
          res.body.match(/&portal=/)
-
-        print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
         do_logout(res.get_cookies)
         if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
