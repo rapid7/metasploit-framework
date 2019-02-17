@@ -122,12 +122,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
 
     begin
-      cookie = "SVPNCOOKIE=; " +
-               "path=/; " +
-               "expires=Wed, 13-Feb-2019 23:45:12 GMT; " +
-               "secure; " +
-               "httponly; "
-
       post_params = {
         'ajax'  => '1',
         'username' => user,
@@ -145,7 +139,6 @@ class MetasploitModule < Msf::Auxiliary
               'uri' => '/remote/logincheck',
               'method' => 'POST',
               'ctype' => 'application/x-www-form-urlencoded',
-              #'cookie' => cookie,
               'vars_post' => post_params
             )
 
