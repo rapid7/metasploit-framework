@@ -73,9 +73,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_login_resource
-    send_request_cgi(
-      'uri' => '/remote/login?lang=en',
-      'method' => 'GET'
+    send_request_raw(
+      'uri' => '/remote/login?lang=en'
     )
   end
 
