@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'Microsoft Exchange Privilege Escalation Exploit',
       'Description'    => %q{
-        This module exploits a privilege escalation vulnerability found in Microsoft Exchange - CVE-2019-0686
+        This module exploits a privilege escalation vulnerability found in Microsoft Exchange - CVE-2019-0724
         Execution of the module will force Exchange to authenticate to an arbitrary URL over HTTP via the Exchange PushSubscription feature.
         This allows us to relay the NTLM authentication to a Domain Controller and authenticate with the privileges that Exchange is configured.
         The module is based on the work by @_dirkjan,
@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'Petros Koutroumpis',
       'Reference'      =>
          [
-           [ 'CVE-2019-0686' ],
+           [ 'CVE-2019-0724' ],
            [ 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
          ],
       'License'        => MSF_LICENSE,
