@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -29,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(443),
         OptString.new('DOMAIN', [false, "Domain/Realm to use for each account", ''])
       ])
   end
@@ -122,7 +119,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
 
     begin
-      cookie = ""
       post_params = {
         'ajax'  => '1',
         'username' => user,
