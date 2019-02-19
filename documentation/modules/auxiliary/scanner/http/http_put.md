@@ -21,7 +21,7 @@ Action is set to PUT to upload files to the server. If `FILENAME` isn't specifie
 
 **DELETE** 
 
-`FILENAME` is required when Action is set to DELETE 
+Deletes the file specified in the `FILENAME` option. (default: `msf_http_put_test.txt`)
 
 ### PATH
 
