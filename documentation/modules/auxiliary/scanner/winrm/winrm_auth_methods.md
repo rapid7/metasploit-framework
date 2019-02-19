@@ -3,7 +3,7 @@ This module sends a request to an HTTP/HTTPS service to see if it is a WinRM ser
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/winrm/winrm_auth_methods
+1. Do: ```use auxiliary/scanner/winrm/winrm_auth_methods```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```run```
 
