@@ -5,6 +5,8 @@ Nuuo CMS Session Bruteforce
 The NUUO CMS protocol uses session tokens in a similar way to HTTP cookies. As mentioned in the summary, if a USERLOGIN request is sent with a correct username and password, a "User-Session-No" token will be returned. The number returned is composed of 8 digits, so if an attacker wanted to guess it, they would have 10 million possibilities, and would be able to bruteforce it on average after 5 million tries.
 
 The function responsible for creating a new user is at offset 0x454E80 in CMS_Server.exe version 2.1. It sets up a new user object and returns the session token to the calling function. This function has what is probably a coding error - the number returned is actually not a number, but the heap address of the user object created by invoking "new()" in the user object class. An assembly snippet is shown below:
+
+```
 .text:00454E80 000                 push    0FFFFFFFFh
 .text:00454E82 004                 push    offset loc_5E2013
 .text:00454E87 008                 mov     eax, large fs:0
@@ -27,14 +29,18 @@ The function responsible for creating a new user is at offset 0x454E80 in CMS_Se
 .text:00454EBE 028                 mov     [esp+28h+var_4], 0
 .text:00454EC6 028                 call    ??2@YAPAXI@Z    ; new() operator, returns object in eax
 (...)
+```
 
 After the call to ??2@YAPAXI@Z in .text:00454EC6, the session number is returned to the calling function (sub_457100), which then stores it and sends it back to the client as the valid session number:
+
+```
 NUCM/1.0 200 OK
 User-Valid: %d
 Server-Version: %s
 Ini-Version: %d
 License-Number: %d
 User-Session-No: %u <---- session number, which is a hexadecimal memory address converted to decimal
+```
 
 These session numbers (tokens) are not that easy to predict, however after collecting thousands of samples I was able to build a table of the most common occurrences, which reduces the possibilities from 10 million to about 1.2 million. In practice, the tokens can usually be guessed between in less than 500,000 attempts - an improvement of 95% over standard bruteforcing. It is likely this can be further improved with some deeper analysis, but due to time constraints this was not investigated further. The tables used to do the bruteforcing are in Appendix #C.
 
@@ -69,5 +75,7 @@ msf5 auxiliary(gather/nuuo_cms_bruteforce) >
 ```
 
 ## References
+
 https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02
+
 https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-cms-ownage.txt
