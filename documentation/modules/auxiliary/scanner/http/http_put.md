@@ -27,6 +27,10 @@ Deletes the file specified in the `FILENAME` option. (default: `msf_http_put_tes
 
 The path at which this module will attempt to either PUT the content or DELETE it.
 
+### FILEDATA
+
+The file whose data is to be uploaded. 
+
 ## Scenarios
 
 Here Action is set to `PUT`.
