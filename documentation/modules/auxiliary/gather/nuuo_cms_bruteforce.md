@@ -59,7 +59,7 @@ It is worth noticing that when a user logs in, the session has to be maintained 
 
 ## Scenarios
 
-### Tested on Windows 10 Pro x64 running NCS Server v2.4.0
+### Tested on Windows 10 Pro x64 running NCS Server v2.1.0
 
 ```
 msf5 auxiliary(gather/nuuo_cms_bruteforce) > set rhosts 172.22.222.200
