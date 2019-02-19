@@ -14,6 +14,8 @@ By default this module scrapes the `title` of a web page.
 msf > use auxiliary/scanner/http/scraper
 msf auxiliary(scanner/http/scraper) > set RHOSTS 1.1.1.18
 RHOSTS => 1.1.1.18
+msf auxiliary(scanner/http/scraper) > set PATTERN '<title>(.*)</title>'
+PATTERN => (?-mix:<title>(.*)<\/title>)
 msf auxiliary(scanner/http/scraper) > run 
 
 [+] 1.1.1.18 / [Index of /]
