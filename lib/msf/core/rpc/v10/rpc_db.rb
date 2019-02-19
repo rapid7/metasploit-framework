@@ -854,6 +854,7 @@ end
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
