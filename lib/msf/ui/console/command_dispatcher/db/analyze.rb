@@ -26,7 +26,9 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
       break if !host_search.nil? && host_search.empty?
       eval_hosts_ids = framework.db.hosts(address: host_search).map(&:id)
       if eval_hosts_ids
-        host_ids.push(eval_hosts_ids)
+        eval_hosts_ids.each do |eval_id|
+          host_ids.push(eval_id)
+        end
       end
     end
 
