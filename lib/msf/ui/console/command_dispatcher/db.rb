@@ -3,6 +3,7 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/ui/console/command_dispatcher/db/analyze'
 
 module Msf
 module Ui
@@ -15,7 +16,8 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
- 
+  include Msf::Ui::Console::CommandDispatcher::Analyze
+
   #
   # The dispatcher's name.
   #
@@ -43,7 +45,8 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
-      "db_rebuild_cache" => "Rebuilds the database-stored module cache"
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "analyze"       => "Analyze database information about a specific address or address range",
     }
 
     # Always include commands that only make sense when connected.

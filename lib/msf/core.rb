@@ -51,6 +51,7 @@ require 'msf/core/module_set'
 require 'msf/core/plugin_manager'
 require 'msf/core/session'
 require 'msf/core/session_manager'
+require 'msf/core/analyze'
 
 
 
