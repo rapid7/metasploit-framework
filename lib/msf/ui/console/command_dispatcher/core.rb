@@ -2004,7 +2004,7 @@ class Core
         output_mods[:skip] = num
       end
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
@@ -2119,7 +2119,7 @@ class Core
       end
 
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
