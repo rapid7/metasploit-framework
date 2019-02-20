@@ -14,7 +14,7 @@ development: &pgsql
   adapter: postgresql
   database: metasploit_framework_development
   username: postgres
-  pool: 5
+  pool: 25
   timeout: 5
 
 # Warning: The database defined as "test" will be erased and
