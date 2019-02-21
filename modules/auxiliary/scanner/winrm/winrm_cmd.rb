@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CMD', [ true, "The windows command to run", "ipconfig /all" ]),
         OptString.new('USERNAME', [ true, "The username to authenticate as"]),
         OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
-        OptBool.new('SAVE_OUTPUT', [true, "Store output as loot", false])
+        OptBool.new('SAVE_OUTPUT', [true, "Store output as loot", true])
       ])
   end
 
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     streams = winrm_run_cmd(datastore['CMD'])
     return unless streams.class == Hash
     print_error streams['stderr'] unless streams['stderr'] == ''
-    print_good streams['stdout']
+    print_good "#{ip}:#{rport} => " + streams['stdout']
     if datastore['SAVE_OUTPUT']
       path = store_loot("winrm.cmd_results", "text/plain", ip, streams['stdout'], "winrm_cmd_results.txt", "WinRM CMD Results")
       print_good "Results saved to #{path}"
@@ -48,3 +48,4 @@ class MetasploitModule < Msf::Auxiliary
 
 
 end
+
