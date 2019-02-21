@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Post
       '/mnt/sysimage/boot/grub.conf',
       '/mnt/boot/grub/grub.conf',
       '/rpool/boot/grub/grub.cfg',
-      '/boot/grub2/grub.cfg'
+      '/boot/grub2/grub.cfg',
+      '/boot/grub2/user.cfg'
     ]
 
     print_status("Searching for GRUB config files..")
