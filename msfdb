@@ -58,7 +58,7 @@ require 'msf/util/helper'
     db_port: 5433,
     db_pool: 200,
     address: 'localhost',
-    port: 8080,
+    port: 5443,
     ssl: true,
     ssl_cert: @ws_ssl_cert_default,
     ssl_key: @ws_ssl_key_default,
