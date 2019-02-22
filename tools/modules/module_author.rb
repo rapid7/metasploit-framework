@@ -75,7 +75,7 @@ tbl = Rex::Text::Table.new(
 
 names = {}
 
-local_modules = JSON.parse(File.open(FILENAME).read) # get cache file location from framework?
+local_modules = JSON.parse(File.read(FILENAME)) # get cache file location from framework?
 
 local_modules.each do |_module_key, local_module|
   local_module['author'].each do |r|
