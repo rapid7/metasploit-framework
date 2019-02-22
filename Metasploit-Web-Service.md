@@ -25,7 +25,7 @@ The `msfdb` tool allows you to manage both the Metasploit Framework database and
   * start - start the component
   * stop - stop the component
   * restart - restart the component
-  
+
 ##### Examples
 * `msfdb start` - Start the database and web service
 * `msfdb --component webservice stop` - Stop the web service
@@ -34,7 +34,7 @@ The `msfdb` tool allows you to manage both the Metasploit Framework database and
 #### Notes
 * SSL is enabled by default and `msfdb` will generate a fake "snakeoil" SSL certificate during initialization using `Rex::Socket::Ssl.ssl_generate_certificate` if one is not provided. The generated SSL certificate uses a random common name (CN) which will not match your hostname, therefore, you will need to make appropriate accommodations when operating the web service with such a certificate. **Please** generate your own SSL certificate and key instead and supply those to `msfdb` using the `--ssl-cert-file` and `--ssl-key-file` options, and enable SSL verification by passing the option `--no-ssl-disable-verify`.
 
-* A simple verification that web service is up and running can be performed using cURL: `curl --insecure -H "Accept: application/json" -H "Authorization: Bearer <token>" https://localhost:8080/api/v1/msf/version`
+* A simple verification that web service is up and running can be performed using cURL: `curl --insecure -H "Accept: application/json" -H "Authorization: Bearer <token>" https://localhost:5443/api/v1/msf/version`
 
 ### Accessing the API
 The API account can be accessed with your preferred web browser by visiting `https://<address>:<port>/api/v1/auth/account`. If you want to change the API token for your account you can log in to the API account page and generate a new API token. You can find more
@@ -56,10 +56,10 @@ Please note that you can only be connected to one data service at a time. The `d
   * `-t`,`--token` - The API token used to authenticate to the remote data service.
   * `--skip-verify` - Skip validating authenticity of server's certificate (NOT RECOMMENDED).
 * Examples:
-  * `db_connect http://localhost:8080` - Connect to the Metasploit REST API instance at localhost running on port 8080
-  * `db_connect -c ~/.msf4/msf-ws-cert.pem -t 72ce00fd9ab1a96970137e5a12faa12f38dcc4a9e42158bdd3ce7043c65f5ca37b862f3faf3630d2 https://localhost:8080` - Connect to the server running at localhost on port 8080 that has SSL and authentication enabled.
+  * `db_connect http://localhost:5443` - Connect to the Metasploit REST API instance at localhost running on port 5443
+  * `db_connect -c ~/.msf4/msf-ws-cert.pem -t 72ce00fd9ab1a96970137e5a12faa12f38dcc4a9e42158bdd3ce7043c65f5ca37b862f3faf3630d2 https://localhost:5443` - Connect to the server running at localhost on port 5443 that has SSL and authentication enabled.
   * `db_connect -l` - List the data services that have been saved.
-  * `db_connect -n LA_server http://localhost:8080` - Connect to the data service running on localhost port 8080 and assign the name "LA_server" to the saved entry.
+  * `db_connect -n LA_server http://localhost:5443` - Connect to the data service running on localhost port 5443 and assign the name "LA_server" to the saved entry.
 * URL Formats
   * HTTP - `http://<host>:<port>`
   * HTTPS - `https://<host>:<port>`
@@ -70,7 +70,7 @@ The `db_save` command can be used to save the currently connected data service a
 
 **Usage:** `db_save`
 * Examples:
-  * `db_connect http://localhost:8080` then `db_save` - Connect to the data service running on localhost port 8080 then set it as the default connection.
+  * `db_connect http://localhost:5443` then `db_save` - Connect to the data service running on localhost port 5443 then set it as the default connection.
 
 ### Removing Saved Data Services
 Saved data services can be removed using the `db_remove` command. This can be useful if the data service no longer exists at that location, or if you no longer want to keep a record of it around for fast connection.
