@@ -16,13 +16,8 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
-require 'msfenv'
-
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 require 'json'
 
 FILENAME = 'db/modules_metadata_base.json'
