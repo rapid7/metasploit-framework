@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.8)
+    metasploit-framework (5.0.9)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -154,7 +154,7 @@ GEM
       concurrent-ruby (~> 1.0)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.1.0)
+    json (2.2.0)
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
