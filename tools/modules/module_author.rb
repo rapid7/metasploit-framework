@@ -29,7 +29,7 @@ FILENAME = 'db/modules_metadata_base.json'
 
 sort = 0
 filter = 'All'
-filters = ['all','exploit','payload','post','nOP','encoder','auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 reg = 0
 regex = nil
 
@@ -72,15 +72,6 @@ opts.parse(ARGV) { |opt, idx, val|
 
 Indent = '    '
 
-# Always disable the database (we never need it just to list module
-# information).
-framework_opts = { 'DisableDatabase' => true }
-
-# If the user only wants a particular module type, no need to load the others
-if filter.downcase != 'all'
-  framework_opts[:module_types] = [ filter.downcase ]
-end
-
 tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => Indent.length,
@@ -93,6 +84,7 @@ local_modules = JSON.parse(File.open(FILENAME).read) # get cache file location f
 
 local_modules.each do |_module_key, local_module|
   local_module['author'].each do |r|
+    next if filter.downcase != 'all' && local_module['type'] != filter.downcase
     if regex.nil? or r =~ regex
       tbl << [ local_module['full_name'], r ]
       names[r] ||= 0
