@@ -29,7 +29,7 @@ FILENAME = 'db/modules_metadata_base.json'
 
 sort = 0
 filter = 'All'
-filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary', 'evasion']
 reg = 0
 regex = nil
 
