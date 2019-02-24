@@ -20,6 +20,7 @@ require 'backports'
 require 'bigdecimal'
 
 def BigDecimal.new(*args, **kwargs)
+  return BigDecimal(*args) if kwargs.empty?
   BigDecimal(*args, **kwargs)
 end
 # Remove bigdecimal warning - end
