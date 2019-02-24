@@ -71,10 +71,6 @@ Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
 
-Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
-Copyright: 2006-2010 Yoann GUILLOT
-License: LGPL-2.1
-
 Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov
 License: Apache 2.0
@@ -115,9 +111,13 @@ Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
 License: MIT
 
-Files: lib/msf/core/db_manager/http/public/*, lib/msf/core/db_manager/http/views/api_docs.erb
+Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_docs.erb
 Copyright: Copyright 2018 SmartBear Software
 License: Apache 2.0
+
+Files: data/jtr/*
+Copyright: Copyright 1996-2013 by Solar Designer
+License: GNU GPL 2.0
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,

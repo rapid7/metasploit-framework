@@ -28,9 +28,25 @@ module DbExportApiDoc
       response 200 do
         key :description, 'A JSON object containing the Base64 encoded backup file.'
         schema do
-          property :db_export_file do
-            key :type, :string
+          property :data do
+            property :db_export_file do
+              key :type, :string
+            end
           end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

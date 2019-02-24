@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       'License' => MSF_LICENSE,
       'Author' => [ 'thesubtlety' ],
       'Platform' => [ 'linux', 'win' ],
-      'SessionTypes' => [ %w[shell meterpreter] ]
+      'SessionTypes' => %w[shell meterpreter]
     ))
     register_options(
       [  OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
     if exists?(file)
       f = read_file(file)
       if datastore['STORE_LOOT']
-        loot_path = store_loot('credentials.xml', 'text/plain', session, f)
+        loot_path = store_loot('jenkins.creds', 'text/xml', session, f, file)
         vprint_status("File credentials.xml saved to #{loot_path}")
       end
     else

@@ -157,50 +157,6 @@ RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
       search_modules.to_a
     end
 
-    context 'with app keyword' do
-      let(:search_string) do
-        "app:#{app}"
-      end
-
-      before(:example) do
-        Mdm::Module::Detail::STANCES.each do |stance|
-          FactoryBot.create(:mdm_module_detail, :stance => stance)
-        end
-      end
-
-      context 'with client' do
-        let(:app) do
-          'client'
-        end
-
-        it "should match Mdm::Module::Detail#stance 'passive'" do
-          expect(module_details.count).to be > 0
-
-          expect(
-            module_details.all? { |module_detail|
-              module_detail.stance == 'passive'
-            }
-          ).to eq true
-        end
-      end
-
-      context 'with server' do
-        let(:app) do
-          'server'
-        end
-
-        it "should match Mdm::Module::Detail#stance 'aggressive'" do
-          expect(module_details.count).to be > 0
-
-          expect(
-            module_details.all? { |module_detail|
-              module_detail.stance == 'aggressive'
-            }
-          ).to eq true
-        end
-      end
-    end
-
     context 'with author keyword' do
       let(:search_string) do
         # us inspect so strings with spaces are quoted correctly

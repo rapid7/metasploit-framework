@@ -290,6 +290,7 @@ class EncodedPayload
   def generate_sled
     min   = reqs['MinNops'] || 0
     space = reqs['Space']
+    pad_nops = reqs['PadNops']
 
     self.nop_sled_size = min
 
@@ -309,6 +310,9 @@ class EncodedPayload
 
     # Check for the DisableNops setting
     self.nop_sled_size = 0 if reqs['DisableNops']
+
+    # Check for the PadNops setting
+    self.nop_sled_size = (pad_nops - self.encoded.length) if reqs['PadNops']
 
     # Now construct the actual sled
     if (self.nop_sled_size > 0)
@@ -338,7 +342,6 @@ class EncodedPayload
 
         begin
           nop.copy_ui(pinst)
-
           self.nop_sled = nop.generate_sled(self.nop_sled_size,
             'BadChars'      => reqs['BadChars'],
             'SaveRegisters' => save_regs)

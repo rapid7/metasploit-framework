@@ -49,7 +49,7 @@ class Console::CommandDispatcher::Automotive
   #
   def cmd_supported_buses
     buses = client.automotive.get_supported_buses
-    unless !buses.empty?
+    if buses.empty?
       print_line("none")
       return
     end
