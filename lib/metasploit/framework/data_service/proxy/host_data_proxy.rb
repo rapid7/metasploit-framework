@@ -2,13 +2,12 @@ module HostDataProxy
 
   def hosts(opts = {})
     begin
-      self.data_service_operation do |data_service|
-        opts[:non_dead] = false unless opts.has_key?(:non_dead)
-        opts[:address] = opts.delete(:address) || opts.delete(:host)
-        opts[:search_term] = nil unless opts.has_key?(:search_term)
-        add_opts_workspace(opts)
-        data_service.hosts(opts)
-      end
+      data_service = self.get_data_service
+      opts[:non_dead] = false unless opts.has_key?(:non_dead)
+      opts[:address] = opts.delete(:address) || opts.delete(:host)
+      opts[:search_term] = nil unless opts.has_key?(:search_term)
+      add_opts_workspace(opts)
+      data_service.hosts(opts)
     rescue => e
       self.log_error(e, "Problem retrieving hosts")
     end
@@ -30,9 +29,8 @@ module HostDataProxy
 
   def get_host(opts)
     begin
-      self.data_service_operation do |data_service|
-        data_service.get_host(opts)
-      end
+      data_service = self.get_data_service()
+      data_service.get_host(opts)
     rescue => e
       self.log_error(e, "Problem retrieving host")
     end
@@ -42,20 +40,28 @@ module HostDataProxy
     return unless valid(opts)
 
     begin
-      self.data_service_operation do |data_service|
-        add_opts_workspace(opts)
-        data_service.report_host(opts)
-      end
+      data_service = self.get_data_service
+      add_opts_workspace(opts)
+      data_service.report_host(opts)
     rescue => e
       self.log_error(e, "Problem reporting host")
     end
   end
 
+  def report_hosts(hosts)
+    begin
+      data_service = self.get_data_service
+      add_opts_workspace(hosts)
+      data_service.report_hosts(hosts)
+    rescue => e
+      self.log_error(e, "Problem reporting hosts")
+    end
+  end
+
   def update_host(opts)
     begin
-      self.data_service_operation do |data_service|
-        data_service.update_host(opts)
-      end
+      data_service = self.get_data_service
+      data_service.update_host(opts)
     rescue => e
       self.log_error(e, "Problem updating host")
     end
@@ -63,9 +69,8 @@ module HostDataProxy
 
   def delete_host(opts)
     begin
-      self.data_service_operation do |data_service|
-        data_service.delete_host(opts)
-      end
+      data_service = self.get_data_service
+      data_service.delete_host(opts)
     rescue => e
       self.log_error(e, "Problem deleting host")
     end

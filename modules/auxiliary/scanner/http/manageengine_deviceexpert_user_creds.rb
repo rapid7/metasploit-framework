@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'bcoles'  # metasploit module
+          'Brendan Coles <bcoles[at]gmail.com>'  # metasploit module
         ],
       'References'     =>
         [

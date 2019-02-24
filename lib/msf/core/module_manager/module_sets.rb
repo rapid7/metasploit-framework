@@ -93,10 +93,6 @@ module Msf::ModuleManager::ModuleSets
     module_set(Msf::MODULE_POST)
   end
 
-  def evasion
-    module_set(Msf::MODULE_EVASION)
-  end
-
   def type_enabled?(type)
     enablement_by_type[type] || false
   end

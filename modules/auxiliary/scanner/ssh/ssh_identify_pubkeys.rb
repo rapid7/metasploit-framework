@@ -204,14 +204,13 @@ class MetasploitModule < Msf::Auxiliary
 
       factory = ssh_socket_factory
       opt_hash = {
-        :auth_methods    => ['publickey'],
-        :port            => port,
-        :key_data        => key_data[:public],
-        :use_agent       => false,
-        :config          => false,
-        :proxy           => factory,
-        :non_interactive => true,
-        :verify_host_key => :never
+        :auth_methods => ['publickey'],
+        :port         => port,
+        :key_data     => key_data[:public],
+        :use_agent     => false,
+        :config =>false,
+        :proxy	  => factory,
+        :non_interactive => true
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

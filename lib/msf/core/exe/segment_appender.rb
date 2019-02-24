@@ -32,11 +32,7 @@ module Exe
 
       # Create a new section
       s = Metasm::PE::Section.new
-      if secname.blank?
-        s.name = '.' + Rex::Text.rand_text_alpha_lower(4)
-      else
-        s.name = '.' + secname.downcase
-      end
+      s.name = '.' + Rex::Text.rand_text_alpha_lower(4)
       s.encoded = payload_stub prefix
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 

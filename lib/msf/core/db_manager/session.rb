@@ -8,11 +8,6 @@ module Msf::DBManager::Session
     return if not active
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      # If we have the ID, there is no point in creating a complex query.
-      if opts[:id] && !opts[:id].to_s.empty?
-        return Array.wrap(Mdm::Session.find(opts[:id]))
-      end
-
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       search_term = opts.delete(:search_term)
@@ -175,22 +170,6 @@ module Msf::DBManager::Session
         infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
       end
       session_db_record
-    }
-  end
-
-  # Update the attributes of a session entry with the values in opts.
-  # The values in opts should match the attributes to update.
-  #
-  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
-  # @return [Mdm::Session] The updated Mdm::Session object.
-  def update_session(opts)
-    return if not active
-
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      id = opts.delete(:id)
-      session = ::Mdm::Session.find(id)
-      session.update!(opts)
-      return session
     }
   end
 

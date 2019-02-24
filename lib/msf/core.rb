@@ -13,18 +13,6 @@
 # Include backported features for older versions of Ruby
 require 'backports'
 
-# Remove bigdecimal warning - start
-# https://github.com/ruby/bigdecimal/pull/115
-# https://github.com/rapid7/metasploit-framework/pull/11184#issuecomment-461971266
-# TODO: remove when upgrading from rails 4.x
-require 'bigdecimal'
-
-def BigDecimal.new(*args, **kwargs)
-  return BigDecimal(*args) if kwargs.empty?
-  BigDecimal(*args, **kwargs)
-end
-# Remove bigdecimal warning - end
-
 # The framework-core depends on Rex
 require 'rex'
 require 'rex/ui'
@@ -63,7 +51,6 @@ require 'msf/core/module_set'
 require 'msf/core/plugin_manager'
 require 'msf/core/session'
 require 'msf/core/session_manager'
-require 'msf/core/analyze'
 
 
 
@@ -81,9 +68,7 @@ require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
-require 'msf/core/evasion'
 
 # Drivers
 require 'msf/core/exploit_driver'
-require 'msf/core/evasion_driver'
 

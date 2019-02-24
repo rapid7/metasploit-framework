@@ -51,6 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     @myport   = datastore['SRVPORT']
     @realm    = datastore['REALM']
 
+    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit
   end
 
@@ -94,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
         proof: req['Authorization']
       )
 
-      print_good("HTTP Basic Auth LOGIN #{cli.peerhost} \"#{user}:#{pass}\" / #{req.resource}")
+      print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
       if datastore['RedirectURL']
         print_status("Redirecting client #{cli.peerhost} to #{datastore['RedirectURL']}")
         send_redirect(cli, datastore['RedirectURL'])

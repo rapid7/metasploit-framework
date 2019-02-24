@@ -119,7 +119,8 @@ class SessionManager < Hash
               # as recently seen.  This notifies other framework instances that this
               # session is being maintained.
               if s.db_record
-                s.db_record = framework.db.update_session(id: s.db_record.id, last_seen: Time.now.utc)
+                s.db_record.last_seen = Time.now.utc
+                s.db_record.save
               end
             end
           end
@@ -275,7 +276,7 @@ class SessionManager < Hash
     if sid > 0
       session = self[sid]
     elsif sid == -1
-      sid = self.keys.max
+      sid = self.keys.sort[-1]
       session = self[sid]
     end
 

@@ -40,26 +40,10 @@ module NoteApiDoc
       response 200 do
         key :description, 'Returns note data.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Note
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Note
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -85,25 +69,10 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Note
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Note
         end
       end
     end
@@ -116,28 +85,12 @@ module NoteApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array containing the successfully deleted notes.'
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Note
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Note
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -149,6 +102,8 @@ module NoteApiDoc
       key :description, 'Return specific note that is stored in the database.'
       key :tags, [ 'note' ]
 
+      parameter :workspace
+
       parameter do
         key :name, :id
         key :in, :path
@@ -159,32 +114,19 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, 'Returns note data.'
+        key :description, 'Returns notes data.'
         schema do
-          property :data do
+          key :type, :array
+          items do
             key :'$ref', :Note
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
 
     # Swagger documentation for /api/v1/notes/:id PUT
     operation :put do
-      key :description, 'Update the attributes on an existing note.'
+      key :description, 'Update the attributes an existing note.'
       key :tags, [ 'note' ]
 
       parameter :update_id
@@ -200,25 +142,10 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Note
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Note
         end
       end
     end

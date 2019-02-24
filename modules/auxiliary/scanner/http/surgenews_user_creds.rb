@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://news.netwinsite.com:8119/webnews?cmd=body&item=34896&group=netwin.surgemail'],
         ],
-      'Author'         => 'bcoles',
+      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
       'DisclosureDate' => 'Jun 16 2017'))
     register_options [ Opt::RPORT(9080) ]
     deregister_options 'RHOST'

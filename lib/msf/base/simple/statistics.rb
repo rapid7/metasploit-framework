@@ -60,10 +60,6 @@ class Statistics
     framework.post.length
   end
 
-  def num_evasion
-    framework.evasion.length
-  end
-
   #
   # Returns the number of stages in the framework.
   #

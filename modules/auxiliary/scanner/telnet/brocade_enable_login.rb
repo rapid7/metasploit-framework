@@ -152,6 +152,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => pass
     }
 
-    start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock) if datastore['CreateSession']
+    start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock)
   end
 end

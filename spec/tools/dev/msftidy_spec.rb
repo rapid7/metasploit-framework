@@ -8,12 +8,11 @@ RSpec.describe Msftidy do
     let(:msftidy) { Msftidy.new(auxiliary_tidy) }
 
     before(:each) do
-      msftidy.run_checks
-      @msftidy_status = msftidy.status
+      @msftidy_stdout = get_stdout { msftidy.run_checks }
     end
 
-    it "returns zero (no warnings or errors)" do
-      expect(@msftidy_status).to be_zero
+    it "outputs nothing" do
+      expect(@msftidy_stdout).to be_empty
     end
   end
 
@@ -39,12 +38,11 @@ RSpec.describe Msftidy do
     let(:msftidy) { Msftidy.new(payload_tidy) }
 
     before(:each) do
-      msftidy.run_checks
-      @msftidy_status = msftidy.status
+      @msftidy_stdout = get_stdout { msftidy.run_checks }
     end
 
-    it "returns zero (no warnings or errors)" do
-      expect(@msftidy_status).to be_zero
+    it "outputs nothing" do
+      expect(@msftidy_stdout).to be_empty
     end
   end
 end

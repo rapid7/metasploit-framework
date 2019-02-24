@@ -51,7 +51,7 @@ class Scan:
 
         self.queue.put_nowait((target, res))
 
-    def __aiter__(self):
+    async def __aiter__(self):
         return self
 
     async def __anext__(self):

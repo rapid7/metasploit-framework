@@ -73,15 +73,6 @@ class MetasploitModule < Msf::Auxiliary
     # Set the session platform
     s.platform = scanner.get_platform(result.proof)
 
-    # Create database host information
-    host_info = {host: scanner.host}
-
-    unless s.platform == 'unknown'
-      host_info[:os_name] = s.platform
-    end
-
-    report_host(host_info)
-
     s
   end
 
@@ -128,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        session_setup(result, scanner) if datastore['CreateSession']
+        session_setup(result, scanner)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"

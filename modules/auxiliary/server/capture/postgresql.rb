@@ -35,6 +35,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 

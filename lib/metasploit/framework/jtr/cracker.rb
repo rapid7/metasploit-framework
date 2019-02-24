@@ -36,10 +36,6 @@ module Metasploit
         #   @return [Integer] An optional maximum duration of the cracking attempt in seconds
         attr_accessor :max_runtime
 
-        # @!attribute max_length
-        #   @return [Integer] An optional maximum length of password to attempt cracking
-        attr_accessor :max_length
-
         # @!attribute pot
         #   @return [String] The file path to an alternative John pot file to use
         attr_accessor :pot
@@ -65,12 +61,6 @@ module Metasploit
                       only_integer:             true,
                       greater_than_or_equal_to: 0
                   }, if: 'max_runtime.present?'
-
-        validates :max_length,
-                  numericality: {
-                      only_integer:             true,
-                      greater_than_or_equal_to: 0
-                  }, if: 'max_length.present?'
 
         validates :wordlist, :'Metasploit::Framework::File_path' => true, if: 'wordlist.present?'
 
@@ -156,10 +146,6 @@ module Metasploit
             cmd << ( "--max-run-time=" + max_runtime.to_s)
           end
 
-          if max_length.present?
-            cmd << ( "--max-len=" + max_length.to_s)
-          end
-
           cmd << hash_path
         end
 
@@ -179,7 +165,7 @@ module Metasploit
         #
         # @return [String] the path to the default john.conf file
         def john_config_file
-          ::File.join( ::Msf::Config.data_directory, "jtr", "john.conf" )
+          ::File.join( ::Msf::Config.data_directory, "john.conf" )
         end
 
         # This method returns the path to a default john.pot file.
@@ -217,6 +203,9 @@ module Metasploit
         end
 
         private
+
+
+
 
       end
 

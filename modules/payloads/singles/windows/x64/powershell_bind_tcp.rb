@@ -15,7 +15,7 @@ require 'msf/core/handler/bind_tcp'
 ###
 module MetasploitModule
 
-  CachedSize = 1786
+  CachedSize = 1518
 
   include Msf::Payload::Windows::Exec_x64
   include Rex::Powershell::Command
@@ -53,7 +53,7 @@ module MetasploitModule
   #
   # Override the exec command string
   #
-  def powershell_command
+  def command_string
     generate_powershell_code("Bind")
   end
 end

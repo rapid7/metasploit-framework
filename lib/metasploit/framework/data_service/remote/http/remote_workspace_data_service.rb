@@ -30,8 +30,7 @@ module RemoteWorkspaceDataService
   end
 
   def workspaces(opts)
-    path = get_path_select(opts, WORKSPACE_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts), WORKSPACE_MDM_CLASS, [])
   end
 
   def delete_workspaces(opts)

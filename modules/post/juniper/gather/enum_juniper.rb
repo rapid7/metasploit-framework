@@ -18,6 +18,13 @@ class MetasploitModule < Msf::Post
       'Platform'      => [ 'juniper'],
       'SessionTypes'  => [ 'shell' ]
     ))
+
+    register_options(
+      [
+        OptString.new('ENABLE', [ false, 'Enable password for changing privilege level.']),
+        OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
+      ])
+
   end
 
   def run

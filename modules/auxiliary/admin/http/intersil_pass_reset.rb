@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'CVE', '2007-4915' ],
           [ 'BID', '25676'],
           [ 'PACKETSTORM', '59347']
         ],
