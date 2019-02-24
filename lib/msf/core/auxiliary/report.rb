@@ -23,7 +23,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
-      framework.db.create_cracked_credential(opts)
+      super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -32,6 +32,7 @@ module Auxiliary::Report
   def create_credential(opts={})
     if active_db?
       framework.db.create_credential(opts)
+      #super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -39,15 +40,7 @@ module Auxiliary::Report
 
   def create_credential_login(opts={})
     if active_db?
-      framework.db.create_credential_login(opts)
-    elsif !db_warning_given?
-      vprint_warning('No active DB -- Credential data will not be saved!')
-    end
-  end
-
-  def create_credential_and_login(opts={})
-    if active_db?
-      framework.db.create_credential_and_login(opts)
+      super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -55,7 +48,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
-      framework.db.invalidate_login(opts)
+      super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -443,7 +436,7 @@ module Auxiliary::Report
   # module, such as files from fileformat exploits. (TODO: actually
   # implement this on file format modules.)
   #
-  # +filename+ is the local file name.
+  # +filenmae+ is the local file name.
   #
   # +data+ is the actual contents of the file
   #

@@ -12,23 +12,7 @@ module MsfApiDoc
       response 200 do
         key :description, 'Returns the Metasploit Framework version.'
         schema do
-          property :data do
-            property :metasploit_version, type: :string
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          property :metasploit_version, type: :string
         end
       end
     end

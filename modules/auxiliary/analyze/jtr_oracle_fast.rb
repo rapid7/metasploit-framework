@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           This module uses John the Ripper to identify weak passwords that have been
         acquired from the oracle_hashdump module. Passwords that have been successfully
-        cracked are then saved as proper credentials.
+        cracked are then saved as proper credentials
       },
       'Author'         =>
         [
@@ -33,43 +33,34 @@ class MetasploitModule < Msf::Auxiliary
     wordlist.close
     print_status "Wordlist file written out to #{wordlist.path}"
     cracker.wordlist = wordlist.path
+    #cracker.hash_path = hash_file("des")
 
-    cleanup_files = [wordlist.path]
-
-    # dynamic_1506 is oracle 11/12's H field, MD5.
-    ['oracle', 'dynamic_1506', 'oracle11', 'oracle12c'].each do |format|
+    ['oracle', 'oracle11'].each do |format|
       cracker_instance = cracker.dup
       cracker_instance.format = format
 
       case format
         when 'oracle'
-          cracker_instance.hash_path = hash_file('des|oracle')
-          cleanup_files << cracker_instance.hash_path
-        when 'dynamic_1506'
-          cracker_instance.hash_path = hash_file('raw-sha1|oracle11|oracle12c|dynamic_1506')
-          cleanup_files << cracker_instance.hash_path
+          cracker_instance.hash_path = hash_file('des')
         when 'oracle11'
-          cracker_instance.hash_path = hash_file('raw-sha1|oracle11')
-          cleanup_files << cracker_instance.hash_path
-        when 'oracle12c'
-          cracker_instance.hash_path = hash_file('oracle12c')
-          cleanup_files << cracker_instance.hash_path
+          cracker_instance.hash_path = hash_file('raw-sha1')
       end
 
       print_status "Cracking #{format} hashes in normal wordlist mode..."
       # Turn on KoreLogic rules if the user asked for it
-      if datastore['KORELOGIC']
+      if datastore['KoreLogic']
         cracker_instance.rules = 'KoreLogicRules'
         print_status "Applying KoreLogic ruleset..."
       end
+      print_status "Crack command #{cracker_instance.crack_command.join(' ')}"
       cracker_instance.crack do |line|
-        vprint_status line.chomp
+        print_status line.chomp
       end
 
       print_status "Cracking #{format} hashes in single mode..."
       cracker_instance.rules = 'single'
       cracker_instance.crack do |line|
-        vprint_status line.chomp
+        print_status line.chomp
       end
 
       print_status "Cracked passwords this run:"
@@ -82,20 +73,25 @@ class MetasploitModule < Msf::Auxiliary
         username = fields.shift
         core_id  = fields.pop
         password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
-        print_good "#{username}:#{password}"
+
+        # Postgres hashes always prepend the username to the password before hashing. So we strip the username back off here.
+        password.gsub!(/^#{username}/,'')
+        print_good "#{username}:#{password}:#{core_id}"
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
-    cleanup_files.each do |f|
-      File.delete(f)
-    end
+
   end
+
 
   def hash_file(format)
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
-      if core.private.jtr_format =~ /#{format}/
-        hashlist.puts hash_to_jtr(core)
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: format).each do |hash|
+      hash.cores.each do |core|
+        user = core.public.username
+        hash_string = "#{hash.data.split(':')[1]}"
+        id = core.id
+        hashlist.puts "#{user}:#{hash_string}:#{id}:"
       end
     end
     hashlist.close

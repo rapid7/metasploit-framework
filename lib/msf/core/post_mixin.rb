@@ -138,16 +138,13 @@ module Msf::PostMixin
   #
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
-  # and arch compatibility.
-  #
-  # +sess_or_sid+ can be a Session object, Integer, or
-  # String. In the latter cases it should be a key in
+  # compatibility.  +sess_or_sid+ can be a Session object, Integer, or
+  # String.  In the latter cases it should be a key in
   # +framework.sessions+.
   #
   # @note Because it errs on the side of compatibility, a true return
   #   value from this method does not guarantee the module will work
-  #   with the session. For example, ARCH_CMD modules can work on a
-  #   variety of platforms and archs and thus return true in this check.
+  #   with the session.
   #
   # @param sess_or_sid [Msf::Session,Integer,String]
   #   A session or session ID to compare against this module for
@@ -163,30 +160,28 @@ module Msf::PostMixin
     end
 
     # Can't do anything without a session
-    return false unless s
+    return false if s.nil?
 
     # Can't be compatible if it's the wrong type
     if session_types
       return false unless session_types.include?(s.type)
     end
 
-    # Check to make sure architectures match
-    mod_arch = self.module_info['Arch']
-    if mod_arch
-      mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      # Assume ARCH_CMD modules can work on supported SessionTypes
-      return true if mod_arch.include?(ARCH_CMD)
-      return false unless mod_arch.include?(s.arch)
+    # Types are okay, now check the platform.
+    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
+      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
-    # Arch is okay, now check the platform.
-    if self.platform && self.platform.kind_of?(Msf::Module::PlatformList)
-      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+    # Check to make sure architectures match
+    mod_arch = self.module_info['Arch']
+    unless mod_arch.nil?
+      mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+      return false unless mod_arch.include?(s.arch)
     end
 
     # If we got here, we haven't found anything that definitely
     # disqualifies this session.  Assume that means we can use it.
-    true
+    return true
   end
 
   #

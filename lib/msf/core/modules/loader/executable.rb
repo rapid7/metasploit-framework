@@ -85,7 +85,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       return ''
     end
     begin
-      content = Msf::Modules::External::Shim.generate(full_path, @module_manager.framework)
+      content = Msf::Modules::External::Shim.generate(full_path)
       if content
         return content
       else

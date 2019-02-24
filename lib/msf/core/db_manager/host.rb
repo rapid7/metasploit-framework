@@ -128,16 +128,12 @@ module Msf::DBManager::Host
   # Returns a list of all hosts in the database
   def hosts(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      # If we have the ID, there is no point in creating a complex query.
-      if opts[:id] && !opts[:id].to_s.empty?
-        return Array.wrap(Mdm::Host.find(opts[:id]))
-      end
-
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
       conditions[:address] = opts[:address] if opts[:address] && !opts[:address].empty?
+      conditions[:id] = opts[:id] if opts[:id] && !opts[:id].empty?
 
       if opts[:search_term] && !opts[:search_term].empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
@@ -221,9 +217,7 @@ module Msf::DBManager::Host
         os_name, os_flavor = split_windows_os_name(opts[:os_name])
         opts[:os_name] = os_name if os_name.present?
         if opts[:os_flavor].present?
-          if os_flavor.present? # only prepend if there is a value that needs it
-            opts[:os_flavor] = os_flavor + opts[:os_flavor]
-          end
+          opts[:os_flavor] = os_flavor + opts[:os_flavor]
         else
           opts[:os_flavor] = os_flavor
         end
@@ -241,7 +235,7 @@ module Msf::DBManager::Host
       host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
       # Set default fields if needed
-      host.state = Msf::HostState::Alive if host.state.nil? || host.state.empty?
+      host.state = Msf::HostState::Alive unless host.state
       host.comm = '' unless host.comm
       host.workspace = wspace unless host.workspace
 
@@ -258,9 +252,9 @@ module Msf::DBManager::Host
         msf_import_timestamps(opts, host)
         host.save!
       end
-    rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
-      # two concurrent report requests for a new host could result in a RecordNotUnique or
-      # RecordInvalid exception, simply retry the report once more as an optimistic approach
+    rescue ActiveRecord::RecordNotUnique
+      # two concurrent report requests for a new host could result in a RecordNotUnique exception
+      # simply retry the report once more as an optimistic approach
       retry if (retry_attempts+=1) <= 1
       raise
     end
@@ -283,9 +277,7 @@ module Msf::DBManager::Host
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      host = Mdm::Host.find(id)
-      host.update!(opts)
-      return host
+      Mdm::Host.update(id, opts)
     }
   end
 

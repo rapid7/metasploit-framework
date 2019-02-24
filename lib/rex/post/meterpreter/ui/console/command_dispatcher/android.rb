@@ -385,6 +385,7 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_geolocate(*args)
+
     generate_map = false
     geolocate_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
@@ -422,8 +423,10 @@ class Console::CommandDispatcher::Android
   def cmd_dump_calllog(*args)
     path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
+
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ true, 'Output path for call log']
+
     )
 
     dump_calllog_opts.parse(args) do |opt, _idx, val|
@@ -527,8 +530,6 @@ class Console::CommandDispatcher::Android
         dest = val
       when '-t'
         body = val
-        # Replace \n with a newline character to allow multi-line messages
-        body.gsub!('\n',"\n")
       when '-r'
         dr = true
       end
@@ -564,28 +565,17 @@ class Console::CommandDispatcher::Android
 
   def cmd_wlan_geolocate(*args)
     wlan_geolocate_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ],
-      '-a' => [ true, 'API key' ],
+      '-h' => [ false, 'Help Banner' ]
     )
 
-    api_key = ''
-    wlan_geolocate_opts.parse(args) do |opt, _idx, val|
+    wlan_geolocate_opts.parse(args) do |opt, _idx, _val|
       case opt
       when '-h'
         print_line('Usage: wlan_geolocate')
         print_line('Tries to get device geolocation from WLAN information and Google\'s API')
         print_line(wlan_geolocate_opts.usage)
         return
-      when '-a'
-        api_key = val
       end
-    end
-
-    if api_key.blank?
-      print_error("You must enter an api_key")
-      print_error("e.g. wlan_geolocate -a YOUR_API_KEY")
-      print_line(wlan_geolocate_opts.usage)
-      return
     end
 
     log = client.android.wlan_geolocate
@@ -602,10 +592,9 @@ class Console::CommandDispatcher::Android
       return
     end
     g = Rex::Google::Geolocation.new
-    g.set_api_key(api_key)
 
     wlan_list.each do |wlan|
-      g.add_wlan(wlan[0], wlan[2]) # bssid, signalstrength
+      g.add_wlan(*wlan)
     end
     begin
       g.fetch!
@@ -613,7 +602,7 @@ class Console::CommandDispatcher::Android
       print_error("Error: #{e}")
     else
       print_status(g.to_s)
-      print_status("Google Maps URL: #{g.google_maps_url}")
+      print_status("Google Maps URL:  #{g.google_maps_url}")
     end
   end
 

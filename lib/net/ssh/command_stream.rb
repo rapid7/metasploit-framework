@@ -1,6 +1,10 @@
 # -*- coding: binary -*-
+require 'rex'
 
-class Net::SSH::CommandStream
+module Net
+module SSH
+
+class CommandStream
 
   attr_accessor :channel, :thread, :error, :ssh
   attr_accessor :lsock, :rsock, :monitor
@@ -12,87 +16,84 @@ class Net::SSH::CommandStream
   end
 
   def shell_requested(channel, success)
-    unless success
-      raise Net::SSH::ChannelRequestFailed, 'Shell/exec channel request failed'
-    end
-
-    self.channel = channel
-
+    raise "could not request ssh shell" unless success
     channel[:data] = ''
-    channel[:extended_data] = ''
 
     channel.on_eof do
-      cleanup
+      self.rsock.close rescue nil
+      self.ssh.close rescue nil
+      self.thread.kill
     end
 
     channel.on_close do
-      cleanup
+      self.rsock.close rescue nil
+      self.ssh.close rescue nil
+      self.thread.kill
     end
 
-    channel.on_data do |ch, data|
+    channel.on_data do |ch,data|
       self.rsock.write(data)
-      channel[:data] << data
     end
 
     channel.on_extended_data do |ch, ctype, data|
       self.rsock.write(data)
-      channel[:extended_data] << data
     end
+
+    self.channel = channel
   end
 
-  def initialize(ssh, cmd = nil, pty: false, cleanup: false)
+  def initialize(ssh, cmd = nil, cleanup = true)
+
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
     self.lsock.extend(PeerInfo)
     self.rsock.extend(Rex::IO::Stream)
 
     self.ssh = ssh
-    self.thread = Thread.new(ssh, cmd, pty, cleanup) do |rssh, rcmd, rpty, rcleanup|
-      info = rssh.transport.socket.getpeername_as_array
-      self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
+    self.thread = Thread.new(ssh,cmd,cleanup) do |rssh, rcmd, rcleanup|
 
-      info = rssh.transport.socket.getsockname
-      self.lsock.localinfo = "#{info[1]}:#{info[2]}"
+      begin
+        info = rssh.transport.socket.getpeername_as_array
+        self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
 
-      channel = rssh.open_channel do |rch|
-        # A PTY will write us to {u,w}tmp and lastlog
-        rch.request_pty if rpty
+        info = rssh.transport.socket.getsockname
+        self.lsock.localinfo = "#{info[1]}:#{info[2]}"
 
-        if rcmd.nil?
-          rch.send_channel_request('shell', &method(:shell_requested))
-        else
-          rch.exec(rcmd, &method(:shell_requested))
+        rssh.open_channel do |rch|
+          if cmd.nil?
+            rch.send_channel_request("shell", &method(:shell_requested))
+          else
+            rch.exec(rsh, &method(:shell_requested))
+          end
         end
-      end
 
-      channel.on_open_failed do |ch, code, desc|
-        raise Net::SSH::ChannelOpenFailed.new(code, 'Session channel open failed')
-      end
-
-      self.monitor = Thread.new do
-        while(true)
-          next if not self.rsock.has_read_data?(1.0)
-          buff = self.rsock.read(16384)
-          break if not buff
-          verify_channel
-          self.channel.send_data(buff) if buff
+        self.monitor = Thread.new do
+          while(true)
+            next if not self.rsock.has_read_data?(1.0)
+            buff = self.rsock.read(16384)
+            break if not buff
+            verify_channel
+            self.channel.send_data(buff) if buff
+          end
         end
-      end
 
-      while true
-        rssh.process(0.5) { true }
+        while true
+          rssh.process(0.5) { true }
+        end
+
+      rescue ::Exception => e
+        self.error = e
+        #::Kernel.warn "BOO: #{e.inspect}"
+        #::Kernel.warn e.backtrace.join("\n")
+      ensure
+        self.monitor.kill if self.monitor
       end
 
       # Shut down the SSH session if requested
-      if !rcmd.nil? && rcleanup
+      if rcleanup
         rssh.close
       end
     end
-  rescue ::Exception => e
-    # XXX: This won't be set UNTIL there's a failure from a thread
-    self.error = e
-  ensure
-    self.monitor.kill if self.monitor
   end
 
   #
@@ -105,12 +106,7 @@ class Net::SSH::CommandStream
     end
   end
 
-  def cleanup
-    self.monitor.kill
-    self.lsock.close rescue nil
-    self.rsock.close rescue nil
-    self.ssh.close rescue nil
-    self.thread.kill
-  end
-
 end
+end
+end
+

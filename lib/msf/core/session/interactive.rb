@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/ui'
+require 'rex/io/ring_buffer'
 
 module Msf
 module Session
@@ -25,6 +26,8 @@ module Interactive
     # A nil is passed in the case of non-stream interactive sessions (Meterpreter)
     if rstream
       self.rstream = rstream
+      klass = opts[:udp_session] ? Rex::IO::RingBufferUdp : Rex::IO::RingBuffer
+      self.ring    = klass.new(rstream, {:size => opts[:ring_size] || 100 })
     end
     super()
   end
@@ -95,6 +98,11 @@ module Interactive
   #
   attr_accessor :rstream
 
+  #
+  # The RingBuffer object used to allow concurrent access to this session
+  #
+  attr_accessor :ring
+
 protected
 
   #
@@ -109,32 +117,10 @@ protected
   #
   def _interrupt
     begin
-      intent = user_want_abort?
-      # Judge the user wants to abort the reverse shell session 
-      # Or just want to abort the process running on the target machine
-      # If the latter, just send ASCII Control Character \u0003 (End of Text) to the socket fd
-      # The character will be handled by the line dicipline program of the pseudo-terminal on target machine
-      # It will send the SEGINT singal to the foreground process
-      if !intent
-        # TODO: Check the shell is interactive or not
-        # If the current shell is not interactive, the ASCII Control Character will not work
-        if !(self.platform=="windows" && self.type =="shell")
-          print_status("Aborting foreground process in the shell session")
-          self.rstream.write("\u0003")
-        end
-        return
-      end
+      user_want_abort?
     rescue Interrupt
       # The user hit ctrl-c while we were handling a ctrl-c. Ignore
     end
-    p ""
-  end
-
-  def _usr1
-    # A simple signal to exit vim in reverse shell
-    # Just for fun
-    # Make sure you have already executed `shell` meta-shell command to pop up an interactive shell
-    self.rstream.write("\x1B\x1B\x1B:q!\r")
   end
 
   #
@@ -142,17 +128,9 @@ protected
   #
   def _suspend
     # Ask the user if they would like to background the session
-    intent = prompt_yesno("Background session #{name}?")
-    if !intent
-      # User does not want to background the current session
-      # Assuming the target is *nix, we'll forward CTRL-Z to the foreground process on the target
-      if !(self.platform=="windows" && self.type =="shell")
-        print_status("Backgrounding foreground process in the shell session")
-        self.rstream.write("\u001A")
-      end
-      return
+    if (prompt_yesno("Background session #{name}?") == true)
+      self.interacting = false
     end
-    self.interacting = false
   end
 
   #

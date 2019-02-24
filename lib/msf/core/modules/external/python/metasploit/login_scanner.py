@@ -8,12 +8,12 @@ def make_scanner(login_callback):
 
 
 def run_scanner(args, login_callback):
-    userpass = args['userpass'] or []
+    userpass = args['userpass']
     rhost = args['rhost']
     rport = int(args['rport'])
-    sleep_interval = float(args['sleep_interval'] or 0)
+    sleep_interval = float(args['sleep_interval'])
 
-    if isinstance(userpass, str) or isinstance(userpass, unicode):
+    if isinstance(userpass, str):
         userpass = [ attempt.split(' ', 1) for attempt in userpass.splitlines() ]
 
     curr = 0

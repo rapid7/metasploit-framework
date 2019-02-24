@@ -28,21 +28,16 @@ module DBManager
   # @param [Hash] opts The opts hash passed in from the data request. Should contain :workspace if required is true.
   # @param [Msf::Framework] framework A framework object containing a valid database connection.
   # @param [Bool] required true if the :workspace key is required for this data operation. false if it is only optional.
-  # @raise [ArgumentError] opts must include a valid :workspace
-  # @raise [RuntimeError] couldn't find workspace
   # @return [Mdm::Workspace] The workspace object that was referenced by name in opts.
   def self.process_opts_workspace(opts, framework, required = true)
     wspace = delete_opts_workspace(opts)
-    if required && (wspace.nil? || (wspace.kind_of?(String) && wspace.empty?))
+    if required && (wspace.nil? || ((wspace.kind_of? String) && wspace.empty?))
       raise ArgumentError.new("opts must include a valid :workspace")
     end
 
-    if wspace.kind_of?(String)
-      workspace_name = wspace
-      wspace = framework.db.find_workspace(workspace_name)
-      raise "Couldn't find workspace #{workspace_name}" if wspace.nil?
+    if wspace.kind_of? String
+      wspace = framework.db.find_workspace(wspace)
     end
-
     wspace
   end
 

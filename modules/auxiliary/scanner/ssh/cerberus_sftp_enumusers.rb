@@ -67,14 +67,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_vulnerable(ip)
     opt_hash = {
-      :port            => rport,
-      :auth_methods    => ['password', 'keyboard-interactive'],
-      :use_agent       => false,
-      :config          => false,
-      :password_prompt => Net::SSH::Prompt.new,
-      :non_interactive => true,
-      :proxies         => datastore['Proxies'],
-      :verify_host_key => :never
+      port:          rport,
+      auth_methods:  ['password', 'keyboard-interactive'],
+      use_agent:     false,
+      config:        false,
+      password_prompt: Net::SSH::Prompt.new,
+      non_interactive: true,
+      proxies:       datastore['Proxies']
     }
 
     begin
@@ -106,12 +105,11 @@ class MetasploitModule < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(8)
 
     opt_hash = {
-      :auth_methods    => ['password', 'keyboard-interactive'],
-      :port            => port,
-      :use_agent       => false,
-      :config          => false,
-      :proxies         => datastore['Proxies'],
-      :verify_host_key => :never
+      auth_methods: ['password', 'keyboard-interactive'],
+      port:         port,
+      use_agent:    false,
+      config:       false,
+      proxies:      datastore['Proxies']
     }
 
     opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']

@@ -82,7 +82,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'deals with udp ports' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:161 Unencrypted Enable Password: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -96,7 +95,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :password,
+          private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -107,7 +106,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Enable Password: 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "1511021F0725", "enable_password.txt", "Cisco IOS Enable Password"
         )
@@ -124,7 +122,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -134,7 +132,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted Enable Password: 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -145,7 +142,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -155,7 +151,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Decrypted Enable Password: cisco')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.enable_pass", "text/plain", "127.0.0.1", "cisco", "enable_password.txt", "Cisco IOS Enable Password"
         )
@@ -183,7 +178,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'enable password' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Unencrypted Enable Password: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "enable password 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -197,7 +191,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :password,
+          private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -208,7 +202,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with RO' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 SNMP Community (RO): 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -229,7 +222,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with RW' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 SNMP Community (RW): 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:create_credential_and_login).with(
           {
             address: "127.0.0.1",
@@ -252,7 +244,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'password 7' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Decrypted VTY Password: cisco')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -275,7 +266,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'password|secret 5' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 MD5 Encrypted VTY Password: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.vty_password", "text/plain", "127.0.0.1", "1511021F0725", "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)"
       )
@@ -292,7 +282,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          jtr_format: "md5",
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
@@ -302,7 +291,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'password 0' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Unencrypted VTY Password: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -316,7 +304,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :password,
+          private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -325,7 +313,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'password' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Unencrypted VTY Password: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "password 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -339,7 +326,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
           private_data: "1511021F0725",
-          private_type: :password,
+          private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
@@ -348,7 +335,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'encryption key' do
       expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Wireless WEP Key: 1511021F0725')
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "encryption key 777 size 8bit 8 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -361,7 +347,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'wpa-psk' do
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Wireless WPA-PSK Password: 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -378,7 +363,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -387,7 +372,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Wireless WPA-PSK MD5 Password Hash: 1511021F0725')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -404,7 +388,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -414,7 +397,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with('127.0.0.1:1337 Wireless WPA-PSK Decrypted Password: cisco')
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "wpa-psk ascii 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -443,7 +425,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'crypto isakmp key' do
       expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 VPN IPSEC ISAKMP Key '1511021F0725' Host 'someaddress'")
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1",  "crypto isakmp key 1511021F0725 address someaddress", "config.txt", "Cisco IOS Configuration"
       )
@@ -471,14 +452,11 @@ RSpec.describe Msf::Auxiliary::Cisco do
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1",  "interface tunnel7", "config.txt", "Cisco IOS Configuration"
       )
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
-
       aux_cisco.cisco_ios_config_eater('127.0.0.1',1337,'interface tunnel7')
     end
     
     it 'tunnel key' do
       expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 GRE Tunnel Key 1511021F0725 for Interface Tunnel ")
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.gre_tunnel_key", "text/plain", "127.0.0.1", "tunnel_1511021F0725", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key"
       )
@@ -504,7 +482,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
     it 'ip nhrp authentication' do
       expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 NHRP Authentication Key 1511021F0725 for Interface Tunnel ")
-      expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
       expect(aux_cisco).to receive(:store_loot).with(
         "cisco.ios.config", "text/plain", "127.0.0.1", "ip nhrp authentication 1511021F0725", "config.txt", "Cisco IOS Configuration"
       )
@@ -531,7 +508,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'username privilege secret' do
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -548,7 +524,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -558,7 +534,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with MD5 Encrypted Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -576,7 +551,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -587,7 +561,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with Decrypted Password: cisco")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername privilege 0 secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -615,7 +588,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'username secret' do
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -633,7 +605,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -642,7 +614,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with MD5 Encrypted Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -660,7 +631,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -671,7 +641,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Username 'someusername' with Decrypted Password: cisco")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "username someusername secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -700,7 +669,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'ppp.*username secret' do
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 PPP Username: someusername Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -718,7 +686,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -727,7 +695,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 PPP Username someusername MD5 Encrypted Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -745,7 +712,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -756,7 +722,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 PPP Username: someusername Decrypted Password: cisco")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp123username someusername secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -785,7 +750,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     context 'ppp chap secret' do
       it 'with password type 0' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 0 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -802,7 +766,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            private_type: :password,
+            private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
@@ -811,7 +775,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
       
       it 'with password type 5' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 PPP CHAP MD5 Encrypted Password: 1511021F0725")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 5 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )
@@ -829,7 +792,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
             service_name: '',
             module_fullname: "auxiliary/scanner/snmp/cisco_dummy",
             private_data: "1511021F0725",
-            jtr_format: 'md5',
             private_type: :nonreplayable_hash,
             status: Metasploit::Model::Login::Status::UNTRIED
           }
@@ -840,7 +802,6 @@ RSpec.describe Msf::Auxiliary::Cisco do
     
       it 'with password type 7' do
         expect(aux_cisco).to receive(:print_good).with("127.0.0.1:1337 PPP Decrypted Password: cisco")
-        expect(aux_cisco).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Cisco IOS'})
         expect(aux_cisco).to receive(:store_loot).with(
           "cisco.ios.config", "text/plain", "127.0.0.1", "ppp chap secret 7 1511021F0725", "config.txt", "Cisco IOS Configuration"
         )

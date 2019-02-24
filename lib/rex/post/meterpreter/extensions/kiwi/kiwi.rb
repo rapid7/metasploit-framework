@@ -388,9 +388,6 @@ class Kiwi < Extension
       opts[:domain_name],
       " /sid:",
       opts[:domain_sid],
-      " /startoffset:0",
-      " /endin:",
-      opts[:end_in] * 60,
       " /krbtgt:",
       opts[:krbtgt_hash],
       "\""
@@ -513,3 +510,4 @@ class Kiwi < Extension
 end
 
 end; end; end; end; end
+

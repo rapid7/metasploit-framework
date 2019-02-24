@@ -3,8 +3,7 @@ module RemoteServiceDataService
   SERVICE_MDM_CLASS = 'Mdm::Service'
 
   def services(opts)
-    path = get_path_select(opts, SERVICE_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), SERVICE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(SERVICE_API_PATH, nil, opts), SERVICE_MDM_CLASS, [])
   end
 
   def report_service(opts)

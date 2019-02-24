@@ -39,9 +39,6 @@ class Module
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
   autoload :UUID, 'msf/core/module/uuid'
-  autoload :SideEffects, 'msf/core/module/side_effects'
-  autoload :Stability, 'msf/core/module/stability'
-  autoload :Reliability, 'msf/core/module/reliability'
 
   include Msf::Module::Arch
   include Msf::Module::Auth
@@ -59,9 +56,6 @@ class Module
   include Msf::Module::Type
   include Msf::Module::UI
   include Msf::Module::UUID
-  include Msf::Module::SideEffects
-  include Msf::Module::Stability
-  include Msf::Module::Reliability
 
   # The key where a comma-separated list of Ruby module names will live in the
   # datastore, consumed by #replicant to allow clean override of MSF module methods.
@@ -210,6 +204,16 @@ class Module
   end
 
   #
+  # Checks to see if the target is vulnerable, returning unsupported if it's
+  # not supported.
+  #
+  # This method is designed to be overriden by exploit modules.
+  #
+  def check
+    Msf::Exploit::CheckCode::Unsupported
+  end
+
+  #
   # Returns the current workspace
   #
   def workspace
@@ -302,65 +306,6 @@ class Module
     false
   end
 
-  def required_cred_options
-    @required_cred_options ||= lambda {
-      self.options.select { |name, opt|
-        (
-          opt.type?('string') &&
-          opt.required &&
-          (opt.name.match(/user(name)*$/i) || name.match(/pass(word)*$/i))
-        ) ||
-        (
-          opt.type?('bool') &&
-          opt.required &&
-          opt.name.match(/^allow_guest$/i)
-        )
-      }
-    }.call
-  end
-
-  def black_listed_auth_filenames
-    @black_listed_auth_filenames ||= lambda {
-      [
-        'fileformat',
-        'browser'
-      ]
-    }.call
-  end
-
-  def post_auth?
-    if self.kind_of?(Msf::Auxiliary::AuthBrute)
-      return true
-    else
-      # Some modules will never be post auth, so let's not waste our time
-      # determining it and create more potential false positives.
-      # If these modules happen to be post auth for some reason, then we it
-      # should manually override the post_auth? method as true.
-      directory_name = self.fullname.split('/')[0..-2]
-      black_listed_auth_filenames.each do |black_listed_name|
-        return false if directory_name.include?(black_listed_name)
-      end
-
-      # Some modules create their own username and password datastore
-      # options, not relying on the AuthBrute mixin. In that case we
-      # just have to go through the options and try to identify them.
-      !required_cred_options.empty?
-    end
-  end
-
-  def default_cred?
-    return false unless post_auth?
-
-    cred_opts_with_default = required_cred_options.select { |name, opt|
-      case opt.type
-      when 'string'
-        return true unless opt.default.blank?
-      end
-    }
-
-    false
-  end
-
   #
   # The array of zero or more platforms.
   #
@@ -410,7 +355,6 @@ class Module
       'Ref'         => nil,
       'Privileged'  => false,
       'License'     => MSF_LICENSE,
-      'Notes'       => {}
     }.update(self.module_info)
     self.module_store = {}
   end

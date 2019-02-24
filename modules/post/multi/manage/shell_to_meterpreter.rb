@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when 'windows', 'win'
+    when 'windows'
       platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
@@ -265,9 +265,8 @@ class MetasploitModule < Msf::Post
     framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
-        timeout = datastore['HANDLE_TIMEOUT']
-        vprint_status("Waiting up to #{timeout} seconds for the session to come back")
-        while !framework.jobs[listener_job_id].nil? && timer < timeout
+        vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")
+        while !framework.jobs[listener_job_id].nil? && timer < HANDLE_TIMEOUT
           sleep(1)
           timer += 1
         end

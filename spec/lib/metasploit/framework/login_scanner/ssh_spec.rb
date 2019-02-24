@@ -138,15 +138,14 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
       it 'calls Net::SSH with the correct arguments' do
         factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
-            :port            => ssh_scanner.port,
-            :use_agent       => false,
-            :config          => false,
-            :verbose         => ssh_scanner.verbosity,
-            :proxy           => factory,
-            :auth_methods    => ['password','keyboard-interactive'],
-            :password        => private,
-            :non_interactive => true,
-            :verify_host_key => :never
+            :port          => ssh_scanner.port,
+            :use_agent     => false,
+            :config        => false,
+            :verbose       => ssh_scanner.verbosity,
+            :proxy         => factory,
+            :auth_methods  => ['password','keyboard-interactive'],
+            :password      => private,
+            :non_interactive => true
         }
         allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(
@@ -162,14 +161,13 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
       it 'calls Net::SSH with the correct arguments' do
         factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
-            :auth_methods    => ['publickey'],
-            :port            => ssh_scanner.port,
-            :use_agent       => false,
-            :key_data        => key,
-            :config          => false,
-            :verbose         => ssh_scanner.verbosity,
-            :proxy           => factory,
-            :verify_host_key => :never
+            :auth_methods  => ['publickey'],
+            :port          => ssh_scanner.port,
+            :use_agent     => false,
+            :key_data      => key,
+            :config        => false,
+            :verbose       => ssh_scanner.verbosity,
+            :proxy         => factory
         }
         allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(

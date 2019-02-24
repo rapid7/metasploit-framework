@@ -35,19 +35,16 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultAction'  => 'Service',
       'References' => [
+        [ 'AKA', 'Shellshock' ],
         [ 'CVE', '2014-6271' ],
         [ 'CWE', '94' ],
         [ 'OSVDB', '112004' ],
         [ 'EDB', '34765' ],
         [ 'URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/' ],
-        [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ],
+        [ 'URL', 'http://seclists.org/oss-sec/2014/q3/649' ],
         [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
-      'Notes' =>
-          {
-              'AKA' => ['Shellshock']
-          }
+      'DisclosureDate' => 'Sep 24 2014'
     )
 
     register_options(

@@ -5,18 +5,6 @@ require 'digest'
 #
 module ResponseDataHelper
 
-
-  def process_response(response_wrapper)
-    begin
-      if response_wrapper.expected
-        response_wrapper.response.body
-      end
-    rescue => e
-      elog "Error processing response: #{e.message}"
-      e.backtrace.each { |line| elog line }
-    end
-  end
-
   #
   # Converts an HTTP response to a Hash
   #
@@ -25,13 +13,14 @@ module ResponseDataHelper
   #
   def json_to_hash(response_wrapper)
     begin
-      body = process_response(response_wrapper)
-      if !body.nil? && !body.empty?
-        parsed_body = JSON.parse(body, symbolize_names: true)
-        return parsed_body[:data]
+      if response_wrapper.expected
+        body = response_wrapper.response.body
+        unless body.nil? && body.empty?
+          return JSON.parse(body).symbolize_keys
+        end
       end
     rescue => e
-      elog "Error parsing response as JSON: #{e.message}"
+      elog "Error parsing response: #{e.message}"
       e.backtrace.each { |line| elog line }
     end
   end
@@ -47,19 +36,18 @@ module ResponseDataHelper
   def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
     if response_wrapper.expected
       begin
-        body = process_response(response_wrapper)
+        body = response_wrapper.response.body
         if !body.nil? && !body.empty?
-          parsed_body = JSON.parse(body, symbolize_names: true)
-          data = Array.wrap(parsed_body[:data])
+          parsed_body = Array.wrap(JSON.parse(body))
           rv = []
-          data.each do |json_object|
+          parsed_body.each do |json_object|
             rv << to_ar(mdm_class.constantize, json_object)
           end
           return rv
         end
       rescue => e
         elog "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| elog "#{line}" }
+        e.backtrace.each { |line| elog "#{line}\n" }
       end
     end
 
@@ -99,7 +87,7 @@ module ResponseDataHelper
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
-    data = val.class == Hash ? val.dup : JSON.parse(val, symbolize_names: true)
+    data = val.class == Hash ? val.dup : JSON.parse(val)
     obj = base_object || klass.new
 
     obj_associations = klass.reflect_on_all_associations(:has_many).reduce({}) do |reflection, i|
@@ -107,17 +95,13 @@ module ResponseDataHelper
       reflection
     end
 
-    obj_attribute_names = obj.attributes.transform_keys(&:to_sym).keys
-
-    data.except(*obj_attribute_names).each do |k, v|
+    data.except(*obj.attributes.keys).each do |k, v|
       association = klass.reflect_on_association(k)
       next unless association
 
       case association.macro
         when :belongs_to
           data.delete("#{k}_id")
-          # Polymorphic associations do not auto-create the 'build_model' method
-          next if association.options[:polymorphic]
           to_ar(association.klass, v, obj.send("build_#{k}"))
           obj.class_eval do
             define_method("#{k}_id") { obj.send(k).id }
@@ -135,7 +119,7 @@ module ResponseDataHelper
           end
       end
     end
-    obj.assign_attributes(data.slice(*obj_attribute_names))
+    obj.assign_attributes(data.slice(*obj.attributes.keys))
 
     obj.instance_eval do
       # prevent save

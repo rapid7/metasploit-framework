@@ -177,18 +177,17 @@ class Client
     file
   end
 
-  # Upload a file or write string data to remote path
+  # Upload a file
   #
-  # @param data_or_lpath [String] data or local path
+  # @param lpath [String] Local path
   # @param rpath [String] Remote path
-  # @param is_file [Boolean] True if data_or_lpath is a local file path
   # @return [Boolean] True if the file was uploaded
-  def fsdownload(data_or_lpath, rpath, is_file: true)
+  def fsdownload(lpath, rpath)
     if rpath !~ /^[0-2]:/
       raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
-    file = is_file ? File.read(data_or_lpath) : data_or_lpath
+    file = File.read(lpath)
 
     @sock.put(
       %Q{#{FSDOWNLOAD} FORMAT:BINARY SIZE=#{file.length} NAME = "#{rpath}"\n}

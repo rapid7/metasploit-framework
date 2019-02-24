@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-2996'],
           ['CVE', '2015-2998'],
-          ['URL', 'https://seclists.org/fulldisclosure/2015/Jun/8'],
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt']
         ],
       'DisclosureDate' => 'Jun 3 2015'))
@@ -121,12 +121,20 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
     else
-      fail_with(Failure::NotVulnerable, "#{peer} - Failed to obtain database credentials, response was: #{res ? res.code : 'unknown'}")
+      fail_with(Failure::NotVulnerable, "#{peer} - Failed to obtain database credentials, response was: #{res.code}")
     end
   end
 
+
   def report_credential_core(cred_opts={})
-    # use a basic core only since this credential is not known valid for service it was obtained from.
+    origin_service_data = {
+      address: rhost,
+      port: rport,
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
     credential_data = {
       origin_type: :service,
       module_fullname: self.fullname,
@@ -134,6 +142,8 @@ class MetasploitModule < Msf::Auxiliary
       private_data: cred_opts[:password],
       username: cred_opts[:username]
     }
+
+    credential_data.merge!(origin_service_data)
     create_credential(credential_data)
   end
 end

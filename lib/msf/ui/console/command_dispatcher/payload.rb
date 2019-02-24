@@ -18,21 +18,18 @@ module Msf
             Msf::Util::EXE.to_executable_fmt_formats
 
           @@generate_opts = Rex::Parser::Arguments.new(
-            "-p" => [ true,  "The platform of the payload" ],
-            "-n" => [ true,  "Prepend a nopsled of [length] size on to the payload" ],
-            "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
-            "-E" => [ false, "Force encoding" ],
-            "-e" => [ true,  "The encoder to use" ],
+            "-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"        ],
+            "-E" => [ false, "Force encoding."                                      ],
+            "-e" => [ true,  "The name of the encoder module to use."               ],
+            "-h" => [ false, "Help banner."                                         ],
+            "-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
             "-s" => [ true,  "NOP sled length."                                     ],
-            "-P" => [ true,  "Total desired payload size, auto-produce approproate NOPsled length"],
-            "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
-            "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
-            "-i" => [ true,  "The number of times to encode the payload" ],
-            "-x" => [ true,  "Specify a custom executable file to use as a template" ],
-            "-k" => [ false, "Preserve the template behavior and inject the payload as a new thread" ],
-            "-o" => [ true,  "The output file name (otherwise stdout)" ],
-            "-O" => [ true,  "Deprecated: alias for the '-o' option" ],
-            "-h" => [ false, "Show this message" ],
+            "-f" => [ true,  "The output file name (otherwise stdout)"              ],
+            "-t" => [ true,  "The output format: #{@@supported_formats.join(',')}"    ],
+            "-p" => [ true,  "The Platform for output."                             ],
+            "-k" => [ false, "Keep the template executable functional"              ],
+            "-x" => [ true,  "The executable template to use"                       ],
+            "-i" => [ true,  "the number of encoding iterations."                   ]
           )
 
           #
@@ -70,13 +67,6 @@ module Msf
             "Payload"
           end
 
-          def cmd_generate_help
-            print_line "Usage: generate [options]"
-            print_line
-            print_line "Generates a payload."
-            print @@generate_opts.usage
-          end
-
           #
           # Generates a payload.
           #
@@ -84,11 +74,9 @@ module Msf
             # Parse the arguments
             encoder_name = nil
             sled_size    = nil
-            pad_nops     = nil
-            sec_name     = nil
             option_str   = nil
             badchars     = nil
-            format       = "ruby"
+            type         = "ruby"
             ofile        = nil
             iter         = 1
             force        = nil
@@ -104,23 +92,13 @@ module Msf
                 encoder_name = val
               when '-E'
                 force = true
-              when '-n'
-                sled_size = val.to_i
-              when '-P'
-                pad_nops = val.to_i
-              when '-S'
-                sec_name = val
-              when '-f'
-                format = val
               when '-o'
-                if val.include?('=')
-                  print("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom")
-                  mod.datastore[key] = val
-                else
-                  ofile = val
-                end
-              when '-O'
-                print("Usage of the '-O' parameter is deprecated, prefer '-o' to indicate the output file")
+                option_str = val
+              when '-s'
+                sled_size = val.to_i
+              when '-t'
+                type = val
+              when '-f'
                 ofile = val
               when '-i'
                 iter = val
@@ -131,16 +109,12 @@ module Msf
               when '-x'
                 template = val
               when '-h'
-                cmd_generate_help
-                return false
-              else
-                (key, val) = val.split('=')
-                if key && val
-                  mod.datastore[key] = val
-                else
-                  cmd_generate_help
-                  return false
-                end
+                print(
+                  "Usage: generate [options]\n\n" \
+                  "Generates a payload.\n" +
+                  @@generate_opts.usage
+                )
+                return true
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
@@ -152,10 +126,8 @@ module Msf
               buf = mod.generate_simple(
                 'BadChars'    => badchars,
                 'Encoder'     => encoder_name,
-                'Format'      => format,
+                'Format'      => type,
                 'NopSledSize' => sled_size,
-                'PadNops'     => pad_nops,
-                'SecName'     => sec_name,
                 'OptionStr'   => option_str,
                 'ForceEncode' => force,
                 'Template'    => template,
@@ -188,8 +160,6 @@ module Msf
               '-h' => [ nil                                               ],
               '-o' => [ true                                              ],
               '-s' => [ true                                              ],
-              '-P' => [ true                                              ],
-              '-S' => [ true                                              ],
               '-f' => [ :file                                             ],
               '-t' => [ @@supported_formats                               ],
               '-p' => [ true                                              ],

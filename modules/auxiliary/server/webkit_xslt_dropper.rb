@@ -17,10 +17,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      => [ 'Nicolas Gregoire' ],
       'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2011-1774' ]
-        ],
       'Actions'     =>
         [
           [ 'WebServer' ]

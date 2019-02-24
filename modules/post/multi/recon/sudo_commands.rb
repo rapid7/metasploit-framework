@@ -43,6 +43,10 @@ class MetasploitModule < Msf::Post
     datastore['PASSWORD'].to_s
   end
 
+  def is_writable?(path)
+    cmd_exec("test -w '#{path}' && echo true").include? 'true'
+  end
+
   def is_executable?(path)
     cmd_exec("test -x '#{path}' && echo true").include? 'true'
   end
@@ -80,11 +84,11 @@ class MetasploitModule < Msf::Post
     base_name = File.basename cmd
 
     if file_exist? cmd
-      if writable? cmd
+      if is_writable? cmd
         print_good "#{cmd} is writable!"
         return true
       end
-    elsif writable? base_dir
+    elsif is_writable? base_dir
       print_good "#{cmd} does not exist and #{base_dir} is writable!"
       return true
     end

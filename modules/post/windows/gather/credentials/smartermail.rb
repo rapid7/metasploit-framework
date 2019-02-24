@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [
         'Joe Giron',                           # Discovery and PoC (@theonlyevil1)
-        'bcoles', # Metasploit
+        'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
         'sinn3r'                               # shell session support
       ],
       'References'    =>

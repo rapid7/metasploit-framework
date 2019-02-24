@@ -7,8 +7,7 @@ module RemoteNoteDataService
   NOTE_MDM_CLASS = 'Mdm::Note'
 
   def notes(opts)
-    path = get_path_select(opts, NOTE_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), NOTE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(NOTE_API_PATH, nil, opts), NOTE_MDM_CLASS, [])
   end
 
   def report_note(opts)

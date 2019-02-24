@@ -330,7 +330,7 @@ class MetasploitModule < Msf::Auxiliary
       @smb_redirect = info[1]
 
       begin
-        connect(versions: [2,1])
+        connect
         smb_login
         shares = smb_netshareenumall
 

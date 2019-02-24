@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     @client_cache = {}
 
     # Starts Web Server
+    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit
   end
 

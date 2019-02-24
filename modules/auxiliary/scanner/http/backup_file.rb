@@ -43,14 +43,14 @@ class MetasploitModule < Msf::Auxiliary
 
     bakextensions.each do |ext|
       file = normalize_uri(datastore['PATH'])+ext
-      check_for_file(file, ip)
+      check_for_file(file)
     end
     if datastore['PATH'] =~ %r#(.*)(/.+$)#
       file = $1 + $2.sub('/', '/.') + '.swp'
-      check_for_file(file, ip)
+      check_for_file(file)
     end
   end
-  def check_for_file(file, ip)
+  def check_for_file(file)
     begin
       res = send_request_cgi({
           'uri'  		=>  file,

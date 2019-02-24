@@ -53,7 +53,6 @@ module Payload
     e = EncodedPayload.create(payload,
         'BadChars'    => opts['BadChars'],
         'MinNops'     => opts['NopSledSize'],
-        'PadNops'     => opts['PadNops'],
         'Encoder'     => opts['Encoder'],
         'Iterations'  => opts['Iterations'],
         'ForceEncode' => opts['ForceEncode'],
@@ -65,8 +64,7 @@ module Payload
     exeopts = {
       :inject => opts['KeepTemplateWorking'],
       :template => opts['Template'],
-      :template_path => opts['ExeDir'],
-      :secname => opts['SecName']
+      :template_path => opts['ExeDir']
     }
 
     arch = payload.arch

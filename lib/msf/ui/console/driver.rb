@@ -24,7 +24,6 @@ class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
-  DbConfigGroup = "framework/database"
 
   DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
@@ -37,8 +36,7 @@ class Driver < Msf::Ui::Driver
     CommandDispatcher::Jobs,
     CommandDispatcher::Resource,
     CommandDispatcher::Db,
-    CommandDispatcher::Creds,
-    CommandDispatcher::Developer
+    CommandDispatcher::Creds
   ]
 
   #
@@ -50,8 +48,6 @@ class Driver < Msf::Ui::Driver
   # The console driver is a command shell.
   #
   include Rex::Ui::Text::DispatcherShell
-
-  include Rex::Ui::Text::Resource
 
   #
   # Initializes a console driver instance with the supplied prompt string and
@@ -130,8 +126,6 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
-    load_db_config(opts['Config'])
-
     if !framework.db || !framework.db.active
       print_error("***")
       if framework.db.error == "disabled"
@@ -184,22 +178,6 @@ class Driver < Msf::Ui::Driver
       }
     end
 
-    # Process persistent job handler
-    begin
-      restore_handlers = JSON.parse(File.read(Msf::Config.persist_file))
-    rescue Errno::ENOENT, JSON::ParserError
-      restore_handlers = nil
-    end
-
-    if restore_handlers
-      print_status("Starting persistent handler(s)...")
-
-      restore_handlers.each do |handler_opts|
-        handler = framework.modules.create(handler_opts['mod_name'])
-        handler.exploit_simple(handler_opts['mod_options'])
-      end
-    end
-
     # Process any additional startup commands
     if opts['XCommands'] and opts['XCommands'].kind_of? Array
       opts['XCommands'].each { |c|
@@ -224,38 +202,6 @@ class Driver < Msf::Ui::Driver
       conf[ConfigCore].each_pair { |k, v|
         on_variable_set(true, k, v)
       }
-    end
-  end
-
-  def load_db_config(path=nil)
-    begin
-      conf = Msf::Config.load(path)
-    rescue
-      wlog("Failed to load configuration: #{$!}")
-      return
-    end
-
-    if conf.group?(DbConfigGroup)
-      conf[DbConfigGroup].each_pair do |k, v|
-        if k.downcase == 'default_db'
-          ilog "Default data service found. Attempting to connect..."
-          default_db_config_path = "#{DbConfigGroup}/#{v}"
-          default_db = conf[default_db_config_path]
-          if default_db
-            connect_string = "db_connect #{v}"
-
-            if framework.db.active && default_db['url'] !~ /http/
-              ilog "Existing local data connection found. Disconnecting first."
-              run_single("db_disconnect")
-            end
-
-            run_single(connect_string)
-          else
-            elog "Config entry for '#{default_db_config_path}' could not be found. Config file might be corrupt."
-            return
-          end
-        end
-      end
     end
   end
 
@@ -308,6 +254,70 @@ class Driver < Msf::Ui::Driver
       Msf::Config.save(ConfigGroup => group)
     rescue ::Exception
       print_error("Failed to save console config: #{$!}")
+    end
+  end
+
+  # Processes a resource script file for the console.
+  #
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exist?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
+
+    # Process ERB directives first
+    print_status "Processing #{path} for ERB directives."
+    erb = ERB.new(resource_file)
+    processed_resource = erb.result(binding)
+
+    lines = processed_resource.each_line.to_a
+    bindings = {}
+    while lines.length > 0
+
+      line = lines.shift
+      break if not line
+      line.strip!
+      next if line.length == 0
+      next if line =~ /^#/
+
+      # Pretty soon, this is going to need an XML parser :)
+      # TODO: case matters for the tag and for binding names
+      if line =~ /<ruby/
+        if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
+          bin = ($~[1] || $~[2])
+          bindings[bin] = binding unless bindings.has_key? bin
+          bin = bindings[bin]
+        else
+          bin = binding
+        end
+        buff = ''
+        while lines.length > 0
+          line = lines.shift
+          break if not line
+          break if line =~ /<\/ruby>/
+          buff << line
+        end
+        if ! buff.empty?
+          print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
+          begin
+            eval(buff, bin)
+          rescue ::Interrupt
+            raise $!
+          rescue ::Exception => e
+            print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
+          end
+        end
+      else
+        print_line("resource (#{path})> #{line}")
+        run_single(line)
+      end
     end
   end
 
@@ -368,10 +378,7 @@ class Driver < Msf::Ui::Driver
         print_warning("\t#{path}: #{error}")
       end
     end
-
-    if framework.db && framework.db.active
-      framework.db.workspace = framework.db.default_workspace unless framework.db.workspace
-    end
+    framework.db.workspace = framework.db.default_workspace if framework.db && framework.db.active
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 
@@ -414,6 +421,10 @@ class Driver < Msf::Ui::Driver
         handle_console_logging(val) if (glob)
       when "loglevel"
         handle_loglevel(val) if (glob)
+      when "prompt"
+        update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
+      when "promptchar"
+        update_prompt(framework.datastore['Prompt'] || DefaultPrompt, val, true)
     end
   end
 
@@ -429,21 +440,6 @@ class Driver < Msf::Ui::Driver
         handle_console_logging('0') if (glob)
       when "loglevel"
         handle_loglevel(nil) if (glob)
-    end
-  end
-
-  #
-  # Proxies to shell.rb's update prompt with our own extras
-  #
-  def update_prompt(*args)
-    if args.empty?
-      pchar = framework.datastore['PromptChar'] || DefaultPromptChar
-      p = framework.datastore['Prompt'] || DefaultPrompt
-      p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
-      super(p, pchar)
-    else
-      # Don't squash calls from within lib/rex/ui/text/shell.rb
-      super(*args)
     end
   end
 
@@ -506,13 +502,6 @@ protected
           print_error("Permission denied exec: #{line}")
         end
         self.busy = false
-        return
-      elsif framework.modules.create(method)
-        super
-        if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
-          run_single "use #{method}"
-        end
-
         return
       end
     end

@@ -69,7 +69,7 @@ def parse_args(args)
   opt.separator('')
   opt.separator('Options:')
 
-  opt.on('-l', '--list            <type>', Array, 'List all modules for [type]. Types are: payloads, encoders, nops, platforms, archs, encrypt, formats, all') do |l|
+  opt.on('-l', '--list            <type>', Array, 'List all modules for [type]. Types are: payloads, encoders, nops, platforms, encrypt, formats, all') do |l|
     if l.to_s.empty?
       l = ["all"]
     end
@@ -90,15 +90,11 @@ def parse_args(args)
   end
 
   opt.on('-f', '--format          <format>', String, "Output format (use --list formats to list)") do |f|
-    opts[:format] = f.downcase
+    opts[:format] = f
   end
 
   opt.on('-e', '--encoder         <encoder>', String, 'The encoder to use (use --list encoders to list)') do |e|
     opts[:encoder] = e
-  end
-
-  opt.on('--sec-name        <value>', String, 'The new section name to use when generating large Windows binaries. Default: random 4-character alpha string') do |s|
-    opts[:secname] = s
   end
 
   opt.on('--smallest', 'Generate the smallest possible payload using all available encoders') do
@@ -117,7 +113,7 @@ def parse_args(args)
     opts[:encryption_iv] = e
   end
 
-  opt.on('-a', '--arch            <arch>', String, 'The architecture to use for --payload and --encoders (use --list archs to list)') do |a|
+  opt.on('-a', '--arch            <arch>', String, 'The architecture to use for --payload and --encoders') do |a|
     opts[:arch] = a
   end
 
@@ -136,10 +132,6 @@ def parse_args(args)
 
   opt.on('-n', '--nopsled         <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
     opts[:nops] = n.to_i
-  end
-
-  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)') do
-    opts[:padnops] = true
   end
 
   opt.on('-s', '--space           <length>', Integer, 'The maximum size of the resulting payload') do |s|
@@ -221,6 +213,7 @@ def parse_args(args)
 
   opts
 end
+
 # Read a raw payload from stdin (or whatever IO object we're currently
 # using as stdin, see {#initialize})
 #
@@ -246,26 +239,7 @@ def dump_platforms
     ])
 
   supported_platforms.sort.each do |name|
-    tbl << [name]
-  end
-
-  "\n" + tbl.to_s + "\n"
-end
-
-def dump_archs
-  init_framework(:module_types => [])
-  supported_archs = ARCH_ALL.dup
-
-  tbl = Rex::Text::Table.new(
-    'Indent'  => 4,
-    'Header'  => "Framework Architectures [--arch <value>]",
-    'Columns' =>
-    [
-      "Name",
-    ])
-
-  supported_archs.sort.each do |name|
-    tbl << [name]
+    tbl << [ name]
   end
 
   "\n" + tbl.to_s + "\n"
@@ -378,7 +352,6 @@ end
 
 begin
   generator_opts = parse_args(ARGV)
-
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
@@ -398,8 +371,6 @@ if generator_opts[:list]
       $stdout.puts dump_nops
     when "platforms", "dump_platform"
       $stdout.puts dump_platforms
-    when "archs", "dump_arch"
-      $stdout.puts dump_archs
     when "encrypts", "encrypt", "encryption"
       $stdout.puts dump_encrypt
     when "formats", "format", "f"
@@ -412,11 +383,10 @@ if generator_opts[:list]
       $stdout.puts dump_encoders
       $stdout.puts dump_nops
       $stdout.puts dump_platforms
-      $stdout.puts dump_archs
       $stdout.puts dump_encrypt
       $stdout.puts dump_formats
     else
-      $stderr.puts "Invalid type (#{mod}). These are valid: payloads, encoders, nops, platforms, archs, encrypt, formats, all"
+      $stderr.puts "Invalid type (#{mod}). These are valid: payloads, encoders, nops, platforms, encrypt, formats, all"
     end
   end
   exit(0)
@@ -448,9 +418,6 @@ generator_opts[:cli] = true
 begin
   venom_generator = Msf::PayloadGenerator.new(generator_opts)
   payload = venom_generator.generate_payload
-rescue ::Msf::Simple::Buffer::BufferFormatError => e
-  $stderr.puts "Error: #{e.message}"
-  $stderr.puts dump_formats
 rescue ::Exception => e
   elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
   $stderr.puts "Error: #{e.message}"

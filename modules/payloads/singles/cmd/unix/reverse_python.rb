@@ -19,7 +19,7 @@ module MetasploitModule
       'Name'        => 'Unix Command Shell, Reverse TCP (via Python)',
       'Version'     => '$Revision: 1 $',
       'Description' => 'Connect back and create a command shell via Python',
-      'Author'      => 'bcoles',
+      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,

@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['CVE', '2009-4655'],
-          ['OSVDB', '60035']
+          ['OSVDB', '60035'],
         ],
       'Author'         => 'hdm',
       'License'        => MSF_LICENSE

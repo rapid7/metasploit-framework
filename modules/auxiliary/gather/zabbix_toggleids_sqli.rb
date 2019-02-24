@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['CVE', '2016-10134'],
-          ['URL', 'https://seclists.org/fulldisclosure/2016/Aug/60']
+          ['URL', 'http://seclists.org/fulldisclosure/2016/Aug/60']
         ],
       'Author'         =>
         [
@@ -36,10 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [false, 'The password to authenticate with', 'zabbix']),
         OptString.new('TARGETURI', [true, 'The relative URI for Zabbix', '/zabbix'])
       ])
-  end
-
-  def default_cred?
-    true
   end
 
   def check
