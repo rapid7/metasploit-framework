@@ -41,26 +41,10 @@ module ServiceApiDoc
       response 200 do
         key :description, 'Returns service data.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Service
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Service
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -87,25 +71,10 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Service
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Service
         end
       end
     end
@@ -118,28 +87,12 @@ module ServiceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array containing the successfully deleted services.'
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Service
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Service
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -148,46 +101,37 @@ module ServiceApiDoc
   swagger_path '/api/v1/services/{id}' do
     # Swagger documentation for api/v1/services/:id GET
 
-    operation :get do
-      key :description, 'Return specific service that is stored in the database.'
-      key :tags, [ 'service' ]
-
-      parameter do
-        key :name, :id
-        key :in, :path
-        key :description, 'ID of service to retrieve.'
-        key :required, true
-        key :type, :integer
-        key :format, :int32
-      end
-
-      response 200 do
-        key :description, 'Returns service data.'
-        schema do
-          property :data do
-            key :'$ref', :Service
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
-        end
-      end
-    end
+    # TODO: Add this back in when this endpoint is implemented, tracked in MS-3233.
+    #
+    # operation :get do
+    #   key :description, 'Return specific service that is stored in the database.'
+    #   key :tags, [ 'service' ]
+    #
+    #   parameter :workspace
+    #
+    #   parameter do
+    #     key :name, :id
+    #     key :in, :path
+    #     key :description, 'ID of service to retrieve.'
+    #     key :required, true
+    #     key :type, :integer
+    #     key :format, :int32
+    #   end
+    #
+    #   response 200 do
+    #     key :description, 'Returns service data.'
+    #     schema do
+    #       key :type, :array
+    #       items do
+    #         key :'$ref', :Service
+    #       end
+    #     end
+    #   end
+    # end
 
     # Swagger documentation for /api/v1/services/:id PUT
     operation :put do
-      key :description, 'Update the attributes on an existing service.'
+      key :description, 'Update the attributes an existing service.'
       key :tags, [ 'service' ]
 
       parameter :update_id
@@ -203,25 +147,10 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Service
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Service
         end
       end
     end

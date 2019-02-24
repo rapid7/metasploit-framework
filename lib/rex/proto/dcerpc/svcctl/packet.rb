@@ -56,7 +56,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error getting scm handle: #{e}")
+      print_error("Error getting scm handle: #{e}")
     end
 
     [scm_handle, scm_status]
@@ -120,7 +120,7 @@ class Client
     begin
       response = dcerpc_client.call(CREATE_SERVICE_W, stubdata)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error creating service: #{e}")
+      print_error("Error creating service: #{e}")
     end
 
     if response
@@ -152,7 +152,7 @@ class Client
       response = dcerpc_client.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
       svc_status = error_code(response)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error changing service description : #{e}")
+      print_error("Error changing service description : #{e}")
     end
 
     svc_status
@@ -172,7 +172,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error closing service handle: #{e}")
+      print_error("Error closing service handle: #{e}")
     end
 
     svc_status
@@ -198,7 +198,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error opening service handle: #{e}")
+      print_error("Error opening service handle: #{e}")
     end
 
     svc_handle
@@ -208,41 +208,13 @@ class Client
   # it.  Returns true on success, or false.
   #
   # @param svc_handle [String] the handle of the service (from {#openservicew}).
-  # @param args [Array] an array of arguments to pass to the service (or nil)
+  # @param magic1 [Integer] an unknown value.
+  # @param magic2 [Integer] another unknown value.
   #
   # @return [Integer] Windows error code
-  def startservice(svc_handle, args=[])
+  def startservice(svc_handle, magic1 = 0, magic2 = 0)
     svc_status = nil
-
-    if args.empty?
-      stubdata = svc_handle + NDR.long(0) + NDR.long(0)
-    else
-      # This is just an arbitrary "pointer" value, gonna match it to what the real version uses
-      id_value = 0x00000200
-
-      stubdata = svc_handle
-      stubdata += NDR.long(args.length) + NDR.long(id_value) + NDR.long(args.length)
-
-      # Encode an id value for each parameter
-      args.each do
-        id_value += 0x04000000
-        stubdata += NDR.long(id_value)
-      end
-
-      # Encode the values now
-      args.each do |arg|
-        # We can't use NDR.uwstring here, because we need the "id" values to come first
-        stubdata += NDR.long(arg.length + 1) + NDR.long(0) + NDR.long(arg.length + 1)
-
-        # Unicode string
-        stubdata += Rex::Text.to_unicode(arg + "\0")
-
-        # Padding
-        if((arg.length % 2) == 0)
-          stubdata += Rex::Text.to_unicode("\0")
-        end
-      end
-    end
+    stubdata = svc_handle + NDR.long(magic1) + NDR.long(magic2)
 
     begin
       response = dcerpc_client.call(0x13, stubdata)
@@ -250,7 +222,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error starting service: #{e}")
+      print_error("Error starting service: #{e}")
     end
 
     svc_status
@@ -280,7 +252,7 @@ class Client
        svc_status =  error_code(response[28,4])
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error controlling service: #{e}")
+      print_error("Error controlling service: #{e}")
     end
 
     svc_status
@@ -299,7 +271,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error deleting service: #{e}")
+      print_error("Error deleting service: #{e}")
     end
 
     svc_status
@@ -323,7 +295,7 @@ class Client
         ret = 2
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error deleting service: #{e}")
+      print_error("Error deleting service: #{e}")
     end
 
     ret

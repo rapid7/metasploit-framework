@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      =>
         [
           'R-73eN', # Vulnerability Discovery
-          'bcoles' # Metasploit module
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit module
         ],
       'References'  =>
         [

@@ -43,6 +43,8 @@ module Auxiliary::AuthBrute
         be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
         this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
     ], Auxiliary::AuthBrute)
+
+
   end
 
   def setup
@@ -54,7 +56,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ntlm_cred
-    creds = framework.db.creds(type: 'Metasploit::Credential::NTLMHash', workspace: myworkspace.name)
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
     creds.each do |cred|
       yield cred
     end
@@ -65,7 +67,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_password_cred
-    creds = framework.db.creds(type: 'Metasploit::Credential::Password', workspace: myworkspace.name)
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
     creds.each do |cred|
       yield cred
     end
@@ -76,7 +78,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ssh_cred
-    creds = framework.db.creds(type: 'Metasploit::Credential::SSHKey', workspace: myworkspace.name)
+    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
     creds.each do |cred|
       yield cred
     end
@@ -302,18 +304,18 @@ module Auxiliary::AuthBrute
     end
     if framework.db.active
       if datastore['DB_ALL_CREDS']
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
+        myworkspace.creds.each do |o|
+          credentials << [o.user, o.pass] if o.ptype =~ /password/
         end
       end
       if datastore['DB_ALL_USERS']
-        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
-          users << o.public.username if o.public
+        myworkspace.creds.each do |o|
+          users << o.user
         end
       end
       if datastore['DB_ALL_PASS']
-        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
-          passwords << o.private.data if o.private && o.private.type =~ /password/i
+        myworkspace.creds.each do |o|
+          passwords << o.pass if o.ptype =~ /password/
         end
       end
     end
@@ -626,7 +628,7 @@ module Auxiliary::AuthBrute
     port = host_port.to_s.strip if host_port
     complete_message = nil
     old_msg = msg.to_s.strip
-    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/i
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
     if old_msg.match(msg_regex)
       complete_message = msg.to_s.strip
     else

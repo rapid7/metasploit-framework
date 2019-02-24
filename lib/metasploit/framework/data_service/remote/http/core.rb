@@ -14,30 +14,19 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  DEFAULT_USER_AGENT = "metasploit v#{Metasploit::Framework::VERSION}"
-
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
   DELETE_REQUEST = 'DELETE'
   PUT_REQUEST = 'PUT'
 
-  attr_reader :endpoint, :https_opts, :api_token
-
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint, opts = {})
+  def initialize(endpoint, https_opts = {})
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
-    @https_opts = opts[:https_opts]
-    @api_token = opts[:api_token]
-
-    @headers = {}
-    user_agent = !opts[:user_agent].nil? ? opts[:user_agent] : DEFAULT_USER_AGENT
-    set_header('User-Agent', user_agent)
-    set_header('Authorization', "Bearer #{@api_token}") unless @api_token.nil?
-
+    @https_opts = https_opts
     build_client_pool(5)
   end
 
@@ -71,10 +60,6 @@ class RemoteHTTPDataService
 
   def error
     'none'
-  end
-
-  def driver
-    'http'
   end
 
   #
@@ -157,19 +142,18 @@ class RemoteHTTPDataService
       # simplify query by removing nil values
       query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
-      # TODO: Re-enable this logging when framework handles true log levels.
-      #dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
+      dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
       client = @client_pool.pop
       case request_type
         when GET_REQUEST
-          request = Net::HTTP::Get.new(uri.request_uri, initheader=@headers)
+          request = Net::HTTP::Get.new(uri.request_uri)
         when POST_REQUEST
-          request = Net::HTTP::Post.new(uri.request_uri, initheader=@headers)
+          request = Net::HTTP::Post.new(uri.request_uri)
         when DELETE_REQUEST
-          request = Net::HTTP::Delete.new(uri.request_uri, initheader=@headers)
+          request = Net::HTTP::Delete.new(uri.request_uri)
         when PUT_REQUEST
-          request = Net::HTTP::Put.new(uri.request_uri, initheader=@headers)
+          request = Net::HTTP::Put.new(uri.request_uri)
         else
           raise Exception, 'A request_type must be specified'
       end
@@ -195,6 +179,8 @@ class RemoteHTTPDataService
   end
 
   def set_header(key, value)
+    @headers = Hash.new() if @headers.nil?
+
     @headers[key] = value
   end
 
@@ -209,22 +195,6 @@ class RemoteHTTPDataService
     end
 
     return false
-  end
-
-  # Select the correct path for GET request based on the options parameters provided.
-  # If 'id' is present, the user is requesting a single record and should use
-  # api/<version>/<resource>/ID path.
-  #
-  # @param [Hash] opts The parameters for the request
-  # @param [String] path The base resource path for the endpoint
-  #
-  # @return [String] The correct path for the request.
-  def get_path_select(opts, path)
-    if opts.key?(:id)
-      path = "#{path}/#{opts[:id]}"
-      opts.delete(:id)
-    end
-    path
   end
 
   #########
@@ -286,6 +256,12 @@ class RemoteHTTPDataService
       request.body = json_body
     end
 
+    if !@headers.nil? && !@headers.empty?
+      @headers.each do |key, value|
+        request[key] = value
+      end
+    end
+
     request
   end
 
@@ -296,7 +272,7 @@ class RemoteHTTPDataService
       if @endpoint.is_a?(URI::HTTPS)
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        if @https_opts && !@https_opts.empty?
+        unless @https_opts.empty?
           if @https_opts[:skip_verify]
             http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           else

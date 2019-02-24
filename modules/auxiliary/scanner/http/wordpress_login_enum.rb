@@ -112,8 +112,7 @@ class MetasploitModule < Msf::Auxiliary
         workspace_id: myworkspace_id,
         status: Metasploit::Model::Login::Status::UNTRIED
       }.merge(service_details)
-
-      framework.db.create_credential_and_login(connection_details)
+      create_credential_and_login(connection_details)
       @users_found[user] = :reported
       return :next_user
     else

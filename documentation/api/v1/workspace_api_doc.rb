@@ -34,26 +34,10 @@ module WorkspaceApiDoc
       response 200 do
         key :description, 'Returns workspace data.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Workspace
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Workspace
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -74,25 +58,10 @@ module WorkspaceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Workspace
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Workspace
         end
       end
     end
@@ -105,28 +74,12 @@ module WorkspaceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array containing the successfully deleted workspaces.'
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Workspace
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Workspace
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -150,30 +103,17 @@ module WorkspaceApiDoc
       response 200 do
         key :description, 'Returns workspace data.'
         schema do
-          property :data do
+          key :type, :array
+          items do
             key :'$ref', :Workspace
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
 
     # Swagger documentation for /api/v1/workspaces/:id PUT
     operation :put do
-      key :description, 'Update the attributes on an existing workspace.'
+      key :description, 'Update the attributes an existing workspaces.'
       key :tags, [ 'workspace' ]
 
       parameter :update_id
@@ -189,25 +129,10 @@ module WorkspaceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Workspace
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Workspace
         end
       end
     end

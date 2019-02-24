@@ -16,7 +16,6 @@ bin
 checkfs
 checkfsys
 checksys
-chronos
 cmwlogin
 couchdb
 daemon

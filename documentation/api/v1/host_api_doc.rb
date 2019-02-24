@@ -104,26 +104,10 @@ module HostApiDoc
       response 200 do
         key :description, 'Returns host data.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Host
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Host
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -167,25 +151,10 @@ module HostApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Host
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Host
         end
       end
     end
@@ -198,28 +167,12 @@ module HostApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array containing the successfully deleted hosts.'
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Host
-            end
+          key :type, :array
+          items do
+            key :'$ref', :Host
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
@@ -230,6 +183,10 @@ module HostApiDoc
     operation :get do
       key :description, 'Return specific host that is stored in the database.'
       key :tags, [ 'host' ]
+
+      parameter :workspace
+      parameter :non_dead
+      parameter :address
 
       parameter do
         key :name, :id
@@ -243,30 +200,17 @@ module HostApiDoc
       response 200 do
         key :description, 'Returns host data.'
         schema do
-          property :data do
+          key :type, :array
+          items do
             key :'$ref', :Host
           end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
         end
       end
     end
 
     # Swagger documentation for /api/v1/hosts/:id PUT
     operation :put do
-      key :description, 'Update the attributes on an existing host.'
+      key :description, 'Update the attributes an existing host.'
       key :tags, [ 'host' ]
 
       parameter :update_id
@@ -282,25 +226,10 @@ module HostApiDoc
       end
 
       response 200 do
-        key :description, 'Returns host data.'
+        key :description, 'Successful operation.'
         schema do
-          property :data do
-            key :'$ref', :Host
-          end
-        end
-      end
-
-      response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
-        schema do
-          key :'$ref', :AuthErrorModel
-        end
-      end
-
-      response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
-        schema do
-          key :'$ref', :ErrorModel
+          key :type, :object
+          key :'$ref', :Host
         end
       end
     end

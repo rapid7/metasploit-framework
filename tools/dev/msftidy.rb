@@ -42,8 +42,9 @@ class Msftidy
 
   # Status codes
   OK       = 0
-  WARNING  = 1
-  ERROR    = 2
+  INFO     = 1
+  WARNING  = 2
+  ERROR    = 3
 
   # Some compiles regexes
   REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
@@ -71,7 +72,7 @@ class Msftidy
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
-    @status = WARNING if @status < WARNING
+    @status += WARNING
   end
 
   #
@@ -83,7 +84,7 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
-    @status = ERROR if @status < ERROR
+    @status += ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
@@ -99,6 +100,7 @@ class Msftidy
     return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+    @status += INFO
   end
 
   ##
@@ -138,10 +140,8 @@ class Msftidy
   end
 
   def check_ref_identifiers
-    in_super     = false
-    in_refs      = false
-    in_notes     = false
-    cve_assigned = false
+    in_super = false
+    in_refs  = false
 
     @lines.each do |line|
       if !in_super and line =~ /\s+super\(/
@@ -154,10 +154,6 @@ class Msftidy
       if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
-        in_refs = false
-      elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
-        in_notes = true
-      elsif in_super and in_notes and line =~ /^[[:space:]]+\},*/m
         break
       elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
         identifier = $1.strip.upcase
@@ -165,7 +161,6 @@ class Msftidy
 
         case identifier
         when 'CVE'
-          cve_assigned = true
           warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
         when 'BID'
           warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
@@ -183,36 +178,24 @@ class Msftidy
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
-        when 'URL'
-          if value =~ /^https?:\/\/cvedetails\.com\/cve/
+        when 'URL' || 'AKA'
+          if value =~ /^http:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
-          elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
+          elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
             warn("Please use 'BID' for '#{value}'")
-          elsif value =~ /^https?:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
+          elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
             warn("Please use 'MSB' for '#{value}'")
-          elsif value =~ /^https?:\/\/www\.exploit\-db\.com\/exploits\//
+          elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
-          elsif value =~ /^https?:\/\/www\.kb\.cert\.org\/vuls\/id\//
+          elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
-          elsif value =~ /^https?:\/\/wpvulndb\.com\/vulnerabilities\//
+          elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
-        when 'AKA'
-          warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
         end
       end
-
-      # If a NOCVE reason was provided in notes, ignore the fact that the references might lack a CVE
-      if in_super and in_notes and line =~ /^[[:space:]]+["']NOCVE["'][[:space:]]+=>[[:space:]]+\[*["'](.+)["']\]*/
-        cve_assigned = true
-      end
-    end
-
-    # This helps us track when CVEs aren't assigned
-    unless cve_assigned
-      info('No CVE references found. Please check before you land!')
     end
   end
 
@@ -254,20 +237,17 @@ class Msftidy
     line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
-  # This check also enforces namespace module name reversibility
   def check_snake_case_filename
-    if @name !~ /^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/
-      warn('Filenames must be lowercase alphanumeric snake case.')
+    sep = File::SEPARATOR
+    good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
+    unless @name =~ good_name
+      warn "Filenames should be alphanum and snake case."
     end
   end
 
   def check_comment_splat
     if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
       warn("Module contains old license comment.")
-    end
-    if @source =~ /^# This module requires Metasploit: http:/
-      warn("Module license comment link does not use https:// URL scheme.")
-      fixed('# This module requires Metasploit: https://metasploit.com/download', 1)
     end
   end
 
@@ -436,7 +416,7 @@ class Msftidy
         error("Invalid ranking. You have '#{$1}'")
       end
     else
-      warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
+      info('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
   end
 
@@ -444,10 +424,10 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
-    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+?)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
-      if d =~ /^... (?:\d{1,2},? )?\d{4}$/
+      if d =~ /^... \d{1,2}\,* \d{4}/
         # Flag if month format is wrong
         m = d.split[0]
         months = [
@@ -456,13 +436,6 @@ class Msftidy
         ]
 
         error('Incorrect disclosure month format') if months.index(m).nil?
-      # XXX: yyyy-mm is interpreted as yyyy-01-mm by Date::iso8601
-      elsif d =~ /^\d{4}-\d{2}-\d{2}$/
-        begin
-          Date.iso8601(d)
-        rescue ArgumentError
-          error('Incorrect ISO 8601 disclosure date format')
-        end
       else
         error('Incorrect disclosure date format')
       end
@@ -492,7 +465,6 @@ class Msftidy
     end
 
     prefix_super_map = {
-      'evasion' => /^Msf::Evasion$/,
       'auxiliary' => /^Msf::Auxiliary$/,
       'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
       'encoders' => /^(?:Msf|Rex)::Encoder/,
@@ -613,14 +585,8 @@ class Msftidy
 
       if ln =~ /['"]ExitFunction['"]\s*=>/
         warn("Please use EXITFUNC instead of ExitFunction #{ln}", idx)
-        fixed(line.gsub('ExitFunction', 'EXITFUNC'), idx)
       end
 
-      # Output from Base64.encode64 method contains '\n' new lines
-      # for line wrapping and string termination
-      if ln =~ /Base64\.encode64/
-        info("Please use Base64.strict_encode64 instead of Base64.encode64")
-      end
     end
   end
 
@@ -635,20 +601,26 @@ class Msftidy
     test = @source.scan(/send_request_cgi\s*\(?\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
       test.each { |item|
-        warn("Please use vars_get in send_request_cgi: #{item}")
+        info("Please use vars_get in send_request_cgi: #{item}")
       }
     end
   end
 
   def check_newline_eof
     if @source !~ /(?:\r\n|\n)\z/m
-      warn('Please add a newline at the end of the file')
+      info('Please add a newline at the end of the file')
+    end
+  end
+
+  def check_sock_get
+    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
+      info('Please use sock.get_once instead of sock.get')
     end
   end
 
   def check_udp_sock_get
     if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
-      warn('Please specify a timeout to udp_sock.get')
+      info('Please specify a timeout to udp_sock.get')
     end
   end
 
@@ -657,10 +629,10 @@ class Msftidy
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^#.+https?\/\/(?:www\.)?metasploit.com/)
+    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
-        warn("Invalid URL: #{item}")
+        info("Invalid URL: #{item}")
       }
     end
   end
@@ -728,6 +700,7 @@ class Msftidy
     check_vuln_codes
     check_vars_get
     check_newline_eof
+    check_sock_get
     check_udp_sock_get
     check_invalid_url_scheme
     check_print_debug
@@ -776,11 +749,10 @@ if __FILE__ == $PROGRAM_NAME
       Find.find(dir) do |full_filepath|
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
-        next unless File.extname(full_filepath) == '.rb'
-        msftidy = Msftidy.new(full_filepath)
+        next unless full_filepath =~ /\.rb$/
         # Executable files are now assumed to be external modules
-        # but also check for some content to be sure
-        next if File.executable?(full_filepath) && msftidy.source =~ /require ["']metasploit["']/
+        next if File.executable?(full_filepath)
+        msftidy = Msftidy.new(full_filepath)
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
       end

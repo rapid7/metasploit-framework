@@ -43,8 +43,7 @@ class MetasploitModule < Msf::Post
         OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
-        OptString.new('GROUPS', [false, 'ID of Groups (Comma Separated)']),
-        OptInt.new('END_IN', [true, 'End in ... Duration in hours, default 10 YEARS (~87608 hours)', 87608])
+        OptString.new('GROUPS', [false, 'ID of Groups (Comma Seperated)'])
       ])
   end
 
@@ -56,7 +55,6 @@ class MetasploitModule < Msf::Post
     krbtgt_hash = datastore['KRBTGT_HASH']
     domain_sid = datastore['SID']
     id = datastore['ID'] || 0
-    end_in = datastore['END_IN'] || 87608
 
     unless domain
       print_status('Searching for the domain...')
@@ -112,8 +110,7 @@ class MetasploitModule < Msf::Post
       domain_sid:  domain_sid,
       krbtgt_hash: krbtgt_hash,
       id:          id,
-      group_ids:   datastore['GROUPS'],
-      end_in:     end_in
+      group_ids:   datastore['GROUPS']
     })
 
     if ticket

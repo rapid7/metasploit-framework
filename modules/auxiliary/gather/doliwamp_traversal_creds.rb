@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         Note: All tokens expire after 30 minutes of inactivity by default.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 'bcoles',
+      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
       'References'     =>
         [
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],

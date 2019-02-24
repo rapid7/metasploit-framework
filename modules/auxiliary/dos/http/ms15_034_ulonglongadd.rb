@@ -151,16 +151,16 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      vmessage = "#{peer} - Checking #{uri}"
+      vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
 
       if res && res.body.include?('Requested Range Not Satisfiable')
-        vprint_status("#{vmessage} [#{res.code}] - Vulnerable")
+        vprint_status("#{vmessage} - Vulnerable")
 
         target_uri.path = uri # Needed for the DoS attack
 
         return Exploit::CheckCode::Vulnerable
       elsif res && res.body.include?('The request has an invalid header name')
-        vprint_status("#{vmessage} [#{res.code}] - Safe")
+        vprint_status("#{vmessage} - Safe")
 
         return Exploit::CheckCode::Safe
       else

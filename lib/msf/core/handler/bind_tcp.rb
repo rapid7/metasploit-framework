@@ -30,13 +30,6 @@ module BindTcp
     "bind"
   end
 
-  # A string suitable for displaying to the user
-  #
-  # @return [String]
-  def human_name
-    "bind TCP"
-  end
-
   #
   # Initializes a bind handler and adds the options common to all bind
   # payloads, such as local port.
@@ -109,7 +102,7 @@ module BindTcp
     self.listener_threads << framework.threads.spawn("BindTcpHandlerListener-#{lport}", false) {
       client = nil
 
-      print_status("Started #{human_name} handler against #{rhost}:#{lport}")
+      print_status("Started bind handler")
 
       if (rhost == nil)
         raise ArgumentError,
@@ -131,9 +124,9 @@ module BindTcp
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-        rescue Rex::ConnectionError => e
-          vprint_error(e.message)
-        rescue
+        rescue Rex::ConnectionRefused
+          # Connection refused is a-okay
+        rescue ::Exception
           wlog("Exception caught in bind handler: #{$!.class} #{$!}")
         end
 

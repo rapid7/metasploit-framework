@@ -114,11 +114,7 @@ module Msf::Modules
               # stdout might have some buffered data left, so carry on
               if fds.include?(err) && !err.eof?
                 errbuf = err.readpartial(4096)
-                if self.framework
-                  elog "Unexpected output running #{self.path}:\n#{errbuf}"
-                else
-                  $stderr.puts errbuf
-                end
+                elog "Unexpected output running #{self.path}:\n#{errbuf}"
               end
               if fds.include? out
                 self.buf << out.readpartial(4096)
@@ -142,7 +138,7 @@ module Msf::Modules
         elsif Process.kill('TERM', self.wait_thread.pid) && self.wait_thread.join(10)
           self.exit_status = self.wait_thread.value
         else
-          Process.kill('KILL', self.wait_thread.pid)
+          Procoess.kill('KILL', self.wait_thread.pid)
           self.exit_status = self.wait_thread.value
         end
       end
@@ -174,7 +170,7 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     pythonpath = ENV['PYTHONPATH'] || ''
-    self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
+    self.env = self.env.merge({ 'PYTHONPATH' => pythonpath + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__) })
   end
 end
 
@@ -185,32 +181,9 @@ class Msf::Modules::External::RbBridge < Msf::Modules::External::Bridge
 
   def initialize(module_path, framework: nil)
     super
+
     ruby_path = File.expand_path('../ruby', __FILE__)
     self.cmd = [[Gem.ruby, 'ruby'], "-I#{ruby_path}", self.path]
-  end
-end
-
-class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
-  def self.applies?(module_name)
-    module_name.match? /\.go$/
-  end
-
-  def initialize(module_path, framework: nil)
-    super
-    default_go_path = ENV['GOPATH'] || ''
-    shared_module_lib_path = File.dirname(module_path) + "/shared"
-    go_path = File.expand_path('../go', __FILE__)
-
-    if File.exist?(default_go_path)
-      go_path = go_path + File::PATH_SEPARATOR + default_go_path
-    end
-
-    if File.exist?(shared_module_lib_path)
-      go_path = go_path + File::PATH_SEPARATOR + shared_module_lib_path
-    end
-
-    self.env = self.env.merge({'GOPATH' => go_path})
-    self.cmd = ['go', 'run', self.path]
   end
 end
 
@@ -219,7 +192,6 @@ class Msf::Modules::External::Bridge
   LOADERS = [
     Msf::Modules::External::PyBridge,
     Msf::Modules::External::RbBridge,
-    Msf::Modules::External::GoBridge,
     Msf::Modules::External::Bridge
   ]
 

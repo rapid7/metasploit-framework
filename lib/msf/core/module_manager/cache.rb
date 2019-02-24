@@ -118,8 +118,7 @@ module Msf::ModuleManager::Cache
               ['post', @framework.post],
               ['payload', @framework.payloads],
               ['encoder', @framework.encoders],
-              ['nop', @framework.nops],
-              ['evasion', @framework.evasion]
+              ['nop', @framework.nops]
           ]
       Msf::Modules::Metadata::Cache.instance.refresh_metadata(module_sets)
     end

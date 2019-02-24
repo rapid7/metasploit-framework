@@ -23,11 +23,6 @@ module Msf::DBManager::Note
   #
   def notes(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      # If we have the ID, there is no point in creating a complex query.
-      if opts[:id] && !opts[:id].to_s.empty?
-        return Array.wrap(Mdm::Note.find(opts[:id]))
-      end
-
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       data = opts.delete(:data)
@@ -99,16 +94,12 @@ module Msf::DBManager::Note
         when 'tcp','udp'
           proto = proto_lower
           sname = opts[:sname] if opts[:sname]
-        # XXX: These normalizations are lazy af
-        when 'http', 'smb'
-          proto = 'tcp'
-          sname = proto_lower
         when 'dns','snmp','dhcp'
           proto = 'udp'
-          sname = proto_lower
+          sname = opts[:proto]
         else
           proto = 'tcp'
-          sname = proto_lower
+          sname = opts[:proto]
         end
         sopts = {
           :workspace => wspace,
@@ -128,8 +119,8 @@ module Msf::DBManager::Note
     if addr and not host
       host = get_host(:workspace => wspace, :host => addr)
     end
-    if host and (opts[:port] and proto)
-      service = get_service(wspace, host, proto, opts[:port])
+    if host and (opts[:port] and opts[:proto])
+      service = get_service(wspace, host, opts[:proto], opts[:port])
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end
@@ -200,9 +191,7 @@ module Msf::DBManager::Note
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      note = Mdm::Note.find(id)
-      note.update!(opts)
-      return note
+      Mdm::Note.update(id, opts)
     }
   end
 

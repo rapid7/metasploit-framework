@@ -70,11 +70,7 @@ module Msf
             OptString.new(
               'PayloadProcessCommandLine',
               [ false, 'The displayed command line that will be used by the payload', '']
-            ),
-            OptBool.new(
-              'AutoUnhookProcess',
-              [true, "Automatically load the unhook extension and unhook the process", false]
-            ),
+            )
           ],
           self.class
         )

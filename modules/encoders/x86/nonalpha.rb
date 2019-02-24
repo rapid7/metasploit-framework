@@ -42,11 +42,7 @@ class MetasploitModule < Msf::Encoder::NonAlpha
   # payload.
   #
   def encode_block(state, block)
-    begin
-      newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
-    rescue RuntimeError => e
-      raise BadcharError if e.message == "BadChar"
-    end
+    newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
     return newchar
   end
 

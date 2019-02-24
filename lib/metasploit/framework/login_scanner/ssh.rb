@@ -55,8 +55,7 @@ module Metasploit
             :config          => false,
             :verbose         => verbosity,
             :proxy           => factory,
-            :non_interactive => true,
-            :verify_host_key => :never
+            :non_interactive => true
           }
           case credential.private_type
           when :password, nil
@@ -165,14 +164,12 @@ module Metasploit
             'aix'
           when /Win32|Windows/
             'windows'
-          when /Unknown command or computer name|Line has invalid autocommand/
+          when /Unknown command or computer name/
             'cisco-ios'
           when /unknown keyword/ # ScreenOS
             'juniper'
           when /JUNOS Base OS/ #JunOS
             'juniper'
-          else
-            'unknown'
           end
         end
 

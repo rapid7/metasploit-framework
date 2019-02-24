@@ -20,9 +20,6 @@ module Msf::DBManager::Connection
       self.error = exception
       elog("DB.connect threw an exception: #{exception}")
       dlog("Call stack: #{exception.backtrace.join("\n")}", LEV_1)
-
-      # remove connection to prevent issues when re-establishing connection
-      ActiveRecord::Base.remove_connection
     else
       # Flag that migration has completed
       self.migrated = true

@@ -5,8 +5,6 @@ docker-compose*.yml
 docker/
 !docker/msfconsole.rc
 !docker/entrypoint.sh
-!docker/database.yml
-Dockerfile
 README.md
 .git/
 .github/

@@ -39,14 +39,6 @@ module Msf::Module::ModuleInfo
     module_info['Name']
   end
 
-
-  #
-  # Return the module's notes (including AKA and NOCVE descriptors).
-  #
-  def notes
-    module_info['Notes']
-  end
-
   protected
 
   #

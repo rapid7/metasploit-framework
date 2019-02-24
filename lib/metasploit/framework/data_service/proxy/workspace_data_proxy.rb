@@ -2,10 +2,9 @@ module WorkspaceDataProxy
 
   def find_workspace(workspace_name)
     begin
-      self.data_service_operation do |data_service|
-        opts = { name: workspace_name }
-        data_service.workspaces(opts).first
-      end
+      data_service = self.get_data_service
+      opts = { name: workspace_name }
+      data_service.workspaces(opts).first
     rescue => e
       self.log_error(e, "Problem finding workspace")
     end
@@ -13,10 +12,9 @@ module WorkspaceDataProxy
 
   def add_workspace(workspace_name)
     begin
-      self.data_service_operation do |data_service|
-        opts = { name: workspace_name }
-        data_service.add_workspace(opts)
-      end
+      data_service = self.get_data_service
+      opts = { name: workspace_name }
+      data_service.add_workspace(opts)
     rescue => e
       self.log_error(e, "Problem adding workspace")
     end
@@ -41,6 +39,7 @@ module WorkspaceDataProxy
       else
         # This is mostly a failsafe to prevent bad things from happening. @current_workspace should always be set
         # outside of here, but this will save us from crashes/infinite loops if that happens
+        warn "@current_workspace was not set. Setting to default_workspace: #{default_workspace.name}"
         @current_workspace = default_workspace
       end
     rescue => e
@@ -59,9 +58,8 @@ module WorkspaceDataProxy
 
   def workspaces(opts = {})
     begin
-      self.data_service_operation do |data_service|
-        data_service.workspaces(opts)
-      end
+      data_service = self.get_data_service
+      data_service.workspaces(opts)
     rescue => e
       self.log_error(e, "Problem retrieving workspaces")
     end
@@ -69,9 +67,8 @@ module WorkspaceDataProxy
 
   def delete_workspaces(opts)
     begin
-      self.data_service_operation do |data_service|
-        data_service.delete_workspaces(opts)
-      end
+      data_service = self.get_data_service
+      data_service.delete_workspaces(opts)
     rescue => e
       self.log_error(e, "Problem deleting workspaces")
     end
@@ -79,9 +76,8 @@ module WorkspaceDataProxy
 
   def update_workspace(opts)
     begin
-      self.data_service_operation do |data_service|
-        data_service.update_workspace(opts)
-      end
+      data_service = self.get_data_service
+      data_service.update_workspace(opts)
     rescue => e
       self.log_error(e, "Problem updating workspace")
     end

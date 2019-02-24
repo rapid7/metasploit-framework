@@ -18,7 +18,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['CVE' , '2014-5337'],
           ['WPVDB', '8107'],
           ['PACKETSTORM', '132750']
         ],

@@ -30,10 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def post_auth?
-    true
-  end
-
   def run_host(ip)
 
     begin

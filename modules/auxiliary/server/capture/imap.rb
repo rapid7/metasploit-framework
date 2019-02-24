@@ -29,8 +29,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('SRVPORT',  [ true, "The local port to listen on.", 143 ]),
-        OptString.new('BANNER', [ true, "The server banner",  'IMAP4'])
+        OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 143 ])
       ])
   end
 
@@ -40,12 +39,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
   def on_client_connect(c)
     @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
-    c.put "* OK #{datastore['BANNER']}\r\n"
+    c.put "* OK IMAP4\r\n"
   end
 
   def on_client_data(c)
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       @state[c][:user], @state[c][:pass] = arg.split(/\s+/, 2)
 
       register_creds(@state[c][:ip], @state[c][:user], @state[c][:pass], 'imap')
-      print_good("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_status("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
       return
     end
 
