@@ -79,6 +79,18 @@ function Int64(v) {
         return '0x' + hexlify(Array.from(bytes).reverse());
     };
 
+    this.lo = function()
+    {
+        var b = this.bytes();
+        return (b[0] | (b[1] << 8) | (b[2] << 16) | (b[3] << 24)) >>> 0;
+    };
+
+    this.hi = function()
+    {
+        var b = this.bytes();
+        return (b[4] | (b[5] << 8) | (b[6] << 16) | (b[7] << 24)) >>> 0;
+    };
+
     // Basic arithmetic.
     // These functions assign the result of the computation to their 'this' object.
 
