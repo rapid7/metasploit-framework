@@ -73,7 +73,9 @@ class Dir < Rex::Post::Dir
   #
   def Dir.entries_with_info(name = getwd)
     request = Packet.create_request('stdapi_fs_ls')
-    files   = []
+    files = []
+    sbuf = nil
+    new_stat_buf = true
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(name))
 
@@ -82,7 +84,13 @@ class Dir < Rex::Post::Dir
     fname = response.get_tlvs(TLV_TYPE_FILE_NAME)
     fsname = response.get_tlvs(TLV_TYPE_FILE_SHORT_NAME)
     fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
-    sbuf  = response.get_tlvs(TLV_TYPE_STAT_BUF)
+
+    if response.has_tlv?(TLV_TYPE_STAT_BUF)
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF)
+    else
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF32)
+      new_stat_buf = false
+    end
 
     if (!fname or !sbuf)
       return []
@@ -93,7 +101,11 @@ class Dir < Rex::Post::Dir
 
       if (sbuf[idx])
         st = ::Rex::Post::FileStat.new
-        st.update(sbuf[idx].value)
+        if new_stat_buf
+          st.update(sbuf[idx].value)
+        else
+          st.update32(sbuf[idx].value)
+        end
       end
 
       files <<
@@ -106,6 +118,52 @@ class Dir < Rex::Post::Dir
     }
 
     return files
+  end
+
+  #
+  # Enumerates all of the files and folders matched with name.
+  # When option dir is true, return matched folders.
+  #
+  def Dir.match(name, dir = false)
+    path  = name + '*'
+    files = []
+    sbuf = nil
+    new_stat_buf = true
+
+    request = Packet.create_request('stdapi_fs_ls')
+    request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(path))
+    response = client.send_request(request)
+
+    fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
+
+    if response.has_tlv?(TLV_TYPE_STAT_BUF)
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF)
+    else
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF32)
+      new_stat_buf = false
+    end
+
+    unless fpath && sbuf
+      return []
+    end
+
+    fpath.each_with_index do |file_name, idx|
+      if dir && sbuf[idx]
+        st = ::Rex::Post::FileStat.new
+        if new_stat_buf
+          st.update(sbuf[idx].value)
+        else
+          st.update32(sbuf[idx].value)
+        end
+        next if st.ftype != 'directory' # if file_name isn't directory
+      end
+
+      if !file_name.value.end_with?('.', '\\', '/') # Exclude current and parent directory
+        files << client.unicode_filter_encode(file_name.value)
+      end
+    end
+
+    files
   end
 
   ##

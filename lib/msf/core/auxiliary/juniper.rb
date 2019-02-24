@@ -9,43 +9,6 @@ module Msf
 module Auxiliary::Juniper
   include Msf::Auxiliary::Report
 
-  def create_credential_and_login(opts={})
-    return nil unless active_db?
-
-    if self.respond_to?(:[]) and self[:task]
-      opts[:task_id] ||= self[:task].record.id
-    end
-
-    core               = opts.fetch(:core, create_credential(opts))
-    access_level       = opts.fetch(:access_level, nil)
-    last_attempted_at  = opts.fetch(:last_attempted_at, nil)
-    status             = opts.fetch(:status, Metasploit::Model::Login::Status::UNTRIED)
-
-    login_object = nil
-    retry_transaction do
-      service_object = create_credential_service(opts)
-      login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_initialize
-
-      if opts[:task_id]
-        login_object.tasks << Mdm::Task.find(opts[:task_id])
-      end
-
-      login_object.access_level      = access_level if access_level
-      login_object.last_attempted_at = last_attempted_at if last_attempted_at
-      if status == Metasploit::Model::Login::Status::UNTRIED
-        if login_object.last_attempted_at.nil?
-          login_object.status = status
-        end
-      else
-        login_object.status = status
-      end
-      login_object.save!
-    end
-
-    login_object
-  end
-  
-
   def juniper_screenos_config_eater(thost, tport, config)
     # this is for the netscreen OS, which came on SSG (ie SSG5) type devices.
     # It is similar to cisco, however it doesn't always put all fields we care
@@ -97,6 +60,7 @@ module Auxiliary::Juniper
       print_good("User #{user_uid} named #{user_name} found with password hash #{user_hash}. Enable permission: #{user_enable}")
       cred = credential_data.dup
       cred[:username] = user_name
+      cred[:jtr_format] = 'sha1'
       cred[:private_data] = user_hash
       cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
@@ -176,16 +140,28 @@ module Auxiliary::Juniper
       status: Metasploit::Model::Login::Status::UNTRIED
     }
 
-    store_loot('juniper.netscreen.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper Netscreen Configuration')
+    store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper Netscreen Configuration')
 
     # we'll take out the pretty format so its easier to regex
     config = config.split("\n").join('')
 
     if /root-authentication[\s]+\{[\s]+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
       root_hash = root_hash.strip
+      case
+        when root_hash.start_with?('$1$')
+          jtr_format = 'md5'
+        when root_hash.start_with?('$5$')
+          jtr_format = 'sha256,crypt'
+        when root_hash.start_with?('$6$')
+          jtr_format = 'sha512,crypt'
+        else
+          jtr_format = ''
+      end
+
       print_good("root password hash: #{root_hash}")
       cred = credential_data.dup
       cred[:username] = 'root'
+      cred[:jtr_format] = jtr_format
       cred[:private_data] = root_hash
       cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
@@ -197,9 +173,20 @@ module Auxiliary::Juniper
       user_uid  = result[1].strip
       user_permission = result[2].strip
       user_hash = result[3].strip
+      case
+        when user_hash.start_with?('$1$')
+          jtr_format = 'md5'
+        when user_hash.start_with?('$5$')
+          jtr_format = 'sha256,crypt'
+        when user_hash.start_with?('$6$')
+          jtr_format = 'sha512,crypt'
+        else
+          jtr_format = ''
+      end
       print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
       cred = credential_data.dup
       cred[:username] = user_name
+      cred[:jtr_format] = jtr_format
       cred[:private_data] = user_hash
       cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)

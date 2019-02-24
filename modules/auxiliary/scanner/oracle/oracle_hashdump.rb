@@ -50,8 +50,6 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp'
           )
 
-
-
     tbl = Rex::Text::Table.new(
       'Header'  => 'Oracle Server Hashes',
       'Indent'   => 1,
@@ -97,9 +95,9 @@ class MetasploitModule < Msf::Auxiliary
     # Reports the hashes slightly differently depending on the version
     # This is so that we know which are which when we go to crack them
     if is_11g==false
-      jtr_format = "des"
+      jtr_format = "des,oracle"
     else
-      jtr_format = "raw-sha1"
+      jtr_format = "raw-sha1,oracle11"
     end
     service_data = {
       address: Rex::Socket.getaddress(ip),

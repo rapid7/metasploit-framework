@@ -248,6 +248,20 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   end
 
   #
+  # Performs a chmod on the remote file
+  #
+  def File.chmod(name, mode)
+    request = Packet.create_request('stdapi_fs_chmod')
+
+    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( name ))
+    request.add_tlv(TLV_TYPE_FILE_MODE_T, mode)
+
+    response = client.send_request(request)
+
+    return response
+  end
+
+  #
   # Upload one or more files to the remote remote directory supplied in
   # +destination+.
   #

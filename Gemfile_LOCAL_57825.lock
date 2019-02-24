@@ -1,0 +1,375 @@
+PATH
+  remote: .
+  specs:
+    metasploit-framework (5.0.0)
+      actionpack (~> 4.2.6)
+      activerecord (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      backports
+      bcrypt
+      bcrypt_pbkdf
+      bit-struct
+      dnsruby
+      faker
+      filesize
+      jsobfu
+      json
+      metasm
+      metasploit-concern
+      metasploit-credential
+      metasploit-model
+      metasploit-payloads (= 1.3.40)
+      metasploit_data_models
+      metasploit_payloads-mettle (= 0.4.0)
+      mqtt
+      msgpack
+      nessus_rest
+      net-ssh
+      network_interface
+      nexpose
+      nokogiri
+      octokit
+      openssl-ccm
+      openvas-omp
+      packetfu
+      patch_finder
+      pcaprub
+      pdf-reader
+      pg (= 0.20.0)
+      railties
+      rb-readline
+      recog
+      redcarpet
+      rex-arch
+      rex-bin_tools
+      rex-core
+      rex-encoder
+      rex-exploitation
+      rex-java
+      rex-mime
+      rex-nop
+      rex-ole
+      rex-powershell
+      rex-random_identifier
+      rex-registry
+      rex-rop_builder
+      rex-socket
+      rex-sslscan
+      rex-struct2
+      rex-text
+      rex-zip
+      ruby-macho
+      ruby_smb
+      rubyntlm
+      rubyzip
+      sinatra
+      sqlite3
+      sshkey
+      thin
+      tzinfo
+      tzinfo-data
+      windows_error
+      xdr
+      xmlrpc
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    Ascii85 (1.0.3)
+    actionpack (4.2.10)
+      actionview (= 4.2.10)
+      activesupport (= 4.2.10)
+      rack (~> 1.6)
+      rack-test (~> 0.6.2)
+      rails-dom-testing (~> 1.0, >= 1.0.5)
+      rails-html-sanitizer (~> 1.0, >= 1.0.2)
+    actionview (4.2.10)
+      activesupport (= 4.2.10)
+      builder (~> 3.1)
+      erubis (~> 2.7.0)
+      rails-dom-testing (~> 1.0, >= 1.0.5)
+      rails-html-sanitizer (~> 1.0, >= 1.0.3)
+    activemodel (4.2.10)
+      activesupport (= 4.2.10)
+      builder (~> 3.1)
+    activerecord (4.2.10)
+      activemodel (= 4.2.10)
+      activesupport (= 4.2.10)
+      arel (~> 6.0)
+    activesupport (4.2.10)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.3, >= 0.3.4)
+      tzinfo (~> 1.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    afm (0.2.2)
+    arel (6.0.4)
+    arel-helpers (2.7.0)
+      activerecord (>= 3.1.0, < 6)
+    backports (3.11.3)
+    bcrypt (3.1.12)
+    bcrypt_pbkdf (1.0.0)
+    bindata (2.4.3)
+    bit-struct (0.16)
+    builder (3.2.3)
+    coderay (1.1.2)
+    concurrent-ruby (1.0.5)
+    crass (1.0.4)
+    daemons (1.2.6)
+    diff-lcs (1.3)
+    dnsruby (1.60.2)
+    docile (1.3.1)
+    em-websocket (0.3.8)
+      addressable (>= 2.1.1)
+      eventmachine (>= 0.12.9)
+    erubis (2.7.0)
+    eventmachine (1.2.7)
+    factory_bot (4.10.0)
+      activesupport (>= 3.0.0)
+    factory_bot_rails (4.10.0)
+      factory_bot (~> 4.10.0)
+      railties (>= 3.0.0)
+    faker (1.8.7)
+      i18n (>= 0.7)
+    faraday (0.15.2)
+      multipart-post (>= 1.2, < 3)
+    filesize (0.1.1)
+    fivemat (1.3.6)
+    hashery (2.1.2)
+    i18n (0.9.5)
+      concurrent-ruby (~> 1.0)
+    jsobfu (0.4.2)
+      rkelly-remix
+    json (2.1.0)
+    loofah (2.2.2)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.5.9)
+    metasm (1.0.3)
+    metasploit-concern (2.0.5)
+      activemodel (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      railties (~> 4.2.6)
+    metasploit-credential (3.0.1)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 3.0.0)
+      net-ssh
+      pg (~> 0.15)
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+    metasploit-model (2.0.4)
+      activemodel (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      railties (~> 4.2.6)
+    metasploit-payloads (1.3.40)
+    metasploit_data_models (3.0.0)
+      activerecord (~> 4.2.6)
+      activesupport (~> 4.2.6)
+      arel-helpers
+      metasploit-concern
+      metasploit-model
+      pg (= 0.20.0)
+      postgres_ext
+      railties (~> 4.2.6)
+      recog (~> 2.0)
+    metasploit_payloads-mettle (0.4.0)
+    method_source (0.9.0)
+    mini_portile2 (2.3.0)
+    minitest (5.11.3)
+    mqtt (0.5.0)
+    msgpack (1.2.4)
+    multipart-post (2.0.0)
+    nessus_rest (0.1.6)
+    net-ssh (5.0.2)
+    network_interface (0.0.2)
+    nexpose (7.2.1)
+    nokogiri (1.8.3)
+      mini_portile2 (~> 2.3.0)
+    octokit (4.9.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
+    openssl-ccm (1.2.1)
+    openvas-omp (0.0.4)
+    packetfu (1.1.13)
+      pcaprub
+    patch_finder (1.0.2)
+    pcaprub (0.12.4)
+    pdf-reader (2.1.0)
+      Ascii85 (~> 1.0.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
+    pg (0.20.0)
+    pg_array_parser (0.0.9)
+    postgres_ext (3.0.1)
+      activerecord (~> 4.0)
+      arel (>= 4.0.1)
+      pg_array_parser (~> 0.0.9)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    public_suffix (3.0.2)
+    rack (1.6.10)
+    rack-protection (1.5.5)
+      rack
+    rack-test (0.6.3)
+      rack (>= 1.0)
+    rails-deprecated_sanitizer (1.0.3)
+      activesupport (>= 4.2.0.alpha)
+    rails-dom-testing (1.0.9)
+      activesupport (>= 4.2.0, < 5.0)
+      nokogiri (~> 1.6)
+      rails-deprecated_sanitizer (>= 1.0.1)
+    rails-html-sanitizer (1.0.4)
+      loofah (~> 2.2, >= 2.2.2)
+    railties (4.2.10)
+      actionpack (= 4.2.10)
+      activesupport (= 4.2.10)
+      rake (>= 0.8.7)
+      thor (>= 0.18.1, < 2.0)
+    rake (12.3.1)
+    rb-readline (0.5.5)
+    recog (2.1.19)
+      nokogiri
+    redcarpet (3.4.0)
+    rex-arch (0.1.13)
+      rex-text
+    rex-bin_tools (0.1.4)
+      metasm
+      rex-arch
+      rex-core
+      rex-struct2
+      rex-text
+    rex-core (0.1.13)
+    rex-encoder (0.1.4)
+      metasm
+      rex-arch
+      rex-text
+    rex-exploitation (0.1.19)
+      jsobfu
+      metasm
+      rex-arch
+      rex-encoder
+      rex-text
+    rex-java (0.1.5)
+    rex-mime (0.1.5)
+      rex-text
+    rex-nop (0.1.1)
+      rex-arch
+    rex-ole (0.1.6)
+      rex-text
+    rex-powershell (0.1.78)
+      rex-random_identifier
+      rex-text
+    rex-random_identifier (0.1.4)
+      rex-text
+    rex-registry (0.1.3)
+    rex-rop_builder (0.1.3)
+      metasm
+      rex-core
+      rex-text
+    rex-socket (0.1.14)
+      rex-core
+    rex-sslscan (0.1.5)
+      rex-core
+      rex-socket
+      rex-text
+    rex-struct2 (0.1.2)
+    rex-text (0.2.21)
+    rex-zip (0.1.3)
+      rex-text
+    rkelly-remix (0.0.7)
+    rspec (3.7.0)
+      rspec-core (~> 3.7.0)
+      rspec-expectations (~> 3.7.0)
+      rspec-mocks (~> 3.7.0)
+    rspec-core (3.7.1)
+      rspec-support (~> 3.7.0)
+    rspec-expectations (3.7.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.7.0)
+    rspec-mocks (3.7.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.7.0)
+    rspec-rails (3.7.2)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 3.7.0)
+      rspec-expectations (~> 3.7.0)
+      rspec-mocks (~> 3.7.0)
+      rspec-support (~> 3.7.0)
+    rspec-rerun (1.1.0)
+      rspec (~> 3.0)
+    rspec-support (3.7.1)
+    ruby-macho (1.2.0)
+    ruby-rc4 (0.1.5)
+    ruby_smb (1.0.0)
+      bindata
+      rubyntlm
+      windows_error
+    rubyntlm (0.6.2)
+    rubyzip (1.2.1)
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
+    simplecov (0.16.1)
+      docile (~> 1.1)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.2)
+    sinatra (1.4.8)
+      rack (~> 1.5)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
+    sinatra-websocket (0.3.1)
+      em-websocket (~> 0.3.6)
+      eventmachine
+      thin (>= 1.3.1, < 2.0.0)
+    sqlite3 (1.3.13)
+    sshkey (1.9.0)
+    swagger-blocks (2.0.2)
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    thor (0.20.0)
+    thread_safe (0.3.6)
+    tilt (2.0.8)
+    timecop (0.9.1)
+    ttfunk (1.5.1)
+    tzinfo (1.2.5)
+      thread_safe (~> 0.1)
+    tzinfo-data (1.2018.5)
+      tzinfo (>= 1.0.0)
+    windows_error (0.1.2)
+    xdr (2.0.0)
+      activemodel (>= 4.2.7)
+      activesupport (>= 4.2.7)
+    xmlrpc (0.3.0)
+    yard (0.9.14)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  factory_bot_rails
+  fivemat
+  metasploit-framework!
+  octokit
+  pry
+  rake
+  redcarpet
+  rspec-rails
+  rspec-rerun
+  simplecov
+  sinatra-websocket (~> 0.3.1)
+  swagger-blocks
+  timecop
+  yard
+
+BUNDLED WITH
+   1.16.2

@@ -16,13 +16,17 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/ui/console/command_dispatcher/evasion'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
+require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
 require './tools/session-ui/webconsoleServer'
 
 
+
+require 'optparse'
 
 module Msf
 module Ui
@@ -52,7 +56,6 @@ class Core
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
     "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
-    "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
     "-S"  => [ true,  "Row search filter."                                             ],
@@ -82,17 +85,6 @@ class Core
     "-w" => [ true,  "Specify connect timeout."                       ],
     "-z" => [ false, "Just try to connect, then return."              ])
 
-  @@grep_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-i" => [ false, "Ignore case."                                   ],
-    "-m" => [ true,  "Stop after arg matches."                        ],
-    "-v" => [ false, "Invert match."                                  ],
-    "-A" => [ true,  "Show arg lines of output After a match."        ],
-    "-B" => [ true,  "Show arg lines of output Before a match."       ],
-    "-s" => [ true,  "Skip arg lines of output before attempting match."],
-    "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
-    "-c" => [ false, "Only print a count of matching lines."          ])
-
   @@search_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-S" => [ true, "Row search filter."                              ])
@@ -101,11 +93,7 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
     "-n" => [ true,  "Show the last n commands."                      ],
-    "-u" => [ false, "Show only unique commands."                     ])
-
-  @@irb_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-e" => [ true,  "Expression to evaluate."                        ])
+    "-c" => [ false, "Clear command history and history file."        ])
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -121,9 +109,9 @@ class Core
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "history"    => "Show command history",
-      "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
+      "repeat"     => "Repeat a list of commands",
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "sessions"   => "Dump session listings and display information about sessions",
@@ -178,7 +166,18 @@ class Core
       cmd_color_help
       return
     end
-    driver.update_prompt
+  end
+
+  #
+  # Tab completion for the color command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  #
+  def cmd_color_tabs(str, words)
+    return [] if words.length > 1
+    %w[auto true false]
   end
 
   def cmd_cd_help
@@ -202,6 +201,10 @@ class Core
     rescue ::Exception
       print_error("The specified path does not exist")
     end
+  end
+
+  def cmd_cd_tabs(str, words)
+    tab_complete_directory(str, words)
   end
 
   def cmd_banner_help
@@ -241,13 +244,13 @@ class Core
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
     pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
-    dev_note    = "** This is Metasploit 5 development branch **"
+    eva         = "#{stats.num_evasion} evasion",
     padding     = 48
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
@@ -483,7 +486,6 @@ class Core
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
-    uniq   = false
 
     if length < @history_limit
       limit = length
@@ -493,18 +495,34 @@ class Core
 
     @@history_opts.parse(args) do |opt, idx, val|
       case opt
-      when "-a"
+      when '-a'
         limit = length
-      when "-n"
+      when '-n'
         return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
         if length < val.to_i
           limit = length
         else
           limit = val.to_i
         end
-      when "-u"
-        uniq = true
-      when "-h"
+      when '-c'
+        if Readline::HISTORY.respond_to?(:clear)
+          Readline::HISTORY.clear
+        elsif defined?(RbReadline)
+          RbReadline.clear_history
+        else
+          print_error('Could not clear history, skipping file')
+          return false
+        end
+
+        # Portable file truncation?
+        if File.writable?(Msf::Config.history_file)
+          File.write(Msf::Config.history_file, '')
+        end
+
+        print_good('Command history and history file cleared')
+
+        return true
+      when '-h'
         cmd_history_help
         return false
       end
@@ -514,9 +532,6 @@ class Core
     pad_len = length.to_s.length
 
     (start..length-1).each do |pos|
-      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
-        next unless pos == 0
-      end
       cmd_num = (pos + 1).to_s
       print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
@@ -526,8 +541,15 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
+    print_line
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
+    print_line 'If -c is specified, the command history and history file will be cleared.'
     print @@history_opts.usage
+  end
+
+  def cmd_history_tabs(str, words)
+    return [] if words.length > 1
+    @@history_opts.fmt.keys
   end
 
   def cmd_sleep_help
@@ -543,48 +565,6 @@ class Core
   def cmd_sleep(*args)
     return if not (args and args.length == 1)
     Rex::ThreadSafe.sleep(args[0].to_f)
-  end
-
-  def cmd_irb_help
-    print_line "Usage: irb"
-    print_line
-    print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage
-  end
-
-  #
-  # Goes into IRB scripting mode
-  #
-  def cmd_irb(*args)
-    expressions = []
-
-    # Parse the command options
-    @@irb_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-e'
-        expressions << val
-      when '-h'
-        cmd_irb_help
-        return false
-      end
-    end
-
-    if expressions.empty?
-      print_status("Starting IRB shell...\n")
-
-      begin
-        Rex::Ui::Text::IrbShell.new(binding).run
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-      end
-
-      # Reset tab completion
-      if (driver.input.supports_readline)
-        driver.input.reset_tab_completion
-      end
-    else
-      expressions.each { |expression| eval(expression, binding) }
-    end
   end
 
   def cmd_threads_help
@@ -846,7 +826,7 @@ class Core
     print_line "  print - show all active routes"
     print_line
     print_line "Examples:"
-    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.255 through session 1"
     print_line "    route add 192.168.0.0 255.255.255.0 1"
     print_line "    route add 192.168.0.0/24 1"
     print_line
@@ -1088,6 +1068,10 @@ class Core
     print_line
   end
 
+  def cmd_spool_tabs(str, words)
+    tab_complete_filenames(str, words)
+  end
+
   def cmd_spool(*args)
     if args.include?('-h') or args.empty?
       cmd_spool_help
@@ -1104,19 +1088,10 @@ class Core
       msg = "Spooling to file #{args[0]}..."
     end
 
-    # Restore color and prompt
+    # Restore color
     driver.output.config[:color] = color
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    if active_module
-      # intentionally += and not << because we don't want to modify
-      # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
-    end
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
 
     print_status(msg)
-    return
   end
 
   def cmd_sessions_help
@@ -1151,7 +1126,6 @@ class Core
     sid      = nil
     cmds     = []
     script   = nil
-    reset_ring = false
     response_timeout = 15
     search_term = nil
     session_name = nil
@@ -1215,10 +1189,6 @@ class Core
         # Search for specific session
         when "-S", "--search"
           search_term = val
-        # Reset the ring buffer read pointer
-        when "-r"
-          reset_ring = true
-          method = 'reset_ring'
         # Display help banner
         when "-h"
           cmd_sessions_help
@@ -1246,6 +1216,10 @@ class Core
         print_error("Please specify valid session identifier(s)")
         return false
       end
+    end
+
+    if show_inactive && !framework.db.active
+      print_warning("Database not connected; list of inactive sessions unavailable")
     end
 
     last_known_timeout = nil
@@ -1520,14 +1494,6 @@ class Core
           sleep(5)
         end
       end
-    when 'reset_ring'
-      sessions = sid ? [sid] : framework.sessions.keys
-      sessions.each do |sidx|
-        s = framework.sessions[sidx]
-        next unless (s && s.respond_to?(:ring_seq))
-        s.reset_ring_sequence
-        print_status("Reset the ring buffer pointer for Session #{sidx}")
-      end
     when 'list', 'list_inactive', nil
       print_line
       print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
@@ -1670,7 +1636,7 @@ class Core
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
-      return true
+      return false
     end
 
     begin
@@ -1682,6 +1648,11 @@ class Core
     rescue OptionValidateError => e
       print_error(e.message)
       elog(e.message)
+    end
+
+    # Set PAYLOAD from TARGET
+    if name.upcase == 'TARGET' && active_module && active_module.exploit?
+      active_module.import_target_datastore
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -1733,8 +1704,12 @@ class Core
       res << 'PAYLOAD'
       res << 'NOP'
       res << 'TARGET'
-    end
-    if (mod.exploit? or mod.payload?)
+      res << 'ENCODER'
+    elsif (mod.evasion?)
+      res << 'PAYLOAD'
+      res << 'TARGET'
+      res << 'ENCODER'
+    elsif (mod.payload?)
       res << 'ENCODER'
     end
 
@@ -1742,7 +1717,7 @@ class Core
       res << "ACTION"
     end
 
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
@@ -2026,10 +2001,7 @@ class Core
   end
 
   def cmd_grep_help
-    print_line "Usage: grep [options] pattern cmd"
-    print_line
-    print_line "Grep the results of a console command (similar to Linux grep command)"
-    print(@@grep_opts.usage())
+    cmd_grep '-h'
   end
 
   #
@@ -2041,92 +2013,78 @@ class Core
   # @return [String,nil] Results matching the regular expression given
 
   def cmd_grep(*args)
-    return cmd_grep_help if args.length < 2
     match_mods = {:insensitive => false}
     output_mods = {:count => false, :invert => false}
-    @@grep_opts.parse(args.dup) do |opt, idx, val|
-      case opt
-        when "-h"
-          return cmd_grep_help
-        when "-m"
-          # limit to arg matches
-          match_mods[:max] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-A"
-          # also return arg lines after a match
-          output_mods[:after] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-B"
-          # also return arg lines before a match
-          output_mods[:before] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-v"
-          # invert match
-          match_mods[:invert] = true
-          # delete opt from args list
-          args.shift
-        when "-i"
-          # case insensitive
-          match_mods[:insensitive] = true
-          args.shift
-        when "-c"
-          # just count matches
-          output_mods[:count] = true
-          args.shift
-        when "-k"
-          # keep arg number of lines at the top of the output, useful for commands with table headers in output
-          output_mods[:keep] = val.to_i
-          args.shift(2)
-        when "-s"
-          # skip arg number of lines at the top of the output, useful for avoiding undesirable matches
-          output_mods[:skip] = val.to_i
-          args.shift(2)
+
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: grep [OPTIONS] [--] PATTERN CMD..."
+      opts.separator "Grep the results of a console command (similar to Linux grep command)"
+      opts.separator ""
+
+      opts.on '-m num', '--max-count num', 'Stop after num matches.', Integer do |max|
+        match_mods[:max] = max
+      end
+      opts.on '-A num', '--after-context num', 'Show num lines of output after a match.', Integer do |num|
+        output_mods[:after] = num
+      end
+      opts.on '-B num', '--before-context num', 'Show num lines of output before a match.', Integer do |num|
+        output_mods[:before] = num
+      end
+      opts.on '-C num', '--context num', 'Show num lines of output around a match.', Integer do |num|
+        output_mods[:before] = output_mods[:after] = num
+      end
+      opts.on '-v', '--[no-]invert-match', 'Invert match.' do |invert|
+        match_mods[:invert] = invert
+      end
+      opts.on '-i', '--[no-]ignore-case', 'Ignore case.' do |insensitive|
+        match_mods[:insensitive] = insensitive
+      end
+      opts.on '-c', '--count', 'Only print a count of matching lines.' do |count|
+        output_mods[:count] = count
+      end
+      opts.on '-k num', '--keep-header num', 'Keep (include) num lines at start of output', Integer do |num|
+        output_mods[:keep] = num
+      end
+      opts.on '-s num', '--skip-header num', 'Skip num lines of output before attempting match.', Integer do |num|
+        output_mods[:skip] = num
+      end
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(remove_lines(opts.help, '--generate-completions'))
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
       end
     end
-    # after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
-    pattern = args.shift
-    if match_mods[:insensitive]
-      rx = Regexp.new(pattern, true)
-    else
-      rx = Regexp.new(pattern)
-    end
-    cmd = args.join(" ")
 
-    # get a ref to the current console driver
-    orig_driver = self.driver
-    # redirect output after saving the old ones and getting a new output buffer to use for redirect
-    orig_driver_output = orig_driver.output
-    orig_driver_input = orig_driver.input
+    # OptionParser#order allows us to take the rest of the line for the command
+    pattern, *rest = opts.order(args)
+    cmd = Shellwords.shelljoin(rest)
+    return print(opts.help) if !pattern || cmd.empty?
+
+    rx = Regexp.new(pattern, match_mods[:insensitive])
+
+    # redirect output after saving the old one and getting a new output buffer to use for redirect
+    orig_output = driver.output
 
     # we use a rex buffer but add a write method to the instance, which is
     # required in order to be valid $stdout
     temp_output = Rex::Ui::Text::Output::Buffer.new
     temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
 
-    orig_driver.init_ui(orig_driver_input,temp_output)
+    driver.init_ui(driver.input, temp_output)
     # run the desired command to be grepped
-    orig_driver.run_single(cmd)
+    driver.run_single(cmd)
     # restore original output
-    orig_driver.init_ui(orig_driver_input,orig_driver_output)
-    # restore the prompt so we don't get "msf >  >".
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    mod = active_module
-    if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
-    else
-      driver.update_prompt("#{prompt} ", prompt_char, true)
-    end
+    driver.init_ui(driver.input, orig_output)
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer
 
     # Bail if the command failed
     if cmd_output =~ /Unknown command:/
-      print_error("Unknown command: #{args[0]}.")
+      print_error("Unknown command: '#{rest[0]}'.")
       return false
     end
     # put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
@@ -2165,7 +2123,84 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_grep_tabs(str, words)
-    tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
+    str = '-' if str.empty? # default to use grep's options
+    tabs = cmd_grep '--generate-completions', str
+
+    # if not an opt, use normal tab comp.
+    # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
+    # replace with new code that permits "nested" tab completion
+    # tabs = driver.get_all_commands if (str and str =~ /\w/)
+    tabs
+  end
+
+  def cmd_repeat_help
+    cmd_repeat '-h'
+  end
+
+  #
+  # Repeats (loops) a given list of commands
+  #
+  def cmd_repeat(*args)
+    looper = method :loop
+
+    opts = OptionParser.new do |opts|
+      opts.banner = 'Usage: repeat [OPTIONS] COMMAND...'
+      opts.separator 'Repeat (loop) a ;-separated list of msfconsole commands indefinitely, or for a'
+      opts.separator 'number of iterations or a certain amount of time.'
+      opts.separator ''
+
+      opts.on '-t SECONDS', '--time SECONDS', 'Number of seconds to repeat COMMAND...', Integer do |n|
+        looper = ->(&block) do
+          # While CLOCK_MONOTONIC is a Linux thing, Ruby emulates it for *BSD, MacOS, and Windows
+          ending_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) + n
+          while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
+            block.call
+          end
+        end
+      end
+
+      opts.on '-n TIMES', '--number TIMES', 'Number of times to repeat COMMAND..', Integer do |n|
+        looper = n.method(:times)
+      end
+
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(remove_lines(opts.help, '--generate-completions'))
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
+      end
+    end
+
+    cmds = opts.order(args).slice_when do |prev, _|
+      # If the last character of a shellword was a ';' it's probably to
+      # delineate commands and we can remove it
+      prev[-1] == ';' && prev[-1] = ''
+    end.map do |c|
+      Shellwords.shelljoin(c)
+    end
+
+    # Print help if we have no commands, or all the commands are empty
+    return cmd_repeat '-h' if cmds.all? &:empty?
+
+    begin
+      looper.call do
+        cmds.each do |c|
+          driver.run_single c, propagate_errors: true
+        end
+      end
+    rescue ::Exception
+      # Stop looping on exception
+      nil
+    end
+  end
+
+  # Almost the exact same as grep
+  def cmd_repeat_tabs(str, words)
+    str = '-' if str.empty? # default to use repeat's options
+    tabs = cmd_repeat '--generate-completions', str
+
     # if not an opt, use normal tab comp.
     # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
     # replace with new code that permits "nested" tab completion
@@ -2192,6 +2227,9 @@ class Core
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
       return option_values_encoders() if opt.upcase == 'STAGEENCODER'
+    elsif (mod.evasion?)
+      return option_values_payloads() if opt.upcase == 'PAYLOAD'
+      return option_values_targets()  if opt.upcase == 'TARGET'
     end
 
     # Well-known option names specific to modules with actions
@@ -2199,8 +2237,8 @@ class Core
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
-    # The ENCODER option works for payloads and exploits
-    if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
+    # The ENCODER option works for evasions, payloads and exploits
+    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
       return option_values_encoders()
     end
 
@@ -2215,7 +2253,7 @@ class Core
     end
 
     # How about the selected payload?
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
       if p = framework.payloads.create(mod.datastore['PAYLOAD'])
         p.options.each_key do |key|
           res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
@@ -2333,7 +2371,9 @@ class Core
   # Provide valid session options for the current post-exploit module
   #
   def option_values_sessions
-    active_module.compatible_sessions.map { |sid| sid.to_s }
+    if active_module.respond_to?(:compatible_sessions)
+      active_module.compatible_sessions.map { |sid| sid.to_s }
+    end
   end
 
   #
@@ -2384,11 +2424,11 @@ class Core
 
     # List only those hosts with matching open ports?
     mport = self.active_module.datastore['RPORT']
-    if (mport)
+    if mport
       mport = mport.to_i
       hosts = {}
-      framework.db.each_service(framework.db.workspace) do |service|
-        if (service.port == mport)
+      framework.db.services.each do |service|
+        if service.port == mport
           hosts[ service.host.address ] = true
         end
       end
@@ -2399,7 +2439,7 @@ class Core
 
     # List all hosts in the database
     else
-      framework.db.each_host(framework.db.workspace) do |host|
+      framework.db.hosts.each do |host|
         res << host.address
       end
     end
@@ -2417,8 +2457,8 @@ class Core
     host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
     return res if not host
 
-    framework.db.each_service(framework.db.workspace) do |service|
-      if (service.host_id == host.id)
+    framework.db.services.each do |service|
+      if service.host_id == host.id
         res << service.port.to_s
       end
     end
