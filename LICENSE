@@ -115,6 +115,10 @@ Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_d
 Copyright: Copyright 2018 SmartBear Software
 License: Apache 2.0
 
+Files: data/jtr/*
+Copyright: Copyright 1996-2013 by Solar Designer
+License: GNU GPL 2.0
+
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:

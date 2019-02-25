@@ -174,10 +174,19 @@ module DispatcherShell
             end
           end
         end
+
+        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir, cmd + '.md')))
+        end
         print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
         print_error("No such command") if not cmd_found
       else
         print(shell.help_to_s)
+        if docs_dir && File.exist?(File.join(docs_dir + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir + '.md')))
+        end
       end
     end
 
@@ -228,6 +237,17 @@ module DispatcherShell
       }
 
       return "\n" + tbl.to_s + "\n"
+    end
+
+    #
+    # Return the subdir of the `documentation/` directory that should be used
+    # to find usage documentation
+    #
+    # TODO: get this value from somewhere that doesn't invert a bunch of
+    # dependencies
+    #
+    def docs_dir
+      File.expand_path(File.join(__FILE__, '..', '..', '..', '..', '..', 'documentation', 'cli'))
     end
 
     #

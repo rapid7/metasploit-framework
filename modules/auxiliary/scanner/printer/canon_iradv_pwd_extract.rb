@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Deral "Percentx" Heiland',
           'Pete "Bokojan" Arzamendi',
-          'William Vu',
+          'wvu',
           'Dev Mohanty'
         ],
       'License'        => MSF_LICENSE

@@ -255,7 +255,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("Found #{@dirs.size} directories")
       @dirs.each do |x|
-        print_line("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
+        print_good("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
       end
     end
 
@@ -264,7 +264,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("Found #{@files.size} files")
       @files.each do |x|
-        print_line("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
+        print_good("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
       end
     end
   end
