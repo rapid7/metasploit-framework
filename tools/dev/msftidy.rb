@@ -435,7 +435,7 @@ class Msftidy
       if not available_ranks.include?($1)
         error("Invalid ranking. You have '#{$1}'")
       end
-    elsif @source =~ /['"](SideEffects|Stability|Reliability)['"]\s+=/
+    elsif @source =~ /['"](SideEffects|Stability|Reliability)['"]\s*=/
       info('No Rank, however SideEffects, Stability, or Reliability are provided')
     else
       warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
