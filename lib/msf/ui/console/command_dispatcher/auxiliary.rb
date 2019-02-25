@@ -60,40 +60,62 @@ class Auxiliary
   end
 
   #
-  # Reloads an auxiliary module and executes it
+  # Launches an auxiliary module for single attempt.
   #
-  def cmd_rerun(*args)
-    if reload(true)
-      cmd_run(*args)
+  def run_single(mod, opts)
+    begin
+      mod.run_simple(
+        'Action'         => action,
+        'OptionStr'      => opts.join(','),
+        'LocalInput'     => driver.input,
+        'LocalOutput'    => driver.output,
+        'RunAsJob'       => jobify,
+        'Quiet'          => quiet
+      )
+    rescue
+      raise $!
     end
   end
 
-  alias cmd_rexploit cmd_rerun
+  #
+  # Tab completion for the run command
+  #
+  def cmd_run_tabs(str, words)
+    return [] if words.length > 1
+    @@auxiliary_opts.fmt.keys
+  end
 
   #
   # Executes an auxiliary module
   #
   def cmd_run(*args)
-    opt_str = nil
+    opts    = []
     action  = mod.datastore['ACTION']
     jobify  = false
     quiet   = false
 
-    @@auxiliary_opts.parse(args) { |opt, idx, val|
+    @@auxiliary_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-j'
-          jobify = true
-        when '-o'
-          opt_str = val
-        when '-a'
-          action = val
-        when '-q'
-          quiet  = true
-        when '-h'
+      when '-j'
+        jobify = true
+      when '-o'
+        opts.push(val)
+      when '-a'
+        action = val
+      when '-q'
+        quiet  = true
+      when '-h'
+        cmd_run_help
+        return false
+      else
+        if val[0] != '-' && val.match?('=')
+          opts.push(val)
+        else
           cmd_run_help
           return false
+        end
       end
-    }
+    end
 
     # Always run passive modules in the background
     if mod.is_a?(Msf::Module::HasActions) &&
@@ -101,15 +123,25 @@ class Auxiliary
       jobify = true
     end
 
+    rhosts_range = Rex::Socket::RangeWalker.new(mod.datastore['RHOSTS'])
+    unless rhosts_range && rhosts_range.length
+      print_error("Auxiliary failed: option RHOSTS failed to validate.")
+      return false
+    end
+
     begin
-      mod.run_simple(
-        'Action'         => action,
-        'OptionStr'      => opt_str,
-        'LocalInput'     => driver.input,
-        'LocalOutput'    => driver.output,
-        'RunAsJob'       => jobify,
-        'Quiet'          => quiet
-      )
+      # Check whether run a scanner module.
+      if mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
+        run_single(mod, opts)
+      # For multi target attempts.
+      else
+        rhosts_range.each do |rhost|
+          nmod = mod.replicant
+          nmod.datastore['RHOST'] = rhost
+          vprint_status("Running module against #{rhost}")
+          run_single(nmod, opts)
+        end
+      end
     rescue ::Timeout::Error
       print_error("Auxiliary triggered a timeout exception")
       print_error("Call stack:")
@@ -140,6 +172,7 @@ class Auxiliary
   end
 
   alias cmd_exploit cmd_run
+  alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_run_help
     print_line "Usage: run [options]"
@@ -149,6 +182,19 @@ class Auxiliary
   end
 
   alias cmd_exploit_help cmd_run_help
+
+  #
+  # Reloads an auxiliary module and executes it
+  #
+  def cmd_rerun(*args)
+    if reload(true)
+      cmd_run(*args)
+    end
+  end
+
+  alias cmd_rerun_tabs cmd_run_tabs
+  alias cmd_rexploit cmd_rerun
+  alias cmd_rexploit_tabs cmd_exploit_tabs
 
   #
   # Reloads an auxiliary module and checks the target to see if it's

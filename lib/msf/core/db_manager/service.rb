@@ -143,14 +143,19 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-
     search_term = opts.delete(:search_term)
 
     order_args = [:port]
     order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
 
   ::ActiveRecord::Base.connection_pool.with_connection {
+    # If we have the ID, there is no point in creating a complex query.
+    if opts[:id] && !opts[:id].to_s.empty?
+      return Array.wrap(Mdm::Service.find(opts[:id]))
+    end
+
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
       wspace.services.includes(:host).where(opts).where(column_search_conditions).order(*order_args)
@@ -165,7 +170,9 @@ module Msf::DBManager::Service
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     id = opts.delete(:id)
-    Mdm::Service.update(id, opts)
+    service = Mdm::Service.find(id)
+    service.update!(opts)
+    return service
   }
   end
 end

@@ -80,6 +80,7 @@ class Framework
     self.jobs      = Rex::JobContainer.new
     self.plugins   = PluginManager.new(self)
     self.uuid_db   = Rex::JSONHashFile.new(::File.join(Msf::Config.config_directory, "payloads.json"))
+    self.analyze   = Analyze.new(self)
     self.browser_profiles = Hash.new
 
     # Configure the thread factory
@@ -142,6 +143,10 @@ class Framework
     return modules.post
   end
 
+  def evasion
+    return modules.evasion
+  end
+
   #
   # Returns the framework version in Major.Minor format.
   #
@@ -192,6 +197,11 @@ class Framework
   # different contexts.
   #
   attr_reader   :browser_profiles
+  #
+  # The framework instance's analysis utility.  Provide method to analyze
+  # framework objects to offer related objects/actions available.
+  #
+  attr_reader   :analyze
 
   #
   # The framework instance's data service proxy
@@ -237,7 +247,7 @@ class Framework
   def search(match, logger: nil)
     # Do an in-place search
     matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
       mset.each do |m|
         begin
           o = mset.create(m[0])
@@ -268,6 +278,7 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :uuid_db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
+  attr_writer   :analyze # :nodoc:
 
   private
 

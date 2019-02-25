@@ -622,6 +622,7 @@ public
   # Returns information about a host.
   #
   # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -673,10 +674,57 @@ public
   }
   end
 
+  # Returns analysis of module suggestions for known data about a host.
+  #
+  # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'host' [Array<Hash>] Each hash in the array contains the following:
+  #    * 'address' [String] Address.
+  #    * 'modules' [Array<Hash>] Each hash in the array modules contains the following:
+  #      * 'mtype' [String] Module type.
+  #      * 'mname' [String] Module name. For example: 'windows/wlan/wlan_profile'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.analyze_host', {:host => ip})
+def rpc_analyze_host(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    _opts, _wspace = init_db_opts_workspace(xopts)
+
+    ret = {}
+    ret[:host] = []
+    opts = fix_options(xopts)
+    h = self.framework.db.get_host(opts)
+    return ret unless h
+    h_result = self.framework.analyze.host(h)
+    host_detail = {}
+    host_detail[:address] = h.address
+    # for now only modules can be returned, in future maybe process whole result map
+    unless h_result[:modules].empty?
+      host_detail[:modules] = []
+      h_result[:modules].each do |mod|
+        mod_detail = {}
+        mod_detail[:mtype]  = mod.type
+        mod_detail[:mname]  = mod.full_name
+        host_detail[:modules] << mod_detail
+      end
+    end
+    ret[:host] << host_detail
+    ret
+  }
+end
+
 
   # Reports a new host to the database.
   #
   # @param [Hash] xopts Information to report about the host. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host IP address. You msut supply this.
   # @option xopts [String] :state One of the Msf::HostState constants. (See Most::HostState Documentation)
   # @option xopts [String] :os_name Something like "Windows", "Linux", or "Mac OS X".
@@ -711,6 +759,7 @@ public
   # Reports a service to the database.
   #
   # @param [Hash] xopts Information to report about the service. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host Required. The host where this service is running.
   # @option xopts [String] :port Required. The port where this service listens.
   # @option xopts [String] :proto Required. The transport layer protocol (e.g. tcp, udp).
@@ -805,6 +854,7 @@ public
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -899,6 +949,7 @@ public
   # Reports a client connection.
   #
   # @param [Hash] xopts Information about the client.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_string Required. User-Agent string.
   # @option xopts [String] :host Required. Host IP.
   # @option xopts [String] :ua_name One of the Msf::HttpClients constants. (See Msf::HttpClient Documentation.)
@@ -970,6 +1021,7 @@ public
   # Returns notes from the database.
   #
   # @param [Hash] xopts Filters for the search. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :address Host address.
   # @option xopts [String] :names Names (separated by ',').
   # @option xopts [String] :ntype Note type.
@@ -1493,6 +1545,7 @@ public
   #  * :ci_xml
   #  * :foundstone_xml
   #  * :fusionvm_xml
+  #  * :gpp_xml
   #  * :ip360_aspl_xml
   #  * :ip360_xml_v3
   #  * :ip_list
@@ -1611,6 +1664,7 @@ public
   # Returns browser clients information.
   #
   # @param [Hash] xopts Filters that narrow down the search.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_name User-Agent name.
   # @option xopts [String] :ua_ver Browser version.
   # @option xopts [Array] :addresses Addresses.

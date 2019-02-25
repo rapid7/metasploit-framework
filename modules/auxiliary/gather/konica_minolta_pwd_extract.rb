@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT('50001'),
-        OptString.new('USER', [false, 'The default Admin user', 'Admin']),
+        OptString.new('USER', [true, 'The default Admin user', 'Admin']),
         OptString.new('PASSWD', [true, 'The default Admin password', '12345678']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
 

@@ -47,6 +47,11 @@ module Msf::DBManager::Workspace
 
   def workspaces(opts = {})
   ::ActiveRecord::Base.connection_pool.with_connection {
+    # If we have the ID, there is no point in creating a complex query.
+    if opts[:id] && !opts[:id].to_s.empty?
+      return Array.wrap(Mdm::Workspace.find(opts[:id]))
+    end
+
     search_term = opts.delete(:search_term)
     # Passing these values to the search will cause exceptions, so remove them if they accidentally got passed in.
     Msf::Util::DBManager.delete_opts_workspace(opts)
@@ -94,7 +99,7 @@ module Msf::DBManager::Workspace
     ::ActiveRecord::Base.connection_pool.with_connection {
       ws_to_update = workspaces({ id: opts.delete(:id) }).first
       default_renamed = true if ws_to_update.name == DEFAULT_WORKSPACE_NAME
-      updated_ws = Mdm::Workspace.update(ws_to_update.id, opts)
+      updated_ws = ws_to_update.update!(opts)
       add_workspace({ name: DEFAULT_WORKSPACE_NAME }) if default_renamed
       updated_ws
     }

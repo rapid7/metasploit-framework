@@ -44,3 +44,5 @@ int system(const char*);
 long int labs(long int);
 div_t div(int, int);
 ldiv_t ldiv(long int, long int);
+void* malloc (size_t size);
+

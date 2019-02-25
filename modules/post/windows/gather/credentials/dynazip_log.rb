@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
         files in Microsoft Plus! 98 and Windows Me.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => ['Brendan Coles <bcoles[at]gmail.com>'],
+      'Author'         => ['bcoles'],
       'References'     =>
         [
           ['CVE', '2001-0152'],

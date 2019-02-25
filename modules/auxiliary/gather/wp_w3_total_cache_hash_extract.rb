@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'    =>
         [
           ['OSVDB', '88744'],
-          ['URL', 'http://seclists.org/fulldisclosure/2012/Dec/242'],
+          ['URL', 'https://seclists.org/fulldisclosure/2012/Dec/242'],
           ['WPVDB', '6621']
         ],
       'Author'        =>

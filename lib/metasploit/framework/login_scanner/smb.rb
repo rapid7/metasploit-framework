@@ -93,10 +93,9 @@ module Metasploit
           proof = nil
 
           begin
-
-            realm       = credential.realm   || ""
-            username    = credential.public  || ""
-            password    = credential.private || ""
+            realm       = (credential.realm   || "").force_encoding('UTF-8')
+            username    = (credential.public  || "").force_encoding('UTF-8')
+            password    = (credential.private || "").force_encoding('UTF-8')
             client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
@@ -129,13 +128,13 @@ module Metasploit
               else
                 status = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError, Errno::EINVAL => e
+          rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
           ensure
-            client.disconnect!
+            client.disconnect! if client
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?

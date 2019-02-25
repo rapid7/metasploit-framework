@@ -7,24 +7,27 @@ module RemoteLootDataService
   LOOT_MDM_CLASS = 'Mdm::Loot'
 
   def loot(opts = {})
-    # TODO: Add an option to toggle whether the file data is returned or not
-    loots = json_to_mdm_object(self.get_data(LOOT_API_PATH, nil, opts), LOOT_MDM_CLASS, [])
-    # Save a local copy of the file
-    loots.each do |loot|
-      if loot.data
-        local_path = File.join(Msf::Config.loot_directory, File.basename(loot.path))
-        loot.path = process_file(loot.data, local_path)
+    path = get_path_select(opts, LOOT_API_PATH)
+    data = self.get_data(path, nil, opts)
+    rv = json_to_mdm_object(data, LOOT_MDM_CLASS, [])
+    parsed_body = JSON.parse(data.response.body, symbolize_names: true)
+    data = parsed_body[:data]
+    data.each do |loot|
+      # TODO: Add an option to toggle whether the file data is returned or not
+      if loot[:data] && !loot[:data].empty?
+        local_path = File.join(Msf::Config.loot_directory, File.basename(loot[:path]))
+        rv[data.index(loot)].path = process_file(loot[:data], local_path)
+      end
+      if loot[:host]
+        host_object = to_ar(RemoteHostDataService::HOST_MDM_CLASS.constantize, loot[:host])
+        rv[data.index(loot)].host = host_object
       end
     end
-    loots
+    rv
   end
 
   def report_loot(opts)
     self.post_data_async(LOOT_API_PATH, opts)
-  end
-
-  def report_loots(loot)
-    self.post_data(LOOT_API_PATH, loot)
   end
 
   def update_loot(opts)

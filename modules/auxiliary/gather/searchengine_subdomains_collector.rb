@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUM_YAHOO', [ true, "Enable Yahoo Search Subdomains", true])
       ])
 
-    deregister_options('RHOST', 'RPORT', 'VHOST', 'SSL', 'Proxies')
+    deregister_options('RHOST', 'RHOSTS', 'RPORT', 'VHOST', 'SSL', 'Proxies')
   end
 
   def rhost_yahoo

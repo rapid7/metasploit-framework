@@ -249,7 +249,8 @@ require 'msf/core/exe/segment_appender'
       injector = Msf::Exe::SegmentInjector.new({
           :payload  => code,
           :template => opts[:template],
-          :arch     => :x86
+          :arch     => :x86,
+          :secname  => opts[:secname]
       })
       return injector.generate_pe
     end
@@ -270,7 +271,8 @@ require 'msf/core/exe/segment_appender'
       appender = Msf::Exe::SegmentAppender.new({
           :payload  => code,
           :template => opts[:template],
-          :arch     => :x86
+          :arch     => :x86,
+          :secname  => opts[:secname]
       })
       return appender.generate_pe
     end
@@ -603,7 +605,8 @@ require 'msf/core/exe/segment_appender'
       injector = Msf::Exe::SegmentInjector.new({
          :payload  => code,
          :template => opts[:template],
-         :arch     => :x64
+         :arch     => :x64,
+         :secname  => opts[:secname]
       })
       return injector.generate_pe
     end
@@ -612,7 +615,8 @@ require 'msf/core/exe/segment_appender'
     appender = Msf::Exe::SegmentAppender.new({
       :payload  => code,
       :template => opts[:template],
-      :arch     => :x64
+      :arch     => :x64,
+      :secname	=> opts[:secname]
     })
     return appender.generate_pe
   end
@@ -1136,6 +1140,17 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
   end
 
+  # self.to_linux_armle_elf_dll
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf-so
+  def self.to_linux_armle_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_armle_linux_dll.bin", code)
+  end
+  
   # self.to_linux_aarch64_elf
   #
   # @param framework [Msf::Framework]
