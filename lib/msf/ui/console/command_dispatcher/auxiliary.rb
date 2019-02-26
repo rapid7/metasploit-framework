@@ -123,7 +123,7 @@ class Auxiliary
       jobify = true
     end
 
-    unless mod.datastore['RHOSTS'].nil?
+    if mod.datastore['RHOSTS']
       rhosts_range = Rex::Socket::RangeWalker.new(mod.datastore['RHOSTS'])
       unless rhosts_range && rhosts_range.length
         print_error("Auxiliary failed: option RHOSTS failed to validate.")
