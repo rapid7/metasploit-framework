@@ -51,8 +51,6 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if res && res.code != 200
-       return
-    else
       print_error("Target is not ManageEngine DeviceExpert")
       return
     end
