@@ -15,7 +15,7 @@ The path from where the data is to be scraped from.
  
 ### PATTERN
 
-The regular expression to use . Default value:`<title>(.*)</title>` which simply grabs page title.
+A regular expression to capture data from webpage. Default value:`<title>(.*)</title>` which simply grabs the page title.
 
 ## Scenarios
 
