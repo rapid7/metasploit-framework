@@ -62,7 +62,7 @@ class Auxiliary
   #
   # Launches an auxiliary module for single attempt.
   #
-  def run_single(mod, opts)
+  def run_single(mod, action, opts)
     begin
       mod.run_simple(
         'Action'         => action,
@@ -123,23 +123,25 @@ class Auxiliary
       jobify = true
     end
 
-    rhosts_range = Rex::Socket::RangeWalker.new(mod.datastore['RHOSTS'])
-    unless rhosts_range && rhosts_range.length
-      print_error("Auxiliary failed: option RHOSTS failed to validate.")
-      return false
+    if mod.datastore['RHOSTS']
+      rhosts_range = Rex::Socket::RangeWalker.new(mod.datastore['RHOSTS'])
+      unless rhosts_range && rhosts_range.length
+        print_error("Auxiliary failed: option RHOSTS failed to validate.")
+        return false
+      end
     end
 
     begin
-      # Check whether run a scanner module.
-      if mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
-        run_single(mod, opts)
-      # For multi target attempts.
+      # Check if this is a scanner module.
+      if mod.class.included_modules.include?(Msf::Auxiliary::Scanner) || rhosts_range.nil?
+        run_single(mod, action, opts)
       else
+      # For multi target attempts.
         rhosts_range.each do |rhost|
           nmod = mod.replicant
           nmod.datastore['RHOST'] = rhost
           vprint_status("Running module against #{rhost}")
-          run_single(nmod, opts)
+          run_single(nmod, action, opts)
         end
       end
     rescue ::Timeout::Error
