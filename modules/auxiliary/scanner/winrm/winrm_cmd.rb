@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     streams = winrm_run_cmd(datastore['CMD'])
     return unless streams.class == Hash
     print_error streams['stderr'] unless streams['stderr'] == ''
-    print_good "#{ip}:#{rport} => " + streams['stdout']
+    print_good "#{peer}=> #{streams['stdout']}"
     if datastore['SAVE_OUTPUT']
       path = store_loot("winrm.cmd_results", "text/plain", ip, streams['stdout'], "winrm_cmd_results.txt", "WinRM CMD Results")
       print_good "Results saved to #{path}"
