@@ -9,7 +9,7 @@ This module can abuse misconfigured web servers to upload and delete web content
 4. Do: ```set PATH [PATH]```
 5. Do: ```set FILENAME [FILNAME]```
 6. Do: ```set FILEDATA [PATH]```
-7. DO: ```run```
+7. Do: ```run```
 
 ## Options 
 
