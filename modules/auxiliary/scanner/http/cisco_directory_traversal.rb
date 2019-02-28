@@ -42,8 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'     =>  uri
     )
 
-    serv_page = (res.body.include?("SSL VPN Service") || res.body.include?("+CSCOE+") || res.body.include?("+webvpn+") || res.body.include?("webvpnlogin"))
-    return (res && serv_page)
+    return (res && (res.body.include?("SSL VPN Service") || res.body.include?("+CSCOE+") || res.body.include?("+webvpn+") || res.body.include?("webvpnlogin")))
   end
 
   def list_files(path)
