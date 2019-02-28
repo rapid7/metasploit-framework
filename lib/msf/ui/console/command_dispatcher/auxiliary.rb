@@ -123,24 +123,24 @@ class Auxiliary
       jobify = true
     end
 
-    if mod.datastore['RHOSTS']
-      rhosts_range = Rex::Socket::RangeWalker.new(mod.datastore['RHOSTS'])
-      unless rhosts_range && rhosts_range.length
-        print_error("Auxiliary failed: option RHOSTS failed to validate.")
-        return false
-      end
-    end
-
+    rhosts = datastore['RHOSTS']
     begin
-      # Check if this is a scanner module.
-      if mod.class.included_modules.include?(Msf::Auxiliary::Scanner) || rhosts_range.nil?
+      # Check if this is a scanner module or doesn't target remote hosts
+      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
         run_single(mod, action, opts)
+      # For multi target attempts with non-scanner modules.
       else
-      # For multi target attempts.
+        rhosts_opt = Msf::OptAddressRange.new('RHOSTS')
+        if !rhosts_opt.valid?(rhosts)
+          print_error("Auxiliary failed: option RHOSTS failed to validate.")
+          return false
+        end
+
+        rhosts_range = Rex::Socket::RangeWalker.new(rhosts_opt.normalize(rhosts))
         rhosts_range.each do |rhost|
           nmod = mod.replicant
           nmod.datastore['RHOST'] = rhost
-          vprint_status("Running module against #{rhost}")
+          print_status("Running module against #{rhost}")
           run_single(nmod, action, opts)
         end
       end
