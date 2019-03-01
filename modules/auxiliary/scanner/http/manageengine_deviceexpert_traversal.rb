@@ -61,7 +61,13 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if res
-      print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      case res.code
+      when 200
+        print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      when 404
+        print_error("#{ip}:#{rport} - file not found")
+        return
+      end
     else
       print_error("Unable to communicate with #{ip}:#{rport}")
       return
