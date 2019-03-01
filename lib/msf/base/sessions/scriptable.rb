@@ -80,6 +80,7 @@ module Scriptable
       'killav' => 'post/windows/manage/killav',
       'metsvc' => 'post/windows/manage/persistence_exe',
       'migrate' => 'post/windows/manage/migrate',
+      'pml_driver_config' => 'exploit/windows/local/service_permissions',
       'packetrecorder' => 'post/windows/manage/rpcapd_start',
       'persistence' => 'post/windows/manage/persistence_exe',
       'prefetchtool' => 'post/windows/gather/enum_prefetch',
