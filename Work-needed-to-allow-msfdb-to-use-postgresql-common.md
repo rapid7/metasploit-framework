@@ -1,6 +1,6 @@
 # Work needed to allow msfdb to use postgresql-common
 
-Linux distributions, such as Debian and Kali Linux, use [postgresql-common (Multi-Version/Multi-Cluster PostgreSQL architecture)](https://salsa.debian.org/postgresql/postgresql-common) wrappers to interact with one or more PostgreSQL installations. Therefore, commands such as `intidb` and `pg_ctl` are not in the user's `PATH`. `msfdb` currently assumes these programs are available in the `PATH`. In order to support platforms that use the `postgresql-common` wrappers, `msfdb` would need to determine if it is running on such a platform and modify the commands used to perform the various setup and configuration operations. See the section "msfdb support for postgresql-common" for additional details.
+Linux distributions, such as Debian and Kali Linux, use [postgresql-common (Multi-Version/Multi-Cluster PostgreSQL architecture)](https://salsa.debian.org/postgresql/postgresql-common) wrappers to interact with one or more PostgreSQL installations. Therefore, commands such as `initdb` and `pg_ctl` are not in the user's `PATH`. `msfdb` currently assumes these programs are available in the `PATH`. In order to support platforms that use the `postgresql-common` wrappers, `msfdb` would need to determine if it is running on such a platform and modify the commands used to perform the various setup and configuration operations. See the section "msfdb support for postgresql-common" for additional details.
 
 ## `msfdb` support for postgresql-common
 
