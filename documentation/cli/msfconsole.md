@@ -25,7 +25,7 @@ with an optional `,`. The next way is two complete IP addresses in the form of
 specifications may also be used, however the whole address must be given to
 Metasploit like `127.0.0.0/8` and not `127/8`, contrary to the RFC.
 Additionally, a netmask can be used in conjunction with a domain name to
-dynamically resolve which block to target. All these methods work for both IPv6
+dynamically resolve which block to target. All these methods work for both IPv4
 and IPv6 addresses. IPv4 addresses can also be specified with special octet
 ranges from the [NMAP target
 specification](https://nmap.org/book/man-target-specification.html)
