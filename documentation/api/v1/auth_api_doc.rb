@@ -15,26 +15,21 @@ module AuthApiDoc
   end
 
   swagger_path '/api/v1/auth/generate-token' do
-    # Swagger documentation for /api/v1/auth/generate-token GET
-    operation :get do
+    # Swagger documentation for /api/v1/auth/generate-token POST
+    operation :post do
 
       key :description, 'Return a valid Authorization Bearer token.'
       key :tags, [ 'auth' ]
 
       parameter do
-        key :name, :username
-        key :in, :query
-        key :description, 'The username for the user you want to authenticate.'
+        key :in, :body
+        key :name, :body
+        key :description, 'Login credentials for the user who will be generating a token.'
         key :required, true
-        key :type, :string
-      end
-
-      parameter do
-        key :name, :password
-        key :in, :query
-        key :description, 'The password for the user you want to authenticate.'
-        key :required, true
-        key :type, :string
+        schema do
+          property :username, type: :string, required: true
+          property :password, type: :string, required: true
+        end
       end
 
       response 200 do

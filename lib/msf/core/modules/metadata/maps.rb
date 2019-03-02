@@ -18,7 +18,8 @@ module Msf::Modules::Metadata::Maps
     mservs = {}
 
     get_metadata.each do |exploit|
-      next unless exploit.type == "exploit" && exploit.is_server
+      # expand this in future to be more specific about remote exploits.
+      next unless exploit.type == "exploit"
       fullname = exploit.full_name
       exploit.references.each do |reference|
         next if reference =~ /^URL/
@@ -37,7 +38,6 @@ module Msf::Modules::Metadata::Maps
 
       unless exploit.autofilter_ports.nil? || exploit.autofilter_ports.empty?
         exploit.autofilter_ports.each do |rport|
-          next unless port_allowed?(rport)
           mports[rport.to_i]           ||= {}
           mports[rport.to_i][fullname] = exploit
         end

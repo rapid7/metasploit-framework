@@ -30,11 +30,10 @@ module HostServlet
       begin
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.hosts(sanitized_params)
-        includes = [:loots]
         data = data.first if is_single_object?(data, sanitized_params)
-        set_json_data_response(response: data, includes: includes)
+        set_json_data_response(response: data)
       rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error getting hosts:', code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving hosts:', code: 500)
       end
     }
   end

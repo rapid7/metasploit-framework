@@ -14,12 +14,14 @@ rvm:
   - '2.3.8'
   - '2.4.5'
   - '2.5.3'
+  - '2.6.1'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
   # Used for testing the remote data service
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
 
 matrix:
   fast_finish: true
@@ -48,6 +50,7 @@ before_install:
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
   # Update the bundler
+  - gem update --system
   - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml

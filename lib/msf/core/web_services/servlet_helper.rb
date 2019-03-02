@@ -131,6 +131,13 @@ module ServletHelper
     response
   end
 
+  def encode_loot_data(data)
+    Array.wrap(data).each do |loot|
+      loot.data = Base64.urlsafe_encode64(loot.data) if loot.data && !loot.data.empty?
+    end
+    data
+  end
+
   # Get Warden::Proxy object from the Rack environment.
   # @return [Warden::Proxy] The Warden::Proxy object from the Rack environment.
   def warden

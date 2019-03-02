@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.54'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.62'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.5.0'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.5.7'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -86,9 +86,9 @@ Gem::Specification.new do |spec|
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
   # Used by the Metasploit data model, etc.
-  # bound to 0.20 for Activerecord 4.2.8 deprecation warnings:
+  # bound to 0.2x for Activerecord 4.2.8 deprecation warnings:
   # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
-  spec.add_runtime_dependency 'pg', '0.20.0'
+  spec.add_runtime_dependency 'pg', '~> 0.20'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
@@ -100,10 +100,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
-  # Required for msfdb_ws (Metasploit data base as a webservice)
+  # Required for Metasploit Web Services
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
-  spec.add_runtime_dependency 'sysrandom'
   spec.add_runtime_dependency 'warden'
   # Required for JSON-RPC client
   spec.add_runtime_dependency 'em-http-request'

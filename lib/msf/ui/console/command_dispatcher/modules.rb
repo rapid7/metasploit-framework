@@ -123,7 +123,7 @@ module Msf
                 if dump_json
                   print(Serializer::Json.dump_module(active_module) + "\n")
                 elsif show_doc
-                  f = Rex::Quickfile.new(["#{active_module.shortname}_doc", '.html'])
+                  f = Tempfile.new(["#{active_module.shortname}_doc", '.html'])
                   begin
                     print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
                     Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
@@ -151,7 +151,7 @@ module Msf
               elsif dump_json
                 print(Serializer::Json.dump_module(mod) + "\n")
               elsif show_doc
-                f = Rex::Quickfile.new(["#{mod.shortname}_doc", '.html'])
+                f = Tempfile.new(["#{mod.shortname}_doc", '.html'])
                 begin
                   print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
                   Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
@@ -327,7 +327,6 @@ module Msf
             print_line "Keywords:"
             {
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
-              'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
@@ -352,7 +351,7 @@ module Msf
             end
             print_line
             print_line "Examples:"
-            print_line "  search cve:2009 type:exploit app:client"
+            print_line "  search cve:2009 type:exploit"
             print_line
           end
 

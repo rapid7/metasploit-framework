@@ -241,14 +241,12 @@ class Core
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
     pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
     eva         = "#{stats.num_evasion} evasion",
-    dev_note    = "** This is Metasploit 5 development branch **"
     padding     = 48
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
@@ -1644,8 +1642,12 @@ class Core
       res << 'PAYLOAD'
       res << 'NOP'
       res << 'TARGET'
-    end
-    if (mod.exploit? or mod.payload?)
+      res << 'ENCODER'
+    elsif (mod.evasion?)
+      res << 'PAYLOAD'
+      res << 'TARGET'
+      res << 'ENCODER'
+    elsif (mod.payload?)
       res << 'ENCODER'
     end
 
@@ -1653,7 +1655,7 @@ class Core
       res << "ACTION"
     end
 
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
@@ -1985,7 +1987,7 @@ class Core
         output_mods[:skip] = num
       end
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
@@ -2100,7 +2102,7 @@ class Core
       end
 
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
@@ -2163,6 +2165,9 @@ class Core
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
       return option_values_encoders() if opt.upcase == 'STAGEENCODER'
+    elsif (mod.evasion?)
+      return option_values_payloads() if opt.upcase == 'PAYLOAD'
+      return option_values_targets()  if opt.upcase == 'TARGET'
     end
 
     # Well-known option names specific to modules with actions
@@ -2170,8 +2175,8 @@ class Core
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
-    # The ENCODER option works for payloads and exploits
-    if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
+    # The ENCODER option works for evasions, payloads and exploits
+    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
       return option_values_encoders()
     end
 
@@ -2186,7 +2191,7 @@ class Core
     end
 
     # How about the selected payload?
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
       if p = framework.payloads.create(mod.datastore['PAYLOAD'])
         p.options.each_key do |key|
           res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
@@ -2357,11 +2362,11 @@ class Core
 
     # List only those hosts with matching open ports?
     mport = self.active_module.datastore['RPORT']
-    if (mport)
+    if mport
       mport = mport.to_i
       hosts = {}
-      framework.db.each_service(framework.db.workspace) do |service|
-        if (service.port == mport)
+      framework.db.services.each do |service|
+        if service.port == mport
           hosts[ service.host.address ] = true
         end
       end
@@ -2372,7 +2377,7 @@ class Core
 
     # List all hosts in the database
     else
-      framework.db.each_host(framework.db.workspace) do |host|
+      framework.db.hosts.each do |host|
         res << host.address
       end
     end
@@ -2390,8 +2395,8 @@ class Core
     host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
     return res if not host
 
-    framework.db.each_service(framework.db.workspace) do |service|
-      if (service.host_id == host.id)
+    framework.db.services.each do |service|
+      if service.host_id == host.id
         res << service.port.to_s
       end
     end

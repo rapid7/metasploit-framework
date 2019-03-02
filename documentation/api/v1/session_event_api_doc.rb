@@ -32,6 +32,35 @@ module SessionEventApiDoc
       key :description, 'Return session events that are stored in the database.'
       key :tags, [ 'session_event' ]
 
+      parameter do
+        key :name, :limit
+        key :in, :query
+        key :description, RootApiDoc::LIMIT_DESC
+        key :example, RootApiDoc::LIMIT_DEFAULT
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :offset
+        key :in, :query
+        key :description, RootApiDoc::OFFSET_DESC
+        key :example, RootApiDoc::OFFSET_DEFAULT
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :order
+        key :in, :query
+        key :description, RootApiDoc::ORDER_DESC
+        key :type, :string
+        key :required, false
+        key :enum, RootApiDoc::ORDER_ENUM
+      end
+
       response 200 do
         key :description, 'Returns session event data.'
         schema do
@@ -59,7 +88,7 @@ module SessionEventApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/session events POST
+    # Swagger documentation for /api/v1/session-events POST
     operation :post do
       key :description, 'Create a session events entry.'
       key :tags, [ 'session_event' ]
@@ -105,15 +134,15 @@ module SessionEventApiDoc
   end
 
   swagger_path '/api/v1/session-events/{id}' do
-    # Swagger documentation for api/v1/session-events/:id GET
+    # Swagger documentation for /api/v1/session-events/:id GET
     operation :get do
-      key :description, 'Return a specific session_event that is stored in the database.'
+      key :description, 'Return a specific session event that is stored in the database.'
       key :tags, [ 'session_event' ]
 
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of session_event to retrieve.'
+        key :description, 'ID of session event to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32

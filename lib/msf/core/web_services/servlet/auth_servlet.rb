@@ -31,7 +31,7 @@ module AuthServlet
     app.post AuthServlet.api_login_path, &post_login
 
     app.get AuthServlet.api_logout_path, &get_logout
-    app.get AuthServlet.api_generate_token_path, &get_generate_token
+    app.post AuthServlet.api_generate_token_path, &post_generate_token
     app.post "#{AuthServlet.api_unauthenticated_path}/?:scope?", &post_unauthenticated
   end
 
@@ -75,7 +75,7 @@ module AuthServlet
   end
 
   # Generate a new API token for the current user
-  def self.get_generate_token
+  def self.post_generate_token
     lambda {
       # change action to drop the scope param since this is used
       # by XMLHttpRequest (XHR) and we don't want a redirect
