@@ -2,7 +2,7 @@
 This module can be useful if you need to test the security of your server and your
 website behind CloudFlare by discovering the real IP address.
 
-More precisely, it is an simple "cloudflair" implementation for metasploit-framework.
+More precisely, it is a simple "cloudflair" implementation for metasploit-framework.
 
 ## Verification Steps
 
@@ -35,7 +35,7 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
     --or--
     msf auxiliary(gather/behind_cloudflare) > set hostname discordapp.com
 
-  **Poxies**
+  **Proxies**
 
   A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 

@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-# rev: 1.1.5
+# rev: 1.1.6
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
