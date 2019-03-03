@@ -40,7 +40,7 @@ CloudFront. The module runs tests to discover the true address behind the CDN.
     --or--
     msf auxiliary(gather/behind_cloudfront) > set hostname xxxxxxxx.com
 
-  **Poxies**
+  **Proxies**
 
   A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 

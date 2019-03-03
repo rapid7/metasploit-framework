@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-# rev: 1.0
+# rev: 1.0.1
 
 class MetasploitModule < Msf::Auxiliary
     include Msf::Auxiliary::Report
@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
       data = { 'vhost' => hostname, 'real_ip' => ip, 'sname' => sname }
       report_note(
         :host  => hostname,
-        :type  => "behind_ingensec",
+        :type  => "behind_cloudfront",
         :data  => data,
         update: :unique_data
       )
