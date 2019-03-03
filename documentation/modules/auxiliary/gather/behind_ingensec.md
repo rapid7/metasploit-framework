@@ -2,7 +2,7 @@
 This module can be useful if you need to test the security of your server and your
 website behind BinarySec/IngenSec by discovering the real IP address.
 
-More precisely, I use multiple data sources (DNS enumeration, SEO PrePost) to collect
+More precisely, I use multiple data sources (DNS enumeration, ViewDNS.info) to collect
 assigned (or have been) IP addresses from the targeted site or domain that uses the 
 BinarySec or IngenSec WAF as a service.
 
@@ -42,7 +42,7 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
     --or--
     msf auxiliary(gather/behind_ingensec) > set hostname ingensec.com
 
-  **Poxies**
+  **Proxies**
 
   A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 
