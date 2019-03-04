@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Server does not accept this Exchange dialect. Specify a different Exchange version")
         end
       else
-        print_error("Server returned HTTP " + res.code + ": " + xml.text)
+        print_error("Server returned HTTP #{res.code}: #{xml.text})
       end
     end
   end
