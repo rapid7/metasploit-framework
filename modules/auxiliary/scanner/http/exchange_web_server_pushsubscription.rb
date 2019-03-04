@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         The module is based on the work by @_dirkjan,
       },
       'Author'         => [
-        '@_dirkjan',         # Discovery and PoC
+        '_dirkjan',         # Discovery and PoC
         'Petros Koutroumpis' # Metasploit
       ]
       'References'      =>
