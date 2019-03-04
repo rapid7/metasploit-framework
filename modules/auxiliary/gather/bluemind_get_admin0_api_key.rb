@@ -3,13 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-
-  Rank = ExcellentRanking
 
   def initialize(info = {})
     super(update_info(info,
@@ -18,9 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         Uses credentials to retrieve the admin0 API key of a BlueMind server.
       },
       'References'     =>
-        [
-          'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9563'
-        ],
+      [
+        ['CVE' , '2019-9563']
+      ],
       'Author'         =>
         [
           'Damien Picard <damien.picard[at]synacktiv.com>',
