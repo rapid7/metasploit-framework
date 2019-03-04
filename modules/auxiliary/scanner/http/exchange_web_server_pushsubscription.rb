@@ -21,12 +21,17 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => [
         '_dirkjan',         # Discovery and PoC
         'Petros Koutroumpis' # Metasploit
-      ]
+      ],
       'References'      =>
          [
            [ 'CVE', '2019-0724' ],
            [ 'URL', 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
          ],
+       'DefaultOptions' =>
+        {
+          'SSL' => true,
+          'RPORT' => 443
+        },
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Jan 21 2019'
     )
@@ -38,9 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN', [ true, "The Active Directory domain name"]),
         OptString.new('TARGETURI', [ true, "Exchange Web Services API endpoint", "/EWS/Exchange.asmx" ]),
         OptString.new('EXCHANGE_VERSION', [ true, "Version of Exchange (2013|2016)", "2016" ]),
-        OptString.new('ATTACKER_URL', [ true, "Attacker URL", nil ]),
-        OptBool.new('SSL', [true, "Negotiate SSL/TLS for outgoing connections", true]),
-        Opt::RPORT(443),
+        OptString.new('ATTACKER_URL', [ true, "Attacker URL", nil ])
       ])
   end
 
@@ -126,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Server does not accept this Exchange dialect. Specify a different Exchange version")
         end
       else
-        print_error("Server returned HTTP #{res.code}: #{xml.text})
+        print_error("Server returned HTTP #{res.code}: #{xml.text}")
       end
     end
   end
