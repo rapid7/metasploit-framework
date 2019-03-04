@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
       'Reference'      =>
          [
-           [ 'CVE-2019-0724' ],
-           [ 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
+           [ 'URL' , 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
          ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Jan 21 2019'
