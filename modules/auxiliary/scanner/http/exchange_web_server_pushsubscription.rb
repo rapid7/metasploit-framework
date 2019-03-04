@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USERNAME', [ true, "Username of any domain user with a mailbox on Exchange", nil ]),
+        OptString.new('USERNAME', [ true, "Username of any domain user with a mailbox on Exchange"]),
         OptString.new('PASSWORD', [ true, "Password or password hash (in LM:NT format) of the user", nil ]),
         OptString.new('DOMAIN', [ true, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ true, "Exchange Web Services API endpoint", "/EWS/Exchange.asmx" ]),
