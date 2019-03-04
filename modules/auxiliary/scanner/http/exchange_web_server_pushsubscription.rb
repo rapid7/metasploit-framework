@@ -22,9 +22,10 @@ class MetasploitModule < Msf::Auxiliary
         '@_dirkjan',         # Discovery and PoC
         'Petros Koutroumpis' # Metasploit
       ]
-      'Reference'      =>
+      'References'      =>
          [
-           [ 'URL' , 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
+           [ 'CVE', '2019-0724' ],
+           [ 'URL', 'https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/' ]
          ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Jan 21 2019'
