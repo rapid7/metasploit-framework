@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USERNAME', [ true, "Username of any domain user with a mailbox on Exchange"]),
         OptString.new('PASSWORD', [ true, "Password or password hash (in LM:NT format) of the user"]),
-        OptString.new('DOMAIN', [ true, "The Active Directory domain name", nil ]),
+        OptString.new('DOMAIN', [ true, "The Active Directory domain name"]),
         OptString.new('TARGETURI', [ true, "Exchange Web Services API endpoint", "/EWS/Exchange.asmx" ]),
         OptString.new('EXCHANGE_VERSION', [ true, "Version of Exchange (2013|2016)", "2016" ]),
         OptString.new('ATTACKER_URL', [ true, "Attacker URL", nil ]),
