@@ -112,25 +112,37 @@ class MetasploitModule < Msf::Auxiliary
       print_error "SSL negotiation failed"
     end
 
-    if res.code == 200
-      print_good("Exchange returned HTTP status 200 - Authentication was successful")
-      if xml.text.include? "NoError"
-        print_good("API call was successful")
-      elsif xml.text.include? "ErrorMissingEmailAddress"
-        print_error("The user does not have a mailbox associated. Try a different user.")
-      else
-        print_error("Unknown error. Response: " + xml.text)
-      end
-    elsif res.code == 401
-      print_error("Server returned HTTP status 401 - Authentication failed")
-    else
-      if res.code == 500
-        if xml.text.include? "ErrorInvalidServerVersion"
-          print_error("Server does not accept this Exchange dialect. Specify a different Exchange version")
-        end
-      else
-        print_error("Server returned HTTP #{res.code}: #{xml.text}")
-      end
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Connection failed')
     end
+
+    if res.code == 401
+      fail_with(Failure::NoAccess, 'Server returned HTTP status 401 - Authentication failed')
+    end
+
+    if xml.nil?
+      fail_with(Failure::UnexpectedReply, "Empty reply from server")
+    end
+
+    if res.code == 500 && xml.text.include?("ErrorInvalidServerVersion")
+      fail_with(Failure::BadConfig, "Server does not accept this Exchange dialect. Specify a different Exchange version")
+    end
+
+    unless res.code == 200
+      fail_with(Failure::UnexpectedReply, "Server returned HTTP #{res.code}: #{xml.text}")
+    end
+
+    print_good("Exchange returned HTTP status 200 - Authentication was successful")
+
+    if xml.text.include? "ErrorMissingEmailAddress"
+      fail_with(Failure::BadConfig, "The user does not have a mailbox associated. Try a different user.")
+    end
+
+    unless xml.text.include? "NoError"
+      fail_with(Failure::Unknown, "Unknown error. Response: #{xml.text}")
+    end
+
+    print_good("API call was successful")
+
   end
 end
