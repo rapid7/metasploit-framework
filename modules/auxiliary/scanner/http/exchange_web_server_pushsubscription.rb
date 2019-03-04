@@ -18,7 +18,10 @@ class MetasploitModule < Msf::Auxiliary
         This allows us to relay the NTLM authentication to a Domain Controller and authenticate with the privileges that Exchange is configured.
         The module is based on the work by @_dirkjan,
       },
-      'Author'         => 'Petros Koutroumpis',
+      'Author'         => [
+        '@_dirkjan',         # Discovery and PoC
+        'Petros Koutroumpis' # Metasploit
+      ]
       'Reference'      =>
          [
            [ 'CVE-2019-0724' ],
