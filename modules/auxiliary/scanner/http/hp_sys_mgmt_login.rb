@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     sys_name = get_system_name(res)
-    
+
     if sys_name.blank?
       print_error 'Could not retrieve system name.'
       return
