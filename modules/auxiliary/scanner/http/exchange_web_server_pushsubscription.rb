@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 200
-      print_good("Exchange returned HTTP status 200 - Authentication was sucessful")
+      print_good("Exchange returned HTTP status 200 - Authentication was successful")
       if xml.text.include? "NoError"
         print_good("API call was successful")
       elsif xml.text.include? "ErrorMissingEmailAddress"
