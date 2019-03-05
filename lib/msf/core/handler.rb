@@ -238,6 +238,8 @@ protected
           end
         rescue ActiveRecord::ConnectionNotEstablished => e
           print_error("WARNING: No database connection.  Unable to save payload info.")
+        rescue NoMethodError => e
+          print_error("WARNING: Database does not yet support UUIDs.  Unable to save payload info.")
         rescue ::Exception => e
           # We just wanna show and log the error, not trying to swallow it.
           print_error("#{e.class} #{e.message}")
