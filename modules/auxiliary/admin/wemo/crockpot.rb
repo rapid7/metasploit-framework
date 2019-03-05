@@ -88,9 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cook('Off', 0)
     end
 
-    time = res.get_xml_document.at('//time')
-
-    unless res && res.code == 200 && time
+    unless res && res.code == 200 && (time = res.get_xml_document.at('//time'))
       print_error("Failed to #{action.name.downcase}, aborting!")
       return
     end
