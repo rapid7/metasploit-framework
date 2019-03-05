@@ -54,6 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
       apps = [
         '/jmx-console/HtmlAdaptor',
+        '/jmx-console/checkJNDI.jsp',
         '/status',
         '/web-console/ServerInfo.jsp',
         # apps added per Patrick Hof
