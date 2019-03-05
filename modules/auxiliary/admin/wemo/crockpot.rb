@@ -111,17 +111,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def generate_soap_xml(temp, time)
-    <<EOF
-<?xml version="1.0" encoding="utf-8"?>
-<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-  <s:Body>
-    <u:SetCrockpotState xmlns:u="urn:Belkin:service:basicevent:1">
-      <mode>#{modes[temp]}</mode>
-      <time>#{time}</time>
-    </u:SetCrockpotState>
-  </s:Body>
-</s:Envelope>
-EOF
+    <<~EOF
+      <?xml version="1.0" encoding="utf-8"?>
+      <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+        <s:Body>
+          <u:SetCrockpotState xmlns:u="urn:Belkin:service:basicevent:1">
+            <mode>#{modes[temp]}</mode>
+            <time>#{time}</time>
+          </u:SetCrockpotState>
+        </s:Body>
+      </s:Envelope>
+    EOF
   end
 
   def modes
