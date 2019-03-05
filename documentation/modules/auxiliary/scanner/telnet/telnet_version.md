@@ -1,5 +1,5 @@
 ## Description
-This module will scan a range of machines and prints any telnet servers that are running on it.
+This module will scan a range of machines and prints the banner, usually containing the version of any telnet servers that are running on it.
 
 ## Verification Steps
 

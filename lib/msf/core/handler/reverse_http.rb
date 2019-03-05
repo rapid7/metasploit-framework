@@ -239,7 +239,8 @@ module ReverseHttp
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
-      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+      payload_count = framework.db.payloads({workspace: framework.db.workspace}).length
+      print_status("Handler is ignoring unknown payloads, there are #{payload_count} UUIDs whitelisted")
     end
   end
 
@@ -323,14 +324,19 @@ protected
     request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+    if datastore['IgnoreUnknownPayloads'] && ! framework.db.get_payload({uuid: uuid.puid_hex})
       print_status("Ignoring unknown UUID: #{request_summary}")
       info[:mode] = :unknown_uuid
     end
 
     # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
-      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      payload_info = {
+          uuid: uuid.puid_hex,
+          workspace: framework.db.workspace
+      }
+      payload = framework.db.payloads(payload_info).first
+      allowed_urls = payload ? payload.urls : []
       unless allowed_urls.include?(req.relative_resource)
         print_status("Ignoring unknown UUID URL: #{request_summary}")
         info[:mode] = :unknown_uuid_url

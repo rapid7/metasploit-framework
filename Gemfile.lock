@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.9)
+    metasploit-framework (5.0.10)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -137,7 +137,7 @@ GEM
       eventmachine (>= 1.0.0.beta.4)
     erubis (2.7.0)
     eventmachine (1.2.7)
-    factory_bot (5.0.1)
+    factory_bot (5.0.2)
       activesupport (>= 4.2.0)
     factory_bot_rails (5.0.1)
       factory_bot (~> 5.0.0)
@@ -245,7 +245,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.2)
     rb-readline (0.5.5)
-    recog (2.1.46)
+    recog (2.2.0)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -284,7 +284,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.16)
+    rex-socket (0.1.17)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
