@@ -25,7 +25,6 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 
 # Metasploit Development #
 
-- [[Why Ruby]]
 - [[Style Tips]]
 - [[How to get started with writing an exploit]]
 - [[How to get started with writing an auxiliary module]]
