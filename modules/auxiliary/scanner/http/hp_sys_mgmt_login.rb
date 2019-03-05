@@ -171,23 +171,27 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
+    sys_name = get_system_name(res)
+
+    if sys_name.blank?
+      print_error 'Could not retrieve system name.'
+      return
+    end
+
     version = get_version(res)
     unless version.blank?
       print_status("Version detected: #{version}")
       unless is_version_tested?(version)
-        print_warning("You're running the module against a version we have not tested")
+        print_warning("You're running the module against a version we have not tested.")
       end
     end
 
-    sys_name = get_system_name(res)
-    unless sys_name.blank?
-      print_good("System name detected: #{sys_name}")
-      report_note(
-        :host => ip,
-        :type => "system.name",
-        :data => sys_name
-      )
-    end
+    print_good("System name detected: #{sys_name}")
+    report_note(
+      :host => ip,
+      :type => "system.name",
+      :data => sys_name
+    )
 
     if anonymous_access?(res)
       print_good("No login necessary. Server allows anonymous access.")
