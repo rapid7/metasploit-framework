@@ -224,16 +224,24 @@ protected
       # Pass along any associated payload uuid if specified
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
-        payload_info = {
-            uuid: s.payload_uuid.puid_hex,
-            workspace: framework.db.workspace
-        }
-        if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.payloads(payload_info).first)
-          s.payload_uuid.registered = true
-          s.payload_uuid.name = uuid_info['name']
-          s.payload_uuid.timestamp = uuid_info['timestamp']
-        else
-          s.payload_uuid.registered = false
+        begin
+          payload_info = {
+              uuid: s.payload_uuid.puid_hex,
+              workspace: framework.db.workspace
+          }
+          if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.payloads(payload_info).first)
+            s.payload_uuid.registered = true
+            s.payload_uuid.name = uuid_info['name']
+            s.payload_uuid.timestamp = uuid_info['timestamp']
+          else
+            s.payload_uuid.registered = false
+          end
+        rescue ActiveRecord::ConnectionNotEstablished => e
+          print_error("WARNING: No database connection.  Unable to save payload info.")
+        rescue ::Exception => e
+          # We just wanna show and log the error, not trying to swallow it.
+          print_error("#{e.class} #{e.message}")
+          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
         end
       end
 
