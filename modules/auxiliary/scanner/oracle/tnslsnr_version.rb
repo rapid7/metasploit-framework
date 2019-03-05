@@ -22,8 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(1521)
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

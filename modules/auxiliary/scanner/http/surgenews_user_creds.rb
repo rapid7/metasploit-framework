@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         => 'bcoles',
       'DisclosureDate' => 'Jun 16 2017'))
+
     register_options [ Opt::RPORT(9080) ]
-    deregister_options 'RHOST'
   end
 
   def max_retries

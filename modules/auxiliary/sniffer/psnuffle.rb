@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         File.join(Msf::Config.data_directory, 'exploits', 'psnuffle')
       ]),
     ]
-    deregister_options('RHOST', 'RHOSTS')
+    deregister_options('RHOSTS')
   end
 
 

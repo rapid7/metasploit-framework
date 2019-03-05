@@ -30,8 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(1521)
       ])
-
-    deregister_options('RHOST') # Provided by the TNS mixin, but not needed in a scanner module
   end
 
   def run_host(ip)

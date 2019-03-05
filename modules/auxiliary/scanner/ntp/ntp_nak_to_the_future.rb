@@ -44,8 +44,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300])
       ])
-
-    deregister_options('RHOST')
   end
 
   def build_crypto_nak(time)

@@ -37,8 +37,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

@@ -73,8 +73,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
         OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
       ])
-
-    deregister_options('RHOST')
   end
 
 
