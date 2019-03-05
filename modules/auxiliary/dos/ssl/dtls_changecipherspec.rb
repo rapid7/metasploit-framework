@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
   include Msf::Exploit::Capture
-  include Exploit::Remote::Tcp
+  include Exploit::Remote::Udp
 
   def initialize(info = {})
     super(update_info(info,
