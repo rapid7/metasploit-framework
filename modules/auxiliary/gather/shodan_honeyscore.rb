@@ -29,10 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('RHOST', 'SSL', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-      'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
-
     register_options(
       [
         OptString.new('TARGET', [true, 'The target to get the score of']),
