@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
+      Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT)
     ])
   end
 
