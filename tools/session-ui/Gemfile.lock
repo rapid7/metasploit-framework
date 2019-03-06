@@ -1,16 +1,16 @@
- GEM
+GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
-    daemons (1.2.6)
+    daemons (1.3.1)
     em-websocket (0.3.8)
       addressable (>= 2.1.1)
       eventmachine (>= 0.12.9)
     eventmachine (1.2.7)
     multi_json (1.13.1)
-    public_suffix (3.0.2)
-    rack (1.6.10)
+    public_suffix (3.0.3)
+    rack (1.6.11)
     rack-protection (1.5.5)
       rack
     sinatra (1.4.8)
@@ -44,4 +44,4 @@ DEPENDENCIES
   sinatra-websocket (~> 0.3.1)
 
 BUNDLED WITH
-   1.16.2
+   1.17.2

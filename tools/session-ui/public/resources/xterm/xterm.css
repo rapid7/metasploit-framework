@@ -44,11 +44,10 @@
     user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    tabindex:"0";
-    /*
-    padding: 5px;
-     */
+
 }
+
+
 
 .xterm.focus,
 .xterm:focus {
@@ -99,7 +98,7 @@
 
 .xterm .xterm-viewport {
     /* On OS X this is required in order for the scroll bar to appear fully opaque */
-    background-color: rgb(26,26,26);
+    background-color: #000;
     overflow-y: scroll;
     cursor: default;
     position: absolute;
@@ -110,38 +109,38 @@
 }
 
 .xterm .xterm-screen {
-    /*position: relative; */
-    width: 1500px;
-    height: 600px;
-}
+    position: relative;
+    /* width: 1500px;
+     height: 600px; */
+ }
 
-.xterm .xterm-screen canvas {
-    position: absolute;
-    left: 0;
-    top: 0;
-}
+ .xterm .xterm-screen canvas {
+     position: absolute;
+     left: 0;
+     top: 0;
+ }
 
 
 
-.xterm .xterm-scroll-area {
-    visibility: hidden;
-}
+ .xterm .xterm-scroll-area {
+     visibility: hidden;
+ }
 
-.xterm-char-measure-element {
-    display: inline-block;
-    visibility: hidden;
-    position: absolute;
-    top: 0;
-    left: -9999em;
-    line-height: normal;
-}
+ .xterm-char-measure-element {
+     display: inline-block;
+     visibility: hidden;
+     position: absolute;
+     top: 0;
+     left: -9999em;
+     line-height: normal;
+ }
 
-.xterm {
-    cursor: text;
-}
+ .xterm {
+     cursor: text;
+ }
 
-.xterm.enable-mouse-events {
-    /* When mouse events are enabled (eg. tmux), revert to the standard pointer cursor */
+ .xterm.enable-mouse-events {
+     /* When mouse events are enabled (eg. tmux), revert to the standard pointer cursor */
     cursor: default;
 }
 
@@ -169,8 +168,30 @@
 }
 
 #terminal-container {
-    padding-left:30px ;
-    padding-bottom: 10px;
-    padding-right: 10px;
-    padding-top: 10px;
+
+    box-shadow: 0 5px 6px 3px;
+    border: 10px solid;
+    color: #000;
+    border-top: 4px solid;
+    filter: opacity(90%);
+
+}
+
+.xterm-term-container {
+    text-align: center;
+    margin: 0 auto;
+}
+
+.xterm-title-bar {
+    border: 0;
+    color: #000;
+    background-color: white;
+    border-radius: 5px 5px 0 0;
+    margin: 0;
+    padding: 2px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 5px 6px 3px;
+    display: block;
 }

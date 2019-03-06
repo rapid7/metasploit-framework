@@ -140,7 +140,7 @@ GEM
       eventmachine (>= 0.12.9)
     erubis (2.7.0)
     eventmachine (1.2.7)
-    factory_bot (5.0.2)
+    factory_bot (5.0.1)
       activesupport (>= 4.2.0)
     factory_bot_rails (5.0.1)
       factory_bot (~> 5.0.0)
@@ -391,4 +391,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.16.2
+   1.17.3

@@ -1,87 +1,85 @@
 require 'sinatra/base'
 require 'json'
 
-
 module Sinatra
   module Backend
     class Server
       class << self
-
-        def setup(framework_obj,sid)
+        def setup(framework_obj, sid)
           @framework = framework_obj
-          @client=framework_obj.sessions.get(sid)
+          @client = framework_obj.sessions.get(sid)
         end
 
         def get_post
-          string=@framework.post.keys
+          string = @framework.post.keys
           output = {}
           count = 0
           string.each do |element|
-            str=element.to_s.split("/")
+            str = element.to_s.split("/")
             if str.length == 2
-              output.each do |key,value|
-                if str[0]== key
-                  count +=1
+              output.each do |key, value|
+                if str[0] == key
+                  count += 1
                 end
               end
               if count == 0
-                output.store(str[0],value=[])
+                output.store(str[0], value = [])
               end
-              count=0
-              output.each do |key,value|
-                if str[0]==key
+              count = 0
+              output.each do |key, value|
+                if str[0] == key
                   if value.empty?
                     value.push(str[1])
                   else
                     value.each do |val|
                       if val == str[1]
-                        count +=1
+                        count += 1
                       end
                     end
-                    if count ==0
+                    if count == 0
                       value.push(str[1])
                     end
-                    count=0
+                    count = 0
                   end
                 end
               end
             elsif str.length == 3
-              output.each do |key,value|
-                if key==str[0]
-                  count+=1
+              output.each do |key, value|
+                if key == str[0]
+                  count += 1
                 end
               end
               if count == 0
-                output.store(str[0],value={})
+                output.store(str[0], value = {})
               end
               count = 0
-              output.each do |key,value|
-                if str[0]==key
+              output.each do |key, value|
+                if str[0] == key
                   if value.empty?
-                    value.store(str[1],value=[])
+                    value.store(str[1], value = [])
                   else
-                    value.each do |value1,component|
-                      if value1==str[1]
-                        count +=1
+                    value.each do |value1, component|
+                      if value1 == str[1]
+                        count += 1
                       end
                     end
-                    if count==0
-                      value.store(str[1],value=[])
+                    if count == 0
+                      value.store(str[1], value = [])
                     end
-                    count=0
+                    count = 0
                   end
                 end
               end
-              output.each do|key,value|
+              output.each do |key, value|
                 if key == str[0]
-                  value.each do |value1,component|
-                    if value1==str[1]
+                  value.each do |value1, component|
+                    if value1 == str[1]
                       if component.empty?
                         component.push(str[2])
                       else
-                        component.each do|comp|
+                        component.each do |comp|
                           if comp == str[2]
-                            count +=1
+                            count += 1
                           end
                         end
                         if count == 0
@@ -99,6 +97,7 @@ module Sinatra
           output.to_json
         end
 
+        # TODO: Refactor the script to display extension commands separating  stdapi, extapi, core, etc commands.
         def extension
           output = {}
           @client.console.dispatcher_stack.each do |dispatch|
@@ -117,7 +116,7 @@ module Sinatra
 
         def postmodule_info(*args)
           args.each do |name|
-            mod=@framework.modules.create(name)
+            mod = @framework.modules.create(name)
             if mod.nil?
               return "Invalid module #{name}"
             else
@@ -127,17 +126,17 @@ module Sinatra
         end
 
         def extension_help(cmd)
-          info=[]
-          @client.console.dispatcher_stack.each do|dispatch|
+          p cmd
+          info = []
+          @client.console.dispatcher_stack.each do |dispatch|
             info.push(dispatch.commands[cmd])
           end
-          return info
+          info
         end
 
-        def execute_script(script,s)
-           @client.run_cmd(script,s)
+        def execute_script(script, s)
+          @client.run_cmd(script, s)
         end
-
       end
     end
   end

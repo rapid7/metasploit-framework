@@ -227,7 +227,7 @@ a {
 /* ----- Section----- */
 
 .mainsection{
-  color: #000000;
+  color: #56b5d0;
   
 
 }
@@ -274,9 +274,15 @@ section {
 }
 
 .page-container {
-    background: #000000;
-    padding-left: 280px;    
+    background: #EB5D26; /*Page Background*/
+    padding-left: 300px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+
 }
+
 
 @media (max-width: 991px) {
     .page-container {
@@ -289,7 +295,7 @@ section {
 
 
 .main-content {
-    padding-top: 116px;
+    padding-top: 90px;
     min-height: 100vh;
 
 }
@@ -566,8 +572,8 @@ section {
 
 .account-item > .content {
     margin-left: 45px;
-    padding: 2px 0;
-    padding-left: 12px;
+    font-size: large;
+    padding:12px;
 }
 
 .account-item > .content > a {
@@ -970,7 +976,7 @@ section {
 
 /* level 1*/
 #sidebar .list-group .collapse .list-group-item  {
-  padding-left: 20px;
+  padding-left: 25px;
 }
 #sidebar a:hover{
 font-style: italic;
@@ -979,12 +985,12 @@ color: #EB5D26;
 }
 /* level 2*/
 #sidebar .list-group .collapse > .collapse .list-group-item {
-  padding-left: 30px;
+  padding-left: 35px;
 }
 
 /* level 3*/
 #sidebar .list-group .collapse > .collapse > .collapse .list-group-item {
-  padding-left: 40px;
+  padding-left: 45px;
 }
 
 @media (max-width:48em) {

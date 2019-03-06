@@ -29,7 +29,6 @@ class WebConsole
   # Provides some overrides for web-based consoles
   #
   module WebConsoleShell
-
     def supports_color?
       false
     end

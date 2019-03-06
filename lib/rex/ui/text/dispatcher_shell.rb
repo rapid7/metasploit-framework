@@ -349,7 +349,7 @@ module DispatcherShell
     self.tab_words = []
     self.on_command_proc = nil
   end
-
+  
   #
   # This method accepts the entire line of text from the Readline
   # routine, stores all completed words, and passes the partial
@@ -358,15 +358,15 @@ module DispatcherShell
   # Readline.basic_word_break_characters variable being set to \x00
   #
   def tab_complete(str)
-    # Check trailing whitespace so we can tell 'x' from 'x '
+      # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/\s+$/)
-    str_trail = (str_match.nil?) ? '' : str_match[0]
+      str_trail = (str_match.nil?) ? '' : str_match[0]
 
     # Split the line up by whitespace into words
     str_words = str.split(/[\s\t\n]+/)
 
     # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
+      str_words << '' if str_trail.length > 0
 
     # Place the word list into an instance variable
     self.tab_words = str_words

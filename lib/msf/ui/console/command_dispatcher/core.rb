@@ -1103,13 +1103,7 @@ class Core
     print_line('Many options allow specifying session ranges using commas and dashes.')
     print_line('For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6')
     print_line
-    print_line('Launch Web Interface of active Meterpreter session with given [ID] ')
-    print_line
-    print_line('For example: sessions -w 1')
-    print_line
   end
-
-
 
 
   #
@@ -1282,9 +1276,6 @@ class Core
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
-
-            # added output for testing purposes
-            #output = session.run_cmd(cmd, driver.output)
 
           end
           # If the session isn't a meterpreter or shell type, it

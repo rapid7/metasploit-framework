@@ -8,6 +8,8 @@ require 'json'
 require 'sinatra-websocket'
 require 'rex/ui/text/output/stdio'
 require './tools/session-ui/backend'
+#require './backend'
+
 
 class WebConsoleServer < Sinatra::Base
   helpers Sinatra::Backend
@@ -17,14 +19,32 @@ class WebConsoleServer < Sinatra::Base
     set :public_folder, File.dirname(__FILE__) + '/public'
     set :server, %w[thin mongrel webrick]
     set :content_type, 'json'
-    set :sockets, {}
+    set :sockets, []
     #set :dump_errors, false
   end
 
-  get '/' do
+  get('/') do
     if !request.websocket?
       File.open(File.join(File.dirname(__FILE__) + '/public', 'public.html'))
     else
+      request.websocket do |ws|
+        ws.onopen do
+          ws.send("Welcome to Meterpreter Web socket,Connection Established!".to_json)
+          settings.sockets << ws
+        end
+        ws.onmessage do |msg|
+          EM.next_tick{
+            settings.sockets.each{|s|
+              s.send(msg) #echoing user input
+            }
+          }
+        end
+        ws.onclose do
+        warn("WebSocket Closed! ")
+          settings.sockets.delete(ws);
+        end
+      end
+=begin
       request.websocket do |ws|
         ws.onopen do
           # Websocket connection opened.
@@ -33,28 +53,26 @@ class WebConsoleServer < Sinatra::Base
           read, write = IO.pipe
           read_socket.io = write
           settings.sockets[ws] = [read_socket, read] # putting socket object inside settings.sockets object inside 'ws' key
-
         end
         ws.onmessage do |msg|
           # Handle incoming websocket message
-          EM.next_tick {
-            settings.sockets.each_pair { |s, obj_list|
+          EM.next_tick do
+            settings.sockets.each_pair do |s, obj_list|
               rs = obj_list[0]
               rd = obj_list[1]
 
               output = Sinatra::Backend::Server.execute_script(msg, rs)
               s.send(rd.read)
-            }
-          }
+            end
+          end
         end
         ws.onclose do
           # Handle websocket closing
           ws.send("websocket closed")
           settings.sockets.delete(ws)
         end
-
-
       end
+=end
     end
 
   end
@@ -72,7 +90,7 @@ class WebConsoleServer < Sinatra::Base
   get "/modal2" do
     content_type :json
     command = params[:command]
-    return Sinatra::Backend::Server.extension_help(command)
+    Sinatra::Backend::Server.extension_help(command)
   end
 
 
@@ -89,6 +107,6 @@ class WebConsoleServer < Sinatra::Base
   not_found do
     "Whoops! You requested a route that wasn't available"
   end
-
 end
 
+#WebConsoleServer.run!
