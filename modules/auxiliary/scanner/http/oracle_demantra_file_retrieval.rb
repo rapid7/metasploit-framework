@@ -39,8 +39,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL',   [false, 'Use SSL', false]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'c:/windows/win.ini'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

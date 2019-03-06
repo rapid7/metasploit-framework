@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
         ])
 
-    deregister_options('FILTER','PCAPFILE','RHOST','SNAPLEN')
+    deregister_options('FILTER','PCAPFILE','SNAPLEN')
 
   end
 

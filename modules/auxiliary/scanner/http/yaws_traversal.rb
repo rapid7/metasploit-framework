@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\win.ini'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
