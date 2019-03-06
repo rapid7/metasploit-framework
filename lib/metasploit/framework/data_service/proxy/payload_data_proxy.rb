@@ -2,8 +2,9 @@ module PayloadDataProxy
 
   def payloads(opts)
     begin
-      data_service = self.get_data_service
-      data_service.payloads(opts)
+      self.data_service_operation do |data_service|
+        data_service.payloads(opts)
+      end
     rescue => e
       self.log_error(e, "Problem retrieving payload")
     end
@@ -11,8 +12,9 @@ module PayloadDataProxy
 
   def create_payload(opts)
     begin
-      data_service = self.get_data_service
-      data_service.create_payload(opts)
+      self.data_service_operation do |data_service|
+        data_service.create_payload(opts)
+      end
     rescue => e
       self.log_error(e, "Problem creating payload")
     end
@@ -20,8 +22,9 @@ module PayloadDataProxy
 
   def update_payload(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_payload(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_payload(opts)
+      end
     rescue => e
       self.log_error(e, "Problem updating payload")
     end
@@ -29,8 +32,9 @@ module PayloadDataProxy
 
   def delete_payload(opts)
     begin
-      data_service = self.get_data_service
-      data_service.delete_payload(opts)
+      self.data_service_operation do |data_service|
+        data_service.delete_payload(opts)
+      end
     rescue => e
       self.log_error(e, "Problem deleting payload")
     end

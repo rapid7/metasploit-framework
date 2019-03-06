@@ -1,13 +1,15 @@
 module Msf::DBManager::Payload
 
   def create_payload(opts)
-    if opts[:uuid] && !opts[:uuid].to_s.empty?
-      if Mdm::Payload.find_by(uuid: opts[:uuid])
-        raise ArgumentError.new("A payload with this uuid already exists.")
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      if opts[:uuid] && !opts[:uuid].to_s.empty?
+        if Mdm::Payload.find_by(uuid: opts[:uuid])
+          raise ArgumentError.new("A payload with this uuid already exists.")
+        end
       end
-    end
 
-    Mdm::Payload.create!(opts)
+      Mdm::Payload.create!(opts)
+    end
   end
 
   def payloads(opts)
