@@ -23,13 +23,11 @@ module CredentialDataProxy
         end
         new_core = data_service.create_credential(opts)
         old_core.logins.each do |login|
-          service = data_service.services(id: login.service_id)
+          service = data_service.services(id: login.service_id).first
           data_service.create_credential_login(core: new_core, service_id: service.id, status: Metasploit::Model::Login::Status::UNTRIED)
         end
         new_core
       end
-    rescue => e
-      self.log_error(e, "Problem creating cracked credential")
     end
   end
 
