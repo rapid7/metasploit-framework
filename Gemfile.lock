@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.45)
+    metasploit-framework (4.17.46)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -176,7 +176,7 @@ GEM
     mini_portile2 (2.4.0)
     minitest (5.11.3)
     mqtt (0.5.0)
-    msgpack (1.2.6)
+    msgpack (1.2.7)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
     net-ssh (5.1.0)
@@ -226,7 +226,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.2)
     rb-readline (0.5.5)
-    recog (2.2.0)
+    recog (2.2.1)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
