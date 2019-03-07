@@ -28,6 +28,8 @@ module CredentialDataProxy
         end
         new_core
       end
+    rescue => e
+      self.log_error(e, "Problem creating cracked credential")
     end
   end
 
