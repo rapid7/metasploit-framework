@@ -36,6 +36,7 @@ function createTerminal(){
         scrollback: 10000,
         screeenKeys: true,
         tabStopWidth: 10,
+        bellSound:true,
         useStyle : true,
         theme: {
             foreground: '#d2d2d2',
@@ -92,7 +93,6 @@ function setUpTermEventHandlers() {
     term.addDisposableListener('paste', function (data, ev) {
         term.write(data);
     });
-
     term.on('key', (key, ev) => {
         const printable = (
             !ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey
@@ -111,8 +111,8 @@ function setUpTermEventHandlers() {
                 historyIndex = commandHistory.length;
                 term.prompt();
             }
+            console.log("Command History : " + commandHistory)
         }
-
         // CODE FOR backspace
         // TODO Improve backspace implementation, It only works when cursor is at line's
         else if (ev.keyCode === 8) {
@@ -127,7 +127,6 @@ function setUpTermEventHandlers() {
         }
         // On pressing ArrowUp code
         else if (ev.keyCode === 38) {
-            // TODO Arrow up should show history of commands
             // traverse LinkedList and display topmost element
             if (historyIndex > 0) {
                 showHistoryItem(--historyIndex);
@@ -137,7 +136,6 @@ function setUpTermEventHandlers() {
         }
         // on pressing Arrow Down
         else if (ev.keyCode === 40) {
-            // TODO should traverse through history of commands
             if (historyIndex < commandHistory.length) {
                 showHistoryItem(++historyIndex);
                 console.log(historyIndex)
@@ -146,9 +144,8 @@ function setUpTermEventHandlers() {
         }
         // On pressing Arrow left
         else if (ev.keyCode === 37) {
-            // TODO should not go beyond prompt.
+            // TODO: Should have the ability insert element while cruising down the content.
             // use term.textarea.value.length to track track the movement of cursor
-
             if (term.buffer.x > 14) {     //because length of prompt is 14
                 term.write('\x1b[1D');
             }
@@ -156,10 +153,10 @@ function setUpTermEventHandlers() {
         }
         // on pressing Arrow Right
         else if (ev.keyCode === 39) {
-            // TODO cursor should not go beyond key length of the text area
+            // TODO: Should have the ability insert element while cruising down the content.
             // use term.textarea.value.length to track the movement of the cursor
-            if (term.buffer.x <= term.textarea.length) {     //because length of prompt is 14
-                //term.write('\x1b[1C');
+            if (term.buffer.x <= term.textarea.value.length + 13) {     //because length of prompt is 14
+                term.write('\x1b[1C');
             }
             console.log("Arrow Right");
         }
@@ -172,9 +169,7 @@ function setUpTermEventHandlers() {
             }
         }
     });
-
 }
-
 
 // ****************** WebSocket Implementation *************************************
 
@@ -270,7 +265,6 @@ function modal(val){
             document.getElementById("postdiscription").innerText=responseData.description;
             document.getElementById("postplatform").innerText=responseData.platform;
             document.getElementById("postrank").innerText=responseData.rank;
-
         }
         else
             alert("Connection Failed!");
@@ -289,17 +283,19 @@ function modal2(val){
     document.getElementById("sidebarTitle2").innerText=val + " -h";
     let xhr=new XMLHttpRequest();
     let url="/modal2?command=" + val;
-    xhr.open("GET",url,true);
-    xhr.send();
+
     xhr.onload = function(){
-        console.log(xhr.responseText);
         let response = xhr.responseText;
+        let responseData= JSON.parse(response);
+        let filtered = responseData.filter(function (el) {
+            return el != null;
+        });
         if (xhr.readyState === 4 && xhr.status === 200){
-
-            document.getElementById("discription").innerText=response;
-
+            document.getElementById("disc").innerText=filtered;
         }
     };
+    xhr.open("GET",url,true);
+    xhr.send();
 }
 
 
@@ -360,7 +356,7 @@ function postModule() {
 
                 let post_mod = postData[arr[i]];
                 let postmod_key = Object.keys(post_mod);
-                if (postmod_key[i] !== 0) {
+                if (postmod_key.length !== 0) {
                     for (let j = 0; j < postmod_key.length; j++) {
                         let subList = document.createElement("a");
                         subList.setAttribute("class", "list-group-item");
@@ -391,6 +387,7 @@ function postModule() {
                         }
                     }
                 }
+                else{continue}
                 document.getElementById("menu1").appendChild(menu1);
                 document.getElementById("menu1").appendChild(menu1sub);
                 count++;
@@ -412,40 +409,72 @@ function ExtensionCommand() {
         let count=0;
         if (xhr.readyState === 4 && xhr.status === 200) {
             let arr = Object.keys(extenJson);
+            //console.log("arr : " + arr);
+            //console.log(arr);
             for (let i = 0; i < arr.length; i++) {
                 let menu2 = document.createElement("a");
                 menu2.setAttribute("class", "list-group-item");
                 menu2.setAttribute("data-toggle", "collapse");
                 menu2.setAttribute("aria-expanded", "false");
                 menu2.innerHTML = arr[i];
-                menu2.setAttribute("href", "#" + count);
+                menu2.setAttribute("href", "#" + arr[i]);
                 let menu2sub = document.createElement('div');
                 menu2sub.setAttribute("class", "collapse");
-                menu2sub.setAttribute("id", count);
-                let data = Object.values(extenJson[arr[i]]);
-                // sub-commands
+                menu2sub.setAttribute("id", arr[i]);
 
-                if (data.length === 0) {
-                    let data_list = document.createElement('a');
-                    data_list.setAttribute("class", "list-group-item");
-                    data_list.setAttribute("data-parent", "#" + count);
-                    data_list.setAttribute("href", "#");
-                    data_list.innerHTML = "No Command Available";
-                    menu2sub.appendChild(data_list);
-                }
-                else {
-                    for (let j = 0; j < data.length; j++) {
-                        let data_list = document.createElement('a');
-                        data_list.setAttribute("class", "list-group-item");
-                        data_list.setAttribute("data-parent", "#" + count);
-                        data_list.setAttribute("href", "#");
-                        data_list.setAttribute("data-toggle", "modal");
-                        data_list.setAttribute("data-target", "#sidebarModal2");
-                        data_list.setAttribute("onclick", "modal2(" + "\"" + data[j] + "\"" + ")");
-                        data_list.innerHTML = data[j];
-                        menu2sub.appendChild(data_list);
-
+                let exten_cmd = extenJson[arr[i]],
+                    exten_keys = Object.keys(exten_cmd),
+                    exten_values = Object.values(exten_cmd);
+                if (exten_keys.length !== 0) {
+                    if(isInt(exten_keys[i])) {
+                        for (let j = 0; j < exten_keys.length; j++) {
+                            let data_list = document.createElement('a');
+                            data_list.setAttribute("class", "list-group-item");
+                            data_list.setAttribute("data-parent", "#" + count);
+                            data_list.setAttribute("href", "#");
+                            data_list.setAttribute("data-toggle", "modal");
+                            data_list.setAttribute("data-target", "#sidebarModal2");
+                            data_list.setAttribute("onclick", "modal2(" + "\"" + exten_values[j] + "\"" + ")");
+                            data_list.innerHTML = exten_values[j];
+                            menu2sub.appendChild(data_list);
+                        }
                     }
+                    else{
+                        for (let j = 0; j < exten_keys.length; j++) {
+                            let subList = document.createElement("a");
+                            subList.setAttribute("class", "list-group-item");
+                            subList.setAttribute("data-toggle", "collapse");
+                            subList.setAttribute("aria-expanded", "false");
+                            subList.setAttribute("href", "#" + exten_keys[j].split(' ').join('') + count);
+                            subList.innerHTML = exten_keys[j];
+
+                            let valueList = document.createElement("div");
+                            valueList.setAttribute("class", "collapse");
+                            valueList.setAttribute("id", exten_keys[j].split(' ').join('') + count);
+
+                            //Content inside Gather, Capture etc
+
+                            let value = exten_cmd[exten_keys[j]];
+                            console.log("keys : " + exten_keys[j]+" value : " + value);
+                            for (let k = 0; k < value.length; k++) {
+                                let valueSubList = document.createElement("a");
+                                valueSubList.setAttribute("class", "list-group-item");
+                                valueSubList.setAttribute("data-parent", "#" + exten_keys[j].split(' ').join('') + count);
+                                valueSubList.setAttribute("href", "#");
+                                valueSubList.setAttribute("data-toggle", "modal");
+                                valueSubList.setAttribute("data-target", "#sidebarModal2");
+                                valueSubList.setAttribute("onclick", "modal2(" + "\""+ value[k] + "\"" + ")");
+                                valueSubList.innerHTML = value[k];
+                                menu2sub.appendChild(subList);
+                                valueList.appendChild(valueSubList);
+                                menu2sub.appendChild(valueList);
+                            }
+                        }
+                    }
+
+                }
+                else{
+                    continue
                 }
                 document.getElementById("menu2").appendChild(menu2);
                 document.getElementById("menu2").appendChild(menu2sub);
@@ -457,7 +486,9 @@ function ExtensionCommand() {
     };
 }
 
-
+function isInt(value) {
+    return !isNaN(value) && (function(x) { return (x | 0) === x; })(parseFloat(value))
+}
 function sysinfo(){
     let xhr = new XMLHttpRequest();
     let url = "/sysinfo";

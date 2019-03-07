@@ -74,7 +74,6 @@ class WebConsoleServer < Sinatra::Base
       end
 =end
     end
-
   end
 
   get "/sysinfo" do
@@ -92,7 +91,6 @@ class WebConsoleServer < Sinatra::Base
     command = params[:command]
     Sinatra::Backend::Server.extension_help(command)
   end
-
 
   get "/post" do
     content_type :json
