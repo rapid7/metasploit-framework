@@ -17,6 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => [ 'Nixawk' ],
       'License' => MSF_LICENSE))
 
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('TARGET', [ true, "The target to locate subdomains for, ex: rapid7.com, 8.8.8.8"]),
@@ -24,8 +26,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUM_BING', [ true, "Enable Bing Search Subdomains", true]),
         OptBool.new('ENUM_YAHOO', [ true, "Enable Yahoo Search Subdomains", true])
       ])
-
-    deregister_options('RHOST', 'RPORT', 'VHOST', 'SSL', 'Proxies')
   end
 
   def rhost_yahoo
