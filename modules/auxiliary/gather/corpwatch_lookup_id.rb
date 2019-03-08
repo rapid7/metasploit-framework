@@ -23,6 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
@@ -34,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('CHILD_LIMIT', [false, "Set limit to how many children we can get", 5]),
         OptBool.new('GET_HISTORY', [false, "Get company history", false])
       ])
-
-    deregister_options('RHOST', 'RPORT', 'VHOST', 'Proxies')
   end
 
   def rhost_corpwatch
