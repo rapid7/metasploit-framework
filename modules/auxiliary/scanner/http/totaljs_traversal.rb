@@ -9,13 +9,11 @@ require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  Rank = NormalRanking
-
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Total.js < 3.2.4 Directory Traversal',
+      'Name' => 'Total.js prior to 3.2.4 Directory Traversal',
       'Description' => %q(
-        This module check and exploits a directory traversal vulnerability in Total.js < 3.2.4.
+        This module check and exploits a directory traversal vulnerability in Total.js prior to 3.2.4.
 
         Here is a list of accepted extensions: flac, jpg, jpeg, png, gif, ico, js, css, txt, xml,
         woff, woff2, otf, ttf, eot, svg, zip, rar, pdf, docx, xlsx, doc, xls, html, htm, appcache,
