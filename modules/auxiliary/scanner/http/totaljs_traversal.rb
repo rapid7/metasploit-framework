@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CHECK', { 'Description' => 'Check if the target is vulnerable' }],
           ['READ', { 'Description' => 'Attempt to print file content' }],
-          ['DOWNLOAD', { 'Description' => 'Attempt to downlaod a file' }]
+          ['DOWNLOAD', { 'Description' => 'Attempt to download a file' }]
         ],
       'DefaultAction' => 'CHECK'))
 
@@ -85,10 +85,9 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => uri
     )
     unless res
-      print_error 'Generic error'
-      return
+      fail_with(Failure::Unreachable, 'Connection failed')
     end
-    unless res.code != 200
+    if res.code != 200
       print_error("Unable to read '#{datastore['FILE']}', possibly because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
@@ -107,10 +106,9 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => uri
     )
     unless res
-      print_error 'Generic error'
-      return
+      fail_with(Failure::Unreachable, 'Connection failed')
     end
-    unless res.code != 200
+    if res.code != 200
       print_error("Unable to read '#{datastore['FILE']}', possibly because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
