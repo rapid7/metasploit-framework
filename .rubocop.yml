@@ -59,10 +59,6 @@ Style/Documentation:
   Exclude:
     - 'modules/**/*'
 
-Layout/IndentHeredoc:
-  Enabled: false
-  Description: 'We need to leave this disabled for Ruby 2.2 compat, remove in 2018'
-
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
   Description: 'Almost all module metadata have space in brackets'
