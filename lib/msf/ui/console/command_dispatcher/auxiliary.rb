@@ -60,24 +60,6 @@ class Auxiliary
   end
 
   #
-  # Launches an auxiliary module for single attempt.
-  #
-  def run_single(mod, action, opts)
-    begin
-      mod.run_simple(
-        'Action'         => action,
-        'OptionStr'      => opts.join(','),
-        'LocalInput'     => driver.input,
-        'LocalOutput'    => driver.output,
-        'RunAsJob'       => jobify,
-        'Quiet'          => quiet
-      )
-    rescue
-      raise $!
-    end
-  end
-
-  #
   # Tab completion for the run command
   #
   def cmd_run_tabs(str, words)
@@ -127,7 +109,14 @@ class Auxiliary
     begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
-        run_single(mod, action, opts)
+        mod.run_simple(
+          'Action'         => action,
+          'OptionStr'      => opts.join(','),
+          'LocalInput'     => driver.input,
+          'LocalOutput'    => driver.output,
+          'RunAsJob'       => jobify,
+          'Quiet'          => quiet
+        )
       # For multi target attempts with non-scanner modules.
       else
         rhosts_opt = Msf::OptAddressRange.new('RHOSTS')
@@ -141,7 +130,14 @@ class Auxiliary
           nmod = mod.replicant
           nmod.datastore['RHOST'] = rhost
           print_status("Running module against #{rhost}")
-          run_single(nmod, action, opts)
+          mod.run_simple(
+            'Action'         => action,
+            'OptionStr'      => opts.join(','),
+            'LocalInput'     => driver.input,
+            'LocalOutput'    => driver.output,
+            'RunAsJob'       => false,
+            'Quiet'          => quiet
+          )
         end
       end
     rescue ::Timeout::Error
