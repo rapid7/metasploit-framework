@@ -31,6 +31,11 @@ class CommandShell
 
   include Rex::Ui::Text::Resource
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help menu.'             ],
+    '-e' => [true,  'Expression to evaluate.']
+  )
+
   ##
   # :category: Msf::Session::Scriptable implementors
   #
@@ -99,14 +104,16 @@ class CommandShell
   #
   def commands
     {
-        'help'         =>  'Help menu',
-        'background'   => 'Backgrounds the current shell session',
-        'sessions'     => 'Quickly switch to another session',
-        'resource'     => 'Run a meta commands script stored in a local file',
-        'shell'        => 'Spawn an interactive shell (*NIX Only)',
-        'download'     => 'Download files (*NIX Only)',
-        'upload'       => 'Upload files (*NIX Only)',
-        'source'       => 'Run a shell script on remote machine (*NIX Only)',
+        'help'       => 'Help menu',
+        'background' => 'Backgrounds the current shell session',
+        'sessions'   => 'Quickly switch to another session',
+        'resource'   => 'Run a meta commands script stored in a local file',
+        'shell'      => 'Spawn an interactive shell (*NIX Only)',
+        'download'   => 'Download files (*NIX Only)',
+        'upload'     => 'Upload files (*NIX Only)',
+        'source'     => 'Run a shell script on remote machine (*NIX Only)',
+        'irb'        => 'Open an interactive Ruby shell on the current session',
+        'pry'        => 'Open the Pry debugger on the current session'
     }
   end
 
@@ -477,6 +484,76 @@ class CommandShell
     end
     print_status("Cleaning temp file on remote machine")
     shell_command("rm -rf #{remote_file}")
+  end
+
+  def cmd_irb_help
+    print_line('Usage: irb')
+    print_line
+    print_line('Open an interactive Ruby shell on the current session.')
+    print @@irb_opts.usage
+  end
+
+  #
+  # Open an interactive Ruby shell on the current session
+  #
+  def cmd_irb(*args)
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
+
+    session = self
+    framework = self.framework
+
+    if expressions.empty?
+      print_status('Starting IRB shell...')
+      print_status("You are in the \"self\" (session) object\n")
+
+      Rex::Ui::Text::IrbShell.new(self).run
+    else
+      # XXX: No vprint_status here
+      if framework.datastore['VERBOSE'].to_s == 'true'
+        print_status("You are executing expressions in #{binding.receiver}")
+      end
+
+      expressions.each { |expression| eval(expression, binding) }
+    end
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open the Pry debugger on the current session.'
+    print_line
+  end
+
+  #
+  # Open the Pry debugger on the current session
+  #
+  def cmd_pry(*args)
+    if args.include?('-h')
+      cmd_pry_help
+      return
+    end
+
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error('Failed to load Pry, try "gem install pry"')
+      return
+    end
+
+    print_status('Starting Pry shell...')
+    print_status("You are in the \"self\" (session) object\n")
+
+    self.pry
   end
 
   #
