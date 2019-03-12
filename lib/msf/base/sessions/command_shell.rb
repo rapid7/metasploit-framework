@@ -104,21 +104,40 @@ class CommandShell
   #
   def commands
     {
-        'help'       => 'Help menu',
-        'background' => 'Backgrounds the current shell session',
-        'sessions'   => 'Quickly switch to another session',
-        'resource'   => 'Run a meta commands script stored in a local file',
-        'shell'      => 'Spawn an interactive shell (*NIX Only)',
-        'download'   => 'Download files (*NIX Only)',
-        'upload'     => 'Upload files (*NIX Only)',
-        'source'     => 'Run a shell script on remote machine (*NIX Only)',
-        'irb'        => 'Open an interactive Ruby shell on the current session',
-        'pry'        => 'Open the Pry debugger on the current session'
+      'help'       => 'Help menu',
+      'background' => 'Backgrounds the current shell session',
+      'sessions'   => 'Quickly switch to another session',
+      'resource'   => 'Run a meta commands script stored in a local file',
+      'shell'      => 'Spawn an interactive shell (*NIX Only)',
+      'download'   => 'Download files (*NIX Only)',
+      'upload'     => 'Upload files (*NIX Only)',
+      'source'     => 'Run a shell script on remote machine (*NIX Only)',
+      'irb'        => 'Open an interactive Ruby shell on the current session',
+      'pry'        => 'Open the Pry debugger on the current session'
     }
   end
 
+  def cmd_help_help
+    print_line "There's only so much I can do"
+  end
+
   def cmd_help(*args)
+    cmd = args.shift
+
+    if cmd
+      unless commands.key?(cmd)
+        return print_error('No such command')
+      end
+
+      unless respond_to?("cmd_#{cmd}_help")
+        return print_error("No help for #{cmd}, try -h")
+      end
+
+      return send("cmd_#{cmd}_help")
+    end
+
     columns = ['Command', 'Description']
+
     tbl = Rex::Text::Table.new(
       'Header'  => 'Meta shell commands',
       'Prefix'  => "\n",
@@ -127,9 +146,11 @@ class CommandShell
       'Columns' => columns,
       'SortIndex' => -1
     )
+
     commands.each do |key, value|
       tbl << [key, value]
     end
+
     print(tbl.to_s)
   end
 
