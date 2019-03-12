@@ -417,7 +417,7 @@ class Msf::Modules::Loader::Base
       log_lines += error.backtrace
     end
 
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     elog(log_message)
   end
 
@@ -434,7 +434,7 @@ class Msf::Modules::Loader::Base
     log_lines = []
     log_lines << "#{module_path} generated a warning during load:"
     log_lines << error.to_s
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     wlog(log_message)
   end
 
