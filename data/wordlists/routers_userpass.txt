@@ -405,6 +405,7 @@ root realtek
 root root
 root tini
 root tslinux
+root ubnt
 root user
 root vizxv
 root wyse
