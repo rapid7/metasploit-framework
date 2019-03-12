@@ -181,7 +181,7 @@ class Msf::Modules::Loader::Base
       load_error(module_path, Msf::Modules::Error.new(
         module_path:           module_path,
         module_reference_name: module_reference_name,
-        causal_message:        'invalid module name (must be lowercase alphanumeric snake case)'
+        causal_message:        'invalid module filename (must be lowercase alphanumeric snake case)'
       ))
       return false
     end
