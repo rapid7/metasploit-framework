@@ -48,22 +48,10 @@ class ValidationError < ArgumentError
   end
 end
 
-
 ###
 #
-# This exception is raised when a module fails to load.
-#
-# It is used by Msf::Modules::Loader::Base.
-#
-###
-class ModuleLoadError < RuntimeError
-end
-
-###
-#
-# This exception is raised when the module cache is invalidated.
-#
-# It is handled internally by the ModuleManager.
+# This exception is raised when the module cache is invalidated.  It is
+# handled internally by the ModuleManager.
 #
 ###
 class ModuleCacheInvalidated < RuntimeError
