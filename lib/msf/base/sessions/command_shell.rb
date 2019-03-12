@@ -563,7 +563,7 @@ class CommandShell
     # Do nil check for cmd (CTRL+D will cause nil error)
     return unless cmd
 
-    arguments = cmd.split(' ')
+    arguments = Shellwords.shellwords(cmd)
     method    = arguments.shift
 
     # Built-in command
