@@ -116,10 +116,17 @@ module Metasploit
               proof = ssh_socket.exec!("id\n").to_s
               if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
-                if (proof =~/JUNOS /)
+                if (proof =~ /JUNOS /)
                   # We're in the SSH shell for a Juniper JunOS, we can pull the version from the cli
                   # line 2 is hostname, 3 is model, 4 is the Base OS version
                   proof = ssh_socket.exec!("cli show version\n").split("\n")[2..4].join(", ").to_s
+                end
+                proof << ssh_socket.exec!("grep unifi.version /tmp/system.cfg\n").to_s
+                if (proof =~ /unifi.version/)
+                  # The /tmp/*.cfg files don't give us device info, however the info command does
+                  # we dont call it originally since it doesnt say unifi/ubiquiti in it and info
+                  # is a linux command as well
+                  proof << ssh_socket.exec!("grep board.name /etc/board.info\n").to_s
                 end
               else
                 # Cisco IOS
@@ -151,6 +158,8 @@ module Metasploit
 
         def get_platform(proof)
           case proof
+          when /unifi\.version/ #Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
+            'unifi'
           when /Linux/
             'linux'
           when /Darwin/
