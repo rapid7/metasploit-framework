@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Post
       get_users.each do |user|
         backup_locations << "/Users/#{user}/Library/Application Support/UniFi/data/backup"
         sprop_locations  << "/Users/#{user}/Library/Application Support/Unifi/data/system.properties"
-      end      
+      end
     end
 
     # read system.properties
