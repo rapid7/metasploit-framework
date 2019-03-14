@@ -29,7 +29,9 @@ rescue LoadError => e
   msg = e.to_s
   ver = msg.scanf("You have already activated bundler %d.%d.%d, but your Gemfile requires bundler %d.%d.%d.")
   if ver.length == 6
-    $stderr.puts "[*] Please downgrade your bundler version to the one shipped with Ruby #{RUBY_VERSION}"
+    installed_ver = "#{ver[0]}.#{ver[1]}.#{ver[2]}"
+    wanted_ver = "#{ver[3]}.#{ver[4]}.#{ver[5]}"
+    $stderr.puts "[*] Bundler #{installed_ver} and #{wanted_ver} are conflicting with Ruby #{RUBY_VERSION}. Please uninstall:"
     $stderr.puts "    $ gem uninstall bundler -v #{ver[0]}.#{ver[1]}.#{ver[2]}"
   else
     $stderr.puts "[*] Bundler failed to load: '#{e}'"
