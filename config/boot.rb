@@ -1,5 +1,6 @@
 require 'pathname'
 require 'rubygems'
+require 'scanf'
 
 GEMFILE_EXTENSIONS = [
     '.local',
@@ -25,11 +26,17 @@ end
 begin
   require 'bundler/setup'
 rescue LoadError => e
-  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-  $stderr.puts "    $ gem install bundler"
-  $stderr.puts " You may need to install a specific version of bundler as well:"
-  $stderr.puts
-  $stderr.puts e
+  msg = e.to_s
+  ver = msg.scanf("You have already activated bundler %d.%d.%d, but your Gemfile requires bundler %d.%d.%d.")
+  if ver.length == 6
+    $stderr.puts "[*] Please downgrade your bundler version to the one shipped with Ruby #{RUBY_VERSION}"
+    $stderr.puts "    $ gem uninstall bundler -v #{ver[0]}.#{ver[1]}.#{ver[2]}"
+  else
+    $stderr.puts "[*] Bundler failed to load: '#{e}'"
+    $stderr.puts
+    $stderr.puts "[*] Metasploit requires the Bundler gem to be installed. You may need to run:"
+    $stderr.puts "    $ gem install bundler"
+  end
   exit(1)
 end
 
