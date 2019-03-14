@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/uuid/options'
+require 'msf/core/payload/java/payload_options'
 
 module Msf
 
@@ -17,6 +18,7 @@ module Payload::Java::ReverseHttp
   include Msf::Payload::TransportConfig
   include Msf::Payload::Java
   include Msf::Payload::UUID::Options
+  include Msf::Payload::Java::PayloadOptions
 
   #
   # Register Java reverse_http specific options
@@ -25,7 +27,6 @@ module Payload::Java::ReverseHttp
     super
     register_advanced_options(
       [
-        OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
       ] +
       Msf::Opt::http_header_options
@@ -64,9 +65,8 @@ module Payload::Java::ReverseHttp
   def stager_config(opts={})
     uri = generate_uri(opts)
     ds = opts[:datastore] || datastore
+    c = super
 
-    c =  ''
-    c << "Spawn=#{ds["Spawn"] || 2}\n"
     c << "HeaderUser-Agent=#{ds["HttpUserAgent"]}\n" if ds["HttpUserAgent"]
     c << "HeaderHost=#{ds["HttpHostHeader"]}\n" if ds["HttpHostHeader"]
     c << "HeaderReferer=#{ds["HttpReferer"]}\n" if ds["HttpReferer"]
