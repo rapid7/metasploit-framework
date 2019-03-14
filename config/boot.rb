@@ -29,14 +29,15 @@ rescue LoadError => e
   msg = e.to_s
   ver = msg.scanf("You have already activated bundler %d.%d.%d, but your Gemfile requires bundler %d.%d.%d.")
   if ver.length == 6
-    installed_ver = "#{ver[0]}.#{ver[1]}.#{ver[2]}"
+    activated_ver = "#{ver[0]}.#{ver[1]}.#{ver[2]}"
     wanted_ver = "#{ver[3]}.#{ver[4]}.#{ver[5]}"
-    $stderr.puts "[*] Bundler #{installed_ver} and #{wanted_ver} are conflicting with Ruby #{RUBY_VERSION}. Please uninstall:"
-    $stderr.puts "    $ gem uninstall bundler -v #{ver[0]}.#{ver[1]}.#{ver[2]}"
+    $stderr.puts "[*] Bundler #{activated_ver} conflicts with Ruby #{RUBY_VERSION}'s default of #{wanted_ver}."
+    $stderr.puts
+    $stderr.puts "    $ gem uninstall bundler -v #{activated_ver}"
   else
     $stderr.puts "[*] Bundler failed to load: '#{e}'"
-    $stderr.puts
     $stderr.puts "[*] Metasploit requires the Bundler gem to be installed. You may need to run:"
+    $stderr.puts
     $stderr.puts "    $ gem install bundler"
   end
   exit(1)
