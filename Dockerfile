@@ -29,7 +29,6 @@ RUN apk add --no-cache \
       git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
     && gem update --system \
-    && gem install bundler \
     && bundle install --clean --no-cache --system $BUNDLER_ARGS \
     # temp fix for https://github.com/bundler/bundler/issues/6680
     && rm -rf /usr/local/bundle/cache \
