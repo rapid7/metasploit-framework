@@ -40,6 +40,11 @@ module Auxiliary::JohnTheRipper
       ], Msf::Auxiliary::JohnTheRipper
     )
 
+    register_advanced_options(
+      [
+        OptBool.new('DELETE_TEMP_FILES',    [false, 'Delete temporary wordlist and hash files', true])
+      ], Msf::Auxiliary::JohnTheRipper
+    )
   end
 
   # @param pwd [String] Password recovered from cracking an LM hash

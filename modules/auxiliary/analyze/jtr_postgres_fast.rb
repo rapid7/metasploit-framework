@@ -124,8 +124,10 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-    cleanup_files.each do |f|
-      File.delete(f)
+    if datastore['DELETE_TEMP_FILES']
+      cleanup_files.each do |f|
+        File.delete(f)
+      end
     end
   end
 
