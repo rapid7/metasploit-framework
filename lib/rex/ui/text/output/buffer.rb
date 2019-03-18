@@ -20,7 +20,7 @@ class Output::Buffer < Rex::Ui::Text::Output
   end
 
   def supports_color?
-    false
+    true
   end
 
   #

@@ -27,6 +27,7 @@ function createTerminal(){
         cols: calculateNumberOfTerminalCols(),
         fontSize: 14,
         padding:1,
+        termName: 'Meterpreter',
         letterSpacing: 2,
         cursorBlink: true,
         convertEol: true,
@@ -36,7 +37,7 @@ function createTerminal(){
         scrollback: 10000,
         screeenKeys: true,
         tabStopWidth: 10,
-        bellSound:true,
+        bellSound: beep(),
         useStyle : true,
         theme: {
             foreground: '#d2d2d2',
@@ -51,7 +52,7 @@ function createTerminal(){
     return term;
     /*
      * This measures the height of a single character using a div's height
-     * and uses that to figure out how many rows can fit in about 90% of the screen
+     * and uses that to figure out how many rows can fit in about 95% of the screen
      */
     function calculateNumberOfTerminalRows() {
         let testElement = document.createElement('div');
@@ -61,19 +62,19 @@ function createTerminal(){
         testElement.style.fontSize = '14px';
         let fontHeight = testElement.clientHeight + 1;
         testElement.remove();
-        return Math.floor(screen.availHeight * 0.9 / fontHeight) - 2;
+        return Math.floor(screen.availHeight * 0.95 / fontHeight) - 2;
     }
 
     /*
      * This measures the width of a single character using canvas
-     * and uses that to figure out how many columns can fit in about 60% (80% for mobile) of the screen
+     * and uses that to figure out how many columns can fit in about 65% (80% for mobile) of the screen
      */
     function calculateNumberOfTerminalCols(){
         const ctx = document.createElement("canvas").getContext('2d');
         ctx.font = '14px monospace';
         const fontWidth = ctx.measureText('h').width + 1;
         const screenWidth = screen.availWidth;
-        return Math.floor(screenWidth * ((screenWidth > 600) ? 0.5 : 0.8) / fontWidth) + 3;
+        return Math.floor(screenWidth * ((screenWidth > 600) ? 0.65 : 0.8) / fontWidth) + 3;
     }
 
 }
@@ -82,14 +83,6 @@ term.open(terminalContainer, true);
 
 function setUpTermEventHandlers() {
 
-    //term.on('data', sendData);
-    /*
-    term.on('data', function(data) {
-        //ws.send(JSON.stringify(['stdin', data]));
-        term.write(data);
-        ws.send(JSON.stringify(data));
-    });
-*/
     term.addDisposableListener('paste', function (data, ev) {
         term.write(data);
     });
@@ -103,13 +96,14 @@ function setUpTermEventHandlers() {
             if(term.textarea.value.length === 0 && key === " "){
                 term.prompt();
             }else{
-                sendMessage(term.textarea.value);
+                //sendMessage(term.textarea.value);
+                ws.send(term.textarea.value);
                 if(term.textarea.value.length !== 0){
                     historyIndex = commandHistory.push(term.textarea.value);
                 }
                 term.textarea.value = "";
                 historyIndex = commandHistory.length;
-                term.prompt();
+                //term.prompt();
             }
             console.log("Command History : " + commandHistory)
         }
@@ -128,7 +122,10 @@ function setUpTermEventHandlers() {
         // On pressing ArrowUp code
         else if (ev.keyCode === 38) {
             // traverse LinkedList and display topmost element
-            if (historyIndex > 0) {
+            if(historyIndex === 0){
+                beep();
+            }
+            else if (historyIndex > 0) {
                 showHistoryItem(--historyIndex);
                 console.log(historyIndex)
             }
@@ -136,7 +133,10 @@ function setUpTermEventHandlers() {
         }
         // on pressing Arrow Down
         else if (ev.keyCode === 40) {
-            if (historyIndex < commandHistory.length) {
+           if(historyIndex === commandHistory.length) {
+               beep();
+           }
+            else if (historyIndex < commandHistory.length) {
                 showHistoryItem(++historyIndex);
                 console.log(historyIndex)
             }
@@ -146,18 +146,26 @@ function setUpTermEventHandlers() {
         else if (ev.keyCode === 37) {
             // TODO: Should have the ability insert element while cruising down the content.
             // use term.textarea.value.length to track track the movement of cursor
-            if (term.buffer.x > 14) {     //because length of prompt is 14
+            if(term.buffer.x === 14){
+                beep();
+            }
+            else if (term.buffer.x > 14) {     //because length of prompt is 14
                 term.write('\x1b[1D');
             }
             console.log("Arrow Left");
+
         }
         // on pressing Arrow Right
         else if (ev.keyCode === 39) {
             // TODO: Should have the ability insert element while cruising down the content.
             // use term.textarea.value.length to track the movement of the cursor
-            if (term.buffer.x <= term.textarea.value.length + 13) {     //because length of prompt is 14
+            if(term.buffer.x > term.textarea.value.length + 13){
+                beep();
+            }
+            else if (term.buffer.x <= term.textarea.value.length + 13) {     //because length of prompt is 14
                 term.write('\x1b[1C');
             }
+            console.log(term.textarea.value);
             console.log("Arrow Right");
         }
 
@@ -180,35 +188,18 @@ ws.onopen   = function(event)  {
     term.focus();
 };
 
-ws.onmessage = function(event) {
-    console.log("server message : " + event.data);
-    //json_msg = JSON.parse(event.data);
-    //term.write(event.data);
-    // term.prompt();
-/*
-    json_msg = JSON.parse(event.data);
-    switch(json_msg[0]){
-        case "stdout" :
-            term.write(json_msg[1]);
-            console.write("json_msg : " + json_msg[1]);
-            break;
-        case "disconnect" :
-            term.write("\r\n\r\n[Finished... Meterpreter WebConsole]\r\n");
-            break;
-    }
+ws.onerror = function(event) {
+    console.log("Web Socket Error Message : " + event.data)
+};
 
-    */
-    /*
-    if(event.data === 'false'){
-        term.write("Invalid Command");
-        term.prompt();
-    }
-    else{
-        // if valid command, write data on terminal
-        term.write(event.data.replace(/['"]+/g, ''));
-        term.prompt()
-    }
-    */
+ws.onmessage = function(event) {
+
+    //term.write(event.data.replace(/['"]+/g, ''));
+    console.log(event.data.toString());
+    let response = JSON.parse(event.data);
+    console.log("server message : " + response);
+    term.write("\n" + response);
+    term.prompt();
 };
 
 ws.onclose = function(event)  {
@@ -484,6 +475,11 @@ function ExtensionCommand() {
         else
             alert("Unable To load Extension Command");
     };
+}
+
+function beep() {
+    let snd = new  Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");
+    snd.play();
 }
 
 function isInt(value) {

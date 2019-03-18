@@ -2,14 +2,12 @@
 # it will initiate WebConsole server for a specific session. Glue code present in this Class will
 # fetch lists of post module from msfconsole in json format and will be converted in a format that can
 # be readable by the browser.
-require 'socket'
 require 'sinatra/base'
 require 'json'
 require 'sinatra-websocket'
 require 'rex/ui/text/output/stdio'
 require './tools/session-ui/backend'
-#require './backend'
-
+require 'rex/ui/text/dispatcher_shell'
 
 class WebConsoleServer < Sinatra::Base
   helpers Sinatra::Backend
@@ -32,47 +30,22 @@ class WebConsoleServer < Sinatra::Base
           ws.send("Welcome to Meterpreter Web socket,Connection Established!".to_json)
           settings.sockets << ws
         end
+
         ws.onmessage do |msg|
-          EM.next_tick{
-            settings.sockets.each{|s|
-              s.send(msg) #echoing user input
-            }
-          }
+          EM.next_tick do
+            settings.sockets.each do |s|
+              output = Sinatra::Backend::Server.execute_script(msg)
+              s.send("\n" + output)
+            end
+          end
         end
+
         ws.onclose do
         warn("WebSocket Closed! ")
           settings.sockets.delete(ws);
         end
       end
-=begin
-      request.websocket do |ws|
-        ws.onopen do
-          # Websocket connection opened.
-          ws.send("Connection Established!")
-          read_socket = Rex::Ui::Text::Output::Stdio.new
-          read, write = IO.pipe
-          read_socket.io = write
-          settings.sockets[ws] = [read_socket, read] # putting socket object inside settings.sockets object inside 'ws' key
-        end
-        ws.onmessage do |msg|
-          # Handle incoming websocket message
-          EM.next_tick do
-            settings.sockets.each_pair do |s, obj_list|
-              rs = obj_list[0]
-              rd = obj_list[1]
 
-              output = Sinatra::Backend::Server.execute_script(msg, rs)
-              s.send(rd.read)
-            end
-          end
-        end
-        ws.onclose do
-          # Handle websocket closing
-          ws.send("websocket closed")
-          settings.sockets.delete(ws)
-        end
-      end
-=end
     end
   end
 

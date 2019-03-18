@@ -130,7 +130,7 @@ module Sinatra
         def session_info
           info = @client.sys.config.sysinfo(refresh: true)
           info["session_type"] = @client.session_type
-          info["getuid"] = @client.sys  .config.getuid
+          info["getuid"] = @client.sys.config.getuid
           info.to_json
         end
 
@@ -153,9 +153,16 @@ module Sinatra
           info.to_json
         end
 
-        def execute_script(script, s)
-          @client.run_cmd(script, s)
+        def execute_script(script)
+          # setting the Output interface
+          output = Rex::Ui::Text::Output::Buffer.new
+          output.extend Rex::Ui::Text::Output::Buffer::Stdout
+
+          @client.run_cmd(script, output)
+          output.dump_buffer.to_json
         end
+
+
       end
     end
   end

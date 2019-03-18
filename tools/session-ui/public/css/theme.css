@@ -274,7 +274,7 @@ section {
 }
 
 .page-container {
-    background: #EB5D26; /*Page Background*/
+    background: #F9812A; /*Page Background*/
     padding-left: 300px;
     align-items: center;
     display: flex;
@@ -943,7 +943,7 @@ section {
     color: #ccc;
     border-left: 0;
     border-right: 0;
-    border-color: #262f36;
+    /*border-color: #262f36; */
     white-space: nowrap;
 }
 

