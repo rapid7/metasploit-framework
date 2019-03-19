@@ -1,5 +1,6 @@
 require 'swagger/blocks'
 load 'documentation/api/v1/root_api_doc.rb'
+load 'documentation/api/v1/async_callback_api_doc.rb'
 load 'documentation/api/v1/auth_api_doc.rb'
 load 'documentation/api/v1/credential_api_doc.rb'
 load 'documentation/api/v1/db_export_api_doc.rb'
@@ -46,6 +47,7 @@ module ApiDocsServlet
     lambda {
       swaggered_classes = [
           RootApiDoc,
+          AsyncCallbackApiDoc,
           AuthApiDoc,
           CredentialApiDoc,
           DbExportApiDoc,
