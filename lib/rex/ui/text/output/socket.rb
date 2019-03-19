@@ -32,6 +32,7 @@ class Output::Socket < Rex::Ui::Text::Output
   #
   def print_raw(msg = '')
     @sock.write(msg)
+    @sock.close
     @sock.flush
 
     msg

@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'json'
+require 'socket'
 
 module Sinatra
   module Backend
@@ -157,7 +158,6 @@ module Sinatra
           # setting the Output interface
           output = Rex::Ui::Text::Output::Buffer.new
           output.extend Rex::Ui::Text::Output::Buffer::Stdout
-
           @client.run_cmd(script, output)
           output.dump_buffer.to_json
         end

@@ -10,14 +10,13 @@ const commandHistory = [];
 let historyIndex = 0;
 const shellprompt = '\n\r\x1B[1;3;31mMeterpreter\x1B[0m $ '; // length = 14
 let terminalContainer = document.getElementById('terminal-container');
-let textDecoder = new TextDecoder(), textEncoder = new TextEncoder();
 
 window.onresize = function(event) {
     term.fit();
 };
 
 term.prompt = function () {
-    term.write('\r\n' + shellprompt );
+    term.write('\r' + shellprompt );
 };
 
 
@@ -26,14 +25,13 @@ function createTerminal(){
         rows: calculateNumberOfTerminalRows(),
         cols: calculateNumberOfTerminalCols(),
         fontSize: 14,
-        padding:1,
+        padding:2,
         termName: 'Meterpreter',
         letterSpacing: 2,
         cursorBlink: true,
         convertEol: true,
         cursorStyle: "block",
-        scrollLines:2,
-        fontFamily: 'monospace',
+        fontFamily: 'Ubuntu Mono, courier-new, courier, monospace',
         scrollback: 10000,
         screeenKeys: true,
         tabStopWidth: 10,
@@ -103,7 +101,6 @@ function setUpTermEventHandlers() {
                 }
                 term.textarea.value = "";
                 historyIndex = commandHistory.length;
-                //term.prompt();
             }
             console.log("Command History : " + commandHistory)
         }
@@ -267,11 +264,14 @@ function modal(val){
 
 function executePostScript(){
     let val=document.getElementById("sidebarTitle").innerText;
-    sendMessage("run post/"+val)
+    console.log("run post/" + val);
+    term.writeln("run post/"+val);
+    commandHistory.push(term.textarea.value);
+    ws.send("run post/"+val);
 }
 
 function modal2(val){
-    document.getElementById("sidebarTitle2").innerText=val + " -h";
+    document.getElementById("sidebarTitle2").innerText=val;
     let xhr=new XMLHttpRequest();
     let url="/modal2?command=" + val;
 
@@ -288,6 +288,15 @@ function modal2(val){
     xhr.open("GET",url,true);
     xhr.send();
 }
+
+function executeExtensionCommands(){
+    let val =  document.getElementById("sidebarTitle2").innerText;
+    console.log(val);
+    term.writeln(val);
+    commandHistory.push(term.textarea.value);
+    ws.send(val);
+}
+
 
 
 // TODO: Refactoring this code to support N number of value of a key. Right now it displays starting from single value to max. 3 values.

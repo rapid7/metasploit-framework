@@ -10,6 +10,7 @@ require './tools/session-ui/backend'
 require 'rex/ui/text/dispatcher_shell'
 
 class WebConsoleServer < Sinatra::Base
+
   helpers Sinatra::Backend
 
   configure :development do
@@ -18,6 +19,7 @@ class WebConsoleServer < Sinatra::Base
     set :server, %w[thin mongrel webrick]
     set :content_type, 'json'
     set :sockets, []
+    set :channels, []
     #set :dump_errors, false
   end
 
