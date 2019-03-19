@@ -60,6 +60,7 @@ module RootApiDoc
     # Documentation Tags
     #
     #################################
+    tag name: 'async_callback', description: 'Asynchrouous payload callback operations.'
     tag name: 'auth', description: 'Authorization operations.'
     tag name: 'credential', description: 'Credential operations.'
     tag name: 'db_export', description: 'Endpoint for generating and retrieving a database backup.'
