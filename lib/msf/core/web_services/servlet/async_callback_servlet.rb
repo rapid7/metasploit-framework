@@ -4,12 +4,12 @@ module AsyncCallbackServlet
     '/api/v1/async-callbacks'
   end
 
-  def self.api_path_with_id
-    "#{AsyncCallbackServlet.api_path}/?:id?"
+  def self.api_path_with_uuid
+    "#{AsyncCallbackServlet.api_path}/?:uuid?"
   end
 
   def self.registered(app)
-    app.get AsyncCallbackServlet.api_path_with_id, &get_async_callback
+    app.get AsyncCallbackServlet.api_path_with_uuid, &get_async_callback
     app.post AsyncCallbackServlet.api_path, &create_async_callback
   end
 
