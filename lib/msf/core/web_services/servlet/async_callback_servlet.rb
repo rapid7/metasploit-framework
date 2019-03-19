@@ -11,8 +11,6 @@ module AsyncCallbackServlet
   def self.registered(app)
     app.get AsyncCallbackServlet.api_path_with_id, &get_async_callback
     app.post AsyncCallbackServlet.api_path, &create_async_callback
-    app.put AsyncCallbackServlet.api_path_with_id, &update_async_callback
-    app.delete AsyncCallbackServlet.api_path, &delete_async_callback
   end
 
   #######
@@ -45,33 +43,4 @@ module AsyncCallbackServlet
       end
     }
   end
-
-  def self.update_async_callback
-    lambda {
-      warden.authenticate!
-      begin
-        opts = parse_json_request(request, false)
-        tmp_params = sanitize_params(params)
-        opts[:id] = tmp_params[:id] if tmp_params[:id]
-        data = get_db.update_async_callback(opts)
-        set_json_data_response(response: data)
-      rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error updating the async callback', code: 500)
-      end
-    }
-  end
-
-  def self.delete_async_callback
-    lambda {
-      warden.authenticate!
-      begin
-        opts = parse_json_request(request, false)
-        data = get_db.delete_async_callback(opts)
-        set_json_data_response(response: data)
-      rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error deleting the async callback', code: 500)
-      end
-    }
-  end
-
 end

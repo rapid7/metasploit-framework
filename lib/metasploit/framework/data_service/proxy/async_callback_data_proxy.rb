@@ -20,25 +20,5 @@ module AsyncCallbackDataProxy
     end
   end
 
-  def update_async_callback(opts)
-    begin
-      self.data_service_operation do |data_service|
-        data_service.update_async_callback(opts)
-      end
-    rescue => e
-      self.log_error(e, "Problem updating async callback")
-    end
-  end
-
-  def delete_async_callback(opts)
-    begin
-      self.data_service_operation do |data_service|
-        data_service.delete_async_callback(opts)
-      end
-    rescue => e
-      self.log_error(e, "Problem deleting async callback")
-    end
-  end
-
 end
 

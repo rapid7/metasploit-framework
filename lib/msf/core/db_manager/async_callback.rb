@@ -34,23 +34,4 @@ module Msf::DBManager::AsyncCallback
     end
   end
 
-  def delete_async_callback(opts)
-    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
-
-    ::ActiveRecord::Base.connection_pool.with_connection do
-      deleted = []
-      opts[:ids].each do |async_callback_id|
-        async_callback = Mdm::AsyncCallback.find(async_callback_id)
-        begin
-          deleted << async_callback.destroy
-        rescue
-          elog("Forcibly deleting #{async_callback}")
-          deleted << async_callback.delete
-        end
-      end
-
-      return deleted
-    end
-  end
-
 end
