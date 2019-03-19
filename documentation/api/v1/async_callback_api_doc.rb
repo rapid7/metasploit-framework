@@ -108,19 +108,20 @@ module AsyncCallbackApiDoc
     end
   end
 
-  swagger_path '/api/v1/async-callbacks/{id}' do
-    # Swagger documentation for api/v1/async-callbacks/:id GET
+  swagger_path '/api/v1/async-callbacks/{uuid}' do
+    # Swagger documentation for api/v1/async-callbacks/:uuid GET
     operation :get do
       key :description, 'Return specific asynchronous payload callback that is stored in the database.'
       key :tags, [ 'async_callback' ]
 
+      parameter :workspace
+
       parameter do
-        key :name, :id
+        key :name, :uuid
         key :in, :path
-        key :description, 'ID of asynchronous payload callback to retrieve.'
+        key :description, 'UUID of asynchronous payload callback to retrieve.'
         key :required, true
-        key :type, :integer
-        key :format, :int32
+        key :type, :string
       end
 
       response 200 do
