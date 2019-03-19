@@ -8,11 +8,11 @@ module AsyncCallbackApiDoc
   TIMESTAMP_DESC = 'The Unix format timestamp when the asynchronous payload called back (in epoch)'
   TIMESTAMP_EXAMPLE = '1536777407'
   LISTENER_URI_DESC = 'The URL of the listener which received the callback'
-  LISTENER_URI_EXAMPLE = ['tcp://192.168.1.7:4444', 'icmp://192.168.0.12', 'https://203.0.113.5:443/506eb417-782f-4f0b-9bc2-b30abe19d601']
+  LISTENER_URI_EXAMPLE = 'tcp://192.168.1.7:4444'
   HOST_DESC = 'The IP address from which the callback was received'
-  HOST_EXAMPLE = ['203.0.113.5']
+  HOST_EXAMPLE = '203.0.113.5'
   PORT_DESC = 'The port from which the callback was received'
-  PORT_EXAMPLE = ['443']
+  PORT_EXAMPLE = '443'
   WORKSPACE_ID_DESC = 'The ID of the workspace this payload belongs to'
   WORKSPACE_ID_EXAMPLE = 'default'
 
@@ -23,7 +23,7 @@ module AsyncCallbackApiDoc
     property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
     property :uuid, type: :string, required: true, description: UUID_DESC, example: UUID_EXAMPLE
     property :timestamp, type: :integer, required: true, description: TIMESTAMP_DESC, example: TIMESTAMP_EXAMPLE
-    property :listener_uri, description: LISTENER_URI_DESC, example: LISTENER_URI_EXAMPLE, type: :array do items type: :string end
+    property :listener_uri, type: :string, description: LISTENER_URI_DESC, example: LISTENER_URI_EXAMPLE
     property :target_host, type: :string, description: HOST_DESC, example: HOST_EXAMPLE
     property :target_port, type: :string, description: PORT_DESC, example: PORT_EXAMPLE
     property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
