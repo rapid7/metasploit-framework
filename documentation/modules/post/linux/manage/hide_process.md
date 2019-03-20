@@ -11,7 +11,7 @@ This module will hide a process with LD_PRELOAD according to command arguments o
 
  **LIBPATH**
 
-The shared obeject library file path. Use /var/tmp/ as default directory.
+The shared obeject library file path. Use `/var/tmp/` as default directory.
 
 
 
