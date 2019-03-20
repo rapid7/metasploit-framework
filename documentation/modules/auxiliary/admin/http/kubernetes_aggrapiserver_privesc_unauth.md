@@ -2,6 +2,7 @@
 
 ## minikube
 - Start
+
 You can start minikube using below command
 ```
 minikube start
@@ -40,12 +41,15 @@ minikube addons enable registry-creds
 ```
 
 Create clusterrolebinding to be used by Tiller
+```
 $ kubectl create clusterrolebinding tiller-cluster-admin \
      --clusterrole=cluster-admin \
      --serviceaccount=kube-system:default
 clusterrolebinding.rbac.authorization.k8s.io/tiller-cluster-admin created
+```
 
 - Helm
+
 helm is a package manager for kubernetes. helm init is used to deploy/install/configure Tiller Server/Client to a specific namespace, kube-system is default namespace.
 Below commands will initialize helm, create Tiller server in kube-system namespace and install service catalog chart. 
 ```
