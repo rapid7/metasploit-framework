@@ -146,3 +146,5 @@ kubectl get --raw /apis/ | jq . |grep -i groupVersion
 https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install.md
 https://www.twistlock.com/labs-blog/demystifying-kubernetes-cve-2018-1002105-dead-simple-exploit/
 https://github.com/kubernetes/kubernetes/issues/71411
+http://blog.disects.com/2018/12/kubernetes-privilege-escalation-cve.html
+http://blog.disects.com/2018/12/exploiting-kubernetes-privilege.html
