@@ -32,7 +32,7 @@ class Plugin::FFAutoRegen < Msf::Plugin
     #
     def commands
       {
-        "ffautoregen" => "Automatically regenerate the document when the exploti source changes"
+        "ffautoregen" => "Automatically regenerate the document when the exploit source changes"
       }
     end
 
