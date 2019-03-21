@@ -38,17 +38,113 @@
       <script src="resources/xterm/addon/attach.js"></script>
       <script src="resources/xterm/app.js" ></script>
      -->
-</head>
-<style>
-    .content {
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
 
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        font-family: 'Trebuchet MS', Calibri, sans-serif;
+<style>
+    pre code {
+        display: block;
+        line-height: 1.75em;
+        padding: 1em 1.5em;
+        overflow-x: auto;
     }
+
+
+    /*
+
+    Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-license.org/
+
+    */
+
+    .hljs {
+        display: block;
+        overflow-x: auto;
+        padding: 0.5em;
+        background: #23241f;
+    }
+
+    .hljs,
+    .hljs-tag,
+    .hljs-subst {
+        color: #f8f8f2;
+    }
+
+
+    .hljs,
+    .hljs-tag,
+    .hljs-subst {
+        color: #f8f8f2;
+    }
+
+    .hljs-strong,
+    .hljs-emphasis {
+        color: #a8a8a2;
+    }
+
+    .hljs-bullet,
+    .hljs-quote,
+    .hljs-number,
+    .hljs-regexp,
+    .hljs-literal,
+    .hljs-link {
+        color: #ae81ff;
+    }
+
+    .hljs-code,
+    .hljs-title,
+    .hljs-section,
+    .hljs-selector-class {
+        color: #a6e22e;
+    }
+
+    .hljs-strong {
+        font-weight: bold;
+    }
+
+    .hljs-emphasis {
+        font-style: italic;
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-name,
+    .hljs-attr {
+        color: #f92672;
+    }
+
+    .hljs-symbol,
+    .hljs-attribute {
+        color: #66d9ef;
+    }
+
+    .hljs-params,
+    .hljs-class .hljs-title {
+        color: #f8f8f2;
+    }
+
+    .hljs-string,
+    .hljs-type,
+    .hljs-built_in,
+    .hljs-builtin-name,
+    .hljs-selector-id,
+    .hljs-selector-attr,
+    .hljs-selector-pseudo,
+    .hljs-addition,
+    .hljs-variable,
+    .hljs-template-variable {
+        color: #e6db74;
+    }
+
+    .hljs-comment,
+    .hljs-deletion,
+    .hljs-meta {
+        color: #75715e;
+    }
+
 </style>
+</head>
+
 
 <!-- Modal1 for Post Exploitation Module -->
 <div class="modal fade load" id="sidebarModal" tabindex="-1" role="dialog" aria-labelledby="sidebarCenterTitle" aria-hidden="true">
@@ -68,11 +164,20 @@
                     <p id="postauthor"></p>
                     <h4 style="color: #EB5D26;">Description</h4>
                     <p id="postdiscription"></p>
-                    <h4 style="color: #EB5D26;">Platform</h4>
-                    <p id="postplatform"></p>
-                    <h4 style="color: #EB5D26;">Rank</h4>
-                    <p id="postrank"></p>
                 </div>
+
+                <div>
+                    <h4 style="color: #EB5D26;">General Options</h4> <br>
+                    <pre style="display: inline-grid">
+                        <code class="hljs" id = "options"></code>
+                    </pre>
+                    <h4 style="color: #EB5D26;">Advanced Options</h4> <br>
+                    <pre style="display: inline-grid">
+                        <code class="hljs" id = "options2"></code>
+                    </pre>
+                </div>
+                <h5 style="color: #EB5D26;">Enter options: <i>(ex. session=1  verbose=false)</i></h5>
+                <input class="form-control-success form-control" type="text" name = "inputOption" id="userInput" value= ""  placeholder="Enter Options">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -186,13 +291,13 @@
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                       <div class="row">
+
                           <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important" id="mainsection">
                               <div id="msgs"></div>
                               <div class="xterm-title-bar">root @ localhost</div>
                               <div class="xterm-term-container">
                                   <div id="terminal-container"></div>
                               </div>
-
                         </div>
 
                       </div>
@@ -203,6 +308,9 @@
         <!-- END PAGE CONTAINER-->
         </div>
     <!-- Jquery JS-->
+
+
+
     <script src="resources/jquery-3.2.1.min.js"></script>
     <script src="resources/animsition/animsition.min.js"></script>
     <script src="resources/perfect-scrollbar/perfect-scrollbar.js"></script>

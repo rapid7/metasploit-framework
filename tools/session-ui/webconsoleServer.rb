@@ -81,5 +81,3 @@ class WebConsoleServer < Sinatra::Base
     "Whoops! You requested a route that wasn't available"
   end
 end
-
-#WebConsoleServer.run!

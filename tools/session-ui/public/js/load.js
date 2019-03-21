@@ -246,13 +246,14 @@ function modal(val){
     xhr.onload = function(){
         let response = xhr.responseText;
         let responseData= JSON.parse(response);
+        let postInfo = JSON.parse(responseData.info);
         if (xhr.readyState === 4 && xhr.status === 200){
-            console.log(responseData);
-            document.getElementById("postname").innerText=responseData.name;
-            document.getElementById("postauthor").innerText=responseData.authors[0];
-            document.getElementById("postdiscription").innerText=responseData.description;
-            document.getElementById("postplatform").innerText=responseData.platform;
-            document.getElementById("postrank").innerText=responseData.rank;
+            console.log(responseData.options);
+            document.getElementById("postname").innerText= postInfo.name;
+            document.getElementById("postauthor").innerText= postInfo.authors[0];
+            document.getElementById("postdiscription").innerText= postInfo.description;
+            document.getElementById("options").innerText = responseData.options;
+            document.getElementById("options2").innerText = responseData.advance_option;
         }
         else
             alert("Connection Failed!");
@@ -264,10 +265,12 @@ function modal(val){
 
 function executePostScript(){
     let val=document.getElementById("sidebarTitle").innerText;
-    console.log("run post/" + val);
-    term.writeln("run post/"+val);
-    commandHistory.push(term.textarea.value);
-    ws.send("run post/"+val);
+    let options = document.getElementById("userInput").value;
+    let data = "run post/"+val + " " + options;
+    term.writeln(data);
+    commandHistory.push(data);
+    historyIndex = commandHistory.length
+    ws.send(data);
 }
 
 function modal2(val){
@@ -291,7 +294,6 @@ function modal2(val){
 
 function executeExtensionCommands(){
     let val =  document.getElementById("sidebarTitle2").innerText;
-    console.log(val);
     term.writeln(val);
     commandHistory.push(term.textarea.value);
     ws.send(val);

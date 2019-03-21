@@ -70,6 +70,8 @@ p {
     margin: 0;
 }
 
+
+
 .table-responsive {
     padding-right: 1px;
 }
@@ -1037,6 +1039,7 @@ color: #EB5D26;
 
 .modal-body{
     color: #FFFFFF;
+    display: table-row-group;
 }
 
 
@@ -1051,4 +1054,65 @@ color: #EB5D26;
     font-family: "Source Code Pro", Monaco, monospace;
     font-size: large;
 }
+
+/* panel Animation */
+
+
+
+.panel-heading {
+    padding: 0;
+    border:0;
+}
+.panel-title>a, .panel-title>a:active{
+    display:block;
+    color:#EB5D26;
+    font-size:16px;
+    font-weight:bold;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    word-spacing:3px;
+    text-decoration:none;
+}
+.panel-heading  a[aria-expanded="false"]::after  {
+    content: " \f0d7";
+    font-family: FontAwesome;
+    float: right;
+    transition: all 0.5s;
+}
+
+.panel-heading  a[aria-expanded="true"]::after  {
+    content: " \f0d7";
+    font-family: FontAwesome;
+    float: right;
+    transition: all 0.5s;
+}
+
+
+.panel-heading.active a:before {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+/* closed state
+#sidebar .list-group .list-group-item[aria-expanded="false"]::after {
+    content: " \f0d7";
+    font-family: FontAwesome;
+    display: inline;
+    text-align: right;
+    padding-left: 5px;
+}
+
+/* open state
+#sidebar .list-group .list-group-item[aria-expanded="true"] {
+    color: #EB5D26;
+}
+
+#sidebar .list-group .list-group-item[aria-expanded="true"]::after {
+    content: " \f0da";
+    font-family: FontAwesome;
+    display: inline;
+    text-align: right;
+    padding-left: 5px;
+}*/
 

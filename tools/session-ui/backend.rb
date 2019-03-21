@@ -136,14 +136,20 @@ module Sinatra
         end
 
         def postmodule_info(*args)
+          return_output = {}
           args.each do |name|
             mod = @framework.modules.create(name)
             if mod.nil?
               return "Invalid module #{name}"
             else
-              return Msf::Serializer::Json.dump_post_module(mod)
+              return_output = {
+                info: Msf::Serializer::Json.dump_post_module(mod),
+                options: Msf::Serializer::ReadableText.dump_options(mod, '  '),
+                advance_option: Msf::Serializer::ReadableText.dump_advanced_options(mod, '  ')
+              }
             end
           end
+          return return_output.to_json
         end
 
         def extension_help(cmd)
@@ -161,8 +167,6 @@ module Sinatra
           @client.run_cmd(script, output)
           output.dump_buffer.to_json
         end
-
-
       end
     end
   end
