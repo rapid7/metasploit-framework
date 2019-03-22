@@ -804,7 +804,7 @@ class Core
       tabs += tab_complete_filenames(str,words)
     end
 
-    return tabs.map{|e| e.sub(/.rb/, '')} - framework.plugins.map(&:name)
+    return tabs.map{|e| e.sub(/\.rb/, '')} - framework.plugins.map(&:name)
   end
 
   def cmd_route_help
