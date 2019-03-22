@@ -11,7 +11,7 @@ This module will hide a process with LD_PRELOAD according to command arguments o
 
  **LIBPATH**
 
-The shared obeject library file path. Use `/var/tmp/` as default directory.
+The shared object library file path. Use `/var/tmp/` as default directory.
 
 
 
@@ -33,7 +33,7 @@ Module options (post/linux/manage/hide_process):
    Name     Current Setting         Required  Description
    ----     ---------------         --------  -----------
    CMDLINE  evil.apk                yes       The cmdline to filter.
-   LIBPATH  /var/tmp/.YzfidldoeyHd  yes       The shared obeject library file path
+   LIBPATH  /var/tmp/.YzfidldoeyHd  yes       The shared object library file path
    SESSION  5                       yes       The session to run this module on.
 
 msf5 post(linux/manage/hide_process) > sessions -i
@@ -94,4 +94,4 @@ Process 4907 created.
 meterpreter > rm /var/tmp/.YzfidldoeyHd
 meterpreter >
 ```
-Everything backs to normal!
+Everything is back to normal.

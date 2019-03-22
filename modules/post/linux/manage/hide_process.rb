@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
 
     register_options [
         OptString.new('CMDLINE', [true, 'The cmdline to filter.']),
-        OptString.new('LIBPATH', [true, 'The shared obeject library file path', "/var/tmp/.#{Rex::Text.rand_text_alpha(8..12)}" ])
+        OptString.new('LIBPATH', [true, 'The shared object library file path', "/var/tmp/.#{Rex::Text.rand_text_alpha(8..12)}" ])
     ]
 
     register_advanced_options [
@@ -122,10 +122,10 @@ class MetasploitModule < Msf::Post
 
     # Check the result.
     begin
-      unless cmd_exec("grep -q #{lib_path.inspect} #{preload_path} && echo true").to_s.include?('true') # Check if contain the lib_path
+      unless read_file(preload_path).to_s.include?(lib_path) # Check if contains the lib_path
         return false
       end
-    rescue Exception => e
+    rescue => e
       vprint_line(e)
       return false
     end
