@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
         create_cracked_credential( username: username, password: password, core_id: core_id)
       end
     end
-    if datastore['DELETE_TEMP_FILES']
+    if datastore['DeleteTempFiles']
       cleanup_files.each do |f|
         File.delete(f)
       end

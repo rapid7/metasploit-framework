@@ -42,7 +42,7 @@ module Auxiliary::JohnTheRipper
 
     register_advanced_options(
       [
-        OptBool.new('DELETE_TEMP_FILES',    [false, 'Delete temporary wordlist and hash files', true])
+        OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true])
       ], Msf::Auxiliary::JohnTheRipper
     )
   end

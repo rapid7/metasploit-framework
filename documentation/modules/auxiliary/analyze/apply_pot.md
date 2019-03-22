@@ -29,6 +29,11 @@
    records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
    Default is `~/.msf4/john.pot`.
 
+   **DeleteTempFiles**
+
+   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+
 ## Scenarios
 
 In this scenario, we fill a bunch of different hash types into the creds db.  You'll need a
