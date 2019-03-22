@@ -3,6 +3,7 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/core/auxiliary/jtr'
 
 module Msf
 module Ui
@@ -105,6 +106,8 @@ class Creds
       cmd_creds_help
     when 'add'
       creds_add(*args)
+    when 'export'
+      creds_export
     else
       # then it's not actually a subcommand
       args.unshift(subcommand) if subcommand
@@ -125,6 +128,9 @@ class Creds
     print_line
     print_line "Usage - Listing credentials:"
     print_line "  creds [filter options] [address range]"
+    print_line
+    print_line "Usage - Exporting in JtR format:"
+    print_line "  creds export"
     print_line
     print_line "Usage - Adding credentials:"
     print_line "  creds add uses the following named parameters."
@@ -560,7 +566,23 @@ class Creds
     return tabs
   end
 
-
+  def creds_export
+    hashlist = Rex::Quickfile.new("jtr_hashes")
+    count = 0
+    ['Metasploit::Credential::NonreplayableHash',
+     'Metasploit::Credential::PostgresMD5',
+     'Metasploit::Credential::NTLMHash'].each do |type|
+      framework.db.creds(type: type).each do |core|
+        formatted = hash_to_jtr(core)
+        unless formatted.nil?
+          count += 1
+          hashlist.puts formatted
+        end
+      end
+    end
+    hashlist.close
+    print_status("#{count} JtR formatted hashes written to #{hashlist.path}")
+  end
 end
 
 end end end end
