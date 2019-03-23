@@ -52,4 +52,13 @@ module Msf::DBManager::Payload
     end
   end
 
+  def get_payload(opts)
+    raise ArgumentError.new("The following options are required: :uuid") if opts[:uuid].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      return Mdm::Payload.find_by(uuid: opts[:uuid])
+    end
+
+  end
+
 end
