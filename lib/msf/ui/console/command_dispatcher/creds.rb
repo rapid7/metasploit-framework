@@ -578,8 +578,6 @@ class Creds
     return tabs
   end
 
-  def creds_export
-  end
 end
 
 end end end end
