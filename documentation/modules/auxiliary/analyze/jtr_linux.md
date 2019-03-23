@@ -36,6 +36,11 @@
 
    Include `blowfish` and `SHA`(256/512) passwords.
 
+   **DeleteTempFiles**
+
+   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+
    **CUSTOM_WORDLIST**
 
    The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other

@@ -697,6 +697,7 @@ class Core
     print_line
     print_line "Loads a plugin from the supplied path."
     print_line "For a list of built-in plugins, do: load -l"
+    print_line "For a list of loaded plugins, do: load -s"
     print_line "The optional var=val options are custom parameters that can be passed to plugins."
     print_line
   end
@@ -767,6 +768,8 @@ class Core
       list_plugins
     when '-h', nil, ''
       cmd_load_help
+    when '-s'
+      framework.plugins.each{ |p| print_line p.name }
     else
       load_plugin(args)
     end
@@ -800,8 +803,8 @@ class Core
     else
       tabs += tab_complete_filenames(str,words)
     end
-    return tabs.map{|e| e.sub(/.rb/, '')}
 
+    return tabs.map{|e| e.sub(/\.rb/, '')} - framework.plugins.map(&:name)
   end
 
   def cmd_route_help
