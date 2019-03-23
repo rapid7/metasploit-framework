@@ -3,6 +3,7 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/core/auxiliary/jtr'
 
 module Msf
 module Ui
@@ -165,7 +166,9 @@ class Creds
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
-    print_line "  -o <file>             Send output to a file in csv format"
+    print_line "  -o <file>             Send output to a file in csv/jtr (john the ripper) format."
+    print_line "                        If file name ends in '.jtr', that format will be used."
+    print_line "                        csv by default."
     print_line "  -d,--delete           Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
@@ -530,8 +533,23 @@ class Creds
     if output_file.nil?
       print_line(tbl.to_s)
     else
-      # create the output file
-      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      if output_file.end_with? '.jtr'
+        hashlist = ::File.open(output_file, "wb")
+        ['Metasploit::Credential::NonreplayableHash',
+         'Metasploit::Credential::PostgresMD5',
+         'Metasploit::Credential::NTLMHash'].each do |type|
+          framework.db.creds(type: type).each do |core|
+            formatted = hash_to_jtr(core)
+            unless formatted.nil?
+              hashlist.puts formatted
+            end
+          end
+        end
+        hashlist.close
+      else #csv
+        # create the output file
+        ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      end
       print_status("Wrote creds to #{output_file}")
     end
 
@@ -559,7 +577,6 @@ class Creds
     end
     return tabs
   end
-
 
 end
 
