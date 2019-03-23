@@ -531,7 +531,7 @@ class Creds
     end
 
     if output_file.nil?
-        print_line(tbl.to_s)
+      print_line(tbl.to_s)
     else
       if output_file.end_with? '.jtr'
         hashlist = ::File.open(output_file, "wb")
