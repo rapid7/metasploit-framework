@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Post
         encrypted the password.
       },
       'License' => MSF_LICENSE,
-      'Author' => [ 'Justin Cacak',
-                    'b0yd' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
+      'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
       'Platform' => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ])
     )
