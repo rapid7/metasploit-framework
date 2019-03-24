@@ -7,7 +7,6 @@ require 'net/https'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -31,10 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE
       )
     )
-
-    deregister_options('RHOST', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-      'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
 
     register_options(
       [

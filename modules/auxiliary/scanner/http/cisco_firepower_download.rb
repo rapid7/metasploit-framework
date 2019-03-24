@@ -43,8 +43,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def do_login(ip)

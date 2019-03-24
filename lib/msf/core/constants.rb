@@ -75,19 +75,19 @@ OS_RESOURCE_LOSS       = 'os-resource-loss'
 #
 
 # Modules leaves payload or a dropper on the target machine
-ARTIFACTS_ON_DISK      = 'artifacts-on-disk'
+ARTIFACTS_ON_DISK = 'artifacts-on-disk'
 # Module modifies some config file on the target machine
-CONFIG_CHANGES         = 'config-changes'
+CONFIG_CHANGES    = 'config-changes'
 # Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)
-IOC_IN_LOGS            = 'ioc-in-logs'
+IOC_IN_LOGS       = 'ioc-in-logs'
 # Module may cause account lockouts (likely due to brute-forcing)
-ACCOUNT_LOCKOUTS       = 'account-lockouts'
+ACCOUNT_LOCKOUTS  = 'account-lockouts'
 # Module may show something on the screen (Example: a window pops up)
-SCREEN_EFFECTS         = 'screen-effects'
+SCREEN_EFFECTS    = 'screen-effects'
 # Module may cause a noise (Examples: audio output from the speakers or hardware beeps)
-AUDIO_EFFECTS          = 'audio-effects'
+AUDIO_EFFECTS     = 'audio-effects'
 # Module may produce physical effects (Examples: the device makes movement or flashes LEDs)
-PHYSICAL_EFFECTS       = 'physical-effects'
+PHYSICAL_EFFECTS  = 'physical-effects'
 
 #
 # Reliability
@@ -97,6 +97,8 @@ PHYSICAL_EFFECTS       = 'physical-effects'
 FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 # The module is expected to get a shell every time it fires
 REPEATABLE_SESSION = 'repeatable-session'
+# The module isn't expected to get a shell reliably (such as only once)
+UNRELIABLE_SESSION = 'unreliable-session'
 
 module HttpClients
   IE = "MSIE"

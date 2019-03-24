@@ -327,7 +327,6 @@ module Msf
             print_line "Keywords:"
             {
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
-              'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
@@ -352,7 +351,7 @@ module Msf
             end
             print_line
             print_line "Examples:"
-            print_line "  search cve:2009 type:exploit app:client"
+            print_line "  search cve:2009 type:exploit"
             print_line
           end
 
@@ -810,23 +809,31 @@ module Msf
               cmd_reload_all_help
               return
             end
+
             print_status("Reloading modules from all module paths...")
             framework.modules.reload_modules
+
+            log_msg = "Please see #{File.join(Msf::Config.log_directory, 'framework.log')} for details."
 
             # Check for modules that failed to load
             if framework.modules.module_load_error_by_path.length > 0
               print_error("WARNING! The following modules could not be loaded!")
 
-              framework.modules.module_load_error_by_path.each do |path, error|
-                print_error("\t#{path}: #{error}")
+              framework.modules.module_load_error_by_path.each do |path, _error|
+                print_error("\t#{path}")
               end
+
+              print_error(log_msg)
             end
 
             if framework.modules.module_load_warnings.length > 0
               print_warning("The following modules were loaded with warnings:")
-              framework.modules.module_load_warnings.each do |path, error|
-                print_warning("\t#{path}: #{error}")
+
+              framework.modules.module_load_warnings.each do |path, _error|
+                print_warning("\t#{path}")
               end
+
+              print_warning(log_msg)
             end
 
             self.driver.run_single("banner")

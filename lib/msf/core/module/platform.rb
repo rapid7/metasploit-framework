@@ -404,6 +404,14 @@ class Msf::Module::Platform
   end
 
   #
+  # Ubiquiti Unifi
+  #
+  class Unifi < Msf::Module::Platform
+    Rank = 100
+    Alias = "unifi"
+  end
+
+  #
   # Solaris
   #
   class Solaris < Msf::Module::Platform

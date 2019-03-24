@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
         ]
     )
 
-    deregister_options('RHOST')
     register_options([
       OptString.new('USERNAME', [false, 'A username to reset', '888888']),
       OptString.new('PASSWORD', [false, 'A password to reset the user with, if not set a random pass will be generated.']),

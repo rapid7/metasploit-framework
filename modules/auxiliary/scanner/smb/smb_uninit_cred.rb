@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     # It's either 139 or 445. The user should not touch this.
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def rport

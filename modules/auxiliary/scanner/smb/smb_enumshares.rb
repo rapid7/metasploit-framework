@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
       ])
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def device_type_int_to_text(device_type)

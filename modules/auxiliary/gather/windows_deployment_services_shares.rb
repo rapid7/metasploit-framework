@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
       ])
 
-    deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
   end
 
   # Determine the type of share based on an ID type value

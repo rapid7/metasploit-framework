@@ -15,8 +15,6 @@ module ModuleSearchApiDoc
   DISCLOSURE_DATE_DESC = 'Filter modules with a matching disclosure date.'
   DATE_DESC = 'Alias for \'disclosure_date\'.'
   FULL_NAME_DESC = 'Filter modules with a matching full name.'
-  IS_CLIENT_DESC = 'Filter modules that are client attacks. (Accepts strings \'true\' or \'false\').'
-  IS_SERVER_DESC = 'Filter modules that are server attacks. (Accepts strings \'true\' or \'false\').'
   IS_INSTALL_PATH_DESC = 'Filter modules that by value of \'is_install_path\'. (Accepts strings \'true\' or \'false\').'
   MOD_TIME_DESC = 'Filter modules with a matching modification time.'
   NAME_DESC = 'Filter modules with a matching descriptive name.'
@@ -34,7 +32,7 @@ module ModuleSearchApiDoc
   TARGETS_DESC = 'Alias for \'target\'.'
   TEXT_DESC = 'Filter modules matching any one of name, full name, description, reference, author, or targets.'
   TYPE_DESC = 'Filter modules with a matching type (exploit, auxiliary, payload, etc.).'
-  FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned. Valid field names are: \'name\', \'full_name\', \'fullname\', \'aka\', \'arch\', \'author\', \'author\', \'description\', \'disclosure_date\', \'cve\', \'edb\', \'bid\', \'mod_time\', \'is_client\', \'is_server\', \'is_install_path\', \'os\', \'platform\', \'reference\', \'references\', \'ref_name\', \'ref\', \'path\', \'port\', \'rport\', \'rank\', \'type\', \'target\', \'targets\''
+  FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned. Valid field names are: \'name\', \'full_name\', \'fullname\', \'aka\', \'arch\', \'author\', \'author\', \'description\', \'disclosure_date\', \'cve\', \'edb\', \'bid\', \'mod_time\', \'is_install_path\', \'os\', \'platform\', \'reference\', \'references\', \'ref_name\', \'ref\', \'path\', \'port\', \'rport\', \'rank\', \'type\', \'target\', \'targets\''
   NOTES_DESC = 'Extra info for a module, such as AKA names or NOCVE explanations.'
 
   TYPE_ENUM = [
@@ -97,8 +95,6 @@ module ModuleSearchApiDoc
     property :description, type: :string, description: DESCRIPTION_DESC, example: DESCRIPTION_EXAMPLE
     property :author, description: AUTHOR_DESC, example: AUTHOR_EXAMPLE, type: :array do items type: :string end
     property :references, description: REFERENCE_DESC, example: REFERENCES_EXAMPLE, type: :array do items type: :string end
-    property :is_client, type: :boolean, description: IS_CLIENT_DESC, example: IS_CLIENT_EXAMPLE
-    property :is_server, type: :boolean, description: IS_SERVER_DESC, example: IS_SERVER_EXAMPLE
     property :platform, type: :string, description: PLATFORM_DESC, example: PLATFORM_EXAMPLE
     property :arch, type: :string, description: ARCH_DESC, example: ARCH_EXAMPLE
     property :rport, type: :string, description: PORT_DESC, example: RPORT_EXAMPLE
@@ -130,8 +126,6 @@ module ModuleSearchApiDoc
         :disclosure_date => DISCLOSURE_DATE_DESC,
         :date => DATE_DESC,
         :full_name => FULL_NAME_DESC,
-        :is_client => IS_CLIENT_DESC,
-        :is_server => IS_SERVER_DESC,
         :is_install_path => IS_INSTALL_PATH_DESC,
         :mod_time => MOD_TIME_DESC,
         :name => NAME_DESC,
