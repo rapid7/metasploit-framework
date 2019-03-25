@@ -8,7 +8,8 @@ module Msf::DBManager::Payload
         end
       end
 
-      Mdm::Payload.create!(opts)
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace.payloads.create!(opts)
     end
   end
 
