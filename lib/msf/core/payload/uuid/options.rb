@@ -92,9 +92,7 @@ module Msf::Payload::UUID::Options
       arch: uuid.arch,
       platform: uuid.platform,
       timestamp: uuid.timestamp,
-      workspace: framework.db.workspace,
-      # payload: self.fullname,
-      # datastore: self.datastore
+      workspace: framework.db.workspace
     })
 
     if datastore['PayloadUUIDSeed'].to_s.length > 0
