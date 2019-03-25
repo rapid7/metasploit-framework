@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
           This module dumps the usernames and password hashes
           from Oracle given the proper Credentials and SID.
           These are then stored as creds for later cracking using auxiliary/analyze/jtr_oracle_fast.
-	  This module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.
+          This module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.
       },
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     ver = prepare_exec(query)
 
     if ver.nil?
-	    print_error("An Error has occurred. Check your OPTIONS")
+        print_error("An Error has occurred. Check your OPTIONS")
       return
     end
 
@@ -51,10 +51,10 @@ class MetasploitModule < Msf::Auxiliary
         ver='12c'
       when ver[0].include?('18c')
         print_error("Version 18c is not currently supported")
-	return
+        return
       else
         print_error("Error: Oracle DB version not supported.\nThis module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.\nDumping unsupported version info:\n#{ver[0]}")
-	return
+        return
       end
       print_status("Server is running version #{ver}")
     end
