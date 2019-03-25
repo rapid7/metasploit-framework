@@ -363,7 +363,7 @@ module DispatcherShell
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
     # Split the line up by whitespace into words
-    str_words = str.split(/[\s\t\n]+/)
+    str_words = Shellwords.split(str)
 
     # Append an empty word if we had trailing whitespace
     str_words << '' if str_trail.length > 0
@@ -425,7 +425,7 @@ module DispatcherShell
       e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
-      tab_words.dup.push(e).join(' ')
+      tab_words.dup.push(e.gsub(' ', '\ ')).join(' ')
     }
   end
 
