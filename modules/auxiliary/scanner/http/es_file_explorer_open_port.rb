@@ -20,11 +20,13 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2019-6447'],
+          ['URL', 'https://www.ms509.com/2016/03/01/es-explorer-vul/'],
           ['URL', 'https://github.com/fs0c131y/ESFileExplorerOpenPortVuln'],
           ['URL', 'https://twitter.com/fs0c131y/status/1085460755313508352'],
         ],
       'Author'      => [
-          'moonbocal', # discovery
+          '小荷才露尖尖角', # discovery (2016)
+          'moonbocal', # discovery (2019)
           'fs0c131y', # poc
           'h00die' # msf module
       ],
