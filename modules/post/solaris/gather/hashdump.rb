@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/hashes/identify'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
@@ -35,19 +37,9 @@ class MetasploitModule < Msf::Post
       john_file = unshadow(passwd_file, shadow_file)
       john_file.each_line do |l|
         hash_parts = l.split(':')
-        case
-          when hash_parts[1].start_with?('$1$')
-            jtr_format = 'md5'
-          when hash_parts[1].start_with?('$2a$'), hash_parts[1].start_with?('$2y$')
-            jtr_format = 'bf'
-          when hash_parts[1].start_with?('$5$')
-            jtr_format = 'sha256,crypt'
-          when hash_parts[1].start_with?('$6$')
-            jtr_format = 'sha512,crypt'
-          when hash_parts[1].start_with?('_')
-            jtr_format = 'des,bsdi,crypt'
-          else
-            jtr_format = 'des,bsdi,crypt'
+        jtr_format = identify_hash hash_parts[1]
+        if jtr_format.empty? #overide the default
+          jtr_format = 'des,bsdi,crypt'
         end
         credential_data = {
             jtr_format: jtr_format,

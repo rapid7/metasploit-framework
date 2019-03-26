@@ -53,6 +53,10 @@ def hash_to_jtr(cred)
     when /md5|des|bsdi|crypt|bf/
       # md5(crypt), des(crypt), b(crypt)
       return "#{cred.public.username}:#{cred.private.data}:::::#{cred.id}:"
+    when /qnx/
+      # https://moar.so/blog/qnx-password-hash-formats.html
+      hash = cred.private.data.end_with?(':0:0') ? cred.private.data : "#{cred.private.data}:0:0"
+      return "#{cred.public.username}:#{hash}"
     else
       # /mysql|mysql-sha1/
       # /mssql|mssql05|mssql12/
