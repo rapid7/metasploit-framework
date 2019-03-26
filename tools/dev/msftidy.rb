@@ -703,6 +703,14 @@ class Msftidy
     end
   end
 
+  # Check for modules having an Author section to ensure attribution
+  #
+  def check_author
+    unless @source =~ /["']Author["'][[:space:]]*=>/
+      error('Missing "Author" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -736,6 +744,7 @@ class Msftidy
     check_register_datastore_debug
     check_use_datastore_debug
     check_arch
+    check_author
   end
 
   private
