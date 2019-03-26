@@ -66,7 +66,9 @@ function createTerminal(){
     /*
      * This measures the width of a single character using canvas
      * and uses that to figure out how many columns can fit in about 65% (80% for mobile) of the screen
+     *
      */
+
     function calculateNumberOfTerminalCols(){
         const ctx = document.createElement("canvas").getContext('2d');
         ctx.font = '14px monospace';
@@ -89,7 +91,6 @@ function setUpTermEventHandlers() {
             !ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey
         );
         // OnEnter keyMap
-        // TODO: This code is push empty character while traversing through command history. Fixing is required!!
         if (ev.keyCode === 13) {
             if(term.textarea.value.length === 0 && key === " "){
                 term.prompt();
@@ -269,7 +270,7 @@ function executePostScript(){
     let data = "run post/"+val + " " + options;
     term.writeln(data);
     commandHistory.push(data);
-    historyIndex = commandHistory.length
+    historyIndex = commandHistory.length;
     ws.send(data);
 }
 

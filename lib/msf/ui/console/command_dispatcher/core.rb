@@ -1387,7 +1387,6 @@ class Core
    # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
    # the webconsole should be visible under sessions -l command in the different section
     when 'web_ui'
-      print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
         sessions = framework.sessions.get(sess_id)
         if sessions
@@ -1395,21 +1394,27 @@ class Core
             last_known_timeout = sessions.response_timeout
             sessions.response_timeout = response_timeout
           end
-          print_status("Starting Web Console for #{sess_id}")
+
           begin
             server_bind='0.0.0.0'
             server_port=3000 + sess_id
 
-            Sinatra::Backend::Server.setup(framework,sess_id)
-            thr = []
-            thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              WebConsoleServer.run!(:bind=>server_bind,:port=>server_port)
+            ServerMethods.server_setup(framework, sess_id)
+
+            ## TODO: implement thread in such a way that it does'nt block the Ui of the console and simply background itself whenever server classs is involked
+            # if thread already exist, do not spawn it again, rather notify about the same.
+            # else spawn a new thread. use framework.thread method to carry out this operation
+            #
+            # TODO: Impplement a method to terminate server_thread on passing ctrl+c interrupt
+            # #
+
+            server_thread = framework.threads.spawn("ConsoletoBrowser",true, server_bind, server_port) do
+              run_app app: WebConsoleServer.new, port: server_port, host: server_bind
               $stdout.reopen(File.new('/dev/null', 'w'))
               $stderr.reopen(File.new('/dev/null', 'w'))
-
             end
 
-            thr << framework.threads.spawn("OpenBrowser",true) do
+            open_browser_thread = framework.threads.spawn("Openbrowser", false, server_bind, server_port) do
               print_status("Opening WebConsole on host http://#{server_bind} on port #{server_port} for session #{sessions.sid}")
               Rex::Compat.open_webrtc_browser("http://#{server_bind}:#{server_port}")
             end
@@ -1423,6 +1428,7 @@ class Core
           print_error("Invalid session identifier: #{sess_id}")
         end
       end
+
     when 'script'
       unless script
         print_error("No script or module specified!")
