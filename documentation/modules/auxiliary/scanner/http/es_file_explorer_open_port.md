@@ -2,7 +2,8 @@
 
   ES File Explorer has an HTTP server that runs and accepts 
   certain commands. The HTTP server is started on app launch, and is 
-  available as long as the app is open. Version 4.1.9.7.4 and below 
+  available as long as the app is open. ES File Explorer launches as
+  a service in the background on device boot. Version 4.1.9.7.4 and below 
   are reported vulnerable. This module has been tested against 
   [4.1.9.5.1](https://www.apkmirror.com/apk/es-global/es-file-explorer/es-file-explorer-4-1-9-5-1-release/).
 
