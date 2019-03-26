@@ -114,10 +114,12 @@ module Msf::Payload::UUID::Options
         workspace: framework.db.workspace
     }
     payload = framework.db.payloads(payload_info).first
-    urls = payload.urls.nil? ? [] : payload.urls
-    urls << url
-    urls.uniq!
-    framework.db.update_payload({id: payload.id, urls: urls})
+    unless payload.nil?
+      urls = payload.urls.nil? ? [] : payload.urls
+      urls << url
+      urls.uniq!
+      framework.db.update_payload({id: payload.id, urls: urls})
+    end
   end
 
 end
