@@ -8,10 +8,6 @@
   5. Set up your MSF environment to support Oracle. You need gem ruby-oci8, as well as Oracle Instant Client. Tutorial here: https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux
   6. Make sure you have a database connected to MSF (postgresql). This can be done through `msfdb` tool or through `db_connect` command in `msfconsole`.
 
-## Verification Steps
-
-  Example steps in this format (is also in the PR):
-
   1. Start `msfconsole`
   2. Do: ```use auxiliary/scanner/oracle/oracle_hashdump.rb```
   3. Do: ```run```
@@ -21,12 +17,6 @@
 ## Options
   **DBPASS**
   The password to authenticate with. Change this from TIGER to the password of the privileged user created in step 3 of Preparation.
-
-  **DBUSER**
-  The username to authenticate with. Change this from SCOTT to the user you created who is granted privileges to select from the sys.user$ table
-
-  **RHOST**
-  The Oracle host. Change this to the IP address of the DB server.
 
   **RHOSTS**
   The target address range or CIDR identifier. If no CIDR notation is necessary, keep this value the same as RHOST.
