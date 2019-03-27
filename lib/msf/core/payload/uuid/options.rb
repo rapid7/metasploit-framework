@@ -86,6 +86,8 @@ module Msf::Payload::UUID::Options
   # Store a UUID in the JSON database if tracking is enabled
   def record_payload_uuid(uuid, info={})
     return unless datastore['PayloadUUIDTracking']
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
 
     uuid_info = info.merge({
       uuid:  uuid.puid_hex,
@@ -109,6 +111,9 @@ module Msf::Payload::UUID::Options
   # Store a UUID URL in the database if tracking is enabled
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
+
     payload_info = {
         uuid: uuid.puid_hex,
         workspace: framework.db.workspace
