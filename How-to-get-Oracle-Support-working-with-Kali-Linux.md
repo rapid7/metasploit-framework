@@ -16,36 +16,36 @@ The general steps to getting Oracle support working are to install the Oracle In
 ## Install the Oracle Instant Client
 As root, create the directory `/opt/oracle`. Then download the [Oracle Instant Client](http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html) packages for your version of Kali Linux. The packages you will need are:
 
-* instantclient-basic-linux-12.1.0.1.0.zip
-* instantclient-sqlplus-linux-12.1.0.1.0.zip
-* instantclient-sdk-linux-12.1.0.1.0.zip
+* instantclient-basic-linux-12.2.0.1.0.zip
+* instantclient-sqlplus-linux-12.2.0.1.0.zip
+* instantclient-sdk-linux-12.2.0.1.0.zip
 
-Unzip these under `/opt/oracle`, and you should now have a path called `/opt/oracle/instantclient_12_1/`. Next symlink the shared library that we need to access the library from oracle:
+Unzip these under `/opt/oracle`, and you should now have a path called `/opt/oracle/instantclient_12_2/`. Next symlink the shared library that we need to access the library from oracle:
 
 ```
-root@kali:/opt/oracle/instantclient_12_1# ln libclntsh.so.12.1 libclntsh.so
+root@kali:/opt/oracle/instantclient_12_2# ln libclntsh.so.12.1 libclntsh.so
 
-root@kali:/opt/oracle/instantclient_12_1# ls -lh libclntsh.so
+root@kali:/opt/oracle/instantclient_12_2# ls -lh libclntsh.so
 lrwxrwxrwx 1 root root 17 Jun  1 15:41 libclntsh.so -> libclntsh.so.12.1
 ```
 
 You also need to configure the appropriate environment variables, perhaps by inserting them into your .bashrc file, logging out and back in for them to apply.
 
 ```
-export PATH=$PATH:/opt/oracle/instantclient_12_1
-export SQLPATH=/opt/oracle/instantclient_12_1
-export TNS_ADMIN=/opt/oracle/instantclient_12_1
-export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1
-export ORACLE_HOME=/opt/oracle/instantclient_12_1
+export PATH=$PATH:/opt/oracle/instantclient_12_2
+export SQLPATH=/opt/oracle/instantclient_12_2
+export TNS_ADMIN=/opt/oracle/instantclient_12_2
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_2
+export ORACLE_HOME=/opt/oracle/instantclient_12_2
 ```
 
 If you have succeeded, you should be able to run `sqlplus` from a command prompt:
 ```
-root@kali:/opt/oracle/instantclient_12_1# sqlplus
+root@kali:/opt/oracle/instantclient_12_2# sqlplus
 
-SQL*Plus: Release 12.1.0.2.0 Production on Mon Jun 1 17:22:53 2015
+SQL*Plus: Release 12.2.0.1.0 Production on Tue Mar 26 20:40:24 2019
 
-Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+Copyright (c) 1982, 2016, Oracle.  All rights reserved.
 
 Enter user-name:
 ```
@@ -55,40 +55,40 @@ Enter user-name:
 First, download and extract the gem source release:
 
 ```
-root@kali:~# wget https://github.com/kubo/ruby-oci8/archive/ruby-oci8-2.1.8.zip
---2015-06-01 17:24:45--  https://github.com/kubo/ruby-oci8/archive/ruby-oci8-2.1.8.zip
-Resolving github.com (github.com)... 192.30.252.131
-Connecting to github.com (github.com)|192.30.252.131|:443... connected.
+root@kali:~# wget https://github.com/kubo/ruby-oci8/archive/ruby-oci8-2.2.7.zip
+--2019-03-26 20:31:11--  https://github.com/kubo/ruby-oci8/archive/ruby-oci8-2.2.7.zip
+Resolving github.com (github.com)... 192.30.253.113, 192.30.253.112
+Connecting to github.com (github.com)|192.30.253.113|:443... connected.
 HTTP request sent, awaiting response... 302 Found
-Location: https://codeload.github.com/kubo/ruby-oci8/zip/ruby-oci8-2.1.8 [following]
---2015-06-01 17:24:46--  https://codeload.github.com/kubo/ruby-oci8/zip/ruby-oci8-2.1.8
-Resolving codeload.github.com (codeload.github.com)... 192.30.252.146
-Connecting to codeload.github.com (codeload.github.com)|192.30.252.146|:443... connected.
+Location: https://codeload.github.com/kubo/ruby-oci8/zip/ruby-oci8-2.2.7 [following]
+--2019-03-26 20:31:11--  https://codeload.github.com/kubo/ruby-oci8/zip/ruby-oci8-2.2.7
+Resolving codeload.github.com (codeload.github.com)... 192.30.253.120, 192.30.253.121
+Connecting to codeload.github.com (codeload.github.com)|192.30.253.120|:443... connected.
 HTTP request sent, awaiting response... 200 OK
-Length: 302365 (295K) [application/zip]
-Saving to: `ruby-oci8-2.1.8.zip'
+Length: unspecified [application/zip]
+Saving to: ‘ruby-oci8-2.2.7.zip’
 
-100%[===================================================================>] 302,365      479K/s   in 0.6s
+ruby-oci8-2.2.7.zip                     [ <=>                                                                ] 376.97K  2.36MB/s    in 0.2s    
 
-2015-06-01 17:24:47 (479 KB/s) - `ruby-oci8-2.1.8.zip' saved [302365/302365]
+2019-03-26 20:31:11 (2.36 MB/s) - ‘ruby-oci8-2.2.7.zip’ saved [386016]
 
-root@kali:~# unzip ruby-oci8-2.1.8.zip
-Archive:  ruby-oci8-2.1.8.zip
-6d2e0a59e0c10f954ec89a303f0ff8a31b728baf
-   creating: ruby-oci8-ruby-oci8-2.1.8/
-  inflating: ruby-oci8-ruby-oci8-2.1.8/.gitignore
-  inflating: ruby-oci8-ruby-oci8-2.1.8/.yardopts
+root@kali:~# unzip ruby-oci8-2.2.7.zip 
+Archive:  ruby-oci8-2.2.7.zip
+0c85bf6da2f541de3236267b1a1b18f0136a8f5a
+   creating: ruby-oci8-ruby-oci8-2.2.7/
+  inflating: ruby-oci8-ruby-oci8-2.2.7/.gitignore  
+  inflating: ruby-oci8-ruby-oci8-2.2.7/.travis.yml 
 [...]
-  inflating: ruby-oci8-ruby-oci8-2.1.8/test/test_rowid.rb
-root@kali:~# cd ruby-oci8-ruby-oci8-2.1.8/
+  inflating: ruby-oci8-ruby-oci8-2.2.7/test/test_rowid.rb
+root@kali:~# cd ruby-oci8-ruby-oci8-2.2.7/
 ```
 
 Install libgmp (needed to build the gem) and set the path to prefer the correct version of ruby so that Metasploit can use it.
 
 ```
-root@kali:~/ruby-oci8-ruby-oci8-2.1.8# export PATH=/opt/metasploit/ruby/bin:$PATH
+root@kali:~/ruby-oci8-ruby-oci8-2.2.7# export PATH=/opt/metasploit/ruby/bin:$PATH
 
-root@kali:~/ruby-oci8-ruby-oci8-2.1.8# apt-get install libgmp-dev
+root@kali:~/ruby-oci8-ruby-oci8-2.2.7# apt-get install libgmp-dev
 Reading package lists... Done
 Building dependency tree
 Reading state information... Done
@@ -108,7 +108,7 @@ Setting up libgmp-dev:amd64 (2:5.0.5+dfsg-2) ...
 Build and install the gem
 
 ```
-root@kali:~/ruby-oci8-ruby-oci8-2.1.8# make
+root@kali:~/ruby-oci8-ruby-oci8-2.2.7# make
 ruby -w setup.rb config
 setup.rb:280: warning: assigned but unused variable - vname
 setup.rb:280: warning: assigned but unused variable - desc
@@ -121,34 +121,33 @@ setup.rb:280: warning: assigned but unused variable - default2
 <--- lib
 ---> ext
 ---> ext/oci8
-/opt/metasploit/ruby/bin/ruby /root/ruby-oci8-ruby-oci8-2.1.8/ext/oci8/extconf.rb
+/opt/metasploit/ruby/bin/ruby /root/ruby-oci8-ruby-oci8-2.2.7/ext/oci8/extconf.rb
 checking for load library path...
   LD_LIBRARY_PATH...
     checking /opt/metasploit/ruby/lib... no
-    checking /opt/oracle/instantclient_12_1... yes
-  /opt/oracle/instantclient_12_1/libclntsh.so.12.1 looks like an instant client.
+    checking /opt/oracle/instantclient_12_2... yes
+  /opt/oracle/instantclient_12_2/libclntsh.so.12.1 looks like an instant client.
 checking for cc... ok
 checking for gcc... yes
 checking for LP64... yes
 checking for sys/types.h... yes
 checking for ruby header... ok
 checking for OCIInitialize() in oci.h... yes
-checking for Oracle 8.1.0 API - start
 [...]
-linking shared-object oci8lib_210.so
-make[1]: Leaving directory `/root/ruby-oci8-ruby-oci8-2.1.8/ext/oci8'
+linking shared-object oci8lib_250.so
+make[1]: Leaving directory `/root/ruby-oci8-ruby-oci8-2.2.7/ext/oci8'
 <--- ext/oci8
 <--- ext
 
-root@kali:~/ruby-oci8-ruby-oci8-2.1.8# make install
+root@kali:~/ruby-oci8-ruby-oci8-2.2.7# make install
 ruby -w setup.rb install
 setup.rb:280: warning: assigned but unused variable - vname
 setup.rb:280: warning: assigned but unused variable - desc
 setup.rb:280: warning: assigned but unused variable - default2
 ---> lib
-mkdir -p /opt/metasploit/ruby/lib/ruby/site_ruby/2.1.0/
-install oci8.rb /opt/metasploit/ruby/lib/ruby/site_ruby/2.1.0/
+mkdir -p /opt/metasploit/ruby/lib/ruby/site_ruby/2.5.0/
+install oci8.rb /opt/metasploit/ruby/lib/ruby/site_ruby/2.5.0/
 [...]
 <--- ext
-root@kali:~/ruby-oci8-ruby-oci8-2.1.8#
+root@kali:~/ruby-oci8-ruby-oci8-2.2.7#
 ```
