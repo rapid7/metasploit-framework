@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.14)
+    metasploit-framework (5.0.15)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -199,7 +199,7 @@ GEM
     net-ssh (5.2.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.10.1)
+    nokogiri (1.10.2)
       mini_portile2 (~> 2.4.0)
     octokit (4.13.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -352,7 +352,7 @@ GEM
     ttfunk (1.5.1)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2018.9)
+    tzinfo-data (1.2019.1)
       tzinfo (>= 1.0.0)
     warden (1.2.7)
       rack (>= 1.0)
