@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Module::UI::Message::Verbose
 
   def initialize
     super(
