@@ -1,12 +1,26 @@
 ## Preparation: 6 steps
 
+  0. Oracle DB XE (Express Edition) can be downloaded for free [here](https://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html).
   1. Install Oracle Database and create a database. Versions 8i through 12c are supported.
-  2. On your Oracle DB machine, make sure you can ping the DB server using the `tnsping [SID]`
+  2. On your Oracle DB machine, make sure you can ping the DB server using the `tnsping [SID]` command. If `tnsping` is not in your path upon installation, you will have to locate it manually. On a Windows machine, for Oracle 11g, `tnsping.exe` is located at: `oracle_install\app\oracle\product\<version, ie 11.2.0)\server\bin\tnsping.exe`. For 12c and 18c, it is located at `%ORACLE_HOME%\bin\tnsping.exe`. After this command is run, if all is well, the output will look something like this (note the OK echoed at the end):
+```
+C:> tnsping staticdb
+...
+
+Used TNSNAMES adapter to resolve the alias
+Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = staticdb)))
+OK (0 msec)
+```
+If `tnsping` fails, make sure the listener is setup correctly. See [this Oracle doc](https://docs.oracle.com/cd/E11882_01/network.112/e41945/listenercfg.htm#NETAG294) for more information about its configuration. 
   3. Make sure to create a user on the DB that has a known password, and sufficient privileges to select any table. This is necessary for getting the hashes.
   4. Test that the module's hash query works locally. Once your user is created with sufficient privileges, connect to the DB as the user, and proceed to run this query if on 12c:
      `SELECT name, spare4 FROM sys.user$ where password is not null and name <> \'ANONYMOUS\'` and this query if running an older version: `SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\'`
-  5. Set up your MSF environment to support Oracle. You need gem ruby-oci8, as well as Oracle Instant Client. Tutorial here: https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux
+  5. Set up your MSF environment to support Oracle. You need gem ruby-oci8, as well as Oracle Instant Client. [View the setup tutorial here](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-Oracle-Support-working-with-Kali-Linux)
   6. Make sure you have a database connected to MSF (postgresql). This can be done through `msfdb` tool or through `db_connect` command in `msfconsole`.
+
+## Verification Steps
+
+  Example steps in this format (is also in the PR):
 
   1. Start `msfconsole`
   2. Do: ```use auxiliary/scanner/oracle/oracle_hashdump.rb```
@@ -17,6 +31,12 @@
 ## Options
   **DBPASS**
   The password to authenticate with. Change this from TIGER to the password of the privileged user created in step 3 of Preparation.
+
+  **DBUSER**
+  The username to authenticate with. Change this from SCOTT to the user you created who is granted privileges to select from the sys.user$ table
+
+  **RHOST**
+  The Oracle host. Change this to the IP address of the DB server.
 
   **RHOSTS**
   The target address range or CIDR identifier. If no CIDR notation is necessary, keep this value the same as RHOST.

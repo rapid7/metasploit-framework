@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-
+  include Msf::Module::UI::Message::Verbose
 
   def initialize
     super(
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     ver = prepare_exec(query)
 
     if ver.nil?
-        print_error("An Error has occurred. Check your OPTIONS")
+      print_error("An error has occurred while querying for the Oracle version. Please check your OPTIONS")
       return
     end
 
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Error: Oracle DB version not supported.\nThis module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.\nDumping unsupported version info:\n#{ver[0]}")
         return
       end
-      print_status("Server is running version #{ver}")
+      vprint_status("Server is running version #{ver}")
     end
 
     this_service = report_service(
