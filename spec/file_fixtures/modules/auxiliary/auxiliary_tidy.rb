@@ -5,15 +5,11 @@
 
 class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name'            => 'Tidy Auxiliary Module for RSpec'
-        'Description'     => 'Test!'
-        },
-        'Author'         => %w(Unknown),
-        'License'        => MSF_LICENSE,
-      )
-    )
+    super(update_info(info,
+      'Name'        => 'Tidy Auxiliary Module for RSpec'
+      'Description' => 'Test!'
+      'Author'      => 'Unknown',
+      'License'     => MSF_LICENSE
+    ))
   end
 end
