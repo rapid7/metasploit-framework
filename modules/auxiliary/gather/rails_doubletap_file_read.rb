@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'        => "Ruby On Rails File Content Disclosure ('doubletap')",
         'Description' => %q{
-          This module uses a path traversal vulnerablity in Ruby on Rails
+          This module uses a path traversal vulnerability in Ruby on Rails
           versions =< 5.2.2 to read files on a target server.
         },
         'Author'      =>
