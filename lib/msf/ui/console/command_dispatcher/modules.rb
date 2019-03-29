@@ -404,6 +404,7 @@ module Msf
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
             count = 0
+            used_module = nil
             begin
               Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
                 tbl << [
@@ -415,6 +416,7 @@ module Msf
                     m.name
                 ]
                 if count == use
+                  used_module = m.full_name
                   cmd_use(m.full_name)
                 end
               end
@@ -430,6 +432,11 @@ module Msf
               }
             else
               print_line(tbl.to_s)
+              if used_module
+                print_line("Using #{used_module}")
+              elsif use != 0
+                print_line("Module ##{use} does not exist")
+              end
             end
           end
 
