@@ -26,9 +26,11 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/mpgn/Rails-doubletap-RCE' ],
           [ 'URL', 'https://groups.google.com/forum/#!topic/rubyonrails-security/pFRKI96Sm8Q' ],
           [ 'CVE', '2019-5418'],
-          ['EDB', '46585'],
-          ['AKA', 'doubletap']
-        ]
+          ['EDB', '46585']
+        ],
+        'Notes' => {
+          'AKA' => 'DoubleTap'
+        }
       )
     )
 
