@@ -1161,6 +1161,7 @@ module Msf
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
             tbl = generate_module_table(type)
+            count = 0
             module_set.sort.each { |refname, mod|
               o = nil
 
@@ -1192,6 +1193,7 @@ module Msf
                   end
                   if (opts == nil or show == true)
                     tbl << [
+                      count += 1,
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
