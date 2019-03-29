@@ -22,6 +22,7 @@ module Msf
             "-h"     => [ false, "Help banner"],
             "-o"     => [ true, "Send output to a file in csv format"],
             "-S"     => [ true, "Search string for row filter"],
+            "-u"     => [ false, "Use the first module that matches"]
           )
 
           def commands
@@ -323,6 +324,7 @@ module Msf
             print_line "  -h                Show this help information"
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
+            print_line "  -u (number)       Use the first module that matches (or the number if specified)"
             print_line
             print_line "Keywords:"
             {
@@ -366,8 +368,10 @@ module Msf
             end
 
             match = ''
+            use = 0
             search_term = nil
             output_file = nil
+            prev_use = false
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-S"
@@ -377,8 +381,16 @@ module Msf
                   return
                 when '-o'
                   output_file = val
+                when "-u"
+                  use = 1
+                  prev_use = true
                 else
-                  match += val + " "
+                  if prev_use && val.to_i.to_s == val
+                    use = val.to_i
+                    prev_use = false
+                  else
+                    match += val + " "
+                  end
               end
             }
 
@@ -391,15 +403,20 @@ module Msf
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
+            count = 0
             begin
               Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
                 tbl << [
+                    count += 1,
                     m.full_name,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                     RankingName[m.rank].to_s,
                     m.check ? 'Yes' : 'No',
                     m.name
                 ]
+                if count == use
+                  cmd_use(m.full_name)
+                end
               end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
@@ -485,7 +502,7 @@ module Msf
               cmd_show_help
               return
             end
-            
+
             mod = self.active_module
 
             args.each { |type|
@@ -1188,7 +1205,7 @@ module Msf
               'Header'     => type,
               'Prefix'     => "\n",
               'Postfix'    => "\n",
-              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
+              'Columns'    => [ '#', 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
               'SearchTerm' => search_term
             )
           end
