@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'        => "Ruby On Rails File Content Disclosure ('doubletap')",
         'Description' => %q{
-          This module uses a path traversal vulnerablity in Ruby on Rails
+          This module uses a path traversal vulnerability in Ruby on Rails
           versions =< 5.2.2 to read files on a target server.
         },
         'Author'      =>
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/mpgn/Rails-doubletap-RCE' ],
           [ 'URL', 'https://groups.google.com/forum/#!topic/rubyonrails-security/pFRKI96Sm8Q' ],
           [ 'CVE', '2019-5418'],
-          ['EDB', '46585']
+          [ 'EDB', '46585' ]
         ],
         'Notes' => {
           'AKA' => 'DoubleTap'
@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     return true if datastore['SkipCheck']
     # Check if target file is absolute path
-    unless datastore['TARGET_FILE'][0] == '/'
+    unless datastore['TARGET_FILE'].start_with? '/'
       print_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
       return false
     end
