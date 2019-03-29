@@ -706,6 +706,9 @@ class Msftidy
   # Check for modules having an Author section to ensure attribution
   #
   def check_author
+    # Only the three common module types have a consistently defined info hash
+    return unless %w[exploit auxiliary post].include?(@module_type)
+
     unless @source =~ /["']Author["'][[:space:]]*=>/
       error('Missing "Author" info, please add')
     end
