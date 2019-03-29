@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     return true if datastore['SkipCheck']
     # Check if target file is absolute path
-    unless datastore['TARGET_FILE'][0] == '/'
+    unless datastore['TARGET_FILE'].start_with? '/'
       print_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
       return false
     end
