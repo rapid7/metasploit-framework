@@ -22,7 +22,7 @@ module Msf
             "-h"     => [ false, "Help banner"],
             "-o"     => [ true, "Send output to a file in csv format"],
             "-S"     => [ true, "Search string for row filter"],
-            "-u"     => [ false, "Use the first module that matches"]
+            "-u"     => [ false, "Use module if there is one result"]
           )
 
           def commands
@@ -324,7 +324,7 @@ module Msf
             print_line "  -h                Show this help information"
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
-            print_line "  -u (number)       Use the first module that matches (or the number if specified)"
+            print_line "  -u                Use module if there is one result"
             print_line
             print_line "Keywords:"
             {
@@ -368,10 +368,9 @@ module Msf
             end
 
             match = ''
-            use = 0
+            use = false
             search_term = nil
             output_file = nil
-            prev_use = false
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-S"
@@ -382,15 +381,9 @@ module Msf
                 when '-o'
                   output_file = val
                 when "-u"
-                  use = 1
-                  prev_use = true
+                  use = true
                 else
-                  if prev_use && val.to_i.to_s == val
-                    use = val.to_i
-                    prev_use = false
-                  else
-                    match += val + " "
-                  end
+                  match += val + " "
               end
             }
 
@@ -404,9 +397,9 @@ module Msf
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
             count = 0
-            used_module = nil
             begin
-              Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
+              modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              modules.each do |m|
                 tbl << [
                     count += 1,
                     m.full_name,
@@ -415,10 +408,10 @@ module Msf
                     m.check ? 'Yes' : 'No',
                     m.name
                 ]
-                if count == use
-                  used_module = m.full_name
-                  cmd_use(m.full_name)
-                end
+              end
+              if modules.length == 1 && use
+                used_module = modules.first.full_name
+                cmd_use(used_module)
               end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
@@ -434,8 +427,6 @@ module Msf
               print_line(tbl.to_s)
               if used_module
                 print_line("Using #{used_module}")
-              elsif use != 0
-                print_line("Module ##{use} does not exist")
               end
             end
           end
