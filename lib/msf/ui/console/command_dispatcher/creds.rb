@@ -4,6 +4,7 @@ require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
 require 'msf/core/auxiliary/jtr'
+require 'msf/core/auxiliary/hashcat'
 
 module Msf
 module Ui
@@ -168,6 +169,7 @@ class Creds
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv/jtr (john the ripper) format."
     print_line "                        If file name ends in '.jtr', that format will be used."
+    print_line "                        If file name ends in '.hcat', the hashcat format will be used."
     print_line "                        csv by default."
     print_line "  -d,--delete           Delete one or more credentials"
     print_line
@@ -540,6 +542,19 @@ class Creds
          'Metasploit::Credential::NTLMHash'].each do |type|
           framework.db.creds(type: type).each do |core|
             formatted = hash_to_jtr(core)
+            unless formatted.nil?
+              hashlist.puts formatted
+            end
+          end
+        end
+        hashlist.close
+      elsif output_file.end_with? '.hcat'
+        hashlist = ::File.open(output_file, "wb")
+        ['Metasploit::Credential::NonreplayableHash',
+         'Metasploit::Credential::PostgresMD5',
+         'Metasploit::Credential::NTLMHash'].each do |type|
+          framework.db.creds(type: type).each do |core|
+            formatted = hash_to_hashcat(core)
             unless formatted.nil?
               hashlist.puts formatted
             end
