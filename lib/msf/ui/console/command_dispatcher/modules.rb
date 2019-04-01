@@ -425,9 +425,7 @@ module Msf
               }
             else
               print_line(tbl.to_s)
-              if used_module
-                print_line("Using #{used_module}")
-              end
+              print_status("Using #{used_module}") if used_module
             end
           end
 
