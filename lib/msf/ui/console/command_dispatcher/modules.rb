@@ -22,6 +22,7 @@ module Msf
             "-h"     => [ false, "Help banner"],
             "-o"     => [ true, "Send output to a file in csv format"],
             "-S"     => [ true, "Search string for row filter"],
+            "-u"     => [ false, "Use module if there is one result"]
           )
 
           def commands
@@ -323,6 +324,7 @@ module Msf
             print_line "  -h                Show this help information"
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
+            print_line "  -u                Use module if there is one result"
             print_line
             print_line "Keywords:"
             {
@@ -366,6 +368,7 @@ module Msf
             end
 
             match = ''
+            use = false
             search_term = nil
             output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
@@ -377,6 +380,8 @@ module Msf
                   return
                 when '-o'
                   output_file = val
+                when "-u"
+                  use = true
                 else
                   match += val + " "
               end
@@ -391,15 +396,22 @@ module Msf
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
+            count = 0
             begin
-              Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
+              modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              modules.each do |m|
                 tbl << [
+                    count += 1,
                     m.full_name,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                     RankingName[m.rank].to_s,
                     m.check ? 'Yes' : 'No',
                     m.name
                 ]
+              end
+              if modules.length == 1 && use
+                used_module = modules.first.full_name
+                cmd_use(used_module)
               end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
@@ -413,6 +425,7 @@ module Msf
               }
             else
               print_line(tbl.to_s)
+              print_status("Using #{used_module}") if used_module
             end
           end
 
@@ -1037,8 +1050,8 @@ module Msf
           end
 
           def show_targets(mod) # :nodoc:
-            mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
-            print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
+              print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
           end
 
           def show_actions(mod) # :nodoc:
@@ -1113,6 +1126,7 @@ module Msf
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
             tbl = generate_module_table(type)
+            count = 0
             module_set.sort.each { |refname, mod|
               o = nil
 
@@ -1144,6 +1158,7 @@ module Msf
                   end
                   if (opts == nil or show == true)
                     tbl << [
+                      count += 1,
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
@@ -1164,7 +1179,7 @@ module Msf
               'Header'     => type,
               'Prefix'     => "\n",
               'Postfix'    => "\n",
-              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
+              'Columns'    => [ '#', 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
               'SearchTerm' => search_term
             )
           end
