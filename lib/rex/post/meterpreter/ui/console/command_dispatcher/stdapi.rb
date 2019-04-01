@@ -20,7 +20,6 @@ class Console::CommandDispatcher::Stdapi
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/ui'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/webcam'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/mic'
-  require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/audio_output'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/corrm_apps'
 
   Klass = Console::CommandDispatcher::Stdapi
@@ -33,7 +32,6 @@ class Console::CommandDispatcher::Stdapi
       Klass::Ui,
       Klass::Webcam,
       Klass::Mic,
-      Klass::AudioOutput,
       Klass::CorrMApps
     ]
 
