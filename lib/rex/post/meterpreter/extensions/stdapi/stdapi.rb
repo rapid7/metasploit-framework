@@ -20,6 +20,8 @@ require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
 require 'rex/post/meterpreter/extensions/stdapi/webcam/webcam'
 require 'rex/post/meterpreter/extensions/stdapi/mic/mic'
+require 'rex/post/meterpreter/extensions/stdapi/audio_output/audio_output'
+require 'rex/post/meterpreter/extensions/stdapi/corrm/apps'
 
 module Rex
 module Post
@@ -89,8 +91,16 @@ class Stdapi < Extension
           'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Mic::Mic.new(client)
         },
         {
+          'name' => 'audio_output',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::AudioOutput::AudioOutput.new(client)
+        },
+        {
           'name' => 'ui',
           'ext'  => UI.new(client)
+        },
+        {
+          'name' => 'apps', # => to use like that (client.apps.app_install) => "apps"
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::CorrM::Apps.new(client)
         }
 
       ])
