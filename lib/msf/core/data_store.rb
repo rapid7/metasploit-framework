@@ -19,7 +19,10 @@ class DataStore < Hash
     @imported_by = Hash.new
   end
 
+  attr_accessor :options
   attr_accessor :aliases
+  attr_accessor :imported
+  attr_accessor :imported_by
 
   #
   # Clears the imported flag for the supplied key since it's being set
@@ -61,6 +64,7 @@ class DataStore < Hash
   # Case-insensitive wrapper around delete
   #
   def delete(k)
+    @aliases.delete_if { |_, v| v.casecmp(k) == 0 }
     super(find_key_case(k))
   end
 
@@ -170,6 +174,29 @@ class DataStore < Hash
     datastore_hash
   end
 
+  # Hack on a hack for the external modules
+  def to_nested_values
+    datastore_hash = {}
+
+    array_nester = ->(arr) do
+      if arr.first.is_a? Array
+        arr.map &array_nester
+      else
+        arr.map &:to_s
+      end
+    end
+
+    self.keys.each do |k|
+      # TODO arbitrary depth
+      if self[k].is_a? Array
+        datastore_hash[k.to_s] = array_nester.call(self[k])
+      else
+        datastore_hash[k.to_s] = self[k].to_s
+      end
+    end
+    datastore_hash
+  end
+
   #
   # Persists the contents of the data store to a file
   #
@@ -200,6 +227,39 @@ class DataStore < Hash
     if (ini.group?(name))
       import_options_from_hash(ini[name], false)
     end
+  end
+
+  #
+  # Return a deep copy of this datastore.
+  #
+  def copy
+    ds = self.class.new
+    self.keys.each do |k|
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+    end
+    ds.aliases = self.aliases.dup
+    ds
+  end
+
+  #
+  # Override merge! so that we merge the aliases and imported hashes
+  #
+  def merge!(other)
+    if other.is_a? DataStore
+      self.aliases.merge!(other.aliases)
+      self.imported.merge!(other.imported)
+      self.imported_by.merge!(other.imported_by)
+    end
+    # call super last so that we return a reference to ourselves
+    super
+  end
+
+  #
+  # Override merge to ensure we merge the aliases and imported hashes
+  #
+  def merge(other)
+    ds = self.copy
+    ds.merge!(other)
   end
 
   #
@@ -246,8 +306,6 @@ class DataStore < Hash
     list.each(&block)
   end
 
-protected
-
   #
   # Case-insensitive key lookup
   #
@@ -255,8 +313,8 @@ protected
 
     # Scan each alias looking for a key
     search_k = k.downcase
-    if @aliases.has_key?(search_k)
-      search_k = @aliases[search_k]
+    if self.aliases.has_key?(search_k)
+      search_k = self.aliases[search_k]
     end
 
     # Scan each key looking for a match
@@ -327,12 +385,12 @@ class ModuleDataStore < DataStore
   # Return a deep copy of this datastore.
   #
   def copy
-    clone = self.class.new(@_module)
+    ds = self.class.new(@_module)
     self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases
-    clone
+    ds.aliases = self.aliases.dup
+    ds
   end
 end
 

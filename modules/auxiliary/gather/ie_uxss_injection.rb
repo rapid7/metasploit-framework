@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '117876' ],
           [ 'MSB', 'MS15-018' ],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Feb/10' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
       'Platform'       => 'win',
       'DisclosureDate' => "Feb 1 2015"

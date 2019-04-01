@@ -67,6 +67,7 @@ module Scriptable
       'enum_shares' => 'post/windows/gather/enum_shares',
       'file_collector' => 'post/windows/gather/enum_files',
       'get_application_list' => 'post/windows/gather/enum_applications',
+      'get_env' => 'post/multi/gather/env',
       'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
       'get_local_subnets' => 'post/multi/manage/autoroute',
       'get_valid_community' => 'post/windows/gather/enum_snmp',
@@ -79,6 +80,7 @@ module Scriptable
       'killav' => 'post/windows/manage/killav',
       'metsvc' => 'post/windows/manage/persistence_exe',
       'migrate' => 'post/windows/manage/migrate',
+      'pml_driver_config' => 'exploit/windows/local/service_permissions',
       'packetrecorder' => 'post/windows/manage/rpcapd_start',
       'persistence' => 'post/windows/manage/persistence_exe',
       'prefetchtool' => 'post/windows/gather/enum_prefetch',
@@ -164,13 +166,17 @@ module Scriptable
     else
       full_path = self.class.find_script_path(script_name)
 
-      # No path found?  Weak.
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
-        return true
+        print_error("The specified #{self.type} session script could not be found: #{script_name}")
+        return
       end
-      framework.events.on_session_script_run(self, full_path)
-      execute_file(full_path, args)
+
+      begin
+        execute_file(full_path, args)
+        framework.events.on_session_script_run(self, full_path)
+      rescue StandardError => e
+        print_error("Could not execute #{script_name}: #{e.class} #{e}")
+      end
     end
   end
 

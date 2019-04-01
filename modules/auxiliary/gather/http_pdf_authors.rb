@@ -33,7 +33,10 @@ class MetasploitModule < Msf::Auxiliary
         and extract the author's name from the document metadata.
       },
       'License'     => MSF_LICENSE,
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>'))
+      'Author'      => 'bcoles'))
+
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('URL', [ false, 'The target URL', '' ]),
@@ -41,7 +44,6 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
         OptBool.new('STORE_LOOT', [ false, 'Store authors in loot', true ])
       ])
-    deregister_options 'RHOST', 'RPORT', 'VHOST'
   end
 
   def progress(current, total)

@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'Unknown' ],
       'References'     =>
         [
+          [ 'CVE', '2014-5208' ],
           [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/08/09/r7-2014-10-disclosure-yokogawa-centum-cs3000-bkbcopydexe-file-system-access']
         ],
       'Actions'     =>
@@ -89,12 +90,6 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     return data
-  end
-
-  def valid_response?(data)
-    return false unless !!data
-    return false unless data =~ /500  'yyparse error': command not understood/
-    return true
   end
 
   def on_client_connect(c)

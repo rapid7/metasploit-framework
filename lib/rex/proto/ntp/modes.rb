@@ -17,6 +17,7 @@ module NTP
   #   http://tools.ietf.org/html/rfc1305#appendix-D
   #   http://tools.ietf.org/html/rfc5905#page-19
   class NTPGeneric < BinData::Record
+    alias size num_bytes
     #    0                   1                   2                   3
     #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -35,6 +36,7 @@ module NTP
   # An NTP control message.  Control messages are only specified for NTP
   # versions 2-4, but this is a fuzzer so why not try them all...
   class NTPControl < BinData::Record
+    alias size num_bytes
     #  0                   1                   2                   3
     #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -64,6 +66,7 @@ module NTP
   # An NTP "private" message.  Private messages are only specified for NTP
   # versions 2-4, but this is a fuzzer so why not try them all...
   class NTPPrivate < BinData::Record
+    alias size num_bytes
     #  0                   1                   2                   3
     #  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -96,6 +99,7 @@ module NTP
   end
 
   class NTPSymmetric < BinData::Record
+    alias size num_bytes
     endian :big
     bit2   :li
     bit3   :version, initial_value: 3

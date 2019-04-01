@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2008-3273'],
-          ['URL', 'http://seclists.org/fulldisclosure/2011/Sep/139'],
+          ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
           ['URL', 'https://www.owasp.org/images/a/a9/OWASP3011_Luca.pdf'],
           ['URL', 'http://www.slideshare.net/chrisgates/lares-fromlowtopwned']
         ],

@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script cracks HMAC SHA1 hashes. It is strangely necessary as existing tools
 # have issues with binary salt values and extremely large salt values. The primary

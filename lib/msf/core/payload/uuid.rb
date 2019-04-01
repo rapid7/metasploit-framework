@@ -72,7 +72,10 @@ class Msf::Payload::UUID
     21 => 'python',
     22 => 'nodejs',
     23 => 'firefox',
-    24 => 'r'
+    24 => 'r',
+    25 => 'apple_ios',
+    26 => 'juniper',
+    27 => 'unifi',
   }
 
   # The raw length of the UUID structure
@@ -254,6 +257,10 @@ class Msf::Payload::UUID
     self.xor1      = opts[:xor1]
     self.xor2      = opts[:xor2]
 
+    self.timestamp  = nil
+    self.name       = nil
+    self.registered = false
+
     if opts[:seed]
       self.puid = self.class.seed_to_puid(opts[:seed])
     end
@@ -366,6 +373,10 @@ class Msf::Payload::UUID
     self.xor1 = self.xor2 = nil
     self
   end
+
+  attr_accessor :registered
+  attr_accessor :timestamp
+  attr_accessor :name
 
   attr_reader :arch
   attr_reader :platform

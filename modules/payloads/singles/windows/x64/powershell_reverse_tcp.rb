@@ -15,7 +15,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 ###
 module MetasploitModule
 
-  CachedSize = 1526
+  CachedSize = 1794
 
   include Msf::Payload::Windows::Exec_x64
   include Msf::Payload::Windows::Powershell
@@ -53,7 +53,7 @@ module MetasploitModule
   #
   # Override the exec command string
   #
-  def command_string
+  def powershell_command
     generate_powershell_code("Reverse")
   end
 end

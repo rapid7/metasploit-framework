@@ -23,7 +23,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -31,7 +31,7 @@ module Auxiliary::Report
 
   def create_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -39,7 +39,15 @@ module Auxiliary::Report
 
   def create_credential_login(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_credential_login(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_and_login(opts={})
+    if active_db?
+      framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -47,7 +55,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
-      super(opts)
+      framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -293,7 +301,8 @@ module Auxiliary::Report
         :username     => username  || "unknown",
     }
 
-    vuln.vuln_attempts.create(attempt_info)
+    # TODO: figure out what opts are required and why the above logic doesn't match that of the db_manager method
+    framework.db.report_vuln_attempt(vuln, attempt_info)
 
     vuln
   end
@@ -389,7 +398,7 @@ module Auxiliary::Report
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking
-    host = framework.db.normalize_host(host)
+    host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
     name =
@@ -416,6 +425,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
+      conf[:data] = data if data
 
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
@@ -433,7 +443,7 @@ module Auxiliary::Report
   # module, such as files from fileformat exploits. (TODO: actually
   # implement this on file format modules.)
   #
-  # +filenmae+ is the local file name.
+  # +filename+ is the local file name.
   #
   # +data+ is the actual contents of the file
   #

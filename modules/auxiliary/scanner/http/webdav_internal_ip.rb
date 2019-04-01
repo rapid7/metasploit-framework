@@ -16,8 +16,12 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'HTTP WebDAV Internal IP Scanner',
       'Description' => 'Detect webservers internal IPs though WebDAV',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+      'Author'      => ['et'],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2002-0422' ]
+        ]
     )
 
     register_options(

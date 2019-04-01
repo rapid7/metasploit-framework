@@ -215,15 +215,6 @@ module Msf::Payload::Stager
       conn.put(p)
     end
 
-    # If the stage implements the handle connection method, sleep before
-    # handling it.
-    if (derived_implementor?(Msf::Payload::Stager, 'handle_connection_stage'))
-      print_status("Sleeping before handling stage...")
-
-      # Sleep before processing the stage
-      Rex::ThreadSafe.sleep(1.5)
-    end
-
     # Give the stages a chance to handle the connection
     handle_connection_stage(conn, opts)
   end

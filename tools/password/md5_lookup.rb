@@ -5,7 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-###
 #
 # This script will look up a collection of MD5 hashes (from a file) against the following databases
 # via md5cracker.org:
@@ -21,7 +20,6 @@
 # * hasherezade (http://hasherezade.net, @hasherezade)
 # * sinn3r (ported the module as a standalone msf tool)
 #
-###
 
 #
 # Load our MSF API

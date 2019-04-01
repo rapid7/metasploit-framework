@@ -102,7 +102,8 @@ TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
 TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
 TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
 TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
-TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
+TLV_TYPE_TRANS_HEADERS       = TLV_META_TYPE_STRING | 441
+TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 442
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
@@ -873,9 +874,12 @@ class Packet < GroupTlv
   # Xor a set of bytes with a given XOR key.
   #
   def xor_bytes(xor_key, bytes)
+    xor_key = xor_key.bytes
     result = ''
-    bytes.bytes.zip(xor_key.bytes.cycle).each do |b|
-      result << (b[0].ord ^ b[1].ord).chr
+    i = 0
+    bytes.each_byte do |b|
+      result << (b ^ xor_key[i % xor_key.length]).chr
+      i += 1
     end
     result
   end

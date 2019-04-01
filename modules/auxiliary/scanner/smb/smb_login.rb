@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
           'USER_AS_PASS'    => false
         }
     )
-    deregister_options('RHOST','USERNAME','PASSWORD')
+    deregister_options('USERNAME','PASSWORD')
 
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.
@@ -56,7 +56,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
-        OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
+        OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', false]),
+        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
       ])
 
   end
@@ -84,13 +85,13 @@ class MetasploitModule < Msf::Auxiliary
       bogus_result = @scanner.attempt_bogus_login(domain)
       if bogus_result.success?
         if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
-          print_status("This system allows guest sessions with any credentials")
+          print_status("This system allows guest sessions with random credentials")
         else
-          print_error("This system accepts authentication with any credentials, brute force is ineffective.")
+          print_error("This system accepts authentication with random credentials, brute force is ineffective.")
           return
         end
       else
-        vprint_status('This system does not accept authentication with any credentials, proceeding with brute force')
+        vprint_status('This system does not accept authentication with random credentials, proceeding with brute force')
       end
     end
 
@@ -202,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
       username: result.credential.public,
     }.merge(service_data)
 
-    if domain.present?
+    if datastore['DETECT_ANY_DOMAIN'] && domain.present?
       if accepts_bogus_domains?(result.credential.public, result.credential.private)
         print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
       else

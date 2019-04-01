@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Post
     return xmlfiles
   end
 
-  #We attempt to open the dsicovered XML files and alert the user if
+  #We attempt to open the discovered XML files and alert the user if
   # we cannot access the file for any reason
   def get_xml(path)
     begin

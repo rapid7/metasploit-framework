@@ -45,11 +45,14 @@ class Pivot
     # Class request handler for all channels that dispatches requests
     # to the appropriate class instance's DIO handler
     def request_handler(client, packet)
+      handled = false
       if packet.method == 'core_pivot_session_new'
+        handled = true
         session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
         listener_id = packet.get_tlv_value(TLV_TYPE_PIVOT_ID)
         client.add_pivot_session(Pivot.new(client, session_guid, listener_id))
       elsif packet.method == 'core_pivot_session_died'
+        handled = true
         session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
         pivot = client.find_pivot_session(session_guid)
         if pivot
@@ -57,7 +60,7 @@ class Pivot
           client.remove_pivot_session(session_guid)
         end
       end
-      true
+      handled
     end
   end
 

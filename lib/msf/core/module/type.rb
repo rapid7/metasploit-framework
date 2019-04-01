@@ -56,6 +56,10 @@ module Msf::Module::Type
     (type == Msf::MODULE_POST)
   end
 
+  def evasion?
+    (type == Msf::MODULE_EVASION)
+  end
+
   #
   # Return the module's abstract type.
   #

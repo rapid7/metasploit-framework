@@ -1,14 +1,63 @@
 module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
-  def creds(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    Mdm::Cred.where("hosts.workspace_id = ?", wspace.id).joins(:service => :host)
-  }
+  def creds(opts)
+    query = nil
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      # If :id exists we're looking for a specific record, skip the other stuff
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Metasploit::Credential::Core.find(opts[:id]))
+      end
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      search_term = opts.delete(:search_term)
+
+      query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
+      query = query.includes(:private, :public, :logins, :realm).references(:private, :public, :logins, :realm)
+      query = query.includes(logins: [ :service, { service: :host } ])
+
+      if opts[:type].present?
+        query = query.where(metasploit_credential_privates: { type: opts[:type] })
+      end
+
+      if opts[:svcs].present?
+        query = query.where(Mdm::Service[:name].in(opts[:svcs]))
+      end
+
+      if opts[:ports].present?
+        query = query.where(Mdm::Service[:port].in(opts[:ports]))
+      end
+
+      if opts[:user].present?
+        # If we have a user regex, only include those that match
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', opts[:user])
+      end
+
+      if opts[:pass].present?
+        # If we have a password regex, only include those that match
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', opts[:pass])
+      end
+
+      if opts[:host_ranges] || opts[:ports] || opts[:svcs]
+        # Only find Cores that have non-zero Logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      if search_term && !search_term.empty?
+        core_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Core, search_term, ['created_at', 'updated_at'])
+        public_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Public, search_term, ['created_at', 'updated_at'])
+        private_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Private, search_term, ['created_at', 'updated_at'])
+        realm_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Realm, search_term, ['created_at', 'updated_at'])
+        column_search_conditions = core_search_conditions.or(public_search_conditions).or(private_search_conditions).or(realm_search_conditions)
+        query = query.where(column_search_conditions)
+      end
+    }
+    query
   end
 
   # This method iterates the creds table calling the supplied block with the
   # cred instance of each entry.
-  def each_cred(wspace=workspace,&block)
+  def each_cred(wspace=framework.db.workspace,&block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.creds.each do |cred|
       block.call(cred)
@@ -74,7 +123,7 @@ module Msf::DBManager::Cred
     # Nil is true for active.
     active = (opts[:active] || opts[:active].nil?) ? true : false
 
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     # Service management; assume the user knows what
     # he's talking about.
@@ -173,6 +222,69 @@ module Msf::DBManager::Cred
 
     ret[:cred] = cred
   }
+  end
+
+  def update_credential(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      # process workspace string for update if included in opts
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts[:workspace] = wspace if wspace
+
+      if opts[:public]
+        if opts[:public][:id]
+          public_id = opts[:public].delete(:id)
+          public = Metasploit::Credential::Public.find(public_id)
+          public.update_attributes(opts[:public])
+        else
+          public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
+        end
+        opts[:public] = public
+      end
+      if opts[:private]
+        if opts[:private][:id]
+          private_id = opts[:private].delete(:id)
+          private = Metasploit::Credential::Private.find(private_id)
+          private.update_attributes(opts[:private])
+        else
+          private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
+        end
+        opts[:private] = private
+      end
+      if opts[:origin]
+        if opts[:origin][:id]
+          origin_id = opts[:origin].delete(:id)
+          origin = Metasploit::Credential::Origin.find(origin_id)
+          origin.update_attributes(opts[:origin])
+        else
+          origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
+        end
+        opts[:origin] = origin
+      end
+
+      id = opts.delete(:id)
+      cred = Metasploit::Credential::Core.find(id)
+      cred.update!(opts)
+      return cred
+    }
+  end
+
+  def delete_credentials(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |cred_id|
+        cred = Metasploit::Credential::Core.find(cred_id)
+        begin
+          deleted << cred.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{cred}")
+          deleted << cred.delete
+        end
+      end
+
+      return deleted
+    }
   end
 
   alias :report_auth :report_auth_info

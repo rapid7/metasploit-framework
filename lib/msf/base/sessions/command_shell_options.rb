@@ -17,9 +17,12 @@ module CommandShellOptions
 
     register_advanced_options(
       [
-        OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
-        OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", ''])
-      ], self.class)
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', true]),
+        OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
+        OptString.new('AutoRunScript', "A script to run automatically on session creation."),
+        OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed")
+      ]
+    )
   end
 
   def on_session(session)

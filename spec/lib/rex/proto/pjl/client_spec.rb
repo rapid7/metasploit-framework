@@ -154,6 +154,15 @@ RSpec.describe Rex::Proto::PJL::Client do
         tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
         expect(tmp_cli.fsdownload("/dev/null", "1:")).to eq(true)
       end
+
+      it "should upload data from a string" do
+        response = "TYPE=FILE SIZE=1337\r\n\f"
+        tmp_sock = double("sock")
+        allow(tmp_sock).to receive(:put).with(an_instance_of(String))
+        allow(tmp_sock).to receive(:get).with(Rex::Proto::PJL::DEFAULT_TIMEOUT).and_return(response)
+        tmp_cli = Rex::Proto::PJL::Client.new(tmp_sock)
+        expect(tmp_cli.fsdownload("Miscellaneous Data", "1:root/.workspace/.garbage.", is_file: false)).to eq(true)
+      end
     end
 
     context "#fsdelete" do

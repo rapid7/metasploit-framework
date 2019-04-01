@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
       ])
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def device_type_int_to_text(device_type)
@@ -330,7 +330,7 @@ class MetasploitModule < Msf::Auxiliary
       @smb_redirect = info[1]
 
       begin
-        connect
+        connect(versions: [2,1])
         smb_login
         shares = smb_netshareenumall
 

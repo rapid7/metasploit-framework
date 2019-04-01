@@ -77,8 +77,6 @@ class MetasploitModule < Msf::Auxiliary
     @previous_lm_hash="none"
     @previous_ntlm_hash="none"
 
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
-
     exploit()
   end
 

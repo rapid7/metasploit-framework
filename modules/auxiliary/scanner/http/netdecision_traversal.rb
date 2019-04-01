@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          [ 'CVE', '2012-1465' ],
           [ 'OSVDB', '79863' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/netdecision_1-adv.txt' ],
         ],
@@ -37,8 +38,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8087),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

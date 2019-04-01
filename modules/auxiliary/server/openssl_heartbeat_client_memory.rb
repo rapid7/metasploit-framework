@@ -29,13 +29,17 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction'  => 'Capture',
       'References'     =>
         [
-          [ 'AKA', 'Heartbleed' ],
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
           [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
           [ 'URL', 'http://heartbleed.com/' ]
         ],
-      'DisclosureDate' => 'Apr 07 2014'
+      'DisclosureDate' => 'Apr 07 2014',
+      'Notes' =>
+          {
+              'AKA' => ['Heartbleed']
+          }
+
     )
 
     register_options(

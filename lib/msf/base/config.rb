@@ -33,20 +33,24 @@ class Config < Hash
       return val
     end
 
+    # XXX Update this when there is a need to break compatibility
+    config_dir_major = 4
+    config_dir = ".msf#{config_dir_major}"
+
     # Windows-specific environment variables
     ['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
       val = Rex::Compat.getenv(dir)
       if (val and File.directory?(val))
-        return File.join(val, ".msf#{Metasploit::Framework::Version::MAJOR}")
+        return File.join(val, config_dir)
       end
     end
 
     begin
       # First we try $HOME/.msfx
-      File.expand_path("~#{FileSep}.msf#{Metasploit::Framework::Version::MAJOR}")
+      File.expand_path("~#{FileSep}#{config_dir}")
     rescue ::ArgumentError
       # Give up and install root + ".msfx"
-      InstallRoot + ".msf#{Metasploit::Framework::Version::MAJOR}"
+      InstallRoot + config_dir
     end
   end
 
@@ -198,6 +202,13 @@ class Config < Hash
     self.new.history_file
   end
 
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path the handler file.
+  def self.persist_file
+    self.new.persist_file
+  end
+
   # Initializes configuration, creating directories as necessary.
   #
   # @return [void]
@@ -230,6 +241,14 @@ class Config < Hash
   #        })
   def self.save(opts)
     self.new.save(opts)
+  end
+
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def self.delete_group(group)
+    self.new.delete_group(group)
   end
 
   # Updates the config class' self with the default hash.
@@ -272,6 +291,13 @@ class Config < Hash
   # @return [String] path the history file.
   def history_file
     config_directory + FileSep + "history"
+  end
+
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path the handler file.
+  def persist_file
+    config_directory + FileSep + "persist"
   end
 
   # Returns the global module directory.
@@ -406,6 +432,17 @@ class Config < Hash
     ini.to_file
   end
 
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def delete_group(group)
+    ini = Rex::Parser::Ini.new(config_file)
+
+    ini.delete(group)
+
+    ini.to_file
+  end
 end
 
 end

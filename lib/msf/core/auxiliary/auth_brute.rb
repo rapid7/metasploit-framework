@@ -32,6 +32,8 @@ module Auxiliary::AuthBrute
       OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
       OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
       OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+      OptBool.new('PASSWORD_SPRAY', [true, "Reverse the credential pairing order. For each password, attempt every possible user.", false]),
+      OptInt.new('TRANSITION_DELAY', [false, "Amount of time (in minutes) to delay before transitioning to the next user in the array (or password when PASSWORD_SPRAY=true)", 0]),
       OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
       OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
       OptInt.new('MaxGuessesPerUser', [ false, %q{
@@ -41,8 +43,6 @@ module Auxiliary::AuthBrute
         be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
         this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
     ], Auxiliary::AuthBrute)
-
-
   end
 
   def setup
@@ -54,7 +54,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ntlm_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::NTLMHash', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -65,7 +65,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_password_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::Password', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -76,7 +76,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ssh_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::SSHKey', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -175,6 +175,7 @@ module Auxiliary::AuthBrute
       initialize_class_variables(this_service,credentials)
     end
 
+    prev_iterator = nil
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
       # username to <BLANK>. It's up to the caller to handle this if it's not
@@ -193,6 +194,19 @@ module Auxiliary::AuthBrute
 
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
+
+      # Used for tracking if we should TRANSITION_DELAY
+      # If the current user/password values don't match the previous iteration we know
+      # we've made it through all of the records for that iteration and should start the delay.
+      if ![u,p].include?(prev_iterator)
+        unless prev_iterator.nil? # Prevents a delay on the first run through
+          if datastore['TRANSITION_DELAY'] > 0
+            vprint_status("Delaying #{datastore['TRANSITION_DELAY']} minutes before attempting next iteration.")
+            sleep datastore['TRANSITION_DELAY'] * 60
+          end
+        end
+        prev_iterator = datastore['PASSWORD_SPRAY'] ? p : u # Update the iterator
+      end
 
       ret = block.call(u, p)
 
@@ -288,18 +302,18 @@ module Auxiliary::AuthBrute
     end
     if framework.db.active
       if datastore['DB_ALL_CREDS']
-        myworkspace.creds.each do |o|
-          credentials << [o.user, o.pass] if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
         end
       end
       if datastore['DB_ALL_USERS']
-        myworkspace.creds.each do |o|
-          users << o.user
+        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
+          users << o.public.username if o.public
         end
       end
       if datastore['DB_ALL_PASS']
-        myworkspace.creds.each do |o|
-          passwords << o.pass if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
+          passwords << o.private.data if o.private && o.private.type =~ /password/i
         end
       end
     end
@@ -422,9 +436,17 @@ module Auxiliary::AuthBrute
     elsif user_array.empty?
       combined_array = pass_array.map {|p| ["",p] }
     else
-      user_array.each do |u|
+      if datastore['PASSWORD_SPRAY']
         pass_array.each do |p|
-          combined_array << [u,p]
+          user_array.each do |u|
+            combined_array << [u,p]
+          end
+        end
+      else
+        user_array.each do |u|
+          pass_array.each do |p|
+            combined_array << [u,p]
+          end
         end
       end
     end
@@ -527,8 +549,8 @@ module Auxiliary::AuthBrute
     end
   end
 
-  def userpass_sleep_interval
-    sleep_time = case datastore['BRUTEFORCE_SPEED'].to_i
+  def userpass_interval
+    case datastore['BRUTEFORCE_SPEED'].to_i
       when 0; 60 * 5
       when 1; 15
       when 2; 1
@@ -536,7 +558,10 @@ module Auxiliary::AuthBrute
       when 4; 0.1
       else; 0
     end
-    ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
+  end
+
+  def userpass_sleep_interval
+    ::IO.select(nil,nil,nil,userpass_interval) unless userpass_interval == 0
   end
 
   # See #print_brute
@@ -601,7 +626,7 @@ module Auxiliary::AuthBrute
     port = host_port.to_s.strip if host_port
     complete_message = nil
     old_msg = msg.to_s.strip
-    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/i
     if old_msg.match(msg_regex)
       complete_message = msg.to_s.strip
     else

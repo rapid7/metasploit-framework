@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         This module has been tested successfully with ScadaBR
         versions 1.0 CE and 0.9 on Windows and Ubuntu systems.
       },
-      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'         => 'bcoles',
       'License'        => MSF_LICENSE,
       'References'     => ['URL', 'http://www.scadabr.com.br/?q=node/1375'],
       'Targets'        => [[ 'Automatic', {} ]],

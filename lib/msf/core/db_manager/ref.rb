@@ -4,15 +4,29 @@ module Msf::DBManager::Ref
   #
   def find_or_create_ref(opts)
     ret = {}
-    ret[:ref] = get_ref(opts[:name])
-    return ret[:ref] if ret[:ref]
 
   ::ActiveRecord::Base.connection_pool.with_connection {
+    if opts[:id] && !opts[:id].to_s.empty?
+      return Mdm::Ref.find(opts[:id])
+    end
+
+    if opts[:ref]
+      return get_ref(opts[:name])
+    end
+
     ref = ::Mdm::Ref.where(name: opts[:name]).first_or_initialize
+
+    begin
+      framework.events.on_db_ref(ref) if ref
+    rescue ::Exception => e
+      wlog("Exception in on_db_ref event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     if ref and ref.changed?
       ref.save!
     end
-    ret[:ref] = ref
+    ref
   }
   end
 

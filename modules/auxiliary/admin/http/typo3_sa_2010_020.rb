@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          ['CVE', '2010-3714'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2010-020'],
           ['URL', 'http://gregorkopf.de/slides_berlinsides_2010.pdf'],
         ],

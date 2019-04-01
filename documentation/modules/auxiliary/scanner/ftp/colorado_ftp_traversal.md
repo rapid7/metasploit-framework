@@ -6,7 +6,7 @@ While the application is based in java, I was only able to get it to exploit aga
 
   [official site](http://cftp.coldcore.com/files/coloradoftp-prime-8.zip?site=cft1&rv=19.1&nc=1) or [github backup](https://github.com/h00die/MSF-Testing-Scripts/raw/master/coloradoftp-prime-8.zip)
   
-When installing, you must edit conf/beans.xml line 182 "localIp" to put in your IP or else `pasv` won't work.
+When installing, you must edit conf/beans.xml line 183 "remoteIp" to put in your IP or else `pasv` won't work.
 
 ## Verification Steps
 

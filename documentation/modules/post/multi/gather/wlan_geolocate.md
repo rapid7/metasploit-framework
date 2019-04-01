@@ -8,6 +8,7 @@
   - Linux: `iwlist scanning`
   - Solaris: `dladm scan-wifi`
   - BSD: `dmesg | grep -i wlan | cut -d ':' -f1 | uniq"`
+  - Android: [WifiManager](https://developer.android.com/reference/android/net/wifi/WifiManager)
   
   If `GEOLOCATE` is set to true, Google's [GeoLocation APIs](https://developers.google.com/maps/documentation/geolocation/intro) are utilized.
   These APIs require a Google [API key](https://developers.google.com/maps/documentation/geolocation/get-api-key) to use them.  The original

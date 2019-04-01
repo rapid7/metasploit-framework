@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-1675'],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2012/Apr/204' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
       'DisclosureDate' => 'Apr 18 2012',
       'License'        => MSF_LICENSE))
@@ -30,8 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(1521)
       ])
-
-    deregister_options('RHOST') # Provided by the TNS mixin, but not needed in a scanner module
   end
 
   def run_host(ip)

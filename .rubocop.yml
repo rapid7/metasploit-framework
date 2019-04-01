@@ -9,13 +9,17 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.4
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
   Exclude:
     - 'modules/**/*'
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+  Description: 'Forced nesting is harmful for grepping and general code comprehension'
 
 Metrics/AbcSize:
   Enabled: false
@@ -29,6 +33,10 @@ Metrics/PerceivedComplexity:
   Enabled: false
   Description: 'This is often a red-herring'
 
+Style/TernaryParentheses:
+  Enabled: false
+  Description: 'This outright produces bugs'
+
 Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
@@ -37,19 +45,31 @@ Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
   Enabled: false
 
+Naming/VariableNumber:
+  Description: 'To make it easier to use reference code, disable this cop'
+  Enabled: false
+
+Style/NumericPredicate:
+  Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
 Style/Documentation:
   Enabled: true
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
 
-Layout/IndentHeredoc:
+Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
-  Description: 'We need to leave this disabled for Ruby 2.2 compat, remove in 2018'
+  Description: 'Almost all module metadata have space in brackets'
 
 Style/GuardClause:
   Enabled: false
   Description: 'This often introduces bugs in tested code'
+
+Style/EmptyLiteral:
+  Enabled: false
+  Description: 'This looks awkward when you mix empty and non-empty literals'
 
 Style/NegatedIf:
   Enabled: false
@@ -60,9 +80,16 @@ Style/ConditionalAssignment:
   Description: 'This is confusing for folks coming from other languages'
 
 Style/Encoding:
-  Enabled: true
   Description: 'We prefer binary to UTF-8.'
-  EnforcedStyle: 'when_needed'
+  Enabled: false
+
+Style/ParenthesesAroundCondition:
+  Enabled: false
+  Description: 'This is used in too many places to discount, especially in ported code. Has little effect'
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+  Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
 
 Metrics/LineLength:
   Description: >-
@@ -71,6 +98,13 @@ Metrics/LineLength:
   Enabled: true
   Max: 180
 
+Metrics/BlockLength:
+  Enabled: true
+  Description: >-
+                  While the style guide suggests 10 lines, exploit definitions
+                  often exceed 200 lines.
+  Max: 300
+
 Metrics/MethodLength:
   Enabled: true
   Description: >-
@@ -78,10 +112,10 @@ Metrics/MethodLength:
                   often exceed 200 lines.
   Max: 300
 
-# Basically everything in metasploit needs binary encoding, not UTF-8.
-# Disable this here and enforce it through msftidy
-Style/Encoding:
-  Enabled: false
+Naming/UncommunicativeMethodParamName:
+  Enabled: true
+  Description: 'Whoever made this requirement never looked at crypto methods, IV'
+  MinNameLength: 2
 
 # %q() is super useful for long strings split over multiple lines and
 # is very common in module constructors for things like descriptions
@@ -92,9 +126,30 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Layout/SpaceInsideBrackets:
+Layout/AlignHash:
   Enabled: false
-  Description: 'Until module template are final, most modules will fail this.'
+  Description: 'aligning info hashes to match these rules is almost impossible to get right'
+
+Layout/EmptyLines:
+  Enabled: false
+  Description: 'these are used to increase readability'
+
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+  Description: 'these are used to increase readability'
+
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: false
+  Description: 'these are used to increase readability'
+
+Layout/AlignParameters:
+  Enabled: true
+  EnforcedStyle: 'with_fixed_indentation'
+  Description: 'initialize method of every module has fixed indentation for Name, Description, etc'
+
+Style/For:
+  Enabled: false
+  Description: 'if a module is written with a for loop, it cannot always be logically replaced with each'
 
 Style/StringLiterals:
   Enabled: false
@@ -103,6 +158,10 @@ Style/StringLiterals:
 Style/WordArray:
   Enabled: false
   Description: 'Metasploit prefers consistent use of []'
+
+Style/IfUnlessModifier:
+  Enabled: false
+  Description: 'This style might save a couple of lines, but often makes code less clear'
 
 Style/RedundantBegin:
   Exclude:

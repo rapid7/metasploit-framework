@@ -1056,7 +1056,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
       it 'applies the appropriate transform format' do
-        expect(::Msf::Simple::Buffer).to receive(:transform).with(shellcode, 'c', 'buf')
+        expect(::Msf::Simple::Buffer).to receive(:transform).with(shellcode, 'c', 'buf', {})
         payload_generator.format_payload(shellcode)
       end
     end

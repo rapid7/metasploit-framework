@@ -3,10 +3,10 @@ The module use the Censys REST API to access the same data accessible through we
 ## Verification Steps
 
 1. Do: `use auxiliary/gather/censys_search`
-2. Do: `set CENSYS_UID XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX`
-3. Do: `set CENSYS_SECRET XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
+2. Do: `set CENSYS_UID XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` (length: 32 (without dashes))
+3. Do: `set CENSYS_SECRET XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` (length: 32)
 4. Do: `set CENSYS_SEARCHTYPE certificates`
-5: Do: `set CENSYS_DORK rapid7`
+5: Do: `set CENSYS_DORK query`
 6: Do: `run`
 
 ## Scenarios

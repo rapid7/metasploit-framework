@@ -1,4 +1,4 @@
-Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.svg?branch=master)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://img.shields.io/codeclimate/github/rapid7/metasploit-framework.svg)](https://codeclimate.com/github/rapid7/metasploit-framework)
+Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.svg?branch=master)](https://travis-ci.org/rapid7/metasploit-framework) [![Code Climate](https://img.shields.io/codeclimate/github/rapid7/metasploit-framework.svg)](https://codeclimate.com/github/rapid7/metasploit-framework) [![Docker Pulls](https://img.shields.io/docker/pulls/metasploitframework/metasploit-framework.svg)](https://hub.docker.com/r/metasploitframework/metasploit-framework/)
 ==
 The Metasploit Framework is released under a BSD-style license. See
 COPYING for more details.

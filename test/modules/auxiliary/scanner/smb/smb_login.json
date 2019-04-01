@@ -1,0 +1,68 @@
+{
+	"TEST_NAME": 			"smb_login test",
+	"REPORT_PREFIX":		"SmbLoginTest",
+	"FRAMEWORK_BRANCH": 		"upstream/master",
+	"HTTP_PORT":			5309,
+	"STARTING_LISTENER":		30000,
+	"CREDS_FILE":			"../JSON/creds.json",
+	"MSF_HOSTS":
+	[
+		{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"VM_TOOLS_UPLOAD",
+			"HYPERVISOR_CONFIG":    "../JSON/esxi_config.json",
+			"CPE":			"cpe:/a:rapid7:metasploit:::",
+			"MSF_ARTIFACT_PATH":	"/home/msfuser/rapid7/test_artifacts",
+			"MSF_PATH":		"/home/msfuser/rapid7/metasploit-framework"
+		}
+	],
+
+	"TARGETS":
+	[
+		{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"EXPLOIT",
+			"CPE":			"cpe:/o:microsoft:windows_server_2008:r2:sp1:x64",
+			"MODULES":	
+			[
+				{
+					"NAME":		"auxiliary/scanner/smb/smb_login",
+					"SETTINGS":	[
+								"smbuser=vagrant",
+								"smbpass=vagrant"
+							]
+				}
+			]
+		},
+		{
+			"TYPE":			"VIRTUAL",
+			"METHOD":		"EXPLOIT",
+			"CPE":			"cpe:/o:microsoft:windows_server_2016:::x64",
+			"MODULES":	
+			[
+				{
+					"NAME":		"auxiliary/scanner/smb/smb_login",
+					"SETTINGS":	[
+								"smbuser=vagrant",
+								"smbpass=vagrant"
+							]
+				}
+			]
+		}
+	],
+	"TARGET_GLOBALS":
+	{
+			"TYPE":			"VIRTUAL",
+			"HYPERVISOR_CONFIG":	"../JSON/esxi_config.json",
+			"METHOD":		"VM_TOOLS_UPLOAD",
+			"PAYLOAD_DIRECTORY":	"C:\\payload_test",
+			"TESTING_SNAPSHOT":	"TESTING_BASE",
+			"PYTHON":		"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_PYTHON":	"C:\\software\\x86\\python27\\python.exe",
+			"METERPRETER_JAVA":	"C:\\software\\x86\\java\\bin\\java.exe"
+	},
+	"COMMAND_LIST": [],
+	"SUCCESS_LIST": [
+		"- Success:"
+	]
+}

@@ -30,32 +30,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
   def run
     begin
     print_status("Trying to get 'admin' user password ...")
@@ -86,14 +60,15 @@ class MetasploitModule < Msf::Auxiliary
       admin_password = admin_password_matches[1];
       print_good("Password for user 'admin' is: #{admin_password}")
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'ZyXEL GS1510-16',
-        user: 'admin',
-        password: admin_password,
-        proof: res.body
-      )
+      connection_details = {
+          module_fullname: self.fullname,
+          username: 'admin',
+          private_data: admin_password,
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          proof: res.body
+      }.merge(service_details)
+      create_credential_and_login(connection_details) # makes service_name more consistent
     end
   rescue ::Rex::ConnectionError
     print_error("#{rhost}:#{rport} - Failed to connect")

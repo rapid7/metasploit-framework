@@ -38,10 +38,8 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{32})$/
       @challenge = [ datastore['CHALLENGE'] ].pack("H*")
     else
-      print_error("CHALLENGE syntax must match 00112233445566778899AABBCCDDEEFF")
-      return
+      fail_with(Failure::BadConfig, 'CHALLENGE must be 32 characters, 0-9,A-F.')
     end
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 

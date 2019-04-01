@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
       'References'     =>
         [
+          ['CVE', '2014-100002'],
           ['EDB', '31262'],
           ['OSVDB', '102656'],
           ['BID', '65199'],

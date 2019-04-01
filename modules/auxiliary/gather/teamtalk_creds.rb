@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         This module has been tested successfully on TeamTalk versions
         5.2.2.4885 and 5.2.3.4893.
       },
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'      => 'bcoles',
       'References'  =>
         [
           # Protocol documentation
@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE))
     register_options [
       Opt::RPORT(10333),
-      OptString.new('USERNAME', [false, 'The username for TeamTalk', 'admin']),
-      OptString.new('PASSWORD', [false, 'The password for the specified username', 'admin'])
+      OptString.new('USERNAME', [true, 'The username for TeamTalk', 'admin']),
+      OptString.new('PASSWORD', [true, 'The password for the specified username', 'admin'])
     ]
   end
 

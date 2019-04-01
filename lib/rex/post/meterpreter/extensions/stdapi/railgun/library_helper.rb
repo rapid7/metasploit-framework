@@ -53,14 +53,14 @@ module LibraryHelper
 
   # converts ruby string to zero-terminated WCHAR string
   def str_to_uni_z(str)
-    enc = str.unpack("C*").pack("v*")
+    enc = str.encode('UTF-16LE').force_encoding('binary')
     enc += "\x00\x00"
     return enc
   end
 
   # converts 0-terminated UTF16 to ruby string
   def uniz_to_str(uniz)
-    uniz.unpack("v*").pack("C*").unpack("A*")[0]
+    uniz.force_encoding('UTF-16LE').encode('UTF-8')
   end
 
   # parses a number param and returns the value

@@ -1,10 +1,36 @@
 module Msf::DBManager::Session
+
+  #
+  # Returns a list of all sessions in the database that are selected
+  # via the key-value pairs in the specified options.
+  #
+  def sessions(opts)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Session.find(opts[:id]))
+      end
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Session, search_term)
+        wspace.sessions.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.sessions.includes(:host).where(opts)
+      end
+    }
+  end
+
   # Returns a session based on opened_time, host address, and workspace
   # (or returns nil)
   def get_session(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts[:workspace] || opts[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     addr   = opts[:addr] || opts[:address] || opts[:host] || return
     host = get_host(:workspace => wspace, :host => addr)
     time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
@@ -41,7 +67,7 @@ module Msf::DBManager::Session
   #     created, but the Mdm::Host will have been.   (There is no transaction
   #       to rollback the Mdm::Host creation.)
   #   @see #find_or_create_host
-  #   @see #normalize_host
+  #   @see #Msf::Util::Host.normalize_host
   #   @see #report_exploit_success
   #   @see #report_vuln
   #
@@ -101,7 +127,91 @@ module Msf::DBManager::Session
   }
   end
 
+  def report_session_host_dto(host_dto)
+    host_dto[:host] = get_host(host_dto)
+    create_mdm_session_from_host(host_dto)
+  end
+
+  def report_session_dto(session_dto)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      host_data = session_dto[:host_data]
+      workspace = workspaces({ name: host_data[:workspace] }).first
+      h_opts = {
+        host: host_data[:host],
+        workspace: workspace
+      }
+      h_opts[:arch] = host_data[:arch] if !host_data[:arch].nil? && !host_data[:arch].empty?
+      host = find_or_create_host(h_opts)
+
+      session_data = session_dto[:session_data]
+      sess_data = {
+          datastore: session_data[:datastore],
+          desc: session_data[:desc],
+          host_id: host.id,
+          last_seen: session_dto[:time_stamp],
+          local_id: session_data[:local_id],
+          opened_at: session_dto[:time_stamp],
+          platform: session_data[:platform],
+          port: session_data[:port],
+          routes: [],
+          stype: session_data[:stype],
+          via_exploit: session_data[:via_exploit],
+          via_payload: session_data[:via_payload],
+      }
+
+      if sess_data[:via_exploit] == 'exploit/multi/handler' and sess_data[:datastore] and sess_data[:datastore]['ParentModule']
+        sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
+      end
+
+      session_db_record = ::Mdm::Session.create!(sess_data)
+
+      # TODO: Figure out task stuff
+
+
+      if sess_data[:via_exploit]
+        # This is a live session, we know the host is vulnerable to something.
+        infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
+      end
+      session_db_record
+    }
+  end
+
+  # Update the attributes of a session entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Session] The updated Mdm::Session object.
+  def update_session(opts)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      session = ::Mdm::Session.find(id)
+      session.update!(opts)
+      return session
+    }
+  end
+
+  # Clean out any stale sessions that have been orphaned by a dead framework instance.
+  # @param last_seen_interval [Integer] interval, in seconds, open sessions are marked as alive
+  def remove_stale_sessions(last_seen_interval)
+    return unless active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      ::Mdm::Session.where(closed_at: nil).each do |db_session|
+        next unless db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2 * last_seen_interval))
+        db_session.closed_at    = db_session.last_seen || Time.now.utc
+        db_session.close_reason = "Orphaned"
+        db_session.save
+      end
+    }
+  end
+
+  #########
   protected
+  #########
 
   # @param session [Msf::Session] A session with a db_record Msf::Session#db_record
   # @param wspace [Mdm::Workspace]
@@ -117,10 +227,14 @@ module Msf::DBManager::Session
         mod_fullname = session.via_exploit
       end
       mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
+
       if mod_detail.nil?
         # Then the cache isn't built yet, take the hit for instantiating the
         # module
         mod_detail = framework.modules.create(mod_fullname)
+        refs = mod_detail.references
+      else
+        refs = mod_detail.refs
       end
       mod_name = mod_detail.name
 
@@ -129,7 +243,7 @@ module Msf::DBManager::Session
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: mod_detail.refs.map(&:name),
+        refs: refs,
         workspace: wspace,
       }
 
@@ -138,12 +252,12 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
-      vuln = framework.db.report_vuln(vuln_info)
+      vuln = report_vuln(vuln_info)
 
       attempt_info = {
         host: host,
         module: mod_fullname,
-        refs: mod_detail.refs,
+        refs: refs,
         service: service,
         session_id: s.id,
         timestamp: Time.now.utc,
@@ -153,7 +267,7 @@ module Msf::DBManager::Session
         run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
-      framework.db.report_exploit_success(attempt_info)
+      report_exploit_success(attempt_info)
 
       vuln
     }
@@ -165,10 +279,12 @@ module Msf::DBManager::Session
       raise ArgumentError.new("Invalid :session, expected Msf::Session") unless session.kind_of? Msf::Session
 
       wspace = opts[:workspace] || find_workspace(session.workspace)
-      h_opts = { }
-      h_opts[:host]      = normalize_host(session)
-      h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
-      h_opts[:workspace] = wspace
+      h_opts = {
+        host: Msf::Util::Host.normalize_host(session),
+        workspace: wspace
+      }
+      h_opts[:arch] = session.arch if session.respond_to?(:arch) && !session.arch.nil? && !session.arch.empty?
+
       host = find_or_create_host(h_opts)
       sess_data = {
         datastore: session.exploit_datastore.to_h,
@@ -230,4 +346,46 @@ module Msf::DBManager::Session
     }
   end
 
+  def infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+
+      vuln_info_dto = session_dto[:vuln_info]
+      host = session_db_record.host
+      mod_name = vuln_info_dto[:mod_name] || 'unknown'
+      refs = vuln_info_dto[:mod_references] || []
+
+      vuln_info = {
+          exploited_at: session_dto[:time_stamp],
+          host: host,
+          info: "Exploited by #{vuln_info_dto[:mod_fullname]} to create Session #{session_db_record.id}",
+          name: mod_name,
+          refs: refs,
+          workspace: workspace,
+      }
+
+      port    = vuln_info_dto[:remote_port]
+      service = (port ? host.services.find_by_port(port.to_i) : nil)
+
+      vuln_info[:service] = service if service
+
+      vuln = report_vuln(vuln_info)
+
+      attempt_info = {
+          host: host,
+          module: vuln_info_dto[:mod_fullname],
+          refs: refs,
+          service: service,
+          session_id: session_db_record.id,
+          timestamp: session_dto[:time_stamp],
+          username: vuln_info_dto[:username],
+          vuln: vuln,
+          workspace: workspace,
+          run_id: vuln_info_dto[:run_id]
+      }
+
+      report_exploit_success(attempt_info)
+
+      vuln
+    }
+  end
 end

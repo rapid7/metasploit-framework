@@ -130,33 +130,14 @@ class MetasploitModule < Msf::Auxiliary
         pass = $1
         print_good("admin / #{pass} credentials found")
 
-        service_data = {
-          address: rhost,
-          port: rport,
-          service_name: 'http',
-          protocol: 'tcp',
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
+        connection_details = {
           module_fullname: self.fullname,
-          origin_type: :service,
           private_data: pass,
           private_type: :password,
-          username: 'admin'
-        }
-
-        credential_data.merge!(service_data)
-
-        credential_core = create_credential(credential_data)
-
-        login_data = {
-          core: credential_core,
+          username: 'admin',
           status: Metasploit::Model::Login::Status::UNTRIED
-        }
-        login_data.merge!(service_data)
-
-        create_credential_login(login_data)
+        }.merge(service_details)
+        create_credential_and_login(connection_details)
       end
     end
 

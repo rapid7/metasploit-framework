@@ -88,7 +88,12 @@ data/meterpreter/ext_server_pivot.*.dll
 
 # local docker compose overrides
 docker-compose.local*
+.env
 
 # Ignore python bytecode
 *.pyc
 rspec.failures
+
+
+#Ignore any base disk store files
+db/modules_metadata_base.pstore

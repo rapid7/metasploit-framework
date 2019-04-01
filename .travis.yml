@@ -11,25 +11,37 @@ addons:
       - graphviz
 language: ruby
 rvm:
-  - '2.2'
-  - '2.3.5'
-  - '2.4.2'
+  - '2.3.8'
+  - '2.4.5'
+  - '2.5.5'
+  - '2.6.2'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+  # Used for testing the remote data service
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
 
 matrix:
   fast_finish: true
+  exclude:
+  - rvm: '2.3.8'
+    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+  - rvm: '2.4.5'
+    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
 
 jobs:
   # build docker image
   include:
-  - env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build" DOCKER="true"
+  - env: CMD="/usr/bin/docker-compose build" DOCKER="true"
     # we do not need any setup
     before_install: skip
     install: skip
-    before_script: skip
+    before_script:
+      - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+      - chmod +x docker-compose
+      - sudo mv docker-compose /usr/bin
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -38,6 +50,7 @@ before_install:
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
   # Update the bundler
+  - gem update --system
   - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
@@ -49,7 +62,9 @@ before_script:
 script:
   - echo "${CMD}"
     # we need travis_wait because the Docker build job can take longer than 10 minutes
-  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+    #- if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+    # docker_wait is currently broken on travis-ci, so let's just run CMD directly for now
+  - bash -c "${CMD}"
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

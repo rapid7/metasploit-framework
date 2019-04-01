@@ -244,22 +244,13 @@ class Console::CommandDispatcher::Stdapi::Net
     end
 
     # Check to see if they specified -h
-    @@route_opts.parse(args) { |opt, idx, val|
+    @@route_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-h'
-          print_line('Usage: route [-h] command [args]')
-          print_line
-          print_line('Display or modify the routing table on the remote machine.')
-          print_line
-          print_line('Supported commands:')
-          print_line
-          print_line('   add    [subnet] [netmask] [gateway]')
-          print_line('   delete [subnet] [netmask] [gateway]')
-          print_line('   list')
-          print_line
-          return true
+      when '-h'
+        cmd_route_help
+        return true
       end
-    }
+    end
 
     cmd = args.shift
 
@@ -349,6 +340,25 @@ class Console::CommandDispatcher::Stdapi::Net
       else
         print_error("Unsupported command: #{cmd}")
     end
+  end
+
+  def cmd_route_help
+    print_line('Usage: route [-h] command [args]')
+    print_line
+    print_line('Display or modify the routing table on the remote machine.')
+    print_line
+    print_line('Supported commands:')
+    print_line
+    print_line('   add    [subnet] [netmask] [gateway]')
+    print_line('   delete [subnet] [netmask] [gateway]')
+    print_line('   list')
+    print_line
+    print_line
+    print @@route_opts.usage
+  end
+
+  def cmd_route_tabs(str, words)
+    return %w[add delete list] + @@route_opts.fmt.keys if words.length == 1
   end
 
   #
@@ -565,6 +575,23 @@ class Console::CommandDispatcher::Stdapi::Net
     print_line 'Usage: portfwd [-h] [add | delete | list | flush] [args]'
     print_line
     print @@portfwd_opts.usage
+  end
+
+  def cmd_portfwd_tabs(str, words)
+    return %w[add delete list flush] + @@portfwd_opts.fmt.keys if words.length == 1
+
+    case words[-1]
+    when '-L'
+      return tab_complete_source_address
+    when '-i'
+      if client.respond_to?('pfservice')
+        return (1..client.pfservice.each_tcp_relay { |lh, lp, rh, rp, opts| }.length).to_a.map!(&:to_s)
+      end
+    when 'add', 'delete', 'list', 'flush'
+      return @@portfwd_opts.fmt.keys
+    end
+
+    []
   end
 
   def cmd_getproxy

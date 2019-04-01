@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         and SNMP read and read/write community strings to be retrieved without
         authentication.
 
-        This module is the work of Patrick DeSantis of Cisco Talos K. Reid
+        This module is the work of Patrick DeSantis of Cisco Talos and K. Reid
         Wightman.
 
         Tested on: Moxa NPort 6250 firmware v1.13, MGate MB3170 firmware 2.5,

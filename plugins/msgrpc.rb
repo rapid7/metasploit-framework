@@ -31,7 +31,7 @@ class Plugin::MSGRPC < Msf::Plugin
   #
   # ServerPort
   #
-  # 	The local port to listen on for connections.  The default is 55553
+  # 	The local port to listen on for connections.  The default is 55552
   #
   def initialize(framework, opts)
     super

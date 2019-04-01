@@ -29,12 +29,19 @@ module Msf
       # @param mod [Msf::Module] Module to create document for.
       # @return [void]
       def self.get_module_document(mod)
-        md = ''
-
-        kb_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
+        kb_path = nil
         kb = ''
 
-        if File.exist?(kb_path)
+        user_path = File.join(PullRequestFinder::USER_MANUAL_BASE_PATH, "#{mod.fullname}.md")
+        global_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
+
+        if File.exists?(user_path)
+          kb_path = user_path
+        elsif File.exists?(global_path)
+          kb_path = global_path
+        end
+
+        unless kb_path.nil?
           File.open(kb_path, 'rb') { |f| kb = f.read }
         end
 
@@ -56,6 +63,9 @@ module Msf
             mod_rank:          mod.rank,
             mod_platforms:     mod.send(:module_info)['Platform'],
             mod_options:       mod.options,
+            mod_side_effects:  mod.side_effects,
+            mod_reliability:   mod.reliability,
+            mod_stability:     mod.stability,
             mod_demo:          mod
         }
 

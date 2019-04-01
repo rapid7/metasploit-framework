@@ -32,6 +32,8 @@ class ReadableText
         return dump_auxiliary_module(mod, indent)
       when Msf::MODULE_POST
         return dump_post_module(mod, indent)
+      when Msf::MODULE_EVASION
+        return dump_evasion_module(mod, indent)
       else
         return dump_generic_module(mod, indent)
     end
@@ -62,6 +64,23 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_evasion_targets(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    mod.targets.each_with_index { |target, idx|
+      tbl << [ idx.to_s, target.name || 'All' ]
+    }
+
+    tbl.to_s + "\n"
+  end
+
   # Dumps the exploit's selected target
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -70,6 +89,27 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_target(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    tbl << [ mod.target_index, mod.target.name || 'All' ]
+
+    tbl.to_s + "\n"
+  end
+
+  # Dumps the evasion module's selected target
+  #
+  # @param mod [Msf::Evasion] The evasion module.
+  # @param indent [String] The indentation to use (only the length matters)
+  # @param h [String] The string to display as the table heading.
+  # @return [String] The strong form of the table.
+  def self.dump_evasion_target(mod, indent = '', h = nil)
     tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,
@@ -155,6 +195,36 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_traits(mod, indent=' ')
+    output = ''
+
+    unless mod.side_effects.empty?
+      output << "Module side effects:\n"
+      mod.side_effects.each { |side_effect|
+        output << indent + side_effect + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.stability.empty?
+      output << "Module stability:\n"
+      mod.stability.each { |stability|
+        output << indent + stability + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.reliability.empty?
+      output << "Module reliability:\n"
+      mod.reliability.each { |reliability|
+        output << indent + reliability + "\n"
+      }
+      output << "\n"
+    end
+
+    output
+  end
+
   # Dumps information about an exploit module.
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -179,9 +249,15 @@ class ReadableText
     }
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Targets
     output << "Available targets:\n"
     output << dump_exploit_targets(mod, indent)
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -210,6 +286,9 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # AKA
+    output << dump_aka(mod, indent)
+
     return output
 
   end
@@ -235,11 +314,17 @@ class ReadableText
     }
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Actions
     if mod.action
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -255,6 +340,9 @@ class ReadableText
 
     # References
     output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
 
     return output
   end
@@ -281,6 +369,8 @@ class ReadableText
     end
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Compatible session types
     if mod.session_types
       output << "Compatible session types:\n"
@@ -295,6 +385,55 @@ class ReadableText
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Options
+    if (mod.options.has_options?)
+      output << "Basic options:\n"
+      output << dump_options(mod, indent)
+      output << "\n"
+    end
+
+    # Description
+    output << "Description:\n"
+    output << word_wrap(Rex::Text.compress(mod.description))
+    output << "\n"
+
+    # References
+    output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
+
+    return output
+  end
+
+  # Dumps information about an evasion module.
+  #
+  # @param mod [Msf::Evasion] The evasion module instance.
+  # @param indent [String] The indentation to use.
+  # @return [String] The string form of the information
+  def self.dump_evasion_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "    License: #{mod.license}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -374,6 +513,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Description
     output << "Description:\n"
@@ -499,9 +640,49 @@ class ReadableText
 
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
-      mod.references.each { |ref|
-        output << indent + ref.to_s + "\n"
-      }
+
+      cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
+      if cve_collection.empty?
+        output << "#{indent}CVE: Not available\n"
+      end
+
+      mod.references.each do |ref|
+        case ref.ctx_id
+        when 'CVE', 'cve'
+          if !cve_collection.empty? && ref.ctx_val.blank?
+            output << "#{indent}CVE: Not available\n"
+          else
+            output << indent + ref.to_s + "\n"
+          end
+        when 'LOGO', 'SOUNDTRACK'
+          output << indent + ref.to_s + "\n"
+          Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
+        else
+          output << indent + ref.to_s + "\n"
+        end
+      end
+
+      output << "\n"
+    end
+
+    output
+  end
+
+  # Dumps the aka names associated with the supplied module.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_aka(mod, indent = '')
+    output = ''
+
+    if mod.notes['AKA'].present?
+      output << "AKA:\n"
+
+      mod.notes['AKA'].each do |aka_name|
+        output << indent + aka_name + "\n"
+      end
+
       output << "\n"
     end
 
@@ -532,7 +713,7 @@ class ReadableText
     return ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"
   end
 
-  # Dumps the list of active sessions.
+  # Dumps the list of sessions.
   #
   # @param framework [Msf::Framework] the framework to dump.
   # @param opts [Hash] the options to dump with.
@@ -541,73 +722,141 @@ class ReadableText
   # @option opts :indent [Integer] set the indentation amount.
   # @return [String] the formatted list of sessions.
   def self.dump_sessions(framework, opts={})
+    output = ""
     verbose = opts[:verbose] || false
+    show_active = opts[:show_active] || false
+    show_inactive = opts[:show_inactive] || false
+    # if show_active and show_inactive are false the caller didn't
+    # specify either flag; default to displaying active sessions
+    show_active = true if !(show_active || show_inactive)
     show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
 
     return dump_sessions_verbose(framework, opts) if verbose
 
-    columns = []
-    columns << 'Id'
-    columns << 'Name'
-    columns << 'Type'
-    columns << 'Checkin?' if show_extended
-    columns << 'Enc?' if show_extended
-    columns << 'Local URI' if show_extended
-    columns << 'Information'
-    columns << 'Connection'
+    if show_active
+      columns = []
+      columns << 'Id'
+      columns << 'Name'
+      columns << 'Type'
+      columns << 'Checkin?' if show_extended
+      columns << 'Enc?' if show_extended
+      columns << 'Local URI' if show_extended
+      columns << 'Information'
+      columns << 'Connection'
 
-    tbl = Rex::Text::Table.new(
-      'Indent'  => indent,
-      'Header'  => "Active sessions",
-      'Columns' => columns)
+      tbl = Rex::Text::Table.new(
+          'Header' => "Active sessions",
+          'Columns' => columns,
+          'Indent' => indent)
+      framework.sessions.each_sorted { |k|
+        session = framework.sessions[k]
+        row = create_msf_session_row(session, show_extended)
+        tbl << row
+      }
 
-    framework.sessions.each_sorted { |k|
-      session = framework.sessions[k]
+      output << (tbl.rows.count > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n")
+    end
 
-      sinfo = session.info.to_s
-      # Arbitrarily cut it at 80 columns
-      if sinfo.length > 80
-        sinfo = sinfo[0,77] + "..."
-      end
+    if show_inactive
+      output << "\n" if show_active
 
-      row = []
-      row << session.sid.to_s
-      row << session.sname.to_s
-      row << session.type.to_s
-      if session.respond_to?(:session_type)
-        row[-1] << (" " + session.session_type)
-      elsif session.respond_to?(:platform)
-        row[-1] << (" " + session.platform)
-      end
+      columns = []
+      columns << 'Closed'
+      columns << 'Opened'
+      columns << 'Reason Closed'
+      columns << 'Type'
+      columns << 'Address'
 
-      if show_extended
-        if session.respond_to?(:last_checkin) && session.last_checkin
-          row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
-        else
-          row << '?'
-        end
+      tbl = Rex::Text::Table.new(
+          'Header' => "Inactive sessions",
+          'Columns' => columns,
+          'Indent' => indent,
+          'SortIndex' => 1)
 
-        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
-          row << "Y"
-        else
-          row << 'N'
-        end
-
-        if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
-          row << " (#{session.exploit_datastore['LURI']})"
-        else
-          row << '?'
+      if framework.db.active
+        framework.db.sessions.each do |session|
+          unless session.closed_at.nil?
+            row = create_mdm_session_row(session, show_extended)
+            tbl << row
+          end
         end
       end
 
-      row << sinfo
-      row << session.tunnel_to_s + " (#{session.session_host})"
+      output << (tbl.rows.count > 0 ? tbl.to_s : "#{tbl.header_to_s}No inactive sessions.\n")
+    end
 
-      tbl << row
-    }
+    # return formatted listing of sessions
+    output
+  end
 
-    return framework.sessions.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n"
+  # Creates a table row that represents the specified session.
+  #
+  # @param session [Msf::Session] session used to create a table row.
+  # @param show_extended [Boolean] Indicates if extended information will be included in the row.
+  # @return [Array] table row of session data.
+  def self.create_msf_session_row(session, show_extended)
+    row = []
+    row << session.sid.to_s
+    row << session.sname.to_s
+    row << session.type.to_s
+    if session.respond_to?(:session_type)
+      row[-1] << " #{session.session_type}"
+    elsif session.respond_to?(:platform)
+      row[-1] << " #{session.platform}"
+    end
+
+    if show_extended
+      if session.respond_to?(:last_checkin) && session.last_checkin
+        row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+      else
+        row << '?'
+      end
+
+      if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+        row << 'Y'
+      else
+        row << 'N'
+      end
+
+      if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+        row << "(#{session.exploit_datastore['LURI']})"
+      else
+        row << '?'
+      end
+    end
+
+    sinfo = session.info.to_s
+    # Arbitrarily cut info at 80 columns
+    if sinfo.length > 80
+      sinfo = "#{sinfo[0,77]}..."
+    end
+    row << sinfo
+
+    row << "#{session.tunnel_to_s} (#{session.session_host})"
+
+    # return complete row
+    row
+  end
+
+  # Creates a table row that represents the specified session.
+  #
+  # @param session [Mdm::Session] session used to create a table row.
+  # @param show_extended [Boolean] Indicates if extended information will be included in the row.
+  # @return [Array] table row of session data.
+  def self.create_mdm_session_row(session, show_extended)
+    row = []
+    row << session.closed_at.to_s
+    row << session.opened_at.to_s
+    row << session.close_reason
+    row << session.stype
+    if session.respond_to?(:platform) && !session.platform.nil?
+      row[-1] << " #{session.platform}"
+    end
+    row << (!session.host.nil? ? session.host.address : nil)
+
+    # return complete row
+    row
   end
 
   # Dumps the list of active sessions in verbose mode
@@ -634,7 +883,6 @@ class ReadableText
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
-      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
       sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
       sess_enc     = false
       if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
@@ -644,18 +892,18 @@ class ReadableText
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      if session.respond_to?(:platform)
-        sess_type << " " + session.platform
+      if session.respond_to?(:platform) && session.platform
+        sess_type << " #{session.platform}"
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
-      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+      if !session.payload_uuid.nil? && session.payload_uuid.registered
         sess_registration = "Yes"
-        if uuid_info['name']
-          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        if session.payload_uuid.name
+          sess_registration << " - Name=\"#{session.payload_uuid.name}\""
         end
       end
 
@@ -689,10 +937,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name', "Payload", "Payload opts" ]
+    columns = [ 'Id', 'Name', "Payload", "Payload opts"]
 
     if (verbose)
-      columns += [ "URIPATH", "Start Time", "Handler opts" ]
+      columns += [ "URIPATH", "Start Time", "Handler opts", "Persist" ]
     end
 
     tbl = Rex::Text::Table.new(
@@ -700,6 +948,15 @@ class ReadableText
       'Header'  => "Jobs",
       'Columns' => columns
       )
+
+    # Get the persistent job info.
+    if verbose
+      begin
+        persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+      rescue Errno::ENOENT, JSON::ParserError
+        persist_list = []
+      end
+    end
 
     # jobs are stored as a hash with the keys being a numeric String job_id.
     framework.jobs.keys.sort_by(&:to_i).each do |job_id|
@@ -735,11 +992,19 @@ class ReadableText
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
         row[6] = ''
+        row[7] = 'false'
 
         if pinst.respond_to?(:listener_uri)
           listener_uri = pinst.listener_uri.strip
           row[6] = listener_uri unless listener_uri == payload_uri
         end
+
+        persist_list.each do |e|
+          if framework.jobs[job_id.to_s].ctx[1]
+             row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+          end
+        end
+
       end
       tbl << row
     end

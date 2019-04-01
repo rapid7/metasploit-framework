@@ -51,19 +51,20 @@ module Msf
             end
 
             args.each do |res|
+              res_expand = ::File.expand_path(res)
               good_res = nil
               if res == '-'
                 good_res = res
-              elsif ::File.exist?(res)
-                good_res = res
-              elsif
+              elsif ::File.file?(res_expand) && File.readable?(res_expand)
+                good_res = res_expand
+              else
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
                 [
                   ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource',
                   ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource'
                 ].each do |dir|
                   res_path = dir + ::File::SEPARATOR + res
-                  if ::File.exist?(res_path)
+                  if ::File.file?(res_path) && File.readable?(res_path)
                     good_res = res_path
                     break
                   end
@@ -88,9 +89,9 @@ module Msf
           def cmd_resource_tabs(str, words)
             tabs = []
             #return tabs if words.length > 1
-            if ( str and str =~ /^#{Regexp.escape(File::SEPARATOR)}/ )
+            if !str.nil? && (str.start_with?('~') || str =~ /^#{Regexp.escape(File::SEPARATOR)}/)
               # then you are probably specifying a full path so let's just use normal file completion
-              return tab_complete_filenames(str,words)
+              return tab_complete_filenames(str, words)
             elsif (not words[1] or not words[1].match(/^\//))
               # then let's start tab completion in the scripts/resource directories
               begin
@@ -99,13 +100,13 @@ module Msf
                   ::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
                   '.'
                 ].each do |dir|
-                  next if not ::File.exist? dir
+                  next unless ::File.exist?(dir)
                   tabs += ::Dir.new(dir).find_all { |e|
                     path = dir + File::SEPARATOR + e
-                    ::File.file?(path) and File.readable?(path)
+                    ::File.file?(path) && File.readable?(path)
                   }
                 end
-              rescue Exception
+              rescue
               end
             else
               tabs += tab_complete_filenames(str,words)
@@ -120,11 +121,15 @@ module Msf
             print_line
           end
 
+          def cmd_makerc_tabs(str, words)
+            tab_complete_filenames(str, words)
+          end
+
           #
           # Saves commands executed since the ui started to the specified msfrc file
           #
           def cmd_makerc(*args)
-            if args.empty?
+            if args.empty? || args.include?('-h')
               cmd_makerc_help
               return false
             end

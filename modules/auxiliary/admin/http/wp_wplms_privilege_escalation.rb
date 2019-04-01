@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'          =>
         [
-          'Evex',                             # Vulnerability discovery
-          'Rob Carr <rob[at]rastating.com>'   # Metasploit module
+          'Evex',     # Vulnerability discovery
+          'rastating' # Metasploit module
         ],
       'License'         => MSF_LICENSE,
       'References'      =>

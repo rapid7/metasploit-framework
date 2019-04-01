@@ -11,48 +11,43 @@
 # Cheers - Max Moser - mmo@remote-exploit.org
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
   def initialize
     super(
-      'Name'				=> 'pSnuffle Packet Sniffer',
+      'Name'        => 'pSnuffle Packet Sniffer',
       'Description' => 'This module sniffs passwords like dsniff did in the past',
-      'Author'			=> 'Max Moser <mmo[at]remote-exploit.org>',
-      'License'			=> MSF_LICENSE,
-      'Actions'			=>
+      'Author'	    => 'Max Moser <mmo[at]remote-exploit.org>',
+      'License'	    => MSF_LICENSE,
+      'Actions'	    =>
         [
           [ 'Sniffer' ],
-          [ 'List'    ]
+          [ 'List' ]
         ],
-      'PassiveActions' =>
-        [
-          'Sniffer'
-        ],
-      'DefaultAction'	 => 'Sniffer'
+      'PassiveActions' => [ 'Sniffer' ],
+      'DefaultAction'  => 'Sniffer'
     )
+    register_options [
+      OptString.new('PROTOCOLS', [true, 'A comma-delimited list of protocols to sniff or "all".', 'all']),
+    ]
 
-    register_options([
-      OptString.new('PROTOCOLS',	[true,	'A comma-delimited list of protocols to sniff or "all".', "all"]),
-    ])
-
-    register_advanced_options([
-      OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
-        File.join(Msf::Config.data_directory, "exploits", "psnuffle")
+    register_advanced_options [
+      OptPath.new('ProtocolBase', [true, 'The base directory containing the protocol decoders',
+        File.join(Msf::Config.data_directory, 'exploits', 'psnuffle')
       ]),
-    ])
-    deregister_options('RHOST')
+    ]
+    deregister_options('RHOSTS')
   end
 
 
   def load_protocols
     base = datastore['ProtocolBase']
-    if (not File.directory?(base))
-      raise RuntimeError,"The ProtocolBase parameter is set to an invalid directory"
+    unless File.directory? base
+      raise RuntimeError, 'The ProtocolBase parameter is set to an invalid directory'
     end
+
     allowed = datastore['PROTOCOLS'].split(',').map{|x| x.strip.downcase}
     @protos = {}
     decoders = Dir.new(base).entries.grep(/\.rb$/).sort
@@ -63,14 +58,14 @@ class MetasploitModule < Msf::Auxiliary
         m.module_eval(File.read(f, File.size(f)))
         m.constants.grep(/^Sniffer(.*)/) do
           proto = $1
-          if allowed.include?(proto.downcase) or datastore['PROTOCOLS'] == 'all'
-            klass = m.const_get("Sniffer#{proto}")
-            @protos[proto.downcase] = klass.new(framework, self)
+          next unless allowed.include?(proto.downcase) || datastore['PROTOCOLS'] == 'all'
 
-            print_status("Loaded protocol #{proto} from #{f}...")
-          end
+          klass = m.const_get("Sniffer#{proto}")
+          @protos[proto.downcase] = klass.new(framework, self)
+
+          print_status("Loaded protocol #{proto} from #{f}...")
         end
-      rescue ::Exception => e
+      rescue => e
         print_error("Decoder #{n} failed to load: #{e.class} #{e} #{e.backtrace}")
       end
     end
@@ -81,12 +76,12 @@ class MetasploitModule < Msf::Auxiliary
     # Load all of our existing protocols
     load_protocols
 
-    if(action.name == 'List')
+    if action.name == 'List'
       print_status("Protocols: #{@protos.keys.sort.join(', ')}")
       return
     end
 
-    print_status("Sniffing traffic.....")
+    print_status 'Sniffing traffic.....'
     open_pcap
 
     each_packet do |pkt|
@@ -99,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       true
     end
     close_pcap
-    print_status("Finished sniffing")
+    print_status 'Finished sniffing'
   end
 end
 
@@ -115,7 +110,7 @@ class BaseProtocolParser
     self.module    = mod
     self.sessions  = {}
     self.dport     = 0
-    register_sigs()
+    register_sigs
   end
 
   def parse(pkt)
@@ -153,7 +148,8 @@ class BaseProtocolParser
     purge_keys = []
     sessions.each_key do |ses|
       # Check for cleanup abilities... kills performance in large environments maybe
-      if ((sessions[ses][:mtime]-sessions[ses][:ctime])>300)		#When longer than 5 minutes no packet was related to the session, delete it
+      # When longer than 5 minutes no packet was related to the session, delete it
+      if ((sessions[ses][:mtime] - sessions[ses][:ctime]) > 300)
         # too bad to this session has no action for a long time
         purge_keys << ses
       end
@@ -170,16 +166,16 @@ class BaseProtocolParser
         sessions[sessionid] = {
           :client_host => $1,
           :client_port => $2,
-          :host => $3,
-          :port => $4,
-          :session   => sessionid,
-          :ctime     => Time.now,
-          :mtime     => Time.now
+          :host        => $3,
+          :port        => $4,
+          :session     => sessionid,
+          :ctime       => Time.now,
+          :mtime       => Time.now
         }
       end
     end
 
-    return sessions[sessionid]
+    sessions[sessionid]
   end
 
   def get_session_src(pkt)

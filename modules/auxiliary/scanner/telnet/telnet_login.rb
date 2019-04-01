@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE
     )
-    deregister_options('RHOST')
+
     register_advanced_options(
       [
         OptInt.new('TIMEOUT', [ true, 'Default timeout for telnet connections.', 25])
@@ -85,11 +85,12 @@ class MetasploitModule < Msf::Auxiliary
           workspace_id: myworkspace_id
       )
       if result.success?
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
-        start_telnet_session(ip,rport,result.credential.public,result.credential.private,scanner)
+        start_telnet_session(ip,rport,result.credential.public,result.credential.private,scanner) if datastore['CreateSession']
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

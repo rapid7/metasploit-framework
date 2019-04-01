@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2009/Oct/261' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2009/Oct/261' ],
         ],
       'DisclosureDate' => 'Nov 20 2008'))
 

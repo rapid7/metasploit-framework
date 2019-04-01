@@ -125,7 +125,7 @@ class Msf::Payload::Apk
 
   def parse_orig_cert_data(orig_apkfile)
     orig_cert_data = Array[]
-    keytool_output = run_cmd("keytool -J-Duser.language=en -printcert -jarfile '#{orig_apkfile}'")
+    keytool_output = run_cmd(%Q{keytool -J-Duser.language=en -printcert -jarfile "#{orig_apkfile}"})
     owner_line = keytool_output.match(/^Owner:.+/)[0]
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
     orig_cert_data.push("#{orig_cert_dname}")
@@ -264,8 +264,9 @@ class Msf::Payload::Apk
     fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
 
     print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
-    run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
+    apktool_output = run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
     unless File.readable?(injected_apk)
+      print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
     end
 

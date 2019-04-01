@@ -4,6 +4,9 @@
 docker-compose*.yml
 docker/
 !docker/msfconsole.rc
+!docker/entrypoint.sh
+!docker/database.yml
+Dockerfile
 README.md
 .git/
 .github/
@@ -34,7 +37,7 @@ config/database.yml
 # target config file for testing
 features/support/targets.yml
 # simplecov coverage data
-coverage
+coverage/
 doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build

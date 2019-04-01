@@ -73,8 +73,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
         OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
       ])
-
-    deregister_options('RHOST')
   end
 
 
@@ -244,7 +242,7 @@ class MetasploitModule < Msf::Auxiliary
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
 
-      # Only download files that are withint our interest
+      # Only download files that are within our interest
       if res and res.to_s =~ datastore['PATTERN']
         # We assume the string followed by the last '/' is our file name
         fname = f.split("/")[-1].chop

@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
         select(nil, nil, nil, datastore['DELAY'])
         begin
           data = session.espia.espia_image_get_dev_screen
-        rescue RequestError => e
+        rescue Rex::Post::Meterpreter::RequestError => e
           print_error("Error taking the screenshot: #{e.class} #{e} #{e.backtrace}")
           return false
         end

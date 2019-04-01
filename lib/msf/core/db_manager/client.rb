@@ -57,6 +57,14 @@ module Msf::DBManager::Client
         dlog("Unknown attribute for Client: #{k}")
       end
     end
+
+    begin
+      framework.events.on_db_client(client) if client.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_client event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     if client && client.changed?
       client.save!
     end

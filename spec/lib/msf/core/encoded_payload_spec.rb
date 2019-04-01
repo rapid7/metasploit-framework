@@ -11,6 +11,7 @@ RSpec.describe Msf::EncodedPayload do
         'x86/shikata_ga_nai',
         # Great rank
         'x86/call4_dword_xor',
+        'x86/xor_dynamic',
         'generic/none',
         ],
       module_type: 'encoder',
@@ -132,8 +133,27 @@ RSpec.describe Msf::EncodedPayload do
     context 'with bad characters: "\\xD9\\x00"' do
       let(:badchars) { "\xD9\x00".force_encoding('binary') }
 
-      specify 'chooses x86/call4_dword_xor' do
-        expect(encoded_payload.encoder.refname).to eq("x86/call4_dword_xor")
+      specify 'chooses x86/xor_dynamic' do
+        expect(encoded_payload.encoder.refname).to eq("x86/xor_dynamic")
+      end
+
+      specify do
+        expect(encoded_payload.encoded).not_to include(badchars)
+      end
+
+    end
+    context 'with windows/meterpreter_bind_tcp and bad characters: "\\x00\\x0a\\x0d"' do
+      let(:badchars) { "\x00\x0a\x0d".force_encoding('binary') }
+      let(:ancestor_reference_names) {
+        %w{singles/windows/meterpreter_bind_tcp}
+      }
+
+      let(:reference_name) {
+        'windows/meterpreter_bind_tcp'
+      }
+
+      specify 'chooses x86/xor_dynamic' do
+        expect(encoded_payload.encoder.refname).to eq("x86/xor_dynamic")
       end
 
       specify do

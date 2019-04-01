@@ -74,6 +74,13 @@ class Post
 
   alias cmd_rexploit cmd_rerun
 
+  def cmd_run_help
+    print_line "Usage: run [options]"
+    print_line
+    print_line "Launches a post exploitation module."
+    print @@auxiliary_opts.usage
+  end
+
   #
   # Executes a post module
   #
@@ -82,24 +89,29 @@ class Post
     jobify  = false
     quiet   = false
 
-    @@post_opts.parse(args) { |opt, idx, val|
+    @@post_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-j'
-          jobify = true
-        when '-o'
-          opt_str = val
-        when '-a'
-          action = val
-        when '-q'
-          quiet  = true
-        when '-h'
-          print(
-            "Usage: run [options]\n\n" +
-            "Launches a post module.\n" +
-            @@post_opts.usage)
+      when '-j'
+        jobify = true
+      when '-o'
+        opt_str = val
+      when '-a'
+        action = val
+      when '-q'
+        quiet  = true
+      when '-h'
+        cmd_run_help
+        return false
+      else
+        (key, val) = val.split('=')
+        if key && val
+          mod.datastore[key] = val
+        else
+          cmd_run_help
           return false
+        end
       end
-    }
+    end
 
     # Always run passive modules in the background
     if (mod.passive)
@@ -139,6 +151,20 @@ class Post
   end
 
   alias cmd_exploit cmd_run
+
+  #
+  # Tab completion for the run command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  #
+  def cmd_run_tabs(str, words)
+    return [] if words.length > 1
+    @@post_opts.fmt.keys
+  end
+
+  alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_run_help
     print_line "Usage: run [options]"

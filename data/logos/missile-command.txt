@@ -1,7 +1,7 @@
 %clr
  ______________________________________________________________________________
 |                                                                              |
-|                   %bld%grnMETASPLOIT CYBER MISSILE COMMAND V4%clr                        |
+|                   %bld%grnMETASPLOIT CYBER MISSILE COMMAND V5%clr                        |
 |______________________________________________________________________________|
       %yel\%clr                                  %yel/%clr                      %yel/%clr
        %yel\%clr     .                          %yel/%clr                      %yel/%clr            x
@@ -25,6 +25,6 @@
 ####    %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr      ###########     %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr      ####
 ################################################################################
 ################################################################################
-# %bldWAVE 4%clr ######## %bldSCORE 31337%clr ################################## %bldHIGH FFFFFFFF%clr #
+# %bldWAVE 5%clr ######## %bldSCORE 31337%clr ################################## %bldHIGH FFFFFFFF%clr #
 ################################################################################
                                                            https://metasploit.com%clr

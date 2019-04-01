@@ -11,6 +11,9 @@ class Export
 
   attr_accessor :workspace
 
+  STATUS_START = "start"
+  STATUS_COMPLETE = "complete"
+
   def initialize(workspace)
     self.workspace = workspace
   end
@@ -31,20 +34,22 @@ class Export
 
   # Performs an export of the workspace's `Metasploit::Credential::Login` objects in pwdump format
   # @param path [String] the path on the local filesystem where the exported data will be written
-  # @return [void]
+  # @return [String] The path to the location of the written file.
   def to_pwdump_file(path, &block)
     exporter = Metasploit::Credential::Exporter::Pwdump.new(workspace: workspace)
 
-    File.open(path, 'w') do |file|
+    output_file = File.open(path, 'w') do |file|
       file << exporter.rendered_output
     end
-    true
+    output_file.path
   end
 
-
+  # Performs an export of the workspace's `Metasploit::Credential::Login` objects in XML format
+  # @param path [String] the path on the local filesystem where the exported data will be written
+  # @return [String] The path to the location of the written file.
   def to_xml_file(path, &block)
 
-    yield(:status, "start", "report") if block_given?
+    yield(:status, STATUS_START, "report") if block_given?
     extract_target_entries
     report_file = ::File.open(path, "wb")
 
@@ -52,49 +57,49 @@ class Export
     report_file.write %Q|<MetasploitV5>\n|
     report_file.write %Q|<generated time="#{Time.now.utc}" user="#{myusername}" project="#{myworkspace.name.gsub(/[^A-Za-z0-9\x20]/n,"_")}" product="framework"/>\n|
 
-    yield(:status, "start", "hosts") if block_given?
+    yield(:status, STATUS_START, "hosts") if block_given?
     report_file.write %Q|<hosts>\n|
     report_file.flush
     extract_host_info(report_file)
     report_file.write %Q|</hosts>\n|
 
-    yield(:status, "start", "events") if block_given?
+    yield(:status, STATUS_START, "events") if block_given?
     report_file.write %Q|<events>\n|
     report_file.flush
     extract_event_info(report_file)
     report_file.write %Q|</events>\n|
 
-    yield(:status, "start", "services") if block_given?
+    yield(:status, STATUS_START, "services") if block_given?
     report_file.write %Q|<services>\n|
     report_file.flush
     extract_service_info(report_file)
     report_file.write %Q|</services>\n|
 
-    yield(:status, "start", "web sites") if block_given?
+    yield(:status, STATUS_START, "web sites") if block_given?
     report_file.write %Q|<web_sites>\n|
     report_file.flush
     extract_web_site_info(report_file)
     report_file.write %Q|</web_sites>\n|
 
-    yield(:status, "start", "web pages") if block_given?
+    yield(:status, STATUS_START, "web pages") if block_given?
     report_file.write %Q|<web_pages>\n|
     report_file.flush
     extract_web_page_info(report_file)
     report_file.write %Q|</web_pages>\n|
 
-    yield(:status, "start", "web forms") if block_given?
+    yield(:status, STATUS_START, "web forms") if block_given?
     report_file.write %Q|<web_forms>\n|
     report_file.flush
     extract_web_form_info(report_file)
     report_file.write %Q|</web_forms>\n|
 
-    yield(:status, "start", "web vulns") if block_given?
+    yield(:status, STATUS_START, "web vulns") if block_given?
     report_file.write %Q|<web_vulns>\n|
     report_file.flush
     extract_web_vuln_info(report_file)
     report_file.write %Q|</web_vulns>\n|
 
-    yield(:status, "start", "module details") if block_given?
+    yield(:status, STATUS_START, "module details") if block_given?
     report_file.write %Q|<module_details>\n|
     report_file.flush
     extract_module_detail_info(report_file)
@@ -105,9 +110,9 @@ class Export
     report_file.flush
     report_file.close
 
-    yield(:status, "complete", "report") if block_given?
+    yield(:status, STATUS_COMPLETE, "report") if block_given?
 
-    true
+    report_file.path
   end
 
   # A convenience function that bundles together host, event, and service extraction.
@@ -183,7 +188,7 @@ class Export
   end
 
   def create_xml_element(key,value,skip_encoding=false)
-    tag = key.gsub("_","-")
+    tag = key.tr("_","-")
     el = REXML::Element.new(tag)
     if value
       unless skip_encoding
@@ -543,4 +548,3 @@ class Export
 end
 end
 end
-

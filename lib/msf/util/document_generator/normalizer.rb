@@ -64,6 +64,10 @@ module Msf
         POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
         AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
         PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
+        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
+
+        # Special messages
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
 
 
         # Returns the module document in HTML form.
@@ -78,7 +82,7 @@ module Msf
             File.open(path, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()), kb.gsub(/</, '&#x3c;'))
+          md_to_html(ERB.new(@md_template).result(binding()), kb)
         end
 
 
@@ -104,14 +108,18 @@ module Msf
         # @param kb [String] Additional information to add.
         # @return [String] HTML document.
         def md_to_html(md, kb)
-          opts = {
+          extensions = {
+              escape_html: true
+          }
+
+          render_options = {
             fenced_code_blocks: true,
             no_intra_emphasis: true,
-            escape_html: true,
             tables: true
           }
 
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, opts)
+          html_renderer = Redcarpet::Render::MsfMdHTML.new(extensions)
+          r = Redcarpet::Markdown.new(html_renderer, render_options)
           ERB.new(@html_template ||= lambda {
             html_template = ''
             path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', HTML_TEMPLATE))
@@ -140,7 +148,7 @@ module Msf
           formatted_pr = []
 
           pull_requests.each_pair do |number, pr|
-            formatted_pr << "* <a href=\"https://github.com/rapid7/metasploit-framework/pull/#{number}\">##{number}</a> - #{pr[:title]}"
+            formatted_pr << "* [##{number} #{pr[:title]}](https://github.com/rapid7/metasploit-framework/pull/#{number})"
           end
 
           formatted_pr * "\n"
@@ -179,7 +187,7 @@ module Msf
         # @return [String]
         def normalize_authors(authors)
           if authors.kind_of?(Array)
-            authors.collect { |a| "* #{Rex::Text.html_encode(a)}" } * "\n"
+            authors.collect { |a| "* #{CGI::escapeHTML(a)}" } * "\n"
           else
             authors
           end
@@ -200,7 +208,30 @@ module Msf
         # @param refs [Array] Module references.
         # @return [String]
         def normalize_references(refs)
-          refs.collect { |r| "* <a href=\"#{r}\">#{r}</a>" } * "\n"
+          normalized = ''
+          cve_collection = refs.select { |r| r.ctx_id.match(/^cve$/i) }
+          if cve_collection.empty?
+            normalized << "* #{NO_CVE_MESSAGE}\n"
+          end
+
+          refs.each do |ref|
+            case ref.ctx_id
+            when 'MSB'
+              normalized << "* [#{ref.ctx_val}](#{ref.site})"
+            when 'URL'
+              normalized << "* [#{ref.site}](#{ref.site})"
+            when 'US-CERT-VU'
+              normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
+            when 'CVE', 'cve'
+              if !cve_collection.empty? && ref.ctx_val.blank?
+                normalized << "* #{NO_CVE_MESSAGE}"
+              end
+            else
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            end
+            normalized << "\n"
+          end
+          normalized
         end
 
 
@@ -223,6 +254,32 @@ module Msf
         # @return [String]
         def normalize_rank(rank)
           "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
+        end
+
+
+        # Returns the markdown format for module side effects.
+        #
+        # @param side_effects [Array<String>] Module effects.
+        # @return [String]
+        def normalize_side_effects(side_effects)
+          md_side_effects = side_effects.collect { |s| "* #{s}\n" }.join
+          md_side_effects.empty? ? 'N/A' : md_side_effects
+        end
+
+
+        # Returns the markdown format for module reliability.
+        #
+        # @param reliability [Array<String>] Module reliability.
+        # @return [String]
+        def normalize_reliability(reliability)
+          md_reliability = reliability.collect { |r| "* #{r}\n" }.join
+          md_reliability.empty? ? 'N/A' : md_reliability
+        end
+
+
+        def normalize_stability(stability)
+          md_stability = stability.collect { |s| "* #{s}\n" }.join
+          md_stability.empty? ? 'N/A' : md_stability
         end
 
 
@@ -277,6 +334,8 @@ module Msf
             load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Evasion)
+            load_demo_template(mod, EVASION_DEMO_TEMPLATE)
           else
             load_demo_template(mod, GENERIC_DEMO_TEMPLATE)
           end

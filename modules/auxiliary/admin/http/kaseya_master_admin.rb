@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2015-6922'],
           ['ZDI', '15-448'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/kaseya-vsa-vuln-2.txt'],
-          ['URL', 'http://seclists.org/bugtraq/2015/Sep/132']
+          ['URL', 'https://seclists.org/bugtraq/2015/Sep/132']
         ],
       'DisclosureDate' => 'Sep 23 2015'))
 
@@ -75,30 +75,16 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("Master Administrator account with credentials #{datastore['KASEYA_USER']}:#{datastore['KASEYA_PASS']} created")
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: (ssl ? 'https' : 'http'),
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
 
-    credential_data = {
-      origin_type: :service,
-      module_fullname: self.fullname,
-      private_type: :password,
-      private_data: datastore['KASEYA_PASS'],
-      username: datastore['KASEYA_USER']
-    }
-
-    credential_data.merge!(service_data)
-    credential_core = create_credential(credential_data)
-    login_data = {
-      core: credential_core,
-      access_level: 'Master Administrator',
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+    connection_details = {
+        module_fullname: self.fullname,
+        username: datastore['KASEYA_USER'],
+        private_data: datastore['KASEYA_PASS'],
+        private_type: :password,
+        workspace_id: myworkspace_id,
+        access_level: 'Master Administrator',
+        status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_details)
+    create_credential_and_login(connection_details)
   end
 end

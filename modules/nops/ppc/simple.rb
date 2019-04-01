@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Nop
     badchars = opts['BadChars'] || ''
     random   = opts['Random']   || datastore['RandomNops']
 
-    if( random and random.match(/^(t|y|1)/i) )
+    if random
       1.upto(1024) do |i|
         regs_d = (rand(0x8000 - 0x0800) + 0x0800).to_i
         regs_b = [regs_d].pack('n').unpack('B*')[0][1, 15]

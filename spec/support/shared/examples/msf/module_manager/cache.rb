@@ -1,6 +1,16 @@
 RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
+
+  # Wait for data to be loaded
+  before(:all) do
+    Msf::Modules::Metadata::Cache.instance.get_metadata
+  end
+
   let(:parent_path) do
     parent_pathname.to_path
+  end
+
+  let(:metadata_cache) do
+    Msf::Modules::Metadata::Cache.instance
   end
 
   let(:parent_pathname) do
@@ -221,73 +231,37 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
   end
 
   context '#refresh_cache_from_module_files' do
-    before(:example) do
-      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
-    end
 
-    context 'with framework migrated' do
-      let(:framework_migrated?) do
-        true
+    context 'with module argument' do
+      def refresh_cache_from_module_files
+        module_manager.refresh_cache_from_module_files(module_class_or_instance)
       end
 
-      context 'with module argument' do
-        def refresh_cache_from_module_files
-          module_manager.refresh_cache_from_module_files(module_class_or_instance)
-        end
-
-        let(:module_class_or_instance) do
-          Class.new(Msf::Module)
-        end
-
-        it 'should update database and then update in-memory cache from the database for the given module_class_or_instance' do
-          expect(framework.db).to receive(:update_module_details).with(module_class_or_instance).ordered
-          expect(module_manager).to receive(:refresh_cache_from_database).ordered
-
-          refresh_cache_from_module_files
-        end
+      let(:module_class_or_instance) do
+        Class.new(Msf::Module)
       end
 
-      context 'without module argument' do
-        def refresh_cache_from_module_files
-          module_manager.refresh_cache_from_module_files
-        end
+      it 'should update store and then update in-memory cache from the store for the given module_class_or_instance' do
+        expect(metadata_cache).to receive(:refresh_metadata_instance).with(module_class_or_instance).ordered
+        expect(module_manager).to receive(:refresh_cache_from_database).ordered
 
-        it 'should update database and then update in-memory cache from the database for all modules' do
-          expect(framework.db).to receive(:update_all_module_details).ordered
-          expect(module_manager).to receive(:refresh_cache_from_database)
-
-          refresh_cache_from_module_files
-        end
+        refresh_cache_from_module_files
       end
     end
 
-    context 'without framework migrated' do
+    context 'without module argument' do
       def refresh_cache_from_module_files
         module_manager.refresh_cache_from_module_files
       end
 
-      let(:framework_migrated?) do
-        false
-      end
-
-      it 'should not call Msf::DBManager#update_module_details' do
-        expect(framework.db).not_to receive(:update_module_details)
-
-        refresh_cache_from_module_files
-      end
-
-      it 'should not call Msf::DBManager#update_all_module_details' do
-        expect(framework.db).not_to receive(:update_all_module_details)
-
-        refresh_cache_from_module_files
-      end
-
-      it 'should not call #refresh_cache_from_database' do
-        expect(module_manager).not_to receive(:refresh_cache_from_database)
+      it 'should update store and then update in-memory cache from the store for all modules' do
+        expect(metadata_cache).to receive(:refresh_metadata).ordered
+        expect(module_manager).to receive(:refresh_cache_from_database)
 
         refresh_cache_from_module_files
       end
     end
+
   end
 
   context '#refresh_cache_from_database' do
@@ -302,41 +276,6 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
     end
   end
 
-  context '#framework_migrated?' do
-    subject(:framework_migrated?) do
-      module_manager.send(:framework_migrated?)
-    end
-
-    context 'with framework database' do
-      before(:example) do
-        expect(framework.db).to receive(:migrated).and_return(migrated)
-      end
-
-      context 'with migrated' do
-        let(:migrated) do
-          true
-        end
-
-        it { is_expected.to be_truthy }
-      end
-
-      context 'without migrated' do
-        let(:migrated) do
-          false
-        end
-
-        it { is_expected.to be_falsey }
-      end
-    end
-
-    context 'without framework database' do
-      before(:example) do
-        expect(framework).to receive(:db).and_return(nil)
-      end
-
-      it { is_expected.to be_falsey }
-    end
-  end
 
   context '#module_info_by_path' do
     it 'should have protected method module_info_by_path' do
@@ -359,101 +298,78 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
       module_manager.send(:module_info_by_path_from_database!)
     end
 
-    before(:example) do
-      allow(module_manager).to receive(:framework_migrated?).and_return(framework_migrated?)
+    it 'should call get metadata' do
+      allow(metadata_cache).to receive(:get_metadata).and_return([])
+      expect(metadata_cache).to receive(:get_metadata)
+
+      module_info_by_path_from_database!
     end
 
-    context 'with framework migrated' do
-      let(:framework_migrated?) do
-        true
+    context 'with database cache' do
+      #
+      # Let!s (let + before(:each))
+      #
+
+      let!(:mdm_module_detail) do
+        FactoryBot.create(:mdm_module_detail,
+                           :file => path,
+                           :mtype => type,
+                           :mtime => pathname.mtime,
+                           :refname => reference_name
+        )
       end
 
-      it 'should use ActiveRecord::Batches#find_each to enumerate Mdm::Module::Details in batches' do
-        expect(Mdm::Module::Detail).to receive(:find_each)
-
+      it 'should create cache entry for path' do
         module_info_by_path_from_database!
+
+        expect(module_info_by_path).to have_key(path)
       end
 
-      context 'with database cache' do
-        #
-        # Let!s (let + before(:each))
-        #
-
-        let!(:mdm_module_detail) do
-          FactoryGirl.create(:mdm_module_detail,
-                             :file => path,
-                             :mtype => type,
-                             :mtime => pathname.mtime,
-                             :refname => reference_name
-          )
+      context 'cache entry' do
+        subject(:cache_entry) do
+          module_info_by_path[path]
         end
 
-        it 'should create cache entry for path' do
+        before(:example) do
           module_info_by_path_from_database!
-
-          expect(module_info_by_path).to have_key(path)
         end
 
-        context 'cache entry' do
-          subject(:cache_entry) do
-            module_info_by_path[path]
-          end
+        it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
+        it { expect(subject[:parent_path]).to eq(parent_path) }
+        it { expect(subject[:reference_name]).to eq(reference_name) }
+        it { expect(subject[:type]).to eq(type) }
+      end
 
+      context 'typed module set' do
+        let(:typed_module_set) do
+          module_manager.module_set(type)
+        end
+
+        context 'with reference_name' do
           before(:example) do
-            module_info_by_path_from_database!
+            typed_module_set[reference_name] = double('Msf::Module')
           end
 
-          it { expect(subject[:modification_time]).to be_within(1.second).of(pathname_modification_time) }
-          it { expect(subject[:parent_path]).to eq(parent_path) }
-          it { expect(subject[:reference_name]).to eq(reference_name) }
-          it { expect(subject[:type]).to eq(type) }
-        end
-
-        context 'typed module set' do
-          let(:typed_module_set) do
-            module_manager.module_set(type)
-          end
-
-          context 'with reference_name' do
-            before(:example) do
-              typed_module_set[reference_name] = double('Msf::Module')
-            end
-
-            it 'should not change reference_name value' do
-              expect {
-                module_info_by_path_from_database!
-              }.to_not change {
-                typed_module_set[reference_name]
-              }
-            end
-          end
-
-          context 'without reference_name' do
-            it 'should set reference_name value to Msf::SymbolicModule' do
+          it 'should not change reference_name value' do
+            expect {
               module_info_by_path_from_database!
+            }.to_not change {
+              typed_module_set[reference_name]
+            }
+          end
+        end
 
-              # have to use fetch because [] will trigger de-symbolization and
-              # instantiation.
-              expect(typed_module_set.fetch(reference_name)).to eq Msf::SymbolicModule
-            end
+        context 'without reference_name' do
+          it 'should set reference_name value to Msf::SymbolicModule' do
+            module_info_by_path_from_database!
+
+            # have to use fetch because [] will trigger de-symbolization and
+            # instantiation.
+            expect(typed_module_set.fetch(reference_name)).to eq Msf::SymbolicModule
           end
         end
       end
     end
 
-    context 'without framework migrated' do
-      let(:framework_migrated?) do
-        false
-      end
-
-      it 'should reset #module_info_by_path' do
-        # pre-fill module_info_by_path so change can be detected
-        module_manager.send(:module_info_by_path=, double('In-memory Cache'))
-
-        module_info_by_path_from_database!
-
-        expect(module_info_by_path).to be_empty
-      end
-    end
   end
 end

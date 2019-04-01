@@ -1,9 +1,16 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+#
 # Check the commit history of a module or tree of modules.
 # and sort by number of commits.
 #
 # Usage: tools/module_commits.rb [module dir | module fname]
+#
 
 require 'find'
 

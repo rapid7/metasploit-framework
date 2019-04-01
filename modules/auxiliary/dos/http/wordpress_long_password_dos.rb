@@ -18,12 +18,13 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'Javier Nieto Arevalo',           # Vulnerability disclosure
-          'Andres Rojas Guerrero',          # Vulnerability disclosure
-          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+          'Javier Nieto Arevalo',  # Vulnerability disclosure
+          'Andres Rojas Guerrero', # Vulnerability disclosure
+          'rastating'              # Metasploit module
         ],
       'References'      =>
         [
+          ['CVE', '2014-9016'],
           ['URL', 'http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-9034'],
           ['OSVDB', '114857'],
           ['WPVDB', '7681']

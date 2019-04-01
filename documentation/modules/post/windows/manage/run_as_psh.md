@@ -25,7 +25,7 @@ The process will use the Start-Process command of powershell to run a process as
 
 ## Examples
 
-`
+```
 meterpreter > getuid
 Server username: NT AUTHORITY\SYSTEM
 meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword
@@ -46,5 +46,5 @@ meterpreter > run post/windows/manage/run_as_psh user=test pass=mypassword hidde
 
 [*] Process 9768 created.
 meterpreter > 
+```
 
-`

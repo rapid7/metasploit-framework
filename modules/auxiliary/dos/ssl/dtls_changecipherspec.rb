@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
   include Msf::Exploit::Capture
-  include Exploit::Remote::Tcp
 
   def initialize(info = {})
     super(update_info(info,
@@ -27,6 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '55073'],
         ],
       'DisclosureDate' => 'Apr 26 2000'))
+
+    register_options([
+        Opt::RPORT(80),
+        Opt::RHOST
+      ]
+    )
 
     deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
   end

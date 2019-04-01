@@ -3,6 +3,7 @@
 # Gems
 #
 require 'active_support/concern'
+require 'msf/core/modules/metadata/cache'
 
 # Concerns the module cache maintained by the {Msf::ModuleManager}.
 module Msf::ModuleManager::Cache
@@ -98,7 +99,7 @@ module Msf::ModuleManager::Cache
   end
 
   # @overload refresh_cache_from_module_files
-  #   Rebuilds database and in-memory cache for all modules.
+  #   Rebuilds module metadata store and in-memory cache for all modules.
   #
   #   @return [void]
   # @overload refresh_cache_from_module_files(module_class_or_instance)
@@ -107,14 +108,22 @@ module Msf::ModuleManager::Cache
   #   @param (see Msf::DBManager#update_module_details)
   #   @return [void]
   def refresh_cache_from_module_files(module_class_or_instance = nil)
-    if framework_migrated?
-      if module_class_or_instance
-        framework.db.update_module_details(module_class_or_instance)
-      else
-        framework.db.update_all_module_details
-      end
-      refresh_cache_from_database(self.module_paths)
+    if module_class_or_instance
+      Msf::Modules::Metadata::Cache.instance.refresh_metadata_instance(module_class_or_instance)
+    else
+      module_sets =
+          [
+              ['exploit', @framework.exploits],
+              ['auxiliary', @framework.auxiliary],
+              ['post', @framework.post],
+              ['payload', @framework.payloads],
+              ['encoder', @framework.encoders],
+              ['nop', @framework.nops],
+              ['evasion', @framework.evasion]
+          ]
+      Msf::Modules::Metadata::Cache.instance.refresh_metadata(module_sets)
     end
+    refresh_cache_from_database(self.module_paths)
   end
 
   # Refreshes the in-memory cache from the database cache.
@@ -126,19 +135,11 @@ module Msf::ModuleManager::Cache
 
   protected
 
-  # Returns whether the framework migrations have been run already.
-  #
-  # @return [true] if migrations have been run
-  # @return [false] otherwise
-  def framework_migrated?
-    framework.db && framework.db.migrated
-  end
-
   # @!attribute [rw] module_info_by_path
-  #   @return (see #module_info_by_path_from_database!)
+  #   @return (see #module_info_by_path_from_store!)
   attr_accessor :module_info_by_path
 
-  # Return a module info from Mdm::Module::Details in database.
+  # Return a module info from Msf::Modules::Metadata::Obj.
   #
   # @note Also sets module_set(module_type)[module_reference_name] to Msf::SymbolicModule if it is not already set.
   #
@@ -148,40 +149,36 @@ module Msf::ModuleManager::Cache
   def module_info_by_path_from_database!(allowed_paths=[""])
     self.module_info_by_path = {}
 
-    if framework_migrated?
-      allowed_paths = allowed_paths.map{|x| x + "/"}
+    allowed_paths = allowed_paths.map{|x| x + "/"}
 
-      ActiveRecord::Base.connection_pool.with_connection do
-        # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
-        # Use find_each so Mdm::Module::Details are returned in batches, which will
-        # handle the growing number of modules better than all.each.
-        Mdm::Module::Detail.find_each do |module_detail|
-          path = module_detail.file
-          type = module_detail.mtype
-          reference_name = module_detail.refname
+    metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
+    metadata.each do |module_metadata|
+      path = module_metadata.path
+      type = module_metadata.type
+      reference_name = module_metadata.ref_name
 
-          # Skip cached modules that are not in our allowed load paths
-          next if allowed_paths.select{|x| path.index(x) == 0}.empty?
+      # Skip cached modules that are not in our allowed load paths
+      next if allowed_paths.select{|x| path.index(x) == 0}.empty?
 
-          # The load path is assumed to be the next level above the type directory
-          type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
-          parent_path = path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
+      # The load path is assumed to be the next level above the type directory
+      type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
+      parent_path = path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
 
-          module_info_by_path[path] = {
-              :reference_name => reference_name,
-              :type => type,
-              :parent_path => parent_path,
-              :modification_time => module_detail.mtime
-          }
+      module_info_by_path[path] = {
+          :reference_name => reference_name,
+          :type => type,
+          :parent_path => parent_path,
+          :modification_time => module_metadata.mod_time
+      }
 
-          typed_module_set = module_set(type)
+      typed_module_set = module_set(type)
 
-          # Don't want to trigger as {Msf::ModuleSet#create} so check for
-          # key instead of using ||= which would call {Msf::ModuleSet#[]}
-          # which would potentially call {Msf::ModuleSet#create}.
-          unless typed_module_set.has_key? reference_name
-            typed_module_set[reference_name] = Msf::SymbolicModule
-          end
+      # Don't want to trigger as {Msf::ModuleSet#create} so check for
+      # key instead of using ||= which would call {Msf::ModuleSet#[]}
+      # which would potentially call {Msf::ModuleSet#create}.
+      if typed_module_set
+        unless typed_module_set.has_key?(reference_name)
+          typed_module_set[reference_name] = Msf::SymbolicModule
         end
       end
     end

