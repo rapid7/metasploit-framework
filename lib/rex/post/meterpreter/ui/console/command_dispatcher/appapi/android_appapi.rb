@@ -13,8 +13,8 @@ module Ui
 # CorrM - App Controller
 #
 ###
-class Console::CommandDispatcher::Stdapi::CorrMApps
-  Klass = Console::CommandDispatcher::Stdapi::CorrMApps
+class Console::CommandDispatcher::AppApi::AndroidApps
+  Klass = Console::CommandDispatcher::AppApi::AndroidApps
 
   include Console::CommandDispatcher
 
@@ -29,10 +29,10 @@ class Console::CommandDispatcher::Stdapi::CorrMApps
       "app_uninstall" => "Request to uninstall"
     }
     reqs = {
-      "app_list"      => [ "corrm_app_list" ],
-      "app_run"       => [ "corrm_app_run" ],
-      "app_install"   => [ "corrm_app_install" ],
-      "app_uninstall" => [ "corrm_app_uninstall" ]
+      "app_list"      => [ "android_app_list" ],
+      "app_run"       => [ "android_app_run" ],
+      "app_install"   => [ "android_app_install" ],
+      "app_uninstall" => [ "android_app_uninstall" ]
     }
     filter_commands(all, reqs)
   end
@@ -41,7 +41,7 @@ class Console::CommandDispatcher::Stdapi::CorrMApps
   # Name for this dispatcher
   #
   def name
-    "CorrM: Applictions"
+    "Android: Applictions"
   end
 
   #
@@ -195,8 +195,4 @@ class Console::CommandDispatcher::Stdapi::CorrMApps
     tbl
   end
 
-end
-end
-end
-end
-end
+end; end; end; end; end
