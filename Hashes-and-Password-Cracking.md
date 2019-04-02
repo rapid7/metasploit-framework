@@ -20,6 +20,21 @@ puts identify_hash "_9G..8147mpcfKT8g0U."
 ```
 In practice, we receive the following output from this:
 ```
+msf5 > irb
+[*] Starting IRB shell...
+[*] You are in the "framework" object
+
+irb: warn: can't alias jobs from irb_jobs.
+>> require 'metasploit/framework/hashes/identify'
+=> false
+>> puts identify_hash "$1$28772684$iEwNOgGugqO9.bIz5sk8k/"
+md5
+=> nil
+>> puts identify_hash "This_is a Fake Hash"
+
+=> nil
+>> puts identify_hash "_9G..8147mpcfKT8g0U."
+des,bsdi,crypt
 ```
 
 ## Crackers
