@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    fail_with(Failure::BadConfig, 'TARGET_FILE must be an absolute path (eg. /etc/passwd).') unless datastore['TARGET_FILE'][0] == '/'
+    fail_with(Failure::BadConfig, 'TARGET_FILE must be an absolute path (eg. /etc/passwd).') unless datastore['TARGET_FILE'].start_with? == '/'
 
 
     print_status "Requesting file #{datastore['TARGET_FILE']}"
