@@ -1,10 +1,6 @@
 # -*- coding: binary -*-
-# CorrM @ fb.me/IslamNofl
 
-require 'rex/post/meterpreter/object_aliases'
-require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extensions/appapi/tlv'
-require 'rex/post/meterpreter/extensions/appapi/apps/android_apps'
 
 module Rex
 module Post
@@ -17,34 +13,69 @@ module AppApi
 # Application interface to controle Application in Device
 #
 ###
+
 class AppApi < Extension
 
   #
-  # Initializes an instance of the Application API extension.
+  # Typical extension initialization routine.
   #
+  # @param client (see Extension#initialize)
   def initialize(client)
-    super(client, 'AppApi')
+    super(client, 'appapi')
 
-    # Alias the following things on the client object so that they
-    # can be directly referenced
     client.register_extension_aliases(
       [
         {
-          'name' => 'apps', # => to use like that (client.apps.app_install) => "apps"
-          'ext'  => Rex::Post::Meterpreter::Extensions::AppApi::AndroidApps.new(client)
+          'name' => 'appapi',
+          'ext'  => self
         }
-
       ])
   end
 
   #
-  # Sets the client instance on a duplicated copy of the supplied class.
+  # Get lits of android device installed applications
   #
-  def brand(klass)
-    klass = klass.dup
-    klass.client = self.client
-    return klass
+  def app_list(app_opt)
+    request = Packet.create_request('appapi_app_list')
+    request.add_tlv(TLV_TYPE_APPS_LIST_OPT, app_opt)
+    response = @client.send_request(request)
+    names = []
+    response.get_tlvs(TLV_TYPE_APPS_LIST).each do |tlv|
+      names << tlv.value
+    end
+    names # => Return
   end
+
+  #
+  # unistall application (user mode => ask the use to uninstall)
+  #
+  def app_uninstall(packname)
+    request = Packet.create_request('appapi_app_uninstall')
+    request.add_tlv(TLV_TYPE_APP_PACKAGE_NAME, packname)
+    @client.send_request(request) # => Return
+  end
+
+  #
+  # install application (user mode => ask the use to install)
+  #
+  def app_install(apk_path)
+    request = Packet.create_request('appapi_app_install')
+    request.add_tlv(TLV_TYPE_APP_APK_PATH, apk_path)
+    response = @client.send_request(request)
+    response.get_tlv(TLV_TYPE_APP_INSTALL_ENUM).value # => Return
+  end
+
+  #
+  # Start Main Activty for installed application by Package name
+  #
+  def app_run(packname)
+    request = Packet.create_request('appapi_app_run')
+    request.add_tlv(TLV_TYPE_APP_PACKAGE_NAME, packname)
+    response = @client.send_request(request)
+    response.get_tlv(TLV_TYPE_APP_RUN_ENUM).value # => Return
+  end
+
 end
 
 end; end; end; end; end
+
