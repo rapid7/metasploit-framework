@@ -92,3 +92,55 @@ Hashcat
 JtR
 * [pentestmonkey.net](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 * [openwall.info](https://openwall.info/wiki/john/sample-hashes)
+
+For testing Hashcat/JtR integration, this is a common list of commands to import example hashes of many different types.  When possible the username is separated by an underscore, and anything after it is the password.  For example `des_password`, the password for the hash is `password`:
+
+```
+creds add user:des_password hash:rEK1ecacw.7.c jtr:des
+creds add user:md5_password hash:$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/ jtr:md5
+creds add user:bsdi_password hash:_J9..K0AyUubDrfOgO4s jtr:bsdi
+creds add user:sha256_password hash:$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5 jtr:sha256,crypt
+creds add user:sha512_password hash:$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1 jtr:sha512,crypt
+creds add user:blowfish_password hash:$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe jtr:bf
+creds add user:lm_password ntlm:E52CAC67419A9A224A3B108F3FA6CB6D:8846F7EAEE8FB117AD06BDD830B7586C jtr:lm
+creds add user:nt_password ntlm:AAD3B435B51404EEAAD3B435B51404EE:8846F7EAEE8FB117AD06BDD830B7586C jtr:nt
+creds add user:mssql05_toto hash:0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908 jtr:mssql05
+creds add user:mssql_foo hash:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254 jtr:mssql
+creds add user:mssql12_Password1! hash:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16 jtr:mssql12
+creds add user:mysql_probe hash:445ff82636a7ba59 jtr:mysql
+creds add user:mysql-sha1_tere hash:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB jtr:mysql-sha1
+## oracle (10) uses usernames in the hashing, so we can't overide that here
+creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle
+creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle
+## oracle 11/12 H value, username is used
+creds add user:DEMO hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C' jtr:raw-sha1,oracle
+## oracle 11/12 uses a LONG format, see lib/msf/core/auxiliary/jtr.rb
+creds add user:oracle11_epsilon hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C' jtr:raw-sha1,oracle
+creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B' jtr:pbkdf2,oracle12c
+##postgres uses username, so we can't overide that here
+creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
+```
+
+This data breaks down to the following table:
+
+| Hash Type | Username | Hash | Password | jtr format | Modules which dump this info | Modules which crack this | 
+|-----------|----------|------|----------|------------|------------------------------|-------------------------|
+| DES | des_password   |  `rEK1ecacw.7.c`                     | password | des  | | |
+| MD5 | md5_password   | `$1$O3JMY.Tw$AdLnLjQ/5jXF9.MTp3gHv/` | password | md5  | | |
+| BSDi | bsdi_password | `_J9..K0AyUubDrfOgO4s`               | password | bsdi | | |
+| SHA256 | sha256_password | `$5$MnfsQ4iN$ZMTppKN16y/tIsUYs/obHlhdP.Os80yXhTurpBMUbA5` | password | sha256,crypt | | |
+| SHA512 | sha512_password | `$6$zWwwXKNj$gLAOoZCjcr8p/.VgV/FkGC3NX7BsXys3KHYePfuIGMNjY83dVxugPYlxVg/evpcVEJLT/rSwZcDMlVVf/bhf.1` | password | sha512,crypt | | |
+| Blowfish | blowfish_password | `$2a$05$bvIG6Nmid91Mu9RcmmWZfO5HJIMCT8riNW0hEp8f6/FuA2/mHZFpe` | password | bf
+| Lanman | lm_password | `E52CAC67419A9A224A3B108F3FA6CB6D:8846F7EAEE8FB117AD06BDD830B7586C` | password | lm | | |
+| NTLM | nt_password | `AAD3B435B51404EEAAD3B435B51404EE:8846F7EAEE8FB117AD06BDD830B7586C` | password | nt | | |
+| MSSQL (2005) | mssql05_toto | `0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908` | toto | mssql05 | | |
+| MSSQL | mssql_foo | `0x0100A607BA7C54A24D17B565C59F1743776A10250F581D482DA8B6D6261460D3F53B279CC6913CE747006A2E3254` | foo | mssql | | |
+| MSSQL (2012) | mssql12_Password1! | `0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E27849B0B213B5CE92CC9347ECCB34C3EFADAF2FD99BFFECD8D9150DD6AACB5D409A9D2652A4E0AF16` | Password! | mssql12 | | |
+| MySQL | mysql_probe | `445ff82636a7ba59` | probe | mysql | | |
+| MySQL SHA1 | mysql-sha1_tere | `*5AD8F88516BD021DD43F171E2C785C69F8E54ADB` | tere | mysql-sha1 | | |
+| Oracle | simon | `4F8BC1809CB2AF77` | A | des,oracle | | |
+| Oracle | SYSTEM | `9EEDFA0AD26C6D52` | THALES | des,oracle | | |
+| Oracle 11    | DEMO  | `S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C` | epsilon | raw-sha1,oracle | | |
+| Oracle 11 | oracle11_epsilon | `S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C` | epsilon | raw-sha1,oracle | | |
+| Oracle 12 | oracle12_epsilon | `H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B` | epsilon | pbkdf2,oracle12c | | |
+| Postgres | example | `md5be86a79bf2043622d58d5453c47d4860` | ??? | ??? | | |
