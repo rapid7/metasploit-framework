@@ -59,8 +59,10 @@ This section will cover the differences between the two crackers.  This is not a
 
 ### Hash Setting
 
-| Hash              | JtR john --list=formats |  [hashcathashcat -h](https://hashcat.net/wiki/doku.php?id=example_hashes) |
+| Hash              | JtR                     |  [hashcat](https://hashcat.net/wiki/doku.php?id=example_hashes) |
 |-------------------|-------------------------|--------------------|
+| List formats      | `john --list=formats` `john --list=format-all-details` | `hashcat -h` |
+| | | |
 | des               | descrypt                | 1500               |
 | md5 (crypt is $1$)| md5crypt                | 500                |
 | sha1              |                         | 100                |
