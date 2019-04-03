@@ -28,3 +28,4 @@
 | -------------- | ------------- |
 | FIRST_ATTEMPT_FAIL | The module may fail for the first attempt |
 | REPEATABLE_SESSION | The module is expected to get a session every time it runs |
+| UNRELIABLE_SESSION | The module isn't expected to get a shell reliably (such as only once) |
