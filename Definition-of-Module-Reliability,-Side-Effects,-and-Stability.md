@@ -20,9 +20,9 @@
 | ACCOUNT_LOCKOUTS | Modules may cause an account to lock out |
 | SCREEN_EFFECTS | Module shows something on the screen that a human may notice |
 | PHYSICAL_EFFECTS | Module may produce physical effects in hardware (Examples: light, sound, or heat) |
-| AUDIO_EFFECTS | Module may cause a noise (Examples: audio output from the speakers or hardware beeps) |
+| AUDIO_EFFECTS | Module may cause a noise (Examples: Audio output from the speakers or hardware beeps) |
 
-**Reliability**
+**Reliability** 
 
 | Constant         | Description    |
 | -------------- | ------------- |
