@@ -17,7 +17,7 @@
 | ARTIFACTS_ON_DISK | Module leaves a payload, a dropper, etc, on the target machine |
 | CONFIG_CHANGES | Module modifies some config file |
 | IOC_IN_LOGS | Module leaves an indicator of compromise in the log(s) |
-| ACCOUNT_LOCKOUTS | Modules may cause an account to lock out |
+| ACCOUNT_LOCKOUTS | Module may cause an account to lock out |
 | SCREEN_EFFECTS | Module shows something on the screen that a human may notice |
 | PHYSICAL_EFFECTS | Module may produce physical effects in hardware (Examples: light, sound, or heat) |
 | AUDIO_EFFECTS | Module may cause a noise (Examples: Audio output from the speakers or hardware beeps) |
