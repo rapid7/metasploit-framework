@@ -46,8 +46,8 @@ class Console::CommandDispatcher::AppApi
     #print_good(client.apps.methods.to_s)
     app_list_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
-      "-u" => [ true, "Get User apps ONLY" ],
-      "-s" => [ true, "Get System apps ONLY" ]
+      "-u" => [ true,  "Get User apps ONLY" ],
+      "-s" => [ true,  "Get System apps ONLY" ]
     )
 
     ret = []
@@ -76,95 +76,155 @@ class Console::CommandDispatcher::AppApi
   #
   def cmd_app_uninstall(*args)
     app_uninstall_opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner" ],
-      "-p" => [ false, "Package Name" ]
+      "-r" => [ false, "Use root permissions to uninstall the app."],
+      "-u" => [ false, "Use user interface app uninstaller."]
     )
+
+    if (args.length < 1)
+      print_line("[-] Usage: app_uninstall [options]")
+      print_line("[-] Request to uninstall application.")
+      print_line("[-] You can use 'app_list' to pick your packagename.")
+      print_status("ex. app_uninstall com.corrm.clac -u")
+      print_line(app_uninstall_opts.usage)
+      return
+    end
+
+    package_name = args[0]
+    use_root = false
+    uninstall_method_picked = false
+
+    # Check Package Name
+    if package_name == ""
+      print_error('Where Application file.?')
+      return
+    end
 
     app_uninstall_opts.parse(args) do |opt, _idx, val|
       case opt
-      when "-h"
-        print_line("Usage: app_uninstall [options]")
-        print_line("Request to uninstall application.")
-        print_line("ex. app_uninstall -p com.corrm.clac")
-        print_line(app_uninstall_opts.usage)
-        return
-      when "-p"
-        client.appapi.app_uninstall(val)
-        print_good('Request Done #!!!#')
-        return
+      when "-r"
+        if client.android.check_root
+          uninstall_method_picked = true
+          use_root = true
+        else
+          print_error("Device is not rooted, Use '-u' instead '-r'.")
+          return
+        end
+      when "-u"
+        uninstall_method_picked = true
+        use_root = false
       end
     end
-    print_error('Where Package Name.?')
+
+    # Check if user used '-r\-u' param (to be sure he use good method for his target)
+    if uninstall_method_picked == false
+      print_status("Please use '-r' or '-u', Use 'app_uninstall' to learn more.")
+      return
+    end
+
+    # Send uninstall request 
+    case client.appapi.app_uninstall(package_name, use_root)
+    when 1
+      if use_root
+        print_good("Application uninstalled.")
+      else
+        print_good("Request Done.")
+      end
+    when 2
+      print_error("File Not Found.")
+    when 3
+      print_error("Root access rejected.")
+    when 11
+      print_error("package '#{package_name}' not found.")
+    end
   end
 
   #
   # Request to install application (user mode => ask the use to install)
   #
   def cmd_app_install(*args)
-    app_uninstall_opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner" ],
-      "-p" => [ false, "File Name Or Full Path" ]
+    app_install_opts = Rex::Parser::Arguments.new(
+      "-r" => [ false, "Use root permissions to install the app."],
+      "-u" => [ false, "Use user interface app installer."]
     )
 
-    full_path = ''
+    if (args.length < 1)
+      print_line("[-] Usage: app_install <filepath> [options]")
+      print_line("[-] install application.")
+      print_line("[-] You can use 'cd' to go to the path and just use the file name.")
+      print_status("ex. app_install '/sdcard/Download/corrm.apk' -u")
+      print_line(app_install_opts.usage)
+      return
+    end
+    
+    full_path = args[0]
+    use_root = false
+    install_method_picked = false
 
-    app_uninstall_opts.parse(args) do |opt, _idx, val|
+    # Check path
+    if full_path == ""
+      print_error('Where Application file.?')
+      return
+    end
+
+    app_install_opts.parse(args) do |opt, _idx, val|
       case opt
-      when "-h"
-        print_line("Usage: app_install [options]\n")
-        print_line("Request to install application.")
-        print_line("ex. app_install -p 'sdcard/Download/corrm.apk'")
-        print_line("ex. app_install -p corrm.apk")
-        print_line(app_uninstall_opts.usage)
-        return
-      when "-p"
-        # Check IsFile Or Full Path
-        if val.index("/") == 0
-          full_path = val
+      when "-r"
+        if client.android.check_root
+          install_method_picked = true
+          use_root = true
         else
-          full_path = "#{client.fs.dir.getwd}/#{val}"
+          print_error("Device is not rooted, Use '-u' instead '-r'.")
+          return
         end
-
-        case client.appapi.app_install(full_path)
-        when 1
-          print_good('Request Done #!!!#')
-        when 2
-          print_error('File Not Found #!!!#')
-        end
-        return
+      when "-u"
+        install_method_picked = true
+        use_root = false
       end
     end
-    print_error('Where APK File.?')
+
+    # Check if user used '-r\-u' param (to be sure he use good method for his target)
+    if install_method_picked == false
+      print_status("Please use '-r' or '-u', Use 'app_install' to learn more.")
+      return
+    end
+
+    # Send install request 
+    case client.appapi.app_install(full_path, use_root)
+    when 1
+      if use_root
+        print_good("Application installed.")
+      else
+        print_good("Request Done.")
+      end
+    when 2
+      print_error("File Not Found.")
+    when 3
+      print_error("Root access rejected.")
+    end
   end
 
   #
   # Start Main Activty for installed application by Package name
   #
   def cmd_app_run(*args)
-    app_run_opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner" ],
-      "-p" => [ true, "Package Name" ]
-    )
-
-    app_run_opts.parse(args) do |opt, _idx, val|
-      case opt
-      when "-h"
-        print_line("Usage: app_run [options]\n")
-        print_line("Start Main Activty for package name.")
-        print_line("ex. app_run -p com.corrm.clac")
-        print_line(app_run_opts.usage)
-        return
-      when "-p"
-        case client.appapi.app_run(val)
-        when 1
-          print_good("Main Activty for '#{val}' has started")
-        when 2
-          print_error("#{val} Not Found !###!")
-        end
-        return
-      end
+    if (args.length < 1)
+      print_line("[-] Usage: app_run <package_name>")
+      print_line("[-] Start Main Activty for package name.")
+      print_line("[-] You can use 'app_list' to pick your packagename.")
+      print_status("ex. app_run com.corrm.clac")
+      print_line(app_run_opts.usage)
+      return
     end
-    print_error('Where Package Name.?')
+
+    package_name = args[0]
+    #print_error('Where Package Name.?')
+
+    case client.appapi.app_run(package_name)
+    when 1
+      print_good("Main Activty for '#{package_name}' has started.")
+    when 2
+      print_error("'#{package_name}' Not Found.")
+    end
   end
 
   #

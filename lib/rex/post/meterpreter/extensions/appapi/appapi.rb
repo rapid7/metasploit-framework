@@ -38,7 +38,7 @@ class AppApi < Extension
   def app_list(app_opt)
     request = Packet.create_request('appapi_app_list')
     request.add_tlv(TLV_TYPE_APPS_LIST_OPT, app_opt)
-    response = @client.send_request(request)
+    response = client.send_request(request)
     names = []
     response.get_tlvs(TLV_TYPE_APPS_LIST).each do |tlv|
       names << tlv.value
@@ -49,20 +49,25 @@ class AppApi < Extension
   #
   # unistall application (user mode => ask the use to uninstall)
   #
-  def app_uninstall(packname)
+  def app_uninstall(packname, use_root)
     request = Packet.create_request('appapi_app_uninstall')
     request.add_tlv(TLV_TYPE_APP_PACKAGE_NAME, packname)
-    @client.send_request(request) # => Return
+    request.add_tlv(TLV_TYPE_APP_USEROOT, use_root)
+    response = client.send_request(request)
+
+    response.get_tlv(TLV_TYPE_APP_ENUM).value # => Return
   end
 
   #
   # install application (user mode => ask the use to install)
   #
-  def app_install(apk_path)
+  def app_install(apk_path, use_root)
     request = Packet.create_request('appapi_app_install')
     request.add_tlv(TLV_TYPE_APP_APK_PATH, apk_path)
-    response = @client.send_request(request)
-    response.get_tlv(TLV_TYPE_APP_INSTALL_ENUM).value # => Return
+    request.add_tlv(TLV_TYPE_APP_USEROOT, use_root)
+    response = client.send_request(request)
+
+    response.get_tlv(TLV_TYPE_APP_ENUM).value # => Return
   end
 
   #
@@ -71,7 +76,7 @@ class AppApi < Extension
   def app_run(packname)
     request = Packet.create_request('appapi_app_run')
     request.add_tlv(TLV_TYPE_APP_PACKAGE_NAME, packname)
-    response = @client.send_request(request)
+    response = client.send_request(request)
     response.get_tlv(TLV_TYPE_APP_RUN_ENUM).value # => Return
   end
 
