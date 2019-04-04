@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.50)
+    metasploit-framework (4.17.51)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -109,7 +109,7 @@ GEM
       activerecord (>= 3.1.0, < 6)
     backports (3.12.0)
     bcrypt (3.1.12)
-    bcrypt_pbkdf (1.0.0)
+    bcrypt_pbkdf (1.0.1)
     bindata (2.4.4)
     bit-struct (0.16)
     builder (3.2.3)
@@ -184,7 +184,7 @@ GEM
     nexpose (7.2.1)
     nokogiri (1.10.2)
       mini_portile2 (~> 2.4.0)
-    octokit (4.13.0)
+    octokit (4.14.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.2)
     openvas-omp (0.0.4)
@@ -330,7 +330,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.18)
+    yard (0.9.19)
 
 PLATFORMS
   ruby
