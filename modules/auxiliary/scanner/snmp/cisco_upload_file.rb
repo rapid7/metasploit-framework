@@ -13,6 +13,9 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
       'Description' => %q{
           This module will copy file to a Cisco IOS device using SNMP and TFTP.
+        If the device is running Cisco IOS and OVERRIDE_CONFIG is set, it will
+        override the running config of the device with the file that you specify.
+        You can get the current running config of the device using the cisco_config_tftp module.
         A read-write SNMP community is required. The SNMP community scanner module can
         assist in identifying a read-write community. The target must
         be able to connect back to the Metasploit system and the use of
@@ -26,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptPath.new('SOURCE', [true, "The filename to upload" ]),
-      OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ])
+      OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
+      OptBool.new('OVERRIDE_CONFIG', [false, 'Override the running config of Cisco device'])
     ])
   end
 
