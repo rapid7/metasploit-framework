@@ -13,7 +13,6 @@ module Ui
 ###
 class Console::CommandDispatcher::Stdapi
 
-
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/fs'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/net'
   require 'rex/post/meterpreter/ui/console/command_dispatcher/stdapi/sys'
