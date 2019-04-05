@@ -1,8 +1,8 @@
-require 'metasploit/framework/jtr/invalid_wordlist'
+require 'metasploit/framework/password_crackers/invalid_wordlist'
 
 module Metasploit
   module Framework
-    module JtR
+    module PasswordCracker
 
       class Wordlist
         include ActiveModel::Validations
@@ -184,13 +184,14 @@ module Metasploit
         # This method reads the file provided as custom_wordlist and yields
         # the expanded form of each word in the list.
         #
-        # @yieldparam word [String] the expanded word
+        # @yieldparam word [String] the expanded word, and the word itself
         # @return [void]
         def each_custom_word
           ::File.open(custom_wordlist, "rb") do |fd|
             fd.each_line do |line|
+              yield line.chomp
               expanded_words(line) do |word|
-                yield word
+                yield word unless line.chomp == word
               end
             end
           end
@@ -386,7 +387,7 @@ module Metasploit
         # @return [void]
         def valid!
           unless valid?
-            raise Metasploit::Framework::JtR::InvalidWordlist.new(self)
+            raise Metasploit::Framework::PasswordCracker::InvalidWordlist.new(self)
           end
           nil
         end

@@ -191,7 +191,7 @@ class MetasploitModule < Msf::Post
     when "SHA-1"
       private_data = hash
       private_type = :nonreplayable_hash
-      jtr_format = 'sha1'
+      jtr_format = 'xsha'
     end
     create_credential(
       jtr_format: jtr_format,

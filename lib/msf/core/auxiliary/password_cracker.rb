@@ -2,19 +2,20 @@
 require 'open3'
 require 'fileutils'
 require 'rex/proto/ntlm/crypt'
-require 'metasploit/framework/jtr/cracker'
-require 'metasploit/framework/jtr/wordlist'
-require 'metasploit/framework/jtr/formatter'
+require 'metasploit/framework/password_crackers/cracker'
+require 'metasploit/framework/password_crackers/wordlist'
+require 'metasploit/framework/password_crackers/jtr/formatter'
+require 'metasploit/framework/password_crackers/hashcat/formatter'
 
 
 module Msf
 
 ###
 #
-# This module provides methods for working with John the Ripper
+# This module provides methods for working with a Password Cracker
 #
 ###
-module Auxiliary::JohnTheRipper
+module Auxiliary::PasswordCracker
   include Msf::Auxiliary::Report
 
   #
@@ -29,8 +30,9 @@ module Auxiliary::JohnTheRipper
         OptPath.new('CONFIG',               [false, 'The path to a John config file to use instead of the default']),
         OptPath.new('CUSTOM_WORDLIST',      [false, 'The path to an optional custom wordlist']),
         OptInt.new('ITERATION_TIMEOUT',     [false, 'The max-run-time for each iteration of cracking']),
-        OptPath.new('JOHN_PATH',            [false, 'The absolute path to the John the Ripper executable']),
-        OptBool.new('KORELOGIC',            [false, 'Apply the KoreLogic rules to Wordlist Mode(slower)', false]),
+        OptPath.new('CRACKER_PATH',         [false, 'The absolute path to the cracker executable']),
+        OptInt.new('FORK',                  [false, 'Forks for John the Ripper to use',1]),
+        OptBool.new('KORELOGIC',            [false, 'Apply the KoreLogic rules to John the Ripper Wordlist Mode(slower)', false]),
         OptBool.new('MUTATE',               [false, 'Apply common mutations to the Wordlist (SLOW)', false]),
         OptPath.new('POT',                  [false, 'The path to a John POT file to use instead of the default']),
         OptBool.new('USE_CREDS',            [false, 'Use existing credential data saved in the database', true]),
@@ -38,13 +40,14 @@ module Auxiliary::JohnTheRipper
         OptBool.new('USE_DEFAULT_WORDLIST', [false, 'Use the default metasploit wordlist', true]),
         OptBool.new('USE_HOSTNAMES',        [false, 'Seed the wordlist with hostnames from the workspace', true]),
         OptBool.new('USE_ROOT_WORDS',       [false, 'Use the Common Root Words Wordlist', true])
-      ], Msf::Auxiliary::JohnTheRipper
+      ], Msf::Auxiliary::PasswordCracker
     )
 
     register_advanced_options(
       [
-        OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true])
-      ], Msf::Auxiliary::JohnTheRipper
+        OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true]),
+        OptBool.new('ShowCommand',        [false, 'Print the cracker command being used', true]),
+      ], Msf::Auxiliary::PasswordCracker
     )
   end
 
@@ -66,16 +69,16 @@ module Auxiliary::JohnTheRipper
   end
 
 
-  # This method creates a new {Metasploit::Framework::JtR::Cracker} and populates
+  # This method creates a new {Metasploit::Framework::PasswordCracker::Cracker} and populates
   # some of the attributes based on the module datastore options.
   #
   # @return [nilClass] if there is no active framework db connection
-  # @return [Metasploit::Framework::JtR::Cracker] if it successfully creates a JtR Cracker object
-  def new_john_cracker
+  # @return [Metasploit::Framework::PasswordCracker::Cracker] if it successfully creates a Password Cracker object
+  def new_password_cracker
     return nil unless framework.db.active
-    Metasploit::Framework::JtR::Cracker.new(
+    Metasploit::Framework::PasswordCracker::Cracker.new(
         config: datastore['CONFIG'],
-        john_path: datastore['JOHN_PATH'],
+        cracker_path: datastore['CRACKER_PATH'],
         max_runtime: datastore['ITERATION_TIMEOUT'],
         pot: datastore['POT'],
         wordlist: datastore['CUSTOM_WORDLIST']
@@ -90,7 +93,7 @@ module Auxiliary::JohnTheRipper
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file
   def wordlist_file(max_len = 0)
     return nil unless framework.db.active
-    wordlist = Metasploit::Framework::JtR::Wordlist.new(
+    wordlist = Metasploit::Framework::PasswordCracker::Wordlist.new(
         custom_wordlist: datastore['CUSTOM_WORDLIST'],
         mutate: datastore['MUTATE'],
         use_creds: datastore['USE_CREDS'],
@@ -102,5 +105,6 @@ module Auxiliary::JohnTheRipper
     )
     wordlist.to_file(max_len)
   end
+
 end
 end

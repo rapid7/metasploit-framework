@@ -74,6 +74,8 @@ def identify_hash(hash)
     when hash.start_with?('$P$') && hash.length == 34,
          hash.start_with?('$H$') && hash.length == 34
       return 'phpass' # wordpress, drupal, phpbb3 (H not P)
+    when hash.start_with?('$ml$')
+      return 'PBKDF2-HMAC-SHA512'
   end
   ''
 end
