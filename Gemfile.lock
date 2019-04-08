@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/rapid7/metasm
-  revision: 916b7ca5a728321a8a4a890bd21e588e1f2ac5a6
-  branch: ruby_2_5_compat
-  specs:
-    metasm (1.0.4)
-
 PATH
   remote: .
   specs:
@@ -149,6 +142,7 @@ GEM
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
+    metasm (1.0.4)
     metasploit-concern (2.0.5)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -344,7 +338,6 @@ PLATFORMS
 DEPENDENCIES
   factory_girl_rails
   fivemat
-  metasm!
   metasploit-framework!
   octokit
   pry
