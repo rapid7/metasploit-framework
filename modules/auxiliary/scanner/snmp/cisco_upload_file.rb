@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         },
       'Author'      =>
         [
-          'pello <fropert[at]packetfault.org>'
+          'pello <fropert[at]packetfault.org>',
+          'ct5595'
         ],
       'License'     => MSF_LICENSE
     )
