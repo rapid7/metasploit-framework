@@ -5,9 +5,6 @@ gemspec name: 'metasploit-framework'
 
 gem 'sqlite3', '~>1.3.0'
 
-# use custom metasm until fix for 2.5 is released
-gem 'metasm', git: "https://github.com/rapid7/metasm", branch: "ruby_2_5_compat"
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
