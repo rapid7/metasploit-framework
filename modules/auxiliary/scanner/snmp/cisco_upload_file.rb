@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Cisco IOS SNMP File Upload (TFTP)',
       'Description' => %q{
           This module will copy file to a Cisco IOS device using SNMP and TFTP.
+        The action override_config will override the running config of the Cisco device.
         A read-write SNMP community is required. The SNMP community scanner module can
         assist in identifying a read-write community. The target must
         be able to connect back to the Metasploit system and the use of
@@ -20,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         },
       'Author'      =>
         [
-          'pello <fropert[at]packetfault.org>'
+          'pello <fropert[at]packetfault.org>',
+          'ct5595'
         ],
       'License'     => MSF_LICENSE
     )
