@@ -280,7 +280,7 @@ GEM
       rex-arch
     rex-ole (0.1.6)
       rex-text
-    rex-powershell (0.1.79)
+    rex-powershell (0.1.80)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.4)
