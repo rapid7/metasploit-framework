@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless credentials.empty?
-      loot = store_loot("wp_google_maps.http","text/plain", rhost, credentials)
+      loot = store_loot("wp_google_maps.json","application/json", rhost, res)
       print_good("Credentials saved in: #{loot}")
     end
   end
