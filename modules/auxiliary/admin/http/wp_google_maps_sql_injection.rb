@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED,
           proof: user['user_email']
-        }.merge(service_details)
+        }
         create_credential(connection_details)
         credentials << "#{user['user_login']},#{user['user_pass']},#{user['user_email']}\n"
       end
