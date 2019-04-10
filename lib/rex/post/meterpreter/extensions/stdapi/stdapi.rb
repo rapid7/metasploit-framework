@@ -97,6 +97,7 @@ class Stdapi < Extension
           'name' => 'ui',
           'ext'  => UI.new(client)
         }
+
       ])
   end
 
