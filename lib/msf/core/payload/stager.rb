@@ -172,51 +172,78 @@ module Msf::Payload::Stager
             opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
           end
         end
-      end
-
-      p = generate_stage(opts)
-
-      # Encode the stage if stage encoding is enabled
-      begin
-        p = encode_stage(p)
-      rescue ::RuntimeError
-        warning_msg = "Failed to stage"
-        warning_msg << " (#{conn.peerhost})"  if conn.respond_to? :peerhost
-        warning_msg << ": #{$!}"
-        print_warning warning_msg
-        if conn.respond_to? :close && !conn.closed?
-          conn.close
+        if respond_to? :include_send_pingback
+          if include_send_pingback
+            uuid_raw = conn.get_once(16, 1)
+            if uuid_raw
+              uuid_string = uuid_raw.each_byte.map { |b| b.to_s(16) }.join
+              puts("Incoming Pingback_UUID = " + uuid_string)
+              begin
+                uuid_original = opts[:datastore]['PingbackUUID'].to_s
+                puts("Original UUID = " + uuid_original)
+                if uuid_original = uuid_string.gsub("-", "")
+                  puts("UUIDs Match!")
+                else
+                  puts("UUIDs DO NOT Match!")
+                end
+              rescue => e
+                puts("Can't get original UUID")
+                puts "Exception Class: #{ e.class.name }"
+                puts "Exception Message: #{ e.message }"
+                puts "Exception Backtrace: #{ e.backtrace }"
+              end
+            end
+#            puts("Trying to close connection...")
+#            conn.close
+#            puts("Connection Closed")
+          end
         end
-        return
+      else
+
+        p = generate_stage(opts)
+
+        # Encode the stage if stage encoding is enabled
+        begin
+          p = encode_stage(p)
+        rescue ::RuntimeError
+          warning_msg = "Failed to stage"
+          warning_msg << " (#{conn.peerhost})"  if conn.respond_to? :peerhost
+          warning_msg << ": #{$!}"
+          print_warning warning_msg
+          if conn.respond_to? :close && !conn.closed?
+            conn.close
+          end
+          return
+        end
+
+        # Give derived classes an opportunity to an intermediate state before
+        # the stage is sent.  This gives derived classes an opportunity to
+        # augment the stage and the process through which it is read on the
+        # remote machine.
+        #
+        # If we don't use an intermediate stage, then we need to prepend the
+        # stage prefix, such as a tag
+        if handle_intermediate_stage(conn, p) == false
+          p = (self.stage_prefix || '') + p
+        end
+
+        sending_msg = "Sending #{encode_stage? ? "encoded ":""}stage"
+        sending_msg << " (#{p.length} bytes)"
+        # The connection should always have a peerhost (even if it's a
+        # tunnel), but if it doesn't, erroring out here means losing the
+        # session, so make sure it does, just to be safe.
+        if conn.respond_to? :peerhost
+          sending_msg << " to #{conn.peerhost}"
+        end
+        print_status(sending_msg)
+
+        # Send the stage
+        conn.put(p)
       end
 
-      # Give derived classes an opportunity to an intermediate state before
-      # the stage is sent.  This gives derived classes an opportunity to
-      # augment the stage and the process through which it is read on the
-      # remote machine.
-      #
-      # If we don't use an intermediate stage, then we need to prepend the
-      # stage prefix, such as a tag
-      if handle_intermediate_stage(conn, p) == false
-        p = (self.stage_prefix || '') + p
-      end
-
-      sending_msg = "Sending #{encode_stage? ? "encoded ":""}stage"
-      sending_msg << " (#{p.length} bytes)"
-      # The connection should always have a peerhost (even if it's a
-      # tunnel), but if it doesn't, erroring out here means losing the
-      # session, so make sure it does, just to be safe.
-      if conn.respond_to? :peerhost
-        sending_msg << " to #{conn.peerhost}"
-      end
-      print_status(sending_msg)
-
-      # Send the stage
-      conn.put(p)
+      # Give the stages a chance to handle the connection
+      handle_connection_stage(conn, opts)
     end
-
-    # Give the stages a chance to handle the connection
-    handle_connection_stage(conn, opts)
   end
 
   #

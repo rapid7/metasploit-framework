@@ -20,6 +20,7 @@ module Payload::Windows::SendUUID_x64
   # the communications socket handle is in rdi.
   #
   def asm_send_uuid(uuid=nil)
+    puts("asm_send_uuid")
     uuid ||= generate_payload_uuid
     uuid_raw = uuid.to_raw
 

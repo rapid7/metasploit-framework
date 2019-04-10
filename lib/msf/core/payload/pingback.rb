@@ -27,23 +27,14 @@ class Msf::Payload::Pingback
   #
 
   def initialize(opts=nil)
-    if opts.nil?
-      puid ||= SecureRandom.uuid()
-    end
+    puts("Initializing pingback_uuid")
+    puts("uuid = " + self.uuid.to_s) if not uuid.nil?
+    puts("uuid is nil") if self.uuid.nil?
+    self.uuid ||= SecureRandom.uuid()
+    opts[:pingback_uuid] = self.uuid
+    puts("uuid = " + self.uuid.to_s)
+    puts("opts = " + opts.to_s)
   end
 
-  #
-  # Return a string that represents the Meterpreter arch/platform
-  #
-  def session_type
-    # mini-patch for x86 so that it renders x64 instead. This is
-    # mostly to keep various external modules happy.
-    arch = self.arch
-    if arch == ARCH_X86_64
-        arch = ARCH_X64
-    end
-    "#{arch}/#{self.platform}"
-  end
-
-  attr_accessor :puid
+  attr_accessor :uuid
 end
