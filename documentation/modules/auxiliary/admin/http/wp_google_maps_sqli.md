@@ -1,14 +1,14 @@
 ## Vulnerable Application
 
-This module works against `wp-google-maps` between 7.11.00 and 7.11.17 (included).
+This module works against the Wordpress plugin `wp-google-maps` between 7.11.00 and 7.11.17 (included).
 
 [The vulnerable version is available on WordPress' plugin directory](https://downloads.wordpress.org/plugin/wp-google-maps.7.11.17.zip).
 
 ## Verification Steps
 
   1. `msfconsole`
-  2. `use auxiliary/admin/http/wp_google_maps_sql_injection`
-  3. `set RHOST <host.tld>`
+  2. `use auxiliary/admin/http/wp_google_maps_sqli`
+  3. `set RHOSTS <rhost>`
   4. Set `DB_PREFIX` if necessary
   5. `run`
 
