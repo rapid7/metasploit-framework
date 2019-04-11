@@ -52,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    if send_sql_request('0xABCDABCD+0xABCDABCD').include? '5764765594'
-      Exploit::CheckCode::Vulnerable
-    else
-      Exploit::CheckCode::Unknown
-    end
+    body = send_sql_request('0xABCDABCD+0xABCDABCD')
+    return Exploit::CheckCode::Unknown if body.nil?
+    return Exploit::CheckCode::Vulnerable if body.include?('5764765594')
+
+    Exploit::CheckCode::Unknown
   end
 
   def run
