@@ -77,9 +77,9 @@ class Console::CommandDispatcher::AppApi
   #
   def cmd_app_uninstall(*args)
     if (args.length < 1)
-      print_line("[-] Usage: app_uninstall <packagename>")
-      print_line("[-] Request to uninstall application.")
-      print_line("[-] You can use 'app_list' to pick your packagename.")
+      print_error("[-] Usage: app_uninstall <packagename>")
+      print_error("[-] Request to uninstall application.")
+      print_error("[-] You can use 'app_list' to pick your packagename.")
       print_status("ex. app_uninstall com.corrm.clac")
       return
     end
@@ -102,8 +102,8 @@ class Console::CommandDispatcher::AppApi
   #
   def cmd_app_install(*args)
     if (args.length < 1)
-      print_line("[-] Usage: app_install <filepath>")
-      print_line("[-] Request to install application.")
+      print_error("[-] Usage: app_install <filepath>")
+      print_error("[-] Request to install application.")
       print_status("ex. app_install '/sdcard/Download/corrm.apk'")
       return
     end
@@ -126,9 +126,9 @@ class Console::CommandDispatcher::AppApi
   #
   def cmd_app_run(*args)
     if (args.length < 1)
-      print_line("[-] Usage: app_run <package_name>")
-      print_line("[-] Start Main Activty for package name.")
-      print_line("[-] You can use 'app_list' to pick your packagename.")
+      print_error("[-] Usage: app_run <package_name>")
+      print_error("[-] Start Main Activty for package name.")
+      print_error("[-] You can use 'app_list' to pick your packagename.")
       print_status("ex. app_run com.corrm.clac")
       return
     end
