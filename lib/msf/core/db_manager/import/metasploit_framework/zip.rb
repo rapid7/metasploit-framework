@@ -195,7 +195,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     data.entries.each do |e|
       # normalize entry name to an absolute path
-      target = (Pathname.new(@import_filedata[:zip_tmp]) + e.name).to_s
+      target = File.expand_path(@import_filedata[:zip_tmp] + e.name, '/').to_s
 
       # skip if the target would be extracted outside of the zip
       # tmp dir to mitigate any directory traversal attacks
@@ -244,6 +244,6 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   end
 
   def is_child_of?(target_dir, target)
-    target.match?(/^#{target_dir}/)
+    target.downcase.start_with?(target_dir.downcase)
   end
 end
