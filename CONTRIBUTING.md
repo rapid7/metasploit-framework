@@ -20,9 +20,11 @@ it into Metasploit's master branch.  If you do not care to follow these rules, y
 * **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
 * **Do** follow the [50/72 rule] for Git commit messages.
 * **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
-* **Do** create a [topic branch] to work on instead of working directly on `master` to preserve the
-  history of your pull request.  See [PR#8000] for an example of losing commit history as soon as
-  you update your own master branch.
+* **Do** create a [topic branch] to work on instead of working directly on `master`.
+  This helps protect the process, ensures users are aware of commits on the branch being considered for merge,
+  allows for a location for more commits to be offered without mingling with other contributor changes,
+  and allows contributors to make progress while a PR is still being reviewed.
+
 
 ### Pull Requests
 
