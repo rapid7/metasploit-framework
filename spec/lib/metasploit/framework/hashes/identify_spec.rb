@@ -1,5 +1,22 @@
 require 'spec_helper'
 require 'metasploit/framework/hashes/identify'
+require 'bcrypt'
+
+=begin
+#!/usr/bin/python
+# bcrypts generated with python's passlib
+from passlib import hash
+print("MD5: %s") %(hash.md5_crypt.hash("password"))
+print("BCrypt 2: %s") %(hash.bcrypt.using(ident="2").hash("password"))
+print("BCrypt 2a: %s") %(hash.bcrypt.using(ident="2a").hash("password"))
+print("BCrypt 2b: %s") %(hash.bcrypt.using(ident="2b").hash("password"))
+print("BCrypt 2y: %s") %(hash.bcrypt.using(ident="2y").hash("password"))
+# bcrypt.using(ident="2x").hash("password")
+print("SHA256: %s") %(hash.sha256_crypt.hash("password"))
+print("SHA512: %s") %(hash.sha512_crypt.hash("password"))
+print("BSDi: %s") %(hash.bsdi_crypt.hash("password"))
+print("DES: %s") %(hash.des_crypt.hash("password"))
+=end
 
 RSpec.describe 'hashes/identify' do
 
@@ -19,7 +36,8 @@ RSpec.describe 'hashes/identify' do
 
   describe 'identify_blofish_a' do
     it 'returns bf' do
-      hash = identify_hash('$2a$12$RfyS6BRGMUjFOLwC7Aqnk.ecnf7SHo75SBgE2ZIhN8DYOo7A6uMoq')
+      # looks like BCrypt can only generate 2a in ruby as of april 2019
+      hash = identify_hash(BCrypt::Password.create("password"))
       expect(hash).to match('bf')
     end
   end
