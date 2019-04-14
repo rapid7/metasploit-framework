@@ -42,8 +42,13 @@ def identify_hash(hash)
     # windows
     when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/ && hash.split(':').first.upcase == 'AAD3B435B51404EEAAD3B435B51404EE'
       return 'nt'
-    when hash.length == 65 && hash =~ /^[0-9a-fA-F]{32}:[0-9a-fA-F]{32}$/
+    when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/
       return 'lm'
+    # OSX
+    when hash.start_with?('$ml$') && hash.split('$').last.length == 256
+      return 'pbkdf2-hmac-sha512,osx' # 10.8+
+    when hash =~ /^[\da-fA-F]{48}$/ # hash.length == 48
+      return 'xsha,osx' # 10.4-10.6
     # databases
     when hash.start_with?('0x0100') && hash.length == 54
       return 'mssql05'

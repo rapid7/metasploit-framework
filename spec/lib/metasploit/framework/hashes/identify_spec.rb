@@ -119,6 +119,20 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_pbkdf2_osx' do
+    it 'returns pbkdf2-hmac-sha512,osx' do
+      hash = identify_hash('$ml$49504$0dba6246bd38266b2e827ff7e7271380757c71d653893aa361d5902398302369$c5f198639915a101c99af326dffe13e8f14456be8fd2312a39a777b92178804e204ca4fee12a8667871440eff4288e811d86d746c6d96a60c919c3418dfebba42f329f5d73c0372d636d61d5dfda1add61af36c70e4acd771276107209e643ae92a0f43e95a452744e50fb4540d9bdf4e0b701725d7db488fbe18c1ab7737c6b')
+      expect(hash).to match ('pbkdf2-hmac-sha512,osx')
+    end
+  end
+
+  describe 'identify_sha_osx' do
+    it 'returns xsha,osx' do
+      hash = identify_hash('1430823483d07626ef8be3fda2ff056d0dfd818dbfe47683')
+      expect(hash).to match ('xsha,osx')
+    end
+  end
+
   describe 'identify_mssql05' do
     it 'returns mssql05' do
       hash = identify_hash('0x01004086CEB6BF932BC4151A1AF1F13CD17301D70816A8886908')
