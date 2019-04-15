@@ -195,7 +195,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     data.entries.each do |e|
       # normalize entry name to an absolute path
-      target = File.expand_path(@import_filedata[:zip_tmp] + e.name, '/').to_s
+      target = File.expand_path(File.join(@import_filedata[:zip_tmp], e.name), '/').to_s
 
       # skip if the target would be extracted outside of the zip
       # tmp dir to mitigate any directory traversal attacks
