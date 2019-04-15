@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'            => 'WordPress Google Maps Plugin SQL Injection',
       'Description'     => %q{
-        This module exploits a SQL injection vulnerability in the a REST endpoint
+        This module exploits a SQL injection vulnerability in a REST endpoint
         registered by the WordPress plugin wp-google-maps between 7.11.00 and
         7.11.17 (included).
 
