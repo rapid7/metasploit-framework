@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'OS X Gather Mac OS X System Information Enumeration',
         'Description'   => %q{
-            This module gathers basic system information from Mac OS X Tiger, Leopard,
-          Snow Leopard and Lion systems.
+            This module gathers basic system information from Mac OS X Tiger (10.4), through
+            Mojave (10.14).
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
