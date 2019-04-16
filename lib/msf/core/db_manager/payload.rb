@@ -8,7 +8,8 @@ module Msf::DBManager::Payload
         end
       end
 
-      Mdm::Payload.create!(opts)
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace.payloads.create!(opts)
     end
   end
 
@@ -50,6 +51,15 @@ module Msf::DBManager::Payload
 
       return deleted
     end
+  end
+
+  def get_payload(opts)
+    raise ArgumentError.new("The following options are required: :uuid") if opts[:uuid].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      return Mdm::Payload.find_by(uuid: opts[:uuid])
+    end
+
   end
 
 end

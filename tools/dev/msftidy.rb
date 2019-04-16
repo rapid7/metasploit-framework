@@ -608,7 +608,7 @@ class Msftidy
       end
 
       if ln =~ /^\s*fail_with\(/
-        unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
+        unless ln =~ /^\s*fail_with\(.*Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
@@ -703,6 +703,17 @@ class Msftidy
     end
   end
 
+  # Check for modules having an Author section to ensure attribution
+  #
+  def check_author
+    # Only the three common module types have a consistently defined info hash
+    return unless %w[exploit auxiliary post].include?(@module_type)
+
+    unless @source =~ /["']Author["'][[:space:]]*=>/
+      error('Missing "Author" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -736,6 +747,7 @@ class Msftidy
     check_register_datastore_debug
     check_use_datastore_debug
     check_arch
+    check_author
   end
 
   private
