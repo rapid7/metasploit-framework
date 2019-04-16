@@ -4,7 +4,7 @@ module Msf::Module::ModuleInfo
   #
 
   # The list of options that support merging in an information hash.
-  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" ]
+  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat", "Stance" ]
 
   #
   # Instance Methods
