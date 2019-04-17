@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Post
       print_status("Timeout period expired before credentials were entered!")
     end
 
-    print_status("Cleaning up files in #{host}:#{dir}")
+    print_status("Cleaning up files in #{host}: #{dir}")
     cmd_exec("/usr/bin/srm -rf #{dir}")
   end
 
