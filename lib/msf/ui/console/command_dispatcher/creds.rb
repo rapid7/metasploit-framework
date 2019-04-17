@@ -172,10 +172,10 @@ class Creds
     print_line "  -d,--delete           Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
-    print_line "  -P,--password <regex> List passwords that match this regex"
+    print_line "  -P,--password <text>  List passwords that match this text"
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
-    print_line "  -u,--user <regex>     List users that match this regex"
+    print_line "  -u,--user <text>      List users that match this text"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -O,--origins <IP>     List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
