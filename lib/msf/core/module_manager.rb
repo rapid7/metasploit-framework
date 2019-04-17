@@ -50,6 +50,8 @@ module Msf
 
       module_set = module_set_by_type[type]
 
+      return unless module_set
+
       module_reference_name = names.join("/")
       module_set[module_reference_name]
     end

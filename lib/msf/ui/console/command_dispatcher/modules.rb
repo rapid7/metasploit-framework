@@ -15,9 +15,6 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher
           include Msf::Ui::Console::CommandDispatcher::Common
 
-          # Constant for a retry timeout on using modules before they're loaded
-          CMD_USE_TIMEOUT = 3
-
           @@search_opts = Rex::Parser::Arguments.new(
             "-h"     => [ false, "Help banner"],
             "-o"     => [ true, "Send output to a file in csv format"],
@@ -364,7 +361,7 @@ module Msf
             if args.empty?
               print_error("Argument required\n")
               cmd_search_help
-              return
+              return false
             end
 
             match = ''
@@ -390,7 +387,7 @@ module Msf
             if match.empty? && search_term.nil?
               print_error("Keywords or search argument required\n")
               cmd_search_help
-              return
+              return false
             end
 
             # Display the table of matches
@@ -399,6 +396,9 @@ module Msf
             count = 0
             begin
               modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+              return false if modules.length == 0
+
               modules.each do |m|
                 tbl << [
                     count += 1,
@@ -409,13 +409,15 @@ module Msf
                     m.name
                 ]
               end
+
               if modules.length == 1 && use
                 used_module = modules.first.full_name
-                cmd_use(used_module)
+                cmd_use(used_module, true)
               end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
               cmd_search_help
+              return false
             end
 
             if output_file
@@ -427,6 +429,8 @@ module Msf
               print_line(tbl.to_s)
               print_status("Using #{used_module}") if used_module
             end
+
+            true
           end
 
           #
@@ -619,6 +623,9 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
+            # See if the supplied module name has already been resolved
+            mod_resolved = args[1] == true ? true : false
+
             # Ensure we have a reference name and not a path
             if mod_name.start_with?('./', 'modules/')
               mod_name.sub!(%r{^(?:\./)?modules/}, '')
@@ -629,11 +636,13 @@ module Msf
 
             begin
               mod = framework.modules.create(mod_name)
+
               unless mod
-                # Try one more time; see #4549
-                sleep CMD_USE_TIMEOUT
-                mod = framework.modules.create(mod_name)
-                unless mod
+                unless mod_resolved
+                  mods_found = cmd_search('-u', mod_name)
+                end
+
+                unless mods_found
                   print_error("Failed to load module: #{mod_name}")
                   return false
                 end
