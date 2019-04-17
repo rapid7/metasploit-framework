@@ -28,12 +28,10 @@ module Msf::DBManager::Cred
       end
 
       if opts[:user].present?
-        # If we have a user regex, only include those that match
         query = query.where('"metasploit_credential_publics"."username" = ?', opts[:user])
       end
 
       if opts[:pass].present?
-        # If we have a password regex, only include those that match
         query = query.where('"metasploit_credential_privates"."data" = ?', opts[:pass])
       end
 
