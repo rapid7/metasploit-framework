@@ -1,11 +1,8 @@
 ## Vulnerable Application
 
-  Ruby on Rails versions <= 5.2.2.
+  Ruby on Rails versions <= 5.2.2. The following example shows how to recreate the vulnerable environment on Linux:
 
-  Installation steps:
-  1. `gem install rails -v 5.2.1`
-  2. `rails new demo`
-  3. `rails s -b 0.0.0.0`
+  https://chybeta.github.io/2019/03/16/Analysis-for%E3%80%90CVE-2019-5418%E3%80%91File-Content-Disclosure-on-Rails/
 
 ## Verification Steps
 
