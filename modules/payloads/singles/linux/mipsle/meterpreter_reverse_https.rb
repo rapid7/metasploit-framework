@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_mipsle_linux'
 
 module MetasploitModule
 
-  CachedSize = 1472432
+  CachedSize = 1472464
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
