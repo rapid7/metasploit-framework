@@ -36,6 +36,10 @@ private
   end
 
   def to_str(item, size)
+    if  (item.size > size-1)
+      print("Option string: #{item} was to long to fit. Max size: #{size-1}. Automatic resizing... (you might want to adjust your options)\n")
+      item = item.slice(0..(size-1))
+    end
     @to_str.call(item, size)
   end
 
