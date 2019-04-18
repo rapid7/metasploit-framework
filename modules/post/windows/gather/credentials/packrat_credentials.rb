@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
         # enumerates the options based on the artifacts that are defined below
         OptEnum.new('APPCATEGORY', [false, 'Category of applications to gather from', 'All', APPLICATION_ARRAY.map {|x| x[:category]}.uniq.unshift('All')]),
         OptEnum.new('APPLICATION', [false, 'Specify application to gather from', 'All', APPLICATION_ARRAY.map {|x| x[:application]}.uniq.unshift('All')]),
-        OptEnum.new('ARTEFACTS', [false, 'Type of artifacts to collect', 'All', APPLICATION_ARRAY.map {|x| x[:filetypes]}.uniq.unshift('All')]),
+        OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', APPLICATION_ARRAY.map {|x| x[:filetypes]}.uniq.unshift('All')]),
       ])
   end
 
@@ -2003,7 +2003,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status("Filtering based on these selections:  ")
-    print_status("APPCATEGORY: #{datastore['APPCATEGORY'].capitalize}, APPLICATION: #{datastore['APPLICATION'].capitalize}, ARTEFACTS: #{datastore['ARTEFACTS'].capitalize}")
+    print_status("APPCATEGORY: #{datastore['APPCATEGORY'].capitalize}, APPLICATION: #{datastore['APPLICATION'].capitalize}, ARTIFACTS: #{datastore['ARTIFACTS'].capitalize}")
 
     #used to grab files for each user on the remote host.
     grab_user_profiles.each do |userprofile|
@@ -2176,7 +2176,7 @@ class MetasploitModule < Msf::Post
       description = artifact_child[:description]
 
       # filter based on options
-      if (category != datastore['APPCATEGORY'] && datastore['APPCATEGORY'] != 'All') || (application != datastore['APPLICATION'] && datastore['APPLICATION'] != 'All') || (file_type != datastore['ARTEFACTS'] && datastore['ARTEFACTS'] != 'All')
+      if (category != datastore['APPCATEGORY'] && datastore['APPCATEGORY'] != 'All') || (application != datastore['APPLICATION'] && datastore['APPLICATION'] != 'All') || (file_type != datastore['ARTIFACTS'] && datastore['ARTIFACTS'] != 'All')
         # doesn't match search criteria, skip this artifact
         next
       end #if statement end
