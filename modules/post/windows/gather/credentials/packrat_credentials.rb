@@ -3,12 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core/post/windows/user_profiles'
-require 'json'
-require 'nokogiri'
-require 'sqlite3'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
