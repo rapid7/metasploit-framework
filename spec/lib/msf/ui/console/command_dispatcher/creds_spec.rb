@@ -79,26 +79,15 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             ])
           end
 
-          it 'should match a regular expression' do
+          it 'should not match a regular expression' do
             creds.cmd_creds('-u', "^#{username}$")
-            expect(@output).to eq([
+            expect(@output).to_not eq([
               'Credentials',
               '===========',
               '',
               'host  origin  service  public    private   realm  private_type  JtR Format',
               '----  ------  -------  ------    -------   -----  ------------  ----------',
               '                       thisuser  thispass         Password      '
-            ])
-          end
-
-          it 'should return nothing for a non-matching regular expression' do
-            creds.cmd_creds('-u', "^#{nomatch_username}$")
-            expect(@output).to eq([
-              'Credentials',
-              '===========',
-              '',
-              'host  origin  service  public  private  realm  private_type  JtR Format',
-              '----  ------  -------  ------  -------  -----  ------------  ----------'
             ])
           end
 
