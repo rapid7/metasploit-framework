@@ -245,5 +245,26 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_shadow_line' do
+    it 'returns empty string' do
+      hash = identify_hash('root:$1$TDQFedzX$.kv51AjM.FInu0lrH1dY30:15045:0:99999:7:::')
+      expect(hash).to match('')
+    end
+  end
+
+  describe 'identify_un_pass' do
+    it 'returns empty string' do
+      hash = identify_hash('root:$1$TDQFedzX$.kv51AjM.FInu0lrH1dY30')
+      expect(hash).to match('')
+    end
+  end
+
+  describe 'identify_ascii_as_nothing' do
+    it 'returns empty string' do
+      hash = identify_hash('This is just some words')
+      expect(hash).to match('')
+    end
+  end
+
 
 end
