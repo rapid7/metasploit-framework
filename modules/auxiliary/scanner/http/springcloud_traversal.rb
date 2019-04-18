@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Path Traversal in Spring Cloud Config Server',
       'Description' => %q{
         This module exploits an unauthenticated directory traversal vulnerability
-        which exists in spring cloud config, versions 2.1.x prior to 2.1.2, 
+        which exists in spring cloud config, versions 2.1.x prior to 2.1.2,
         versions 2.0.x prior to 2.0.4, and versions 1.4.x prior to 1.4.6, which is
         listening by default on port 8888.
       },
