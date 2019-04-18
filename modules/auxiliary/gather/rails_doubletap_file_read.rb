@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://hackerone.com/reports/473888' ],
           [ 'URL', 'https://github.com/mpgn/Rails-doubletap-RCE' ],
           [ 'URL', 'https://groups.google.com/forum/#!topic/rubyonrails-security/pFRKI96Sm8Q' ],
+          [ 'URL', 'https://chybeta.github.io/2019/03/16/Analysis-for%E3%80%90CVE-2019-5418%E3%80%91File-Content-Disclosure-on-Rails/' ],
           [ 'CVE', '2019-5418'],
           [ 'EDB', '46585' ]
         ],
