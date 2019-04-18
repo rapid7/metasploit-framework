@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         [
           'Daniel Hallsworth', # Leeds Beckett University student
           'Barwar Salim M', # Leeds Beckett University student
-          'Z. Cliffe Schreuders (http://z.cliffe.schreuders.org)' # Leeds Beckett University lecturer
+          'Z. Cliffe Schreuders' # Leeds Beckett University lecturer (http://z.cliffe.schreuders.org)
         ],
       'Platform' => %w{win},
       'SessionTypes' => ['meterpreter']
