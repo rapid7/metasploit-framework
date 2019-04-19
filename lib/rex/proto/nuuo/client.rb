@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/proto/nuuo/client_request'
+require 'rex/proto/nuuo/response'
 
 module Rex
 module Proto
@@ -74,17 +75,42 @@ class Client
     self.connection = nil
   end
 
-  def send_recv(req, conn=nil)
+  def send_recv(req, conn=nil, t=-1)
     send_request(req, conn)
-    read_response(conn)
+    read_response(conn, t)
   end
 
   def send_request(req, conn=nil)
     conn ? conn.put(req.to_s) : connect.put(req.to_s)
   end
 
-  def read_response(conn=nil)
-    data = conn ? conn.get_once : connection.get_once
+  def read_response(conn=nil, t=-1)
+    res = Response.new
+    conn = connection unless conn
+
+    return res if not t
+    Timeout.timeout((t < 0) ? nil : t) do
+      parse_status = nil
+      while (!conn.closed? &&
+              parse_status != Response::ParseCode::Completed &&
+              parse_status != Response::ParseCode::Error
+      )
+        begin
+          buff = conn.get_once
+          parse_status = res.parse(buff || '')
+        rescue ::Errno::EPIPE, ::EOFError, ::IOError
+          case res.state
+          when Response::ParseState::ProcessingHeader
+            res = nil
+          when Response::ParseState::ProcessingBody
+            res.error = :truncated
+          end
+          break
+        end
+      end
+    end
+
+    res
   end
 
   def user_session_header(opts)
