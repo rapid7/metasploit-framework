@@ -1,0 +1,2052 @@
+[
+  {
+    "application": "incredimail",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "email_logs",
+        "path": "LocalAppData",
+        "dir": "IM",
+        "artifact": "msg.iml",
+        "description": "IncrediMail sent and received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "outlook",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "deleted_emails",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Deleted Items.dbx",
+        "description": "Outlook's Deleted emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "draft_emails",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Drafts.dbx",
+        "description": "Outlook's unsent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Folders.dbx",
+        "description": "Outlook's Folders",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "received_emails",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Inbox.dbx",
+        "description": "Outlook's received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Offline.dbx",
+        "description": "Outlook's offline emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Outbox.dbx",
+        "description": "Outlook's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "sent_logs",
+        "path": "LocalAppData",
+        "dir": "Identities",
+        "artifact": "Sent Items.dbx",
+        "description": "Outlook's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "operamail",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Opera Mail",
+        "artifact": "wand.dat",
+        "description": "Opera-Mail's saved Username & Passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "LocalAppData",
+        "dir": "Opera Mail",
+        "artifact": "*.mbs",
+        "description": "Opera-Mail's Emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "postbox",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "received_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "INBOX",
+        "description": "Postbox's received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "sent_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "SENT*",
+        "description": "Postbox's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "*.msf",
+        "description": "Postbox's email logs",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Archive.msf",
+        "description": "Postbox's Archive logs",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Bulk Mail.msf",
+        "description": "Postbox's junk emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "draft_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Draft.msf",
+        "description": "Postbox's unsent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "received_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "INBOX.msf",
+        "description": "Postbox's received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "sent_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Sent*.msf",
+        "description": "Postbox's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "sent_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Sent.msf",
+        "description": "Postbox's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "email_logs",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Templates.msf",
+        "description": "Postbox's template emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "deleted_emails",
+        "path": "AppData",
+        "dir": "Postbox",
+        "artifact": "Trash.msf",
+        "description": "Postbox's Deleted emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "thunderbird",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "signons.sqlite",
+        "description": "Thunderbird's saved Username & Passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "username_value, action_url"
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "key3.db",
+        "description": "Thunderbird's saved Username & Passwords",
+        "credential_type": "binary"
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "cert8.db",
+        "description": "Thunderbird's saved Username & Passwords",
+        "credential_type": "binary"
+      },
+      {
+        "filetypes": "received_emails",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "Inbox",
+        "description": "Thunderbird's received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "sent_emails",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "Sent",
+        "description": "Thunderbird's sent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "deleted_emails",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "Trash",
+        "description": "Thunderbird's Deleted emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "draft_emails",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "Drafts",
+        "description": "Thunderbird's unsent emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "database",
+        "path": "AppData",
+        "dir": "Thunderbird",
+        "artifact": "global-messages-db.sqlite",
+        "description": "emails info",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Contacts",
+            "sql_table": "contacts",
+            "sql_column": "name"
+          },
+          {
+            "sql_description": "Conversation Subject",
+            "sql_table": "conversations",
+            "sql_column": "subject"
+          },
+          {
+            "sql_description": "email address identities",
+            "sql_table": "identities",
+            "sql_column": "value"
+          },
+          {
+            "sql_description": "Email's",
+            "sql_table": "messagesText_content",
+            "sql_column": "c3author, c4recipients, c1subject, c0body"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "windowlivemail",
+    "category": "emails",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Microsoft",
+        "artifact": "*.oeaccount",
+        "description": "Windows Live Mail's saved Username & Password",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "AIM",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "AIM",
+        "artifact": "aimx.bin",
+        "description": "AIM's saved Username & Passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "LocalAppData",
+        "dir": "AIM",
+        "artifact": "*.html",
+        "description": "AIM's chat logs with date and times",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "digsby",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "Digsby",
+        "artifact": "logininfo.yaml",
+        "description": "Digsby's saved Username & Passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "gadugadu",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "chat_logs",
+        "path": "GG dysk",
+        "dir": "Galeria",
+        "artifact": "Thumbs.db",
+        "description": "Saved Gadu Gadu User Profile Images in Thumbs.db file",
+        "credential_type": "image"
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "GG",
+        "artifact": "profile.ini",
+        "description": "GaduGadu profile User information : Rename long saved artifactto in profile.ini",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:name=.*)",
+              "(?i-mx:login=.*)",
+              "(?i-mx:path=.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "ICQ",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "ICQ",
+        "artifact": "Owner.mdb",
+        "description": "ICQ's saved Username & Passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "ICQ",
+        "artifact": "Messages.mdb",
+        "description": "ICQ's chat logs",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "miranda",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Miranda",
+        "artifact": "Home.dat",
+        "description": "Miranda's multi saved chat protocol Username, (coded Passwords)",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "nimbuzz",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "nimbuzz",
+        "artifact": "nimbuzz.log",
+        "description": "Username&Password - user phone number",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:user:.*)",
+              "(?-mix:user=.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "pidgen",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": ".purple",
+        "artifact": "accounts.xml",
+        "description": "Pidgen's saved Username & Passwords",
+        "credential_type": "xml",
+        "xml_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "xml": [
+              "//name",
+              "//password"
+            ]
+          },
+          {
+            "extraction_description": "Searches for Identity",
+            "extraction_type": "Identity",
+            "xml": [
+              "//alias"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": ".purple",
+        "artifact": "*.html",
+        "description": "Pidgen's chat logs",
+        "credential_type": "html",
+        "xml_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "xml": [
+              "//username",
+              "//password"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "xml": [
+              "//to",
+              "//from"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "QQ",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "Tencent",
+        "artifact": "UserHeadTemp*",
+        "description": "QQ's Profile Image",
+        "credential_type": "image"
+      }
+    ]
+  },
+  {
+    "application": "skype",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Skype",
+        "artifact": "main.db",
+        "description": "Skype's saved udername and passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Cookie data",
+            "sql_table": "accounts",
+            "sql_column": "fullname, liveid_membername, emails, gender, languages, country, province, city, phone_home, phone_mobile, displayname, signin_name"
+          },
+          {
+            "sql_description": "Database for Call History",
+            "sql_table": "CallMembers",
+            "sql_column": "identity, dispname"
+          },
+          {
+            "sql_description": "contacts information",
+            "sql_table": "Contacts",
+            "sql_column": "fullname, emails, gender, languages, country, province, city, phone_home, phone_mobile, displayname, given_displayname, skypename, aliases"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "tango",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "database",
+        "path": "LocalAppData",
+        "dir": "tango",
+        "artifact": "contacts.dat",
+        "description": "Tango contact names",
+        "credential_type": "dat"
+      },
+      {
+        "filetypes": "software_version",
+        "path": "LocalAppData",
+        "dir": "tango",
+        "artifact": "install.log",
+        "description": "Tango Version",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "tlen.pl",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Tlen.pl",
+        "artifact": "Profiles.dat",
+        "description": "Tlen.pl saved usernames and passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "Tlen.pl",
+        "artifact": "*.jpg",
+        "description": "Tlen.pl sent images"
+      }
+    ]
+  },
+  {
+    "application": "trillian",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Trillian",
+        "artifact": "accounts.ini",
+        "description": "Trillian saved usernames and passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for Identification",
+            "extraction_type": "Identification",
+            "regex": [
+              "(?i-mx:.*=.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "Trillian",
+        "artifact": "*.log",
+        "description": "Trillian logs",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "viber",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "database",
+        "path": "AppData",
+        "dir": "ViberPC",
+        "artifact": "viber.db",
+        "description": "All Contact's names, numbers, sms are saved from user's mobile",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "thumbs",
+        "path": "AppData",
+        "dir": "ViberPC",
+        "artifact": "Thumbs.db",
+        "description": "Viber's Contact's profile images in Thumbs.db file",
+        "credential_type": "image"
+      },
+      {
+        "filetypes": "images",
+        "path": "AppData",
+        "dir": "ViberPC",
+        "artifact": "*.jpg",
+        "description": "Collects all images of contacts and sent recieved",
+        "credential_type": "image"
+      }
+    ]
+  },
+  {
+    "application": "xchat",
+    "category": "chats",
+    "file_artifact": [
+      {
+        "filetypes": "chat_logs",
+        "path": "AppData",
+        "dir": "X-Chat 2",
+        "artifact": "*.txt",
+        "description": "Collects all chatting conversations of sent and recieved",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "xfire",
+    "category": "gaming",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppDataLocal",
+        "dir": "Xfire",
+        "artifact": "XfireUser.ini",
+        "description": "Xfire saved Username & Passwords",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for Identification",
+            "extraction_type": "Identification",
+            "regex": [
+              "(?i-mx:encrypteduser.*)",
+              "(?i-mx:encryptedlastlogin.*)"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Xfire",
+        "artifact": "XfireUser.ini",
+        "description": "Xfire username and password",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for Identification",
+            "extraction_type": "Identification",
+            "regex": [
+              "(?i-mx:encrypteduser.*)",
+              "(?i-mx:encryptedlastlogin.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "chrome",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "cookies",
+        "path": "LocalAppData",
+        "dir": "Google",
+        "artifact": "Cookies",
+        "description": "Chrome's Cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Cookie data",
+            "sql_table": "cookies",
+            "sql_column": "host_key, name, path"
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "Google",
+        "artifact": "Login Data",
+        "description": "Chrome's saved Username & Passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "username_value, action_url"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "LocalAppData",
+        "dir": "Google",
+        "artifact": "History",
+        "description": "Chrome's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "urls",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "keyword_search_terms",
+            "sql_column": "lower_term"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads",
+            "sql_column": "current_path, tab_referrer_url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "segments",
+            "sql_column": "name"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads_url_chains",
+            "sql_column": "url"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "comodo",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "COMODO",
+        "artifact": "Login Data",
+        "description": "Comodo's saved Username & Passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "action_url, username_value"
+          }
+        ]
+      },
+      {
+        "filetypes": "cookies",
+        "path": "LocalAppData",
+        "dir": "COMODO",
+        "artifact": "Cookies",
+        "description": "Comodo's saved cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Cookie data",
+            "sql_table": "cookies",
+            "sql_column": "host_key, name, path"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "LocalAppData",
+        "dir": "COMODO",
+        "artifact": "History",
+        "description": "Comodo's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "urls",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "keyword_search_terms",
+            "sql_column": "lower_term"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads",
+            "sql_column": "current_path, tab_referrer_url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "segments",
+            "sql_column": "name"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads_url_chains",
+            "sql_column": "url"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "LocalAppData",
+        "dir": "COMODO",
+        "artifact": "Visited Links",
+        "description": "Comodo's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "urls",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "keyword_search_terms",
+            "sql_column": "lower_term"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads",
+            "sql_column": "current_path, tab_referrer_url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "segments",
+            "sql_column": "name"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "downloads_url_chains",
+            "sql_column": "url"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "coolnovo",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "MapleStudio",
+        "artifact": "Login Data",
+        "description": "CoolNovo saved Username and Passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "action_url, username_value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "firefox",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "logins.json",
+        "description": "Firefox's saved Username & Passwords ",
+        "credential_type": "json",
+        "json_search": [
+          {
+            "json_parent": "['logins']",
+            "json_children": [
+              "['hostname']",
+              "['formSubmitURL']",
+              "['usernameField']",
+              "['passwordField']",
+              "['encryptedUsername']",
+              "['encryptedPassword']"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "cert8.db",
+        "description": "Firefox's saved Username & Passwords",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "key3.db",
+        "description": "Firefox's saved Username & Passwords",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "places.sqlite",
+        "description": "Firefox's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_places",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_inputhistory",
+            "sql_column": "input"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_keywords",
+            "sql_column": "keyword"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "formhistory.sqlite",
+        "description": "Firefox's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_formhistory",
+            "sql_column": "fieldname, value"
+          }
+        ]
+      },
+      {
+        "filetypes": "cookies",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "cookies.sqlite",
+        "description": "Firefox's Cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_cookies",
+            "sql_column": "baseDomain, host, name, path, value"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "flock",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Flock",
+        "artifact": "formhistory.sqlite",
+        "description": "Flock's saved Username & Passwords ",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "username_value, action_url"
+          }
+        ]
+      },
+      {
+        "filetypes": "Cookies",
+        "path": "AppData",
+        "dir": "Flock",
+        "artifact": "cookies.sqlite",
+        "description": "Flock's cookies file",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "cookies",
+            "sql_column": "host_key, name, path"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "IE",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "web_history",
+        "path": "LocalSettings",
+        "dir": "History",
+        "artifact": "index.dat",
+        "description": "IE history",
+        "credential_type": "dat"
+      }
+    ]
+  },
+  {
+    "application": "k-meleon",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "K-Meleon",
+        "artifact": "signons.sqlite",
+        "description": "K-Meleon's saved Username and Passwords",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "logins",
+            "sql_column": "username_value, action_url"
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "K-Meleon",
+        "artifact": "cert8.db",
+        "description": "K-Melon's saved Username and Passwords",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "cookies",
+        "path": "AppData",
+        "dir": "K-Meleon",
+        "artifact": "cookies.sqlite",
+        "description": "K-Meleon's Cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_cookies",
+            "sql_column": "baseDomain, host, name, path, value"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "K-Meleon",
+        "artifact": "formhistory.sqlite",
+        "description": "K-Meleon's Visited websites ",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_formhistory",
+            "sql_column": "value"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "K-Meleon",
+        "artifact": "places.sqlite",
+        "description": "K-Meleon's Visited websites ",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_places",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_inputhistory",
+            "sql_column": "input"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_hosts",
+            "sql_column": "host"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_keywords",
+            "sql_column": "keyword"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "maxthon",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Maxthon3",
+        "artifact": "MagicFill2.dat",
+        "description": "Maxthon's sent and received emails",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "opera",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Opera Software",
+        "artifact": "Login Data",
+        "description": "Opera's sent and received emails",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "logins",
+            "sql_column": "action_url, username_value"
+          }
+        ]
+      },
+      {
+        "filetypes": "cookies",
+        "path": "AppData",
+        "dir": "Opera Software",
+        "artifact": "Cookies",
+        "description": "Opera's Cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "cookies",
+            "sql_column": "host_key, name, path"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "Opera Software",
+        "artifact": "Visited Links",
+        "description": "Opera's Visited Links",
+        "credential_type": "database"
+      }
+    ]
+  },
+  {
+    "application": "srware",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "LocalAppData",
+        "dir": "Chromium",
+        "artifact": "Login Data",
+        "description": "SRware's sent and received emails",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "logins",
+            "sql_column": "action_url, username_value"
+          }
+        ]
+      },
+      {
+        "filetypes": "cookies",
+        "path": "LocalAppData",
+        "dir": "Chromium",
+        "artifact": "Cookies",
+        "description": "SRware's cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "cookies",
+            "sql_column": "host_key, name, path, value"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "LocalAppData",
+        "dir": "Chromium",
+        "artifact": "History",
+        "description": "SRware's visited websites history",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "urls",
+            "sql_column": "url, title"
+          },
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "downloads",
+            "sql_column": "current_path, site_url"
+          },
+          {
+            "sql_description": "Database Commands which exports SRware's Login data",
+            "sql_table": "segments",
+            "sql_column": "name"
+          },
+          {
+            "sql_description": "keyword search terms",
+            "sql_table": "keyword_search_terms",
+            "sql_column": "term"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "safari",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Apple Computer",
+        "artifact": "keychain.plist",
+        "description": "Safari History",
+        "credential_type": "text",
+        "regex_search": [
+          {
+            "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
+            "extraction_type": "credentials",
+            "regex": [
+              "(?i-mx:password.*)",
+              "(?i-mx:username.*)"
+            ]
+          },
+          {
+            "extraction_description": "searches for Email TO/FROM address",
+            "extraction_type": "Email addresses",
+            "regex": [
+              "(?i-mx:to:.*)",
+              "(?i-mx:from:.*)"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "application": "seamonkey",
+    "category": "browsers",
+    "file_artifact": [
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "logins.json",
+        "description": "Seamonkey's saved Username and Password ",
+        "credential_type": "json",
+        "json_search": [
+          {
+            "json_parent": "['logins']",
+            "json_children": [
+              "['hostname']",
+              "['usernameField']",
+              "['passwordField']",
+              "['encryptedUsername']",
+              "['encryptedPassword']"
+            ]
+          }
+        ]
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "cert8.db",
+        "description": "Seamonkey's saved Username and Password",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "logins",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "key3.db",
+        "description": "Seamonkeys's saved Username and Password",
+        "credential_type": "database"
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "formhistory.sqlite",
+        "description": "Seamonkey's History",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_formhistory",
+            "sql_column": "fieldname, value"
+          }
+        ]
+      },
+      {
+        "filetypes": "web_history",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "places.sqlite",
+        "description": "Seamonkey's History ",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_places",
+            "sql_column": "url"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_inputhistory",
+            "sql_column": "input"
+          },
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_keywords",
+            "sql_column": "keyword"
+          }
+        ]
+      },
+      {
+        "filetypes": "cookies",
+        "path": "AppData",
+        "dir": "Mozilla",
+        "artifact": "cookies.sqlite",
+        "description": "Seamonkey's Cookies",
+        "credential_type": "sqlite",
+        "sql_search": [
+          {
+            "sql_description": "Database Commands which exports Chrome's Login data",
+            "sql_table": "moz_cookies",
+            "sql_column": "baseDomain, host, name, path, value"
+          }
+        ]
+      }
+    ]
+  }
+]
