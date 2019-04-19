@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/proto/nuuo/client_request'
+
 module Rex
 module Proto
 module Nuuo
@@ -56,9 +58,9 @@ class Client
   #
   # @return [Rex::Socket::Tcp]
   # @raise [RuntimeError] if 'tcp' is not requested
-  def connect
-    return connection if connection
-    return  create_tcp_connection if protocol == 'tcp'
+  def connect(temp: false)
+    return connection if connection && !temp
+    return create_tcp_connection(temp: temp) if protocol == 'tcp'
     raise ::RuntimeError, 'Nuuo Client: Unknown transport protocol'
   end
 
@@ -72,25 +74,34 @@ class Client
     self.connection = nil
   end
 
-  def send_recv(req)
-    send_request(req)
-    read_response
+  def send_recv(req, conn=nil)
+    send_request(req, conn)
+    read_response(conn)
   end
 
-  def send_request(req)
-    connect.put(req.to_s)
+  def send_request(req, conn=nil)
+    conn ? conn.put(req.to_s) : connect.put(req.to_s)
   end
 
-  def read_response
-    connection.get_once
+  def read_response(conn=nil)
+    data = conn ? conn.get_once : connection.get_once
+  end
+
+  def user_session_header(opts)
+    val = nil
+    if opts['user_session']
+      val = opts['user_session']
+    elsif self.user_session
+      val = self.user_session
+    end
   end
 
   def request_ping(opts={})
     opts = self.config.merge(opts)
     opts['headers'] ||= {}
     opts['method'] = 'PING'
-
-    opts['headers']['User-Session-No'] = opts['user_session']
+    session = user_session_header(opts)
+    opts['headers']['User-Session-No'] = session if session
 
     ClientRequest.new(opts)
   end
@@ -100,11 +111,11 @@ class Client
     opts['headers'] ||= {}
     opts['method'] = 'SENDLICFILE'
 
+    session = user_session_header(opts)
+    opts['headers']['User-Session-No'] = session if session
+    opts['data'] = '' unless opts['data']
+
     opts['headers']['FileName'] = opts['file_name']
-    opts['headers']['User-Session-No'] = opts['user_session']
-    unless opts['data']
-      opts['data'] = ''
-    end
     opts['headers']['Content-Length'] = opts['data'].length
 
     ClientRequest.new(opts)
@@ -122,7 +133,8 @@ class Client
 
     opts['headers']['FileName'] = opts['file_name']
     opts['headers']['FileType'] = opts['file_type'] || 1
-    opts['headers']['User-Session-No'] = opts['user_session']
+    session = user_session_header(opts)
+    opts['headers']['User-Session-No'] = session if session
 
     ClientRequest.new(opts)
   end
@@ -142,10 +154,11 @@ class Client
 
     opts['headers']['FileName'] = opts['file_name']
     opts['headers']['FileType'] = opts['file_type'] || 1
-    opts['headers']['User-Session-No'] = opts['user_session']
-    unless opts['data']
-      opts['data'] = ''
-    end
+
+    session = user_session_header(opts)
+    opts['headers']['User-Session-No'] = session if session
+
+    opts['data'] = '' unless opts['data']
     opts['headers']['Content-Length'] = opts['data'].length
 
     ClientRequest.new(opts)
@@ -167,7 +180,7 @@ class Client
     # Account for version...
     opts['headers']['Version'] = opts['server_version']
 
-    username = ''
+    username = nil
     if opts['username'] && opts['username'] != ''
       username = opts['username']
     elsif self.username && self.username != ''
@@ -175,7 +188,6 @@ class Client
     end
 
     opts['headers']['Username'] = username
-    opts['username'] = username
 
     password = ''
     if opts['password'] && opts['password'] != ''
@@ -183,9 +195,8 @@ class Client
     elsif self.password && self.password != ''
       password = self.password
     end
-    opts['headers']['Password-Length'] = password.length
-    opts['password'] = password
     opts['data'] = password
+    opts['headers']['Password-Length'] = password.length
 
     # Need to verify if this is needed
     opts['headers']['TimeZone-Length'] = '0'
@@ -216,13 +227,15 @@ class Client
   # Creates a TCP connection using Rex::Socket::Tcp
   #
   # @return [Rex::Socket::Tcp]
-  def create_tcp_connection
-    self.connection = Rex::Socket::Tcp.create(
+  def create_tcp_connection(temp: false)
+    tcp_connection = Rex::Socket::Tcp.create(
       'PeerHost'  => host,
       'PeerPort'  => port.to_i,
       'Context'   => context,
       'Timeout'   => timeout
     )
+    self.connection = tcp_connection unless temp
+    tcp_connection
   end
 
 end
