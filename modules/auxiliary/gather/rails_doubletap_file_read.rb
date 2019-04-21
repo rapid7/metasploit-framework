@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '46585' ]
         ],
         'Notes' => {
-          'AKA' => 'DoubleTap'
+          'AKA' => ['DoubleTap']
         }
       )
     )
