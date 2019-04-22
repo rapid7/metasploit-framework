@@ -359,7 +359,7 @@ module DispatcherShell
   #
   def tab_complete(str)
     # Check trailing whitespace so we can tell 'x' from 'x '
-    str_match = str.match(/\s+$/)
+    str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
     # Split the line up by whitespace into words
