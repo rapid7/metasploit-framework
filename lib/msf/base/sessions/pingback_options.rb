@@ -45,6 +45,20 @@ module PingbackOptions
     end
 
   end
+    def generate_pingback_uuid
+    puts("generate_pingback_uuid")
+    conf = {}
+    if datastore['PingbackUUID'].to_s.length > 0
+      #
+      # TODO- Make this not terrible
+      #
+      conf[:pingback_uuid] = datastore['PingbackUUID'].to_s
+    end
+    conf[:pingback_store] = datastore['PingbackUUIDDatabase']
+    pingback = Msf::Payload::Pingback.new(conf)
+    datastore['PingbackUUID'] ||= pingback.uuid
+    pingback.uuid
+  end
 
 end
 end
