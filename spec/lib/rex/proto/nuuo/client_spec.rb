@@ -16,7 +16,6 @@ RSpec.describe Rex::Proto::Nuuo::Client do
   let(:client_password) {nil}
 
   describe '#connect' do
-
     context 'given udp option when created' do
       let(:protocol) {'udp'}
 
@@ -123,13 +122,21 @@ RSpec.describe Rex::Proto::Nuuo::Client do
 
   describe '#send_recv' do
     context 'given no connection is passed in' do
-      it 'uses client connection' do
-        tcp_connection = double('tcp_connection')
-        allow(tcp_connection).to receive(:put)
-        allow(tcp_connection).to receive(:get_once)
-        client.connection = tcp_connection
+      it 'calls send_request without connection' do
+        allow(client).to receive(:send_request) do |*args|
+          expect(args[1]).to be_nil
+        end
+        allow(client).to receive(:read_response)
 
-        expect(tcp_connection).to receive(:put)
+        client.send_recv('test')
+      end
+
+      it 'calls read_resposne without connection' do
+        allow(client).to receive(:read_response) do |*args|
+          expect(args[0]).to be_nil
+        end
+        allow(client).to receive(:send_request)
+
         client.send_recv('test')
       end
     end
@@ -141,11 +148,23 @@ RSpec.describe Rex::Proto::Nuuo::Client do
         client.connection = tcp_connection
 
         allow(passed_connection).to receive(:put)
-        allow(passed_connection).to receive(:get_once)
+        allow(client).to receive(:read_response)
 
         expect(passed_connection).to receive(:put)
         client.send_recv('test', passed_connection)
       end
+    end
+  end
+
+  describe '#read_response' do
+    let(:res) {"NUCM/1.0 200\r\nTest:test\r\nContent-Length:1\r\n\r\na"}
+    it 'returns a Response object' do
+      tcp_connection = double('tcp_connection')
+      allow(tcp_connection).to receive('closed?') {false}
+      allow(tcp_connection).to receive('get_once') {res}
+      client.connection = tcp_connection
+
+      expect(client.read_response).to be_a_kind_of(Rex::Proto::Nuuo::Response)
     end
   end
 
