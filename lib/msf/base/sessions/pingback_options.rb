@@ -21,7 +21,7 @@ module PingbackOptions
         OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
         OptString.new('AutoRunScript', "A script to run automatically on session creation."),
         OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed"),
-        OptInt.new('PingbackTries', [true, "How many additional successful pingbacks", 0]),
+        OptInt.new('PingbackRetries', [true, "How many additional successful pingbacks", 0]),
         OptInt.new('PingbackSleep', [true, "Time (in seconds) to sleep between pingbacks", 30])
       ]
     )

