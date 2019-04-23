@@ -286,8 +286,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
 
@@ -341,8 +341,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
   end
@@ -401,8 +401,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
   end
@@ -668,19 +668,28 @@ class ReadableText
     output
   end
 
-  # Dumps the aka names associated with the supplied module.
+  # Dumps the notes associated with the supplied module.
   #
   # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
-  def self.dump_aka(mod, indent = '')
+  def self.dump_notes(mod, indent = '')
     output = ''
 
-    if mod.notes['AKA'].present?
-      output << "AKA:\n"
+    mod.notes.each do |name, val|
+      next unless val.present?
 
-      mod.notes['AKA'].each do |aka_name|
-        output << indent + aka_name + "\n"
+      case name
+      when 'AKA'
+        output << "Also known as:\n"
+        val.each { |aka| output << "#{indent}#{aka}\n" }
+      when 'RELATED'
+        output << "Related modules:\n"
+        val.each { |related| output << "#{indent}#{related}\n" }
+      else
+        # Display the raw note
+        output << "#{name}:\n" \
+                  "#{indent}#{val}\n"
       end
 
       output << "\n"
