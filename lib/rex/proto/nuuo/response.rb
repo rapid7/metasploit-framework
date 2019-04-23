@@ -19,6 +19,9 @@ class Response
 
   attr_accessor :headers
   attr_accessor :body
+  attr_accessor :protocol
+  attr_accessor :status_code
+  attr_accessor :message
   attr_accessor :bufq
   attr_accessor :state
 
@@ -26,6 +29,9 @@ class Response
     self.state = ParseState::ProcessingHeader
     self.headers = {}
     self.body = ''
+    self.protocol = nil
+    self.status_code = nil
+    self.message = nil
     self.bufq = ''
     parse(buf) if buf
   end
@@ -84,7 +90,11 @@ class Response
 
   def get_headers(head)
     head.each_line.with_index do |l, i|
-      next if i == 0
+      if i == 0
+        self.protocol,self.status_code,self.message = l.split(' ', 3)
+        self.status_code = self.status_code.to_i if self.status_code
+        next
+      end
       k,v = l.split(':', 2)
       self.headers[k] = v.strip
     end
