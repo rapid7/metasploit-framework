@@ -36,6 +36,21 @@ class Response
     parse(buf) if buf
   end
 
+  def to_s
+    s = ''
+    return unless self.protocol
+    s << self.protocol
+    s << " #{self.status_code}" if self.status_code
+    s << " #{self.message}" if self.message
+    s << "\r\n"
+
+    self.headers.each do |k,v|
+      s << "#{k}: #{v}\r\n"
+    end
+
+    s << "\r\n#{self.body}"
+  end
+
   # returns state of parsing
   def parse(buf)
     self.bufq << buf
