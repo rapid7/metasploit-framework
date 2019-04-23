@@ -32,15 +32,16 @@ class Pingback
     super
   end
 
-  def create_session(conn, opts = {})
+  def self.create_session(conn, opts = {})
     uuid_raw = conn.get_once(16, 1)
     if uuid_raw
       uuid_string = uuid_raw.each_byte.map { |b| b.to_s(16) }.join
       puts("Incoming Pingback_UUID = " + uuid_string)
+      #asoto-r7, check the database for the entery here!
       begin
         uuid_original = opts[:datastore]['PingbackUUID'].to_s
         puts("Original UUID = " + uuid_original)
-        if uuid_original = uuid_string.gsub("-", "")
+        if uuid_original.gsub("-", "") == uuid_string
           puts("UUIDs Match!")
         else
           puts("UUIDs DO NOT Match!")
@@ -52,6 +53,7 @@ class Pingback
         puts "Exception Backtrace: #{ e.backtrace }"
       end
     end
+    nil
   end
   #
   # Returns the session description.

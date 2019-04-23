@@ -20,7 +20,9 @@ module PingbackOptions
         OptBool.new('CreateSession', [false, 'Create a new session for every successful login', true]),
         OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
         OptString.new('AutoRunScript', "A script to run automatically on session creation."),
-        OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed")
+        OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed"),
+        OptInt.new('PingbackTries', [true, "How many additional successful pingbacks", 0]),
+        OptInt.new('PingbackSleep', [true, "Time (in seconds) to sleep between pingbacks", 30])
       ]
     )
   end
@@ -57,6 +59,7 @@ module PingbackOptions
     conf[:pingback_store] = datastore['PingbackUUIDDatabase']
     pingback = Msf::Payload::Pingback.new(conf)
     datastore['PingbackUUID'] ||= pingback.uuid
+    #asoto-r7, this is where we write the UUID to the database.
     pingback.uuid
   end
 
