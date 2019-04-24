@@ -302,4 +302,27 @@ class PluginLoadError < RuntimeError
   end
 end
 
+##
+#
+# This exception is raised if an payload option string exceeds the maximum allowed size
+# during the payload generation.
+#
+##
+  class PayloadItemSizeError < ArgumentError
+    include Exception
+
+    def initialize(item = nil, max_size = nil)
+      @item = item
+      @maxSize = max_size
+    end
+
+    def to_s
+      "Option value: #{item.slice(0..30)} is to big (Current length: #{item.length}). Maximum length: #{maxSize}"
+    end
+
+    attr_reader :item # The content of the payload option (for example a URL)
+    attr_reader :maxSize # The maximum allowed size of the payload option
+  end
+
+
 end
