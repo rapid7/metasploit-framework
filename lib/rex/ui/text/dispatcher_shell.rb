@@ -362,23 +362,23 @@ module DispatcherShell
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
+    split_str = shellsplitex(str)
     # Split the line up by whitespace into words
-    str_words = Shellwords.split(str)
 
     # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
+    split_str[:words] << '' if str_trail.length > 0
 
     # Place the word list into an instance variable
-    self.tab_words = str_words
+    self.tab_words = split_str[:words]
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop)
+    tab_complete_stub(self.tab_words.pop, quote: split_str[:quote])
   end
 
   # Performs tab completion of a command, if supported
   # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str)
+  def tab_complete_stub(str, quote: nil)
     items = []
 
     return nil if not str
@@ -421,11 +421,12 @@ module DispatcherShell
     # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
     # Match based on the partial word
-    items.find_all { |e|
-      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
+    items.find_all { |word|
+      word.downcase.start_with?(str.downcase) || word =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |e|
-      tab_words.dup.push(e.gsub(' ', '\ ')).join(' ')
+    }.map { |word|
+      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word
+      tab_words.dup.push(word).join(' ')
     }
   end
 
@@ -621,6 +622,36 @@ module DispatcherShell
     self.blocked.delete(cmd)
   end
 
+  #
+  # Split a line as Shellwords.split would however instead of raising an
+  # ArgumentError on unbalanced quotes return the remainder of the string as if
+  # the last character were the closing quote.
+  #
+  def shellsplitex(line)
+    quote = nil
+    words = []
+    field = String.new
+    line.scan(/\G\s*(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do
+      |word, sq, dq, esc, garbage, sep|
+      if garbage
+        if quote.nil?
+          quote = garbage
+        else
+          field << garbage
+        end
+        next
+      end
+
+      field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
+      field << sep unless quote.nil?
+      if quote.nil? && sep
+        words << field
+        field = String.new
+      end
+    end
+    words << field if field.length.nonzero?
+    {:quote => quote, :words => words}
+  end
 
   attr_accessor :dispatcher_stack # :nodoc:
   attr_accessor :tab_words # :nodoc:
