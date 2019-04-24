@@ -693,7 +693,7 @@ class ReadableText
         # Handled by dump_traits
         next
       else
-        output << "#{name}:\n" \
+        output << "#{name}:\n"
 
         case val
         when Array
