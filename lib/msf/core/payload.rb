@@ -203,6 +203,7 @@ class Payload < Msf::Module
     begin
       pl = generate()
     rescue NoCompatiblePayloadError
+    rescue PayloadItemSizeError
     end
     pl ||= ''
     pl.length

@@ -36,8 +36,8 @@ private
   end
 
   def to_str(item, size)
-    if  (item.size > size-1)
-      item = item.slice(0..(size-1)) # TODO silently fix things or throw error?
+    if (item.size >= size) # ">=" instead of only ">", because we need space for a terminating null byte (for string handling in C)
+      raise Msf::PayloadItemSizeError.new(item, size-1)
     end
     @to_str.call(item, size)
   end
