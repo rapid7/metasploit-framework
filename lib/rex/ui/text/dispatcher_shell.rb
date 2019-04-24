@@ -425,7 +425,7 @@ module DispatcherShell
       word.downcase.start_with?(str.downcase) || word =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |word|
-      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word
+      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word << quote.dup
       tab_words.dup.push(word).join(' ')
     }
   end
