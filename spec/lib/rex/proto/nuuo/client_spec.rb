@@ -16,14 +16,6 @@ RSpec.describe Rex::Proto::Nuuo::Client do
   let(:client_password) {nil}
 
   describe '#connect' do
-    context 'given udp option when created' do
-      let(:protocol) {'udp'}
-
-      it 'raises an error' do
-        expect{client.connect}.to raise_error(::RuntimeError)
-      end
-    end
-
     context 'given temp is false' do
       context 'when there is no connection' do
         it 'returns a tcp connection' do

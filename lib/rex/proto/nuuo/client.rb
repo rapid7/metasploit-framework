@@ -2,6 +2,7 @@
 
 require 'rex/proto/nuuo/client_request'
 require 'rex/proto/nuuo/response'
+require 'rex/socket'
 
 module Rex
 module Proto
@@ -17,9 +18,6 @@ class Client
   # @!attribute timeout
   #   @return [Integer] The connect/read timeout
   attr_accessor :timeout
-  # @!attribute protocol
-  #   @return [String] The transport protocol used (tcp/udp)
-  attr_accessor :protocol
   # @!attribute connection
   #   @return [IO] The connection established through Rex sockets
   attr_accessor :connection
@@ -46,7 +44,6 @@ class Client
     self.host         = opts[:host]
     self.port         = opts[:port] || 5180
     self.timeout      = opts[:timeout] || 10
-    self.protocol     = opts[:protocol] || 'tcp'
     self.context      = opts[:context] || {}
     self.username     = opts[:username]
     self.password     = opts[:password]
@@ -58,11 +55,9 @@ class Client
   # Creates a connection through a Rex socket
   #
   # @return [Rex::Socket::Tcp]
-  # @raise [RuntimeError] if 'tcp' is not requested
   def connect(temp: false)
     return connection if connection && !temp
-    return create_tcp_connection(temp: temp) if protocol == 'tcp'
-    raise ::RuntimeError, 'Nuuo Client: Unknown transport protocol'
+    return create_tcp_connection(temp: temp)
   end
 
   # Closes the connection
