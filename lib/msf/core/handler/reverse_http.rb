@@ -68,9 +68,10 @@ module ReverseHttp
           'When OverrideRequestHost is set, use this value as the scheme for secondary requests, e.g http or https'
         ),
         OptString.new('HttpUserAgent',
-          'The user-agent that the payload should use for communication',
+          'The user-agent that the payload should use for communication. (Max length 127 characters)',
           default: Rex::UserAgent.shortest,
-          aliases: ['MeterpreterUserAgent']
+          aliases: ['MeterpreterUserAgent'],
+          max_length: 256
         ),
         OptString.new('HttpServerName',
           'The server header that the handler will send in response to requests',
