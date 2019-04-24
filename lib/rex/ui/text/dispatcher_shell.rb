@@ -649,7 +649,7 @@ module DispatcherShell
         field = String.new
       end
     end
-    words << field if field.length.nonzero?
+    words << field unless quote.nil?
     {:quote => quote, :words => words}
   end
 
