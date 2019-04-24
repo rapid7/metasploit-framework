@@ -686,16 +686,24 @@ class ReadableText
       when 'NOCVE'
         output << "CVE not available:\n" \
                   "#{indent}#{val}\n"
-      when 'RELATED'
+      when 'RelatedModules'
         output << "Related modules:\n"
         val.each { |related| output << "#{indent}#{related}\n" }
       when 'Stability', 'SideEffects', 'Reliability'
         # Handled by dump_traits
         next
       else
-        # Display the raw note
         output << "#{name}:\n" \
-                  "#{indent}#{val}\n"
+
+        case val
+        when Array
+          val.each { |v| output << "#{indent}#{v}\n" }
+        when Hash
+          val.each { |k, v| output << "#{indent}#{k}: #{v}\n" }
+        else
+          # Display the raw note
+          output << "#{indent}#{val}\n"
+        end
       end
 
       output << "\n"
