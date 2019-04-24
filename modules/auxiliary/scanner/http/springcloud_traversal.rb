@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Vern', # Vulnerability discovery
           'Dhiraj Mishra' # Metasploit module
         ],
-      'DisclosureDate' => 'Apr 17 2019',
+      'DisclosureDate' => '2019-04-17',
       'License'        => MSF_LICENSE
     ))
 
