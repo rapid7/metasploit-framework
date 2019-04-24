@@ -683,9 +683,15 @@ class ReadableText
       when 'AKA'
         output << "Also known as:\n"
         val.each { |aka| output << "#{indent}#{aka}\n" }
+      when 'NOCVE'
+        output << "CVE not available:\n" \
+                  "#{indent}#{val}\n"
       when 'RELATED'
         output << "Related modules:\n"
         val.each { |related| output << "#{indent}#{related}\n" }
+      when 'Stability', 'SideEffects', 'Reliability'
+        # Handled by dump_traits
+        next
       else
         # Display the raw note
         output << "#{name}:\n" \
