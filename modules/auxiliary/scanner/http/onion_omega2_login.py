@@ -28,7 +28,7 @@ metadata = {
     ],
     'type': 'single_host_login_scanner',
     'options': {
-        'rhost': {'type': 'address', 'description': 'Host to target', 'required': True, 'default': '192.168.3.1'},
+        'rhost': {'type': 'address', 'description': 'Host to target', 'required': True},
         'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': '80'},
         'userpass': {'type': 'string', 'description': 'A list of username/password combinations to try',
                      'required': False},

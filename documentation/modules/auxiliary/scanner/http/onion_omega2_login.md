@@ -1,3 +1,4 @@
+## Description
 The onion_omega2_login module is used to brute-force credentials for Onion Omage2 devices.
 
 ## Vulnerable Application
