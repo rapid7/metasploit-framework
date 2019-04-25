@@ -31,7 +31,7 @@ module Msf
       self.advanced = false
       self.evasion  = false
       self.aliases  = aliases
-      self.maxLength = Integer(max_length)
+      self.max_length = Integer(max_length)
 
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
@@ -152,8 +152,8 @@ module Msf
     # Returns true if the value supplied is longer then the max allowed length
     #
     def max_length_value?(value)
-      if !value.nil? && maxLength != 0
-        value.length > maxLength
+      if !value.nil? && max_length != 0
+        value.length > max_length
       end
     end
 
@@ -204,7 +204,7 @@ module Msf
     # 
     # The max length of the input value
     #
-    attr_accessor :maxLength
+    attr_accessor :max_length
     
     protected
 
