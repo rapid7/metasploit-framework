@@ -193,8 +193,11 @@ class Obj
   end
 
   def force_encoding(encoding)
+    @name.force_encoding(encoding)
+    @full_name.force_encoding(encoding)
     @description.force_encoding(encoding)
     @author.each {|a| a.force_encoding(encoding)}
+    @references.each {|r| r.force_encoding(encoding)}
   end
 
 end
