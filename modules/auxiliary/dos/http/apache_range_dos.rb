@@ -77,17 +77,17 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res and res.code == 206)
         print_status("Response was #{res.code}")
-        print_status("Found Byte-Range Header DOS at #{path}")
+        print_status("Found Byte-Range Header DOS at #{uri}")
 
         report_note(
           :host   => rhost,
           :port   => rport,
           :type   => 'apache.killer',
-          :data   => "Apache Byte-Range DOS at #{path}"
+          :data   => "Apache Byte-Range DOS at #{uri}"
         )
 
       else
-        print_status("#{rhost} doesn't seem to be vulnerable at #{path}")
+        print_status("#{rhost} doesn't seem to be vulnerable at #{uri}")
       end
 
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
