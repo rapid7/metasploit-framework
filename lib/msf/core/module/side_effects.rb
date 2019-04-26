@@ -15,5 +15,4 @@ module Msf::Module::SideEffects
   def side_effects_to_s
     side_effects * ', '
   end
-
 end

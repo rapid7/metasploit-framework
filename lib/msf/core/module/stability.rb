@@ -15,5 +15,4 @@ module Msf::Module::Stability
   def stability_to_s
     stability * ', '
   end
-
 end

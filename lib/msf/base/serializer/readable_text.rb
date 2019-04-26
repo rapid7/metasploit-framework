@@ -20,22 +20,22 @@ class ReadableText
   # @return [String] formatted text output of the dump.
   def self.dump_module(mod, indent = "  ")
     case mod.type
-      when Msf::MODULE_PAYLOAD
-        return dump_payload_module(mod, indent)
-      when Msf::MODULE_NOP
-        return dump_basic_module(mod, indent)
-      when Msf::MODULE_ENCODER
-        return dump_basic_module(mod, indent)
-      when Msf::MODULE_EXPLOIT
-        return dump_exploit_module(mod, indent)
-      when Msf::MODULE_AUX
-        return dump_auxiliary_module(mod, indent)
-      when Msf::MODULE_POST
-        return dump_post_module(mod, indent)
-      when Msf::MODULE_EVASION
-        return dump_evasion_module(mod, indent)
-      else
-        return dump_generic_module(mod, indent)
+    when Msf::MODULE_PAYLOAD
+      dump_payload_module(mod, indent)
+    when Msf::MODULE_NOP
+      dump_basic_module(mod, indent)
+    when Msf::MODULE_ENCODER
+      dump_basic_module(mod, indent)
+    when Msf::MODULE_EXPLOIT
+      dump_exploit_module(mod, indent)
+    when Msf::MODULE_AUX
+      dump_auxiliary_module(mod, indent)
+    when Msf::MODULE_POST
+      dump_post_module(mod, indent)
+    when Msf::MODULE_EVASION
+      dump_evasion_module(mod, indent)
+    else
+      dump_generic_module(mod, indent)
     end
   end
 
@@ -198,14 +198,6 @@ class ReadableText
   def self.dump_traits(mod, indent=' ')
     output = ''
 
-    unless mod.side_effects.empty?
-      output << "Module side effects:\n"
-      mod.side_effects.each { |side_effect|
-        output << indent + side_effect + "\n"
-      }
-      output << "\n"
-    end
-
     unless mod.stability.empty?
       output << "Module stability:\n"
       mod.stability.each { |stability|
@@ -218,6 +210,14 @@ class ReadableText
       output << "Module reliability:\n"
       mod.reliability.each { |reliability|
         output << indent + reliability + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.side_effects.empty?
+      output << "Module side effects:\n"
+      mod.side_effects.each { |side_effect|
+        output << indent + side_effect + "\n"
       }
       output << "\n"
     end
@@ -248,8 +248,6 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
-
-    output << dump_traits(mod)
 
     # Targets
     output << "Available targets:\n"
@@ -286,11 +284,13 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # Traits
+    output << dump_traits(mod, indent)
+
     # Notes
     output << dump_notes(mod, indent)
 
-    return output
-
+    output
   end
 
   # Dumps information about an auxiliary module.
@@ -313,8 +313,6 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
-
-    output << dump_traits(mod)
 
     # Actions
     if mod.action
@@ -341,10 +339,13 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # Traits
+    output << dump_traits(mod, indent)
+
     # Notes
     output << dump_notes(mod, indent)
 
-    return output
+    output
   end
 
   # Dumps information about a post module.
@@ -368,8 +369,6 @@ class ReadableText
       output << indent + author.to_s + "\n"
     end
     output << "\n"
-
-    output << dump_traits(mod)
 
     # Compatible session types
     if mod.session_types
@@ -401,10 +400,13 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # Traits
+    output << dump_traits(mod, indent)
+
     # Notes
     output << dump_notes(mod, indent)
 
-    return output
+    output
   end
 
   # Dumps information about an evasion module.
@@ -450,7 +452,7 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    return output
+    output
   end
 
   # Dumps information about a payload module.
@@ -489,7 +491,7 @@ class ReadableText
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n\n"
 
-    return output
+    output
   end
 
   # Dumps information about a module, just the basics.
@@ -514,19 +516,21 @@ class ReadableText
     }
     output << "\n"
 
-    output << dump_traits(mod)
-
     # Description
     output << "Description:\n"
     output << word_wrap(Rex::Text.compress(mod.description))
     output << "\n"
 
+    # References
     output << dump_references(mod, indent)
 
-    output << "\n"
+    # Traits
+    output << dump_traits(mod, indent)
 
-    return output
+    # Notes
+    output << dump_notes(mod, indent)
 
+    output
   end
 
   #No current use
@@ -577,7 +581,7 @@ class ReadableText
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
     end
 
-    return tbl.to_s
+    tbl.to_s
   end
 
   # Dumps the advanced options associated with the supplied module.
@@ -602,7 +606,7 @@ class ReadableText
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
-    return tbl.to_s
+    tbl.to_s
   end
 
   # Dumps the evasion options associated with the supplied module.
@@ -627,7 +631,7 @@ class ReadableText
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
 
-    return tbl.to_s
+    tbl.to_s
   end
 
   # Dumps the references associated with the supplied module.
@@ -678,7 +682,7 @@ class ReadableText
       when 'RelatedModules'
         output << "Related modules:\n"
         val.each { |related| output << "#{indent}#{related}\n" }
-      when 'Stability', 'SideEffects', 'Reliability'
+      when 'Stability', 'Reliability', 'SideEffects'
         # Handled by dump_traits
         next
       else
@@ -722,7 +726,7 @@ class ReadableText
       tbl << [ k, (ds[k] != nil) ? ds[k].to_s : '' ]
     }
 
-    return ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"
+    ds.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No entries in data store.\n"
   end
 
   # Dumps the list of sessions.
@@ -937,7 +941,8 @@ class ReadableText
     end
 
     out << "\n"
-    return out
+
+    out
   end
 
   # Dumps the list of running jobs.
@@ -1021,7 +1026,7 @@ class ReadableText
       tbl << row
     end
 
-    return framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
+    framework.jobs.keys.length > 0 ? tbl.to_s : "#{tbl.header_to_s}No active jobs.\n"
   end
 
   # Jacked from Ernest Ellingson <erne [at] powernav.com>, modified
@@ -1032,10 +1037,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the wrapped string.
   def self.word_wrap(str, indent = DefaultIndent, col = DefaultColumnWrap)
-    return Rex::Text.wordwrap(str, indent, col)
+    Rex::Text.wordwrap(str, indent, col)
   end
 
 end
 
-end end
-
+end
+end
