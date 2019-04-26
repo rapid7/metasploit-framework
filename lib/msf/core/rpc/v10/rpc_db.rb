@@ -825,9 +825,9 @@ end
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
-      sret = wspace.services.where(conditions).order("hosts.address, port")
+      sret = wspace.services.where(conditions).order("hosts.address, port").to_a()
     elsif host
-      sret = host.services
+      sret = host.services.to_a()
     end
     return ret if sret == nil
     services << sret if sret.class == ::Mdm::Service
