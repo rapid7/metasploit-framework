@@ -439,7 +439,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
@@ -1048,7 +1048,7 @@ end
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
