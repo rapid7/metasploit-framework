@@ -15,7 +15,7 @@ require 'msf/core/handler/bind_tcp'
 ###
 module MetasploitModule
 
-  CachedSize = 1786
+  CachedSize = 1821
 
   include Msf::Payload::Windows::Exec_x64
   include Rex::Powershell::Command
