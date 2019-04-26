@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'bindata'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
@@ -170,7 +168,5 @@ class MetasploitModule < Msf::Auxiliary
         :name  => 'gtp'
       )
     end
-
   end
-
 end
