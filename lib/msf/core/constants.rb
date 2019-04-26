@@ -55,50 +55,33 @@ RankingName         =
 # Stability traits
 #
 
-# Module should not crash the service
-CRASH_SAFE             = 'crash-safe'
-# Module may crash the service, but the service restarts.
-CRASH_SERVICE_RESTARTS = 'crash-service-restarts'
-# Module may crash the service, and the service remains down.
-CRASH_SERVICE_DOWN     = 'crash-service-down'
-# Module may crash the OS, but the OS restarts.
-CRASH_OS_RESTARTS      = 'crash-os-restarts'
-# Module may crash the OS, and the OS remains down.
-CRASH_OS_DOWN          = 'crash-os-down'
-# Module may cause a resource (such as a file or data in database) to be unavailable for the service.
-SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
-# Modules may cause a resource (such as a file) to be unavailable for the OS.
-OS_RESOURCE_LOSS       = 'os-resource-loss'
+CRASH_SAFE             = 'Module should not crash the service'
+CRASH_SERVICE_RESTARTS = 'Module may crash the service, but the service restarts'
+CRASH_SERVICE_DOWN     = 'Module may crash the service, and the service remains down'
+CRASH_OS_RESTARTS      = 'Module may crash the OS, but the OS restarts'
+CRASH_OS_DOWN          = 'Module may crash the OS, and the OS remains down'
+SERVICE_RESOURCE_LOSS  = 'Module may cause a resource (such as a file or data in database) to be unavailable for the service'
+OS_RESOURCE_LOSS       = 'Module may cause a resource (such as a file) to be unavailable for the OS'
 
 #
 # Side-effect traits
 #
 
-# Modules leaves payload or a dropper on the target machine
-ARTIFACTS_ON_DISK = 'artifacts-on-disk'
-# Module modifies some config file on the target machine
-CONFIG_CHANGES    = 'config-changes'
-# Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)
-IOC_IN_LOGS       = 'ioc-in-logs'
-# Module may cause account lockouts (likely due to brute-forcing)
-ACCOUNT_LOCKOUTS  = 'account-lockouts'
-# Module may show something on the screen (Example: a window pops up)
-SCREEN_EFFECTS    = 'screen-effects'
-# Module may cause a noise (Examples: audio output from the speakers or hardware beeps)
-AUDIO_EFFECTS     = 'audio-effects'
-# Module may produce physical effects (Examples: the device makes movement or flashes LEDs)
-PHYSICAL_EFFECTS  = 'physical-effects'
+ARTIFACTS_ON_DISK = 'Module leaves payload or a dropper on the target machine'
+CONFIG_CHANGES    = 'Module modifies some config file on the target machine'
+IOC_IN_LOGS       = 'Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)'
+ACCOUNT_LOCKOUTS  = 'Module may cause account lockouts (likely due to brute-forcing)'
+SCREEN_EFFECTS    = 'Module may show something on the screen (Example: a window pops up)'
+AUDIO_EFFECTS     = 'Module may cause a noise (Examples: audio output from the speakers or hardware beeps)'
+PHYSICAL_EFFECTS  = 'Module may produce physical effects (Examples: the device makes movement or flashes LEDs)'
 
 #
 # Reliability
 #
 
-# The module tends to fail to get a session at first attempt
-FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
-# The module is expected to get a shell every time it fires
-REPEATABLE_SESSION = 'repeatable-session'
-# The module isn't expected to get a shell reliably (such as only once)
-UNRELIABLE_SESSION = 'unreliable-session'
+FIRST_ATTEMPT_FAIL = 'Module tends to fail to get a session at first attempt'
+REPEATABLE_SESSION = 'Module is expected to get a shell every time it fires'
+UNRELIABLE_SESSION = 'Module is not expected to get a shell reliably (such as only once)'
 
 module HttpClients
   IE = "MSIE"
