@@ -1,20 +1,22 @@
 ## Description
 
-This module exploits an unauthenticated directory traversal vulnerability, which exists in Spring Cloud Config versions 2.1.x prior to 2.1.2,versions 2.0.x prior to 2.0.4, and versions 1.4.x prior to 1.4.6, which is listening by default on port 8888.
+This module exploits an unauthenticated directory traversal vulnerability, which exists in Spring Cloud Config versions 2.1.x prior to 2.1.2,versions 2.0.x prior to 2.0.4, and versions 1.4.x prior to 1.4.6.
+Spring Cloud Config listens by default on port 8888.
+
+### Vulnerable Application
+
+* https://github.com/spring-cloud/spring-cloud-config/archive/v2.1.1.RELEASE.zip
 
 ## Verification
 
-```
-Start msfconsole
-use auxiliary/scanner/http/springcloud_traversal
-set RHOSTS
-run
-```
+1. `./msfconsole`
+2. `use auxiliary/scanner/http/springcloud_traversal`
+3. `set rhosts <rhost>`
+4. `run`
 
 ## Scenarios
 
-### Tested against
-`Linux zero 4.15.0-48-generic #51-Ubuntu SMP Wed Apr 3 08:28:49 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux`
+### Tested against Linux zero 4.15.0-48-generic #51-Ubuntu SMP x86_64 GNU/Linux
 
 ```
 msf > use auxiliary/scanner/http/springcloud_traversal 
@@ -28,9 +30,6 @@ msf auxiliary(scanner/http/springcloud_traversal) > run
 msf auxiliary(scanner/http/springcloud_traversal) >
 ```
 
-### Vulnerable software link
-* https://github.com/spring-cloud/spring-cloud-config/archive/v2.1.1.RELEASE.zip
-
-### References
+## References
 
 * https://pivotal.io/security/cve-2019-3799
