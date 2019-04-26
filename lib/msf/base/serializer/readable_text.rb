@@ -201,7 +201,7 @@ class ReadableText
     unless mod.stability.empty?
       output << "Module stability:\n"
       mod.stability.each { |stability|
-        output << indent + stability + "\n"
+        output << indent + stability[1] + "\n"
       }
       output << "\n"
     end
@@ -209,7 +209,7 @@ class ReadableText
     unless mod.reliability.empty?
       output << "Module reliability:\n"
       mod.reliability.each { |reliability|
-        output << indent + reliability + "\n"
+        output << indent + reliability[1] + "\n"
       }
       output << "\n"
     end
@@ -217,7 +217,7 @@ class ReadableText
     unless mod.side_effects.empty?
       output << "Module side effects:\n"
       mod.side_effects.each { |side_effect|
-        output << indent + side_effect + "\n"
+        output << indent + side_effect[1] + "\n"
       }
       output << "\n"
     end

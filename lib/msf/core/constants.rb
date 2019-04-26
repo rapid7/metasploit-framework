@@ -54,31 +54,31 @@ RankingName         =
 #
 # Module stability traits
 #
-CRASH_SAFE             = 'Module should not crash the service'
-CRASH_SERVICE_RESTARTS = 'Module may crash the service, but the service restarts'
-CRASH_SERVICE_DOWN     = 'Module may crash the service, and the service remains down'
-CRASH_OS_RESTARTS      = 'Module may crash the OS, but the OS restarts'
-CRASH_OS_DOWN          = 'Module may crash the OS, and the OS remains down'
-SERVICE_RESOURCE_LOSS  = 'Module may cause a resource (such as a file or data in database) to be unavailable for the service'
-OS_RESOURCE_LOSS       = 'Module may cause a resource (such as a file) to be unavailable for the OS'
+CRASH_SAFE             = ['crash-safe', 'Module should not crash the service']
+CRASH_SERVICE_RESTARTS = ['crash-service-restarts', 'Module may crash the service, but the service restarts']
+CRASH_SERVICE_DOWN     = ['crash-service-down', 'Module may crash the service, and the service remains down']
+CRASH_OS_RESTARTS      = ['crash-os-restarts', 'Module may crash the OS, but the OS restarts']
+CRASH_OS_DOWN          = ['crash-os-down', 'Module may crash the OS, and the OS remains down']
+SERVICE_RESOURCE_LOSS  = ['service-resource-loss', 'Module may cause a resource (such as a file or data in database) to be unavailable for the service']
+OS_RESOURCE_LOSS       = ['os-resource-loss', 'Module may cause a resource (such as a file) to be unavailable for the OS']
 
 #
 # Module reliability traits
 #
-FIRST_ATTEMPT_FAIL = 'Module tends to fail to get a session at first attempt'
-REPEATABLE_SESSION = 'Module is expected to get a shell every time it fires'
-UNRELIABLE_SESSION = 'Module is not expected to get a shell reliably (such as only once)'
+FIRST_ATTEMPT_FAIL = ['first-attempt-fail', 'Module tends to fail to get a session at first attempt']
+REPEATABLE_SESSION = ['repeatable-session', 'Module is expected to get a shell every time it fires']
+UNRELIABLE_SESSION = ['unreliable-session', 'Module is not expected to get a shell reliably (such as only once)']
 
 #
 # Module side-effect traits
 #
-ARTIFACTS_ON_DISK = 'Module leaves payload or a dropper on the target machine'
-CONFIG_CHANGES    = 'Module modifies some config file on the target machine'
-IOC_IN_LOGS       = 'Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)'
-ACCOUNT_LOCKOUTS  = 'Module may cause account lockouts (likely due to brute-forcing)'
-SCREEN_EFFECTS    = 'Module may show something on the screen (Example: a window pops up)'
-AUDIO_EFFECTS     = 'Module may cause a noise (Examples: audio output from the speakers or hardware beeps)'
-PHYSICAL_EFFECTS  = 'Module may produce physical effects (Examples: the device makes movement or flashes LEDs)'
+ARTIFACTS_ON_DISK = ['artifacts-on-disk', 'Module leaves payload or a dropper on the target machine']
+CONFIG_CHANGES    = ['screen-effects', 'Module modifies some config file on the target machine']
+IOC_IN_LOGS       = ['ioc-in-logs', 'Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)']
+ACCOUNT_LOCKOUTS  = ['account-lockouts', 'Module may cause account lockouts (likely due to brute-forcing)']
+SCREEN_EFFECTS    = ['screen-effects', 'Module may show something on the screen (Example: a window pops up)']
+AUDIO_EFFECTS     = ['audio-effects', 'Module may cause a noise (Examples: audio output from the speakers or hardware beeps)']
+PHYSICAL_EFFECTS  = ['physical-effects', 'Module may produce physical effects (Examples: the device makes movement or flashes LEDs)']
 
 module HttpClients
   IE = "MSIE"
