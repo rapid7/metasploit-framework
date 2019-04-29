@@ -1,7 +1,7 @@
 ## Intro
 
 This module is designed to evade solutions such as software restriction policies and Applocker.
-The main vector for this bypass is to use the trusted binary Install_Util.exe in executing user supplied code.
+The main vector for this bypass is to use the trusted binary InstallUtil.exe in executing user supplied code.
 
 ## Vulnerable Application
 
