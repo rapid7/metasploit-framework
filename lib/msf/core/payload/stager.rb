@@ -178,16 +178,23 @@ module Msf::Payload::Stager
             if uuid_raw
               uuid_string = uuid_raw.each_byte.map { |b| b.to_s(16) }.join
               puts("Incoming Pingback_UUID = " + uuid_string)
+
               begin
+                res = Mdm::Payload.find_by uuid: uuid_string
+
                 uuid_original = opts[:datastore]['PingbackUUID'].to_s
                 puts("Original UUID = " + uuid_original)
-                if uuid_original = uuid_string.gsub("-", "")
+                if uuid_original == uuid_string.gsub("-", "")
                   puts("UUIDs Match!")
                 else
                   puts("UUIDs DO NOT Match!")
                 end
+
+                Mdm::AsyncCallback.create!(workspace: framework.db.workspace,
+                                           uuid: uuid_string.gsub("-", ""),
+                                           timestamp: ::Time.now.to_i)
               rescue => e
-                puts("Can't get original UUID")
+                puts("Can't get retrieve and record UUID")
                 puts "Exception Class: #{ e.class.name }"
                 puts "Exception Message: #{ e.message }"
                 puts "Exception Backtrace: #{ e.backtrace }"
