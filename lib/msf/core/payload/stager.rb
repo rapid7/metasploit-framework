@@ -179,25 +179,33 @@ module Msf::Payload::Stager
               uuid_string = uuid_raw.each_byte.map { |b| b.to_s(16) }.join
               puts("Incoming Pingback_UUID = " + uuid_string)
 
-              begin
-                res = Mdm::Payload.find_by uuid: uuid_string
+              if framework.db.active
+                begin
+                  res = Mdm::Payload.find_by uuid: uuid_string
 
-                uuid_original = opts[:datastore]['PingbackUUID'].to_s
-                puts("Original UUID = " + uuid_original)
-                if uuid_original == uuid_string.gsub("-", "")
-                  puts("UUIDs Match!")
-                else
-                  puts("UUIDs DO NOT Match!")
+                  # TODO: Output errors and UUID using something other than `puts`
+                  if res.nil?
+                    puts("Provided UUID (#{uuid_string}) was not found in database!")
+                    # TODO: Abort, somehow?
+                  else
+                    puts("UUID identified (#{uuid_string})")
+                  end
+
+                  Mdm::AsyncCallback.create!(workspace: framework.db.workspace,
+                                             uuid: uuid_string.gsub("-", ""),
+                                             timestamp: ::Time.now.to_i)
+                rescue ActiveRecord::ConnectionNotEstablished
+                  puts "UUID verification and logging is not available, because the database is not active."
+                rescue => e
+                  # TODO: Can we have a more specific exception handler?
+                  #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
+                  puts("Can't get retrieve and record UUID")
+                  puts "Exception Class: #{ e.class.name }"
+                  puts "Exception Message: #{ e.message }"
+                  puts "Exception Backtrace: #{ e.backtrace }"
                 end
-
-                Mdm::AsyncCallback.create!(workspace: framework.db.workspace,
-                                           uuid: uuid_string.gsub("-", ""),
-                                           timestamp: ::Time.now.to_i)
-              rescue => e
-                puts("Can't get retrieve and record UUID")
-                puts "Exception Class: #{ e.class.name }"
-                puts "Exception Message: #{ e.message }"
-                puts "Exception Backtrace: #{ e.backtrace }"
+              else
+                print_warning("UUID verification and logging is not available, because the database is not active.")
               end
             end
 #            puts("Trying to close connection...")

@@ -132,7 +132,6 @@ module Handler
   # the payload.  This path will not be taken for multi-staged payloads.
   #
   def handle_connection(conn, opts={})
-    puts("In Handle Connection")
     create_session(conn, opts)
   end
 
@@ -193,11 +192,8 @@ protected
   # associated session.
   #
   def create_session(conn, opts={})
-    puts("In create_session")
     # If there is a parent payload, then use that in preference.
     return parent_payload.create_session(conn, opts) if (parent_payload)
-    puts("Past Parent Part")
-    puts("WTF?")
 
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
@@ -207,12 +203,9 @@ protected
         # can form a factory for arb session types based on the
         # payload.
         if self.session.respond_to?('create_session')
-          puts("create_session")
           s = self.session.create_session(conn, opts)
         else
-          puts("new session")
           s = self.session.new(conn, opts)
-          puts("Session type = " + s.type) 
         end
       rescue ::Exception => e
         # We just wanna show and log the error, not trying to swallow it.
@@ -256,7 +249,6 @@ protected
 
       return s
     end
-    puts("not if (self.session)")
     nil
   end
 

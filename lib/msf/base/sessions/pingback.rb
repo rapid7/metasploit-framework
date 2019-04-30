@@ -36,26 +36,33 @@ class Pingback
     uuid_raw = conn.get_once(16, 1)
     if uuid_raw
       uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
-      puts("Incoming Pingback_UUID = |" + uuid_string + "|")
+      puts "Incoming UUID = #{uuid_string}"
 
-      res = Mdm::Payload.find_by uuid: uuid_string
-      require 'pry'; binding.pry
+      unless @db_active == false
+        begin
+          res = Mdm::Payload.find_by uuid: uuid_string
 
-      begin
-        if res.nil?
-          puts("Provided UUID (#{uuid_string}) was not found in database!")
-          #TODO: Abort, somehow?
-        else
-          puts("UUID identified (#{uuid_string})")
+          # TODO: Output errors and UUID using something other than `puts`
+          if res.nil?
+            puts("Provided UUID (#{uuid_string}) was not found in database!")
+            #TODO: Abort, somehow?
+          else
+            puts("UUID identified (#{uuid_string})")
+          end
+          @db_active = true
+        rescue ActiveRecord::ConnectionNotEstablished
+          @db_active = false
+          puts "WARNING: UUID verification and logging is not available, because the database is not active."
+        rescue => e
+          #TODO: Can we have a more specific exception handler?
+          #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
+          puts "Can't get original UUID"
+          puts "Exception Class: #{ e.class.name }"
+          puts "Exception Message: #{ e.message }"
+          puts "Exception Backtrace: #{ e.backtrace }"
         end
-      rescue => e
-        #TODO: Can we have a more specific exception handler?
-        #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
-        puts "Can't get original UUID"
-        puts "Exception Class: #{ e.class.name }"
-        puts "Exception Message: #{ e.message }"
-        puts "Exception Backtrace: #{ e.backtrace }"
       end
+
       conn.close
     end
     nil

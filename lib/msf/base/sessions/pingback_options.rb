@@ -49,7 +49,6 @@ module PingbackOptions
   end
 
   def generate_pingback_uuid
-    puts("Msf::Sessions::PingbackOptions.generate_pingback_uuid")
     conf = {}
     if datastore['PingbackUUID'].to_s.length > 0
       #
@@ -61,14 +60,16 @@ module PingbackOptions
     pingback = Msf::Payload::Pingback.new(conf)
     datastore['PingbackUUID'] ||= pingback.uuid
 
-    require 'pry'; binding.pry
-
-    vprint_status("Writing UUID #{datastore['PingbackUUID']} to database...")
-    Mdm::Payload.create!(name: datastore['PayloadUUIDName'],
-                         uuid: datastore['PingbackUUID'].gsub('-',''),
-                         description: 'pingback',
-                         platform: platform.platforms.first.realname.downcase,
-                         workspace: framework.db.workspace)
+    if framework.db.active
+      vprint_status("Writing UUID #{datastore['PingbackUUID']} to database...")
+      Mdm::Payload.create!(name: datastore['PayloadUUIDName'],
+                           uuid: datastore['PingbackUUID'].gsub('-',''),
+                           description: 'pingback',
+                           platform: platform.platforms.first.realname.downcase,
+                           workspace: framework.db.workspace)
+    else
+      print_warning("Unable to save UUID to database -- database support not active")
+    end
 
     pingback.uuid
   end
