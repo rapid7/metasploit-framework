@@ -23,7 +23,7 @@ require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-  CachedSize = 3000
+  CachedSize = 3156
   include Msf::Payload::Single
   include Msf::Payload::Mainframe
 
