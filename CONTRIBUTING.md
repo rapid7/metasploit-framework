@@ -28,7 +28,7 @@ it into Metasploit's master branch.  If you do not care to follow these rules, y
 
 ### Pull Requests
 
-* **Do** write "WIP" on your PR and/or open a [draft PR] if submitting *working* yet unfinished code.
+* **Do** write "WIP" on your PR and/or open a [draft PR] if submitting **working** yet unfinished code.
 * **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for witnessable effects in `msfconsole`.
