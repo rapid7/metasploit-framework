@@ -37,21 +37,26 @@ class Pingback
     if uuid_raw
       uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
       puts("Incoming Pingback_UUID = |" + uuid_string + "|")
-      #asoto-r7, check the database for the entery here!
+
+      res = Mdm::Payload.find_by uuid: uuid_string
+      require 'pry'; binding.pry
+
       begin
-        uuid_original = opts[:datastore]['PingbackUUID'].to_s
-        puts("Original UUID =          |" + uuid_original.gsub("-", "") + "|")
-        if uuid_original.gsub("-", "") == uuid_string
-          puts("UUIDs Match!")
+        if res.nil?
+          puts("Provided UUID (#{uuid_string}) was not found in database!")
+          #TODO: Abort, somehow?
         else
-          puts("UUIDs DO NOT Match!")
+          puts("UUID identified (#{uuid_string})")
         end
       rescue => e
-        puts("Can't get original UUID")
+        #TODO: Can we have a more specific exception handler?
+        #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
+        puts "Can't get original UUID"
         puts "Exception Class: #{ e.class.name }"
         puts "Exception Message: #{ e.message }"
         puts "Exception Backtrace: #{ e.backtrace }"
       end
+      conn.close
     end
     nil
   end
