@@ -27,13 +27,8 @@ class Msf::Payload::Pingback
   #
 
   def initialize(opts=nil)
-    puts("Initializing pingback_uuid")
-    puts("uuid = " + self.uuid.to_s) if not uuid.nil?
-    puts("uuid is nil") if self.uuid.nil?
     self.uuid ||= SecureRandom.uuid()
     opts[:pingback_uuid] = self.uuid
-    puts("uuid = " + self.uuid.to_s)
-    puts("opts = " + opts.to_s)
   end
 
   attr_accessor :uuid
