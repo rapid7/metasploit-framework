@@ -28,6 +28,7 @@ it into Metasploit's master branch.  If you do not care to follow these rules, y
 
 ### Pull Requests
 
+* **Do** write "WIP" on your PR and/or open a [draft PR] if submitting **working** yet unfinished code.
 * **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for witnessable effects in `msfconsole`.
@@ -86,7 +87,7 @@ curve, so keep it up!
 [Rubocop]:https://rubygems.org/search?query=rubocop
 [50/72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
-[PR#8000]:https://github.com/rapid7/metasploit-framework/pull/8000
+[draft PR]:https://help.github.com/en/articles/about-pull-requests#draft-pull-requests
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists
 [reference associated issues]:https://github.com/blog/1506-closing-issues-via-pull-requests
