@@ -2,7 +2,7 @@ This module provides a port of Daniel Mende's (released under the BSD license) g
 
 ## Vulnerable Application
 
-Open-source GGSN implementations can be used as a target for this module as well as commercial GPRS gear. FOr information on one project suitable as a target, see OsmoGGSN: https://osmocom.org/projects/openggsn/wiki/OsmoGGSN
+Open-source GGSN implementations can be used as a target for this module as well as commercial GPRS gear. For information on one project suitable as a target, see [OsmoGGSN](https://osmocom.org/projects/openggsn/wiki/OsmoGGSN).
 
 ## Options
 
