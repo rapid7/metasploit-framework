@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.20)
+    metasploit-framework (5.0.21)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -105,13 +105,13 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.5.2)
+    addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
     afm (0.2.2)
     arel (6.0.4)
     arel-helpers (2.8.0)
       activerecord (>= 3.1.0, < 6)
-    backports (3.13.0)
+    backports (3.14.0)
     bcrypt (3.1.12)
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.4)
@@ -245,7 +245,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.2)
     rb-readline (0.5.5)
-    recog (2.3.0)
+    recog (2.3.1)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -326,9 +326,9 @@ GEM
       windows_error
     rubyntlm (0.6.2)
     rubyzip (1.2.2)
-    sawyer (0.8.1)
-      addressable (>= 2.3.5, < 2.6)
-      faraday (~> 0.8, < 1.0)
+    sawyer (0.8.2)
+      addressable (>= 2.3.5)
+      faraday (> 0.8, < 2.0)
     simplecov (0.16.1)
       docile (~> 1.1)
       json (>= 1.8, < 3)
