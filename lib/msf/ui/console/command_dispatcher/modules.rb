@@ -266,7 +266,7 @@ module Msf
             added = "Loaded #{overall} modules:\n"
 
             totals.each_pair { |type, count|
-              added << "    #{count} #{type}#{count != 1 ? 's' : ''}\n"
+              added << "    #{count} #{type} modules\n"
             }
 
             print(added)
