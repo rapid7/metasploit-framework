@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
       if session.platform =~ /win/i
         !res['PATH'].blank? && !res['USERNAME'].blank?
       else
-        !res['PATH'].blank? && !res['USER'].nil?
+        !res['PATH'].blank? && !res['USER'].blank?
       end
     end
   end
