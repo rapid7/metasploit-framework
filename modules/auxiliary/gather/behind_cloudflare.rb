@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-# rev: 1.1.6
+# rev: 1.1.7
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -199,7 +199,8 @@ class MetasploitModule < Msf::Auxiliary
 
       request = http.request_raw({
         'uri'     => uri,
-        'method'  => 'GET'
+        'method'  => 'GET',
+        'agent'   => 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0'
       })
       response = http.send_recv(request)
       http.close
