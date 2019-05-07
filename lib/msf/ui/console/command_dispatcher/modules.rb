@@ -35,7 +35,7 @@ module Msf
               "reload_all" => "Reloads all modules from all defined module paths",
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
-              "use"        => "Selects a module by name",
+              "use"        => "Interact with a module by name or search term/index",
             }
           end
 
@@ -48,6 +48,7 @@ module Msf
             @dscache = {}
             @previous_module = nil
             @module_name_stack = []
+            @module_search_results = []
             @dangerzone_map = nil
           end
 
@@ -395,11 +396,11 @@ module Msf
             search_params = parse_search_string(match)
             count = 0
             begin
-              modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
-              return false if modules.length == 0
+              return false if @module_search_results.length == 0
 
-              modules.each do |m|
+              @module_search_results.each do |m|
                 tbl << [
                     count += 1,
                     m.full_name,
@@ -410,8 +411,8 @@ module Msf
                 ]
               end
 
-              if modules.length == 1 && use
-                used_module = modules.first.full_name
+              if @module_search_results.length == 1 && use
+                used_module = @module_search_results.first.full_name
                 cmd_use(used_module, true)
               end
             rescue ArgumentError
@@ -606,9 +607,20 @@ module Msf
           end
 
           def cmd_use_help
-            print_line "Usage: use module_name"
+            print_line 'Usage: use <name|term|index>'
             print_line
-            print_line "The use command is used to interact with a module of a given name."
+            print_line 'Interact with a module by name or search term/index.'
+            print_line 'If a module name is not found, it will be treated as a search term.'
+            print_line 'An index from the previous search results can be selected if desired.'
+            print_line
+            print_line 'Examples:'
+            print_line '  use exploit/windows/smb/ms17_010_eternalblue'
+            print_line
+            print_line '  use eternalblue'
+            print_line '  use <name|index>'
+            print_line
+            print_line '  search eternalblue'
+            print_line '  use <name|index>'
             print_line
           end
 
@@ -626,6 +638,15 @@ module Msf
 
             # Try to create an instance of the supplied module name
             mod_name = args[0]
+
+            # Try to create an integer out of a supplied module name
+            mod_index = (Integer(mod_name) - 1) rescue nil
+
+            # Use a module by search index
+            if mod_index
+              return if mod_index < 0 || @module_search_results[mod_index].nil?
+              mod_name = @module_search_results[mod_index].full_name
+            end
 
             # See if the supplied module name has already been resolved
             mod_resolved = args[1] == true ? true : false
