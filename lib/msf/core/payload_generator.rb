@@ -395,7 +395,7 @@ module Msf
 
       if gen_payload.nil?
         raise PayloadGeneratorError, 'The payload could not be generated, check options'
-      elsif gen_payload.length > @space and not @smallest
+      elsif encoded_payload.length > @space and not @smallest
         raise PayloadSpaceViolation, 'The payload exceeds the specified space'
       else
         if format.to_s != 'raw'
