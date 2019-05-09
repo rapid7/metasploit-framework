@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         Testing interface, a remote user can abuse the custom report template selector, and cause the
         DownloadServlet class to read any file on the server as SYSTEM. Since the Oracle application
         contains multiple configuration files that include encrypted credentials, and that there are
-        public resources that for decryption, it is actually possible to gain remote code execution
+        public resources for decryption, it is actually possible to gain remote code execution
         by leveraging this directory traversal attack.
 
         Please note that authentication is required. By default, OATS has two built-in accounts:
