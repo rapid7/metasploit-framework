@@ -28,6 +28,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_dump"  => "Dump the keystroke buffer",
       "keyscan_start" => "Start capturing keystrokes",
       "keyscan_stop"  => "Stop capturing keystrokes",
+      "keyboard_send" => "Send keystrokes",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
       "setdesktop"    => "Change the meterpreters current desktop",
       "uictl"         => "Control some of the user interface components"
@@ -42,6 +43,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
+      "keyboard_send" => [ "stdapi_ui_send_keys" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
       "setdesktop"    => [ "stdapi_ui_desktop_set" ],
       "uictl"         => [
@@ -344,6 +346,18 @@ class Console::CommandDispatcher::Stdapi::Ui
                                  # from crowding the Meterpreter command prompt, which
                                  # is visually frustrating without color
     return true
+  end
+
+
+  def cmd_keyboard_send(*args)
+    if args.length == 0
+      print_line('Please specify input string')
+      return
+    end
+
+    keys = args[0]
+    client.ui.keyboard_send(keys)
+    print_status('Done')
   end
 
 end

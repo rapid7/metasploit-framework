@@ -232,6 +232,16 @@ class UI < Rex::Post::UI
     return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
   end
 
+  #
+  # Send keystrokes
+  #
+  def keyboard_send(keys)
+    request  = Packet.create_request('stdapi_ui_send_keys')
+    request.add_tlv( TLV_TYPE_KEYS_SEND, keys )
+    response = client.send_request(request)
+    return true
+  end
+
 protected
   attr_accessor :client # :nodoc:
 
