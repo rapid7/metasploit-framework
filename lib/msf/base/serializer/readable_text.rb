@@ -643,22 +643,14 @@ class ReadableText
 
       cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
       if cve_collection.empty?
-        if mod.notes['NOCVE'].blank?
-          output << "#{indent}CVE: Not available\n"
-        else
-          output << "#{indent}CVE not available: #{mod.notes['NOCVE']}\n"
-        end
+        output << "#{indent}CVE: Not available\n"
       end
 
       mod.references.each do |ref|
         case ref.ctx_id
         when 'CVE', 'cve'
           if !cve_collection.empty? && ref.ctx_val.blank?
-            if mod.notes['NOCVE'].blank?
-              output << "#{indent}CVE: Not available\n"
-            else
-              output << "#{indent}CVE not available: #{mod.notes['NOCVE']}\n"
-            end
+            output << "#{indent}CVE: Not available\n"
           else
             output << indent + ref.to_s + "\n"
           end
@@ -692,8 +684,8 @@ class ReadableText
         output << "Also known as:\n"
         val.each { |aka| output << "#{indent}#{aka}\n" }
       when 'NOCVE'
-        # Handled by dump_references
-        next
+        output << "CVE not available:\n" \
+                  "#{indent}#{val}\n"
       when 'RelatedModules'
         output << "Related modules:\n"
         val.each { |related| output << "#{indent}#{related}\n" }
