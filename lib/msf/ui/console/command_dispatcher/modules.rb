@@ -643,7 +643,7 @@ module Msf
             mod_index =
               begin
                 Integer(mod_name) - 1
-              rescue ArgumentError
+              rescue ArgumentError, TypeError
                 nil
               end
 

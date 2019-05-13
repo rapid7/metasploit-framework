@@ -286,7 +286,7 @@ module Msf
       target_idx =
         begin
           Integer(datastore['TARGET'])
-        rescue ArgumentError
+        rescue ArgumentError, TypeError
           datastore['TARGET']
         end
 
