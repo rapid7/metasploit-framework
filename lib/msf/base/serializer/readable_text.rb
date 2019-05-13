@@ -684,7 +684,7 @@ class ReadableText
         output << "Also known as:\n"
         val.each { |aka| output << "#{indent}#{aka}\n" }
       when 'NOCVE'
-        output << "CVE not available:\n" \
+        output << "CVE not available for the following reason:\n" \
                   "#{indent}#{val}\n"
       when 'RelatedModules'
         output << "Related modules:\n"
