@@ -394,7 +394,7 @@ module Msf
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
-            count = 0
+            count = -1
             begin
               @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
@@ -642,7 +642,7 @@ module Msf
             # Try to create an integer out of a supplied module name
             mod_index =
               begin
-                Integer(mod_name) - 1
+                Integer(mod_name)
               rescue ArgumentError, TypeError
                 nil
               end
