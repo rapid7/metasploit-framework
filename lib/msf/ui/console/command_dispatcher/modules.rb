@@ -640,7 +640,12 @@ module Msf
             mod_name = args[0]
 
             # Try to create an integer out of a supplied module name
-            mod_index = (Integer(mod_name) - 1) rescue nil
+            mod_index =
+              begin
+                Integer(mod_name) - 1
+              rescue ArgumentError
+                nil
+              end
 
             # Use a module by search index
             if mod_index
