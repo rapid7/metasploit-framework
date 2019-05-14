@@ -555,19 +555,8 @@ class ReadableText
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
 
-      cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
-      if cve_collection.empty?
-        output << "#{indent}CVE: Not available\n"
-      end
-
       mod.references.each do |ref|
         case ref.ctx_id
-        when 'CVE', 'cve'
-          if !cve_collection.empty? && ref.ctx_val.blank?
-            output << "#{indent}CVE: Not available\n"
-          else
-            output << indent + ref.to_s + "\n"
-          end
         when 'LOGO', 'SOUNDTRACK'
           output << indent + ref.to_s + "\n"
           Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
@@ -598,7 +587,7 @@ class ReadableText
         output << "Also known as:\n"
         val.each { |aka| output << "#{indent}#{aka}\n" }
       when 'NOCVE'
-        output << "CVE not available:\n" \
+        output << "CVE not available for the following reason:\n" \
                   "#{indent}#{val}\n"
       when 'RelatedModules'
         output << "Related modules:\n"
