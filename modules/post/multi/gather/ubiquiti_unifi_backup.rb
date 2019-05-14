@@ -150,6 +150,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Utilizing custom system.properties file location: #{datastore['SYSTEMFILE']}")
     end
 
+    print_status("Attempting to read system.properties file to determine backup locations.")
     # https://help.ubnt.com/hc/en-us/articles/205202580-UniFi-system-properties-File-Explanation
     sprop_locations.each do |sprop|
       next unless exists?(sprop)
@@ -172,6 +173,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    print_status("Attempting to locate and read backup files.")
     backup_locations.each do |bl|
       if not directory?(bl)
         vprint_error("Directory doesn't exist: #{bl}")
