@@ -65,8 +65,7 @@ module PingbackOptions
       Mdm::Payload.create!(name: datastore['PayloadUUIDName'],
                            uuid: datastore['PingbackUUID'].gsub('-',''),
                            description: 'pingback',
-                           platform: platform.platforms.first.realname.downcase,
-                           workspace: framework.db.workspace)
+                           platform: platform.platforms.first.realname.downcase)
     else
       print_warning("Unable to save UUID to database -- database support not active")
     end
