@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180904120211) do
+ActiveRecord::Schema.define(version: 20190507120211) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,17 @@ ActiveRecord::Schema.define(version: 20180904120211) do
     t.text     "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "async_callbacks", force: :cascade do |t|
+    t.string   "uuid",           null: false
+    t.integer  "timestamp",      null: false
+    t.string   "listener_uri"
+    t.string   "target_host"
+    t.string   "target_port"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.uuid     "{:null=>false}"
   end
 
   create_table "automatic_exploitation_match_results", force: :cascade do |t|
@@ -484,7 +495,6 @@ ActiveRecord::Schema.define(version: 20180904120211) do
     t.string   "platform"
     t.string   "urls"
     t.string   "description"
-    t.integer  "workspace_id"
     t.string   "raw_payload"
     t.string   "raw_payload_hash"
     t.string   "build_status"
