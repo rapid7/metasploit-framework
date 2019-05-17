@@ -20,6 +20,7 @@ module DataServiceAutoLoader
   autoload :RemoteVulnAttemptDataService, 'metasploit/framework/data_service/remote/http/remote_vuln_attempt_data_service'
   autoload :RemoteMsfDataService, 'metasploit/framework/data_service/remote/http/remote_msf_data_service'
   autoload :RemoteDbImportDataService, 'metasploit/framework/data_service/remote/http/remote_db_import_data_service.rb'
+  autoload :RemotePayloadDataService, 'metasploit/framework/data_service/remote/http/remote_payload_data_service'
 
   include RemoteHostDataService
   include RemoteEventDataService
@@ -39,5 +40,6 @@ module DataServiceAutoLoader
   include RemoteVulnAttemptDataService
   include RemoteMsfDataService
   include RemoteDbImportDataService
+  include RemotePayloadDataService
 
 end

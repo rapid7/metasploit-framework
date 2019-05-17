@@ -37,8 +37,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptPort.new('SRVPORT',  [ true, 'The local port to listen on', 9100 ]),
       OptBool.new('FORWARD',  [ true, 'Forward print jobs to another host', false ]),
-      OptPort.new('RPORT',    [ false, 'Forward to remote port', 9100 ]),
       OptAddress.new('RHOST', [ false, 'Forward to remote host' ]),
+      OptPort.new('RPORT',    [ false, 'Forward to remote port', 9100 ]),
       OptBool.new('METADATA', [ true, 'Display Metadata from printjobs', true ]),
       OptEnum.new('MODE',     [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
 

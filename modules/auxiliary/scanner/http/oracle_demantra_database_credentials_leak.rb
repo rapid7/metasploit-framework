@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptBool.new('SSL',   [false, 'Use SSL', false])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

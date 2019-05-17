@@ -194,8 +194,14 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     }
 
     data.entries.each do |e|
-      target = ::File.join(@import_filedata[:zip_tmp], e.name)
-      data.extract(e,target)
+      # normalize entry name to an absolute path
+      target = File.expand_path(File.join(@import_filedata[:zip_tmp], e.name), '/').to_s
+
+      # skip if the target would be extracted outside of the zip
+      # tmp dir to mitigate any directory traversal attacks
+      next unless is_child_of?(@import_filedata[:zip_tmp], target)
+
+      e.extract(target)
 
       if target =~ /\.xml\z/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
@@ -235,5 +241,9 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     else
       import_msf_collateral(new_args)
     end
+  end
+
+  def is_child_of?(target_dir, target)
+    target.downcase.start_with?(target_dir.downcase)
   end
 end

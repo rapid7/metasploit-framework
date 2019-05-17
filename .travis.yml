@@ -13,13 +13,15 @@ language: ruby
 rvm:
   - '2.3.8'
   - '2.4.5'
-  - '2.5.3'
+  - '2.5.5'
+  - '2.6.2'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
   # Used for testing the remote data service
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
 
 matrix:
   fast_finish: true

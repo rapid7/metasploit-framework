@@ -381,33 +381,45 @@ protected
   #
   def format_prompt(str)
     if framework
-      if str.include?("%T")
+      if str.include?('%T')
         t = Time.now
         # This %T is the strftime shorthand for %H:%M:%S
-        format = framework.datastore['PromptTimeFormat'] || "%T"
+        format = framework.datastore['PromptTimeFormat'] || '%T'
         t = t.strftime(format)
         # This %T is the marker in the prompt where we need to place the time
-        str.gsub!(/%T/, t.to_s)
+        str.gsub!('%T', t.to_s)
       end
 
-      if str.include?("%H")
+      if str.include?('%H')
         hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
           ENV['COMPUTERNAME'] || 'unknown'
 
-        str.gsub!(/%H/, hostname.chomp)
+        str.gsub!('%H', hostname.chomp)
       end
 
-      if str.include?("%U")
+      if str.include?('%U')
         user = ENV['USER'] || `whoami` || ENV['USERNAME'] || 'unknown'
-        str.gsub!(/%U/, user.chomp)
+        str.gsub!('%U', user.chomp)
       end
 
-      str.gsub!(/%S/, framework.sessions.length.to_s)
-      str.gsub!(/%J/, framework.jobs.length.to_s)
-      str.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-      str.gsub!(/%D/, ::Dir.getwd)
-      if framework.db.active
-        str.gsub!(/%W/, framework.db.workspace.name)
+      if str.include?('%S')
+        str.gsub!('%S', framework.sessions.length.to_s)
+      end
+
+      if str.include?('%J')
+        str.gsub!('%J', framework.jobs.length.to_s)
+      end
+
+      if str.include?('%L')
+        str.gsub!('%L', Rex::Socket.source_address)
+      end
+
+      if str.include?('%D')
+        str.gsub!('%D', ::Dir.getwd)
+      end
+
+      if str.include?('%W') && framework.db.active
+        str.gsub!('%W', framework.db.workspace.name)
       end
     end
 

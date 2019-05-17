@@ -6,7 +6,7 @@ require 'msf/core/modules/metadata'
 module Msf::Modules::Metadata::Search
 
   VALID_PARAMS =
-      %w[aka app author authors arch cve bid edb check date disclosure_date description full_name fullname mod_time
+      %w[aka author authors arch cve bid edb check date disclosure_date description full_name fullname mod_time
       name os platform path port rport rank ref ref_name reference references target targets text type]
 
   #
@@ -49,9 +49,6 @@ module Msf::Modules::Metadata::Search
           case keyword
             when 'aka'
               match = [keyword, search_term] if (module_metadata.notes['AKA'] || []).any? { |aka| aka =~ regex }
-            when 'app'
-              match = [keyword, search_term] if (search_term == "server" and module_metadata.is_server)
-              match = [keyword, search_term] if (search_term == "client" and module_metadata.is_client)
             when 'author', 'authors'
               match = [keyword, search_term] if module_metadata.author.any? { |author| author =~ regex }
             when 'arch'

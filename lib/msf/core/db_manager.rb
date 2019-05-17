@@ -47,6 +47,7 @@ class Msf::DBManager
   autoload :Migration, 'msf/core/db_manager/migration'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
   autoload :Note, 'msf/core/db_manager/note'
+  autoload :Payload, 'msf/core/db_manager/payload'
   autoload :Ref, 'msf/core/db_manager/ref'
   autoload :Report, 'msf/core/db_manager/report'
   autoload :Route, 'msf/core/db_manager/route'
@@ -85,6 +86,7 @@ class Msf::DBManager
   include Msf::DBManager::Migration
   include Msf::DBManager::ModuleCache
   include Msf::DBManager::Note
+  include Msf::DBManager::Payload
   include Msf::DBManager::Ref
   include Msf::DBManager::Report
   include Msf::DBManager::Route

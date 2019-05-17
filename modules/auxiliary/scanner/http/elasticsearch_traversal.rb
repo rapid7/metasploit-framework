@@ -39,8 +39,6 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [true, 'Traversal depth', 7])
       ], self.class
     )
-
-    deregister_options('RHOST')
   end
 
   def check_host(ip)

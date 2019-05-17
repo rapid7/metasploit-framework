@@ -47,8 +47,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'The password to login with']),
         OptString.new('TARGETURI', [true, 'The base path to Symantec Messaging Gateway', '/'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def print_status(msg='')

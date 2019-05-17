@@ -697,6 +697,7 @@ class Core
     print_line
     print_line "Loads a plugin from the supplied path."
     print_line "For a list of built-in plugins, do: load -l"
+    print_line "For a list of loaded plugins, do: load -s"
     print_line "The optional var=val options are custom parameters that can be passed to plugins."
     print_line
   end
@@ -767,6 +768,8 @@ class Core
       list_plugins
     when '-h', nil, ''
       cmd_load_help
+    when '-s'
+      framework.plugins.each{ |p| print_line p.name }
     else
       load_plugin(args)
     end
@@ -800,8 +803,8 @@ class Core
     else
       tabs += tab_complete_filenames(str,words)
     end
-    return tabs.map{|e| e.sub(/.rb/, '')}
 
+    return tabs.map{|e| e.sub(/\.rb/, '')} - framework.plugins.map(&:name)
   end
 
   def cmd_route_help
@@ -1642,8 +1645,12 @@ class Core
       res << 'PAYLOAD'
       res << 'NOP'
       res << 'TARGET'
-    end
-    if (mod.exploit? or mod.payload?)
+      res << 'ENCODER'
+    elsif (mod.evasion?)
+      res << 'PAYLOAD'
+      res << 'TARGET'
+      res << 'ENCODER'
+    elsif (mod.payload?)
       res << 'ENCODER'
     end
 
@@ -1651,7 +1658,7 @@ class Core
       res << "ACTION"
     end
 
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
       if (p)
         p.options.sorted.each { |e|
@@ -1983,7 +1990,7 @@ class Core
         output_mods[:skip] = num
       end
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
@@ -2098,7 +2105,7 @@ class Core
       end
 
       opts.on '-h', '--help', 'Help banner.' do
-        return print(opts.help)
+        return print(remove_lines(opts.help, '--generate-completions'))
       end
 
       # Internal use
@@ -2161,6 +2168,9 @@ class Core
       return option_values_targets()  if opt.upcase == 'TARGET'
       return option_values_nops()     if opt.upcase == 'NOPS'
       return option_values_encoders() if opt.upcase == 'STAGEENCODER'
+    elsif (mod.evasion?)
+      return option_values_payloads() if opt.upcase == 'PAYLOAD'
+      return option_values_targets()  if opt.upcase == 'TARGET'
     end
 
     # Well-known option names specific to modules with actions
@@ -2168,8 +2178,8 @@ class Core
       return option_values_actions() if opt.upcase == 'ACTION'
     end
 
-    # The ENCODER option works for payloads and exploits
-    if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
+    # The ENCODER option works for evasions, payloads and exploits
+    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
       return option_values_encoders()
     end
 
@@ -2184,7 +2194,7 @@ class Core
     end
 
     # How about the selected payload?
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
       if p = framework.payloads.create(mod.datastore['PAYLOAD'])
         p.options.each_key do |key|
           res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
@@ -2355,11 +2365,11 @@ class Core
 
     # List only those hosts with matching open ports?
     mport = self.active_module.datastore['RPORT']
-    if (mport)
+    if mport
       mport = mport.to_i
       hosts = {}
-      framework.db.each_service(framework.db.workspace) do |service|
-        if (service.port == mport)
+      framework.db.services.each do |service|
+        if service.port == mport
           hosts[ service.host.address ] = true
         end
       end
@@ -2370,7 +2380,7 @@ class Core
 
     # List all hosts in the database
     else
-      framework.db.each_host(framework.db.workspace) do |host|
+      framework.db.hosts.each do |host|
         res << host.address
       end
     end
@@ -2388,8 +2398,8 @@ class Core
     host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
     return res if not host
 
-    framework.db.each_service(framework.db.workspace) do |service|
-      if (service.host_id == host.id)
+    framework.db.services.each do |service|
+      if service.host_id == host.id
         res << service.port.to_s
       end
     end

@@ -105,15 +105,41 @@ class Auxiliary
       jobify = true
     end
 
+    rhosts = datastore['RHOSTS']
     begin
-      mod.run_simple(
-        'Action'         => action,
-        'OptionStr'      => opts.join(','),
-        'LocalInput'     => driver.input,
-        'LocalOutput'    => driver.output,
-        'RunAsJob'       => jobify,
-        'Quiet'          => quiet
-      )
+      # Check if this is a scanner module or doesn't target remote hosts
+      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
+        mod.run_simple(
+          'Action'         => action,
+          'OptionStr'      => opts.join(','),
+          'LocalInput'     => driver.input,
+          'LocalOutput'    => driver.output,
+          'RunAsJob'       => jobify,
+          'Quiet'          => quiet
+        )
+      # For multi target attempts with non-scanner modules.
+      else
+        rhosts_opt = Msf::OptAddressRange.new('RHOSTS')
+        if !rhosts_opt.valid?(rhosts)
+          print_error("Auxiliary failed: option RHOSTS failed to validate.")
+          return false
+        end
+
+        rhosts_range = Rex::Socket::RangeWalker.new(rhosts_opt.normalize(rhosts))
+        rhosts_range.each do |rhost|
+          nmod = mod.replicant
+          nmod.datastore['RHOST'] = rhost
+          print_status("Running module against #{rhost}")
+          mod.run_simple(
+            'Action'         => action,
+            'OptionStr'      => opts.join(','),
+            'LocalInput'     => driver.input,
+            'LocalOutput'    => driver.output,
+            'RunAsJob'       => false,
+            'Quiet'          => quiet
+          )
+        end
+      end
     rescue ::Timeout::Error
       print_error("Auxiliary triggered a timeout exception")
       print_error("Call stack:")

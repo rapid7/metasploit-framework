@@ -126,7 +126,8 @@ module ModuleCommandDispatcher
       return
     end
 
-    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
+    ip_range_arg = args.join(' ') unless args.empty?
+    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
     begin

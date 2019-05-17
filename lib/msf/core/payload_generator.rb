@@ -44,6 +44,9 @@ module Msf
     # @!attribute  encoder
     #   @return [String] The encoder(s) you want applied to the payload
     attr_accessor :encoder
+    # @!attribute  secname
+    #   @return [String] The name of the new section within the generated Windows binary
+    attr_accessor :secname
     # @!attribute  format
     #   @return [String] The format you want the payload returned in
     attr_accessor :format
@@ -101,6 +104,7 @@ module Msf
     # @option opts [String] :payload (see #payload)
     # @option opts [String] :format (see #format)
     # @option opts [String] :encoder (see #encoder)
+    # @option opts [String] :secname (see #secname)
     # @option opts [Integer] :iterations (see #iterations)
     # @option opts [String] :arch (see #arch)
     # @option opts [String] :platform (see #platform)
@@ -124,6 +128,7 @@ module Msf
       @cli        = opts.fetch(:cli, false)
       @datastore  = opts.fetch(:datastore, {})
       @encoder    = opts.fetch(:encoder, '')
+      @secname    = opts.fetch(:secname, '')
       @format     = opts.fetch(:format, 'raw')
       @iterations = opts.fetch(:iterations, 1)
       @keep       = opts.fetch(:keep, false)
@@ -285,6 +290,9 @@ module Msf
         opts[:template_path] = File.dirname(template)
         opts[:template]      = File.basename(template)
       end
+      unless secname.blank?
+        opts[:secname]       = secname
+      end
       opts
     end
 
@@ -360,34 +368,34 @@ module Msf
     def generate_payload
       if platform == "java" or arch == "java" or payload.start_with? "java/"
         raw_payload = generate_java_payload
-        cli_print "Payload size: #{raw_payload.length} bytes"
+        encoded_payload = raw_payload
         gen_payload = raw_payload
       elsif payload.start_with? "android/" and not template.blank?
         cli_print "Using APK template: #{template}"
         apk_backdoor = ::Msf::Payload::Apk.new
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
-        cli_print "Payload size: #{raw_payload.length} bytes"
         gen_payload = raw_payload
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
 
         if encoder != nil and encoder.start_with?("@")
-          encoded_payload = multiple_encode_payload(raw_payload)
+          raw_payload = multiple_encode_payload(raw_payload)
         else
-          encoded_payload = encode_payload(raw_payload)
+          raw_payload = encode_payload(raw_payload)
         end
         if padnops
-          @nops = nops - encoded_payload.length
+          @nops = nops - raw_payload.length
         end
-        encoded_payload = prepend_nops(encoded_payload)
-        cli_print "Payload size: #{encoded_payload.length} bytes"
-        gen_payload = format_payload(encoded_payload)
+        raw_payload = prepend_nops(raw_payload)
+        gen_payload = format_payload(raw_payload)
       end
+
+      cli_print "Payload size: #{raw_payload.length} bytes"
 
       if gen_payload.nil?
         raise PayloadGeneratorError, 'The payload could not be generated, check options'
-      elsif gen_payload.length > @space and not @smallest
+      elsif raw_payload.length > @space and not @smallest
         raise PayloadSpaceViolation, 'The payload exceeds the specified space'
       else
         if format.to_s != 'raw'

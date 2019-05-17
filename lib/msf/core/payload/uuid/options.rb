@@ -86,13 +86,15 @@ module Msf::Payload::UUID::Options
   # Store a UUID in the JSON database if tracking is enabled
   def record_payload_uuid(uuid, info={})
     return unless datastore['PayloadUUIDTracking']
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
 
     uuid_info = info.merge({
+      uuid:  uuid.puid_hex,
       arch: uuid.arch,
       platform: uuid.platform,
       timestamp: uuid.timestamp,
-      payload: self.fullname,
-      datastore: self.datastore
+      workspace: framework.db.workspace
     })
 
     if datastore['PayloadUUIDSeed'].to_s.length > 0
@@ -103,17 +105,26 @@ module Msf::Payload::UUID::Options
       uuid_info[:name] = datastore['PayloadUUIDName']
     end
 
-    framework.uuid_db[uuid.puid_hex] = uuid_info
+    framework.db.create_payload(uuid_info)
   end
 
-  # Store a UUID URL in the JSON database if tracking is enabled
+  # Store a UUID URL in the database if tracking is enabled
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
-    uuid_info = framework.uuid_db[uuid.puid_hex]
-    uuid_info['urls'] ||= []
-    uuid_info['urls'] << url
-    uuid_info['urls'].uniq!
-    framework.uuid_db[uuid.puid_hex] = uuid_info
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
+
+    payload_info = {
+        uuid: uuid.puid_hex,
+        workspace: framework.db.workspace
+    }
+    payload = framework.db.payloads(payload_info).first
+    unless payload.nil?
+      urls = payload.urls.nil? ? [] : payload.urls
+      urls << url
+      urls.uniq!
+      framework.db.update_payload({id: payload.id, urls: urls})
+    end
   end
 
 end

@@ -265,6 +265,10 @@ class Msftidy
     if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
       warn("Module contains old license comment.")
     end
+    if @source =~ /^# This module requires Metasploit: http:/
+      warn("Module license comment link does not use https:// URL scheme.")
+      fixed('# This module requires Metasploit: https://metasploit.com/download', 1)
+    end
   end
 
   def check_old_keywords
@@ -431,6 +435,8 @@ class Msftidy
       if not available_ranks.include?($1)
         error("Invalid ranking. You have '#{$1}'")
       end
+    elsif @source =~ /['"](SideEffects|Stability|Reliability)['"]\s*=/
+      info('No Rank, however SideEffects, Stability, or Reliability are provided')
     else
       warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
@@ -602,15 +608,21 @@ class Msftidy
       end
 
       if ln =~ /^\s*fail_with\(/
-        unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
+        unless ln =~ /^\s*fail_with\(.*Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
 
       if ln =~ /['"]ExitFunction['"]\s*=>/
         warn("Please use EXITFUNC instead of ExitFunction #{ln}", idx)
+        fixed(line.gsub('ExitFunction', 'EXITFUNC'), idx)
       end
 
+      # Output from Base64.encode64 method contains '\n' new lines
+      # for line wrapping and string termination
+      if ln =~ /Base64\.encode64/
+        info("Please use Base64.strict_encode64 instead of Base64.encode64")
+      end
     end
   end
 
@@ -647,7 +659,7 @@ class Msftidy
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
+    test = @source.scan(/^#.+https?\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
         warn("Invalid URL: #{item}")
@@ -691,6 +703,17 @@ class Msftidy
     end
   end
 
+  # Check for modules having an Author section to ensure attribution
+  #
+  def check_author
+    # Only the three common module types have a consistently defined info hash
+    return unless %w[exploit auxiliary post].include?(@module_type)
+
+    unless @source =~ /["']Author["'][[:space:]]*=>/
+      error('Missing "Author" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -724,6 +747,7 @@ class Msftidy
     check_register_datastore_debug
     check_use_datastore_debug
     check_arch
+    check_author
   end
 
   private

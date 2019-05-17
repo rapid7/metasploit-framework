@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
           'USER_AS_PASS'    => false
         }
     )
-    deregister_options('RHOST','USERNAME','PASSWORD')
+    deregister_options('USERNAME','PASSWORD')
 
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.

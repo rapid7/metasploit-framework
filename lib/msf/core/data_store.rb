@@ -306,8 +306,6 @@ class DataStore < Hash
     list.each(&block)
   end
 
-protected
-
   #
   # Case-insensitive key lookup
   #

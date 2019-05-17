@@ -15,13 +15,11 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher
           include Msf::Ui::Console::CommandDispatcher::Common
 
-          # Constant for a retry timeout on using modules before they're loaded
-          CMD_USE_TIMEOUT = 3
-
           @@search_opts = Rex::Parser::Arguments.new(
             "-h"     => [ false, "Help banner"],
             "-o"     => [ true, "Send output to a file in csv format"],
             "-S"     => [ true, "Search string for row filter"],
+            "-u"     => [ false, "Use module if there is one result"]
           )
 
           def commands
@@ -37,7 +35,7 @@ module Msf
               "reload_all" => "Reloads all modules from all defined module paths",
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
-              "use"        => "Selects a module by name",
+              "use"        => "Interact with a module by name or search term/index",
             }
           end
 
@@ -50,6 +48,7 @@ module Msf
             @dscache = {}
             @previous_module = nil
             @module_name_stack = []
+            @module_search_results = []
             @dangerzone_map = nil
           end
 
@@ -268,7 +267,7 @@ module Msf
             added = "Loaded #{overall} modules:\n"
 
             totals.each_pair { |type, count|
-              added << "    #{count} #{type}#{count != 1 ? 's' : ''}\n"
+              added << "    #{count} #{type} modules\n"
             }
 
             print(added)
@@ -323,11 +322,11 @@ module Msf
             print_line "  -h                Show this help information"
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
+            print_line "  -u                Use module if there is one result"
             print_line
             print_line "Keywords:"
             {
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
-              'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
@@ -352,7 +351,7 @@ module Msf
             end
             print_line
             print_line "Examples:"
-            print_line "  search cve:2009 type:exploit app:client"
+            print_line "  search cve:2009 type:exploit"
             print_line
           end
 
@@ -363,10 +362,11 @@ module Msf
             if args.empty?
               print_error("Argument required\n")
               cmd_search_help
-              return
+              return false
             end
 
             match = ''
+            use = false
             search_term = nil
             output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
@@ -378,6 +378,8 @@ module Msf
                   return
                 when '-o'
                   output_file = val
+                when "-u"
+                  use = true
                 else
                   match += val + " "
               end
@@ -386,15 +388,21 @@ module Msf
             if match.empty? && search_term.nil?
               print_error("Keywords or search argument required\n")
               cmd_search_help
-              return
+              return false
             end
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
+            count = -1
             begin
-              Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
+              @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+              return false if @module_search_results.length == 0
+
+              @module_search_results.each do |m|
                 tbl << [
+                    count += 1,
                     m.full_name,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                     RankingName[m.rank].to_s,
@@ -402,9 +410,15 @@ module Msf
                     m.name
                 ]
               end
+
+              if @module_search_results.length == 1 && use
+                used_module = @module_search_results.first.full_name
+                cmd_use(used_module, true)
+              end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
               cmd_search_help
+              return false
             end
 
             if output_file
@@ -414,7 +428,10 @@ module Msf
               }
             else
               print_line(tbl.to_s)
+              print_status("Using #{used_module}") if used_module
             end
+
+            true
           end
 
           #
@@ -486,7 +503,7 @@ module Msf
               cmd_show_help
               return
             end
-            
+
             mod = self.active_module
 
             args.each { |type|
@@ -590,9 +607,20 @@ module Msf
           end
 
           def cmd_use_help
-            print_line "Usage: use module_name"
+            print_line 'Usage: use <name|term|index>'
             print_line
-            print_line "The use command is used to interact with a module of a given name."
+            print_line 'Interact with a module by name or search term/index.'
+            print_line 'If a module name is not found, it will be treated as a search term.'
+            print_line 'An index from the previous search results can be selected if desired.'
+            print_line
+            print_line 'Examples:'
+            print_line '  use exploit/windows/smb/ms17_010_eternalblue'
+            print_line
+            print_line '  use eternalblue'
+            print_line '  use <name|index>'
+            print_line
+            print_line '  search eternalblue'
+            print_line '  use <name|index>'
             print_line
           end
 
@@ -611,6 +639,23 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
+            # Try to create an integer out of a supplied module name
+            mod_index =
+              begin
+                Integer(mod_name)
+              rescue ArgumentError, TypeError
+                nil
+              end
+
+            # Use a module by search index
+            if mod_index
+              return if mod_index < 0 || @module_search_results[mod_index].nil?
+              mod_name = @module_search_results[mod_index].full_name
+            end
+
+            # See if the supplied module name has already been resolved
+            mod_resolved = args[1] == true ? true : false
+
             # Ensure we have a reference name and not a path
             if mod_name.start_with?('./', 'modules/')
               mod_name.sub!(%r{^(?:\./)?modules/}, '')
@@ -621,11 +666,13 @@ module Msf
 
             begin
               mod = framework.modules.create(mod_name)
+
               unless mod
-                # Try one more time; see #4549
-                sleep CMD_USE_TIMEOUT
-                mod = framework.modules.create(mod_name)
-                unless mod
+                unless mod_resolved
+                  mods_found = cmd_search('-u', mod_name)
+                end
+
+                unless mods_found
                   print_error("Failed to load module: #{mod_name}")
                   return false
                 end
@@ -810,23 +857,31 @@ module Msf
               cmd_reload_all_help
               return
             end
+
             print_status("Reloading modules from all module paths...")
             framework.modules.reload_modules
+
+            log_msg = "Please see #{File.join(Msf::Config.log_directory, 'framework.log')} for details."
 
             # Check for modules that failed to load
             if framework.modules.module_load_error_by_path.length > 0
               print_error("WARNING! The following modules could not be loaded!")
 
-              framework.modules.module_load_error_by_path.each do |path, error|
-                print_error("\t#{path}: #{error}")
+              framework.modules.module_load_error_by_path.each do |path, _error|
+                print_error("\t#{path}")
               end
+
+              print_error(log_msg)
             end
 
             if framework.modules.module_load_warnings.length > 0
               print_warning("The following modules were loaded with warnings:")
-              framework.modules.module_load_warnings.each do |path, error|
-                print_warning("\t#{path}: #{error}")
+
+              framework.modules.module_load_warnings.each do |path, _error|
+                print_warning("\t#{path}")
               end
+
+              print_warning(log_msg)
             end
 
             self.driver.run_single("banner")
@@ -1130,6 +1185,7 @@ module Msf
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
             tbl = generate_module_table(type)
+            count = 0
             module_set.sort.each { |refname, mod|
               o = nil
 
@@ -1161,6 +1217,7 @@ module Msf
                   end
                   if (opts == nil or show == true)
                     tbl << [
+                      count += 1,
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
@@ -1181,7 +1238,7 @@ module Msf
               'Header'     => type,
               'Prefix'     => "\n",
               'Postfix'    => "\n",
-              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
+              'Columns'    => [ '#', 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
               'SearchTerm' => search_term
             )
           end

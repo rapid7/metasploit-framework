@@ -59,6 +59,14 @@ module Console::CommandDispatcher
   end
 
   #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'meterpreter')
+  end
+
+  #
   # Returns true if the client has a framework object.
   #
   # Used for firing framework session events

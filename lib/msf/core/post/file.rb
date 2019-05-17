@@ -167,6 +167,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is readable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is readable
+  #
+  def readable?(path)
+    raise "`readable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -r '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # Check for existence of +path+ on the remote file system
   #
   # @param path [String] Remote filename to check
@@ -317,6 +330,8 @@ module Msf::Post::File
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
     end
+
+    return nil unless readable?(file_name)
 
     if command_exists?('cat')
       return session.shell_command_token("cat \"#{file_name}\"")

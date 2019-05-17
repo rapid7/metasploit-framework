@@ -31,6 +31,11 @@ class CommandShell
 
   include Rex::Ui::Text::Resource
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help menu.'             ],
+    '-e' => [true,  'Expression to evaluate.']
+  )
+
   ##
   # :category: Msf::Session::Scriptable implementors
   #
@@ -87,23 +92,52 @@ class CommandShell
   end
 
   #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'shell_session')
+  end
+
+  #
   # List of supported commands.
   #
   def commands
     {
-        'help'         =>  'Help menu',
-        'background'   => 'Backgrounds the current shell session',
-        'sessions'     => 'Quickly switch to another session',
-        'resource'     => 'Run a meta commands script stored in a local file',
-        'shell'        => 'Spawn an interactive shell (*NIX Only)',
-        'download'     => 'Download files (*NIX Only)',
-        'upload'       => 'Upload files (*NIX Only)',
-        'source'       => 'Run a shell script on remote machine (*NIX Only)',
+      'help'       => 'Help menu',
+      'background' => 'Backgrounds the current shell session',
+      'sessions'   => 'Quickly switch to another session',
+      'resource'   => 'Run a meta commands script stored in a local file',
+      'shell'      => 'Spawn an interactive shell (*NIX Only)',
+      'download'   => 'Download files (*NIX Only)',
+      'upload'     => 'Upload files (*NIX Only)',
+      'source'     => 'Run a shell script on remote machine (*NIX Only)',
+      'irb'        => 'Open an interactive Ruby shell on the current session',
+      'pry'        => 'Open the Pry debugger on the current session'
     }
   end
 
+  def cmd_help_help
+    print_line "There's only so much I can do"
+  end
+
   def cmd_help(*args)
+    cmd = args.shift
+
+    if cmd
+      unless commands.key?(cmd)
+        return print_error('No such command')
+      end
+
+      unless respond_to?("cmd_#{cmd}_help")
+        return print_error("No help for #{cmd}, try -h")
+      end
+
+      return send("cmd_#{cmd}_help")
+    end
+
     columns = ['Command', 'Description']
+
     tbl = Rex::Text::Table.new(
       'Header'  => 'Meta shell commands',
       'Prefix'  => "\n",
@@ -112,9 +146,11 @@ class CommandShell
       'Columns' => columns,
       'SortIndex' => -1
     )
+
     commands.each do |key, value|
       tbl << [key, value]
     end
+
     print(tbl.to_s)
   end
 
@@ -471,6 +507,76 @@ class CommandShell
     shell_command("rm -rf #{remote_file}")
   end
 
+  def cmd_irb_help
+    print_line('Usage: irb')
+    print_line
+    print_line('Open an interactive Ruby shell on the current session.')
+    print @@irb_opts.usage
+  end
+
+  #
+  # Open an interactive Ruby shell on the current session
+  #
+  def cmd_irb(*args)
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
+
+    session = self
+    framework = self.framework
+
+    if expressions.empty?
+      print_status('Starting IRB shell...')
+      print_status("You are in the \"self\" (session) object\n")
+
+      Rex::Ui::Text::IrbShell.new(self).run
+    else
+      # XXX: No vprint_status here
+      if framework.datastore['VERBOSE'].to_s == 'true'
+        print_status("You are executing expressions in #{binding.receiver}")
+      end
+
+      expressions.each { |expression| eval(expression, binding) }
+    end
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open the Pry debugger on the current session.'
+    print_line
+  end
+
+  #
+  # Open the Pry debugger on the current session
+  #
+  def cmd_pry(*args)
+    if args.include?('-h')
+      cmd_pry_help
+      return
+    end
+
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error('Failed to load Pry, try "gem install pry"')
+      return
+    end
+
+    print_status('Starting Pry shell...')
+    print_status("You are in the \"self\" (session) object\n")
+
+    self.pry
+  end
+
   #
   # Explicitly runs a single line command.
   #
@@ -478,7 +584,7 @@ class CommandShell
     # Do nil check for cmd (CTRL+D will cause nil error)
     return unless cmd
 
-    arguments = cmd.split(' ')
+    arguments = Shellwords.shellwords(cmd)
     method    = arguments.shift
 
     # Built-in command
@@ -652,7 +758,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        run_single(user_input.gets)
+        run_single((user_input.gets || '').chomp("\n"))
       end
       Thread.pass
     end

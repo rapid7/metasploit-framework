@@ -24,6 +24,8 @@ module Msf
             "-E" => [ false, "Force encoding" ],
             "-e" => [ true,  "The encoder to use" ],
             "-s" => [ true,  "NOP sled length."                                     ],
+            "-P" => [ true,  "Total desired payload size, auto-produce approproate NOPsled length"],
+            "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
             "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
             "-i" => [ true,  "The number of times to encode the payload" ],
             "-x" => [ true,  "Specify a custom executable file to use as a template" ],
@@ -82,6 +84,8 @@ module Msf
             # Parse the arguments
             encoder_name = nil
             sled_size    = nil
+            pad_nops     = nil
+            sec_name     = nil
             option_str   = nil
             badchars     = nil
             format       = "ruby"
@@ -102,6 +106,10 @@ module Msf
                 force = true
               when '-n'
                 sled_size = val.to_i
+              when '-P'
+                pad_nops = val.to_i
+              when '-S'
+                sec_name = val
               when '-f'
                 format = val
               when '-o'
@@ -146,6 +154,8 @@ module Msf
                 'Encoder'     => encoder_name,
                 'Format'      => format,
                 'NopSledSize' => sled_size,
+                'PadNops'     => pad_nops,
+                'SecName'     => sec_name,
                 'OptionStr'   => option_str,
                 'ForceEncode' => force,
                 'Template'    => template,
@@ -178,6 +188,8 @@ module Msf
               '-h' => [ nil                                               ],
               '-o' => [ true                                              ],
               '-s' => [ true                                              ],
+              '-P' => [ true                                              ],
+              '-S' => [ true                                              ],
               '-f' => [ :file                                             ],
               '-t' => [ @@supported_formats                               ],
               '-p' => [ true                                              ],
