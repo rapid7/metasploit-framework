@@ -3,7 +3,6 @@
 require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/windows/x64/send_uuid'
-require 'msf/core/payload/windows/x64/send_pingback'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
@@ -19,8 +18,6 @@ module Payload::Windows::ReverseTcp_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
-  include Msf::Payload::Windows::SendUUID_x64
-  include Msf::Payload::Windows::SendPingback_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
