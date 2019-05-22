@@ -75,6 +75,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    checkcode = Exploit::CheckCode::Unknown
+
     begin
       ipc_share = "\\\\#{ip}\\IPC$"
 
@@ -98,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
 
-        vulnerable = true
+        checkcode = Exploit::CheckCode::Vulnerable
 
         report_vuln(
           host: ip,
@@ -158,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
 
-    vulnerable
+    checkcode
   end
 
   def do_smb_setup_tree(ipc_share)
