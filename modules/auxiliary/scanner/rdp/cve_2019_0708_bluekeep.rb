@@ -13,10 +13,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'CVE-2019-0708 Microsoft Remote Desktop RCE Checker',
+      'Name'           => 'CVE-2019-0708 BlueKeep Microsoft Remote Desktop RCE Check',
       'Description'    => %q{
-        This module checks a range of hosts for the CVE-2019-0708 vulnerability.
-        This should not cause a DoS on the target.
+        This module checks a range of hosts for the CVE-2019-0708 vulnerability
+        by binding the MS_T120 channel outside of its normal slot and sending
+        non-DoS packets which respond differently on patched and vulnerable hosts.
       },
       'References'     =>
         [
@@ -28,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           'JaGoTu',
           'zerosum0x0'
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Notes'          =>
+        {
+            'Stability'   => [ CRASH_SAFE ],
+            'AKA'         => ['BlueKeep']
+        }
     ))
 
     register_options(
@@ -74,16 +80,19 @@ class MetasploitModule < Msf::Auxiliary
     "\x00"          # class and options
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/db6713ee-1c0e-4064-a3b3-0fac30b4037b
   def pdu_connect_initial
     pkt = "030001ca02f0807f658201be0401010401010101ff30200202002202020002020200000202000102020000020200010202ffff020200023020020200010202000102020001020200010202000002020001020204200202000230200202ffff0202fc170202ffff0202000102020000020200010202ffff020200020482014b000500147c00018142000800100001c00044756361813401c0d800040008002003580201ca03aa09040000280a0000780031003800310030000000000000000000000000000000000000000000000004000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001ca0100000000001800070001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004c00c00090000000000000002c00c00030000000000000003c0440005000000636c697072647200c0a000004d535f543132300080800000726470736e640000c0000000736e646462670000c0000000726470647200000080800000"
     return [pkt].pack("H*")
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/04c60697-0d9a-4afd-a0cd-2cc133151a9c
   def pdu_erect_domain_request
     pkt = "0300000c02f0800400010001"
     return [pkt].pack("H*")
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/f5d6a541-9b36-4100-b78f-18710f39f247
   def pdu_attach_user_request
     "\x03\x00" +         # header
     "\x00\x08" +         # length
@@ -91,6 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x28"               # PER encoded PDU contents
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/64564639-3b2d-4d2c-ae77-1105b4cc011b
   def pdu_channel_request(user1, channel_id)
     pkt = ""
     pkt << "\x03\x00"          # header
@@ -101,9 +111,8 @@ class MetasploitModule < Msf::Auxiliary
     return pkt
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/9cde84cd-5055-475a-ac8b-704db419b66f
   def pdu_security_exchange(rcran, rsexp, rsmod, bitlen)
-   
-
     encrypted_rcran_bignum = rsa_encrypt(rcran, rsexp, rsmod)
     encrypted_rcran = int_to_bytestring(encrypted_rcran_bignum)
 
@@ -135,25 +144,29 @@ class MetasploitModule < Msf::Auxiliary
     pkt
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/772d618e-b7d6-4cd0-b735-fa08af558f9d
   def pdu_client_info()
     data = "000000003301000000000a00000000000000000075007300650072003000000000000000000002001c003100390032002e003100360038002e0031002e0032003000380000003c0043003a005c00570049004e004e0054005c00530079007300740065006d00330032005c006d007300740073006300610078002e0064006c006c000000a40100004700540042002c0020006e006f0072006d0061006c0074006900640000000000000000000000000000000000000000000000000000000000000000000000000000000a00000005000300000000000000000000004700540042002c00200073006f006d006d006100720074006900640000000000000000000000000000000000000000000000000000000000000000000000000000000300000005000200000000000000c4ffffff00000000270000000000"
     return [data].pack("H*")
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4c3c2710-0bf0-4c54-8e69-aff40ffcde66
   def pdu_client_confirm_active()
     data = "a4011300f103ea030100ea0306008e014d53545343000e00000001001800010003000002000000000d04000000000000000002001c00100001000100010020035802000001000100000001000000030058000000000000000000000000000000000000000000010014000000010047012a000101010100000000010101010001010000000000010101000001010100000000a1060000000000000084030000000000e40400001300280000000003780000007800000050010000000000000000000000000000000000000000000008000a000100140014000a0008000600000007000c00000000000000000005000c00000000000200020009000800000000000f000800010000000d005800010000000904000004000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000800010000000e0008000100000010003400fe000400fe000400fe000800fe000800fe001000fe002000fe004000fe008000fe000001400000080001000102000000"
     return [data].pack("H*")
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/2d122191-af10-4e36-a781-381e91c182b7
   def pdu_client_persistent_key_list()
     data = "49031700f103ea03010000013b031c00000001000000000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     return [data].pack("H*")
   end
 
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/927de44c-7fe8-4206-a14f-e5517dc24b1c
   def rdp_parse_serverdata(pkt)
     ptr = 0
     rdp_pkt = pkt[0x49..pkt.length]
-    
+
     while ptr < rdp_pkt.length
       header_type = rdp_pkt[ptr..ptr+1]
       header_length = rdp_pkt[ptr+2..ptr+3].unpack("S<")[0]
@@ -165,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
 
         server_random = rdp_pkt[ptr+20..ptr+51]
         public_exponent = rdp_pkt[ptr+84..ptr+87]
-        
+
         modulus = rdp_pkt[ptr+88..ptr+151]
         vprint_status("modulus_old #{bin_to_hex(modulus)}")
 
@@ -175,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
         modulus = rdp_pkt[ptr+88..ptr+87+bitlen]
         vprint_status("modulus_new #{bin_to_hex(modulus)}")
 
-        
+
       end
 
 
@@ -270,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
       begin
         for i in 0..3
           res = rdp_recv()
-          if(res.include? ["0300000902f0802180"].pack("H*"))
+          if res.include?(["0300000902f0802180"].pack("H*"))
             return Exploit::CheckCode::Vulnerable
           end
           vprint_good("#{bin_to_hex(res)}")
@@ -281,10 +294,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return Exploit::CheckCode::Safe
-    
-    
-    
-    
+
+
+
+
   end
 
   def check_rdp_vuln
@@ -367,12 +380,12 @@ class MetasploitModule < Msf::Auxiliary
 
     result = try_check(rc4enckey, hmackey)
 
-    
+
 
     if result == Exploit::CheckCode::Vulnerable
       report_goods
     end
-      
+
 
     # Can't determine, but at least I know the service is running
     return result
