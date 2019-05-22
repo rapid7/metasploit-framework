@@ -22,7 +22,7 @@ PATH
       metasploit-credential
       metasploit-model
       metasploit-payloads (= 1.3.66)
-      metasploit_data_models
+      metasploit_data_models (= 3.0.10)
       metasploit_payloads-mettle (= 0.5.12)
       mqtt
       msgpack
