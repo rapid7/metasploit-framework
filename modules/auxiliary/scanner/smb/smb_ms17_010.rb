@@ -97,6 +97,9 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
+
+        vulnerable = true
+
         report_vuln(
           host: ip,
           name: self.name,
@@ -154,6 +157,8 @@ class MetasploitModule < Msf::Auxiliary
     ensure
       disconnect
     end
+
+    vulnerable
   end
 
   def do_smb_setup_tree(ipc_share)
