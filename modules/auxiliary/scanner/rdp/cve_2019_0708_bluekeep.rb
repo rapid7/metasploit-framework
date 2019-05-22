@@ -102,8 +102,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/64564639-3b2d-4d2c-ae77-1105b4cc011b
   def pdu_channel_request(user1, channel_id)
-    pkt = ""
-    pkt << "\x03\x00"          # header
+    pkt = "\x03\x00"          # header
     pkt << "\x00\x0c"          # length
     pkt << "\x02\xf0\x80"       # X.224
     pkt << "\x38"              # ChannelJoin request
@@ -126,8 +125,7 @@ class MetasploitModule < Msf::Auxiliary
     userdata_length_high = userdata_length / 256
     flags = 0x80 | userdata_length_high
 
-    pkt = ""
-    pkt << "\x03\x00"
+    pkt = "\x03\x00"
     pkt << [userdata_length+15].pack("S>") # TPKT
     pkt << "\x02\xf0\x80" # X.224
     pkt << "\x64" # sendDataRequest
@@ -243,8 +241,7 @@ class MetasploitModule < Msf::Auxiliary
     userData_len = data.length + 12
     udl_with_flag = 0x8000 | userData_len
 
-    pkt = ""
-    pkt << "\x02\xf0\x80" # X.224
+    pkt = "\x02\xf0\x80" # X.224
     pkt << "\x64" # sendDataRequest
     pkt << "\x00\x08" # intiator userId .. TODO: for a functional client this isn't static
     pkt << channelId # channelId = 1003
@@ -552,7 +549,5 @@ class MetasploitModule < Msf::Auxiliary
   def hex_to_bin(s)
     s.scan(/../).map { |x| x.hex.chr }.join
   end
-
-
 
 end
