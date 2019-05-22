@@ -9,7 +9,7 @@ module Msf::DBManager::Payload
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-      wspace.payloads.create!(opts)
+      Mdm::Payload.create!(opts)
     end
   end
 
@@ -17,10 +17,14 @@ module Msf::DBManager::Payload
     ::ActiveRecord::Base.connection_pool.with_connection do
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Payload.find(opts[:id]))
+      else
+        # Check the database for a matching UUID, returning an empty array if no results are found
+        begin
+          return Array.wrap(Mdm::Payload.find(uuid: opts[:uuid]))
+        rescue ActiveRecord::RecordNotFound
+          return []
+        end
       end
-
-      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-      return wspace.payloads.where(opts)
     end
   end
 
