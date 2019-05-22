@@ -39,15 +39,15 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://srcincite.io/advisories/src-2019-0033/'],
           ['URL', 'https://www.oracle.com/technetwork/security-advisory/cpuapr2019-5072813.html']
         ],
-      'DisclosureDate' => 'Apr 16 2019'
+      'DisclosureDate' => '2019-04-16'
     ))
 
     register_options(
       [
-        OptString.new('FILE', [false, 'The name of the file to download', 'oats-config.xml']),
+        OptString.new('FILE', [true, 'The name of the file to download', 'oats-config.xml']),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 1]),
-        OptString.new('HttpUsername', [true, 'The username to use for Oracle', 'default']),
-        OptString.new('HttpPassword', [true, 'The password to use for Oracle']),
+        OptString.new('OATSUSERNAME', [true, 'The username to use for Oracle', 'default']),
+        OptString.new('OATSPASSWORD', [true, 'The password to use for Oracle']),
       ])
   end
 
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'    => normalize_uri(target_uri.path, 'olt/')
     })
 
-    if res.body.include?('AdfLoopbackUtils.runLoopback')
+    if res && res.body.include?('AdfLoopbackUtils.runLoopback')
       Exploit::CheckCode::Detected
     else
       Exploit::CheckCode::Safe
@@ -164,8 +164,8 @@ class MetasploitModule < Msf::Auxiliary
         },
       'vars_post' =>
         {
-          'userName' => datastore['HttpUsername'],
-          'password' => datastore['HttpPassword'],
+          'userName' => datastore['OATSUSERNAME'],
+          'password' => datastore['OATSPASSWORD'],
           'org.apache.myfaces.trinidad.faces.FORM' => auth_spec.form_value,
           'Adf-Window-Id' => auth_spec.adf_window_id,
           'javax.faces.ViewState' => auth_spec.view_state,
@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.body.include?('Login failed')
       fail_with(Failure::NoAccess, 'Login failed')
     else
-      store_valid_credential(user: datastore['HttpUsername'], private: datastore['HttpPassword'])
+      store_valid_credential(user: datastore['OATSUSERNAME'], private: datastore['OATSPASSWORD'])
       load_view_redirect_value(res)
     end
   end
@@ -216,4 +216,3 @@ class MetasploitModule < Msf::Auxiliary
   end
 
 end
-

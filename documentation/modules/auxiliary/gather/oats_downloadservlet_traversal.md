@@ -1,4 +1,4 @@
-## Background
+## Description
 
 Oracle Application Testing Suite (OATS) is a comprehensive, integrated testing solution for web applications, web services, packaged Oracle applications, and Oracle databases. OATS is part of an application deployed in the WebLogic service on port 8088, which also includes these tools: Administrator, OpenScript, Oracle Load Testing, and Oracle Test Manager.
 
@@ -51,7 +51,7 @@ gain code execution from the administrator console.
 
 Special thanks to Steven Seeley to assist on the development of the Metasploit module.
 
-## Demo
+## Scenarios
 
 ```
 msf5 auxiliary(gather/oats_downloadservlet_traversal) > run
