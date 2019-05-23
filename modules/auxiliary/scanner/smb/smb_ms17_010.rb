@@ -104,6 +104,7 @@ class MetasploitModule < Msf::Auxiliary
 
         report_vuln(
           host: ip,
+          port: rport, # A service is necessary for the analyze command
           name: self.name,
           refs: self.references,
           info: "STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ - #{os}"
