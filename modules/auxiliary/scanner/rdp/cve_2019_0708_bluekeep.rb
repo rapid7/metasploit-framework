@@ -429,10 +429,13 @@ class MetasploitModule < Msf::Auxiliary
     if status == Exploit::CheckCode::Vulnerable
       print_good("#{status[1]}")
     elsif status == Exploit::CheckCode::Unsupported	 # used to display custom msg error
+      status = Exploit::CheckCode::Safe
       print_status("The target service is not running, or refused our connection.")
     else
       print_status("#{status[1]}")
     end
+    
+    status
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/7c61b54e-f6cd-4819-a59a-daf200f6bf94
