@@ -1,5 +1,10 @@
 module Msf::Ui::Console::CommandDispatcher::Analyze
 
+  def cmd_analyze_help
+    print_line "Usage: analyze [addr1 addr2 ...]"
+    print_line
+  end
+
   def cmd_analyze(*args)
     unless active?
       print_error "Not currently connected to a data service for analysis."
@@ -61,10 +66,10 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     suggested_modules
   end
 
+  def cmd_analyze_tabs(_str, _words)
+    return [] unless framework.db.active
 
-  def cmd_analyze_help
-    print_line "Usage: analyze [addr1 addr2 ...]"
-    print_line
+    framework.db.hosts.map(&:address)
   end
 
 end
