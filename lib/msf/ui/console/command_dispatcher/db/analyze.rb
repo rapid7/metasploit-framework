@@ -67,9 +67,14 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
   end
 
   def cmd_analyze_tabs(_str, words)
-    return [] if !framework.db.active || words.length > 1
+    return [] unless framework.db.active
 
-    framework.db.hosts.map(&:address)
+    hosts = framework.db.hosts.map(&:address)
+
+    # Limit completion to supplied host if it's the only one
+    return [] if words.length > 1 && hosts.length == 1
+
+    hosts
   end
 
 end
