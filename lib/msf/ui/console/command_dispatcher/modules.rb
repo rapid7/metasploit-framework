@@ -1185,7 +1185,7 @@ module Msf
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
             tbl = generate_module_table(type)
-            count = 0
+            count = -1
             module_set.sort.each { |refname, mod|
               o = nil
 
