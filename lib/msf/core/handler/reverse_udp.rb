@@ -7,7 +7,7 @@ module Handler
 
 ###
 #
-# This module implements the reverse TCP handler.  This means
+# This module implements the reverse UDP handler.  This means
 # that it listens on a port waiting for a connection until
 # either one is established or it is told to abort.
 #
@@ -21,7 +21,7 @@ module ReverseUdp
 
   #
   # Returns the string representation of the handler type, in this case
-  # 'reverse_tcp'.
+  # 'reverse_udp'.
   #
   def self.handler_type
     return "reverse_udp"
@@ -43,8 +43,8 @@ module ReverseUdp
   end
 
   #
-  # Initializes the reverse TCP handler and ads the options that are required
-  # for all reverse TCP payloads, like local host and local port.
+  # Initializes the reverse UDP handler and ads the options that are required
+  # for all reverse UDP payloads, like local host and local port.
   #
   def initialize(info = {})
     super
