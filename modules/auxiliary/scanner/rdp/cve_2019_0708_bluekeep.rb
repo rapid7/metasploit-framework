@@ -434,7 +434,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_status("#{status[1]}")
     end
-    
+
     status
   end
 
