@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
         rsa_magic = rdp_pkt[ptr+68..ptr+71]
         if rsa_magic != "RSA1"
           print_error("Server cert isn't RSA, this scenario isn't supported (yet).")
-          raise ServerCertNotRSAError
+          raise RdpCommunicationError
         end
         vprint_status("RSA magic: #{rsa_magic}")
         bitlen = rdp_pkt[ptr+72..ptr+75].unpack("L<")[0] - 8
