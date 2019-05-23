@@ -60,7 +60,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # send connection
     #sock.put(connection_request)
-    sock.put(["0300002b26e00000000000436f6f6b69653a206d737473686173683d75736572300d0a0100080000000000"].pack("H*"))
+    pkt = "\x03\x00\x00\x2b"
+    pkt << "\x26\xe0\x00\x00\x00\x00\x00\x43\x6f\x6f\x6b\x69\x65\x3a\x20\x6d\x73\x74\x73\x68\x61\x73\x68\x3d"
+    pkt << Rex::Text.rand_text_alpha(5) # "username"
+    pkt << "\x0d\x0a\x01\x00\x08\x00\x00\x00\x00\x00"
+    sock.put(pkt)
 
     # read packet to see if its rdp
     res = sock.get_once(-1, 5)
