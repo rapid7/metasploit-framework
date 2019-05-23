@@ -25,8 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '36299'],
           ['OSVDB', '57799'],
           ['MSB', 'MS09-050'],
-          ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/0039.html'],
-          ['URL', 'https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/2009/ms09-050']
+          ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/0039.html']
         ]
     ))
     register_options([
