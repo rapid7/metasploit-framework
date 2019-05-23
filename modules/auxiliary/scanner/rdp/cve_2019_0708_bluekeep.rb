@@ -179,8 +179,12 @@ class MetasploitModule < Msf::Auxiliary
 
         modulus = rdp_pkt[ptr+88..ptr+151]
         vprint_status("modulus_old #{bin_to_hex(modulus)}")
-
-        vprint_status("RSA magic: #{rdp_pkt[ptr+68..ptr+71]}")
+        rsa_magic = rdp_pkt[ptr+68..ptr+71]
+        if rsa_magic != "RSA1"
+          print_error("Server cert isn't RSA, this scenario isn't supported (yet).")
+          raise ServerCertNotRSAError
+        end
+        vprint_status("RSA magic: #{rsa_magic}")
         bitlen = rdp_pkt[ptr+72..ptr+75].unpack("L<")[0] - 8
         vprint_status("RSA bitlen: #{bitlen}")
         modulus = rdp_pkt[ptr+88..ptr+87+bitlen]
