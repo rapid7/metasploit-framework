@@ -66,8 +66,8 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     suggested_modules
   end
 
-  def cmd_analyze_tabs(_str, _words)
-    return [] unless framework.db.active
+  def cmd_analyze_tabs(_str, words)
+    return [] if !framework.db.active || words.length > 1
 
     framework.db.hosts.map(&:address)
   end
