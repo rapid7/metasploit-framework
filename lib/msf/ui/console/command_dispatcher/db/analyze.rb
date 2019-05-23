@@ -28,7 +28,7 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     host_ids = []
     suggested_modules = {}
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
       eval_hosts_ids = framework.db.hosts(address: host_search).map(&:id)
       if eval_hosts_ids
         eval_hosts_ids.each do |eval_id|
