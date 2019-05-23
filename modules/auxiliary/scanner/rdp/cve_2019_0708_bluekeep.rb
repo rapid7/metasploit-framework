@@ -197,10 +197,6 @@ class MetasploitModule < Msf::Auxiliary
       ptr += header_length
     end
 
-
-
-    #server_random = hex_to_bin("3280b53a3cf38b7e8b4d9f3539524ba35455aea9ee974f910703534e6ddcb35c")
-
     vprint_status("SERVER_MODULUS: #{bin_to_hex(modulus)}")
     vprint_status("SERVER_EXPONENT: #{bin_to_hex(public_exponent)}")
     vprint_status("SERVER_RANDOM: #{bin_to_hex(server_random)}")
@@ -563,10 +559,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def bin_to_hex(s)
     s.each_byte.map { |b| b.to_s(16).rjust(2,'0') }.join
-  end
-
-  def hex_to_bin(s)
-    s.scan(/../).map { |x| x.hex.chr }.join
   end
 
 end
