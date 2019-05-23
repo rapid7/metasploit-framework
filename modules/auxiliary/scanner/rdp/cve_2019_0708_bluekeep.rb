@@ -291,10 +291,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return Exploit::CheckCode::Safe
-
-
-
-
   end
 
   def check_rdp_vuln
@@ -394,7 +390,13 @@ class MetasploitModule < Msf::Auxiliary
     status = Exploit::CheckCode::Unknown
 
     begin
-      connect
+      begin
+        connect
+      rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+        return Exploit::CheckCode::Unsupported	 # used to display custom msg error
+      end
+
+      status = Exploit::CheckCode::Detected
 
       sock.setsockopt(::Socket::IPPROTO_TCP, ::Socket::TCP_NODELAY, 1)
       status = check_rdp_vuln
@@ -404,7 +406,15 @@ class MetasploitModule < Msf::Auxiliary
       vprint_line(bt)
       elog("#{e.message}\n#{bt}")
     rescue RdpCommunicationError => e
-      print_error("Error communicating RDP protocol.")
+      vprint_error("Error communicating RDP protocol.")
+      status = Exploit::CheckCode::Unknown
+    rescue Errno::ECONNRESET => e # NLA?
+      vprint_error("Connection reset, possible NLA is enabled.")
+    rescue => e
+      bt = e.backtrace.join("\n")
+      vprint_error("Unexpected error: #{e.message}")
+      vprint_line(bt)
+      elog("#{e.message}\n#{bt}")
     ensure
       disconnect
     end
@@ -417,9 +427,11 @@ class MetasploitModule < Msf::Auxiliary
 
     status = check_host(ip)
     if status == Exploit::CheckCode::Vulnerable
-      print_good("#{ip}:#{rport} - #{status[1]}")
+      print_good("#{status[1]}")
+    elsif status == Exploit::CheckCode::Unsupported	 # used to display custom msg error
+      print_status("The target service is not running, or refused our connection.")
     else
-      print_status("#{ip}:#{rport} - #{status[1]}")
+      print_status("#{status[1]}")
     end
   end
 
