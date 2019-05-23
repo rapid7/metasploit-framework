@@ -35,6 +35,13 @@ module ReverseUdp
     "reverse"
   end
 
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "reverse UDP"
+  end
+
   #
   # Initializes the reverse TCP handler and ads the options that are required
   # for all reverse TCP payloads, like local host and local port.
@@ -107,7 +114,7 @@ module ReverseUdp
           via = ""
         end
 
-        print_status("Started reverse handler on #{ip}:#{local_port} #{via}")
+        print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
         break
       rescue
         ex = $!
