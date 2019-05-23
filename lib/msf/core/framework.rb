@@ -78,6 +78,7 @@ class Framework
     self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
     self.jobs      = Rex::JobContainer.new
+    self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
 
