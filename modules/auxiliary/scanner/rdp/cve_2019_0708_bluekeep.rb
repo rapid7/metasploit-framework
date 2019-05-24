@@ -221,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
     #vprint_status("EXPONENT = #{bin_to_hex(public_exponent)} - #{rsexp.to_s}")
     #vprint_status("SVRANDOM = #{bin_to_hex(server_random)} - #{rsran.to_s}")
 
-    [rsmod, rsexp, rsran, server_random, bitlen]
+    return rsmod, rsexp, rsran, server_random, bitlen
   end
 
 # used to abruptly abort scanner for a given host
@@ -521,7 +521,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("initialClientDecryptKey128 = #{bin_to_hex(initialClientDecryptKey128)}")
     vprint_status("initialClientEncryptKey128 = #{bin_to_hex(initialClientEncryptKey128)}")
 
-    [initialClientEncryptKey128, initialClientDecryptKey128, macKey, sessionKeyBlob]
+    return initialClientEncryptKey128, initialClientDecryptKey128, macKey, sessionKeyBlob
   end
 
   def rsa_encrypt(bignum, rsexp, rsmod)
