@@ -65,7 +65,7 @@ Workstation versions:
  - Windows XP SP2 (x86), SP3 (x86), Version 2003 (x64)
  - Windows Vista SP0 (x86), SP0 (x64), SP2 (x64)
  - Windows 7 SP1 (x86), SP1 (x64)
- - Windows 10 1709, ()x64)
+ - Windows 10 1709, 1809 (x64)
 
 Server versions:
  - Windows 2000 SP4 (x86)
