@@ -361,7 +361,6 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Sending client control cooperate PDU")
     synch = rdp_encrypted_pkt(["16001700f103ea030100000108001f0000000100ea03"].pack("H*"), rc4enckey, hmackey)
     coop = rdp_encrypted_pkt(["1a001700f103ea03010000010c00140000000400000000000000"].pack("H*"), rc4enckey, hmackey)
-    vprint_status("Grea2t!")
     rdp_send(synch + coop)
 
     vprint_status("Sending client control request control PDU")
