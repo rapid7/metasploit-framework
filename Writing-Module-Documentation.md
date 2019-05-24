@@ -17,7 +17,7 @@ If you go to metasploit-framework/documentation/modules, you'll see that there a
 
  1. Start msfconsole.
  2. Type `use <module name>`.
- 3. Type `info`.
+ 3. Type `info -d`.
  4. When the module name appears, look at the Module field. You'll see a file path for the module. That's the path where the KB needs to be added. 
 
 For example:
