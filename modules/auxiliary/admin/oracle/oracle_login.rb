@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
           print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
           break
         else
-          vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - LOGIN FAILED: #{datastore['DBUSER']}: #{e.to_s})"      
+          vprint_error("#{datastore['RHOST']}:#{datastore['RPORT']} - LOGIN FAILED: #{datastore['DBUSER']}: #{e.to_s})")
         end
       else
         report_cred(
