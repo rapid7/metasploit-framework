@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.59)
+    metasploit-framework (4.17.60)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -306,7 +306,7 @@ GEM
       rubyntlm
       windows_error
     rubyntlm (0.6.2)
-    rubyzip (1.2.2)
+    rubyzip (1.2.3)
     sawyer (0.8.2)
       addressable (>= 2.3.5)
       faraday (> 0.8, < 2.0)
