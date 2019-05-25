@@ -239,8 +239,7 @@ module ReverseHttp
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
-      payload_count = framework.db.payloads({workspace: framework.db.workspace}).length
-      print_status("Handler is ignoring unknown payloads, there are #{payload_count} UUIDs whitelisted")
+      print_status("Handler is ignoring unknown payloads")
     end
   end
 
@@ -333,9 +332,8 @@ protected
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
       payload_info = {
           uuid: uuid.puid_hex,
-          workspace: framework.db.workspace
       }
-      payload = framework.db.payloads(payload_info).first
+      payload = framework.db.get_payload(payload_info)
       allowed_urls = payload ? payload.urls : []
       unless allowed_urls.include?(req.relative_resource)
         print_status("Ignoring unknown UUID URL: #{request_summary}")
