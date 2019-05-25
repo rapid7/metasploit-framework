@@ -126,7 +126,7 @@ module MetasploitModule
     end
     p[176, sh.length] = sh
 
-    arg = datastore['SHELLARG']
+    arg = datastore['ARGV0']
     if arg
       if arg.length >= 16
         raise ArgumentError, "The specified argv[0] must be less than 16 bytes."
