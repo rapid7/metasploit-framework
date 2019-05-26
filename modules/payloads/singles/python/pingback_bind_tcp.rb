@@ -1,7 +1,5 @@
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/python'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 require 'msf/base/sessions/pingback'
 require 'msf/base/sessions/pingback_options'
@@ -9,11 +7,10 @@ require 'msf/core/payload/pingback'
 
 module MetasploitModule
 
-  CachedSize = 381
+  CachedSize = 257
 
   include Msf::Payload::Single
   include Msf::Sessions::PingbackOptions
-  include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
