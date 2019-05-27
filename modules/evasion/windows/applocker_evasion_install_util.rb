@@ -36,8 +36,8 @@ class MetasploitModule < Msf::Evasion
 
 
   def instructions
+    print_status "Copy #{datastore['FILENAME']} to the target"
     if payload.arch.first == ARCH_X86
-      print_status "Copy #{datastore['FILENAME']} to the target"
       print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\csc.exe /out:installutil.exe #{datastore['FILENAME']}"
       print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe"
     else
