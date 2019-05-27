@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Evasion
       'Author'      =>
         [
           'Nick Tyrer <@NickTyrer>', # module development
-          'Casey Smith',  # install_util bypass research
+          'Casey Smith', # install_util bypass research
         ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
