@@ -74,6 +74,7 @@ module Payload::Windows::BindTcp
       #{asm_bind_tcp(opts)}
       #{asm_block_recv(opts)}
     ^
+    puts("ASM=\n" + combined_asm)
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
 
