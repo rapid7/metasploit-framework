@@ -51,7 +51,8 @@ class MetasploitModule < Msf::Auxiliary
     when 200
       print_status('Stopping video')
     when 404
-      print_error("#{action.name} failed: CASTV2 protocol unsupported")
+      print_error('Target no longer supports casting via the DIAL protocol. ' \
+                  'CASTV2 is not supported by this module at this time.')
     end
   end
 
