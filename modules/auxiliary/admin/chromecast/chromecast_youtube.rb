@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'Chromecast YouTube Remote Control',
       'Description' => %q{
         This module acts as a simple remote control for Chromecast YouTube.
+        Only the deprecated DIAL protocol is supported by this module.
       },
       'Author' => ['wvu'],
       'References' => [
@@ -48,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     when 200
       print_status('Stopping video')
     when 404
-      print_error("Couldn't #{action.name.downcase} video")
+      print_error("#{action.name.downcase} failed: DIAL unsupported")
     end
   end
 
