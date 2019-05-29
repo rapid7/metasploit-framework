@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     when 200
       print_status('Stopping video')
     when 404
-      print_error("#{action.name} failed: DIAL unsupported")
+      print_error("#{action.name} failed: DIAL protocol unsupported")
     end
   end
 
