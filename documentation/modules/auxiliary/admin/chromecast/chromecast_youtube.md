@@ -6,7 +6,7 @@ Only the deprecated DIAL protocol is supported by this module. Casting via the n
 
 ## Verification Steps
 
-1. Do: ```auxiliary/admin/chromecast/chromecast_youtube```
+1. Do: ```use auxiliary/admin/chromecast/chromecast_youtube```
 2. Do: ```set RHOST [IP]```
 3. Do: ```run```
 
