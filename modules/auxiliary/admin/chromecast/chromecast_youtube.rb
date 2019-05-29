@@ -11,7 +11,9 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'Chromecast YouTube Remote Control',
       'Description' => %q{
         This module acts as a simple remote control for Chromecast YouTube.
+
         Only the deprecated DIAL protocol is supported by this module.
+        Casting via the newer CASTV2 protocol is unsupported at this time.
       },
       'Author' => ['wvu'],
       'References' => [
