@@ -43,7 +43,7 @@ def init_framework(create_opts={})
     type = Msf.const_get("MODULE_#{type.upcase}")
   end
 
-  @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => false))
+  @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
 end
 
 # Cached framework object
