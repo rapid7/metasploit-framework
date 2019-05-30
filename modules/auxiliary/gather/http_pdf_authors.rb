@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'pdf-reader'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -67,6 +65,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read(data)
+    require 'pdf-reader'
+
     Timeout.timeout(10) do
       reader = PDF::Reader.new data
       return parse reader
