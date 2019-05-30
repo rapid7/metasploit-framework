@@ -76,7 +76,7 @@ module MetasploitModule
           push   0x31
           pop    rax                          ; bind syscall
           push   0x10                         ; sockaddr length
-          pop    rdx                          ; 
+          pop    rdx                          ;
           syscall
 
         listen_call:
