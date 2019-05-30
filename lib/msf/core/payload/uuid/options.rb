@@ -94,7 +94,6 @@ module Msf::Payload::UUID::Options
       arch: uuid.arch,
       platform: uuid.platform,
       timestamp: uuid.timestamp,
-      workspace: framework.db.workspace
     })
 
     if datastore['PayloadUUIDSeed'].to_s.length > 0
@@ -116,9 +115,8 @@ module Msf::Payload::UUID::Options
 
     payload_info = {
         uuid: uuid.puid_hex,
-        workspace: framework.db.workspace
     }
-    payload = framework.db.payloads(payload_info).first
+    payload = framework.db.get_payload(payload_info)
     unless payload.nil?
       urls = payload.urls.nil? ? [] : payload.urls
       urls << url
