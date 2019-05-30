@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.60)
+    metasploit-framework (4.17.61)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -207,7 +207,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (3.0.3)
+    public_suffix (3.1.0)
     rack (1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
