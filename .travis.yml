@@ -11,7 +11,6 @@ addons:
       - graphviz
 language: ruby
 rvm:
-  - '2.4.5'
   - '2.5.5'
   - '2.6.2'
 
@@ -24,9 +23,6 @@ env:
 
 matrix:
   fast_finish: true
-  exclude:
-  - rvm: '2.4.5'
-    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
 
 jobs:
   # build docker image
