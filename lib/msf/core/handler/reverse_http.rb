@@ -6,6 +6,7 @@ require 'rex/post/meterpreter'
 require 'rex/socket/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/user_agent'
+require 'uri'
 
 module Msf
 module Handler
@@ -118,9 +119,9 @@ module ReverseHttp
 
     # Extract whatever the client sent us in the Host header
     if req && req.headers && req.headers['Host']
-        callback_host, callback_port = req.headers['Host'].split(":")
-        callback_port = callback_port.to_i
-        callback_port ||= (ssl? ? 443 : 80)
+      cburi = URI("#{scheme}://#{req.headers['Host']}")
+      callback_host = cburi.host
+      callback_port = cburi.port
     end
 
     # Override the host and port as appropriate
