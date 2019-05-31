@@ -479,6 +479,7 @@ module DispatcherShell
           print_error("#{method}: Interrupted")
           raise if propagate_errors
         rescue OptionParser::ParseError => e
+          found = true
           print_error("#{method}: #{e.message}")
           raise if propagate_errors
         rescue
