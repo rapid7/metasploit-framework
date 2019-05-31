@@ -232,6 +232,47 @@ class UI < Rex::Post::UI
     return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
   end
 
+  #
+  # Send keystrokes
+  #
+  def keyboard_send(keys)
+    request  = Packet.create_request('stdapi_ui_send_keys')
+    request.add_tlv( TLV_TYPE_KEYS_SEND, keys )
+    response = client.send_request(request)
+    return true
+  end
+
+  #
+  # Mouse input
+  #
+  def mouse(mouseaction, x=-1, y=-1)
+    request  = Packet.create_request('stdapi_ui_send_mouse')
+    action = 0
+    case mouseaction
+    when "move"
+      action = 0
+    when "click", "tap", "leftclick"
+      action = 1
+    when "down", "leftdown"
+      action = 2
+    when "up", "leftup"
+      action = 3
+    when "rightclick"
+      action = 4
+    when "rightdown"
+      action = 5
+    when "rightup"
+      action = 6
+    else
+      action = mouseaction.to_i
+    end
+    request.add_tlv( TLV_TYPE_MOUSE_ACTION, action )
+    request.add_tlv( TLV_TYPE_MOUSE_X, x.to_i )
+    request.add_tlv( TLV_TYPE_MOUSE_Y, y.to_i )
+    response = client.send_request(request)
+    return true
+  end
+
 protected
   attr_accessor :client # :nodoc:
 
