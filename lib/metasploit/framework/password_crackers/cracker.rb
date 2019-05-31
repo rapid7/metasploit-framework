@@ -155,6 +155,12 @@ module Metasploit
             return '122'
           when 'xsha512' #osx 10.7
             return '1722'
+          when 'PBKDF2-HMAC-SHA1' #Atlassian
+            return '12001'
+          when 'phpass' #Wordpress/PHPass, Joomla, phpBB3
+            return '400'
+          when 'mediawiki' # mediawiki b type
+            return '3711'
           end
           nil
         end

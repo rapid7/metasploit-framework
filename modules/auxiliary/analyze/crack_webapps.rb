@@ -14,7 +14,9 @@ class MetasploitModule < Msf::Auxiliary
       'Description'     => %Q{
           This module uses John the Ripper or Hashcat to identify weak passwords that have been
         acquired from various web applications.
-        XXX list them out
+        Atlassian uses PBKDF2-HMAC-SHA1 which is 12001 in hashcat.
+        PHPass uses phpass which is 400 in hashcat.
+        Mediawiki is MD5 based and is 3711 in hashcat.
       },
       'Author'          =>
         [
@@ -31,10 +33,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('ATLASSIAN',[false, 'Include Atlassian hashes.', true]),
-        OptBool.new('PHP',[false, 'Include Wordpress/PHPass, Joomla, phpBB3 hashes.', true]),
-        OptBool.new('MEDIAWIKI',[false, 'Include MediaWiki hashes.', true]),
-        OptBool.new('VBULLETIN',[false, 'Include vBulletin hashes.', true]),
+        OptBool.new('ATLASSIAN',[false, 'Include Atlassian hashes', true]),
+        OptBool.new('MEDIAWIKI',[false, 'Include MediaWiki hashes', true]),
+        OptBool.new('PHPASS',[false, 'Include Wordpress/PHPass, Joomla, phpBB3 hashes', true]),
+        OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
+        OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
       ]
     )
 
@@ -89,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
           cred = {}
           cred['username'] = fields.shift
           cred['core_id']  = fields.pop
-          cred'[password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
           results = process_crack(results, hashes, cred, hash_type, method)
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
@@ -116,8 +119,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
     hashes_regex = []
-    hashes_regex << 'xsha' if datastore['XSHA']
-    hashes_regex << 'PBKDF2-HMAC-SHA512' if datastore['PBKDF2']
+    hashes_regex << 'PBKDF2-HMAC-SHA1' if datastore['ATLASSIAN']
+    hashes_regex << 'phpass' if datastore['PHPASS']
+    hashes_regex << 'mediawiki' if datastore['MEDIAWIKI']
 
     # array of arrays for cracked passwords.
     # Inner array format: db_id, hash_type, username, password, method_of_crack
@@ -145,7 +149,6 @@ class MetasploitModule < Msf::Auxiliary
 
     wordlist.close
     print_status "Wordlist file written out to #{wordlist.path}"
-    cracker.wordlist = wordlist.path
 
     cleanup_files = [cracker.hash_path, wordlist.path]
 
@@ -163,8 +166,17 @@ class MetasploitModule < Msf::Auxiliary
       vprint_good(print_results(tbl, results))
 
       if action.name == 'john'
+        print_status "Cracking #{format} hashes in single mode..."
+        cracker_instance.mode_single(wordlist.path)
+        show_command cracker_instance
+        cracker_instance.crack do |line|
+          vprint_status line.chomp
+        end
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
+        vprint_good(print_results(tbl, results))
+
         print_status "Cracking #{format} hashes in normal mode"
-        cracker_instance.wordlist = ''
+        cracker_instance.mode_normal
         show_command cracker_instance
         cracker_instance.crack do |line|
           vprint_status line.chomp
@@ -173,51 +185,35 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good(print_results(tbl, results))
       end
 
-      print_status "Cracking #{format} hashes in wordlist mode..."
-      if action.name == 'john'
+      if datastore['INCREMENTAL']
+        print_status "Cracking #{format} hashes in incremental mode..."
+        cracker_instance.mode_incremental
+        show_command cracker_instance
+        cracker_instance.crack do |line|
+          vprint_status line.chomp
+        end
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Incremental')
+        vprint_good(print_results(tbl, results))
+      end
+
+      if datastore['WORDLIST']
+        print_status "Cracking #{format} hashes in wordlist mode..."
+        cracker_instance.mode_wordlist(wordlist.path)
         # Turn on KoreLogic rules if the user asked for it
-        if datastore['KORELOGIC']
+        if action.name == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
           print_status "Applying KoreLogic ruleset..."
         end
-      end
-      show_command cracker_instance
-      cracker_instance.crack do |line|
-        vprint_status line.chomp
-      end
-
-      results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
-      vprint_good(print_results(tbl, results))
-
-      if action.name == 'john'
-        print_status "Cracking #{format} hashes in single mode..."
-        cracker_instance.rules = 'single'
         show_command cracker_instance
         cracker_instance.crack do |line|
           vprint_status line.chomp
         end
 
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
         vprint_good(print_results(tbl, results))
       end
 
-      print_status "Cracking #{format} hashes in incremental mode..."
-      if action.name == 'john'
-        cracker_instance.rules = nil
-        cracker_instance.wordlist = nil
-        cracker_instance.incremental = 'Digits'
-      elsif action.name == 'hashcat'
-        cracker_instance.wordlist = nil
-        cracker_instance.attack = '3'
-        cracker_instance.incremental = true
-      end
-      show_command cracker_instance
-      cracker_instance.crack do |line|
-        vprint_status line.chomp
-      end
-
-      results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Incremental')
-      # not vprint here since its the last one
+      #give a final print of results
       print_good(print_results(tbl, results))
     end
     if datastore['DeleteTempFiles']

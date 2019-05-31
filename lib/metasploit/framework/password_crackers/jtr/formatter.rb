@@ -61,6 +61,7 @@ def hash_to_jtr(cred)
       # /mysql|mysql-sha1/
       # /mssql|mssql05|mssql12/
       # /des(crypt)/
+      # /mediawiki|phpass|atlassian/
       return "#{cred.public.username}:#{cred.private.data}:#{cred.id}:"
     end
   end

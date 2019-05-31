@@ -231,6 +231,27 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_PBKDF2-HMAC-SHA512' do
+    it 'returns PBKDF2-HMAC-SHA512' do
+      hash = identify_hash('$ml$35460$93a94bd24b5de64d79a5e49fa372827e739f4d7b6975c752c9a0ff1e5cf72e05$752351df64dd2ce9dc9c64a72ad91de6581a15c19176266b44d98919dfa81f0f96cbcb20a1ffb400718c20382030f637892f776627d34e021bad4f81b7de8222')
+      expect(hash).to match('PBKDF2-HMAC-SHA512')
+    end
+  end
+
+  describe 'identify_PBKDF2-HMAC-SHA1' do
+    it 'returns PBKDF2-HMAC-SHA1' do
+      hash = identify_hash('{PKCS5S2}8WEZjkCbLWysbcbZ5PRgMbdJgJOhkzRT3y1jxOqke2z1Zr79q8ypugFQEYaMoIZt')
+      expect(hash).to match('PBKDF2-HMAC-SHA1')
+    end
+  end
+
+  describe 'identify_mediawiki' do
+    it 'returns mediawiki' do
+      hash = identify_hash('$B$113$de2874e33da25313d808d2a8cbf31485')
+      expect(hash).to match('mediawiki')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = identify_hash('')

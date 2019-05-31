@@ -76,6 +76,10 @@ def identify_hash(hash)
       return 'phpass' # wordpress, drupal, phpbb3 (H not P)
     when hash.start_with?('$ml$') && hash.length == 203
       return 'PBKDF2-HMAC-SHA512'
+    when hash.start_with?('{PKCS5S2}') && hash.length == 73
+      return 'PBKDF2-HMAC-SHA1'
+    when hash.start_with?('$B$') && hash.split('$').last.length == 32
+      return 'mediawiki'
   end
   ''
 end
