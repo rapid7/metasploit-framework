@@ -91,7 +91,7 @@ module CommandDispatcher
   def build_range_array(id_list)
     item_list = []
     unless id_list.blank?
-      temp_list = id_list.split(',')
+      temp_list = id_list.split(/[, ]*/)
       temp_list.each do |ele|
         return if ele.count('-') > 1
         return if ele.first == '-' || ele[-1] == '-'

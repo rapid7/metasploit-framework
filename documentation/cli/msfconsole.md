@@ -13,8 +13,8 @@ having to manually list each desired thing. All ranges are inclusive.
 ### Ranges of IDs
 
 Commands that take a list of IDs can use ranges to help. Individual IDs must be
-separated by a `,` (no space allowed) and ranges can be expressed with either
-`-` or `..`.
+separated by a `,` (spaces must be quoted in most cases) and ranges can be
+expressed with either `-` or `..`.
 
 ### Ranges of IPs
 
