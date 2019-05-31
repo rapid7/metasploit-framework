@@ -32,6 +32,12 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction' => 'john',
     )
 
+    register_options(
+      [
+        OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
+        OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
+      ]
+    )
   end
 
   def show_command(cracker_instance)
@@ -118,7 +124,11 @@ class MetasploitModule < Msf::Auxiliary
     cracker = new_password_cracker
     cracker.cracker = action.name
 
-    print_good("#{action.name} Version Detected: #{cracker.cracker_version}")
+    cracker_version = cracker.cracker_version
+    if action.name == 'john' and not cracker_version.include?'jumbo'
+      fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
+    end
+    print_good("#{action.name} Version Detected: #{cracker_version}")
 
     # create the hash file first, so if there aren't any hashes we can quit early
     # hashes is a reference list used by hashcat only
@@ -133,7 +143,6 @@ class MetasploitModule < Msf::Auxiliary
 
     wordlist.close
     print_status "Wordlist file written out to #{wordlist.path}"
-    cracker.wordlist = wordlist.path
 
     cleanup_files = [cracker.hash_path, wordlist.path]
 
@@ -152,8 +161,17 @@ class MetasploitModule < Msf::Auxiliary
       vprint_good(print_results(tbl, results))
 
       if action.name == 'john'
+        print_status "Cracking #{format} hashes in single mode..."
+        cracker_instance.mode_single(wordlist.path)
+        show_command cracker_instance
+        cracker_instance.crack do |line|
+          vprint_status line.chomp
+        end
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
+        vprint_good(print_results(tbl, results))
+
         print_status "Cracking #{format} hashes in normal mode"
-        cracker_instance.wordlist = ''
+        cracker_instance.mode_normal
         show_command cracker_instance
         cracker_instance.crack do |line|
           vprint_status line.chomp
@@ -162,53 +180,38 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good(print_results(tbl, results))
       end
 
-      print_status "Cracking #{format} hashes in wordlist mode..."
-      if action.name == 'john'
+      if datastore['INCREMENTAL']
+        print_status "Cracking #{format} hashes in incremental mode..."
+        cracker_instance.mode_incremental
+        show_command cracker_instance
+        cracker_instance.crack do |line|
+          vprint_status line.chomp
+        end
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Incremental')
+        vprint_good(print_results(tbl, results))
+      end
+
+      if datastore['WORDLIST']
+        print_status "Cracking #{format} hashes in wordlist mode..."
+        cracker_instance.mode_wordlist(wordlist.path)
         # Turn on KoreLogic rules if the user asked for it
-        if datastore['KORELOGIC']
+        if action.name == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
           print_status "Applying KoreLogic ruleset..."
         end
-      end
-      show_command cracker_instance
-      cracker_instance.crack do |line|
-        vprint_status line.chomp
-      end
-
-      results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
-      vprint_good(print_results(tbl, results))
-
-      if action.name == 'john'
-        print_status "Cracking #{format} hashes in single mode..."
-        cracker_instance.rules = 'single'
         show_command cracker_instance
         cracker_instance.crack do |line|
           vprint_status line.chomp
         end
 
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
+        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
         vprint_good(print_results(tbl, results))
       end
 
-      print_status "Cracking #{format} hashes in incremental mode..."
-      if action.name == 'john'
-        cracker_instance.rules = nil
-        cracker_instance.wordlist = nil
-        cracker_instance.incremental = 'Digits'
-      elsif action.name == 'hashcat'
-        cracker_instance.wordlist = nil
-        cracker_instance.attack = '3'
-        cracker_instance.incremental = true
-      end
-      show_command cracker_instance
-      cracker_instance.crack do |line|
-        vprint_status line.chomp
-      end
-
-      results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Incremental')
-      # not vprint here since its the last one
+      #give a final print of results
       print_good(print_results(tbl, results))
     end
+
     if datastore['DeleteTempFiles']
       cleanup_files.each do |f|
         File.delete(f)

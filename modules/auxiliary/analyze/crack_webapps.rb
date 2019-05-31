@@ -126,7 +126,11 @@ class MetasploitModule < Msf::Auxiliary
     cracker = new_password_cracker
     cracker.cracker = action.name
 
-    print_good("#{action.name} Version Detected: #{cracker.cracker_version}")
+    cracker_version = cracker.cracker_version
+    if action.name == 'john' and not cracker_version.include?'jumbo'
+      fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
+    end
+    print_good("#{action.name} Version Detected: #{cracker_version}")
 
     # create the hash file first, so if there aren't any hashes we can quit early
     # hashes is a reference list used by hashcat only

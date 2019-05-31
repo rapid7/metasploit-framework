@@ -160,6 +160,58 @@ module Metasploit
         end
 
 
+        # This method sets the appropriate parameters to run a cracker in incremental mode
+        def mode_incremental
+          if cracker == 'john'
+            self.wordlist = nil
+            self.rules = nil
+            self.incremental = 'Digits'
+          elsif cracker == 'hashcat'
+            self.wordlist = nil
+            self.attack = '3'
+            self.incremental = true
+          end
+        end
+
+
+        # This method sets the appropriate parameters to run a cracker in wordlist mode
+        #
+        # @param[String] a file location of the wordlist to use
+        def mode_wordlist(file)
+          if cracker == 'john'
+            self.wordlist = file
+            self.rules = 'wordlist'
+            self.incremental = nil
+          elsif cracker == 'hashcat'
+            self.wordlist = file
+            self.attack = '0'
+            self.incremental = nil
+          end
+        end
+
+
+        # This method sets the john to 'normal' mode
+        def mode_normal
+          if cracker == 'john'
+            self.wordlist = nil
+            self.rules = nil
+            self.incremental = nil
+          end
+        end
+
+
+        # This method sets the john to single mode
+        #
+        # @param[String] a file location of the wordlist to use
+        def mode_single(file)
+          if cracker == 'john'
+            self.wordlist = file
+            self.rules = 'single'
+            self.incremental = nil
+          end
+        end
+
+
         # This method follows a decision tree to determine the path
         # to the cracker binary we should use.
         #

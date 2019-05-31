@@ -58,6 +58,10 @@
 
    This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
 
+   **INCREMENTAL**
+
+   Run the cracker in incremental mode.  Default is `true`
+
    **ITERATION_TIMEOUT**
 
    The max-run-time for each iteration of cracking
@@ -114,6 +118,10 @@
    Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
    is true.
 
+   **WORDLIST**
+
+   Run the cracker in dictionary/wordlist mode.  Default is `true`
+
 ## Scenarios
 
 ### Sample Data
@@ -156,53 +164,49 @@ USE_ROOT_WORDS => false
 resource (hashes_hashcat.rb)> setg ITERATION_TIMEOUT 60
 ITERATION_TIMEOUT => 60
 resource (hashes_hashcat.rb)> use auxiliary/analyze/crack_aix
-resource (hashes_hashcat.rb)> set action john
-action => john
 resource (hashes_hashcat.rb)> run
-[+] john Version Detected: 1.8.0.13-jumbo-1-bleeding-973a245b96
-[*] Hashes Written out to /tmp/hashes_tmp20190516-5421-1srlj8p
-[*] Wordlist file written out to /tmp/jtrtmp20190516-5421-118iz35
+[+] john Version Detected: 1.9.0-jumbo-1 OMP
+[*] Hashes Written out to /tmp/hashes_tmp20190531-27621-1ucwc3l
+[*] Wordlist file written out to /tmp/jtrtmp20190531-27621-qk76qr
 [*] Checking descrypt hashes already cracked...
-[*] Cracking descrypt hashes in wordlist mode...
-[*]    Cracking Command: /usr/sbin/john --session=yUvM6UOj --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --wordlist=/tmp/jtrtmp20190516-5421-118iz35 --max-run-time=60 /tmp/hashes_tmp20190516-5421-1srlj8p
+[*] Cracking descrypt hashes in single mode...
+[*]    Cracking Command: /usr/sbin/john --session=Z5uRTsvO --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --wordlist=/tmp/jtrtmp20190531-27621-qk76qr --rules=single --max-run-time=60 /tmp/hashes_tmp20190531-27621-1ucwc3l
 Using default input encoding: UTF-8
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-Warning: Only 4 candidates left, minimum 2048 needed for performance.
-1g 0:00:00:00 DONE (2019-05-16 18:46) 100.0g/s 400.0p/s 1600c/s 1600C/s password..toto
+1g 0:00:00:00 DONE (2019-05-31 15:06) 100.0g/s 1103Kp/s 4415Kc/s 4415KC/s test3:::..t1900
 Warning: passwords printed above might be partial and not be all those cracked
 Use the "--show" option to display all of the cracked passwords reliably
 Session completed
-[*] Cracking descrypt hashes in single mode...
-[*]    Cracking Command: /usr/sbin/john --session=yUvM6UOj --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --wordlist=/tmp/jtrtmp20190516-5421-118iz35 --rules=single --max-run-time=60 /tmp/hashes_tmp20190516-5421-1srlj8p
+[*] Cracking descrypt hashes in normal mode
+[*]    Cracking Command: /usr/sbin/john --session=Z5uRTsvO --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --max-run-time=60 /tmp/hashes_tmp20190531-27621-1ucwc3l
 Using default input encoding: UTF-8
 Will run 8 OpenMP threads
+Proceeding with single, rules:Single
 Press 'q' or Ctrl-C to abort, almost any other key for status
-0g 0:00:00:00 DONE (2019-05-16 18:46) 0g/s 206400p/s 619200c/s 619200C/s password..toto1900
+3g 0:00:00:00 DONE 1/3 (2019-05-31 15:06) 300.0g/s 614200p/s 614400c/s 614400C/s des_pass..Dde_pass
+Warning: passwords printed above might be partial
+Use the "--show" option to display all of the cracked passwords reliably
 Session completed
 [*] Cracking descrypt hashes in incremental mode...
-[*]    Cracking Command: /usr/sbin/john --session=yUvM6UOj --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --incremental=Digits --max-run-time=60 /tmp/hashes_tmp20190516-5421-1srlj8p
+[*]    Cracking Command: /usr/sbin/john --session=Z5uRTsvO --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --incremental=Digits --max-run-time=60 /tmp/hashes_tmp20190531-27621-1ucwc3l
 Using default input encoding: UTF-8
-Will run 8 OpenMP threads
-Warning: MaxLen = 20 is too large for the current hash type, reduced to 8
-Press 'q' or Ctrl-C to abort, almost any other key for status
-1g 0:00:00:09 DONE (2019-05-16 18:46) 0.1078g/s 11986Kp/s 24053Kc/s 24053KC/s 73602400..73673952
-Warning: passwords printed above might be partial and not be all those cracked
-Use the "--show" option to display all of the cracked passwords reliably
-Session completed
+[*] Cracking descrypt hashes in wordlist mode...
+[*]    Cracking Command: /usr/sbin/john --session=Z5uRTsvO --nolog --config=/root/metasploit-framework/data/jtr/john.conf --pot=/root/.msf4/john.pot --format=descrypt --wordlist=/tmp/jtrtmp20190531-27621-qk76qr --rules=wordlist --max-run-time=60 /tmp/hashes_tmp20190531-27621-1ucwc3l
+Using default input encoding: UTF-8
 [+] Cracked Hashes
 ==============
 
- DB ID  Hash Type  Username       Cracked Password  Method
- -----  ---------  --------       ----------------  ------
- 136    descrypt   des2_password  password          Wordlist
- 137    descrypt   des_password   password          Wordlist
- 138    descrypt   des_55         55                Incremental
- 139    descrypt   des_pot_55     55                Already Cracked/POT
+ DB ID  Hash Type  Username        Cracked Password  Method
+ -----  ---------  --------        ----------------  ------
+ 1250   descrypt   des2_password   password          Single
+ 1251   descrypt   des_password    password          Single
+ 1252   descrypt   des_55          55                Normal
+ 1253   descrypt   des_pot_55      55                Already Cracked/POT
+ 1254   descrypt   des_passphrase  passphrase        Normal
 
 [*] Auxiliary module execution completed
-[*] Starting persistent handler(s)...
-msf5 auxiliary(analyze/crack_aix) > creds
+resource (hashes_hashcat.rb)> creds
 Credentials
 ===========
 
@@ -217,7 +221,7 @@ host  origin  service  public          private                   realm  private_
                        des2_password   password                         Password            
                        des_password    password                         Password            
                        des_55          55                               Password            
-
+                       des_passphrase  passphrase                       Password
 ```
 
 ### Hashcat
@@ -248,15 +252,15 @@ resource (hashes_hashcat.rb)> set action hashcat
 action => hashcat
 resource (hashes_hashcat.rb)> run
 [+] hashcat Version Detected: v5.1.0
-[*] Hashes Written out to /tmp/hashes_tmp20190516-5723-19kqb4i
-[*] Wordlist file written out to /tmp/jtrtmp20190516-5723-zia43i
+[*] Hashes Written out to /tmp/hashes_tmp20190531-27714-1ct3bn3
+[*] Wordlist file written out to /tmp/jtrtmp20190531-27714-1j3q151
 [*] Checking descrypt hashes already cracked...
-[*] Cracking descrypt hashes in wordlist mode...
-[*]    Cracking Command: /usr/bin/hashcat --session=LIZKgVGP --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=1500 --runtime=60 /tmp/hashes_tmp20190516-5723-19kqb4i /tmp/jtrtmp20190516-5723-zia43i
+[*] Cracking descrypt hashes in incremental mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=wCGD0gD0 --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=1500 --increment --increment-max=4 --attack-mode=3 --runtime=60 /tmp/hashes_tmp20190531-27714-1ct3bn3
 nvmlDeviceGetFanSpeed(): Not Supported
 
-[*] Cracking descrypt hashes in incremental mode...
-[*]    Cracking Command: /usr/bin/hashcat --session=LIZKgVGP --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=1500 --increment --increment-max=4 --attack-mode=3 --runtime=60 /tmp/hashes_tmp20190516-5723-19kqb4i
+[*] Cracking descrypt hashes in wordlist mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=wCGD0gD0 --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=1500 --attack-mode=0 --runtime=60 /tmp/hashes_tmp20190531-27714-1ct3bn3 /tmp/jtrtmp20190531-27714-1j3q151
 nvmlDeviceGetFanSpeed(): Not Supported
 
 [+] Cracked Hashes
@@ -264,10 +268,10 @@ nvmlDeviceGetFanSpeed(): Not Supported
 
  DB ID  Hash Type  Username       Cracked Password  Method
  -----  ---------  --------       ----------------  ------
- 153    descrypt   des2_password  password          Wordlist
- 154    descrypt   des_password   password          Wordlist
- 155    descrypt   des_55         55                Incremental
- 156    descrypt   des_pot_55     55                Already Cracked/POT
+ 1260   descrypt   des2_password  password          Wordlist
+ 1261   descrypt   des_password   password          Wordlist
+ 1262   descrypt   des_55         55                Incremental
+ 1263   descrypt   des_pot_55     55                Already Cracked/POT
 
 [*] Auxiliary module execution completed
 resource (hashes_hashcat.rb)> creds
@@ -282,8 +286,7 @@ host  origin  service  public          private                   realm  private_
                        des_pot_55      fakeV6xlcXxRM                    Nonreplayable hash  des
                        des_passphrase  qiyh4XPJGsOZ2MEAyLkfWqeQ         Nonreplayable hash  des
                        des_pot_55      55                               Password            
-                       des2_password   password                         Password            
-                       des_password    password                         Password            
                        des_55          55                               Password            
-
+                       des2_password   password                         Password            
+                       des_password    password                         Password
 ```
