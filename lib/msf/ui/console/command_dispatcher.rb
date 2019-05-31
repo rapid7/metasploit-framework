@@ -121,9 +121,14 @@ module CommandDispatcher
   #   be removed, including trailing "\n" if present
   # @return [String] Text sans lines containing to_match
   #
-  def remove_lines(text, to_match)
-    to_match = Regexp.escape(to_match)
-    text.gsub(/^.*(#{to_match}).*(#{Regexp.escape $/})?/, '')
+  def remove_lines(text, *lines)
+    out = text.dup
+    lines.each do |to_match|
+      to_match = Regexp.escape(to_match)
+      out.gsub!(/^.*(#{to_match}).*(#{Regexp.escape $/})?/, '')
+    end
+
+    out
   end
 
   #
