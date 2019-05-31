@@ -158,7 +158,7 @@ module Msf
       # framework.payloads.keys gets pruned of unloadable payloads. So, we do it
       # after checking payload_is_valid?, which refers to the cached keys.
       @payload_module = framework.payloads.create(@payload)
-      raise ArgumentError, "unloadable payload: #{payload}" unless payload_module
+      raise ArgumentError, "unloadable payload: #{payload}" unless payload_module || @payload == 'stdin'
 
       # In smallest mode, override the payload @space & @encoder_space settings
       if @smallest
