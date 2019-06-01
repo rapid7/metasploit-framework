@@ -201,7 +201,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     screenshare_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
       "-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
-      # "-p" => [ true, "The JPEG image path (Default: '#{path}')" ],
+      "-p" => [ true, "The JPEG image path (Default: '#{stream_path}')" ],
       "-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ],
       "-d" => [ true, "The stream duration in seconds (Default: 1800)" ] # 30 min
     )
@@ -225,18 +225,16 @@ class Console::CommandDispatcher::Stdapi::Ui
     }
 
     print_status("Preparing player...")
-
     html = %|<html>
 <head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE, NO-STORE">
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE, NO-STORE">
-<title>Metasploit screenshare stream - #{client.sock.peerhost}</title>
+<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<title>Metasploit webcam_stream - #{client.sock.peerhost}</title>
 <script language="javascript">
 function updateStatus(msg) {
   var status = document.getElementById("status");
   status.innerText = msg;
 }
-
 
 function noImage() {
   document.getElementById("streamer").style = "display:none";
@@ -244,60 +242,17 @@ function noImage() {
 }
 
 var i = 0;
-var imgurl;
-var imgElement;
-var didload = 1;
 function updateFrame() {
-  didload = 0;
-  imgurl = "#{stream_path}?" + i;
-  getImage(imgurl, i).then(
-    function(e){
-        didload = 1;
-        newImg = e.img;
-        index = e.index;
-        var theWrap = document.getElementById("vid_cont");
-        ni = theWrap.appendChild(newImg);
-        //console.log('added img_'+index);
-        ni.id = "img_"+index;
-        purge = document.querySelector("img:not(#img_"+index+")")
-        if (typeof(purge) != 'undefined' && purge != null){
-          purge.remove();
-        }
-        updateStatus("Playing");
-        
-    },
-    function(errorurl, index){
-        //console.log('Error loading ' + errorurl)
-        updateStatus("Waiting");
-        didload = 1;
-    }
-  );
-}
-
-function getImage(url, index){
-    return new Promise(function(resolve, reject){
-        img = new Image();
-        img.onload = function(){
-            var e = new Object();
-            e.img = img;
-            e.index = index;
-            resolve(e);
-        }
-        img.onerror = function(){
-            reject(index);
-        }
-        img.src = url;
-    })
+  var img = document.getElementById("streamer");
+  img.src = "#{stream_path}#" + i;
+  img.style = "display:";
+  updateStatus("Playing");
+  i++;
 }
 
 setInterval(function() {
-  if(didload){
-   updateFrame();
-   i++; 
-  }else{
-    //console.log('skipping');
-  }
-},42);
+  updateFrame();
+},25);
 
 </script>
 </head>
@@ -311,10 +266,9 @@ Start time : #{Time.now}
 Status     : <span id="status"></span>
 </pre>
 <br>
-<div id="vid_cont">
-  
-</div>
+<img onerror="noImage()" id="streamer">
 <br><br>
+<a href="http://www.metasploit.com" target="_blank">www.metasploit.com</a>
 </body>
 </html>
     |
@@ -323,8 +277,15 @@ Status     : <span id="status"></span>
       f.write(html)
     end
 
-    print_status("Please open the player manually with a browser: #{player_path}")
-      print_status("Streaming...")
+    path = ::File.expand_path(player_path)
+    if view
+      print_status("Opening player at: #{path}")
+      Rex::Compat.open_file(player_path)
+    else
+      print_status("Please open the player manually with a browser: #{path}")
+    end
+
+    print_status("Streaming...")
     begin
         ::Timeout.timeout(duration) do
           while client do
