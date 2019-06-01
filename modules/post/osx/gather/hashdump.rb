@@ -87,7 +87,11 @@ class MetasploitModule < Msf::Post
         end
 
         # slice out the sha512 hash + salt
-        sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        # original regex left for historical purposes.  During testing it was discovered that
+        # 4f110200 was also a valid end.  Instead of looking for the end, since its a hash (known
+        # length) we can just set the length
+        #sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        sha512 = hash_decoded.scan(/^\w*4f1044(\w{136})/)[0][0]
         report_hash("SHA-512", sha512, user)
       else # 10.6 and below
         # On 10.6 and below, SHA-1 is used for encryption
@@ -187,11 +191,11 @@ class MetasploitModule < Msf::Post
     when "SHA-512"
       private_data = hash
       private_type = :nonreplayable_hash
-      jtr_format = 'sha512,crypt'
+      jtr_format = 'xsha512'
     when "SHA-1"
       private_data = hash
       private_type = :nonreplayable_hash
-      jtr_format = 'sha1'
+      jtr_format = 'xsha'
     end
     create_credential(
       jtr_format: jtr_format,
