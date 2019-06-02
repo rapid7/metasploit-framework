@@ -38,6 +38,16 @@ As a concrete example, say every `report_*` method just wrote a JSON blob into e
 
 Note: a temporal data model will likely need something better able to show data relations than the current tabular rex-table approach in msfconsole. Web UI?
 
+## Data model is always available
+
+The database in Metasploit has historically been optional. Not everyone needs to store data and setting up and maintaining the database is often a burden to the user, with many possible failure modes. Having the data model not always be available often complicates Metasploit's code, and made some features like UUID tracking for payloads difficult to implement reliably. Metasploit 5 added web services for the data mode, which further complicated the code paths, adding a third way for behavior to possibly differ.
+
+We should make a light-weight in-memory database service that can run automatically if a persistent database is unavailable or unconfigured, which can always provide some sort of database service to Metasploit, even if it is ephemeral and exits when msfconsole/listeners, etc. have exited. `framework.db` should always exist, even if the data it stores goes into a temporary bit bucket. Then all of the conditional code paths can go away.
+
+## Dropping native Windows support
+
+Windows support consumes 90% of our time building open source installers, but supports 1% of the downloads. Also, running Linux in Windows is much easier with Windows 10 and VMs, and performs considerably better. As Metasploit becomes more multi-processed, being able to support Unix domain sockets would simplify some of the security models as well, in the default case. Let's focus on macOS and Linux as primary supported targets.
+
 ## Collapse module types, expose module 'abilities' or 'methods' instead
 
 Modules in Metasploit are classified according to what they can do ('exploits can exploit, scanners can scan') but often its useful to be able to scan for exploitable targets. Workarounds include reaching between modules and sharing library code and mixins. This proposal suggests that 'exploit' and 'scanner', as well as many other aux-type modules should collapse into a single module type. They simply expose capabilities like 'scan', 'check', 'exploit', etc. and a single module can do all of these.
