@@ -585,6 +585,7 @@ protected
     begin
       require 'net/ssh'
     rescue LoadError
+      print_error('Net::SSH could not be loaded')
       return false
     end
 
@@ -595,6 +596,7 @@ protected
       # HACK: Bypass dynamic constant assignment error
       ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
     rescue NameError
+      print_error('Invalid constant Net::SSH::Transport::ServerVersion::PROTO_VERSION')
       return false
     end
 
