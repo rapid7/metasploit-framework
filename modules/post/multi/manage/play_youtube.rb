@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
   #
   # The OSX version uses an apple script to do this
   #
-  def osx_start_video(id)
+  def osx_start_video(_id)
     script = ''
     script << %Q|osascript -e 'tell application "Safari" to open location "#{youtube_url}"' |
     script << %Q|-e 'activate application "Safari"' |
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
   #
   # The Windows version uses the "embed" player to make sure IE won't download the SWF as an object
   #
-  def win_start_video(id)
+  def win_start_video(_id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
       session.sys.process.execute(iexplore_path, "-k #{youtube_url}")
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
   # The Linux version uses Firefox
   # TODO: Try xdg-open?
   #
-  def linux_start_video(id)
+  def linux_start_video(_id)
     begin
       # Create a profile
       profile_name = Rex::Text.rand_text_alpha(8)
