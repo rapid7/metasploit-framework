@@ -3,6 +3,7 @@
 require 'bindata'
 require 'rex/socket'
 require 'rex/proto/proxy/socks5/packet'
+require 'rex/proto/proxy/relay'
 
 module Rex
 module Proto
@@ -15,58 +16,7 @@ module Socks5
   #
   # A mixin for a socket to perform a relay to another socket.
   #
-  module TcpRelay
-    #
-    # TcpRelay data coming in from relay_sock to this socket.
-    #
-    def relay(relay_client, relay_sock)
-      @relay_client = relay_client
-      @relay_sock   = relay_sock
-      # start the relay thread (modified from Rex::IO::StreamAbstraction)
-      @relay_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyServerTcpRelay", false) do
-        loop do
-          closed = false
-          buf    = nil
-
-          begin
-            s = Rex::ThreadSafe.select([@relay_sock], nil, nil, 0.2)
-            next if s.nil? || s[0].nil?
-          rescue
-            closed = true
-          end
-
-          unless closed
-            begin
-              buf = @relay_sock.sysread( 32768 )
-              closed = buf.nil?
-            rescue
-              closed = true
-            end
-          end
-
-          unless closed
-            total_sent   = 0
-            total_length = buf.length
-            while total_sent < total_length
-              begin
-                data = buf[total_sent, buf.length]
-                sent = self.write(data)
-                total_sent += sent if sent > 0
-              rescue
-                closed = true
-                break
-              end
-            end
-          end
-
-          if closed
-            @relay_client.stop
-            ::Thread.exit
-          end
-        end
-      end
-    end
-  end
+  include Relay
 
   #
   # A client connected to the SOCKS5 server.
@@ -266,8 +216,8 @@ module Socks5
       @lsock.extend(TcpRelay)
       @rsock.extend(TcpRelay)
       # start the socket relays...
-      @lsock.relay(self, @rsock)
-      @rsock.relay(self, @lsock)
+      @lsock.relay(self, @rsock, "SOCKS5ProxyServerRelay (l2r)")
+      @rsock.relay(self, @lsock, "SOCKS5ProxyServerRelay (r2l)")
     end
 
     #
