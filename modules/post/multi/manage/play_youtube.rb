@@ -121,6 +121,14 @@ class MetasploitModule < Msf::Post
     true
   end
 
+  # The generic Unix version calls xdg-open(1) or open(1)
+  def unix_start_video(_id)
+    cmd_exec("xdg-open '#{youtube_url}' || open '#{youtube_url}'")
+    true
+  rescue EOFError
+    false
+  end
+
   def start_video(id)
     case session.platform
     when 'osx'
@@ -131,6 +139,8 @@ class MetasploitModule < Msf::Post
       linux_start_video(id)
     when 'android'
       android_start_video(id)
+    when 'unix'
+      unix_start_video(id)
     end
   end
 
