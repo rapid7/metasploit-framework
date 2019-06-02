@@ -76,48 +76,53 @@ module Auxiliary::Brocade
     # enable super-user-password 8 $1$QP3H93Wm$uxYAs2HmAK01QiP3ig5tm.
     config.scan(/enable super-user-password 8 (?<admin_password_hash>.+)/i).each do |result|
       admin_hash = result[0].strip
-      print_good("enable password hash #{admin_hash}")
-      cred = credential_data.dup
-      cred[:username] = 'enable'
-      cred[:private_data] = admin_hash
-      cred[:private_type] = :nonreplayable_hash
-      create_credential_and_login(cred)
+      unless admin_hash == '.....'
+        print_good("enable password hash #{admin_hash}")
+        cred = credential_data.dup
+        cred[:username] = 'enable'
+        cred[:private_data] = admin_hash
+        cred[:private_type] = :nonreplayable_hash
+        create_credential_and_login(cred)
+      end
     end
 
     # user account
     # Example lines:
     # username brocade password 8 $1$YBaHUWpr$PzeUrP0XmVOyVNM5rYy99/
-    config.scan(/username "(?<user_name>[a-z0-9]+)" password (?<user_type>\w+) (?<user_hash>[0-9a-z=]{38})/i).each do |result|
+    config.scan(/username "?(?<user_name>[a-z0-9]+)"? password (?<user_type>\w+) (?<user_hash>[0-9a-z=\$\/]{34})/i).each do |result|
       user_name = result[0].strip
       user_type  = result[1].strip
       user_hash = result[2].strip
-      print_good("User #{user_name} of type #{user_type} found with password hash #{user_hash}.")
-      cred = credential_data.dup
-      cred[:username] = user_name
-      cred[:private_data] = user_hash
-      cred[:private_type] = :nonreplayable_hash
-      create_credential_and_login(cred)
+      unless user_hash == '.....'
+        print_good("User #{user_name} of type #{user_type} found with password hash #{user_hash}.")
+        cred = credential_data.dup
+        cred[:username] = user_name
+        cred[:private_data] = user_hash
+        cred[:private_type] = :nonreplayable_hash
+        create_credential_and_login(cred)
+      end
     end
 
     # snmp
     # Example lines: 
     # snmp-server community 1 $Si2^=d rw
+    # these at times look base64 encoded, which they may be, but are also encrypted
     config.scan(/snmp-server community (?<snmp_id>[\d]+) (?<snmp_community>.+) (?<snmp_permissions>rw|ro)/i).each do |result|
       snmp_community = result[1].strip
       snmp_permissions = result[2].strip
-      print_good("SNMP community #{snmp_community} with permissions #{snmp_permissions}")
-      cred = credential_data.dup
-      cred[:access_level] = stype.upcase
-      cred[:protocol] = 'udp'
-      cred[:port] = 161
-      cred[:service_name] = 'snmp'
-      cred[:private_data] = snmp_community
-      cred[:private_type] = :nonreplayable_hash
-      create_credential_and_login(cred)
+      unless snmp_community == '.....'
+        print_good("#{'ENCRYPTED ' if snmp_community.start_with?('$')}SNMP community #{snmp_community} with permissions #{snmp_permissions}")
+        cred = credential_data.dup
+        cred[:protocol] = 'udp'
+        cred[:port] = 161
+        cred[:service_name] = 'snmp'
+        cred[:private_data] = snmp_community
+        cred[:private_type] = :nonreplayable_hash
+        create_credential_and_login(cred)
+      end
     end
 
   end
 end
 end
-
 

