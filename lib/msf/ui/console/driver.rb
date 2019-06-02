@@ -421,7 +421,7 @@ class Driver < Msf::Ui::Driver
     when 'loglevel'
       handle_loglevel(val) if glob
     when 'sshversion'
-      handle_ssh_version(val)
+      handle_sshversion(val)
     end
   end
 
@@ -579,7 +579,7 @@ protected
   #
   # This method monkeypatches Net::SSH's client identification string.
   #
-  def handle_ssh_version(val)
+  def handle_sshversion(val)
     return false unless val.is_a?(String) && !val.empty?
 
     begin
