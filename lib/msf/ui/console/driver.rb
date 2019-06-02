@@ -580,7 +580,7 @@ protected
   # This method monkeypatches Net::SSH's client identification string.
   #
   def handle_ssh_version(val)
-    return false unless val && val.kind_of?(String) && !val.empty?
+    return false unless val.is_a?(String) && !val.empty?
 
     begin
       require 'net/ssh'
