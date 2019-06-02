@@ -576,9 +576,7 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
-  #
-  # This method monkeypatches Net::SSH's client identification string.
-  #
+  # This method monkeypatches Net::SSH's client identification string
   def handle_sshversion(val)
     return false unless val.is_a?(String) && !val.empty?
 
