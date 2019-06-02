@@ -1175,9 +1175,11 @@ class Core
       # Workaround for aggressive option coercion
       opts.on '-[\d]*,?', 'HACK for interacting with most recent sessions' do |x|
         x.gsub!(',', '')
-        sid[last] << (-1 * Integer(x)).to_s
-      rescue ArgumentError
-        raise OptionParser::InvalidOption.new("Invalid relative session ID -#{x}. Use a single negative number -X to get the Xth most recent session.")
+        begin
+          sid[last] << (-1 * Integer(x)).to_s
+        rescue ArgumentError
+          raise OptionParser::InvalidOption.new("Invalid relative session ID -#{x}. Use a single negative number -X to get the Xth most recent session.")
+        end
       end
     end
 
