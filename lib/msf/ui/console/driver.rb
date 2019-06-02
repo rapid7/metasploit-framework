@@ -431,12 +431,12 @@ class Driver < Msf::Ui::Driver
   #
   def on_variable_unset(glob, var)
     case var.downcase
-      when "sessionlogging"
-        handle_session_logging('0') if (glob)
-      when "consolelogging"
-        handle_console_logging('0') if (glob)
-      when "loglevel"
-        handle_loglevel(nil) if (glob)
+    when 'sessionlogging'
+      handle_session_logging('0') if glob
+    when 'consolelogging'
+      handle_console_logging('0') if glob
+    when 'loglevel'
+      handle_loglevel(nil) if glob
     end
   end
 
