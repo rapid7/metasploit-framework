@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r' ],
-      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android', 'unix' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Notes'         =>
         {
