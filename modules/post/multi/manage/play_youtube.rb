@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('EMBED', [true, 'Use the embed version of the YouTube URL', true]),
-        OptString.new('VID', [true, 'The video ID to the YouTube video'])
+        OptString.new('VID', [true, 'The video ID to the YouTube video', 'kxopViU98Xo'])
       ])
   end
 
