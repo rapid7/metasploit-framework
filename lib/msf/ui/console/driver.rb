@@ -404,25 +404,24 @@ class Driver < Msf::Ui::Driver
   #
   def on_variable_set(glob, var, val)
     case var.downcase
-      when "payload"
-
-        if (framework and framework.payloads.valid?(val) == false)
-          return false
-        elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
-          return false
-        elsif (active_module)
-          active_module.datastore.clear_non_user_defined
-        elsif (framework)
-          framework.datastore.clear_non_user_defined
-        end
-      when "sessionlogging"
-        handle_session_logging(val) if (glob)
-      when "consolelogging"
-        handle_console_logging(val) if (glob)
-      when "loglevel"
-        handle_loglevel(val) if (glob)
-      when "sshversion"
-        handle_sshversion(val)
+    when 'payload'
+      if framework && !framework.payloads.valid?(val)
+        return false
+      elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
+        return false
+      elsif active_module
+        active_module.datastore.clear_non_user_defined
+      elsif framework
+        framework.datastore.clear_non_user_defined
+      end
+    when 'sessionlogging'
+      handle_session_logging(val) if glob
+    when 'consolelogging'
+      handle_console_logging(val) if glob
+    when 'loglevel'
+      handle_loglevel(val) if glob
+    when 'sshversion'
+      handle_ssh_version(val)
     end
   end
 
@@ -578,9 +577,9 @@ protected
   end
 
   #
-  # This method monkeypatches Net::SSH's identification string.
+  # This method monkeypatches Net::SSH's client identification string.
   #
-  def handle_sshversion(val)
+  def handle_ssh_version(val)
     return false unless val && val.kind_of?(String) && !val.empty?
 
     begin
