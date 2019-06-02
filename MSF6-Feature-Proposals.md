@@ -10,6 +10,10 @@ If the independent listener code could be integrated directly into Meterpreter p
 
 If listeners are externalized, then there is an API layer both for interactive interaction with remote sessions, and a way for the Post-exploitation API to communicate with the external sessions. That should mean that if an external C2 framework supports at minimum shell interaction, a bulk of the Post-exploitation API should be applicable against external C2 frameworks as well. Metasploit would then be able to integrate both with other open-source C2 frameworks, as well as private ones.
 
+## Integration with external exploitation frameworks
+
+E.g. could we just use routersploit or wpsploit directly from within framework and gather loot/run post exploitation, etc. through them? Maybe using the external module RPC, just being able to expose multiple modules behind the same API?
+
 ## Overhaul network targeting
 
 Setting at least 5 variables RHOSTS/RPORT/SSL/VHOST/SSL_Version/User/Pass/etc... to target a single web application is very cumbersome. When these variables also do not apply to multiple RHOSTS exactly, the scheme of multiple variables falls apart futher. Metasploit should be able to target URLs directly, that can all have their own independent ports, users, hostnames, etc:
