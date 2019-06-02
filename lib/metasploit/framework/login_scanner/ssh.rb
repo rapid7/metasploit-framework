@@ -113,7 +113,6 @@ module Metasploit
           proof = ''
           begin
             Timeout.timeout(5) do
-<<<<<<< HEAD
               proof = ssh_socket.exec!("id\n").to_s
               if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
@@ -169,7 +168,6 @@ module Metasploit
         public
 
         def get_platform(proof)
-          return 'brocade'
           case proof
           when /unifi\.version|UniFiSecurityGateway/ #Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
             'unifi'
