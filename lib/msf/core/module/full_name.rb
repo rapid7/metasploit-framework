@@ -44,6 +44,8 @@ module Msf::Module::FullName
   # Instance Methods
   #
 
+  attr_accessor :aliased_as
+
   #
   # Returns the module's framework full reference name.  This is the
   # short name that end-users work with (refname) plus the type
@@ -52,7 +54,7 @@ module Msf::Module::FullName
   # payloads/windows/shell/reverse_tcp
   #
   def fullname
-    self.class.fullname
+    aliased_as || self.class.fullname
   end
 
   #
@@ -62,16 +64,16 @@ module Msf::Module::FullName
   # windows/shell/reverse_tcp
   #
   def refname
-    self.class.refname
+    fullname.sub(type + '/', '')
   end
 
   #
   # Returns the module's framework prompt-friendly name.
   #
-  # reverse_tcp
+  # windows/shell/reverse_tcp
   #
   def promptname
-    self.class.promptname
+    refname
   end
 
   #
@@ -80,7 +82,7 @@ module Msf::Module::FullName
   # reverse_tcp
   #
   def shortname
-    self.class.shortname
+    refname.split('/').last
   end
 
   def aliases

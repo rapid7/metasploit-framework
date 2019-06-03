@@ -102,6 +102,10 @@ module Msf
         end
       end
 
+      if module_instance
+        module_instance.aliased_as = aliased_as
+      end
+
       module_instance
     end
 
