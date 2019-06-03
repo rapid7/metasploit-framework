@@ -106,5 +106,16 @@ module Auxiliary::PasswordCracker
     wordlist.to_file(max_len)
   end
 
+  def already_cracked_pass(hash)
+    framework.db.creds({:pass => hash}).each do |test_cred|
+      test_cred.public.cores.each do |core|
+        if core.origin_type == "Metasploit::Credential::Origin::CrackedPassword"
+          return core.private.data
+        end
+      end
+    end
+    nil
+  end
+
 end
 end

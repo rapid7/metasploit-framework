@@ -228,14 +228,17 @@ class MetasploitModule < Msf::Auxiliary
     regex = Regexp.new hashes_regex
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       if core.private.jtr_format =~ regex
-        if action.name == 'john'
-          hashlist.puts hash_to_jtr(core)
-        elsif action.name == 'hashcat'
-          # hashcat hash files dont include the ID to reference back to so we build an array to reference
-          hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
-          hashlist.puts hash_to_hashcat(core)
+        # only add hashes which havne't been cracked
+        if already_cracked_pass(core.private.data).nil?
+          if action.name == 'john'
+            hashlist.puts hash_to_jtr(core)
+          elsif action.name == 'hashcat'
+            # hashcat hash files dont include the ID to reference back to so we build an array to reference
+            hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
+            hashlist.puts hash_to_hashcat(core)
+          end
+          wrote_hash = true
         end
-        wrote_hash = true
       end
     end
     hashlist.close
