@@ -120,6 +120,8 @@ class MetasploitModule < Msf::Auxiliary
     if res
       result, err_msg = rdp_parse_negotiation_response(res)
       return true, result if result
+      # Server requires NLA, not vulnerable
+      return true, RDPConstants::PROTOCOL_HYBRID if err_msg == 'HYBRID_REQUIRED_BY_SERVER'
 
       if err_msg == "Negotiation Response packet too short."
         vprint_status("Attempt to connect with TLS failed but looks like the target is Windows XP")
@@ -209,9 +211,12 @@ class MetasploitModule < Msf::Auxiliary
       # send initial client data
       res = rdp_send_recv(pdu_connect_initial(server_selected_proto))
       rsmod, rsexp, rsran, server_rand, bitlen = rdp_parse_connect_response(res)
-    else
+    elsif [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
       vprint_status("Server requests NLA security which mitigates this vulnerability.")
       return Exploit::CheckCode::Safe
+    else
+      vprint_status("Server requests an unhandled protocol (#{server_selected_proto.to_s}), status unknown.")
+      return Exploit::CheckCode::Unknown
     end
 
     # erect domain and attach user
