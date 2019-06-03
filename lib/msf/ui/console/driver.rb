@@ -584,27 +584,23 @@ protected
   def handle_ssh_ident(val)
     return false unless val.is_a?(String) && !val.empty?
 
-    begin
-      require 'net/ssh'
-    rescue LoadError
-      print_error('Net::SSH could not be loaded')
-      return false
-    end
+    require 'net/ssh'
 
     # HACK: Suppress already initialized constant warning
     verbose, $VERBOSE = $VERBOSE, nil
 
-    begin
-      # HACK: Bypass dynamic constant assignment error
-      ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
-    rescue NameError
-      print_error('Invalid constant Net::SSH::Transport::ServerVersion::PROTO_VERSION')
-      return false
-    end
-
-    $VERBOSE = verbose
+    # HACK: Bypass dynamic constant assignment error
+    ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
 
     true
+  rescue LoadError
+    print_error('Net::SSH could not be loaded')
+    false
+  rescue NameError
+    print_error('Invalid constant Net::SSH::Transport::ServerVersion::PROTO_VERSION')
+    false
+  ensure
+    $VERBOSE = verbose
   end
 
   # Require the appropriate readline library based on the user's preference.
