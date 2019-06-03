@@ -93,8 +93,8 @@ class MetasploitModule < Msf::Auxiliary
     rescue RdpCommunicationError
       vprint_error("Error communicating RDP protocol.")
       status = Exploit::CheckCode::Unknown
-    rescue Errno::ECONNRESET  # NLA?
-      vprint_error("Connection reset, possible NLA is enabled.")
+    rescue Errno::ECONNRESET
+      vprint_error("Connection reset")
     rescue => e
       bt = e.backtrace.join("\n")
       vprint_error("Unexpected error: #{e.message}")
@@ -108,7 +108,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_rdp
-
     # code to check if RDP is open or not
     vprint_status("Verifying RDP protocol...")
 
@@ -167,6 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     # The loop below sends Virtual Channel PDUs (2.2.6.1) that vary in length
     # The arch governs which triggers the desired response which is a MCS
     # Disconnect Provider Ultimatum or a timeout.
+    vprint_status("Sending patch check payloads")
     for j in 0..5
       # x86
       pkt = rdp_build_pkt(["100000000300000000000000020000000000000000000000"].pack("H*"), "\x03\xed")
@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
       res = rdp_send_recv(pdu_connect_initial(server_selected_proto))
       rsmod, rsexp, rsran, server_rand, bitlen = rdp_parse_connect_response(res)
     elsif [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
-      vprint_status("Server requests NLA security which mitigates this vulnerability.")
+      vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
       return Exploit::CheckCode::Safe
     else
       vprint_status("Server requests an unhandled protocol (#{server_selected_proto.to_s}), status unknown.")
@@ -265,8 +265,8 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Sending client control request control PDU")
     rdp_send(rdp_build_pkt(pdu_client_control_request))
 
-    vprint_status("Sending client persistent key list PDU")
-    rdp_send(rdp_build_pkt(pdu_client_persistent_key_list))
+    vprint_status("Sending client input sychronize PDU")
+    rdp_send(rdp_build_pkt(pdu_client_input_event_sychronize))
 
     vprint_status("Sending client font list PDU")
     rdp_send(rdp_build_pkt(pdu_client_font_list))
@@ -838,21 +838,27 @@ class MetasploitModule < Msf::Auxiliary
     "\x00\x00"           # cbAutoReconnectCookie
   end
 
-  # Build share headers
-  # 2.2.8.1.1.1
-  def build_share_headers(type, data)
-
-    uncompressed_len = data.length + 4
-    total_len = uncompressed_len + 14
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/73d01865-2eae-407f-9b2c-87e31daac471
+  # Share Control Header - TS_SHARECONTROLHEADER - 2.2.8.1.1.1.1
+  def build_share_control_header(type, data)
+    total_len = data.length + 6
 
     [total_len].pack("S<") + # totalLength - includes all headers
-    "\x17\x00" + # pduType = flags TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    [type].pack("S<") + # pduType - flags 16 bit, unsigned
     "\xf1\x03" + # PDUSource: 0x03f1 = 1009
+    data
+  end
+
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4b5d4c0d-a657-41e9-9c69-d58632f46d31
+  # Share Data Header - TS_SHAREDATAHEADER - 2.2.8.1.1.1.2
+  def build_share_data_header(type, data)
+    uncompressed_len = data.length + 4
+
     "\xea\x03\x01\x00" + # shareId: 66538
     "\x00" +     # pad1
     "\x01" +     # streamID: 1
     [uncompressed_len].pack("S<") + # uncompressedLength - 16 bit, unsigned int
-    type +       # pduType2 - 8 bit, unsighted int - 2.2.8.1.1.2
+    [type].pack("C") + # pduType2 - 8 bit, unsignted int - 2.2.8.1.1.2
     "\x00" +     # compressedType: 0
     "\x00\x00" + # compressedLength: 0
     data
@@ -866,7 +872,10 @@ class MetasploitModule < Msf::Auxiliary
     "\x00\x00\x00\x00" # controlId: 0
 
     # pduType2 = 0x14 = 20 - PDUTYPE2_CONTROL
-    build_share_headers("\x14", pdu)
+    data_header = build_share_data_header(0x14, pdu)
+
+    # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    build_share_control_header(0x17, data_header)
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4f94e123-970b-4242-8cf6-39820d8e3d35
@@ -877,7 +886,10 @@ class MetasploitModule < Msf::Auxiliary
     "\x00\x00\x00\x00" # controlId: 0
 
     # pduType2 = 0x14 = 20 - PDUTYPE2_CONTROL
-    build_share_headers("\x14", pdu)
+    data_header = build_share_data_header(0x14, pdu)
+
+    # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    build_share_control_header(0x17, data_header)
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/7067da0d-e318-4464-88e8-b11509cf0bd9
@@ -888,8 +900,11 @@ class MetasploitModule < Msf::Auxiliary
     "\x03\x00" + # listFlags: 3 (FONTLIST_FIRST | FONTLIST_LAST)
     "\x32\x00"   # entrySize: 50
 
-    # pduType2 = 0x27 = 39 - PDUTYPE2_FONTLIST
-    build_share_headers("\x27", pdu)
+    # pduType2 = 0x27 = 29 -  PDUTYPE2_FONTLIST
+    data_header = build_share_data_header(0x27, pdu)
+
+    # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    build_share_control_header(0x17, data_header)
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/5186005a-36f5-4f5d-8c06-968f28e2d992
@@ -899,21 +914,155 @@ class MetasploitModule < Msf::Auxiliary
     [target_user].pack("S<")  # targetUser, 16 bit, unsigned.
 
     # pduType2 = 0x1f = 31 - PDUTYPE2_SCYNCHRONIZE
-    build_share_headers("\x1f", pdu)
+    data_header = build_share_data_header(0x1f, pdu)
+
+    # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    build_share_control_header(0x17, data_header)
   end
 
-  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4c3c2710-0bf0-4c54-8e69-aff40ffcde66
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4e9722c3-ad83-43f5-af5a-529f73d88b48
+  # Confirm Active PDU Data - TS_CONFIRM_ACTIVE_PDU - 2.2.1.13.2.1
   def pdu_client_confirm_active
-    data = "a4011300f103ea030100ea0306008e014d53545343000e00000001001800010003000002000000000d04000000000000000002001c00100001000100010020035802000001000100000001000000030058000000000000000000000000000000000000000000010014000000010047012a000101010100000000010101010001010000000000010101000001010100000000a1060000000000000084030000000000e40400001300280000000003780000007800000050010000000000000000000000000000000000000000000008000a000100140014000a0008000600000007000c00000000000000000005000c00000000000200020009000800000000000f000800010000000d005800010000000904000004000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000800010000000e0008000100000010003400fe000400fe000400fe000800fe000800fe001000fe002000fe004000fe008000fe000001400000080001000102000000"
 
-    [data].pack("H*")
+
+    pdu = "\xea\x03\x01\x00" + # shareId: 66538
+    "\xea\x03" + #originatorId
+    "\x06\x00" + # lengthSourceDescriptor: 6
+    "\x8e\x01" + # lengthCombinedCapabilities: 398
+    "\x4d\x53\x54\x53\x43\x00" + # SourceDescriptor: 'MSTSC'
+    "\x0e\x00" + # numberCapabilities: 14
+    "\x00\x00" + # pad2Octets
+    "\x01\x00" + # capabilitySetType: 1 - TS_GENERAL_CAPABILITYSET
+    "\x18\x00" + # lengthCapability: 24
+    "\x01\x00\x03\x00\x00\x02\x00\x00\x00\x00\x0d\x04\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00" +
+    "\x02\x00" + # capabilitySetType: 2 - TS_BITMAP_CAPABILITYSET
+    "\x1c\x00" + # lengthCapability: 28
+    "\x10\x00\x01\x00\x01\x00\x01\x00\x20\x03\x58\x02\x00\x00\x01\x00" +
+    "\x01\x00\x00\x00\x01\x00\x00\x00" +
+    "\x03\x00" + # capabilitySetType: 3 - TS_ORDER_CAPABILITYSET
+    "\x58\x00" + # lengthCapability: 88
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x01\x00\x14\x00\x00\x00\x01\x00\x47\x01\x2a\x00" +
+    "\x01\x01\x01\x01\x00\x00\x00\x00\x01\x01\x01\x01\x00\x01\x01\x00" +
+    "\x00\x00\x00\x00\x01\x01\x01\x00\x00\x01\x01\x01\x00\x00\x00\x00" +
+    "\xa1\x06\x00\x00\x00\x00\x00\x00\x00\x84\x03\x00\x00\x00\x00\x00" +
+    "\xe4\x04\x00\x00\x13\x00\x28\x00\x00\x00\x00\x03\x78\x00\x00\x00" +
+    "\x78\x00\x00\x00\x50\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x08\x00" + # capabilitySetType: 8 - TS_POINTER_CAPABILITYSET
+    "\x0a\x00" + # lengthCapability: 10
+    "\x01\x00\x14\x00\x14\x00" +
+    "\x0a\x00" + # capabilitySetType: 10 - TS_COLORTABLE_CAPABILITYSET
+    "\x08\x00" + # lengthCapability: 8
+    "\x06\x00\x00\x00" +
+    "\x07\x00" + # capabilitySetType: 7 - TSWINDOWACTIVATION_CAPABILITYSET
+    "\x0c\x00" + # lengthCapability: 12
+    "\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x05\x00" + # capabilitySetType: 5 - TS_CONTROL_CAPABILITYSET
+    "\x0c\x00" + # lengthCapability: 12
+    "\x00\x00\x00\x00\x02\x00\x02\x00" +
+    "\x09\x00" + # capabilitySetType: 9 - TS_SHARE_CAPABILITYSET
+    "\x08\x00" + # lengthCapability: 8
+    "\x00\x00\x00\x00" +
+    "\x0f\x00" + # capabilitySetType: 15 - TS_BRUSH_CAPABILITYSET
+    "\x08\x00" + # lengthCapability: 8
+    "\x01\x00\x00\x00" +
+    "\x0d\x00" + # capabilitySetType: 13 - TS_INPUT_CAPABILITYSET
+    "\x58\x00" + # lengthCapability: 88
+    "\x01\x00\x00\x00\x09\x04\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00" +
+    "\x0c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    "\x00\x00\x00\x00" +
+    "\x0c\x00" + # capabilitySetType: 12 - TS_SOUND_CAPABILITYSET
+    "\x08\x00" + # lengthCapability: 8
+    "\x01\x00\x00\x00" +
+    "\x0e\x00" + # capabilitySetType: 14 - TS_FONT_CAPABILITYSET
+    "\x08\x00" + # lengthCapability: 8
+    "\x01\x00\x00\x00" +
+    "\x10\x00" + # capabilitySetType: 16 - TS_GLYPHCAChE_CAPABILITYSET
+    "\x34\x00" + # lengthCapability: 52
+    "\xfe\x00\x04\x00\xfe\x00\x04\x00\xfe\x00\x08\x00\xfe\x00\x08\x00" +
+    "\xfe\x00\x10\x00\xfe\x00\x20\x00\xfe\x00\x40\x00\xfe\x00\x80\x00" +
+    "\xfe\x00\x00\x01\x40\x00\x00\x08\x00\x01\x00\x01\x02\x00\x00\x00"
+
+    # type = 0x13 = TS_PROTOCOL_VERSION | PDUTYPE_CONFIRMACTIVEPDU
+    build_share_control_header(0x13, pdu)
   end
 
-  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/2d122191-af10-4e36-a781-381e91c182b7
-  def pdu_client_persistent_key_list
-    data = "49031700f103ea03010000013b031c00000001000000000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/ff7f06f8-0dcf-4c8d-be1f-596ae60c4396
+  # Client Input Event Data - TS_INPUT_PDU_DATA - 2.2.8.1.1.3.1
+  def pdu_client_input_event_sychronize
 
-    [data].pack("H*")
+    pdu = "\x01\x00" +   # numEvents: 1
+    "\x00\x00" +         # pad2Octets
+    "\x00\x00\x00\x00" + # eventTime
+    "\x00\x00" +         # messageType: 0 - INPUT_EVENT_SYNC
+    # TS_SYNC_EVENT 202.8.1.1.3.1.1.5
+    "\x00\x00" +         # pad2Octets
+    "\x00\x00\x00\x00" + # toggleFlags
+    # The data below is not part of the specification
+    # Testing without the data did not discover any impact on reliability
+    # or target stablility. Will likely be removed in a future PR.
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa" +
+    "\xaa\xaa\xaa\xaa\xaa\xaa\xaa"
+
+    # pduType2 = 0x1c = 28 - PDUTYPE2_INPUT
+    data_header = build_share_data_header(0x1c, pdu)
+
+    # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
+    build_share_control_header(0x17, data_header)
   end
 
 end
