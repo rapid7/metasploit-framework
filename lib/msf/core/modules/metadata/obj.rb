@@ -13,6 +13,8 @@ class Obj
   attr_reader :name
   # @return [String]
   attr_reader :fullname
+  # @return [Array<String>]
+  attr_reader :aliases
   # @return [Integer]
   attr_reader :rank
   # @return [Date]
@@ -60,6 +62,7 @@ class Obj
 
     @name               = module_instance.name
     @fullname           = module_instance.fullname
+    @aliases            = module_instance.aliases
     @disclosure_date    = module_instance.disclosure_date
     @rank               = module_instance.rank.to_i
     @type               = module_instance.type
@@ -111,6 +114,7 @@ class Obj
     {
       'name'               => @name,
       'fullname'           => @fullname,
+      'aliases'            => @aliases,
       'rank'               => @rank,
       'disclosure_date'    => @disclosure_date.nil? ? nil : @disclosure_date.to_s,
       'type'               => @type,
@@ -160,6 +164,7 @@ class Obj
   def init_from_hash(obj_hash)
     @name               = obj_hash['name']
     @fullname           = obj_hash['fullname']
+    @aliases            = obj_hash['aliases'] || []
     @disclosure_date    = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
     @rank               = obj_hash['rank']
     @type               = obj_hash['type']

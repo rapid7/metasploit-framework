@@ -31,6 +31,13 @@ module Msf::Module::FullName
     def shortname
       refname.split('/').last
     end
+
+    #
+    # Returns a list of alternate names the module might go by.
+    #
+    def aliases
+      const_defined?(:Aliases) ? const_get(:Aliases) : []
+    end
   end
 
   #
@@ -74,5 +81,9 @@ module Msf::Module::FullName
   #
   def shortname
     self.class.shortname
+  end
+
+  def aliases
+    self.class.aliases
   end
 end
