@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         (self.signed) version using the information from the remote version. The module
         then Outputs (PEM|DER) format private key / certificate and a combined version
         for use in Apache or other Metasploit modules requiring SSLCert Inputs for private
-        key / CA cert have been provided for those with diginator certs hanging about!
+        key / CA cert have been provided for those with DigiNotar certs hanging about!
       }
     ))
 
@@ -37,12 +34,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PRIVKEY_PASSWORD', [false, "Password for private key specified in PRIV_KEY (if applicable)", nil]),
         OptPath.new('CA_CERT',            [false, "CA Public certificate", nil]),
         OptString.new('ADD_CN',           [false, "Add CN to match spoofed site name (e.g. *.example.com)", nil])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('AlterSerial',        [false, "Alter the serial number slightly to avoid FireFox serial matching", true])
-      ], self.class)
+      ])
   end
 
   def run

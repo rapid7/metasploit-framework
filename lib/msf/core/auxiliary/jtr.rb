@@ -4,6 +4,7 @@ require 'fileutils'
 require 'rex/proto/ntlm/crypt'
 require 'metasploit/framework/jtr/cracker'
 require 'metasploit/framework/jtr/wordlist'
+require 'metasploit/framework/jtr/formatter'
 
 
 module Msf
@@ -27,9 +28,9 @@ module Auxiliary::JohnTheRipper
       [
         OptPath.new('CONFIG',               [false, 'The path to a John config file to use instead of the default']),
         OptPath.new('CUSTOM_WORDLIST',      [false, 'The path to an optional custom wordlist']),
-        OptInt.new('ITERATION_TIMOUT',      [false, 'The max-run-time for each iteration of cracking']),
+        OptInt.new('ITERATION_TIMEOUT',     [false, 'The max-run-time for each iteration of cracking']),
         OptPath.new('JOHN_PATH',            [false, 'The absolute path to the John the Ripper executable']),
-        OptBool.new('KoreLogic',            [false, 'Apply the KoreLogic rules to Wordlist Mode(slower)', false]),
+        OptBool.new('KORELOGIC',            [false, 'Apply the KoreLogic rules to Wordlist Mode(slower)', false]),
         OptBool.new('MUTATE',               [false, 'Apply common mutations to the Wordlist (SLOW)', false]),
         OptPath.new('POT',                  [false, 'The path to a John POT file to use instead of the default']),
         OptBool.new('USE_CREDS',            [false, 'Use existing credential data saved in the database', true]),
@@ -40,6 +41,11 @@ module Auxiliary::JohnTheRipper
       ], Msf::Auxiliary::JohnTheRipper
     )
 
+    register_advanced_options(
+      [
+        OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true])
+      ], Msf::Auxiliary::JohnTheRipper
+    )
   end
 
   # @param pwd [String] Password recovered from cracking an LM hash
@@ -79,9 +85,10 @@ module Auxiliary::JohnTheRipper
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data
   # out to a file and returns the {Rex::Quickfile} object.
   #
+  # @param max_len [Integer] max length of a word in the wordlist, 0 default for ignored value
   # @return [nilClass] if there is no active framework db connection
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file
-  def wordlist_file
+  def wordlist_file(max_len = 0)
     return nil unless framework.db.active
     wordlist = Metasploit::Framework::JtR::Wordlist.new(
         custom_wordlist: datastore['CUSTOM_WORDLIST'],
@@ -93,8 +100,7 @@ module Auxiliary::JohnTheRipper
         use_common_root: datastore['USE_ROOT_WORDS'],
         workspace: myworkspace
     )
-    wordlist.to_file
+    wordlist.to_file(max_len)
   end
-
 end
 end

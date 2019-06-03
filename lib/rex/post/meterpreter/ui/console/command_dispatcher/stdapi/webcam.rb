@@ -34,18 +34,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "record_mic"    => [ "webcam_audio_record" ]
     }
-
-    all.delete_if do |cmd, _desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -259,11 +248,12 @@ Status     : <span id="status"></span>
     ::File.open(player_path, 'wb') do |f|
       f.write(html)
     end
+    path = ::File.expand_path(player_path)
     if view
-      print_status("Opening player at: #{player_path}")
+      print_status("Opening player at: #{path}")
       Rex::Compat.open_file(player_path)
     else
-      print_status("Please open the player manually with a browser: #{player_path}")
+      print_status("Please open the player manually with a browser: #{path}")
     end
 
     print_status("Streaming...")

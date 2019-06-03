@@ -21,9 +21,13 @@ class Console::CommandDispatcher::Extapi::Window
   # List of supported commands.
   #
   def commands
-    {
+    all = {
       "window_enum" => "Enumerate all current open windows"
     }
+    reqs = {
+      "window_enum" => [ "extapi_window_enum" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #

@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 #
-# This script will allow you to specify an encrypted cpassword string using the Microsofts public
+# This script will allow you to specify an encrypted cpassword string using the Microsoft's public
 # AES key. This is useful if you don't or can't use the GPP post exploitation module. Just paste
 # the cpassword encrypted string found in groups.xml or scheduledtasks.xml and it will output the
 # decrypted string for you.
@@ -64,7 +64,7 @@ class CPassword
     key << "\x4e\x99\x06\xe8\xfc\xb6\x6c\xc9\xfa\xf4\x93\x10\x62\x0f\xfe\xe8\xf4\x96\xe8\x06\xcc"
     key << "\x05\x79\x90\x20\x9b\x09\xa4\x33\xb6\x6c\x1b"
     begin
-      aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
+      aes = OpenSSL::Cipher.new("AES-256-CBC")
       aes.decrypt
       aes.key = key
       plaintext = aes.update(decoded)
@@ -79,7 +79,6 @@ class CPassword
   end
 end
 
-
 #
 # Shows script usage
 #
@@ -88,14 +87,12 @@ def usage
   exit
 end
 
-
 #
 # Prints a status message
 #
 def print_status(msg='')
   $stderr.puts "[*] #{msg}"
 end
-
 
 #
 # Prints an error message
@@ -104,14 +101,12 @@ def print_error(msg='')
   $stderr.puts "[-] #{msg}"
 end
 
-
 #
 # Prints a good message
 #
 def print_good(msg='')
   $stderr.puts "[+] #{msg}"
 end
-
 
 #
 # main

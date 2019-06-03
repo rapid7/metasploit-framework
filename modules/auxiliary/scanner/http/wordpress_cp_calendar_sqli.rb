@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -27,14 +25,15 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'EDB', '36243'],
+          [ 'CVE' , '2014-8586' ],
+          [ 'EDB', '36243' ],
           [ 'WPVDB', '7910' ]
         ],
       'DisclosureDate' => 'Mar 03 2015'))
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

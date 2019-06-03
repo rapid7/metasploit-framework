@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -17,46 +17,28 @@
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
-  "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
-  "-rc" => [ true,"Text file with list of commands, one per line."]
+  "-s" => [ false,"Hide commands output for work in background sessions"],
+  "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+  "-r" => [ true,"Text file with list of commands, one per line."]
 )
 
-#Setting Argument variables
 commands = nil
 script = []
-help = 0
-
-################## Function Declarations ##################
-# Function for running a list of commands stored in a array, returs string
-def list_con_exec(cmdlst)
-  print_status("Running Command List ...")
-  cmdout = ""
-  cmdlst.each do |cmd|
-    next if cmd.strip.length < 1
-    next if cmd[0,1] == "#"
-    begin
-      print_status "\tRunning command #{cmd}"
-      @client.console.run_single(cmd)
-    rescue ::Exception => e
-      print_status("Error Running Command #{cmd}: #{e.class} #{e}")
-    end
-  end
-  cmdout
-end
-
+help = false
+silence = false
 
 def usage
   print_line("Console Multi Command Execution Meterpreter Script ")
   print_line(@@exec_opts.usage)
   raise Rex::Script::Completed
 end
-################## Main ##################
+
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
 
-  when "-cl"
+  when "-c"
     commands = val.split(",")
-  when "-rc"
+  when "-r"
     script = val
     if not ::File.exist?(script)
       raise "Command List File does not exists!"
@@ -68,14 +50,34 @@ end
     end
 
   when "-h"
-    help = 1
+    help = true
+  when "-s"
+    silence = true
   end
 }
 
-if args.length == 0 or help == 1 or commands.nil?
+if args.length == 0 or help or commands.nil?
   usage
-else
-  list_con_exec(commands)
-  raise Rex::Script::Completed
 end
 
+print_status("Running Command List ...")
+
+commands.each do |cmd|
+  next if cmd.strip.length < 1
+  next if cmd[0,1] == "#"
+  begin
+    print_status "\tRunning command #{cmd}"
+    if silence
+        @client.console.disable_output = true
+    end
+
+    @client.console.run_single(cmd)
+
+    if silence
+      @client.console.disable_output = false
+    end
+
+  rescue ::Exception => e
+    print_status("Error Running Command #{cmd}: #{e.class} #{e}")
+  end
+end

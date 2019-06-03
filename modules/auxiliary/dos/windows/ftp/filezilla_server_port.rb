@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
 
@@ -19,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         Server versions 0.9.21 and earlier. By sending a malformed PORT command
         then LIST command, the server attempts to write to a NULL pointer.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        	=> MSF_LICENSE,
       'References'     =>
         [
@@ -51,5 +47,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
   end
-
 end

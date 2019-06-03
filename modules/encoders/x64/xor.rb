@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Encoder::Xor
 
@@ -14,7 +10,7 @@ class MetasploitModule < Msf::Encoder::Xor
       'Name'             => 'XOR Encoder',
       'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
       'Author'           => [ 'sf' ],
-      'Arch'             => ARCH_X86_64,
+      'Arch'             => ARCH_X64,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
         {
@@ -49,5 +45,4 @@ class MetasploitModule < Msf::Encoder::Xor
 
     return decoder
   end
-
 end

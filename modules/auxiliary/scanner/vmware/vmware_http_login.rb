@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
-
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def report_cred(opts)
@@ -78,7 +75,6 @@ class MetasploitModule < Msf::Auxiliary
     }
   end
 
-
   # Mostly taken from the Apache Tomcat service validator
   def is_vmware?
     soap_data =
@@ -90,27 +86,25 @@ class MetasploitModule < Msf::Auxiliary
       </env:Body>
       </env:Envelope>|
 
-    begin
-      res = send_request_cgi({
-        'uri'     => normalize_uri(datastore['URI']),
-        'method'  => 'POST',
-        'agent'   => 'VMware VI Client',
-        'data'    => soap_data
-      }, 25)
+    res = send_request_cgi({
+      'uri'     => normalize_uri(datastore['URI']),
+      'method'  => 'POST',
+      'agent'   => 'VMware VI Client',
+      'data'    => soap_data
+    }, 25)
 
-      if res
-        fingerprint_vmware(res)
-      else
-        vprint_error("#{rhost}:#{rport} Error: no response")
-      end
-
-    rescue ::Rex::ConnectionError => e
-      vprint_error("#{rhost}:#{rport} Error: could not connect")
-      return false
-    rescue
-      vprint_error("#{rhost}:#{rport} Error: #{e}")
+    unless res
+      vprint_error("#{rhost}:#{rport} Error: no response")
       return false
     end
+
+    fingerprint_vmware(res)
+  rescue ::Rex::ConnectionError => e
+    vprint_error("#{rhost}:#{rport} Error: could not connect")
+    return false
+  rescue => e
+    vprint_error("#{rhost}:#{rport} Error: #{e}")
+    return false
   end
 
   def fingerprint_vmware(res)
@@ -130,22 +124,19 @@ class MetasploitModule < Msf::Auxiliary
       report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
     end
 
-    if os_match and ver_match and build_match
-      if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
-        # Report a fingerprint match for OS identification
-        report_note(
-          :host  => ip,
-          :ntype => 'fingerprint.match',
-          :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
-        )
-      end
-      return true
-    else
-      vprint_error("#{rhost}:#{rport} Error: Could not identify as VMWare")
+    unless os_match and ver_match and build_match
+      vprint_error("#{rhost}:#{rport} Error: Could not identify host as VMWare")
       return false
     end
 
+    if os_match[1].include?('ESX') || os_match[1].include?('vCenter')
+      # Report a fingerprint match for OS identification
+      report_note(
+        :host  => rhost,
+        :ntype => 'fingerprint.match',
+        :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
+      )
+      return true
+    end
   end
-
-
 end

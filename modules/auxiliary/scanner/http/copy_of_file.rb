@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanFile
   include Msf::Auxiliary::Scanner
@@ -28,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [ true,  "The path/file to identify copies", '/index.asp'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -38,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ], self.class)
+      ])
 
   end
 
@@ -134,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
             if ecode != 400 and res.code.to_i == 400
               print_error("[#{wmap_target_host}] Server returned a 400 error on #{wmap_base_url}#{filec} [#{res.code.to_i}]")
             else
-              print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
+              print_good("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
 
               report_web_vuln(
                 :host	=> ip,

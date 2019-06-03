@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 # This payload has no ebcdic<->ascii translator built in.
 # Therefore it must use a shell which does, like mainframe_shell
@@ -7,7 +7,6 @@
 #
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -23,7 +22,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Z/OS (MVS) Command Shell, Reverse TCP Inline',
       'Description'   => 'Listen for a connection and spawn a command shell.
-          This implmentation does not include ebcdic character translation,
+          This implementation does not include ebcdic character translation,
           so a client with translation capabilities is required.  MSF handles
           this automatically.',
       'Author'        => 'Bigendian Smalls',

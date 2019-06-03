@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -42,9 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
-    ], self.class)
-
-    deregister_options('RHOST')
+    ])
   end
 
   # This is the main controller function
@@ -211,5 +208,4 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
   end
-
 end

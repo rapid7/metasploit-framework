@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CERTID', [ true, 'SHA1 hash of the certificate to remove.', '']),
-      ], self.class)
+      ])
   end
 
 
@@ -52,5 +50,4 @@ class MetasploitModule < Msf::Post
     open_key.delete_key(certtoremove)
     print_good("Successfully deleted CA: #{certtoremove}")
   end
-
 end

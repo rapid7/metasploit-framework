@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         'Comma-separated list of files to steal',
         '/etc/passwd, /etc/shadow'
       ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptInt.new('PER_FILE_SLEEP', [
@@ -53,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         'Milliseconds to wait before attempting to read the frame containing each file',
         250
       ])
-    ], self.class)
+    ])
   end
 
   def run

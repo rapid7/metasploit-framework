@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
         OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
         OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -140,9 +138,8 @@ class MetasploitModule < Msf::Auxiliary
       if res && res.body && res.body && res.body.to_s =~ /CFA/
         print_good("Call forwarded successfully for #{fintnumber}")
       else
-        print_status("Call forward failed.")
+        print_error("Call forward failed")
       end
     end
   end
-
 end

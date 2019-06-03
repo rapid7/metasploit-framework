@@ -8,16 +8,16 @@ module Rex
         class ProtocolAck < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the input stream id
+          #   @return [Integer] the input stream id
           attr_accessor :stream_id
           # @!attribute length
-          #   @return [Fixnum] the end point address length
+          #   @return [Integer] the end point address length
           attr_accessor :length
           # @!attribute address
           #   @return [String] the end point address
           attr_accessor :address
           # @!attribute port
-          #   @return [Fixnum] the end point port
+          #   @return [Integer] the end point port
           attr_accessor :port
 
           private
@@ -39,7 +39,7 @@ module Rex
           # Reads the end point identifier address length from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_length(io)
             length = read_short(io)
 
@@ -59,7 +59,7 @@ module Rex
           # Reads the end point port from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_port(io)
             port = read_int(io)
 

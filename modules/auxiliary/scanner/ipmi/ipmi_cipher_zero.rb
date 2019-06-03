@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'IPMI 2.0 Cipher Zero Authentication Bypass Scanner',
       'Description' => %q|
-        This module identifies IPMI 2.0 compatible systems that are vulnerable
+        This module identifies IPMI 2.0-compatible systems that are vulnerable
         to an authentication bypass vulnerability through the use of cipher
         zero.
         |,
@@ -24,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2013-4782'],
           ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
           ['OSVDB', '93038'],
           ['OSVDB', '93039'],
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(623)
-    ], self.class)
+    ])
 
   end
 
@@ -54,9 +52,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    info = Rex::Proto::IPMI::Open_Session_Reply.new(data) rescue nil
-    return if not info
-    return if not info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
+    info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data)#  rescue nil
+    return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
 
     # Ignore duplicate replies
     return if @res[shost]

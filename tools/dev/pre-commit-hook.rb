@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+#
 # Check that modules actually pass msftidy checks before committing
 # or after merging.
 #
@@ -15,6 +16,7 @@
 # That way, you will track changes to this script when it updates
 # (rarely). If you'd prefer to copy it directly, that's okay, too (mark
 # it +x and don't name it filename.rb, just filename).
+#
 
 def merge_error_message
   msg = []

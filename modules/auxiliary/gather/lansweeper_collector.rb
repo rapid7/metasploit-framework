@@ -1,4 +1,7 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
@@ -37,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
-    ], self.class)
+    ])
 
   end
 

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://twitter.com/nitr0usmx/status/740673507684679680/photo/1' ],
           [ 'URL', 'https://github.com/vrtadmin/clamav-faq/raw/master/manual/clamdoc.pdf' ]
         ],
-        'DisclosureDate' => 'Jun 8 2016',
+        'DisclosureDate' => '2016-06-08',
         'Actions'        => [
           [ 'VERSION',  'Description' => 'Get Version Information' ],
           [ 'SHUTDOWN', 'Description' => 'Kills ClamAV Daemon' ]

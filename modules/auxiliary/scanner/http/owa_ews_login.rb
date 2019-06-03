@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 require 'rex/proto/http'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

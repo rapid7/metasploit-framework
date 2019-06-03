@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -15,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Kaillera 0.86 Server Denial of Service' ,
       'Description'    => %q{
           The Kaillera 0.86 server can be shut down by sending any malformed packet
-        after the intial "hello" packet.
+        after the initial "hello" packet.
       },
       'Author'         => ["Sil3nt_Dre4m"],
       'License'        => MSF_LICENSE,
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res[0] =~ /HELLOD00D([0-9]{1,5})/
       port = $1
-    else print_status("Connection failed")
+    else print_error("Connection failed")
       return
     end
 
@@ -59,5 +56,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Target is down")
     end
   end
-
 end

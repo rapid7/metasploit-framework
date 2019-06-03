@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/afp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -31,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'      => MSF_LICENSE
     ))
 
-    deregister_options('RHOST')
     register_options(
       [
         Opt::Proxies,
@@ -39,7 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RECORD_GUEST', [ false, "Record guest login to the database", false]),
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
       ], self)
-
   end
 
   def run_host(ip)
@@ -88,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

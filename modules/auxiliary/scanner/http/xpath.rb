@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MAX_OVER', [ true, "Dont detect result size. Use MAX_LEN instead", true ]),
         OptBool.new('CHKINJ', [ false, "Check XPath injection with error message", false ]),
         OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ])
-      ], self.class)
+      ])
 
   end
 

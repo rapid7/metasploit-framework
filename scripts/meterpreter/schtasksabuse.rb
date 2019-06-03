@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -153,7 +153,7 @@ end
 
 }
 
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 print_status("Meterpreter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
   abuse(session,targets,commands,username,password,delay)

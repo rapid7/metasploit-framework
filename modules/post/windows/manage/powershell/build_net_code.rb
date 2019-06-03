@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/post/windows/powershell'
 require 'msf/core/exploit/powershell/dot_net'
 
@@ -60,7 +59,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Havent figured this one out yet, but we need a PID owned by a user, can't steal tokens either
-    if client.sys.config.getuid == 'NT AUTHORITY\SYSTEM'
+    if client.sys.config.is_system?
       print_error "Cannot run as system"
       return 0
     end

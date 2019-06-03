@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
@@ -15,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
       'Name'          => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
       'Description'   =>
         "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
-        and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
+        and its results in files for fast access. Version 0.9.2.4 has been fixed afterwards
         so it can be vulnerable. These cache files are in the webroot of the Wordpress
-        installation and can be downloaded if the name is guessed. This modules tries to
+        installation and can be downloaded if the name is guessed. This module tries to
         locate them with brute force in order to find usernames and password hashes in these
         files. W3 Total Cache must be configured with Database Cache enabled and Database
         Cache Method set to Disk to be vulnerable",
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'    =>
         [
           ['OSVDB', '88744'],
-          ['URL', 'http://seclists.org/fulldisclosure/2012/Dec/242'],
+          ['URL', 'https://seclists.org/fulldisclosure/2012/Dec/242'],
           ['WPVDB', '6621']
         ],
       'Author'        =>
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TABLE_PREFIX', [true,	'Wordpress table prefix', 'wp_']),
         OptInt.new('SITE_ITERATIONS', [true, 'Number of sites to iterate', 25]),
         OptInt.new('USER_ITERATIONS', [true, 'Number of users to iterate', 25])
-      ], self.class)
+      ])
   end
 
   def table_prefix

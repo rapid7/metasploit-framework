@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 require 'msf/core/handler/reverse_hop_http'
 
 module MetasploitModule
@@ -39,7 +38,7 @@ module MetasploitModule
     register_options([
       OptString.new('HOPURL', [ true, "The full URL of the hop script", "http://example.com/hop.php" ]
       )
-    ], self.class)
+    ])
   end
 
   #

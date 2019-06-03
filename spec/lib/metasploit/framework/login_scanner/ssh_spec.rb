@@ -60,6 +60,20 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
 
   it { is_expected.to respond_to :verbosity }
 
+  before(:each) do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:password)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return([])
+    allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(true)
+    ssh_scanner.cred_details = creds
+  end
+
   context 'validations' do
 
     context 'verbosity' do
@@ -124,14 +138,15 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
       it 'calls Net::SSH with the correct arguments' do
         factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
-            :port          => ssh_scanner.port,
-            :use_agent     => false,
-            :config        => false,
-            :verbose       => ssh_scanner.verbosity,
-            :proxy         => factory,
-            :auth_methods  => ['password','keyboard-interactive'],
-            :password      => private,
-            :non_interactive => true
+            :port            => ssh_scanner.port,
+            :use_agent       => false,
+            :config          => false,
+            :verbose         => ssh_scanner.verbosity,
+            :proxy           => factory,
+            :auth_methods    => ['password','keyboard-interactive'],
+            :password        => private,
+            :non_interactive => true,
+            :verify_host_key => :never
         }
         allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(
@@ -147,13 +162,14 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
       it 'calls Net::SSH with the correct arguments' do
         factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
-            :auth_methods  => ['publickey'],
-            :port          => ssh_scanner.port,
-            :use_agent     => false,
-            :key_data      => key,
-            :config        => false,
-            :verbose       => ssh_scanner.verbosity,
-            :proxy         => factory
+            :auth_methods    => ['publickey'],
+            :port            => ssh_scanner.port,
+            :use_agent       => false,
+            :key_data        => key,
+            :config          => false,
+            :verbose         => ssh_scanner.verbosity,
+            :proxy           => factory,
+            :verify_host_key => :never
         }
         allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(

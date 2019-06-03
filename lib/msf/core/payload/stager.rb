@@ -89,7 +89,10 @@ module Msf::Payload::Stager
   #
   # @return [String,nil]
   def stage_payload(opts = {})
-    return module_info['Stage']['Payload']
+    if module_info['Stage']
+      return module_info['Stage']['Payload']
+    end
+    nil
   end
 
   #
@@ -97,7 +100,10 @@ module Msf::Payload::Stager
   #
   # @return [String]
   def stage_assembly
-    return module_info['Stage']['Assembly']
+    if module_info['Stage']
+      return module_info['Stage']['Assembly']
+    end
+    nil
   end
 
   #
@@ -108,7 +114,10 @@ module Msf::Payload::Stager
   #
   # @return [Hash]
   def stage_offsets
-    return module_info['Stage']['Offsets']
+    if module_info['Stage']
+      return module_info['Stage']['Offsets']
+    end
+    nil
   end
 
   #
@@ -138,8 +147,7 @@ module Msf::Payload::Stager
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      # Options get ignored by the stage_payload method
-      raw = stage_payload
+      raw = stage_payload(opts)
     end
 
     # Substitute variables in the stage
@@ -157,8 +165,6 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      opts = {}
-
       if respond_to? :include_send_uuid
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)
@@ -207,15 +213,6 @@ module Msf::Payload::Stager
 
       # Send the stage
       conn.put(p)
-    end
-
-    # If the stage implements the handle connection method, sleep before
-    # handling it.
-    if (derived_implementor?(Msf::Payload::Stager, 'handle_connection_stage'))
-      print_status("Sleeping before handling stage...")
-
-      # Sleep before processing the stage
-      Rex::ThreadSafe.sleep(1.5)
     end
 
     # Give the stages a chance to handle the connection

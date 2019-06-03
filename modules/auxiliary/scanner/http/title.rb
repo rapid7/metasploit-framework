@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_NOTES', [ true, 'Store the captured information in notes. Use "notes -t http.title" to view', true ]),
         OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ]),
         OptString.new('TARGETURI', [true, 'The base path', '/'])
-      ], self.class)
+      ])
 
     deregister_options('VHOST')
   end
@@ -86,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         if rx[:title] != ''
           rx_title = Rex::Text.html_decode(rx[:title])
           if datastore['SHOW_TITLES']
-            print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
+            print_good("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
           end
           if datastore['STORE_NOTES']
             notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header, uri: datastore['TARGETURI'] }

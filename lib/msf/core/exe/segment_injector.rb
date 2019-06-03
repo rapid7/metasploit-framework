@@ -10,13 +10,14 @@ module Exe
     attr_accessor :template
     attr_accessor :arch
     attr_accessor :buffer_register
+    attr_accessor :secname
 
     def initialize(opts = {})
       @payload = opts[:payload]
       @template = opts[:template]
       @arch  = opts[:arch] || :x86
       @buffer_register = opts[:buffer_register]
-
+      @secname = opts[:secname]
       x86_regs = %w{eax ecx edx ebx edi esi}
       x64_regs = %w{rax rcx rdx rbx rdi rsi} + (8..15).map{|n| "r#{n}" }
 
@@ -137,7 +138,9 @@ module Exe
       # .text:004136C1                 add     eax, 0Ch
       pattern = "\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C"
       section = pe.sections.find { |s| s.name.to_s == '.text' }
-      if section && section.encoded.pattern_scan(pattern).blank?
+      if section.nil?
+        return false
+      elsif section && section.encoded.pattern_scan(pattern).blank?
         return false
       end
 

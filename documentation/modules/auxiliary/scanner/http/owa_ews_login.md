@@ -1,4 +1,5 @@
-This module is for password guessing against OWA's EWS service which often exposes NTLM authentication over HTTPS. It is typically faster than the traditional form-based OWA login method.
+This module is for password guessing against OWA's EWS service which often exposes NTLM authentication over HTTPS.
+It is typically faster than the traditional form-based OWA login method.
 
 ## Verification Steps
 
@@ -7,7 +8,7 @@ This module is for password guessing against OWA's EWS service which often expos
 3. Set TARGETURI if necessary.
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
 ```
 msf auxiliary(owa_ews_login) > run

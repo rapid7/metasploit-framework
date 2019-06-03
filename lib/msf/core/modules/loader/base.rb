@@ -21,7 +21,8 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_EXPLOIT => 'exploits',
     Msf::MODULE_NOP => 'nops',
     Msf::MODULE_PAYLOAD => 'payloads',
-    Msf::MODULE_POST => 'post'
+    Msf::MODULE_POST => 'post',
+    Msf::MODULE_EVASION => 'evasion'
   }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
@@ -147,18 +148,18 @@ class Msf::Modules::Loader::Base
 
       if namespace_module.const_defined?('Metasploit3', false)
         klass = namespace_module.const_get('Metasploit3', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit3 to MetasploitModule')
+        load_warning(module_path, "Please change the module's class name from Metasploit3 to MetasploitModule")
       elsif namespace_module.const_defined?('Metasploit4', false)
         klass = namespace_module.const_get('Metasploit4', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit4 to MetasploitModule')
+        load_warning(module_path, "Please change the module's class name from Metasploit4 to MetasploitModule")
       elsif namespace_module.const_defined?('MetasploitModule', false)
         klass = namespace_module.const_get('MetasploitModule', false)
       else
-        load_error(module_path, Msf::Modules::Error.new({
-          :module_path => module_path,
-          :module_reference_name => module_reference_name,
-          :causal_message => 'Invalid module (no MetasploitModule class or module name)'
-        }))
+        load_error(module_path, Msf::Modules::Error.new(
+          module_path:           module_path,
+          module_reference_name: module_reference_name,
+          causal_message:        'invalid module class name (must be MetasploitModule)'
+        ))
         return false
       end
 
@@ -173,10 +174,18 @@ class Msf::Modules::Loader::Base
       true
     }
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload, &try_eval_module)
-    unless loaded
+    begin
+      loaded = namespace_module_transaction("#{type}/#{module_reference_name}", reload: reload, &try_eval_module)
+      return false unless loaded
+    rescue NameError
+      load_error(module_path, Msf::Modules::Error.new(
+        module_path:           module_path,
+        module_reference_name: module_reference_name,
+        causal_message:        'invalid module filename (must be lowercase alphanumeric snake case)'
+      ))
       return false
     end
+
 
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
@@ -360,17 +369,14 @@ class Msf::Modules::Loader::Base
   # @return [nil] if any module name along the chain does not exist.
   def current_module(module_names)
     # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
-    named_module = module_names.inject(Object) { |parent, module_name|
+    named_module = module_names.reduce(Object) do |parent, module_name|
       # Since we're searching parent namespaces first anyway, this is
       # semantically equivalent to providing false for the 1.9-only
       # "inherit" parameter to const_defined?. If we ever drop 1.8
       # support, we can save a few cycles here by adding it back.
-      if parent.const_defined?(module_name)
-        parent.const_get(module_name)
-      else
-        break
-      end
-    }
+      return unless parent.const_defined?(module_name)
+      parent.const_get(module_name)
+    end
 
     named_module
   end
@@ -411,7 +417,7 @@ class Msf::Modules::Loader::Base
       log_lines += error.backtrace
     end
 
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     elog(log_message)
   end
 
@@ -428,7 +434,7 @@ class Msf::Modules::Loader::Base
     log_lines = []
     log_lines << "#{module_path} generated a warning during load:"
     log_lines << error.to_s
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     wlog(log_message)
   end
 
@@ -470,6 +476,13 @@ class Msf::Modules::Loader::Base
     module_path
   end
 
+  # Tries to determine if a file might be executable,
+  def script_path?(path)
+    File.executable?(path) &&
+      !File.directory?(path) &&
+      ['#!', '//'].include?(File.read(path, 2))
+  end
+
   # Changes a file name path to a canonical module reference name.
   #
   # @param [String] path Relative path to module.
@@ -496,9 +509,7 @@ class Msf::Modules::Loader::Base
 
   # Returns an Array of names to make a fully qualified module name to
   # wrap the MetasploitModule class so that it doesn't overwrite other
-  # (metasploit) module's classes. Invalid module name characters are
-  # escaped by using 'H*' unpacking and prefixing each code with X so
-  # the code remains a valid module name when it starts with a digit.
+  # (metasploit) module's classes.
   #
   # @param [String] module_full_name The unique canonical name
   #   for the module including type.
@@ -506,7 +517,18 @@ class Msf::Modules::Loader::Base
   #
   # @see namespace_module
   def namespace_module_names(module_full_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
+    relative_name = module_full_name.split('/').map(&:capitalize).join('__')
+    NAMESPACE_MODULE_NAMES + [relative_name]
+  end
+
+  # This reverses a namespace module's relative name to a module full name
+  #
+  # @param [String] relative_name The namespace module's relative name
+  # @return [String] The module full name
+  #
+  # @see namespace_module_names
+  def self.reverse_relative_name(relative_name)
+    relative_name.split('__').map(&:downcase).join('/')
   end
 
   def namespace_module_transaction(module_full_name, options={}, &block)

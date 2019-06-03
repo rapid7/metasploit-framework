@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -21,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          [ 'CVE', '2012-1465' ],
           [ 'OSVDB', '79863' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/netdecision_1-adv.txt' ],
         ],
@@ -39,9 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         # 8090 = NOCVisionServer
         Opt::RPORT(8087),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)

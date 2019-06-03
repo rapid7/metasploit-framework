@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -15,8 +15,8 @@ session = client
 
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
-  "-cl" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
-  "-rc" => [ true,"Text file with list of commands, one per line."]
+  "-c" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
+  "-r" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = ""
@@ -53,9 +53,9 @@ end
 @@exec_opts.parse(args) do |opt, idx, val|
   case opt
 
-  when "-cl"
+  when "-c"
     commands = val.gsub(/;/,"\n")
-  when "-rc"
+  when "-r"
     script = val
     if not ::File.exist?(script)
       raise "Script List File does not exists!"

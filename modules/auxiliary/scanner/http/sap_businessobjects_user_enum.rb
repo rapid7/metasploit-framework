@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -19,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'		   => 'SAP BusinessObjects User Enumeration',
       'Description'	=> %Q{
         This module simply attempts to enumerate SAP BusinessObjects
-        users.The dswsbobje interface is only used to verify valid
+        users. The dswsbobje interface is only used to verify valid
         users for CmcApp. Therefore, any valid users that have been
         identified can be leveraged by logging into CmcApp.
         },
@@ -36,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 8080 ])
   end
 

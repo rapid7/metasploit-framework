@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -16,12 +12,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-
-  # Aliases for common classes
-  SIMPLE = Rex::Proto::SMB::SimpleClient
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
-
 
   def initialize
     super(
@@ -43,14 +33,14 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$'])
-    ], self.class)
+    ])
 
   end
 
   def run_host(_ip)
     begin
       vprint_status("Connecting to the server...")
-      connect()
+      connect(versions: [1, 2])
       smb_login()
 
       vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
@@ -67,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           vprint_status("Trying to upload #{local_path} to #{remote_path}...")
 
-          fd = simple.open("\\#{remote_path}", 'rwct')
+          fd = simple.open("#{remote_path}", 's', write: true)
           data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
           fd.write(data)
           fd.close

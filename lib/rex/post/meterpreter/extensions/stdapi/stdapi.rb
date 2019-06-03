@@ -19,6 +19,8 @@ require 'rex/post/meterpreter/extensions/stdapi/sys/power'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
 require 'rex/post/meterpreter/extensions/stdapi/webcam/webcam'
+require 'rex/post/meterpreter/extensions/stdapi/mic/mic'
+require 'rex/post/meterpreter/extensions/stdapi/audio_output/audio_output'
 
 module Rex
 module Post
@@ -82,6 +84,14 @@ class Stdapi < Extension
         {
           'name' => 'webcam',
           'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
+        },
+        {
+          'name' => 'mic',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Mic::Mic.new(client)
+        },
+        {
+          'name' => 'audio_output',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::AudioOutput::AudioOutput.new(client)
         },
         {
           'name' => 'ui',

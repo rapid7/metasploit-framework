@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -30,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Oct 26 2006'))
 
-      register_options([Opt::RPORT(53),], self.class)
+      register_options([Opt::RPORT(53),])
   end
 
   def run
@@ -48,5 +43,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

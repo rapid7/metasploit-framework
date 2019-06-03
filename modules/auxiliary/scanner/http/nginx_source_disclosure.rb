@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
         OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -83,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
           save_source.puts(res.body.to_s)
           save_source.close
 
-          print_status("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
+          print_good("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
 
         else
           print_error("http://#{vhost}:#{rport} - nginx - Unrecognized #{res.code} response")
@@ -105,5 +102,4 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

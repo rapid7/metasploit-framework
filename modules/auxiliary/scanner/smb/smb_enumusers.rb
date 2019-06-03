@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -30,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def rport
@@ -312,7 +308,7 @@ class MetasploitModule < Msf::Auxiliary
           extra << "PasswordMin=#{domains[domain][:pass_min]} "
           extra << ")"
         end
-        print_status("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
       end
 
       # cleanup

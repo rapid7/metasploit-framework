@@ -56,7 +56,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
           'value' => params.retries
         }
       ])
-    c.params = params
+    if c
+      c.params = params
+    end
     c
   end
 
@@ -96,6 +98,8 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   # 2 -> both
   #
   def shutdown(how = 1)
+    return false if self.cid.nil?
+
     request = Packet.create_request('stdapi_net_socket_tcp_shutdown')
 
     request.add_tlv(TLV_TYPE_SHUTDOWN_HOW, how)

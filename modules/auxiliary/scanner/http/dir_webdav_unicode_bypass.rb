@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -25,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         where WebDAV is enabled on the IIS6 server, and any protected folder
         requires either Basic, Digest or NTLM authentication.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'		=> MSF_LICENSE,
       'References'     =>
         [
@@ -48,12 +45,12 @@ class MetasploitModule < Msf::Auxiliary
             File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
         )
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ], self.class)
+      ])
 
   end
 
@@ -157,13 +154,13 @@ class MetasploitModule < Msf::Auxiliary
             'ctype'		=> 'application/xml',
             'headers' 	=>
               {
-                #'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
+                #'Translate'	 => 'f', # Not required in PROPFIND, only GET - aushack 20091518
               },
             'data'		=> webdav_req + "\r\n\r\n",
           }, 20)
 
           if (res and res.code.to_i == 207)
-            print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
+            print_good("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
 
             # Unable to use report_web_vuln as method is PROPFIND and is not part of allowed
             # list in db.rb

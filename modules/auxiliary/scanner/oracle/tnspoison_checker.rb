@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::TNS
@@ -18,12 +15,13 @@ class MetasploitModule < Msf::Auxiliary
         This module checks the server for vulnerabilities like TNS Poison.
         Module sends a server a packet with command to register new TNS Listener and checks
         for a response indicating an error. If the registration is errored, the target is not
-        vulnearble. Otherwise, the target is vulnerable to malicious registrations.
+        vulnerable. Otherwise, the target is vulnerable to malicious registrations.
       },
       'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
       'References'     =>
         [
-          [ 'URL', 'http://seclists.org/fulldisclosure/2012/Apr/204' ],
+          [ 'CVE', '2012-1675'],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
       'DisclosureDate' => 'Apr 18 2012',
       'License'        => MSF_LICENSE))
@@ -31,9 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1521)
-      ], self.class)
-
-    deregister_options('RHOST') # Provided by the TNS mixin, but not needed in a scanner module
+      ])
   end
 
   def run_host(ip)

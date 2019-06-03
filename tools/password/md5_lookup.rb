@@ -1,11 +1,10 @@
 #!/usr/bin/env ruby
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-###
 #
 # This script will look up a collection of MD5 hashes (from a file) against the following databases
 # via md5cracker.org:
@@ -21,7 +20,6 @@
 # * hasherezade (http://hasherezade.net, @hasherezade)
 # * sinn3r (ported the module as a standalone msf tool)
 #
-###
 
 #
 # Load our MSF API
@@ -36,7 +34,6 @@ require 'msfenv'
 require 'rex'
 require 'msf/core'
 require 'optparse'
-
 
 #
 # Basic prints we can't live without
@@ -71,7 +68,6 @@ module Md5LookupUtility
     #  @return [String] The name of the tool
     attr_accessor :group_name
 
-
     def initialize
       self.config_file = Msf::Config.config_file
       self.group_name  = 'MD5Lookup'
@@ -93,7 +89,6 @@ module Md5LookupUtility
       end
     end
 
-
     # Saves the waiver so the warning won't show again after ack
     #
     # @return [void]
@@ -101,14 +96,12 @@ module Md5LookupUtility
       save_setting('waiver', true)
     end
 
-
     # Returns true if we don't have to show the warning again
     #
     # @return [Boolean]
     def has_waiver?
       load_setting('waiver') == 'true' ? true : false
     end
-
 
     private
 
@@ -123,7 +116,6 @@ module Md5LookupUtility
       ini[self.group_name][key_name] = value
       ini.to_file(self.config_file)
     end
-
 
     # Returns the value of a specific setting
     #
@@ -148,7 +140,7 @@ module Md5LookupUtility
     attr_accessor :rhost
 
     # @!attribute rport
-    #  @return [Fixnum] The port number to md5cracker.org
+    #  @return [Integer] The port number to md5cracker.org
     attr_accessor :rport
 
     # @!attribute target_uri
@@ -177,7 +169,6 @@ module Md5LookupUtility
       )
     end
 
-
     # Returns the found cracked MD5 hash
     #
     # @param md5_hash [String] The MD5 hash to lookup
@@ -192,9 +183,7 @@ module Md5LookupUtility
       get_json_result(res)
     end
 
-
     private
-
 
     # Parses the cracked result from a JSON input
     # @param res [Rex::Proto::Http::Response] The Rex HTTP response
@@ -216,7 +205,6 @@ module Md5LookupUtility
     end
 
   end
-
 
   # This class parses the user-supplied options (inputs)
   class OptsConsole
@@ -275,9 +263,7 @@ module Md5LookupUtility
       options
     end
 
-
     private
-
 
     # Returns the parsed options from ARGV
     #
@@ -317,7 +303,6 @@ module Md5LookupUtility
       return parser, options
     end
 
-
     # Returns the actual database names based on what the user wants
     #
     # @param list [String] A list of user-supplied database names
@@ -339,7 +324,6 @@ module Md5LookupUtility
       new_db_list
     end
 
-
     # Returns a list of all of the supported database symbols
     #
     # @return [Array<Symbol>] Database symbols
@@ -356,7 +340,6 @@ module Md5LookupUtility
       return new_db_list
     end
   end
-
 
   # This class decides how this process works
   class Driver
@@ -378,7 +361,6 @@ module Md5LookupUtility
         print_error("Unable to create file handle, results will not be saved to #{@opts[:output]}")
       end
     end
-
 
     # Main function
     #
@@ -403,7 +385,6 @@ module Md5LookupUtility
       end
     end
 
-
     # Cleans up the output file handler if exists
     #
     # @return [void]
@@ -411,9 +392,7 @@ module Md5LookupUtility
       @output_handle.close if @output_handle
     end
 
-
     private
-
 
     # Saves the MD5 result to file
     #
@@ -471,7 +450,6 @@ module Md5LookupUtility
   end
 
 end
-
 
 #
 # main

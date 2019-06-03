@@ -1,17 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-#
+##
+
+##
 # Fuzzer written by corelanc0d3r - <peter.ve [at] corelan.be>
 # http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/
 #
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Exploit::Remote::TcpServer
 
   def initialize()
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
       OptBool.new('ERROR', [ true, "Reply with error codes only",false]),
       OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true])
-      ], self.class)
+      ])
   end
 
 

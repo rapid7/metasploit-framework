@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
@@ -61,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     # It's either 139 or 445. The user should not touch this.
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def rport
@@ -264,6 +263,5 @@ class MetasploitModule < Msf::Auxiliary
       print_status("The target appears to be safe")
     end
   end
-
 end
 

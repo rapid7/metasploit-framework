@@ -4,7 +4,7 @@ require 'msf/core'
 module Msf::Payload::Java
 
   #
-  # Used by stages; all java stages need to define +@stage_class_files+ as an
+  # Used by stages; all java stages need to define +stage_class_files+ as an
   # array of .class files located in data/java/
   #
   # The staging protocol expects any number of class files, each prepended
@@ -15,8 +15,12 @@ module Msf::Payload::Java
   #	[ 32-bit null ]
   #
   def generate_stage(opts={})
+    generate_default_stage(opts)
+  end
+
+  def generate_default_stage(opts={})
     stage = ''
-    @stage_class_files.each do |path|
+    stage_class_files.each do |path|
       data = MetasploitPayloads.read('java', path)
       stage << [data.length, data].pack('NA*')
     end
@@ -28,15 +32,14 @@ module Msf::Payload::Java
   #
   # Used by stagers to construct the payload jar file as a String
   #
-  def generate
-    generate_jar.pack
+  def generate(opts={})
+    generate_jar(opts).pack
   end
 
   #
   # Used by stagers to create a jar file as a {Rex::Zip::Jar}.  Stagers
-  # define a list of class files in @class_files which are pulled from the
-  # MetasploitPayloads gem. The configuration file is created by
-  # the payload's #config method.
+  # define a list of class files from the class_files method. The
+  # configuration file is created by the payload's #stager_config method.
   #
   # @option opts :main_class [String] the name of the Main-Class
   #   attribute in the manifest.  Defaults to "metasploit.Payload"
@@ -44,18 +47,18 @@ module Msf::Payload::Java
   #   "metasploit" package name.
   # @return [Rex::Zip::Jar]
   def generate_jar(opts={})
-    raise if not respond_to? :config
+    raise if not respond_to? :stager_config
     # Allow changing the jar's Main Class in the manifest so wrappers
     # around metasploit.Payload will work.
     main_class = opts[:main_class] || "metasploit.Payload"
 
     paths = [
       [ "metasploit", "Payload.class" ],
-    ] + @class_files
+    ] + class_files
 
     jar = Rex::Zip::Jar.new
     jar.add_sub("metasploit") if opts[:random]
-    jar.add_file("metasploit.dat", config)
+    jar.add_file("metasploit.dat", stager_config(opts))
     jar.add_files(paths, MetasploitPayloads.path('java'))
     jar.build_manifest(:main_class => main_class)
 
@@ -71,7 +74,7 @@ module Msf::Payload::Java
   #   web.xml.  Defaults to random
   #
   def generate_war(opts={})
-    raise if not respond_to? :config
+    raise if not respond_to? :stager_config
     zip = Rex::Zip::Jar.new
 
     web_xml = %q{<?xml version="1.0"?>
@@ -96,27 +99,26 @@ module Msf::Payload::Java
     paths = [
       [ "metasploit", "Payload.class" ],
       [ "metasploit", "PayloadServlet.class" ],
-    ] + @class_files
+    ] + class_files
 
     zip.add_file('WEB-INF/', '')
     zip.add_file('WEB-INF/web.xml', web_xml)
     zip.add_file("WEB-INF/classes/", "")
     zip.add_files(paths, MetasploitPayloads.path('java'), 'WEB-INF/classes/')
-    zip.add_file("WEB-INF/classes/metasploit.dat", config)
+    zip.add_file("WEB-INF/classes/metasploit.dat", stager_config(opts))
 
     zip
   end
 
   #
   # Used by stagers to create a axis2 webservice file as a {Rex::Zip::Jar}.
-  # Stagers define a list of class files in @class_files which are pulled
-  # from the MetasploitPayloads gem. The configuration file is created by
-  # the payload's #config method.
+  # Stagers define a list of class files returned via class_files.  The
+  # configuration file is created by the payload's #stager_config method.
   #
   # @option :app_name [String] Name of the Service in services.xml. Defaults to random.
   # @return [Rex::Zip::Jar]
   def generate_axis2(opts={})
-    raise if not respond_to? :config
+    raise if not respond_to? :stager_config
 
     app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
@@ -132,16 +134,26 @@ module Msf::Payload::Java
     paths = [
       [ 'metasploit', 'Payload.class' ],
       [ 'metasploit', 'PayloadServlet.class' ]
-    ] + @class_files
+    ] + class_files
 
     zip = Rex::Zip::Jar.new
     zip.add_file('META-INF/', '')
     zip.add_file('META-INF/services.xml', services_xml)
     zip.add_files(paths, MetasploitPayloads.path('java'))
-    zip.add_file('metasploit.dat', config)
+    zip.add_file('metasploit.dat', stager_config(opts))
     zip.build_manifest(:app_name => app_name)
 
     zip
+  end
+
+  # Default to no extra class files
+  def class_files
+    []
+  end
+
+  # Default to no extra stage class files
+  def stage_class_files
+    []
   end
 
 end

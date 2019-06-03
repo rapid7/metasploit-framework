@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists all modules with their targets
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -48,7 +50,7 @@ opts.parse(ARGV) { |opt, idx, val|
   when "-x"
     puts "Filter: #{val}"
     filter = val
-    fil=1		
+    fil=1
   end
 }
 

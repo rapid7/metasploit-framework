@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script cracks a half-lm challenge/response hash that uses a
 # a static challenge key. The idea is you use rainbow tables to
 # crack the first 7 chars and this script to complete a few remaining.
 # If the password is longer than 10 characters, this script will fail.
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -38,7 +40,6 @@ $args = Rex::Parser::Arguments.new(
   "-p" => [ true,  "The decrypted LANMAN password for bytes 1-7"                      ],
   "-s" => [ true,  "The server challenge (default value 1122334455667788)"            ],
   "-h" => [ false, "Display this help information"                                      ])
-
 
 $args.parse(ARGV) { |opt, idx, val|
   case opt
@@ -81,8 +82,6 @@ if(pass.length != 7)
   exit
 end
 
-
-
 pass = pass.upcase
 hash = hash.downcase
 
@@ -122,7 +121,6 @@ puts "[*] Trying three characters (eta: #{etime * cset.length * cset.length} sec
 end
 end
 end
-
 
 puts "[*] Trying four characters (eta: #{etime * cset.length * cset.length * cset.length} seconds)..."
 0.upto(cset.length-1) do |c1|

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI',     [true, 'The base path for Jenkins', '/']),
         OptString.new('JENKINSDOMAIN', [true, 'The domain where we want to extract credentials from', '_'])
-      ], self.class)
+      ])
   end
 
 
@@ -291,5 +289,4 @@ class MetasploitModule < Msf::Auxiliary
   def print_error(msg='')
     super("#{peer} - #{msg}")
   end
-
 end

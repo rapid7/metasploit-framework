@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_rpc'
 
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
         [
           Opt::RPORT(80),
-        ], self.class)
+        ])
 
     deregister_options('BLANK_PASSWORDS') # we don't need this option
   end
@@ -103,5 +102,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

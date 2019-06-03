@@ -14,7 +14,7 @@ module Msf
     end
 
     def desc
-      "Nessus Bridge for Metasploit"
+      PLUGIN_DESCRIPTION
     end
 
     class ConsoleCommandDispatcher
@@ -516,26 +516,16 @@ module Msf
             return
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
+          else
+            type = arg
           end
         end
 
         if !nessus_verify_token
           return
         end
-        case args.length
-        when 1
-          type = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_template_list <scan> | <policy>")
-          print_status("Example:> nessus_template_list scan")
-          print_status("OR")
-          print_status("nessus_template_list policy")
-          print_status("Returns a list of information about the scan or policy templates..")
-          return
-        end
         if type.in?(['scan', 'policy'])
-          list=@n.list_template(type)
+          list=@n.list_templates(type)
         else
           print_error("Only scan and policy are valid templates")
           return
@@ -968,13 +958,14 @@ module Msf
         end
         if valid_policy(uuid)
           print_status("Creating scan from policy number #{uuid}, called #{scan_name} - #{description} and scanning #{targets}")
-          et=Hash.new
-          et['enabled']=false
-          et['launch']='ONETIME'
-          et['name']=scan_name
-          et['text_targets']=targets
-          et['description']=description
-          et['launch_now']=false
+          et = {
+            'enabled'      => false,
+            'launch'       => 'ONETIME',
+            'name'         => scan_name,
+            'text_targets' => targets,
+            'description'  => description,
+            'launch_now'   => false
+          }
           scan = @n.scan_create(uuid, et)
           tbl = Rex::Text::Table.new(
             'Columns' => [
@@ -1071,19 +1062,20 @@ module Msf
           return
         end
         targets = ""
-        framework.db.hosts(framework.db.workspace).each do |host|
+        framework.db.hosts.each do |host|
           targets << host.address
           targets << ","
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in all the workspaces")
-        et=Hash.new
-        et['enabled']=false
-        et['launch']='ONETIME'
-        et['name']=name
-        et['text_targets']=targets
-        et['description']=desc
-        et['launch_now']=true
+        et = {
+          'enabled'      => false,
+          'launch'       => 'ONETIME',
+          'name'         => name,
+          'text_targets' => targets,
+          'description'  => desc,
+          'launch_now'   => true
+        }
         scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
@@ -1136,7 +1128,15 @@ module Msf
         end
         targets.chop!
         print_status("Creating scan from policy #{policy_id}, called \"#{name}\" and scanning all hosts in #{framework.db.workspace.name}")
-        scan = @n.scan_create(policy_id, name, desc, targets)
+        et = {
+          'enabled'      => false,
+          'launch'       => 'ONETIME',
+          'name'         => name,
+          'text_targets' => targets,
+          'description'  => desc,
+          'launch_now'   => false
+        }
+        scan = @n.scan_create(policy_id, et)
         if !scan["error"]
           scan = scan["scan"]
           print_status("Scan ID #{scan['id']} successfully created")

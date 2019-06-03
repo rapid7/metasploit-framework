@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           OptBool.new('META_REFRESH', [ false, "Set page to auto refresh.", false]),
           OptInt.new('REFRESH_TIME', [ false, "Set page refresh interval.", 15]),
           OptInt.new('ENTRIES', [ false, "PII Entry Count", 1000])
-        ],self.class)
+        ])
   end
 
 

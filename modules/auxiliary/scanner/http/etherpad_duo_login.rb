@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -58,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if (res and res.code == 200 and res.headers['Server'].include?("EtherPAD") and res.body.include?("EtherPAD Duo"))
+    if (res and res.code == 200 and res.headers['Server'] =~ /EtherPAD/ and res.body.include?("EtherPAD Duo"))
       vprint_good("Running EtherPAD Duo application ...")
       return true
     else

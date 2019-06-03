@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'rex/parser/group_policy_preferences'
 
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
       OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
-      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])])
   end
 
   def run
@@ -247,8 +246,8 @@ class MetasploitModule < Msf::Post
 
     results.each do |result|
       if datastore['STORE']
-        stored_path = store_loot('windows.gpp.xml', 'text/plain', session, xmlfile[:xml], filetype, xmlfile[:path])
-        print_status("XML file saved to: #{stored_path}")
+        stored_path = store_loot('microsoft.windows.gpp', 'text/xml', session, xmlfile[:xml], filetype, xmlfile[:path])
+        print_good("XML file saved to: #{stored_path}")
         print_line
       end
 

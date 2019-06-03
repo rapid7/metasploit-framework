@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -20,14 +16,18 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'HTTP WebDAV Internal IP Scanner',
       'Description' => 'Detect webservers internal IPs though WebDAV',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+      'Author'      => ['et'],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2002-0422' ]
+        ]
     )
 
     register_options(
       [
         OptString.new("PATH", [true, "Path to use", '/']),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
         result.each do |addr|
-          print_status("Found internal IP in WebDAV response (#{target_host}) #{addr}")
+          print_good("Found internal IP in WebDAV response (#{target_host}) #{addr}")
 
           report_note(
             :host	=> target_host,

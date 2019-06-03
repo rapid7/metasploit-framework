@@ -27,10 +27,10 @@ module Msf::Payload::UUID::Options
   # the desired length can accommodate it.
   #
   # @param mode [Symbol] The type of checksum to generate (:connect, :init_native, :init_python, :init_java)
-  # @param len [Fixnum] The length of the URI not including the leading slash, optionally nil for random
+  # @param len [Integer] The length of the URI not including the leading slash, optionally nil for random
   # @return [String] A URI with a leading slash that hashes to the checksum, with an optional UUID
   #
-  def generate_uri_uuid_mode(mode,len=nil)
+  def generate_uri_uuid_mode(mode, len = nil, uuid: nil)
     sum = uri_checksum_lookup(mode)
 
     # The URI length may not have room for an embedded UUID
@@ -42,7 +42,7 @@ module Msf::Payload::UUID::Options
       return "/" + generate_uri_checksum(sum, len, prefix="")
     end
 
-    uuid = generate_payload_uuid
+    uuid ||= generate_payload_uuid
     uri  = generate_uri_uuid(sum, uuid, len)
     record_payload_uuid_url(uuid, uri)
 
@@ -86,13 +86,14 @@ module Msf::Payload::UUID::Options
   # Store a UUID in the JSON database if tracking is enabled
   def record_payload_uuid(uuid, info={})
     return unless datastore['PayloadUUIDTracking']
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
 
     uuid_info = info.merge({
+      uuid:  uuid.puid_hex,
       arch: uuid.arch,
       platform: uuid.platform,
       timestamp: uuid.timestamp,
-      payload: self.fullname,
-      datastore: self.datastore
     })
 
     if datastore['PayloadUUIDSeed'].to_s.length > 0
@@ -103,17 +104,25 @@ module Msf::Payload::UUID::Options
       uuid_info[:name] = datastore['PayloadUUIDName']
     end
 
-    framework.uuid_db[uuid.puid_hex] = uuid_info
+    framework.db.create_payload(uuid_info)
   end
 
-  # Store a UUID URL in the JSON database if tracking is enabled
+  # Store a UUID URL in the database if tracking is enabled
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
-    uuid_info = framework.uuid_db[uuid.puid_hex]
-    uuid_info['urls'] ||= []
-    uuid_info['urls'] << url
-    uuid_info['urls'].uniq!
-    framework.uuid_db[uuid.puid_hex] = uuid_info
+    # skip if there is no active database
+    return if !(framework.db && framework.db.active)
+
+    payload_info = {
+        uuid: uuid.puid_hex,
+    }
+    payload = framework.db.get_payload(payload_info)
+    unless payload.nil?
+      urls = payload.urls.nil? ? [] : payload.urls
+      urls << url
+      urls.uniq!
+      framework.db.update_payload({id: payload.id, urls: urls})
+    end
   end
 
 end

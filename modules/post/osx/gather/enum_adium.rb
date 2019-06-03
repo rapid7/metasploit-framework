@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptRegexp.new('PATTERN', [true, 'Match a keyword in any chat log\'s filename', '\(2012\-02\-.+\)\.xml$']),
-      ], self.class)
+      ])
   end
 
   #
@@ -285,7 +282,6 @@ class MetasploitModule < Msf::Post
     save(:account, account_data) if not account_data.nil? and not account_data.empty?
     save(:chatlogs, chatlogs) if not chatlogs.nil? and not chatlogs.empty?
   end
-
 end
 
 =begin

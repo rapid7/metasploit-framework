@@ -5,7 +5,7 @@ RSpec.shared_examples_for 'Metasploit::Credential::Core::ToCredential' do
     context ".to_credential" do
 
       subject(:crednetial_core) do
-        FactoryGirl.create(:metasploit_credential_core)
+        FactoryBot.create(:metasploit_credential_core)
       end
 
       it { is_expected.to respond_to :to_credential }

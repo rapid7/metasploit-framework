@@ -17,8 +17,6 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'msfenv'
 
-
-
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex/parser/arguments'
@@ -59,7 +57,6 @@ arguments.parse(ARGV) do |opt, idx, val|
   end
 end
 
-
 unless opts['ServerHost']
   $stderr.puts "[-] Error: a server IP must be specified (-a)"
   $stderr.puts arguments.usage
@@ -93,4 +90,3 @@ while(ARGV.shift)
 end
 
 Rex::Ui::Text::IrbShell.new(binding).run
-

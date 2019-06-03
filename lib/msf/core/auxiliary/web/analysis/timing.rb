@@ -3,7 +3,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# https://metasploit.com/framework/
 ##
 
 module Msf
@@ -55,8 +55,7 @@ module Analysis::Timing
       timeout = opts[:delay]
 
       seed    = p.altered_value.dup
-      payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.
-        sort_by { |p2| p2.size }.last
+      payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.max_by(&:size)
 
       # 1st pass, make sure the webapp is responsive
       if_responsive do

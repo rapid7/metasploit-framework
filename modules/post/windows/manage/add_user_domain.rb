@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -16,7 +12,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
               This module adds a user to the Domain and/or to a Domain group. It will
             check if sufficient privileges are present for certain actions and run
-            getprivs for system.  If you elevated privs to system,the
+            getprivs for system.  If you elevated privs to system, the
             SeAssignPrimaryTokenPrivilege will not be assigned. You need to migrate to
             a process that is running as system. If you don't have privs, this script
             exits.
@@ -35,7 +31,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('ADDTODOMAIN', [true,  'Add user to the Domain', true]),
         OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated. (Username doesnt require a Domain)', '']),
         OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+      ])
   end
 
   def get_system
@@ -76,7 +72,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
@@ -157,7 +153,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_error("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 

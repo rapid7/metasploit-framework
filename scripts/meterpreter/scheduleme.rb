@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -21,7 +21,7 @@ session = client
   "-h" => [ false,"Help menu." ],
   "-c" => [ true,"Command to execute at the given time. If options for execution needed use double quotes"],
   "-d" => [ false,"Daily." ],
-  "-hr" => [ true,"Every specified hours 1-23."],
+  "-H" => [ true,"Every specified hours 1-23."],
   "-m" => [ true, "Every specified amount of minutes 1-1439"],
   "-e" => [ true, "Executable or script to upload to target host, will not work with remote schedule"],
   "-l" => [ false,"When a user logs on."],
@@ -214,7 +214,7 @@ password = nil
   when "-d"
     tmmod = val
     schtype = "daily"
-  when "-hr"
+  when "-H"
     tmmod = val
     schtype = "hourly"
   when "-m"
@@ -241,7 +241,7 @@ password = nil
   end
 
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if helpcall == 1
     usage()
   elsif cmd == nil && file == nil

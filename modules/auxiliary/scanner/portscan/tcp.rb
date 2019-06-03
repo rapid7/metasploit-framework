@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
 
   include Msf::Auxiliary::Report
@@ -33,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
       OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
 
@@ -80,11 +76,12 @@ class MetasploitModule < Msf::Auxiliary
                 'ConnectTimeout' => (timeout / 1000.0)
               }
             )
-            print_status("#{ip}:#{port} - TCP OPEN")
-            r << [ip,port,"open"]
+            if s
+              print_good("#{ip}:#{port} - TCP OPEN")
+              r << [ip,port,"open"]
+            end
           rescue ::Rex::ConnectionRefused
             vprint_status("#{ip}:#{port} - TCP closed")
-            r << [ip,port,"closed"]
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
           rescue ::Interrupt
@@ -92,7 +89,9 @@ class MetasploitModule < Msf::Auxiliary
           rescue ::Exception => e
             print_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
           ensure
-            disconnect(s) rescue nil
+            if s
+              disconnect(s) rescue nil
+            end
           end
         end
       end
@@ -108,5 +107,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

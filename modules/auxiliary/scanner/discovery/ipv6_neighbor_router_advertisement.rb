@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     'Description' => %q{
         Send a spoofed router advertisement with high priority to force hosts to
         start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
-        and try to guess the link-local address by concatinating the prefix, and
+        and try to guess the link-local address by concatenating the prefix, and
         the host portion of the IPv6 address.  Use NDP host solicitation to
         determine if the IP address is valid'
     },
@@ -31,9 +28,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('TIMEOUT_NEIGHBOR', [true, "Time (seconds) to listen for a solicitation response.", 1])
-    ], self.class)
+    ])
 
-    deregister_options('SNAPLEN', 'FILTER', 'RHOST', 'PCAPFILE')
+    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE')
   end
 
   def generate_prefix()
@@ -164,12 +161,12 @@ class MetasploitModule < Msf::Auxiliary
     @interface = datastore['INTERFACE'] || Pcap.lookupdev
     @shost = datastore['SHOST']
     @shost ||= get_ipv4_addr(@interface) if @netifaces
-    raise RuntimeError ,'SHOST should be defined' unless @shost
+    raise 'SHOST should be defined' unless @shost
 
     @smac  = datastore['SMAC']
     @smac ||= get_mac(@interface) if @netifaces
     @smac ||= ipv6_mac
-    raise RuntimeError ,'SMAC should be defined' unless @smac
+    raise 'SMAC should be defined' unless @smac
 
     # Send router advertisement
     print_status("Sending router advertisement...")
@@ -191,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

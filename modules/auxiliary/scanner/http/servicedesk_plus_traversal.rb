@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ]),
         OptString.new('TARGETURI', [true, 'The base path to the ServiceDesk Plus installation', '/']),
         OptString.new('FILE', [true, 'The file to retrieve', '/windows/win.ini'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

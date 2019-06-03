@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -52,7 +51,7 @@ class MetasploitModule < Msf::Post
       begin
         subkeys = registry_enumkeys("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\")
         if subkeys.nil? or subkeys.empty?
-          print_status ("IDM not installed for this user.")
+          print_status("IDM not installed for this user.")
           return
         end
 
@@ -74,8 +73,7 @@ class MetasploitModule < Msf::Post
           'idm_user_creds.csv',
           'Internet Download Manager User Credentials'
         )
-
-        print_status("IDM user credentials saved in: #{path}")
+        print_good("IDM user credentials saved in: #{path}")
 
       rescue ::Exception => e
         print_error("An error has occurred: #{e.to_s}")
@@ -92,5 +90,4 @@ class MetasploitModule < Msf::Post
     end
     return pass.pack("C*")
   end
-
 end

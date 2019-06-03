@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -22,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         when running, will overwrite the stack with our string and generate an
         exception. The FileZilla FTP Server itself will continue functioning.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        	=> MSF_LICENSE,
       'References'     =>
         [
@@ -43,5 +39,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
   end
-
 end

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
 
   OUI_LIST = Rex::Oui
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
         OptString.new('RHOSTS', [true, 'The target address range or CIDR identifier', nil]),
         OptInt.new('THREADS', [false, 'The number of concurrent threads', 10])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -65,7 +62,7 @@ class MetasploitModule < Msf::Post
           if h["return"] == client.railgun.const("NO_ERROR")
             mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
             company = OUI_LIST::lookup_oui_company_name(mac_text )
-            print_status("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
+            print_good("\tIP: #{ip_text} MAC #{mac_text} (#{company})")
             report_host(:host => ip_text,:mac => mac_text)
             next if company.nil?
             report_note(:host  => ip_text, :type  => "mac_oui", :data  => company)
@@ -76,5 +73,4 @@ class MetasploitModule < Msf::Post
     end
     return found
   end
-
 end

@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/extapi'
 
@@ -46,34 +44,40 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('MSFLOCALS', [ true, 'Search for missing patchs for which there is a MSF local module', true]),
         OptString.new('KB',  [ true, 'A comma separated list of KB patches to search for', 'KB2871997, KB2928120'])
-      ], self.class)
+      ])
   end
 
   # The sauce starts here
   def run
-    patches = []
-
-    datastore['KB'].split(',').each do |kb|
-      patches << kb.strip
-    end
+    patches = datastore['KB'].split(',').map(&:strip)
 
     if datastore['MSFLOCALS']
-      patches = patches + MSF_MODULES.keys
+      patches.concat MSF_MODULES.keys
     end
 
-    extapi_loaded = load_extapi
-    if extapi_loaded
-      begin
-        objects = session.extapi.wmi.query("SELECT HotFixID FROM Win32_QuickFixEngineering")
-      rescue RuntimeError
-        print_error "Known bug in WMI query, try migrating to another process"
-        return
-      end
-      kb_ids = objects[:values].map { |kb| kb[0] }
-      report_info(patches, kb_ids)
-    else
-      print_error "ExtAPI failed to load"
+    unless load_extapi
+      print_error 'ExtAPI failed to load'
+      return
     end
+
+    begin
+      objects = session.extapi.wmi.query("SELECT HotFixID FROM Win32_QuickFixEngineering")
+    rescue RuntimeError
+      print_error "Known bug in WMI query, try migrating to another process"
+      return
+    end
+
+    if objects[:values].nil?
+      kb_ids = []
+    else
+      kb_ids = objects[:values].reject(&:nil?).map { |kb| kb[0] }
+    end
+
+    if kb_ids.empty?
+      print_status 'Found no patches installed'
+    end
+
+    report_info(patches, kb_ids)
   end
 
   def report_info(patches, kb_ids)

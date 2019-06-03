@@ -138,6 +138,9 @@ class Process < Rex::Post::Process
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
       end
+      if (opts['Subshell'])
+        flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
+      end
       inmem = opts['InMemory']
       if inmem
 
@@ -229,7 +232,7 @@ class Process < Rex::Post::Process
       if pa == 1 # PROCESS_ARCH_X86
         arch = ARCH_X86
       elsif pa == 2 # PROCESS_ARCH_X64
-        arch = ARCH_X86_64
+        arch = ARCH_X64
       end
     else
       arch = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH_NAME)
@@ -390,35 +393,31 @@ class ProcessList < Array
       return Rex::Text::Table.new(opts)
     end
 
-    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    # Arch and Session are specific to native Windows, PHP and Java can't do
-    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
-    # that processes might have different columns, but for now assume that the
-    # first one is representative.
-    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    column_headers = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    column_headers.delete_if do |h|
+      none? { |process| process.has_key?(h.downcase) } ||
+      all? { |process| process[h.downcase].nil? }
+    end
 
     opts = {
       'Header' => 'Process List',
       'Indent' => 1,
-      'Columns' => cols
+      'Columns' => column_headers
     }.merge(opts)
 
     tbl = Rex::Text::Table.new(opts)
-    each { |process|
-      tbl << cols.map { |c|
-        col = c.downcase
+    each do |process|
+      tbl << column_headers.map do |header|
+        col = header.downcase
+        next unless process.keys.any? { |process_header| process_header == col }
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
-        elsif col == 'arch'
-          # for display and consistency with payload naming we switch the internal
-          # 'x86_64' value to display 'x64'
-          val == ARCH_X86_64 ? 'x64' : val
         else
           val
         end
-      }.compact
-    }
+      end
+    end
 
     tbl
   end

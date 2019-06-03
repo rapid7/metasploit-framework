@@ -1,5 +1,8 @@
-require 'msf/core'
-require 'rex'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -14,7 +17,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
           On Windows 8/2012 or higher, the Digest Security Provider (WDIGEST) is disabled by default. This module enables/disables
           credential caching by adding/changing the value of the UseLogonCredential DWORD under the WDIGEST provider's Registry key.
-          Any subsequest logins will allow mimikatz to recover the plain text passwords from the system's memory.
+          Any subsequent logins will allow mimikatz to recover the plain text passwords from the system's memory.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Kostas Lintovois <kostas.lintovois[at]mwrinfosecurity.com>'],
@@ -25,7 +28,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('ENABLE',[false,'Enable the WDigest Credential Cache.',true])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

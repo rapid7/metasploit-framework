@@ -3,11 +3,11 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'sqlite3', '~>1.3.0'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
-  # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
-  # see: https://github.com/colszowka/simplecov/issues/127 (hopefully fixed in 0.8.0)
   gem 'simplecov'
 end
 
@@ -19,13 +19,15 @@ group :development do
   # for development and testing purposes
   gem 'pry'
   # module documentation
-  gem 'octokit', '~> 4.0'
-  # rails-upgrade staging gems
+  gem 'octokit'
+  # Metasploit::Aggregator external session proxy
+  # disabled during 2.5 transition until aggregator is available
+  #gem 'metasploit-aggregator'
 end
 
 group :development, :test do
   # automatically include factories from spec/factories
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   # Make rspec output shorter and more useful
   gem 'fivemat'
   # running documentation generation tasks and rspec tasks
@@ -33,14 +35,11 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  gem 'rspec-rerun'
+  gem 'swagger-blocks'
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
 end

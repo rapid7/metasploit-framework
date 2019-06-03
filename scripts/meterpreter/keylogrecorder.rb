@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -196,7 +196,7 @@ kill = false
     kill = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if (captype.to_i == 2)
     if startkeylogger(session)
       keycap(session, keytime, logfile)

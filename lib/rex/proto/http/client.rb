@@ -159,7 +159,7 @@ class Client
   #
   # Connects to the remote server if possible.
   #
-  # @param t [Fixnum] Timeout
+  # @param t [Integer] Timeout
   # @see Rex::Socket::Tcp.create
   # @return [Rex::Socket::Tcp]
   def connect(t = -1)
@@ -191,9 +191,9 @@ class Client
   # Closes the connection to the remote server.
   #
   def close
-    if (self.conn)
+    if self.conn && !self.conn.closed?
       self.conn.shutdown
-      self.conn.close unless self.conn.closed?
+      self.conn.close
     end
 
     self.conn = nil
@@ -229,6 +229,7 @@ class Client
     send_request(req, t)
     res = read_response(t)
     res.request = req.to_s if res
+    res.peerinfo = peerinfo if res
     res
   end
 
@@ -250,7 +251,7 @@ class Client
   #
   # @param res [Response] the HTTP Response object
   # @param opts [Hash] the options used to generate the original HTTP request
-  # @param t [Fixnum] the timeout for the request in seconds
+  # @param t [Integer] the timeout for the request in seconds
   # @param persist [Boolean] whether or not to persist the TCP connection (pipelining)
   #
   # @return [Response] the last valid HTTP response object we received
@@ -310,12 +311,18 @@ class Client
     auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
   end
 
+
+  def make_cnonce
+    Digest::MD5.hexdigest "%x" % (Time.now.to_i + rand(65535))
+  end
+
   # Send a series of requests to complete Digest Authentication
   #
   # @param opts [Hash] the options used to build an HTTP request
   # @return [Response] the last valid HTTP response we received
   def digest_auth(opts={})
-    @nonce_count = 0
+    cnonce = make_cnonce
+    nonce_count = 0
 
     to = opts['timeout'] || 20
 
@@ -330,7 +337,7 @@ class Client
     end
 
     begin
-    @nonce_count += 1
+    nonce_count += 1
 
     resp = opts['response']
 
@@ -387,7 +394,7 @@ class Client
       [
         algorithm.hexdigest("#{digest_user}:#{parameters['realm']}:#{digest_password}"),
         parameters['nonce'],
-        @cnonce
+        cnonce
       ].join ':'
     else
       "#{digest_user}:#{parameters['realm']}:#{digest_password}"
@@ -397,7 +404,7 @@ class Client
     ha2 = algorithm.hexdigest("#{method}:#{path}")
 
     request_digest = [ha1, parameters['nonce']]
-    request_digest.push(('%08x' % @nonce_count), @cnonce, qop) if qop
+    request_digest.push(('%08x' % nonce_count), cnonce, qop) if qop
     request_digest << ha2
     request_digest = request_digest.join ':'
 
@@ -407,8 +414,8 @@ class Client
       "realm=\"#{parameters['realm']}\"",
       "nonce=\"#{parameters['nonce']}\"",
       "uri=\"#{path}\"",
-      "cnonce=\"#{@cnonce}\"",
-      "nc=#{'%08x' % @nonce_count}",
+      "cnonce=\"#{cnonce}\"",
+      "nc=#{'%08x' % nonce_count}",
       "algorithm=#{algstr}",
       "response=\"#{algorithm.hexdigest(request_digest)[0, 32]}\"",
       # The spec says the qop value shouldn't be enclosed in quotes, but
@@ -620,6 +627,22 @@ class Client
   #
   def pipelining?
     pipeline
+  end
+
+  #
+  # Target host addr and port for this connection
+  #
+  def peerinfo
+    if self.conn
+      pi = self.conn.peerinfo || nil
+      if pi
+        return {
+          'addr' => pi.split(':')[0],
+          'port' => pi.split(':')[1].to_i
+        }
+      end
+    end
+    nil
   end
 
   #

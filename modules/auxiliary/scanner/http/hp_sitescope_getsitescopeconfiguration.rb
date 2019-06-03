@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -41,10 +38,9 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [true, 'Path to SiteScope', '/SiteScope/'])
-    ], self.class)
+    ])
 
     register_autofilter_ports([ 8080 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
@@ -124,13 +120,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       path = store_loot('hp.sitescope.configuration', 'application/octet-stream', rhost, loot, cid, "#{rhost} HP SiteScope Configuration")
-      print_status("HP SiteScope Configuration saved in #{path}")
+      print_good("HP SiteScope Configuration saved in #{path}")
       print_status("HP SiteScope Configuration is saved as Java serialization data")
       return
     end
 
     print_error("Failed to retrieve the SiteScope Configuration")
   end
-
 end
 

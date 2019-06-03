@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -30,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
       OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
       OptString.new('INTERFACE', [false, 'The name of the interface'])
-    ], self.class)
+    ])
 
     deregister_options('FILTER','PCAPFILE')
   end
@@ -151,5 +148,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return reply
   end
-
 end

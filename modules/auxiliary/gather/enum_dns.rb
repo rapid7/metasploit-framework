@@ -1,10 +1,8 @@
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/dns/resolver'
 
 class MetasploitModule < Msf::Auxiliary
@@ -16,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q(
         This module can be used to gather information about a domain from a
         given DNS server by performing various DNS queries such as zone
-        transfers, reverse lookups, SRV record bruteforcing, and other techniques.
+        transfers, reverse lookups, SRV record brute forcing, and other techniques.
     ),
       'Author'         => [
         'Carlos Perez <carlos_perez[at]darkoperator.com>',
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
         OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RETRY', [false, 'Number of times to try to resolve a record if no response is received', 2]),
         OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
         OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
-      ], self.class)
+      ])
   end
 
   def run
@@ -140,6 +138,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dns_reverse(cidr, threads)
+    unless cidr
+      print_error 'ENUM_RVL enabled, but no IPRANGE specified'
+      return
+    end
+
     iplst = []
     ipadd = Rex::Socket::RangeWalker.new(cidr)
     numip = ipadd.num_ips

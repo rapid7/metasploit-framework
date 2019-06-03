@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Encoder
   Rank = GreatRanking
@@ -26,7 +22,7 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, buf)
     # Have to have these for the decoder stub, so if they're not available,
     # there's nothing we can do here.
-    ["(",")",".","_","c","h","r","e","v","a","l","b","s","6","4","d","o"].each do |c|
+    %w{c h r ( ) . e v a l b a s e 6 4 _ d e c o d e ;}.uniq.each do |c|
       raise BadcharError if state.badchars.include?(c)
     end
 
@@ -42,6 +38,8 @@ class MetasploitModule < Msf::Encoder
     # characters, only part of the payload gets unencoded on the victim,
     # presumably due to a limitation in PHP identifier name lengths, so we
     # break the encoded payload into roughly 900-byte chunks.
+    #
+    # https://wiki.php.net/rfc/deprecate-bareword-strings
 
     b64 = Rex::Text.encode_base64(buf)
 
@@ -98,5 +96,4 @@ class MetasploitModule < Msf::Encoder
 
     return "eval(base64_decode(" + b64 + "));"
   end
-
 end

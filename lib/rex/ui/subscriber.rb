@@ -46,6 +46,8 @@ module Subscriber
       end
     end
 
+    alias_method :print_bad, :print_error
+
     #
     # Wraps user_output.print_good
     #

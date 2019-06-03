@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
             "File containing users and passwords",
             File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt")
           ])
-      ], self.class)
+      ])
 
     # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')
@@ -104,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     rescue
-      print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
+      print_error("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
       return
     end
   end
@@ -183,5 +182,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

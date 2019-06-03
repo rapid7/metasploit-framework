@@ -76,6 +76,7 @@ class Service
 
   def stop
     self.service.stop
+    self.service.deref
   end
 
   def wait

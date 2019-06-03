@@ -8,7 +8,7 @@ module Rex
         # a client authenticate to a service.
         class Ticket < Element
           # @!attribute tkt_vno
-          #   @return [Fixnum] The ticket version number
+          #   @return [Integer] The ticket version number
           attr_accessor :tkt_vno
           # @!attribute realm
           #   @return [String] The realm that issued the ticket
@@ -117,7 +117,7 @@ module Rex
           # Decodes the tkt_vno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_tkt_vno(input)
             input.value[0].value.to_i
           end

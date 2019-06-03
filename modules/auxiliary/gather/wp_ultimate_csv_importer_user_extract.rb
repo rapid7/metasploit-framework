@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'csv'
 
 class MetasploitModule < Msf::Auxiliary
@@ -24,8 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Hooker',                    # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Hooker', # Disclosure
+          'rastating'     # Metasploit module
         ],
       'References'      =>
         [

@@ -31,13 +31,13 @@ RSpec.describe Net::DNS::RR::Types do
       expect(rr_type.to_s).to eql('CNAME')
     end
 
-    it 'initializes with a valid RR type Fixnum argument' do
+    it 'initializes with a valid RR type Integer argument' do
       rr_type.send(:initialize, 2)
       expect(rr_type.to_i).to eql(2)
       expect(rr_type.to_s).to eql('NS')
     end
 
-    it 'raises when the supplied RR type Fixnum is invalid' do
+    it 'raises when the supplied RR type Integer is invalid' do
       expect { rr_type.send(:initialize, 123456) }.to raise_error(TypeArgumentError)
       expect { rr_type.send(:initialize, -1) }.to raise_error(TypeArgumentError)
     end

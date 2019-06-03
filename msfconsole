@@ -42,7 +42,12 @@ end
 #
 
 # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
-require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
-require 'metasploit/framework/command/console'
-
-Metasploit::Framework::Command::Console.start
+begin
+  require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
+  require 'metasploit/framework/command/console'
+  require 'msf/core/payload_generator'
+  Metasploit::Framework::Command::Console.start
+rescue Interrupt
+  puts "\nAborting..."
+  exit(1)
+end

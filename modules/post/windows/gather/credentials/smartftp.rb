@@ -1,11 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
@@ -67,7 +64,7 @@ class MetasploitModule < Msf::Post
     return xmlfiles
   end
 
-  #We attempt to open the dsicovered XML files and alert the user if
+  #We attempt to open the discovered XML files and alert the user if
   # we cannot access the file for any reason
   def get_xml(path)
     begin

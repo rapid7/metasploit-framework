@@ -1,15 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/core/payload/php/reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 951
+  CachedSize = 1116
 
   include Msf::Payload::Stager
   include Msf::Payload::Php::ReverseTcp
@@ -26,5 +25,4 @@ module MetasploitModule
       'Stager'      => {'Payload' => ""}
     ))
   end
-
 end

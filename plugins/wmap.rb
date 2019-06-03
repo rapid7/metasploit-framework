@@ -127,19 +127,24 @@ class Plugin::Wmap < Msf::Plugin
       while (arg = args.shift)
         case arg
         when '-a'
-          s = add_web_site(args.shift)
-          if s
-            print_status("Site created.")
+          site = args.shift
+          if site
+            s = add_web_site(site)
+            if s
+              print_status("Site created.")
+            else
+              print_error("Unable to create site")
+            end
           else
-            print_error("Unable to create site")
+            print_error("No site provided.")
           end
         when '-d'
           del_idx = args
-          if del_idx
+          if !del_idx.empty?
             delete_sites(del_idx.select {|d| d =~ /^[0-9]*$/}.map(&:to_i).uniq)
             return
           else
-            print_error("Provide index of site to delete")
+            print_error("No index provided.")
           end
         when '-l'
           view_sites
@@ -147,23 +152,28 @@ class Plugin::Wmap < Msf::Plugin
         when '-s'
           u = args.shift
           l = args.shift
-          s = args.shift
+          o = args.shift
 
-          if not u
-            return
-          end
+          return unless u
 
           if l == nil or l.empty?
             l = 200
-            s = true
+            o = 'true'
           else
-            l = l.to_i
-            s = false
+            # Add check if unicode parameters is the second one
+            if l == 'true' or l == 'false'
+              o = l
+              l = 200
+            else
+              l = l.to_i
+            end
           end
+
+          o = (o == 'true')
 
           if u.include? 'http'
             # Parameters are in url form
-            view_site_tree(u,l,s)
+            view_site_tree(u,l,o)
           else
               # Parameters are digits
               if !self.lastsites or self.lastsites.length == 0
@@ -188,12 +198,12 @@ class Plugin::Wmap < Msf::Plugin
             # Skip the DB entirely if no matches
             return if target_whitelist.length == 0
 
-            if not self.targets
-              self.targets = Hash.new()
-            end
+              unless self.targets
+                self.targets = Hash.new()
+              end
 
             target_whitelist.each do |ent|
-              view_site_tree(ent,l,s)
+              view_site_tree(ent,l,o)
             end
           end
           return
@@ -203,8 +213,7 @@ class Plugin::Wmap < Msf::Plugin
           print_line("\t-a [url]  Add site (vhost,url)")
           print_line("\t-d [ids]  Delete sites (separate ids with space)")
           print_line("\t-l        List all available sites")
-          print_line("\t-s [id]   Display site structure (vhost,url|ids) (level)")
-
+          print_line("\t-s [id]   Display site structure (vhost,url|ids) (level) (unicode output true/false)")
           print_line("")
           return
         else
@@ -1335,7 +1344,7 @@ class Plugin::Wmap < Msf::Plugin
           ssl = true
         end
 
-        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl)
+        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl, :workspace => self.framework.db.workspace)
 
         return site
     end
@@ -1526,18 +1535,16 @@ class Plugin::Wmap < Msf::Plugin
       # Skip the DB entirely if no matches
       return if site_whitelist.length == 0
 
-      vsites = Hash.new()
-
       site_whitelist.each do |ent|
         vhost,target = ent
 
         host = self.framework.db.workspace.hosts.find_by_address(target.host)
-        if not host
+        unless host
           print_error("No matching host for #{target.host}")
           next
         end
         serv = host.services.find_by_port_and_proto(target.port, 'tcp')
-        if not serv
+        unless serv
           print_error("No matching service for #{target.host}:#{target.port}")
           next
         end
@@ -1552,69 +1559,106 @@ class Plugin::Wmap < Msf::Plugin
       end
     end
 
+    # Private function to avoid duplicate code
+    def load_tree_core(req, wtree)
+      pathchr = '/'
+      tarray = req.path.to_s.split(pathchr)
+      tarray.delete("")
+      tpath = Pathname.new(pathchr)
+      tarray.each do |df|
+        wtree.add_at_path(tpath.to_s,df)
+        tpath = tpath + Pathname.new(df.to_s)
+      end
+    end
+
     #
     # Load website structure into a tree
     #
-
     def load_tree(s)
-
-      pathchr = '/'
-
       wtree = Tree.new(s.vhost)
 
       # Load site pages
       s.web_pages.order('path asc').each do |req|
-        tarray = req.path.to_s.split(pathchr)
-        tarray.delete("")
-        tpath = Pathname.new(pathchr)
-        tarray.each do |df|
-          wtree.add_at_path(tpath.to_s,df)
-          tpath = tpath + Pathname.new(df.to_s)
+        if req.code != 404
+          load_tree_core(req, wtree)
         end
       end
 
       # Load site forms
       s.web_forms.each do |req|
-        tarray = req.path.to_s.split(pathchr)
-        tarray.delete("")
-        tpath = Pathname.new(pathchr)
-        tarray.each do |df|
-          wtree.add_at_path(tpath.to_s,df)
-          tpath = tpath + Pathname.new(df.to_s)
-        end
+        load_tree_core(req, wtree)
       end
 
-      return wtree
+      wtree
+    end
+
+    def print_file(filename)
+      ext = File.extname(filename)
+      if %w(.txt .md).include? ext
+        print '%bld%red'
+      elsif %w(.css .js).include? ext
+        print '%grn'
+      end
+
+      print_line("#{ filename }%clr")
     end
 
     #
-    # Print Tree structure. Still ugly
+    # Recursive function for printing the tree structure
     #
+    def print_tree_recursive(tree, max_level, indent, prefix, is_last, unicode)
+      if  tree != nil and tree.depth <= max_level
+        print (' ' * indent)
 
-    def print_tree(tree, ip, maxlevel, limitlevel)
-      initab = " " * 4
-      indent = 6
-      if  tree != nil and tree.depth <= maxlevel
-        print initab + (" " * indent * tree.depth)
-        if tree.depth > 0
-          print "|"+("-" * (indent-1))+"/"
-        end
-        if tree.depth >= 0
-          if tree.depth == 0
-            print "[#{tree.name}] (#{ip})\n"+initab+(" " * indent)+"\n"
-
+        # Prefix serve to print the superior hierarchy
+        prefix.each { |bool|
+          if unicode
+            print (bool ? ' ' : '│') + (' ' * 3)
           else
-            c = tree.children.count
-            if c > 0
-              print tree.name	+ " (" + c.to_s+")\n"
-            else
-              print tree.name	+ "\n"
-            end
+            print (bool ? ' ' : '|') + (' ' * 3)
           end
+        }
+        if unicode
+          # The last children is special
+          print (is_last ? '└' : '├') + ('─' * 2) + ' '
+        else
+          print (is_last ? '`' : '|') + ('-' * 2) + ' '
         end
 
-        tree.children.each_pair do |name,child|
-          print_tree(child,ip,maxlevel,limitlevel)
+        c = tree.children.count
+
+        if c > 0
+          print_line "%bld%blu#{ tree.name }%clr (#{ c.to_s })"
+        else
+          print_file tree.name
+        end
+
+        i = 1
+        new_prefix = prefix + [is_last]
+        tree.children.each_pair { |_,child|
+          is_last = !(i < c)
+          print_tree_recursive(child, max_level, indent, new_prefix, is_last, unicode)
+          i += 1
+        }
+      end
+    end
+
+    #
+    # Print Tree structure. Less ugly
+    # Modified by Jon P.
+    #
+    def print_tree(tree, ip, max_level, unicode)
+      indent = 4
+      if  tree != nil and tree.depth <= max_level
+        if tree.depth == 0
+          print_line "\n" + (' ' * indent) + "%cya[#{tree.name}] (#{ip})%clr"
+        end
+
+        i = 1
+        c = tree.children.count
+        tree.children.each_pair do |_,child|
+          print_tree_recursive(child, max_level, indent, [], !(i < c), unicode)
+          i += 1
         end
 
       end
@@ -2243,6 +2287,10 @@ class Plugin::Wmap < Msf::Plugin
 
   def initialize(framework, opts)
     super
+
+    if framework.db.active == false
+      raise 'Database not connected (try db_connect)'
+    end
 
     color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 

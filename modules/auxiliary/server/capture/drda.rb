@@ -1,14 +1,11 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -48,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 50000 ])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -215,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if @state[c][:user] and @state[c][:pass]
-      print_status("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
       report_cred(
         ip: @state[c][:ip],
         port: datastore['SRVPORT'],

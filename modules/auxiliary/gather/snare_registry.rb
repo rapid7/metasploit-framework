@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         to become unresponsive until the server completes the request.
       },
       'Platform'      => 'win',
-      'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
+      'Author'        => [ 'bcoles' ],
       'License'       => MSF_LICENSE,
       'References'    =>
         [
@@ -35,12 +33,12 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6161),
-        OptString.new('HttpUsername', [ false, 'The username for Snare remote access', 'snare' ]),
-        OptString.new('HttpPassword', [ false, 'The password for Snare remote access', '' ]),
+        OptString.new('HttpUsername', [ true, 'The username for Snare remote access', 'snare' ]),
+        OptString.new('HttpPassword', [ true, 'The password for Snare remote access', '' ]),
         OptString.new('REG_DUMP_KEY', [ false, 'Retrieve this registry key and all sub-keys', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
         OptBool.new('REG_DUMP_ALL', [false, 'Retrieve the entire Windows registry', false]),
         OptInt.new('TIMEOUT', [true, 'Timeout in seconds for downloading each registry key/hive', 300])
-      ], self.class)
+      ])
   end
 
   def run

@@ -60,6 +60,7 @@ module Framework
       Msf::MODULE_PAYLOAD => Msf::Simple::Payload,
       Msf::MODULE_AUX     => Msf::Simple::Auxiliary,
       Msf::MODULE_POST    => Msf::Simple::Post,
+      Msf::MODULE_EVASION => Msf::Simple::Evasion
     }
 
   # Create a simplified instance of the framework.  This routine takes a hash

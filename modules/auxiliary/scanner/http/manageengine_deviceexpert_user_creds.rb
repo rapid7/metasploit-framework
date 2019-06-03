@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'Brendan Coles <bcoles[at]gmail.com>'  # metasploit module
+          'bcoles'  # metasploit module
         ],
       'References'     =>
         [
@@ -38,8 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(6060),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
-    deregister_options('RHOST')
+      ])
   end
 
   def check
@@ -122,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       cred_table << [user, pass, hash, role, mail, salt]
 
       if pass
-        print_status("Found weak credentials (#{user}:#{pass})")
+        print_good("Found weak credentials (#{user}:#{pass})")
         credential_data = {
           origin_type: :service,
           module_fullname: self.fullname,

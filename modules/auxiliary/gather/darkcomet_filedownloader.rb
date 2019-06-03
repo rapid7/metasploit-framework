@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -36,14 +34,14 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(1604),
         Opt::RHOST('0.0.0.0'),
 
-        OptString.new('LHOST', [true, 'This is our IP (as it appears to the DarkComet C2 server)', '0.0.0.0']),
+        OptAddressLocal.new('LHOST', [true, 'This is our IP (as it appears to the DarkComet C2 server)', '0.0.0.0']),
         OptString.new('KEY', [false, 'DarkComet RC4 key (include DC prefix with key eg. #KCMDDC51#-890password)', '']),
         OptBool.new('NEWVERSION', [false, 'Set to true if DarkComet version >= 5.1, set to false if version < 5.1', true]),
         OptString.new('TARGETFILE', [false, 'Target file to download (assumes password is set)', '']),
         OptBool.new('STORE_LOOT', [false, 'Store file in loot (will simply output file to console if set to false).', true]),
         OptInt.new('BRUTETIMEOUT', [false, 'Timeout (in seconds) for bruteforce attempts', 1])
 
-      ], self.class)
+      ])
   end
 
   # Functions for XORing two strings, deriving keystream using known plaintext and applying keystream to produce ciphertext
@@ -418,7 +416,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status(filedata.to_s)
       end
     else
-      print_status("Attack failed or empty config file encountered ...")
+      print_error("Attack failed or empty config file encountered ...")
     end
   end
 end

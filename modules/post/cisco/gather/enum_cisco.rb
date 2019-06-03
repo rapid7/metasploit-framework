@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/cisco'
 
 class MetasploitModule < Msf::Post
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('ENABLE', [ false, 'Enable password for changing privilege level.']),
         OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
-      ], self.class)
+      ])
 
   end
 
@@ -89,7 +87,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Print the version of VERBOSE set to true.
-    vprint_status("version information stored in to loot, file:#{ver_loc}")
+    vprint_good("version information stored in to loot, file:#{ver_loc}")
 
     # Enumerate depending priv level
     case priv
@@ -187,7 +185,7 @@ class MetasploitModule < Msf::Post
         cmd_out.strip,
         "#{ec['fn']}.txt",
         ec['desc'])
-      vprint_status("Saving to #{cmd_loc}")
+      vprint_good("Saving to #{cmd_loc}")
     end
   end
 
@@ -229,7 +227,7 @@ class MetasploitModule < Msf::Post
         cmd_out.strip,
         "#{ec['fn']}.txt",
         ec['desc'])
-      vprint_status("Saving to #{cmd_loc}")
+      vprint_good("Saving to #{cmd_loc}")
     end
   end
 end

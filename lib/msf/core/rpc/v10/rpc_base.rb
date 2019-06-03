@@ -17,7 +17,7 @@ class RPC_Base
 
   # Raises an Msf::RPC Exception.
   #
-  # @param [Fixnum] code The error code to raise.
+  # @param [Integer] code The error code to raise.
   # @param [String] message The error message.
   # @raise [Msf::RPC::Exception]
   # @return [void]

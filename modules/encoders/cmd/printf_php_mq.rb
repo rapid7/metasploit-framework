@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Encoder
 
@@ -23,9 +21,9 @@ class MetasploitModule < Msf::Encoder
       'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
       'Description'      => %q{
           This encoder uses the printf(1) utility to avoid restricted
-        characters. Some shell variable substituion may also be used
+        characters. Some shell variable substitution may also be used
         if needed symbols are blacklisted. Some characters are intentionally
-        left unescaped since it is assummed that PHP with magic_quotes_gpc
+        left unescaped since it is assumed that PHP with magic_quotes_gpc
         enabled will escape them during request handling.
       },
       'Author'           => 'jduck',
@@ -75,5 +73,4 @@ class MetasploitModule < Msf::Encoder
 
     return ret
   end
-
 end

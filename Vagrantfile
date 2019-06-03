@@ -3,10 +3,7 @@
 
 Vagrant.configure(2) do |config|
   config.ssh.forward_x11 = true
-  config.vm.box = "ubuntu/trusty64"
-  # TODO: find a minimal image that keeps up-to-date and
-  # supports multiple providers
-  #config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.box = "ubuntu/xenial64"
   config.vm.network :forwarded_port, guest: 4444, host: 4444
   config.vm.provider "vmware" do |v|
 	  v.memory = 2048
@@ -26,15 +23,14 @@ Vagrant.configure(2) do |config|
   [ #"echo 127.0.1.1 `cat /etc/hostname` >> /etc/hosts", work around a bug in official Ubuntu Xenial cloud images
     "apt-get update",
     "apt-get dist-upgrade -y",
-    "apt-get -y install curl build-essential git tig vim john nmap libpq-dev libpcap-dev gnupg fortune postgresql postgresql-contrib",
+    "apt-get -y install curl build-essential git tig vim john nmap libpq-dev libpcap-dev gnupg2 fortune postgresql postgresql-contrib",
   ].each do |step|
     config.vm.provision "shell", inline: step
   end
 
   [ "gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3",
     "curl -L https://get.rvm.io | bash -s stable",
-    "source ~/.rvm/scripts/rvm && cd /vagrant && rvm --install .ruby-version",
-    "source ~/.rvm/scripts/rvm && cd /vagrant && gem install bundler",
+    "source ~/.rvm/scripts/rvm && cd /vagrant && rvm install `cat .ruby-version`",
     "source ~/.rvm/scripts/rvm && cd /vagrant && bundle",
     "mkdir -p ~/.msf4",
   ].each do |step|

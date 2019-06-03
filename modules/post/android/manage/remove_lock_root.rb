@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
   include Msf::Post::Android::Priv
 
@@ -43,6 +40,5 @@ class MetasploitModule < Msf::Post
 
     print_status("Device should be unlocked or no longer require a pin")
   end
-
 end
 

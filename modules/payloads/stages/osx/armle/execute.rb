@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -141,7 +140,7 @@ module MetasploitModule
       [
         OptPath.new('PEXEC', [ true, "Full path to the file to execute",
           File.join(Msf::Config.data_directory, "ipwn", "ipwn")])
-      ], self.class)
+      ])
   end
 
   def generate_stage(opts={})
@@ -166,5 +165,4 @@ module MetasploitModule
     temp = Rex::Text.rand_text_alphanumeric(9)
     data.gsub("msf_stage_xxxxxxxxx.bin", "msf_stage_#{temp}.bin")
   end
-
 end

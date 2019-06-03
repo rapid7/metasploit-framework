@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WDBRPC_Client
 
   def initialize(info = {})
@@ -42,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         ),
         OptInt.new('OFFSET', [ true, "The starting offset to read the memory dump (hex allowed)", 0 ])
-      ], self.class)
+      ])
   end
 
   def run
@@ -107,5 +102,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Dumped #{"0x%.8x" % idx} bytes.")
     wdbrpc_client_disconnect
   end
-
 end

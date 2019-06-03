@@ -36,7 +36,7 @@ class PacketResponseWaiter
   # @return [Packet]
   attr_accessor :response
 
-  # @return [Fixnum] request ID to wait for
+  # @return [Integer] request ID to wait for
   attr_accessor :rid
 
   #
@@ -84,7 +84,7 @@ class PacketResponseWaiter
   #
   # Wait for a given time interval for the response packet to arrive.
   #
-  # @param interval [Fixnum,nil] number of seconds to wait, or nil to wait
+  # @param interval [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   # @return [Packet,nil] the response, or nil if the interval elapsed before
   #   receiving one

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::WmapScanSSL
   include Msf::Auxiliary::Scanner
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptRegexp.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
         OptBool.new('SHOWALL', [ false, "Show all certificates (issuer,time) regardless of match", false]),
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host
@@ -112,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
     return if(e.to_s =~ /execution expired/)
     print_error("Error: '#{ip}' '#{e.class}' '#{e}' '#{e.backtrace}'")
   end
-
 end

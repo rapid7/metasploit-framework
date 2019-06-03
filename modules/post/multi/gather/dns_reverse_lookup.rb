@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Post
 
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform reverse lookup against.'])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -45,9 +42,9 @@ class MetasploitModule < Msf::Post
     end
 
     case session.platform
-    when /win/i
+    when 'windows'
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       cmd = "/usr/sbin/host"
     else
       cmd = "/usr/bin/host"
@@ -59,7 +56,7 @@ class MetasploitModule < Msf::Post
           next if ip_add.nil?
           r = cmd_exec(cmd, " #{ip_add}")
           case session.platform
-          when /win/
+          when 'windows'
             if r =~ /(Name)/
               r.scan(/Name:\s*\S*\s/) do |n|
                 hostname = n.split(":    ")

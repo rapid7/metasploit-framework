@@ -246,10 +246,10 @@ public
   #  * 'creds' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
   #    * 'user' [String] Username.
   #    * 'pass' [String] Password.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'type' [String] Password type.
   #    * 'host' [String] Host.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'sname' [String] Service name.
   # @example Here's how you would use this from the client:
@@ -301,7 +301,7 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] Host information that starts with the following hash key:
   #  * 'hosts' [Array<Hash>] An array of hosts. Each hash in the array will have the following:
-  #    * 'created_at' [Fixnum] Creation date.
+  #    * 'created_at' [Integer] Creation date.
   #    * 'address' [String] IP address.
   #    * 'mac' [String] MAC address.
   #    * 'name' [String] Computer name.
@@ -310,7 +310,7 @@ public
   #    * 'os_flavor' [String] OS flavor.
   #    * 'os_sp' [String] Service pack.
   #    * 'os_lang' [String] OS language.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'purpose' [String] Host purpose (example: server)
   #    * 'info' [String] Additional information about the host.
   # @example Here's how you would use this from the client:
@@ -353,8 +353,8 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of workspace.
-  # @option xopts [Fixnum] :limit Limit.
-  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [Integer] :limit Limit.
+  # @option xopts [Integer] :offset Offset.
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :address Address.
   # @option xopts [String] :ports Port range.
@@ -366,9 +366,9 @@ public
   # @return [Hash] A hash with the following keys:
   #  * 'services' [Array<Hash>] In each hash of the array, you will get these keys:
   #    * 'host' [String] Host.
-  #    * 'created_at' [Fixnum] Last created at.
-  #    * 'updated_at' [Fixnum] Last updated at.
-  #    * 'port' [Fixnum] Port.
+  #    * 'created_at' [Integer] Last created at.
+  #    * 'updated_at' [Integer] Last updated at.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'state' [String] Service state.
   #    * 'name' [String] Service name.
@@ -413,8 +413,8 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Name of workspace.
-  # @option xopts [Fixnum] :limit Limit.
-  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [Integer] :limit Limit.
+  # @option xopts [Integer] :offset Offset.
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :address Address.
   # @option xopts [String] :ports Port range.
@@ -424,9 +424,9 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash with the following key:
   #  * 'vulns' [Array<Hash>] In each hash of the array, you will get these keys:
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
-  #    * 'time' [Fixnum] Time reported.
+  #    * 'time' [Integer] Time reported.
   #    * 'host' [String] Vulnerable host.
   #    * 'name' [String] Exploit that was used.
   #    * 'refs' [String] Vulnerability references.
@@ -439,7 +439,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
@@ -472,10 +472,10 @@ public
   # @raise [Msf::RPC::Exception] Database not loaded.
   # @return [Hash] A hash with the following key:
   #  * 'workspaces' [Array<Hash>] In each hash of the array, you will get these keys:
-  #    * 'id' [Fixnum] Workspace ID.
+  #    * 'id' [Integer] Workspace ID.
   #    * 'name' [String] Workspace name.
-  #    * 'created_at' [Fixnum] Last created at.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Last created at.
+  #    * 'updated_at' [Integer] Last updated at.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.workspaces')
   def rpc_workspaces
@@ -500,7 +500,7 @@ public
   # @raise [Msf::RPC::Exception] Database not loaded. Try: rpc.call('console.create')
   # @return [Hash] A hash with the following keys:
   #  * 'workspace' [String] Workspace name.
-  #  * 'workspace_id' [Fixnum] Workspace ID.
+  #  * 'workspace_id' [Integer] Workspace ID.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.current_workspace')
   def rpc_current_workspace
@@ -518,11 +518,11 @@ public
   # @return [Hash] A hash with the following key:
   #  * 'workspace' [Array<Hash>] In each hash of the array, you will get these keys:
   #    * 'name' [String] Workspace name.
-  #    * 'id' [Fixnum] Workspace ID.
-  #    * 'created_at' [Fixnum] Last created at.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'id' [Integer] Workspace ID.
+  #    * 'created_at' [Integer] Last created at.
+  #    * 'updated_at' [Integer] Last updated at.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_workspace')
+  #  rpc.call('db.get_workspace', 'default')
   def rpc_get_workspace(wspace)
     db_check
     wspace = find_workspace(wspace)
@@ -576,7 +576,7 @@ public
   # @return [Hash] A hash indicating the action was successful. It contains the following:
   #  * 'result' [String] A message that says 'success'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.wspace', 'temp_workspace')
+  #  rpc.call('db.del_workspace', 'temp_workspace')
   def rpc_del_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
@@ -622,6 +622,7 @@ public
   # Returns information about a host.
   #
   # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -631,7 +632,7 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'host' [Array<Hash>] Each hash in the array contains the following:
-  #    * 'created_at' [Fixnum] Last created at.
+  #    * 'created_at' [Integer] Last created at.
   #    * 'address' [String] Address.
   #    * 'mac' [String] Mac address.
   #    * 'name' [String] Host name.
@@ -640,11 +641,11 @@ public
   #    * 'os_flavor' [String] OS flavor.
   #    * 'os_sp' [String] OS service pack.
   #    * 'os_lang' [String] OS language.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'purpose' [String] Purpose. Example: 'server'.
   #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_host', {:host => ip})
+  #  rpc.call('db.get_host', {:workspace => 'default', :host => ip})
   def rpc_get_host(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -673,11 +674,58 @@ public
   }
   end
 
+  # Returns analysis of module suggestions for known data about a host.
+  #
+  # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'host' [Array<Hash>] Each hash in the array contains the following:
+  #    * 'address' [String] Address.
+  #    * 'modules' [Array<Hash>] Each hash in the array modules contains the following:
+  #      * 'mtype' [String] Module type.
+  #      * 'mname' [String] Module name. For example: 'windows/wlan/wlan_profile'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.analyze_host', {:workspace => 'default', :host => ip})
+def rpc_analyze_host(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    _opts, _wspace = init_db_opts_workspace(xopts)
+
+    ret = {}
+    ret[:host] = []
+    opts = fix_options(xopts)
+    h = self.framework.db.get_host(opts)
+    return ret unless h
+    h_result = self.framework.analyze.host(h)
+    host_detail = {}
+    host_detail[:address] = h.address
+    # for now only modules can be returned, in future maybe process whole result map
+    unless h_result[:modules].empty?
+      host_detail[:modules] = []
+      h_result[:modules].each do |mod|
+        mod_detail = {}
+        mod_detail[:mtype]  = mod.type
+        mod_detail[:mname]  = mod.full_name
+        host_detail[:modules] << mod_detail
+      end
+    end
+    ret[:host] << host_detail
+    ret
+  }
+end
+
 
   # Reports a new host to the database.
   #
   # @param [Hash] xopts Information to report about the host. See below:
-  # @option xopts [String] :host IP address. You msut supply this.
+  # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :host IP address. You must supply this.
   # @option xopts [String] :state One of the Msf::HostState constants. (See Most::HostState Documentation)
   # @option xopts [String] :os_name Something like "Windows", "Linux", or "Mac OS X".
   # @option xopts [String] :os_flavor Something like "Enterprise", "Pro", or "Home".
@@ -711,6 +759,7 @@ public
   # Reports a service to the database.
   #
   # @param [Hash] xopts Information to report about the service. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host Required. The host where this service is running.
   # @option xopts [String] :port Required. The port where this service listens.
   # @option xopts [String] :proto Required. The transport layer protocol (e.g. tcp, udp).
@@ -739,7 +788,7 @@ public
   # @param [Hash] xopts Filters for the search, see below:
   # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :proto Protocol.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @option xopts [String] :names Service names.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
@@ -748,8 +797,8 @@ public
   # @return [Hash] A hash that contains the following key:
   #  * 'service' [Array<Hash>] Each hash in the array contains the following:
   #    * 'host' [String] Host address.
-  #    * 'created_at' [Fixnum] Creation date.
-  #    * 'port' [Fixnum] Port.
+  #    * 'created_at' [Integer] Creation date.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'state' [String] Service state.
   #    * 'name' [String] Service name.
@@ -776,9 +825,9 @@ public
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
-      sret = wspace.services.where(conditions).order("hosts.address, port")
+      sret = wspace.services.where(conditions).order("hosts.address, port").to_a()
     elsif host
-      sret = host.services
+      sret = host.services.to_a()
     end
     return ret if sret == nil
     services << sret if sret.class == ::Mdm::Service
@@ -805,11 +854,12 @@ public
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
   # @option xopts [String] :proto Protocol.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @option xopts [String] :ntype Note type.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
@@ -818,10 +868,10 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'note' [Array<Hash>] Each hash in the array contains the following:
   #    * 'host' [String] Host.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
-  #    * 'created_at' [Fixnum] Last created at.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Last created at.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'ntype' [String] Note type.
   #    * 'data' [String] Note data.
   #    * 'critical' [String] A boolean indicating criticality.
@@ -867,8 +917,8 @@ public
   # @return [Hash] A hash that contains the client connection:
   #  * 'client' [Array<Hash>] Each hash of the array contains the following:
   #    * 'host' [String] Host IP.
-  #    * 'created_at' [Fixnum] Created date.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Created date.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'ua_string' [String] User-Agent string.
   #    * 'ua_name' [String] User-Agent name.
   #    * 'ua_ver' [String] User-Agent version.
@@ -899,6 +949,7 @@ public
   # Reports a client connection.
   #
   # @param [Hash] xopts Information about the client.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_string Required. User-Agent string.
   # @option xopts [String] :host Required. Host IP.
   # @option xopts [String] :ua_name One of the Msf::HttpClients constants. (See Msf::HttpClient Documentation.)
@@ -931,7 +982,7 @@ public
   # @option xopts [String] :host An IP address or a Host object to associate with this note.
   # @option xopts [String] :service A Service object to associate with this note.
   # @option xopts [String] :data Whatever it is you're making a note of.
-  # @option xopts [Fixnum] :port Along with +:host+ and +:proto+, a service to associate with this note.
+  # @option xopts [Integer] :port Along with +:host+ and +:proto+, a service to associate with this note.
   # @option xopts [String] :proto Along with +:host+ and +:port+, a service to associate with this note.
   # @option xopts [Hash] A hash that contains the following information.
   #  * :unique [Boolean] Allow only a single Note per +:host+/+:type+ pair.
@@ -970,6 +1021,7 @@ public
   # Returns notes from the database.
   #
   # @param [Hash] xopts Filters for the search. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :address Host address.
   # @option xopts [String] :names Names (separated by ',').
   # @option xopts [String] :ntype Note type.
@@ -981,7 +1033,7 @@ public
   #  * 500 Invalid workspace.
   # @return [Hash] A hash that contains the following:
   #  * 'notes' [Array<Hash>] Each hash in the array contains the following:
-  #    * 'time' [Fixnum] Creation date.
+  #    * 'time' [Integer] Creation date.
   #    * 'host' [String] Host address.
   #    * 'service' [String] Service name or port.
   #    * 'type' [String] Host type.
@@ -996,7 +1048,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
@@ -1045,7 +1097,7 @@ public
   # @option xopts [String] :host Host address.
   # @option xopts [String] :address Same as :host.
   # @option xopts [Array] :addresses Same as :address.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :name Name of the vulnerability.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
@@ -1056,7 +1108,7 @@ public
   #  * 'result' [String] A message that says 'success'.
   #  * 'deleted' [Array<Hash>] Each hash in the array contains the following:
   #    * 'address' [String] Host address.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'name' [String] Vulnerability name.
   # @example Here's how you would use this from the client:
@@ -1070,14 +1122,14 @@ public
     vulns = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(xopts)
+      hosts = opts_to_hosts(opts)
     end
 
     if opts[:port] or opts[:proto]
       if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,xopts)
+        services = opts_to_services(hosts, opts)
       else
-        services = opts_to_services([],xopts)
+        services = opts_to_services([], opts)
       end
     end
 
@@ -1087,7 +1139,7 @@ public
         if opts[:name]
           vret = s.vulns.find_by_name(opts[:name])
         else
-          vret = s.vulns
+          vret = s.vulns.to_a()
         end
         next if vret == nil
         vulns << vret if vret.class == ::Mdm::Vuln
@@ -1099,7 +1151,7 @@ public
         if opts[:name]
           vret = h.vulns.find_by_name(opts[:name])
         else
-          vret = h.vulns
+          vret = h.vulns.to_a()
         end
         next if vret == nil
         vulns << vret if vret.class == ::Mdm::Vuln
@@ -1110,7 +1162,7 @@ public
       if opts[:name]
         vret = wspace.vulns.find_by_name(opts[:name])
       else
-        vret = wspace.vulns
+        vret = wspace.vulns.to_a()
       end
       vulns << vret if vret.class == ::Mdm::Vuln
       vulns |= vret if vret.class == Array
@@ -1139,7 +1191,7 @@ public
   # @option xopts [String] :host Host address.
   # @option xopts [String] :address Same as :host.
   # @option xopts [Array] :addresses Same as :address.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @option xopts [String] :proto Protocol.
   # @option xopts [String] :ntype Note type.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
@@ -1150,7 +1202,7 @@ public
   #  * 'result' [String] A message that says 'success'.
   #  * 'deleted' [Array<Hash>] Each hash in the array contains the following:
   #    * 'address' [String] Host address.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   #    * 'ntype' [String] Note type.
   # @example Here's how you would use this from the client:
@@ -1180,7 +1232,7 @@ public
   # @option xopts [String] :host Host address.
   # @option xopts [String] :address Same as :host.
   # @option xopts [Array] :addresses Host addresses.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @option xopts [String] :proto Protocol.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
@@ -1191,7 +1243,7 @@ public
   #  * 'deleted' [Array<Hash>] If result says success, then you will get this key.
   #    Each hash in the array contains:
   #    * 'address' [String] Host address.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.del_service', {:host=>ip})
@@ -1331,8 +1383,8 @@ public
   #
   # @param [Hash] xopts Options:
   # @option xopts [String] :workspace Workspace name.
-  # @option xopts [Fixnum] :limit Limit.
-  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [Integer] :limit Limit.
+  # @option xopts [Integer] :offset Offset.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -1340,8 +1392,8 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'events' [Array<Hash>] Each hash in the array contains the following:
   #    * 'host' [String] Host address.
-  #    * 'created_at' [Fixnum] Creation date.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Creation date.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'name' [String] Event name.
   #    * 'critical' [Boolean] Criticality.
   #    * 'username' [String] Username.
@@ -1401,7 +1453,7 @@ public
   # @param [Hash] xopts Information about the looted item.
   # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :host Host address.
-  # @option xopts [Fixnum] :port Port. Should match :service.
+  # @option xopts [Integer] :port Port. Should match :service.
   # @option xopts [String] :proto Protocol. Should match :service.
   # @option xopts [String] :path Required. Path where the item was looted.
   # @option xopts [String] :type Loot type.
@@ -1435,8 +1487,8 @@ public
   #
   # @param [Hash] xopts Filters that narrow down the search:
   # @option xopts [Hash] :workspace Workspace name.
-  # @option xopts [Fixnum] :limit Limit.
-  # @option xopts [Fixnum] :offset Offset.
+  # @option xopts [Integer] :limit Limit.
+  # @option xopts [Integer] :offset Offset.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -1448,8 +1500,8 @@ public
   #    * 'ltype' [String] Loot type.
   #    * 'ctype' [String] Content type.
   #    * 'data' [String] Looted data.
-  #    * 'created_at' [Fixnum] Creation date.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Creation date.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'name' [String] Name.
   #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
@@ -1493,6 +1545,7 @@ public
   #  * :ci_xml
   #  * :foundstone_xml
   #  * :fusionvm_xml
+  #  * :gpp_xml
   #  * :ip360_aspl_xml
   #  * :ip360_xml_v3
   #  * :ip_list
@@ -1539,8 +1592,10 @@ public
   #
   # @param [Hash] xopts Filters to narrow down which vulnerabilities to find.
   # @option xopts [String] :workspace Workspace name.
+  # @option xopts [String] :host Host address.
+  # @option xopts [String] :address Same as :host.
   # @option xopts [String] :proto Protocol.
-  # @option xopts [Fixnum] :port Port.
+  # @option xopts [Integer] :port Port.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -1548,15 +1603,15 @@ public
   # @return [Hash] A hash that contains the following:
   #  * 'vuln' [Array<Hash>] Each hash in the array contains the following:
   #    * 'host' [String] Host address.
-  #    * 'port' [Fixnum] Port.
+  #    * 'port' [Integer] Port.
   #    * 'proto' [String] Protocol.
-  #    * 'created_at' [Fixnum] Creation date.
-  #    * 'updated_at' [Fixnum] Last updated at.
+  #    * 'created_at' [Integer] Creation date.
+  #    * 'updated_at' [Integer] Last updated at.
   #    * 'name' [String] Vulnerability name.
   #    * 'info' [String] Additional information.
   #    * 'refs' [Array<String>] Reference names.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_vuln', {:proto=>'tcp'})
+  #  rpc.call('db.get_vuln', {:host => ip, :proto => 'tcp'})
   def rpc_get_vuln(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -1611,6 +1666,7 @@ public
   # Returns browser clients information.
   #
   # @param [Hash] xopts Filters that narrow down the search.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_name User-Agent name.
   # @option xopts [String] :ua_ver Browser version.
   # @option xopts [Array] :addresses Addresses.
@@ -1624,8 +1680,8 @@ public
   #   * 'ua_string' [String] User-agent string.
   #   * 'ua_name' [String] Browser name.
   #   * 'ua_ver' [String] Browser version.
-  #   * 'created_at' [Fixnum] Creation date.
-  #   * 'updated_at' [Fixnum] Last updated at.
+  #   * 'created_at' [Integer] Creation date.
+  #   * 'updated_at' [Integer] Last updated at.
   # @example Here's how you would use this from the client:
   #  rpc.call('db.clients', {})
   def rpc_clients(xopts)
@@ -1754,11 +1810,12 @@ public
   # Connects to the database.
   #
   # @param [Hash] xopts Options:
+  # This must contain :driver and driver specific options.
   # @option xopts [String] :driver Driver name. For example: 'postgresql'.
   # @return [Hash] A hash that indicates whether the action was successful or not.
   #  * 'result' [String] A message that says either 'success' or 'failed'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.connect', {:driver=>'postgresql'})
+  #  rpc.call('db.connect', {:driver=>'postgresql', :host => db_host, :port => db_port, :database => db_name, :username => db_username, :password=> db_password})
   def rpc_connect(xopts)
     opts = fix_options(xopts)
     if not self.framework.db.driver and not opts[:driver]

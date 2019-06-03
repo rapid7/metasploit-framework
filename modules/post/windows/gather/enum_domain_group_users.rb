@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   def initialize(info = {})
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -65,7 +62,7 @@ class MetasploitModule < Msf::Post
 
       # Store the captured data in the loot.
       loot_file = store_loot(ltype, ctype, session, loot.join("\n"), nil, datastore['GROUP'])
-      print_status("User list stored in #{loot_file}")
+      print_good("User list stored in #{loot_file}")
     else
       print_error("No members found for #{datastore['GROUP']}")
     end

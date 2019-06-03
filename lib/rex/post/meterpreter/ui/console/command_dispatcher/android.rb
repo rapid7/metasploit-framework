@@ -31,10 +31,11 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'    => 'Get current lat-long using WLAN information',
       'interval_collect'  => 'Manage interval collection capabilities',
       'activity_start'    => 'Start an Android activity from a Uri string',
+      'hide_app_icon'     => 'Hide the app icon from the launcher',
       'sqlite_query'      => 'Query a SQLite database from storage',
-      'set_audio_mode'    => 'Set Ringer Mode'
+      'set_audio_mode'    => 'Set Ringer Mode',
+      'wakelock'          => 'Enable/Disable Wakelock',
     }
-
     reqs = {
       'dump_sms'         => ['android_dump_sms'],
       'dump_contacts'    => ['android_dump_contacts'],
@@ -46,14 +47,12 @@ class Console::CommandDispatcher::Android
       'wlan_geolocate'   => ['android_wlan_geolocate'],
       'interval_collect' => ['android_interval_collect'],
       'activity_start'   => ['android_activity_start'],
+      'hide_app_icon'    => ['android_hide_app_icon'],
       'sqlite_query'     => ['android_sqlite_query'],
-      'set_audio_mode'   => ['android_set_audio_mode']
+      'set_audio_mode'   => ['android_set_audio_mode'],
+      'wakelock'         => ['android_wakelock'],
     }
-
-    # Ensure any requirements of the command are met
-    all.delete_if do |cmd, _desc|
-      reqs[cmd].any? { |req| !client.commands.include?(req) }
-    end
+    filter_commands(all, reqs)
   end
 
   def interval_collect_usage
@@ -275,11 +274,13 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_contacts(*args)
-    path = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
+    path   = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}"
+    format = :text
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
-      '-o' => [ true, 'Output path for contacts list']
+      '-o' => [ true, 'Output path for contacts list' ],
+      '-f' => [ true, 'Output format for contacts list (text, csv, vcard)' ]
     )
 
     dump_contacts_opts.parse(args) do |opt, _idx, val|
@@ -291,6 +292,18 @@ class Console::CommandDispatcher::Android
         return
       when '-o'
         path = val
+      when '-f'
+        case val
+        when 'text'
+          format = :text
+        when 'csv'
+          format = :csv
+        when 'vcard'
+          format = :vcard
+        else
+          print_error('Invalid output format specified')
+          return
+        end
       end
     end
 
@@ -299,33 +312,62 @@ class Console::CommandDispatcher::Android
     if contact_list.count > 0
       print_status("Fetching #{contact_list.count} #{contact_list.count == 1 ? 'contact' : 'contacts'} into list")
       begin
-        info = client.sys.config.sysinfo
+        data = ''
 
-        data = ""
-        data << "\n======================\n"
-        data << "[+] Contacts list dump\n"
-        data << "======================\n\n"
+        case format
+        when :text
+          info  = client.sys.config.sysinfo
+          path << '.txt' unless path.end_with?('.txt')
 
-        time = Time.new
-        data << "Date: #{time.inspect}\n"
-        data << "OS: #{info['OS']}\n"
-        data << "Remote IP: #{client.sock.peerhost}\n"
-        data << "Remote Port: #{client.sock.peerport}\n\n"
+          data << "\n======================\n"
+          data << "[+] Contacts list dump\n"
+          data << "======================\n\n"
 
-        contact_list.each_with_index do |c, index|
+          time = Time.new
+          data << "Date: #{time.inspect}\n"
+          data << "OS: #{info['OS']}\n"
+          data << "Remote IP: #{client.sock.peerhost}\n"
+          data << "Remote Port: #{client.sock.peerport}\n\n"
 
-          data << "##{index.to_i + 1}\n"
-          data << "Name\t: #{c['name']}\n"
+          contact_list.each_with_index do |c, index|
 
-          c['number'].each do |n|
-            data << "Number\t: #{n}\n"
+            data << "##{index.to_i + 1}\n"
+            data << "Name\t: #{c['name']}\n"
+
+            c['number'].each do |n|
+              data << "Number\t: #{n}\n"
+            end
+
+            c['email'].each do |n|
+              data << "Email\t: #{n}\n"
+            end
+
+            data << "\n"
           end
+        when :csv
+          path << '.csv' unless path.end_with?('.csv')
 
-          c['email'].each do |n|
-            data << "Email\t: #{n}\n"
+          contact_list.each do |contact|
+            data << contact.values.to_csv
           end
+        when :vcard
+          path << '.vcf' unless path.end_with?('.vcf')
 
-          data << "\n"
+          contact_list.each do |contact|
+            data << "BEGIN:VCARD\n"
+            data << "VERSION:3.0\n"
+            data << "FN:#{contact['name']}\n"
+
+            contact['number'].each do |number|
+              data << "TEL:#{number}\n"
+            end
+
+            contact['email'].each do |email|
+              data << "EMAIL:#{email}\n"
+            end
+
+            data << "END:VCARD\n"
+          end
         end
 
         ::File.write(path, data)
@@ -343,7 +385,6 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_geolocate(*args)
-
     generate_map = false
     geolocate_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
@@ -381,10 +422,8 @@ class Console::CommandDispatcher::Android
   def cmd_dump_calllog(*args)
     path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
-
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ true, 'Output path for call log']
-
     )
 
     dump_calllog_opts.parse(args) do |opt, _idx, val|
@@ -470,7 +509,7 @@ class Console::CommandDispatcher::Android
       '-h' => [ false, 'Help Banner' ],
       '-d' => [ true, 'Destination number' ],
       '-t' => [ true, 'SMS body text' ],
-      '-dr' => [ false, 'Wait for delivery report' ]
+      '-r' => [ false, 'Wait for delivery report' ]
     )
 
     dest = ''
@@ -488,7 +527,9 @@ class Console::CommandDispatcher::Android
         dest = val
       when '-t'
         body = val
-      when '-dr'
+        # Replace \n with a newline character to allow multi-line messages
+        body.gsub!('\n',"\n")
+      when '-r'
         dr = true
       end
     end
@@ -523,17 +564,28 @@ class Console::CommandDispatcher::Android
 
   def cmd_wlan_geolocate(*args)
     wlan_geolocate_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ]
+      '-h' => [ false, 'Help Banner' ],
+      '-a' => [ true, 'API key' ],
     )
 
-    wlan_geolocate_opts.parse(args) do |opt, _idx, _val|
+    api_key = ''
+    wlan_geolocate_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
         print_line('Usage: wlan_geolocate')
         print_line('Tries to get device geolocation from WLAN information and Google\'s API')
         print_line(wlan_geolocate_opts.usage)
         return
+      when '-a'
+        api_key = val
       end
+    end
+
+    if api_key.blank?
+      print_error("You must enter an api_key")
+      print_error("e.g. wlan_geolocate -a YOUR_API_KEY")
+      print_line(wlan_geolocate_opts.usage)
+      return
     end
 
     log = client.android.wlan_geolocate
@@ -550,9 +602,10 @@ class Console::CommandDispatcher::Android
       return
     end
     g = Rex::Google::Geolocation.new
+    g.set_api_key(api_key)
 
     wlan_list.each do |wlan|
-      g.add_wlan(*wlan)
+      g.add_wlan(wlan[0], wlan[2]) # bssid, signalstrength
     end
     begin
       g.fetch!
@@ -560,7 +613,7 @@ class Console::CommandDispatcher::Android
       print_error("Error: #{e}")
     else
       print_status(g.to_s)
-      print_status("Google Maps URL:  #{g.google_maps_url}")
+      print_status("Google Maps URL: #{g.google_maps_url}")
     end
   end
 
@@ -577,6 +630,27 @@ class Console::CommandDispatcher::Android
       print_status("Intent started")
     else
       print_error("Error: #{result}")
+    end
+  end
+
+  def cmd_hide_app_icon(*args)
+    hide_app_icon_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ]
+    )
+
+    hide_app_icon_opts.parse(args) do |opt, _idx, _val|
+      case opt
+      when '-h'
+        print_line('Usage: hide_app_icon [options]')
+        print_line('Hide the application icon from the launcher.')
+        print_line(hide_app_icon_opts.usage)
+        return
+      end
+    end
+
+    result = client.android.hide_app_icon
+    if result
+      print_status("Activity #{result} was hidden")
     end
   end
 
@@ -626,6 +700,39 @@ class Console::CommandDispatcher::Android
       end
       print_line
       print_line(table.to_s)
+    end
+  end
+
+  def cmd_wakelock(*args)
+    wakelock_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-r' => [ false, 'Release wakelock' ],
+      '-w' => [ false, 'Turn screen on' ],
+      '-f' => [ true, 'Advanced Wakelock flags (e.g 268435456)' ],
+    )
+
+    flags = 1 # PARTIAL_WAKE_LOCK
+    wakelock_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line('Usage: wakelock [options]')
+        print_line(wakelock_opts.usage)
+        return
+      when '-r'
+        flags = 0
+      when '-w'
+        client.android.wakelock(0)
+        flags = 268435482
+      when '-f'
+        flags = val.to_i
+      end
+    end
+
+    client.android.wakelock(flags)
+    if flags == 0
+      print_status("Wakelock was released")
+    else
+      print_status("Wakelock was acquired")
     end
   end
 

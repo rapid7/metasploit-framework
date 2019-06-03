@@ -18,7 +18,7 @@ class RPC_Session < RPC_Base
   #                * 'info' [String] Session info (most likely the target's computer name).
   #                * 'workspace' [String] Name of the workspace.
   #                * 'session_host' [String] Session host.
-  #                * 'session_port' [Fixnum] Session port.
+  #                * 'session_port' [Integer] Session port.
   #                * 'target_host' [String] Target host.
   #                * 'username' [String] Username.
   #                * 'uuid' [String] UUID.
@@ -46,7 +46,8 @@ class RPC_Session < RPC_Base
         'username'     => s.username.to_s,
         'uuid'         => s.uuid.to_s,
         'exploit_uuid' => s.exploit_uuid.to_s,
-        'routes'       => s.routes.join(",")
+        'routes'       => s.routes.join(","),
+        'arch'         => s.arch.to_s
       }
       if(s.type.to_s == "meterpreter")
         res[s.sid]['platform'] = s.platform.to_s
@@ -58,7 +59,7 @@ class RPC_Session < RPC_Base
 
   # Stops a session.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] Unknown session ID.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A message that says 'success'.
@@ -75,14 +76,8 @@ class RPC_Session < RPC_Base
 
   # Reads the output of a shell session (such as a command output).
   #
-  # @note Shell read is now a positon-aware reader of the shell's associated
-  #       ring buffer. For more direct control of the pointer into a ring
-  #       buffer, a client can instead use ring_read, and note the returned
-  #       sequence number on their own (making multiple views into the same
-  #       session possible, regardless of position in the stream)
-  # @see #rpc_ring_read
-  # @param [Fixnum] sid Session ID.
-  # @param [Fixnum] ptr Pointer.
+  # @param [Integer] sid Session ID.
+  # @param [Integer] ptr Pointer.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -93,17 +88,13 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_read', 2)
   def rpc_shell_read( sid, ptr=nil)
-    _valid_session(sid,"shell")
-    # @session_sequence tracks the pointer into the ring buffer
-    # data of sessions (by sid) in order to emulate the old behavior
-    # of shell_read
-    @session_sequence ||= {}
-    @session_sequence[sid] ||= 0
-    ring_buffer = rpc_ring_read(sid,(ptr || @session_sequence[sid]))
-    if not (ring_buffer["seq"].nil? || ring_buffer["seq"].empty?)
-      @session_sequence[sid] = ring_buffer["seq"].to_i
+    s = _valid_session(sid,"shell")
+    begin
+      res = s.shell_read()
+      { "seq" => 0, "data" => res.to_s}
+    rescue ::Exception => e
+      error(500, "Session Disconnected: #{e.class} #{e}")
     end
-    return ring_buffer
   end
 
 
@@ -111,30 +102,33 @@ class RPC_Session < RPC_Base
   # enf of your input so the system will process it.
   # You may want to use #rpc_shell_read to retrieve the output.
   #
-  # @note shell_write is a wrapper of #rpc_ring_put.
-  # @see #rpc_ring_put
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
   #                              * 500 Session is disconnected.
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] data The data to write.
   # @return [Hash]
-  #  * 'write_count' [Fixnum] Number of bytes written.
+  #  * 'write_count' [Integer] Number of bytes written.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_write', 2, "DATA")
   def rpc_shell_write( sid, data)
-    _valid_session(sid,"shell")
-    rpc_ring_put(sid,data)
+    s = _valid_session(sid,"shell")
+    begin
+      res = s.shell_write(data)
+      { "write_count" => res.to_s}
+    rescue ::Exception => e
+      error(500, "Session Disconnected: #{e.class} #{e}")
+    end
   end
 
 
   # Upgrades a shell to a meterpreter.
   #
   # @note This uses post/multi/manage/shell_to_meterpreter.
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] lhost Local host.
-  # @param [Fixnum] lport Local port.
+  # @param [Integer] lport Local port.
   # @return [Hash] A hash indicating the actioin was successful. It contains the following key:
   #  * 'result' [String] A message that says 'success'
   # @example Here's how you would use this from the client:
@@ -153,7 +147,7 @@ class RPC_Session < RPC_Base
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
   #  Meterpreter session is best handled by post modules.
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -175,8 +169,8 @@ class RPC_Session < RPC_Base
 
   # Reads from a session (such as a command output).
   #
-  # @param [Fixnum] sid Session ID.
-  # @param [Fixnum] ptr Pointer.
+  # @param [Integer] sid Session ID.
+  # @param [Integer] ptr Pointer (ignored)
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -186,11 +180,11 @@ class RPC_Session < RPC_Base
   #  * 'data' [String] Read data.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_read', 2)
-  def rpc_ring_read( sid, ptr=nil)
+  def rpc_ring_read(sid, ptr = nil)
     s = _valid_session(sid,"ring")
     begin
-      res = s.ring.read_data(ptr)
-      { "seq" => res[0].to_s, "data" => res[1].to_s }
+      res = s.shell_read()
+      { "seq" => 0, "data" => res.to_s }
     rescue ::Exception => e
       error(500, "Session Disconnected: #{e.class} #{e}")
     end
@@ -199,7 +193,7 @@ class RPC_Session < RPC_Base
 
   # Sends an input to a session (such as a command).
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] data Data to write.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -209,7 +203,7 @@ class RPC_Session < RPC_Base
   #  * 'write_count' [String] Number of bytes written.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_put', 2, "DATA")
-  def rpc_ring_put( sid, data)
+  def rpc_ring_put(sid, data)
     s = _valid_session(sid,"ring")
     begin
       res = s.shell_write(data)
@@ -221,7 +215,7 @@ class RPC_Session < RPC_Base
 
   # Returns the last sequence (last issued ReadPointer) for a shell session.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -229,15 +223,15 @@ class RPC_Session < RPC_Base
   #  * 'seq' [String] Sequence.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_last', 2)
-  def rpc_ring_last( sid)
+  def rpc_ring_last(sid)
     s = _valid_session(sid,"ring")
-    { "seq" => s.ring.last_sequence.to_s }
+    { "seq" => 0 }
   end
 
 
   # Clears a shell session. This may be useful to reclaim memory for idle background sessions.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -245,14 +239,8 @@ class RPC_Session < RPC_Base
   #  * 'result' [String] Either 'success' or 'failure'.
   # @example Here's how you would use this from the client:
   #  rpc.call('session.ring_clear', 2)
-  def rpc_ring_clear( sid)
-    s = _valid_session(sid,"ring")
-    res = s.ring.clear_data
-    if res.compact.empty?
-      { "result" => "success"}
-    else # Doesn't seem like this can fail. Maybe a race?
-      { "result" => "failure"}
-    end
+  def rpc_ring_clear(sid)
+    { "result" => "success" }
   end
 
 
@@ -262,7 +250,7 @@ class RPC_Session < RPC_Base
   # @note Multiple concurrent callers writing and reading the same Meterperter session can lead to
   #  a conflict, where one caller gets the others output and vice versa. Concurrent access to a
   #  Meterpreter session is best handled by post modules.
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] data Input to the meterpreter prompt.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -294,7 +282,7 @@ class RPC_Session < RPC_Base
 
   # Detaches from a meterpreter session. Serves the same purpose as [CTRL]+[Z].
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -316,7 +304,7 @@ class RPC_Session < RPC_Base
 
   # Kills a meterpreter session. Serves the same purpose as [CTRL]+[C].
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -339,7 +327,7 @@ class RPC_Session < RPC_Base
 
   # Returns a tab-completed version of your meterpreter prompt input.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] line Input.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -359,7 +347,7 @@ class RPC_Session < RPC_Base
   # Runs a meterpreter command even if interacting with a shell or other channel.
   # You will want to use the #rpc_meterpreter_read to retrieve the output.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] data Command.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
@@ -385,7 +373,7 @@ class RPC_Session < RPC_Base
   # @deprecated Metasploit no longer maintains or accepts meterpreter scripts. Please try to use
   #             post modules instead.
   # @see Msf::RPC::RPC_Module#rpc_execute You should use Msf::RPC::RPC_Module#rpc_execute instead.
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @param [String] data Meterpreter script name.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] 'success'
@@ -397,7 +385,7 @@ class RPC_Session < RPC_Base
 
   # Changes the Transport of a given Meterpreter Session
   #
-  # @param sid [Fixnum] The Session ID of the `Msf::Session`
+  # @param sid [Integer] The Session ID of the `Msf::Session`
   # @option opts [String] :transport The transport protocol to use (e.g. reverse_tcp, reverse_http, bind_tcp etc)
   # @option opts [String] :lhost  The LHOST of the listener to use
   # @option opts [String] :lport The LPORT of the listener to use
@@ -430,7 +418,7 @@ class RPC_Session < RPC_Base
 
   # Returns the separator used by the meterpreter.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @raise [Msf::RPC::Exception] An error that could be one of these:
   #                              * 500 Session ID is unknown.
   #                              * 500 Invalid session type.
@@ -449,7 +437,7 @@ class RPC_Session < RPC_Base
 
   # Returns all the compatible post modules for this session.
   #
-  # @param [Fixnum] sid Session ID.
+  # @param [Integer] sid Session ID.
   # @return [Hash] Post modules. It contains the following key:
   #  * 'modules' [Array<string>] An array of post module names. Example: ['post/windows/wlan/wlan_profile']
   # @example Here's how you would use this from the client:

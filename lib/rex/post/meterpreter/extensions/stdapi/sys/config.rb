@@ -122,10 +122,17 @@ class Config
         'Computer'        => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
         'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
         'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
+        'BuildTuple'      => response.get_tlv_value(TLV_TYPE_BUILD_TUPLE),
         'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
         'Domain'          => response.get_tlv_value(TLV_TYPE_DOMAIN),
         'Logged On Users' => response.get_tlv_value(TLV_TYPE_LOGGED_ON_USER_COUNT)
       }
+
+      # make sure we map the architecture across to x64 if x86_64 is returned
+      # to keep arch consistent across all session/machine types
+      if @sysinfo['Architecture']
+        @sysinfo['Architecture'] = ARCH_X64 if @sysinfo['Architecture'].strip == ARCH_X86_64
+      end
     end
     @sysinfo
   end

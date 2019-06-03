@@ -14,8 +14,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :active? }
   it { is_expected.to respond_to :arg_host_range }
   it { is_expected.to respond_to :arg_port_range }
-  it { is_expected.to respond_to :cmd_creds_help }
-  it { is_expected.to respond_to :cmd_creds_tabs }
   it { is_expected.to respond_to :cmd_db_autopwn }
   it { is_expected.to respond_to :cmd_db_autopwn_help }
   it { is_expected.to respond_to :cmd_db_connect }
@@ -47,273 +45,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :cmd_workspace_help }
   it { is_expected.to respond_to :cmd_workspace_tabs }
   it { is_expected.to respond_to :commands }
-  it { is_expected.to respond_to :creds_add }
-  it { is_expected.to respond_to :creds_add_non_replayable_hash }
-  it { is_expected.to respond_to :creds_add_ntlm_hash }
-  it { is_expected.to respond_to :creds_add_password }
-  it { is_expected.to respond_to :creds_add_ssh_key }
-  it { is_expected.to respond_to :creds_search }
   it { is_expected.to respond_to :db_check_driver }
   it { is_expected.to respond_to :db_connect_postgresql }
   it { is_expected.to respond_to :db_find_tools }
   it { is_expected.to respond_to :db_parse_db_uri_postgresql }
   it { is_expected.to respond_to :deprecated_commands }
   it { is_expected.to respond_to :each_host_range_chunk }
-  it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
-
-  describe "#cmd_creds" do
-    let(:username)            { "thisuser" }
-    let(:password)            { "thispass" }
-
-    describe "-u" do
-      let(:nomatch_username)    { "thatuser" }
-      let(:nomatch_password)    { "thatpass" }
-      let(:blank_username)      { "" }
-      let(:blank_password)      { "" }
-      let(:nonblank_username)   { "nonblank_user" }
-      let(:nonblank_password)   { "nonblank_pass" }
-
-      let!(:origin) { FactoryGirl.create(:metasploit_credential_origin_import) }
-
-      before(:example) do
-        priv = FactoryGirl.create(:metasploit_credential_password, data: password)
-        pub = FactoryGirl.create(:metasploit_credential_username, username: username)
-        FactoryGirl.create(:metasploit_credential_core,
-                           origin: origin,
-                           private: priv,
-                           public: pub,
-                           realm: nil,
-                           workspace: framework.db.workspace)
-        blank_pub = FactoryGirl.create(:metasploit_credential_blank_username)
-        nonblank_priv = FactoryGirl.create(:metasploit_credential_password, data: nonblank_password)
-        FactoryGirl.create(:metasploit_credential_core,
-                           origin: origin,
-                           private: nonblank_priv,
-                           public: blank_pub,
-                           realm: nil,
-                           workspace: framework.db.workspace)
-        nonblank_pub = FactoryGirl.create(:metasploit_credential_username, username: nonblank_username)
-        blank_priv = FactoryGirl.create(:metasploit_credential_password, data: blank_password)
-        FactoryGirl.create(:metasploit_credential_core,
-                           origin: origin,
-                           private: blank_priv,
-                           public: nonblank_pub,
-                           realm: nil,
-                           workspace: framework.db.workspace)
-      end
-
-      context "when the credential is present" do
-        it "should show a user that matches the given expression" do
-          db.cmd_creds("-u", username)
-          expect(@output).to eq([
-            "Credentials",
-            "===========",
-            "",
-            "host  origin  service  public    private   realm  private_type",
-            "----  ------  -------  ------    -------   -----  ------------",
-            "                       thisuser  thispass         Password"
-          ])
-        end
-
-        it 'should match a regular expression' do
-          subject.cmd_creds("-u", "^#{username}$")
-          expect(@output).to eq([
-            "Credentials",
-            "===========",
-            "",
-            "host  origin  service  public    private   realm  private_type",
-            "----  ------  -------  ------    -------   -----  ------------",
-            "                       thisuser  thispass         Password"
-          ])
-        end
-
-        it 'should return nothing for a non-matching regular expression' do
-          subject.cmd_creds("-u", "^#{nomatch_username}$")
-          expect(@output).to eq([
-            "Credentials",
-            "===========",
-            "",
-            "host  origin  service  public  private  realm  private_type",
-            "----  ------  -------  ------  -------  -----  ------------"
-          ])
-        end
-
-        context "and when the username is blank" do
-          it "should show a user that matches the given expression" do
-            db.cmd_creds("-u", blank_username)
-            expect(@output).to eq([
-              "Credentials",
-              "===========",
-              "",
-              "host  origin  service  public  private        realm  private_type",
-              "----  ------  -------  ------  -------        -----  ------------",
-              "                               nonblank_pass         Password"
-            ])
-          end
-        end
-        context "and when the password is blank" do
-          it "should show a user that matches the given expression" do
-            db.cmd_creds("-P", blank_password)
-            expect(@output).to eq([
-              "Credentials",
-              "===========",
-              "",
-              "host  origin  service  public         private  realm  private_type",
-              "----  ------  -------  ------         -------  -----  ------------",
-              "                       nonblank_user                  Password"
-            ])
-          end
-        end
-      end
-
-      context "when the credential is absent" do
-        context "due to a nonmatching username" do
-          it "should return a blank set" do
-            db.cmd_creds("-u", nomatch_username)
-            expect(@output).to eq([
-              "Credentials",
-              "===========",
-              "",
-              "host  origin  service  public  private  realm  private_type",
-              "----  ------  -------  ------  -------  -----  ------------"
-            ])
-          end
-        end
-        context "due to a nonmatching password" do
-          it "should return a blank set" do
-            db.cmd_creds("-P", nomatch_password)
-            expect(@output).to eq([
-              "Credentials",
-              "===========",
-              "",
-              "host  origin  service  public  private  realm  private_type",
-              "----  ------  -------  ------  -------  -----  ------------"
-            ])
-          end
-        end
-      end
-    end
-
-    describe "-t" do
-      context "with an invalid type" do
-        it "should print the list of valid types" do
-          db.cmd_creds("-t", "asdf")
-          expect(@error).to match_array [
-            "Unrecognized credential type asdf -- must be one of password,ntlm,hash"
-          ]
-        end
-      end
-
-      context "with valid types" do
-        let(:ntlm_hash) { "1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c" }
-
-        let!(:pub) do
-          FactoryGirl.create(:metasploit_credential_username, username: username)
-        end
-        let!(:password_core) do
-          priv = FactoryGirl.create(:metasploit_credential_password, data: password)
-          FactoryGirl.create(:metasploit_credential_core,
-                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                             private: priv,
-                             public: pub,
-                             realm: nil,
-                             workspace: framework.db.workspace)
-        end
-
-=begin
-        # Somehow this is hitting a unique constraint on Cores with the same
-        # Public, even though it has a different Private. Skip for now
-        let!(:ntlm_core) do
-          priv = FactoryGirl.create(:metasploit_credential_ntlm_hash, data: ntlm_hash)
-          FactoryGirl.create(:metasploit_credential_core,
-                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                             private: priv,
-                             public: pub,
-                             realm: nil,
-                             workspace: framework.db.workspace)
-        end
-        let!(:nonreplayable_core) do
-          priv = FactoryGirl.create(:metasploit_credential_nonreplayable_hash, data: 'asdf')
-          FactoryGirl.create(:metasploit_credential_core,
-                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                             private: priv,
-                             public: pub,
-                             realm: nil,
-                             workspace: framework.db.workspace)
-        end
-=end
-
-        after(:example) do
-          #ntlm_core.destroy
-          password_core.destroy
-          #nonreplayable_core.destroy
-        end
-
-        context "password" do
-          it "should show just the password" do
-            db.cmd_creds("-t", "password")
-            # Table matching really sucks
-            expect(@output).to eq([
-              "Credentials",
-              "===========",
-              "",
-              "host  origin  service  public    private   realm  private_type",
-              "----  ------  -------  ------    -------   -----  ------------",
-              "                       thisuser  thispass         Password"
-            ])
-          end
-        end
-
-        context "ntlm" do
-          it "should show just the ntlm" do
-            skip "Weird uniqueness constraint on Core (workspace_id, public_id)"
-
-            db.cmd_creds("-t", "ntlm")
-            # Table matching really sucks
-            expect(@output).to =~ [
-              "Credentials",
-              "===========",
-              "",
-              "host  service  public    private                                                            realm  private_type",
-              "----  -------  ------    -------                                                            -----  ------------",
-              "               thisuser  #{ntlm_hash                                                     }         NTLM hash"
-            ]
-          end
-        end
-
-      end
-    end
-
-    describe "add-password" do
-      context "when no core exists" do
-        it "should add a Core" do
-          expect {
-            subject.cmd_creds("add-password", username, password)
-          }.to change{ Metasploit::Credential::Core.count }.by 1
-        end
-      end
-      context "when a core already exists" do
-        before(:example) do
-          priv = FactoryGirl.create(:metasploit_credential_password, data: password)
-          pub = FactoryGirl.create(:metasploit_credential_username, username: username)
-          FactoryGirl.create(:metasploit_credential_core,
-                             origin: FactoryGirl.create(:metasploit_credential_origin_import),
-                             private: priv,
-                             public: pub,
-                             realm: nil,
-                             workspace: framework.db.workspace)
-        end
-        it "should not add a Core" do
-          expect {
-            subject.cmd_creds("add-password", username, password)
-          }.to_not change{ Metasploit::Credential::Core.count }
-        end
-      end
-    end
-
-  end
 
   describe "#cmd_db_export" do
     describe "-h" do
@@ -345,10 +84,12 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    CI",
           "    Foundstone",
           "    FusionVM XML",
+          "    Group Policy Preferences Credentials",
           "    IP Address List",
           "    IP360 ASPL",
           "    IP360 XML v3",
           "    Libpcap Packet Capture",
+          "    Masscan XML",
           "    Metasploit PWDump Export",
           "    Metasploit XML",
           "    Metasploit Zip Export",
@@ -384,16 +125,18 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -a,--add          Add the hosts instead of searching",
           "  -d,--delete       Delete the hosts instead of searching",
           "  -c <col1,col2>    Only show the given columns (see list below)",
+          "  -C <col1,col2>    Only show the given columns until the next restart (see list below)",
           "  -h,--help         Show this help information",
           "  -u,--up           Only show hosts which are up",
           "  -o <file>         Send output to a file in csv format",
+          "  -O <column>       Order rows by specified column number",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
           "  -i,--info         Change the info of a host",
           "  -n,--name         Change the name of a host",
           "  -m,--comment      Change the comment of a host",
           "  -t,--tag          Add or specify a tag to a range of hosts",
-          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
+          "Available columns: address, arch, comm, comments, created_at, cred_count, detected_arch, exploit_attempt_count, host_detail_count, info, mac, name, note_count, os_family, os_flavor, os_lang, os_name, os_sp, purpose, scope, service_count, state, updated_at, virtual_host, vuln_count, tags"
         ]
       end
     end
@@ -404,9 +147,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should show a help message" do
         db.cmd_loot "-h"
         expect(@output).to match_array [
-          "Usage: loot <options>",
+          "Usage: loot [options]",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
-          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
+          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",
           "  -a,--add          Add loot to the list of addresses, instead of listing",
           "  -d,--delete       Delete *all* loot matching host and type",
@@ -430,16 +173,16 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -a,--add                  Add a note to the list of addresses, instead of listing",
           "  -d,--delete               Delete the hosts instead of searching",
           "  -n,--note <data>          Set the data for a new note (only with -a)",
-          "  -t <type1,type2>          Search for a list of types",
+          "  -t,--type <type1,type2>   Search for a list of types, or set single type for add",
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
-          "  -S,--search               Regular expression to match for search",
+          "  -S,--search               Search string to filter by",
           "  -o,--output               Save the notes to a csv file",
-          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
+          "  -O <column>               Order rows by specified column number",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
           "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
-          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+          "  notes -S 'nmap.nse.(http|rtsp)'"
         ]
 
       end
@@ -457,44 +200,67 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -d,--delete       Delete the services instead of searching",
           "  -c <col1,col2>    Only show the given columns",
           "  -h,--help         Show this help information",
-          "  -s <name1,name2>  Search for a list of service names",
-          "  -p <port1,port2>  Search for a list of ports",
-          "  -r <protocol>     Only show [tcp|udp] services",
+          "  -s <name>         Name of the service to add",
+          "  -p <port>         Search for a list of ports",
+          "  -r <protocol>     Protocol type of the service being added [tcp|udp]",
           "  -u,--up           Only show services which are up",
           "  -o <file>         Send output to a file in csv format",
+          "  -O <column>       Order rows by specified column number",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
+          "  -U,--update       Update data for existing service",
           "Available columns: created_at, info, name, port, proto, state, updated_at"
         ]
       end
     end
     describe "-p" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
+        @services = []
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1024, name: 'service1', proto: 'udp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1025, name: 'service2', proto: 'tcp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1026, name: 'service3', proto: 'udp'})
       end
+
+      after(:example) do
+        ids = []
+        @services.each{|service|
+          ids << service.id
+        }
+
+        framework.db.delete_service({ids: ids})
+      end
+
       it "should list services that are on a given port" do
-        db.cmd_services "-p", "1024,1025"
+        db.cmd_services "-p", "1024, 1025"
         expect(@output).to match_array [
           "Services",
           "========",
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    Service1  open   ",
-          "192.168.0.1  1025  tcp    Service2  open   "
+          "192.168.0.1  1024  udp    service1  open   ",
+          "192.168.0.1  1025  tcp    service2  open   "
         ]
       end
     end
+
     describe "-np" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026)
+        @services = []
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1024})
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1025})
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1026})
       end
+
+      after(:example) do
+        ids = []
+        @services.each{|service|
+          ids << service.id
+        }
+
+        framework.db.delete_service({ids: ids})
+      end
+
       it "should list services that are not on a given port" do
         skip {
           db.cmd_services "-np", "1024"
@@ -505,8 +271,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
             "",
             "host         port  proto  name  state  info",
             "----         ----  -----  ----  -----  ----",
-            "192.168.0.1  1025  snmp         open   ",
-            "192.168.0.1  1026  snmp         open   "
+            "192.168.0.2  1025  snmp         open   ",
+            "192.168.0.2  1026  snmp         open   "
           ]
         }
       end
@@ -521,11 +287,12 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "Print all vulnerabilities in the database",
           "Usage: vulns [addr range]",
           "  -h,--help             Show this help information",
+          "  -o <file>             Send output to a file in csv format",
           "  -p,--port <portspec>  List vulns matching this port spec",
           "  -s <svc names>        List vulns matching these service names",
           "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
-          "  -i,--info             Display Vuln Info",
+          "  -i,--info             Display vuln information",
           "Examples:",
           "  vulns -p 1-65536          # only vulns with associated services",
           "  vulns -p 1-65536 -s http  # identified as http on any port"
@@ -540,11 +307,12 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       db.cmd_workspace "-D"
       @output = []
     end
+
     describe "<no arguments>" do
       it "should list default workspace" do
         db.cmd_workspace
         expect(@output).to match_array [
-          "* default"
+          "%red* default%clr"
         ]
       end
 
@@ -554,7 +322,36 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace
         expect(@output).to match_array [
           "  default",
-          "* foo"
+          "%red* foo%clr"
+        ]
+      end
+    end
+
+    describe "-v" do
+      it "should list default workspace verbosely" do
+        db.cmd_workspace("-v")
+        expect(@output).to match_array [
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "*        default  0      0         0      0      0      0"
+        ]
+      end
+
+      it "should list all workspaces verbosely" do
+        db.cmd_workspace("-a", "foo")
+        @output = []
+        db.cmd_workspace("-v")
+        expect(@output).to match_array [
+          "",
+          "Workspaces",
+          "==========",
+          "current  name     hosts  services  vulns  creds  loots  notes",
+          "-------  ----     -----  --------  -----  -----  -----  -----",
+          "         default  0      0         0      0      0      0",
+          "*        foo      0      0         0      0      0      0"
         ]
       end
     end
@@ -565,7 +362,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Added workspace: foo",
           "Added workspace: bar",
-          "Added workspace: baf"
+          "Added workspace: baf",
+          "Workspace: baf"
         ]
       end
     end
@@ -573,25 +371,18 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-d" do
       it "should delete a workspace" do
         db.cmd_workspace("-a", "foo")
-        @output = []
+        expect(framework.db.find_workspace("foo")).not_to be_nil
         db.cmd_workspace("-d", "foo")
-        expect(@output).to match_array [
-          "Deleted workspace: foo",
-          "Switched workspace: default"
-        ]
+        expect(framework.db.find_workspace("foo")).to be_nil
       end
     end
 
     describe "-D" do
       it "should delete all workspaces" do
         db.cmd_workspace("-a", "foo")
-        @output = []
+        expect(framework.db.workspaces.size).to be > 1
         db.cmd_workspace("-D")
-        expect(@output).to match_array [
-          "Deleted and recreated the default workspace",
-          "Deleted workspace: foo",
-          "Switched workspace: default"
-        ]
+        expect(framework.db.workspaces.size).to eq 1
       end
     end
 
@@ -601,6 +392,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Usage:",
           "    workspace                  List workspaces",
+          "    workspace -v               List workspaces verbosely",
           "    workspace [name]           Switch workspace",
           "    workspace -a [name] ...    Add workspace(s)",
           "    workspace -d [name] ...    Delete workspace(s)",

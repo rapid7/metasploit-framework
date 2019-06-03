@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(69),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
         OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -111,7 +108,6 @@ class MetasploitModule < Msf::Auxiliary
     pkt << [block].pack("n") # Block Id
 
   end
-
 end
 
 =begin

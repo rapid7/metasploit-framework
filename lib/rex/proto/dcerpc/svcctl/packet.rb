@@ -36,7 +36,7 @@ class Client
   # Calls OpenSCManagerW() to obtain a handle to the service control manager.
   #
   # @param rhost [String] the target host.
-  # @param access [Fixnum] the access flags requested.
+  # @param access [Integer] the access flags requested.
   #
   # @return [Array<String,Integer>] the handle to the service control manager or nil if
   #   the call is not successful and the Windows error code
@@ -56,7 +56,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error getting scm handle: #{e}")
+      elog("Error getting scm handle: #{e}")
     end
 
     [scm_handle, scm_status]
@@ -70,18 +70,18 @@ class Client
   # @param display_name [String] the display name.
   # @param binary_path [String] the path of the binary to run.
   # @param opts [Hash] arguments for CreateServiceW()
-  # @option opts [Fixnum] :access (SERVICE_ALL_ACCESS) the access level.
-  # @option opts [Fixnum] :type (SERVICE_WIN32_OWN_PROCESS ||
+  # @option opts [Integer] :access (SERVICE_ALL_ACCESS) the access level.
+  # @option opts [Integer] :type (SERVICE_WIN32_OWN_PROCESS ||
   #   SERVICE_INTERACTIVE_PROCESS) the type of service.
-  # @option opts [Fixnum] :start (SERVICE_DEMAND_START) the start options.
-  # @option opts [Fixnum] :errors (SERVICE_ERROR_IGNORE) the error options.
-  # @option opts [Fixnum] :load_order_group (0) the load order group.
-  # @option opts [Fixnum] :dependencies (0) the dependencies of the service.
-  # @option opts [Fixnum] :service_start (0)
-  # @option opts [Fixnum] :password1 (0)
-  # @option opts [Fixnum] :password2 (0)
-  # @option opts [Fixnum] :password3 (0)
-  # @option opts [Fixnum] :password4 (0)
+  # @option opts [Integer] :start (SERVICE_DEMAND_START) the start options.
+  # @option opts [Integer] :errors (SERVICE_ERROR_IGNORE) the error options.
+  # @option opts [Integer] :load_order_group (0) the load order group.
+  # @option opts [Integer] :dependencies (0) the dependencies of the service.
+  # @option opts [Integer] :service_start (0)
+  # @option opts [Integer] :password1 (0)
+  # @option opts [Integer] :password2 (0)
+  # @option opts [Integer] :password3 (0)
+  # @option opts [Integer] :password4 (0)
   #
   # @return [String, Integer] a handle to the created service, windows
   #   error code.
@@ -119,15 +119,15 @@ class Client
       NDR.long(default_opts[:password4])
     begin
       response = dcerpc_client.call(CREATE_SERVICE_W, stubdata)
-      if response
-        svc_status = error_code(response[24,4])
-
-        if svc_status == ERROR_SUCCESS
-          svc_handle = response[4,20]
-        end
-      end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error creating service: #{e}")
+      elog("Error creating service: #{e}")
+    end
+
+    if response
+      svc_status = error_code(response[24,4])
+      if svc_status == ERROR_SUCCESS
+        svc_handle = response[4,20]
+      end
     end
 
     return svc_handle, svc_status
@@ -152,7 +152,7 @@ class Client
       response = dcerpc_client.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
       svc_status = error_code(response)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error changing service description : #{e}")
+      elog("Error changing service description : #{e}")
     end
 
     svc_status
@@ -169,10 +169,10 @@ class Client
     begin
       response = dcerpc_client.call(CLOSE_SERVICE_HANDLE, handle)
       if response
-        svc_status = error_code(response[20,4])
+        svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error closing service handle: #{e}")
+      elog("Error closing service handle: #{e}")
     end
 
     svc_status
@@ -182,7 +182,7 @@ class Client
   #
   # @param scm_handle [String] the SCM handle (from {#openscmanagerw}).
   # @param service_name [String] the name of the service to open.
-  # @param access [Fixnum] the level of access requested (default is maximum).
+  # @param access [Integer] the level of access requested (default is maximum).
   #
   # @return [String, nil] the handle of the service opened, or nil on failure.
   def openservicew(scm_handle, service_name, access = SERVICE_ALL_ACCESS)
@@ -198,7 +198,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error opening service handle: #{e}")
+      elog("Error opening service handle: #{e}")
     end
 
     svc_handle
@@ -208,13 +208,41 @@ class Client
   # it.  Returns true on success, or false.
   #
   # @param svc_handle [String] the handle of the service (from {#openservicew}).
-  # @param magic1 [Fixnum] an unknown value.
-  # @param magic2 [Fixnum] another unknown value.
+  # @param args [Array] an array of arguments to pass to the service (or nil)
   #
   # @return [Integer] Windows error code
-  def startservice(svc_handle, magic1 = 0, magic2 = 0)
+  def startservice(svc_handle, args=[])
     svc_status = nil
-    stubdata = svc_handle + NDR.long(magic1) + NDR.long(magic2)
+
+    if args.empty?
+      stubdata = svc_handle + NDR.long(0) + NDR.long(0)
+    else
+      # This is just an arbitrary "pointer" value, gonna match it to what the real version uses
+      id_value = 0x00000200
+
+      stubdata = svc_handle
+      stubdata += NDR.long(args.length) + NDR.long(id_value) + NDR.long(args.length)
+
+      # Encode an id value for each parameter
+      args.each do
+        id_value += 0x04000000
+        stubdata += NDR.long(id_value)
+      end
+
+      # Encode the values now
+      args.each do |arg|
+        # We can't use NDR.uwstring here, because we need the "id" values to come first
+        stubdata += NDR.long(arg.length + 1) + NDR.long(0) + NDR.long(arg.length + 1)
+
+        # Unicode string
+        stubdata += Rex::Text.to_unicode(arg + "\0")
+
+        # Padding
+        if((arg.length % 2) == 0)
+          stubdata += Rex::Text.to_unicode("\0")
+        end
+      end
+    end
 
     begin
       response = dcerpc_client.call(0x13, stubdata)
@@ -222,7 +250,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error starting service: #{e}")
+      elog("Error starting service: #{e}")
     end
 
     svc_status
@@ -240,7 +268,7 @@ class Client
   # Controls an existing service.
   #
   # @param svc_handle [String] the handle of the service (from {#openservicew}).
-  # @param operation [Fixnum] the operation number to perform (1 = stop
+  # @param operation [Integer] the operation number to perform (1 = stop
   #                           service; others are unknown).
   #
   # @return [Integer] Windows error code
@@ -252,7 +280,7 @@ class Client
        svc_status =  error_code(response[28,4])
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error controlling service: #{e}")
+      elog("Error controlling service: #{e}")
     end
 
     svc_status
@@ -271,7 +299,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error deleting service: #{e}")
+      elog("Error deleting service: #{e}")
     end
 
     svc_status
@@ -281,7 +309,7 @@ class Client
   #
   # @param svc_handle [String] the handle of the service (from {#openservicew}).
   #
-  # @return [Fixnum] Returns 0 if the query failed (i.e.: a state was returned
+  # @return [Integer] Returns 0 if the query failed (i.e.: a state was returned
   #                  that isn't implemented), 1 if the service is running, and
   #                  2 if the service is stopped.
   def queryservice(svc_handle)
@@ -295,7 +323,7 @@ class Client
         ret = 2
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      print_error("Error deleting service: #{e}")
+      elog("Error deleting service: #{e}")
     end
 
     ret

@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 ###
 #
@@ -37,7 +34,7 @@ module MetasploitModule
         OptString.new('USER',  [ true,  "The username to create",     "metasploit" ]),
         OptString.new('PASS',  [ true,  "The password for this user", "metasploit" ]),
         OptString.new('SHELL', [ false, "The shell for this user",    "/bin/sh"    ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -61,5 +58,4 @@ module MetasploitModule
       str + pwdir
 
   end
-
 end

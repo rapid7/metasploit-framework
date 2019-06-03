@@ -86,8 +86,8 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
 
   def initialize(rstream, opts={})
     super
-    self.platform      = 'python/python'
-    self.binary_suffix = 'py'
+    self.base_platform = 'python'
+    self.base_arch = ARCH_PYTHON
   end
 
   def lookup_error(error_code)
@@ -108,6 +108,10 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
     unknown_error
   end
 
+  def native_arch
+    @native_arch ||= self.core.native_arch
+  end
+
   def supports_ssl?
     false
   end
@@ -116,5 +120,6 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
     false
   end
 end
+
 end
 end

@@ -36,7 +36,8 @@ RSpec.describe Msf::Post::Windows::Runas do
   let(:subject) do
     mod = double(Module.new)
     mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, :print_error ]
+    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good,
+      :print_error, :vprint_error, :print_bad, :vprint_bad ]
     stubs.each { |meth| allow(mod).to receive(meth) }
     allow(mod).to receive_message_chain("session.railgun.kernel32").and_return(kernel32)
     allow(mod).to receive_message_chain("session.railgun.advapi32").and_return(advapi32)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::DRDoS
@@ -22,6 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A'],
           ['URL', 'http://blog.level3.com/security/a-new-ddos-reflection-attack-portmapper-an-early-warning-to-the-industry/']
         ],
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options( [
       Opt::RPORT(111),
-    ], self.class)
+    ])
   end
 
   def rport

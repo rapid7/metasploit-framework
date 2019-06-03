@@ -229,7 +229,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # TODO: loot, tasks, and reports
   def import_msf_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = args[:wspace] || workspace || Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = Nokogiri::XML::Reader.from_memory(data)
@@ -243,7 +243,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         when 'host'
           parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
         when 'web_site'
-          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, allow_yaml, &block)
         when 'web_page', 'web_form', 'web_vuln'
           send(
               "import_msf_#{node.name}_element",
@@ -260,7 +260,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   private
 
   # Parses website Nokogiri::XML::Element
-  def parse_web_site(web, wspace, bl, allow_yaml, btag, args, &block)
+  def parse_web_site(web, wspace, allow_yaml, &block)
     # Import web sites
     info = {}
     info[:workspace] = wspace
@@ -285,7 +285,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   end
 
   # Parses host Nokogiri::XML::Element
-  def parse_host(host, wspace, bl, allow_yaml, btag, args, &block)
+  def parse_host(host, wspace, blacklist, allow_yaml, btag, args, &block)
 
     host_data = {}
     host_data[:task] = args[:task]
@@ -302,7 +302,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     end
 
     host_data[:host] = addr
-    if bl.include? host_data[:host]
+    if blacklist.include? host_data[:host]
       return 0
     else
       yield(:address,host_data[:host]) if block
@@ -322,7 +322,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath("host_details/host_detail").each do |hdet|
       hdet_data = {}
       hdet.elements.each do |det|
-        return 0 if ["id", "host-id"].include?(det.name)
+        next if ["id", "host-id"].include?(det.name)
         if det.text
           hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
         end
@@ -333,7 +333,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath("exploit_attempts/exploit_attempt").each do |hdet|
       hdet_data = {}
       hdet.elements.each do |det|
-        return 0 if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
+        next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
         if det.text
           hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
         end
@@ -415,7 +415,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       vuln.xpath("vuln_details/vuln_detail").each do |vdet|
         vdet_data = {}
         vdet.elements.each do |det|
-          return 0 if ["id", "vuln-id"].include?(det.name)
+          next if ["id", "vuln-id"].include?(det.name)
           if det.text
             vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
           end
@@ -426,7 +426,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       vuln.xpath("vuln_attempts/vuln_attempt").each do |vdet|
         vdet_data = {}
         vdet.elements.each do |det|
-          return 0 if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
+          next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
           if det.text
             vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
           end
@@ -452,10 +452,17 @@ module Msf::DBManager::Import::MetasploitFramework::XML
             pass     = cred.at('pass').try(:text)
             pass     = "" if pass == "*MASKED*"
 
-            private = create_credential_private(private_data: pass, private_type: :password)
-            public  = create_credential_public(username: username)
-            core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
-
+            cred_opts = {
+                workspace: wspace.name,
+                username: username,
+                private_data: pass,
+                private_type: 'Metasploit::Credential::Password',
+                service_name: sname,
+                protocol: proto,
+                port: port,
+                origin: origin
+            }
+            core = create_credential(cred_opts)
             create_credential_login(core: core,
                                     workspace_id: wspace.id,
                                     address: hobj.address,
@@ -498,7 +505,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           :time => sess_data[:opened_at]
       )
       this_session = existing_session || report_session(sess_data)
-      return 0 if existing_session
+      next if existing_session
       sess.xpath('events/event').each do |sess_event|
         sess_event_data = {}
         sess_event_data[:session] = this_session

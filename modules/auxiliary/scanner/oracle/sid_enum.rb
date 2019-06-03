@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TNS
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -15,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle TNS Listener SID Enumeration',
       'Description'    => %q{
-        This module simply queries the TNS listner for the Oracle SID.
+        This module simply queries the TNS listener for the Oracle SID.
         With Oracle 9.2.0.8 and above the listener will be protected and
         the SID will have to be bruteforced or guessed.
       },
@@ -27,9 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1521)
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)

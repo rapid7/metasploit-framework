@@ -31,6 +31,10 @@ class Payload < Msf::Module
   require 'msf/core/payload/android'
   require 'msf/core/payload/firefox'
   require 'msf/core/payload/mainframe'
+  require 'msf/core/payload/hardware'
+
+  # Universal payload includes
+  require 'msf/core/payload/multi'
 
   ##
   #
@@ -609,12 +613,11 @@ protected
     end
     cpu = case a
       when ARCH_X86    then Metasm::Ia32.new
-      when ARCH_X86_64 then Metasm::X86_64.new
       when ARCH_X64    then Metasm::X86_64.new
       when ARCH_PPC    then Metasm::PowerPC.new
       when ARCH_ARMLE  then Metasm::ARM.new
-      when ARCH_MIPSLE  then Metasm::MIPS.new(:little)
-      when ARCH_MIPSBE  then Metasm::MIPS.new(:big)
+      when ARCH_MIPSLE then Metasm::MIPS.new(:little)
+      when ARCH_MIPSBE then Metasm::MIPS.new(:big)
       else
         elog("Broken payload #{refname} has arch unsupported with assembly: #{module_info["Arch"].inspect}")
         elog("Call stack:\n#{caller.join("\n")}")

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 
@@ -36,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
         OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
         OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/encoder/nonalpha'
 
-
 class MetasploitModule < Msf::Encoder::NonAlpha
-
   Rank = LowRanking
 
   def initialize
@@ -46,7 +42,11 @@ class MetasploitModule < Msf::Encoder::NonAlpha
   # payload.
   #
   def encode_block(state, block)
-    newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
+    begin
+      newchar, state.key, state.decoder_key_size = Rex::Encoder::NonAlpha::encode_byte(block.unpack('C')[0], state.key, state.decoder_key_size)
+    rescue RuntimeError => e
+      raise BadcharError if e.message == "BadChar"
+    end
     return newchar
   end
 

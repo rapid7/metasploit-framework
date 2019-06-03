@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2014-5445' ],
           [ 'OSVDB', '115340' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Dec/9' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Dec/9' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_netflow_it360_file_dl.txt' ]
         ],
       'DisclosureDate' => 'Nov 30 2014'))
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
         OptString.new('FILEPATH', [true, 'Path of the file to download', 'C:\\windows\\system.ini']),
-      ], self.class)
+      ])
   end
 
 

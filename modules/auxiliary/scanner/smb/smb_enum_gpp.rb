@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/parser/group_policy_preferences'
 
 class MetasploitModule < Msf::Auxiliary
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
-    ], self.class)
+    ])
   end
 
   def check_path(ip, path)
@@ -130,8 +129,8 @@ class MetasploitModule < Msf::Auxiliary
 
     results.each do |result|
       if datastore['STORE']
-        stored_path = store_loot('windows.gpp.xml', 'text/plain', ip, xml_file[:xml], file_type, xml_file[:path])
-        print_status("XML file saved to: #{stored_path}")
+        stored_path = store_loot('microsoft.windows.gpp', 'text/xml', ip, xml_file[:xml], file_type, xml_file[:path])
+        print_good("XML file saved to: #{stored_path}")
       end
 
       report_creds(ip, result[:USER], result[:PASS])

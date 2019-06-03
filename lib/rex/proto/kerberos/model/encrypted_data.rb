@@ -7,10 +7,10 @@ module Rex
         # This class provides a representation of an encrypted message.
         class EncryptedData < Element
           # @!attribute name_type
-          #   @return [Fixnum] The encryption algorithm
+          #   @return [Integer] The encryption algorithm
           attr_accessor :etype
           # @!attribute kvno
-          #   @return [Fixnum] The version number of the key
+          #   @return [Integer] The version number of the key
           attr_accessor :kvno
           # @!attribute cipher
           #   @return [String] The enciphered text
@@ -58,7 +58,7 @@ module Rex
           # Decrypts the cipher with etype encryption schema
           #
           # @param key [String] the key to decrypt
-          # @param msg_type [Fixnum] the message type
+          # @param msg_type [Integer] the message type
           # @return [String] the decrypted `cipher`
           # @raise [RuntimeError] if decryption doesn't succeed
           # @raise [NotImplementedError] if encryption isn't supported
@@ -143,7 +143,7 @@ module Rex
           # Decodes the etype from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_etype(input)
             input.value[0].value.to_i
           end
@@ -151,7 +151,7 @@ module Rex
           # Decodes the kvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_kvno(input)
             input.value[0].value.to_i
           end

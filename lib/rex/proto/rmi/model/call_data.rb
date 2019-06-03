@@ -8,17 +8,17 @@ module Rex
         class CallData < Element
 
           # @!attribute object_number
-          #   @return [Fixnum] Random to identify the object being called
+          #   @return [Integer] Random to identify the object being called
           attr_accessor :object_number
           # @!attribute uid
           #   @return [Rex::Proto::Rmi::Model::UniqueIdentifier] unique identifier for the target to call
           attr_accessor :uid
           # @!attribute operation
-          #   @return [Fixnum] On JDK 1.1 stub protocol the operation index in the interface. On JDK 1.2
+          #   @return [Integer] On JDK 1.1 stub protocol the operation index in the interface. On JDK 1.2
           #     it is -1.
           attr_accessor :operation
           # @!attribute hash
-          #   @return [Fixnum] On JDK 1.1 stub protocol the stub's interface hash. On JDK1.2 is a hash
+          #   @return [Integer] On JDK 1.1 stub protocol the stub's interface hash. On JDK1.2 is a hash
           #     representing the method to call.
           attr_accessor :hash
           # @!attribute arguments
@@ -66,7 +66,7 @@ module Rex
           # Reads the object number from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_object_number(io)
             object_number = read_long(io)
 
@@ -86,7 +86,7 @@ module Rex
           # Reads the operation from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_operation(io)
             operation = read_int(io)
 
@@ -96,7 +96,7 @@ module Rex
           # Reads the hash from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_hash(io)
             hash = read_long(io)
 

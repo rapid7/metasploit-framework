@@ -112,6 +112,8 @@ class Plugin
     output.print_error(msg) if (output)
   end
 
+  alias_method :print_bad, :print_error
+
   #
   # Prints a 'good' message.
   #

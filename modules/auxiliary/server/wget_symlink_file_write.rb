@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 
@@ -44,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGET_FILE', [ true,  "The target file to overwrite", '/tmp/pwned' ]),
         OptString.new('TARGET_DATA', [ true,  "The data to write to the target file", 'Hello from Metasploit' ]),
         OptPort.new('SRVPORT', [ true, "The port for the malicious FTP server to listen on", 2121])
-      ], self.class)
+      ])
 
       @fakedir = Rex::Text.rand_text_alphanumeric(rand(8)+8)
   end

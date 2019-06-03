@@ -9,7 +9,7 @@ module Rex
         class PrivSvrChecksum < Element
 
           # @!attribute version
-          #   @return [Fixnum] The checksum type
+          #   @return [Integer] The checksum type
           attr_accessor :checksum
 
           # Encodes the Rex::Proto::Kerberos::Pac::PacPrivSvrChecksum

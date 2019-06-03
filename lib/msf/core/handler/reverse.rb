@@ -23,6 +23,16 @@ module Msf
         )
       end
 
+      def is_loopback_address?(address)
+        begin
+           a = IPAddr.new(address.to_s)
+           return true if IPAddr.new('127.0.0.1/8') === a
+           return true if IPAddr.new('::1') === a
+        rescue
+        end
+        false
+      end
+
       # A list of addresses to attempt to bind, in preferred order.
       #
       # @return [Array<String>] a two-element array. The first element will be
@@ -32,11 +42,18 @@ module Msf
       def bind_addresses
         # Switch to IPv6 ANY address if the LHOST is also IPv6
         addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
+
         # First attempt to bind LHOST. If that fails, the user probably has
         # something else listening on that interface. Try again with ANY_ADDR.
         any = (addr.length == 4) ? "0.0.0.0" : "::0"
+        addr = Rex::Socket.addr_ntoa(addr)
 
-        addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+        # Checking if LHOST is a loopback address
+        if is_loopback_address?(addr)
+          print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
+        end
+
+        addrs = [ addr, any ]
 
         if not datastore['ReverseListenerBindAddress'].to_s.empty?
           # Only try to bind to this specific interface
@@ -61,7 +78,7 @@ module Msf
       # if it fails to start the listener.
       #
       def setup_handler
-        if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+        if !datastore['Proxies'].blank? && !datastore['ReverseAllowProxy']
           raise RuntimeError, "TCP connect-back payloads cannot be used with Proxies. Use 'set ReverseAllowProxy true' to override this behaviour."
         end
 
@@ -87,10 +104,8 @@ module Msf
             print_error("Handler failed to bind to #{ip}:#{local_port}:- #{comm} -")
           else
             ex = false
-
             via = via_string_for_ip(ip, comm)
             print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
-
             break
           end
         end

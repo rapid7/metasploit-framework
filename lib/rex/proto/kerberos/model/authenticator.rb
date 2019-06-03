@@ -9,7 +9,7 @@ module Rex
         # key in the ticket.
         class Authenticator < Element
           # @!attribute vno
-          #   @return [Fixnum] The authenticator version number
+          #   @return [Integer] The authenticator version number
           attr_accessor :vno
           # @!attribute crealm
           #   @return [String] The realm in which the client is registered
@@ -23,7 +23,7 @@ module Rex
           #   accompanies the KRB_AP_REQ.
           attr_accessor :checksum
           # @!attribute cusec
-          #   @return [Fixnum] The microsecond part of the client's timestamp
+          #   @return [Integer] The microsecond part of the client's timestamp
           attr_accessor :cusec
           # @!attribute ctime
           #   @return [Time] The current time of the client's host
@@ -61,7 +61,7 @@ module Rex
 
           # Encrypts the Rex::Proto::Kerberos::Model::Authenticator
           #
-          # @param etype [Fixnum] the crypto schema to encrypt
+          # @param etype [Integer] the crypto schema to encrypt
           # @param key [String] the key to encrypt
           # @return [String] the encrypted result
           # @raise [NotImplementedError] if the encryption schema isn't supported

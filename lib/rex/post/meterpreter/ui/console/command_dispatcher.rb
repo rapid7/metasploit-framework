@@ -50,6 +50,23 @@ module Console::CommandDispatcher
   end
 
   #
+  # Returns the commands that meet the requirements
+  #
+  def filter_commands(all, reqs)
+    all.delete_if do |cmd, _desc|
+      reqs[cmd].any? { |req| !client.commands.include?(req) }
+    end
+  end
+
+  #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'meterpreter')
+  end
+
+  #
   # Returns true if the client has a framework object.
   #
   # Used for firing framework session events

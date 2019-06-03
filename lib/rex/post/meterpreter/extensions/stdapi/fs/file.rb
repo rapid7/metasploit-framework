@@ -7,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 require 'rex/post/meterpreter/extensions/stdapi/fs/io'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
 require 'fileutils'
+require 'filesize'
 
 module Rex
 module Post
@@ -24,6 +25,8 @@ module Fs
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
   include Rex::Post::File
+
+  MIN_BLOCK_SIZE = 1024
 
   class << self
     attr_accessor :client
@@ -227,6 +230,38 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   end
 
   #
+  # Performs a copy from oldname to newname
+  #
+  def File.cp(oldname, newname)
+    request = Packet.create_request('stdapi_fs_file_copy')
+
+    request.add_tlv(TLV_TYPE_FILE_NAME, client.unicode_filter_decode( oldname ))
+    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( newname ))
+
+    response = client.send_request(request)
+
+    return response
+  end
+
+  class << self
+    alias copy cp
+  end
+
+  #
+  # Performs a chmod on the remote file
+  #
+  def File.chmod(name, mode)
+    request = Packet.create_request('stdapi_fs_chmod')
+
+    request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( name ))
+    request.add_tlv(TLV_TYPE_FILE_MODE_T, mode)
+
+    response = client.send_request(request)
+
+    return response
+  end
+
+  #
   # Upload one or more files to the remote remote directory supplied in
   # +destination+.
   #
@@ -253,20 +288,27 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
-    stat.call('uploading', src_file, dest_file) if (stat)
-    dest_fd = client.fs.file.new(dest_file, "wb")
-    src_buf = ''
-
-    ::File.open(src_file, 'rb') { |f|
-      src_buf = f.read(f.stat.size)
-    }
+    stat.call('uploading', src_file, dest_file) if stat
+    dest_fd = nil
+    src_fd = nil
+    buf_size = 8 * 1024 * 1024
 
     begin
-      dest_fd.write(src_buf)
+      dest_fd = client.fs.file.new(dest_file, "wb")
+      src_fd = ::File.open(src_file, "rb")
+      src_size = src_fd.stat.size
+      while (buf = src_fd.read(buf_size))
+        dest_fd.write(buf)
+        percent = dest_fd.pos.to_f / src_size.to_f * 100.0
+        msg = "Uploaded #{Filesize.new(dest_fd.pos).pretty} of " \
+          "#{Filesize.new(src_size).pretty} (#{percent.round(2)}%)"
+        stat.call(msg, src_file, dest_file) if stat
+      end
     ensure
-      dest_fd.close
+      src_fd.close unless src_fd.nil?
+      dest_fd.close unless dest_fd.nil?
     end
-    stat.call('uploaded', src_file, dest_file) if (stat)
+    stat.call('uploaded', src_file, dest_file) if stat
   end
 
   def File.is_glob?(name)
@@ -280,8 +322,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, src_files, opts = nil, &stat)
-    timestamp = opts["timestamp"] if opts
+  def File.download(dest, src_files, opts = {}, &stat)
+    timestamp = opts["timestamp"]
     [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
@@ -294,7 +336,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         dest += timestamp
       end
 
-      stat.call('downloading', src, dest) if (stat)
+      stat.call('Downloading', src, dest) if (stat)
       result = download_file(dest, src, opts, &stat)
       stat.call(result, src, dest) if (stat)
     }
@@ -303,15 +345,15 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Download a single file.
   #
-  def File.download_file(dest_file, src_file, opts = nil, &stat)
-    continue=false
-    tries=false
-    tries_no=0
-    if opts
-      continue = true if opts["continue"]
-      tries = true if opts["tries"]
-      tries_no = opts["tries_no"]
-    end
+  def File.download_file(dest_file, src_file, opts = {}, &stat)
+    stat ||= lambda { |a,b,c| }
+
+    adaptive = opts["adaptive"]
+    block_size = opts["block_size"] || 1024 * 1024
+    continue = opts["continue"]
+    tries_no = opts["tries_no"]
+    tries = opts["tries"]
+
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes
@@ -319,6 +361,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
       if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+        src_fd.close
         return 'skipped'
       end
     end
@@ -327,6 +370,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     dir = ::File.dirname(dest_file)
     ::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
 
+    src_size = Filesize.new(src_stat.size).pretty
+
     if continue
       # continue downloading the file - skip downloaded part in the source
       dst_fd = ::File.new(dest_file, "ab")
@@ -334,10 +379,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         dst_fd.seek(0, ::IO::SEEK_END)
         in_pos = dst_fd.pos
         src_fd.seek(in_pos)
-        stat.call('continuing from ', in_pos, src_file) if (stat)
+        stat.call("Continuing from #{Filesize.new(in_pos).pretty} of #{src_size}", src_file, dest_file)
       rescue
         # if we can't seek, download again
-        stat.call('error continuing - downloading from scratch', src_file, dest_file) if (stat)
+        stat.call('Error continuing - downloading from scratch', src_file, dest_file)
         dst_fd.close
         dst_fd = ::File.new(dest_file, "wb")
       end
@@ -350,6 +395,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       if tries
         # resume when timeouts encountered
         seek_back = false
+        adjust_block = false
         tries_cnt = 0
         begin # while
           begin # exception
@@ -357,30 +403,46 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
               in_pos = dst_fd.pos
               src_fd.seek(in_pos)
               seek_back = false
-              stat.call('resuming at ', in_pos, src_file) if (stat)
+              stat.call("Resuming at #{Filesize.new(in_pos).pretty} of #{src_size}", src_file, dest_file)
             else
               # succesfully read and wrote - reset the counter
               tries_cnt = 0
             end
-            data = src_fd.read
+            adjust_block = true
+            data = src_fd.read(block_size)
+            adjust_block = false
           rescue Rex::TimeoutError
             # timeout encountered - either seek back and retry or quit
             if (tries && (tries_no == 0 || tries_cnt < tries_no))
               tries_cnt += 1
               seek_back = true
-              stat.call('error downloading - retry #', tries_cnt, src_file) if (stat)
+              # try a smaller block size for the next round
+              if adaptive && adjust_block
+                block_size = [block_size >> 1, MIN_BLOCK_SIZE].max
+                adjust_block = false
+                msg = "Error downloading, block size set to #{block_size} - retry # #{tries_cnt}"
+                stat.call(msg, src_file, dest_file)
+              else
+                stat.call("Error downloading - retry # #{tries_cnt}", src_file, dest_file)
+              end
               retry
             else
-              stat.call('error downloading - giving up', src_file, dest_file) if (stat)
+              stat.call('Error downloading - giving up', src_file, dest_file)
               raise
             end
           end
           dst_fd.write(data) if (data != nil)
+          percent = dst_fd.pos.to_f / src_stat.size.to_f * 100.0
+          msg = "Downloaded #{Filesize.new(dst_fd.pos).pretty} of #{src_size} (#{percent.round(2)}%)"
+          stat.call(msg, src_file, dest_file)
         end while (data != nil)
       else
         # do the simple copying quiting on the first error
-        while ((data = src_fd.read) != nil)
+        while ((data = src_fd.read(block_size)) != nil)
           dst_fd.write(data)
+          percent = dst_fd.pos.to_f / src_stat.size.to_f * 100.0
+          msg = "Downloaded #{Filesize.new(dst_fd.pos).pretty} of #{src_size} (#{percent.round(2)}%)"
+          stat.call(msg, src_file, dest_file)
         end
       end
     rescue EOFError

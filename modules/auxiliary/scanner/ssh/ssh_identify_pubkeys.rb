@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
 require 'net/ssh/pubkey_verifier'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -206,13 +204,14 @@ class MetasploitModule < Msf::Auxiliary
 
       factory = ssh_socket_factory
       opt_hash = {
-        :auth_methods => ['publickey'],
-        :port         => port,
-        :key_data     => key_data[:public],
-        :use_agent     => false,
-        :config =>false,
-        :proxy	  => factory,
-        :non_interactive => true
+        :auth_methods    => ['publickey'],
+        :port            => port,
+        :key_data        => key_data[:public],
+        :use_agent       => false,
+        :config          => false,
+        :proxy           => factory,
+        :non_interactive => true,
+        :verify_host_key => :never
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
@@ -323,7 +322,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def existing_loot(ltype, key_id)
-    framework.db.loots(myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
+    framework.db.loots(workspace: myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
   end
 
   def store_public_keyfile(ip,user,key_id,key_data)
@@ -386,5 +385,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

@@ -1,8 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
+
 require 'msf/core/payload/android'
 require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_tcp'
@@ -30,9 +30,6 @@ module MetasploitModule
       'Session'     => Msf::Sessions::Meterpreter_Java_Android,
       'Payload'     => '',
     ))
-    register_options([
-      OptBool.new('AutoLoadAndroid', [true, "Automatically load the Android extension", true])
-    ], self.class)
   end
 
   #
@@ -46,5 +43,4 @@ module MetasploitModule
     opts[:stageless] = true
     super(opts)
   end
-
 end

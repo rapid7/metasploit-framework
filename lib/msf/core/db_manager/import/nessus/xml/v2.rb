@@ -74,7 +74,7 @@ module Msf::DBManager::Import::Nessus::XML::V2
         nasl = item['nasl'].to_s
         nasl_name = item['nasl_name'].to_s
         port = item['port'].to_s
-        proto = item['proto'] || "tcp"
+        proto = item['proto'] ? item['proto'].downcase : "tcp"
         sname = item['svc_name']
         severity = item['severity']
         description = item['description']

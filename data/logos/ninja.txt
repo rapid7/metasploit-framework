@@ -27,4 +27,4 @@
                      #   #   ###  #   #   ##
                      ########################
                       ##     ##   ##     ##
-                            http://metasploit.com%clr
+                            https://metasploit.com%clr

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,9 +13,6 @@
 ##
 
 require 'zlib' # TODO: check if this can be done with REX
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptPath.new( 'SCRIPT',  [true, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -48,7 +45,7 @@ class MetasploitModule < Msf::Post
         OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
         OptBool.new(  'DRY_RUN',        [false, 'Only show what would be done', false ]),
         OptInt.new('TIMEOUT',   [false, 'Execution timeout', 15]),
-      ], self.class)
+      ])
 
   end
 
@@ -120,6 +117,5 @@ class MetasploitModule < Msf::Post
     # That's it
     print_good('Finished!')
   end
-
 end
 

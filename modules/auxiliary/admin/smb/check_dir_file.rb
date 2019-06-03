@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -33,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'patrick',
+          'aushack',
           'j0hn__f'
         ],
       'References'  =>
@@ -45,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of an accessible share on the server', 'C$']),
       OptString.new('RPATH', [true, 'The name of the remote file/directory relative to the share'])
-    ], self.class)
+    ])
 
   end
 

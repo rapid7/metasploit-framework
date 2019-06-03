@@ -13,7 +13,7 @@ module Msf::ReflectiveDLLLoader
   # Load a reflectively-injectable DLL from disk and find the offset
   # to the ReflectiveLoader function inside the DLL.
   #
-  # @param dll_path Path to the DLL to load.
+  # @param [String] dll_path Path to the DLL to load.
   #
   # @return [Array] Tuple of DLL contents and offset to the
   #                 +ReflectiveLoader+ function within the DLL.
@@ -23,17 +23,25 @@ module Msf::ReflectiveDLLLoader
 
     offset = parse_pe(dll)
 
+    unless offset
+      raise "Cannot find the ReflectiveLoader entry point in #{dll_path}"
+    end
+
     return dll, offset
   end
 
-  # Load a reflectively-injectable DLL from an string and find the offset
+  # Load a reflectively-injectable DLL from a string and find the offset
   # to the ReflectiveLoader function inside the DLL.
   #
-  # @param [Fixnum] dll_data the DLL to load.
+  # @param [String] dll_data the DLL data to load.
   #
-  # @return [Fixnum] offset to the +ReflectiveLoader+ function within the DLL.
+  # @return [Integer] offset to the +ReflectiveLoader+ function within the DLL.
   def load_rdi_dll_from_data(dll_data)
     offset = parse_pe(dll_data)
+
+    unless offset
+      raise 'Cannot find the ReflectiveLoader entry point in DLL data'
+    end
 
     offset
   end
@@ -49,10 +57,6 @@ module Msf::ReflectiveDLLLoader
         offset = pe.rva_to_file_offset(e.rva)
         break
       end
-    end
-
-    unless offset
-      raise "Cannot find the ReflectiveLoader entry point in #{dll_path}"
     end
 
     offset

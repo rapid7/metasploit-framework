@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -36,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 110 ])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -47,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
   def run
     @myhost = datastore['SRVHOST']
     @myport = datastore['SRVPORT']
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
@@ -105,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
         password: @state[c][:pass],
         proof: arg
       )
-      print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
       @state[c][:pass] = data.strip
       c.put "+OK\r\n"
       return

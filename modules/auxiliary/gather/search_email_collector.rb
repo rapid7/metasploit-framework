@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/http'
 
 class MetasploitModule < Msf::Auxiliary
@@ -27,14 +26,14 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SEARCH_YAHOO', [ true, 'Enable Yahoo! as a backend search engine', true]),
         OptString.new('OUTFILE', [ false, "A filename to store the generated email list"]),
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>",nil]),
         OptString.new('PROXY_USER', [ false, "Proxy Server User",nil]),
         OptString.new('PROXY_PASS', [ false, "Proxy Server Password",nil])
-      ], self.class)
+      ])
 
   end
 

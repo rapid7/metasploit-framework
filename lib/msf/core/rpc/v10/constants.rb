@@ -10,7 +10,7 @@ class Exception < RuntimeError
 
   # Initializes Exception.
   #
-  # @param [Fixnum] code An error code.
+  # @param [Integer] code An error code.
   # @param [String] message An error message.
   # @return [void]
   def initialize(code, message)
@@ -25,7 +25,7 @@ class ServerException < RuntimeError
 
   # Initializes ServerException.
   #
-  # @param [Fixnum] code An error code.
+  # @param [Integer] code An error code.
   # @param [String] error_message An error message.
   # @param [Exception] error_class An error class.
   # @param [Array] error_backtrace A backtrace of the error.

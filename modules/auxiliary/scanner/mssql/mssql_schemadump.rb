@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -20,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           This module attempts to extract the schema from a MSSQL Server
           Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
+          as master, model, msdb, and tempdb. The module will create
           a note for each DB found, and store a YAML formatted output
           as loot for easy reading.
       },

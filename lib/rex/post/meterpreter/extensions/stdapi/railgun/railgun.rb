@@ -31,16 +31,19 @@
 # chao - June 2011 - major overhaul of dll lazy loading, caching, and bit of everything
 #
 
+#
+# zeroSteiner - April 2017 - added support for non-windows platforms
+#
+
 require 'pp'
 require 'enumerator'
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/const_manager'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_wrapper'
 
 module Rex
 module Post
@@ -56,60 +59,70 @@ module Railgun
 class Railgun
 
   #
-  # Railgun::DLL's that have builtin definitions.
+  # Railgun::Library's that have builtin definitions.
   #
-  # If you want to add additional DLL definitions to be preloaded create a
-  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
+  # If you want to add additional library definitions to be preloaded create a
+  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/$platform/'.
   # Naming is important and should follow convention.  For example, if your
-  # dll's name was "my_dll"
-  # file name:    def_my_dll.rb
-  # class name:   Def_my_dll
-  # entry below: 'my_dll'
+  # library's name was "my_library"
+  # file name:    def_my_library.rb
+  # class name:   Def_my_library
+  # entry below: 'my_library'
   #
-  BUILTIN_DLLS = [
-    'kernel32',
-    'ntdll',
-    'user32',
-    'ws2_32',
-    'iphlpapi',
-    'advapi32',
-    'shell32',
-    'netapi32',
-    'crypt32',
-    'wlanapi',
-    'wldap32',
-    'version',
-    'psapi'
-  ].freeze
+  BUILTIN_LIBRARIES = {
+    'linux' => [
+      'libc'
+    ].freeze,
+    'osx' => [
+      'libc',
+      'libobjc'
+    ].freeze,
+    'windows' => [
+      'kernel32',
+      'ntdll',
+      'user32',
+      'ws2_32',
+      'iphlpapi',
+      'advapi32',
+      'shell32',
+      'netapi32',
+      'crypt32',
+      'wlanapi',
+      'wldap32',
+      'version',
+      'psapi'
+    ].freeze
+  }.freeze
 
   ##
-  # Returns a Hash containing DLLs added to this instance with #add_dll
-  # as well as references to any frozen cached dlls added directly in #get_dll
-  # and copies of any frozen dlls (added directly with #add_function)
-  # that the user attempted to modify with #add_function.
+  # Returns a Hash containing libraries added to this instance with #add_library
+  # as well as references to any frozen cached libraries added directly in
+  # #get_library and copies of any frozen libraries (added directly with
+  # #add_function) that the user attempted to modify with #add_function.
   #
-  # Keys are friendly DLL names and values are the corresponding DLL instance
-  attr_accessor :dlls
+  # Keys are friendly library names and values are the corresponding library instance
+  attr_accessor :libraries
 
   ##
   # Contains a reference to the client that corresponds to this instance of railgun
   attr_accessor :client
 
   ##
-  # These DLLs are loaded lazily and then shared amongst all railgun instances.
-  # For safety reasons this variable should only be read/written within #get_dll.
-  @@cached_dlls = {}
+  # These libraries are loaded lazily and then shared amongst all railgun
+  # instances. For safety reasons this variable should only be read/written
+  # within #get_library.
+  @@cached_libraries = {}
 
-  # if you are going to touch @@cached_dlls, wear protection
+  # if you are going to touch @@cached_libraries, wear protection
   @@cache_semaphore = Mutex.new
 
   def initialize(client)
     self.client = client
-    self.dlls = {}
+    self.libraries = {}
   end
 
-  def self.builtin_dlls
-    BUILTIN_DLLS
+  def self.builtin_libraries
+    BUILTIN_LIBRARIES[client.platform]
   end
 
   #
@@ -117,19 +130,31 @@ class Railgun
   #
   def util
     if @util.nil?
-      @util = Util.new(self, client.platform)
+      @util = Util.new(self, client.arch)
     end
 
     return @util
   end
 
   #
-  # Return this Railgun's WinConstManager instance, initially populated with
+  # Return this Railgun's platform specific ApiConstants class.
+  #
+  def api_constants
+    if @api_constants.nil?
+      require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/api_constants"
+      @api_constants = Def.const_get('DefApiConstants_' << client.platform)
+    end
+
+    return @api_constants
+  end
+
+  #
+  # Return this Railgun's ConstManager instance, initially populated with
   # constants defined in ApiConstants.
   #
   def constant_manager
     # Loads lazily
-    return ApiConstants.manager
+    return api_constants.manager
   end
 
   #
@@ -157,130 +182,128 @@ class Railgun
   # Write data to a memory address on the host (useful for working with
   # LPVOID parameters)
   #
-  def memwrite(address, data, length)
+  def memwrite(address, data, length=nil)
 
+    length = data.length if length.nil?
     raise "Invalid parameters." if(not address or not data or not length)
 
     request = Packet.create_request('stdapi_railgun_memwrite')
-
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_DATA, data)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
 
     response = client.send_request(request)
-    if(response.result == 0)
-      return true
-    end
-
-    return false
+    return response.result == 0
   end
 
   #
-  # Adds a function to an existing DLL definition.
+  # Adds a function to an existing library definition.
   #
-  # If the DLL definition is frozen (ideally this should be the case for all
-  # cached dlls) an unfrozen copy is created and used henceforth for this
+  # If the library definition is frozen (ideally this should be the case for all
+  # cached libraries) an unfrozen copy is created and used henceforth for this
   # instance.
   #
-  def add_function(dll_name, function_name, return_type, params, windows_name=nil, calling_conv="stdcall")
-
-    unless known_dll_names.include?(dll_name)
-      raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, "")}"
+  def add_function(lib_name, function_name, return_type, params, remote_name=nil, calling_conv='stdcall')
+    unless known_library_names.include?(lib_name)
+      raise "Library #{lib_name} not found. Known libraries: #{PP.pp(known_library_names, '')}"
     end
 
-    dll = get_dll(dll_name)
+    lib = get_library(lib_name)
 
-    # For backwards compatibility, we ensure the dll is thawed
-    if dll.frozen?
-      # Duplicate not only the dll, but its functions as well. Frozen status will be lost
-      dll = Marshal.load(Marshal.dump(dll))
+    # For backwards compatibility, we ensure the library is thawed
+    if lib.frozen?
+      # Duplicate not only the library, but its functions as well, frozen status will be lost
+      lib = Marshal.load(Marshal.dump(lib))
 
-      # Update local dlls with the modifiable duplicate
-      dlls[dll_name] = dll
+      # Update local libraries with the modifiable duplicate
+      libraries[lib_name] = lib
     end
 
-    dll.add_function(function_name, return_type, params, windows_name, calling_conv)
+    lib.add_function(function_name, return_type, params, remote_name, calling_conv)
   end
 
   #
-  # Adds a DLL to this Railgun.
+  # Adds a library to this Railgun.
   #
-  # The +windows_name+ is the name used on the remote system and should be
-  # set appropriately if you want to include a path or the DLL name contains
+  # The +remote_name+ is the name used on the remote system and should be
+  # set appropriately if you want to include a path or the library name contains
   # non-ruby-approved characters.
   #
-  # Raises an exception if a dll with the given name has already been
+  # Raises an exception if a library with the given name has already been
   # defined.
   #
-  def add_dll(dll_name, windows_name=dll_name)
-
-    if dlls.has_key? dll_name
-      raise "A DLL of name #{dll_name} has already been loaded."
+  def add_library(lib_name, remote_name=lib_name)
+    if libraries.has_key? lib_name
+      raise "A library of name #{lib_name} has already been loaded."
     end
 
-    dlls[dll_name] = DLL.new(windows_name, constant_manager)
+    libraries[lib_name] = Library.new(remote_name, constant_manager)
   end
+  alias_method :add_dll, :add_library
 
-
-  def known_dll_names
-    return BUILTIN_DLLS | dlls.keys
+  def known_library_names
+    return BUILTIN_LIBRARIES[client.platform] | libraries.keys
   end
 
   #
-  # Attempts to provide a DLL instance of the given name. Handles lazy
-  # loading and caching.  Note that if a DLL of the given name does not
-  # exist, returns nil
+  # Attempts to provide a library instance of the given name. Handles lazy
+  # loading and caching. Note that if a library of the given name does not exist
+  # then nil is returned.
   #
-  def get_dll(dll_name)
-
-    # If the DLL is not local, we now either load it from cache or load it lazily.
-    # In either case, a reference to the dll is stored in the collection "dlls"
-    # If the DLL can not be found/created, no actions are taken
-    unless dlls.has_key? dll_name
-      # We read and write to @@cached_dlls and rely on state consistency
+  def get_library(lib_name)
+    # If the library is not local, we now either load it from cache or load it
+    # lazily. In either case, a reference to the library is stored in the
+    # collection "libraries". If the library can not be found/created, no
+    # actions are taken.
+    unless libraries.has_key? lib_name
+      # use a platform-specific name for caching to avoid conflicts with
+      # libraries that exist on multiple platforms, e.g. libc.
+      cached_lib_name = "#{client.platform}.#{lib_name}"
+      # We read and write to @@cached_libraries and rely on state consistency
       @@cache_semaphore.synchronize do
-        if @@cached_dlls.has_key? dll_name
-          dlls[dll_name] = @@cached_dlls[dll_name]
-        elsif BUILTIN_DLLS.include? dll_name
+        if @@cached_libraries.has_key? cached_lib_name
+          libraries[lib_name] = @@cached_libraries[cached_lib_name]
+        elsif BUILTIN_LIBRARIES[client.platform].include? lib_name
           # I highly doubt this case will ever occur, but I am paranoid
-          if dll_name !~ /^\w+$/
-            raise "DLL name #{dll_name} is bad. Correct Railgun::BUILTIN_DLLS"
+          if lib_name !~ /^\w+$/
+            raise "Library name #{lib_name} is bad. Correct Railgun::BUILTIN_LIBRARIES['#{client.platform}']"
           end
 
-          require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name
-          dll = Def.const_get('Def_' << dll_name).create_dll.freeze
+          require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{lib_name}"
+          lib = Def.const_get("Def_#{client.platform}_#{lib_name}").create_library(constant_manager).freeze
 
-          @@cached_dlls[dll_name] = dll
-          dlls[dll_name] = dll
+          @@cached_libraries[cached_lib_name] = lib
+          libraries[lib_name] = lib
         end
       end
 
     end
 
-    return dlls[dll_name]
+    return libraries[lib_name]
   end
+  alias_method :get_dll, :get_library
 
   #
   # Fake having members like user32 and kernel32.
   # reason is that
   #   ...user32.MessageBoxW()
   # is prettier than
-  #   ...dlls["user32"].functions["MessageBoxW"]()
+  #   ...libraries["user32"].functions["MessageBoxW"]()
   #
-  def method_missing(dll_symbol, *args)
-    dll_name = dll_symbol.to_s
+  def method_missing(lib_symbol, *args)
+    lib_name = lib_symbol.to_s
 
-    unless known_dll_names.include? dll_name
-      raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, '')}"
+    unless known_library_names.include? lib_name
+      raise "Library #{lib_name} not found. Known libraries: #{PP.pp(known_library_names, '')}"
     end
 
-    dll = get_dll(dll_name)
+    lib = get_library(lib_name)
 
-    return DLLWrapper.new(dll, client)
+    return LibraryWrapper.new(lib, client)
   end
 
   #
-  # Return a Windows constant matching +str+.
+  # Return a constant matching +str+.
   #
   def const(str)
     return constant_manager.parse(str)
@@ -291,7 +314,7 @@ class Railgun
   #
   def multi(functions)
     if @multicaller.nil?
-      @multicaller = MultiCaller.new(client, self, ApiConstants.manager)
+      @multicaller = MultiCaller.new(client, self, constant_manager)
     end
 
     return @multicaller.call(functions)

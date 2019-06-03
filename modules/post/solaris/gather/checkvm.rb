@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
 
@@ -18,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           This module attempts to determine whether the system is running
           inside of a virtual environment and if so, which one. This
-          module supports detectoin of Solaris Zone, VMWare, VirtualBox, Xen,
+          module supports detection of Solaris Zone, VMWare, VirtualBox, Xen,
           and QEMU/KVM.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

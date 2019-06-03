@@ -14,7 +14,7 @@ RSpec.describe Rex::Post::Meterpreter::ClientCore do
       allow(@response).to receive(:result) { 0 }
       allow(@response).to receive(:each) { [:help] }
       @client = double("client")
-      allow(@client).to receive(:binary_suffix) { "x64.dll" }
+      allow(@client).to receive(:binary_suffix) { ["x64.dll"] }
       allow(@client).to receive(:capabilities) { {:ssl => false, :zlib => false } }
       allow(@client).to receive(:response_timeout) { 1 }
       allow(@client).to receive(:send_packet_wait_response) { @response }

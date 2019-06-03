@@ -80,6 +80,8 @@ class BidirectionalPipe < Rex::Ui::Text::Input
     print_line('[-] ' + msg)
   end
 
+  alias_method :print_bad, :print_error
+
   def print_line(msg='')
     print(msg + "\n")
   end

@@ -4,7 +4,7 @@
 
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -40,7 +40,6 @@ script_on_target = nil
   "-T"  => [ true,   "Alternate executable template to use"],
   "-P"  => [ true,   "Payload to use, default is windows/meterpreter/reverse_tcp."]
 )
-meter_type = client.platform
 
 ################## Function Declarations ##################
 
@@ -54,7 +53,7 @@ end
 
 # Wrong Meterpreter Version Message Function
 #-------------------------------------------------------------------------------
-def wrong_meter_version(meter = meter_type)
+def wrong_meter_version(meter)
   print_error("#{meter} version of Meterpreter is not supported with this Script!")
   raise Rex::Script::Completed
 end
@@ -227,7 +226,10 @@ end
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+unless client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
+  wrong_meter_version(client.session_type)
+end
+
 print_status("Running Persistence Script")
 # Create undo script
 @clean_up_rc = log_file()

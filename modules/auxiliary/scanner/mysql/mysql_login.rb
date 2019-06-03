@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mysql'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies
-      ], self.class)
+      ])
   end
 
   def target
@@ -130,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
+    vprint_good "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)
   end
 

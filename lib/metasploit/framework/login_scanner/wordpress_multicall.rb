@@ -12,11 +12,11 @@ module Metasploit
         attr_accessor :passwords
 
         # @!attribute chunk_size, limits number of passwords per XML request
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :chunk_size
 
         # @!attribute block_wait, time to wait if got blocked by the target
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :block_wait
 
         # @!attribute base_uri

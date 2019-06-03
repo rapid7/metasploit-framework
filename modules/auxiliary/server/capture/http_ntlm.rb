@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/message'
@@ -14,7 +12,6 @@ NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
       OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('DOMAIN',  [ false, "The default domain to use for NTLM authentication", "DOMAIN"]),
@@ -53,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('DNSNAME',  [ false, "The default DNS server name to use for NTLM authentication", "SERVER"]),
       OptString.new('DNSDOMAIN',  [ false, "The default DNS domain name to use for NTLM authentication", "example.com"]),
       OptBool.new('FORCEDEFAULT',  [ false, "Force the default settings", false])
-    ], self.class)
+    ])
 
   end
 

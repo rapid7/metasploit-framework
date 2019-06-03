@@ -30,6 +30,13 @@ module BindTcp
     "bind"
   end
 
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "bind TCP"
+  end
+
   #
   # Initializes a bind handler and adds the options common to all bind
   # payloads, such as local port.
@@ -102,7 +109,7 @@ module BindTcp
     self.listener_threads << framework.threads.spawn("BindTcpHandlerListener-#{lport}", false) {
       client = nil
 
-      print_status("Started bind handler")
+      print_status("Started #{human_name} handler against #{rhost}:#{lport}")
 
       if (rhost == nil)
         raise ArgumentError,
@@ -124,9 +131,9 @@ module BindTcp
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-        rescue Rex::ConnectionRefused
-          # Connection refused is a-okay
-        rescue ::Exception
+        rescue Rex::ConnectionError => e
+          vprint_error(e.message)
+        rescue
           wlog("Exception caught in bind handler: #{$!.class} #{$!}")
         end
 
@@ -180,7 +187,7 @@ module BindTcp
     key = m.digest(datastore["AESPassword"] || "")
 
     Rex::ThreadFactory.spawn('AESEncryption', false) {
-      c1 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+      c1 = OpenSSL::Cipher.new('aes-128-cfb8')
       c1.encrypt
       c1.key=key
       sock.put([0].pack('N'))
@@ -194,7 +201,7 @@ module BindTcp
     }
 
     Rex::ThreadFactory.spawn('AESEncryption', false) {
-      c2 = OpenSSL::Cipher::Cipher.new('aes-128-cfb8')
+      c2 = OpenSSL::Cipher.new('aes-128-cfb8')
       c2.decrypt
       c2.key=key
       iv=""

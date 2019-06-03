@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -127,7 +127,7 @@ end
 if args.length == 0
   usage
 end
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 
 if outfile == nil
   print_status wmicexec(session,commands)

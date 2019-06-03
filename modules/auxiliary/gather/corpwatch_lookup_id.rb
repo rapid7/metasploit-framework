@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -25,6 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
@@ -35,9 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GET_CHILDREN', [false, "Get children companies", true]),
         OptInt.new('CHILD_LIMIT', [false, "Set limit to how many children we can get", 5]),
         OptBool.new('GET_HISTORY', [false, "Get company history", false])
-      ], self.class)
-
-    deregister_options('RHOST', 'RPORT', 'VHOST', 'Proxies')
+      ])
   end
 
   def rhost_corpwatch
@@ -162,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 25)
 
       if res == nil
-        print_error ("Server down or bad response")
+        print_error("Server down or bad response")
         return
       end
 
@@ -537,5 +535,4 @@ class MetasploitModule < Msf::Auxiliary
     e.get_elements(name)[0].get_text ) ?
     e.get_elements(name)[0].get_text.to_s : ""
   end
-
 end

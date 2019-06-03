@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Post::Windows::UserProfiles
@@ -30,9 +27,9 @@ class MetasploitModule < Msf::Post
 
     files = []
     case session.platform
-    when /unix|linux|bsd|osx/
+    when 'unix', 'linux', 'bsd', 'osx'
       files = enum_user_directories.map {|d| d + "/.pgpass"}.select { |f| file?(f) }
-    when /win/
+    when 'windows'
       if session.type != "meterpreter"
         print_error("Only meterpreter sessions are supported on windows hosts")
         return

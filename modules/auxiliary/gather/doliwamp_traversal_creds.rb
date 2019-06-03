@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         Note: All tokens expire after 30 minutes of inactivity by default.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'         => 'bcoles',
       'References'     =>
         [
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI',      [true, 'The path to Dolibarr', '/dolibarr/']),
         OptString.new('TRAVERSAL_PATH', [true, 'The traversal path to the application tmp directory', '../../../../../../../../tmp/'])
-      ], self.class)
+      ])
   end
 
   #

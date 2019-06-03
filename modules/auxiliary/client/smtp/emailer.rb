@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'yaml'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('RPORT', [true, "SMTP server port",'25']),
           OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
             File.join(Msf::Config.data_directory,"emailer_config.yaml")]),
-        ], self.class)
+        ])
 
     # Hide this option from the user
     deregister_options('MAILTO')
@@ -149,8 +146,6 @@ class MetasploitModule < Msf::Auxiliary
         })
 
       print_status("Writing payload to #{attachment_file}")
-      # XXX If Rex::Zip will let us zip a buffer instead of a file,
-      # there's no reason to write this out
       File.open(attachment_file, "wb") do |f|
         f.write(exe)
       end
@@ -164,7 +159,8 @@ class MetasploitModule < Msf::Auxiliary
 
       if zip_payload
         zip_file = attachment_file.sub(/\.\w+$/, '.zip')
-        system("zip -r #{zip_file} #{attachment_file}> /dev/null 2>&1");
+        print_status("Zipping payload to #{zip_file}")
+        File.write(zip_file, Msf::Util::EXE.to_zip([fname: File.basename(attachment_file), data: exe]))
         attachment_file      = zip_file
         attachment_file_type = 'application/zip'
       else
@@ -181,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
       name = nem[0].split(' ')
       fname = name[0]
       lname = name[1]
-      email = nem[1]
+      email = nem[1].strip
 
 
       if add_name
@@ -220,5 +216,4 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Email sent..")
   end
-
 end

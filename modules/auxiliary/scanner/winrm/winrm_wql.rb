@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
 
@@ -35,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to authenticate as"]),
         OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
         OptString.new('NAMESPACE', [true, 'The WMI namespace to use for queries', '/root/cimv2/'])
-      ], self.class)
+      ])
   end
 
 
@@ -57,9 +53,8 @@ class MetasploitModule < Msf::Auxiliary
     resp_tbl = parse_wql_response(resp)
     print_good resp_tbl.to_s
     path = store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
-    print_status "Results saved to #{path}"
+    print_good "Results saved to #{path}"
   end
-
 end
 
 =begin

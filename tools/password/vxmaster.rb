@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-# $Id$
-
 #
 # This script calculates all possible password hashes for the vxworks platform.
 # The generated list can be used to bruteforce authentication to any service
@@ -9,17 +7,18 @@
 #
 # (C) 2010 Rapid7
 #
-# $Revision$
+
 #
-
-
 # VxWorks converts the clear-text password into single integer value. This value
 # can only be one of about 210,000 possible options. The method below emulates
 # what the vxencrypt utility does and was implemented based on publicly indexed
 # documentation and source code snippets.
+#
 
+#
 # XXX: Newer VxWorks can use passwords up to 120 characters long, but this is
 #      not very common in the wild.
+#
 
 def vxworks_sum_from_pass(pass)
   if pass.length < 8 or pass.length > 40
@@ -128,7 +127,6 @@ seeds = []
 end
 seedsets << seeds
 
-
 seeds = []
 8.upto(12) do |slen|
   0x23.upto(0x7c) do |cset|
@@ -165,7 +163,6 @@ seeds = []
 end
 seedsets << seeds
 
-
 # Calculate passwords and their hashes for all possible outputs
 1.upto(209656) do |i|
   found = false
@@ -200,4 +197,3 @@ seedsets << seeds
     exit(0)
   end
 end
-

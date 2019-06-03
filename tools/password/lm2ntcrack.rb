@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script cracks any type of NTLM hash
 # Credit to	-Yannick Hamon <yannick.hamon[at]xmcopartners.com> for the original idea/perl code
 #		-Alexandre Maloteaux <a.maloteaux[at]gmail.com> for improvments
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -70,7 +73,6 @@ $args = Rex::Parser::Arguments.new(
   "-d" => [ true,  "The domain (machine) name    (NETLMv2/NETNTLMv2 type only)"     	],
   "-h" => [ false, "Display this help information"                                                   	])
 
-
 $args.parse(ARGV) { |opt, idx, val|
   case opt
     when "-t"
@@ -122,7 +124,6 @@ else
   end
 end
 
-
 if type == "HALFLM" or type == "LM" or type == "NTLM" then
   if srvchal != nil or clichal != nil or user != nil or domain != nil  then
     $stderr.puts "[*] No challenge, user or domain must be provided with this type"
@@ -169,7 +170,7 @@ when "HALFLM"
       exit
     end
     calculatedhash = CRYPT::lm_hash(pass,true).unpack("H*")[0].upcase
-    puts "[*] The LM hash for #{pass.upcase} is  : #{calculatedhash}"
+    puts "[*] The LM hash for #{pass.upcase} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not pass =~ /^.{0,7}$/
@@ -218,7 +219,7 @@ when "LM"
       exit
     end
     calculatedhash = CRYPT::lm_hash(pass.upcase).unpack("H*")[0].upcase
-    puts "[*] The LM hash for #{pass.upcase} is  : #{calculatedhash}"
+    puts "[*] The LM hash for #{pass.upcase} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not pass =~ /^.{0,14}$/
@@ -263,7 +264,7 @@ when "NTLM"
     exit
   when HASH_MODE
     calculatedhash = CRYPT::ntlm_hash(pass).unpack("H*")[0].upcase
-    puts "[*] The NTLM hash for #{pass} is  : #{calculatedhash}"
+    puts "[*] The NTLM hash for #{pass} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not hash =~ /^([a-fA-F0-9]{32})$/
@@ -329,7 +330,7 @@ when  "HALFNETLMv1"
         :challenge => [ srvchal ].pack("H*") }
 
     calculatedhash = CRYPT::lm_response(arglm,true).unpack("H*")[0].upcase
-    puts "[*] The HALFNETLMv1 hash for #{pass.upcase} is  : #{calculatedhash}"
+    puts "[*] The HALFNETLMv1 hash for #{pass.upcase} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not pass =~ /^.{0,7}$/
@@ -410,7 +411,7 @@ when  "NETLMv1"
         :challenge => [ srvchal ].pack("H*") }
 
     calculatedhash = CRYPT::lm_response(arglm).unpack("H*")[0].upcase
-    puts "[*] The NETLMv1 hash for #{pass.upcase} is  : #{calculatedhash}"
+    puts "[*] The NETLMv1 hash for #{pass.upcase} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not pass =~ /^.{1,14}$/
@@ -485,7 +486,7 @@ when "NETNTLMv1"
     argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
         :challenge => [ srvchal ].pack("H*") }
     calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
-    puts "[*] The NETNTLMv1 hash for #{pass} is  : #{calculatedhash}"
+    puts "[*] The NETNTLMv1 hash for #{pass} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not hash =~ /^([a-fA-F0-9]{48})$/
@@ -579,7 +580,7 @@ when  "NETNTLM2_SESSION"
     optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
     calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
-    puts "[*] The NETNTLM2_SESSION hash for #{pass} is  : #{calculatedhash}"
+    puts "[*] The NETNTLM2_SESSION hash for #{pass} is : #{calculatedhash}"
     exit
   when PASS_MODE
     if not hash =~ /^([a-fA-F0-9]{48})$/
@@ -872,5 +873,3 @@ else
   $stderr.puts "type must be of type : HALFLM/LM/NTLM/HALFNETLMv1/NETLMv1/NETNTLMv1/NETNTLM2_SESSION/NETLMv2/NETNTLMv2"
   exit
 end
-
-

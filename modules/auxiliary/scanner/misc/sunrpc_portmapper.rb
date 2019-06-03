@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SunRPC
@@ -42,8 +40,8 @@ class MetasploitModule < Msf::Auxiliary
       progs = resp[3, 1].unpack('C')[0]
       maps = []
       if (progs == 0x01)
-        while XDR.decode_int!(resp) == 1
-          maps << XDR.decode!(resp, Integer, Integer, Integer, Integer)
+        while Rex::Encoder::XDR.decode_int!(resp) == 1
+          maps << Rex::Encoder::XDR.decode!(resp, Integer, Integer, Integer, Integer)
         end
       end
       sunrpc_destroy

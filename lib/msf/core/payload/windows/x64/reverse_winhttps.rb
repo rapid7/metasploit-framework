@@ -9,7 +9,7 @@ module Msf
 
 ###
 #
-# Complex payload generation for Windows ARCH_X86_64 that speak HTTPS using WinHTTP
+# Complex payload generation for Windows ARCH_X64 that speak HTTPS using WinHTTP
 #
 ###
 

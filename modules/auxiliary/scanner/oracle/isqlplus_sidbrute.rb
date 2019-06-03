@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SID', [ false, 'A single SID to test']),
         OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
         OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
-      ], self.class)
+      ])
 
       deregister_options(
         "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
@@ -225,5 +222,4 @@ class MetasploitModule < Msf::Auxiliary
     report_oracle_sid(ip,sid) if guess
     return guess
   end
-
 end

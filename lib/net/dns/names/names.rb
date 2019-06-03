@@ -19,7 +19,7 @@ module Net # :nodoc:
         name = ""
         packetlen = packet.size
         while true
-          raise ExpandError, "offset is greater than packet lenght!" if packetlen < (offset+1)
+          raise ExpandError, "offset is greater than packet length!" if packetlen < (offset+1)
           len = packet.unpack("@#{offset} C")[0]
           
           if len == 0

@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #
 # This plugin provides an msf daemon interface that spawns a listener on a
 # defined port (default 55552) and gives each connecting client its own
@@ -22,17 +21,17 @@ class Plugin::MSGRPC < Msf::Plugin
   #
   # The default local hostname that the server listens on.
   #
-  DefaultHost = "127.0.0.1"
+  DefaultHost ||= "127.0.0.1"
 
   #
   # The default local port that the server listens on.
   #
-  DefaultPort = 55552
+  DefaultPort ||= 55552
 
   #
   # ServerPort
   #
-  # 	The local port to listen on for connections.  The default is 55553
+  # 	The local port to listen on for connections.  The default is 55552
   #
   def initialize(framework, opts)
     super

@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -83,7 +79,7 @@ class MetasploitModule < Msf::Nop
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
 
@@ -200,12 +196,15 @@ class MetasploitModule < Msf::Nop
     return '' if len == 0
     len = 0x3fffff if (len >= 0x400000)
 
+    a = rand(2).floor
+    b = ref[0]
+    c = rand(len - 1).floor
+
     return [
-      (rand(2) << 29) |
-      (ref[0] << 25)  |
-      (2 << 22)       |
-      rand(len - 1) + 1
+      (a << 29)  |
+      (b << 25)  |
+      (2 << 22)  |
+      c + 1
     ].pack('N')
   end
-
 end

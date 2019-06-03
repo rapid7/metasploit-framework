@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'csv'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::ORACLE
 
@@ -23,14 +21,14 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2009/Oct/261' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2009/Oct/261' ],
         ],
       'DisclosureDate' => 'Nov 20 2008'))
 
       register_options(
         [
           OptPath.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
-        ], self.class)
+        ])
 
       deregister_options('DBUSER','DBPASS')
 
@@ -80,6 +78,8 @@ class MetasploitModule < Msf::Auxiliary
         if e.to_s =~ /^ORA-12170:\s/
           print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
           break
+        else
+          vprint_error("#{datastore['RHOST']}:#{datastore['RPORT']} - LOGIN FAILED: #{datastore['DBUSER']}: #{e.to_s})")
         end
       else
         report_cred(
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
           user: "#{datastore['SID']}/#{datastore['DBUSER']}",
           password: datastore['DBPASS']
         )
-        print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+        print_good("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
       end
     end
   end

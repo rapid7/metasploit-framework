@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
           This module interfaces with the CorpWatch API to get publicly available
         info for a given company name.  Please note that by using CorpWatch API, you
-        acknolwdge the limitations of the data CorpWatch provides, and should always
+        acknowledge the limitations of the data CorpWatch provides, and should always
         verify the information with the official SEC filings before taking any action.
       },
       'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
@@ -28,15 +25,15 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
         OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
         OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
         OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
-      ], self.class)
-
-    deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
+      ])
   end
 
   def rhost_corpwatch
@@ -132,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
     e.get_elements(name)[0].get_text ) ?
     e.get_elements(name)[0].get_text.to_s  : ""
   end
-
 end

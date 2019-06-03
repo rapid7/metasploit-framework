@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2013-6414' ],
           [ 'OSVDB', '100525' ],
           [ 'BID', '64074' ],
-          [ 'URL', 'http://seclists.org/oss-sec/2013/q4/400' ],
+          [ 'URL', 'https://seclists.org/oss-sec/2013/q4/400' ],
           [ 'URL', 'https://github.com/rails/rails/commit/bee3b7f9371d1e2ddcfe6eaff5dcb26c0a248068' ]
         ],
       'DisclosureDate' => 'Dec 04 2013'))
@@ -115,6 +113,6 @@ Reproduce:
 1. Add a def index; end to ApplicationController
 2. Add an empty index.html.erb file to app/views/application/index.html.erb
 3. Uncomment the last line in routes.rb
-4. Hit /application 
-  
+4. Hit /application
+
 =end

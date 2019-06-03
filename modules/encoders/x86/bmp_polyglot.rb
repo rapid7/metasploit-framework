@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
-require 'msf/core'
-
 =begin
 [BITS 32]
 
@@ -174,11 +172,9 @@ class SizeCalculator
   def round_up_to_nop(opcode)
     BYTE_NOPS.find { |nop| opcode <= nop }
   end
-
 end
 
 class MetasploitModule < Msf::Encoder
-
   Rank = ManualRanking
 
   DESTEGO_STUB_SIZE = 53

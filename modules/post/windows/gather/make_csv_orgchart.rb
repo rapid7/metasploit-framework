@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rex'
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('ACTIVE_USERS_ONLY', [true, 'Only include active users (i.e. not disabled ones)', true]),
       OptBool.new('STORE_LOOT', [true, 'Store the organizational chart information in CSV format in loot', true]),
       OptString.new('FILTER', [false, 'Additional LDAP filter to use when searching for users', ''])
-    ], self.class)
+    ])
   end
 
   def run
@@ -63,7 +60,7 @@ class MetasploitModule < Msf::Post
       print_line results_table.to_s
       if datastore['STORE_LOOT']
         stored_path = store_loot('ad.orgchart', 'text/csv', session, results_table.to_csv)
-        print_status("CSV Organisational Chart Information saved to: #{stored_path}")
+        print_good("CSV Organisational Chart Information saved to: #{stored_path}")
       end
     end
   end

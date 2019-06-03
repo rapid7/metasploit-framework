@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -39,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
         OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
-      ], self.class)
+      ])
   end
 
   def print_with_underline(str)
@@ -349,9 +345,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       result = mssql_query(sql, false) if mssql_login_datastore
       column_data = result[:rows]
-      print_status("Successfully connected to #{rhost}:#{rport}")
+      print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
-      print_status ("Failed to connect to #{rhost}:#{rport}.")
+      print_error("Failed to connect to #{rhost}:#{rport}.")
     return
     end
 
@@ -452,9 +448,8 @@ class MetasploitModule < Msf::Auxiliary
     if (save_loot=="yes")
       filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
       path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
-      print_status("Query results have been saved to: #{path}")
+      print_good("Query results have been saved to: #{path}")
     end
 
   end
-
 end

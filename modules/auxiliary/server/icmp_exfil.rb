@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
         To use this module you will need to send an initial ICMP echo request containing the
         specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
-        a random filename can be assisnged). All data received from this source will automatically
+        a random filename can be assigned). All data received from this source will automatically
         be added to the receive buffer until an ICMP echo request containing a specific end trigger
         (defaults to '^EOL') is received.
 
@@ -49,13 +46,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BPF_FILTER',    [true, 'BFP format filter to listen for', 'icmp']),
       OptString.new('INTERFACE',     [false, 'The name of the interface']),
       OptBool.new('FNAME_IN_PACKET', [true, 'Filename presented in first packet straight after START_TRIGGER', true])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptEnum.new('CLOAK',      [true, 'OS fingerprint to use for packet creation', 'linux', ['windows', 'linux', 'freebsd']]),
       OptBool.new('PROMISC',    [true, 'Enable/Disable promiscuous mode', false]),
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end
@@ -156,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
           icmp_response, contents = icmp_packet(packet, datastore['RESP_START'])
 
           if not icmp_response
-            raise RuntimeError ,"Could not build ICMP response"
+            raise "Could not build ICMP response"
           else
             # send response packet icmp_pkt
             send_icmp(icmp_response, contents)
@@ -175,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
             icmp_response, contents = icmp_packet(packet, datastore['RESP_END'])
 
             if not icmp_response
-              raise RuntimeError , "Could not build ICMP response"
+              raise "Could not build ICMP response"
             else
               # send response packet icmp_pkt
               send_icmp(icmp_response, contents)
@@ -195,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
             icmp_response, contents = icmp_packet(packet, datastore['RESP_CONT'])
 
             if not icmp_response
-              raise RuntimeError , "Could not build ICMP response"
+              raise "Could not build ICMP response"
             else
               # send response packet icmp_pkt
               send_icmp(icmp_response, contents)

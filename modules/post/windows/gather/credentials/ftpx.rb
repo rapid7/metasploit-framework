@@ -1,11 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Post
         FTP client for Windows.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
+      'Author'        => [ 'bcoles' ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
@@ -100,5 +97,4 @@ class MetasploitModule < Msf::Post
       create_credential_login(login_data.merge(service_data))
     end
   end
-
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -48,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpPassword', [true, 'Password', '06071992']),
         OptEnum.new('OS', [true, 'Target OS', "linux", ['linux','windows']]),
         OptString.new('CMD', [true, 'Command to run', "id"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

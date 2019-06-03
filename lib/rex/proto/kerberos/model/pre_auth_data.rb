@@ -9,7 +9,7 @@ module Rex
         class PreAuthData < Element
 
           # @!attribute type
-          #   @return [Fixnum] The padata type
+          #   @return [Integer] The padata type
           attr_accessor :type
           # @!attribute value
           #   @return [String] The padata value
@@ -85,7 +85,7 @@ module Rex
           # Decodes the type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_type(input)
             input.value[0].value.to_i
           end
@@ -93,7 +93,7 @@ module Rex
           # Decodes the value from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_value(input)
             input.value[0].value
           end

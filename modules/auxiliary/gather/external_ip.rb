@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('ifconfig.me'),
         OptBool.new('REPORT_HOST', [false, 'Add the found IP to the database', false])
-      ], self.class)
+      ])
 end
 
   def run
@@ -52,5 +48,4 @@ end
       report_host(our_addr) if datastore['REPORT_HOST']
     end
   end
-
 end

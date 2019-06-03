@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/reverse_http'
@@ -28,5 +27,4 @@ module MetasploitModule
       'Stager'        => {'Payload' => ""}
     ))
   end
-
 end

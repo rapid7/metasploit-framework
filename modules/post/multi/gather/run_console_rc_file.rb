@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Post
         OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil]),
 
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

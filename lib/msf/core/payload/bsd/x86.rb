@@ -59,70 +59,70 @@ module X86
   def handle_x86_bsd_opts(pre, app)
     if (datastore['PrependSetresuid'])
       # setresuid(0, 0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x66\xb8\x37\x01"     +#   movw    $0x0137,%ax                #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x66\xb8\x37\x01"     + #   movw    $0x0137,%ax                #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['PrependSetreuid'])
       # setreuid(0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\xb0\x7e"             +#   movb    $0x7e,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\xb0\x7e"             + #   movb    $0x7e,%al                  #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['PrependSetuid'])
       # setuid(0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\xb0\x17"             +#   movb    $0x17,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\xb0\x17"             + #   movb    $0x17,%al                  #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['PrependSetresgid'])
       # setresgid(0, 0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x66\xb8\x38\x01"     +#   movw    $0x0138,%ax                #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x66\xb8\x38\x01"     + #   movw    $0x0138,%ax                #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['PrependSetregid'])
       # setregid(0, 0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\xb0\x7f"             +#   movb    $0x7f,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\xb0\x7f"             + #   movb    $0x7f,%al                  #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['PrependSetgid'])
       # setgid(0)
-      pre << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\x50"                 +#   pushl   %eax                       #
-             "\xb0\xb5"             +#   movb    $0xb5,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
+      pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\x50"                 + #   pushl   %eax                       #
+             "\xb0\xb5"             + #   movb    $0xb5,%al                  #
+             "\xcd\x80"               #   int     $0x80                      #
     end
 
     if (datastore['AppendExit'])
       # exit(0)
-      app << "\x31\xc0"             +#   xorl    %eax,%eax                  #
-             "\x50"                 +#   pushl   %eax                       #
-             "\xb0\x01"             +#   movb    $0x01,%al                  #
-             "\xcd\x80"              #   int     $0x80                      #
+      app << "\x31\xc0"             + #   xorl    %eax,%eax                  #
+             "\x50"                 + #   pushl   %eax                       #
+             "\xb0\x01"             + #   movb    $0x01,%al                  #
+             "\xcd\x80"               #   int     $0x80                      #
     end
   end
 

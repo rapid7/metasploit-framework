@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('DOMAIN', [ true, 'Domain name to remove from the hosts file.' ])
-      ], self.class)
+      ])
   end
 
 
@@ -56,5 +54,4 @@ class MetasploitModule < Msf::Post
     client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', meterp_temp)
     print_good("Done!")
   end
-
 end

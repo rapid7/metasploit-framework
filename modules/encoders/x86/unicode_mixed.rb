@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/encoder/alpha2/unicode_mixed'
 
-
 class MetasploitModule < Msf::Encoder::Alphanum
-
   Rank = ManualRanking
 
   def initialize
@@ -63,5 +59,4 @@ class MetasploitModule < Msf::Encoder::Alphanum
   def to_native(buffer)
     Rex::Text.to_unicode(buffer)
   end
-
 end

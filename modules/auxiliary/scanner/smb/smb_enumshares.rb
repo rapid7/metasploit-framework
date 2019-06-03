@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
@@ -50,14 +49,9 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SpiderProfiles',  [false, 'Spider only user profiles when share = C$', true]),
         OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
-        OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
-      ], self.class)
+      ])
 
-    deregister_options('RPORT', 'RHOST')
-  end
-
-  def share_type(val)
-    [ 'DISK', 'PRINTER', 'DEVICE', 'IPC', 'SPECIAL', 'TEMPORARY' ][val]
+    deregister_options('RPORT')
   end
 
   def device_type_int_to_text(device_type)
@@ -171,114 +165,6 @@ class MetasploitModule < Msf::Auxiliary
     ) if os_info
 
     os_info
-  end
-
-  def lanman_netshareenum(ip, rport, info)
-    shares = []
-
-    begin
-      res = self.simple.client.trans(
-        "\\PIPE\\LANMAN",
-        (
-          [0x00].pack('v') +
-          "WrLeh\x00"   +
-          "B13BWz\x00"  +
-          [0x01, 65406].pack("vv")
-        ))
-    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      if e.error_code == 0xC00000BB
-        vprint_error("Got 0xC00000BB while enumerating shares, switching to srvsvc...")
-        @srvsvc = true # Make sure the module is aware of this state
-        return srvsvc_netshareenum(ip)
-      end
-    end
-
-    return [] if res.nil?
-
-    lerror, lconv, lentries, lcount = res['Payload'].to_s[
-      res['Payload'].v['ParamOffset'],
-      res['Payload'].v['ParamCount']
-    ].unpack("v4")
-
-    data = res['Payload'].to_s[
-      res['Payload'].v['DataOffset'],
-      res['Payload'].v['DataCount']
-    ]
-
-    0.upto(lentries - 1) do |i|
-      sname,tmp = data[(i * 20) +  0, 14].split("\x00")
-      stype     = data[(i * 20) + 14, 2].unpack('v')[0]
-      scoff     = data[(i * 20) + 16, 2].unpack('v')[0]
-      scoff -= lconv if lconv != 0
-      scomm,tmp = data[scoff, data.length - scoff].split("\x00")
-      shares << [ sname, share_type(stype), scomm]
-    end
-
-    shares
-  end
-
-  def srvsvc_netshareenum(ip)
-    shares = []
-    simple.connect("\\\\#{ip}\\IPC$")
-    handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
-    begin
-      dcerpc_bind(handle)
-    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-      vprint_error(e.message)
-      return []
-    end
-
-    stubdata =
-      NDR.uwstring("\\\\#{ip}") +
-      NDR.long(1)  #level
-
-    ref_id = stubdata[0,4].unpack("V")[0]
-    ctr = [1, ref_id + 4 , 0, 0].pack("VVVV")
-
-    stubdata << ctr
-    stubdata << NDR.align(ctr)
-    stubdata << ["FFFFFFFF"].pack("H*")
-    stubdata << [ref_id + 8, 0].pack("VV")
-    response = dcerpc.call(0x0f, stubdata)
-    res = response.dup
-    win_error = res.slice!(-4, 4).unpack("V")[0]
-    if win_error != 0
-      raise "DCE/RPC error : Win_error = #{win_error + 0}"
-    end
-    # remove some uneeded data
-    res.slice!(0,12) # level, CTR header, Reference ID of CTR
-    share_count = res.slice!(0, 4).unpack("V")[0]
-    res.slice!(0,4) # Reference ID of CTR1
-    share_max_count = res.slice!(0, 4).unpack("V")[0]
-
-    raise "Dce/RPC error : Unknow situation encountered count != count max (#{share_count}/#{share_max_count})" if share_max_count != share_count
-
-    # RerenceID / Type / ReferenceID of Comment
-    types = res.slice!(0, share_count * 12).scan(/.{12}/n).map{|a| a[4,2].unpack("v")[0]}
-
-    share_count.times do |t|
-      length, offset, max_length = res.slice!(0, 12).unpack("VVV")
-      raise "Dce/RPC error : Unknow situation encountered offset != 0 (#{offset})" if offset != 0
-      raise "Dce/RPC error : Unknow situation encountered length !=max_length (#{length}/#{max_length})" if length != max_length
-      name = res.slice!(0, 2 * length).gsub('\x00','')
-      res.slice!(0,2) if length % 2 == 1 # pad
-
-      comment_length, comment_offset, comment_max_length = res.slice!(0, 12).unpack("VVV")
-      raise "Dce/RPC error : Unknow situation encountered comment_offset != 0 (#{comment_offset})" if comment_offset != 0
-      if comment_length != comment_max_length
-        raise "Dce/RPC error : Unknow situation encountered comment_length != comment_max_length (#{comment_length}/#{comment_max_length})"
-      end
-      comment = res.slice!(0, 2 * comment_length).gsub('\x00','')
-      res.slice!(0,2) if comment_length % 2 == 1 # pad
-
-      name    = Rex::Text.to_ascii(name)
-      s_type  = Rex::Text.to_ascii(share_type(types[t]))
-      comment = Rex::Text.to_ascii(comment)
-
-      shares << [ name, s_type, comment ]
-    end
-
-    shares
   end
 
   def get_user_dirs(ip, share, base, sub_dirs)
@@ -444,13 +330,9 @@ class MetasploitModule < Msf::Auxiliary
       @smb_redirect = info[1]
 
       begin
-        connect
+        connect(versions: [2,1])
         smb_login
-        if @srvsvc
-          shares = srvsvc_netshareenum(ip)
-        else
-          shares = lanman_netshareenum(ip, rport, info)
-        end
+        shares = smb_netshareenumall
 
         os_info     = get_os_info(ip, rport)
         print_status(os_info) if os_info

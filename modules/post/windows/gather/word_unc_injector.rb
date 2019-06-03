@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,12 +14,10 @@ require 'zip'
 # Project
 #
 
-require 'msf/core'
 # for creating files
 require 'rex/zip'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
 
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Post
           OptAddress.new('SMBHOST',[true, 'Server IP or hostname that the .docx document points to']),
           OptString.new('FILE', [true, 'Remote file to inject UNC path into. ']),
           OptBool.new('BACKUP', [true, 'Make local backup of remote file.', true]),
-      ], self.class)
+      ])
   end
 
   #Store MACE values so we can set them later again.

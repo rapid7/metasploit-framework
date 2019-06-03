@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-5676'],
           ['US-CERT-VU', '856152'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-nvr-vulns.txt'],
-          ['URL', 'http://seclists.org/bugtraq/2016/Aug/45']
+          ['URL', 'https://seclists.org/bugtraq/2016/Aug/45']
         ],
       'DefaultTarget' => 0,
       'DisclosureDate' => 'Aug 4 2016'))
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true,  "Application path", '/']),
         OptString.new('USERNAME', [false, 'The username to login as', 'admin']),
         OptString.new('PASSWORD', [false, 'Password for the specified username', 'admin']),
-      ], self.class)
+      ])
   end
 
 

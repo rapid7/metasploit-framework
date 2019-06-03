@@ -1,0 +1,1090 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'io/console'
+require 'json'
+require 'net/http'
+require 'net/https'
+require 'open3'
+require 'optparse'
+require 'rex/socket'
+require 'rex/text'
+require 'securerandom'
+require 'uri'
+require 'yaml'
+
+include Rex::Text::Color
+
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msf/base/config'
+require 'msf/util/helper'
+
+@script_name = File.basename(__FILE__)
+@framework = File.expand_path(File.dirname(__FILE__))
+
+@localconf = Msf::Config.get_config_root
+@db = "#{@localconf}/db"
+@db_conf = "#{@localconf}/database.yml"
+
+@ws_tag = 'msf-ws'
+@ws_conf = File.join(@framework, "#{@ws_tag}.ru")
+@ws_ssl_key_default = "#{@localconf}/#{@ws_tag}-key.pem"
+@ws_ssl_cert_default = "#{@localconf}/#{@ws_tag}-cert.pem"
+@ws_log = "#{@localconf}/logs/#{@ws_tag}.log"
+@ws_pid = "#{@localconf}/#{@ws_tag}.pid"
+
+@current_user = ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER']
+@msf_ws_user = (@current_user || "msfadmin").to_s.strip
+@ws_generated_ssl = false
+@ws_api_token = nil
+
+@components = %w(database webservice)
+@environments = %w(production development)
+
+@options = {
+    component: :all,
+    debug: false,
+    msf_db_name: 'msf',
+    msf_db_user: 'msf',
+    msftest_db_name: 'msftest',
+    msftest_db_user: 'msftest',
+    db_port: 5433,
+    db_pool: 200,
+    address: 'localhost',
+    port: 5443,
+    ssl: true,
+    ssl_cert: @ws_ssl_cert_default,
+    ssl_key: @ws_ssl_key_default,
+    ssl_disable_verify: true,
+    ws_env: ENV['RACK_ENV'] || 'production',
+    retry_max: 10,
+    retry_delay: 5.0,
+    ws_user: nil,
+    add_data_service: true,
+    data_service_name: nil,
+    use_defaults: false,
+    delete_existing_data: true
+}
+
+def supports_color?
+  return true if Rex::Compat.is_windows
+  term = Rex::Compat.getenv('TERM')
+  term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil
+end
+
+class String
+  def bold
+    substitute_colors("%bld#{self}%clr")
+  end
+
+  def underline
+    substitute_colors("%und#{self}%clr")
+  end
+
+  def red
+    substitute_colors("%red#{self}%clr")
+  end
+
+  def green
+    substitute_colors("%grn#{self}%clr")
+  end
+
+  def blue
+    substitute_colors("%blu#{self}%clr")
+  end
+
+  def cyan
+    substitute_colors("%cya#{self}%clr")
+  end
+
+end
+
+
+def run_cmd(cmd, input: nil, env: {})
+  exitstatus = 0
+  err = out = ""
+
+  puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
+
+  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
+    stdin.puts(input) if input
+    if @options[:debug]
+      err = stderr.read
+      out = stdout.read
+    end
+    exitstatus = wait_thr.value.exitstatus
+  end
+
+  if exitstatus != 0
+    if @options[:debug]
+      puts "'#{cmd}' returned #{exitstatus}"
+      puts out
+      puts err
+    end
+  end
+
+  exitstatus
+end
+
+def run_psql(cmd, db_name: 'postgres')
+  if @options[:debug]
+    puts "psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
+  end
+
+  run_cmd("psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
+end
+
+def pw_gen
+  SecureRandom.base64(32)
+end
+
+def tail(file)
+  begin
+    File.readlines(file).last.to_s.strip
+  rescue
+    nil
+  end
+end
+
+def status_db
+  update_db_port
+
+  if Dir.exist?(@db)
+    if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+      puts "Database started at #{@db}"
+    else
+      puts "Database is not running at #{@db}"
+    end
+  else
+    puts "No database found at #{@db}"
+  end
+end
+
+def started_db
+  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+    puts "Database already started at #{@db}"
+    return true
+  end
+
+  print "Starting database at #{@db}..."
+  run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
+  sleep(2)
+  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
+    puts "#{'failed'.red.bold}"
+    false
+  else
+    puts "#{'success'.green.bold}"
+    true
+  end
+end
+
+def start_db
+  if !Dir.exist?(@db)
+    puts "No database found at #{@db}, not starting"
+    return
+  end
+
+  update_db_port
+
+  if !started_db
+    last_log = tail("#{@db}/log")
+    puts last_log
+    if last_log =~ /not compatible/
+      puts 'Please attempt to upgrade the database manually using pg_upgrade.'
+    end
+    print_error "Your database may be corrupt. Try reinitializing."
+  end
+end
+
+def stop_db
+  update_db_port
+
+  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+    puts "Stopping database at #{@db}"
+    run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} stop")
+  else
+    puts "Database is no longer running at #{@db}"
+  end
+end
+
+def restart_db
+  stop_db
+  start_db
+end
+
+def create_db
+  puts "Creating database at #{@db}"
+  Dir.mkdir(@db)
+  run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
+
+  File.open("#{@db}/postgresql.conf", 'a') do |f|
+    f.puts "port = #{@options[:db_port]}"
+  end
+end
+
+def init_db
+  if Dir.exist?(@db)
+    puts "Found a database at #{@db}, checking to see if it is started"
+    start_db
+    return
+  end
+
+  if File.exist?(@db_conf) && !@options[:delete_existing_data]
+    if !load_db_config
+      puts "Failed to load existing database config. Please reinit and overwrite the file."
+      return
+    end
+  else
+    write_db_config
+  end
+
+  create_db
+  start_db
+
+  puts 'Creating database users'
+  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+  run_psql("alter role #{@options[:msf_db_user]} createdb")
+  run_psql("alter role #{@options[:msftest_db_user]} createdb")
+  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
+          input: "#{@msf_pass}\n#{@msf_pass}\n")
+  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
+          input: "#{@msftest_pass}\n#{@msftest_pass}\n")
+
+  write_db_client_auth_config
+  restart_db
+
+  puts 'Creating initial database schema'
+  Dir.chdir(@framework) do
+    run_cmd('bundle exec rake db:migrate')
+  end
+end
+
+def load_db_config
+  if File.file?(@db_conf)
+    config = YAML.load(File.read(@db_conf))
+
+    production = config['production']
+    if production.nil?
+      puts "No production section found in database config #{@db_conf}."
+      return false
+    end
+
+    test = config['test']
+    if test.nil?
+      puts "No test section found in database config #{@db_conf}."
+      return false
+    end
+
+    # get values for development and production
+    @options[:msf_db_name] = production['database']
+    @options[:msf_db_user] = production['username']
+    @msf_pass = production['password']
+    @options[:db_port] = production['port']
+    @options[:db_pool] = production['pool']
+
+    # get values for test
+    @options[:msftest_db_name] = test['database']
+    @options[:msftest_db_user] = test['username']
+    @msftest_pass = test['password']
+    return true
+  end
+
+  return false
+end
+
+def write_db_config
+  # Generate new database passwords if not already assigned
+  @msf_pass ||= pw_gen
+  @msftest_pass ||= pw_gen
+
+  # Write a default database config file
+  Dir.mkdir(@localconf) unless File.directory?(@localconf)
+  File.open(@db_conf, 'w') do |f|
+    f.puts <<~EOF
+      development: &pgsql
+        adapter: postgresql
+        database: #{@options[:msf_db_name]}
+        username: #{@options[:msf_db_user]}
+        password: #{@msf_pass}
+        host: 127.0.0.1
+        port: #{@options[:db_port]}
+        pool: #{@options[:db_pool]}
+
+      production: &production
+        <<: *pgsql
+
+      test:
+        <<: *pgsql
+        database: #{@options[:msftest_db_name]}
+        username: #{@options[:msftest_db_user]}
+        password: #{@msftest_pass}
+    EOF
+  end
+
+  File.chmod(0640, @db_conf)
+end
+
+def write_db_client_auth_config
+  client_auth_config = "#{@db}/pg_hba.conf"
+  puts "Writing client authentication configuration file #{client_auth_config}"
+  File.open(client_auth_config, 'w') do |f|
+    f.puts "host    \"#{@options[:msf_db_name]}\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
+    f.puts "host    \"#{@options[:msftest_db_name]}\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
+    f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
+    f.puts "host    \"template1\"   all                127.0.0.1/32           trust"
+    if Gem.win_platform?
+      f.puts "host    all             all                127.0.0.1/32           trust"
+      f.puts "host    all             all                ::1/128                trust"
+    else
+      f.puts "local   all             all                                       trust"
+    end
+  end
+end
+
+def update_db_port
+  if File.file?(@db_conf)
+    config = YAML.load(File.read(@db_conf))
+    if config["production"] && config["production"]["port"]
+      port = config["production"]["port"]
+      if port != @options[:db_port]
+        puts "Using database port #{port} found in #{@db_conf}"
+        @options[:db_port] = port
+      end
+    end
+  end
+end
+
+def ask_yn(question)
+  loop do
+    print "#{'[?]'.blue.bold} #{question}: "
+    yn = STDIN.gets
+    case yn
+    when /^[Yy]/
+      return true
+    when /^[Nn]/
+      return false
+    else
+      puts 'Please answer yes or no.'
+    end
+  end
+end
+
+def ask_value(question, default_value)
+  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
+  input = STDIN.gets.strip
+  if input.nil? || input.empty?
+    return default_value
+  else
+    return input
+  end
+end
+
+def ask_password(question)
+  print "#{'[?]'.blue.bold} #{question}: "
+  input = STDIN.noecho(&:gets).chomp
+  print "\n"
+  if input.nil? || input.empty?
+    return pw_gen
+  else
+    return input
+  end
+end
+
+def print_error(error)
+  puts "#{'[!]'.red.bold} #{error}"
+end
+
+def delete_db
+  if Dir.exist?(@db)
+    stop_db
+
+    if @options[:delete_existing_data]
+      puts "Deleting all data at #{@db}"
+      FileUtils.rm_rf(@db)
+    end
+
+    if @options[:delete_existing_data]
+      File.delete(@db_conf)
+    end
+  else
+    puts "No data at #{@db}, doing nothing"
+  end
+end
+
+def reinit_db
+  delete_db
+  init_db
+end
+
+class WebServicePIDStatus
+  RUNNING = 0
+  INACTIVE = 1
+  NO_PID_FILE = 2
+end
+
+def web_service_pid
+  File.file?(@ws_pid) ? tail(@ws_pid) : nil
+end
+
+def web_service_pid_status
+  if File.file?(@ws_pid)
+    ws_pid = tail(@ws_pid)
+    if ws_pid.nil? || !process_active?(ws_pid.to_i)
+      WebServicePIDStatus::INACTIVE
+    else
+      WebServicePIDStatus::RUNNING
+    end
+  else
+    WebServicePIDStatus::NO_PID_FILE
+  end
+end
+
+def status_web_service
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::NO_PID_FILE
+    puts "MSF web service is not running: no PID file found at #{@ws_pid}"
+  end
+end
+
+def init_web_service
+  if web_service_pid_status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{web_service_pid}"
+    return false
+  end
+
+  unless @options[:use_defaults]
+    if @options[:ws_user].nil?
+      @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
+    else
+      @msf_ws_user = @options[:ws_user]
+    end
+  end
+
+  if @options[:use_defaults]
+    @msf_ws_pass = pw_gen
+  elsif @options[:ws_pass].nil?
+    @msf_ws_pass = ask_password('Initial MSF web service account password? (Leave blank for random password)')
+  else
+    @msf_ws_pass = @options[:ws_pass]
+  end
+
+  if should_generate_web_service_ssl && @options[:delete_existing_data]
+    generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
+  end
+
+  if start_web_service(expect_auth: false)
+    if add_web_service_workspace && add_web_service_user
+      output_web_service_information
+    else
+      puts 'Failed to complete MSF web service configuration, please reinitialize.'
+      stop_web_service
+    end
+  end
+end
+
+def start_web_service(expect_auth: true)
+  unless File.file?(@ws_conf)
+    puts "No MSF web service configuration found at #{@ws_conf}, not starting"
+    return false
+  end
+
+  # check if MSF web service is already started
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{ws_pid}"
+    return false
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
+    puts "Deleting MSF web service PID file #{@ws_pid}"
+    File.delete(@ws_pid)
+  end
+
+  # daemonize MSF web service
+  print 'Attempting to start MSF web service...'
+  if run_cmd("#{thin_cmd} start") == 0
+    # wait until web service is online
+    retry_count = 0
+    response_data = web_service_online_check(expect_auth: expect_auth)
+    is_online = response_data[:state] != :offline
+    while !is_online && retry_count < @options[:retry_max]
+      retry_count += 1
+      if @options[:debug]
+        puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
+      end
+      sleep(@options[:retry_delay])
+      response_data = web_service_online_check(expect_auth: expect_auth)
+      is_online = response_data[:state] != :offline
+    end
+
+      if response_data[:state] == :online
+      puts "#{'success'.green.bold}"
+      puts 'MSF web service started and online'
+      return true
+      elsif response_data[:state] == :error
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service appears to be started, but may not operate as expected.'
+      puts "#{response_data[:message]}"
+      else
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service does not appear to be started.'
+    end
+    puts "Please see #{@ws_log} for additional details."
+    return false
+  else
+    puts "#{'failed'.red.bold}"
+    puts 'Failed to start MSF web service'
+    return false
+  end
+end
+
+def stop_web_service
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "Stopping MSF web service PID #{ws_pid}"
+    run_cmd("#{thin_cmd} stop")
+  else
+    puts 'MSF web service is no longer running'
+    if status == WebServicePIDStatus::INACTIVE
+      puts "Deleting MSF web service PID file #{@ws_pid}"
+      File.delete(@ws_pid)
+    end
+  end
+end
+
+def restart_web_service
+  stop_web_service
+  start_web_service
+end
+
+def delete_web_service
+  stop_web_service
+
+  File.delete(@ws_pid) if web_service_pid_status == WebServicePIDStatus::INACTIVE
+  if @options[:delete_existing_data]
+    File.delete(@options[:ssl_key]) if File.file?(@options[:ssl_key])
+    File.delete(@options[:ssl_cert]) if File.file?(@options[:ssl_cert])
+  end
+end
+
+def reinit_web_service
+  delete_web_service
+  init_web_service
+end
+
+def generate_web_service_ssl(key:, cert:)
+  @ws_generated_ssl = true
+  if (File.file?(key) || File.file?(cert)) && !@options[:delete_existing_data]
+    return
+  end
+
+  puts 'Generating SSL key and certificate for MSF web service'
+  @ssl_key, @ssl_cert, @ssl_extra_chain_cert = Rex::Socket::Ssl.ssl_generate_certificate
+
+  # write PEM format key and certificate
+  mode = 'wb'
+  mode_int = 0600
+  File.open(key, mode) { |f| f.write(@ssl_key.to_pem) }
+  File.chmod(mode_int, key)
+
+  File.open(cert, mode) { |f| f.write(@ssl_cert.to_pem) }
+  File.chmod(mode_int, cert)
+end
+
+def web_service_online_check(expect_auth:)
+  msf_version_uri = get_web_service_uri(path: '/api/v1/msf/version')
+  response_data = http_request(uri: msf_version_uri, method: :get,
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+
+  if !response_data[:exception].nil? && response_data[:exception].is_a?(Errno::ECONNREFUSED)
+    response_data[:state] = :offline
+  elsif !response_data[:exception].nil? && response_data[:exception].is_a?(OpenSSL::OpenSSLError)
+    response_data[:state] = :error
+    response_data[:message] = 'Detected an SSL issue. Please set the same options used to initialize the web service or reinitialize.'
+  elsif !response_data[:response].nil? && response_data[:response].dig(:error, :code) == 401
+    if expect_auth
+      response_data[:state] = :online
+    else
+      response_data[:state] = :error
+      response_data[:message] = 'MSF web service expects authentication. If you wish to reinitialize the web service account you will need to reinitialize the database.'
+    end
+  elsif !response_data[:response].nil? && !response_data[:response].dig(:data, :metasploit_version).nil?
+    response_data[:state] = :online
+  else
+    response_data[:state] = :error
+  end
+
+  puts "web_service_online: expect_auth=#{expect_auth}, response_msg=#{response_data}" if @options[:debug]
+  response_data
+end
+
+def add_web_service_workspace(name: 'default')
+  # Send request to create new workspace
+  workspace_data = { name: name }
+  workspaces_uri = get_web_service_uri(path: '/api/v1/workspaces')
+  response_data = http_request(uri: workspaces_uri, data: workspace_data, method: :post,
+                               skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
+  puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
+  if response.nil? || response.dig(:data, :name) != name
+    print_error "Error creating MSF web service workspace '#{name}'"
+    return false
+  end
+  return true
+end
+
+def add_web_service_user
+  puts "Creating MSF web service user #{@msf_ws_user}"
+
+  # Generate new web service user password
+  cred_data = { username: @msf_ws_user, password: @msf_ws_pass }
+
+  # Send request to create new admin user
+  user_data = cred_data.merge({ admin: true })
+  user_uri = get_web_service_uri(path: '/api/v1/users')
+  response_data = http_request(uri: user_uri, data: user_data, method: :post,
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
+  puts "add_web_service_user: create user response=#{response}" if @options[:debug]
+  if response.nil? || response.dig(:data, :username) != @msf_ws_user
+    print_error "Error creating MSF web service user #{@msf_ws_user}"
+    return false
+  end
+
+  puts "\n#{'    ############################################################'.cyan}"
+  print "#{'    ##              '.cyan}"
+  print"#{'MSF Web Service Credentials'.cyan.bold.underline}"
+  puts"#{'               ##'.cyan}"
+  puts "#{'    ##                                                        ##'.cyan}"
+  puts "#{'    ##        Please store these credentials securely.        ##'.cyan}"
+  puts "#{'    ##    You will need them to connect to the webservice.    ##'.cyan}"
+  puts "#{'    ############################################################'.cyan}"
+
+  puts "\n#{'MSF web service username'.cyan.bold}: #{@msf_ws_user}"
+  puts "#{'MSF web service password'.cyan.bold}: #{@msf_ws_pass}"
+
+  # Send request to create new API token for the user
+  generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
+  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
+  puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
+  if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
+    print_error "Error creating MSF web service user API token"
+    return false
+  end
+  puts "#{'MSF web service user API token'.cyan.bold}: #{@ws_api_token}"
+  return true
+end
+
+def output_web_service_information
+  puts "\n\n"
+  puts 'MSF web service configuration complete'
+  if @options[:add_data_service]
+    data_service_name = @options[:data_service_name] || "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+    puts "The web service has been configured as your default data service in msfconsole with the name \"#{data_service_name}\""
+  else
+    puts "No data service has been configured in msfconsole."
+  end
+  puts ''
+  puts 'If needed, manually reconnect to the data service in msfconsole using the command:'
+  puts "#{get_db_connect_command}"
+  puts ''
+  puts 'The username and password are credentials for the API account:'
+  puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
+  puts ''
+
+  persist_data_service
+end
+
+def persist_data_service
+  data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+  if !@options[:add_data_service]
+    return
+  elsif !@options[:data_service_name].nil?
+    data_service_name = @options[:data_service_name]
+  end
+
+  # execute msfconsole commands to add and persist the data service connection
+  connect_cmd = get_db_connect_command(name: data_service_name)
+  cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
+  if run_cmd(cmd) != 0
+    # attempt to execute msfconsole in the current working directory
+    if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+      puts 'Failed to run msfconsole and persist the data service connection'
+    end
+  end
+
+end
+
+def get_db_connect_command(name: nil)
+  # build db_connect command based on install options
+  connect_cmd = "db_connect"
+  connect_cmd << " --name #{name}" unless name.nil?
+  connect_cmd << " --token #{@ws_api_token}"
+  connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
+  connect_cmd << " --skip-verify" if skip_ssl_verify?
+  connect_cmd << " #{get_web_service_uri}"
+  connect_cmd
+end
+
+def get_web_service_uri(path: nil)
+  uri_class = @options[:ssl] ? URI::HTTPS : URI::HTTP
+  uri_class.build({host: get_web_service_host, port: @options[:port], path: path})
+end
+
+def get_web_service_host
+  # user specified any address INADDR_ANY (0.0.0.0), return a routable address
+  @options[:address] == '0.0.0.0' ? 'localhost' : @options[:address]
+end
+
+def skip_ssl_verify?
+  @ws_generated_ssl || @options[:ssl_disable_verify]
+end
+
+def get_ssl_cert
+  @options[:ssl] ? @options[:ssl_cert] : nil
+end
+
+def thin_cmd
+  server_opts = "--rackup #{@ws_conf} --address #{@options[:address]} --port #{@options[:port]}"
+  ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key]} --ssl-cert-file #{@options[:ssl_cert]}" : ''
+  ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify?
+  adapter_opts = "--environment #{@options[:ws_env]}"
+  daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}"
+  all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:empty?).join(' ')
+
+  "thin #{all_opts}"
+end
+
+def process_active?(pid)
+  begin
+    Process.kill(0, pid)
+    true
+  rescue Errno::ESRCH
+    false
+  end
+end
+
+def http_request(uri:, query: nil, data: nil, method: :get, headers: nil, skip_verify: false, cert: nil)
+  all_headers = { 'User-Agent': @script_name }
+  all_headers.merge!(headers) unless headers.nil?
+  query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(query.compact) : nil
+  uri.query = query_str
+
+  http = Net::HTTP.new(uri.host, uri.port)
+  if uri.is_a?(URI::HTTPS)
+    http.use_ssl = true
+    if skip_verify
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    else
+      # https://stackoverflow.com/questions/22093042/implementing-https-certificate-pubkey-pinning-with-ruby
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      user_passed_cert = OpenSSL::X509::Certificate.new(File.read(cert))
+
+      http.verify_callback = lambda do |preverify_ok, cert_store|
+        server_cert = cert_store.chain[0]
+        return true unless server_cert.to_der == cert_store.current_cert.to_der
+        same_public_key?(server_cert, user_passed_cert)
+      end
+    end
+  end
+
+  begin
+    response_data = { response: nil }
+    case method
+      when :get
+        request = Net::HTTP::Get.new(uri.request_uri, initheader=all_headers)
+      when :post
+        request = Net::HTTP::Post.new(uri.request_uri, initheader=all_headers)
+      else
+        raise Exception, "Request method #{method} is not handled"
+    end
+
+    request.content_type = 'application/json'
+    unless data.nil?
+      json_body = data.to_json
+      request.body = json_body
+    end
+
+    response = http.request(request)
+    unless response.body.nil? || response.body.empty?
+      response_data[:response] = JSON.parse(response.body, symbolize_names: true)
+    end
+  rescue => e
+    response_data[:exception] = e
+    puts "Problem with HTTP #{method} request #{uri.request_uri}, message: #{e.message}" if @options[:debug]
+  end
+
+  response_data
+end
+
+# Tells us whether the private keys on the passed certificates match
+# and use the same algo
+def same_public_key?(ref_cert, actual_cert)
+  pkr, pka = ref_cert.public_key, actual_cert.public_key
+
+  # First check if the public keys use the same crypto...
+  return false unless pkr.class == pka.class
+  # ...and then - that they have the same contents
+  return false unless pkr.to_pem == pka.to_pem
+
+  true
+end
+
+def parse_args(args)
+  subtext = <<~USAGE
+    Commands:
+      init     initialize the component
+      reinit   delete and reinitialize the component
+      delete   delete and stop the component
+      status   check component status
+      start    start the component
+      stop     stop the component
+      restart  restart the component
+  USAGE
+
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: #{@script_name} [options] <command>"
+    opts.separator('Manage a Metasploit Framework database and web service')
+    opts.separator('')
+    opts.separator('General Options:')
+    opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: all)',
+            "  (#{@components.join(', ')})") { |component|
+      @options[:component] = component.to_sym
+    }
+
+    opts.on('-d', '--debug', 'Enable debug output') { |d| @options[:debug] = d }
+    opts.on('-h', '--help', 'Show this help message') {
+      puts opts
+      exit
+    }
+    opts.on('--use-defaults', 'Accept all defaults and do not prompt for options during an init') { |d|
+      @options[:use_defaults] = d
+    }
+
+    opts.separator('')
+    opts.separator('Database Options:')
+    opts.on('--msf-db-name NAME', "Database name (default: #{@options[:msf_db_name]})") { |n|
+      @options[:msf_db_name] = n
+    }
+
+    opts.on('--msf-db-user-name USER', "Database username (default: #{@options[:msf_db_user]})") { |u|
+      @options[:msf_db_user] = u
+    }
+
+    opts.on('--msf-test-db-name NAME', "Test database name (default: #{@options[:msftest_db_name]})") { |n|
+      @options[:msftest_db_name] = n
+    }
+
+    opts.on('--msf-test-db-user-name USER', "Test database username (default: #{@options[:msftest_db_user]})") { |u|
+      @options[:msftest_db_user] = u
+    }
+
+    opts.on('--db-port PORT', Integer, "Database port (default: #{@options[:db_port]})") { |p|
+      @options[:db_port] = p
+    }
+
+    opts.on('--db-pool MAX', Integer, "Database connection pool size (default: #{@options[:db_pool]})") { |m|
+      @options[:db_pool] = m
+    }
+
+    opts.separator('')
+    opts.separator('Web Service Options:')
+    opts.on('-a', '--address ADDRESS',
+            "Bind to host address (default: #{@options[:address]})") { |a|
+      @options[:address] = a
+    }
+
+    opts.on('-p', '--port PORT', Integer,
+            "Web service port (default: #{@options[:port]})") { |p|
+      @options[:port] = p
+    }
+
+    opts.on('--[no-]ssl', "Enable SSL (default: #{@options[:ssl]})") { |s| @options[:ssl] = s }
+
+    opts.on('--ssl-key-file PATH', "Path to private key (default: #{@options[:ssl_key]})") { |p|
+      @options[:ssl_key] = p
+    }
+
+    opts.on('--ssl-cert-file PATH', "Path to certificate (default: #{@options[:ssl_cert]})") { |p|
+      @options[:ssl_cert] = p
+    }
+
+    opts.on('--[no-]ssl-disable-verify',
+            "Disables (optional) client cert requests (default: #{@options[:ssl_disable_verify]})") { |v|
+      @options[:ssl_disable_verify] = v
+    }
+
+    opts.on('--environment ENV', @environments,
+            "Web service framework environment (default: #{@options[:ws_env]})",
+            "  (#{@environments.join(', ')})") { |e|
+      @options[:ws_env] = e
+    }
+
+    opts.on('--retry-max MAX', Integer,
+            "Maximum number of web service connect attempts (default: #{@options[:retry_max]})") { |m|
+      @options[:retry_max] = m
+    }
+
+    opts.on('--retry-delay DELAY', Float,
+            "Delay in seconds between web service connect attempts (default: #{@options[:retry_delay]})") { |d|
+      @options[:retry_delay] = d
+    }
+
+    opts.on('--user USER', 'Initial web service admin username') { |u|
+      @options[:ws_user] = u
+    }
+
+    opts.on('--pass PASS', 'Initial web service admin password') { |p|
+      @options[:ws_pass] = p
+    }
+
+    opts.on('--[no-]msf-data-service NAME', 'Local msfconsole data service connection name') { |n|
+      if !n
+        @options[:add_data_service] = false
+      else
+        @options[:data_service_name] = n
+      end
+    }
+
+    opts.separator('')
+    opts.separator(subtext)
+  end
+
+  parser.parse!(args)
+
+  if args.length != 1
+    puts parser
+    abort
+  end
+
+  @options
+end
+
+def invoke_command(commands, component, command)
+  method = commands[component][command]
+  if !method.nil?
+    send(method)
+  else
+    print_error "Error: unrecognized command '#{command}' for #{component}"
+  end
+end
+
+def has_requirements
+  ret_val = true
+  postgresql_cmds = %w(psql pg_ctl initdb createdb)
+  other_cmds = %w(bundle thin)
+  missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
+
+  postgresql_cmds.each do |cmd|
+    next unless Msf::Util::Helper.which(cmd).nil?
+    puts missing_msg % { name: 'PostgreSQL', prog: cmd }
+    ret_val = false
+  end
+
+  other_cmds.each do |cmd|
+    if Msf::Util::Helper.which(cmd).nil?
+      puts missing_msg % { name: "'#{cmd}'", prog: cmd }
+      ret_val = false
+    end
+  end
+
+  ret_val
+end
+
+
+def should_generate_web_service_ssl
+  @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
+      (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+end
+
+def prompt_for_deletion(command)
+  destructive_operations = [:init, :reinit, :delete]
+
+  if destructive_operations.include? command
+    if command == :init
+      return if web_service_pid_status != WebServicePIDStatus::NO_PID_FILE
+      if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
+          (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
+        @options[:delete_existing_data] = should_delete
+        return
+      end
+      if (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
+        @options[:delete_existing_data] = should_delete
+        return
+      end
+    else
+      @options[:delete_existing_data] = should_delete
+    end
+  end
+end
+
+
+def should_delete
+  return true if @options[:use_defaults]
+  ask_yn("Would you like to delete your existing data and configurations?")
+end
+
+
+if $PROGRAM_NAME == __FILE__
+  # Bomb out if we're root
+  if !Gem.win_platform? && Process.uid.zero?
+    puts "Please run #{@script_name} as a non-root user"
+    abort
+  end
+
+  unless has_requirements
+    abort
+  end
+
+  # map component commands to methods
+  commands = {
+      database: {
+          init: :init_db,
+          reinit: :reinit_db,
+          delete: :delete_db,
+          status: :status_db,
+          start: :start_db,
+          stop: :stop_db,
+          restart: :restart_db
+      },
+      webservice: {
+          init: :init_web_service,
+          reinit: :reinit_web_service,
+          delete: :delete_web_service,
+          status: :status_web_service,
+          start: :start_web_service,
+          stop: :stop_web_service,
+          restart: :restart_web_service
+      }
+  }
+
+  parse_args(ARGV)
+
+  command = ARGV[0].to_sym
+  prompt_for_deletion(command)
+  if @options[:component] == :all
+    @components.each { |component|
+      invoke_command(commands, component.to_sym, command)
+    }
+  else
+    invoke_command(commands, @options[:component], command)
+  end
+end

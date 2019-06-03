@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
-
 
 class MetasploitModule < Msf::Post
 
@@ -32,12 +29,12 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('REVERT', [false, "Enable this option to revert the in-memory patch and enable locking again", false])
-    ], self.class)
+    ])
 
   end
 
   def unsupported
-    print_error("This version of Meterpreter is not supported with this Script!")
+    print_error("This platform is not supported with this Script!")
     raise Rex::Script::Completed
   end
 
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Post
       { :sig => "8bff558bec83ec50a1",       :sigoffset => 0x97d3, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x9878, :os => /Windows XP.*Service Pack 3 - spanish/ }
     ]
 
-    unsupported if client.platform !~ /win32|win64/i
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
     os = client.sys.config.sysinfo['OS']
 
     targets.each do |t|
@@ -94,5 +91,4 @@ class MetasploitModule < Msf::Post
 
     print_error("No working target found")
   end
-
 end

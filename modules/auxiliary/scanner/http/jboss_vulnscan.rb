@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'                  => 'JBoss Vulnerability Scanner',
       'Description'           => %q(
-        This module scans a JBoss instance for a few vulnerablities.
+        This module scans a JBoss instance for a few vulnerabilities.
       ),
       'Author'                =>
         [
@@ -24,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'            =>
         [
-          [ 'CVE', '2010-0738' ] # VERB auth bypass
+          [ 'CVE', '2010-0738' ], # VERB auth bypass
+          [ 'CVE', '2017-12149' ]
         ],
       'License'               => BSD_LICENSE
       ))
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -54,11 +54,13 @@ class MetasploitModule < Msf::Auxiliary
 
       apps = [
         '/jmx-console/HtmlAdaptor',
+        '/jmx-console/checkJNDI.jsp',
         '/status',
         '/web-console/ServerInfo.jsp',
         # apps added per Patrick Hof
         '/web-console/Invoker',
-        '/invoker/JMXInvokerServlet'
+        '/invoker/JMXInvokerServlet',
+        '/invoker/readonly'
       ]
 
       print_status("#{rhost}:#{rport} Checking http...")
@@ -89,25 +91,30 @@ class MetasploitModule < Msf::Auxiliary
       'ctype'     => 'text/plain'
     })
 
-    if res
-      case
-      when res.code == 200
-        print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
-      when res.code == 403
-        print_status("#{rhost}:#{rport} #{app} restricted (403)")
-      when res.code == 401
-        print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
-        bypass_auth(app)
-        basic_auth_default_creds(app)
-      when res.code == 404
-        print_status("#{rhost}:#{rport} #{app} not found (404)")
-      when res.code == 301, res.code == 302
-        print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
-      else
-        print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
-      end
-    else
+
+
+    unless res
       print_status("#{rhost}:#{rport} #{app} not found")
+      return
+    end
+
+    case
+    when res.code == 200
+      print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
+    when res.code == 403
+      print_status("#{rhost}:#{rport} #{app} restricted (403)")
+    when res.code == 401
+      print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      bypass_auth(app)
+      basic_auth_default_creds(app)
+    when res.code == 404
+      print_status("#{rhost}:#{rport} #{app} not found (404)")
+    when res.code == 301, res.code == 302
+      print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+    when res.code == 500 && app == "/invoker/readonly"
+      print_good("#{rhost}:#{rport} #{app} responded (#{res.code})")
+    else
+      print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
     end
   end
 
@@ -187,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bypass_auth(app)
-    print_status("#{rhost}:#{rport} Check for verb tampering (HEAD)")
+    print_status("#{rhost}:#{rport} Check for verb tampering (#{datastore['VERB']})")
 
     res = send_request_raw({
       'uri'       => app,

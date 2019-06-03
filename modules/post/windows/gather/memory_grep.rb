@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -11,7 +9,7 @@ class MetasploitModule < Msf::Post
     super( update_info(info,
       'Name'           => 'Windows Gather Process Memory Grep',
       'Description'    => %q{
-          This module allows for searching the memory space of a proccess for potentially
+          This module allows for searching the memory space of a process for potentially
         sensitive data.  Please note: When the HEAP option is enabled, the module will have
         to migrate to the process you are grepping, and will not migrate back automatically.
         This means that if the user terminates the application after using this module, you
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Post
       OptString.new('PROCESS', [true,  'Name of the process to dump memory from', nil]),
       OptRegexp.new('REGEX',   [true,  'Regular expression to search for with in memory', nil]),
       OptBool.new('HEAP',      [false, 'Grep from heap', false])
-    ], self.class)
+    ])
   end
 
   def get_data_from_stack(target_pid)

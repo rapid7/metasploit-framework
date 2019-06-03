@@ -16,13 +16,13 @@ module Rex
           #   @return [String] The client's Windows 2000 user name
           attr_accessor :effective_name
           # @!attribute user_id
-          #   @return [Fixnum] The relative ID for the client
+          #   @return [Integer] The relative ID for the client
           attr_accessor :user_id
           # @!attribute primary_group_id
-          #   @return [Fixnum] The relative ID for the client's primary group
+          #   @return [Integer] The relative ID for the client's primary group
           attr_accessor :primary_group_id
           # @!attribute group_ids
-          #   @return [Array<Fixnum>] Array of relative Ids of the groups which the client is a member
+          #   @return [Array<Integer>] Array of relative Ids of the groups which the client is a member
           attr_accessor :group_ids
           # @!attribute logon_domain_name
           #   @return [String] The netbios name of the client's domain

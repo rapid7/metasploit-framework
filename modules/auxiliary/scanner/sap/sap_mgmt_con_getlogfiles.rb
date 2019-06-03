@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,9 +37,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('RFILE', [ true, 'The name of the file to download ', 'sapstart.log']),
         OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']]),
         OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false])
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

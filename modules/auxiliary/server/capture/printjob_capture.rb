@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -25,36 +22,29 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      =>     ['Chris John Riley', 'todb'],
       'License'     =>     MSF_LICENSE,
-      'References'    =>
+      'References'  =>
       [
         # Based on previous prn-2-me tool (Python)
         ['URL', 'http://blog.c22.cc/toolsscripts/prn-2-me/'],
         # Readers for resulting PCL/PC
         ['URL', 'http://www.ghostscript.com']
       ],
-        'Actions'     =>
-      [
-        [ 'Capture' ]
-      ],
-        'PassiveActions' =>
-      [
-        'Capture'
-      ],
-        'DefaultAction'  => 'Capture'
+      'Actions'        => [[ 'Capture' ]],
+      'PassiveActions' => ['Capture'],
+      'DefaultAction'  => 'Capture'
     )
 
     register_options([
-      OptPort.new('SRVPORT',      [ true, 'The local port to listen on', 9100 ]),
-      OptBool.new('FORWARD',      [ true, 'Forward print jobs to another host', false ]),
-      OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
-      OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
-      OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
-      OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
+      OptPort.new('SRVPORT',  [ true, 'The local port to listen on', 9100 ]),
+      OptBool.new('FORWARD',  [ true, 'Forward print jobs to another host', false ]),
+      OptAddress.new('RHOST', [ false, 'Forward to remote host' ]),
+      OptPort.new('RPORT',    [ false, 'Forward to remote port', 9100 ]),
+      OptBool.new('METADATA', [ true, 'Display Metadata from printjobs', true ]),
+      OptEnum.new('MODE',     [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
 
-    ], self.class)
+    ])
 
-    deregister_options('SSL', 'SSLVersion', 'SSLCert')
-
+    deregister_options('SSL', 'SSLVersion', 'SSLCert', 'RHOSTS')
   end
 
   def setup
@@ -66,21 +56,20 @@ class MetasploitModule < Msf::Auxiliary
       @srvhost = datastore['SRVHOST']
       @srvport = datastore['SRVPORT'] || 9100
       @mode = datastore['MODE'].upcase || 'RAW'
-      print_status("Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
       if datastore['FORWARD']
         @forward = datastore['FORWARD']
         @rport = datastore['RPORT'] || 9100
-        if not datastore['RHOST'].nil?
-          @rhost = datastore['RHOST']
-          print_status("Forwarding all printjobs to #{@rhost}:#{@rport}")
-        else
-          raise ArgumentError, "Cannot forward without a valid RHOST"
+        if datastore['RHOST'].nil?
+          fail_with(Failure::BadConfig, "Cannot forward without a valid RHOST")
         end
+        @rhost = datastore['RHOST']
+        print_status("Forwarding all printjobs to #{@rhost}:#{@rport}")
       end
       if not @mode == 'RAW' and not @forward
-        raise ArgumentError, "Cannot intercept LPR/IPP without a forwarding target"
+        fail_with(Failure::BadConfig, "Cannot intercept LPR/IPP without a forwarding target")
       end
       @metadata = datastore['METADATA']
+      print_status("Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
 
       exploit()
 
@@ -148,7 +137,6 @@ class MetasploitModule < Msf::Auxiliary
         #extract everything between PCL start and end markers (various)
         @state[c][:raw_data] = Array(@state[c][:data].unpack("H*")[0].match(/((1b45|1b25|1b26).*(1b45|1b252d313233343558))/i)[0]).pack("H*")
       end
-
       # extract Postsript Metadata
       metadata_ps(c) if @state[c][:data] =~ /^%%/i
 
@@ -158,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       # extract IPP Metadata
       metadata_ipp(c) if @state[c][:data] =~ /POST \/ipp/i or @state[c][:data] =~ /application\/ipp/i
 
-      if not @state[c][:prn_type]
+      if @state[c][:prn_type].empty?
         print_error("Unable to detect printjob type, dumping complete output")
         @state[c][:prn_type] = "Unknown Type"
         @state[c][:raw_data] = @state[c][:data]
@@ -175,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       # set name to unknown if not discovered via Metadata
-      @state[c][:prn_title] = 'Unnamed' if not @state[c][:prn_title]
+      @state[c][:prn_title] = 'Unnamed' if @state[c][:prn_title].empty?
 
       #store loot
       storefile(c) if not @state[c][:raw_data].empty?
@@ -273,5 +261,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Loot filename: %s" % loot)
     end
   end
-
 end

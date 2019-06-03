@@ -1,9 +1,7 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
@@ -19,6 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
+          ['CVE','2014-4863'],
           ['URL', 'https://community.rapid7.com/community/metasploit/blog/2014/08/21/more-snmp-information-leaks-cve-2014-4862-and-cve-2014-4863']
         ],
       'Author'      => ['Deral "Percent_X" Heiland'],
@@ -132,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = 'arris_wifi.text'
     loot_desc     = 'Arris DG950A Wifi configuration data'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], wifi_info, loot_filename, loot_desc)
-    print_status("WIFI Data saved in: #{p}")
+    print_good("WiFi Data saved in: #{p}")
   # No need to make noise
   rescue ::SNMP::UnsupportedVersion
   rescue ::SNMP::RequestTimeout

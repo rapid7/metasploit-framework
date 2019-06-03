@@ -106,12 +106,7 @@ module Msf::Post::Windows::Priv
   #
   def is_system?
     if session_has_ext
-      local_sys = resolve_sid(SYSTEM_SID)
-      if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
-        return true
-      else
-        return false
-      end
+      return session.sys.config.is_system?
     else
       results = registry_enumkeys('HKLM\SAM\SAM')
       if results
@@ -132,7 +127,7 @@ module Msf::Post::Windows::Priv
     uac = false
     winversion = session.sys.config.sysinfo['OS']
 
-    if winversion =~ /Windows (Vista|7|8|2008|2012|10)/
+    if winversion =~ /Windows (Vista|7|8|2008|2012|10|2016|2019)/
       unless is_system?
         begin
           enable_lua = registry_getvaldata(
@@ -194,7 +189,7 @@ module Msf::Post::Windows::Priv
   #
   def is_high_integrity?
     il = get_integrity_level
-    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SIDE[:system])
+    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SID[:system])
   end
 
   #
@@ -313,7 +308,7 @@ module Msf::Post::Windows::Priv
         md5x << pol[60,16]
       end
 
-      rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+      rc4 = OpenSSL::Cipher.new("rc4")
       rc4.key = md5x.digest
       lsa_key  = rc4.update(pol[12,48])
       lsa_key << rc4.final
@@ -363,7 +358,7 @@ module Msf::Post::Windows::Priv
       sha256x << policy_secret[28,32]
     end
 
-    aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+    aes = OpenSSL::Cipher.new("aes-256-cbc")
     aes.key = sha256x.digest
 
     vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
@@ -396,7 +391,7 @@ module Msf::Post::Windows::Priv
       enc_block = secret[i..i+7]
       block_key = key[j..j+6]
       des_key = convert_des_56_to_64(block_key)
-      d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+      d1 = OpenSSL::Cipher.new('des-ecb')
 
       d1.padding = 0
       d1.key = des_key

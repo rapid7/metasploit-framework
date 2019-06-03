@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
 
   def initialize(info = {})
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(0),
         OptString.new('COMMAND', [ true, 'The command to execute', 'cmd.exe']),
         OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])
-        ], self.class )
+        ])
   end
 
   def run

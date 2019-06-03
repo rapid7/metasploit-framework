@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-2996'],
           ['CVE', '2015-2997'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8'],
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jun/8'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt'],
         ],
       'DisclosureDate' => 'Jun 3 2015'))
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('RPORT', [true, 'The target port', 8080]),
         OptString.new('TARGETURI', [ true,  "SysAid path", '/sysaid']),
         OptString.new('FILEPATH', [false, 'Path of the file to download (escape Windows paths with a back slash)', '/etc/passwd']),
-      ], self.class)
+      ])
   end
 
   def get_traversal_path

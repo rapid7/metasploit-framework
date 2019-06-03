@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
@@ -78,9 +74,13 @@ class MetasploitModule < Msf::Post
 
   # Save enumerated data
   def save(msg, data, ctype="text/plain")
+    if data.nil? || data.include?('not found') || data.include?('cannot access')
+      print_bad("Unable to get data for #{msg}")
+      return
+    end
     ltype = "linux.enum.network"
     loot = store_loot(ltype, ctype, session, data, nil, msg)
-    print_status("#{msg} stored in #{loot.to_s}")
+    print_good("#{msg} stored in #{loot.to_s}")
   end
 
   # Get host name

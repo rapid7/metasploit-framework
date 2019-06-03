@@ -127,7 +127,7 @@ class Plugin::Beholder < Msf::Plugin
         return
       end
 
-      collected_keys = sess.ui.keyscan_extract(sess.ui.keyscan_dump)
+      collected_keys = sess.ui.keyscan_dump
       store_keystrokes(sid, collected_keys)
     end
 

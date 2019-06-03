@@ -17,6 +17,10 @@ RSpec.shared_context 'Msf::UIDriver' do
         @error ||= []
         @error.concat string.split("\n")
       end
+      allow(driver).to receive(:print_bad).with(kind_of(String)) do |string|
+        @error ||= []
+        @error.concat string.split("\n")
+      end
     }
   end
 end

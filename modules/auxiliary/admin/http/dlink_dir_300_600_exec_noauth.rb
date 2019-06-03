@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('CMD', [ true, 'The command to execute', 'cat var/passwd'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -67,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
       print_line("#{rhost}:#{rport} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed.")
+      print_error("#{rhost}:#{rport} - Exploit failed")
     end
   end
 end

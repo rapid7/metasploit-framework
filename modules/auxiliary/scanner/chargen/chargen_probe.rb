@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Report
@@ -42,8 +38,6 @@ class MetasploitModule < Msf::Auxiliary
       register_options([
         Opt::RPORT(19)
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(rhost)

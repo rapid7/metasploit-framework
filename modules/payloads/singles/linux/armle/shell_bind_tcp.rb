@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -113,9 +112,9 @@ module MetasploitModule
     # Register command execution options
     register_options(
       [
-        OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
+        OptString.new('SHELL', [ true, "The shell to execute.", "/bin/sh" ]),
         OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
-      ], self.class)
+      ])
   end
 
   def generate
@@ -127,7 +126,7 @@ module MetasploitModule
     end
     p[176, sh.length] = sh
 
-    arg = datastore['SHELLARG']
+    arg = datastore['ARGV0']
     if arg
       if arg.length >= 16
         raise ArgumentError, "The specified argv[0] must be less than 16 bytes."
@@ -137,5 +136,4 @@ module MetasploitModule
 
     p
   end
-
 end

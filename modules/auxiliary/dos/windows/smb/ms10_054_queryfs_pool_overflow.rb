@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Auxiliary::Dos
 
@@ -24,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2010-2550'],
           ['OSVDB', '66974'],
           ['MSB', 'MS10-054'],
-          ['URL', 'http://seclists.org/fulldisclosure/2010/Aug/122']
+          ['URL', 'https://seclists.org/fulldisclosure/2010/Aug/122']
         ],
       'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'jduck' ],
       'License'        => MSF_LICENSE
@@ -34,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(445),
         OptString.new('SMBSHARE', [ true, "The name of a readable share on the server" ])
-      ], self.class)
+      ])
   end
 
   # Perform a transaction2 request using the specified subcommand, parameters, and data
@@ -111,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
     select(nil, nil, nil, 0.5)
 
   end
-
 end

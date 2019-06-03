@@ -4,7 +4,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# https://metasploit.com/framework/
 ##
 
 
@@ -17,9 +17,12 @@ module CommandShellOptions
 
     register_advanced_options(
       [
-        OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
-        OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", ''])
-      ], self.class)
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', true]),
+        OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
+        OptString.new('AutoRunScript', "A script to run automatically on session creation."),
+        OptString.new('CommandShellCleanupCommand', "A command to run before the session is closed")
+      ]
+    )
   end
 
   def on_session(session)
@@ -34,7 +37,15 @@ module CommandShellOptions
     if self.platform and self.platform.kind_of? Msf::Module::Platform
       session.platform = self.platform.realname.downcase
     end
-    session.arch     = self.arch if self.arch
+
+    if self.arch
+      if self.arch.kind_of?(Array)
+        session.arch = self.arch.join('')
+      else
+        session.arch = self.arch
+      end
+    end
+
   end
 
 end

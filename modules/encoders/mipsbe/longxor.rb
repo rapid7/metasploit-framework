@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasm'
-
 
 class MetasploitModule < Msf::Encoder::Xor
 
@@ -16,7 +13,10 @@ class MetasploitModule < Msf::Encoder::Xor
       'Description'      => %q{
         Mips Web server exploit friendly xor encoder
       },
-      'Author'           => 'Julien Tinnes <julien[at]cr0.org>',
+      'Author'           =>
+        [   'Julien Tinnes <julien[at]cr0.org>',   # original shellcode
+            'Pedro Ribeiro <pedrib@gmail.com>',    # fix Linux >= 2.6.11 and toupper() compat
+        ],
       'Arch'             => ARCH_MIPSBE,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Encoder::Xor
     raise EncodingError.new("The payload is not padded to 4-bytes (#{state.buf.length} bytes)") if state.buf.length%4 != 0
 
     # 16-bits not (again, see below)
-    reg_14 = (number_of_passes+1)^0xFFFF
+    reg_10 = (number_of_passes+1)^0xFFFF
+    reg_5 = state.buf.length^0xFFFF
     decoder = Metasm::Shellcode.assemble(Metasm::MIPS.new(:big), <<EOS).encoded.data
 ;
 ; MIPS nul-free xor decoder
@@ -75,66 +76,67 @@ main:
 li macro reg, imm
 ;	lui reg, ((imm) >> 16) & 0ffffh
 ;	ori reg, reg, (imm) & 0ffffh
-  addiu reg, $0, imm		; sufficient if imm.abs <= 0x7fff
+  addiu reg, $0, imm		    ; sufficient if imm.abs <= 0x7fff
 endm
 
-  li(	$14, #{reg_14})		; 4 passes
-  nor	$14, $14, $0		; put number of passes in $14
+  li(	$10, #{reg_10})		    ; load number of passes ^ 0xffff
+  nor	$10, $10, $0		      ; put number of passes in $10
 
-  li(	$11,-73)		; addend to calculated PC is 73
+  li(	$11,-89)		          ; addend to calculated PC is 73
 ;.set noreorder
 next:
   bltzal  $8, next
 ;.set reorder
   slti    $8, $0, 0x8282
-  nor     $11, $11, $0		; addend in $9
-  addu	$25, $31, $11		; $25 points to encoded shellcode +4
-;	addu	$16, $31, $11		; $16 too (enable if you want to pass correct parameters to cacheflush
+  nor     $11, $11, $0	    ; addend in $9
+  addu	$25, $31, $11		    ; $25 points to encoded shellcode +4
+  addu	$16, $31, $11		    ; $16 too (used to set up the cacheflush() arg down below)
 
-;	lui	$2, 0xDDDD     		; first part of the xor (old method)
-  slti	$23, $0, 0x8282 	; store 0 in $23 (our counter)
-;	ori	$17, $2, 0xDDDD 	; second part of the xor (old method)
-  lw	$17, -4($25)		; load xor key in $17
+;	lui	$2, 0xDDDD     		    ; first part of the xor (old method)
+  slti	$23, $0, 0x8282     ; store 0 in $23 (our counter)
+;	ori	$17, $2, 0xDDDD 	    ; second part of the xor (old method)
+  lw	$17, -4($25)		      ; load xor key in $17
 
 
-  li(	$13, -5)
-  nor	$13, $13, $0		; 4 in $13
+  li(	$9, -5)
+  nor	$9, $9, $0		        ; 4 in $9
 
-  addi	$15, $13, -3		; 1 in $15
+  addi	$15, $9, -3		      ; 1 in $15
 loop:
   lw	$8, -4($25)
 
-  addu	$23, $23, $15		; increment counter
+  addu	$23, $23, $15		    ; increment counter
   xor	$3, $8, $17
-  sltu	$30, $23, $14		; enough loops?
+  sltu	$30, $23, $10		    ; enough loops?
   sw	$3, -4($25)
-  addi	$6, $13, -1		; 3 in $6 (for cacheflush)
+  addi	$6, $9, -1		      ; 3 in $6 (for cacheflush)
   bne	$0, $30, loop
-  addu	$25, $25, $13		; next instruction to decode :)
+  addu	$25, $25, $9		    ; next instruction to decode :)
 
 
-;	addiu	$4, $16, -4	       	; not checked by Linux
-;	li      $5,40                  	; not checked by Linux
-;	li      $6,3                   	; $6 is set above
+  addiu	$4, $16, -4         ; cacheflush() addr parameter
+  li(      $10,#{reg_5})    ; cacheflush() nbytes parameter
+  nor   $5, $10, $0         ; same as above
+;   li      $6,3            ; $6 is set above, 3rd arg for cacheflush()
 
 ;	.set    noreorder
-  li(     $2, 4147)               ; cacheflush
-  ;.ascii "\\x01JT\\x0c"		; nul-free syscall
+  li(     $2, 4147)         ; cacheflush
+;   .ascii "\\x01JT\\x0c"   ; nul-free syscall
   syscall 0x52950
 ;	.set    reorder
 
 
-          ; write last decoder opcode and decoded shellcode
-;	li      $4,1            	; stdout
+; write last decoder opcode and decoded shellcode
+;	li      $4,1              ; stdout
 ;	addi	$5, $16, -8
-;	li      $6,40           	; how much to write
+;	li      $6,40             ; how much to write
 ;	.set    noreorder
-;	li      $2, 4004                ; write
+;	li      $2, 4004          ; write
 ;	syscall
 ;	.set    reorder
 
 
-  nop				; encoded shellcoded must be here (xor key right here ;)
+  nop				                ; encoded shellcoded must be here (xor key right here ;)
 ; $t9 (aka $25) points here
 
 EOS
@@ -143,5 +145,4 @@ EOS
 
     return decoder
   end
-
 end

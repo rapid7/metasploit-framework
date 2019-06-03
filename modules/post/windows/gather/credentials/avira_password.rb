@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/parser/ini'
-
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -56,5 +53,4 @@ class MetasploitModule < Msf::Post
     print_good("MD5(Unicode) hash found: #{passwd}")
     print_good("Info: Password length is limited to 20 characters.")
   end
-
 end

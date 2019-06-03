@@ -28,14 +28,26 @@ class Console::CommandDispatcher::Sniffer
   # List of supported commands.
   #
   def commands
+    #all = {
     {
       "sniffer_interfaces" => "Enumerate all sniffable network interfaces",
       "sniffer_start" => "Start packet capture on a specific interface",
       "sniffer_stop"  => "Stop packet capture on a specific interface",
       "sniffer_stats" => "View statistics of an active capture",
       "sniffer_dump"  => "Retrieve captured packet data to PCAP file",
-      "sniffer_release" => "Free captured packets on a specific interface instead of downloading them",
+      "sniffer_release" => "Free captured packets on a specific interface instead of downloading them"
     }
+
+    #reqs = {
+    #  "sniffer_interfaces" => ['sniffer_interfaces'],
+    #  "sniffer_start" => ['sniffer_capture_start'],
+    #  "sniffer_stop"  => ['sniffer_capture_stop'],
+    #  "sniffer_stats" => ['sniffer_capture_stats'],
+    #  "sniffer_dump"  => ['sniffer_capture_dump'],
+    #  "sniffer_release" => ['sniffer_capture_release']
+    #}
+
+    #filter_commands(all, reqs)
   end
 
 
@@ -46,10 +58,18 @@ class Console::CommandDispatcher::Sniffer
     print_line()
 
     ifaces.each do |i|
-      print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
-        i['idx'], i['description'],
-        i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
-      )
+      if i.length == 8
+        # Windows
+        print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
+          i['idx'], i['description'],
+          i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
+        )
+      else
+        # Mettle
+        print_line(sprintf("%d - '%s' ( usable:%s )",
+          i['idx'], i['description'], i['usable'])
+        )
+      end
     end
 
     print_line()
@@ -167,10 +187,10 @@ class Console::CommandDispatcher::Sniffer
     # TODO: reorder packets based on the ID (only an issue if the buffer wraps)
     while(true)
       buf = od.read(20)
-      break if not buf
+      break unless buf
 
       idh,idl,thi,tlo,len = buf.unpack('N5')
-      break if not len
+      break unless len
       if(len > 10000)
         print_error("Corrupted packet data (length:#{len})")
         break

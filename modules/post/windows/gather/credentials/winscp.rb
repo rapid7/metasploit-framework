@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/parser/ini'
 require 'rex/parser/winscp'
 require 'msf/core/auxiliary/report'
@@ -145,7 +143,7 @@ class MetasploitModule < Msf::Post
     print_good("WinSCP.ini located at #{file_path}")
     file = read_file(file_path)
     stored_path = store_loot('winscp.ini', 'text/plain', session, file, 'WinSCP.ini', file_path)
-    print_status("WinSCP saved to loot: #{stored_path}")
+    print_good("WinSCP saved to loot: #{stored_path}")
     parse_ini(file).each do |res|
       winscp_store_config(res)
     end
@@ -189,5 +187,4 @@ class MetasploitModule < Msf::Post
 
     create_credential_login(login_data)
   end
-
 end

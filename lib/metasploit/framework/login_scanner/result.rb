@@ -18,7 +18,7 @@ module Metasploit
         #   @return [String] the addess of the target host for this result
         attr_accessor :host
         # @!attribute port
-        #   @return [Fixnum] the port number of the service for this result
+        #   @return [Integer] the port number of the service for this result
         attr_accessor :port
         # @!attribute proof
         #   @return [#to_s] the proof of the login's success or failure

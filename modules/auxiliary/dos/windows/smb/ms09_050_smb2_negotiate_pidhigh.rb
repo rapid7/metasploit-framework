@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -26,14 +25,13 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '36299'],
           ['OSVDB', '57799'],
           ['MSB', 'MS09-050'],
-          ['URL', 'http://seclists.org/fulldisclosure/2009/Sep/0039.html'],
-          ['URL', 'http://www.microsoft.com/technet/security/advisory/975497.mspx']
+          ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/0039.html']
         ]
     ))
     register_options([
       Opt::RPORT(445),
       OptInt.new('OFFSET', [true, 'The function table offset to call', 0xffff])
-    ], self.class)
+    ])
 
   end
 
@@ -67,7 +65,6 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect()
   end
-
 end
 
 =begin

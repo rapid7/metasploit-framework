@@ -28,6 +28,20 @@ remove_all_routes = false
   "-D" => [false, "Delete all routes (does not require a subnet)"]
 )
 
+# Defines usage
+def usage()
+  print_status "Usage:   run autoroute [-r] -s subnet -n netmask"
+  print_status "Examples:"
+  print_status "  run autoroute -s 10.1.1.0 -n 255.255.255.0  # Add a route to 10.10.10.1/255.255.255.0"
+  print_status "  run autoroute -s 10.10.10.1                 # Netmask defaults to 255.255.255.0"
+  print_status "  run autoroute -s 10.10.10.1/24              # CIDR notation is also okay"
+  print_status "  run autoroute -p                            # Print active routing table"
+  print_status "  run autoroute -d -s 10.10.10.1              # Deletes the 10.10.10.1/255.255.255.0 route"
+  print_status "Use the \"route\" and \"ipconfig\" Meterpreter commands to learn about available routes"
+  print_error "Deprecation warning: This script has been replaced by the post/multi/manage/autoroute module"
+end
+
+
 @@exec_opts.parse(args) { |opt, idx, val|
   v = val.to_s.strip
   case opt
@@ -132,20 +146,6 @@ def delete_route(opts={})
   subnet = opts[:subnet]
   netmask = opts[:netmask] || "255.255.255.0" # Default class C
   Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
-end
-
-
-# Defines usage
-def usage()
-  print_status "Usage:   run autoroute [-r] -s subnet -n netmask"
-  print_status "Examples:"
-  print_status "  run autoroute -s 10.1.1.0 -n 255.255.255.0  # Add a route to 10.10.10.1/255.255.255.0"
-  print_status "  run autoroute -s 10.10.10.1                 # Netmask defaults to 255.255.255.0"
-  print_status "  run autoroute -s 10.10.10.1/24              # CIDR notation is also okay"
-  print_status "  run autoroute -p                            # Print active routing table"
-  print_status "  run autoroute -d -s 10.10.10.1              # Deletes the 10.10.10.1/255.255.255.0 route"
-  print_status "Use the \"route\" and \"ipconfig\" Meterpreter commands to learn about available routes"
-  print_error "Deprecation warning: This script has been replaced by the post/windows/manage/autoroute module"
 end
 
 # Validates the command options

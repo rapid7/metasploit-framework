@@ -115,8 +115,8 @@ module Auxiliary
 
     mod.setup
 
-    # Run check
-    mod.check
+    # Run check if it exists
+    mod.respond_to?(:check) ? mod.check : Msf::Exploit::CheckCode::Unsupported
   end
 
   #
@@ -138,6 +138,14 @@ protected
       mod.setup
       mod.framework.events.on_module_run(mod)
       mod.run
+    rescue Msf::Auxiliary::Complete
+      mod.cleanup
+      return
+    rescue Msf::Auxiliary::Failed => e
+      mod.error = e
+      mod.print_error("Auxiliary aborted due to failure: #{e.message}")
+      mod.cleanup
+      return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Auxiliary triggered a timeout exception")
@@ -145,8 +153,14 @@ protected
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Auxiliary interrupted by the console user")
+      mod.print_error("Stopping running againest current target...")
       mod.cleanup
+      mod.print_status("Control-C again to force quit all targets.")
+      begin
+        Rex.sleep(0.5)
+      rescue ::Interrupt
+        raise $!
+      end
       return
     rescue ::Exception => e
       mod.error = e

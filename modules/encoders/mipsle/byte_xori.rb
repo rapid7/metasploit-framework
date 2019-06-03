@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasm'
 
-
 class MetasploitModule < Msf::Encoder::Xor
-
   Rank = NormalRanking
 
   def initialize
@@ -22,8 +18,9 @@ class MetasploitModule < Msf::Encoder::Xor
       },
       'Author'           =>
         [
-          'Julien Tinnes <julien[at]cr0.org>', # original longxor encoder, which this one is based on
-          'juan vazquez' # byte_xori encoder
+          'Julien Tinnes <julien[at]cr0.org>',  # original longxor encoder, which this one is based on
+          'juan vazquez',                       # byte_xori encoder
+          'Pedro Ribeiro <pedrib@gmail.com>',   # fix for Linux >= 2.6.11 (set up cacheflush() args properly)
         ],
       'Arch'             => ARCH_MIPSLE,
       'License'          => MSF_LICENSE,
@@ -48,6 +45,7 @@ class MetasploitModule < Msf::Encoder::Xor
 
     # 16-bits not (again, see also commented source)
     reg_14 = (number_of_passes+1)^0xFFFF
+    reg_5 = state.buf.length^0xFFFF
 
     decoder = Metasm::Shellcode.assemble(Metasm::MIPS.new(:little), <<EOS).encoded.data
 main:
@@ -58,7 +56,7 @@ endm
 
   li      ($14, #{reg_14})               ; 0xXXXX0e24 - store in $14 the number of passes (two's complement) - xxxx (number of passes)
   nor     $14, $14, $0                   ; 0x2770c001 - get in $14 the number of passes
-  li      ($11,-69)                      ; 0xbbff0b24 - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
+  li      ($11,-84)                      ; 0xacff0b24 - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
 
 ; acts as getpc
 next:
@@ -67,6 +65,7 @@ next:
 
   nor     $11, $11, $0                   ; 0x27586001 - get in $11 the offset to the end of the decoder (from the addu instr)
   addu    $25, $31, $11                  ; 0x21c8eb03 - get in $25 a pointer to the end of the decoder stub
+  addu	  $16, $31, $11		               ; $16 too (used to set up the cacheflush() arg down below)
 
   slti    $23, $0, 0x#{slti_imm(state)}  ; 0xXXXX1728 - Set $23 = 0 (Set $23 = 1 if $0 < imm; else $23 = 0) / xxxx: imm
   lb      $17, -1($25)                   ; 0xffff3183 - Load xor key in $17 (stored on the last byte of the decoder stub)
@@ -86,6 +85,10 @@ loop:
   sb      $3, -4($25)                    ; 0xfcff23a3 - Store decoded byte on memory
   bne     $0, $30, loop                  ; 0xfaffc017 - branch to loop if $30 != 0 (ranch while bytes to decode)
   addu    $25, $25, $15                  ; 0x21c82f03 - next instruction to decode, executed because of the pipelining
+
+  addiu	$4, $16, -4                      ; cacheflush() addr parameter
+  li(      $10,#{reg_5})                 ; cacheflush() nbytes parameter
+  nor   $5, $10, $0                      ; same as above
 
   li      ($2, 4147)                     ; 0x33100224 - cacheflush sytem call
   syscall 0x52950                        ; 0x0c544a01
@@ -142,5 +145,4 @@ EOS
     stub[-1, state.decoder_key_size] = [ real_key.to_i ].pack(state.decoder_key_pack)
     return stub
   end
-
 end

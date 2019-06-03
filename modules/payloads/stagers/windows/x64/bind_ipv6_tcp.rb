@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/x64/bind_tcp'
 
@@ -25,7 +24,7 @@ module MetasploitModule
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Convention'    => 'sockrdi',
       'Stager'        => { 'RequiresMidstager' => false }
@@ -35,6 +34,5 @@ module MetasploitModule
   def use_ipv6
     true
   end
-
 end
 

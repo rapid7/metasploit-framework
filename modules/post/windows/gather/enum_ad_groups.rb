@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rex'
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional fields to retrieve, comma separated', nil]),
       OptString.new('FILTER', [false, 'Customised LDAP filter', nil])
-    ], self.class)
+    ])
   end
 
   def run
