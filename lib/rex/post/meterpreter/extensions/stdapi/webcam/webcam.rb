@@ -112,7 +112,7 @@ class Webcam
 
       paths.each do |browser_path|
         if file?(browser_path)
-          found_browser_path = client.fs.file.expand_path(browser_path)
+          found_browser_path = browser_path
           break
         end
       end
