@@ -576,7 +576,11 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
+  #
   # This method monkeypatches Net::SSH's client identification string
+  #
+  # TODO: Move this out of the console driver!
+  #
   def handle_ssh_ident(val)
     return false unless val.is_a?(String) && !val.empty?
 
