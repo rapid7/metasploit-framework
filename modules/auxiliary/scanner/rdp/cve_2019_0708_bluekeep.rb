@@ -108,22 +108,46 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_rdp
+
     # code to check if RDP is open or not
     vprint_status("Verifying RDP protocol...")
 
-    # send connection
-    sock.put(pdu_negotiation_request(1))
-
-    # read packet to see if its rdp
-    res = sock.get_once(-1, 5)
+    vprint_status("Attempting to connect using TLS security")
+    res = rdp_send_recv(pdu_negotiation_request(RDPConstants::PROTOCOL_SSL))
 
     # return true if the response is a X.224 Connect Confirm
     # We can't use a check for RDP Negotiation Response because WinXP excludes it
-    if res && res.match("\x03\x00\x00..\xd0")
-      server_selected_proto = 0
-      server_selected_proto = res[15..18].unpack("L<")[0] if res.length >= 19
+    if res
+      result, err_msg = rdp_parse_negotiation_response(res)
+      return true, result if result
 
-      return true, server_selected_proto
+      if err_msg == "Negotiation Response packet too short."
+        vprint_status("Attempt to connect with TLS failed but looks like the target is Windows XP")
+      else
+        vprint_status("Attempt to connect with TLS failed with error: #{err_msg}")
+      end
+
+      if ["SSL_NOT_ALLOWED_BY_SERVER", "Negotiation Response packet too short."].include? err_msg
+        # This happens if the server is configured to ONLY permit RDP Security
+        vprint_status("Attempting to connect using Standard RDP security")
+        disconnect
+        connect
+        res = rdp_send_recv(pdu_negotiation_request(RDPConstants::PROTOCOL_RDP))
+
+        if res
+          result, err_msg = rdp_parse_negotiation_response(res)
+          return true, result if result
+
+          # Windows XP doesn't return the standard Negotiation Response packet
+          # but we at least know this was RDP since the packet contained a 
+          # Connect-Confirm response (0xd0).
+          if err_msg == "Negotiation Response packet too short."
+            return true, RDPConstants::PROTOCOL_RDP
+          end
+
+          vprint_status("Attempt to connect with Standard RDP failed with error #{err_msg}")
+        end
+      end
     end
 
     return false, 0
@@ -275,6 +299,42 @@ class MetasploitModule < Msf::Auxiliary
   class RdpCommunicationError < StandardError
   end
 
+   #
+  # Standard RDP
+  # Constants
+  #
+  class RDPConstants
+    SSL_REQUIRED_BY_SERVER = 1
+    SSL_NOT_ALLOWED_BY_SERVER = 2
+    SSL_CERT_NOT_ON_SERVER = 3
+    INCONSISTENT_FLAGS =  4
+    HYBRID_REQUIRED_BY_SERVER = 5
+    SSL_WITH_USER_AUTH_REQUIRED_BY_SERVER = 6
+
+    PROTOCOL_RDP = 0
+    PROTOCOL_SSL = 1
+    PROTOCOL_HYBRID = 2
+    PROTOCOL_RDSTLS = 4
+    PROTOCOL_HYBRID_EX = 8
+
+    RDP_NEG_PROTOCOL = {
+      0 => "PROTOCOL_RDP",
+      1 => "PROTOCOL_SSL",
+      2 => "PROTOCOL_HYBRID",
+      4 => "PROTOCOL_RDSTLS",
+      8 => "PROTOCOL_HYBRID_EX"
+    }
+
+    RDP_NEG_FAILURE = {
+      1 => "SSL_REQUIRED_BY_SERVER",
+      2 => "SSL_NOT_ALLOWED_BY_SERVER",
+      3 => "SSL_CERT_NOT_ON_SERVER",
+      4 => "INCONSISTENT_FLAGS",
+      5 => "HYBRID_REQUIRED_BY_SERVER",
+      6 => "SSL_WITH_USER_AUTH_REQUIRED_BY_SERVER"
+    }
+  end
+
   def rdp_send(data)
     sock.put(data)
   end
@@ -326,6 +386,35 @@ class MetasploitModule < Msf::Auxiliary
     pkt << pdu
 
     build_data_tpdu(pkt)
+  end
+
+  # Parse RDP Negotiation Data - 2.2.1.2
+  # Reference: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/13757f8f-66db-4273-9d2c-385c33b1e483
+  # @return [String, nil] String representation of the Selected Protocol or nil on failure
+  # @return [String] Error message
+  def rdp_parse_negotiation_response(data)
+
+    return false, "Response is not an RDP Negotiation Response packet." unless data.match("\x03\x00\x00..\xd0")
+    return false, "Negotiation Response packet too short." if data.length < 19
+
+    response_code = data[11].unpack("C")[0]
+
+    if response_code == 2  # TYPE_RDP_NEG_RSP
+      # RDP Negotiation Response - 2.2.1.2.1
+      server_selected_proto = data[15..18].unpack("L<")[0]
+
+      proto_label = RDPConstants::RDP_NEG_PROTOCOL[server_selected_proto]
+      return server_selected_proto, nil if proto_label
+
+      return nil, "Unknown protocol in Negotiation Response: #{server_selected_proto.to_s}"
+
+    elsif response_code == 3  # TYPE_RDP_NEG_FAILURE
+      # RDP Negotiation Failure - 2.2.1.2.2
+      failure_code = data[15..18].unpack("L<")[0]
+      return nil, RDPConstants::RDP_NEG_FAILURE[failure_code]
+    else
+      return nil, "Unknown Negotiation Response code: #{response_code.to_s}"
+    end
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/927de44c-7fe8-4206-a14f-e5517dc24b1c
@@ -488,7 +577,6 @@ class MetasploitModule < Msf::Auxiliary
   def bin_to_hex(s)
     s.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
   end
-
 
   #
   # Standard RDP
