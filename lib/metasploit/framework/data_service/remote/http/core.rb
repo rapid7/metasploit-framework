@@ -236,20 +236,52 @@ class RemoteHTTPDataService
   #
   class ResponseWrapper
     attr_reader :response
-    attr_reader :expected
 
-    def initialize(response, expected)
+    def initialize(response)
       @response = response
-      @expected = expected
+    end
+
+    def response_body
+      if @response
+        @response.body
+      else
+        nil
+      end
+    end
+
+    def to_s
+      if @response
+        @response.to_s
+      else
+        ''
+      end
+    end
+  end
+
+  #
+  # Error response wrapper
+  # There is a response object, however, the request was unsuccessful.
+  #
+  class ErrorResponse < ResponseWrapper
+    def initialize(response)
+      super(response)
     end
   end
 
   #
   # Failed response wrapper
+  # There is no response object.
   #
-  class FailedResponse < ResponseWrapper
-    def initialize(response)
-      super(response, false)
+  class FailedResponse < ErrorResponse
+    attr_reader :error_msg
+
+    def initialize(error_msg)
+      @error_msg = error_msg
+      super(nil)
+    end
+
+    def to_s
+      return error_msg
     end
   end
 
@@ -258,7 +290,7 @@ class RemoteHTTPDataService
   #
   class SuccessResponse < ResponseWrapper
     def initialize(response)
-      super(response, true)
+      super(response)
     end
   end
 
