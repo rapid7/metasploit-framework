@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Quick check for the Ultimatum PDU
       res = sock.get_once(-1, 1)
-      return Exploit::CheckCode::Vulnerable if res.include?(["0300000902f0802180"].pack("H*"))
+      return Exploit::CheckCode::Vulnerable if res && res.include?(["0300000902f0802180"].pack("H*"))
 
       # Slow check for Ultimatum PDU. If it doesn't respond in a timely
       # manner then the host is likely patched.
