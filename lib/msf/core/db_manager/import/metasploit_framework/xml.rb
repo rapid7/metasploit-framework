@@ -55,7 +55,6 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Import a Metasploit XML file.
   def import_msf_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

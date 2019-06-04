@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Retina
   # Process Retina XML
   def import_retina_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     msg =  "Warning: The Retina XML format does not associate vulnerabilities with the\n"
     msg << "specific service on which they were found.\n"
@@ -84,7 +84,6 @@ module Msf::DBManager::Import::Retina
   # Process a Retina XML file
   def import_retina_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

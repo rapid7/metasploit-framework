@@ -3,7 +3,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   # XXX: This function is stupidly long. It needs to be refactored.
   def import_msf_collateral(args={}, &block)
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
@@ -163,7 +163,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   # XXX: Refactor so it's not quite as sanity-blasting.
   def import_msf_zip(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
