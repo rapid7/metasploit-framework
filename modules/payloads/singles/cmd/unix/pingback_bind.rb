@@ -52,6 +52,6 @@ module MetasploitModule
     pingback_uuid ||= generate_pingback_uuid
     pingback_uuid.gsub!('-','')
 
-    "echo -ne '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | nc -lp #{datastore['LPORT']}"
+    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | nc -lp #{datastore['LPORT']}"
   end
 end
