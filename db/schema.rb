@@ -28,7 +28,6 @@ ActiveRecord::Schema.define(version: 20190507120211) do
     t.string   "listener_uri"
     t.string   "target_host"
     t.string   "target_port"
-    t.integer  "workspace_id"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
     t.uuid     "{:null=>false}"
