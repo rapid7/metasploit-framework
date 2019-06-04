@@ -164,16 +164,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # The loop below sends Virtual Channel PDUs (2.2.6.1) that vary in length
-    # The arch governs which triggers the desired response which is a MCS
-    # Disconnect Provider Ultimatum or a timeout.
+    # The arch governs which of the packets triggers the desired response
+    # which is an MCS Disconnect Provider Ultimatum or a timeout.
+
+    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
+    x86_payload = build_virtual_channel_pdu(0x03, ["00000000020000000000000000000000"].pack("H*"))
+    x64_payload = build_virtual_channel_pdu(0x03, ["0000000000000000020000000000000000000000000000000000000000000000"].pack("H*"))
+
     vprint_status("Sending patch check payloads")
     for j in 0..5
-      # x86
-      pkt = rdp_build_pkt(["100000000300000000000000020000000000000000000000"].pack("H*"), "\x03\xed")
-      rdp_send(pkt)
-      # x64
-      pkt = rdp_build_pkt(["20000000030000000000000000000000020000000000000000000000000000000000000000000000"].pack("H*"), "\x03\xed")
-      rdp_send(pkt)
+
+      # 0xed03 = Channel 1005
+      x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
+      rdp_send(x86_packet)
+      x64_packet = rdp_build_pkt(x64_payload, "\x03\xed")
+      rdp_send(x64_packet)
 
       begin
         for i in 0..3
@@ -357,6 +362,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Build the X.224 packet, encrypt with Standard RDP Security as needed
+  # default channel_id = 0x03eb = 1003
   def rdp_build_pkt(data, channel_id = "\x03\xeb", client_info = false)
 
     flags = 0
@@ -385,7 +391,7 @@ class MetasploitModule < Msf::Auxiliary
 
     pkt =  "\x64"      # sendDataRequest
     pkt << "\x00\x08"  # intiator userId .. TODO: for a functional client this isn't static
-    pkt << channel_id  # channelId = 1003
+    pkt << channel_id  # channelId
     pkt << "\x70"      # dataPriority
     pkt << [udl_with_flag].pack("S>")
     pkt << pdu
@@ -587,6 +593,15 @@ class MetasploitModule < Msf::Auxiliary
   # Standard RDP
   # Protocol Data Unit definitions
   #
+
+  # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/6c074267-1b32-4ceb-9496-2eb941a23e6b
+  # Virtual Channel PDU 2.2.6.1
+  def build_virtual_channel_pdu(flags, data)
+    data_len = data.length
+    [data_len].pack("L<") + # length
+    [flags].pack("L<") +    # flags
+    data
+  end
 
   # Builds x.224 Data (DT) TPDU - Section 13.7
   def build_data_tpdu(data)
@@ -858,7 +873,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x00" +     # pad1
     "\x01" +     # streamID: 1
     [uncompressed_len].pack("S<") + # uncompressedLength - 16 bit, unsigned int
-    [type].pack("C") + # pduType2 - 8 bit, unsignted int - 2.2.8.1.1.2
+    [type].pack("C") + # pduType2 - 8 bit, unsigned int - 2.2.8.1.1.2
     "\x00" +     # compressedType: 0
     "\x00\x00" + # compressedLength: 0
     data
