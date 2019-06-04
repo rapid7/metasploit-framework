@@ -210,7 +210,7 @@ module Payload::Windows::BindTcp_x64
 
   def asm_block_recv(opts={})
 
-    asm << %Q^
+    asm = %Q^
       recv:
         ; Receive the size of the incoming second stage...
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length
