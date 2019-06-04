@@ -181,14 +181,16 @@ class RemoteHTTPDataService
           return SuccessResponse.new(response)
         else
           ilog "HTTP #{request_type} request: #{uri.request_uri} failed with code: #{response.code} message: #{response.body}"
-          return FailedResponse.new(response)
+          return ErrorResponse.new(response)
       end
     rescue EOFError => e
-      elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
-      return FailedResponse.new('')
+      error_msg = "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
+      ilog error_msg
+      return FailedResponse.new(error_msg)
     rescue => e
-      elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
-      return FailedResponse.new('')
+      error_msg = "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
+      ilog error_msg
+      return FailedResponse.new(error_msg)
     ensure
       @client_pool << client
     end
