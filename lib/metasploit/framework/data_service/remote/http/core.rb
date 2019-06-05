@@ -188,7 +188,7 @@ class RemoteHTTPDataService
       ilog error_msg
       return FailedResponse.new(error_msg)
     rescue => e
-      error_msg = "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
+      error_msg = "Problem with HTTP request for type/path: #{request_type} #{path} message: #{e.message}"
       ilog error_msg
       return FailedResponse.new(error_msg)
     ensure
