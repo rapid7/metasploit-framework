@@ -205,9 +205,14 @@ class RemoteHTTPDataService
   # for the Metasploit version number from the remote endpoint
   #
   def is_online?
-    response = self.get_msf_version
-    if response && !response[:metasploit_version].empty?
-      return true
+    begin
+      response = self.get_msf_version
+      if response && !response[:metasploit_version].empty?
+        return true
+      end
+    rescue
+      # Ignore exceptions that are raised when checking the version,
+      # and assume the server is not online.
     end
 
     return false
