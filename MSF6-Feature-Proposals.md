@@ -22,6 +22,10 @@ Tools like Veil, pwnlib, etc. have for a long time used native compilers and too
 
 Make a new async payload type (based on pingback payload work) making secure comms, endpoint verification, and async communication first-class citizens, and on by default. These session types would support a much more limited set of actions than Meterpreter, only supporting sleep/upload/download/stage, but would be upgraded to Meterpreter directly as-needed (maybe even transparently). Network protocols can be much more exotic for this, and the listener/payload should be usable externally from Metasploit as well. Todo: pull in async payload proposal notes from @bwatters-r7.
 
+## First class user-oriented documentation
+
+Provide a means for the community to document changes to how Metasploit works (developer and user), unify various documentation resources.
+
 ## Overhaul network targeting
 
 Setting at least 5 variables RHOSTS/RPORT/SSL/VHOST/SSL_Version/User/Pass/etc... to target a single web application is very cumbersome. When these variables also do not apply to multiple RHOSTS exactly, the scheme of multiple variables falls apart futher. Metasploit should be able to target URLs directly, that can all have their own independent ports, users, hostnames, etc:
