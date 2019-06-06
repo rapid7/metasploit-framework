@@ -10,10 +10,6 @@ If the independent listener code could be integrated directly into Meterpreter p
 
 If listeners are externalized, then there is an API layer both for interactive interaction with remote sessions, and a way for the Post-exploitation API to communicate with the external sessions. That should mean that if an external C2 framework supports at minimum shell interaction, a bulk of the Post-exploitation API should be applicable against external C2 frameworks as well. Metasploit would then be able to integrate both with other open-source C2 frameworks, as well as private ones.
 
-## Integration with external exploitation frameworks
-
-E.g. could we just use routersploit or wpsploit directly from within framework and gather loot/run post exploitation, etc. through them? Maybe using the external module RPC, just being able to expose multiple modules behind the same API?
-
 ## Integration of native tool-chains
 
 Tools like Veil, pwnlib, etc. have for a long time used native compilers and tooling to build payloads and evasions. Metasploit has opted mostly for native Ruby solutions, though it does have some implicit runtime dependencies like `apktool` for Android payload injection. However, these tools are getting harder to maintain and use (e.g. metasm has a diffcult time building any non-trivial C code, we just spent a month fixing a bug it had with Ruby 2.5 and Windows). It would be nice to have either be able to depend on a set of first-class toolchains being available in the environment, or have some way to package them natively with Metasploit itself. A full suite of compilers and tools does consume considerable amounts of space (e.g. mettle's toolchain is 1.8GB uncompressed), but this is probably less of a problem than it was 15 years ago.
@@ -47,6 +43,14 @@ Modules in Metasploit are classified according to what they can do ('exploits ca
 
 Additionally, 'admin' modules could be collapsed. For instance, why have a chromecast_reset and chromecast_youtube module when you can use 'admin/chromecast' and just type 'cast' or 'reset' as methods on this single module. This would also replace the 'ACTIONS' datastore option where they are used in multi-action aux modules.
 
+## Integration with external exploitation frameworks
+
+E.g. could we just use routersploit or wpsploit directly from within framework and gather loot/run post exploitation, etc. through them? Maybe using the external module RPC, just being able to expose multiple modules behind the same API?
+
+## Changing module structure on disk
+
+Currently a non-trivial exploit module will require adding code to 4 different subdirectories (lib, modules, documentation, external) which makes it both hard to follow all of the moving pieces, but also makes it harder to extract modules for independent use. See https://github.com/rapid7/metasploit-framework/wiki/Bundled-Modules-Proposal for a more detailed proposal.
+
 # Data Model
 
 ## Temporal / log-oriented data model
@@ -78,7 +82,3 @@ Metasploit has some really old modules that probably don't get used very often. 
 ## Integration of separate Metasploit projects into fewer repos (rex / payloads / metasploit data models)
 
 Metasploit is spread out across over a dozen different repos. Let's merge them as much as we can to make it easier to change them across the board (e.g. when changing the data model) and to make it easier to have parallel branches for stable/unstable work.
-
-## Changing module structure on disk
-
-Currently a non-trivial exploit module will require adding code to 4 different subdirectories (lib, modules, documentation, external) which makes it both hard to follow all of the moving pieces, but also makes it harder to extract modules for independent use. See https://github.com/rapid7/metasploit-framework/wiki/Bundled-Modules-Proposal for a more detailed proposal.
