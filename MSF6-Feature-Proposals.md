@@ -26,6 +26,8 @@ Make a new async payload type (based on pingback payload work) making secure com
 
 Provide a means for the community to document changes to how Metasploit works (developer and user), unify various documentation resources.
 
+# Module Interface changes
+
 ## Overhaul network targeting
 
 Setting at least 5 variables RHOSTS/RPORT/SSL/VHOST/SSL_Version/User/Pass/etc... to target a single web application is very cumbersome. When these variables also do not apply to multiple RHOSTS exactly, the scheme of multiple variables falls apart futher. Metasploit should be able to target URLs directly, that can all have their own independent ports, users, hostnames, etc:
@@ -37,6 +39,15 @@ set TARGETS https://user:password@target_app:4343 https://target_app2
 ## Overhaul credential targeting
 
 The credential datastore options also has many different co-dependent and independent variables, which are confusing and awkward to use. In addition, there is little in the way of user-parallelism for using login scanners against single-service web apps. MSF6 should have an easier less messy overhaul of targeting multiple users and apps as well. Maybe TARGETS could be used the same way?
+
+
+## Collapse module types, expose module 'abilities' or 'methods' instead
+
+Modules in Metasploit are classified according to what they can do ('exploits can exploit, scanners can scan') but often its useful to be able to scan for exploitable targets. Workarounds include reaching between modules and sharing library code and mixins. This proposal suggests that 'exploit' and 'scanner', as well as many other aux-type modules should collapse into a single module type. They simply expose capabilities like 'scan', 'check', 'exploit', etc. and a single module can do all of these.
+
+Additionally, 'admin' modules could be collapsed. For instance, why have a chromecast_reset and chromecast_youtube module when you can use 'admin/chromecast' and just type 'cast' or 'reset' as methods on this single module. This would also replace the 'ACTIONS' datastore option where they are used in multi-action aux modules.
+
+# Data Model
 
 ## Temporal / log-oriented data model
 
@@ -55,12 +66,6 @@ We should make a light-weight in-memory database service that can run automatica
 ## Dropping native Windows support
 
 Windows support consumes 90% of our time building open source installers, but supports 1% of the downloads. Also, running Linux in Windows is much easier with Windows 10 and VMs, and performs considerably better. As Metasploit becomes more multi-processed, being able to support Unix domain sockets would simplify some of the security models as well, in the default case. Let's focus on macOS and Linux as primary supported targets.
-
-## Collapse module types, expose module 'abilities' or 'methods' instead
-
-Modules in Metasploit are classified according to what they can do ('exploits can exploit, scanners can scan') but often its useful to be able to scan for exploitable targets. Workarounds include reaching between modules and sharing library code and mixins. This proposal suggests that 'exploit' and 'scanner', as well as many other aux-type modules should collapse into a single module type. They simply expose capabilities like 'scan', 'check', 'exploit', etc. and a single module can do all of these.
-
-Additionally, 'admin' modules could be collapsed. For instance, why have a chromecast_reset and chromecast_youtube module when you can use 'admin/chromecast' and just type 'cast' or 'reset' as methods on this single module. This would also replace the 'ACTIONS' datastore option where they are used in multi-action aux modules.
 
 ## Make Metasploit Higher-performance / lighter weight
 
