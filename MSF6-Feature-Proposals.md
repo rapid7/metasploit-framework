@@ -20,7 +20,7 @@ Tools like Veil, pwnlib, etc. have for a long time used native compilers and too
 
 Make a new async payload type (based on pingback payload work) making secure comms, endpoint verification, and async communication first-class citizens, and on by default. These session types would support a much more limited set of actions than Meterpreter, only supporting sleep/upload/download/stage, but would be upgraded to Meterpreter directly as-needed (maybe even transparently). Network protocols can be much more exotic for this, and the listener/payload should be usable externally from Metasploit as well. Todo: pull in async payload proposal notes from @bwatters-r7.
 
-# Module Interface changes
+# Module Interface
 
 ## Overhaul network targeting
 
