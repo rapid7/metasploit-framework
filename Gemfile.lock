@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.62)
+    metasploit-framework (4.17.63)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -108,7 +108,7 @@ GEM
     arel-helpers (2.8.0)
       activerecord (>= 3.1.0, < 6)
     backports (3.15.0)
-    bcrypt (3.1.12)
+    bcrypt (3.1.13)
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.4)
     bit-struct (0.16)
