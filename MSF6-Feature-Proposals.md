@@ -4,7 +4,7 @@ List of potential major features (things that would make major breaking changes)
 
 ## Meterpreter Transport and Scalability Improvements.
 
-The Meterpreter Protocol "TLV" is enhanced to support modern features such as logging, unidirectional messages, obfuscation, sequence number reassembly and more. Thee feature will enable Meterpreter sessions to be more robust, faster, and evade detection with greater ease than before.
+The Meterpreter Protocol "TLV" is enhanced to support modern features such as logging, unidirectional messages, obfuscation, sequence number reassembly and more. This feature will enable Meterpreter sessions to be more robust, faster, and evade detection with greater ease than before.
 
 Additionally, Meterpreter payload listeners, rather than being integrated straight into `msfconsole`, will run as an independent process that communicates with msfconsole (1 or more users) over RPC similar to the msfdb_ws (Metasploit Database Web Service). The external listener then replaces the 'metasploit-aggregator' project by not requiring an intermediate proxy to park or share sessions, these are done directly by having the listeners independent of console users.
 
