@@ -66,6 +66,10 @@ As subcomponents get carved off (external database service, external listeners),
 
 Metasploit has some really old modules that probably don't get used very often. Can we segregate these or sunset them so that the overall number of modules is reduced?
 
+## Integration of separate Metasploit projects into fewer repos (rex / payloads / metasploit data models)
+
+Metasploit is spread out across over a dozen different repos. Let's merge them as much as we can to make it easier to change them across the board (e.g. when changing the data model) and to make it easier to have parallel branches for stable/unstable work.
+
 ## Changing module structure on disk
 
 Currently a non-trivial exploit module will require adding code to 4 different subdirectories (lib, modules, documentation, external) which makes it both hard to follow all of the moving pieces, but also makes it harder to extract modules for independent use. See https://github.com/rapid7/metasploit-framework/wiki/Bundled-Modules-Proposal for a more detailed proposal.
