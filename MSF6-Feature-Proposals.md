@@ -2,7 +2,7 @@ List of potential major features (things that would make major breaking changes)
 
 # Payloads and Post-exploitation
 
-## Meterpreter Transport and Scalability Improvements.
+## Meterpreter Transport and Scalability Overhaul
 
 The Meterpreter Protocol "TLV" is enhanced to support modern features such as logging, unidirectional messages, obfuscation, sequence number reassembly and more. This feature will enable Meterpreter sessions to be more robust, faster, and evade detection with greater ease than before.
 
