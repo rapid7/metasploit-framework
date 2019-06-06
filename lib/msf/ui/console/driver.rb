@@ -582,12 +582,12 @@ protected
   # TODO: Move this out of the console driver!
   #
   def handle_ssh_ident(val)
+    # HACK: Suppress already initialized constant warning
+    verbose, $VERBOSE = $VERBOSE, nil
+
     return false unless val.is_a?(String) && !val.empty?
 
     require 'net/ssh'
-
-    # HACK: Suppress already initialized constant warning
-    verbose, $VERBOSE = $VERBOSE, nil
 
     # HACK: Bypass dynamic constant assignment error
     ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
