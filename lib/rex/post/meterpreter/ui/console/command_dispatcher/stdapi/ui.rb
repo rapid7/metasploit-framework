@@ -16,6 +16,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   Klass = Console::CommandDispatcher::Stdapi::Ui
 
   include Console::CommandDispatcher
+  include Console::CommandDispatcher::Stdapi::Stream
 
   #
   # List of supported commands.
@@ -192,17 +193,18 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Screenshare the current interactive desktop.
   #
   def cmd_screenshare( *args )
-    stream_path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
+    stream_path = Rex::Text.rand_text_alpha(8) + ".jpeg"
     player_path = Rex::Text.rand_text_alpha(8) + ".html"
     quality = 50
-    view    = false
+    view = true
     duration = 1800
 
     screenshare_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
       "-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
-      "-p" => [ true, "The JPEG image path (Default: '#{stream_path}')" ],
-      "-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ],
+      "-s" => [ true, "The stream file path (Default: '#{stream_path}')" ],
+      "-t" => [ true, "The stream player path (Default: #{player_path})"],
+      "-v" => [ true, "Automatically view the stream (Default: '#{view}')" ],
       "-d" => [ true, "The stream duration in seconds (Default: 1800)" ] # 30 min
     )
 
@@ -215,64 +217,19 @@ class Console::CommandDispatcher::Stdapi::Ui
           return
         when "-q"
           quality = val.to_i
-        when "-p"
-          path = val
+        when "-s"
+          stream_path = val
+        when "-t"
+          player_path = val
         when "-v"
-          view = true if ( val =~ /^(t|y|1)/i )
+          view = false if val =~ /^(f|n|0)/i
         when "-d"
           duration = val.to_i
       end
     }
 
     print_status("Preparing player...")
-    html = %|<html>
-<head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-<title>Metasploit webcam_stream - #{client.sock.peerhost}</title>
-<script language="javascript">
-function updateStatus(msg) {
-  var status = document.getElementById("status");
-  status.innerText = msg;
-}
-
-function noImage() {
-  document.getElementById("streamer").style = "display:none";
-  updateStatus("Waiting");
-}
-
-var i = 0;
-function updateFrame() {
-  var img = document.getElementById("streamer");
-  img.src = "#{stream_path}#" + i;
-  img.style = "display:";
-  updateStatus("Playing");
-  i++;
-}
-
-setInterval(function() {
-  updateFrame();
-},25);
-
-</script>
-</head>
-<body>
-<noscript>
-  <h2><font color="red">Error: You need Javascript enabled to watch the stream.</font></h2>
-</noscript>
-<pre>
-Target IP  : #{client.sock.peerhost}
-Start time : #{Time.now}
-Status     : <span id="status"></span>
-</pre>
-<br>
-<img onerror="noImage()" id="streamer">
-<br><br>
-<a href="http://www.metasploit.com" target="_blank">www.metasploit.com</a>
-</body>
-</html>
-    |
-
+    html = stream_html_template('screenshare', client.sock.peerhost, stream_path)
     ::File.open(player_path, 'wb') do |f|
       f.write(html)
     end
@@ -280,33 +237,31 @@ Status     : <span id="status"></span>
     path = ::File.expand_path(player_path)
     if view
       print_status("Opening player at: #{path}")
-      Rex::Compat.open_file(player_path)
+      Rex::Compat.open_file(path)
     else
       print_status("Please open the player manually with a browser: #{path}")
     end
 
     print_status("Streaming...")
     begin
-        ::Timeout.timeout(duration) do
-          while client do
-            data = client.ui.screenshot( quality )
+      ::Timeout.timeout(duration) do
+        while client do
+          data = client.ui.screenshot( quality )
 
-            if data
-              ::File.open(stream_path, 'wb') do |f|
-                f.write(data)
-              end
-              data = nil
+          if data
+            ::File.open(stream_path, 'wb') do |f|
+              f.write(data)
             end
+            data = nil
           end
         end
-      rescue ::Timeout::Error
-      ensure
-       
       end
+    rescue ::Timeout::Error
+    end
 
-      print_status("Stopped")
+    print_status("Stopped")
 
-      return true
+    return true
   end
 
   #
