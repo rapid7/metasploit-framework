@@ -600,6 +600,7 @@ protected
     print_error('Invalid constant Net::SSH::Transport::ServerVersion::PROTO_VERSION')
     false
   ensure
+    # Restore warning
     $VERBOSE = verbose
   end
 
