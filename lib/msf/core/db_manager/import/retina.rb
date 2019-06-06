@@ -74,6 +74,13 @@ module Msf::DBManager::Import::Retina
             :task      => args[:task]
         }
 
+        if vuln['port'] && vuln['proto']
+          vuln_info.merge!({
+               :port => vuln['port'],
+               :proto => vuln['proto'].to_s.downcase
+          })
+        end
+
         report_vuln(vuln_info)
       end
     end

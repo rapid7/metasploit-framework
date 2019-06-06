@@ -27,6 +27,7 @@ class RetinaXMLStreamParser
   end
 
   def text(str)
+    return if str.strip.empty?()
     case @state
     when :in_ip
       @host["address"] = str
@@ -35,7 +36,7 @@ class RetinaXMLStreamParser
     when :in_netbiosname
       @host["netbios"] = str
     when :in_mac
-      @host["mac"] = str
+      @host["mac"] = str.split(/\s+/).first
     when :in_os
       @host["os"] = str
     when :in_rthid
@@ -59,6 +60,8 @@ class RetinaXMLStreamParser
       @audit['cce'] = str
     when :in_date
       @audit['data'] = str
+    when :in_context
+      @audit['proto'], @audit['port'] = str.split(/\s+/).first.split(':')
     end
   end
 
