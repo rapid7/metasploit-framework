@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'rex/parser/retina_xml'
 
 module Msf::DBManager::Import::Retina

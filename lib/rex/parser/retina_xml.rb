@@ -1,10 +1,9 @@
 # -*- coding: binary -*-
+
 module Rex
 module Parser
-
 # XXX - Retina XML does not include ANY service/port information export
 class RetinaXMLStreamParser
-
   attr_accessor :on_found_host
 
   def initialize(on_found_host = nil)
@@ -87,7 +86,7 @@ end
 end
 end
 
-__END__
+=begin Old XML format
 <scanJob>
   <hosts>
     <host>
@@ -111,4 +110,39 @@ __END__
     </host>
   </hosts>
 </scanJob>
+=end Old XML format
 
+=begin New XML format
+<?xml version="1.0" encoding="utf-8"?>
+<scanJob>
+  <hosts>
+    <host>
+      <ip>[redacted]</ip>
+      <netBIOSName>[redacted]</netBIOSName>
+      <dnsName>[redacted]</dnsName>
+      <mac></mac>
+      <os>[redacted]</os>
+      <cpe>[redacted]</cpe>
+      <audit>
+        <cve>[redacted]</cve>
+        <cce>N/A</cce>
+        <name>TLS/SSL Weak Protocol Version Supported</name>
+        <description>A targeted service that accepts connections for cryptographically weak SSL protocol versions (eg SSLv2, SSLv3, TLSv1.0) has been detected. Such protocols are known to have cryptographic weaknesses as well as other exploitable vulnerabilities.</description>
+        <date>[redacted]</date>
+        <risk>Medium</risk>
+        <pciLevel>Medium</pciLevel>
+        <pciReason>PCI DSS 4.1 - SSL Weakness</pciReason>
+        <pciPassFail>Fail</pciPassFail>
+        <cvssScore>4.3 [AV:N/AC:M/Au:N/C:P/I:N/A:N]</cvssScore>
+        <cvssScoreV3>6.8 [AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:N/A:N]</cvssScoreV3>
+        <fixInformation>Ensure that applications or services are configured to reject SSLv3, SSLv2 and TLSv1.0 communications. Disabling weak protocols is a defense-in-depth measure against vulnerabilities that could allow SSL version downgrade attacks (e.g. CVE-2014-3566).</fixInformation>
+        <exploit>No</exploit>
+        <context>TCP:443 ([redacted]), SHA256[=][redacted], Serial[=][redacted]</context>
+        <testedValue>Accepted SSL Method: (SSLv[23]|TLSv1(\.0)?)$</testedValue>
+        <foundValue>[redacted]</foundValue>
+        <cwe>CWE-310</cwe>
+      </audit>
+    </host>
+  </hosts>
+</scanJob>
+=end New XML format
