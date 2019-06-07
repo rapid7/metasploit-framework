@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Evasion
 
 
   def mod(var)
-    var = Rex::Text.rand_text_alpha (3)
+    var = Rex::Text.rand_text_alpha (8)
   end
 
 
