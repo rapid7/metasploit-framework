@@ -49,13 +49,13 @@ module Msf::DBManager::Import::Retina
       # Import OS fingerprint
       if host["os"]
         note = {
-            :workspace => wspace,
-            :host      => addr,
-            :type      => 'host.os.retina_fingerprint',
-            :task      => args[:task],
-            :data      => {
-                :os => host["os"]
-            }
+          :workspace => wspace,
+          :host      => addr,
+          :type      => 'host.os.retina_fingerprint',
+          :task      => args[:task],
+          :data      => {
+            :os => host["os"]
+          }
         }
         report_note(note)
       end
@@ -66,19 +66,19 @@ module Msf::DBManager::Import::Retina
         refs << "RETINA-#{vuln['rthid']}" if vuln['rthid']
 
         vuln_info = {
-            :workspace => wspace,
-            :host      => addr,
-            :name      => vuln['name'],
-            :info      => vuln['description'],
-            :refs      => refs,
-            :task      => args[:task]
+          :workspace => wspace,
+          :host      => addr,
+          :name      => vuln['name'],
+          :info      => vuln['description'],
+          :refs      => refs,
+          :task      => args[:task]
         }
 
         if vuln['port'] && vuln['proto']
-          vuln_info.merge!({
-               :port => vuln['port'],
-               :proto => vuln['proto'].to_s.downcase
-          })
+          vuln_info.merge!(
+            :port  => vuln['port'],
+            :proto => vuln['proto'].to_s.downcase
+          )
         end
 
         report_vuln(vuln_info)
