@@ -407,6 +407,9 @@ module Msf::DBManager::Import
         when /ReportInfo/
           @import_filedata[:type] = "Foundstone"
           return :foundstone_xml
+        when /scanJob/
+          @import_filedata[:type] = "Retina XML"
+          return :retina_xml
         when /ScanGroup/
           @import_filedata[:type] = "Acunetix"
           return :acunetix_xml

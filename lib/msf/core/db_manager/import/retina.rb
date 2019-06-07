@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'rex/parser/retina_xml'
 
 module Msf::DBManager::Import::Retina
@@ -6,12 +8,6 @@ module Msf::DBManager::Import::Retina
     data = args[:data]
     wspace = args[:wspace] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    msg =  "Warning: The Retina XML format does not associate vulnerabilities with the\n"
-    msg << "specific service on which they were found.\n"
-    msg << "This makes it impossible to correlate exploits to discovered vulnerabilities\n"
-    msg << "in a reliable fashion."
-
-    yield(:warning,msg) if block
 
     parser = Rex::Parser::RetinaXMLStreamParser.new
     parser.on_found_host = Proc.new do |host|
@@ -49,13 +45,13 @@ module Msf::DBManager::Import::Retina
       # Import OS fingerprint
       if host["os"]
         note = {
-            :workspace => wspace,
-            :host      => addr,
-            :type      => 'host.os.retina_fingerprint',
-            :task      => args[:task],
-            :data      => {
-                :os => host["os"]
-            }
+          :workspace => wspace,
+          :host      => addr,
+          :type      => 'host.os.retina_fingerprint',
+          :task      => args[:task],
+          :data      => {
+            :os => host["os"]
+          }
         }
         report_note(note)
       end
@@ -66,13 +62,20 @@ module Msf::DBManager::Import::Retina
         refs << "RETINA-#{vuln['rthid']}" if vuln['rthid']
 
         vuln_info = {
-            :workspace => wspace,
-            :host      => addr,
-            :name      => vuln['name'],
-            :info      => vuln['description'],
-            :refs      => refs,
-            :task      => args[:task]
+          :workspace => wspace,
+          :host      => addr,
+          :name      => vuln['name'],
+          :info      => vuln['description'],
+          :refs      => refs,
+          :task      => args[:task]
         }
+
+        if vuln['port'] && vuln['proto']
+          vuln_info.merge!(
+            :port  => vuln['port'],
+            :proto => vuln['proto'].to_s.downcase
+          )
+        end
 
         report_vuln(vuln_info)
       end
