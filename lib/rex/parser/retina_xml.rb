@@ -26,7 +26,7 @@ class RetinaXMLStreamParser
   end
 
   def text(str)
-    return if str.strip.empty?
+    return if str.to_s.strip.empty?
 
     case @state
     when :in_ip
