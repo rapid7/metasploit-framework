@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::HttpClient
-    Rank = GoodRanking
 
   def initialize(info = {})
     super(update_info(info,
