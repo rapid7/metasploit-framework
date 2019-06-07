@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
 
   def initialize(info = {})
     super(update_info(info,
@@ -29,12 +30,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    start_service
+
     res = send_request_cgi(
       'method' => 'GET',
       'uri'    => '/remote/media_control',
       'vars_get' => {
         'action' => 'setUri',
-        'uri'    => '' # TODO: Make this work
+        'uri'    => get_uri
       }
     )
 
@@ -44,5 +47,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good('Fake video was broadcasted')
+  end
+
+  def on_request_uri(cli, request)
+    # TODO: Make this work
+    pp request
   end
 end
