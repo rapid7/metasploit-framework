@@ -6,12 +6,6 @@ module Msf::DBManager::Import::Retina
     data = args[:data]
     wspace = args[:wspace] || workspace
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    msg =  "Warning: The Retina XML format does not associate vulnerabilities with the\n"
-    msg << "specific service on which they were found.\n"
-    msg << "This makes it impossible to correlate exploits to discovered vulnerabilities\n"
-    msg << "in a reliable fashion."
-
-    yield(:warning,msg) if block
 
     parser = Rex::Parser::RetinaXMLStreamParser.new
     parser.on_found_host = Proc.new do |host|
