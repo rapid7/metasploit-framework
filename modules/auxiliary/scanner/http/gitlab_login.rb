@@ -33,8 +33,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     register_autofilter_ports([ 80, 443 ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

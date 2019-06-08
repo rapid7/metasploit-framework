@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER)", 'BROWSER']),

@@ -72,6 +72,7 @@ module RootApiDoc
     tag name: 'msf', description: 'Utility operations around Metasploit Framework.'
     tag name: 'nmap', description: 'Nmap operations.'
     tag name: 'note', description: 'Note operations.'
+    tag name: 'payload', description: 'Payload operations.'
     tag name: 'service', description: 'Service operations.'
     tag name: 'session', description: 'Session operations.'
     tag name: 'session_event', description: 'Session Event operations.'

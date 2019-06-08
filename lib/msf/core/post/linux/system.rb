@@ -85,10 +85,16 @@ module System
       system_data[:distro] = "mandrake"
       system_data[:version] = version
 
-    #SuSE
+    # SuSE
     elsif etc_files.include?("SuSE-release")
       version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
       system_data[:distro] = "suse"
+      system_data[:version] = version
+
+    # OpenSUSE
+    elsif etc_files.include?("SUSE-brand")
+      version = read_file("/etc/SUSE-brand").scan(/^VERSION\s*=\s*([\d\.]+)/).flatten.first
+      system_data[:distro] = 'suse'
       system_data[:version] = version
 
     # Gentoo

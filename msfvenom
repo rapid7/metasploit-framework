@@ -448,7 +448,7 @@ generator_opts[:cli] = true
 begin
   venom_generator = Msf::PayloadGenerator.new(generator_opts)
   payload = venom_generator.generate_payload
-rescue ::Msf::Simple::Buffer::BufferFormatError => e
+rescue Msf::InvalidFormat => e
   $stderr.puts "Error: #{e.message}"
   $stderr.puts dump_formats
 rescue ::Exception => e

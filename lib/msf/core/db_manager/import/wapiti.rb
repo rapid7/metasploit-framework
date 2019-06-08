@@ -13,7 +13,6 @@ module Msf::DBManager::Import::Wapiti
 
   def import_wapiti_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

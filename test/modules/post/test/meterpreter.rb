@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     if (stat and stat.directory?)
       tmp = "/tmp"
     else
-      tmp = session.fs.file.expand_path("%TEMP%")
+      tmp = session.sys.config.getenv('TEMP')
     end
     vprint_status("Setup: changing working directory to #{tmp}")
     session.fs.dir.chdir(tmp)
@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Post
     else
       entropy_value = ""
     end
-    
+
     it "should return the proper directory separator" do
       sysinfo = session.sys.config.sysinfo
       if sysinfo["OS"] =~ /windows/i
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Post
     end
 
     it "should create and remove a dir" do
-      dir_name = "#{datastore["BaseFileName"]}-dir#{entropy_value}" 
+      dir_name = "#{datastore["BaseFileName"]}-dir#{entropy_value}"
       vprint_status("Directory Name: #{dir_name}")
       session.fs.dir.rmdir(dir_name) rescue nil
       res = create_directory(dir_name)

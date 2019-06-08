@@ -115,7 +115,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
   end

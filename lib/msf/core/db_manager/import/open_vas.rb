@@ -13,7 +13,6 @@ module Msf::DBManager::Import::OpenVAS
 
   def import_openvas_new_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -26,9 +25,6 @@ module Msf::DBManager::Import::OpenVAS
   # Of course they had to change the nessus format.
   #
   def import_openvas_xml(args={}, &block)
-    filename = args[:filename]
-    wspace = args[:wspace] || workspace
-
     raise Msf::DBImportError.new("No OpenVas XML support. Please submit a patch to msfdev[at]metasploit.com")
   end
 end

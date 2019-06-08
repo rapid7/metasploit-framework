@@ -35,8 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 5 ])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

@@ -3,7 +3,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   # XXX: This function is stupidly long. It needs to be refactored.
   def import_msf_collateral(args={}, &block)
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
@@ -163,7 +163,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   # XXX: Refactor so it's not quite as sanity-blasting.
   def import_msf_zip(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
@@ -194,8 +194,14 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     }
 
     data.entries.each do |e|
-      target = ::File.join(@import_filedata[:zip_tmp], e.name)
-      data.extract(e,target)
+      # normalize entry name to an absolute path
+      target = File.expand_path(File.join(@import_filedata[:zip_tmp], e.name), '/').to_s
+
+      # skip if the target would be extracted outside of the zip
+      # tmp dir to mitigate any directory traversal attacks
+      next unless is_child_of?(@import_filedata[:zip_tmp], target)
+
+      e.extract(target)
 
       if target =~ /\.xml\z/
         target_data = ::File.open(target, "rb") {|f| f.read 1024}
@@ -235,5 +241,9 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     else
       import_msf_collateral(new_args)
     end
+  end
+
+  def is_child_of?(target_dir, target)
+    target.downcase.start_with?(target_dir.downcase)
   end
 end

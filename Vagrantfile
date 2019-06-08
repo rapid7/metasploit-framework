@@ -31,7 +31,6 @@ Vagrant.configure(2) do |config|
   [ "gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3",
     "curl -L https://get.rvm.io | bash -s stable",
     "source ~/.rvm/scripts/rvm && cd /vagrant && rvm install `cat .ruby-version`",
-    "source ~/.rvm/scripts/rvm && cd /vagrant && gem install bundler",
     "source ~/.rvm/scripts/rvm && cd /vagrant && bundle",
     "mkdir -p ~/.msf4",
   ].each do |step|

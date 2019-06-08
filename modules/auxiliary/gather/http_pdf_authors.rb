@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'pdf-reader'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -34,6 +32,9 @@ class MetasploitModule < Msf::Auxiliary
       },
       'License'     => MSF_LICENSE,
       'Author'      => 'bcoles'))
+
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('URL', [ false, 'The target URL', '' ]),
@@ -41,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
         OptBool.new('STORE_LOOT', [ false, 'Store authors in loot', true ])
       ])
-    deregister_options 'RHOST', 'RHOSTS', 'RPORT', 'VHOST', 'SSL'
   end
 
   def progress(current, total)
@@ -65,6 +65,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read(data)
+    require 'pdf-reader'
+
     Timeout.timeout(10) do
       reader = PDF::Reader.new data
       return parse reader

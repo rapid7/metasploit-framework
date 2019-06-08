@@ -85,6 +85,36 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'apple_ios/aarch64/shell_reverse_tcp'
   end
 
+  context 'apple_ios/armle/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/apple_ios/armle/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'apple_ios/armle/meterpreter_reverse_http'
+  end
+
+  context 'apple_ios/armle/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/apple_ios/armle/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'apple_ios/armle/meterpreter_reverse_https'
+  end
+
+  context 'apple_ios/armle/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/apple_ios/armle/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'apple_ios/armle/meterpreter_reverse_tcp'
+  end
+
   context 'android/meterpreter_reverse_https' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -199,6 +229,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'bsd/sparc/shell_reverse_tcp'
+  end
+
+  context 'bsd/vax/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/bsd/vax/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'bsd/vax/shell_reverse_tcp'
   end
 
   context 'bsd/x64/exec' do
@@ -716,6 +756,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_bash'
+  end
+
+  context 'cmd/unix/reverse_bash_udp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/reverse_bash_udp'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_bash_udp'
   end
 
   context 'cmd/unix/reverse_bash_telnet_ssl' do
@@ -1542,6 +1592,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/x64/shell/reverse_tcp'
   end
 
+  context 'linux/x64/shell_bind_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/shell_bind_ipv6_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/shell_bind_ipv6_tcp'
+  end
+
   context 'linux/x64/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1570,6 +1630,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/shell_find_port'
+  end
+
+  context 'linux/x64/shell_reverse_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/shell_reverse_ipv6_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/shell_reverse_ipv6_tcp'
   end
 
   context 'linux/x64/shell_reverse_tcp' do
@@ -4157,6 +4227,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/loadlibrary'
+  end
+
+  context 'windows/x64/messagebox' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/messagebox'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/messagebox'
   end
 
   context 'windows/x64/meterpreter/bind_ipv6_tcp' do

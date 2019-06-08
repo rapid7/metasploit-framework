@@ -296,7 +296,7 @@ class Db
     end
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
@@ -547,7 +547,7 @@ class Db
 
     matched_host_ids = []
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
         matched_host_ids << host.id
@@ -763,7 +763,7 @@ class Db
     matched_service_ids = []
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
       opts[:workspace] = framework.db.workspace
       opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
@@ -909,7 +909,7 @@ class Db
       vulns = framework.db.vulns({:search_term => search_term})
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
       end
@@ -1091,7 +1091,7 @@ class Db
     else
       # Collect notes of specified hosts
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
         opts[:ntype] = types if mode != :update && types && !types.empty?
@@ -1307,7 +1307,7 @@ class Db
       loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
       end

@@ -22,11 +22,26 @@ unless ENV['BUNDLE_GEMFILE']
   end
 end
 
+# Remove bigdecimal warning - start
+# https://github.com/ruby/bigdecimal/pull/115
+# https://github.com/rapid7/metasploit-framework/pull/11184#issuecomment-461971266
+# TODO: remove when upgrading from rails 4.x
+require 'bigdecimal'
+
+def BigDecimal.new(*args, **kwargs)
+  return BigDecimal(*args) if kwargs.empty?
+  BigDecimal(*args, **kwargs)
+end
+# Remove bigdecimal warning - end
+
 begin
   require 'bundler/setup'
-rescue LoadError
-  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-  $stderr.puts "    $ gem install bundler"
+rescue LoadError => e
+  $stderr.puts "[*] Bundler failed to load and returned this error:"
+  $stderr.puts
+  $stderr.puts "   '#{e}'"
+  $stderr.puts
+  $stderr.puts "[*] You may need to uninstall or upgrade bundler"
   exit(1)
 end
 

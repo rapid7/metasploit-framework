@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
-
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::SSH::Options
 
   attr_accessor :ssh_socket, :good_key
 
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE')
+    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE')
 
     @good_key = ''
     @strip_passwords = true
@@ -245,6 +245,5 @@ class MetasploitModule < Msf::Auxiliary
       @cache[filename] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(key_path), password, false, key_path).to_s
       @cache[filename]
     end
-
   end
 end

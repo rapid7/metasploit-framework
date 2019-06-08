@@ -9,11 +9,13 @@ This module can abuse misconfigured web servers to upload and delete web content
 4. Do: ```set PATH [PATH]```
 5. Do: ```set FILENAME [FILNAME]```
 6. Do: ```set FILEDATA [PATH]```
-7. DO: ```run```
+7. Do: ```run```
 
 ## Options 
 
 ### ACTION
+
+Set `ACTION` to either `PUT` or `DELETE`. (Default: `PUT`)
 
 **PUT**
 
@@ -21,7 +23,7 @@ Action is set to PUT to upload files to the server. If `FILENAME` isn't specifie
 
 **DELETE** 
 
-Deletes the file specified in the `FILENAME` option. (default: `msf_http_put_test.txt`)
+Deletes the file specified in the `FILENAME` option (Default: `msf_http_put_test.txt`). `FILENAME` is required when Action is set to DELETE. 
 
 ### PATH
 
@@ -29,16 +31,15 @@ The path at which this module will attempt to either PUT the content or DELETE i
 
 ### FILEDATA
 
-The file whose data is to be uploaded. 
+The content to put in the uploaded file when `ACTION` is set to `PUT`.
+
 
 ## Scenarios
 
-Here Action is set to `PUT`.
+Here `ACTION` is by default set to `PUT`.
 
 ```
 msf > use auxiliary/scanner/http/http_put
-msf auxiliary(scanner/http/http_put) > set ACTION PUT
-ACTION => PUT
 msf auxiliary(scanner/http/http_put) > set RHOSTS 1.1.1.23
 RHOSTS => 1.1.1.23
 msf auxiliary(scanner/http/http_put) > set RPORT 8585

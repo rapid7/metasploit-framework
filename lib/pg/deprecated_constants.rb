@@ -16,7 +16,7 @@
 #
 # config.autoload_paths << Rails.root.join('lib')
 #
-if PG::VERSION != '0.21.0' || ActiveRecord.version.to_s != '4.2.11'
+if PG::VERSION != '0.21.0' || ActiveRecord.version.to_s != '4.2.11.1'
   puts <<MSG
 -----------------------------------------------------------------------------------
 The pg and/or activerecord gem version has changed, meaning deprecated pg constants

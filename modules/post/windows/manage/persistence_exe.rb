@@ -174,13 +174,13 @@ class MetasploitModule < Msf::Post
         write_file_to_target(temprexe,rexe)
       rescue Rex::Post::Meterpreter::RequestError
         print_warning("Insufficient privileges to write in #{datastore['LocalExePath']}, writing to %TEMP%")
-        temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+        temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
         write_file_to_target(temprexe,rexe)
       end
 
     # Write to %temp% directory if not set LocalExePath
     else
-      temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+      temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
       write_file_to_target(temprexe,rexe)
     end
 

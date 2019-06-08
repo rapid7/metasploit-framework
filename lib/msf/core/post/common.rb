@@ -111,7 +111,7 @@ module Msf::Post::Common
       end
 
       session.response_timeout = time_out
-      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
       o = ""
       # Wait up to time_out seconds for the first bytes to arrive
       while (d = process.channel.read)
@@ -159,7 +159,7 @@ module Msf::Post::Common
           args = ""
         end
         session.response_timeout = time_out
-        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
         process.channel.close
         pid = process.pid
         process.close

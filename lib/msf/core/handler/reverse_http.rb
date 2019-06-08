@@ -6,6 +6,7 @@ require 'rex/post/meterpreter'
 require 'rex/socket/x509_certificate'
 require 'msf/core/payload/windows/verify_ssl'
 require 'rex/user_agent'
+require 'uri'
 
 module Msf
 module Handler
@@ -118,9 +119,9 @@ module ReverseHttp
 
     # Extract whatever the client sent us in the Host header
     if req && req.headers && req.headers['Host']
-        callback_host, callback_port = req.headers['Host'].split(":")
-        callback_port = callback_port.to_i
-        callback_port ||= (ssl? ? 443 : 80)
+      cburi = URI("#{scheme}://#{req.headers['Host']}")
+      callback_host = cburi.host
+      callback_port = cburi.port
     end
 
     # Override the host and port as appropriate
@@ -239,7 +240,7 @@ module ReverseHttp
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
-      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+      print_status("Handler is ignoring unknown payloads")
     end
   end
 
@@ -323,14 +324,18 @@ protected
     request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
     # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+    if datastore['IgnoreUnknownPayloads'] && ! framework.db.get_payload({uuid: uuid.puid_hex})
       print_status("Ignoring unknown UUID: #{request_summary}")
       info[:mode] = :unknown_uuid
     end
 
     # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
-      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      payload_info = {
+          uuid: uuid.puid_hex,
+      }
+      payload = framework.db.get_payload(payload_info)
+      allowed_urls = payload ? payload.urls : []
       unless allowed_urls.include?(req.relative_resource)
         print_status("Ignoring unknown UUID URL: #{request_summary}")
         info[:mode] = :unknown_uuid_url

@@ -12,6 +12,7 @@ load 'documentation/api/v1/module_search_api_doc.rb'
 load 'documentation/api/v1/msf_api_doc.rb'
 load 'documentation/api/v1/nmap_api_doc.rb'
 load 'documentation/api/v1/note_api_doc.rb'
+load 'documentation/api/v1/payload_api_doc.rb'
 load 'documentation/api/v1/service_api_doc.rb'
 load 'documentation/api/v1/session_api_doc.rb'
 load 'documentation/api/v1/session_event_api_doc.rb'
@@ -57,6 +58,7 @@ module ApiDocsServlet
           MsfApiDoc,
           NmapApiDoc,
           NoteApiDoc,
+          PayloadApiDoc,
           ServiceApiDoc,
           SessionApiDoc,
           SessionEventApiDoc,

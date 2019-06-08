@@ -1,5 +1,5 @@
 ## Description
-This module will test a telnet login with a list of provided credentials on a range of machines and report successful logins.
+This module will test a telnet login with a list of provided credentials on a range of machines and report successful logins. It allows you to pass credentials in a number of ways. You can specifically set a username and password, you can pass a list of usernames and a list of passwords for it to iterate through, or you can provide a file that contains usernames and passwords separated by a space.
 
 ## Verification Steps
 
@@ -7,12 +7,11 @@ This module will test a telnet login with a list of provided credentials on a ra
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set THREADS [NUMBER OF THREADS]```
 4. Do: ```set USER_FILE [USERNAME FILE]```
-5. Do: ```set PASS_FILE[PASSWORD FILE]```
+5. Do: ```set PASS_FILE [PASSWORD FILE]```
 6. Do: ```run```
 
 ## Options
 
-This auxiliary module allows you to pass credentials in a number of ways. You can specifically set a username and password, you can pass a list of usernames and a list of passwords for it to iterate through, or you can provide a file that contains usernames and passwords separated by a space.
 
 ### BLANK PASSWORD 
 
@@ -32,7 +31,7 @@ File containing username and passwords separated by space, one pair one line.
 
 ### USER_FILE
 
-File containing username one per line.
+File containing usernames one per line.
 
 ### PASS_FILE
 
@@ -57,7 +56,7 @@ msf auxiliary(scanner/telnet/telnet_login) > set PASS_FILE passwords.txt
 PASS_FILE => passwords.txt
 msf auxiliary(scanner/telnet/telnet_login) > set VERBOSE false
 VERBOSE => false
-msf auxiliary(scanner/telnet/telnet_login) >run
+msf auxiliary(scanner/telnet/telnet_login) > run
 
 [+] 1.1.1.116 - SUCCESSFUL LOGIN root : s00p3rs3ckret
 [*] Command shell session 1 opened (1.1.1.101:50017 -> 1.1.1.116:23) at 2010-10-08 06:48:27 -0600

@@ -30,6 +30,11 @@
    The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
    `USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
 
+   **DeleteTempFiles**
+
+   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+
    **ITERATION_TIMEOUT**
 
    The max-run-time for each iteration of cracking

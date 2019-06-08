@@ -23,8 +23,6 @@ class MetasploitModule < Msf::Auxiliary
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE
     ))
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

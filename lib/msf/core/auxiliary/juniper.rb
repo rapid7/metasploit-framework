@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'metasploit/framework/hashes/identify'
+
 module Msf
 
 ###
@@ -147,16 +150,7 @@ module Auxiliary::Juniper
 
     if /root-authentication[\s]+\{[\s]+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
       root_hash = root_hash.strip
-      case
-        when root_hash.start_with?('$1$')
-          jtr_format = 'md5'
-        when root_hash.start_with?('$5$')
-          jtr_format = 'sha256,crypt'
-        when root_hash.start_with?('$6$')
-          jtr_format = 'sha512,crypt'
-        else
-          jtr_format = ''
-      end
+      jtr_format = identify_hash root_hash
 
       print_good("root password hash: #{root_hash}")
       cred = credential_data.dup
@@ -173,16 +167,8 @@ module Auxiliary::Juniper
       user_uid  = result[1].strip
       user_permission = result[2].strip
       user_hash = result[3].strip
-      case
-        when user_hash.start_with?('$1$')
-          jtr_format = 'md5'
-        when user_hash.start_with?('$5$')
-          jtr_format = 'sha256,crypt'
-        when user_hash.start_with?('$6$')
-          jtr_format = 'sha512,crypt'
-        else
-          jtr_format = ''
-      end
+      jtr_format = identify_hash user_hash
+
       print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
       cred = credential_data.dup
       cred[:username] = user_name

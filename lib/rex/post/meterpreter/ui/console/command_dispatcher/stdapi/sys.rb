@@ -303,7 +303,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     case client.platform
     when 'windows'
-      path = client.fs.file.expand_path('%COMSPEC%')
+      path = client.sys.config.getenv('COMSPEC')
       path = (path && !path.empty?) ? path : 'cmd.exe'
 
       # attempt the shell with thread impersonation
@@ -319,12 +319,11 @@ class Console::CommandDispatcher::Stdapi::Sys
         return true
       end
 
-      # Don't expand_path() this because it's literal anyway
       cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
       # must special-case COMSPEC to return the system-specific shell.
-      path = client.fs.file.expand_path('%COMSPEC%')
+      path = client.sys.config.getenv('COMSPEC')
 
       # If that failed for whatever reason, guess it's unix
       path = (path && !path.empty?) ? path : '/bin/sh'

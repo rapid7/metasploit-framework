@@ -1,5 +1,10 @@
 module Msf::Ui::Console::CommandDispatcher::Analyze
 
+  def cmd_analyze_help
+    print_line "Usage: analyze [addr1 addr2 ...]"
+    print_line
+  end
+
   def cmd_analyze(*args)
     unless active?
       print_error "Not currently connected to a data service for analysis."
@@ -23,7 +28,7 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     host_ids = []
     suggested_modules = {}
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
       eval_hosts_ids = framework.db.hosts(address: host_search).map(&:id)
       if eval_hosts_ids
         eval_hosts_ids.each do |eval_id|
@@ -61,10 +66,15 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     suggested_modules
   end
 
+  def cmd_analyze_tabs(_str, words)
+    return [] unless framework.db.active
 
-  def cmd_analyze_help
-    print_line "Usage: analyze [addr1 addr2 ...]"
-    print_line
+    hosts = framework.db.hosts.map(&:address)
+
+    # Limit completion to supplied host if it's the only one
+    return [] if words.length > 1 && hosts.length == 1
+
+    hosts
   end
 
 end

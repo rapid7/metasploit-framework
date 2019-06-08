@@ -13,7 +13,7 @@ module Msf::DBManager::Import::BurpSession
 
   def import_burp_session_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     if Rex::Parser.nokogiri_loaded
       # Rex::Parser.reload("burp_session_nokogiri.rb")
       parser = "Nokogiri v#{::Nokogiri::VERSION}"

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
   # Fingerprint a single host
   def run_host(ip)
 
-    pass = []
+    pipes = []
 
     [[139, false], [445, true]].each do |info|
 
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       connect()
       smb_login()
       check_named_pipes.each do |pipe_name, _|
-        pass.push(pipe_name)
+        pipes.push(pipe_name)
       end
 
       disconnect()
@@ -51,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
     end
     end
 
-    if(pass.length > 0)
-      print_good("Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
+    if(pipes.length > 0)
+      print_good("Pipes: #{pipes.join(", ")}")
       # Add Report
       report_note(
         :host	=> ip,
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname	=> 'smb',
         :port	=> rport,
         :type	=> 'Pipes Found',
-        :data	=> "Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}"
+        :data	=> "Pipes: #{pipes.join(", ")}"
       )
     end
   end

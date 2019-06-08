@@ -137,8 +137,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   #
   # Tab completion for the irb command
   #
-  def cmd_irb_tabs(str, words)
+  def cmd_irb_tabs(_str, words)
     return [] if words.length > 1
+
     @@irb_opts.fmt.keys
   end
 
