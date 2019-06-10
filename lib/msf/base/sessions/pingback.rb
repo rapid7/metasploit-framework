@@ -6,9 +6,7 @@ module Sessions
 
 ###
 #
-# This class provides basic interaction with a command shell on the remote
-# endpoint.  This session is initialized with a stream that will be used
-# as the pipe for reading and writing the command shell.
+# This class provides the ability to receive a pingback UUID
 #
 ###
 class Pingback
@@ -36,7 +34,7 @@ class Pingback
     uuid_raw = conn.get_once(16, 1)
     if uuid_raw
       uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
-      puts "Incoming UUID = #{uuid_string}"
+      $stderr.puts "Incoming UUID = #{uuid_string}"
 
       unless @db_active == false
         begin
@@ -44,22 +42,22 @@ class Pingback
 
           # TODO: Output errors and UUID using something other than `puts`
           if res.nil?
-            puts("Provided UUID (#{uuid_string}) was not found in database!")
+            $stderr.puts("Provided UUID (#{uuid_string}) was not found in database!")
             #TODO: Abort, somehow?
           else
-            puts("UUID identified (#{uuid_string})")
+            $stderr.puts("UUID identified (#{uuid_string})")
           end
           @db_active = true
         rescue ActiveRecord::ConnectionNotEstablished
           @db_active = false
-          puts "WARNING: UUID verification and logging is not available, because the database is not active."
+          $stderr.puts "WARNING: UUID verification and logging is not available, because the database is not active."
         rescue => e
           #TODO: Can we have a more specific exception handler?
           #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
-          puts "Can't get original UUID"
-          puts "Exception Class: #{ e.class.name }"
-          puts "Exception Message: #{ e.message }"
-          puts "Exception Backtrace: #{ e.backtrace }"
+          $stderr.puts "Can't get original UUID"
+          $stderr.puts "Exception Class: #{ e.class.name }"
+          $stderr.puts "Exception Message: #{ e.message }"
+          $stderr.puts "Exception Backtrace: #{ e.backtrace }"
         end
       end
 
