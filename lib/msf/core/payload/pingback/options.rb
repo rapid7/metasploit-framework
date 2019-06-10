@@ -28,7 +28,6 @@ module Msf::Payload::Pingback::Options
 
   # Generate a Payload UUID
   def generate_pingback_uuid
-    puts("Msf::Payload::Pingback::Options.generate_pingback_uuid")
     conf = {}
     if datastore['PingbackUUID'].to_s.length > 0
       #
