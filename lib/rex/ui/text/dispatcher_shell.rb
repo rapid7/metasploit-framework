@@ -149,6 +149,11 @@ module DispatcherShell
     #
     def cmd_help(cmd=nil, *ignored)
       if cmd
+        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
+          print(File.read(File.join(docs_dir, cmd + '.md')))
+          print_line
+        end
+
         help_found = false
         cmd_found = false
         shell.dispatcher_stack.each do |dispatcher|
@@ -175,18 +180,15 @@ module DispatcherShell
           end
         end
 
-        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
-          print_line
-          print(File.read(File.join(docs_dir, cmd + '.md')))
-        end
         print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
         print_error("No such command") if not cmd_found
       else
-        print(shell.help_to_s)
         if docs_dir && File.exist?(File.join(docs_dir + '.md'))
-          print_line
           print(File.read(File.join(docs_dir + '.md')))
+          print_line
         end
+
+        print(shell.help_to_s)
       end
     end
 
