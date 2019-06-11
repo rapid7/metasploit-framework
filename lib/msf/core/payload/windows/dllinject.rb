@@ -28,7 +28,7 @@ module Payload::Windows::DllInject
       'Arch'          => ARCH_X86,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockedi -http -https'
+          'Convention' => 'sockedi udpsockedi -http -https'
         },
       'Stage'         =>
         {
