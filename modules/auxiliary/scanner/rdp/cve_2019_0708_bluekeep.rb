@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
           return true, result if result
 
           # Windows XP doesn't return the standard Negotiation Response packet
-          # but we at least know this was RDP since the packet contained a 
+          # but we at least know this was RDP since the packet contained a
           # Connect-Confirm response (0xd0).
           if err_msg == "Negotiation Response packet too short."
             return true, RDPConstants::PROTOCOL_RDP
@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Server requests RDP Security")
       # send initial client data
       res = rdp_send_recv(pdu_connect_initial(server_selected_proto, @computer_name))
-      rsmod, rsexp, rsran, server_rand, bitlen = rdp_parse_connect_response(res)
+      rsmod, rsexp, _rsran, server_rand, bitlen = rdp_parse_connect_response(res)
     elsif [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
       vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
       return Exploit::CheckCode::Safe
@@ -260,7 +260,7 @@ class MetasploitModule < Msf::Auxiliary
     rdp_send(pdu_erect_domain_request)
     res = rdp_send_recv(pdu_attach_user_request)
 
-    user1 = res[9,2].unpack("n").first
+    user1 = res[9, 2].unpack("n").first
 
     # send channel requests
     [1009, 1003, 1004, 1005, 1006, 1007, 1008].each do |chan|
@@ -277,7 +277,9 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Sending security exchange PDU")
       rdp_send(pdu_security_exchange(rcran, rsexp, rsmod, bitlen))
 
-      rc4encstart, rc4decstart, @hmackey, sessblob = rdp_calculate_rc4_keys(client_rand, server_rand)
+      # We aren't decrypting anything at this point. Leave the variables here
+      # to make it easier to understand in the future.
+      rc4encstart, _rc4decstart, @hmackey, _sessblob = rdp_calculate_rc4_keys(client_rand, server_rand)
 
       @rc4enckey = RC4.new(rc4encstart)
     end
@@ -292,7 +294,7 @@ class MetasploitModule < Msf::Auxiliary
     # can still successfully check for vulnerability anyway.
     if res.length <= 34
       vprint_status("Waiting for Server Demand packet")
-      res = rdp_recv
+      _res = rdp_recv
       vprint_status("Received Server Demand packet")
     end
 
@@ -348,7 +350,7 @@ class MetasploitModule < Msf::Auxiliary
   class RdpCommunicationError < StandardError
   end
 
-   #
+  #
   # Standard RDP
   # Constants
   #
@@ -356,7 +358,7 @@ class MetasploitModule < Msf::Auxiliary
     SSL_REQUIRED_BY_SERVER = 1
     SSL_NOT_ALLOWED_BY_SERVER = 2
     SSL_CERT_NOT_ON_SERVER = 3
-    INCONSISTENT_FLAGS =  4
+    INCONSISTENT_FLAGS = 4
     HYBRID_REQUIRED_BY_SERVER = 5
     SSL_WITH_USER_AUTH_REQUIRED_BY_SERVER = 6
 
@@ -567,11 +569,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # PreMasterHash(I) = SaltedHash(preMasterSecret, I)
     # MasterSecret = PreMasterHash(0x41) + PreMasterHash(0x4242) + PreMasterHash(0x434343)
-    masterSecret = rdp_salted_hash(preMasterSecret, "A", client_random,server_random) +  rdp_salted_hash(preMasterSecret, "BB", client_random,server_random) + rdp_salted_hash(preMasterSecret, "CCC", client_random, server_random)
+    masterSecret = rdp_salted_hash(preMasterSecret, "A", client_random,server_random) +  rdp_salted_hash(preMasterSecret, "BB", client_random, server_random) + rdp_salted_hash(preMasterSecret, "CCC", client_random, server_random)
 
     # MasterHash(I) = SaltedHash(MasterSecret, I)
     # SessionKeyBlob = MasterHash(0x58) + MasterHash(0x5959) + MasterHash(0x5A5A5A)
-    sessionKeyBlob = rdp_salted_hash(masterSecret, "X", client_random,server_random) +  rdp_salted_hash(masterSecret, "YY", client_random,server_random) + rdp_salted_hash(masterSecret, "ZZZ", client_random, server_random)
+    sessionKeyBlob = rdp_salted_hash(masterSecret, "X", client_random, server_random) +  rdp_salted_hash(masterSecret, "YY", client_random, server_random) + rdp_salted_hash(masterSecret, "ZZZ", client_random, server_random)
 
     # InitialClientDecryptKey128 = FinalHash(Second128Bits(SessionKeyBlob))
     initialClientDecryptKey128 = rdp_final_hash(sessionKeyBlob[16..31], client_random, server_random)
@@ -678,7 +680,7 @@ class MetasploitModule < Msf::Auxiliary
     # build clientName - 12.2.1.3.2 Client Core Data (TS_UD_CS_CORE)
     # 15 characters + null terminator, converted to unicode
     # fixed length - 32 characters total
-    name_unicode = Rex::Text.to_unicode(host_name[0..14],  type = 'utf-16le')
+    name_unicode = Rex::Text.to_unicode(host_name[0..14], type = 'utf-16le')
     name_unicode += "\x00" * (32 - name_unicode.length)
 
     # This needs to be reworked and documented.
@@ -997,7 +999,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
     pdu = "\xea\x03\x01\x00" + # shareId: 66538
-    "\xea\x03" + #originatorId
+    "\xea\x03" + # originatorId
     "\x06\x00" + # lengthSourceDescriptor: 6
     "\x8e\x01" + # lengthCombinedCapabilities: 398
     "\x4d\x53\x54\x53\x43\x00" + # SourceDescriptor: 'MSTSC'
