@@ -123,7 +123,7 @@ module Msf::DBManager::Import
         # Module names that match this vulnerability
         matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
         next if matched.empty?
-        match_names = matched.map { |mod| mod.full_name }
+        match_names = matched.map { |mod| mod.fullname }
 
         second_pass_services = []
 

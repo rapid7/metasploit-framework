@@ -335,7 +335,7 @@ module Msf
               'check'       => 'Modules that support the \'check\' method',
               'date'        => 'Modules with a matching disclosure date',
               'description' => 'Modules with a matching description',
-              'full_name'   => 'Modules with a matching full name',
+              'fullname'    => 'Modules with a matching full name',
               'mod_time'    => 'Modules with a matching modification date',
               'name'        => 'Modules with a matching descriptive name',
               'path'        => 'Modules with a matching path',
@@ -403,7 +403,7 @@ module Msf
               @module_search_results.each do |m|
                 tbl << [
                     count += 1,
-                    m.full_name,
+                    m.fullname,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                     RankingName[m.rank].to_s,
                     m.check ? 'Yes' : 'No',
@@ -412,7 +412,7 @@ module Msf
               end
 
               if @module_search_results.length == 1 && use
-                used_module = @module_search_results.first.full_name
+                used_module = @module_search_results.first.fullname
                 cmd_use(used_module, true)
               end
             rescue ArgumentError
@@ -646,7 +646,7 @@ module Msf
             # Use a module by search index
             if mod_index
               return if mod_index < 0 || @module_search_results[mod_index].nil?
-              mod_name = @module_search_results[mod_index].full_name
+              mod_name = @module_search_results[mod_index].fullname
             end
 
             # See if the supplied module name has already been resolved
