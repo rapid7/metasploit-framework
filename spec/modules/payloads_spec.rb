@@ -2919,17 +2919,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/dllinject/reverse_tcp_rc4_dns'
   end
 
-  context 'windows/dllinject/reverse_udp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/windows/reverse_udp',
-                              'stages/windows/dllinject'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'windows/dllinject/reverse_udp'
-  end
-
   context 'windows/dns_txt_query_exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
