@@ -27,7 +27,7 @@ module MetasploitModule
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseUdp,
-      'Convention'  => 'sockedi',
+      'Convention'  => 'udpsockedi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
   end
