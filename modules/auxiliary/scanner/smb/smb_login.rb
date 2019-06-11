@@ -15,6 +15,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
+  Aliases = [
+    'auxiliary/scanner/smb/login'
+  ]
+
   def proto
     'smb'
   end
