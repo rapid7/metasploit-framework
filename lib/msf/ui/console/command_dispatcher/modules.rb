@@ -33,6 +33,7 @@ module Msf
               "pushm"      => "Pushes the active or list of modules onto the module stack",
               "previous"   => "Sets the previously loaded module as the current module",
               "reload_all" => "Reloads all modules from all defined module paths",
+              "reload_search" => "Rebuild the module search cache",
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Interact with a module by name or search term/index",
@@ -887,6 +888,42 @@ module Msf
             end
 
             self.driver.run_single("banner")
+          end
+
+          def cmd_reload_search_help
+            print_line "Usage: reload_search"
+            print_line
+            print_line "Rebuild the module search cache"
+            print_line
+          end
+
+          def cmd_reload_search(*args)
+            if args.length > 0
+              cmd_reload_search_help
+              return
+            end
+
+            base_store = File.join(Msf::Config.install_root, "db",
+                                   Msf::Modules::Metadata::Store::BaseMetaDataFile)
+            user_store = File.join(Msf::Config.config_directory, "store",
+                                   Msf::Modules::Metadata::Store::UserMetaDataFile)
+
+            update_base = File.writable?(base_store)
+
+            if update_base
+              print_line "Base store is at #{base_store}, deleting"
+              File.delete(base_store)
+            end
+
+            print_line "Rebuilding local module data store"
+            framework.modules.refresh_cache_from_module_files
+            sleep(1) while !File.exist?(user_store)
+            print_line "Wrote updated data store to #{user_store}"
+
+            if update_base
+              print_line "Moving #{user_store} to #{base_store}"
+              File.rename(user_store, base_store)
+            end
           end
 
           def cmd_back_help
