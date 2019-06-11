@@ -38,6 +38,10 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('RDP_USER', [ false, 'The username to report during connect, UNSET = random']),
+        OptString.new('RDP_CLIENT_NAME', [ false, 'The client computer name to report during connect, UNSET = random', 'rdesktop']),
+        OptString.new('RDP_DOMAIN', [ false, 'The client domain name to report during connect, UNSET = random', '']),
+        OptString.new('RDP_CLIENT_IP', [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
         Opt::RPORT(3389)
       ])
   end
@@ -63,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       status = Exploit::CheckCode::Safe
       print_status("The target service is not running, or refused our connection.")
     else
-      print_status("#{status[1]}")
+      print_status(status[1].to_s)
     end
 
     status
@@ -108,11 +112,32 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_rdp
+
+    if datastore['RDP_USER']
+      @user_name = datastore['RDP_USER']
+    else
+      @user_name = Rex::Text.rand_text_alpha(7)
+    end
+
+    if datastore['RDP_DOMAIN']
+      @domain = datastore['RDP_DOMAIN']
+    else
+      @domain = Rex::Text.rand_text_alpha(7)
+    end
+
+    if datastore['RDP_CLIENT_NAME']
+      @computer_name = datastore['RDP_CLIENT_NAME']
+    else
+      @computer_name = Rex::Text.rand_text_alpha(15)
+    end
+
+    @ip_address = datastore['RDP_CLIENT_IP']
+
     # code to check if RDP is open or not
     vprint_status("Verifying RDP protocol...")
 
     vprint_status("Attempting to connect using TLS security")
-    res = rdp_send_recv(pdu_negotiation_request(RDPConstants::PROTOCOL_SSL))
+    res = rdp_send_recv(pdu_negotiation_request(@user_name, RDPConstants::PROTOCOL_SSL))
 
     # return true if the response is a X.224 Connect Confirm
     # We can't use a check for RDP Negotiation Response because WinXP excludes it
@@ -133,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Attempting to connect using Standard RDP security")
         disconnect
         connect
-        res = rdp_send_recv(pdu_negotiation_request(RDPConstants::PROTOCOL_RDP))
+        res = rdp_send_recv(pdu_negotiation_request(@user_name, RDPConstants::PROTOCOL_RDP))
 
         if res
           result, err_msg = rdp_parse_negotiation_response(res)
@@ -216,11 +241,11 @@ class MetasploitModule < Msf::Auxiliary
       swap_sock_plain_to_ssl(nsock)
 
       # send initial client data
-      res = rdp_send_recv(pdu_connect_initial(server_selected_proto))
+      res = rdp_send_recv(pdu_connect_initial(server_selected_proto, @computer_name))
     elsif server_selected_proto == 0
       vprint_status("Server requests RDP Security")
       # send initial client data
-      res = rdp_send_recv(pdu_connect_initial(server_selected_proto))
+      res = rdp_send_recv(pdu_connect_initial(server_selected_proto, @computer_name))
       rsmod, rsexp, rsran, server_rand, bitlen = rdp_parse_connect_response(res)
     elsif [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
       vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
@@ -245,6 +270,7 @@ class MetasploitModule < Msf::Auxiliary
     if server_selected_proto == 0
       @rdp_sec = true
 
+      # FIXFIX - Make this actually random
       client_rand = "\x41" * 32
       rcran = bytes_to_bignum(client_rand)
 
@@ -257,7 +283,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status("Sending client info PDU")
-    res = rdp_send_recv(rdp_build_pkt(pdu_client_info, "\x03\xeb", true))
+    res = rdp_send_recv(rdp_build_pkt(pdu_client_info(@user_name, @domain, @ip_address), "\x03\xeb", true))
     vprint_status("Received License packet")
 
     # Windows XP sometimes sends a very large license packet. This is likely
@@ -621,9 +647,15 @@ class MetasploitModule < Msf::Auxiliary
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/18a27ef9-6f9a-4501-b000-94b1fe3c2c10
   # Client X.224 Connect Request PDU - 2.2.1.1
-  def pdu_negotiation_request(requested_protocols = 0)
-    "\x03\x00" +    # TPKT Header version 03, reserved 0
-    "\x00\x2b" +    # TPKT length: 43
+  def pdu_negotiation_request(user_name = "", requested_protocols = 0)
+
+    # FIXFIX - Double check max length of the cookie here
+    user_name = Rex::Text.rand_text_alpha(5) if user_name == ""
+    user_name = user_name[0..4]
+    tpkt_len = user_name.length() + 38
+
+    "\x03\x00" +     # TPKT Header version 03, reserved 0
+    [tpkt_len].pack("S>") +    # TPKT length: 43
     "\x26" +        # X.224 Data TPDU length: 38
     "\xe0" +        # X.224 Type: Connect Request
     "\x00\x00" +    # dst reference
@@ -631,17 +663,23 @@ class MetasploitModule < Msf::Auxiliary
     "\x00" +        # class and options
     # cookie - literal 'Cookie: mstshash='
     "\x43\x6f\x6f\x6b\x69\x65\x3a\x20\x6d\x73\x74\x73\x68\x61\x73\x68\x3d" +
-    Rex::Text.rand_text_alpha(5) + # Identifier "username"
-    "\x0d\x0a" +     # cookie terminator
-    "\x01\x00" +     # Type: RDP Negotiation Request ( 0x01 )
-    "\x08\x00" +     # Length
+    user_name +     # Identifier "username"
+    "\x0d\x0a" +    # cookie terminator
+    "\x01\x00" +    # Type: RDP Negotiation Request ( 0x01 )
+    "\x08\x00" +    # Length
     [requested_protocols].pack('L<') # requestedProtocols
   end
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/db6713ee-1c0e-4064-a3b3-0fac30b4037b
-  def pdu_connect_initial(selected_proto = 0)
+  def pdu_connect_initial(selected_proto = 0, host_name = "rdesktop")
     # After negotiating TLS or NLA the connectInitial packet needs to include the
     # protocol selection that the server indicated in its Negotiation Response
+
+    # build clientName - 12.2.1.3.2 Client Core Data (TS_UD_CS_CORE)
+    # 15 characters + null terminator, converted to unicode
+    # fixed length - 32 characters total
+    name_unicode = Rex::Text.to_unicode(host_name[0..14],  type = 'utf-16le')
+    name_unicode += "\x00" * (32 - name_unicode.length)
 
     # This needs to be reworked and documented.
     pdu = "\x7f\x65" + # T.125 Connect-Initial (BER: Application 101)
@@ -699,9 +737,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x03\xaa" + # SASSequence: 43523
     "\x09\x04\x00\x00" + # keyboardLayout: 1033 (English US)
     "\x28\x0a\x00\x00" + # clientBuild: 2600
-    # clientName: x1810 (15 Unicode chars + null terminator )- FIXME
-    "\x78\x00\x31\x00\x38\x00\x31\x00\x30\x00\x00\x00\x00\x00\x00\x00" +
-    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" +
+    [name_unicode].pack("a*") + # clientName
     "\x04\x00\x00\x00" + # keyboardType: 4 (IBMEnhanced 101 or 102)
     "\x00\x00\x00\x00" + # keyboadSubtype: 0
     "\x0c\x00\x00\x00" + # keyboardFunctionKey: 12
@@ -812,26 +848,39 @@ class MetasploitModule < Msf::Auxiliary
 
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/772d618e-b7d6-4cd0-b735-fa08af558f9d
   # TS_INFO_PACKET - 2.2.1.11.1.1
-  def pdu_client_info
+  def pdu_client_info(user_name, domain_name = "", ip_address = "")
+
+    # FIXFIX - UserName  - max length?
+    user_name = Rex::Text.rand_text_alpha(10) if user_name == ""
+    user_unicode = Rex::Text.to_unicode(user_name,  type = 'utf-16le')
+    uname_len = user_unicode.length
+
+    # Domain can can be, and for rdesktop typically is, empty.
+    domain_unicode = Rex::Text.to_unicode(domain_name, type = 'utf-16le')
+    domain_len = domain_unicode.length
+
+    # clientAddress + null terminator
+    ip_unicode = Rex::Text.to_unicode(ip_address, type = 'utf-16le') + "\x00\x00"
+    ip_len = ip_unicode.length
+
     "\x00\x00\x00\x00" +  # CodePage
     "\x33\x01\x00\x00" +  # flags - INFO_MOUSE, INFO_DISABLECTRLALTDEL, INFO_UNICODE, INFO_MAXIMIZESHELL, INFO_ENABLEWINDOWSKEY
-    "\x00\x00" +  # cbDomain (length value)
-    "\x0a\x00" +  # cbUserName (length value): 10 EXCLUDES null terminator
+    [domain_len].pack("S<") + # cbDomain (length value) - EXCLUDES null terminator
+    [uname_len].pack("S<") +  # cbUserName (length value) - EXCLUDES null terminator
     "\x00\x00" +  # cbPassword (length value)
     "\x00\x00" +  # cbAlternateShell (length value)
     "\x00\x00" +  # cbWorkingDir (length value)
-    "\x00\x00" +  # Domain - empty
-    "\x75\x00\x73\x00\x65\x00\x72\x00\x30\x00" + # UserName: user0 - FIXME use global name value, set cbUsername above as well
+    [domain_unicode].pack("a*") + # Domain
+    "\x00\x00" +  # Domain null terminator, EXCLUDED from value of cbDomain
+    [user_unicode].pack("a*") +   # UserName
     "\x00\x00" +  # UserName null terminator, EXCLUDED FROM value of cbUserName
     "\x00\x00" +  # Password - empty
     "\x00\x00" +  # AlternateShell - empty
     "\x00\x00" +  # WorkingDir - empty
     # TS_EXTENDED_INFO_PACKET - 2.2.1.11.1.1.1
-    "\x02\x00" +  # clientAddressFamily - AF_INET
-    "\x1c\x00" +  # cbClientAddress (length value): 28
-    # clientAddress: 192.168.1.208 - FIXME
-    "\x31\x00\x39\x00\x32\x00\x2e\x00\x31\x00\x36\x00\x38\x00\x2e\x00\x31\x00\x2e\x00\x32\x00\x30\x00\x38\x00" +
-    "\x00\x00" +  # clientAddress null terminator, included in value of cbClientAddress
+    "\x02\x00" +  # clientAddressFamily - AF_INET - FIXFIX - detect and set dynamically
+    [ip_len].pack("S<") +     # cbClientAddress (length value) - INCLUDES terminator ... for reasons.
+    [ip_unicode].pack("a*") + # clientAddress (unicode + null terminator (unicode)
     "\x3c\x00" +  # cbClientDir (length value): 60
     # clientDir - 'C:\WINNT\System32\mstscax.dll' + null terminator
     "\x3c\x00\x43\x00\x3a\x00\x5c\x00\x57\x00\x49\x00\x4e\x00\x4e\x00" +
@@ -839,6 +888,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x33\x00\x32\x00\x5c\x00\x6d\x00\x73\x00\x74\x00\x73\x00\x63\x00" +
     "\x61\x00\x78\x00\x2e\x00\x64\x00\x6c\x00\x6c\x00\x00\x00" +
     # clientTimeZone - TS_TIME_ZONE struct - 172 bytes
+    # These are the default values for rdesktop
     "\xa4\x01\x00\x00" + # Bias
     # StandardName - 'GTB,normaltid'
     "\x47\x00\x54\x00\x42\x00\x2c\x00\x20\x00\x6e\x00\x6f\x00\x72\x00" +
