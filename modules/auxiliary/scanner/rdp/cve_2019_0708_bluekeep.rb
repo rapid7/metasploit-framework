@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('RDP_USER', [ false, 'The username to report during connect, UNSET = random']),
         OptString.new('RDP_CLIENT_NAME', [ false, 'The client computer name to report during connect, UNSET = random', 'rdesktop']),
-        OptString.new('RDP_DOMAIN', [ false, 'The client domain name to report during connect, UNSET = random', '']),
+        OptString.new('RDP_DOMAIN', [ false, 'The client domain name to report during connect']),
         OptString.new('RDP_CLIENT_IP', [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
         Opt::RPORT(3389)
       ])
@@ -270,8 +270,9 @@ class MetasploitModule < Msf::Auxiliary
     if server_selected_proto == 0
       @rdp_sec = true
 
-      # FIXFIX - Make this actually random
-      client_rand = "\x41" * 32
+      # 5.3.4 Client Random Value
+      client_rand = ''
+      32.times { client_rand << rand(0..255) }
       rcran = bytes_to_bignum(client_rand)
 
       vprint_status("Sending security exchange PDU")
@@ -651,14 +652,14 @@ class MetasploitModule < Msf::Auxiliary
   # Client X.224 Connect Request PDU - 2.2.1.1
   def pdu_negotiation_request(user_name = "", requested_protocols = 0)
 
-    # FIXFIX - Double check max length of the cookie here
-    user_name = Rex::Text.rand_text_alpha(5) if user_name == ""
-    user_name = user_name[0..4]
-    tpkt_len = user_name.length() + 38
+    # Blank username is ok, nil = random
+    user_name = Rex::Text.rand_text_alpha(12) if user_name.nil?
+    tpkt_len = user_name.length + 38
+    x224_len = user_name.length + 33
 
     "\x03\x00" +     # TPKT Header version 03, reserved 0
-    [tpkt_len].pack("S>") +    # TPKT length: 43
-    "\x26" +        # X.224 Data TPDU length: 38
+    [tpkt_len].pack("S>") + # TPKT length: 43
+    [x224_len].pack("C") +  # X.224 LengthIndicator
     "\xe0" +        # X.224 Type: Connect Request
     "\x00\x00" +    # dst reference
     "\x00\x00" +    # src reference
@@ -683,7 +684,6 @@ class MetasploitModule < Msf::Auxiliary
     name_unicode = Rex::Text.to_unicode(host_name[0..14], type = 'utf-16le')
     name_unicode += "\x00" * (32 - name_unicode.length)
 
-    # This needs to be reworked and documented.
     pdu = "\x7f\x65" + # T.125 Connect-Initial (BER: Application 101)
     "\x82\x01\xbe" +   # Length (BER: Length)
     "\x04\x01\x01" +   # CallingDomainSelector: 1 (BER: OctetString)
@@ -852,15 +852,23 @@ class MetasploitModule < Msf::Auxiliary
   # TS_INFO_PACKET - 2.2.1.11.1.1
   def pdu_client_info(user_name, domain_name = "", ip_address = "")
 
-    # FIXFIX - UserName  - max length?
-    user_name = Rex::Text.rand_text_alpha(10) if user_name == ""
-    user_unicode = Rex::Text.to_unicode(user_name,  type = 'utf-16le')
+    # Max len for 4.0/6.0 servers is 44 bytes including terminator
+    # Max len for all other versions is 512 including terminator
+    # We're going to limit to 44 (21 chars + null -> unicode) here.
+    # Blank username is ok, nil = random
+    user_name = Rex::Text.rand_text_alpha(10) if user_name.nil?
+    user_unicode = Rex::Text.to_unicode(user_name[0..20],  type = 'utf-16le')
     uname_len = user_unicode.length
 
     # Domain can can be, and for rdesktop typically is, empty.
-    domain_unicode = Rex::Text.to_unicode(domain_name, type = 'utf-16le')
+    # Max len for 4.0/5.0 servers is 52 including terminator
+    # Max len for all other versions is 512 including terminator
+    # We're going to limit to 52 (25 chars + null -> unicode) here.
+    domain_unicode = Rex::Text.to_unicode(domain_name[0..24], type = 'utf-16le')
     domain_len = domain_unicode.length
 
+    # This address value is primarily used to reduce the fields by which this
+    # module can be fingerprinted. It doesn't show up in Windows logs.
     # clientAddress + null terminator
     ip_unicode = Rex::Text.to_unicode(ip_address, type = 'utf-16le') + "\x00\x00"
     ip_len = ip_unicode.length
