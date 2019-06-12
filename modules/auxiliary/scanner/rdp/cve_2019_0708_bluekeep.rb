@@ -678,6 +678,10 @@ class MetasploitModule < Msf::Auxiliary
     # After negotiating TLS or NLA the connectInitial packet needs to include the
     # protocol selection that the server indicated in its Negotiation Response
 
+    # TODO: If this is pulled into an RDP library then the channel list likely
+    # needs to be build dynamically. For example, MS_T120 likely should only
+    # ever be sent as part of checks for CVE-2019-0708
+
     # build clientName - 12.2.1.3.2 Client Core Data (TS_UD_CS_CORE)
     # 15 characters + null terminator, converted to unicode
     # fixed length - 32 characters total
