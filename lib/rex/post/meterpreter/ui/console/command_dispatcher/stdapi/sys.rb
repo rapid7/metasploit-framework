@@ -314,6 +314,8 @@ class Console::CommandDispatcher::Stdapi::Sys
         print_error('Failed to spawn shell with thread impersonation. Retrying without it.')
         cmd_execute('-f', path, '-c', '-i', '-H')
       end
+    when 'android'
+      cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
       if use_pty && pty_shell(sh_path)
         return true
