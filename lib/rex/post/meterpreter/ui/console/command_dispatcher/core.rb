@@ -60,6 +60,7 @@ class Console::CommandDispatcher::Core
       'use'                      => 'Deprecated alias for "load"',
       'load'                     => 'Load one or more meterpreter extensions',
       'machine_id'               => 'Get the MSF ID of the machine attached to the session',
+      'secure'                   => '(Re)Negotiate TLV packet encryption on the session',
       'guid'                     => 'Get the session GUID',
       'quit'                     => 'Terminate the meterpreter session',
       'resource'                 => 'Run the commands stored in a file',
@@ -317,6 +318,12 @@ class Console::CommandDispatcher::Core
       client.next_session = args[0]
       client.interacting = false
     end
+  end
+
+  def cmd_secure
+    print_status('Negotiating new encryption key ...')
+    client.core.secure
+    print_good('Done.')
   end
 
   def cmd_background_help
