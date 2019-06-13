@@ -571,7 +571,9 @@ class Console::CommandDispatcher::Stdapi::Sys
     processes.each do |p|
       if l_flag
         if f_flag
-          print_line("#{p['pid']} #{p['path']}#{client.fs.file.separator}#{p['name']}")
+          full_path = [p['path'], p['name']].join(client.fs.file.separator)
+
+          print_line("#{p['pid']} #{full_path}")
         else
           print_line("#{p['pid']} #{p['name']}")
         end
