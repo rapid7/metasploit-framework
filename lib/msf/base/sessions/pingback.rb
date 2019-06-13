@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/base'
+require 'pry'
 
 module Msf
 module Sessions
@@ -14,6 +15,7 @@ class Pingback
   #
   # This interface supports basic interaction.
   #
+  include Msf::Session
   include Msf::Session::Basic
 
   #
@@ -23,17 +25,34 @@ class Pingback
     "pingback"
   end
 
-  def initialize(conn, opts = {})
+  def initialize(rstream, opts={})
     self.platform ||= ""
     self.arch     ||= ""
     datastore = opts[:datastore]
     super
   end
 
-  def self.create_session(conn, opts = {})
-    uuid_raw = conn.get_once(16, 1)
+  def self.create_session(rstream, opts={})
+    Msf::Sessions::Pingback.new(rstream, opts)
+  end
+
+  def process_autoruns(datastore)
+    uuid_read
+    cleanup
+  end
+
+  def cleanup
+    if rstream
+      # this is also a best-effort
+      rstream.close rescue nil
+      rstream = nil
+    end
+  end
+
+  def uuid_read
+    uuid_raw = rstream.get_once(16, 1)
     if uuid_raw
-      uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
+      self.uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
       $stderr.puts "Incoming UUID = #{uuid_string}"
 
       unless @db_active == false
@@ -60,8 +79,6 @@ class Pingback
           $stderr.puts "Exception Backtrace: #{ e.backtrace }"
         end
       end
-
-      conn.close
     end
     nil
   end
@@ -81,6 +98,7 @@ class Pingback
 
   attr_accessor :arch
   attr_accessor :platform
+  attr_accessor :uuid_string
 
 end
 
