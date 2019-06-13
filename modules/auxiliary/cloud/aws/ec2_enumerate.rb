@@ -23,11 +23,20 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptInt.new('LIMIT', [false, 'Only return the specified number of results']),
         OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
       ]
     )
+  end
+
+  def handle_aws_errors(e)
+    if e.class.parents.include?(Aws)
+      fail_with(Failure::UnexpectedReply, e.message)
+    else
+      raise e
+    end
   end
 
   def enumerate_regions
@@ -57,14 +66,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def handle_aws_errors(e)
-    if e.class.parents.include?(Aws)
-      fail_with(Failure::UnexpectedReply, e.message)
-    else
-      raise e
-    end
-  end
-
   def run
     begin
       if datastore['REGION']
@@ -81,9 +82,11 @@ class MetasploitModule < Msf::Auxiliary
           secret_access_key: datastore['SECRET_ACCESS_KEY']
         )
 
-        if ec2.instances.count > 0
+        instances = ec2.instances.limit(datastore['LIMIT'])
+
+        if instances.count > 0
           print_good "Found #{ec2.instances.count} instances in #{region}:"
-          ec2.instances.each do |i|
+          instances.each do |i|
             describe_ec2_instance(i)
           end
         end
