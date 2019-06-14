@@ -307,35 +307,47 @@ protected
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
     info = process_uri_resource(req.relative_resource)
-    uuid = info[:uuid] || Msf::Payload::UUID.new
+    uuid = info[:uuid]
 
-    # Configure the UUID architecture and payload if necessary
-    uuid.arch      ||= self.arch
-    uuid.platform  ||= self.platform
+    if uuid
+      # Configure the UUID architecture and payload if necessary
+      uuid.arch      ||= self.arch
+      uuid.platform  ||= self.platform
 
-    conn_id = luri
-    if info[:mode] && info[:mode] != :connect
-      conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
-    else
-      conn_id << req.relative_resource
-      conn_id = conn_id.chomp('/')
-    end
-
-    request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
-
-    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
-      print_status("Ignoring unknown UUID: #{request_summary}")
-      info[:mode] = :unknown_uuid
-    end
-
-    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
-    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
-      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
-      unless allowed_urls.include?(req.relative_resource)
-        print_status("Ignoring unknown UUID URL: #{request_summary}")
-        info[:mode] = :unknown_uuid_url
+      conn_id = luri
+      if info[:mode] && info[:mode] != :connect
+        conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+      else
+        conn_id << req.relative_resource
+        conn_id = conn_id.chomp('/')
       end
+
+      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+
+      # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+      if datastore['IgnoreUnknownPayloads'] && ! framework.db.get_payload({uuid: uuid.puid_hex})
+        print_status("Ignoring unknown UUID: #{request_summary}")
+        info[:mode] = :unknown_uuid
+      end
+
+      # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+      if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+        payload_info = {
+            uuid: uuid.puid_hex,
+        }
+        payload = framework.db.get_payload(payload_info)
+        allowed_urls = payload ? payload.urls : []
+        unless allowed_urls.include?(req.relative_resource)
+          print_status("Ignoring unknown UUID URL: #{request_summary}")
+          info[:mode] = :unknown_uuid_url
+        end
+      end
+
+      url = payload_uri(req) + conn_id
+      url << '/' unless url[-1] == '/'
+
+    else
+      info[:mode] = :unknown
     end
 
     self.pending_connections += 1
@@ -343,9 +355,6 @@ protected
     resp.body = ''
     resp.code = 200
     resp.message = 'OK'
-
-    url = payload_uri(req) + conn_id
-    url << '/' unless url[-1] == '/'
 
     # Process the requested resource.
     case info[:mode]
@@ -396,7 +405,7 @@ protected
         })
 
       else
-        unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
+        unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")
         end
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
