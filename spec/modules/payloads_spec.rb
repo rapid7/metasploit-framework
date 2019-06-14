@@ -4283,6 +4283,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/bind_tcp'
   end
 
+  context 'windows/x64/meterpreter/bind_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp_rc4',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/bind_tcp_rc4'
+  end
+
   context 'windows/x64/meterpreter/bind_tcp_uuid' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4484,6 +4495,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/shell/bind_tcp'
   end
 
+  context 'windows/x64/shell/bind_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp_rc4',
+                              'stages/windows/x64/shell'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/shell/bind_tcp_rc4'
+  end
+
   context 'windows/x64/shell/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4546,6 +4568,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/vncinject/bind_tcp'
+  end
+
+  context 'windows/x64/vncinject/bind_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp_rc4',
+                              'stages/windows/x64/vncinject'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/vncinject/bind_tcp_rc4'
   end
 
   context 'windows/x64/vncinject/reverse_tcp' do
