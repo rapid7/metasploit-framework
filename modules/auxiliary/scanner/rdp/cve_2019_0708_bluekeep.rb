@@ -18,9 +18,10 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'JaGoTu',
-          'zerosum0x0',
-          'Tom Sellers'
+          'National Cyber Security Centre', # Discovery
+          'JaGoTu',                         # Module
+          'zerosum0x0',                     # Module
+          'Tom Sellers'                     # TLS support and documented packets
         ],
       'References'     =>
         [
@@ -41,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('RDP_USER', [ false, 'The username to report during connect, UNSET = random']),
         OptString.new('RDP_CLIENT_NAME', [ false, 'The client computer name to report during connect, UNSET = random', 'rdesktop']),
         OptString.new('RDP_DOMAIN', [ false, 'The client domain name to report during connect']),
-        OptString.new('RDP_CLIENT_IP', [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
+        OptAddress.new('RDP_CLIENT_IP', [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
         Opt::RPORT(3389)
       ])
   end
@@ -112,7 +113,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_rdp
-
     if datastore['RDP_USER']
       @user_name = datastore['RDP_USER']
     else
@@ -341,7 +341,6 @@ class MetasploitModule < Msf::Auxiliary
     nsock.sslctx  = ctx
   end
 
-
   #
   # Standard RDP
   # Communication and parsing functions
@@ -406,7 +405,6 @@ class MetasploitModule < Msf::Auxiliary
   # Build the X.224 packet, encrypt with Standard RDP Security as needed
   # default channel_id = 0x03eb = 1003
   def rdp_build_pkt(data, channel_id = "\x03\xeb", client_info = false)
-
     flags = 0
     flags |= 0b1000 if @rdp_sec       # Set SEC_ENCRYPT
     flags |= 0b1000000 if client_info # Set SEC_INFO_PKT
@@ -446,7 +444,6 @@ class MetasploitModule < Msf::Auxiliary
   # @return [String, nil] String representation of the Selected Protocol or nil on failure
   # @return [String] Error message
   def rdp_parse_negotiation_response(data)
-
     return false, "Response is not an RDP Negotiation Response packet." unless data.match("\x03\x00\x00..\xd0")
     return false, "Negotiation Response packet too short." if data.length < 19
 
@@ -651,7 +648,6 @@ class MetasploitModule < Msf::Auxiliary
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/18a27ef9-6f9a-4501-b000-94b1fe3c2c10
   # Client X.224 Connect Request PDU - 2.2.1.1
   def pdu_negotiation_request(user_name = "", requested_protocols = 0)
-
     # Blank username is ok, nil = random
     user_name = Rex::Text.rand_text_alpha(12) if user_name.nil?
     tpkt_len = user_name.length + 38
@@ -855,7 +851,6 @@ class MetasploitModule < Msf::Auxiliary
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/772d618e-b7d6-4cd0-b735-fa08af558f9d
   # TS_INFO_PACKET - 2.2.1.11.1.1
   def pdu_client_info(user_name, domain_name = "", ip_address = "")
-
     # Max len for 4.0/6.0 servers is 44 bytes including terminator
     # Max len for all other versions is 512 including terminator
     # We're going to limit to 44 (21 chars + null -> unicode) here.
@@ -1008,8 +1003,6 @@ class MetasploitModule < Msf::Auxiliary
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/4e9722c3-ad83-43f5-af5a-529f73d88b48
   # Confirm Active PDU Data - TS_CONFIRM_ACTIVE_PDU - 2.2.1.13.2.1
   def pdu_client_confirm_active
-
-
     pdu = "\xea\x03\x01\x00" + # shareId: 66538
     "\xea\x03" + # originatorId
     "\x06\x00" + # lengthSourceDescriptor: 6
@@ -1080,7 +1073,6 @@ class MetasploitModule < Msf::Auxiliary
   # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/ff7f06f8-0dcf-4c8d-be1f-596ae60c4396
   # Client Input Event Data - TS_INPUT_PDU_DATA - 2.2.8.1.1.3.1
   def pdu_client_input_event_sychronize
-
     pdu = "\x01\x00" +   # numEvents: 1
     "\x00\x00" +         # pad2Octets
     "\x00\x00\x00\x00" + # eventTime
@@ -1095,5 +1087,4 @@ class MetasploitModule < Msf::Auxiliary
     # type = 0x17 = TS_PROTOCOL_VERSION | PDUTYPE_DATAPDU
     build_share_control_header(0x17, data_header)
   end
-
 end
