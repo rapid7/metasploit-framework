@@ -21,17 +21,18 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'execute' command.
   #
   @@execute_opts = Rex::Parser::Arguments.new(
-    "-a" => [ true,  "The arguments to pass to the command."		   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."		   ], # -i sets -c
-    "-f" => [ true,  "The executable command to run."			   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-H" => [ false, "Create the process hidden from view."			   ],
-    "-i" => [ false, "Interact with the process after creating it."		   ],
-    "-m" => [ false, "Execute from memory."					   ],
-    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
-    "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
-    "-s" => [ true,  "Execute process in a given session as the session user"  ])
+    "-a" => [ true,  "The arguments to pass to the command." ],
+    "-c" => [ false, "Channelized I/O (required for interaction)." ], # -i sets -c
+    "-f" => [ true,  "The executable command to run." ],
+    "-h" => [ false, "Help menu." ],
+    "-H" => [ false, "Create the process hidden from view." ],
+    "-i" => [ false, "Interact with the process after creating it." ],
+    "-m" => [ false, "Execute from memory." ],
+    "-d" => [ true,  "The 'dummy' executable to launch when using -m." ],
+    "-z" => [ false, "Hide the console logging of channel and process creation." ],
+    "-t" => [ false, "Execute process with currently impersonated thread token" ],
+    "-k" => [ false, "Execute process on the meterpreters current desktop" ],
+    "-s" => [ true,  "Execute process in a given session as the session user" ])
 
   #
   # Options used by the 'shell' command.
@@ -193,6 +194,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
+    show_logging = true
 
     @@execute_opts.parse(args) { |opt, idx, val|
       case opt
@@ -220,6 +222,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           use_thread_token = true
         when "-s"
           session = val.to_i
+        when "-z"
+          show_logging = false
       end
     }
 
@@ -238,8 +242,10 @@ class Console::CommandDispatcher::Stdapi::Sys
       'InMemory'    => (from_mem) ? dummy_exec : nil,
       'UseThreadToken' => use_thread_token)
 
-    print_line("Process #{p.pid} created.")
-    print_line("Channel #{p.channel.cid} created.") if (p.channel)
+    if show_logging
+      print_line("Process #{p.pid} created.")
+      print_line("Channel #{p.channel.cid} created.") if (p.channel)
+    end
 
     if (interact and p.channel)
       shell.interact_with_channel(p.channel)
@@ -308,18 +314,18 @@ class Console::CommandDispatcher::Stdapi::Sys
 
       # attempt the shell with thread impersonation
       begin
-        cmd_execute('-f', path, '-c', '-i', '-H', '-t')
+        cmd_execute('-f', path, '-c', '-i', '-H', '-t', '-z')
       rescue
         # if this fails, then we attempt without impersonation
         print_error('Failed to spawn shell with thread impersonation. Retrying without it.')
-        cmd_execute('-f', path, '-c', '-i', '-H')
+        cmd_execute('-f', path, '-c', '-i', '-H', '-z')
       end
     when 'linux', 'osx'
       if use_pty && pty_shell(sh_path)
         return true
       end
 
-      cmd_execute('-f', '/bin/sh', '-c', '-i')
+      cmd_execute('-f', '/bin/sh', '-c', '-i', '-z')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
       # must special-case COMSPEC to return the system-specific shell.
@@ -332,7 +338,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         return true
       end
 
-      cmd_execute('-f', path, '-c', '-i')
+      cmd_execute('-f', path, '-c', '-i', '-z')
     end
   end
 
