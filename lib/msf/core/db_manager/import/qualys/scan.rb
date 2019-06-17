@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::Qualys::Scan
   def import_qualys_scan_xml(args={}, &block)
     data = args[:data]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 

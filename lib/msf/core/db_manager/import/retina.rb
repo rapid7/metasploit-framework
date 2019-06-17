@@ -6,7 +6,7 @@ module Msf::DBManager::Import::Retina
   # Process Retina XML
   def import_retina_xml(args={}, &block)
     data = args[:data]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     parser = Rex::Parser::RetinaXMLStreamParser.new

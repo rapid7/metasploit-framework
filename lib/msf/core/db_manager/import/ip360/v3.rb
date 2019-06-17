@@ -19,7 +19,7 @@ module Msf::DBManager::Import::IP360::V3
   #
   def import_ip360_xml_v3(args={}, &block)
     data = args[:data]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     # @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } }

@@ -3,7 +3,7 @@ require 'rex/parser/burp_issue_nokogiri'
 module Msf::DBManager::Import::BurpIssue
   def import_burp_issue_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     parser = "Nokogiri v#{::Nokogiri::VERSION}"
     noko_args = args.dup
     noko_args[:blacklist] = bl

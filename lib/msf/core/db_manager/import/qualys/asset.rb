@@ -52,7 +52,7 @@ module Msf::DBManager::Import::Qualys::Asset
   #
   def import_qualys_asset_xml(args={}, &block)
     data = args[:data]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
     vuln_refs = find_qualys_asset_vuln_refs(doc)

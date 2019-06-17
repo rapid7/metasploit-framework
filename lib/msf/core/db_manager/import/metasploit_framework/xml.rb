@@ -228,7 +228,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # TODO: loot, tasks, and reports
   def import_msf_xml(args={}, &block)
     data = args[:data]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    wspace = args[:workspace] || args[:wspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = Nokogiri::XML::Reader.from_memory(data)
