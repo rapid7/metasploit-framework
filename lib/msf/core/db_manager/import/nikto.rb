@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Nikto
   #
   def import_nikto_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
     doc.elements.each do |f|

@@ -13,7 +13,7 @@ module Msf::DBManager::Import::Outpost24
 
   def import_outpost24_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     if Rex::Parser.nokogiri_loaded
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup

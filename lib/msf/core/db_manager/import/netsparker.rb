@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Netsparker
   # Process NetSparker XML
   def import_netsparker_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     addr = nil
     parser = Rex::Parser::NetSparkerXMLStreamParser.new

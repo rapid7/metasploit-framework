@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Libpcap
   # extend PacketFu to do better stream analysis on the fly.
   def import_libpcap(args={}, &block)
     data = args[:data]
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     # seen_hosts is only used for determining when to yield an address. Once we get
     # some packet analysis going, the values will have all sorts of info. The plan

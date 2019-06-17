@@ -1024,8 +1024,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     subject(:import_msf_xml) do
-      expect(workspace).to receive(:name) { 'default' }
-      db_manager.import_msf_xml({:data => data, :workspace => workspace})
+      db_manager.import_msf_xml({:data => data})
     end
 
     it 'should call #check_msf_xml_version!' do

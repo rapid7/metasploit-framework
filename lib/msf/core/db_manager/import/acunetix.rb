@@ -13,7 +13,7 @@ module Msf::DBManager::Import::Acunetix
 
   def import_acunetix_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     if Rex::Parser.nokogiri_loaded
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup

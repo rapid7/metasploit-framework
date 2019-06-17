@@ -6,7 +6,7 @@ module Msf::DBManager::Import::IP360::ASPL
   #
   def import_ip360_aspl_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     if not data.index("<ontology")

@@ -13,7 +13,7 @@ module Msf::DBManager::Import::Foundstone
 
   def import_foundstone_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:workspace] || args[:wspace]
+    wspace = args[:wspace] || args[:workspace]
     if Rex::Parser.nokogiri_loaded
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
