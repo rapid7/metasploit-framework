@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good "  Policies:        []"
     else
       print_good "  Policies:        #{policies[0].policy_name}"
-      policies[1..].each do |p|
+      policies[1..policies.length].each do |p|
         print_good "                   #{p.policy_name}"
       end
     end
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good "  Signing certs:   []"
     else
       print_good "  Signing certs:   #{certs[0].certificate_id} (#{certs[0].status})"
-      certs[1..].each do |c|
+      certs[1..certs.length].each do |c|
         print_good "                   #{c.certificate_id} (#{c.status})"
       end
     end
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good "  AWS Access Keys: []"
     else
       print_good "  AWS Access Keys: #{keys[0].access_key_id} (#{keys[0].status})"
-      keys[1..].each do |k|
+      keys[1..keys.length].each do |k|
         print_good "                   #{k.access_key_id} (#{k.status})"
       end
     end
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
 
     mfa = @iam.list_mfa_devices(user_name: i.user_name).mfa_devices
     mfa_enabled = mfa.empty? ? "Disabled" : "Enabled on #{mfa[0].enable_date}"
-    print_good "  Two-factor auth: #{console_login}"
+    print_good "  Two-factor auth: #{mfa_enabled}"
 
     print_good ""
   end
