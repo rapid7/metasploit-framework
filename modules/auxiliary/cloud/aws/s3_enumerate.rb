@@ -55,19 +55,13 @@ class MetasploitModule < Msf::Auxiliary
     print_good "  Owner:          #{acl.owner.display_name}"
     print_good "  Permissions:"
     acl.grants.each do |i|
-
-      if i.grantee.type == "CanonicalUser"
-        grantee = "User"
-      else
-        grantee = i.grantee.type
-      end
-      grantee += " '#{i.grantee.display_name}'"
-      grantee += " (#{i.grantee.email_address})" unless i.grantee.email_address.nil?
-      grantee += " (#{i.grantee.uri})" unless i.grantee.uri.nil?
-
+      grantee = i.grantee.type == "CanonicalUser" ? "User" : i.grantee.type
+      grantee << " '#{i.grantee.display_name}'"
+      grantee << " (#{i.grantee.email_address})" unless i.grantee.email_address.nil?
+      grantee << " (#{i.grantee.uri})" unless i.grantee.uri.nil?
       print_good "                  #{grantee} granted #{i.permission}"
     end
-    print_good ""
+    print_status ""
   end
 
   def run

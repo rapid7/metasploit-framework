@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('LIMIT', [false, 'Only return the specified number of results']),
+        OptInt.new('LIMIT', [false, 'Only return the specified number of results from each region']),
         OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       regions.append(r.region_name)
     end
 
-    return regions
+    regions
   end
 
   def describe_ec2_instance(i)
@@ -67,33 +67,27 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    begin
-      if datastore['REGION']
-        regions = [datastore['REGION']]
-      else
-        regions = enumerate_regions()
+    regions = datastore['REGION'] ? [datastore['REGION']] : regions = enumerate_regions()
+
+    regions.each do |region|
+      vprint_status "Checking #{region}..."
+      ec2 = Aws::EC2::Resource.new(
+        region: region,
+        access_key_id: datastore['ACCESS_KEY_ID'],
+        secret_access_key: datastore['SECRET_ACCESS_KEY']
+      )
+
+      instances = ec2.instances.limit(datastore['LIMIT'])
+      print_status "Found #{ec2.instances.count} instances in #{region}"
+
+      instances.each do |i|
+        describe_ec2_instance(i)
       end
-
-      regions.each do |region|
-        vprint_status "Checking #{region}..."
-        ec2 = Aws::EC2::Resource.new(
-          region: region,
-          access_key_id: datastore['ACCESS_KEY_ID'],
-          secret_access_key: datastore['SECRET_ACCESS_KEY']
-        )
-
-        instances = ec2.instances.limit(datastore['LIMIT'])
-
-        if instances.count > 0
-          print_good "Found #{ec2.instances.count} instances in #{region}:"
-          instances.each do |i|
-            describe_ec2_instance(i)
-          end
-        end
-      end
-    rescue ::Exception => e
-      handle_aws_errors(e)
     end
+  rescue Seahorse::Client::NetworkingError => e
+    print_error e.message
+    print_error "Confirm region name (eg. us-west-2) is valid or blank before retrying"
+  rescue ::Exception => e
+    handle_aws_errors(e)
   end
 end
-
