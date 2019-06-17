@@ -30,6 +30,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_start" => "Start capturing keystrokes",
       "keyscan_stop"  => "Stop capturing keystrokes",
       "keyboard_send" => "Send keystrokes",
+      "keyevent"      => "Send key events",
       "mouse"         => "Send mouse events",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
       "screenshare"   => "Watch the remote user's desktop in real time",
@@ -46,6 +47,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
+      "keyevent"      => [ "stdapi_ui_send_keyevent" ],
       "keyboard_send" => [ "stdapi_ui_send_keys" ],
       "mouse"         => [ "stdapi_ui_send_mouse" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
@@ -439,6 +441,31 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     keys = args[0]
     client.ui.keyboard_send(keys)
+    print_status('Done')
+  end
+
+  #
+  # Send key events
+  #
+  def cmd_keyevent(*args)
+    action = 0
+    if args.length == 1
+      keycode = args[0].to_i
+    elsif args.length == 2
+      keycode = args[0].to_i
+      if args[1] == 'down'
+        action = 1
+      elsif args[1] == 'up'
+        action = 2
+      end
+    else
+      print_line("Usage: keyevent keycode [action] (press, up, down)")
+      print_line("  e.g: keyevent 13 press (send the enter key)")
+      print_line("       kevevent 17 down (control key down)\n")
+      return
+    end
+
+    client.ui.keyevent_send(keycode, action)
     print_status('Done')
   end
 
