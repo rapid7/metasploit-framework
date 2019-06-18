@@ -6,17 +6,18 @@ Tested with Schneider TM221CE16R
 
 ## Verification Steps
 
-  1. Do: `use auxiliary/auxiliary/scanner/scada/modbus_zip`
-  2. Do: `set PCAPFILE <PATH_TO_PCAP>` where PATH_TO_PCAP is the PATH to the pcap file
-  3. Do: `exploit` extract the zip file
+1. Do: `use auxiliary/auxiliary/scanner/scada/modbus_zip`
+2. Do: `set PCAPFILE <PATH_TO_PCAP>` where PATH_TO_PCAP is the PATH to the pcap file
+3. Do: `exploit` extract the zip file
 
 ## Options
 
-  **MODE**
-  
-  Describe what this option does / how it affects the module.
+**MODE**
+
+Default: UPLOAD. Changes offset within a packet that is used to check for a zip header.
 
 ## Scenarios
+
  ```
 msf > use auxiliary/auxiliary/scanner/scada/modbus_zip
 msf auxiliary(scanner/scada/modbus_zip) > set PCAPFILE file.pcap
