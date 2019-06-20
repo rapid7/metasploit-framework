@@ -31,9 +31,13 @@ class MetasploitModule < Msf::Post
       y = query['y'].first
       session.ui.mouse(action, x, y)
       send_response(cli, '')
-    elsif request.uri =~ %r{/keys$*}
-      keys = request.body.to_s
-      session.ui.keyboard_send(keys) if keys.length > 0
+    elsif request.uri =~ %r{/keyup$*}
+      keycode = request.body.to_i
+      session.ui.keyevent_send(keycode, 2) if keycode
+      send_response(cli, '')
+    elsif request.uri =~ %r{/keydown$*}
+      keycode = request.body.to_i
+      session.ui.keyevent_send(keycode, 1) if keycode
       send_response(cli, '')
     else
       print_status("Sent screenshare html to #{cli.peerhost}")
@@ -70,16 +74,22 @@ function mouseEvent(action, x, y) {
   req.send('action='+action+'&x='+x+'&y='+y);
 }
 
-function keyEvent(keys) {
+function keyEvent(action, key) {
   let req = new XMLHttpRequest;
-  req.open("POST", "keys", true);
-  req.send(keys);
+  req.open("POST", action, true);
+  req.send(key);
 }
 
-document.onkeypress = function(event) {
+document.onkeydown = function(event) {
   let key = event.which || event.keyCode;
-  let keys = String.fromCharCode(key);
-  keyEvent(keys);
+  keyEvent("keydown", key);
+  event.preventDefault();
+}
+
+document.onkeyup = function(event) {
+  let key = event.which || event.keyCode;
+  keyEvent("keyup", key);
+  event.preventDefault();
 }
 
 img.addEventListener("contextmenu", function(e){ e.preventDefault(); }, false);
@@ -88,7 +98,12 @@ img.onmousedown = function(event) {
   if (event.which == 3) {
     action = 'rightclick';
   }
-  mouseEvent(action, event.clientX, event.clientY);
+  mouseEvent(action, event.pageX - img.offsetLeft, event.pageY - img.offsetTop);
+  event.preventDefault();
+}
+img.ondblclick = function(event) {
+  mouseEvent('doubleclick', event.pageX - img.offsetLeft, event.pageY - img.offsetTop);
+  event.preventDefault();
 }
 
 </script>
