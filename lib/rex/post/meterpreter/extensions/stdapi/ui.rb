@@ -276,6 +276,8 @@ class UI < Rex::Post::UI
       action = 5
     when "rightup"
       action = 6
+    when "doubleclick"
+      action = 7
     else
       action = mouseaction.to_i
     end

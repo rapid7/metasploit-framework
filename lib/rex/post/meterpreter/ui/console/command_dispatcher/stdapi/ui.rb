@@ -480,7 +480,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     elsif args.length == 3
       client.ui.mouse(args[0], args[1], args[2])
     else
-      print_line("Usage: mouse action (move, click, up, down, rightclick, rightup, rightdown)")
+      print_line("Usage: mouse action (move, click, up, down, rightclick, rightup, rightdown, doubleclick)")
       print_line("       mouse [x] [y] (click)")
       print_line("       mouse [action] [x] [y]")
       print_line("  e.g: mouse click")
