@@ -202,13 +202,5 @@ Gem::Specification.new do |spec|
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'
   spec.add_runtime_dependency 'aws-sdk-ec2'
-  spec.add_runtime_dependency 'aws-sdk-eks'
   spec.add_runtime_dependency 'aws-sdk-iam'
-  spec.add_runtime_dependency 'aws-sdk-sqs'
-  spec.add_runtime_dependency 'aws-sdk-kms'
-  spec.add_runtime_dependency 'aws-sdk-rds'
-  spec.add_runtime_dependency 'aws-sdk-rdsdataservice'
-  spec.add_runtime_dependency 'aws-sdk-route53'
-  spec.add_runtime_dependency 'aws-sdk-route53domains'
-  spec.add_runtime_dependency 'aws-sdk-route53resolver'
 end
