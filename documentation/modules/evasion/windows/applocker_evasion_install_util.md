@@ -1,13 +1,13 @@
 ## Intro
 
-This module is designed to evade solutions such as software restriction policies and Applocker. 
+This module is designed to evade solutions such as software restriction policies and Applocker.
 Applocker in its default configuration will block code in the form of executables (.exe and .com, .msi), scripts (.ps1, .vbs, .js) and dll's from running in user controlled directories.
-It enforces this by employing whitelisting, in that code can only be run from the protected directories and sub directories of "Program Files" and "Windows" 
-The main vector for this bypass is to use the trusted binary InstallUtil.exe which is located within the trusted Windows directory and also has the ability to execute user supplied code.
+Applocker enforces this by employing whitelisting, in that code can only be run from the protected directories and sub directories of "Program Files" and "Windows"
+The main vector for this bypass is to use the trusted binary InstallUtil.exe to execute user supplied code as this binary is located within the trusted Windows directory.
 
 ## Vulnerable Application
 
-This evasion will work on all versions of Windows that include .NET versions 3.5 or greater that has solutions such as Applocker or Software Restriction Policies active.
+This evasion will work on all versions of Windows that include .NET versions 3.5 or greater that has solutions such as Applocker or Software Restriction Policies active, that do not explicitly block InstallUtill.exe or the "Microsoft.Net" directory.
 
 ## Options
 
