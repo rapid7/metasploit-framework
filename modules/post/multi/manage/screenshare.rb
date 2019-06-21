@@ -121,10 +121,22 @@ document.onkeyup = function(event) {
 }
 
 img.addEventListener("contextmenu", function(e){ e.preventDefault(); }, false);
+img.onmousemove = function(event) {
+  mouseEvent('move', event.pageX - img.offsetLeft, event.pageY - img.offsetTop);
+  event.preventDefault();
+}
 img.onmousedown = function(event) {
-  let action = 'click';
+  let action = 'leftdown';
   if (event.which == 3) {
-    action = 'rightclick';
+    action = 'rightdown';
+  }
+  mouseEvent(action, event.pageX - img.offsetLeft, event.pageY - img.offsetTop);
+  event.preventDefault();
+}
+img.onmouseup = function(event) {
+  let action = 'leftup';
+  if (event.which == 3) {
+    action = 'rightup';
   }
   mouseEvent(action, event.pageX - img.offsetLeft, event.pageY - img.offsetTop);
   event.preventDefault();
