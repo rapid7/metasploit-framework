@@ -260,12 +260,12 @@ module IOMergeAbstraction
   end
 
   def close
-    fd_rd.close unless fd_rd.closed?
-    fd_wr.close unless fd_wr.closed?
+    fd_rd.close if (fd_rd and !fd_rd.closed?)
+    fd_wr.close if (fd_wr and !fd_wr.closed?)
   end
 
   def closed?
-    fd_rd.closed? and fd_wr.closed?
+    (fd_rd.nil? or fd_rd.closed?) and (fd_wr.nil? or fd_wr.closed?)
   end
 end
 
@@ -293,7 +293,9 @@ class ChannelFD
   end
 
   def cid
-    @cid ||= @parent.connection.open_channel_keys.first
+    if @cid.nil?
+      @cid = @parent.connection.open_channel_keys.first
+    end
     @cid
   end
 
@@ -304,9 +306,9 @@ class ChannelFD
       raise "Invalid Channel ID passed to #{self.inspect}"
     end
   end
-  attr_reader :parent, :cid
+  attr_reader :parent
 
-private
+# private
 
   #
   # Provide a selectable filedescriptor open for reading

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
-require 'rex/socket'
-require 'thread'
+require 'rex/proto/ssh'
 require 'msf/core/handler/reverse_tcp'
+require 'msf/base/sessions/ssh_command_shell'
 
 module Msf
 module Handler
@@ -13,7 +13,8 @@ module Handler
 ###
 module ReverseSsh
 
-  include Msf::Handler::ReverseTcp
+  include Msf::Handler
+  include Msf::Handler::Reverse
 
   #
   # Returns the string representation of the handler type
@@ -35,6 +36,7 @@ module ReverseSsh
   #
   def initialize(info = {})
     super
+    register_options([Opt::LPORT(22)])
     register_advanced_options(
       [
         OptString.new('Ssh::Version', [
@@ -90,6 +92,7 @@ module ReverseSsh
       end
     end
 
+    self.service.on_client_connect_proc = Proc.new {|cli| init_fd_client(cli)}
     raise ex if (ex)
 
     print_status("Started SSH reverse handler on #{listener_uri(local_addr)}")
@@ -110,6 +113,44 @@ module ReverseSsh
     end
   end
 
+  def init_fd_client(cli)
+    begin
+      Timeout::timeout(5) do
+        while cli.connection.open_channel_keys.empty? do
+          sleep 0.02
+        end
+        create_session(Rex::Proto::Ssh::ChannelFD.new(cli))
+      end
+    rescue Timeout::Error
+      elog("Unable to find channel FDs for client #{cli}")
+    end
+  end
+
+  def create_session(ssh,opts={})
+    # If there is a parent payload, then use that in preference.
+    s = Sessions::SshCommandShell.new(ssh,opts)
+    # Pass along the framework context
+    s.framework = framework
+
+    # Associate this system with the original exploit
+    # and any relevant information
+    s.set_from_exploit(assoc_exploit)
+
+    # If the session is valid, register it with the framework and
+    # notify any waiters we may have.
+    if (s)
+      register_session(s)
+    end
+
+    return s
+  end
+
+  #
+  # Always wait at least 5 seconds for this payload (due to channel delays)
+  #
+  def wfs_delay
+    5
+  end
   attr_accessor :service # :nodoc:
 
 protected
