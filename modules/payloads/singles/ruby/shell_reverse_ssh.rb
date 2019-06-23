@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 1024
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Ruby

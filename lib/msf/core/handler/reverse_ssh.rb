@@ -119,7 +119,9 @@ module ReverseSsh
         while cli.connection.open_channel_keys.empty? do
           sleep 0.02
         end
-        create_session(Rex::Proto::Ssh::ChannelFD.new(cli))
+        fdc = Rex::Proto::Ssh::ChannelFD.new(cli)
+        self.service.clients.push(fdc)
+        create_session(fdc)
       end
     rescue Timeout::Error
       elog("Unable to find channel FDs for client #{cli}")
