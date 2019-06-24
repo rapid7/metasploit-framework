@@ -60,44 +60,40 @@ class MetasploitModule < Msf::Auxiliary
       grantee << " (#{i.grantee.uri})" unless i.grantee.uri.nil?
       print_good "                  #{grantee} granted #{i.permission}"
     end
-    print_status ""
+    print_status ''
   end
 
   def run
-    begin
-      region = datastore['REGION']
+    region = datastore['REGION']
 
-      @s3 = Aws::S3::Client.new(
-        region: "us-west-2",      # This doesn't actually filter anything, but
-                                  #   it's still required.  Thanks AWS.  :-(
-        access_key_id: datastore['ACCESS_KEY_ID'],
-        secret_access_key: datastore['SECRET_ACCESS_KEY']
-      )
+    @s3 = Aws::S3::Client.new(
+      region: "us-west-2",      # This doesn't actually filter anything, but
+                                #   it's still required.  Thanks AWS.  :-(
+      access_key_id: datastore['ACCESS_KEY_ID'],
+      secret_access_key: datastore['SECRET_ACCESS_KEY']
+    )
 
-      buckets = @s3.list_buckets.buckets
-      print_good "Found #{buckets.count} buckets."
-
-      if buckets.length > 0
-        if region.nil?
-          buckets.each do |i|
-            describe_s3_bucket(i)
-          end
-          print_good "Done."
-        else
-          print_good "Listing buckets that match REGION '#{datastore['REGION']}':"
-          buckets.each do |i|
-            if @s3.get_bucket_location(bucket: i.name).location_constraint.starts_with? region
-              describe_s3_bucket(i)
-            end
-          print_good "Done."
-          end
-        end
-      else
-        print_status "No buckets found."
-      end
-    rescue ::Exception => e
-      handle_aws_errors(e)
+    buckets = @s3.list_buckets.buckets
+    unless bucket.length > 0
+      print_status 'No buckets found.'
+      return
     end
+
+    print_good "Found #{buckets.count} buckets."
+    if region.nil?
+      buckets.each do |i|
+        describe_s3_bucket(i)
+      end
+    else
+      print_good "Listing buckets that match REGION '#{datastore['REGION']}':"
+      buckets.each do |i|
+        if @s3.get_bucket_location(bucket: i.name).location_constraint.starts_with? region
+          describe_s3_bucket(i)
+        end
+      end
+    end
+    print_status 'Done.'
+  rescue ::Exception => e
+    handle_aws_errors(e)
   end
 end
-

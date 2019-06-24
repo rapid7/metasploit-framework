@@ -108,14 +108,14 @@ class MetasploitModule < Msf::Auxiliary
     creds = @iam.get_account_authorization_details
 
     users = creds.user_detail_list
-    print_good "Found #{users.count} users."
+    if users.empty?
+      print_status 'No users found.'
+      return
+    end
 
-    unless users.empty?
-      users.each do |i|
-        describe_iam_users(i)
-      end
-    else
-      print_status "No users found."
+    print_good "Found #{users.count} users."
+    users.each do |i|
+      describe_iam_users(i)
     end
   rescue ::Exception => e
     handle_aws_errors(e)
