@@ -71,6 +71,10 @@ end
 
 module ConnectProxyRelay
   include Rex::Proto::Proxy::Relay
+
+  def stop
+    self.close unless self.closed?
+  end
 end
 
 ###
@@ -106,6 +110,7 @@ class Proxy
     self.listener               = nil
     self.req_handler            = nil
     self.res_handler            = nil
+    self.connect_permit_cb      = nil
     self.redirect_limit         = 0
     self.request_timeout        = 30
     # If the keep-alive session is pushing to the client, monitor and forward the traffic
@@ -280,7 +285,7 @@ class Proxy
   attr_accessor :listen_port, :listen_host, :context, :ssl, :comm, :ssl_cert
   attr_accessor :listener, :proxies, :clients, :req_handler, :res_handler
   attr_accessor :redirect_limit, :rewrite_proxy_headers, :request_timeout
-  attr_accessor :connect_host, :connect_port
+  attr_accessor :connect_host, :connect_port, :connect_permit_cb
 
 protected
 
@@ -456,24 +461,32 @@ protected
 
     # Address TCP tunnels over the proxy
     if request.method == 'CONNECT'
-      begin
-        cli.session = Rex::Socket::Tcp.create(
-          'PeerHost' => host,
-          'PeerPort' => port,
-          'Context'  => self.context,
-          'Proxies'  => self.proxies
-        )
-      rescue => e
-        cli.close_session
-        send_e404(cli)
-        raise ::Rex::ConnectionError(e)
+      if permit_connect?(*cli.peerinfo.split(':'), host, port.to_s)
+        begin
+          cli.session = Rex::Socket::Tcp.create(
+            'PeerHost' => host,
+            'PeerPort' => port,
+            'Context'  => self.context,
+            'Proxies'  => self.proxies
+          )
+        rescue => e
+          cli.close_session
+          send_e404(cli)
+          raise ::Rex::ConnectionError(e)
+        end
+        cli.keepalive = true
+        cli.extend(ConnectProxyRelay)
+        cli.relay(cli, cli.session, "HTTPConnectProxyRelay")
+        resp = Rex::Proto::Http::Response.new(204)
+        resp.auto_cl = false
+        return resp
+      else
+        cli.keepalive = false
+        resp = Rex::Proto::Http::Response.new(405, 'Method Not Allowed')
+        resp['Allow'] = 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST'
+        resp.auto_cl = false
+        return resp
       end
-      cli.keepalive = true
-      cli.extend(ConnectProxyRelay)
-      cli.relay(cli, cli.session, "HTTPConnectProxyRelay")
-      resp = Rex::Proto::Http::Response.new(204)
-      resp.auto_cl = false
-      return resp
     end
     # Remove encoding mechanisms we dont support
     if opts['Accept-Encoding']
@@ -517,6 +530,10 @@ protected
     return response
   end
 
+  def permit_connect?(saddr, sport, daddr, dport)
+    return true if self.connect_permit_cb.nil?
+    self.connect_permit_cb.call(saddr, sport, daddr, dport)
+  end
 end
 
 end

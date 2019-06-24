@@ -36,6 +36,13 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('HTTP::proxy::MITM::response', [false, 'MITM responses with substitutions']),
         OptBool.new('HTTP::proxy::MITM::headers', [false, 'MITM headers with substitutions']),
         OptBool.new('HTTP::proxy::report', [false, 'Report sites and pages']),
+        OptString.new('HTTP::proxy::permit_connect',
+          [
+            false,
+            'Access control entries as saddr:sport-daddr:dport, comma separated, supports wildcards',
+            '*:*-*:*'
+          ]
+        )
       ])
 
   end
@@ -47,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       make_subs(res) if datastore['SUBSTITUTIONS']
     end
     if datastore['HTTP::proxy::report'] and ([200,401,403] + (500..599).to_a).include?(res.code)
-      log_response(cli,res)
+      @logq.push(cli.request.dup,res.dup)
     end
   end
 
@@ -59,9 +66,35 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def permit_connect?(saddr, sport, daddr, dport)
+    begin
+      acr = [saddr, sport, daddr, dport]
+      idx = 0
+      datastore['HTTP::proxy::permit_connect'].split(',').each do |e|
+        if e == '*:*-*:*' or
+        e.split('-').map {|e| e.split(':')}.flatten.all? do |param|
+          param == '*' or param == acr[idx]
+        end
+          vprint_good("#{saddr}:#{sport} received permission for CONNECT to #{daddr} #{dport})")
+          return true
+        end
+      end
+    rescue => e
+      wlog("Failed to validate HTTP Proxy CONNECT permission:\n#{e.backtrace}")
+    end
+    vprint_good("#{saddr}:#{sport} did not receive permission for CONNECT to #{daddr} #{dport})")
+    return false
+  end
 
   def run
     @substitutions = process_subs(datastore['SUBSTITUTIONS'])
+    @logq = Queue.new
+    @logt = Rex::ThreadFactory.spawn("HttpProxyLogMonitor", false) {
+      sleep 0.05 if @logq.empty?
+      while not @logq.empty?
+        log_response(@logq.pop)
+      end
+    }
     exploit
   end
 
@@ -69,14 +102,14 @@ class MetasploitModule < Msf::Auxiliary
   # Borrows heavily from crawler.rb to log web sites and pages
   # based on client request and response instead of Anemone's page
   # class. This wont work unless the client request is still valid
-  def log_response(cli,res)
-    return unless cli.request
+  def log_response(req, res)
+    return unless req
     t = Msf::Auxiliary::HttpCrawler::WebTarget.new
 
     # Build site report information
-    cli.request.headers.map do |k,v|
+    req.headers.map do |k,v|
       t[k.downcase.intern] = v
-    end if cli.request
+    end if reqreq
 
     t[:port] ||= t[:ssl] ? 443 : 80
     t[:site] = report_web_site(:wait => true, :host => t[:host], :port => t[:port], :vhost => t[:vhost], :ssl => t[:ssl])
@@ -84,12 +117,12 @@ class MetasploitModule < Msf::Auxiliary
     # Build page report information, from crawler.rb
     info = {
       :web_site => t[:site],
-      :path     => cli.request.uri,
-      :query    => cli.request.param_string,
+      :path     => req.uri,
+      :query    => req.param_string,
       :code     => res.code,
       :body     => res.body,
       :headers  => res.headers,
-      :cookie   => cli.request.headers['cookie']
+      :cookie   => req.headers['cookie']
     }
 
     if res.headers['content-type']
