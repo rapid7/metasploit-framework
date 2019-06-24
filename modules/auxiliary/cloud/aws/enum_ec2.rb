@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   rescue Seahorse::Client::NetworkingError => e
     print_error e.message
-    print_error "Confirm region name (eg. us-west-2) is valid or blank before retrying"
+    print_error 'Confirm region name (eg. us-west-2) is valid or blank before retrying'
   rescue ::Exception => e
     handle_aws_errors(e)
   end

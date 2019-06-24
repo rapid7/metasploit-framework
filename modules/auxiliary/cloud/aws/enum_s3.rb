@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('LIMIT', [false, 'Only return the specified number of results']),
         OptString.new('REGION', [false, 'AWS Region (eg. "us-west-2")']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])

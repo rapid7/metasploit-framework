@@ -23,7 +23,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('LIMIT', [false, 'Only return the specified number of results']),
         OptString.new('ACCESS_KEY_ID', [true, 'AWS Access Key ID (eg. "AKIAXXXXXXXXXXXXXXXX")', '']),
         OptString.new('SECRET_ACCESS_KEY', [true, 'AWS Secret Access Key (eg. "CA1+XXXXXXXXXXXXXXXXXXXXXX6aYDHHCBuLuV79")', ''])
       ]
@@ -85,17 +84,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     begin
-      console_login = @iam.get_login_profile(user_name: user).empty? ? "Disabled" : "Enabled"
+      console_login = @iam.get_login_profile(user_name: user).empty? ? 'Disabled' : 'Enabled'
       print_good "  Console login:   #{console_login}"
     rescue Aws::IAM::Errors::NoSuchEntity
       print_good "  Console login:   []"
     end
 
     mfa = @iam.list_mfa_devices(user_name: i.user_name).mfa_devices
-    mfa_enabled = mfa.empty? ? "Disabled" : "Enabled on #{mfa[0].enable_date}"
+    mfa_enabled = mfa.empty? ? 'Disabled' : "Enabled on #{mfa[0].enable_date}"
     print_good "  Two-factor auth: #{mfa_enabled}"
 
-    print_good ""
+    print_status ''
   end
 
   def run
