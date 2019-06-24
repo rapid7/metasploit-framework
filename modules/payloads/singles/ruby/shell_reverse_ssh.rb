@@ -24,7 +24,7 @@ module MetasploitModule
       'License'     => MSF_LICENSE,
       'Platform'    => 'ruby',
       'Arch'        => ARCH_RUBY,
-      'Handler'     => Msf::Handler::ReverseTcpSsl,
+      'Handler'     => Msf::Handler::ReverseSsh,
       'Session'     => Msf::Sessions::SshCommandShell,
       'PayloadType' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
