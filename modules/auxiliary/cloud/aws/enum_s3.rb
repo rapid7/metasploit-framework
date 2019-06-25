@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     buckets = @s3.list_buckets.buckets
-    unless bucket.length > 0
+    unless buckets.length > 0
       print_status 'No buckets found.'
       return
     end
