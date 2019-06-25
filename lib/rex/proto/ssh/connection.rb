@@ -80,14 +80,6 @@ class Connection < ::HrrRbSsh::Connection
   #
   # @return [Rex::Proto::Ssh::Connection] a new connection object
   def initialize(io = nil, options = self.default_options, context = {})
-    def_handler = HrrRbSsh::Connection::RequestHandler.new {|c| }
-    @cfd_handlers = {
-      'connection_channel_request_pty_req'       => def_handler,
-      'connection_channel_request_env'           => def_handler,
-      'connection_channel_request_shell'         => def_handler,
-      'connection_channel_request_exec'          => def_handler,
-      'connection_channel_request_window_change' => def_handler
-    }
     @context = context
     @logger = Logger.new self.class.name
     @server = options.delete(:ssh_server)
@@ -95,11 +87,11 @@ class Connection < ::HrrRbSsh::Connection
     @transport = options.delete(:ssh_transport) || HrrRbSsh::Transport.new(
       io,
       options.delete(:ssh_mode) || :server,
-      options.merge(@cfd_handlers)
+      options
     )
     # Take a pre-built authentication from the options or build one on the fly
     @authentication = options.delete(:ssh_authentication) ||
-      HrrRbSsh::Authentication.new(@transport, options.merge(@cfd_handlers))
+      HrrRbSsh::Authentication.new(@transport, options)
     @global_request_handler = GlobalRequestHandler.new(self)
     # Retain remaining options for later use
     @options = options

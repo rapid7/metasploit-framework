@@ -51,7 +51,7 @@ class Channel
   class ChannelType
     class DirectTcpip
       def start
-        if @connection.permit?(@host_to_connect, @port_to)
+        if @connection.permit?(@host_to_connect, @port_to_connect)
           @socket = Rex::Socket::Tcp.create(
             'PeerHost' => @host_to_connect,
             'PeerPort' => @port_to_connect,
