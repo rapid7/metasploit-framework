@@ -524,7 +524,7 @@ class Client
   # Read a response from the server
   #
   # Wait at most t seconds for the full response to be read in.
-  # If t is specified as a negative value, it indicates an infinite wait cycle.
+  # If t is specified as a negative value, it indicates an indefinite wait cycle.
   # If t is specified as nil or 0, it indicates no response parsing is required.
   #
   # @return [Response]
