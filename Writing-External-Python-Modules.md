@@ -4,13 +4,13 @@ This is an example of how to write a Python module for Metasploit Framework that
 
 ## Python Library
 
-The library currently supports a few function calls that can be used to report information to Metasploit Framework. The metasploit library can be loaded into your Python module by including the following line:
+The library currently supports a few function calls that can be used to report information to Metasploit Framework. The `metasploit` library can be loaded into your Python module by including the following line:
 
 ```python
 from metasploit import module
 ```
 
-The location of the [metasplolit library](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/modules/external/python) is automatically added to the `PYTHONPATH` environment variable before the Python module is executed.
+The location of the [metasploit library](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/modules/external/python) is automatically added to the `PYTHONPATH` environment variable before the Python module is executed.
 
 ## Describe Yourself
 
