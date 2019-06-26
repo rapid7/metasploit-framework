@@ -18,7 +18,10 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'Unix Command Shell, Reverse TCP SSH',
       'Description' => 'Connect back and create a command shell via SSH',
-      'Author'      => 'RageLtMan',
+      'Author'      => [
+        'RageLtMan <rageltman[at]sempervictus>', # Rex/Metasploit
+        'hirura' # HrrRbSsh
+      ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,

@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Reverse TCP SSL (via perl)',
       'Description'   => 'Creates an interactive shell via perl, uses SSL',
-      'Author'        => 'RageLtMan',
+      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
       'License'       => BSD_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,

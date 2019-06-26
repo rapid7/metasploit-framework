@@ -20,7 +20,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'R Command Shell, Reverse TCP',
       'Description' => 'Connect back and create a command shell via R',
-      'Author'      => [ 'RageLtMan' ],
+      'Author'      => [ 'RageLtMan <rageltman[at]sempervictus>' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'r',
       'Arch'        => ARCH_R,

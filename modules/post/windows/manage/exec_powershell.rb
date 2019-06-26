@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
       'SessionTypes'         => ['meterpreter'],
       'Author'               => [
         'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
-        'RageLtMan' # post module and libs
+        'RageLtMan <rageltman[at]sempervictus>' # post module and libs
         ]
     ))
 

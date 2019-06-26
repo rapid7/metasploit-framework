@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
       'License'              => MSF_LICENSE,
       'Platform'             => ['win'],
       'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['RageLtMan']
+      'Author'               => ['RageLtMan <rageltman[at]sempervictus>']
     ))
 
     register_options(
