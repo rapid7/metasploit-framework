@@ -269,7 +269,7 @@ class Proxy
       if !Rex::Socket.is_ipv4?(host)
         host = request.headers['Host'].reverse.split(':',2).last.reverse
         if !Rex::socket.is_ipv6?(host)
-          raise ::Rex::ConnectionError('Cannot determine request target')
+          raise Rex::ConnectionError.new('Cannot determine request target')
         end
       end
       # If we're here our host is valid, write the headers
@@ -318,7 +318,7 @@ protected
   def on_client_data(cli)
     begin
       # Handle CONNECT data
-      if cli.is_a?(ConnectProxyRelay)
+      if cli.is_a?(Http::ConnectProxyRelay)
         while cli.has_read_data?(0.05)
           data = cli.read(65535)
           cli.session.put(data)
@@ -328,7 +328,7 @@ protected
       # Get our headers
       data = cli.read(65535)
 
-      raise ::EOFError if (not data || data.empty?)
+      raise ::EOFError if (data.nil? || data.empty?)
 
       case cli.request.parse(data)
         when Packet::ParseCode::Completed
@@ -399,6 +399,7 @@ protected
     # Get server response to client request
     begin
       response = proxy_request(cli,request.dup)
+      return if response.nil?
       # Follow redirects if allowed
       if valid_redirect?(response) and self.redirect_limit > 0
         count_redir = self.redirect_limit
@@ -423,8 +424,8 @@ protected
         end
       end
 
-    rescue ::Rex::ConnectionError
-      send_e404(cli)
+    rescue Rex::ConnectionError
+      send_e404(cli, request)
       close_client(cli)
       return
     end
@@ -461,7 +462,9 @@ protected
 
     # Address TCP tunnels over the proxy
     if request.method == 'CONNECT'
-      if permit_connect?(*cli.peerinfo.split(':'), host, port.to_s)
+      resp = Rex::Proto::Http::Response.new(204)
+      resp.auto_cl = false
+      if permit_connect?(*cli.peerinfo.split(':'), host, port)
         begin
           cli.session = Rex::Socket::Tcp.create(
             'PeerHost' => host,
@@ -470,23 +473,39 @@ protected
             'Proxies'  => self.proxies
           )
         rescue => e
+          send_e404(cli, request)
           cli.close_session
-          send_e404(cli)
-          raise ::Rex::ConnectionError(e)
+          raise Rex::ConnectionError.new(e)
         end
         cli.keepalive = true
-        cli.extend(ConnectProxyRelay)
+        cli.extend(Http::ConnectProxyRelay)
+        cli.send_response(resp)
+        cli.flush
         cli.relay(cli, cli.session, "HTTPConnectProxyRelay")
-        resp = Rex::Proto::Http::Response.new(204)
-        resp.auto_cl = false
-        return resp
-      else
-        cli.keepalive = false
-        resp = Rex::Proto::Http::Response.new(405, 'Method Not Allowed')
-        resp['Allow'] = 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST'
-        resp.auto_cl = false
-        return resp
+        return
+      else # Fake SSL connection since its the most likely next step
+        cli.send_response(resp)
+        cli.flush
+        ctx = generate_ssl_context(host)
+        ssl = OpenSSL::SSL::SSLSocket.new(cli, ctx)
+        begin
+          ssl.accept_nonblock
+        rescue ::Exception => e
+          if e.kind_of?(::IO::WaitReadable)
+            IO::select( [ ssl ], nil, nil, 0.30 )
+            retry
+          end
+          if e.kind_of?(::IO::WaitWritable)
+            IO::select( nil, [ ssl ], nil, 0.30 )
+            retry
+          end
+          raise e
+        end
+        cli.extend(Rex::Socket::SslTcp)
+        cli.sslsock = ssl
+        cli.sslctx  = ctx
       end
+      return
     end
     # Remove encoding mechanisms we dont support
     if opts['Accept-Encoding']
@@ -524,15 +543,26 @@ protected
       response = cli.session.send_recv(request, opts[:timeout] ? opts[:timeout] : timeout, cli.keepalive)
     rescue => e
       cli.close_session
-      send_e404(cli)
-      raise ::Rex::ConnectionError(e)
+      send_e404(cli, request)
+      raise Rex::ConnectionError.new(e)
     end
     return response
   end
 
   def permit_connect?(saddr, sport, daddr, dport)
-    return true if self.connect_permit_cb.nil?
+    return false if self.connect_permit_cb.nil?
     self.connect_permit_cb.call(saddr, sport, daddr, dport)
+  end
+
+  def generate_ssl_context(host)
+    key, cert, chain = Rex::Socket::Ssl::CertProvider.ssl_generate_certificate(host)
+    ctx = OpenSSL::SSL::SSLContext.new()
+    ctx.key = key
+    ctx.cert = cert
+    ctx.extra_chain_cert = chain
+    ctx.options = 0
+    ctx.session_id_context = Rex::Text.rand_text(16)
+    return ctx
   end
 end
 
