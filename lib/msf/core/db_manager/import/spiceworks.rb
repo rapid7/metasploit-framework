@@ -3,7 +3,7 @@ require 'csv'
 module Msf::DBManager::Import::Spiceworks
   def import_spiceworks_csv(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     CSV.parse(data) do |row|
       next unless (["Name", "Manufacturer", "Device Type"] & row).empty? #header

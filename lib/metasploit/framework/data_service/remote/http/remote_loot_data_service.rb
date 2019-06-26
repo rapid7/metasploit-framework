@@ -9,7 +9,7 @@ module RemoteLootDataService
   def loot(opts = {})
     path = get_path_select(opts, LOOT_API_PATH)
     data = self.get_data(path, nil, opts)
-    rv = json_to_mdm_object(data, LOOT_MDM_CLASS, [])
+    rv = json_to_mdm_object(data, LOOT_MDM_CLASS)
     parsed_body = JSON.parse(data.response.body, symbolize_names: true)
     data = parsed_body[:data]
     data.each do |loot|
@@ -36,10 +36,10 @@ module RemoteLootDataService
       id = opts.delete(:id)
       path = "#{LOOT_API_PATH}/#{id}"
     end
-    json_to_mdm_object(self.put_data(path, opts), LOOT_MDM_CLASS, [])
+    json_to_mdm_object(self.put_data(path, opts), LOOT_MDM_CLASS)
   end
 
   def delete_loot(opts)
-    json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS, [])
+    json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS)
   end
 end
