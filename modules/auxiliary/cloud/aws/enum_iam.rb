@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       console_login = @iam.get_login_profile(user_name: user).empty? ? 'Disabled' : 'Enabled'
       print_good "  Console login:   #{console_login}"
     rescue Aws::IAM::Errors::NoSuchEntity
-      print_good "  Console login:   []"
+      print_good "  Console login:   Disabled"
     end
 
     mfa = @iam.list_mfa_devices(user_name: i.user_name).mfa_devices
