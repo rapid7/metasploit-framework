@@ -657,7 +657,7 @@ protected
 
     return raw
   end
-  
+
   ##
   #
   # Custom merge operations for payloads

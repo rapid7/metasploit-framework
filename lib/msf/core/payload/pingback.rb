@@ -27,7 +27,7 @@ class Msf::Payload::Pingback
   #
 
   def initialize(opts=nil)
-    self.uuid ||= SecureRandom.uuid()
+    self.uuid ||= SecureRandom.uuid
     opts[:pingback_uuid] = self.uuid
   end
 
