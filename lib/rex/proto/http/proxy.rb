@@ -525,7 +525,9 @@ protected
       # self.ssl_version,
       self.proxies
       # TODO: Add user/pass for HTTP auth
-    ) unless cli.session and cli.session.conn? and cli.session.send(:hostname).strip == opts['Vhost'].strip
+    ) unless cli.session and cli.session.conn? and (
+      opts['Vhost'].nil? or cli.session.send(:hostname).strip == opts['Vhost'].strip
+    )
 
     # Configure the session
     cli.session.set_config(
@@ -549,11 +551,26 @@ protected
     return response
   end
 
+  #
+  # Internal stub for checking if HTTP CONNECT is permitted
+  #
+  # @param saddr [Object] source IP
+  # @param sport [Object] source port
+  # @param daddr [Object] destination IP
+  # @param dport [Object] destination port
+  #
+  # @return [TrueClass,FalseClass] permission status
   def permit_connect?(saddr, sport, daddr, dport)
     return false if self.connect_permit_cb.nil?
     self.connect_permit_cb.call(saddr, sport, daddr, dport)
   end
 
+  #
+  # Create an SSL context for a specific CN
+  #
+  # @param host [String] Common Name for which to create context
+  #
+  # @return [OpenSSL::SSL::SSLContext] resulting SSL context
   def generate_ssl_context(host)
     key, cert, chain = Rex::Socket::Ssl::CertProvider.ssl_generate_certificate(host)
     ctx = OpenSSL::SSL::SSLContext.new()
