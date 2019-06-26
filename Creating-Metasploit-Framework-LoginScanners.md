@@ -1,4 +1,4 @@
-So, you want to make a Login Scanner Module in Metasploit, eh? There are a few things you will need to know before you begin. This article will try to illustrate all the moving peices involved in creating an effective bruteforce/login scanner module.
+So, you want to make a Login Scanner Module in Metasploit, eh? There are a few things you will need to know before you begin. This article will try to illustrate all the moving pieces involved in creating an effective bruteforce/login scanner module.
 
 - [Credential objects](#credential-objects)
 - [Result objects](#result-objects)
