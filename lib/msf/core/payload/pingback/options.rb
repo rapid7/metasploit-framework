@@ -13,7 +13,7 @@ module Msf::Payload::Pingback::Options
     register_advanced_options(
       [
         Msf::OptString.new('PingbackUUID', [ false, 'A pingback UUID to use']),
-        Msf::OptBool.new('PingbackUUIDDatabase', [ true, 'save the pingback UUID to the database', false]),
+        Msf::OptBool.new('PingbackUUIDDatabase', [ true, 'Save the pingback UUID to the database', false]),
       ], self.class)
   end
 

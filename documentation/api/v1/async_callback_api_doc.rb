@@ -31,7 +31,7 @@ module AsyncCallbackApiDoc
   end
 
   swagger_path '/api/v1/async-callbacks' do
-    # Swagger documentation for /api/v1/async_callbacks GET
+    # Swagger documentation for /api/v1/async-callbacks GET
     operation :get do
       key :description, 'Return asynchronous payload callbacks that are stored in the database.'
       key :tags, [ 'async_callback' ]
@@ -65,7 +65,7 @@ module AsyncCallbackApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/async_callbacks POST
+    # Swagger documentation for /api/v1/async-callbacks POST
     operation :post do
       key :description, 'Create an asynchronous payload callback entry.'
       key :tags, [ 'async_callback' ]
