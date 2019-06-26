@@ -41,7 +41,8 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'action' => 'setUri',
         'uri'    => get_uri + 'epicsax.m3u8'
-      }
+      },
+      'encode_params' => false
     )
 
     unless res && res.code == 200
