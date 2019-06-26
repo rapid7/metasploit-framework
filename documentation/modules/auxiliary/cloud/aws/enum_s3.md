@@ -1,8 +1,8 @@
 ## Vulnerable Application
 
-Amazon Web Services is a cloud-based hosting solution for servers, files, and countless specialized tools.  AWS resources can be managed through an API that authenticates based on an `ACCESS_KEY_ID` and a `SECRET_ACCESS_KEY`.  With these two pieces of information, an attacker can gain privileges which may include enumerating resources within the AWS account.
+Amazon Web Services (AWS) resources can be managed through an API that authenticates based on an `ACCESS_KEY_ID` and a `SECRET_ACCESS_KEY`.  With these two pieces of information, an attacker can gain privileges which may include enumerating resources within the AWS account.
 
-This module authenticates to AWS S3 (Simple Storage Service), to identify buckets that the account can see.  The files contained within buckets may be publicly readable and/or writable, or they may be locked down.  In any case, knowledge of the buckets is the first step in evaluating their security.
+This module authenticates to AWS S3 (Simple Storage Service), to identify buckets that the credentials can see.  The files contained within buckets may be publicly readable and/or writable, or they may be locked down.  In any case, knowledge of the buckets is the first step in evaluating their security.
 
 ## Verification Steps
 
@@ -18,8 +18,9 @@ This module authenticates to AWS S3 (Simple Storage Service), to identify bucket
 
   1. Start msfconsole
   2. `use auxiliary/cloud/aws/enum_s3`
-  3. Set ACCESS_KEY_ID and SECRET_ACCESS_KEY options.
-  4. `run`
+  3. Set the `ACCESS_KEY_ID` and `SECRET_ACCESS_KEY` options.
+  4. Optionally, set the `REGION` option.
+  5. `run`
 
 ## Options
 
@@ -31,7 +32,7 @@ This module authenticates to AWS S3 (Simple Storage Service), to identify bucket
 
   **SECRET_ACCESS_KEY**
 
-  This AWS credential is like a password, and should be treated as such.  It is paired with a 'access key ID'.  The access key ID cannot be retrieved from AWS after it has been generated, but it may be discoverable through environment variables, configuration files, source code, or backups.\
+  This AWS credential is like a password, and should be treated as such.  It is paired with a 'access key ID'.  The access key ID cannot be retrieved from AWS after it has been generated, but it may be discoverable through environment variables, configuration files, source code, or backups.
   
   An example `SECRET_ACCESS_KEY` would be `EKfx3wOWWiGk1WgBTAZfF/2dq3SbDsQj4jdyOMOv`.
 
