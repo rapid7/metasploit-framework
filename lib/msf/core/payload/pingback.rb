@@ -15,13 +15,6 @@ class Msf::Payload::Pingback
   # Constants
   #
 
-  def self.generate_raw(opts={})
-
-    puid ||= SecureRandom.uuid
-    puid
-
-  end
-
   #
   # Instance methods
   #
