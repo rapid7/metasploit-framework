@@ -5,6 +5,9 @@ PATH
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
+      aws-sdk-ec2
+      aws-sdk-iam
+      aws-sdk-s3
       backports
       bcrypt
       bcrypt_pbkdf
@@ -111,6 +114,28 @@ GEM
     arel (6.0.4)
     arel-helpers (2.9.1)
       activerecord (>= 3.1.0, < 7)
+    aws-eventstream (1.0.3)
+    aws-partitions (1.174.0)
+    aws-sdk-core (3.54.2)
+      aws-eventstream (~> 1.0, >= 1.0.2)
+      aws-partitions (~> 1.0)
+      aws-sigv4 (~> 1.1)
+      jmespath (~> 1.0)
+    aws-sdk-ec2 (1.91.0)
+      aws-sdk-core (~> 3, >= 3.53.0)
+      aws-sigv4 (~> 1.1)
+    aws-sdk-iam (1.24.0)
+      aws-sdk-core (~> 3, >= 3.53.0)
+      aws-sigv4 (~> 1.1)
+    aws-sdk-kms (1.21.0)
+      aws-sdk-core (~> 3, >= 3.53.0)
+      aws-sigv4 (~> 1.1)
+    aws-sdk-s3 (1.42.0)
+      aws-sdk-core (~> 3, >= 3.53.0)
+      aws-sdk-kms (~> 1)
+      aws-sigv4 (~> 1.1)
+    aws-sigv4 (1.1.0)
+      aws-eventstream (~> 1.0, >= 1.0.2)
     backports (3.15.0)
     bcrypt (3.1.13)
     bcrypt_pbkdf (1.0.1)
@@ -158,6 +183,7 @@ GEM
     http_parser.rb (0.6.0)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
+    jmespath (1.4.0)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.2.0)
@@ -408,3 +434,4 @@ DEPENDENCIES
 
 BUNDLED WITH
    1.17.3
+

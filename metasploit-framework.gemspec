@@ -198,4 +198,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'faker'
   # Pinned as a dependency of i18n to the last working version
   spec.add_runtime_dependency 'concurrent-ruby','1.0.5'
+
+  # AWS enumeration modules
+  spec.add_runtime_dependency 'aws-sdk-s3'
+  spec.add_runtime_dependency 'aws-sdk-ec2'
+  spec.add_runtime_dependency 'aws-sdk-iam'
 end
