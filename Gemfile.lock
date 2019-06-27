@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.33)
+    metasploit-framework (5.0.34)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -115,23 +115,23 @@ GEM
     arel-helpers (2.9.1)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.174.0)
-    aws-sdk-core (3.54.2)
+    aws-partitions (1.180.0)
+    aws-sdk-core (3.56.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.91.0)
-      aws-sdk-core (~> 3, >= 3.53.0)
+    aws-sdk-ec2 (1.96.0)
+      aws-sdk-core (~> 3, >= 3.56.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-iam (1.24.0)
-      aws-sdk-core (~> 3, >= 3.53.0)
+    aws-sdk-iam (1.26.0)
+      aws-sdk-core (~> 3, >= 3.56.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-kms (1.21.0)
-      aws-sdk-core (~> 3, >= 3.53.0)
+    aws-sdk-kms (1.22.0)
+      aws-sdk-core (~> 3, >= 3.56.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.42.0)
-      aws-sdk-core (~> 3, >= 3.53.0)
+    aws-sdk-s3 (1.43.0)
+      aws-sdk-core (~> 3, >= 3.56.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.0)
@@ -160,7 +160,7 @@ GEM
       http_parser.rb (>= 0.6.0)
     em-socksify (0.3.2)
       eventmachine (>= 1.0.0.beta.4)
-    equatable (0.6.0)
+    equatable (0.6.1)
     erubis (2.7.0)
     eventmachine (1.2.7)
     factory_bot (5.0.2)
@@ -319,7 +319,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.17)
+    rex-socket (0.1.18)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
@@ -355,7 +355,7 @@ GEM
     rspec-support (3.8.2)
     ruby-macho (2.2.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.5)
+    ruby_smb (1.1.0)
       bindata
       rubyntlm
       windows_error
@@ -434,4 +434,3 @@ DEPENDENCIES
 
 BUNDLED WITH
    1.17.3
-
