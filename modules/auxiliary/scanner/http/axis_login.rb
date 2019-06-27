@@ -38,6 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
     ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   # For print_* methods

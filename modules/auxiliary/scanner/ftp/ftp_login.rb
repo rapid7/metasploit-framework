@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
+    deregister_options('FTPUSER','FTPPASS', 'PASSWORD_SPRAY') # Can use these, but should use 'username' and 'password'
     @accepts_all_logins = {}
   end
 

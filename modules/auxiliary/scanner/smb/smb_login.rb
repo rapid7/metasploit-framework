@@ -50,7 +50,6 @@ class MetasploitModule < Msf::Auxiliary
           'USER_AS_PASS'    => false
         }
     )
-    deregister_options('USERNAME','PASSWORD')
 
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.
@@ -64,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
       ])
 
+    deregister_options('USERNAME','PASSWORD', 'PASSWORD_SPRAY')
   end
 
   def run_host(ip)

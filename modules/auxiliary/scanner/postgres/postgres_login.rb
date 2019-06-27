@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
       ])
 
-    deregister_options('SQL')
+    deregister_options('SQL', 'PASSWORD_SPRAY')
 
   end
 
