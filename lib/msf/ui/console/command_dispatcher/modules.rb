@@ -364,6 +364,7 @@ module Msf
             cached = false
             search_term = nil
             output_file = nil
+            count = -1
 
             @@search_opts.parse(args) do |opt, idx, val|
               case opt
@@ -385,12 +386,12 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            search_params = parse_search_string(match)
-            count = -1
+
             begin
               if cached
                 print_status('Displaying cached results')
               else
+                search_params = parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
               end
 
