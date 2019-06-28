@@ -61,7 +61,7 @@ module Msf::Module::Deprecated
   # @return [void]
   def print_deprecation_warning
     print_warning("*"*90)
-    print_warning("*%red"+"The module #{refname} is deprecated!".center(88)+"%clr*")
+    print_warning("*%red"+"The module #{fullname} is deprecated!".center(88)+"%clr*")
     if deprecation_date
       print_warning("*"+"It will be removed on or about #{deprecation_date}".center(88)+"*")
     end
