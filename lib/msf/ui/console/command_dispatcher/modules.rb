@@ -19,8 +19,7 @@ module Msf
             '-h' => [false, 'Help banner'],
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Search string for row filter'],
-            '-u' => [false, 'Use module if there is one result'],
-            '-c' => [false, 'Display cached results from previous search']
+            '-u' => [false, 'Use module if there is one result']
           )
 
           def commands
@@ -324,7 +323,6 @@ module Msf
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
             print_line "  -u                Use module if there is one result"
-            print_line "  -c                Display cached results from previous search"
             print_line
             print_line "Keywords:"
             {
@@ -361,12 +359,6 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            if args.empty?
-              print_error("Argument required\n")
-              cmd_search_help
-              return false
-            end
-
             match = ''
             use = false
             cached = false
@@ -384,29 +376,28 @@ module Msf
                 output_file = val
               when '-u'
                 use = true
-              when '-c'
-                cached = true
               else
                 match += val + ' '
               end
             end
 
-            if !cached && match.empty? && search_term.nil?
-              print_error("Keywords or search argument required\n")
-              cmd_search_help
-              return false
-            end
+            cached = true if args.empty?
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
             count = -1
             begin
-              unless cached
+              if cached
+                print_status('Displaying cached results')
+              else
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
               end
 
-              return false if @module_search_results.length == 0
+              if @module_search_results.empty?
+                print_error('No results from search')
+                return false
+              end
 
               @module_search_results.each do |m|
                 tbl << [
