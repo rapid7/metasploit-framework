@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [
         'Dhiraj Mishra', # Discovery, PoC, and module
-        'wvu-r7'         # Module
+        'wvu'            # Module
       ],
       'References'     => [
         ['CVE', '2019-12477'],
@@ -56,7 +56,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Sleeping for 10s serving .m3u8 and .ts files...')
     sleep(10)
   end
-
 
   def on_request_uri(cli, request)
     dir = File.join(Msf::Config.data_directory, 'exploits', 'CVE-2019-12477')
