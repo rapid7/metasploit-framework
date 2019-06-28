@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
       OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
     ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def get_version(res)

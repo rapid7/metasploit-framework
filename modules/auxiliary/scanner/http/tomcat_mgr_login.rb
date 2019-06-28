@@ -67,6 +67,8 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt") ]),
       ])
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])
   end
 

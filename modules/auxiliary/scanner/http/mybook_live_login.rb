@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_autofilter_ports([ 80 ])
 
     # username is hardcoded into application
-    deregister_options('RHOST', 'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'DB_ALL_USERS')
+    deregister_options('RHOST', 'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'DB_ALL_USERS', 'PASSWORD_SPRAY')
   end
 
   def setup

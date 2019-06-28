@@ -27,6 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080)
       ])
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
 
     deregister_options('RHOST')

@@ -27,6 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_options(
       [
         Opt::RPORT(80),

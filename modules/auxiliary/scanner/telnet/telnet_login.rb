@@ -37,6 +37,8 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class
     )
 
+    deregister_options('USERNAME','PASSWORD', 'PASSWORD_SPRAY')
+
     @no_pass_prompt = []
   end
 
