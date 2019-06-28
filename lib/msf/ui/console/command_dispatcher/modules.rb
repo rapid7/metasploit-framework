@@ -16,10 +16,11 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher::Common
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h"     => [ false, "Help banner"],
-            "-o"     => [ true, "Send output to a file in csv format"],
-            "-S"     => [ true, "Search string for row filter"],
-            "-u"     => [ false, "Use module if there is one result"]
+            '-h' => [false, 'Help banner'],
+            '-o' => [true,  'Send output to a file in csv format'],
+            '-S' => [true,  'Search string for row filter'],
+            '-u' => [false, 'Use module if there is one result'],
+            '-c' => [false, 'Display cached results from previous search']
           )
 
           def commands
@@ -323,6 +324,7 @@ module Msf
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Search string for row filter"
             print_line "  -u                Use module if there is one result"
+            print_line "  -c                Display cached results from previous search"
             print_line
             print_line "Keywords:"
             {
@@ -367,25 +369,29 @@ module Msf
 
             match = ''
             use = false
+            cached = false
             search_term = nil
             output_file = nil
-            @@search_opts.parse(args) { |opt, idx, val|
-              case opt
-                when "-S"
-                  search_term = val
-                when "-h"
-                  cmd_search_help
-                  return
-                when '-o'
-                  output_file = val
-                when "-u"
-                  use = true
-                else
-                  match += val + " "
-              end
-            }
 
-            if match.empty? && search_term.nil?
+            @@search_opts.parse(args) do |opt, idx, val|
+              case opt
+              when '-S'
+                search_term = val
+              when '-h'
+                cmd_search_help
+                return false
+              when '-o'
+                output_file = val
+              when '-u'
+                use = true
+              when '-c'
+                cached = true
+              else
+                match += val + ' '
+              end
+            end
+
+            if !cached && match.empty? && search_term.nil?
               print_error("Keywords or search argument required\n")
               cmd_search_help
               return false
@@ -396,7 +402,9 @@ module Msf
             search_params = parse_search_string(match)
             count = -1
             begin
-              @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              unless cached
+                @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              end
 
               return false if @module_search_results.length == 0
 
