@@ -359,12 +359,12 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            match = ''
-            use = false
-            cached = false
+            match       = ''
             search_term = nil
             output_file = nil
-            count = -1
+            cached      = false
+            use         = false
+            count       = -1
 
             @@search_opts.parse(args) do |opt, idx, val|
               case opt
@@ -385,7 +385,7 @@ module Msf
             cached = true if args.empty?
 
             # Display the table of matches
-            tbl = generate_module_table("Matching Modules", search_term)
+            tbl = generate_module_table('Matching Modules', search_term)
 
             begin
               if cached
@@ -1184,8 +1184,10 @@ module Msf
           end
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
-            tbl = generate_module_table(type)
             count = -1
+
+            tbl = generate_module_table(type)
+
             module_set.sort.each { |refname, mod|
               o = nil
 
