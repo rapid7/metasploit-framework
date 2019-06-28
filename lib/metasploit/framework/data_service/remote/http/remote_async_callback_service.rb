@@ -8,10 +8,10 @@ module RemoteAsyncCallbackDataService
 
   def async_callbacks(opts)
     path = get_path_select(opts, ASYNC_CALLBACK_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil), ASYNC_CALLBACK_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(path, nil, opts), ASYNC_CALLBACK_MDM_CLASS)
   end
 
   def create_async_callback(opts)
-    json_to_mdm_object(self.post_data(ASYNC_CALLBACK_API_PATH), ASYNC_CALLBACK_MDM_CLASS, []).first
+    json_to_mdm_object(self.post_data(ASYNC_CALLBACK_API_PATH, opts), ASYNC_CALLBACK_MDM_CLASS).first
   end
 end
