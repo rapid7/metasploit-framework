@@ -7,7 +7,7 @@ Metasploit has a very specific way to deprecate a module. To do so, you must be 
 
 To use the ```Msf::Module::Deprecated```, here's how:
 
-1 - Under ```class metasploit3``` of your module, include the following:
+1 - Under ```class MetasploitModule``` of your module, include the following:
 
 ```ruby
 include Msf::Module::Deprecated
