@@ -18,7 +18,8 @@ class MetasploitModule < Msf::Auxiliary
         fake video.
       },
       'Author'         => [
-        'Dhiraj Mishra' # Discovery, PoC, and module
+        'Dhiraj Mishra', # Discovery, PoC, and module
+        'wvu-r7'         # Module
       ],
       'References'     => [
         ['CVE', '2019-12477'],
@@ -56,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     sleep(10)
   end
 
-  # XXX: Untested! Please remove this comment if it works, RootUp
+
   def on_request_uri(cli, request)
     dir = File.join(Msf::Config.data_directory, 'exploits', 'CVE-2019-12477')
 
