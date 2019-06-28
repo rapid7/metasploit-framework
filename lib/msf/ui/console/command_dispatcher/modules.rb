@@ -316,7 +316,7 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [ options ] [<keywords>]"
+            print_line "Usage: search [<options>] [<keywords>]"
             print_line
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
