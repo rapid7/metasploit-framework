@@ -903,27 +903,13 @@ module Msf
               return
             end
 
-            base_store = File.join(Msf::Config.install_root, "db",
-                                   Msf::Modules::Metadata::Store::BaseMetaDataFile)
             user_store = File.join(Msf::Config.config_directory, "store",
                                    Msf::Modules::Metadata::Store::UserMetaDataFile)
-
-            update_base = File.writable?(base_store)
-
-            if update_base
-              print_line "Base store is at #{base_store}, deleting"
-              File.delete(base_store)
-            end
 
             print_line "Rebuilding local module data store"
             framework.modules.refresh_cache_from_module_files
             sleep(1) while !File.exist?(user_store)
             print_line "Wrote updated data store to #{user_store}"
-
-            if update_base
-              print_line "Moving #{user_store} to #{base_store}"
-              File.rename(user_store, base_store)
-            end
           end
 
           def cmd_back_help
