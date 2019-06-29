@@ -16,10 +16,10 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher::Common
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h"     => [ false, "Help banner"],
-            "-o"     => [ true, "Send output to a file in csv format"],
-            "-S"     => [ true, "Search string for row filter"],
-            "-u"     => [ false, "Use module if there is one result"]
+            '-h' => [false, 'Help banner'],
+            '-o' => [true,  'Send output to a file in csv format'],
+            '-S' => [true,  'Search string for row filter'],
+            '-u' => [false, 'Use module if there is one result']
           )
 
           def commands
@@ -316,7 +316,9 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [ options ] <keywords>"
+            print_line "Usage: search [<options>] [<keywords>]"
+            print_line
+            print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
             print_line "  -h                Show this help information"
@@ -359,46 +361,46 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            if args.empty?
-              print_error("Argument required\n")
-              cmd_search_help
-              return false
-            end
-
-            match = ''
-            use = false
+            match       = ''
             search_term = nil
             output_file = nil
-            @@search_opts.parse(args) { |opt, idx, val|
-              case opt
-                when "-S"
-                  search_term = val
-                when "-h"
-                  cmd_search_help
-                  return
-                when '-o'
-                  output_file = val
-                when "-u"
-                  use = true
-                else
-                  match += val + " "
-              end
-            }
+            cached      = false
+            use         = false
+            count       = -1
 
-            if match.empty? && search_term.nil?
-              print_error("Keywords or search argument required\n")
-              cmd_search_help
-              return false
+            @@search_opts.parse(args) do |opt, idx, val|
+              case opt
+              when '-S'
+                search_term = val
+              when '-h'
+                cmd_search_help
+                return false
+              when '-o'
+                output_file = val
+              when '-u'
+                use = true
+              else
+                match += val + ' '
+              end
             end
 
-            # Display the table of matches
-            tbl = generate_module_table("Matching Modules", search_term)
-            search_params = parse_search_string(match)
-            count = -1
-            begin
-              @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+            cached = true if args.empty?
 
-              return false if @module_search_results.length == 0
+            # Display the table of matches
+            tbl = generate_module_table('Matching Modules', search_term)
+
+            begin
+              if cached
+                print_status('Displaying cached results')
+              else
+                search_params = parse_search_string(match)
+                @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              end
+
+              if @module_search_results.empty?
+                print_error('No results from search')
+                return false
+              end
 
               @module_search_results.each do |m|
                 tbl << [
@@ -1184,8 +1186,10 @@ module Msf
           end
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
-            tbl = generate_module_table(type)
             count = -1
+
+            tbl = generate_module_table(type)
+
             module_set.sort.each { |refname, mod|
               o = nil
 
