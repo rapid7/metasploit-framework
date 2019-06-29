@@ -907,6 +907,7 @@ module Msf
                                    Msf::Modules::Metadata::Store::UserMetaDataFile)
 
             print_line "Rebuilding local module data store"
+            File.unlink(user_store) if File.exist?(user_store)
             framework.modules.refresh_cache_from_module_files
             sleep(1) while !File.exist?(user_store)
             print_line "Wrote updated data store to #{user_store}"
