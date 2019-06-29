@@ -572,7 +572,7 @@ protected
   #
   # @return [OpenSSL::SSL::SSLContext] resulting SSL context
   def generate_ssl_context(host)
-    key, cert, chain = Rex::Socket::Ssl::CertProvider.ssl_generate_certificate(host)
+    key, cert, chain = Rex::Socket::Ssl::CertProvider.ssl_generate_certificate({cert_vars:{cn: host}})
     ctx = OpenSSL::SSL::SSLContext.new()
     ctx.key = key
     ctx.cert = cert
