@@ -77,6 +77,10 @@ module ConnectProxyRelay
   end
 end
 
+module SslProxyClient
+  attr_accessor :ssl_proxy_host, :ssl_proxy_port
+end
+
 ###
 #
 # Acts as an HTTP server, processing requests and dispatching them to
@@ -454,6 +458,10 @@ protected
     timeout ||= self.request_timeout
     opts = request.headers
     host,port = opts['Host'].split(':')
+    if cli.is_a?(Http::SslProxyClient)
+      host = cli.ssl_proxy_host
+      port = cli.ssl_proxy_port
+    end
     host = self.connect_host if self.connect_host
     port = self.connect_port if self.connect_port
     if port.nil? or port == 0
@@ -462,48 +470,10 @@ protected
 
     # Address TCP tunnels over the proxy
     if request.method == 'CONNECT'
-      resp = Rex::Proto::Http::Response.new(204)
-      resp.auto_cl = false
       if permit_connect?(*cli.peerinfo.split(':'), host, port)
-        begin
-          cli.session = Rex::Socket::Tcp.create(
-            'PeerHost' => host,
-            'PeerPort' => port,
-            'Context'  => self.context,
-            'Proxies'  => self.proxies
-          )
-        rescue => e
-          send_e404(cli, request)
-          cli.close_session
-          raise Rex::ConnectionError.new(e)
-        end
-        cli.keepalive = true
-        cli.extend(Http::ConnectProxyRelay)
-        cli.send_response(resp)
-        cli.flush
-        cli.relay(cli, cli.session, "HTTPConnectProxyRelay")
-        return
+        setup_connect(cli, opts, host, port)
       else # Fake SSL connection since its the most likely next step
-        cli.send_response(resp)
-        cli.flush
-        ctx = generate_ssl_context(host)
-        ssl = OpenSSL::SSL::SSLSocket.new(cli, ctx)
-        begin
-          ssl.accept_nonblock
-        rescue ::Exception => e
-          if e.kind_of?(::IO::WaitReadable)
-            IO::select( [ ssl ], nil, nil, 0.30 )
-            retry
-          end
-          if e.kind_of?(::IO::WaitWritable)
-            IO::select( nil, [ ssl ], nil, 0.30 )
-            retry
-          end
-          raise e
-        end
-        cli.extend(Rex::Socket::SslTcp)
-        cli.sslsock = ssl
-        cli.sslctx  = ctx
+        setup_faux_connect(cli, host, port)
       end
       return
     end
@@ -513,7 +483,7 @@ protected
       opts['Accept-Encoding'] = acc_enc
     end
 
-    ssl = opts.delete('SSL')
+    ssl = cli.is_a?(Http::SslProxyClient) || opts.delete('SSL')
     ssl ||= self.ssl
     # Build client session unless we have a live one
     cli.session =  Rex::Proto::Http::Client.new(
@@ -563,6 +533,58 @@ protected
   def permit_connect?(saddr, sport, daddr, dport)
     return false if self.connect_permit_cb.nil?
     self.connect_permit_cb.call(saddr, sport, daddr, dport)
+  end
+
+  def setup_connect(cli, host, port)
+    resp = Rex::Proto::Http::Response.new(204)
+    resp.auto_cl = false
+    begin
+      cli.session = Rex::Socket::Tcp.create(
+        'PeerHost' => host,
+        'PeerPort' => port,
+        'Context'  => self.context,
+        'Proxies'  => self.proxies
+      )
+    rescue => e
+      send_e404(cli, request)
+      cli.close_session
+      raise Rex::ConnectionError.new(e)
+    end
+    cli.keepalive = true
+    cli.extend(Http::ConnectProxyRelay)
+    cli.send_response(resp)
+    cli.flush
+    cli.relay(cli, cli.session, "HTTPConnectProxyRelay")
+    return
+  end
+
+  def setup_faux_connect(cli, host, port)
+    resp = Rex::Proto::Http::Response.new(204)
+    resp.auto_cl = false
+    cli.send_response(resp)
+    cli.flush
+    ctx = generate_ssl_context(host)
+    ssl = OpenSSL::SSL::SSLSocket.new(cli, ctx)
+    begin
+      ssl.accept_nonblock
+    rescue ::Exception => e
+      if e.kind_of?(::IO::WaitReadable)
+        IO::select( [ ssl ], nil, nil, 0.30 )
+        retry
+      end
+      if e.kind_of?(::IO::WaitWritable)
+        IO::select( nil, [ ssl ], nil, 0.30 )
+        retry
+      end
+      raise e
+    end
+    cli.extend(Rex::Socket::SslTcp)
+    cli.sslsock = ssl
+    cli.sslctx  = ctx
+    cli.extend(Http::SslProxyClient)
+    cli.ssl_proxy_host = host
+    cli.ssl_proxy_port = port
+    return
   end
 
   #
