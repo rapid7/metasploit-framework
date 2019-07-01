@@ -1,7 +1,7 @@
 require 'rex/parser/openvas_nokogiri'
 
 module Msf::DBManager::Import::OpenVAS
-  def import_openvas_new_xml(args={}, &block)
+  def import_openvas_noko_stream(args={}, &block)
     if block
       doc = Rex::Parser::OpenVASDocument.new(args,framework.db) {|type, data| yield type,data }
     else
@@ -11,14 +11,22 @@ module Msf::DBManager::Import::OpenVAS
     parser.parse(args[:data])
   end
 
-  def import_openvas_new_xml_file(args={})
-    filename = args[:filename]
-
-    data = ""
-    ::File.open(filename, 'rb') do |f|
-      data = f.read(f.stat.size)
+  def import_openvas_new_xml(args={}, &block)
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    if Rex::Parser.nokogiri_loaded
+      parser = "Nokogiri v#{::Nokogiri::VERSION}"
+      noko_args = args.dup
+      noko_args[:wspace] = wspace
+      if block
+        yield(:parser, parser)
+        import_openvas_noko_stream(noko_args) {|type, data| yield type,data}
+      else
+        import_openvas_noko_stream(noko_args)
+      end
+      return true
+    else # Sorry
+      raise Msf::DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
     end
-    import_wapiti_xml(args.merge(:data => data))
   end
 
   #
