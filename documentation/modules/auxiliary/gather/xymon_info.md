@@ -23,6 +23,10 @@
 
   Refer to http://xymon.sourceforge.net/xymon/help/install.html for more information.
 
+  A Xymon virtual appliance is also available :
+
+  * https://sourceforge.net/projects/xymon/files/Xymon/4.3.10/VM/
+
   To expose the `xymonpasswd` file, add the following line to `/etc/xymon/xymonserver.cfg` :
 
   ```
