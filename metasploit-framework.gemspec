@@ -161,7 +161,7 @@ Gem::Specification.new do |spec|
   # Library for parsing and manipulating executable binaries
   spec.add_runtime_dependency 'rex-bin_tools'
   # Rex Socket Abstraction Layer
-  spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket', '0.1.17'
   # Library for scanning a server's SSL/TLS capabilities
   spec.add_runtime_dependency 'rex-sslscan'
   # Library and tool for finding ROP gadgets in a supplied binary
