@@ -59,7 +59,7 @@ PATH
       rex-random_identifier
       rex-registry
       rex-rop_builder
-      rex-socket
+      rex-socket (= 0.1.17)
       rex-sslscan
       rex-struct2
       rex-text
@@ -319,7 +319,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.18)
+    rex-socket (0.1.17)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
