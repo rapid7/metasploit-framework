@@ -167,7 +167,7 @@ Gem::Specification.new do |spec|
   # Library for parsing and manipulating executable binaries
   spec.add_runtime_dependency 'rex-bin_tools'
   # Rex Socket Abstraction Layer
-  spec.add_runtime_dependency 'rex-socket'
+  spec.add_runtime_dependency 'rex-socket', '0.1.17'
   # Library for scanning a server's SSL/TLS capabilities
   spec.add_runtime_dependency 'rex-sslscan'
   # Library and tool for finding ROP gadgets in a supplied binary
@@ -198,4 +198,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'faker'
   # Pinned as a dependency of i18n to the last working version
   spec.add_runtime_dependency 'concurrent-ruby','1.0.5'
+
+  # AWS enumeration modules
+  spec.add_runtime_dependency 'aws-sdk-s3'
+  spec.add_runtime_dependency 'aws-sdk-ec2'
+  spec.add_runtime_dependency 'aws-sdk-iam'
 end

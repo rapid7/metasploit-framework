@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     # redis does not have an username, there's only password
-    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS')
+    deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS', 'PASSWORD_SPRAY')
   end
 
   def run_host(ip)

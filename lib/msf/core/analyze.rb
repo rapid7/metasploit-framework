@@ -34,22 +34,22 @@ class Msf::Analyze
 
   private
 
-  # Tests for various service conditions by comparing the module's full_name (which
+  # Tests for various service conditions by comparing the module's fullname (which
   # is basically a pathname) to the intended target service record. The service.info
   # column is tested against a regex in most/all cases and "false" is returned in the
   # event of a match between an incompatible module and service fingerprint.
   def exploit_filter_by_service(mod, serv)
 
     # Filter out Unix vs Windows exploits for SMB services
-    return true if (mod.full_name =~ /\/samba/ and serv.info.to_s =~ /windows/i)
-    return true if (mod.full_name =~ /\/windows/ and serv.info.to_s =~ /samba|unix|vxworks|qnx|netware/i)
-    return true if (mod.full_name =~ /\/netware/ and serv.info.to_s =~ /samba|unix|vxworks|qnx/i)
+    return true if (mod.fullname =~ /\/samba/ and serv.info.to_s =~ /windows/i)
+    return true if (mod.fullname =~ /\/windows/ and serv.info.to_s =~ /samba|unix|vxworks|qnx|netware/i)
+    return true if (mod.fullname =~ /\/netware/ and serv.info.to_s =~ /samba|unix|vxworks|qnx/i)
 
     # Filter out IIS exploits for non-Microsoft services
-    return true if (mod.full_name =~ /\/iis\/|\/isapi\// and (serv.info.to_s !~ /microsoft|asp/i))
+    return true if (mod.fullname =~ /\/iis\/|\/isapi\// and (serv.info.to_s !~ /microsoft|asp/i))
 
     # Filter out Apache exploits for non-Apache services
-    return true if (mod.full_name =~ /\/apache/ and serv.info.to_s !~ /apache|ibm/i)
+    return true if (mod.fullname =~ /\/apache/ and serv.info.to_s !~ /apache|ibm/i)
 
     false
   end

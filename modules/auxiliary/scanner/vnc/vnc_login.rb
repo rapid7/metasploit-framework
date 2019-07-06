@@ -47,6 +47,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ])
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 
     # We don't currently support an auth mechanism that uses usernames, so we'll ignore any

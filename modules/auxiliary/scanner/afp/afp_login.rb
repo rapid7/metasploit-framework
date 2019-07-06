@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RECORD_GUEST', [ false, "Record guest login to the database", false]),
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
       ], self)
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

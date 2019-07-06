@@ -31,6 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:[empty]', false])
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
 

@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def rport

@@ -711,7 +711,7 @@ def rpc_analyze_host(xopts)
       h_result[:modules].each do |mod|
         mod_detail = {}
         mod_detail[:mtype]  = mod.type
-        mod_detail[:mname]  = mod.full_name
+        mod_detail[:mname]  = mod.fullname
         host_detail[:modules] << mod_detail
       end
     end

