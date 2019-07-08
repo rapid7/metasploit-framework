@@ -38,7 +38,7 @@ module Auxiliary::Juniper
     # Example lines:
     # set admin name "netscreen"
     # set admin password "nKVUM2rwMUzPcrkG5sWIHdCtqkAibn"
-    config.scan(/set admin name "(?<admin_name>[a-z0-9]+)".+set admin password "(?<admin_password_hash>.+)"/mi).each do |result|
+    config.scan(/set admin name "(?<admin_name>[a-z0-9]+)".+set admin password "(?<admin_password_hash>[a-z0-9]+)"/mi).each do |result|
       admin_name = result[0].strip
       admin_hash = result[1].strip
       print_good("Admin user #{admin_name} found with password hash #{admin_hash}")
