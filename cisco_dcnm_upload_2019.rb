@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Exploit::Remote
           [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-codex' ],
           [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-codex' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/exploits/metasploit/cisco_dcnm_upload_2019.rb' ],
-          [ 'URL', 'FULLDISC' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2019/Jul/7' ]
         ],
       'Platform'       => 'java',
       'Arch'           => ARCH_JAVA,
