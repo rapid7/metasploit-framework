@@ -500,11 +500,7 @@ protected
 
         self.busy = true
         begin
-          io = ::IO.popen(line, "r")
-          io.each_line do |data|
-            print(data)
-          end
-          io.close
+          system(*Shellwords.split(line))
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
