@@ -58,7 +58,11 @@ class MetasploitModule < Msf::Auxiliary
     version = Gem::Version.new(joomla_version)
     if version
       print_status("Detected Joomla version #{joomla_version}")
-      return Exploit::CheckCode::Appears if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
+      if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
+        return Exploit::CheckCode::Appears
+      else
+        return Exploit::CheckCode::Safe
+      end
     end
 
     return Exploit::CheckCode::Detected if online
