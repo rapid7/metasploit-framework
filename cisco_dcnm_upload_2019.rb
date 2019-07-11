@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Exploit::Remote
       end
     end
 
-    return Exploit::CheckCode::Unknown
+    CheckCode::Unknown
   end
 
   def target_select
