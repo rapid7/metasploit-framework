@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Exploit::Remote
         'method' => 'GET',
       })
       if res and res.code == 500
-        return Exploit::CheckCode::Detected
+        return CheckCode::Detected
       end
     end
 
