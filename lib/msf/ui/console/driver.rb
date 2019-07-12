@@ -505,7 +505,7 @@ protected
 
         self.busy = true
         begin
-          system(*Shellwords.split(line))
+          system(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
