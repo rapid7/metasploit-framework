@@ -49,23 +49,25 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
 
-    online = joomla_and_online?
-    unless online
-      print_error("Unable to detect joomla on #{target_uri.path}")
+    unless joomla_and_online?
+      print_error("Unable to detect Joomla version")
       return Exploit::CheckCode::Safe
     end
 
     version = Gem::Version.new(joomla_version)
-    if version
-      print_status("Detected Joomla version #{joomla_version}")
-      if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
-        return Exploit::CheckCode::Appears
-      else
-        return Exploit::CheckCode::Safe
-      end
+
+    unless version
+      print_error('Unable to detect Joomla version')
+      return Exploit::CheckCode::Detected
     end
 
-    return Exploit::CheckCode::Detected if online
+    print_status("Detected Joomla version #{joomla_version}")
+
+    if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
   end
 
   def get_csrf(hidden_fields)
