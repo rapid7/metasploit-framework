@@ -45,23 +45,23 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi('uri' => target_uri.path)
 
     unless res
-      print_error("Connection timed out")
+      vprint_error('Connection timed out')
       return Exploit::CheckCode::Unknown
     end
 
     unless joomla_and_online?
-      print_error("Unable to detect Joomla version")
+      vprint_error('Unable to detect Joomla version')
       return Exploit::CheckCode::Safe
     end
 
     version = Gem::Version.new(joomla_version)
 
     unless version
-      print_error('Unable to detect Joomla version')
+      vprint_error('Unable to detect Joomla version')
       return Exploit::CheckCode::Detected
     end
 
-    print_status("Detected Joomla version #{joomla_version}")
+    vprint_status("Detected Joomla version #{joomla_version}")
 
     if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
       return Exploit::CheckCode::Appears
