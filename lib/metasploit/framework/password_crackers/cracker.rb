@@ -114,55 +114,56 @@ module Metasploit
         def jtr_format_to_hashcat_format(format)
           case format
           when 'md5crypt'
-            return '500'
+            '500'
           when 'descrypt'
-            return '1500'
+            '1500'
           when 'bsdicrypt'
-            return '12400'
+            '12400'
           when 'sha256crypt'
-            return '7400'
+            '7400'
           when 'sha512crypt'
-            return '1800'
+            '1800'
           when 'bcrypt'
-            return '3200'
+            '3200'
           when 'lm', 'lanman'
-            return '3000'
+            '3000'
           when 'nt', 'ntlm'
-            return '1000'
+            '1000'
           when 'mssql'
-            return '131'
+            '131'
           when 'mssql05'
-            return '132'
+            '132'
           when 'mssql12'
-            return '1731'
+            '1731'
           # hashcat requires a format we dont have all the data for
           # in the current dumper, so this is disabled in module and lib
           #when 'oracle', 'des,oracle'
           #  return '3100'
           when 'oracle11', 'raw-sha1,oracle'
-            return '112'
+            '112'
           when 'oracle12c', 'pbkdf2,oracle12c'
-            return '12300'
+            '12300'
           when 'postgres', 'dynamic_1034', 'raw-md5,postgres'
-            return '12'
+            '12'
           when 'mysql'
-            return '200'
+            '200'
           when 'mysql-sha1'
-            return '300'
-          when 'PBKDF2-HMAC-SHA512' #osx 10.8+
-            return '7100'
-          when 'xsha' #osx 10.4-6
-            return '122'
-          when 'xsha512' #osx 10.7
-            return '1722'
-          when 'PBKDF2-HMAC-SHA1' #Atlassian
-            return '12001'
-          when 'phpass' #Wordpress/PHPass, Joomla, phpBB3
-            return '400'
+            '300'
+          when 'PBKDF2-HMAC-SHA512' # osx 10.8+
+            '7100'
+          when 'xsha' # osx 10.4-6
+            '122'
+          when 'xsha512' # osx 10.7
+            '1722'
+          when 'PBKDF2-HMAC-SHA1' # Atlassian
+            '12001'
+          when 'phpass' # Wordpress/PHPass, Joomla, phpBB3
+            '400'
           when 'mediawiki' # mediawiki b type
-            return '3711'
+            '3711'
+          else
+            nil
           end
-          nil
         end
 
 
@@ -226,7 +227,7 @@ module Metasploit
         def binary_path
           # Always prefer a manually entered path
           if cracker_path && ::File.file?(cracker_path)
-            bin_path = cracker_path
+            return cracker_path
           else
             # Look in the Environment PATH for the john binary
             if cracker == 'john'
@@ -240,11 +241,11 @@ module Metasploit
             end
 
             if path && ::File.file?(path)
-              bin_path = path
+              return path
             end
+
+            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
           end
-          raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system' if bin_path.blank?
-          bin_path
         end
 
         # This method runs the command from {#crack_command} and yields each line of output.

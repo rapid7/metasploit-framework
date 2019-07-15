@@ -43,15 +43,20 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
+  def half_lm_regex
+    # ^\?{7} is ??????? which is JTR format, so password would be ???????D
+    # ^[notfound] is hashcat format, so password would be [notfound]D
+    /^[\?{7}|\[notfound\]]/
+  end
+
   def show_command(cracker_instance)
-    if datastore['ShowCommand']
-      if action.name == 'john'
-        cmd = cracker_instance.john_crack_command
-      elsif action.name == 'hashcat'
-        cmd = cracker_instance.hashcat_crack_command
-      end
-      print_status("   Cracking Command: #{cmd.join(' ')}")
+    return unless datastore['ShowCommand']
+    if action.name == 'john'
+      cmd = cracker_instance.john_crack_command
+    elsif action.name == 'hashcat'
+      cmd = cracker_instance.hashcat_crack_command
     end
+    print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
   def print_results(tbl, cracked_hashes)
@@ -67,16 +72,18 @@ class MetasploitModule < Msf::Auxiliary
     def process_crack(results, hashes, cred, hash_type, method)
       return results if cred['core_id'].nil? # make sure we have good data
       # make sure we dont add the same one again
-      add_it = true
-
-      results.each do |r|
-        if r[0] == cred['core_id']
-          add_it = false
-          break
-        end
+      if results.select {|r| r.first == cred['core_id']}.empty?
+        results << [cred['core_id'], hash_type, cred['username'], cred['password'], method]
       end
 
-      results << [cred['core_id'], hash_type, cred['username'], cred['password'], method] if add_it
+      # however, a special case for LANMAN where it may come back as ???????D (jtr) or [notfound]D (hashcat)
+      # we want to overwrite the one that was there *if* we have something better.
+      results.map! { |r|
+        r.first == cred['core_id'] &&
+        r[3] =~ half_lm_regex ?
+          [cred['core_id'], hash_type, cred['username'], cred['password'], method] : r
+      }
+
       create_cracked_credential( username: cred['username'], password: cred['password'], core_id: cred['core_id'])
       results
     end
@@ -239,6 +246,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Wordlist')
+
         vprint_good(print_results(tbl, results))
       end
 
@@ -260,19 +268,17 @@ class MetasploitModule < Msf::Auxiliary
     hashes_regex = hashes_regex.join('|')
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NTLMHash').each do |core|
       regex = Regexp.new hashes_regex
-      if core.private.jtr_format =~ regex
-        # only add hashes which havne't been cracked
-        if already_cracked_pass(core.private.data).nil?
-          if action.name == 'john'
-            hashlist.puts hash_to_jtr(core)
-          elsif action.name == 'hashcat'
-            # hashcat hash files dont include the ID to reference back to so we build an array to reference
-            hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
-            hashlist.puts hash_to_hashcat(core)
-          end
-          wrote_hash = true
-        end
+      next unless core.private.jtr_format =~ regex
+      # only add hashes which havne't been cracked
+      next unless already_cracked_pass(core.private.data).nil?
+      if action.name == 'john'
+        hashlist.puts hash_to_jtr(core)
+      elsif action.name == 'hashcat'
+        # hashcat hash files dont include the ID to reference back to so we build an array to reference
+        hashes << {'hash' => core.private.data, 'un' => core.public.username, 'id' => core.id}
+        hashlist.puts hash_to_hashcat(core)
       end
+      wrote_hash = true
     end
     hashlist.close
     unless wrote_hash # check if we wrote anything and bail early if we didn't

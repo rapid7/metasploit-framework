@@ -474,7 +474,7 @@ class Creds
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.to_s : ""
         if truncate && private_val.length > 87
-          private_val = "#{private_val[0,87]}(TRUNCATED)"
+          private_val = "#{private_val[0,87]} (TRUNCATED)"
         end
         realm_val = core.realm ? core.realm.value : ""
         human_val = core.private ? core.private.class.model_name.human : ""
@@ -514,7 +514,7 @@ class Creds
           public_val = core.public ? core.public.username : ""
           private_val = core.private ? core.private.to_s : ""
           if truncate && private_val.to_s.length > 87
-            private_val = "#{private_val[0,87]}(TRUNCATED)"
+            private_val = "#{private_val[0,87]} (TRUNCATED)"
           end
           realm_val = core.realm ? core.realm.value : ""
           human_val = core.private ? core.private.class.model_name.human : ""
