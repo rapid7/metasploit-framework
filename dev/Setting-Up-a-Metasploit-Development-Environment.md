@@ -25,7 +25,7 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 ```
 
 
-## Setup your local copy of the repository
+## Set up your local copy of the repository
 
 You will need to use Github to create a fork for your contributions and receive the latest updates from our repository.
 
@@ -104,9 +104,9 @@ bundle install
 Congratulations! You have now set up a development environment and the latest version of Metasploit.
 
 
-## Optional: Setup the REST API and PostgreSQL database
+## Optional: Set up the REST API and PostgreSQL database
 
-<details><summary>The following optional section describes how to manually install PostgreSQL and setup the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.  Click to expand.</summary>
+<details><summary>The following optional section describes how to manually install PostgreSQL and set up the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.  Click to expand.</summary>
 
 1. Confirm that the PostgreSQL server and client are installed:
 
