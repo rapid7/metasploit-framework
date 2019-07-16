@@ -1,10 +1,13 @@
+# -*- coding: binary -*-
 require 'msf/base'
-require 'lib/rex/crypto/chacha20'
 
 module Msf
 module Sessions
 
-class EncryptedCommandShell < CommandShell
+class EncryptedShell < Msf::Sessions::CommandShell
+
+  include Msf::Session::Basic
+  include Msf::Session::Provider::SingleCommandShell
 
   attr_accessor :arch
   attr_accessor :platform
@@ -12,16 +15,16 @@ class EncryptedCommandShell < CommandShell
   attr_reader :iv
   attr_reader :key
   attr_reader :cipher
-  
-  @key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
-  @iv = "bCsEzT3QbCsE"
 
   def initialize(rstream, opts = {})
     self.arch ||= ""
-    self.platform ||= ""
-    @cipher = OpenSSL::Cipher.new('chacha20')
-    @cipher.random_iv
-    @cipher.random_key
+    self.platform = "windows"
+    datastore = opts[:datastore]
+    @key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
+    nonce = "bCsEzT3QbCsE"
+    block_count = "\x01\x00\x00\x00"
+    @iv = block_count + nonce
+    super
   end
 
   def type
@@ -45,6 +48,8 @@ class EncryptedCommandShell < CommandShell
     rv = rstream.get_once(length, timeout)
     decrypted = Rex::Crypto.chacha_decrypt(@key, @iv, rv)
     framework.events.on_session_output(self, decrypted) if decrypted
+    #framework.events.on_session_output(self, rv) if rv
+    return decrypted
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
     raise e
@@ -61,11 +66,14 @@ class EncryptedCommandShell < CommandShell
     framework.events.on_session_command(self, buf.strip)
     encrypted = Rex::Crypto.chacha_encrypt(@key, @iv, buf)
     rstream.write(encrypted)
+    #rstream.write(buf)
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
     raise e
   end
-end
 
+  undef_method :process_autoruns
+
+end
 end
 end

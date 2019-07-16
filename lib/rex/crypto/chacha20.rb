@@ -8,16 +8,16 @@ module Rex
       cipher.key = key
       cipher.iv = iv
 
-      cipher.update(plaintext) + final 
+      cipher.update(plaintext) + cipher.final 
     end
 
     def self.chacha_decrypt(key, iv, ciphertext)
-      cipher = OpenSSL::Cipher.new('chacha20')
-      cipher.decrypt
-      cipher.key = key
-      cipher.iv = iv
+      decipher = OpenSSL::Cipher.new('chacha20')
+      decipher.decrypt
+      decipher.key = key
+      decipher.iv = iv
 
-      cipher.update(ciphertext) + final
+      decipher.update(ciphertext) + decipher.final
     end
 
   end
