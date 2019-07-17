@@ -10,6 +10,7 @@ module MetasploitModule
   CachedSize = 185
 
   include Msf::Payload::Single
+  include Msf::Payload::Pingback
   include Msf::Sessions::PingbackOptions
 
   def initialize(info = {})

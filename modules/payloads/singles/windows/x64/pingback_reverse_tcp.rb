@@ -14,6 +14,7 @@ module MetasploitModule
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
+  include Msf::Payload::Pingback
   include Msf::Sessions::PingbackOptions
 
   def initialize(info = {})
