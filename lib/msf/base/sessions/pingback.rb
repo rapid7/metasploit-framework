@@ -25,10 +25,10 @@ class Pingback
   end
 
   def initialize(rstream, opts={})
+    super
     self.platform ||= ""
     self.arch     ||= ""
     datastore = opts[:datastore]
-    super
   end
 
   def self.create_session(rstream, opts={})

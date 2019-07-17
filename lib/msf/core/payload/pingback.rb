@@ -9,7 +9,7 @@ require 'pry'
 # This class provides methods for calculating, extracting, and parsing
 # unique ID values used by payloads.
 #
-class Msf::Payload::Pingback
+module Msf::Payload::Pingback
 
 
   #
@@ -20,13 +20,11 @@ class Msf::Payload::Pingback
   # Instance methods
   #
 
-  def initialize(opts=nil)
-    super
-    self.can_cleanup = true
+  def initialize(info = {})
+    ret = super(info)
+    puts("In pingback costructor")
+    self.can_cleanup = false
     self.uuid ||= SecureRandom.uuid()
-    opts[:pingback_uuid] = self.uuid
-    self.cleans_up = false
-    binding.pry
   end
 
   attr_accessor :uuid
