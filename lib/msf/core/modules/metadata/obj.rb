@@ -51,8 +51,6 @@ class Obj
   attr_reader :default_credential
   # @return [Hash]
   attr_reader :notes
-  # @return [Boolean]
-  attr_reader :cleanup_required
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -112,7 +110,6 @@ class Obj
   # Returns the JSON representation of the module metadata
   #
   def to_json(*args)
-    puts("to_json")
     {
       'name'               => @name,
       'full_name'          => @full_name,

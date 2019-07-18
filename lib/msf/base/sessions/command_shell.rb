@@ -12,7 +12,7 @@ module Sessions
     attr_accessor :can_cleanup
     can_cleanup = true
   end
-  
+
 ###
 #
 # This class provides basic interaction with a command shell on the remote
