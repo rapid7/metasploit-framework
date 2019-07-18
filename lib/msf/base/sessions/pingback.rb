@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/base'
+require 'pry'
 
 module Msf
 module Sessions
@@ -52,7 +53,7 @@ class Pingback
     uuid_raw = rstream.get_once(16, 1)
     if uuid_raw
       self.uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
-      $stderr.puts "Incoming UUID = #{uuid_string}"
+      print_status("Incoming UUID = #{uuid_string}")
 
       unless @db_active == false
         begin
@@ -60,22 +61,22 @@ class Pingback
 
           # TODO: Output errors and UUID using something other than `puts`
           if res.nil?
-            $stderr.puts("Provided UUID (#{uuid_string}) was not found in database!")
+            print_warning("Provided UUID (#{uuid_string}) was not found in database!")
             #TODO: Abort, somehow?
           else
-            $stderr.puts("UUID identified (#{uuid_string})")
+            print_good("UUID identified (#{uuid_string})")
           end
           @db_active = true
         rescue ActiveRecord::ConnectionNotEstablished
           @db_active = false
-          $stderr.puts "WARNING: UUID verification and logging is not available, because the database is not active."
+          print_status("WARNING: UUID verification and logging is not available, because the database is not active.")
         rescue => e
           #TODO: Can we have a more specific exception handler?
           #       Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
-          $stderr.puts "Can't get original UUID"
-          $stderr.puts "Exception Class: #{ e.class.name }"
-          $stderr.puts "Exception Message: #{ e.message }"
-          $stderr.puts "Exception Backtrace: #{ e.backtrace }"
+          print_bad("Can't get original UUID")
+          print_bad("Exception Class: #{ e.class.name }")
+          print_bad("Exception Message: #{ e.message }")
+          print_bad("Exception Backtrace: #{ e.backtrace }")
         end
       end
     end
