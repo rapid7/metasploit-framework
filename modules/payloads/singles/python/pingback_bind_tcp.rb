@@ -2,7 +2,6 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/python'
 
 require 'msf/base/sessions/pingback'
-require 'msf/base/sessions/pingback_options'
 require 'msf/core/payload/pingback'
 
 module MetasploitModule
@@ -11,7 +10,7 @@ module MetasploitModule
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback
-  include Msf::Sessions::PingbackOptions
+  include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
     super(merge_info(info,
@@ -37,8 +36,7 @@ module MetasploitModule
   end
 
   def command_string
-    pingback_uuid ||= generate_pingback_uuid
-    pingback_uuid.gsub!('-','')
+    self.pingback_uuid ||= self.generate_pingback_uuid
 
     cmd  = "import socket as s\n"
     cmd << "so=s.socket(s.AF_INET,s.SOCK_STREAM)\n"
@@ -47,7 +45,7 @@ module MetasploitModule
     cmd << " so.bind(('0.0.0.0',#{ datastore['LPORT']}))\n"
     cmd << " so.listen(1)\n"
     cmd << " so,addr=so.accept()\n"
-    cmd << " so.send('#{pingback_uuid}'.decode('hex'))\n"
+    cmd << " so.send('#{self.pingback_uuid.gsub('-','')}'.decode('hex'))\n"
     cmd << " so.close()\n"
     cmd << "except:\n"
     cmd << " pass\n"

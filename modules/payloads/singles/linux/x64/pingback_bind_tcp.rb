@@ -6,7 +6,6 @@
 require 'msf/core/payload/pingback'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/pingback'
-require 'msf/base/sessions/pingback_options'
 
 
 module MetasploitModule
@@ -16,7 +15,7 @@ module MetasploitModule
   include Msf::Payload::Linux
   include Msf::Payload::Single
   include Msf::Payload::Pingback
-  include Msf::Sessions::PingbackOptions
+  include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
     super(merge_info(info,

