@@ -2,7 +2,6 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/ruby'
 
 require 'msf/base/sessions/pingback'
-require 'msf/base/sessions/pingback_options'
 require 'msf/core/payload/pingback'
 
 module MetasploitModule
@@ -11,7 +10,7 @@ module MetasploitModule
 
   include Msf::Payload::Single
   include Msf::Payload::Ruby
-  include Msf::Sessions::PingbackOptions
+  include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
     super(merge_info(info,
@@ -38,14 +37,13 @@ module MetasploitModule
   end
 
   def ruby_string
-    pingback_uuid ||= generate_pingback_uuid
-    pingback_uuid.gsub!('-','')
+    self.pingback_uuid ||= self.generate_pingback_uuid
 
     return "require 'socket';"+
       "s=TCPServer.new(#{datastore['LPORT'].to_i});"+
       "c=s.accept;"+
       "s.close;"+
-      "c.puts(\'#{pingback_uuid}\'.scan(/../).map { |x| x.hex.chr }.join);"+
+      "c.puts(\'#{self.pingback_uuid.gsub('-','')}\'.scan(/../).map { |x| x.hex.chr }.join);"+
       "c.close"
  end
 

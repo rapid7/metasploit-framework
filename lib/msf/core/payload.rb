@@ -68,7 +68,7 @@ class Payload < Msf::Module
   #
   def initialize(info = {})
     super
-
+    self.can_cleanup = true
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
@@ -537,6 +537,8 @@ class Payload < Msf::Module
 
   end
 
+
+  attr_accessor :can_cleanup
   #
   # This attribute holds the string that should be prepended to the buffer
   # when it's generated.
@@ -668,6 +670,7 @@ protected
   # Merge the name to prefix the existing one and separate them
   # with a comma
   #
+
   def merge_name(info, val)
     if (info['Name'])
       info['Name'] = val + ',' + info['Name']
