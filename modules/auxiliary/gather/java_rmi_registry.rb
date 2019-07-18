@@ -6,6 +6,7 @@
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Java::Rmi::Client
 
@@ -31,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def run
+  def run_host(ip)
     print_status("Sending RMI Header...")
     connect
 
