@@ -31,7 +31,10 @@ class MetasploitModule < Msf::Post
         ['Run',  'Description' => 'Run Sonic Pi code'],
         ['Stop', 'Description' => 'Stop all jobs']
       ],
-      'DefaultAction' => 'Run'
+      'DefaultAction' => 'Run',
+      'Notes'         => {
+        'SideEffects' => [AUDIO_EFFECTS, SCREEN_EFFECTS]
+      }
     ))
 
     register_options([
