@@ -26,6 +26,7 @@ module Msf::Payload::Pingback
   def generate_pingback_uuid
     self.pingback_uuid ||= SecureRandom.uuid()
     print_status("PingbackUUID = #{self.pingback_uuid}")
+    datastore['PingbackUUID'] = self.pingback_uuid
     if framework.db.active
       print_status("Writing UUID #{datastore['PingbackUUID']} to database...")
       Mdm::Payload.create!(name: datastore['PayloadUUIDName'],
