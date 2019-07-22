@@ -9,11 +9,6 @@ module Msf
   module Sessions
     module MettleConfig
 
-      class << self
-        attr_accessor :can_cleanup
-        can_cleanup = true
-      end
-
       include Msf::Payload::TransportConfig
 
       def generate_uri(opts={})
