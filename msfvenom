@@ -114,8 +114,8 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars       <list>', String, 'Characters to avoid example: \'\x00\xff\'') do |b|
-    init_framework()
-    opts[:badchars] = Rex::Text.hex_to_raw(b)
+    init_framework
+    opts[:badchars] = Rex::Text.dehex(b)
   end
 
   opt.on('-n', '--nopsled         <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
@@ -180,7 +180,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ && datastore['LHOST'].nil?
-      init_framework()
+      init_framework
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
@@ -237,22 +237,22 @@ def dump_platforms
 end
 
 def dump_archs
-init_framework(:module_types => [])
-supported_archs = ARCH_ALL.dup
+  init_framework(:module_types => [])
+  supported_archs = ARCH_ALL.dup
 
-tbl = Rex::Text::Table.new(
-'Indent'  => 4,
-'Header'  => "Framework Architectures [--arch <value>]",
-'Columns' =>
-[
-"Name",
-])
+  tbl = Rex::Text::Table.new(
+    'Indent'  => 4,
+    'Header'  => "Framework Architectures [--arch <value>]",
+    'Columns' =>
+    [
+      "Name",
+    ])
 
-supported_archs.sort.each do |name|
-tbl << [name]
-end
+  supported_archs.sort.each do |name|
+    tbl << [name]
+  end
 
-"\n" + tbl.to_s + "\n"
+  "\n" + tbl.to_s + "\n"
 end
 
 def dump_archs
@@ -268,7 +268,7 @@ def dump_archs
     ])
 
   supported_archs.sort.each do |name|
-    tbl << [name]
+    tbl << [ name]
   end
 
   "\n" + tbl.to_s + "\n"
