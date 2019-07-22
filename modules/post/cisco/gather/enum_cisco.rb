@@ -172,7 +172,8 @@ class MetasploitModule < Msf::Post
     ]
     priv_commands.each do |ec|
       cmd_out = session.shell_command(ec['cmd']).gsub(/#{ec['cmd']}|#{prompt}/,"")
-      next if cmd_out =~ /Invalid input|%/
+      # also look at line number so we dont invalidate large outputs by something at the end
+      next if cmd_out.split("\n").length < 2 && cmd_out =~ /Invalid input|%/
       print_status("Gathering info from #{ec['cmd']}")
       # Process configuration
       if ec['cmd'] =~/show run/
@@ -231,3 +232,4 @@ class MetasploitModule < Msf::Post
     end
   end
 end
+
