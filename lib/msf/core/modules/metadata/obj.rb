@@ -186,7 +186,7 @@ class Obj
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
     @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
-    @needs_cleanup      = obj_hash['cleanup_required']
+    @needs_cleanup      = obj_hash['needs_cleanup']
 
   end
 
