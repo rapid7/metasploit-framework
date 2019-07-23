@@ -6,26 +6,24 @@
 class MetasploitModule < Msf::Evasion
 
   def initialize(info={})
-    super(
-      update_info(
-        info,
-          'Name'        => 'Applocker Evasion - .NET Framework Installation Utility',
-          'Description' => %(
-                             This module will assist you in evading Microsoft Windows
-                             Applocker and Software Restriction Policies.
-                             This technique utilises the Microsoft signed binary
-                             InstallUtil.exe to execute user supplied code.
-                           ),
-          'Author'      =>
-            [
-              'Nick Tyrer <@NickTyrer>', # module development
-              'Casey Smith' # install_util bypass research
-            ],
-          'License'     => 'MSF_LICENSE',
-          'Platform'    => 'win',
-          'Arch'        => [ARCH_X86, ARCH_X64],
-          'Targets'     => [['Microsoft Windows', {}]],
-          'References'  => [['URL', 'https://attack.mitre.org/techniques/T1118/']]
+    super(update_info(info,
+      'Name'        => 'Applocker Evasion - .NET Framework Installation Utility',
+      'Description' => %q(
+         This module will assist you in evading Microsoft Windows
+         Applocker and Software Restriction Policies.
+         This technique utilises the Microsoft signed binary
+         InstallUtil.exe to execute user supplied code.
+      ),
+      'Author'      =>
+        [
+          'Nick Tyrer <@NickTyrer>', # module development
+          'Casey Smith' # install_util bypass research
+        ],
+      'License'     => 'MSF_LICENSE',
+      'Platform'    => 'win',
+      'Arch'        => [ARCH_X86, ARCH_X64],
+      'Targets'     => [['Microsoft Windows', {}]],
+      'References'  => [['URL', 'https://attack.mitre.org/techniques/T1118/']]
       )
     )
 
