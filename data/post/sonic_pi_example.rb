@@ -1,9 +1,5 @@
 use_bpm 130
-
-define :play_sleep do |note, time|
-  play note
-  sleep time
-end
+use_synth_defaults sustain: 0
 
 4.times do
   sample :drum_cymbal_pedal
@@ -27,23 +23,22 @@ sleep 8
 live_loop :bass do
   use_synth :pluck
 
+  notes = %i[
+    Eb3  Eb3  Eb3
+    B2   B2   B2
+    Fs2  Fs2  Fs2
+    As2  As2  As2  As2
+  ]
+
+  times = %w[
+    2.0  1.0  1.0
+    2.0  1.0  1.0
+    2.0  1.0  1.0
+    1.5  1.0  0.5  1.0
+  ].map(&:to_f)
+
   with_fx :reverb do
-    play_sleep :Eb3, 2
-    play_sleep :Eb3, 1
-    play_sleep :Eb3, 1
-
-    play_sleep :B2,  2
-    play_sleep :B2,  1
-    play_sleep :B2,  1
-
-    play_sleep :Fs2, 2
-    play_sleep :Fs2, 1
-    play_sleep :Fs2, 1
-
-    play_sleep :As2, 1.5
-    play_sleep :As2, 1
-    play_sleep :As2, 0.5
-    play_sleep :As2, 1
+    play_pattern_timed notes, times
   end
 end
 
@@ -52,32 +47,22 @@ sleep 32
 live_loop :lead do
   use_synth :piano
 
+  notes = %i[
+    As4   As4   As4   As4   Gs4   As4   As4
+    As4   As4   As4   Gs4   As4   As4
+    Db5   As4   Gs4   Fs4
+    Eb4   Eb4   F4    Fs4   Eb4
+  ]
+
+  times = %w[
+    2.00  0.50  0.25  0.25  0.50  0.50  2.00
+    0.50  0.25  0.25  0.50  0.50  1.50
+    1.00  1.00  1.00  1.00
+    0.50  0.50  0.50  0.50  0.50
+  ].map(&:to_f)
+
   with_fx :reverb do
-    play_sleep :As4, 2
-    play_sleep :As4, 0.5
-    play_sleep :As4, 0.25
-    play_sleep :As4, 0.25
-    play_sleep :Gs4, 0.5
-    play_sleep :As4, 0.5
-    play_sleep :As4, 2
-
-    play_sleep :As4, 0.5
-    play_sleep :As4, 0.25
-    play_sleep :As4, 0.25
-    play_sleep :Gs4, 0.5
-    play_sleep :As4, 0.5
-    play_sleep :As4, 1.5
-
-    play_sleep :Db5, 1
-    play_sleep :As4, 1
-    play_sleep :Gs4, 1
-    play_sleep :Fs4, 1
-
-    play_sleep :Eb4, 0.5
-    play_sleep :Eb4, 0.5
-    play_sleep :F4,  0.5
-    play_sleep :Fs4, 0.5
-    play_sleep :Eb4, 0.5
+    play_pattern_timed notes, times
   end
 end
 
