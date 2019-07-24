@@ -1592,8 +1592,8 @@ class Core
     end
 
     # Set PAYLOAD from TARGET
-    if name.upcase == 'TARGET' && active_module && active_module.exploit?
-      active_module.import_target_datastore
+    if name.upcase == 'TARGET' && (active_module.exploit? || active_module.evasion?)
+      active_module.import_target_defaults
     end
 
     print_line("#{name} => #{datastore[name]}")
