@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'msf/core/module/platform'
 require 'rex/text'
+require 'pry'
 
 #
 # This class provides methods for calculating, extracting, and parsing
@@ -29,12 +30,13 @@ module Msf::Payload::Pingback
     datastore['PingbackUUID'] = self.pingback_uuid
     if framework.db.active
       print_status("Writing UUID #{datastore['PingbackUUID']} to database...")
-      Mdm::Payload.create!(name: datastore['PayloadUUIDName'],
+      framework.db.create_payload(name: datastore['PayloadUUIDName'],
                            uuid: datastore['PingbackUUID'].gsub('-',''),
                            description: 'pingback',
                            platform: platform.platforms.first.realname.downcase)
+    
     else
-      print_warning("Unable to save UUID to database -- database support not active")
+      print_warning("Unable to save UUID #{datastore['PingbackUUID']} to database -- database support not active")
     end
     self.pingback_uuid
   end

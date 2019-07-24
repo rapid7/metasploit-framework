@@ -57,10 +57,9 @@ class Pingback
 
       unless @db_active == false
         begin
-          res = Mdm::Payload.find_by uuid: uuid_string
-
+          payload = framework.db.payloads(uuid: uuid_string).first
           # TODO: Output errors and UUID using something other than `puts`
-          if res.nil?
+          if payload.nil?
             print_warning("Provided UUID (#{uuid_string}) was not found in database!")
             #TODO: Abort, somehow?
           else
