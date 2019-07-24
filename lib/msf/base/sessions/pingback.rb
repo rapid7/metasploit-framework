@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'msf/base'
-require 'pry'
 
 module Msf
 module Sessions
