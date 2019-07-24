@@ -49,6 +49,7 @@ module Msf
             @previous_module = nil
             @module_name_stack = []
             @module_search_results = []
+            @@payload_show_results = []
             @dangerzone_map = nil
           end
 
@@ -641,18 +642,12 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
-            # Try to create an integer out of a supplied module name
-            mod_index =
-              begin
-                Integer(mod_name)
-              rescue ArgumentError, TypeError
-                nil
-              end
-
             # Use a module by search index
-            if mod_index
-              return if mod_index < 0 || @module_search_results[mod_index].nil?
-              mod_name = @module_search_results[mod_index].fullname
+            module_index(@module_search_results, mod_name) do |mod|
+              return false unless mod && mod.respond_to?(:fullname)
+
+              # Module cache object from @module_search_results
+              mod_name = mod.fullname
             end
 
             # See if the supplied module name has already been resolved
@@ -1039,10 +1034,12 @@ module Msf
           def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
-            if (active_module and (active_module.exploit? == true or active_module.evasion?))
-              show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
+            if active_module && (active_module.exploit? || active_module.evasion?)
+              @@payload_show_results = active_module.compatible_payloads
+
+              show_module_set('Compatible Payloads', @@payload_show_results, regex, minrank, opts)
             else
-              show_module_set("Payloads", framework.payloads, regex, minrank, opts)
+              show_module_set('Payloads', framework.payloads, regex, minrank, opts)
             end
           end
 
