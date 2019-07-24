@@ -3,7 +3,6 @@
 require 'msf/core'
 require 'msf/core/module/platform'
 require 'rex/text'
-require 'pry'
 
 #
 # This class provides methods for calculating, extracting, and parsing
