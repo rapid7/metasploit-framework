@@ -81,6 +81,8 @@ class Obj
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
     @ref_name           = module_instance.refname
+    @needs_cleanup      = module_instance.responds_to?(:needs_cleanup) && module_instance.needs_cleanup
+
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
     end
@@ -134,7 +136,8 @@ class Obj
       'check'              => @check,
       'post_auth'          => @post_auth,
       'default_credential' => @default_credential,
-      'notes'              => @notes
+      'notes'              => @notes,
+      'needs_cleanup'      => @needs_cleanup
     }.to_json(*args)
   end
 
@@ -183,6 +186,8 @@ class Obj
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
     @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup      = obj_hash['needs_cleanup']
+
   end
 
   def sort_platform_string

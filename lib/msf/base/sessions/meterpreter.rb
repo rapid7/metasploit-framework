@@ -14,6 +14,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
