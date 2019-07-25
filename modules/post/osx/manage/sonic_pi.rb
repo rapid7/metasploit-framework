@@ -101,7 +101,8 @@ class MetasploitModule < Msf::Post
         if datastore['START_SONIC_PI']
           print_status('Starting Sonic Pi...')
 
-          cmd_exec("#{sonic_pi} &")
+          # XXX: shell_command_token uses ; as a command separator
+          cmd_exec("#{sonic_pi} & :")
           sleep(10)
 
           @tried = true
