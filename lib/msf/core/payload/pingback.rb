@@ -25,10 +25,10 @@ module Msf::Payload::Pingback
   # Generate a Payload UUID
   def generate_pingback_uuid
     self.pingback_uuid ||= SecureRandom.uuid()
-    print_status("PingbackUUID = #{self.pingback_uuid}")
     datastore['PingbackUUID'] = self.pingback_uuid
+    vprint_status("PingbackUUID = #{datastore['PingbackUUID'].gsub('-','')}")
     if framework.db.active
-      print_status("Writing UUID #{datastore['PingbackUUID']} to database...")
+      vprint_status("Writing UUID #{datastore['PingbackUUID'].gsub('-','')} to database...")
       framework.db.create_payload(name: datastore['PayloadUUIDName'],
                            uuid: datastore['PingbackUUID'].gsub('-',''),
                            description: 'pingback',
