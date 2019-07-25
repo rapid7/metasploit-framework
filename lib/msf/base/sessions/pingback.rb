@@ -54,19 +54,15 @@ class Pingback
       self.uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
       print_status("Incoming UUID = #{uuid_string}")
 
-      unless @db_active == false
+      if framework.db.active
         begin
           payload = framework.db.payloads(uuid: uuid_string).first
-          # TODO: Output errors and UUID using something other than `puts`
           if payload.nil?
             print_warning("Provided UUID (#{uuid_string}) was not found in database!")
-            #TODO: Abort, somehow?
           else
             print_good("UUID identified (#{uuid_string})")
           end
-          @db_active = true
         rescue ActiveRecord::ConnectionNotEstablished
-          @db_active = false
           print_status("WARNING: UUID verification and logging is not available, because the database is not active.")
         rescue => e
           #TODO: Can we have a more specific exception handler?
@@ -76,6 +72,8 @@ class Pingback
           print_bad("Exception Message: #{ e.message }")
           print_bad("Exception Backtrace: #{ e.backtrace }")
         end
+      else
+        print_warning("WARNING: UUID verification and logging is not available, because the database is not active.")
       end
     end
     nil
