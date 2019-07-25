@@ -643,7 +643,7 @@ module Msf
             mod_name = args[0]
 
             # Use a module by search index
-            module_index(@module_search_results, mod_name) do |mod|
+            index_from_list(@module_search_results, mod_name) do |mod|
               return false unless mod && mod.respond_to?(:fullname)
 
               # Module cache object from @module_search_results

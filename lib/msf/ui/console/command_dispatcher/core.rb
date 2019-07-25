@@ -1577,7 +1577,7 @@ class Core
 
     # Set PAYLOAD by index
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      module_index(payload_show_results, value) do |mod|
+      index_from_list(payload_show_results, value) do |mod|
         return false unless mod && mod.respond_to?(:first)
 
         # [name, class] from payload_show_results

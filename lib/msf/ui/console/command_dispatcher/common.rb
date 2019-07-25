@@ -143,7 +143,7 @@ module Common
   end
 
   # This is for the "use" and "set" commands
-  def module_index(list, index, &block)
+  def index_from_list(list, index, &block)
     return unless list.kind_of?(Array) && index
 
     begin
