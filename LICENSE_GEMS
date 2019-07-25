@@ -10,9 +10,9 @@ afm, 0.2.2, MIT
 arel, 6.0.4, MIT
 arel-helpers, 2.9.1, MIT
 aws-eventstream, 1.0.3, "Apache 2.0"
-aws-partitions, 1.189.0, "Apache 2.0"
-aws-sdk-core, 3.59.0, "Apache 2.0"
-aws-sdk-ec2, 1.99.0, "Apache 2.0"
+aws-partitions, 1.192.0, "Apache 2.0"
+aws-sdk-core, 3.61.0, "Apache 2.0"
+aws-sdk-ec2, 1.100.0, "Apache 2.0"
 aws-sdk-iam, 1.28.0, "Apache 2.0"
 aws-sdk-kms, 1.23.0, "Apache 2.0"
 aws-sdk-s3, 1.45.0, "Apache 2.0"
@@ -53,7 +53,7 @@ loofah, 2.2.3, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.3, "New BSD"
-metasploit-framework, 5.0.38, "New BSD"
+metasploit-framework, 5.0.39, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.70, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -88,7 +88,7 @@ rails-deprecated_sanitizer, 1.0.3, MIT
 rails-dom-testing, 1.0.9, MIT
 rails-html-sanitizer, 1.0.4, MIT
 railties, 4.2.11.1, MIT
-rake, 12.3.2, MIT
+rake, 12.3.3, MIT
 rb-readline, 0.5.5, BSD
 recog, 2.3.2, unknown
 redcarpet, 3.4.0, MIT
