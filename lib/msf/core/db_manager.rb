@@ -29,7 +29,6 @@ class Msf::DBManager
   DEFAULT_SERVICE_PROTO = "tcp"
 
   autoload :Adapter, 'msf/core/db_manager/adapter'
-  autoload :AsyncCallback, 'msf/core/db_manager/async_callback'
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
   autoload :Cred, 'msf/core/db_manager/cred'
@@ -70,7 +69,6 @@ class Msf::DBManager
   include Metasploit::Framework::DataService
 
   include Msf::DBManager::Adapter
-  include Msf::DBManager::AsyncCallback
   include Msf::DBManager::Client
   include Msf::DBManager::Connection
   include Msf::DBManager::Cred

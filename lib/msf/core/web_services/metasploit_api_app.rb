@@ -5,7 +5,6 @@ require 'warden'
 require 'msf/core/web_services/authentication'
 require 'msf/core/web_services/servlet_helper'
 require 'msf/core/web_services/servlet/api_docs_servlet'
-require 'msf/core/web_services/servlet/async_callback_servlet'
 require 'msf/core/web_services/servlet/auth_servlet'
 require 'msf/core/web_services/servlet/host_servlet'
 require 'msf/core/web_services/servlet/note_servlet'
@@ -34,7 +33,6 @@ class MetasploitApiApp < Sinatra::Base
 
   # Servlet registration
   register ApiDocsServlet
-  register AsyncCallbackServlet
   register AuthServlet
   register HostServlet
   register VulnServlet

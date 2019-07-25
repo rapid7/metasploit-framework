@@ -21,7 +21,6 @@ module DataProxyAutoLoader
   autoload :VulnAttemptDataProxy, 'metasploit/framework/data_service/proxy/vuln_attempt_data_proxy'
   autoload :MsfDataProxy, 'metasploit/framework/data_service/proxy/msf_data_proxy'
   autoload :PayloadDataProxy, 'metasploit/framework/data_service/proxy/payload_data_proxy'
-  autoload :AsyncCallbackDataProxy, 'metasploit/framework/data_service/proxy/async_callback_data_proxy'
 
   include ServiceDataProxy
   include HostDataProxy
@@ -42,5 +41,4 @@ module DataProxyAutoLoader
   include VulnAttemptDataProxy
   include MsfDataProxy
   include PayloadDataProxy
-  include AsyncCallbackDataProxy
 end
