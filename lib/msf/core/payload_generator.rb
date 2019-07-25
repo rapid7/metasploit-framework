@@ -374,10 +374,6 @@ module Msf
     # methods in order based on the supplied options and returns the finished payload.
     # @return [String] A string containing the bytes of the payload in the format selected
     def generate_payload
-      if payload.include?("pingback") and framework.db.active == false
-        cli_print "[-] WARNING: UUID cannot be saved because database is inactive."
-      end
-
       if platform == "java" or arch == "java" or payload.start_with? "java/"
         raw_payload = generate_java_payload
         encoded_payload = raw_payload

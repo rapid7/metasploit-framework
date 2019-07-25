@@ -20,7 +20,7 @@ module Msf::DBManager::Payload
       else
         # Check the database for a matching UUID, returning an empty array if no results are found
         begin
-          return Array.wrap(Mdm::Payload.where(uuid: opts[:uuid]))
+          return Array.wrap(Mdm::Payload.find(uuid: opts[:uuid]))
         rescue ActiveRecord::RecordNotFound
           return []
         end

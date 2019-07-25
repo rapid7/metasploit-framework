@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'msf/core/payload/uuid/options'
-require 'msf/core/payload/pingback/options'
 
 ##
 # This module contains helper functions for creating the transport
@@ -9,7 +8,6 @@ require 'msf/core/payload/pingback/options'
 ##
 module Msf::Payload::TransportConfig
 
-  include Msf::Payload::Pingback::Options
   include Msf::Payload::UUID::Options
 
   def transport_config_reverse_tcp(opts={})
