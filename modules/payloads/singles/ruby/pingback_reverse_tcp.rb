@@ -23,12 +23,7 @@ module MetasploitModule
       'Arch' => ARCH_RUBY,
       'Handler' => Msf::Handler::ReverseTcp,
       'Session' => Msf::Sessions::Pingback,
-      'PayloadType' => 'ruby',
-      'Payload' =>
-        {
-          'Offsets' => {},
-          'Payload' => ''
-        }
+      'PayloadType' => 'ruby'
     ))
   end
 

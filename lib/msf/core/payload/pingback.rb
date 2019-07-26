@@ -10,6 +10,9 @@ require 'rex/text'
 #
 module Msf::Payload::Pingback
 
+  attr_accessor :pingback_uuid
+  attr_accessor :can_cleanup
+
   # Generate a Pingback UUID and write it to the database
   def generate_pingback_uuid
     self.pingback_uuid ||= SecureRandom.uuid()
@@ -32,7 +35,4 @@ module Msf::Payload::Pingback
     self.can_cleanup = false
     self
   end
-
-  attr_accessor :pingback_uuid
-  attr_accessor :can_cleanup
 end

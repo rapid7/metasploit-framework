@@ -23,13 +23,8 @@ module MetasploitModule
       'Arch' => ARCH_RUBY,
       'Handler' => Msf::Handler::BindTcp,
       'Session' => Msf::Sessions::Pingback,
-      'PayloadType' => 'ruby',
-      'Payload' =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+      'PayloadType' => 'ruby'
+    ))
   end
 
   def generate

@@ -22,13 +22,8 @@ module MetasploitModule
       'Arch' => ARCH_PYTHON,
       'Handler' => Msf::Handler::BindTcp,
       'Session' => Msf::Sessions::Pingback,
-      'PayloadType' => 'python',
-      'Payload' =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
-      ))
+      'PayloadType' => 'python'
+    ))
   end
 
   def generate

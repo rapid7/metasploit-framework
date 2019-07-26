@@ -22,12 +22,7 @@ module MetasploitModule
       'Arch' => ARCH_PYTHON,
       'Handler' => Msf::Handler::ReverseTcp,
       'Session' => Msf::Sessions::Pingback,
-      'PayloadType' => 'python',
-      'Payload' =>
-        {
-          'Offsets' => {},
-          'Payload' => ''
-        }
+      'PayloadType' => 'python'
     ))
   end
 

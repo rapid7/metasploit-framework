@@ -29,12 +29,7 @@ module MetasploitModule
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Pingback,
       'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'netcat',
-      'Payload'       =>
-        {
-          'Offsets' => {},
-          'Payload' => ''
-        }
+      'RequiredCmd'   => 'netcat'
     ))
   end
 

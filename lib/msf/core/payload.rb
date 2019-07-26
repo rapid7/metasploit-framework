@@ -537,7 +537,10 @@ class Payload < Msf::Module
 
   end
 
-
+  #
+  # This attribute designates if the payload supports onsession()
+  # method calls (typically to clean up artifacts)
+  #
   attr_accessor :can_cleanup
   #
   # This attribute holds the string that should be prepended to the buffer
