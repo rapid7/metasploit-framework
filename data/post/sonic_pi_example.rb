@@ -23,7 +23,7 @@ live_loop :bass do
     As2  As2  As2  As2
   ]
 
-  times = %w[
+  beats = %w[
     2.0  1.0  1.0
     2.0  1.0  1.0
     2.0  1.0  1.0
@@ -31,7 +31,7 @@ live_loop :bass do
   ].map(&:to_f)
 
   with_fx :reverb do
-    play_pattern_timed notes, times
+    play_pattern_timed notes, beats
   end
 end
 
@@ -45,7 +45,7 @@ live_loop :lead do
     Eb4   Eb4   F4    Fs4   Eb4
   ]
 
-  times = %w[
+  beats = %w[
     2.00  0.50  0.25  0.25  0.25  0.75  2.00
     0.50  0.25  0.25  0.25  0.75  1.50
     1.00  1.00  1.00  1.00
@@ -53,6 +53,6 @@ live_loop :lead do
   ].map(&:to_f)
 
   with_fx :reverb do
-    play_pattern_timed notes, times
+    play_pattern_timed notes, beats
   end
 end
