@@ -8,7 +8,6 @@ module Msf::DBManager::Payload
         end
       end
 
-      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
       Mdm::Payload.create!(opts)
     end
   end
@@ -30,9 +29,6 @@ module Msf::DBManager::Payload
 
   def update_payload(opts)
     ::ActiveRecord::Base.connection_pool.with_connection do
-      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
-      opts[:workspace] = wspace if wspace
-
       id = opts.delete(:id)
       Mdm::Payload.update(id, opts)
     end
