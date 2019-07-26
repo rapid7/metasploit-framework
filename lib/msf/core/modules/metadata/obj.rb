@@ -81,7 +81,7 @@ class Obj
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
     @ref_name           = module_instance.refname
-    @needs_cleanup      = module_instance.responds_to?(:needs_cleanup) && module_instance.needs_cleanup
+    @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
 
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
