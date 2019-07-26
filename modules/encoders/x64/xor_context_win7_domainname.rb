@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Encoder::Xor
     #     mov r13, rcx ; Base address of DLL loaded
     #     mov eax, [r13d + 0x3c] ; Skip DOS header and go to PE header
     #     mov r14d, [r13d + eax + 0x88] ; Export table in PE header
-    #     add r14d, r13d ; R14D = Absolute base address for export table 
+    #     add r14d, r13d ; R14D = Absolute base address for export table
     #     mov r10d, [r14d + 0x18] ; Go into export table and get the numberOfNames
     #     mov ebx, [r14d + 0x20] ; EBX = AddressOfNames offset
     #     add ebx, r13d ; EBX = AddressOfNames base
