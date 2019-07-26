@@ -20,7 +20,6 @@ module Payload::Windows::ReverseTcp_x64
   include Msf::Payload::Windows
   include Msf::Payload::Windows::SendUUID_x64
   include Msf::Payload::Windows::BlockApi_x64
-  include Msf::Payload::Windows::Exitfunk_x64
 
   #
   # Register reverse_tcp specific options

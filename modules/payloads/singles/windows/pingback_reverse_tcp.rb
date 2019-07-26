@@ -9,7 +9,7 @@ require 'msf/core/payload/windows/block_api'
 require 'msf/base/sessions/pingback'
 module MetasploitModule
 
-  CachedSize = 324
+  CachedSize = 292
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

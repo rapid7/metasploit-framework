@@ -10,7 +10,7 @@ require 'msf/base/sessions/pingback'
 
 module MetasploitModule
 
-  CachedSize = 460
+  CachedSize = 125
 
   include Msf::Payload::Linux
   include Msf::Payload::Single

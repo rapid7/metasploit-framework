@@ -10,7 +10,7 @@ require 'msf/base/sessions/pingback'
 
 module MetasploitModule
 
-  CachedSize = 460
+  CachedSize = 109
 
   include Msf::Payload::Linux
   include Msf::Payload::Single
@@ -40,8 +40,6 @@ module MetasploitModule
       sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
       asm = %Q^
-          push   #{retry_count}        ; retry counter
-          pop    r9
           push   rsi
           push   rax
          ;SOCKET

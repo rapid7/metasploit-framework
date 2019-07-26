@@ -9,7 +9,7 @@ require 'msf/base/sessions/pingback'
 
 module MetasploitModule
 
-  CachedSize = 90
+  CachedSize = 103
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback
@@ -49,7 +49,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    self.pingback_uuid ||= generate_pingback_uuid
-    "printf '#{self.pingback_uuid.gsub('-', '').scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
+    pingback_uuid ||= generate_pingback_uuid
+    "printf '#{pingback_uuid.gsub('-', '').scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
   end
 end
