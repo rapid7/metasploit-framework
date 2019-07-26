@@ -19,7 +19,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Pingback Bind TCP (via netcat)',
       'Description'   => 'Accept a connection, send a UUID, then exit',
-      'Author'         =>
+      'Author'        =>
         [
           'asoto-r7'
         ],
@@ -32,10 +32,10 @@ module MetasploitModule
       'RequiredCmd'   => 'netcat',
       'Payload'       =>
         {
-          'Offsets' => { },
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+    ))
   end
 
   #
@@ -49,9 +49,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    pingback_uuid ||= generate_pingback_uuid
-    pingback_uuid.gsub!('-','')
-
-    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
+    self.pingback_uuid ||= generate_pingback_uuid
+    "printf '#{self.pingback_uuid.gsub('-', '').scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
   end
 end

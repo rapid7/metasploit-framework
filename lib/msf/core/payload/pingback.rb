@@ -10,30 +10,17 @@ require 'rex/text'
 #
 module Msf::Payload::Pingback
 
-  #
-  # Instance methods
-  #
-  #
-  # Generates a URI with a given checksum and optionally with an embedded UUID if
-  # the desired length can accommodate it.
-  #
-  # @param mode [Symbol] The type of checksum to generate (:connect, :init_native, :init_python, :init_java)
-  # @param len [Integer] The length of the URI not including the leading slash, optionally nil for random
-  # @return [String] A URI with a leading slash that hashes to the checksum, with an optional UUID
-  #
-
-  # Generate a Payload UUID
+  # Generate a Pingback UUID and write it to the database
   def generate_pingback_uuid
     self.pingback_uuid ||= SecureRandom.uuid()
     datastore['PingbackUUID'] = self.pingback_uuid
-    vprint_status("PingbackUUID = #{datastore['PingbackUUID'].gsub('-','')}")
+    vprint_status("PingbackUUID = #{datastore['PingbackUUID'].gsub('-', '')}")
     if framework.db.active
-      vprint_status("Writing UUID #{datastore['PingbackUUID'].gsub('-','')} to database...")
+      vprint_status("Writing UUID #{datastore['PingbackUUID'].gsub('-', '')} to database...")
       framework.db.create_payload(name: datastore['PayloadUUIDName'],
-                           uuid: datastore['PingbackUUID'].gsub('-',''),
+                           uuid: datastore['PingbackUUID'].gsub('-', ''),
                            description: 'pingback',
                            platform: platform.platforms.first.realname.downcase)
-    
     else
       print_warning("Unable to save UUID #{datastore['PingbackUUID']} to database -- database support not active")
     end
@@ -41,7 +28,7 @@ module Msf::Payload::Pingback
   end
 
   def initialize(info = {})
-    ret = super(info)
+    super(info)
     self.can_cleanup = false
     self
   end
