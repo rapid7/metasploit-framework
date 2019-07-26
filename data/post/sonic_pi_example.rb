@@ -1,11 +1,6 @@
 use_bpm 130
 use_synth_defaults sustain: 0
 
-4.times do
-  sample :drum_cymbal_pedal
-  sleep 1
-end
-
 live_loop :drums do
   sample :drum_heavy_kick, amp: 2
   sleep 1
@@ -17,8 +12,6 @@ live_loop :hi_hat do
   sample :drum_cymbal_closed, amp: 0.5
   sleep 0.5
 end
-
-sleep 8
 
 live_loop :bass do
   use_synth :pluck
@@ -42,8 +35,6 @@ live_loop :bass do
   end
 end
 
-sleep 32
-
 live_loop :lead do
   use_synth :piano
 
@@ -64,11 +55,4 @@ live_loop :lead do
   with_fx :reverb do
     play_pattern_timed notes, times
   end
-end
-
-sleep 32
-
-live_loop :cowbell do
-  sample :drum_cowbell, amp: 0.25
-  sleep 1
 end
