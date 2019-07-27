@@ -1,5 +1,5 @@
 ## Description
-
+NagiosXI may store credentials of the hosts it monitors. This module extracts these credentials, creating opportunities for lateral movement.
 ## Verification Steps
 
   1. Start msfconsole
