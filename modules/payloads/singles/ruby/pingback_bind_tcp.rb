@@ -35,12 +35,12 @@ module MetasploitModule
   def ruby_string
     self.pingback_uuid ||= self.generate_pingback_uuid
     ruby_code = <<~RUBY
-      require 'socket';
-      s=TCPServer.new(#{datastore['LPORT'].to_i});
-      c=s.accept;
-      s.close;
-      c.puts('#{self.pingback_uuid}'.scan(/../).map { |x| x.hex.chr }.join);
-      c.close;
+      require 'socket'
+      s = TCPServer.new(#{datastore['LPORT'].to_i})
+      c = s.accept
+      s.close
+      c.puts('#{self.pingback_uuid}'.scan(/../).map { |x| x.hex.chr }.join)
+      c.close
     RUBY
   end
 end

