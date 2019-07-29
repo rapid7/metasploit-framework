@@ -35,7 +35,7 @@ module MetasploitModule
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       self.pingback_uuid ||= self.generate_pingback_uuid
-      uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
+      uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
       addr_fam      = 2
       sockaddr_size = 16
 

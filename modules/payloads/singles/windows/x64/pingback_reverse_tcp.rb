@@ -36,8 +36,8 @@ module MetasploitModule
       retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
       pingback_count = datastore['PingbackRetries']
       pingback_sleep = datastore['PingbackSleep']
-      self.pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = "0x" + self.pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
+      self.pingback_uuid ||= self.generate_pingback_uuid
+      uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
 
       asm = %Q^
         cld                     ; Clear the direction flag.

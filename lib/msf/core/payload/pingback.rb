@@ -16,12 +16,13 @@ module Msf::Payload::Pingback
   # Generate a Pingback UUID and write it to the database
   def generate_pingback_uuid
     self.pingback_uuid ||= SecureRandom.uuid()
+    self.pingback_uuid.to_s.gsub!("-", "")
     datastore['PingbackUUID'] = self.pingback_uuid
-    vprint_status("PingbackUUID = #{datastore['PingbackUUID'].gsub('-', '')}")
+    vprint_status("PingbackUUID = #{datastore['PingbackUUID']}")
     if framework.db.active
-      vprint_status("Writing UUID #{datastore['PingbackUUID'].gsub('-', '')} to database...")
+      vprint_status("Writing UUID #{datastore['PingbackUUID']} to database...")
       framework.db.create_payload(name: datastore['PayloadUUIDName'],
-                           uuid: datastore['PingbackUUID'].gsub('-', ''),
+                           uuid: datastore['PingbackUUID'],
                            description: 'pingback',
                            platform: platform.platforms.first.realname.downcase)
     else

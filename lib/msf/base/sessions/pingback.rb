@@ -50,32 +50,30 @@ class Pingback
 
   def uuid_read
     uuid_raw = rstream.get_once(16, 1)
-    if uuid_raw
-      self.uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
-      print_status("Incoming UUID = #{uuid_string}")
-      if framework.db.active
-        begin
-          payload = framework.db.payloads(uuid: uuid_string).first
-          if payload.nil?
-            print_warning("Provided UUID (#{uuid_string}) was not found in database!")
-          else
-            print_good("UUID identified (#{uuid_string})")
-          end
-        rescue ActiveRecord::ConnectionNotEstablished
-          print_status("WARNING: UUID verification and logging is not available, because the database is not active.")
-        rescue => e
-          # TODO: Can we have a more specific exception handler?
-          # Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
-          elog("Can't get original UUID")
-          elog("Exception Class: #{e.class.name}")
-          elog("Exception Message: #{e.message}")
-          elog("Exception Backtrace: #{e.backtrace}")
+    return nil unless uuid_raw
+    self.uuid_string = uuid_raw.each_byte.map { |b| "%02x" % b.to_i() }.join
+    print_status("Incoming UUID = #{uuid_string}")
+    if framework.db.active
+      begin
+        payload = framework.db.payloads(uuid: uuid_string).first
+        if payload.nil?
+          print_warning("Provided UUID (#{uuid_string}) was not found in database!")
+        else
+          print_good("UUID identified (#{uuid_string})")
         end
-      else
-        print_warning("WARNING: UUID verification and logging is not available, because the database is not active.")
+      rescue ActiveRecord::ConnectionNotEstablished
+        print_status("WARNING: UUID verification and logging is not available, because the database is not active.")
+      rescue => e
+        # TODO: Can we have a more specific exception handler?
+        # Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
+        elog("Can't get original UUID")
+        elog("Exception Class: #{e.class.name}")
+        elog("Exception Message: #{e.message}")
+        elog("Exception Backtrace: #{e.backtrace}")
       end
+    else
+      print_warning("WARNING: UUID verification and logging is not available, because the database is not active.")
     end
-    nil
   end
 
   #

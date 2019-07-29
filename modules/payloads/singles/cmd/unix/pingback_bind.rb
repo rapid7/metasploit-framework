@@ -44,7 +44,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    pingback_uuid ||= generate_pingback_uuid
-    "printf '#{pingback_uuid.gsub('-', '').scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
+    self.pingback_uuid ||= self.generate_pingback_uuid
+    "printf '#{pingback_uuid.scan(/../).map { |x| "\\x" + x }.join}' | (nc -lp #{datastore['LPORT']} || nc -l #{datastore['LPORT']})"
   end
 end

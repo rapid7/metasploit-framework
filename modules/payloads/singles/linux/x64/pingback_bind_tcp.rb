@@ -34,10 +34,8 @@ module MetasploitModule
       encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
       encoded_host = Rex::Socket.addr_aton("0.0.0.0").unpack("V").first
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = "0x" + pingback_uuid.to_s.gsub("-", "").chars.each_slice(2).map(&:join).join(",0x")
-      seconds = 5.0
-      sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
+      self.pingback_uuid ||= self.generate_pingback_uuid
+      uuid_as_db = "0x" + pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
 
       asm = %Q^
           push   rsi
