@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/reverse_tcp_dns'
 
 module MetasploitModule
 
-  CachedSize = 308
+  CachedSize = 322
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcpDns
