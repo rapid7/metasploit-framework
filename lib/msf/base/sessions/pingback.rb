@@ -17,6 +17,10 @@ class Pingback
   include Msf::Session
   include Msf::Session::Basic
 
+  attr_accessor :arch
+  attr_accessor :platform
+  attr_accessor :uuid_string
+
   #
   # Returns the type of session.
   #
@@ -89,10 +93,6 @@ class Pingback
   def type
     self.class.type
   end
-
-  attr_accessor :arch
-  attr_accessor :platform
-  attr_accessor :uuid_string
 end
 end
 end

