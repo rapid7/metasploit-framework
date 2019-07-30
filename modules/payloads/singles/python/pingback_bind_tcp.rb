@@ -6,7 +6,7 @@ require 'msf/core/payload/pingback'
 
 module MetasploitModule
 
-  CachedSize = 256
+  CachedSize = 262
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback
