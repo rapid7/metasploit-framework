@@ -9,7 +9,7 @@ PATH
       aws-sdk-iam
       aws-sdk-s3
       backports
-      bcrypt
+      bcrypt (= 3.1.12)
       bcrypt_pbkdf
       bit-struct
       concurrent-ruby (= 1.0.5)
@@ -137,7 +137,7 @@ GEM
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     backports (3.15.0)
-    bcrypt (3.1.13)
+    bcrypt (3.1.12)
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.4)
     bit-struct (0.16)
