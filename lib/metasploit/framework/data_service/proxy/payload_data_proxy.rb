@@ -3,7 +3,6 @@ module PayloadDataProxy
   def payloads(opts)
     begin
       self.data_service_operation do |data_service|
-        add_opts_workspace(opts)
         data_service.payloads(opts)
       end
     rescue => e
@@ -14,7 +13,6 @@ module PayloadDataProxy
   def create_payload(opts)
     begin
       self.data_service_operation do |data_service|
-        add_opts_workspace(opts)
         data_service.create_payload(opts)
       end
     rescue => e
