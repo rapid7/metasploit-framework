@@ -9,11 +9,11 @@ class MetasploitModule < Msf::Evasion
     super(update_info(info,
       'Name'        => 'Applocker Evasion - MSBuild',
       'Description' => %(
-                         This module will assist you in evading Microsoft
-                         Windows Applocker and Software Restriction Policies.
-                         This technique utilises the Microsoft signed binary
-                         MSBuild.exe to execute user supplied code.
-                        ),
+         This module will assist you in evading Microsoft
+         Windows Applocker and Software Restriction Policies.
+         This technique utilises the Microsoft signed binary
+         MSBuild.exe to execute user supplied code.
+       ),
       'Author'      =>
         [
           'Nick Tyrer <@NickTyrer>', # module development
