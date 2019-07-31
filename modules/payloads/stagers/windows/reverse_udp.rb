@@ -9,7 +9,7 @@ require 'msf/core/payload/windows/reverse_udp'
 
 module MetasploitModule
 
-  CachedSize = 313
+  CachedSize = 326
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseUdp
