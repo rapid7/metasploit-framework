@@ -396,6 +396,8 @@ class MetasploitModule < Msf::Auxiliary
     raise RdpCommunicationError unless res # nil due to a timeout
 
     res
+  rescue EOFError
+    raise raise RdpCommunicationError
   end
 
   def rdp_send_recv(data)
