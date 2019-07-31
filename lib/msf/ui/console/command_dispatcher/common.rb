@@ -139,6 +139,21 @@ module Common
     #print("\nTarget: #{mod.target.name}\n\n")
   end
 
+  # This is for the "use" and "set" commands
+  def index_from_list(list, index, &block)
+    return unless list.kind_of?(Array) && index
+
+    begin
+      idx = Integer(index)
+    rescue ArgumentError
+      return
+    end
+
+    # Don't support negative indices
+    return if idx < 0
+
+    yield list[idx]
+  end
 
 end
 
