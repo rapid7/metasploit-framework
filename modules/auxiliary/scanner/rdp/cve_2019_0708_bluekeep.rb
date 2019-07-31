@@ -397,7 +397,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res
   rescue EOFError
-    raise raise RdpCommunicationError
+    raise RdpCommunicationError
   end
 
   def rdp_send_recv(data)
