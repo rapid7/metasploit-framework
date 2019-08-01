@@ -26,9 +26,11 @@ This evasion will work on all versions of Windows that include .NET versions 3.5
   7. `[+] presentationhost.manifest stored at /root/.msf4/local/presentationhost.manifest`
   8. `[+] presentationhost.csproj stored at /root/.msf4/local/presentationhost.csproj`
   9. `[*] Copy presentationhost.xaml.cs, presentationhost.manifest and presentationhost.csproj to the target`
-  8. `[*] Compile using: C:\Windows\Microsoft.Net\Framework\[.NET Version]\MSBuild.exe presentationhost.csproj` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
-  9. `[*] Execute using: C:\Windows\System32\PresentationHost.exe [Full Path To] presentationhost.xbap` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319") and replace [Full Path To] with the full path to the .xbap.
+  10. `[*] Compile using: C:\Windows\Microsoft.Net\Framework\[.NET Version]\MSBuild.exe presentationhost.csproj` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319").
+  11. `[*] Execute using: C:\Windows\System32\PresentationHost.exe [Full Path To] presentationhost.xbap` replace [.NET Version] with the version directory present on the target (typically "v4.0.30319") and replace [Full Path To] with the full path to the .xbap.
 
 ## References
 
 https://medium.com/tsscyber/applocker-bypass-presentationhost-exe-8c87b2354cd4
+https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-defender-application-control/applocker/what-is-applocker
+https://docs.microsoft.com/en-us/windows-server/identity/software-restriction-policies/software-restriction-policies
