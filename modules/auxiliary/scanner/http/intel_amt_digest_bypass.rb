@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      print_good("#{ip}:#{rport} - Vulnerable to CVE-2017-5869 #{proof_hash.inspect}")
+      print_good("#{ip}:#{rport} - Vulnerable to CVE-2017-5689 #{proof_hash.inspect}")
 
       report_note(
         :host  => ip,
