@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.73)
+    metasploit-framework (4.17.74)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -105,7 +105,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     afm (0.2.2)
     arel (6.0.4)
-    arel-helpers (2.9.1)
+    arel-helpers (2.10.0)
       activerecord (>= 3.1.0, < 7)
     backports (3.15.0)
     bcrypt (3.1.12)
@@ -127,7 +127,7 @@ GEM
     factory_girl_rails (4.9.0)
       factory_girl (~> 4.9.0)
       railties (>= 3.0.0)
-    faker (1.9.6)
+    faker (2.1.0)
       i18n (>= 0.7)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
@@ -192,7 +192,7 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.13.0)
-    pdf-reader (2.2.0)
+    pdf-reader (2.2.1)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -228,7 +228,7 @@ GEM
     rb-readline (0.5.5)
     recog (2.3.2)
       nokogiri
-    redcarpet (3.4.0)
+    redcarpet (3.5.0)
     rex-arch (0.1.13)
       rex-text
     rex-bin_tools (0.1.6)
