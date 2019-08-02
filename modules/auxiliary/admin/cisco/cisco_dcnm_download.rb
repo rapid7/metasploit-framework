@@ -126,15 +126,15 @@ class MetasploitModule < Msf::Auxiliary
     noauth = false
 
     if res && res.code == 200
-      if res.body =~ /\"version\":\"11\.1\(1\)/
+      if res.body.include?('version":"11.1(1)')
         print_good("#{peer} - Detected DCNM 11.1(1)")
         print_status("#{peer} - No authentication required, ready to exploit!")
         noauth = true
-      elsif res.body =~ /\"version\":\"11\.0\(1\)/
+      elsif res.body.include?('version":"11.0(1)')
         print_good("#{peer} - Detected DCNM 11.0(1)")
         print_status("#{peer} - Note that 11.0(1) requires valid authentication credentials to exploit")
         jsession = auth_v11
-      elsif res.body =~ /\"version\":\"10\.4\(2\)/
+      elsif res.body.include?('version":"10.4(2)')
         print_good("#{peer} - Detected DCNM 10.4(2)")
         print_status("#{peer} - No authentication required, ready to exploit!")
         jsession = auth_v10
