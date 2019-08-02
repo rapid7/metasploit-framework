@@ -9,7 +9,6 @@ require 'msf/base/sessions/pingback'
 require 'msf/core/payload/windows/x64/block_api'
 require 'msf/core/payload/windows/x64/exitfunk'
 
-
 module MetasploitModule
 
   CachedSize = 425
@@ -20,7 +19,6 @@ module MetasploitModule
   include Msf::Payload::Pingback::Options
   include Msf::Payload::Windows::BlockApi_x64
   include Msf::Payload::Windows::Exitfunk_x64
-
 
   def initialize(info = {})
     super(merge_info(info,
@@ -55,7 +53,7 @@ module MetasploitModule
       pingback_sleep = datastore['PingbackSleep']
       self.pingback_uuid ||= self.generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
-      conf = {exitfunk:   datastore['EXITFUNC']}
+      conf = { exitfunk: datastore['EXITFUNC'] }
 
 
       asm = %Q^

