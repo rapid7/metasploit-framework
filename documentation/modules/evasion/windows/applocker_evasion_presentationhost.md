@@ -11,9 +11,9 @@ This evasion will work on all versions of Windows that include .NET versions 3.5
 
 ## Options
 
-- **FILE_ONE** - Filename for the evasive file (default: presentationhost.xaml.cs).
-- **FILE_TWO** - Filename for the evasive file (default: presentationhost.manifest).
-- **FILE_THREE** - Filename for the evasive file (default: presentationhost.csproj).
+- **CS_FILE** - Filename for the evasive file (default: presentationhost.xaml.cs).
+- **MANIFEST_FILE** - Filename for the evasive file (default: presentationhost.manifest).
+- **CSPROJ_FILE** - Filename for the evasive file (default: presentationhost.csproj).
 
 ## Verification Steps
 

