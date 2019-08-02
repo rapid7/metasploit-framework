@@ -207,7 +207,11 @@ class MetasploitModule < Msf::Auxiliary
       rdp_send(x64_packet)
 
       # Quick check for the Ultimatum PDU
-      res = sock.get_once(-1, 1)
+      begin
+        res = sock.get_once(-1, 1)
+      rescue EOFError
+        # we don't care
+      end
       return Exploit::CheckCode::Vulnerable if res && res.include?(["0300000902f0802180"].pack("H*"))
 
       # Slow check for Ultimatum PDU. If it doesn't respond in a timely
@@ -396,6 +400,8 @@ class MetasploitModule < Msf::Auxiliary
     raise RdpCommunicationError unless res # nil due to a timeout
 
     res
+  rescue EOFError
+    raise RdpCommunicationError
   end
 
   def rdp_send_recv(data)
