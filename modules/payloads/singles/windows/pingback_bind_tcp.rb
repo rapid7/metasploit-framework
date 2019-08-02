@@ -20,7 +20,6 @@ module MetasploitModule
   include Msf::Payload::Pingback::Options
   include Msf::Payload::Windows::Exitfunk
 
-
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Windows x86 Pingback, Bind TCP Inline',
