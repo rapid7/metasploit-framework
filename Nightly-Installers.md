@@ -1,4 +1,4 @@
-Installers are built nightly for OS X, Windows (32-bit) and Linux.  These installers include dependencies (like Ruby and PostgreSQL) and integrate with your package manager, so they're easy to update.
+Installers are built nightly for OS X, Windows (64-bit) and Linux.  These installers include dependencies (like Ruby and PostgreSQL) and integrate with your package manager, so they're easy to update.
 
 ## What operating system are you using?
 
