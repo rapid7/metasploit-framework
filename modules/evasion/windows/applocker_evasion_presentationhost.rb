@@ -105,13 +105,13 @@ class MetasploitModule < Msf::Evasion
       <Import Project="$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')" />
       <PropertyGroup>
       <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-      <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+      <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
       <OutputType>WinExe</OutputType>
       <HostInBrowser>true</HostInBrowser>
       <GenerateManifests>true</GenerateManifests>
       <SignManifests>false</SignManifests>
       </PropertyGroup>
-      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
       <Optimize>true</Optimize>
       <OutputPath>.</OutputPath>
       </PropertyGroup>
