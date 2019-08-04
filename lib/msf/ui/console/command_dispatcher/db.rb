@@ -52,7 +52,7 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
-      "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
       "analyze"       => "Analyze database information about a specific address or address range",
     }
 
@@ -296,7 +296,7 @@ class Db
     end
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
@@ -547,7 +547,7 @@ class Db
 
     matched_host_ids = []
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
         matched_host_ids << host.id
@@ -763,7 +763,7 @@ class Db
     matched_service_ids = []
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
       opts[:workspace] = framework.db.workspace
       opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
@@ -909,7 +909,7 @@ class Db
       vulns = framework.db.vulns({:search_term => search_term})
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
       end
@@ -1091,7 +1091,7 @@ class Db
     else
       # Collect notes of specified hosts
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
         opts[:ntype] = types if mode != :update && types && !types.empty?
@@ -1307,7 +1307,7 @@ class Db
       loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
       end
@@ -1889,24 +1889,8 @@ class Db
     end
   end
 
-  def cmd_db_rebuild_cache
-    unless framework.db.active
-      print_error("The database is not connected")
-      return
-    end
-
-    print_status("Purging and rebuilding the module cache in the background...")
-    framework.threads.spawn("ModuleCacheRebuild", true) do
-      framework.db.purge_all_module_details
-      framework.db.update_all_module_details
-    end
-  end
-
-  def cmd_db_rebuild_cache_help
-    print_line "Usage: db_rebuild_cache"
-    print_line
-    print_line "Purge and rebuild the SQL module cache."
-    print_line
+  def cmd_db_rebuild_cache(*args)
+    print_line "This command is deprecated with Metasploit 5"
   end
 
   def cmd_db_save_help

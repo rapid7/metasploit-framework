@@ -16,6 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         'Description'    => %q(
           This module attempts to connect to the specified Remote Desktop Protocol port
           and determines if it speaks RDP.
+
+          The CredSSP and EarlyUser options are related to Network Level Authentication.
         ),
         'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'     =>
@@ -29,9 +31,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(3389),
-        OptBool.new('TLS', [true, 'Wheter or not request TLS security', true]),
+        OptBool.new('TLS', [true, 'Whether or not request TLS security', true]),
         OptBool.new('CredSSP', [true, 'Whether or not to request CredSSP', true]),
-        OptBool.new('EarlyUser', [true, 'Whether to support Earlier User Authorization Result PDU', false])
+        OptBool.new('EarlyUser', [true, 'Whether to support Early User Authorization Result PDU', false])
       ]
     )
   end
@@ -52,11 +54,13 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_status("No response")
     end
+
+    false
   end
 
   def setup
     # build a simple TPKT v3 + x.224 COTP Connect Request.  optionally append
-    # RDP negotiation request with TLS, CredSSP and Early User as requesteste
+    # RDP negotiation request with TLS, CredSSP and Early User as requested
     requested_protocols = 0
     if datastore['TLS']
       requested_protocols = requested_protocols ^ 0b1
@@ -86,8 +90,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       return unless rdp?
-    rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, \
-           ::Errno::ETIMEDOUT, ::Timeout::Error, ::EOFError => e
+    rescue Rex::ConnectionError => e
       vprint_error("error while connecting and negotiating RDP: #{e}")
       return
     ensure

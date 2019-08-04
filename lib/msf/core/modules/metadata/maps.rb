@@ -20,7 +20,7 @@ module Msf::Modules::Metadata::Maps
     get_metadata.each do |exploit|
       # expand this in future to be more specific about remote exploits.
       next unless exploit.type == "exploit"
-      fullname = exploit.full_name
+      fullname = exploit.fullname
       exploit.references.each do |reference|
         next if reference =~ /^URL/
         ref = reference

@@ -402,8 +402,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the shared wifi profiles/credentials
   #
   def cmd_wifi_list_shared(*args)
-    interfaces_dir = '%AllUsersProfile%\Microsoft\Wlansvc\Profiles\Interfaces'
-    interfaces_dir = client.fs.file.expand_path(interfaces_dir)
+    interfaces_dir = client.sys.config.getenv('AllUsersProfile') + '\Microsoft\Wlansvc\Profiles\Interfaces'
     files = client.fs.file.search(interfaces_dir, '*.xml', true)
 
     if files.length == 0

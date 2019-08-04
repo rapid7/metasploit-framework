@@ -123,7 +123,7 @@ module Msf::DBManager::Import
         # Module names that match this vulnerability
         matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
         next if matched.empty?
-        match_names = matched.map { |mod| mod.full_name }
+        match_names = matched.map { |mod| mod.fullname }
 
         second_pass_services = []
 
@@ -407,6 +407,9 @@ module Msf::DBManager::Import
         when /ReportInfo/
           @import_filedata[:type] = "Foundstone"
           return :foundstone_xml
+        when /scanJob/
+          @import_filedata[:type] = "Retina XML"
+          return :retina_xml
         when /ScanGroup/
           @import_filedata[:type] = "Acunetix"
           return :acunetix_xml

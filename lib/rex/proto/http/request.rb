@@ -63,6 +63,10 @@ class Request < Packet
     self.chunk_max_size = 10
     self.uri_encode_mode = 'hex-normal'
 
+    if self.method == 'GET' || self.method == 'CONNECT'
+      self.auto_cl = false
+    end
+
     update_uri_parts
   end
 

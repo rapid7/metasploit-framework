@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH::Options
 
   DEFAULT_USERNAME = 'karaf'
   DEFAULT_PASSWORD = 'karaf'
@@ -49,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def rport

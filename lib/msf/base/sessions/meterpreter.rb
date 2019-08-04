@@ -14,6 +14,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
@@ -115,7 +116,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
   end

@@ -29,6 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::Proxies
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def target

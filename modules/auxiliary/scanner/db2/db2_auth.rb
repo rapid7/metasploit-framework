@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "db2_default_pass.txt") ]),
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

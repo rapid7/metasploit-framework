@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'wvu'           # Metasploit module
       ],
       'References'     => [
-        ['CVE' , '2017-5612'],
+        ['CVE' , '2017-1001000'],
         ['WPVDB', '8734'],
         ['URL',   'https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
         ['URL',   'https://secure.php.net/manual/en/language.types.type-juggling.php'],

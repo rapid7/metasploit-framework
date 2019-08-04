@@ -67,7 +67,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     begin
       if datastore['SMBUser'].present?
         print_status("Authenticating to #{ip} as user '#{splitname(datastore['SMBUser'])}'...")

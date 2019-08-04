@@ -172,10 +172,10 @@ class MetasploitModule < Msf::Auxiliary
 
         ifindex  = index.value
         ifdescr  = descr.value
-        ifmac    = mac.value.unpack("H2H2H2H2H2H2").join(":")
+        ifmac    = mac.value.to_s =~ /noSuchInstance/ ? 'unknown' : mac.value.unpack("H2H2H2H2H2H2").join(":")
         iftype   = type.value
         ifmtu    = mtu.value
-        ifspeed  = speed.value.to_i
+        ifspeed  = speed.value.to_s =~ /noSuchInstance/ ? 'unknown' : speed.value.to_i / 1000000
         ifinoc   = inoc.value
         ifoutoc  = outoc.value
         ifstatus = status.value
@@ -259,8 +259,6 @@ class MetasploitModule < Msf::Auxiliary
         else
           ifstatus = "unknown"
         end
-
-        ifspeed = ifspeed / 1000000
 
         network_interfaces.push({
           "Interface" => "[ #{ifstatus} ] #{ifdescr}",

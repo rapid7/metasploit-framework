@@ -16,10 +16,10 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher::Common
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h"     => [ false, "Help banner"],
-            "-o"     => [ true, "Send output to a file in csv format"],
-            "-S"     => [ true, "Search string for row filter"],
-            "-u"     => [ false, "Use module if there is one result"]
+            '-h' => [false, 'Help banner'],
+            '-o' => [true,  'Send output to a file in csv format'],
+            '-S' => [true,  'Search string for row filter'],
+            '-u' => [false, 'Use module if there is one result']
           )
 
           def commands
@@ -49,6 +49,7 @@ module Msf
             @previous_module = nil
             @module_name_stack = []
             @module_search_results = []
+            @@payload_show_results = []
             @dangerzone_map = nil
           end
 
@@ -316,7 +317,9 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [ options ] <keywords>"
+            print_line "Usage: search [<options>] [<keywords>]"
+            print_line
+            print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
             print_line "  -h                Show this help information"
@@ -335,7 +338,7 @@ module Msf
               'check'       => 'Modules that support the \'check\' method',
               'date'        => 'Modules with a matching disclosure date',
               'description' => 'Modules with a matching description',
-              'full_name'   => 'Modules with a matching full name',
+              'fullname'    => 'Modules with a matching full name',
               'mod_time'    => 'Modules with a matching modification date',
               'name'        => 'Modules with a matching descriptive name',
               'path'        => 'Modules with a matching path',
@@ -359,51 +362,51 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            if args.empty?
-              print_error("Argument required\n")
-              cmd_search_help
-              return false
-            end
-
-            match = ''
-            use = false
+            match       = ''
             search_term = nil
             output_file = nil
-            @@search_opts.parse(args) { |opt, idx, val|
-              case opt
-                when "-S"
-                  search_term = val
-                when "-h"
-                  cmd_search_help
-                  return
-                when '-o'
-                  output_file = val
-                when "-u"
-                  use = true
-                else
-                  match += val + " "
-              end
-            }
+            cached      = false
+            use         = false
+            count       = -1
 
-            if match.empty? && search_term.nil?
-              print_error("Keywords or search argument required\n")
-              cmd_search_help
-              return false
+            @@search_opts.parse(args) do |opt, idx, val|
+              case opt
+              when '-S'
+                search_term = val
+              when '-h'
+                cmd_search_help
+                return false
+              when '-o'
+                output_file = val
+              when '-u'
+                use = true
+              else
+                match += val + ' '
+              end
             end
 
-            # Display the table of matches
-            tbl = generate_module_table("Matching Modules", search_term)
-            search_params = parse_search_string(match)
-            count = -1
-            begin
-              @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+            cached = true if args.empty?
 
-              return false if @module_search_results.length == 0
+            # Display the table of matches
+            tbl = generate_module_table('Matching Modules', search_term)
+
+            begin
+              if cached
+                print_status('Displaying cached results')
+              else
+                search_params = parse_search_string(match)
+                @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+              end
+
+              if @module_search_results.empty?
+                print_error('No results from search')
+                return false
+              end
 
               @module_search_results.each do |m|
                 tbl << [
                     count += 1,
-                    m.full_name,
+                    m.fullname,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                     RankingName[m.rank].to_s,
                     m.check ? 'Yes' : 'No',
@@ -412,7 +415,7 @@ module Msf
               end
 
               if @module_search_results.length == 1 && use
-                used_module = @module_search_results.first.full_name
+                used_module = @module_search_results.first.fullname
                 cmd_use(used_module, true)
               end
             rescue ArgumentError
@@ -639,18 +642,12 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
-            # Try to create an integer out of a supplied module name
-            mod_index =
-              begin
-                Integer(mod_name)
-              rescue ArgumentError, TypeError
-                nil
-              end
-
             # Use a module by search index
-            if mod_index
-              return if mod_index < 0 || @module_search_results[mod_index].nil?
-              mod_name = @module_search_results[mod_index].full_name
+            index_from_list(@module_search_results, mod_name) do |mod|
+              return false unless mod && mod.respond_to?(:fullname)
+
+              # Module cache object from @module_search_results
+              mod_name = mod.fullname
             end
 
             # See if the supplied module name has already been resolved
@@ -1037,10 +1034,12 @@ module Msf
           def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
-            if (active_module and (active_module.exploit? == true or active_module.evasion?))
-              show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
+            if active_module && (active_module.exploit? || active_module.evasion?)
+              @@payload_show_results = active_module.compatible_payloads
+
+              show_module_set('Compatible Payloads', @@payload_show_results, regex, minrank, opts)
             else
-              show_module_set("Payloads", framework.payloads, regex, minrank, opts)
+              show_module_set('Payloads', framework.payloads, regex, minrank, opts)
             end
           end
 
@@ -1184,8 +1183,10 @@ module Msf
           end
 
           def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
+            count = -1
+
             tbl = generate_module_table(type)
-            count = 0
+
             module_set.sort.each { |refname, mod|
               o = nil
 

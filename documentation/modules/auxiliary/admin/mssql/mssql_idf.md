@@ -1,10 +1,10 @@
 ## Description
 
-This (Interesting Data Finder) module will connect to a remote MSSQL server using a given set of credentials and search for rows and columns with “interesting” names. This information can help you fine-tune further attacks against the database.
+This (Interesting Data Finder) module will connect to a remote MSSQL server using a given set of credentials and search for rows and columns with "interesting" names. This information can help you fine-tune further attacks against the database.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/mssql/mssql_idf```
+1. Do: ```use auxiliary/admin/mssql/mssql_idf```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```

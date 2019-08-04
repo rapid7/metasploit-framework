@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
-
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::SSH::Options
 
   attr_accessor :ssh_socket, :good_key
 
@@ -47,13 +47,14 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         Opt::Proxies,
-        OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-        OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+        OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', false])
       ]
     )
 
-    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE')
+    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY')
 
     @good_key = ''
     @strip_passwords = true
@@ -134,6 +135,7 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: datastore['SSH_TIMEOUT'],
       framework: framework,
       framework_module: self,
+      skip_gather_proof: !datastore['GatherProof']
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
@@ -245,6 +247,5 @@ class MetasploitModule < Msf::Auxiliary
       @cache[filename] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(key_path), password, false, key_path).to_s
       @cache[filename]
     end
-
   end
 end

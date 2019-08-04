@@ -12,7 +12,9 @@ class Obj
   # @return [String]
   attr_reader :name
   # @return [String]
-  attr_reader :full_name
+  attr_reader :fullname
+  # @return [Array<String>]
+  attr_reader :aliases
   # @return [Integer]
   attr_reader :rank
   # @return [Date]
@@ -59,7 +61,8 @@ class Obj
     end
 
     @name               = module_instance.name
-    @full_name          = module_instance.fullname
+    @fullname           = module_instance.fullname
+    @aliases            = module_instance.aliases
     @disclosure_date    = module_instance.disclosure_date
     @rank               = module_instance.rank.to_i
     @type               = module_instance.type
@@ -78,6 +81,8 @@ class Obj
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
     @ref_name           = module_instance.refname
+    @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
+
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
     end
@@ -110,7 +115,8 @@ class Obj
   def to_json(*args)
     {
       'name'               => @name,
-      'full_name'          => @full_name,
+      'fullname'           => @fullname,
+      'aliases'            => @aliases,
       'rank'               => @rank,
       'disclosure_date'    => @disclosure_date.nil? ? nil : @disclosure_date.to_s,
       'type'               => @type,
@@ -130,7 +136,8 @@ class Obj
       'check'              => @check,
       'post_auth'          => @post_auth,
       'default_credential' => @default_credential,
-      'notes'              => @notes
+      'notes'              => @notes,
+      'needs_cleanup'      => @needs_cleanup
     }.to_json(*args)
   end
 
@@ -159,7 +166,8 @@ class Obj
 
   def init_from_hash(obj_hash)
     @name               = obj_hash['name']
-    @full_name          = obj_hash['full_name']
+    @fullname           = obj_hash['fullname']
+    @aliases            = obj_hash['aliases'] || []
     @disclosure_date    = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
     @rank               = obj_hash['rank']
     @type               = obj_hash['type']
@@ -178,6 +186,8 @@ class Obj
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
     @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup      = obj_hash['needs_cleanup']
+
   end
 
   def sort_platform_string
@@ -194,7 +204,7 @@ class Obj
 
   def force_encoding(encoding)
     @name.force_encoding(encoding)
-    @full_name.force_encoding(encoding)
+    @fullname.force_encoding(encoding)
     @description.force_encoding(encoding)
     @author.each {|a| a.force_encoding(encoding)}
     @references.each {|r| r.force_encoding(encoding)}
