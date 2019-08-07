@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good(status[1].to_s)
     elsif status == Exploit::CheckCode::Unsupported  # used to display custom msg error
       status = Exploit::CheckCode::Safe
-      print_status("The target service is not running, or refused our connection.")
+      print_status("The target service is not running or refused our connection.")
     else
       print_status(status[1].to_s)
     end
@@ -174,68 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     success = rdp_negotiate_security(nsock, server_selected_proto)
     return Exploit::CheckCode::Unknown if !success
 
-    # erect domain and attach user
-    vprint_status("Sending erect domain request")
-    rdp_send(pdu_erect_domain_request)
-    res = rdp_send_recv(pdu_attach_user_request)
-
-    user1 = res[9, 2].unpack("n").first
-
-    # send channel requests
-    [1009, 1003, 1004, 1005, 1006, 1007, 1008].each do |chan|
-      rdp_send_recv(pdu_channel_request(user1, chan))
-    end
-
-    if server_selected_proto == 0
-      @rdp_sec = true
-
-      # 5.3.4 Client Random Value
-      client_rand = ''
-      32.times { client_rand << rand(0..255) }
-      rcran = bytes_to_bignum(client_rand)
-
-      vprint_status("Sending security exchange PDU")
-      rdp_send(pdu_security_exchange(rcran, rsexp, rsmod, bitlen))
-
-      # We aren't decrypting anything at this point. Leave the variables here
-      # to make it easier to understand in the future.
-      rc4encstart, _rc4decstart, @hmackey, _sessblob = rdp_calculate_rc4_keys(client_rand, server_rand)
-
-      @rc4enckey = RC4.new(rc4encstart)
-    end
-
-    vprint_status("Sending client info PDU")
-    res = rdp_send_recv(rdp_build_pkt(pdu_client_info(@user_name, @domain, @ip_address), "\x03\xeb", true))
-    vprint_status("Received License packet")
-
-    # Windows XP sometimes sends a very large license packet. This is likely
-    # some form of license error. When it does this it doesn't send a Server
-    # Demand packet. If we wait on one we will time out here and error. We
-    # can still successfully check for vulnerability anyway.
-    if res.length <= 34
-      vprint_status("Waiting for Server Demand packet")
-      _res = rdp_recv
-      vprint_status("Received Server Demand packet")
-    end
-
-    vprint_status("Sending client confirm active PDU")
-    rdp_send(rdp_build_pkt(pdu_client_confirm_active))
-
-    vprint_status("Sending client synchronize PDU")
-    vprint_status("Sending client control cooperate PDU")
-    # Unsure why we're using 1009 here but it works.
-    synch = rdp_build_pkt(pdu_client_synchronize(1009))
-    coop = rdp_build_pkt(pdu_client_control_cooperate)
-    rdp_send(synch + coop)
-
-    vprint_status("Sending client control request control PDU")
-    rdp_send(rdp_build_pkt(pdu_client_control_request))
-
-    vprint_status("Sending client input sychronize PDU")
-    rdp_send(rdp_build_pkt(pdu_client_input_event_sychronize))
-
-    vprint_status("Sending client font list PDU")
-    rdp_send(rdp_build_pkt(pdu_client_font_list))
+    rdp_establish_session
 
     result = check_for_patch
 
@@ -243,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
       report_goods
     end
 
-    # Can't determine, but at least I know the service is running
+    # Can't determine, but at least we know the service is running
     result
   end
 
