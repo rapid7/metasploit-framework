@@ -160,30 +160,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_rdp_vuln(nsock)
     # check if rdp is open
-    is_rdp, server_selected_proto = rdp_negotiate_protocol
+    is_rdp, server_selected_proto = rdp_check_protocol
     unless is_rdp
-      vprint_status "Could not connect to RDP."
+      vprint_status "Could not connect to RDP service."
       return Exploit::CheckCode::Unknown
     end
 
-    if server_selected_proto == 1
-      vprint_status("Server requests TLS")
-      swap_sock_plain_to_ssl(nsock)
-
-      # send initial client data
-      res = rdp_send_recv(pdu_connect_initial(server_selected_proto, @computer_name))
-    elsif server_selected_proto == 0
-      vprint_status("Server requests RDP Security")
-      # send initial client data
-      res = rdp_send_recv(pdu_connect_initial(server_selected_proto, @computer_name))
-      rsmod, rsexp, _rsran, server_rand, bitlen = rdp_parse_connect_response(res)
-    elsif [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
+    if [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
       vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
       return Exploit::CheckCode::Safe
-    else
-      vprint_status("Server requests an unhandled protocol (#{server_selected_proto.to_s}), status unknown.")
-      return Exploit::CheckCode::Unknown
     end
+
+    success = rdp_negotiate_security(nsock, server_selected_proto)
+    return Exploit::CheckCode::Unknown if !success
 
     # erect domain and attach user
     vprint_status("Sending erect domain request")
