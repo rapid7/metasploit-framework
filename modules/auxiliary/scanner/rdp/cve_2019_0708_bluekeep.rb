@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     status
   end
 
-  def check_host(ip)
+  def check_host(*)
     # The check command will call this method instead of run_host
 
     status = Exploit::CheckCode::Unknown
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       begin
         nsock = connect
-      rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
         return Exploit::CheckCode::Unsupported # used to display custom msg error
       end
 
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_for_patch
     begin
-      for i in 0..5
+      6.times do
         res = rdp_recv
       end
     rescue RdpCommunicationError
@@ -123,8 +123,7 @@ class MetasploitModule < Msf::Auxiliary
     x64_payload = build_virtual_channel_pdu(0x03, ["0000000000000000020000000000000000000000000000000000000000000000"].pack("H*"))
 
     vprint_status("Sending patch check payloads")
-    for j in 0..5
-
+    6.times do
       # 0xed03 = Channel 1005
       x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
       rdp_send(x86_packet)
@@ -137,12 +136,12 @@ class MetasploitModule < Msf::Auxiliary
       rescue EOFError
         # we don't care
       end
-      return Exploit::CheckCode::Vulnerable if res && res.include?(["0300000902f0802180"].pack("H*"))
+      return Exploit::CheckCode::Vulnerable if res&.include?(["0300000902f0802180"].pack("H*"))
 
       # Slow check for Ultimatum PDU. If it doesn't respond in a timely
       # manner then the host is likely patched.
       begin
-        for i in 0..3
+        4.times do
           res = rdp_recv
           # 0x2180 = MCS Disconnect Provider Ultimatum PDU - 2.2.2.3
           if res.include?(["0300000902f0802180"].pack("H*"))
