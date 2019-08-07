@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  require 'rc4'
-  include Msf::Exploit::Remote::Tcp
   include Msf::Exploit::Remote::RDP
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
     status
   end
 
-  def check_host(*)
+  def check_host(_ip)
     # The check command will call this method instead of run_host
 
     status = Exploit::CheckCode::Unknown
@@ -108,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
   def check_for_patch
     begin
       6.times do
-        res = rdp_recv
+        _res = rdp_recv
       end
     rescue RdpCommunicationError
       # we don't care
@@ -171,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     success = rdp_negotiate_security(nsock, server_selected_proto)
-    return Exploit::CheckCode::Unknown if !success
+    return Exploit::CheckCode::Unknown unless success
 
     rdp_establish_session
 
