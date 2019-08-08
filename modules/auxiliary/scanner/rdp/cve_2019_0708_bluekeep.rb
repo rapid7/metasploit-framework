@@ -140,7 +140,10 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Sending denial of service payloads")
       # Length and chars are arbitrary but total length needs to be longer than
       # 16 for x86 and 32 for x64. Making the payload too long seems to cause
-      # the DoS to fail.
+      # the DoS to fail. Note that sometimes the DoS seems to fail. Increasing
+      # the payload size and sending more of them doesn't seem to improve the
+      # reliability. It *seems* to happen more often on x64, I haven't seen it
+      # fail against x86. Repleated attempts will generally trigger the DoS.
       x86_string += "FF" * 1
       x64_string += "FF" * 2
     else
