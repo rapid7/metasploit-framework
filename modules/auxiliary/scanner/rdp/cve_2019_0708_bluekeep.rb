@@ -87,15 +87,12 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       begin
-        nsock = connect
+        rdp_connect
       rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
         return Exploit::CheckCode::Unsupported # used to display custom msg error
       end
 
-      status = Exploit::CheckCode::Detected
-
-      sock.setsockopt(::Socket::IPPROTO_TCP, ::Socket::TCP_NODELAY, 1)
-      status = check_rdp_vuln(nsock)
+      status = check_rdp_vuln
     rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError, ::TypeError => e
       bt = e.backtrace.join("\n")
       vprint_error("Unexpected error: #{e.message}")
@@ -112,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_line(bt)
       elog("#{e.message}\n#{bt}")
     ensure
-      disconnect
+      rdp_disconnect
     end
 
     status
@@ -178,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Quick check for the Ultimatum PDU
       begin
-        res = sock.get_once(-1, 1)
+        res = rdp_recv(-1, 1)
       rescue EOFError
         # we don't care
       end
@@ -203,7 +200,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Safe
   end
 
-  def check_rdp_vuln(nsock)
+  def check_rdp_vuln
     # check if rdp is open
     is_rdp, server_selected_proto = rdp_check_protocol
     unless is_rdp
@@ -216,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    success = rdp_negotiate_security(nsock, server_selected_proto)
+    success = rdp_negotiate_security(server_selected_proto)
     return Exploit::CheckCode::Unknown unless success
 
     rdp_establish_session
