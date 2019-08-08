@@ -131,6 +131,8 @@ class MetasploitModule < Msf::Auxiliary
     # The arch governs which of the packets triggers the desired response
     # which is an MCS Disconnect Provider Ultimatum or a timeout.
 
+    # Disconnect Provider message of a valid size for each platform
+    # has proven to be safe to send as part of the vulnerability check.
     x86_string = "00000000020000000000000000000000"
     x64_string = "0000000000000000020000000000000000000000000000000000000000000000"
 
@@ -150,7 +152,6 @@ class MetasploitModule < Msf::Auxiliary
     x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
 
     6.times do
-
       # 0xed03 = Channel 1005
       x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
       rdp_send(x86_packet)
