@@ -213,7 +213,15 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    success = rdp_negotiate_security(server_selected_proto)
+    chans = [
+      ['cliprdr', RDPConstants::CHAN_INITIALIZED | RDPConstants::CHAN_ENCRYPT_RDP | RDPConstants::CHAN_COMPRESS_RDP | RDPConstants::CHAN_SHOW_PROTOCOL],
+      ['MS_T120',   RDPConstants::CHAN_INITIALIZED | RDPConstants::CHAN_COMPRESS_RDP],
+      ['rdpsnd',  RDPConstants::CHAN_INITIALIZED | RDPConstants::CHAN_ENCRYPT_RDP],
+      ['snddbg',  RDPConstants::CHAN_INITIALIZED | RDPConstants::CHAN_ENCRYPT_RDP],
+      ['rdpdr',   RDPConstants::CHAN_INITIALIZED | RDPConstants::CHAN_COMPRESS_RDP],
+    ]
+
+    success = rdp_negotiate_security(chans, server_selected_proto)
     return Exploit::CheckCode::Unknown unless success
 
     rdp_establish_session
