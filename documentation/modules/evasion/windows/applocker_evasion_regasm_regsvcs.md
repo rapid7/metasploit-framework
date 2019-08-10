@@ -3,7 +3,7 @@
 This module is designed to evade solutions such as software restriction policies and Applocker.
 Applocker in its default configuration will block code in the form of executables (.exe and .com, .msi), scripts (.ps1, .vbs, .js) and dll's from running in user controlled directories.
 Applocker enforces this by employing whitelisting, in that code can only be run from the protected directories and sub directories of "Program Files" and "Windows"
-The main vector for this bypass is to use the trusted binaries RegAsm.exe or RegSvcs.exe to execute user supplied code as this binary is located within the trusted Windows directory.
+The main vector for this bypass is to use the trusted binaries RegAsm.exe or RegSvcs.exe to execute user supplied code as these binaries are located within the trusted Windows directory.
 
 ## Vulnerable Application
 
