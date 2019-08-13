@@ -18,16 +18,14 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'         => 'Windows Gather Application Artifacts (PackRat)',
       'Description'  => %q{
-        This module extracts artifcats from a large list of applications
-        and can extract credentials storing content in loot. Full list in
-        module documentation.
+        PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems. PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries. Further details can be found in the module documentation.
       },
       'License'      => MSF_LICENSE,
       'Author'       =>
         [
-          'Daniel Hallsworth',   # Leeds Beckett University student
-          'Barwar Salim M',      # Leeds Beckett University student
-          'Z. Cliffe Schreuders' # Leeds Beckett University lecturer (http://z.cliffe.schreuders.org)
+          'Daniel Hallsworth',
+          'Barwar Salim M',
+          'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
         ],
       'Platform'     => ['win'],
       'SessionTypes' => ['meterpreter']
@@ -260,4 +258,3 @@ class MetasploitModule < Msf::Post
     return true
   end
 end
-
