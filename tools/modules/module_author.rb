@@ -81,7 +81,7 @@ local_modules.each do |_module_key, local_module|
   local_module['author'].each do |r|
     next if filter.downcase != 'all' && local_module['type'] != filter.downcase
     if regex.nil? or r =~ regex
-      tbl << [ local_module['full_name'], r ]
+      tbl << [ local_module['fullname'], r ]
       names[r] ||= 0
       names[r] += 1
     end
