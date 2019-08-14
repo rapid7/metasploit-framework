@@ -39,7 +39,7 @@ metadata = {
         'RPORT': {'type': 'port', 'description': 'Port of target', 'required': True, 'default': 3000},
         'COOKIE': {'type': 'string', 'description': 'Decrypt captured cookie', 'required': False},
         'BASEURL': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default' : '/'},
-        'SSL': {'type': 'bool', 'description': 'Use SSL for connecting', 'required': True, 'default' : False}
+        'SSL': {'type': 'bool', 'description': 'set SSL/TLS based connection', 'required': True, 'default' : False}
     }
 }
 
