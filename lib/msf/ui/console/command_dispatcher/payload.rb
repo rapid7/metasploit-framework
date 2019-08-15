@@ -99,7 +99,7 @@ module Msf
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
               when '-b'
-                badchars = Rex::Text.hex_to_raw(val)
+                badchars = Rex::Text.dehex(val)
               when '-e'
                 encoder_name = val
               when '-E'
