@@ -23,7 +23,7 @@ module Msf
             "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
             "-E" => [ false, "Force encoding" ],
             "-e" => [ true,  "The encoder to use" ],
-            "-P" => [ true,  "Total desired payload size, auto-produce approproate NOPsled length"],
+            "-P" => [ true,  "Total desired payload size, auto-produce appropriate NOPsled length"],
             "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
             "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
             "-i" => [ true,  "The number of times to encode the payload" ],
