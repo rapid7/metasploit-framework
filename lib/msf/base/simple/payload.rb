@@ -96,7 +96,7 @@ module Payload
         output =
           Buffer.comment(
             "#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
-            "http://www.metasploit.com\n" +
+            "https://metasploit.com/\n" +
             ((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
             ((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
             "#{ou}",
@@ -113,7 +113,7 @@ module Payload
               "\n" +
               Buffer.comment(
                 "#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
-                "http://www.metasploit.com\n",
+                "https://metasploit.com/\n",
                 fmt) +
               Buffer.transform(stage, fmt)
           end
