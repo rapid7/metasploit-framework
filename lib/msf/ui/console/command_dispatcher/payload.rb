@@ -72,7 +72,9 @@ module Msf
           def cmd_generate_help
             print_line "Usage: generate [options]"
             print_line
-            print_line "Generates a payload."
+            print_line "Generates a payload. Datastore options may be supplied after normal options."
+            print_line
+            print_line "Example: generate -f python LHOST=127.0.0.1"
             print @@generate_opts.usage
           end
 
