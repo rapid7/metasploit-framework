@@ -133,14 +133,12 @@ module Msf
                 cmd_generate_help
                 return false
               else
-                key, val = val.split('=')
-
-                unless key && val
+                unless val.include?('=')
                   cmd_generate_help
                   return false
                 end
 
-                mod.datastore[key] = val
+                mod.datastore.import_options_from_s(val)
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
