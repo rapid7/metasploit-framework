@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 # This payload has no ebcdic<->ascii translator built in.
 # Therefore it must use a shell which does, like mainframe_shell
