@@ -20,13 +20,13 @@ coderay, 1.1.2, MIT
 concurrent-ruby, 1.0.5, MIT
 crass, 1.0.4, MIT
 diff-lcs, 1.3, "MIT, Artistic-2.0, GPL-2.0+"
-dnsruby, 1.61.2, "Apache 2.0"
+dnsruby, 1.61.3, "Apache 2.0"
 docile, 1.3.2, MIT
 ed25519, 1.2.4, MIT
 erubis, 2.7.0, MIT
 factory_girl, 4.9.0, MIT
 factory_girl_rails, 4.9.0, MIT
-faker, 2.1.0, MIT
+faker, 2.1.2, MIT
 faraday, 0.15.4, MIT
 filesize, 0.2.0, MIT
 fivemat, 1.3.7, MIT
@@ -38,7 +38,7 @@ loofah, 2.2.3, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 2.0.14, "New BSD"
-metasploit-framework, 4.17.75, "New BSD"
+metasploit-framework, 4.17.76, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.70, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 2.0.17, "New BSD"
@@ -53,7 +53,7 @@ nessus_rest, 0.1.6, MIT
 net-ssh, 5.2.0, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.2.1, "New BSD"
-nokogiri, 1.10.3, MIT
+nokogiri, 1.10.4, MIT
 octokit, 4.14.0, MIT
 openssl-ccm, 1.2.2, MIT
 openvas-omp, 0.0.4, MIT
@@ -70,7 +70,7 @@ rack, 1.6.11, MIT
 rack-test, 0.6.3, MIT
 rails-deprecated_sanitizer, 1.0.3, MIT
 rails-dom-testing, 1.0.9, MIT
-rails-html-sanitizer, 1.1.0, MIT
+rails-html-sanitizer, 1.2.0, MIT
 railties, 4.2.11.1, MIT
 rake, 12.3.3, MIT
 rb-readline, 0.5.5, BSD
