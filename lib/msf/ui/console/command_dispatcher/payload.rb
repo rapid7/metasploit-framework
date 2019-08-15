@@ -113,8 +113,8 @@ module Msf
                 format = val
               when '-o'
                 if val.include?('=')
-                  print("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom")
-                  mod.datastore[key] = val
+                  print_error("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom\n")
+                  option_str = val
                 else
                   ofile = val
                 end
@@ -133,13 +133,14 @@ module Msf
                 cmd_generate_help
                 return false
               else
-                (key, val) = val.split('=')
-                if key && val
-                  mod.datastore[key] = val
-                else
+                key, val = val.split('=')
+
+                unless key && val
                   cmd_generate_help
                   return false
                 end
+
+                mod.datastore[key] = val
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
