@@ -20,7 +20,8 @@ class MetasploitModule < Msf::Auxiliary
           'Thanat0s <thanspam[at]trollprod.org>',
           'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
           'Nikita Oleksov <neoleksov[at]gmail.com>',
-          'Denis Kolegov <dnkolegov[at]gmail.com>'
+          'Denis Kolegov <dnkolegov[at]gmail.com>',
+          'Paul-Emmanuel Raoul <skyper@skyplabs.net>'
         ],
       'References'     =>
         [
