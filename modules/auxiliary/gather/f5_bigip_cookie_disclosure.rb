@@ -8,39 +8,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'F5 BigIP Backend Cookie Disclosure',
-      'Description'    => %q{
-        This module identifies F5 BigIP load balancers and leaks backend
-        information (pool name, backend's IP address and port, routed domain)
-        through cookies inserted by the BigIP system.
-      },
-      'Author'         =>
-        [
-          'Thanat0s <thanspam[at]trollprod.org>',
-          'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
-          'Nikita Oleksov <neoleksov[at]gmail.com>',
-          'Denis Kolegov <dnkolegov[at]gmail.com>',
-          'Paul-Emmanuel Raoul <skyper@skyplabs.net>'
-        ],
-      'References'     =>
-        [
-          ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
-          ['URL', 'http://support.f5.com/kb/en-us/solutions/public/7000/700/sol7784.html?sr=14607726']
-        ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'SSL'        => true
-        }
-    ))
+    super(
+      update_info(
+        info,
+        'Name'           => 'F5 BigIP Backend Cookie Disclosure',
+        'Description'    => %q{
+          This module identifies F5 BigIP load balancers and leaks backend
+          information (pool name, backend's IP address and port, routed domain)
+          through cookies inserted by the BigIP system.
+        },
+        'Author'         =>
+          [
+            'Thanat0s <thanspam[at]trollprod.org>',
+            'Oleg Broslavsky <ovbroslavsky[at]gmail.com>',
+            'Nikita Oleksov <neoleksov[at]gmail.com>',
+            'Denis Kolegov <dnkolegov[at]gmail.com>',
+            'Paul-Emmanuel Raoul <skyper@skyplabs.net>'
+          ],
+        'References'     =>
+          [
+            ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
+            ['URL', 'http://support.f5.com/kb/en-us/solutions/public/7000/700/sol7784.html?sr=14607726']
+          ],
+        'License'        => MSF_LICENSE,
+        'DefaultOptions' =>
+          {
+            'SSL' => true
+          }
+      )
+    )
 
     register_options(
       [
         OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
-      ])
+      ]
+    )
   end
 
   def change_endianness(value, size = 4)
@@ -85,7 +89,8 @@ class MetasploitModule < Msf::Auxiliary
     backend
   end
 
-  def get_cookie # request a page and extract a F5 looking cookie.
+  def get_cookie
+    # Request a page and extract a F5 looking cookie
     cookie = {}
     res = send_request_raw({ 'method' => 'GET', 'uri' => @uri })
 
@@ -164,12 +169,11 @@ class MetasploitModule < Msf::Auxiliary
     unless backends.empty?
       report_note(host: rhost, type: 'f5_load_balancer_backends', data: backends)
     end
-
-    rescue ::Rex::ConnectionRefused
-      print_error("Network connection error")
-    rescue ::Rex::ConnectionError
-      print_error("Network connection error")
-    rescue ::OpenSSL::SSL::SSLError
-      print_error("SSL/TLS connection error")
+  rescue ::Rex::ConnectionRefused
+    print_error("Network connection error")
+  rescue ::Rex::ConnectionError
+    print_error("Network connection error")
+  rescue ::OpenSSL::SSL::SSLError
+    print_error("SSL/TLS connection error")
   end
 end
