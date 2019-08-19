@@ -112,6 +112,9 @@ class MetasploitModule < Msf::Auxiliary
   def run
     requests = datastore['REQUESTS']
     backends = []
+    cookie_name = ''
+    pool_name = ''
+    route_domain = ''
     @uri = normalize_uri(target_uri.path.to_s)
     print_status("Starting request #{@uri}")
 
@@ -125,12 +128,15 @@ class MetasploitModule < Msf::Auxiliary
 
       # Print the cookie name on the first request
       if i == 1
-        print_good("F5 BigIP load balancing cookie \"#{cookie[:id]} = #{cookie[:value]}\" found")
+        cookie_name = cookie[:id]
+        print_good("F5 BigIP load balancing cookie \"#{cookie_name} = #{cookie[:value]}\" found")
         if cookie[:id].start_with?('BIGipServer')
-          print_good("Load balancing pool name \"#{cookie[:id].split('BIGipServer')[1]}\" found")
+          pool_name = cookie[:id].split('BIGipServer')[1]
+          print_good("Load balancing pool name \"#{pool_name}\" found")
         end
         if cookie[:value].start_with?('rd')
-          print_good("Route domain \"#{cookie[:value].split('rd')[1].split('o')[0]}\" found")
+          route_domain = cookie[:value].split('rd')[1].split('o')[0]
+          print_good("Route domain \"#{route_domain}\" found")
         end
       end
 
@@ -141,6 +147,18 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+    # Reporting found cookie name in database
+    unless cookie_name.empty?
+      report_note(host: rhost, type: 'f5_load_balancer_cookie_name', data: cookie_name)
+      # Reporting found pool name in database
+      unless pool_name.empty?
+        report_note(host: rhost, type: 'f5_load_balancer_pool_name', data: pool_name)
+      end
+      # Reporting found route domain in database
+      unless route_domain.empty?
+        report_note(host: rhost, type: 'f5_load_balancer_route_domain', data: route_domain)
+      end
+    end
     # Reporting found backends in database
     unless backends.empty?
       report_note(host: rhost, type: 'f5_load_balancer_backends', data: backends)
