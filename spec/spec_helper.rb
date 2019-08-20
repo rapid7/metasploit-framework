@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'stringio'
-require 'factory_bot'
 
 ENV['RAILS_ENV'] = 'test'
 
