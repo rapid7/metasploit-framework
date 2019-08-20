@@ -27,8 +27,10 @@ class MetasploitModule < Msf::Auxiliary
           ],
         'References'     =>
           [
-            ['URL', 'http://support.f5.com/kb/en-us/solutions/public/6000/900/sol6917.html'],
-            ['URL', 'http://support.f5.com/kb/en-us/solutions/public/7000/700/sol7784.html?sr=14607726']
+            ['URL', 'https://support.f5.com/csp/article/K6917'],
+            ['URL', 'https://support.f5.com/csp/article/K7784'],
+            ['URL', 'https://support.f5.com/csp/article/K14784'],
+            ['URL', 'https://support.f5.com/csp/article/K23254150']
           ],
         'License'        => MSF_LICENSE,
         'DefaultOptions' =>
