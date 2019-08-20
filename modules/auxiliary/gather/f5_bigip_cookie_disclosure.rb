@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
         print_error("F5 BigIP load balancing cookie not found")
-        return
+        return nil
       end
 
       # Print the cookie name on the first request
