@@ -59,23 +59,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def cookie_decode(cookie_value)
     backend = {}
-    case
-    when cookie_value =~ /(\d{8,10})\.(\d{1,5})\./
+    if cookie_value =~ /(\d{8,10})\.(\d{1,5})\./
       host = Regexp.last_match(1).to_i
       port = Regexp.last_match(2).to_i
       host = change_endianness(host)
       host = Rex::Socket.addr_itoa(host)
       port = change_endianness(port, 2)
-    when cookie_value.downcase =~ /rd\d+o0{20}f{4}([a-f0-9]{8})o(\d{1,5})/
+    elsif cookie_value.downcase =~ /rd\d+o0{20}f{4}([a-f0-9]{8})o(\d{1,5})/
       host = Regexp.last_match(1).to_i(16)
       port = Regexp.last_match(2).to_i
       host = Rex::Socket.addr_itoa(host)
-    when cookie_value.downcase =~ /vi([a-f0-9]{32})\.(\d{1,5})/
+    elsif cookie_value.downcase =~ /vi([a-f0-9]{32})\.(\d{1,5})/
       host = Regexp.last_match(1).to_i(16)
       port = Regexp.last_match(2).to_i
       host = Rex::Socket.addr_itoa(host, true)
       port = change_endianness(port, 2)
-    when cookie_value.downcase =~ /rd\d+o([a-f0-9]{32})o(\d{1,5})/
+    elsif cookie_value.downcase =~ /rd\d+o([a-f0-9]{32})o(\d{1,5})/
       host = Regexp.last_match(1).to_i(16)
       port = Regexp.last_match(2).to_i
       host = Rex::Socket.addr_itoa(host, true)
@@ -89,10 +88,10 @@ class MetasploitModule < Msf::Auxiliary
     backend
   end
 
-  def get_cookie
+  def fetch_cookie
     # Request a page and extract a F5 looking cookie
     cookie = {}
-    res = send_request_raw({ 'method' => 'GET', 'uri' => @uri })
+    res = send_request_raw('method' => 'GET', 'uri' => @uri)
 
     unless res.nil?
       # Get the SLB session IDs for all cases:
@@ -109,8 +108,8 @@ class MetasploitModule < Msf::Auxiliary
         (?:$|,|;|\s)
       /x
       m = res.get_cookies.match(regexp)
-      cookie[:id] = (m.nil?) ? nil : m[1]
-      cookie[:value] = (m.nil?) ? nil : m[2]
+      cookie[:id] = m.nil? ? nil : m[1]
+      cookie[:value] = m.nil? ? nil : m[2]
     end
     cookie
   end
@@ -125,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Starting request #{@uri}")
 
     (1..requests).each do |i|
-      cookie = get_cookie # Get the cookie
+      cookie = fetch_cookie # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
         print_error("F5 BigIP load balancing cookie not found")
