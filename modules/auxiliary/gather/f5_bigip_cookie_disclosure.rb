@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
       # 4. IPv6 pool members in non-default route domains - "BIGipServerWEB=rd3o20010112000000000000000000000030o80"
 
       regexp = /
-        ([~_\.\-\w\d]+)=(((?:\d+\.){2}\d+)|
+        ([~\.\-\w]+)=(((?:\d+\.){2}\d+)|
         (rd\d+o0{20}f{4}\w+o\d{1,5})|
         (vi([a-f0-9]{32})\.(\d{1,5}))|
         (rd\d+o([a-f0-9]{32})o(\d{1,5})))
