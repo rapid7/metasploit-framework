@@ -55,11 +55,6 @@ module Auxiliary::Juniper
     #       ike  -> https://kb.juniper.net/KB4147
     #       https://github.com/h00die/MSF-Testing-Scripts/blob/master/juniper_strings.py#L171
 
-    report_host({
-      :host => thost,
-      :os_name => 'Juniper ScreenOS'
-    })
-
     credential_data = {
       address: thost,
       port: tport,
@@ -97,8 +92,8 @@ module Auxiliary::Juniper
     config.scan(/set user "(?<user_name>[a-z0-9]+)" uid (?<user_uid>\d+).+set user "\k<user_name>" type (?<user_type>\w+).+set user "\k<user_name>" hash-password "(?<user_hash>[0-9a-z=]{38})".+set user "\k<user_name>" (?<user_enable>enable).+/mi).each do |result|
       user_name = result[0].strip
       user_uid  = result[1].strip
-      user_enable = result[4].strip
-      user_hash = result[3].strip
+      user_hash = result[2].strip
+      user_enable = result[3].strip
       print_good("User #{user_uid} named #{user_name} found with password hash #{user_hash}. Enable permission: #{user_enable}")
       cred = credential_data.dup
       cred[:username] = user_name
@@ -116,7 +111,7 @@ module Auxiliary::Juniper
       snmp_permissions = result[1].strip
       print_good("SNMP community #{snmp_community} with permissions #{snmp_permissions}")
       cred = credential_data.dup
-      if snmp_permissions.downcase == 'read-write'
+      if stype.downcase == 'read-write'
         cred[:access_level] = 'RW'
       else
         cred[:access_level] = 'RO'
@@ -134,11 +129,11 @@ module Auxiliary::Juniper
     # setppp profile "ISP" auth type pap
     # setppp profile "ISP" auth local-name "username"
     # setppp profile "ISP" auth secret "fzSzAn31N4Sbh/sukoCDLvhJEdn0DVK7vA=="
-    config.scan(/setppp profile "(?<ppp_name>[a-z0-9]+)" auth type (?<ppp_authtype>[a-z]+).+setppp profile "\k<ppp_name>" auth local-name "(?<ppp_username>[a-z0-9]+)".+setppp profile "\k<ppp_name>" auth secret "(?<ppp_hash>.+)"/mi).each do |result|
+    config.scan(/setppp profile "(?<ppp_name>[a-z0-9]+)" auth type (?<ppp_authtype>[a-z]+).+setppp profile "\k<ppp_name>" auth local-name "(?<ppp_username>[a-z0-9]+)".+setppp profile "\k<ppp_name>" auth secret "(?<ppp_hash>.+)"/i).each do |result|
       ppp_name = result[0].strip
-      ppp_username = result[2].strip
-      ppp_hash = result[3].strip
-      ppp_authtype = result[1].strip
+      ppp_username = result[1].strip
+      ppp_hash = result[2].strip
+      ppp_authtype = result[3].strip
       print_good("PPTP Profile #{ppp_name} with username #{ppp_username} hash #{ppp_hash} via #{ppp_authtype}")
       cred = credential_data.dup
       cred[:username] = ppp_username
@@ -162,8 +157,7 @@ module Auxiliary::Juniper
       cred[:private_data] = ike_password
       cred[:private_type] = :password
       cred[:service_name] = 'IKE'
-      cred[:port] = 500
-      cred[:address] = ike_address
+       cred[:port] = 500
       cred[:protocol] = 'udp'
       create_credential_and_login(cred)
     end
@@ -172,13 +166,6 @@ module Auxiliary::Juniper
 
 
   def juniper_junos_config_eater(thost, tport, config)
-
-   report_host({
-      :host => thost,
-      :os_name => 'Juniper JunOS'
-    })
-
-
     credential_data = {
       address: thost,
       port: tport,
@@ -190,17 +177,11 @@ module Auxiliary::Juniper
       status: Metasploit::Model::Login::Status::UNTRIED
     }
 
-    store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper JunOS Configuration')
+    store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper Netscreen Configuration')
 
     # we'll take out the pretty format so its easier to regex
     config = config.split("\n").join('')
 
-    # Example:
-    #system {
-    #  root-authentication {
-    #    encrypted-password "$1$pz9b1.fq$foo5r85Ql8mXdoRUe0C1E."; ## SECRET-DATA
-    #  }
-    #}
     if /root-authentication[\s]+\{[\s]+encrypted-password "(?<root_hash>[^"]+)";/i =~ config
       root_hash = root_hash.strip
       case
@@ -249,7 +230,7 @@ module Auxiliary::Juniper
     end
 
     # https://supportf5.com/csp/article/K6449 special characters allowed in snmp community strings
-    config.scan(/community "?(?<snmp_community>[\w\d\s\(\)\.\*\/-:_\?=@\,&%\$]+)"? {(\s+view [\w\-]+;)?\s+authorization read-(?<snmp_permission>only|write)/i).each do |result|
+    config.scan(/community "?(?<snmp_community>[\w\d\s\(\)\.\*\/-:_\?=@\,&%\$]+)"? {[\s]+authorization read-(?<snmp_permission>only|write)/i).each do |result|
       snmp_community = result[0].strip
       snmp_permissions = result[1].strip
       print_good("SNMP community #{snmp_community} with permissions read-#{snmp_permissions}")
