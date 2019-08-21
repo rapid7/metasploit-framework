@@ -71,10 +71,10 @@ class Payload < Msf::Module
     self.can_cleanup = true
 
     #
-    # 
+    # Gets the Dependency if the payload requires external help
+    # to work
     #
     self.module_info['Dependency'] = self.module_info['Dependency'] || ""
-    puts self.module_info['Dependency']
 
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
