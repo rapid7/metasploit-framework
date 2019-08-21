@@ -69,6 +69,13 @@ class Payload < Msf::Module
   def initialize(info = {})
     super
     self.can_cleanup = true
+
+    #
+    # 
+    #
+    self.module_info['Dependency'] = self.module_info['Dependency'] || ""
+    puts self.module_info['Dependency']
+
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
     # information hash accordingly.
