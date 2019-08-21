@@ -147,12 +147,13 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Sending patch check payloads")
     end
 
-    # 0x03 = CHANNEL_FLAG_FIRST | CHANNEL_FLAG_LAST
-    x86_packet = rdp_build_pkt(build_virtual_channel_pdu(0x03, [x86_string].pack("H*")), "\x03\xed")
-    x64_packet = rdp_build_pkt(build_virtual_channel_pdu(0x03, [x64_string].pack("H*")), "\x03\xed")
+    chan_flags = RDPConstants::CHAN_FLAG_FIRST | RDPConstants::CHAN_FLAG_LAST
+    channel_id = [1005].pack('S>')
+    x86_packet = rdp_build_pkt(build_virtual_channel_pdu(chan_flags, [x86_string].pack("H*")), channel_id)
+
+    x64_packet = rdp_build_pkt(build_virtual_channel_pdu(chan_flags, [x64_string].pack("H*")), channel_id)
 
     6.times do
-      # 0xed03 = Channel 1005
       rdp_send(x86_packet)
       rdp_send(x64_packet)
 
@@ -188,7 +189,6 @@ class MetasploitModule < Msf::Auxiliary
           if res.include?(["0300000902f0802180"].pack("H*"))
             return Exploit::CheckCode::Vulnerable
           end
-          # vprint_good("#{bin_to_hex(res)}")
         end
       rescue RdpCommunicationError
         # we don't care
