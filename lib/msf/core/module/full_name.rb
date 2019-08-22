@@ -58,6 +58,14 @@ module Msf::Module::FullName
   end
 
   #
+  # Always return the module's framework full reference name, even when the
+  # module is aliased.
+  #
+  def realname
+    self.class.fullname
+  end
+
+  #
   # Returns the module's framework reference name.  This is the
   # short name that end-users work with.  Ex:
   #
