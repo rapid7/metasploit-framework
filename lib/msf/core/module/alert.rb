@@ -75,7 +75,7 @@ module Msf::Module::Alert
     #
     # @return [true, false] whether or not the module has encountered any fatal
     #   errors thus far.
-    def is_usable?
+    def usable?
       errors.empty?
     end
 
