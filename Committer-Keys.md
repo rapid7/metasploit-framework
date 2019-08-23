@@ -10,7 +10,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | Github Username                                   | Keybase.io Username                                |
 | ------------------------------------------------- | -------------------------------------------------- |
 | [@acammack-r7](https://github.com/acammack-r7)    | [acammackr7](https://keybase.io/acammackr7)        |
-| [@asoto-r7](https://github.com/asoto-r7)          | [asoto_r7](https://keybase.io/asoto_r7)            |
 | [@bcoles](https://github.com/bcoles)              | [bcoles](https://keybase.io/bcoles)                |
 | [@busterb](https://github.com/busterb)            | [busterb](https://keybase.io/busterb)              |
 | [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson)        |
@@ -22,7 +21,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@Green-m](https://github.com/Green-m)            | [green-m](https://keybase.io/green_m)              |
 | [@h00die](https://github.com/h00die)              | [h00die](https://keybase.io/h00die)                |
 | [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
-| [@jhart-r7](https://github.com/jhart-r7)          | [jhart](https://keybase.io/jhart)                  |
 | [@jmartin-r7](https://github.com/jmartin-r7)      | [jmartinr7](https://keybase.io/jmartinr7)          |
 | [@jrobles-r7](https://github.com/jrobles-r7)      | [jroblesr7](https://keybase.io/jroblesr7)          |
 | [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
