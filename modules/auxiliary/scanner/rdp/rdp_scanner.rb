@@ -42,9 +42,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       rdp_connect
       is_rdp, version_info = rdp_fingerprint
-      rdp_disconnect
     rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
       return false, nil
+    ensure
+      rdp_disconnect
     end
 
     service_info = nil
@@ -67,9 +68,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       rdp_connect
       is_rdp, server_selected_proto = rdp_check_protocol
-      disconnect
     rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
       return false
+    ensure
+      rdp_disconnect
     end
 
     return false unless is_rdp
@@ -81,10 +83,11 @@ class MetasploitModule < Msf::Auxiliary
     begin
       rdp_connect
       is_rdp, service_info = check_rdp
-      rdp_disconnect
     rescue Rex::ConnectionError => e
       vprint_error("Error while connecting and negotiating RDP: #{e}")
       return
+    ensure
+      rdp_disconnect
     end
     return unless is_rdp
 
