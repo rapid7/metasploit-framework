@@ -40,13 +40,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_rdp
     begin
-      nsock = connect
+      rdp_connect
+      is_rdp, version_info = rdp_fingerprint
+      rdp_disconnect
     rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
       return false, nil
     end
-
-    is_rdp, version_info = rdp_fingerprint(nsock)
-    disconnect
 
     service_info = nil
     if is_rdp
@@ -66,13 +65,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def requires_nla?
     begin
-      nsock = connect
+      rdp_connect
+      is_rdp, server_selected_proto = rdp_check_protocol
+      disconnect
     rescue ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
       return false
     end
-
-    is_rdp, server_selected_proto = rdp_check_protocol
-    disconnect
 
     return false unless is_rdp
     return [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
@@ -81,8 +79,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     is_rdp = false
     begin
-      connect
+      rdp_connect
       is_rdp, service_info = check_rdp
+      rdp_disconnect
     rescue Rex::ConnectionError => e
       vprint_error("Error while connecting and negotiating RDP: #{e}")
       return
