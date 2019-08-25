@@ -13,7 +13,7 @@ For further information:
 
 1. Start `msfconsole`
 2. Select the module: `use auxiliary/gather/f5_bigip_cookie_disclosure`
-3. Select your target(s): `set RHOSTS www.example.fr`
+3. Select your target(s): `set RHOSTS www.example.com`
 4. Run the module: `run`
 
 ## Options
