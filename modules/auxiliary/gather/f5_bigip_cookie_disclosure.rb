@@ -11,11 +11,11 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'F5 BigIP Backend Cookie Disclosure',
+        'Name'           => 'F5 BIG-IP Backend Cookie Disclosure',
         'Description'    => %q{
-          This module identifies F5 BigIP load balancers and leaks backend
-          information (pool name, backend's IP address and port, routed domain)
-          through cookies inserted by the BigIP system.
+          This module identifies F5 BIG-IP load balancers and leaks backend information
+          (pool name, routed domain, and backend servers' IP addresses and ports) through
+          cookies inserted by the BIG-IP systems.
         },
         'Author'         =>
           [
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
+        OptInt.new('RPORT', [true, 'The BIG-IP service port', 443]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
       ]
@@ -129,14 +129,14 @@ class MetasploitModule < Msf::Auxiliary
       cookie = fetch_cookie # Get the cookie
       # If the cookie is not found, stop process
       if cookie.empty? || cookie[:id].nil?
-        print_error("F5 BigIP load balancing cookie not found")
+        print_error("F5 BIG-IP load balancing cookie not found")
         return nil
       end
 
       # Print the cookie name on the first request
       if i == 1
         cookie_name = cookie[:id]
-        print_good("F5 BigIP load balancing cookie \"#{cookie_name} = #{cookie[:value]}\" found")
+        print_good("F5 BIG-IP load balancing cookie \"#{cookie_name} = #{cookie[:value]}\" found")
         if cookie[:id].start_with?('BIGipServer')
           pool_name = cookie[:id].split('BIGipServer')[1]
           print_good("Load balancing pool name \"#{pool_name}\" found")
