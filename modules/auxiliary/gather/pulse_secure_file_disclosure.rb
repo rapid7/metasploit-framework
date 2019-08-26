@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    Msf::Exploit::CheckCode::Vulnerable
+    Exploit::CheckCode::Vulnerable
   end
 
   def run
