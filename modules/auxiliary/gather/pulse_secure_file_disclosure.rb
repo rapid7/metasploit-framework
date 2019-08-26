@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('FILE', [ '/etc/passwd',  "Define the remote file to view, ex:/etc/passwd", '/etc/passwd']),
       ])
 
