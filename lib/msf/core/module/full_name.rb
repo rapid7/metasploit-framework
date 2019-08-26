@@ -24,6 +24,14 @@ module Msf::Module::FullName
       "#{type}/#{refname}"
     end
 
+    #
+    # Classes themselves are never aliased (at the moment, anyway), but this is
+    # always just the {#fullname}.
+    #
+    def realname
+      fullname
+    end
+
     def promptname
       refname
     end
