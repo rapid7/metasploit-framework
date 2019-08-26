@@ -200,13 +200,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_rdp_vuln
     # check if rdp is open
-    is_rdp, server_selected_proto = rdp_check_protocol
+    is_rdp, version_info = rdp_fingerprint
     unless is_rdp
       vprint_status "Could not connect to RDP service."
       return Exploit::CheckCode::Unknown
     end
+    rdp_disconnect
+    rdp_connect
+    is_rdp, server_selected_proto = rdp_check_protocol
 
-    if [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
+    requires_nla = [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
+    product_version = (version_info && version_info[:product_version]) ? version_info[:product_version] : 'N/A'
+    info = "Detected RDP on #{peer} (Windows version: #{product_version})"
+
+    service_info = "Requires NLA: #{(!version_info[:product_version].nil? && requires_nla) ? 'Yes' : 'No'}"
+    info << " (#{service_info})"
+
+    print_status(info)
+
+    if requires_nla
       vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
       return Exploit::CheckCode::Safe
     end
