@@ -19,7 +19,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
           [
-              [ 'URL', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-11510' ],
               [ 'CVE', '2019-11510'],
           ],
           'Author'         => [
