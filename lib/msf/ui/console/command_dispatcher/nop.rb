@@ -58,7 +58,7 @@ class Nop
         when nil
           length = val.to_i
         when '-b'
-          badchars = Rex::Text.hex_to_raw(val)
+          badchars = Rex::Text.dehex(val)
         when "-c"
           saveregs = val.split(/,\s?/)
         when '-t'

@@ -13,11 +13,10 @@ You may buy the device on Amazon at <https://www.amazon.com/dp/B00IPEO02C/>.
 ## Actions
 
 ```
-Available actions:
-  Name  Description
-  ----  -----------
-  Cook  Cook stuff
-  Stop  Stop cooking
+Name  Description
+----  -----------
+Cook  Cook stuff
+Stop  Stop cooking
 ```
 
 ## Options

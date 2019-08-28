@@ -404,22 +404,14 @@ class Driver < Msf::Ui::Driver
   #
   def on_variable_set(glob, var, val)
     case var.downcase
-    when 'payload'
-      if framework && !framework.payloads.valid?(val)
-        return false
-      elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
-        return false
-      elsif active_module
-        active_module.datastore.clear_non_user_defined
-      elsif framework
-        framework.datastore.clear_non_user_defined
-      end
     when 'sessionlogging'
       handle_session_logging(val) if glob
     when 'consolelogging'
       handle_console_logging(val) if glob
     when 'loglevel'
       handle_loglevel(val) if glob
+    when 'payload'
+      handle_payload(val)
     when 'ssh_ident'
       handle_ssh_ident(val)
     end
@@ -505,11 +497,7 @@ protected
 
         self.busy = true
         begin
-          io = ::IO.popen(line, "r")
-          io.each_line do |data|
-            print(data)
-          end
-          io.close
+          system(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
@@ -574,6 +562,23 @@ protected
   def handle_loglevel(val)
     set_log_level(Rex::LogSource, val)
     set_log_level(Msf::LogSource, val)
+  end
+
+  #
+  # This method handles setting a desired payload
+  #
+  # TODO: Move this out of the console driver!
+  #
+  def handle_payload(val)
+    if framework && !framework.payloads.valid?(val)
+      return false
+    elsif active_module && (active_module.exploit? || active_module.evasion?)
+      return false unless active_module.is_payload_compatible?(val)
+    elsif active_module
+      active_module.datastore.clear_non_user_defined
+    elsif framework
+      framework.datastore.clear_non_user_defined
+    end
   end
 
   #

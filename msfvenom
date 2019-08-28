@@ -43,7 +43,7 @@ def init_framework(create_opts={})
     type = Msf.const_get("MODULE_#{type.upcase}")
   end
 
-  @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
+  @framework = ::Msf::Simple::Framework.create
 end
 
 # Cached framework object
@@ -110,7 +110,8 @@ def parse_args(args)
   end
 
   opt.on('--encrypt-key     <value>', String, 'A key to be used for --encrypt') do |e|
-    opts[:encryption_key] = e
+    init_framework
+    opts[:encryption_key] = Rex::Text.dehex(e)
   end
 
   opt.on('--encrypt-iv      <value>', String, 'An initialization vector for --encrypt') do |e|
@@ -130,8 +131,8 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars       <list>', String, 'Characters to avoid example: \'\x00\xff\'') do |b|
-    init_framework()
-    opts[:badchars] = Rex::Text.hex_to_raw(b)
+    init_framework
+    opts[:badchars] = Rex::Text.dehex(b)
   end
 
   opt.on('-n', '--nopsled         <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
@@ -196,7 +197,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ && datastore['LHOST'].nil?
-      init_framework()
+      init_framework
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
