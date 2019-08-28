@@ -216,11 +216,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     channels = [
-        { :flags => 0x0000a0c0, :name => 'cliprdr' },
-        { :flags => 0x00008080, :name => 'MS_T120' },
-        { :flags => 0x000000c0, :name => 'rdpsnd'  },
-        { :flags => 0x000000c0, :name => 'snddbg'  },
-        { :flags => 0x00008080, :name => 'rdpdr'   },
+        { :options => 0xc0a00000, :name => 'cliprdr' },
+        { :options => 0x80800000, :name => 'MS_T120' },
+        { :options => 0xc0000000, :name => 'rdpsnd'  },
+        { :options => 0xc0000000, :name => 'snddbg'  },
+        { :options => 0x80800000, :name => 'rdpdr'   },
       ]
 
     success = rdp_negotiate_security(nsock, server_selected_proto, channels)
