@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.45)
+    metasploit-framework (5.0.46)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -130,7 +130,7 @@ GEM
     aws-sdk-kms (1.24.0)
       aws-sdk-core (~> 3, >= 3.61.1)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.47.0)
+    aws-sdk-s3 (1.48.0)
       aws-sdk-core (~> 3, >= 3.61.1)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
