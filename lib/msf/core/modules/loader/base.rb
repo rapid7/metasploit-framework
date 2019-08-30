@@ -275,14 +275,20 @@ class Msf::Modules::Loader::Base
     namespace_module = original_metasploit_class.parent
     parent_path = namespace_module.parent_path
 
-    type = original_metasploit_class_or_instance.type
-    module_reference_name = original_metasploit_class_or_instance.refname
+    type = original_metasploit_class.type
+    module_reference_name = original_metasploit_class.refname
+    module_fullname = original_metasploit_class.fullname
+    module_used_name = original_metasploit_instance.fullname if original_metasploit_instance
 
-    dlog("Reloading module #{module_reference_name}...", 'core')
+    dlog("Reloading module #{module_fullname}...", 'core')
 
     if load_module(parent_path, type, module_reference_name, :force => true, :reload => true)
-      # Create a new instance of the module
-      reloaded_module_instance = module_manager.create(module_reference_name)
+      # Create a new instance of the module, using the alias if one was used
+      reloaded_module_instance = module_manager.create(module_used_name || module_fullname)
+      if !reloaded_module_instance && module_fullname != module_used_name
+        reloaded_module_instance = module_manager.create(module_fullname)
+        reloaded_module_instance&.add_warning "Alias #{module_used_name} no longer available after reloading, using #{module_fullname}"
+      end
 
       if reloaded_module_instance
         if original_metasploit_instance
@@ -296,7 +302,7 @@ class Msf::Modules::Loader::Base
         return original_metasploit_class_or_instance
       end
     else
-      elog("Failed to reload #{module_reference_name}")
+      elog("Failed to reload #{module_fullname}")
 
       return nil
     end
