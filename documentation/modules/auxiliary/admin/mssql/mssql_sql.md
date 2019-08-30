@@ -4,7 +4,7 @@ This module allows you to perform SQL queries against a database using known-goo
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/mssql/mssql_sql```
+1. Do: ```use auxiliary/admin/mssql/mssql_sql```
 2. Do: ```set PASSWORD [password1]```
 3. Do: ```set RHOSTS [IP]```
 4. Do: ```set [SQL Command]```

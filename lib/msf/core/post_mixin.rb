@@ -30,6 +30,8 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
+    alert_user
+
     unless session
       # Always fail if the session doesn't exist.
       raise Msf::OptionValidateError.new(['SESSION'])
