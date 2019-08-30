@@ -20,33 +20,33 @@ module Msf::Modules::Metadata::Maps
     get_metadata.each do |exploit|
       # expand this in future to be more specific about remote exploits.
       next unless exploit.type == "exploit"
-      fullname = exploit.fullname
+      realname = exploit.realname
       exploit.references.each do |reference|
         next if reference =~ /^URL/
         ref = reference
         ref.upcase!
 
         mrefs[ref]           ||= {}
-        mrefs[ref][fullname] = exploit
+        mrefs[ref][realname] = exploit
       end
 
       if exploit.rport
         rport                        = exploit.rport
         mports[rport.to_i]           ||= {}
-        mports[rport.to_i][fullname] = exploit
+        mports[rport.to_i][realname] = exploit
       end
 
       unless exploit.autofilter_ports.nil? || exploit.autofilter_ports.empty?
         exploit.autofilter_ports.each do |rport|
           mports[rport.to_i]           ||= {}
-          mports[rport.to_i][fullname] = exploit
+          mports[rport.to_i][realname] = exploit
         end
       end
 
       unless exploit.autofilter_services.nil? || exploit.autofilter_services.empty?
         exploit.autofilter_services.each do |serv|
           mservs[serv]           ||= {}
-          mservs[serv][fullname] = exploit
+          mservs[serv][realname] = exploit
         end
       end
 
