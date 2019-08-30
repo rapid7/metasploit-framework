@@ -24,6 +24,14 @@ module Msf::Module::FullName
       "#{type}/#{refname}"
     end
 
+    #
+    # Classes themselves are never aliased (at the moment, anyway), but this is
+    # always just the {#fullname}.
+    #
+    def realname
+      fullname
+    end
+
     def promptname
       refname
     end
@@ -55,6 +63,14 @@ module Msf::Module::FullName
   #
   def fullname
     aliased_as || self.class.fullname
+  end
+
+  #
+  # Always return the module's framework full reference name, even when the
+  # module is aliased.
+  #
+  def realname
+    self.class.fullname
   end
 
   #
