@@ -210,6 +210,18 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def adsi_query(domain, adsi_filter, adsi_fields)
+    return "" unless session.core.use("extapi")
+
+    query_result = session.extapi.adsi.domain_query(domain, adsi_filter, 255, 255, adsi_fields)
+
+    if query_result[:results].empty?
+      return "" # adsi query failed
+    else
+      return query_result[:results]
+    end
+  end
+
   def gpp_xml_file(path)
     begin
       data = read_file(path)
@@ -217,6 +229,7 @@ class MetasploitModule < Msf::Post
       spath = path.split('\\')
       retobj = {
         :dc     => spath[2],
+        :guid   => spath[6][1..-2],
         :path   => path,
         :xml    => data
       }
@@ -225,6 +238,21 @@ class MetasploitModule < Msf::Post
       else
         retobj[:domain] = spath[4]
       end
+
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer))"
+      adsi_field_gpo = ['displayname', 'name']
+
+      gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
+
+      unless gpo_adsi.empty?
+        gpo_adsi.each do |gpo_entry|
+          gpo_name = gpo_entry[0][:value]
+          gpo_guid = gpo_entry[1][:value][1..-2]
+          # Add the GPO name if the GUID matched the ADSI query
+          retobj[:name] = gpo_name if gpo_guid == retobj[:guid]
+        end
+      end
+
       return retobj
     rescue Rex::Post::Meterpreter::RequestError => e
       print_error "Received error code #{e.code} when reading #{path}"
@@ -241,7 +269,19 @@ class MetasploitModule < Msf::Post
     tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
     tables.each do |table|
-      print_good table.to_s
+      # We have to manually format the results as we want to insert a new line
+      #  to what 'Rex::Parser::GPP.create_tables' returns
+      print_good "Group Policy Credential Info"
+      print_line "================================\n"
+      print_line " Name               Value"
+      print_line " ----               -----"
+
+      title = " NAME"
+      # If GPO name was found, print it
+      print_line "#{title.ljust(19)} #{xmlfile[:name]}" if xmlfile.member?(:name)
+
+      # Print the rest of the results
+      print " #{table.to_s.split("-----")[1].strip()}\n\n"
     end
 
     results.each do |result|
