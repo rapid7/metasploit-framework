@@ -237,7 +237,7 @@ class MetasploitModule < Msf::Post
         retobj[:domain] = spath[4]
       end
 
-      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer))" 
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer))"
       adsi_field_gpo = ['displayname', 'name']
 
       gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
