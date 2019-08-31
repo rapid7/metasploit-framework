@@ -6,8 +6,9 @@ targeted host.
 More precisely, I use multiple data sources (in order ViewDNS.info, DNS enumeration and Censys)
 to collect assigned (or have been assigned) IP addresses from the targeted site or domain
 that uses the following:
-  Amazon Cloudflare, Amazon CloudFront, Imperva Incapsula, InGen Security (BinarySec EasyWAF)
-  and Sucuri.
+  Amazon Cloudflare, Amazon CloudFront, ArvanCloud, Envoy Proxy, Fastly, Stackpath Fireblade,
+  Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Netlify and
+  Sucuri.
 
 ## Verification Steps
 

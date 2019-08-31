@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-# rev: 1.0
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -18,7 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         More precisely, I use multiple data sources (in order ViewDNS.info, DNS enumeration and Censys)
         to collect assigned (or have been assigned) IP addresses from the targeted site or domain
         that uses the following:
-          * Amazon Cloudflare, Amazon CloudFront, Imperva Incapsula, InGen Security (BinarySec EasyWAF),
+          * Amazon Cloudflare, Amazon CloudFront, ArvanCloud, Envoy Proxy, Fastly, Stackpath Fireblade,
+            Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Netlify and
             Sucuri.
       },
       'Author' => [
@@ -42,6 +42,36 @@ class MetasploitModule < Msf::Auxiliary
             'Signatures' => ['x-amz-cf-id:']
           }
         ],
+        ['ArvanCloud CDN',
+          {
+            'Description' => 'ArvanCloud CDN comprises tens of PoP sites in important locations all around the world to deliver online content to the users',
+            'Signatures' => ['server: ArvanCloud']
+          }
+        ],
+        ['Envoy Proxy',
+          {
+            'Description' => 'An open source edge and service proxy, designed for Cloud-Native applications',
+            'Signatures' => ['server: envoy']
+          }
+        ],
+        ['Fastly',
+          {
+            'Description' => 'Another widely used CDN/WAF solution',
+            'Signatures' => ['Fastly-SSL']
+          }
+        ],
+        ['Stackpath Fireblade',
+          {
+            'Description' => 'Enterprise Website Security & DDoS Protection',
+            'Signatures' => ['Server: fbs']
+          }
+        ],
+        ['Stackpath MaxCDN',
+          {
+            'Description' => 'Speed Up your Content Delivery',
+            'Signatures' => ['Server: NetDNA-cache']
+          }
+        ],
         ['Imperva Incapsula',
           {
             'Description' => 'Cloud based Web application firewall of Imperva',
@@ -52,6 +82,18 @@ class MetasploitModule < Msf::Auxiliary
           {
             'Description' => 'Cloud based Web application firewall of InGen Security and BinarySec',
             'Signatures' => ['binarysec', 'server: gatejs']
+          }
+        ],
+        ['KeyCDN',
+          {
+            'Description' => 'KeyCDN is a high performance content delivery network that has been built for the future', # lol
+            'Signatures' => ['Server: keycdn-engine']
+          }
+        ],
+        ['Netlifi',
+          {
+            'Description' => 'One workflow, from local development to global deployment',
+            'Signatures' => ['x-nf-request-id:']
           }
         ],
         ['Sucuri',
@@ -83,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('REPORT_LEAKS', [true, 'Set to write leaked ip addresses in notes', false]),
       OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0']),
       OptEnum.new('TAG', [true, 'Specify the HTML tag in which you want to find the fingerprint', 'title', ['title', 'html']]),
-      OptInt.new('TIMEOUT', [true, 'HTTP(s) request timeout', 5])
+      OptInt.new('TIMEOUT', [true, 'HTTP(s) request timeout', 8])
     ])
   end
 
@@ -319,7 +361,7 @@ class MetasploitModule < Msf::Auxiliary
       found = check_request(fingerprint, ip, 443, true)
     end
     ret_value = true if found
-    
+
     return ret_value
   end
 
@@ -332,19 +374,27 @@ class MetasploitModule < Msf::Auxiliary
       return false if detect_solution(response, @my_action.name)
 
       if response.code.eql? 200
-        html = response.get_html_document()
-        if html.at(datastore['TAG']).to_s.include? fingerprint.to_s
-          print_good("A direct-connect IP address was found: #{proto}://#{ip}:#{port}/")
-          save_note(datastore['HOSTNAME'], ip, port, proto, true)
-          return true
+        html = response.get_html_document
+        begin
+          if html.at(datastore['TAG']).to_s.include? fingerprint.to_s.encode('utf-8')
+            print_good("A direct-connect IP address was found: #{proto}://#{ip}:#{port}/")
+            save_note(datastore['HOSTNAME'], ip, port, proto, true)
+            return true
+          end
+        rescue Encoding::CompatibilityError
+          return false
         end
       else
         case response.code
         when 301..302
           vprint_line("      --> responded with HTTP status code: #{response.code.to_s} to #{response.headers['location']}")
-          if response.headers['location'].include?(datastore['hostname'])
-            print_warning("A leaked IP address was found: #{proto}://#{ip}:#{port}/")
-            save_note(datastore['HOSTNAME'], ip, port, proto, false) if datastore['REPORT_LEAKS'].eql? true
+          begin
+            if response.headers['location'].include?(datastore['hostname'])
+              print_warning("A leaked IP address was found: #{proto}://#{ip}:#{port}/")
+              save_note(datastore['HOSTNAME'], ip, port, proto, false) if datastore['REPORT_LEAKS'].eql? true
+            end
+          rescue Encoding::CompatibilityError
+            return false
           end
         else
           vprint_line("      --> responded with an unhandled HTTP status code: #{response.code.to_s}")
@@ -360,7 +410,7 @@ class MetasploitModule < Msf::Auxiliary
       actions.each do | my_action |
         unless my_action.name == 'Automatic'
           my_action['Signatures'].each do | signature |
-            return my_action if data.headers.to_s.downcase().include?(signature.downcase())
+            return my_action if data.headers.to_s.downcase.include?(signature.downcase)
           end
         end
       end
@@ -368,7 +418,7 @@ class MetasploitModule < Msf::Auxiliary
       actions.each do | my_action |
         if my_action.name == name
           my_action['Signatures'].each do | signature |
-            return true if data.headers.to_s.downcase().include?(signature.downcase())
+            return true if data.headers.to_s.downcase.include?(signature.downcase)
           end
         end
       end
@@ -418,7 +468,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def pick_action
-    return action if action.name != 'Automatic'
+    return action unless action.name.eql? 'Automatic'
 
     response = http_get_request_raw(
       datastore['HOSTNAME'],
@@ -485,7 +535,6 @@ class MetasploitModule < Msf::Auxiliary
     when /CloudFront/
       ip_blacklist = get_cloudfront_ips
     when /InGen Security/
-      ip_blacklist = []
       ip_list.uniq.each do | ip |
         a = dns_get_a(ip.to_s)
         ['binarysec', 'easywaf', 'ingensec', '127.0.0.1'].each do | signature |
@@ -499,14 +548,14 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Clean #{@my_action.name} server(s)...")
       ip_list.uniq.each do | ip |
         is_listed = false
-  
+
         ip_blacklist.each do | ip_range |
           if IPAddr.new(ip_range).include? ip.to_s
             is_listed = true
             break
           end
         end
-  
+
         unless is_listed.eql? true
           records << ip.to_s
         end
@@ -539,7 +588,12 @@ class MetasploitModule < Msf::Auxiliary
         datastore['URIPATH']
       )
       html = response.get_html_document
-      fingerprint = html.at(datastore['TAG']).text
+      begin
+        fingerprint = html.at(datastore['TAG'])
+      rescue NoMethodError
+        print_bad('Please, considere COMPSTR option!')
+        return
+      end
     else
       fingerprint = datastore['COMPSTR']
     end
