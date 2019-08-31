@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.43)
+    metasploit-framework (5.0.46)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -115,13 +115,13 @@ GEM
     arel-helpers (2.10.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.204.0)
-    aws-sdk-core (3.64.0)
+    aws-partitions (1.207.0)
+    aws-sdk-core (3.65.1)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.105.0)
+    aws-sdk-ec2 (1.106.0)
       aws-sdk-core (~> 3, >= 3.61.1)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.29.0)
@@ -130,7 +130,7 @@ GEM
     aws-sdk-kms (1.24.0)
       aws-sdk-core (~> 3, >= 3.61.1)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.46.0)
+    aws-sdk-s3 (1.48.0)
       aws-sdk-core (~> 3, >= 3.61.1)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -167,7 +167,7 @@ GEM
     factory_bot_rails (5.0.2)
       factory_bot (~> 5.0.2)
       railties (>= 4.2.0)
-    faker (2.1.2)
+    faker (2.2.0)
       i18n (>= 0.8)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
@@ -317,7 +317,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.2)
-    rex-text (0.2.22)
+    rex-text (0.2.23)
     rex-zip (0.1.3)
       rex-text
     rkelly-remix (0.0.7)

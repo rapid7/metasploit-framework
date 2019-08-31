@@ -14,6 +14,7 @@ module Msf
 #
 ###
 class Module
+  autoload :Alert, 'msf/core/module/alert'
   autoload :Arch, 'msf/core/module/arch'
   autoload :Auth, 'msf/core/module/auth'
   autoload :Author, 'msf/core/module/author'
@@ -43,6 +44,7 @@ class Module
   autoload :Stability, 'msf/core/module/stability'
   autoload :Reliability, 'msf/core/module/reliability'
 
+  include Msf::Module::Alert
   include Msf::Module::Arch
   include Msf::Module::Auth
   include Msf::Module::Author
@@ -91,17 +93,6 @@ class Module
   #
   def framework
     self.class.framework
-  end
-
-  #
-  # This method allows modules to tell the framework if they are usable
-  # on the system that they are being loaded on in a generic fashion.
-  # By default, all modules are indicated as being usable.  An example of
-  # where this is useful is if the module depends on something external to
-  # ruby, such as a binary.
-  #
-  def self.is_usable
-    true
   end
 
   #

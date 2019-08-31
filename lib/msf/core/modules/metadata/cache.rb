@@ -146,7 +146,7 @@ class Cache
     key = ''
     key << (module_instance.type.nil? ? '' : module_instance.type)
     key << '_'
-    key << module_instance.refname
+    key << module_instance.class.refname
     return key
   end
 
