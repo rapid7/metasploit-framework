@@ -82,7 +82,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request = Packet.create_request( 'stdapi_fs_search' )
 
     root = client.unicode_filter_decode(root) if root
-    root = root.chomp( ::File.separator ) if root
+    root = root.chomp( self.separator ) if root
 
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
@@ -94,7 +94,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
         files << {
-          'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( ::File.separator )),
+          'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( self.separator )),
           'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
           'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
         }
