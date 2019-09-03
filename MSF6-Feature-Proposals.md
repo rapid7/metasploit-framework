@@ -73,10 +73,6 @@ We should make a light-weight in-memory database service that can run automatica
 
 Provide a means for the community to document changes to how Metasploit works (developer and user), unify various documentation resources.
 
-## Dropping native Windows support
-
-Windows support consumes 90% of our time building open source installers, but supports 1% of the downloads. Also, running Linux in Windows is much easier with Windows 10 and VMs, and performs considerably better. As Metasploit becomes more multi-processed, being able to support Unix domain sockets would simplify some of the security models as well, in the default case. Let's focus on macOS and Linux as primary supported targets.
-
 ## Make Metasploit Higher-performance / lighter weight
 
 As subcomponents get carved off (external database service, external listeners), they should be implemented in a lighter weight way. We have some prototypes of the database web service rewritten in golang, and a persistent payload generation service that can be used my a client-only `msfvenom`-like tool can speed up execution considerably.
