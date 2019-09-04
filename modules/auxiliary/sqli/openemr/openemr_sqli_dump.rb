@@ -198,11 +198,11 @@ class MetasploitModule < Msf::Auxiliary
   def save_csv(data, table)
     safe_table = table.gsub(/[^0-9a-z]/i, '')
     store_loot(
-      "openemr.database.#{safe_table}.dump",
+      "openemr.db.#{safe_table}.dump",
       'application/CSV',
       rhost,
       data,
-      filename
+      table
     )
   end
 
