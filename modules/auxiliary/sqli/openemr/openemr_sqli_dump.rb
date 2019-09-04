@@ -9,7 +9,6 @@ require 'nokogiri'
 ##
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::Exploit
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
