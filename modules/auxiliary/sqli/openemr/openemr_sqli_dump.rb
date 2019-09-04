@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
                           'Will Porter <will.porter[at]lodestonesecurity.com>'
                         ],
                       'References' => [
-                        ['CVE', 'CVE-2018-17179'],
+                        ['CVE', '2018-17179'],
                         ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
                       ],
                       'Platform' => ['php'],
