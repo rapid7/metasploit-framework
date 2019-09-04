@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_response(payload)
-    path = "#{uri}/interface/forms/eye_mag/taskman.php?"
+    path = "#{uri}/interface/forms/eye_mag/taskman.php"
     # This is only going to work for spaces.  Ideally we could use URI.encode
     # but that is deprecated and CGI.escape uses + which doesn't work
     # for this application.
