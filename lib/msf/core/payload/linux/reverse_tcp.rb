@@ -94,6 +94,8 @@ module Payload::Linux::ReverseTcp_x86
     if respond_to?(:generate_intermediate_stage)
       pay_mod = framework.payloads.create(self.refname)
       read_length = pay_mod.generate_intermediate_stage(pay_mod.generate_stage(datastore.to_h)).size
+    elsif !module_info['Stage']['Payload'].empty?
+      read_length = module_info['Stage']['Payload'].size
     else
       # If we don't know, at least use small instructions
       read_length = 0x0c00 + mprotect_flags
