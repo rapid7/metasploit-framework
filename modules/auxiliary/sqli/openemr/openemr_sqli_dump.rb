@@ -200,6 +200,7 @@ class MetasploitModule < Msf::Auxiliary
     for row in data
       s += row.to_csv
     end
+    s
   end
 
   def save_csv(data, table)
