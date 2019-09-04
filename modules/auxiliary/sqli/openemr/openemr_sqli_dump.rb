@@ -84,7 +84,6 @@ class MetasploitModule < Msf::Auxiliary
     # This is only going to work for spaces.  Ideally we could use URI.encode
     # but that is deprecated and CGI.escape uses + which doesn't work
     # for this application.
-    path = path.gsub ' ', '%20'
     response = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(path),
@@ -214,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Identified #{num_tables} tables.")
 
     count = 1
-    rand_token = rand_text(8)
+    rand_token = Rex::Text.rand_text_alphanumeric(8)
     dump_dir = File.join(Msf::Config.loot_directory, 'openemr-' + rand_token)
     Dir.mkdir dump_dir
     print_status("Created dump directory: #{dump_dir}")
