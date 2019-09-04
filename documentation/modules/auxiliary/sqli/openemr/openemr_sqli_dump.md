@@ -6,7 +6,7 @@ vulnerability allows the contents of the entire
 database (with exception of log and task tables) to be
 extracted.
 
-This module saves each table as a \'.csv\' file in your
+This module saves each table as a `.csv` file in your
 loot directory and has been tested with
 OpenEMR 5.0.1 (3).
 
