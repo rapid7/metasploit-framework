@@ -229,7 +229,7 @@ class MetasploitModule < Msf::Post
       spath = path.split('\\')
       retobj = {
         :dc     => spath[2],
-        :guid   => spath[6],
+        :guid   => spath[6][1..-2],
         :path   => path,
         :xml    => data
       }
@@ -239,15 +239,18 @@ class MetasploitModule < Msf::Post
         retobj[:domain] = spath[4]
       end
 
-      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer)(name=#{retobj[:guid]}))"
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer))"
       adsi_field_gpo = ['displayname', 'name']
 
       gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
 
       unless gpo_adsi.empty?
-        gpo_name = gpo_adsi[0][0][:value]
-        gpo_guid = gpo_adsi[0][1][:value]
-        retobj[:name] = gpo_name if retobj[:guid] == gpo_guid
+        gpo_adsi.each do |gpo_entry|
+          gpo_name = gpo_entry[0][:value]
+          gpo_guid = gpo_entry[1][:value][1..-2]
+          # Add the GPO name if the GUID matched the ADSI query
+          retobj[:name] = gpo_name if gpo_guid == retobj[:guid]
+        end
       end
 
       return retobj
@@ -266,19 +269,8 @@ class MetasploitModule < Msf::Post
     tables = Rex::Parser::GPP.create_tables(results, filetype, xmlfile[:domain], xmlfile[:dc])
 
     tables.each do |table|
-      # We have to manually format the results as we want to insert a new line
-      #  to what 'Rex::Parser::GPP.create_tables' returns
-      print_good "Group Policy Credential Info"
-      print_line "================================\n"
-      print_line " Name               Value"
-      print_line " ----               -----"
-
-      title = " NAME"
-      # If GPO name was found, print it
-      print_line "#{title.ljust(19)} #{xmlfile[:name]}" if xmlfile.member?(:name)
-
-      # Print the rest of the results
-      print " #{table.to_s.split("-----")[1].strip()}\n\n"
+      table << ['NAME', xmlfile[:name]] if xmlfile.member?(:name)
+      print " #{table.to_s}\n\n"
     end
 
     results.each do |result|
