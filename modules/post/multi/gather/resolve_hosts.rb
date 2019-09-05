@@ -72,6 +72,10 @@ class MetasploitModule < Msf::Post
       if result[:ip].nil?
         table << [result[:hostname], '[Failed To Resolve]']
       else
+        report_host(
+          host: result[:ip],
+          name: result[:hostname]
+        )
         table << [result[:hostname], result[:ip]]
       end
     end
