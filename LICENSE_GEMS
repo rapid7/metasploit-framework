@@ -5,13 +5,13 @@ actionview, 4.2.11.1, MIT
 activemodel, 4.2.11.1, MIT
 activerecord, 4.2.11.1, MIT
 activesupport, 4.2.11.1, MIT
-addressable, 2.6.0, "Apache 2.0"
+addressable, 2.7.0, "Apache 2.0"
 afm, 0.2.2, MIT
 arel, 6.0.4, MIT
 arel-helpers, 2.10.0, MIT
 aws-eventstream, 1.0.3, "Apache 2.0"
-aws-partitions, 1.207.0, "Apache 2.0"
-aws-sdk-core, 3.65.1, "Apache 2.0"
+aws-partitions, 1.208.0, "Apache 2.0"
+aws-sdk-core, 3.66.0, "Apache 2.0"
 aws-sdk-ec2, 1.106.0, "Apache 2.0"
 aws-sdk-iam, 1.29.0, "Apache 2.0"
 aws-sdk-kms, 1.24.0, "Apache 2.0"
@@ -39,7 +39,7 @@ erubis, 2.7.0, MIT
 eventmachine, 1.2.7, "ruby, GPL-2.0"
 factory_bot, 5.0.2, MIT
 factory_bot_rails, 5.0.2, MIT
-faker, 2.2.0, MIT
+faker, 2.2.1, MIT
 faraday, 0.15.4, MIT
 filesize, 0.2.0, MIT
 fivemat, 1.3.7, MIT
@@ -53,7 +53,7 @@ loofah, 2.2.3, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.3, "New BSD"
-metasploit-framework, 5.0.46, "New BSD"
+metasploit-framework, 5.0.47, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.70, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -80,7 +80,7 @@ pg, 0.21.0, "New BSD"
 pg_array_parser, 0.0.9, unknown
 postgres_ext, 3.0.1, MIT
 pry, 0.12.2, MIT
-public_suffix, 3.1.1, MIT
+public_suffix, 4.0.1, MIT
 rack, 1.6.11, MIT
 rack-protection, 1.5.5, MIT
 rack-test, 0.6.3, MIT
