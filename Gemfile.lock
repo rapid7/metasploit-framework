@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.80)
+    metasploit-framework (4.17.81)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -101,8 +101,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.6.0)
-      public_suffix (>= 2.0.2, < 4.0)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
     arel (6.0.4)
     arel-helpers (2.10.0)
@@ -127,7 +127,7 @@ GEM
     factory_girl_rails (4.9.0)
       factory_girl (~> 4.9.0)
       railties (>= 3.0.0)
-    faker (2.2.0)
+    faker (2.2.1)
       i18n (>= 0.8)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
@@ -207,7 +207,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (3.1.1)
+    public_suffix (4.0.1)
     rack (1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
