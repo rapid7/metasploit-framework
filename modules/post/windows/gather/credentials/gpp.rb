@@ -229,7 +229,7 @@ class MetasploitModule < Msf::Post
       spath = path.split('\\')
       retobj = {
         :dc     => spath[2],
-        :guid   => spath[6][1..-2],
+        :guid   => spath[6],
         :path   => path,
         :xml    => data
       }
@@ -239,18 +239,15 @@ class MetasploitModule < Msf::Post
         retobj[:domain] = spath[4]
       end
 
-      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer))"
+      adsi_filter_gpo = "(&(objectCategory=groupPolicyContainer)(name=#{retobj[:guid]}))"
       adsi_field_gpo = ['displayname', 'name']
 
       gpo_adsi = adsi_query(retobj[:domain], adsi_filter_gpo, adsi_field_gpo)
 
       unless gpo_adsi.empty?
-        gpo_adsi.each do |gpo_entry|
-          gpo_name = gpo_entry[0][:value]
-          gpo_guid = gpo_entry[1][:value][1..-2]
-          # Add the GPO name if the GUID matched the ADSI query
-          retobj[:name] = gpo_name if gpo_guid == retobj[:guid]
-        end
+        gpo_name = gpo_adsi[0][0][:value]
+        gpo_guid = gpo_adsi[0][1][:value]
+        retobj[:name] = gpo_name if retobj[:guid] == gpo_guid
       end
 
       return retobj
