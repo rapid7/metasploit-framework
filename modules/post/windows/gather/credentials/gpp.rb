@@ -267,7 +267,7 @@ class MetasploitModule < Msf::Post
 
     tables.each do |table|
       table << ['NAME', xmlfile[:name]] if xmlfile.member?(:name)
-      print " #{table.to_s}\n\n"
+      print_good " #{table.to_s}\n\n"
     end
 
     results.each do |result|
