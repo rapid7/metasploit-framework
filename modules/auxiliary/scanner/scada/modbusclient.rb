@@ -19,26 +19,29 @@ class MetasploitModule < Msf::Auxiliary
           'EsMnemon <esm[at]mnemonic.no>', # original write-only module
           'Arnaud SOULLIE  <arnaud.soullie[at]solucom.fr>', # code that allows read/write
           'Alexandrine TORRENTS <alexandrine.torrents[at]eurecom.fr>', # code that allows reading/writing at multiple consecutive addresses
-          'Mathieu CHEVALIER <mathieu.chevalier[at]eurecom.fr>'
+          'Mathieu CHEVALIER <mathieu.chevalier[at]eurecom.fr>',
+          'AZSG <AstroZombieSG@gmail.com' # updated read actions to include function codes 2 and 4 and renamed actions to align with modbus standard 1.1b3
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          ['READ_COILS', { 'Description' => 'Read bits from several coils' } ],
-          ['READ_REGISTERS', { 'Description' => 'Read words from several registers' } ],
+          ['READ_COILS', { 'Description' => 'Read bits from several coils' } ], #Function Code 1 Read Coils
+          ['READ_DISCRETE_INPUTS', { 'Description' => 'Read bits from several DISCRETE INPUTS' } ], #Function Code 2 Read Discrete Inputs
+          ['READ_HOLDING_REGISTERS', { 'Description' => 'Read words from several HOLDING registers' } ], #Function Code 3 Read Holding Registers
+          ['READ_INPUT_REGISTERS', { 'Description' => 'Read words from several INPUT registers' } ], #Function Code 4 Read Input Registers
           ['WRITE_COIL', { 'Description' => 'Write one bit to a coil' } ],
           ['WRITE_REGISTER', { 'Description' => 'Write one word to a register' } ],
           ['WRITE_COILS', { 'Description' => 'Write bits to several coils' } ],
           ['WRITE_REGISTERS', { 'Description' => 'Write words to several registers' } ]
         ],
-      'DefaultAction' => 'READ_REGISTERS'
+      'DefaultAction' => 'READ_HOLDING_REGISTERS'
       ))
 
     register_options(
       [
         Opt::RPORT(502),
         OptInt.new('DATA_ADDRESS', [true, "Modbus data address"]),
-        OptInt.new('NUMBER', [false, "Number of coils/registers to read (READ_COILS ans READ_REGISTERS modes only)", 1]),
+        OptInt.new('NUMBER', [false, "Number of coils/registers to read (READ_COILS, READ_DISCRETE_INPUTS, READ_HOLDING_REGISTERS, READ_INPUT_REGISTERS modes only)", 1]),
         OptInt.new('DATA', [false, "Data to write (WRITE_COIL and WRITE_REGISTER modes only)"]),
         OptString.new('DATA_COILS', [false, "Data in binary to write (WRITE_COILS mode only) e.g. 0110"]),
         OptString.new('DATA_REGISTERS', [false, "Words to write to each register separated with a comma (WRITE_REGISTERS mode only) e.g. 1,2,3,4"]),
@@ -170,17 +173,73 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def read_registers
+  def read_discrete_inputs
     if datastore['NUMBER']+datastore['DATA_ADDRESS'] > 65535
-      print_error("Registers addresses go from 0 to 65535. You cannot go beyond.")
+      print_error("DISCRETE INPUT addresses go from 0 to 65535. You cannot go beyond.")
       return
     end
-    @function_code = 3
-    print_status("Sending READ REGISTERS...")
+    @function_code = 0x2
+    print_status("Sending READ DISCRETE INPUTS...")
     response = send_frame(make_read_payload)
     values = []
     if response.nil?
-      print_error("No answer for the READ REGISTERS")
+      print_error("No answer for the READ DISCRETE INPUTS")
+      return
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
+      handle_error(response)
+    elsif response.unpack("C*")[7] == @function_code
+      loop = (datastore['NUMBER']-1)/8
+      for i in 0..loop
+        bin_value = response[9+i].unpack("b*")[0]
+        list = bin_value.split("")
+        for j in 0..7
+          list[j] = list[j].to_i
+          values[i*8 + j] = list[j]
+        end
+      end
+      values = values[0..(datastore['NUMBER']-1)]
+      print_good("#{datastore['NUMBER']} DISCRETE INPUT values from address #{datastore['DATA_ADDRESS']} : ")
+      print_good("#{values}")
+    else
+      print_error("Unknown answer")
+    end
+  end
+
+  def read_holding_registers
+    if datastore['NUMBER']+datastore['DATA_ADDRESS'] > 65535
+      print_error("Holding Registers addresses go from 0 to 65535. You cannot go beyond.")
+      return
+    end
+    @function_code = 3
+    print_status("Sending READ HOLDING REGISTERS...")
+    response = send_frame(make_read_payload)
+    values = []
+    if response.nil?
+      print_error("No answer for the READ HOLDING REGISTERS")
+    elsif response.unpack("C*")[7] == (0x80 | @function_code)
+      handle_error(response)
+    elsif response.unpack("C*")[7] == @function_code
+      for i in 0..(datastore['NUMBER']-1)
+        values.push(response[9+2*i..10+2*i].unpack("n")[0])
+      end
+      print_good("#{datastore['NUMBER']} register values from address #{datastore['DATA_ADDRESS']} : ")
+      print_good("#{values}")
+    else
+      print_error("Unknown answer")
+    end
+  end
+
+  def read_input_registers
+    if datastore['NUMBER']+datastore['DATA_ADDRESS'] > 65535
+      print_error("Input Registers addresses go from 0 to 65535. You cannot go beyond.")
+      return
+    end
+    @function_code = 4
+    print_status("Sending READ INPUT REGISTERS...")
+    response = send_frame(make_read_payload)
+    values = []
+    if response.nil?
+      print_error("No answer for the READ INPUT REGISTERS")
     elsif response.unpack("C*")[7] == (0x80 | @function_code)
       handle_error(response)
     elsif response.unpack("C*")[7] == @function_code
@@ -317,8 +376,12 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when "READ_COILS"
       read_coils
-    when "READ_REGISTERS"
-      read_registers
+    when "READ_DISCRETE_INPUTS"
+      read_discrete_inputs
+    when "READ_HOLDING_REGISTERS"
+      read_holding_registers
+    when "READ_INPUT_REGISTERS"
+      read_input_registers
     when "WRITE_COIL"
       write_coil
     when "WRITE_REGISTER"
