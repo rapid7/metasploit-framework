@@ -91,6 +91,8 @@ class PayloadSet < ModuleSet
         sizes[name] = p.cached_size || p.new.size
       # Don't cache generic payload sizes.
       rescue NoCompatiblePayloadError
+      rescue RuntimeError => e
+        elog("Unable to build #{name}, #{e}.")
       end
     }
 
