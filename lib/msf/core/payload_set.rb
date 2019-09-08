@@ -92,7 +92,7 @@ class PayloadSet < ModuleSet
       # Don't cache generic payload sizes.
       rescue NoCompatiblePayloadError
       rescue StandardError => e
-        elog("Unable to build #{name}, #{e}.")
+        elog("Unable to build payload #{name} due to #{e}.")
       end
     }
 
