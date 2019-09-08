@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           'Arnaud SOULLIE  <arnaud.soullie[at]solucom.fr>', # code that allows read/write
           'Alexandrine TORRENTS <alexandrine.torrents[at]eurecom.fr>', # code that allows reading/writing at multiple consecutive addresses
           'Mathieu CHEVALIER <mathieu.chevalier[at]eurecom.fr>',
-          'AZSG <AstroZombieSG@gmail.com' # updated read actions to include function codes 2 and 4 and renamed actions to align with modbus standard 1.1b3
+          'AZSG <AstroZombieSG@gmail.com>' # updated read actions to include function codes 2 and 4 and renamed actions to align with modbus standard 1.1b3
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
