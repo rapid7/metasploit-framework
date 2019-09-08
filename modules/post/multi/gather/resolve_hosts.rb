@@ -72,15 +72,17 @@ class MetasploitModule < Msf::Post
     response.each do |result|
       if result[:ip].nil?
         table << [result[:hostname], '[Failed To Resolve]']
-      else
-        if datastore['DATABASE']
-          report_host(
-            host: result[:ip],
-            name: result[:hostname]
-          )
-        end
-        table << [result[:hostname], result[:ip]]
+        next
       end
+
+      if datastore['DATABASE']
+        report_host(
+          host: result[:ip],
+          name: result[:hostname]
+        )
+      end
+
+      table << [result[:hostname], result[:ip]]
     end
 
     table.print
