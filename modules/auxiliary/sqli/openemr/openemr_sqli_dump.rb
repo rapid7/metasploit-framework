@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     # for this application.
     response = send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri(path),
+      'uri' => normalize_uri(uri, 'interface', 'forms', 'eye_mag', 'taskman.php'),
       'vars_get' => {
         'action' => 'make_task',
         'from_id' => '1',
