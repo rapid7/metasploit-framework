@@ -80,9 +80,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_response(payload)
-    # This is only going to work for spaces.  Ideally we could use URI.encode
-    # but that is deprecated and CGI.escape uses + which doesn't work
-    # for this application.
     response = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(uri, 'interface', 'forms', 'eye_mag', 'taskman.php'),
