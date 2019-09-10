@@ -59,6 +59,7 @@ module Metasploit
 
           # need to add object file to command
           # if arch is x64
+          cmd << "#{opts[:align_obj]} " unless opts[:align_obj].empty?
 
           link_options << '--no-seh,'
           link_options << '-s,' if opts[:strip_symbols]
