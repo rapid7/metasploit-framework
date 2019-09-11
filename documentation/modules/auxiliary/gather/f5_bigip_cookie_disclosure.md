@@ -49,8 +49,6 @@ For further information:
 
 ### F5 BIP-IP load balancing cookie found
 
-  The sensitive information have been replaced with fake ones for privacy reasons:
-
   ```
   msf5 > use auxiliary/gather/f5_bigip_cookie_disclosure
   msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > set RHOSTS vulnerable-target.com
