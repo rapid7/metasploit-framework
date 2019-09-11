@@ -23,8 +23,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'            =>
         [
-          [ 'CVE', '2010-0738' ], # VERB auth bypass
-          [ 'CVE', '2017-12149' ]
+          [ 'CVE', '2008-3273' ], # info disclosure via unauthenticated access to "/status"
+          [ 'CVE', '2010-1429' ], # info disclosure via unauthenticated access to "/status" (regression)
+          [ 'CVE', '2010-0738' ], # VERB auth bypass on "JMX-Console": /jmx-console/
+          [ 'CVE', '2010-1428' ], # VERB auth bypass on "Web Console": /web-console/
+          [ 'CVE', '2017-12149' ] # deserialization: "/invoker/readonly"
         ],
       'License'               => BSD_LICENSE
       ))
