@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
       'application/CSV',
       rhost,
       csv_string(data),
-      "{}.csv".format(safe_table)
+      "#{safe_table}.csv"
     )
   end
 
