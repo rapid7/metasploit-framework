@@ -200,9 +200,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def save_csv(data, table)
-    safe_table = table.gsub(/[^0-9a-z]/i, '')
+    # Use the same gsub pattern as store_loot
+    # this will put the first 8 safe characters of the tablename
+    # in the filename in the loot directory
+    safe_table = table.gsub(/[^a-z0-9\.\_]+/i, '')
     store_loot(
-      "openemr.db.#{safe_table}.dump",
+      "openemr.#{safe_table}.dump",
       'application/CSV',
       rhost,
       csv_string(data),
