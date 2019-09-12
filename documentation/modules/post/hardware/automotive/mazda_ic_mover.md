@@ -13,7 +13,7 @@ Fire up virtual CAN bus:
 3. `sudo ip link add dev vcan0 type vcan`
 4. `sudo ip link set up vcan0`
 
-You could also use Craig Smith's Instrument Cluster Simulator: https://github.com/zombieCraig/ICSim
+You could also use Craig Smith's [Virtual Instrument Cluster Simulator](https://github.com/zombieCraig/ICSim).
 
 Launch msf:
 
