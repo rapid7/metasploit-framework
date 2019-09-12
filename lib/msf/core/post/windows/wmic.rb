@@ -22,6 +22,40 @@ module WMIC
                      ], self.class)
   end
 
+  def gwmi_query(query, server=datastore['RHOST'], filter='', namespace='')
+    extapi = load_extapi
+
+    result_text = ""
+
+    psh_cmd = "Get-WmiObject -Query '#{query}' "
+    if (namespace.nil? or namespace.empty?) == false
+      psh_cmd.concat("-Namespace #{namespace}")
+    end
+    if (filter.nil? or filter.empty?) == false
+      psh_cmd.concat("| select #{filter}")
+    end
+
+    vprint_status("[#{server}] #{psh_cmd}")
+
+    encoded_psh_cmd = Rex::Powershell::Command.encode_script(psh_cmd)
+    qwmicmd = "powershell.exe -encodedcommand #{encoded_psh_cmd} -nop -w hidden"
+
+    vprint_status("[#{server}] #{qwmicmd}")
+
+    result = cmd_exec(qwmicmd).to_s
+
+    if result.include? 'Invalid query'
+      return false
+    else
+      # Not exactly sure why all this data gets returned, but this will strip it out
+      result.slice! "#< CLIXML"
+      result = result.split("<Objs")[0]
+      result_text = result
+    end
+
+    return result_text
+  end
+
   def wmic_query(query, server=datastore['RHOST'])
     extapi = load_extapi
 
