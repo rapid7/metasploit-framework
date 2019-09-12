@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     if res
 
       info = http_fingerprint(:response => res)
-      print_status("#{rhost}:#{rport} #{info}")
+      print_status("#{rhost}:#{rport} Fingerprint: #{info}")
 
       if res.body && />(JBoss[^<]+)/.match(res.body)
         print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
