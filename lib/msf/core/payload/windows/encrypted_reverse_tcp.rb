@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'rex/peparsey'
 require 'msf/core/payload/windows/encrypted_payload_opts'
 require 'metasploit/framework/compiler/mingw'
 
@@ -47,8 +48,12 @@ module Payload::Windows::EncryptedReverseTcp
     comp_file = "#{Msf::Config.install_root}/#{compile_opts[:f_name]}"
     return print_error('Payload did not compile') unless File.exist?("#{Msf::Config.install_root}/#{compile_opts[:f_name]}")
     bin = read_exe(comp_file)
+    bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
 
-    bin
+    text_section = bin.sections.first
+    text_section = text_section._isource
+    
+    text_section.rawdata
   end
 
   def generate_c_src(conf)
