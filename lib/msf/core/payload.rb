@@ -74,7 +74,7 @@ class Payload < Msf::Module
     # Gets the Dependency if the payload requires external help
     # to work
     #
-    self.module_info['Dependency'] = self.module_info['Dependency'] || ""
+    self.module_info['Dependency'] = self.module_info['Dependency'] || nil
 
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
@@ -243,6 +243,13 @@ class Payload < Msf::Module
   #
   def offsets
     return module_info['Payload'] ? module_info['Payload']['Offsets'] : nil
+  end
+
+  #
+  # Returns the compiler dependency if the payload has one
+  #
+  def dependency
+    module_info['Dependency']
   end
 
   #

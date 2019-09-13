@@ -78,6 +78,11 @@ class PayloadSet < ModuleSet
     _singles.each_pair { |name, op|
       mod, handler = op
 
+      # Pass if the payload has a dependency and
+      # the dependency is unavailable
+      payload_dependency = op[4].dependency
+      next if payload_dependency && !framework.has_mingw
+
       # Build the payload dupe using the determined handler
       # and module
       p = build_payload(handler, mod)
@@ -99,6 +104,11 @@ class PayloadSet < ModuleSet
     # Recalculate staged payloads
     _stagers.each_pair { |stager_name, op|
       stager_mod, handler, stager_platform, stager_arch, stager_inst = op
+
+      # Pass if the stager has a dependency
+      # and doesn't have the dependency installed
+      payload_dependency = op[4].dependency
+      next if payload_dependency && !framework.has_mingw
 
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
