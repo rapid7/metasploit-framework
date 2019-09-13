@@ -3,10 +3,10 @@ h2. Metasploit Framework Installers
 These include Metasploit Framework only. Updates are built about once a day.
 See [[Nightly-Installers]] for installation instructions for Windows, OS X and Linux.
 
-h2. Metasploit Community / Pro Combined Installers
+h2. Metasploit Pro Installers
 
-These include the Metasploit Community / Pro UI as well as Framework.
-Updates are released about once a week for Windows and Linux.
+These include the Pro UI as well as Framework.
+Updates are released about once every other week for Windows and Linux.
 
 The pgp signatures below can be verified with the following "public key":https://pgp.mit.edu/pks/lookup?op=get&search=0xCDFB5FA52007B954
 
