@@ -38,11 +38,17 @@ module Payload::Windows::EncryptedReverseTcp
       strip_symbols: datastore['StripSymbols'],
       linker_script: datastore['LinkerScript'],
       align_obj:     datastore['AlignObj'] || '',
+      f_name:        'reverse_pic.exe',
       arch:          self.arch_to_s
     }
 
     Metasploit::Framework::Compiler::Mingw.compile_c(src, compile_opts)
-    src
+
+    comp_file = "#{Msf::Config.install_root}/#{compile_opts[:f_name]}"
+    return print_error('Payload did not compile') unless File.exist?("#{Msf::Config.install_root}/#{compile_opts[:f_name]}")
+    bin = read_exe(comp_file)
+
+    bin
   end
 
   def generate_c_src(conf)
@@ -63,6 +69,14 @@ module Payload::Windows::EncryptedReverseTcp
 
   def get_hash(lib, func)
     Rex::Text.block_api_hash(lib, func)
+  end
+
+  def read_exe(file)
+    exe = File.open(file, 'rb')
+    bin = File.read(exe)
+    File.close(exe)
+
+    bin.strip
   end
 
   #

@@ -43,11 +43,11 @@ module Metasploit
           when 'x64'
             cmd << "#{MINGW_X64} "
           else
-            # Not implemented
+            return print_error('Unsupported architecture')
           end
 
           cmd << "#{path} -I #{INCLUDE_DIR} "
-          cmd << "-o #{Msf::Config.install_root}/reverse_pic.exe "
+          cmd << "-o #{Msf::Config.install_root}/#{opts[:f_name]} "
 
           # gives each function its own section
           # allowing them to be reordered
@@ -67,7 +67,6 @@ module Metasploit
 
           cmd << link_options
 
-          puts cmd
           cmd
         end
       end
