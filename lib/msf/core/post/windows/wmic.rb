@@ -25,8 +25,6 @@ module WMIC
   def gwmi_query(query, server=datastore['RHOST'], filter='', namespace='')
     extapi = load_extapi
 
-    result_text = ""
-
     psh_cmd = "Get-WmiObject -Query '#{query}' "
     if (namespace.nil? or namespace.empty?) == false
       psh_cmd.concat("-Namespace #{namespace}")
@@ -46,14 +44,13 @@ module WMIC
 
     if result.include? 'Invalid query'
       return false
-    else
-      # Not exactly sure why all this data gets returned, but this will strip it out
-      result.slice! "#< CLIXML"
-      result = result.split("<Objs")[0]
-      result_text = result
     end
 
-    return result_text
+    # Not exactly sure why all this data gets returned, but this will strip it out
+    result.slice! "#< CLIXML"
+    result = result.split("<Objs")[0]
+
+    return result
   end
 
   def wmic_query(query, server=datastore['RHOST'])

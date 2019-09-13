@@ -2,9 +2,9 @@
 
 This module will execute a WQL query via Powershell's `Get-WmiObject`. A WQL query can be
 explicity defined with the WQL and NAMESPACE options, or a hard-coded query can be used by
-defining the MODULE option.
+defining the ACTION option.
 
-The following MODULEs are available:
+The following ACTIONs are available:
 
 OSVERSION - Returns information about the operating system,
 PROCESSINFO - Returns running processes.
@@ -20,16 +20,16 @@ PROCESSINFO - Returns running processes.
   3. `use post/windows/recon/wql_query`
   4. `run`
   5. **Verify** that operating system version info is returned
-  6. `set MODULE ""`
+  6. `set ACTION ""`
   7. `set WQL select * from win32_operatingsystem`
   8. `run`
   9. **Verify** that more complete data comes back
 
 ## Options
 
-  **MODULE**
+  **ACTION**
 
-  This is any of the predefined modules that are pre-baked in.
+  This is any of the predefined actions that are pre-baked in.
 
   **NAMESPACE**
 
@@ -53,7 +53,7 @@ Module options (post/windows/recon/wql_query):
 
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
-   MODULE     OSVERSION        no        Module query to run
+   ACTION     OSVERSION        no        Action query to run
    NAMESPACE                   no        Namespace to run the WQL query against
    RHOST      localhost        yes       Target address range
    SESSION                     yes       The session to run this module on.
@@ -77,8 +77,8 @@ Version    BuildNumber
 
 
 [*] Post module execution completed
-msf5 post(windows/recon/wql_query) > set module ""
-module =>
+msf5 post(windows/recon/wql_query) > set ACTION ""
+ACTION =>
 msf5 post(windows/recon/wql_query) > set WQL select * from win32_operatingsystem
 WQL => select * from win32_operatingsystem
 msf5 post(windows/recon/wql_query) > run
