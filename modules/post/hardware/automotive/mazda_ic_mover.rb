@@ -7,13 +7,13 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Mazda 2 Instrument Cluster Accelorometer Mover',
-        'Description'   => %q{ This module moves the needle of the accelorometer and speedometer of the Mazda 2 instrument cluster},
-        'License'       => MSF_LICENSE,
-        'Author'        => ['Jay Turla'],
-        'Platform'      => ['hardware'],
-        'SessionTypes'  => ['hwbridge']
-      ))
+      'Name'          => 'Mazda 2 Instrument Cluster Accelorometer Mover',
+      'Description'   => %q{ This module moves the needle of the accelorometer and speedometer of the Mazda 2 instrument cluster},
+      'License'       => MSF_LICENSE,
+      'Author'        => ['Jay Turla'],
+      'Platform'      => ['hardware'],
+      'SessionTypes'  => ['hwbridge']
+    ))
     register_options([
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
     ])
