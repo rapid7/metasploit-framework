@@ -67,7 +67,7 @@ class Server
   # Returns the hardcore alias for the SSH service
   #
   def self.hardcore_alias(*args)
-    "#{(args[0] || '')}#{(args[1] || '')}"
+    "#{(args[0])}#{(args[1])}"
   end
 
   #
@@ -155,23 +155,21 @@ protected
   # invokes the callback if possible, sleeps otherwise.
   #
   def monitor_clients
-    begin
-      loop do
-        self.clients.delete_if {|c| c.closed? }
-        if self.on_client_data_proc
-          if clients.any? { |cli|
-            cli.has_read_data? and self.on_client_data_proc.call(cli)}
-            next
-          else
-            sleep 0.05
-          end
+    loop do
+      self.clients.delete_if {|c| c.closed? }
+      if self.on_client_data_proc
+        if clients.any? { |cli|
+          cli.has_read_data? and self.on_client_data_proc.call(cli)}
+          next
         else
-          sleep 0.5
+          sleep 0.05
         end
+      else
+        sleep 0.5
       end
-    rescue => e
-      wlog(e)
     end
+  rescue => e
+    wlog(e)
   end
 
   #
