@@ -88,6 +88,8 @@ module Buffer
         buf = Rex::Text.to_js_comment(buf)
       when 'java'
         buf = Rex::Text.to_c_comment(buf)
+      when 'powershell','ps1'
+        buf = Rex::Text.to_psh_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
