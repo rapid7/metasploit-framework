@@ -77,9 +77,7 @@ module Payload::Windows::EncryptedReverseTcp
   end
 
   def read_exe(file)
-    exe = File.open(file, 'rb')
-    bin = File.read(exe)
-    exe.close
+    bin = IO.binread(file)
 
     bin.strip
   end
