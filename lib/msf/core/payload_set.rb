@@ -107,12 +107,18 @@ class PayloadSet < ModuleSet
 
       # Pass if the stager has a dependency
       # and doesn't have the dependency installed
-      payload_dependency = op[4].dependency
-      next if payload_dependency && !framework.has_mingw
+      stager_dependency = stager_inst.dependency
+      next if stager_dependency && !framework.has_mingw
 
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
         stage_mod, _, stage_platform, stage_arch, stage_inst = ip
+
+        # if either the stage or stager has a dependency
+        # and the other doesn't, incompatible
+        if ((stager_dependency && !stage_inst.dependency) or (!stager_dependency && stage_inst.dependency))
+          next
+        end
 
         # No intersection between platforms on the payloads?
         if ((stager_platform) and
