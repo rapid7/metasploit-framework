@@ -30,12 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2018-17179'],
         ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
       ],
-      'Targets' =>
-        [
-          ['OpenEMR < 5.0.1 (6)', {}]
-        ],
-      'DisclosureDate' => 'May 17 2019',
-      'DefaultTarget' => 0
+      'DisclosureDate' => 'May 17 2019'
     ))
 
     register_options(
