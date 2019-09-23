@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
                             'Aleksandar Milenkoski  <aleksandar.milenkoski[at]uni-wuerzburg.de>'],
         'Platform'     => [ 'linux' ],
         'Arch'         => [ARCH_X64],
-        'Targets'      => [ ['Linux x86_64', { 'Arch' => ARCH_X64 } ] ],
+        #'Targets'      => [ ['Linux x86_64', { 'Arch' => ARCH_X64 } ] ],
         'SessionTypes' => ['shell']
       )
     )
