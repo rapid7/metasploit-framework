@@ -103,7 +103,9 @@ module Msf
       end
 
       if module_instance
-        module_instance.aliased_as = aliased_as
+        # If the module instance is populated by one of the recursive `create`
+        # calls this field may be set and we'll want to keep its original value
+        module_instance.aliased_as ||= aliased_as
       end
 
       module_instance

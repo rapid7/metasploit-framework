@@ -20,7 +20,8 @@ class MetasploitModule < Msf::Post
       register_options([
         OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
         OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
-        OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
+        OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ]),
+        OptBool.new('DATABASE', [false, 'Report found hosts to DB', true])
       ])
   end
 
@@ -71,9 +72,17 @@ class MetasploitModule < Msf::Post
     response.each do |result|
       if result[:ip].nil?
         table << [result[:hostname], '[Failed To Resolve]']
-      else
-        table << [result[:hostname], result[:ip]]
+        next
       end
+
+      if datastore['DATABASE']
+        report_host(
+          host: result[:ip],
+          name: result[:hostname]
+        )
+      end
+
+      table << [result[:hostname], result[:ip]]
     end
 
     table.print

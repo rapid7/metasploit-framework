@@ -51,8 +51,11 @@ RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresq
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
 
-COPY --chown=root:metasploit --from=builder /usr/local/bundle /usr/local/bundle
-COPY --chown=root:metasploit . $APP_HOME/
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+RUN chown -R root:metasploit /usr/local/bundle
+COPY . $APP_HOME/
+RUN chown -R root:metasploit $APP_HOME/
+RUN chmod 664 $APP_HOME/Gemfile.lock
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
 
 WORKDIR $APP_HOME
