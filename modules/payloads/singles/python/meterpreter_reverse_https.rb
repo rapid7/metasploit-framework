@@ -29,6 +29,11 @@ module MetasploitModule
       'Handler'     => Msf::Handler::ReverseHttps,
       'Session'     => Msf::Sessions::Meterpreter_Python_Python
     ))
+
+    register_advanced_options(
+      Msf::Opt::http_header_options +
+      Msf::Opt::http_proxy_options
+    )
   end
 
   def generate_reverse_http(opts={})
