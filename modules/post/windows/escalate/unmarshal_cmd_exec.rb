@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
         ],
       'DisclosureDate' => 'Aug 05 2018',
       'Platform'       => ['win'],
-      # TODO Add in ARCH?
+      'Arch'           => ARCH_X64,
       'License'        => MSF_LICENSE,
     ))
 
