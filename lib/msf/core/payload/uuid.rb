@@ -76,6 +76,7 @@ class Msf::Payload::UUID
     25 => 'apple_ios',
     26 => 'juniper',
     27 => 'unifi',
+    28 => 'brocade',
   }
 
   # The raw length of the UUID structure
