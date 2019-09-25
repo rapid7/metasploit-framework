@@ -60,18 +60,6 @@ class MetasploitModule < Msf::Auxiliary
             'Signatures' => ['Fastly-SSL']
           }
         ],
-        ['Stackpath Fireblade',
-          {
-            'Description' => 'Enterprise Website Security & DDoS Protection',
-            'Signatures' => ['Server: fbs']
-          }
-        ],
-        ['Stackpath MaxCDN',
-          {
-            'Description' => 'Speed Up your Content Delivery',
-            'Signatures' => ['Server: NetDNA-cache']
-          }
-        ],
         ['Imperva Incapsula',
           {
             'Description' => 'Cloud based Web application firewall of Imperva',
@@ -94,6 +82,18 @@ class MetasploitModule < Msf::Auxiliary
           {
             'Description' => 'One workflow, from local development to global deployment',
             'Signatures' => ['x-nf-request-id:']
+          }
+        ],
+        ['Stackpath Fireblade',
+          {
+            'Description' => 'Enterprise Website Security & DDoS Protection',
+            'Signatures' => ['Server: fbs']
+          }
+        ],
+        ['Stackpath MaxCDN',
+          {
+            'Description' => 'Speed Up your Content Delivery',
+            'Signatures' => ['Server: NetDNA-cache']
           }
         ],
         ['Sucuri',
@@ -381,19 +381,18 @@ class MetasploitModule < Msf::Auxiliary
             save_note(datastore['HOSTNAME'], ip, port, proto, true)
             return true
           end
-        rescue Encoding::CompatibilityError
+        rescue NoMethodError, Encoding::CompatibilityError
           return false
         end
       else
-        case response.code
-        when 301..302
+        if response.redirect?
           vprint_line("      --> responded with HTTP status code: #{response.code.to_s} to #{response.headers['location']}")
           begin
             if response.headers['location'].include?(datastore['hostname'])
               print_warning("A leaked IP address was found: #{proto}://#{ip}:#{port}/")
               save_note(datastore['HOSTNAME'], ip, port, proto, false) if datastore['REPORT_LEAKS'].eql? true
             end
-          rescue Encoding::CompatibilityError
+          rescue NoMethodError, Encoding::CompatibilityError
             return false
           end
         else
@@ -425,6 +424,24 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return nil
+  end
+
+  def get_arvancloud_ips
+    response = http_get_request_raw(
+      'www.arvancloud.com',
+      443,
+      true,
+      nil,
+      '/en/ips.txt'
+    )
+    return false if response.nil?
+
+    ip_list  = []
+    response.get_html_document.text.split("\n").each do | ip |
+      ip_list.push(ip)
+    end
+
+    return ip_list
   end
 
   def get_cloudflare_ips
@@ -462,6 +479,71 @@ class MetasploitModule < Msf::Auxiliary
 
     response.get_json_document['CLOUDFRONT_REGIONAL_EDGE_IP_LIST'].each do | ip |
       ip_list.push(ip.gsub('"', ''))
+    end
+
+    return ip_list
+  end
+
+  def get_fastly_ips
+    response = http_get_request_raw(
+      'api.fastly.com',
+      443,
+      true,
+      nil,
+      '/public-ip-list'
+    )
+    return false if response.nil?
+
+    ip_list = []
+    response.get_json_document['addresses'].each do | ip |
+      ip_list.push(ip.gsub('"', ''))
+    end
+
+    return ip_list
+  end
+
+  def get_incapsula_ips
+    begin
+      cli = Rex::Proto::Http::Client.new('my.incapsula.com', 443, {}, true)
+      cli.connect
+
+      response = cli.request_cgi(
+        'method' => 'POST',
+        'uri' => '/api/integration/v1/ips',
+        'vars_post' => {'resp_format' => 'json'}
+      )
+      results = cli.send_recv(response)
+
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error("HTTP Connection Failed")
+    end
+
+    unless(results)
+      print_error('server_response_error')
+      return false
+    end
+
+    ip_list = []
+    results.get_json_document['ipRanges'].each do | ip |
+      ip_list.push(ip.gsub('"', ''))
+    end
+
+    return ip_list
+  end
+
+  def get_stackpath_ips
+    response = http_get_request_raw(
+      'support.stackpath.com',
+      443,
+      true,
+      nil,
+      '/hc/en-us/article_attachments/360030796372/ipblocks.txt'
+    )
+    return false if response.nil?
+
+    ip_list  = []
+    response.get_html_document.text.split("\n").each do | ip |
+      ip_list.push(ip) if ip =~ /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$/
     end
 
     return ip_list
@@ -530,10 +612,16 @@ class MetasploitModule < Msf::Auxiliary
 
     # Cleaning IP addresses if nessesary
     case @my_action.name
+    when /ArvanCloud/
+      ip_blacklist = get_arvancloud_ips
     when /CloudFlare/
       ip_blacklist = get_cloudflare_ips
     when /CloudFront/
       ip_blacklist = get_cloudfront_ips
+    when /Fastly/
+      ip_blacklist = get_fastly_ips
+    when /Incapsula/
+      ip_blacklist = get_incapsula_ips
     when /InGen Security/
       ip_list.uniq.each do | ip |
         a = dns_get_a(ip.to_s)
@@ -541,6 +629,8 @@ class MetasploitModule < Msf::Auxiliary
           ip_blacklist << ip.to_s if a.to_s.downcase.include? signature.downcase
         end
       end
+    when /Stackpath/
+      ip_blacklist = get_stackpath_ips
     end
 
     records = []
