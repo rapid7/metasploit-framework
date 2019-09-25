@@ -20,10 +20,6 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Sep 24 2019',
       'DefaultOptions' => {
       },
-      'References'     =>
-        [
-          ['CVE', 'NONE']
-        ],
       'DefaultTarget' => 0
     ))
 
@@ -33,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(9222),
         OptString.new('FilePath', [ false, 'File to fetch from remote machine.']),
         OptString.new('Url', [ false, 'Url to fetch from remote machine.'])
-
       ]
     )
 
@@ -42,15 +37,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
 
-    res = send_request_cgi({
-        'uri' => '/json',
-        'method' => 'GET',
-    })
-
     if datastore['FilePath'].empty? and datastore['Url'].empty?
       print_error('Must set FilePath or Url')
       return
     end
+
+    res = send_request_cgi({
+        'uri' => '/json',
+        'method' => 'GET',
+    })
 
     if res.nil?
       print_error('Bad Response')
