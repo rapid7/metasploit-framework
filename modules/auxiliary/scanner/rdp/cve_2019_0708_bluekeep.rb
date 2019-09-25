@@ -63,9 +63,9 @@ class MetasploitModule < Msf::Auxiliary
       print_good(status[1].to_s)
     elsif status == Exploit::CheckCode::Unsupported  # used to display custom msg error
       status = Exploit::CheckCode::Safe
-      print_status("The target service is not running or refused our connection.")
+      vprint_error("The target service is not running or refused our connection.")
     else
-      print_status(status[1].to_s)
+      vprint_status(status[1].to_s)
     end
 
     status
@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
     # check if rdp is open
     is_rdp, version_info = rdp_fingerprint
     unless is_rdp
-      vprint_status "Could not connect to RDP service."
+      vprint_error("Could not connect to RDP service.")
       return Exploit::CheckCode::Unknown
     end
     rdp_disconnect
@@ -216,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
     service_info = "Requires NLA: #{(!version_info[:product_version].nil? && requires_nla) ? 'Yes' : 'No'}"
     info << " (#{service_info})"
 
-    print_status(info)
+    vprint_status(info)
 
     if requires_nla
       vprint_status("Server requires NLA (CredSSP) security which mitigates this vulnerability.")
