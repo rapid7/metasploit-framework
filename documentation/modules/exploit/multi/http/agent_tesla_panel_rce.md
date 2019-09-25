@@ -1,19 +1,31 @@
 ## Introduction
 
-This module exploit the command injection vulnerability in control center of the agent Tesla.
+This module exploit a command injection vulnerability (authenticated and unauthenticated) in the control center of the agent Tesla.
+
+The Unauthenticated RCE is possible by mixing two vulnerabilities (SQLi + PHP Object Injection).
+
+By observing other sources of this panel find on the Internet to watch the patch, I concluded that the vulnerability is transfomed to an Authenticated RCE.
 
 ## Setup
 
 Resources for testing are available here:
-<https://github.com/mekhalleh/agent_tesla_panel_rce/resources/>
+<https://github.com/mekhalleh/agent_tesla_panel_rce/tree/master/resources/>
 
 ### Windows
 
-I used WAMP server 3.1.9 x64 configured with PHP version 5.6.40 (for ioncube compatibility).
+For WebPanel1.7z (unauthenticated RCE), I used WAMP server 3.1.9 x64 configured with PHP version 5.6.40 (for ioncube compatibility).
+
+For WebPanel2.7z (authenticated RCE), I used WAMP server 3.1.9 x64 configured with PHP version 7.2.18 (for ioncube compatibility).
+
+For WebPanel3.7z (authenticated RCE), I used WAMP server 3.1.9 x64 configured with PHP version 7.2.18 (source code is not obfuscated, don't need ioncube).
 
 ### Linux
 
-I used a Debian 9 on which I installed PHP version 5.6.40 (for ioncube compatibility).
+For WebPanel1.7z (unauthenticated RCE), I used a Debian 9 on which I installed PHP version 5.6.40 (for ioncube compatibility).
+
+For WebPanel2.7z (authenticated RCE), I used a Debian 9 on which I installed the default PHP version (for ioncube compatibility).
+
+For WebPanel3.7z (unauthenticated RCE), I used a Debian 9 on which I installed the default PHP version (source code is not obfuscated, don't need ioncube).
 
 ## Verification Steps
 
@@ -35,6 +47,10 @@ I used a Debian 9 on which I installed PHP version 5.6.40 (for ioncube compatibi
 
 ## Options
 
+**PASSWORD**
+
+The Agent Tesla CnC password to authenticate with (needed if you attemp an authenticated RCE).
+
 **Proxies**
 
 A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
@@ -53,7 +69,11 @@ Negotiate SSL/TLS for outgoing connections. Default: false
 
 **TARGETURI**
 
-The base URI path of control center. Default: '/WebPanel
+The base URI path of control center. Default: '/WebPanel'
+
+**USERNAME**
+
+The Agent Tesla CnC username to authenticate with (needed if you attemp an authenticated RCE).
 
 **VHOST**
 
@@ -157,5 +177,6 @@ msf5 exploit(multi/http/agent_tesla_panel_rce) >
 
   1. <https://www.cyber.nj.gov/threat-profiles/trojan-variants/agent-tesla>
   2. <https://krebsonsecurity.com/2018/10/who-is-agent-tesla/>
-  3. <https://github.com/mekhalleh/agent_tesla_panel_rce/resources/>
+  3. <https://github.com/mekhalleh/agent_tesla_panel_rce/tree/master/resources/>
   4. <https://www.exploit-db.com/exploits/47256>
+  5. <https://www.pirates.re/agent-tesla-remote-command-execution-(fighting-the-webpanel)>
