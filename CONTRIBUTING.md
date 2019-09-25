@@ -2,7 +2,7 @@
 
 Thanks for your interest in making Metasploit -- and therefore, the
 world -- a better place!  Before you get started, review our
-[Code of Conduct].  There are mutliple ways to help beyond just writing code:
+[Code of Conduct].  There are multiple ways to help beyond just writing code:
  - [Submit bugs and feature requests] with detailed information about your issue or idea.
  - [Help fellow users with open issues] or [help fellow committers test recent pull requests].
  - [Report a security vulnerability in Metasploit itself] to Rapid7.
