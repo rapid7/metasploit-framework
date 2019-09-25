@@ -6,8 +6,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'Chrome Debugger Arbitrary File Read / Arbitrary Web Request',
       'Description' => %q{
         This module uses the Chrome Debugger's API to read
-	files off the remote file system, or to make web requests
-	from a remote machine.  Useful for cloud metadata endpoints!
+        files off the remote file system, or to make web requests
+        from a remote machine.  Useful for cloud metadata endpoints!
       },
       'License' => MSF_LICENSE,
       'Author' => [
@@ -20,6 +20,10 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Sep 24 2019',
       'DefaultOptions' => {
       },
+      'References'     =>
+        [
+          ['CVE', 'NONE']
+        ],
       'DefaultTarget' => 0
     ))
 
