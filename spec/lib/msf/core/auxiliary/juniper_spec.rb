@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core/auxiliary/juniper'
 
 RSpec.describe Msf::Auxiliary::Juniper do
-  class DummyClass
+  class DummyJuniperClass
     include Msf::Auxiliary::Juniper
     def framework
       Msf::Simple::Framework.create(
@@ -29,25 +29,25 @@ RSpec.describe Msf::Auxiliary::Juniper do
       raise StandardError.new("This method needs to be stubbed.")
     end
   end
-  
-  subject(:aux_juniper) { DummyClass.new }
-  
+
+  subject(:aux_juniper) { DummyJuniperClass.new }
+
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
-    
+
   context '#create_credential_and_login' do
-    
+
     let(:session) { FactoryBot.create(:mdm_session) }
 
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
 
     let(:user) { FactoryBot.create(:mdm_user)}
 
-    subject(:test_object) { DummyClass.new }
-    
+    subject(:test_object) { DummyJuniperClass.new }
+
     let(:workspace) { FactoryBot.create(:mdm_workspace) }
     let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
-    
+
     let(:login_data) {
       {
         address: service.host.address,
@@ -65,7 +65,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         status: Metasploit::Model::Login::Status::UNTRIED
       }
     }
-    
+
     it 'creates a Metasploit::Credential::Login' do
       expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
     end
@@ -74,12 +74,12 @@ RSpec.describe Msf::Auxiliary::Juniper do
       expect(login.tasks).to include(task)
     end
   end
-  
+
   context '#juniper_screenos_config_eater' do
     before(:example) do
       expect(aux_juniper).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
-    
+
     it 'deals with admin credentials' do
       expect(aux_juniper).to receive(:print_good).with('Admin user netscreen found with password hash nKVUM2rwMUzPcrkG5sWIHdCtqkAibn')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -102,7 +102,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         "set admin name \"netscreen\"\n" <<
         "set admin password \"nKVUM2rwMUzPcrkG5sWIHdCtqkAibn\"\n")
     end
-    
+
     it 'deals with user account with password hash' do
       expect(aux_juniper).to receive(:print_good).with('User 1 named testuser found with password hash 02b0jt2gZGipCiIEgl4eainqZIKzjSNQYLIwE=. Enable permission: enable')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -129,16 +129,16 @@ RSpec.describe Msf::Auxiliary::Juniper do
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-        
+
       aux_juniper.juniper_screenos_config_eater('127.0.0.1',1337,
         "set user \"testuser\" uid 1\n" <<
         "set user \"testuser\" type auth\n" <<
         "set user \"testuser\" hash-password \"02b0jt2gZGipCiIEgl4eainqZIKzjSNQYLIwE=\"\n" <<
         "set user \"testuser\" enable\n")
     end
-    
+
     context 'deals with snmp-server community' do
-      
+
       it 'with Read permission' do
         expect(aux_juniper).to receive(:print_good).with('SNMP community sales with permissions Read-Only')
         expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -159,7 +159,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         )
         aux_juniper.juniper_screenos_config_eater('127.0.0.1',1337,'set snmp community "sales" Read-Only Trap-on traffic version v1')
       end
-      
+
       it 'with Read-Write permission' do
         expect(aux_juniper).to receive(:print_good).with('SNMP community sales with permissions Read-Write')
         expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -180,9 +180,9 @@ RSpec.describe Msf::Auxiliary::Juniper do
         )
         aux_juniper.juniper_screenos_config_eater('127.0.0.1',1337,'set snmp community "sales" Read-Write Trap-on traffic version v1')
       end
-      
+
     end
-    
+
     it 'deals with ppp configurations' do
       expect(aux_juniper).to receive(:print_good).with('PPTP Profile ISP with username username hash fzSzAn31N4Sbh/sukoCDLvhJEdn0DVK7vA== via pap')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -214,7 +214,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         "setppp profile \"ISP\" auth secret \"fzSzAn31N4Sbh/sukoCDLvhJEdn0DVK7vA==\"\n"
       )
     end
-    
+
     it 'deals with ike configurations' do
       expect(aux_juniper).to receive(:print_good).with('IKE Profile To-Cisco to 2.2.2.1 with password netscreen via pre-g2-des-sha')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper ScreenOS'})
@@ -239,14 +239,14 @@ RSpec.describe Msf::Auxiliary::Juniper do
       )
       aux_juniper.juniper_screenos_config_eater('127.0.0.1',1337,'set ike gateway "To-Cisco" address 2.2.2.1 Main outgoing-interface "ethernet1" preshare "netscreen" proposal "pre-g2-des-sha"')
     end
-    
+
   end
-  
+
   context '#juniper_junos_config_eater' do
     before(:example) do
       expect(aux_juniper).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
-    
+
     it 'deals with root credentials' do
       expect(aux_juniper).to receive(:print_good).with('root password hash: $1$pz9b1.fq$foo5r85Ql8mXdoRUe0C1E.')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper JunOS'})
@@ -278,7 +278,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         )
       )
     end
-    
+
     context 'deals with user account with password hash' do
       it 'with super-user' do
         expect(aux_juniper).to receive(:print_good).with('User 2000 named newuser in group super-user found with password hash $1$rm8FaMFY$k4LFxqsVAiGO5tKqyO9jJ/.')
@@ -303,7 +303,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
             status: Metasploit::Model::Login::Status::UNTRIED
           }
         )
-        
+
         aux_juniper.juniper_junos_config_eater('127.0.0.1',1337,
           %q(system {
                  login {
@@ -441,9 +441,9 @@ RSpec.describe Msf::Auxiliary::Juniper do
       end
 
     end
-    
+
     context 'deals with snmp-server community' do
-      
+
       it 'with Read permissions' do
         expect(aux_juniper).to receive(:print_good).with('SNMP community read with permissions read-only')
         expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper JunOS'})
@@ -529,9 +529,9 @@ RSpec.describe Msf::Auxiliary::Juniper do
         )
       end
 
-      
+
     end
-    
+
     it 'deals with radius' do
       expect(aux_juniper).to receive(:print_good).with('radius server 1.1.1.1 password hash: $9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper JunOS'})
@@ -562,7 +562,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
         )
       )
     end
-    
+
     it 'deals with pap' do
       expect(aux_juniper).to receive(:print_good).with('PPTP username \'pap_username\' hash $9$he4revM87-dsevm5TQCAp0BErvLxd4JDNdkPfT/9BIR via PAP')
       expect(aux_juniper).to receive(:report_host).with({:host => '127.0.0.1', :os_name => 'Juniper JunOS'})
@@ -604,7 +604,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
        )
       )
     end
-    
+
   end
 
 

@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'msf/core/auxiliary/brocade'
 
 RSpec.describe Msf::Auxiliary::Brocade do
-  class DummyClass
+  class DummyBrocadeClass
     include Msf::Auxiliary::Brocade
     def framework
       Msf::Simple::Framework.create(
@@ -32,25 +32,25 @@ RSpec.describe Msf::Auxiliary::Brocade do
       raise StandardError.new("This method needs to be stubbed.")
     end
   end
-  
-  subject(:aux_brocade) { DummyClass.new }
-  
+
+  subject(:aux_brocade) { DummyBrocadeClass.new }
+
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
-    
+
   context '#create_credential_and_login' do
-    
+
     let(:session) { FactoryBot.create(:mdm_session) }
 
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
 
     let(:user) { FactoryBot.create(:mdm_user)}
 
-    subject(:test_object) { DummyClass.new }
-    
+    subject(:test_object) { DummyBrocadeClass.new }
+
     let(:workspace) { FactoryBot.create(:mdm_workspace) }
     let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
-    
+
     let(:login_data) {
       {
         address: service.host.address,
@@ -68,7 +68,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
         status: Metasploit::Model::Login::Status::UNTRIED
       }
     }
-    
+
     it 'creates a Metasploit::Credential::Login' do
       expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
     end
@@ -82,7 +82,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
     before(:example) do
       expect(aux_brocade).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
-    
+
     it 'deals with enable passwords' do
       expect(aux_brocade).to receive(:print_good).with('enable password hash $1$QP3H93Wm$uxYAs2HmAK01QiP3ig5tm.')
       expect(aux_brocade).to receive(:print_bad).with('password-display is disabled, no password hashes displayed in config')
@@ -177,5 +177,5 @@ RSpec.describe Msf::Auxiliary::Brocade do
       aux_brocade.brocade_config_eater('127.0.0.1',161,'snmp-server community 1 ..... rw')
     end
   end
-  
+
 end
