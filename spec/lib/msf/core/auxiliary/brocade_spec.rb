@@ -35,21 +35,21 @@ RSpec.describe Msf::Auxiliary::Brocade do
 
   subject(:aux_brocade) { DummyBrocadeClass.new }
 
-  let!(:brocade_workspace) { FactoryBot.create(:mdm_workspace) }
+  let!(:workspace) { FactoryBot.create(:mdm_workspace) }
 
   context '#create_credential_and_login' do
 
     let(:session) { FactoryBot.create(:mdm_session) }
 
-    let(:task) { FactoryBot.create(:mdm_task, workspace: brocade_workspace)}
+    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
 
     let(:user) { FactoryBot.create(:mdm_user)}
 
     subject(:test_object) { DummyBrocadeClass.new }
 
     let(:workspace) { FactoryBot.create(:mdm_workspace) }
-    let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: brocade_workspace)) }
-    let(:task) { FactoryBot.create(:mdm_task, workspace: brocade_workspace) }
+    let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
+    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
 
     let(:login_data) {
       {
@@ -57,7 +57,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
         port: service.port,
         service_name: service.name,
         protocol: service.proto,
-        workspace_id: brocade_workspace.id,
+        workspace_id: workspace.id,
         origin_type: :service,
         module_fullname: 'auxiliary/scanner/smb/smb_login',
         realm_key: 'Active Directory Domain',
@@ -80,7 +80,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
 
   context '#brocade_config_eater' do
     before(:example) do
-      expect(aux_brocade).to receive(:myworkspace).at_least(:once).and_return(brocade_workspace)
+      expect(aux_brocade).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
 
     it 'deals with enable passwords' do
@@ -94,7 +94,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
           address: "127.0.0.1",
           port: 161,
           protocol: "tcp",
-          workspace_id: brocade_workspace.id,
+          workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/brocade_dummy",
@@ -118,7 +118,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
           address: "127.0.0.1",
           port: 161,
           protocol: "tcp",
-          workspace_id: brocade_workspace.id,
+          workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
           module_fullname: "auxiliary/scanner/snmp/brocade_dummy",
@@ -142,7 +142,7 @@ RSpec.describe Msf::Auxiliary::Brocade do
           address: "127.0.0.1",
           port: 161,
           protocol: "udp",
-          workspace_id: brocade_workspace.id,
+          workspace_id: workspace.id,
           origin_type: :service,
           service_name: 'snmp',
           module_fullname: "auxiliary/scanner/snmp/brocade_dummy",
