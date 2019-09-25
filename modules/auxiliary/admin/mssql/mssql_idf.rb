@@ -31,10 +31,6 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.digininja.org/metasploit/mssql_idf.php' ],
-        ],
-      'Targets'        =>
-        [
-          [ 'MSSQL 2005', { 'ver' => 2005 }	],
         ]
     ))
 
