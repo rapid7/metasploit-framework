@@ -5,7 +5,7 @@ require 'msf/core/auxiliary/ubiquiti'
 require 'bson'
 
 RSpec.describe Msf::Auxiliary::Ubiquiti do
-  class DummyClass
+  class DummyUnifiClass
     include Msf::Auxiliary::Ubiquiti
     def framework
       Msf::Simple::Framework.create(
@@ -33,20 +33,20 @@ RSpec.describe Msf::Auxiliary::Ubiquiti do
       raise StandardError.new("This method needs to be stubbed.")
     end
   end
-  
-  subject(:aux_unifi) { DummyClass.new }
-  
+
+  subject(:aux_unifi) { DummyUnifiClass.new }
+
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
-    
+
   context '#create_credential_and_login' do
-    
+
     let(:session) { FactoryBot.create(:mdm_session) }
 
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
 
     let(:user) { FactoryBot.create(:mdm_user)}
 
-    subject(:test_object) { DummyClass.new }
+    subject(:test_object) { DummyUnifiClass.new }
     
     let(:workspace) { FactoryBot.create(:mdm_workspace) }
     let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
