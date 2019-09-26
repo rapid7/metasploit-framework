@@ -36,7 +36,7 @@ Ubuntu 18.04 with `smbclient 4.7.6-Ubuntu` installed.
 
 Based on [shellvoide.com](https://www.shellvoide.com/hacks/how-to-setup-rogue-fake-smb-server-to-capture-credentials/)
 
-You'll need to set `client use spnego = no` under `[global]` in `smb.conf` to ensure SMBv1 compatability.
+You'll need to set `client use spnego = no` under `[global]` in `smb.conf` to ensure SMBv1 compatibility.
 
 Server:
 
