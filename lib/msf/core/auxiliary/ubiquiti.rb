@@ -232,15 +232,15 @@ module Auxiliary::Ubiquiti
           print_good("SSH user #{admin_name} found with password #{admin_password} and hash #{admin_password_hash}")
           cred = credential_data.dup
           cred[:username] = admin_name
-          # For whatever reason for the create_cracked_credential function to work, a :address
-          # is required, so we'll put it in here for now.
-          cred[:address] = ''
           cred[:private_data] = admin_password_hash
           cred[:private_type] = :nonreplayable_hash
-          record = create_credential_and_login(cred)
+          create_credential_and_login(cred) #returns nil
           unless admin_password.empty?
-            # this doesnt work :(
-            create_cracked_credential(username: admin_name, password: admin_password, core_id: record.id)
+            # we need to re-find the cred we just made since nil is returned
+            # we treat this in a loop incase we crack more than one hash this way
+            framework.db.creds(cred).each do |c|
+              create_cracked_credential(username: admin_name, password: admin_password, core_id: c.id, address: c.address)
+            end
           end
           line['x_ssh_keys'].each do |key|
             print_good("SSH user #{admin_name} found with SSH key: #{key}")

