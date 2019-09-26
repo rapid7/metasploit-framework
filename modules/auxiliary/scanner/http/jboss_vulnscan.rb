@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     if res
 
       info = http_fingerprint(:response => res)
-      print_status(info)
+      print_status("#{rhost}:#{rport} Fingerprint: #{info}")
 
       if res.body && />(JBoss[^<]+)/.match(res.body)
         print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
@@ -206,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.code == 200
-      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
+      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering at #{app}")
     else
       print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
     end
