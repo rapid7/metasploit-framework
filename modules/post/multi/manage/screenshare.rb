@@ -9,13 +9,14 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'          => 'Multi Manage the desktop of the target computer',
-      'Description'   => %q{
+      'Name'           => 'Multi Manage the desktop of the target computer',
+      'Description'    => %q{
       },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'timwr'],
-      'Platform'      => [ 'linux', 'osx', 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'License'        => MSF_LICENSE,
+      'Author'         => [ 'timwr'],
+      'Platform'       => [ 'linux', 'osx', 'win' ],
+      'SessionTypes'   => [ 'meterpreter' ],
+      'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
     ))
   end
 
