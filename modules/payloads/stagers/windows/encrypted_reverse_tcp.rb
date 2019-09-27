@@ -14,7 +14,7 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name'        => 'Encrypted Reverse TCP Stager',
-      'Description' => 'Blah encrypted blah',
+      'Description' => 'Connect to MSF and read in stage',
       'Author'      => [ 'Shelby Pace' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
