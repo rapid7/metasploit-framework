@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans for Joomla Content Management System running on a web server for the following pages:
 

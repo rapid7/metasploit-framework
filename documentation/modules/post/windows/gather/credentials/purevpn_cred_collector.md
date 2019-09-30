@@ -1,4 +1,4 @@
-# Intro
+# Introduction
 
 This module allows you to collect login information for PureVPN client, specifically the `login.conf` file.
 

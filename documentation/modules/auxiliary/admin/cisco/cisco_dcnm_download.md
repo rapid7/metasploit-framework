@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 Cisco Data Center Network Manager exposes a servlet to download files on /fm/downloadServlet.
 An authenticated user can abuse this servlet to download arbitrary files as root by specifying

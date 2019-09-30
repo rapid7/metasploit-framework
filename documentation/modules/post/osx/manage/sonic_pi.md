@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module controls Sonic Pi via its local OSC server.
 
