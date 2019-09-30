@@ -12,18 +12,20 @@ class EncryptedShell < Msf::Sessions::CommandShell
   attr_accessor :arch
   attr_accessor :platform
 
-  attr_reader :iv
-  attr_reader :key
-  attr_reader :cipher
+  attr_accessor :iv
+  attr_accessor :key
+  attr_accessor :cipher
 
   def initialize(rstream, opts = {})
     self.arch ||= ""
     self.platform = "windows"
     datastore = opts[:datastore]
-    @key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
-    nonce = "bCsEzT3QbCsE"
+    #@key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
+    #nonce = "bCsEzT3QbCsE"
     block_count = "\x01\x00\x00\x00"
-    @iv = block_count + nonce
+    #@iv = block_count + nonce
+    @key = datastore['ChachaKey']
+    @iv = block_count + datastore['ChachaNonce']
     super
   end
 

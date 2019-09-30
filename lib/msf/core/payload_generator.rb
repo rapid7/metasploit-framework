@@ -388,6 +388,11 @@ module Msf
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         gen_payload = raw_payload
       else
+        if payload_module.dependency
+          ds_opts = payload_module.datastore
+          cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opts['ChachaKey']} - #{ds_opts['ChachaNonce']}")
+        end
+
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
 
