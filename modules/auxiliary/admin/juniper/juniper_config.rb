@@ -36,12 +36,12 @@ class MetasploitModule < Msf::Auxiliary
     unless ::File.exist?(datastore['CONFIG'])
       fail_with Failure::BadConfig, "Juniper config file #{datastore['CONFIG']} does not exists!"
     end
-    cisco_config = ::File.open(datastore['CONFIG'], "rb")
+    juniper_config = ::File.open(datastore['CONFIG'], "rb")
     print_status('Importing config')
     if action.name == 'JUNOS'
-      juniper_junos_config_eater(datastore['RHOSTS'],datastore['RPORT'],cisco_config.read)
+      juniper_junos_config_eater(datastore['RHOSTS'],datastore['RPORT'],juniper_config.read)
     elsif action.name == 'SCREENOS'
-      juniper_screenos_config_eater(datastore['RHOSTS'],datastore['RPORT'],cisco_config.read)
+      juniper_screenos_config_eater(datastore['RHOSTS'],datastore['RPORT'],juniper_config.read)
     end
     print_good('Config import successful')
   end
