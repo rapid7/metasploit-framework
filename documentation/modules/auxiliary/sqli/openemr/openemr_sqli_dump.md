@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module exploits a SQLi vulnerability found in
 OpenEMR version 5.0.1 Patch 6 and lower. The
