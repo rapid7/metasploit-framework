@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf
   module Payload::Windows::EncryptedPayloadOpts
-    LINK_SCRIPT_PATH = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload', 'func_order.ld')
+    LINK_SCRIPT_PATH = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
 
     def initialize(*args)
       super
@@ -17,7 +17,7 @@ module Msf
       register_advanced_options(
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
-        OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', LINK_SCRIPT_PATH ])
+        OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order.ld" ])
       ], self.class)
     end
   end
