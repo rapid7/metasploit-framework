@@ -121,6 +121,12 @@ class MetasploitModule < Msf::Auxiliary
           match_conf['host.domain'] = conf[:SMBDomain]
         end
 
+        if simple.client.require_signing
+          desc << " (signatures:required)"
+        else
+          desc << " (signatures:optional)"
+        end
+
         print_good("Host is running #{desc}")
 
         # Report the service with a friendly banner
@@ -141,6 +147,19 @@ class MetasploitModule < Msf::Auxiliary
           :ntype => 'fingerprint.match',
           :data  => match_conf
         )
+
+        unless simple.client.require_signing
+          report_vuln({
+            :host  => ip,
+            :port  => rport,
+            :proto => 'tcp',
+            :name  => 'SMB Signing Is Not Required',
+            :refs  => [
+              SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'),
+              SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'),
+            ]
+          })
+        end
       else
         desc = "#{res['native_os']} (#{res['native_lm']})"
         report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
