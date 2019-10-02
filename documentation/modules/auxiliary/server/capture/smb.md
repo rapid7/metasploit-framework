@@ -1,6 +1,6 @@
 This module creates a mock SMBv1 server which accepts credentials before returning `NT_STATUS_LOGON_FAILURE`.
 
-SMBv1 is enabled by default on system before, and including:
+SMBv1 is enabled by default on systems before, and including:
 
  * Windows XP
  * Windows Server 2008 R2
