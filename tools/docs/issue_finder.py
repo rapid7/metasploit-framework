@@ -34,14 +34,16 @@ if os.path.exists(os.path.join(path, 'modules', module_type)):
 else:
     print("Path doesn't exist. Maybe you have passed a wrong module category or maybe there isn't any documentation file yet.")
     sys.exit()
+
 for doc in list_docs:
     docs.append(doc.split('.')[0].replace('/documentation/','/'))
 for module in list_modules:
     modules.append(module.split('.')[0])
 
-missings = []
-problems = []
+missings = 0
+problems = 0
 count = 0
+root = 'metasploit-framework'
 
 if args.output:
   o = open(args.output, 'w')
@@ -52,46 +54,44 @@ def print_or_write(line):
     return
   print(line)
 
-print_or_write('# Documentation Issue Finder')
-print_or_write('### Generated: %s\n' %(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+print_or_write('# Documentation Issue Finder\n')
+print_or_write('Generated: %s\n' %(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 if not (show_all):
     if not (show_issues):
         print_or_write('## Modules Without Documentation\n')
-        for i in modules:
+        for i in sorted(modules):
             if i not in docs:
-                missings.append(i)
-        for i in sorted(missings):
-            print_or_write('+ [ ] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
-        print_or_write(str(len(missings)) + ' modules have no documentation.')
+                missings += 1
+                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+        print_or_write('\n%s modules have no documentation.' %(missings))
     else:
         print_or_write('## Docs Without Modules\n')
-        for i in docs:
+        for i in sorted(docs):
             if i not in modules:
-                problems.append(i)
-        for i in sorted(problems):
-            print_or_write('+ [ ] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
-        print_or_write(str(len(problems)) + ' doc files do not correspond to any module.')
+                problems += 1
+                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+        print_or_write('\n%s doc files do not correspond to any module.' %(problems))
 else:
     count = 0
     if not (show_issues):
         print_or_write('## Modules Without Documentation\n')
         for i in sorted(modules):
             if i in docs:
-                print_or_write('+ [x] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
+                print_or_write('+ [x] %s%s' %(root, i.split('metasploit-framework')[1]))
             else:
-                print_or_write('+ [ ] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
+                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
                 count += 1
-        print_or_write(str(count) + ' modules out of ' + str(len(modules)) + ' have no documentation.')
+        print_or_write('\n%s modules out of %s (%d%%) have no documentation.' %(count, len(modules), float(count)/len(modules) * 100.0))
     else:
         print_or_write('## Docs Without Modules\n')
         for i in sorted(docs):
             if i in modules:
-                print_or_write('+ [x] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
+                print_or_write('+ [x] %s%s' %(root, i.split('metasploit-framework')[1]))
             else:
-                print_or_write('+ [ ] ' + '/metasploit-framework' + i.split('metasploit-framework')[1])
+                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
                 count += 1
-        print_or_write(str(count) + ' doc files out of ' + str(len(docs)) + ' do not correspond to any module.')
+        print_or_write('\n%s doc files out of %s do not correspond to any module.' %(count, len(docs)))
 
 if args.output:
   o.close()
