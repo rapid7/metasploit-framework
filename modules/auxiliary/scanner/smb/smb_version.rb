@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
           match_conf['host.domain'] = conf[:SMBDomain]
         end
 
-        if simple.client.require_signing
+        if simple.client.peer_require_signing
           desc << " (signatures:required)"
         else
           desc << " (signatures:optional)"
