@@ -35,6 +35,8 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  # locked due to rspec/rspec-expectations#1134
+  gem 'rspec-expectations', '3.8.4'
   gem 'rspec-rerun'
   gem 'swagger-blocks'
 end
