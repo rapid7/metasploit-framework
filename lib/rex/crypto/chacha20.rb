@@ -19,6 +19,5 @@ module Rex
 
       decipher.update(ciphertext) + decipher.final
     end
-
   end
 end

