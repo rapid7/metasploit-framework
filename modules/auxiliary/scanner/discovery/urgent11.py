@@ -1,30 +1,68 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 # urgent11-detector - IPnet detection tool
 # Copyright (C) 2019 Armis Security.
 # Research paper: https://armis.com/urgent11
 # License: https://www.gnu.org/licenses/agpl-3.0.txt
 
-"""urgent11-detector - IPnet detection tool by Armis.
+metadata = {
+    'name': 'urgent11-detector - IPnet detection tool by Armis',
+    'description': """
+        This tool implements 4 unique methods of detection
+        in the form of a TCP/IP stack fingerprints to a target host.
+        By calculating the sum of all the methods scores, we can determine with
+        high precision whether the target host runs some embedded OS
+        that relies on the IPnet TCP/IP stack and whether that OS is VxWorks.
 
-This tool implements 4 unique methods of detection
-in the form of a TCP/IP stack fingerprints to a target host.
-By calculating the sum of all the methods scores, we can determine with
-high precision whether the target host runs some embedded OS
-that relies on the IPnet TCP/IP stack and whether that OS is VxWorks.
-
-Moreover we test the host for one of the URGENT/11 vulnerabilities,
-CVE-2019-12258.
-"""
+        Moreover we test the host for one of the URGENT/11 vulnerabilities,
+        CVE-2019-12258.
+    """,
+    'authors': [
+        'Ben Seri' # Upstream tool
+        'Brent Cook' # Metasploit module
+    ],
+    'date': '2019-09-19',
+    'references': [
+        {'type': 'cve', 'ref': '2019-12256'},
+        {'type': 'cve', 'ref': '2019-12257'},
+        {'type': 'cve', 'ref': '2019-12255'},
+        {'type': 'cve', 'ref': '2019-12260'},
+        {'type': 'cve', 'ref': '2019-12261'},
+        {'type': 'cve', 'ref': '2019-12263'},
+        {'type': 'cve', 'ref': '2019-12258'},
+        {'type': 'cve', 'ref': '2019-12259'},
+        {'type': 'cve', 'ref': '2019-12262'},
+        {'type': 'cve', 'ref': '2019-12264'},
+        {'type': 'cve', 'ref': '2019-12265'},
+    ],
+    'type': 'single_scanner',
+    'options':  {
+        'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 80},
+    },
+    'notes': {
+        'AKA': [
+            'Urgent/11'
+            ]
+    }
+}
 
 import abc
 import argparse
 import contextlib
 import socket
 import struct
+import sys
 
-import iptc
-from scapy.all import sr1, ICMP, IP, TCP
+import metasploit.module as module
 
+try:
+    if sys.platform == 'linux' or sys.platform == 'linux2':
+        import iptc
+    from scapy.all import sr1, ICMP, IP, TCP
+except ImportError:
+    dependencies_missing = True
+else:
+    dependencies_missing = False
 
 # Config
 CFG_PACKET_TIMEOUT = 0.5
@@ -51,11 +89,14 @@ def iptables_block_port(port):
     iptables_rule = {'protocol': 'tcp',
                      'target': 'DROP',
                      'tcp': {'dport': port}}
-    try:
-        iptc.easy.insert_rule('filter', 'INPUT', iptables_rule)
+    if sys.platform == 'linux' or sys.platform == 'linux2':
+        try :
+            iptc.easy.insert_rule('filter', 'INPUT', iptables_rule)
+            yield
+        finally:
+            iptc.easy.delete_rule('filter', 'INPUT', iptables_rule)
+    else:
         yield
-    finally:
-        iptc.easy.delete_rule('filter', 'INPUT', iptables_rule)
 
 
 @contextlib.contextmanager
@@ -247,7 +288,7 @@ def run_detections(ip, port):
     for detection_cls in DetectionMethod.__subclasses__():
         detections.append(detection_cls(ip))
 
-    print('[~] Running against %s:%d' % (ip, port))
+    module.log('Running against %s:%d' % (ip, port))
 
     final_ipnet_score = 0
     final_vxworks_score = 0
@@ -259,36 +300,35 @@ def run_detections(ip, port):
         final_ipnet_score += detection.ipnet_score
         final_vxworks_score += detection.vxworks_score
         affected_vulnerabilities += detection.vulnerable_cves
-        print('\t%-30s\tVxWorks: %s\tIPnet: %s' % (name,
+        module.log('\t%-30s\tVxWorks: %s\tIPnet: %s' % (name,
                                                    detection.vxworks_score,
                                                    detection.ipnet_score))
 
     if final_ipnet_score > 0:
-        print('[*] IP %s detected as IPnet' % ip)
+        module.log('IP %s detected as IPnet' % ip)
     elif final_ipnet_score < 0:
-        print('[*] IP %s detected as NOT IPnet' % ip)
+        module.log('IP %s detected as NOT IPnet' % ip)
 
     if final_vxworks_score > 100:
-        print('[*] IP %s detected as VxWorks' % ip)
+        module.log('IP %s detected as VxWorks' % ip)
     elif final_vxworks_score < 0:
-        print('[*] IP %s detected as NOT VxWorks' % ip)
+        module.log('IP %s detected as NOT VxWorks' % ip)
 
     for vulnerability in affected_vulnerabilities:
-        print('[*] IP %s affected by %s' % (ip, vulnerability))
+        module.report_vuln(ip, vulnerability, port = port)
+        module.log('IP %s affected by %s' % (ip, vulnerability))
 
+def main(args):
+    if dependencies_missing:
+        module.log('Module dependencies (python-iptables, scapy) missing, cannot continue', level='error')
+        return
+    args['rport'] = int(args['rport'])
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('host', help='Target host IP address')
-    parser.add_argument('port', help='Target host port', type=int)
-    args = parser.parse_args()
-
-    if not is_port_reachable(args.host, args.port):
-        print('[!] Target IP or port is unreachable, please verify input')
+    if not is_port_reachable(args['rhost'], args['rport']):
+        module.log('Target IP or port is unreachable, please verify input')
         return
 
-    run_detections(args.host, args.port)
-
+    run_detections(args['rhost'], args['rport'])
 
 if __name__ == '__main__':
-    main()
+    module.run(metadata, main)
