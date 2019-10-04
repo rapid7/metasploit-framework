@@ -23,17 +23,9 @@ metadata = {
     ],
     'date': '2019-09-19',
     'references': [
-        {'type': 'cve', 'ref': '2019-12256'},
-        {'type': 'cve', 'ref': '2019-12257'},
-        {'type': 'cve', 'ref': '2019-12255'},
-        {'type': 'cve', 'ref': '2019-12260'},
-        {'type': 'cve', 'ref': '2019-12261'},
-        {'type': 'cve', 'ref': '2019-12263'},
-        {'type': 'cve', 'ref': '2019-12258'},
-        {'type': 'cve', 'ref': '2019-12259'},
-        {'type': 'cve', 'ref': '2019-12262'},
-        {'type': 'cve', 'ref': '2019-12264'},
-        {'type': 'cve', 'ref': '2019-12265'},
+        {'type': 'url', 'ref': 'https://armis.com/urgent11'},
+        {'type': 'url', 'ref': 'https://github.com/ArmisSecurity/urgent11-detector'},
+        {'type': 'cve', 'ref': '2019-12258'}
     ],
     'type': 'single_scanner',
     'options':  {
