@@ -6,8 +6,6 @@ This module identifies the version of SSH service in use by the server based on 
 
 ## Vulnerable Application
 
-### SSH service:
-
 This module is tested on several different SSH services, such as:
 
 - Virtual testing environment: SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8
