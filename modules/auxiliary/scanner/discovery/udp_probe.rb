@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
       ])
 
-    # Intialize the probes array
+    # Initialize the probes array
     @probes = []
 
     # Add the UDP probe method names
