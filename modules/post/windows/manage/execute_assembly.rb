@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('ASSEMBLY', [true, 'Assembly file name']),
         OptPath.new('ASSEMBLYPATH', [false, 'Assembly directory',
-                                     ::File.join(Msf::Config.data_directory, 
+                                     ::File.join(Msf::Config.data_directory,
                                                  'execute-assembly')]),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
