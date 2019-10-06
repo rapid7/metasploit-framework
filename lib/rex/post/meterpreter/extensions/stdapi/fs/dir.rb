@@ -182,6 +182,7 @@ class Dir < Rex::Post::Dir
 
     response = client.send_request(request)
 
+    pwd(refresh: true)
     return 0
   end
 
@@ -201,12 +202,15 @@ class Dir < Rex::Post::Dir
   #
   # Returns the current working directory of the remote process.
   #
-  def Dir.pwd
-    request = Packet.create_request('stdapi_fs_getwd')
+  def Dir.pwd(refresh: true)
+    if @working_directory.nil? || refresh
+      request = Packet.create_request('stdapi_fs_getwd')
 
-    response = client.send_request(request)
+      response = client.send_request(request)
 
-    return client.unicode_filter_encode(response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value)
+      @working_directory = client.unicode_filter_encode(response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value)
+      end
+    @working_directory
   end
 
   #

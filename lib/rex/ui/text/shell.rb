@@ -403,12 +403,28 @@ protected
     end
 
     if session
+      default = 'unknown'
       sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
 
-      str.gsub!('%A', (sysinfo.nil? ? 'Unknown' : sysinfo['Architecture'])) if str.include?('%A')
-      str.gsub!('%H', (sysinfo.nil? ? 'Unknown' : sysinfo['Computer'])) if str.include?('%H')
-      str.gsub!('%S', session.sid.to_s) if str.include?('%S')
-      str.gsub!('%U', session.username) if str.include?('%U')
+      if str.include?('%A')
+        str.gsub!('%A', (sysinfo.nil? ? default : sysinfo['Architecture']))
+      end
+
+      if str.include?('%D')
+        str.gsub!('%D', (session.respond_to?(:fs) ? session.fs.getwd(refresh: false) : default))
+      end
+
+      if str.include?('%H')
+        str.gsub!('%H', (sysinfo.nil? ? default : sysinfo['Computer']))
+        end
+
+      if str.include?('%S')
+        str.gsub!('%S', session.sid.to_s)
+      end
+
+      if str.include?('%U')
+        str.gsub!('%U', (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default))
+      end
     else
       if str.include?('%H')
         hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
