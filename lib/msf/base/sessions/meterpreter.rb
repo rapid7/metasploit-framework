@@ -569,11 +569,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    unless framework.datastore['MeterpreterPrompt'].nil?
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.

@@ -380,19 +380,39 @@ protected
   # Handle prompt substitutions
   #
   def format_prompt(str)
-    if framework
-      if str.include?('%T')
-        t = Time.now
-        # This %T is the strftime shorthand for %H:%M:%S
-        format = framework.datastore['PromptTimeFormat'] || '%T'
-        t = t.strftime(format)
-        # This %T is the marker in the prompt where we need to place the time
-        str.gsub!('%T', t.to_s)
-      end
+    return str unless framework
 
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+
+    if str.include?('%J')
+      str.gsub!('%J', framework.jobs.length.to_s)
+    end
+
+    if str.include?('%T')
+      t = Time.now
+      # This %T is the strftime shorthand for %H:%M:%S
+      format = framework.datastore['PromptTimeFormat'] || '%T'
+      t = t.strftime(format)
+      # This %T is the marker in the prompt where we need to place the time
+      str.gsub!('%T', t.to_s)
+    end
+
+    if str.include?('%W') && framework.db.active
+      str.gsub!('%W', framework.db.workspace.name)
+    end
+
+    if session
+      sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
+
+      str.gsub!('%A', (sysinfo.nil? ? 'Unknown' : sysinfo['Architecture'])) if str.include?('%A')
+      str.gsub!('%H', (sysinfo.nil? ? 'Unknown' : sysinfo['Computer'])) if str.include?('%H')
+      str.gsub!('%S', session.sid.to_s) if str.include?('%S')
+      str.gsub!('%U', session.username) if str.include?('%U')
+    else
       if str.include?('%H')
         hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
-          ENV['COMPUTERNAME'] || 'unknown'
+            ENV['COMPUTERNAME'] || 'unknown'
 
         str.gsub!('%H', hostname.chomp)
       end
@@ -406,20 +426,12 @@ protected
         str.gsub!('%S', framework.sessions.length.to_s)
       end
 
-      if str.include?('%J')
-        str.gsub!('%J', framework.jobs.length.to_s)
-      end
-
       if str.include?('%L')
         str.gsub!('%L', Rex::Socket.source_address)
       end
 
       if str.include?('%D')
         str.gsub!('%D', ::Dir.getwd)
-      end
-
-      if str.include?('%W') && framework.db.active
-        str.gsub!('%W', framework.db.workspace.name)
       end
     end
 
