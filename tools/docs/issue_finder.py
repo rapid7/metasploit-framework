@@ -44,6 +44,7 @@ missings = 0
 problems = 0
 count = 0
 root = 'metasploit-framework'
+url_root = 'https://github.com/rapid7/metasploit-framework/blob/master/modules/'
 
 if args.output:
   o = open(args.output, 'w')
@@ -54,6 +55,16 @@ def print_or_write(line):
     return
   print(line)
 
+def make_link(line):
+    # first we wenat to get the extension back
+    for m in list_modules:
+      if "%s." %(line) in m:
+        ext = m
+        break
+    link = ext.split("/modules")[1]
+    #link = ext.replace("/modules", url_root)
+    return "[%s%s](%s%s)" %(root, line, url_root, link)
+
 print_or_write('# Documentation Issue Finder\n')
 print_or_write('Generated: %s\n' %(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -63,14 +74,14 @@ if not (show_all):
         for i in sorted(modules):
             if i not in docs:
                 missings += 1
-                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [ ] %s' %(make_link(i.split('metasploit-framework')[1])))
         print_or_write('\n%s modules have no documentation.' %(missings))
     else:
         print_or_write('## Docs Without Modules\n')
         for i in sorted(docs):
             if i not in modules:
                 problems += 1
-                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [ ] %s' %(make_link(i.split('metasploit-framework')[1])))
         print_or_write('\n%s doc files do not correspond to any module.' %(problems))
 else:
     count = 0
@@ -78,18 +89,18 @@ else:
         print_or_write('## Modules Without Documentation\n')
         for i in sorted(modules):
             if i in docs:
-                print_or_write('+ [x] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [x] %s' %(make_link(i.split('metasploit-framework')[1])))
             else:
-                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [ ] %s' %(make_link(i.split('metasploit-framework')[1])))
                 count += 1
         print_or_write('\n%s modules out of %s (%d%%) have no documentation.' %(count, len(modules), float(count)/len(modules) * 100.0))
     else:
         print_or_write('## Docs Without Modules\n')
         for i in sorted(docs):
             if i in modules:
-                print_or_write('+ [x] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [x] %s' %(make_link(i.split('metasploit-framework')[1])))
             else:
-                print_or_write('+ [ ] %s%s' %(root, i.split('metasploit-framework')[1]))
+                print_or_write('+ [ ] %s' %(make_link(i.split('metasploit-framework')[1])))
                 count += 1
         print_or_write('\n%s doc files out of %s do not correspond to any module.' %(count, len(docs)))
 
