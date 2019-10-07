@@ -85,12 +85,10 @@ module Msf::WebServices
     end
 
     def db_initialized(db)
-      begin
-        db.check
-        true
-      rescue
-        false
-      end
+      db.check
+      true
+    rescue
+      false
     end
 
   end
