@@ -1,6 +1,6 @@
 Adding and reviewing module documentation is a great way to contribute to the Metasploit Framework. 
 
-Before you write any module documentation, you should take a look at the sample template, module_doc_template.md, which is located in metasploit-framework/documentation/modules/markdown_doc, or take a look at any of the KBs that are already available.
+Before you write any module documentation, you should take a look at the sample template, [module_doc_template.md](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md), or take a look at any of the KBs that are already available.
 
 ### Writing a KB
 
@@ -40,4 +40,4 @@ These are just suggestions, but it'd be nice if the KB had these sections:
  - **Vulnerable Applications** - Tells users what targets are vulnerable to the module and provides instructions on how to access vulnerable targets for testing.  
  - **Verification Steps** - Tells users how to use the module and what the expected results are from running the module. 
  - **Options** - Provides descriptions of all the options that can be run with the module. Additionally, clearly identify the options that are required. 
- - **Scenarios** - Provides sample usage and describes caveats that the user may need to be aware of when running the module. 
+ - **Scenarios** - Provides sample usage and describes caveats that the user may need to be aware of when running the module.
