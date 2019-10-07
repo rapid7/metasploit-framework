@@ -126,4 +126,11 @@ typedef LPVOID (WINAPI *FuncVirtualAlloc)
   DWORD flProtect
 );
 
+typedef BOOL (WINAPI *FuncVirtualFree)
+(
+  LPVOID lpAddress,
+  SIZE_T dwSize,
+  DWORD dwFreeType
+);
+
 #endif
