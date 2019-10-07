@@ -23,11 +23,13 @@ class EncryptedShell < Msf::Sessions::CommandShell
     @key = datastore['ChachaKey']
     @iv = block_count + datastore['ChachaNonce']
 
-    new_key = Rex::Text.rand_text_alphanumeric(32, (0x00..0x1f).to_a)
-    new_nonce = Rex::Text.rand_text_alphanumeric(12, (0x00..0x1f).to_a)
+    new_key = Rex::Text.rand_text_alphanumeric(32)
+    new_nonce = Rex::Text.rand_text_alphanumeric(12)
     new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
     rstream.write(new_cipher)
 
+    @key = new_key
+    @iv = block_count + new_nonce
     super
   end
 
@@ -52,7 +54,6 @@ class EncryptedShell < Msf::Sessions::CommandShell
     rv = rstream.get_once(length, timeout)
     decrypted = Rex::Crypto.chacha_decrypt(@key, @iv, rv)
     framework.events.on_session_output(self, decrypted) if decrypted
-    #framework.events.on_session_output(self, rv) if rv
     return decrypted
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
@@ -70,7 +71,6 @@ class EncryptedShell < Msf::Sessions::CommandShell
     framework.events.on_session_command(self, buf.strip)
     encrypted = Rex::Crypto.chacha_encrypt(@key, @iv, buf)
     rstream.write(encrypted)
-    #rstream.write(buf)
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
     raise e

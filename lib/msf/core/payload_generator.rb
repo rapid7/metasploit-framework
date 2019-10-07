@@ -389,8 +389,9 @@ module Msf
         gen_payload = raw_payload
       else
         if payload_module.dependency
-          ds_opts = payload_module.datastore
-          cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opts['ChachaKey']} - #{ds_opts['ChachaNonce']}")
+          payload_module.datastore.import_options_from_hash(datastore)
+          ds_opt = payload_module.datastore
+          cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opt['ChachaKey']} - #{ds_opt['ChachaNonce']}")
         end
 
         raw_payload = generate_raw_payload
