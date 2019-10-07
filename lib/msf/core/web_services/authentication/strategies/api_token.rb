@@ -55,7 +55,7 @@ module Authentication
 
       # Authenticates the API token from a configuration file
       def auth_from_file(token)
-        token == request.env['msf.token_from_file'] ? success!({message: "Successful auth from file token"}) : fail!
+        token == request.env['msf.token_from_file'] ? success!(message: "Successful auth from file token") : fail!
       end
     end
   end
