@@ -6,8 +6,8 @@
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/encrypted_shell'
 require 'msf/base/sessions/command_shell_options'
-require 'metasploit/framework/compiler/mingw'
 require 'msf/core/payload/windows/encrypted_reverse_tcp'
+require 'msf/core/payload/windows/encrypted_payload_opts'
 
 module MetasploitModule
 
@@ -15,6 +15,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
   include Msf::Payload::Windows::EncryptedReverseTcp
+  include Msf::Payload::Windows::EncryptedPayloadOpts
 
   def initialize(info = {})
     super(merge_info(info,

@@ -1,9 +1,9 @@
-ENTRY(Begin)
+ENTRY(AlignRSP)
 SECTIONS
 {
 	.text :
 	{
-		*(.text.Begin)
+    *(.text.AlignRSP)
 		*(.text.ExecutePayload)
 		*(.text.GetProcAddressWithHash)
 	}

