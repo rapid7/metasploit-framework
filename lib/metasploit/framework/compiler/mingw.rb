@@ -37,11 +37,14 @@ module Metasploit
           path = File.join(Msf::Config.install_root, 'payload.c')
           File.write(path, src)
 
+          opt_level = ''
           case opts[:arch]
           when 'x86'
             cmd << "#{MINGW_X86} "
+            opt_level = '-O3 '
           when 'x64'
             cmd << "#{MINGW_X64} "
+            opt_level = '-O2 '
           else
             return print_error('Unsupported architecture')
           end
@@ -55,7 +58,7 @@ module Metasploit
           cmd << '-fno-asynchronous-unwind-tables '
           cmd << '-nostartfiles '
           cmd << '-fno-ident '
-          cmd << '-O3 '
+          cmd << opt_level
 
           # need to add object file to command
           # if arch is x64
