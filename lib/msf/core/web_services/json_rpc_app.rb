@@ -2,6 +2,7 @@ require 'securerandom'
 require 'sinatra/base'
 require 'swagger/blocks'
 require 'warden'
+require 'yaml'
 require 'msf/core/rpc'
 require 'msf/core/web_services/authentication'
 require 'msf/core/web_services/framework_extension'
@@ -28,10 +29,9 @@ module Msf::WebServices
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
       set :api_token_file, ENV.fetch('MSF_API_TOKEN_FILE', nil)
 
-      if !settings.api_token_file.nil?
-        file = File.read(settings.api_token_file)
-        data = JSON.parse(file)
-        set :token_from_file, data["token"]
+      unless settings.api_token_file.nil?
+        data = YAML.load(File.read(settings.api_token_file))
+        set :token_from_file, data['token']
       end
     end
 
