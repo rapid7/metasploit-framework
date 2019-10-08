@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'msf/core/payload/uuid/options'
 
 module Msf
   module Payload::Windows::EncryptedPayloadOpts
@@ -17,6 +18,7 @@ module Msf
       register_advanced_options(
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
+        OptString.new('OptLevel', [ false, 'The optimization level to compile with, e.g. O1, O2, O3, Os', 'O2' ]),
         OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order.ld" ])
       ], self.class)
     end

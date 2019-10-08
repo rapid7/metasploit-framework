@@ -26,7 +26,6 @@ module Metasploit
         def self.compile_c(src, opts={})
           cmd = self.build_cmd(src, opts)
 
-          # execute command -> get output
           system(cmd)
         end
 
@@ -37,14 +36,14 @@ module Metasploit
           path = File.join(Msf::Config.install_root, 'payload.c')
           File.write(path, src)
 
-          opt_level = ''
+          raise ArgumentError, 'Invalid optimization level chosen' unless [ 'Os', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl])
+          opt_level = "-#{opts[:opt_lvl]} "
+
           case opts[:arch]
           when 'x86'
             cmd << "#{MINGW_X86} "
-            opt_level = '-O3 '
           when 'x64'
             cmd << "#{MINGW_X64} "
-            opt_level = '-O2 '
           else
             return print_error('Unsupported architecture')
           end
