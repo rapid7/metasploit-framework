@@ -182,7 +182,7 @@ class Dir < Rex::Post::Dir
 
     response = client.send_request(request)
 
-    pwd(refresh: true)
+    getwd(refresh: true)
     return 0
   end
 
@@ -216,8 +216,8 @@ class Dir < Rex::Post::Dir
   #
   # Synonym for pwd.
   #
-  def Dir.getwd
-    pwd
+  def Dir.getwd(refresh: true)
+    pwd(refresh: refresh)
   end
 
   #

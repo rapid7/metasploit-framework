@@ -411,7 +411,7 @@ protected
       end
 
       if str.include?('%D')
-        str.gsub!('%D', (session.respond_to?(:fs) ? session.fs.getwd(refresh: false) : default))
+        str.gsub!('%D', (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default))
       end
 
       if str.include?('%H')

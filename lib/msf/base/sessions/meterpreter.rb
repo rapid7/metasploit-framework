@@ -168,7 +168,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         end
 
         # only load priv on native windows
-        # TODO: abastrct this too, to remove windows stuff
+        # TODO: abstract this too, to remove windows stuff
         if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
@@ -429,8 +429,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   def update_session_info
-    # sys.config.getuid, and sys.dir.pwd cache their results, so update them
-    self.sys.dir.pwd
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    fs.dir.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
