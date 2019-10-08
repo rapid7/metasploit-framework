@@ -27,12 +27,7 @@ module Msf::WebServices
 
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
-      set :api_token_file, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN_FILE', nil)
-
-      unless settings.api_token_file.nil?
-        data = YAML.load(File.read(settings.api_token_file))
-        set :token_from_file, data['token']
-      end
+      set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)
     end
 
     before do
@@ -41,9 +36,9 @@ module Msf::WebServices
         # store DBManager in request environment so that it is available to Warden
         request.env['msf.db_manager'] = db
         @@auth_initialized ||= get_db.users({}).count > 0
-      elsif !settings.api_token_file.nil? && !settings.token_from_file.nil?
+      elsif !settings.api_token.nil?
         @@auth_initialized = true
-        request.env['msf.token_from_file'] = settings.token_from_file
+        request.env['msf.api_token'] = settings.api_token
       else
         @@auth_initialized = false
       end

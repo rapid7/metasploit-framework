@@ -26,7 +26,7 @@ module Authentication
             token = params[TOKEN_QUERY_PARAM]
           end
 
-          request.env['msf.token_from_file'].nil? ? auth_from_db(token) : auth_from_file(token)
+          request.env['msf.api_token'].nil? ? auth_from_db(token) : auth_from_env(token)
         end
       end
 
@@ -54,8 +54,8 @@ module Authentication
       end
 
       # Authenticates the API token from a configuration file
-      def auth_from_file(token)
-        if token == request.env['msf.token_from_file']
+      def auth_from_env(token)
+        if token == request.env['msf.api_token']
           success!(message: "Successful auth from file token")
         else
           throw(:warden, message: 'Invalid API token.', code: 401)
