@@ -53,10 +53,10 @@ module Authentication
         !user.nil? ? {valid: true, code: 0, message: nil} : {valid: false, code: 401, message: "Invalid API token."}
       end
 
-      # Authenticates the API token from a configuration file
+      # Authenticates the API token from an environment variable
       def auth_from_env(token)
         if token == request.env['msf.api_token']
-          success!(message: "Successful auth from file token")
+          success!(message: "Successful auth from token")
         else
           throw(:warden, message: 'Invalid API token.', code: 401)
         end
