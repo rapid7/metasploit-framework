@@ -55,7 +55,11 @@ module Authentication
 
       # Authenticates the API token from a configuration file
       def auth_from_file(token)
-        token == request.env['msf.token_from_file'] ? success!(message: "Successful auth from file token") : fail!
+        if token == request.env['msf.token_from_file']
+          success!(message: "Successful auth from file token")
+        else
+          throw(:warden, message: 'Invalid API token.', code: 401)
+        end
       end
     end
   end
