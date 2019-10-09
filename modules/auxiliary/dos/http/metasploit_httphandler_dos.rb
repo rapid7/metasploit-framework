@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
                       'References' => [
                           ['CVE', '2019-5645']
                       ],
-                      'DisclosureDate' => '04 September 2019'
+                      'DisclosureDate' => '2019-09-04'
           ))
 
     register_options(
