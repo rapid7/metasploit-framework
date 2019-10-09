@@ -385,10 +385,6 @@ protected
     # find the active session
     session = framework.sessions.values.find { |session| session.interacting }
 
-    if str.include?('%J')
-      str.gsub!('%J', framework.jobs.length.to_s)
-    end
-
     if str.include?('%T')
       t = Time.now
       # This %T is the strftime shorthand for %H:%M:%S
@@ -418,6 +414,10 @@ protected
         str.gsub!('%H', (sysinfo.nil? ? default : sysinfo['Computer']))
         end
 
+      if str.include?('%M')
+        str.gsub!('%M', session.session_type)
+      end
+
       if str.include?('%S')
         str.gsub!('%S', session.sid.to_s)
       end
@@ -431,6 +431,10 @@ protected
             ENV['COMPUTERNAME'] || 'unknown'
 
         str.gsub!('%H', hostname.chomp)
+      end
+
+      if str.include?('%J')
+        str.gsub!('%J', framework.jobs.length.to_s)
       end
 
       if str.include?('%U')
