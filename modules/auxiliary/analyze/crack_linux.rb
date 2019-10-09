@@ -7,6 +7,8 @@ require 'msf/core/auxiliary/password_cracker'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/analyze/jtr_linux'
 
   def initialize
     super(
