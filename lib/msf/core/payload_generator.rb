@@ -391,6 +391,7 @@ module Msf
         if payload_module.dependency
           payload_module.datastore.import_options_from_hash(datastore)
           ds_opt = payload_module.datastore
+          cli_print("[!] Database is not active! Payload key and nonce must be manually set when creating handler") unless framework.db.active
           cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opt['ChachaKey']} - #{ds_opt['ChachaNonce']}")
         end
 
