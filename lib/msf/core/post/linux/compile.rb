@@ -36,7 +36,7 @@ module Compile
 
     gcc_cmd = "gcc -o #{path} #{path}.c"
     if session.type.eql? 'shell'
-      gcc_cmd = "PATH=$PATH:/usr/bin/ #{gcc_cmd}"
+      gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
     end
 
     unless gcc_args.to_s.blank?
