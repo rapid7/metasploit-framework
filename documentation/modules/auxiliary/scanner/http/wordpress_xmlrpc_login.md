@@ -81,7 +81,7 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 1. Do: ```use auxiliary/scanner/http/wordpress_xmlrpc_login```
 2. Do: ```set RHOSTS [IP]```
-3. Do: ```set VHOST [IP]```
+3. Do: ```set VHOST [HOSTNAME]```
 4. Do: ```set USERNAME [user]```
 5. Do: ```set PASSWORD [pass]```
 6. Do: ```run```
@@ -144,7 +144,7 @@ msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) >
 
 ### Wordpress 5.2 with disabled or protected XMLRPC
 
-You may see this message also, if you forgot to set the VHOST option.
+You may see this message also, if you forgot to set the `VHOST` option.
 
 
 ```
