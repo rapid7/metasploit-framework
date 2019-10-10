@@ -36,8 +36,7 @@ module Metasploit
           path = File.join(Msf::Config.install_root, 'payload.c')
           File.write(path, src)
 
-          raise ArgumentError, 'Invalid optimization level chosen' unless [ 'Os', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl])
-          opt_level = "-#{opts[:opt_lvl]} "
+          opt_level = [ 'Os', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
 
           case opts[:arch]
           when 'x86'
