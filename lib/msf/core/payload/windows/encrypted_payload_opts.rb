@@ -1,8 +1,9 @@
 require 'msf/core'
-require 'msf/core/payload/uuid/options'
 
 module Msf
   module Payload::Windows::EncryptedPayloadOpts
+    include Msf::Payload::UUID::Options
+
     LINK_SCRIPT_PATH = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
 
     def initialize(info={})
@@ -19,7 +20,8 @@ module Msf
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
         OptString.new('OptLevel', [ false, 'The optimization level to compile with, e.g. O1, O2, O3, Os', 'O2' ]),
-        OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order.ld" ])
+        OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order.ld" ]),
+        OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', true ])
       ], self.class)
     end
   end

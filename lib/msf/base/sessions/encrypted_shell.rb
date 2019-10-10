@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/base'
+require 'msf/core/payload/windows/chacha'
 
 module Msf
 module Sessions
@@ -8,6 +9,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
   include Msf::Session::Basic
   include Msf::Session::Provider::SingleCommandShell
+  include Msf::Payload::Windows::Chacha
 
   attr_accessor :arch
   attr_accessor :platform
@@ -15,13 +17,25 @@ class EncryptedShell < Msf::Sessions::CommandShell
   attr_accessor :iv
   attr_accessor :key
 
+  # define some sort of method that checks for
+  # the existence of payload in the db before
+  # using datastore
   def initialize(rstream, opts={})
     self.arch ||= ""
     self.platform = "windows"
     datastore = opts[:datastore]
     block_count = "\x01\x00\x00\x00"
-    @key = datastore['ChachaKey']
-    @iv = block_count + datastore['ChachaNonce']
+
+    unless opts[:staged]
+      payload_uuid = rstream.get_once(16, 1)
+      @key, @nonce = get_key_nonce(payload_uuid)
+
+      unless @key && @nonce
+        vprint_status('Failed to retrieve key/nonce for uuid. Resorting to datastore')
+        @key = datastore['ChachaKey']
+        @iv = block_count + datastore['ChachaNonce']
+      end
+    end
 
     new_key = Rex::Text.rand_text_alphanumeric(32)
     new_nonce = Rex::Text.rand_text_alphanumeric(12)
