@@ -11,7 +11,7 @@ Install [Docksal](https://docksal.io/)
 Create a new WordPress installation using `fin project create`
 
 ```
-➜  ~ fin project create                  
+fin project create
 1. Name your project (lowercase alphanumeric, underscore, and hyphen): msf-wp
 
 2. What would you like to install?
@@ -71,7 +71,6 @@ Success: WordPress installed successfully.
 Open http://msf-wp.docksal in your browser to verify the setup.
 Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin  
  DONE!  Completed all initialization steps.
-➜  ~ 
 ```
 
 ## Verification Steps
@@ -81,9 +80,9 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 3. Do: ```set VHOST [IP]```
 4. Do: ```run```
 
-## Scenarios
+### Wordpress 5.2 running in Docksal
 
-### Simple scan
+Follow the Instructions above to setup the Docksal Containers.
 
 ```
 msf5 > use auxiliary/scanner/http/wordpress_scanner
