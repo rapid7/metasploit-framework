@@ -6,7 +6,7 @@ web server privileges.
 
 ## Vulnerable Application
 
-### DukaPress <= 2.5.3
+### Wordpress with installed DukaPress <= 2.5.3
 * [https://wordpress.org/plugins/dukapress](https://wordpress.org/plugins/dukapress)
 * [Plugin v2.5.3](https://downloads.wordpress.org/plugin/dukapress.2.5.3.zip)
 
@@ -16,7 +16,7 @@ Install [Docksal](https://docksal.io/)
 Create a new Wordpress installation using `fin project create`
 
 ```
-➜  ~ fin project create                  
+fin project create                  
 1. Name your project (lowercase alphanumeric, underscore, and hyphen): msf-wp
 
 2. What would you like to install?
@@ -76,15 +76,14 @@ Success: WordPress installed successfully.
 Open http://msf-wp.docksal in your browser to verify the setup.
 Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin  
  DONE!  Completed all initialization steps.
-➜  ~ 
 ```
 
 Download the wordpress plugin
 
 ```
-➜  ~ cd msf-wp/wp-content/plugins
-➜  plugins wget https://downloads.wordpress.org/plugin/dukapress.2.5.3.zip
-➜  plugins unzip dukapress.2.5.3.zip
+cd msf-wp/wp-content/plugins
+wget https://downloads.wordpress.org/plugin/dukapress.2.5.3.zip
+unzip dukapress.2.5.3.zip
 
 ```
 
@@ -105,24 +104,20 @@ pass: admin
 
 ## Options
 
-**RHOSTS**
-
-The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-
-**VHOST**
-
-HTTP server virtual host
-
 **FILEPATH**
 
-The path to the file to read (default: /etc/passwd)
+The path to the file to read (default: `/etc/passwd`)
 
 **DEPTH**
 
-Traversal Depth (to reach the root folder) (default: 7)
+Traversal Depth (to reach the root folder) (default: `7`)
 
 
 ## Scenarios
+
+### Wordpress 5.2 running in Docksal
+
+Follow the Instructions above to setup the Docksal Containers.
 
 ````
 msf5 > use auxiliary/scanner/http/wp_dukapress_file_read
