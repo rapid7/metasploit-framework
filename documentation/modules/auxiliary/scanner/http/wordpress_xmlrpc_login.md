@@ -1,10 +1,10 @@
 ## Description
   This module attempts to authenticate against a Wordpress-site (via 
   XMLRPC) using username and password combinations indicated by the 
-  USER_FILE, PASS_FILE, and USERPASS_FILE options.
+  `USER_FILE`, `PASS_FILE`, and `USERPASS_FILE` options.
 
 ## References
-* [https://wordpress.org/](https://wordpress.org/)
+* [https://codex.wordpress.org/XML-RPC_Support](https://codex.wordpress.org/XML-RPC_Support)
 * [http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/](http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/)
 
 ## Vulnerable Application
@@ -15,7 +15,7 @@ Install [Docksal](https://docksal.io/)
 Create a new WordPress installation using `fin project create`
 
 ```
-➜  ~ fin project create                  
+fin project create
 1. Name your project (lowercase alphanumeric, underscore, and hyphen): msf-wp
 
 2. What would you like to install?
@@ -75,7 +75,6 @@ Success: WordPress installed successfully.
 Open http://msf-wp.docksal in your browser to verify the setup.
 Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin  
  DONE!  Completed all initialization steps.
-➜  ~ 
 ```
 
 ## Verification Steps
@@ -88,14 +87,6 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 6. Do: ```run```
 
 ## Options
-
-**RHOSTS**
-
-The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-
-**VHOST**
-
-HTTP server virtual host
 
 **USERNAME**
 
@@ -119,12 +110,15 @@ File containing users and passwords separated by space, one pair per line
 
 **USER_AS_PASS**
 
-Try the username as the password for all users (default: false)
+Try the username as the password for all users (default: `false`)
 
 
 ## Scenarios
 
-### valid user
+### Wordpress 5.2 running in Docksal
+
+Follow the Instructions above to setup the Docksal Containers.
+
 ```
 msf5 > use auxiliary/scanner/http/wordpress_xmlrpc_login 
 msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) > set RHOST msf-wp.docksal
@@ -148,7 +142,7 @@ msf5 auxiliary(scanner/http/wordpress_xmlrpc_login) >
 ```
 
 
-### XMLRPC not enabled
+### Wordpress 5.2 with disabled or protected XMLRPC
 
 You may see this message also, if you forgot to set the VHOST option.
 
