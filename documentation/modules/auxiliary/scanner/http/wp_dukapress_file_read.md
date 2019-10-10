@@ -1,7 +1,7 @@
 ## Description
 
 This module exploits a directory traversal vulnerability in WordPress Plugin
-"DukaPress" version 2.5.2, allowing to read arbitrary files with the
+"DukaPress" version 2.5.3, allowing to read arbitrary files with the
 web server privileges.
 
 ## Vulnerable Application

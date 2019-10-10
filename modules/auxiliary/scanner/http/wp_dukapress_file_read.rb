@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'WordPress DukaPress Plugin File Read Vulnerability',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in WordPress Plugin
-        "DukaPress" version 2.5.2, allowing to read arbitrary files with the
+        "DukaPress" version 2.5.3, allowing to read arbitrary files with the
         web server privileges.
       },
       'References'     =>
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    check_plugin_version_from_readme('dukapress', '2.5.7')
+    check_plugin_version_from_readme('dukapress', '2.5.3')
   end
 
   def run_host(ip)
