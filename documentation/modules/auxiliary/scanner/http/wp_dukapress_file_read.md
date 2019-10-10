@@ -16,7 +16,7 @@ Install [Docksal](https://docksal.io/)
 Create a new Wordpress installation using `fin project create`
 
 ```
-fin project create                  
+fin project create
 1. Name your project (lowercase alphanumeric, underscore, and hyphen): msf-wp
 
 2. What would you like to install?
