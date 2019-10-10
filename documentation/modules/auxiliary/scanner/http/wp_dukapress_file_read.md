@@ -99,7 +99,7 @@ pass: admin
 
 1. Do: ```use auxiliary/scanner/http/wp_dukapress_file_read```
 2. Do: ```set RHOSTS [IP]```
-3. Do: ```set VHOST [IP]```
+3. Do: ```set VHOST [HOSTNAME]```
 4. Do: ```run```
 
 ## Options
