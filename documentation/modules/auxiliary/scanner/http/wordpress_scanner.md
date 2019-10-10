@@ -77,7 +77,7 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 1. Do: ```use auxiliary/scanner/http/wordpress_sanner```
 2. Do: ```set RHOSTS [IP]```
-3. Do: ```set VHOST [DOMAIN]```
+3. Do: ```set VHOST [HOSTNAME]```
 4. Do: ```run```
 
 ### Wordpress 5.2 running in Docksal
