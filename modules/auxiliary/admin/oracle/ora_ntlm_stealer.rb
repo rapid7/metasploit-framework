@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
       register_options(
         [
-          OptString.new('IP', [ false, 'IP adress of SMB proxy.', '0.0.0.0' ]),
+          OptString.new('IP', [ false, 'IP address of SMB proxy.', '0.0.0.0' ]),
         ])
   end
 

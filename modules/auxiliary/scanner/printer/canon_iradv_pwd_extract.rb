@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Extract the adress book data and save out to loot
+  # Extract the address book data and save out to loot
   def extract(cookies, ip)
     vars_post = {
       "AID" => "#{datastore['ADDRSBOOK']}",

@@ -4,7 +4,7 @@ Thanks for your interest in making Metasploit -- and therefore, the
 world -- a better place!  Before you get started, review our
 [Code of Conduct].  There are multiple ways to help beyond just writing code:
  - [Submit bugs and feature requests] with detailed information about your issue or idea.
- - [Help fellow users with open issues] or [help fellow committers test recent pull requests].
+ - [Help fellow users with open issues] or [help fellow committers test recently submitted pull requests].
  - [Report a security vulnerability in Metasploit itself] to Rapid7.
  - Submit an updated or brand new module!  We are always eager for exploits, scanners, and new
    integrations or features. Don't know where to start? Set up a [development environment], then head over to ExploitDB to look for [proof-of-concept exploits] that might make a good module.
@@ -36,6 +36,7 @@ it into Metasploit's master branch.  If you do not care to follow these rules, y
 * **Do** [reference associated issues] in your pull request description.
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
+* **Don't** post questions in older closed PRs.
 
 Pull request [PR#9966] is a good example to follow.
 
@@ -69,6 +70,7 @@ When reporting Metasploit issues:
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything that might help us fix your bug.
 * **Don't** file duplicate reports; search for your bug before filing a new report.
+* **Don't** attempt to report issues on a closed PR.
 
 If you need some more guidance, talk to the main body of open source contributors over on our
 [Metasploit Slack] or [#metasploit on Freenode IRC].

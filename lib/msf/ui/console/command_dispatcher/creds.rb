@@ -3,7 +3,7 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
-require 'msf/core/auxiliary/jtr'
+require 'metasploit/framework/jtr/formatter'
 
 module Msf
 module Ui
@@ -43,7 +43,7 @@ class Creds
   #
   # All commands that require an active database should call this before
   # doing anything.
-  # TODO: abstract the db methothds to a mixin that can be used by both dispatchers
+  # TODO: abstract the db methods to a mixin that can be used by both dispatchers
   #
   def active?
     if not framework.db.active

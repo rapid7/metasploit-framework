@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
     ))
 
       register_options([
-        OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
+        OptString.new('HOSTNAMES', [false, 'Comma separated list of hostnames to resolve.']),
         OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
         OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ]),
         OptBool.new('DATABASE', [false, 'Report found hosts to DB', true])
