@@ -573,7 +573,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     framework.events.on_session_interact(self)
 
     console.framework = framework
-    unless framework.datastore['MeterpreterPrompt'].nil?
+    if framework.datastore['MeterpreterPrompt']
       console.update_prompt(framework.datastore['MeterpreterPrompt'])
     end
     # Call the console interaction subsystem of the meterpreter client and
