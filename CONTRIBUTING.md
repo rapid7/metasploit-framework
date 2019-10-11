@@ -70,7 +70,7 @@ When reporting Metasploit issues:
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything that might help us fix your bug.
 * **Don't** file duplicate reports; search for your bug before filing a new report.
-* **Don't** attmept to report issues on a closed PR.
+* **Don't** attempt to report issues on a closed PR.
 
 If you need some more guidance, talk to the main body of open source contributors over on our
 [Metasploit Slack] or [#metasploit on Freenode IRC].
