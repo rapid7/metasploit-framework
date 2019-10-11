@@ -27,7 +27,6 @@ metadata = {
         {'type': 'url', 'ref': 'https://github.com/ArmisSecurity/urgent11-detector'},
         {'type': 'cve', 'ref': '2019-12258'}
     ],
-    'type': 'single_scanner',
     'options':  {
         'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 80},
     },
