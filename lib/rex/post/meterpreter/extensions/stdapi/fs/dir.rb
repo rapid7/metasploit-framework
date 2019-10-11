@@ -209,7 +209,7 @@ class Dir < Rex::Post::Dir
       response = client.send_request(request)
 
       @working_directory = client.unicode_filter_encode(response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value)
-      end
+    end
     @working_directory
   end
 
