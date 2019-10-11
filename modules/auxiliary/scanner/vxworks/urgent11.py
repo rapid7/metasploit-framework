@@ -28,8 +28,9 @@ metadata = {
         {'type': 'cve', 'ref': '2019-12258'}
     ],
     'options':  {
-        'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 80},
+        'RPORT': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 80},
     },
+    'type': 'single_scanner',
     'notes': {
         'AKA': [
             'Urgent/11'
@@ -38,7 +39,6 @@ metadata = {
 }
 
 import abc
-import argparse
 import contextlib
 import socket
 import struct
