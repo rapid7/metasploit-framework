@@ -16,6 +16,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
   attr_accessor :iv
   attr_accessor :key
+  attr_accessor :staged
 
   # define some sort of method that checks for
   # the existence of payload in the db before
@@ -23,27 +24,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
   def initialize(rstream, opts={})
     self.arch ||= ""
     self.platform = "windows"
-    datastore = opts[:datastore]
-    block_count = "\x01\x00\x00\x00"
-
-    unless opts[:staged]
-      payload_uuid = rstream.get_once(16, 1)
-      @key, @nonce = get_key_nonce(payload_uuid)
-
-      unless @key && @nonce
-        vprint_status('Failed to retrieve key/nonce for uuid. Resorting to datastore')
-        @key = datastore['ChachaKey']
-        @iv = block_count + datastore['ChachaNonce']
-      end
-    end
-
-    new_key = Rex::Text.rand_text_alphanumeric(32)
-    new_nonce = Rex::Text.rand_text_alphanumeric(12)
-    new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
-    rstream.write(new_cipher)
-
-    @key = new_key
-    @iv = block_count + new_nonce
+    @staged = opts[:datastore][:staged]
     super
   end
 
@@ -57,6 +38,35 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
   def self.type
     self.class.type = "Encrypted"
+  end
+
+  def process_autoruns(datastore)
+    block_count = "\x01\x00\x00\x00"
+    @key = datastore[:key] || datastore['ChachaKey']
+    nonce = datastore[:nonce] || datastore['ChachaNonce']
+    @iv = block_count + nonce
+
+    # staged payloads retrieve UUID via
+    # handle_connection() in stager.rb
+    unless @staged
+      curr_uuid = rstream.get_once(16, 1)
+      @key, @nonce = get_key_nonce(curr_uuid)
+      @iv = block_count + @nonce
+
+      unless @key && @nonce
+        print_status('Failed to retrieve key/nonce for uuid. Resorting to datastore')
+        @key = datastore['ChachaKey']
+        @iv = block_count + datastore['ChachaNonce']
+      end
+    end
+
+    new_key = Rex::Text.rand_text_alphanumeric(32)
+    new_nonce = Rex::Text.rand_text_alphanumeric(12)
+    new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
+    rstream.write(new_cipher)
+
+    @key = new_key
+    @iv = block_count + new_nonce
   end
 
   ##
@@ -89,8 +99,6 @@ class EncryptedShell < Msf::Sessions::CommandShell
     shell_close
     raise e
   end
-
-  undef_method :process_autoruns
 
 end
 end

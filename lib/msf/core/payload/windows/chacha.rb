@@ -11,22 +11,21 @@ module Msf::Payload::Windows::Chacha
     print_warning('Database is not connected. Cannot Save payload info!') unless (framework.db && framework.db.active)
 
     b_opts = { 'key' => conf[:key], 'nonce' => conf[:nonce] }
-    puts conf[:uuid]
     saved_payload = framework.db.get_payload(uuid: conf[:uuid])
     if saved_payload
       framework.db.update_payload(id: saved_payload.id, build_opts: b_opts)
     else
-      vprint_status('Payload does not exist in database. Attempting to save it now.')
+      print_status('Payload does not exist in database. Attempting to save it now.')
       framework.db.create_payload(uuid: conf[:uuid], build_opts: b_opts)
     end
   rescue
     print_error('Failed to save payload info to database')
   end
 
-  def get_key_nonce(uuid)
+  def get_key_nonce(p_uuid)
     return nil unless (framework.db && framework.db.active)
 
-    curr_payload = framework.db.get_payload(uuid: uuid)
+    curr_payload = framework.db.get_payload(uuid: p_uuid)
     return nil unless curr_payload && curr_payload[:build_opts]
 
     key = curr_payload[:build_opts]['key']
@@ -34,6 +33,6 @@ module Msf::Payload::Windows::Chacha
 
     return key, nonce
   rescue
-    vprint_warning("Failed to retrieve key and nonce for uuid: #{uuid}")
+    print_warning("Failed to retrieve key and nonce for uuid: #{p_uuid}")
   end
 end

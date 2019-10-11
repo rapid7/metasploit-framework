@@ -169,7 +169,13 @@ module Msf::Payload::Stager
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)
           if uuid_raw
-            opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+            if respond_to? :uuid_hex
+              if uuid_hex
+                opts[:uuid] = uuid_raw
+              end
+            else
+              opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+            end
           end
         end
       end

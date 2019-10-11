@@ -3,6 +3,7 @@
 require 'msf/core'
 require 'rex/peparsey'
 require 'msf/core/payload/uuid/options'
+require 'msf/core/payload/windows'
 require 'msf/core/payload/windows/encrypted_payload_opts'
 require 'msf/core/payload/windows/chacha'
 require 'metasploit/framework/compiler/mingw'
@@ -93,15 +94,21 @@ module Payload::Windows::EncryptedReverseTcp
     src << stager_comm
   end
 
+  def uuid_hex
+    true
+  end
+
   def include_send_uuid
     true
   end
 
   def generate_stage(opts)
     conf = opts[:datastore]
+    conf[:staged] = true
     key, nonce = get_key_nonce(opts[:uuid])
+
     unless key && nonce
-      vprint_status('No existing key/nonce in db. Resorting to datastore options.')
+      print_status('No existing key/nonce in db. Resorting to datastore options.')
       key = conf['ChachaKey']
       nonce = conf['ChachaNonce']
     end
