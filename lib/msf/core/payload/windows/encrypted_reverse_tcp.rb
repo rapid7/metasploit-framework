@@ -58,7 +58,9 @@ module Payload::Windows::EncryptedReverseTcp
       linker_script: datastore['LinkerScript'],
       align_obj:     datastore['AlignObj'] || '',
       opt_lvl:       datastore['OptLevel'],
-      f_name:        (staged? ? 'reverse_pic_staged.exe' : 'reverse_pic.exe'),
+      keep_src:      datastore['KeepSrc'],
+      keep_exe:      datastore['KeepExe'],
+      f_name:        (staged? ? 'reverse_pic_stager.exe' : 'reverse_pic_stageless.exe'),
       arch:          self.arch_to_s
     }
 
@@ -119,6 +121,8 @@ module Payload::Windows::EncryptedReverseTcp
       strip_symbols: false,
       linker_script: datastore['LinkerScript'],
       align_obj:     datastore['AlignObj'] || '',
+      keep_src:      datastore['KeepSrc'],
+      keep_exe:      datastore['KeepExe'],
       f_name:        'reverse_pic_stage.exe',
       arch:          self.arch_to_s
     }
@@ -163,6 +167,7 @@ module Payload::Windows::EncryptedReverseTcp
     text_section = bin.sections.first
     text_section = text_section._isource
 
+    Metasploit::Framework::Compiler::Mingw.cleanup_files(opts)
     text_section.rawdata
   end
 

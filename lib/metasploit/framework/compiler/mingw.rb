@@ -33,7 +33,8 @@ module Metasploit
           cmd = ''
           link_options = '-Wl,'
 
-          path = File.join(Msf::Config.install_root, 'payload.c')
+          src_file = opts[:f_name].split('.').first
+          path = File.join(Msf::Config.install_root, "#{src_file}.c")
           File.write(path, src)
 
           opt_level = [ 'Os', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
@@ -58,8 +59,6 @@ module Metasploit
           cmd << '-fno-ident '
           cmd << opt_level
 
-          # need to add object file to command
-          # if arch is x64
           cmd << "#{opts[:align_obj]} " unless opts[:align_obj].empty?
 
           link_options << '--no-seh,'
@@ -69,6 +68,23 @@ module Metasploit
           cmd << link_options
 
           cmd
+        end
+
+        def self.cleanup_files(opts={})
+          file_base = opts[:f_name].split('.').first
+          src_file = "#{file_base}.c"
+          exe_file = "#{file_base}.exe"
+          file_path = Msf::Config.install_root
+
+          unless opts[:keep_src]
+            File.delete("#{file_path}/#{src_file}") if File.exist?("#{file_path}/#{src_file}")
+          end
+
+          unless opts[:keep_exe]
+            File.delete("#{file_path}/#{exe_file}") if File.exist?("#{file_path}/#{exe_file}")
+          end
+        rescue Errno::ENOENT
+          print_error("Failed to delete file")
         end
       end
     end
