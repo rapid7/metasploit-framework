@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def icmp_code_detection(ip)
-    p = PacketFu::ICMPPacket.new
+    p = PacketFu::ICMPPacket.new(config: PacketFu::Utils.whoami?)
 
     # IP
     p.ip_saddr = Rex::Socket.source_address(ip)
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     p.recalc
 
     vprint_status(p.inspect)
-    capture_sendto(p.to_s, ip)
+    p.to_w
 
     r = inject_reply(:icmp)
 
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def icmp_timestamp_detection(ip)
-    p = PacketFu::ICMPPacket.new
+    p = PacketFu::ICMPPacket.new(config: PacketFu::Utils.whoami?)
 
     # IP
     p.ip_saddr = Rex::Socket.source_address(ip)
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     p.recalc
 
     vprint_status(p.inspect)
-    capture_sendto(p.to_s, ip)
+    p.to_w
 
     r = inject_reply(:icmp)
 
