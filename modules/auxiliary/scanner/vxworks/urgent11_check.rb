@@ -29,12 +29,28 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     ))
 
+    register_options([
+      Opt::RPORT(80, true, 'Target port for TCP detections')
+    ])
+
     deregister_options('INTERFACE', 'PCAPFILE', 'FILTER')
+  end
+
+  #
+  # Utility methods
+  #
+
+  def rport
+    datastore['RPORT']
   end
 
   def filter(ip)
     "src host #{ip} and dst host #{Rex::Socket.source_address(ip)}"
   end
+
+  #
+  # Scanner methods
+  #
 
   def run_host(ip)
     # XXX: Configuring Ethernet and IP headers sends a UDP packet!
@@ -43,64 +59,153 @@ class MetasploitModule < Msf::Auxiliary
     open_pcap
     capture.setfilter(filter(ip))
 
-    tcp_malformed_options_detection(ip)
-    tcp_dos_detection(ip)
-    icmp_code_detection(ip)
-    icmp_timestamp_detection(ip)
+    run_detections(ip, rport)
   rescue RuntimeError => e
     fail_with(Failure::BadConfig, e.message)
   ensure
     close_pcap
   end
 
-  def tcp_malformed_options_detection(ip)
+  def detections
+    %w[
+      tcp_malformed_options_detection
+      tcp_dos_detection
+      icmp_code_detection
+      icmp_timestamp_detection
+    ]
   end
 
-  def tcp_dos_detection(ip)
+  def run_detections(ip, port)
+    print_status("Running against #{ip}:#{port}")
+
+    final_ipnet_score        = 0
+    final_vxworks_score      = 0
+    affected_vulnerabilities = []
+
+    detections.each do |detection|
+      @ipnet_score     = 0
+      @vxworks_score   = 0
+      @vulnerable_cves = []
+
+      # Sorry, I used ActiveSupport
+      detection_name = detection.camelize
+
+      begin
+        send(detection, ip, port)
+      rescue NotImplementedError
+        print_warning("#{detection_name} is not implemented yet")
+        next
+      end
+
+      print_status(
+        "\t#{detection_name.ljust(30)}" \
+        "\tVxWorks: #{@vxworks_score}" \
+        "\tIPnet: #{@ipnet_score}"
+      )
+
+      final_ipnet_score        += @ipnet_score
+      final_vxworks_score      += @vxworks_score
+      affected_vulnerabilities += @vulnerable_cves
+    end
+
+    if final_ipnet_score > 0
+      print_good("IP #{ip} detected as IPnet")
+    elsif final_ipnet_score < 0
+      print_error("IP #{ip} detected as NOT IPnet")
+    end
+
+    if final_vxworks_score > 100
+      print_good("IP #{ip} detected as VxWorks")
+    elsif final_vxworks_score < 0
+      print_error("IP #{ip} detected as NOT VxWorks")
+    end
+
+    affected_vulnerabilities.each do |vuln|
+      msg = "IP #{ip} affected by #{vuln}"
+      print_good(msg)
+      report_vuln(
+        host: ip,
+        name: name,
+        refs: references,
+        info: msg
+      )
+    end
   end
 
-  def icmp_code_detection(ip)
-    p = PacketFu::ICMPPacket.new(config: @config)
+  #
+  # TCP detection methods
+  #
 
-    # IP
-    p.ip_daddr = ip
-
-    # ICMP
-    p.icmp_type = 8    # Echo request
-    p.icmp_code = 0x41 # Randomize?
-    p.payload   = capture_icmp_echo_pack
-    p.recalc
-
-    vprint_status(p.inspect)
-    p.to_w
-
-    r = inject_reply(:icmp)
-
-    return unless r && r.icmp_type == 0 # Echo reply
-
-    require 'pry'; binding.pry
+  def tcp_malformed_options_detection(ip, port)
+    raise NotImplementedError
   end
 
-  def icmp_timestamp_detection(ip)
-    p = PacketFu::ICMPPacket.new(config: @config)
+  def tcp_dos_detection(ip, port)
+    raise NotImplementedError
+  end
 
-    # IP
-    p.ip_daddr = ip
+  #
+  # ICMP detection methods
+  #
 
-    # ICMP
-    p.icmp_type = 13         # Timestamp request
-    p.icmp_code = 0          # Timestamp
-    p.payload   = "\x00" * 4 # Truncated
-    p.recalc
+  def icmp_code_detection(ip, _port = nil)
+    pkt = PacketFu::ICMPPacket.new(config: @config)
 
-    vprint_status(p.inspect)
-    p.to_w
+    # IP destination address
+    pkt.ip_daddr = ip
 
-    r = inject_reply(:icmp)
+    # ICMP echo request with non-zero code
+    pkt.icmp_type = 8
+    pkt.icmp_code = rand(0x01..0xff)
+    pkt.payload   = capture_icmp_echo_pack
+    pkt.recalc
 
-    return unless r && r.icmp_type == 14 # Timestamp reply
+    vprint_line(pkt.inspect)
+    pkt.to_w
 
-    require 'pry'; binding.pry
+    res = inject_reply(:icmp)
+    vprint_line(res.inspect)
+
+    unless res
+      return @ipnet_score = 0
+    end
+
+    # Echo reply with zeroed code
+    if res.icmp_type == 0 && res.icmp_code == 0
+      return @ipnet_score = 20
+    end
+
+    @ipnet_score = -20
+  end
+
+  def icmp_timestamp_detection(ip, _port = nil)
+    pkt = PacketFu::ICMPPacket.new(config: @config)
+
+    # IP destination address
+    pkt.ip_daddr = ip
+
+    # Truncated ICMP timestamp request
+    pkt.icmp_type = 13
+    pkt.icmp_code = 0
+    pkt.payload   = "\x00" * 4
+    pkt.recalc
+
+    vprint_line(pkt.inspect)
+    pkt.to_w
+
+    res = inject_reply(:icmp)
+    vprint_line(res.inspect)
+
+    unless res
+      return @ipnet_score = 0
+    end
+
+    # Timestamp reply
+    if res.icmp_type == 14
+      return @ipnet_score = 90
+    end
+
+    @ipnet_score = -30
   end
 
 end
