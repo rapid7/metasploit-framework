@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     ))
 
-    deregister_options('PCAPFILE', 'FILTER')
+    deregister_options('INTERFACE', 'PCAPFILE', 'FILTER')
   end
 
   def filter(ip)
@@ -37,6 +37,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    # Set Ethernet and IP headers
+    @config = PacketFu::Utils.whoami?(target: ip)
+
     open_pcap
     capture.setfilter(filter(ip))
 
@@ -57,10 +60,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def icmp_code_detection(ip)
-    p = PacketFu::ICMPPacket.new(config: PacketFu::Utils.whoami?)
+    p = PacketFu::ICMPPacket.new(config: @config)
 
     # IP
-    p.ip_saddr = Rex::Socket.source_address(ip)
     p.ip_daddr = ip
 
     # ICMP
@@ -74,19 +76,20 @@ class MetasploitModule < Msf::Auxiliary
 
     r = inject_reply(:icmp)
 
+    return unless r && r.icmp_type == 0 # Echo reply
+
     require 'pry'; binding.pry
   end
 
   def icmp_timestamp_detection(ip)
-    p = PacketFu::ICMPPacket.new(config: PacketFu::Utils.whoami?)
+    p = PacketFu::ICMPPacket.new(config: @config)
 
     # IP
-    p.ip_saddr = Rex::Socket.source_address(ip)
     p.ip_daddr = ip
 
     # ICMP
-    p.icmp_type = 13         # Timestamp
-    p.icmp_code = 0
+    p.icmp_type = 13         # Timestamp request
+    p.icmp_code = 0          # Timestamp
     p.payload   = "\x00" * 4 # Truncated
     p.recalc
 
@@ -94,6 +97,8 @@ class MetasploitModule < Msf::Auxiliary
     p.to_w
 
     r = inject_reply(:icmp)
+
+    return unless r && r.icmp_type == 14 # Timestamp reply
 
     require 'pry'; binding.pry
   end
