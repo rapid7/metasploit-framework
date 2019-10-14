@@ -66,10 +66,11 @@ class MetasploitModule < Msf::Auxiliary
     # ICMP
     p.icmp_type = 8    # Echo request
     p.icmp_code = 0x41 # Randomize?
+    p.payload   = capture_icmp_echo_pack
     p.recalc
 
     vprint_status(p.inspect)
-    inject(p.to_s)
+    capture_sendto(p.to_s, ip)
 
     r = inject_reply(:icmp)
 
@@ -90,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     p.recalc
 
     vprint_status(p.inspect)
-    inject(p.to_s)
+    capture_sendto(p.to_s, ip)
 
     r = inject_reply(:icmp)
 
