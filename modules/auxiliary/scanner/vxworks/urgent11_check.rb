@@ -77,6 +77,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def icmp_timestamp_detection(ip)
+    p = PacketFu::ICMPPacket.new
+
+    # IP
+    p.ip_saddr = Rex::Socket.source_address(ip)
+    p.ip_daddr = ip
+
+    # ICMP
+    p.icmp_type        = 13         # Timestamp
+    p.icmp_code        = 0
+    p.icmp_header.body = "\x00" * 4 # Truncated
+    p.recalc
+
+    vprint_status(p.inspect)
+    inject(p.to_s)
+
+    r = inject_reply(:icmp)
+
+    require 'pry'; binding.pry
   end
 
 end
