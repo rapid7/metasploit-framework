@@ -84,9 +84,9 @@ class MetasploitModule < Msf::Auxiliary
     p.ip_daddr = ip
 
     # ICMP
-    p.icmp_type        = 13         # Timestamp
-    p.icmp_code        = 0
-    p.icmp_header.body = "\x00" * 4 # Truncated
+    p.icmp_type = 13         # Timestamp
+    p.icmp_code = 0
+    p.payload   = "\x00" * 4 # Truncated
     p.recalc
 
     vprint_status(p.inspect)
