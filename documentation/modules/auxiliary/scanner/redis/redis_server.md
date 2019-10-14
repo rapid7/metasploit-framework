@@ -1,15 +1,17 @@
 ## Description
 
-Redis is an in-memory data structure project implementing a distributed, in-memory key-value database with optional durability. Redis supports different kinds of abstract data structures, such as strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps, streams, and spatial indexes.
+Redis is an in-memory data structure project implementing a distributed, in-memory key-value database with optional durability.
+Redis supports different kinds of abstract data structures, such as strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps, streams, and spatial indexes.
 
 This module locates Redis endpoints by attempting to run a specified Redis command.
 
 ## Vulnerable Application
 
 This module is tested on two different Redis server instances.
-Virtual testing environments(inside docker container): 
-- Redis 5.0.6
-- Redis 4.0.14
+Virtual testing environments (inside docker container): 
+
+ - Redis 5.0.6
+ - Redis 4.0.14
 
 ## Verification Steps
 
