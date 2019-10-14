@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Set Ethernet and IP headers
+    # XXX: Configuring Ethernet and IP headers sends a UDP packet!
     @config = PacketFu::Utils.whoami?(target: ip)
 
     open_pcap
