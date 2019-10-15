@@ -44,31 +44,43 @@ module Metasploit
           File.write(out_file, pe)
         end
 
-        # Returns the binary of a randomized and compiled source code.
+        # Returns randomized c source code.
         #
         # @param c_template [String]
         # 
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
-        def self.compile_random_c(c_template, opts={})
-          type = opts[:type] || :exe
-          cpu = opts[:cpu] || Metasm::Ia32.new
+        def self.generate_random_c(c_template, opts={})
           weight = opts[:weight] || 80
           headers = Compiler::Headers::Windows.new
           source_code = Compiler::Utils.normalize_code(c_template, headers)
+
           randomizer = Metasploit::Framework::Obfuscation::CRandomizer::Parser.new(weight)
           randomized_code = randomizer.parse(source_code)
-          self.compile_c(randomized_code.to_s, type, cpu)
+          randomized_code.to_s
+        end
+
+        # Returns the binary of a randomized and compiled source code.
+        #
+        # @param rand_c_template [String]
+        # 
+        # @raise [NotImplementedError] If the type is not supported.
+        # @return [String] The compiled code.
+        def self.compile_random_c(rand_c_template, opts={})
+          type = opts[:type] || :exe
+          cpu = opts[:cpu] || Metasm::Ia32.new
+
+          self.compile_c(rand_c_template, type, cpu)
         end
 
         # Saves the randomized compiled code as a file. This is basically a wrapper for #self.compile_random_c
         #
         # @param out_file [String] The file path to save the binary as.
-        # @param c_template [String] The C source code to randomize and compile.
+        # @param rand_c_template [String] The randomized C source code to compile.
         # @param opts [Hash] Options to pass to #compile_random_c
         # @return [Integer] The number of bytes written.
-        def self.compile_random_c_to_file(out_file, c_template, opts={})
-          pe = self.compile_random_c(c_template, opts)
+        def self.compile_random_c_to_file(out_file, rand_c_template, opts={})
+          pe = self.compile_random_c(rand_c_template, opts)
           File.write(out_file, pe)
         end
       end
