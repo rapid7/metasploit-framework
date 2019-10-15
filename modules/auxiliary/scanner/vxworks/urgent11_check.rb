@@ -33,6 +33,10 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(80, true, 'Target port for TCP detections')
     ])
 
+    register_advanced_options([
+      OptInt.new('RetransmissionRate', [true, 'Send n TCP packets', 3])
+    ])
+
     deregister_options('INTERFACE', 'PCAPFILE', 'FILTER')
   end
 
@@ -95,6 +99,9 @@ class MetasploitModule < Msf::Auxiliary
       rescue NotImplementedError
         print_warning("#{detection_name} is not implemented yet")
         next
+      rescue StandardError => e
+        print_error("#{detection_name} failed: #{e.message}")
+        next
       end
 
       print_status(
@@ -141,7 +148,49 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def tcp_dos_detection(ip, port)
-    raise NotImplementedError
+    sock = Rex::Socket::Tcp.create(
+      'PeerHost' => ip,
+      'PeerPort' => port
+    )
+
+    pkt = PacketFu::TCPPacket.new(config: @config)
+
+    # IP destination address
+    pkt.ip_daddr = ip
+
+    # TCP SYN with malformed (truncated) WS option
+    pkt.tcp_src       = sock.getlocalname.last
+    pkt.tcp_dst       = sock.peerport
+    pkt.tcp_seq       = rand(0xffffffff + 1)
+    pkt.tcp_ack       = rand(0xffffffff + 1)
+    pkt.tcp_flags.syn = 1
+    pkt.tcp_opts      = [3].pack('C') # WS option
+    pkt.recalc
+
+    res = nil
+
+    datastore['RetransmissionRate'].times do
+      pkt.to_w
+      res = inject_reply(:tcp)
+
+      break unless res
+    end
+
+    unless res
+      return @vxworks_score = 0,
+             @ipnet_score   = 0
+    end
+
+    if res.tcp_flags.rst == 1 &&
+      pkt.tcp_src == res.tcp_src && pkt.tcp_dst == res.tcp_dst
+
+      return @vxworks_score   = 100,
+             @ipnet_score     = 100,
+             @vulnerable_cves = ['CVE-2019-12258']
+    end
+
+    return @vxworks_score = 0,
+           @ipnet_score   = 0
   end
 
   #
@@ -160,11 +209,8 @@ class MetasploitModule < Msf::Auxiliary
     pkt.payload   = capture_icmp_echo_pack
     pkt.recalc
 
-    vprint_line(pkt.inspect)
     pkt.to_w
-
     res = inject_reply(:icmp)
-    vprint_line(res.inspect)
 
     unless res
       return @ipnet_score = 0
@@ -190,11 +236,8 @@ class MetasploitModule < Msf::Auxiliary
     pkt.payload   = "\x00" * 4
     pkt.recalc
 
-    vprint_line(pkt.inspect)
     pkt.to_w
-
     res = inject_reply(:icmp)
-    vprint_line(res.inspect)
 
     unless res
       return @ipnet_score = 0
