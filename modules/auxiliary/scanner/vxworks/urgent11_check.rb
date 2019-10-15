@@ -96,9 +96,6 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         send(detection, ip, port)
-      rescue NotImplementedError
-        print_warning("#{detection_name} is not implemented yet")
-        next
       rescue StandardError => e
         print_error("#{detection_name} failed: #{e.message}")
         next
@@ -144,7 +141,38 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def tcp_malformed_options_detection(ip, port)
-    raise NotImplementedError
+    pkt = PacketFu::TCPPacket.new(config: @config)
+
+    # IP destination address
+    pkt.ip_daddr = ip
+
+    # TCP packet with malformed options
+    pkt.tcp_flags.syn = 1
+    pkt.tcp_dst = port
+    pkt.tcp_opts =
+      [2, 4, 1460].pack('CCn') + # MSS
+      [1, 2].pack('CC') +        # NOP
+      [3, 2].pack('CC') +        # WSCALE with invalid length
+      [3, 3, 0].pack('CCC')      # WSCALE with valid length
+    pkt.recalc
+
+    pkt.to_w
+    res = inject_reply(:tcp)
+
+    unless res
+      @vxworks_score = 0
+      @ipnet_score = 50
+      return
+    end
+
+    if res.tcp_flags.rst == 1
+      @vxworks_score = 100
+      @ipnet_score = 100
+      return
+    end
+
+    @vxworks_score = 100
+    @ipnet_score = 100
   end
 
   def tcp_dos_detection(ip, port)
