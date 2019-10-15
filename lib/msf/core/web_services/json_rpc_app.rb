@@ -26,13 +26,23 @@ module Msf::WebServices
 
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
       set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
+      set :api_token, ENV.fetch('MSF_WS_JSON_RPC_API_TOKEN', nil)
     end
 
     before do
-      # store DBManager in request environment so that it is available to Warden
-      request.env['msf.db_manager'] = get_db
+      db = get_db
+      if db_initialized(db)
+        # store DBManager in request environment so that it is available to Warden
+        request.env['msf.db_manager'] = db
+        @@auth_initialized ||= get_db.users({}).count > 0
+      elsif !settings.api_token.nil?
+        @@auth_initialized = true
+        request.env['msf.api_token'] = settings.api_token
+      else
+        @@auth_initialized = false
+      end
+
       # store flag indicating whether authentication is initialized in the request environment
-      @@auth_initialized ||= get_db.users({}).count > 0
       request.env['msf.auth_initialized'] = @@auth_initialized
     end
 
@@ -66,6 +76,13 @@ module Msf::WebServices
                             strategies: [:admin_api_token],
                             # action (route) of the failure application
                             action: AuthServlet.api_unauthenticated_path
+    end
+
+    def db_initialized(db)
+      db.check
+      true
+    rescue
+      false
     end
 
   end
