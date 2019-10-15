@@ -210,7 +210,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.tcp_flags.rst == 1 &&
-      pkt.tcp_src == res.tcp_src && pkt.tcp_dst == res.tcp_dst
+      res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
 
       return @vxworks_score   = 100,
              @ipnet_score     = 100,
