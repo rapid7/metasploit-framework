@@ -148,6 +148,7 @@ module Parser
       end
       return nil if just_the_facts.empty?
       just_the_facts[:task] = @args[:task]
+      just_the_facts[:wspace] = @args[:wspace] # workspace context is a required `fact`
       db.send("report_#{table}", just_the_facts)
     end
 
