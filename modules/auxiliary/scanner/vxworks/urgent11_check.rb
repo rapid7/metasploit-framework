@@ -146,33 +146,38 @@ class MetasploitModule < Msf::Auxiliary
     # IP destination address
     pkt.ip_daddr = ip
 
-    # TCP packet with malformed options
+    # TCP SYN with malformed options
+    pkt.tcp_dst       = port
     pkt.tcp_flags.syn = 1
-    pkt.tcp_dst = port
-    pkt.tcp_opts =
-      [2, 4, 1460].pack('CCn') + # MSS
-      [1, 2].pack('CC') +        # NOP
-      [3, 2].pack('CC') +        # WSCALE with invalid length
-      [3, 3, 0].pack('CCC')      # WSCALE with valid length
+    pkt.tcp_opts      = [2, 4, 1460].pack('CCn') + # MSS
+                        [1, 2].pack('CC') +        # NOP
+                        [3, 2].pack('CC') +        # WSCALE with invalid length
+                        [3, 3, 0].pack('CCC')      # WSCALE with valid length
     pkt.recalc
 
-    pkt.to_w
-    res = inject_reply(:tcp)
+    res = nil
+
+    datastore['RetransmissionRate'].times do
+      pkt.to_w
+      res = inject_reply(:tcp)
+
+      break unless res
+    end
 
     unless res
-      @vxworks_score = 0
-      @ipnet_score = 50
-      return
+      return @vxworks_score = 0,
+             @ipnet_score   = 50
     end
 
-    if res.tcp_flags.rst == 1
-      @vxworks_score = 100
-      @ipnet_score = 100
-      return
+    if res.tcp_flags.rst == 1 &&
+      res.tcp_dst == pkt.tcp_src && res.tcp_dst == pkt.tcp_src
+
+      return @vxworks_score = 100,
+             @ipnet_score   = 100
     end
 
-    @vxworks_score = 100
-    @ipnet_score = 100
+    return @vxworks_score = -100,
+           @ipnet_score   = -100
   end
 
   def tcp_dos_detection(ip, port)
