@@ -146,8 +146,7 @@ module Msf::Post::Common
       else
         o = session.shell_command_token("#{cmd} #{args}", time_out)
       end
-      # this is terrible
-      o.chomp!.reverse!.chomp!.reverse! if o
+      o.chomp! if o
     end
     return "" if o.nil?
     return o
