@@ -52,12 +52,16 @@ class MetasploitModule < Msf::Post
       bits = ARCH_X86
     end
 
-    if pid == 0 or not has_pid?(pid)
+    if pid == 0
+      if not has_pid?(pid)
+        print_error("Process #{pid} was not found")
+        return false
+      end
       p = create_temp_proc(bits)
       print_status("Spawned process #{p.pid}")
     else
-      print_status("Opening process #{p.pid}")
       p = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
+      print_status("Opening process #{p.pid}")
     end
 
     if bits == ARCH_X64 and client.arch == ARCH_X86
@@ -148,10 +152,12 @@ class MetasploitModule < Msf::Post
       if datastore['INTERACTIVE'] && datastore['CHANNELIZED'] && datastore['PID'] == 0
         print_status("Interacting")
         client.console.interact_with_channel(p.channel)
-      elsif datastore['CHANNELIZED']
+      elsif datastore['CHANNELIZED'] && datastore['PID'] == 0
         print_status("Retrieving output")
         data = p.channel.read
         print_line(data) if data
+      elsif datastore['CHANNELIZED'] && datastore['PID'] != 0
+        print_warning("It's not possible to retrieve output when injecting existing processes.")
       end
     rescue ::Exception => e
       print_error("Failed to inject Payload to #{p.pid}!")
