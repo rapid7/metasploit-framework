@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://armis.com/urgent11'],
         ['URL', 'https://github.com/ArmisSecurity/urgent11-detector']
       ],
-      'DisclosureDate' => '2019-08-09', # NVD published date
+      'DisclosureDate' => '2019-08-09', # NVD entry publication
       'License'        => MSF_LICENSE,
       'Notes'          => {'Stability' => [CRASH_SAFE]}
     ))
