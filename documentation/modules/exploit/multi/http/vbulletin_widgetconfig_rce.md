@@ -44,7 +44,7 @@ meterpreter >
 
 **PHP_CMD**
 
-Specify the PHP function in which you want execute the payload. Default: shell_exec
+Specify the PHP function in which you want execute the payload. Default: `shell_exec`
 
 **TARGETURI**
 
