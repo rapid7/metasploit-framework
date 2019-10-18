@@ -59,7 +59,7 @@ class Nop
           length = val.to_i
         when '-b'
           badchars = Rex::Text.dehex(val)
-        when "-c"
+        when "-s"
           saveregs = val.split(/,\s?/)
         when '-t'
           type = val
