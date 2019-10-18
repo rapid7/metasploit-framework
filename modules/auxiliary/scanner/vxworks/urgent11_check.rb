@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://github.com/ArmisSecurity/urgent11-detector']
       ],
       'DisclosureDate' => '2019-08-09', # NVD published date
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Notes'          => {'Stability' => [CRASH_SAFE]}
     ))
 
     register_options([
