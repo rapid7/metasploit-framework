@@ -61,5 +61,15 @@ For further information:
   [+] Load balancing pool name "~DMZ~EXAMPLE~vulnarable-target-443_pool" found
   [+] Backend 10.1.105.72:443 found
   [*] Auxiliary module execution completed
+  msf5 auxiliary(gather/f5_bigip_cookie_disclosure) > notes
+
+  Notes
+  =====
+
+   Time                     Host             Service  Port  Protocol  Type                           Data
+   ----                     ----             -------  ----  --------  ----                           ----
+   2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_cookie_name   "BIGipServer~DMZ~EXAMPLE~vulnarable-target-443_pool"
+   2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_pool_name     "~DMZ~EXAMPLE~vulnarable-target-443_pool"
+   2019-08-20 21:21:02 UTC  1.1.1.1                                   f5_load_balancer_backends      [{:host=>"10.1.105.72", :port=>443}]
   msf5 auxiliary(gather/f5_bigip_cookie_disclosure) >
   ```
