@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      Opt::RPORT(80, true, 'Target port for TCP detections'),
       OptInt.new('RetransmissionRate', required: true, default: 3, desc: 'Send n TCP packets')
     ])
 
@@ -45,10 +44,6 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Utility methods
   #
-
-  def rport
-    datastore['RPORT']
-  end
 
   def rports
     datastore['RPORTS'].gsub(/\s+/m, ' ').strip.split(' ').collect{|i| (i.to_i.to_s == i) ? i.to_i : nil}.compact
@@ -71,7 +66,6 @@ class MetasploitModule < Msf::Auxiliary
 
     port_open = false
     rports.each do |rport|
-      datastore['RPORT'] = rport
       port_open |= run_detections(ip, rport)
     end
     raise RuntimeError.new("No ports open on #{ip} from #{datastore['RPORTS']}") if !port_open
