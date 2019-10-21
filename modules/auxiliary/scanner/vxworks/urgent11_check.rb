@@ -87,6 +87,17 @@ class MetasploitModule < Msf::Auxiliary
     final_vxworks_score      = 0
     affected_vulnerabilities = []
 
+    begin
+      sock = Rex::Socket::Tcp.create(
+        'PeerHost' => ip,
+        'PeerPort' => port
+      )
+    rescue
+      print_bad("Could not connect to #{ip}:#{port}, cannot verify vulnerability")
+      return
+    end
+    sock.close
+
     detections.each do |detection|
       @ipnet_score     = 0
       @vxworks_score   = 0
@@ -210,6 +221,8 @@ class MetasploitModule < Msf::Auxiliary
 
       break unless res
     end
+
+    sock.close
 
     unless res
       return @vxworks_score = 0,
