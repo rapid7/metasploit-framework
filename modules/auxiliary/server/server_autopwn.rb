@@ -10,25 +10,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Session::Interactive
   include Msf::Session::Scriptable
 
-  if File.file?("./msfexec.rc") 
-    File.delete("./msfexec.rc")
-  end
-
-  $handler = 2000
-  def initialize
-    super(
+ def initialize(info = {})
+    super(update_info(info,
       'Name'        => 'server_autopwn',
       'Description' => %q{
-        Enumerates open TCP ports, cross references them with metasploit
-        modules using the same default port, then builds a metasploit .rc
-        file to be used against the host.
+          This module scans a target and generates a custom msfexec.rc
+          resource file to be used against the target.
       },
-      'Author'      => [ 'oxagast', 'Marshall Whittaker' ],
+      'Author'      =>
+        [
+          'oxagast/Marshall Whittaker'
+        ],
       'License'     => MSF_LICENSE
-    )
+      ))
+
+
     register_options(
       [
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
@@ -41,12 +39,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('LPATH', [true, "Local path to grep metasploit exploit modules (ends in modules/exploits !)", "./modules/exploits"]),
         OptString.new('ARCH', [true, "Processor architecture of the target.", "x64"])
       ])
+  $handler = 2000
 
       deregister_options('RPORT')
-
- 
-          end
-    def run_host(ip)
+      end
+      def run_host(ip)
       timeout = datastore['TIMEOUT'].to_i
       ports = Rex::Socket.portspec_crack(datastore['PORTS'])
         if File.file?("./msfexec.rc")
