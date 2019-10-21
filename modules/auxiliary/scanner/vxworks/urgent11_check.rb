@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
+  include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
 
@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt.tcp_dst       = port
     pkt.tcp_flags.syn = 1
     pkt.tcp_opts      = [2, 4, 1460].pack('CCn') + # MSS
-                        [1, 2].pack('CC') +        # NOP
+                        [1].pack('C') +            # NOP
                         [3, 2].pack('CC') +        # WSCALE with invalid length
                         [3, 3, 0].pack('CCC')      # WSCALE with valid length
     pkt.recalc
@@ -198,7 +198,8 @@ class MetasploitModule < Msf::Auxiliary
     pkt.tcp_seq       = rand(0xffffffff + 1)
     pkt.tcp_ack       = rand(0xffffffff + 1)
     pkt.tcp_flags.syn = 1
-    pkt.tcp_opts      = [3].pack('C') # WS option
+    pkt.tcp_opts      = [3, 2].pack('CC') +        # WSCALE with invalid length
+                        [3, 3, 0].pack('CCC')      # WSCALE with valid length
     pkt.recalc
 
     res = nil
