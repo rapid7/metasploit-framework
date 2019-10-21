@@ -1664,6 +1664,7 @@ class Core
       Prompt
       PromptChar
       PromptTimeFormat
+      MeterpreterPrompt
     }
     mod = active_module
 

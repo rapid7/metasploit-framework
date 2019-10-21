@@ -53,6 +53,10 @@ module Shell
     self.histfile = histfile
     self.hist_last_saved = 0
 
+    # Static prompt variables
+    self.local_hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] || ENV['COMPUTERNAME']
+    self.local_username = ENV['USER'] || `whoami` || ENV['USERNAME']
+
     self.framework = framework
   end
 
@@ -380,34 +384,86 @@ protected
   # Handle prompt substitutions
   #
   def format_prompt(str)
-    if framework
-      if str.include?('%T')
-        t = Time.now
-        # This %T is the strftime shorthand for %H:%M:%S
-        format = framework.datastore['PromptTimeFormat'] || '%T'
-        t = t.strftime(format)
-        # This %T is the marker in the prompt where we need to place the time
-        str.gsub!('%T', t.to_s)
+    return str unless framework
+
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+    default = 'unknown'
+
+    if str.include?('%T')
+      t = Time.now
+      # This %T is the strftime shorthand for %H:%M:%S
+      format = framework.datastore['PromptTimeFormat'] || '%T'
+      t = t.strftime(format)
+      # This %T is the marker in the prompt where we need to place the time
+      str.gsub!('%T', t.to_s)
+    end
+
+    if str.include?('%W') && framework.db.active
+      str.gsub!('%W', framework.db.workspace.name)
+    end
+
+    if session
+      sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
+
+      if str.include?('%A')
+        str.gsub!('%A', (sysinfo.nil? ? default : sysinfo['Architecture']))
+      end
+
+      if str.include?('%D')
+        str.gsub!('%D', (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default))
+      end
+
+      if str.include?('%d')
+        str.gsub!('%d', ::Dir.getwd)
       end
 
       if str.include?('%H')
-        hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
-          ENV['COMPUTERNAME'] || 'unknown'
-
-        str.gsub!('%H', hostname.chomp)
+        str.gsub!('%H', (sysinfo.nil? ? default : sysinfo['Computer']))
       end
 
-      if str.include?('%U')
-        user = ENV['USER'] || `whoami` || ENV['USERNAME'] || 'unknown'
-        str.gsub!('%U', user.chomp)
+      if str.include?('%h')
+        str.gsub!('%h', (self.local_hostname || default).chomp)
+      end
+
+      if str.include?('%I')
+        str.gsub!('%I', session.tunnel_peer)
+      end
+
+      if str.include?('%i')
+        str.gsub!('%i', session.tunnel_local)
+      end
+
+      if str.include?('%M')
+        str.gsub!('%M', session.session_type)
       end
 
       if str.include?('%S')
-        str.gsub!('%S', framework.sessions.length.to_s)
+        str.gsub!('%S', session.sid.to_s)
+      end
+
+      if str.include?('%U')
+        str.gsub!('%U', (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default))
+      end
+
+      if str.include?('%u')
+        str.gsub!('%u', (self.local_username || default).chomp)
+      end
+    else
+      if str.include?('%H')
+        str.gsub!('%H', (self.local_hostname || default).chomp)
       end
 
       if str.include?('%J')
         str.gsub!('%J', framework.jobs.length.to_s)
+      end
+
+      if str.include?('%U')
+        str.gsub!('%U', (self.local_username || default).chomp)
+      end
+
+      if str.include?('%S')
+        str.gsub!('%S', framework.sessions.length.to_s)
       end
 
       if str.include?('%L')
@@ -416,10 +472,6 @@ protected
 
       if str.include?('%D')
         str.gsub!('%D', ::Dir.getwd)
-      end
-
-      if str.include?('%W') && framework.db.active
-        str.gsub!('%W', framework.db.workspace.name)
       end
     end
 
@@ -433,6 +485,7 @@ protected
   attr_accessor :histfile # :nodoc:
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
+  attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
 
 private

@@ -167,7 +167,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         end
 
         # only load priv on native windows
-        # TODO: abastrct this too, to remove windows stuff
+        # TODO: abstract this too, to remove windows stuff
         if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
@@ -428,6 +428,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   def update_session_info
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    fs.dir.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
@@ -566,11 +568,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    if framework.datastore['MeterpreterPrompt']
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.
