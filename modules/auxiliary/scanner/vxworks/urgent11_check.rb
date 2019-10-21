@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def rports
-    datastore['RPORTS'].gsub(/\s+/m, ' ').strip.split(' ').collect{|i| (i.to_i.to_s == i) ? i.to_i : nil}.compact
+    datastore['RPORTS'].split(/[\s,]/).collect{|i| (i.to_i.to_s == i) ? i.to_i : nil}.compact
   end
 
   def filter(ip)
