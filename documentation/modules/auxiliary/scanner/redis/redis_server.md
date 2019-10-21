@@ -28,7 +28,7 @@ Redis commands list can be found [here](https://redis.io/commands).
 
 ## Scenarios
 
-### Redis:4.0.14 inside a docker container
+### Redis: 4.0.14 inside a docker container
   ```
 msf5 auxiliary(scanner/redis/redis_server) > use auxiliary/scanner/redis/redis_server
 msf5 auxiliary(scanner/redis/redis_server) > set RHOSTS 172.17.0.3

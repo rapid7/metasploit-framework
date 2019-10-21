@@ -22,17 +22,25 @@ Virtual testing environments (inside docker container):
 
 ## Options
 
-**FLUSHALL**
-
-If set to `true`, redis server will remove all redis data before saving. Defaults to `false`.
-
 **DISABLE_RDBCOMPRESSION**
 
 If set to `false`, redis server will disable compression before saving. Defaults to `true`.
 
+**FLUSHALL**
+
+If set to `true`, redis server will remove all redis data before saving. Defaults to `false`.
+
+**LocalFile**
+
+Path to the local file to be uploaded.
+
+**RemoteFile**
+
+Path, or file name, to store the file as on the Redis server.
+
 ## Scenarios
 
-### Redis:4.0.14 inside a docker container
+### Redis: 4.0.14 inside a docker container
   ```
 msf5 auxiliary(scanner/redis/file_upload) > set RHOSTS 172.17.0.2
 RHOSTS => 172.17.0.2
