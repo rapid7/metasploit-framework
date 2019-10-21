@@ -66,8 +66,10 @@ Content-Type: text/html; charset=UTF-8
 
 ## Confirming using Nikto
 
+This will only identify server version and Location header, not HTML title.
+
 ```
-nikto -host http://172.17.0.2
+nikto -host http://172.17.0.2 -Plugin headers
 
 - Nikto v2.1.6
 ---------------------------------------------------------------------------
@@ -78,4 +80,32 @@ nikto -host http://172.17.0.2
 ---------------------------------------------------------------------------
 + Server: Apache/2.4.38 (Debian)
 + Retrieved x-powered-by header: PHP/7.2.23
+```
+
+## Confirming using NMAP
+
+Utilizing the [http-title](https://nmap.org/nsedoc/scripts/http-title.html) NMAP script.
+
+```
+# nmap -sV -p80 --script http-title 127.0.0.1
+Starting Nmap 7.80 ( https://nmap.org ) at 2019-10-20 21:11 EDT
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000049s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.41 ((Debian))
+|_http-server-header: Apache/2.4.41 (Debian)
+|_http-title: Apache2 Debian Default Page: It works
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.42 seconds
+```
+
+## Confirming using CURL
+
+This will use `grep` to filter for just the content between the title tags.
+
+```
+# curl -s 127.0.0.1:80 | grep \<title\>
+    <title>Apache2 Debian Default Page: It works</title>
 ```
