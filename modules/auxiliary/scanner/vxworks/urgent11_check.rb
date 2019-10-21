@@ -96,7 +96,6 @@ class MetasploitModule < Msf::Auxiliary
       print_bad("Could not connect to #{ip}:#{port}, cannot verify vulnerability")
       return
     end
-    sock.close
 
     detections.each do |detection|
       @ipnet_score     = 0
@@ -107,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       detection_name = detection.camelize
 
       begin
-        send(detection, ip, port)
+        send(detection, sock, ip, port)
       rescue StandardError => e
         print_error("#{detection_name} failed: #{e.message}")
         next
@@ -123,6 +122,8 @@ class MetasploitModule < Msf::Auxiliary
       final_vxworks_score      += @vxworks_score
       affected_vulnerabilities += @vulnerable_cves
     end
+
+    sock.close
 
     if final_ipnet_score > 0
       print_good("IP #{ip} detected as IPnet")
@@ -152,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
   # TCP detection methods
   #
 
-  def tcp_malformed_options_detection(ip, port)
+  def tcp_malformed_options_detection(sock, ip, port)
     pkt = PacketFu::TCPPacket.new(config: @config)
 
     # IP destination address
@@ -192,12 +193,7 @@ class MetasploitModule < Msf::Auxiliary
            @ipnet_score   = -100
   end
 
-  def tcp_dos_detection(ip, port)
-    sock = Rex::Socket::Tcp.create(
-      'PeerHost' => ip,
-      'PeerPort' => port
-    )
-
+  def tcp_dos_detection(sock, ip, port)
     pkt = PacketFu::TCPPacket.new(config: @config)
 
     # IP destination address
@@ -209,8 +205,8 @@ class MetasploitModule < Msf::Auxiliary
     pkt.tcp_seq       = rand(0xffffffff + 1)
     pkt.tcp_ack       = rand(0xffffffff + 1)
     pkt.tcp_flags.syn = 1
-    pkt.tcp_opts      = [3, 2].pack('CC') +        # WSCALE with invalid length
-                        [3, 3, 0].pack('CCC')      # WSCALE with valid length
+    pkt.tcp_opts      = [3, 2].pack('CC') +    # WSCALE with invalid length
+                        [1, 0].pack('CC')      # NOP + EOL
     pkt.recalc
 
     res = nil
@@ -221,8 +217,6 @@ class MetasploitModule < Msf::Auxiliary
 
       break unless res
     end
-
-    sock.close
 
     unless res
       return @vxworks_score = 0,
@@ -245,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
   # ICMP detection methods
   #
 
-  def icmp_code_detection(ip, _port = nil)
+  def icmp_code_detection(sock, ip, _port = nil)
     pkt = PacketFu::ICMPPacket.new(config: @config)
 
     # IP destination address
@@ -272,7 +266,7 @@ class MetasploitModule < Msf::Auxiliary
     @ipnet_score = -20
   end
 
-  def icmp_timestamp_detection(ip, _port = nil)
+  def icmp_timestamp_detection(sock, ip, _port = nil)
     pkt = PacketFu::ICMPPacket.new(config: @config)
 
     # IP destination address
