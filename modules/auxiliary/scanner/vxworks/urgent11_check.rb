@@ -31,11 +31,12 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      Opt::RPORT(80, true, 'Target port for TCP detections')
+      OptString.new('RPORTS', required: true, default: "21 22 23 80 443", desc: 'Target ports for TCP detections')
     ])
 
     register_advanced_options([
-      OptInt.new('RetransmissionRate', [true, 'Send n TCP packets', 3])
+      Opt::RPORT(80, true, 'Target port for TCP detections'),
+      OptInt.new('RetransmissionRate', required: true, default: 3, desc: 'Send n TCP packets')
     ])
 
     deregister_options('PCAPFILE', 'FILTER')
@@ -47,6 +48,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def rport
     datastore['RPORT']
+  end
+
+  def rports
+    datastore['RPORTS'].gsub(/\s+/m, ' ').strip.split(' ').collect{|i| (i.to_i.to_s == i) ? i.to_i : nil}.compact
   end
 
   def filter(ip)
@@ -64,7 +69,12 @@ class MetasploitModule < Msf::Auxiliary
     open_pcap
     capture.setfilter(filter(ip))
 
-    run_detections(ip, rport)
+    port_open = false
+    rports.each do |rport|
+      datastore['RPORT'] = rport
+      port_open |= run_detections(ip, rport)
+    end
+    raise RuntimeError.new("No ports open on #{ip} from #{datastore['RPORTS']}") if !port_open
   rescue RuntimeError => e
     fail_with(Failure::BadConfig, e.message)
   ensure
@@ -73,15 +83,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def detections
     %w[
-      tcp_malformed_options_detection
       tcp_dos_detection
+      tcp_malformed_options_detection
       icmp_code_detection
       icmp_timestamp_detection
     ]
   end
 
   def run_detections(ip, port)
-    print_status("Running against #{ip}:#{port}")
+    print_status("#{ip}:#{port} being checked")
 
     final_ipnet_score        = 0
     final_vxworks_score      = 0
@@ -93,8 +103,8 @@ class MetasploitModule < Msf::Auxiliary
         'PeerPort' => port
       )
     rescue
-      print_bad("Could not connect to #{ip}:#{port}, cannot verify vulnerability")
-      return
+      vprint_bad("Could not connect to #{ip}:#{port}, cannot verify vulnerability")
+      return false
     end
 
     detections.each do |detection|
@@ -102,17 +112,16 @@ class MetasploitModule < Msf::Auxiliary
       @vxworks_score   = 0
       @vulnerable_cves = []
 
-      # Sorry, I used ActiveSupport
       detection_name = detection.camelize
 
       begin
         send(detection, sock, ip, port)
       rescue StandardError => e
-        print_error("#{detection_name} failed: #{e.message}")
+        vprint_error("#{detection_name} failed: #{e.message}")
         next
       end
 
-      print_status(
+      vprint_status(
         "\t#{detection_name.ljust(30)}" \
         "\tVxWorks: #{@vxworks_score}" \
         "\tIPnet: #{@ipnet_score}"
@@ -126,19 +135,19 @@ class MetasploitModule < Msf::Auxiliary
     sock.close
 
     if final_ipnet_score > 0
-      print_good("IP #{ip} detected as IPnet")
+      vprint_good("#{ip}:#{port} detected as IPnet")
     elsif final_ipnet_score < 0
-      print_error("IP #{ip} detected as NOT IPnet")
+      vprint_error("#{ip}:#{port} detected as NOT IPnet")
     end
 
     if final_vxworks_score > 100
-      print_good("IP #{ip} detected as VxWorks")
+      vprint_good("#{ip}:#{port} detected as VxWorks")
     elsif final_vxworks_score < 0
-      print_error("IP #{ip} detected as NOT VxWorks")
+      vprint_error("#{ip}:#{port} detected as NOT VxWorks")
     end
 
     affected_vulnerabilities.each do |vuln|
-      msg = "IP #{ip} affected by #{vuln}"
+      msg = "#{ip}:#{port} affected by #{vuln}"
       print_good(msg)
       report_vuln(
         host: ip,
@@ -147,6 +156,7 @@ class MetasploitModule < Msf::Auxiliary
         info: msg
       )
     end
+    true
   end
 
   #
