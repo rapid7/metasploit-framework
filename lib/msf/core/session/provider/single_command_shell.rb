@@ -132,7 +132,8 @@ module SingleCommandShell
     # NOTE: if the session echoes input we don't need to echo the token twice.
     shell_write(cmd + "&echo #{token}\n")
     res = shell_read_until_token(token, 1, timeout)
-    res[0]='' # remove the newline we put in after the token
+    # I would like a better way to do this, but I don't know of one
+    res.reverse!.chomp!.reverse! # the presence of a leading newline is not consistent
     res
   end
 

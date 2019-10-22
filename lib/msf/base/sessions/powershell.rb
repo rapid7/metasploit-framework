@@ -67,6 +67,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
         buff = buff.split(/#{strm}\r\n/)[-1]
         buff = buff.split(/#{endm}/)[0]
         buff.gsub!(/(?<=\r\n)PS [^>]*>/, '')
+        return buff
       end
     end
     buff
