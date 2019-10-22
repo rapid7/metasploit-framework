@@ -93,6 +93,8 @@ class MetasploitModule < Msf::Auxiliary
       user = user.gsub("<SAPSID>", datastore["SAP_SID"].downcase)
       pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
     end
+    
+    port = datastore['RPORT']
 
     print_status("Trying username:'#{user}' password:'#{pass}'")
     success = false
