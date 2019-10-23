@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
+        OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-65535"]),
         OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
         OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
         OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
