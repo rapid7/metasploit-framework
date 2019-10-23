@@ -62,10 +62,10 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       timeout = etime - ::Time.now.to_f
 
       buff << res
-      if buff.match(/#{endm}/)
+      if buff.include?(endm)
         # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
         buff = buff.split(/#{strm}\r\n/)[-1]
-        buff = buff.split(/#{endm}/)[0]
+        buff = buff.split(endm)[0]
         buff.gsub!(/(?<=\r\n)PS [^>]*>/, '')
         return buff
       end
