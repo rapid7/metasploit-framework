@@ -94,8 +94,6 @@ class MetasploitModule < Msf::Auxiliary
       pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
     end
 
-    port = datastore['RPORT']
-
     print_status("Trying username:'#{user}' password:'#{pass}'")
     success = false
 
@@ -169,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_cred(
         ip: rhost,
-        port: port,
+        port: datastore['RPORT'],
         user: user,
         password: pass,
         service_name: 'sap-managementconsole',
