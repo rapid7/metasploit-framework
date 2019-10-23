@@ -399,25 +399,14 @@ module Msf::Post::File
   end
 
   #
-  # Upload a binary and write it as +remote+ on the remote file
-  # system
-  #
-  # @param remote [String] Destination file name on the remote filesystem
-  # @param data [String] Data to be uploaded
-  # @return (see #write_file)
-  def upload_binary(path, data)
-    print_status "Writing '#{path}' (#{data.size} bytes) ..."
-    write_file path, data
-  end
-
-  #
   # Upload a binary and write it as an executable file +remote+ on the
   # remote filesystem.
   #
   # @param remote [String] Destination file name on the remote filesystem
   # @param data [String] Data to be uploaded
   def upload_and_chmodx(path, data)
-    upload_binary path, data
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    write_file path, data
     chmod(path)
   end
 
