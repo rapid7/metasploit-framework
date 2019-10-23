@@ -25,42 +25,95 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
-    register_options(
-      [
-        OptString.new('TARGETHOST', [true, 'The redirector target', 'evil.com'])
-      ])
+    register_options([
+      OptString.new('PATH', [ true, "The PATH to use while testing", '/']),
+      OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 20]),
+      OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
+      OptString.new('TARGETHOST', [false, 'The redirector target. Default is <random>.com']),
+      OptBool.new('SHOW_EVIDENCE', [ false, "Show evidences: headers or body", false ])
+    ])
   end
 
   def run_host(ip)
+
+    timeout = datastore['TIMEOUT']
+    web_path = normalize_uri(datastore['PATH'])
+    http_method = datastore['METHOD']
+    target_host = datastore['TARGETHOST'] || Rex::Text.rand_text_alpha_lower(8)+".com"
+
+    # The 'Host' header specifies the domain name of the server (for virtual
+    # hosting), and (optionally) the TCP port number on which the server is listening.
+
+    # The 'X-Host' header specifies the originating domain name of the server
+    # (for virtual hosting) and optionally the TCP port number.
+
+    # The 'X-Forwarded-Host' header is a de-facto standard header for identifying
+    # the original host requested by the client in the Host HTTP request header.
+
     begin
-      target_host = "#{datastore['TARGETHOST']}"
-      res = send_request_raw(
-        'uri'          => '/',
-        'method'       => 'GET',
-        'headers'      => {
+
+      vprint_status("Sending request #{rhost}:#{rport}#{web_path} (#{vhost})(#{http_method}) with 'Host' value '#{target_host}'")
+
+      res = send_request_raw({
+        'uri'     => web_path,
+        'method'  => http_method,
+        'headers' => {
           'Host'             => target_host,
+          'X-Host'           => target_host,
           'X-Forwarded-Host' => target_host
         }
-      )
+      }, timeout)
 
       unless res
-        vprint_error("#{peer} did not reply to our request")
+        vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) did not reply to our request")
         return
       end
 
-      if res.headers.include?(target_host) || res.body.include?(target_host)
-        print_good("#{peer} is vulnerable to HTTP Host header injection")
+      if res.headers.include?(target_host)
+        evidence = "headers"
+        if datastore['SHOW_EVIDENCE']
+          vprint_status("Headers: [#{res.headers}]")
+        end
+      end
+
+      if res.body.include?(target_host)
+        evidence = "body"
+        if datastore['SHOW_EVIDENCE']
+          vprint_status("Body: [#{res.body}]")
+        end
+      end
+
+      if evidence
+        print_good("#{rhost}:#{rport}#{web_path} (#{vhost})(#{res.code})(#{http_method})(evidence into #{evidence}) is vulnerable to HTTP Host header injection")
+
         report_vuln(
-          host: ip,
-          port: rport,
+          host:  rhost,
+          port:  rport,
           proto: 'tcp',
           sname: ssl ? 'https' : 'http',
-          name: 'HTTP Host header injection',
-          refs: self.references
+          name:  self.name,
+          info:  "Module used #{self.fullname}, vhost: #{vhost}, method: #{http_method}: evidence: #{evidence}",
+          refs:  self.references
         )
+
+        report_web_vuln({
+          :host        => rhost,
+          :port        => rport,
+          :vhost       => vhost,
+          :path        => web_path,
+          :pname       => "Host,X-Host,X-Forwarded-Host headers",
+          :risk        => 2,
+          :proof       => "Evidence into #{evidence}",
+          :description => "HTTP Host Header Injection Detection",
+          :name        => self.fullname,
+          :category    => "web",
+          :method      => http_method
+        })
+
       else
-        vprint_error("#{peer} returned #{res.code} #{res.message}")
+        vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) returned #{res.code} #{res.message}")
       end
+
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
