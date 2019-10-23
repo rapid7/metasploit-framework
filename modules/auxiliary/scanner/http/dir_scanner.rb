@@ -22,28 +22,24 @@ class MetasploitModule < Msf::Auxiliary
       'Author' 		=> [ 'et [at] metasploit.com' ],
       'License'		=> BSD_LICENSE))
 
-    register_options(
-      [
-        OptString.new('PATH', [ true,  "The path  to identify files", '/']),
-        OptPath.new('DICTIONARY',   [ false, "Path of word dictionary to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_dirs.txt")
-          ]
-        )
-
+    register_options([
+      OptString.new('PATH', [ true,  "The path to identify files", '/']),
+      OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 20]),
+      OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
+      OptPath.new('DICTIONARY', [ false, "Path of word dictionary to use (wmap_dirs.txt, wmap_dirs_light.txt)",
+        File.join(Msf::Config.data_directory, "wmap", "wmap_dirs.txt")
       ])
+   ])
 
-    register_advanced_options(
-      [
-        OptInt.new('ErrorCode', [ false, "Error code for non existent directory" ]),
-        OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-            File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
-          ]
-        ),
-        OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
-        OptInt.new('TestThreads', [ true, "Number of test threads", 25])
-
-      ])
-
+    register_advanced_options([
+      OptInt.new('ErrorCode', [ false, "Error code for non existent directory" ]),
+      OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
+        File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
+      ]),
+      OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
+      OptInt.new('TestThreads', [ true, "Number of test threads", 25])
+    ])
   end
 
   def run_host(ip)
@@ -56,10 +52,21 @@ class MetasploitModule < Msf::Auxiliary
       tpath += '/'
     end
 
+    timeout = datastore['TIMEOUT']
+
+    delay_value = datastore['DELAY'].to_i
+    if delay_value < 0
+      raise Msf::OptionValidateError.new(['DELAY'])
+    end
+
+    jitter_value = datastore['JITTER'].to_i
+    if jitter_value < 0
+      raise Msf::OptionValidateError.new(['JITTER'])
+    end
+
     ecode = datastore['ErrorCode'].to_i
     vhost = datastore['VHOST'] || wmap_target_host
     prot  = datastore['SSL'] ? 'https' : 'http'
-
 
     if (ecode == 0)
       # Then the user didn't specify one, go request a (probably)
@@ -71,10 +78,10 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Detecting error code")
         randdir = Rex::Text.rand_text_alpha(5).chomp + '/'
         res = send_request_cgi({
-          'uri'  		=>  tpath+randdir,
-          'method'   	=> 'GET',
-          'ctype'		=> 'text/html'
-        }, 20)
+          'uri'    => tpath+randdir,
+          'method' => 'GET',
+          'ctype'  => 'text/html'
+        }, timeout)
 
         return if not res
 
@@ -118,19 +125,26 @@ class MetasploitModule < Msf::Auxiliary
       queue << testd.strip + '/'
     end
 
+    dictionary_len = queue.length
+    print_status("Using dictionary file '#{datastore['DICTIONARY']}' (#{dictionary_len} entries)")
+
     while(not queue.empty?)
       t = []
       1.upto(nt) do
         t << framework.threads.spawn("Module(#{self.refname})-#{rhost}", false, queue.shift) do |testf|
           Thread.current.kill if not testf
 
+          # Add the delay based on JITTER and DELAY if needs be
+          add_delay_jitter(delay_value,jitter_value)
+
+          vprint_status("Try... #{wmap_base_url}#{tpath}#{testf} (#{wmap_target_host})")
+
           testfdir = testf
           res = send_request_cgi({
-            'uri'  		=>  tpath+testfdir,
-            'method'   	=> 'GET',
-            'ctype'		=> 'text/html'
-          }, 20)
-
+            'uri'    => tpath+testfdir,
+            'method' => 'GET',
+            'ctype'  => 'text/html'
+          }, timeout)
 
           if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
             if dm == false
@@ -138,21 +152,30 @@ class MetasploitModule < Msf::Auxiliary
             end
           else
 
-            report_web_vuln(
-              :host	=> ip,
-              :port	=> rport,
-              :vhost  => vhost,
-              :ssl    => ssl,
-              :path	=> "#{tpath}#{testfdir}",
-              :method => 'GET',
-              :pname  => "",
-              :proof  => "Res code: #{res.code.to_s}",
-              :risk   => 0,
-              :confidence   => 100,
-              :category     => 'directory',
-              :description  => 'Directoy found.',
-              :name   => 'directory'
-            )
+            report_web_vuln({
+              :host        => rhost,
+              :port        => rport,
+              :vhost       => vhost,
+              :ssl         => ssl,
+              :path        => "#{tpath}#{testfdir}",
+              :method      => 'GET',
+              :pname       => "",
+              :proof       => "Res code: #{res.code.to_s}",
+              :risk        => 0,
+              :confidence  => 100,
+              :category    => 'directory',
+              :description => 'Directoy found',
+              :name        => 'directory'
+            })
+
+            report_vuln({
+              :host  => rhost,
+              :port  => rport,
+              :proto => 'tcp',
+              :sname => (ssl ? 'https' : 'http'),
+              :name  => self.name,
+              :info  => "Module used #{self.fullname}",
+            })
 
             print_good("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 
@@ -160,7 +183,7 @@ class MetasploitModule < Msf::Auxiliary
               print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")
 
               report_note(
-                :host	=> ip,
+                :host	=> rhost,
                 :port	=> rport,
                 :proto => 'tcp',
                 :sname	=> (ssl ? 'https' : 'http'),
