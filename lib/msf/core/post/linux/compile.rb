@@ -32,7 +32,7 @@ module Compile
   end
 
   def upload_and_compile(path, data, gcc_args='')
-    upload_binary "#{path}.c", strip_comments(data)
+    write_file "#{path}.c", strip_comments(data)
 
     gcc_cmd = "gcc -o #{path} #{path}.c"
     if session.type.eql? 'shell'
