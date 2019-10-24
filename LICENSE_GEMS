@@ -34,11 +34,11 @@ hashery, 2.1.2, "Simplified BSD"
 i18n, 0.9.5, MIT
 jsobfu, 0.4.2, "New BSD"
 json, 2.2.0, ruby
-loofah, 2.3.0, MIT
+loofah, 2.3.1, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 2.0.14, "New BSD"
-metasploit-framework, 4.17.88, "New BSD"
+metasploit-framework, 4.17.89, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.78, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 2.0.17, "New BSD"
