@@ -61,7 +61,7 @@ Content-Length: 68
 Connection: close
 Content-Type: text/html; charset=UTF-8
 
-<html><head><title>LOCAL TESTING</title></head><body></body></html>
+&lt;html>&lt;head>&lt;title>LOCAL TESTING&lt;/title>&lt;/head>&lt;body>&lt;/body>&lt;/html>
 ```
 
 ## Confirming using Nikto
@@ -106,6 +106,6 @@ Nmap done: 1 IP address (1 host up) scanned in 6.42 seconds
 This will use `grep` to filter for just the content between the title tags.
 
 ```
-# curl -s 127.0.0.1:80 | grep \<title\>
-    <title>Apache2 Debian Default Page: It works</title>
+# curl -s 127.0.0.1:80 | grep \&lt;title\>
+&lt;title>Apache2 Debian Default Page: It works&lt;/title>
 ```
