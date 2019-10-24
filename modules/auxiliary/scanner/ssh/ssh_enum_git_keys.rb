@@ -48,6 +48,11 @@ class MetasploitModule < Msf::Auxiliary
     datastore['KEY_FILE'] != `pwd`.strip ? datastore['KEY_FILE'] : ""
   end
 
+  def check_key_for_passphrase(file)
+    response = `ssh-keygen -y -P "" -f #{file} 2>&1`
+    return response.include? 'incorrect passphrase'
+  end
+
   def read_keyfile(file)
     if file.is_a? Array
       keys = []
@@ -68,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       this_key << line if in_key
       if (line =~ /^-----END ([RD]SA|OPENSSH) PRIVATE KEY-----/)
         in_key = false
-        keys << file
+        keys << file unless check_key_for_passphrase(file)
       end
     end
     if keys.empty?
@@ -110,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
 
             rand_filename = '/tmp/' + Rex::Text.rand_text_alpha(8, bad = '')
 
-            File.open(rand_filename, 'w') do |f|
+            File.open(rand_filename, 'wb') do |f|
               f.write(config_contents)
             end
 
@@ -122,7 +127,6 @@ class MetasploitModule < Msf::Auxiliary
             if user
               results[file] = user
             end
-
             File.delete(rand_filename)
           end
         end

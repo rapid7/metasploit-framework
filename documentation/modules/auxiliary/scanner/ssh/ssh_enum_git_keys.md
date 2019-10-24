@@ -1,6 +1,6 @@
 ## Introduction
 
-This module attempts to authenticate to Git servers using compromised SSH private keys. This module can be used to check a single key or recursively look through a directory.
+This module attempts to authenticate to Git servers using compromised SSH private keys. This module can be used to check a single key or recursively look through a directory. It will not attempt to check keys that have a passphrase, however a bruteforce attack could be launched on a key and then the passphrase could be disabled.
 
 ## Setup
 
@@ -25,6 +25,8 @@ Git Access Data
 Key Location              User Access
 ------------              -----------
 /Users/w/.ssh/id_ed25519  wdahlenburg
+
+[*] Auxiliary module execution completed
 ```
 ## Post Exploitation
 
@@ -33,3 +35,25 @@ Once you have identified a Git user from an SSH key, there are two immediate pos
 1. Download private repositories that the owner knows
 2. Modify public repositories and inject a backdoor
 
+To begin either, the valid keys will need to be added to the current `~/.ssh/config`.
+
+Example: Using a valid key at /Users/w/.ssh/id_ed25519
+
+1. Write the following to `~/.ssh/config`
+`Host github
+    User git
+    Hostname github.com
+    PreferredAuthentications publickey
+    IdentityFile /Users/w/.ssh/id_ed25519
+    `
+2. Clone a repo using the key
+` $ git clone github:<username>/Repo.git`
+3. Alternatively, modify an existing local repo by modifying the .git/config file
+```
+...
+[remote "origin"]
+    url = github:username/reponame.git
+...
+
+```
+4. Any changes will be pushed using the specified key. Make sure you set the git aliases to match your target.
