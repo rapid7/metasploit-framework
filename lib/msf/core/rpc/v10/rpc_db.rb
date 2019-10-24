@@ -276,7 +276,20 @@ public
           port = login.service.port.to_i
           proto = login.service.proto.to_s
         end
-        ret[:creds] << {
+
+        if cred.private.nil?
+            ret[:creds] << {
+                :user => cred.public.username.to_s,
+                :pass => nil,
+                :updated_at => nil,
+                :type => nil,
+                :host => host,
+                :port => port,
+                :proto => proto,
+                :sname => sname
+            }
+        else
+            ret[:creds] << {
                 :user => cred.public.username.to_s,
                 :pass => cred.private.data.to_s,
                 :updated_at => cred.private.updated_at.to_i,
@@ -284,7 +297,10 @@ public
                 :host => host,
                 :port => port,
                 :proto => proto,
-                :sname => sname}
+                :sname => sname
+            }
+        end
+
       end
       ret
     }
