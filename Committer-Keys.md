@@ -14,7 +14,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@busterb](https://github.com/busterb)            | [busterb](https://keybase.io/busterb)              |
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@ccondon-r7](https://github.com/ccondon-r7)      | [catc0n](https://keybase.io/catc0n)                |
-| [@cdelafuente-r7](https://github.com/cdelafuente-r7)|[@cdelafuente](https://keybase.io/cdelafuente)    |
+| [@cdelafuente-r7](https://github.com/cdelafuente-r7)|[cdelafuente](https://keybase.io/cdelafuente)    |
 | [@chiggins](https://github.com/chiggins)          | [chiggins](https://keybase.io/chiggins)            |
 | [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
