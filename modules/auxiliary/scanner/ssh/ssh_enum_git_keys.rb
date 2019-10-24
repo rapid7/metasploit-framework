@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['KEY_FILE'] != `pwd`.strip ? datastore['KEY_FILE'] : ""
   end
 
-  def check_key_for_passphrase(file)
+  def has_passphrase?(file)
     response = `ssh-keygen -y -P "" -f #{file} 2>&1`
     return response.include? 'incorrect passphrase'
   end
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       this_key << line if in_key
       if (line =~ /^-----END ([RD]SA|OPENSSH) PRIVATE KEY-----/)
         in_key = false
-        keys << file unless check_key_for_passphrase(file)
+        keys << file unless has_passphrase?(file)
       end
     end
     if keys.empty?
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     return keys
   end
 
-  def provide_user(output)
+  def parse_user(output)
     vprint_status("SSH Test: #{output}")
     if output.include? 'successfully authenticated'
       return output.split[1].delete_suffix('!')
@@ -113,21 +113,19 @@ class MetasploitModule < Msf::Auxiliary
 
             config_contents = "Host gitserver\n\tUser git\n\tHostname #{datastore['GITSERVER']}\n\tPreferredAuthentications publickey\n\tIdentityFile #{file}\n"
 
-            rand_filename = '/tmp/' + Rex::Text.rand_text_alpha(8, bad = '')
+            rand_file = Rex::Quickfile.new
+            rand_file.puts config_contents
+            rand_file.close
 
-            File.open(rand_filename, 'wb') do |f|
-              f.write(config_contents)
-            end
-
-            output = `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -T -F #{rand_filename} gitserver 2>&1`
+            output = `ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -T -F #{rand_file.path} gitserver 2>&1`
             if output.include? "\n"
               output = output.split("\n")[-1]
             end
-            user = provide_user(output)
+            user = parse_user(output)
             if user
               results[file] = user
             end
-            File.delete(rand_filename)
+            rand_file.delete
           end
         end
         t.map(&:join)
@@ -157,11 +155,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['KEY_FILE'].nil? && datastore['KEY_DIR'].nil?
-      print_error 'Please specify a KEY_FILE or KEY_DIR'
-      return
+      fail_with Failure::BadConfig, 'Please specify a KEY_FILE or KEY_DIR'
     elsif !(key_file.blank? ^ key_dir.blank?)
-      print_error 'Please only specify one KEY_FILE or KEY_DIR'
-      return
+      fail_with Failure::BadConfig, 'Please only specify one KEY_FILE or KEY_DIR'
     end
 
     results = test_keys
@@ -173,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     results.each do |key, user|
-      keys_table << [key, user] unless user.empty?
+      keys_table << [key, user]
     end
 
     print_line(keys_table.to_s)
