@@ -84,10 +84,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_user(output)
     vprint_status("SSH Test: #{output}")
-    if output.include? 'successfully authenticated'
-      return output.split[1].delete_suffix('!')
-    elsif output.include? 'GitLab'
-      return output.split[3].delete_suffix('!')
+    if (output =~ /You\'ve successfully authenticated/)
+      return output.match(/Hi (.*)\! You\'ve successfully authenticated/)[1]
+    elsif (output =~ /Welcome to GitLab, \@(.*)\!$/)
+      return output.match(/Welcome to GitLab, \@(.*)\!$/)[1]
     end
   end
 
