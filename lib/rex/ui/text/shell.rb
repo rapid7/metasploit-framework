@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/text/color'
 require 'rex/ui'
 
 module Rex
@@ -12,6 +13,8 @@ module Text
 #
 ###
 module Shell
+
+  include Rex::Text::Color
 
   ###
   #
@@ -191,7 +194,7 @@ module Shell
   # new_prompt_char the char to append to the prompt
   def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
     if (self.input)
-      p = new_prompt + ' ' + new_prompt_char + ' '
+      p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
       # Save the prompt before any substitutions
       self.prompt = new_prompt
@@ -289,6 +292,10 @@ module Shell
   attr_accessor :framework
 
 protected
+
+  def supports_color?
+    true
+  end
 
   #
   # Get a single line of input, following continuation directives as necessary.
@@ -390,92 +397,83 @@ protected
     session = framework.sessions.values.find { |session| session.interacting }
     default = 'unknown'
 
-    if str.include?('%T')
-      t = Time.now
-      # This %T is the strftime shorthand for %H:%M:%S
-      format = framework.datastore['PromptTimeFormat'] || '%T'
-      t = t.strftime(format)
-      # This %T is the marker in the prompt where we need to place the time
-      str.gsub!('%T', t.to_s)
-    end
-
-    if str.include?('%W') && framework.db.active
-      str.gsub!('%W', framework.db.workspace.name)
-    end
-
-    if session
-      sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
-
-      if str.include?('%A')
-        str.gsub!('%A', (sysinfo.nil? ? default : sysinfo['Architecture']))
+    formatted = ''
+    skip_next = false
+    for prefix, spec in str.split('').each_cons(2) do
+      if skip_next
+        skip_next = false
+        next
       end
 
-      if str.include?('%D')
-        str.gsub!('%D', (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default))
+      unless prefix == '%'
+        formatted << prefix
+        skip_next = false
+        next
       end
 
-      if str.include?('%d')
-        str.gsub!('%d', ::Dir.getwd)
-      end
+      skip_next = true
+      if spec == 'T'
+        # This %T is the strftime shorthand for %H:%M:%S
+        strftime_format = framework.datastore['PromptTimeFormat'] || '%T'
+        formatted << Time.now.strftime(strftime_format).to_s
+      elsif spec == 'W' && framework.db.active
+        formatted << framework.db.workspace.name
+      elsif session
+        sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
 
-      if str.include?('%H')
-        str.gsub!('%H', (sysinfo.nil? ? default : sysinfo['Computer']))
-      end
-
-      if str.include?('%h')
-        str.gsub!('%h', (self.local_hostname || default).chomp)
-      end
-
-      if str.include?('%I')
-        str.gsub!('%I', session.tunnel_peer)
-      end
-
-      if str.include?('%i')
-        str.gsub!('%i', session.tunnel_local)
-      end
-
-      if str.include?('%M')
-        str.gsub!('%M', session.session_type)
-      end
-
-      if str.include?('%S')
-        str.gsub!('%S', session.sid.to_s)
-      end
-
-      if str.include?('%U')
-        str.gsub!('%U', (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default))
-      end
-
-      if str.include?('%u')
-        str.gsub!('%u', (self.local_username || default).chomp)
-      end
-    else
-      if str.include?('%H')
-        str.gsub!('%H', (self.local_hostname || default).chomp)
-      end
-
-      if str.include?('%J')
-        str.gsub!('%J', framework.jobs.length.to_s)
-      end
-
-      if str.include?('%U')
-        str.gsub!('%U', (self.local_username || default).chomp)
-      end
-
-      if str.include?('%S')
-        str.gsub!('%S', framework.sessions.length.to_s)
-      end
-
-      if str.include?('%L')
-        str.gsub!('%L', Rex::Socket.source_address)
-      end
-
-      if str.include?('%D')
-        str.gsub!('%D', ::Dir.getwd)
+        case spec
+        when 'A'
+          formatted << (sysinfo.nil? ? default : sysinfo['Architecture'])
+        when 'D'
+          formatted << (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default)
+        when 'd'
+          formatted << ::Dir.getwd
+        when 'H'
+          formatted << (sysinfo.nil? ? default : sysinfo['Computer'])
+        when 'h'
+          formatted << (self.local_hostname || default).chomp
+        when 'I'
+          formatted << session.tunnel_peer
+        when 'i'
+          formatted << session.tunnel_local
+        when 'M'
+          formatted << session.session_type
+        when 'S'
+          formatted << session.sid.to_s
+        when 'U'
+          formatted << (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default)
+        when 'u'
+          formatted << (self.local_username || default).chomp
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      else
+        case spec
+        when 'H'
+          formatted << (self.local_hostname || default).chomp
+        when 'J'
+          formatted << framework.jobs.length.to_s
+        when 'U'
+          formatted << (self.local_username || default).chomp
+        when 'S'
+          formatted << framework.sessions.length.to_s
+        when 'L'
+          formatted << Rex::Socket.source_address
+        when 'D'
+          formatted << ::Dir.getwd
+        else
+          formatted << prefix
+          skip_next = false
+        end
       end
     end
 
-    str
+    if str.length > 0 && !skip_next
+      formatted << str[-1]
+    end
+
+    formatted
   end
 
   attr_writer   :input, :output # :nodoc:
