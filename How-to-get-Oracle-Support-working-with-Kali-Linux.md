@@ -10,6 +10,15 @@ msf auxiliary(oracle_login) > run
 [*] Auxiliary module execution completed
 msf auxiliary(oracle_login) > run
 ```
+or
+```
+msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
+
+[-] Failed to load the OCI library: cannot load such file -- oci8
+[-] Try 'gem install ruby-oci8'
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
 
 The general steps to getting Oracle support working are to install the Oracle Instant Client and development libraries, install the required dependencies for Kali Linux, then install the gem.
 
