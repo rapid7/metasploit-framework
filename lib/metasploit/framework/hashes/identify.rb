@@ -6,6 +6,7 @@
 
 # Resource list:
 #  https://code.google.com/archive/p/hash-identifier/
+#  https://github.com/psypanda/hashID
 #  https://hashcat.net/wiki/doku.php?id=example_hashes
 #  http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats
 #  https://openwall.info/wiki/john/sample-hashes
@@ -80,6 +81,11 @@ def identify_hash(hash)
       return 'PBKDF2-HMAC-SHA1'
     when hash.start_with?('$B$') && hash.split('$').last.length == 32
       return 'mediawiki'
+    # mobile
+    when hash  =~/^[A-F0-9]{40}:[a-f0-9]{16}$/
+      return 'android-sha1'
+    when hash  =~/^[A-F0-9]{32}:[a-f0-9]{16}$/
+      return 'android-md5'
   end
   ''
 end

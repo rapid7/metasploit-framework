@@ -252,6 +252,13 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_android_sha1' do
+    it 'returns android-sha1' do
+      hash = identify_hash('EA8457DE97836C955082AE77DBE2CD86A4E8BC0E:4aafc54dc502e88b')
+      expect(hash).to match ('android-sha1')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = identify_hash('')
@@ -286,6 +293,5 @@ RSpec.describe 'hashes/identify' do
       expect(hash).to match('')
     end
   end
-
 
 end

