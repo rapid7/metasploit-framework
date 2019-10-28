@@ -55,7 +55,7 @@ module Metasploit
           # allowing them to be reordered
           cmd << '-ffunction-sections '
           cmd << '-fno-asynchronous-unwind-tables '
-          cmd << '-nostartfiles '
+          cmd << '-nostdlib '
           cmd << '-fno-ident '
           cmd << opt_level
 
