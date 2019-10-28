@@ -51,7 +51,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
     unless @staged
       curr_uuid = rstream.get_once(16, 1)
       @key, @nonce = get_key_nonce(curr_uuid)
-      @iv = block_count + @nonce
+      @iv = block_count + (@nonce ? @nonce : '')
 
       unless @key && @nonce
         print_status('Failed to retrieve key/nonce for uuid. Resorting to datastore')
