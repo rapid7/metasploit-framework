@@ -8,7 +8,7 @@ module Msf::Payload::Windows::Chacha
   end
 
   def save_to_db(conf)
-    print_warning('Database is not connected. Cannot Save payload info!') unless (framework.db && framework.db.active)
+    return nil unless (framework.db && framework.db.active)
 
     b_opts = { 'key' => conf[:key], 'nonce' => conf[:nonce] }
     saved_payload = framework.db.get_payload(uuid: conf[:uuid])
@@ -32,7 +32,5 @@ module Msf::Payload::Windows::Chacha
     nonce = curr_payload[:build_opts]['nonce']
 
     return key, nonce
-  rescue
-    print_warning("Failed to retrieve key and nonce for uuid: #{p_uuid}")
   end
 end

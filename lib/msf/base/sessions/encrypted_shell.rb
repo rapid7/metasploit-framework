@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/base'
+require 'securerandom'
 require 'msf/core/payload/windows/chacha'
 
 module Msf
@@ -60,13 +61,14 @@ class EncryptedShell < Msf::Sessions::CommandShell
       end
     end
 
-    new_key = Rex::Text.rand_text_alphanumeric(32)
-    new_nonce = Rex::Text.rand_text_alphanumeric(12)
+    new_key = SecureRandom.hex(16)
+    new_nonce = SecureRandom.hex(6)
     new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
     rstream.write(new_cipher)
 
     @key = new_key
     @iv = block_count + new_nonce
+    Rex.sleep(0.25)
   end
 
   ##
