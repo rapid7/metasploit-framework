@@ -105,49 +105,49 @@ class MetasploitModule < Msf::Post
       parse_passwd_from_file(target)
     end
 
-    if @creds_hash && @pass_hash
-      print_good("Found credentials")
+    if @creds_hash.empty? && @pass_hash.empty?
+      print_bad("No passwords found in GRUB config files")
     else
-      print_status("No passwords found in GRUB config files")
+      print_good("Found credentials")
+
+      cred_table = Rex::Text::Table.new(
+        'Header'  =>  'Grub Credential Table',
+        'Indent'  =>  1,
+        'Columns' =>  [ 'Username', 'Password' ]
+      )
+
+      @creds_hash.each do |user, pass|
+        credential_data = {
+          origin_type:          :session,
+          post_reference_name:  self.refname,
+          private_type:         :nonreplayable_hash,
+          private_data:         pass,
+          session_id:           session_db_id,
+          username:             user,
+          workspace_id:         myworkspace_id
+        }
+
+        cred_table << [ user, pass ]
+        create_credential(credential_data)
+      end
+
+      @pass_hash.each do |_index, pass|
+        credential_data = {
+          origin_type:          :session,
+          post_reference_name:  self.refname,
+          private_type:         :nonreplayable_hash,
+          private_data:         pass,
+          session_id:           session_db_id,
+          username:             '',
+          workspace_id:         myworkspace_id
+        }
+
+        cred_table << [ '', pass ]
+        create_credential(credential_data)
+      end
+
+      print_line
+      print_line(cred_table.to_s)
     end
-
-    cred_table = Rex::Text::Table.new(
-      'Header'  =>  'Grub Credential Table',
-      'Indent'  =>  1,
-      'Columns' =>  [ 'Username', 'Password' ]
-    )
-
-    @creds_hash.each do |user, pass|
-      credential_data = {
-        origin_type:          :session,
-        post_reference_name:  self.refname,
-        private_type:         :nonreplayable_hash,
-        private_data:         pass,
-        session_id:           session_db_id,
-        username:             user,
-        workspace_id:         myworkspace_id
-      }
-
-      cred_table << [ user, pass ]
-      create_credential(credential_data)
-    end
-
-    @pass_hash.each do |_index, pass|
-      credential_data = {
-        origin_type:          :session,
-        post_reference_name:  self.refname,
-        private_type:         :nonreplayable_hash,
-        private_data:         pass,
-        session_id:           session_db_id,
-        username:             '',
-        workspace_id:         myworkspace_id
-      }
-
-      cred_table << [ '', pass ]
-      create_credential(credential_data)
-    end
-
-    print_line
-    print_line(cred_table.to_s)
   end
 end
