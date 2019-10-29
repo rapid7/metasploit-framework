@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('RetransmissionRate', required: true, default: 3, desc: 'Send n TCP packets')
     ])
 
-    deregister_options('PCAPFILE', 'FILTER')
+    deregister_options('PCAPFILE', 'FILTER', 'RHOST')
   end
 
   #
