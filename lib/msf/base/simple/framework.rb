@@ -150,6 +150,9 @@ module Framework
   #
   def init_simplified
     self.stats = Statistics.new(self)
+    self.ready = Set.new
+    self.running = Set.new
+    self.results = Hash.new
   end
 
   #
@@ -180,12 +183,31 @@ module Framework
   # Thread of the running rebuild operation
   #
   attr_reader :cache_thread
+
+  #
+  # {Set<String>} of module run/check UUIDs waiting to be kicked off
+  #
+  attr_reader :ready
+
+  #
+  # {Hash<String,Hash>} of module run/check results, by UUID. Successful runs
+  # look like `{result: check_code}` and errors like `{error: message}`.
+  #
+  attr_reader :results
+
+  #
+  # {Set<String>} of module run/check UUIDs currently in progress
+  #
+  attr_reader :running
   attr_writer :cache_initialized # :nodoc:
   attr_writer :cache_thread # :nodoc:
 
 
 protected
 
+  attr_writer :ready # :nodoc:
+  attr_writer :results # :nodoc:
+  attr_writer :running # :nodoc:
   attr_writer :stats # :nodoc:
 
 end

@@ -483,6 +483,49 @@ class RPC_Module < RPC_Base
 
   end
 
+  # Runs the check method of a module.
+  #
+  # @param [String] mtype Module type. Supported types include (case-sensitive):
+  #                       * exploit
+  #                       * auxiliary
+  # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
+  # @param [Hash] opts Options for the module (such as datastore options).
+  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @return
+  def rpc_check(mtype, mname, opts)
+    mod = _find_module(mtype,mname)
+    case mtype
+    when 'exploit'
+      _check_exploit(mod, opts)
+    when 'auxiliary'
+      _run_auxiliary(mod, opts)
+    else
+      error(500, "Invalid Module Type: #{mtype}")
+    end
+  end
+
+  # TODO: expand these to take a list of UUIDs or stream with event data if
+  # required for performance
+  def rpc_results(uuid)
+    if r = self.framework.results[uuid]
+      if r[:error]
+        {"status" => "errored", "error" => r[:error]}
+      else
+        {"status" => "completed", "result" => r[:result]}
+      end
+    elsif self.framework.running.include? uuid
+      {"status" => "running"}
+    elsif self.framework.ready.include? uuid
+      {"status" => "ready"}
+    else
+      error(404, "Results not found for module instance #{uuid}")
+    end
+  end
+
+  def rpc_ack(uuid)
+    {"success" => !!self.framework.results.delete(uuid)}
+  end
+
   # Returns a list of executable format names.
   #
   # @return [Array<String>] A list of executable format names, for example: ["exe"]
@@ -673,14 +716,37 @@ private
   end
 
   def _run_auxiliary(mod, opts)
-    Msf::Simple::Auxiliary.run_simple(mod, {
+    uuid, job = Msf::Simple::Auxiliary.run_simple(mod, {
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
     })
     {
-      "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_exploit(mod, opts)
+    uuid, job = Msf::Simple::Exploit.check_simple(mod, {
+        'RunAsJob' => true,
+        'Options'  => opts
+    })
+    {
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_auxiliary(mod, opts)
+    uuid, job = Msf::Simple::Auxiliary.check_simple(mod, {
+        'Action'   => opts['ACTION'],
+        'RunAsJob' => true,
+        'Options'  => opts
+    })
+    {
+      "job_id" => job,
+      "uuid" => uuid
     }
   end
 
