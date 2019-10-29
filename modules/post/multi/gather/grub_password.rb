@@ -16,7 +16,9 @@ class MetasploitModule < Msf::Post
       'License'      => MSF_LICENSE,
       'Author'       =>
         [
-          'Garvit Dewan <d.garvit[at]gmail.com>' # @dgarvit
+          'Garvit Dewan <d.garvit[at]gmail.com>', # @dgarvit
+          'Taeber Rapczak <taeber[at]rapczak.com>',
+          'Shelby Pace'
         ],
       'Platform'     => ['linux', 'osx', 'unix', 'solaris', 'bsd'],
       'SessionTypes' => ['meterpreter', 'shell'],
