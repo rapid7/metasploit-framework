@@ -104,10 +104,11 @@ module Payload::Windows::EncryptedReverseTcp
     true
   end
 
-  def generate_stage(opts)
-    conf = opts[:datastore]
+  def generate_stage(opts={})
+    conf = opts[:datastore] || datastore
     conf[:staged] = true
-    key, nonce = get_key_nonce(opts[:uuid])
+    stage_uuid = opts[:uuid] || uuid
+    key, nonce = get_key_nonce(stage_uuid)
 
     unless key && nonce
       print_status('No existing key/nonce in db. Resorting to datastore options.')
