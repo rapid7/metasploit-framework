@@ -65,17 +65,18 @@ class MetasploitModule < Msf::Post
     @creds_hash = Hash.new
     @pass_hash = Hash.new
 
-    targets = [
-      '/boot/grub/grub.conf',
-      '/boot/grub/grub.cfg',
-      '/etc/grub.conf',
-      '/etc/grub/grub.cfg',
-      '/etc/grub.d/00_header',
-      '/mnt/sysimage/boot/grub.conf',
-      '/mnt/boot/grub/grub.conf',
-      '/rpool/boot/grub/grub.cfg',
-      '/boot/grub2/grub.cfg',
-      '/boot/grub2/user.cfg'
+    targets = %w[
+      /boot/grub/grub.conf
+      /boot/grub/grub.cfg
+      /boot/grub/menu.lst
+      /boot/grub2/grub.cfg
+      /boot/grub2/user.cfg
+      /etc/grub.conf
+      /etc/grub/grub.cfg
+      /etc/grub.d/00_header
+      /mnt/sysimage/boot/grub.conf
+      /mnt/boot/grub/grub.conf
+      /rpool/boot/grub/grub.cfg
     ]
 
     print_status("Searching for GRUB config files..")
