@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Checking if it's a vulnerable ElasticSearch")
 
     check_code = check_host(ip)
-    print_status("#{check_code.second}")
+    print_status("#{check_code.message}")
     if check_host(ip) != Exploit::CheckCode::Appears
       return
     end
