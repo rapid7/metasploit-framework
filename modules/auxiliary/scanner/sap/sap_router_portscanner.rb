@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -50,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
         OptEnum.new('RESOLVE',[true,'Where to resolve TARGETS','local',['remote','local']])
-      ], self.class)
+      ])
 
   end
 
@@ -230,6 +227,30 @@ class Metasploit3 < Msf::Auxiliary
       service = "CRM - Central Software Deployment Manager"
     when /^10(8|9)9$/
       service = "PAW - Performance Assessment Workbench"
+    when /^59950$/
+      service = "SAP NetWeaver Master Data Server"
+    when /^59951$/
+      service = "SAP NetWeaver Master Data Server (HTTPS)"
+    when /^59650$/
+      service = "SAP NetWeaver Master Data Layout Server"
+    when /^59651$/
+      service = "SAP NetWeaver Master Data Layout Server (HTTPS)"
+    when /^59750$/
+      service = "SAP NetWeaver Master Data Import Server"
+    when /^59751$/
+      service = "SAP NetWeaver Master Data Import Server (HTTPS)"
+    when /^59850$/
+      service = "SAP NetWeaver Master Data Syndication Server"
+    when /^59851$/
+      service = "SAP NetWeaver Master Data Syndication Server (HTTPS)"
+    when /^4[0-9][0-9](0[1-9]|[1-7][0-9])$/
+      service = "IGS Portwatcher (Clients)"
+    when /^4[0-9][0-9](8|9)[0-9]$/
+      service = "IGS HTTP-ports"
+    when /^1128$/
+      service = "SAP Host Agent"
+    when /^1129$/
+      service = "SAP Host Agent with SSL"
     else
       service = ''
     end
@@ -402,5 +423,4 @@ class Metasploit3 < Msf::Auxiliary
     print(tbl.to_s)
 
   end
-
 end

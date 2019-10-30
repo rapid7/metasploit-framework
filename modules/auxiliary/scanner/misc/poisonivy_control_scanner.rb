@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -18,10 +14,6 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{
         Enumerate Poison Ivy Command and Control (C&C) on ports 3460, 80, 8080 and 443. Adaptation of iTrust Python script.
       },
-      'References'  =>
-        [
-          ['URL', 'www.malware.lu/Pro/RAP002_APT1_Technical_backstage.1.0.pdf'],
-        ],
       'Author'      => ['SeawolfRN'],
       'License'     => MSF_LICENSE
     )
@@ -31,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10])
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
 
@@ -97,5 +89,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

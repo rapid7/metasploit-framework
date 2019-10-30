@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   # Scanner mixin should be near last
@@ -210,9 +205,9 @@ class Metasploit3 < Msf::Auxiliary
       print("Version of the InterBase server: #{info_svc_server_version}\n")
       print("Implementation of the InterBase server: #{info_svc_implementation}\n\n")
 
-      # print(Rex::Text.to_hex_dump(response))
+      #print(Rex::Text.to_hex_dump(response))
 
-      #Add Report
+      # Add Report
       report_note(
         :host	=> ip,
         :sname	=> 'ib',
@@ -222,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
         :data	=> "Version of the InterBase server: #{info_svc_server_version}"
       )
 
-      #Add Report
+      # Add Report
       report_note(
         :host	=> ip,
         :sname	=> 'ib',
@@ -238,5 +233,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

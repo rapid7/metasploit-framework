@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 #
 # NOTE: Read this if you plan on using this encoder:
@@ -88,21 +84,7 @@ require 'msf/core'
 # 0000004A  3401              xor al,0x1
 # 0000004C  7F                db 0x7F
 #
-class Metasploit3 < Msf::Encoder
-
-  #
-  # In some cases, payloads can be an invalid size that is incompatible with
-  # this encoder
-  #
-  class InvalidPayloadSizeException < ::Exception
-    def initialize(msg)
-      @msg = msg
-    end
-
-    def to_s
-      @msg
-    end
-  end
+class MetasploitModule < Msf::Encoder
 
   # This encoder has a manual ranking because it should only be used in cases
   # where information has been explicitly supplied, like the BufferOffset.
@@ -136,7 +118,7 @@ class Metasploit3 < Msf::Encoder
 
     # Check to make sure that the length is a valid size
     if is_badchar(state, len)
-      raise InvalidPayloadSizeException.new("The payload being encoded is of an incompatible size (#{len} bytes)")
+      raise EncodingError.new("The payload being encoded is of an incompatible size (#{len} bytes)")
     end
 
     decoder =
@@ -271,5 +253,4 @@ class Metasploit3 < Msf::Encoder
   def is_badchar(state, val)
     ((val >= 0x41 and val <= 0x5a) or val >= 0x80) or Rex::Text.badchar_index([val].pack('C'), state.badchars)
   end
-
 end

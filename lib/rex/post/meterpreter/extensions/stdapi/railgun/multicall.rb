@@ -25,9 +25,8 @@
 
 require 'pp'
 require 'enumerator'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
 
 module Rex
@@ -40,16 +39,16 @@ module Railgun
 # A easier way to call multiple functions in a single request
 class MultiCaller
 
-    include DLLHelper
+    include LibraryHelper
 
-    def initialize( client, parent, win_consts )
+    def initialize(client, parent, consts_mgr)
       @parent = parent
       @client = client
 
-      # needed by DLL helper
-      @win_consts = win_consts
+      # needed by LibraryHelper
+      @consts_mgr = consts_mgr
 
-      if( @client.platform =~ /x64/i )
+      if @client.native_arch == ARCH_X64
         @native = 'Q<'
       else
         @native = 'V'
@@ -57,25 +56,25 @@ class MultiCaller
     end
 
     def call(functions)
-
       request = Packet.create_request('stdapi_railgun_api_multi')
       function_results = []
       layouts          = []
       functions.each do |f|
-        dll_name,funcname,args = f
-        dll_host = @parent.get_dll( dll_name )
+        lib_name, function, args = f
+        lib_host = @parent.get_library(lib_name)
 
-        if not dll_host
-          raise "DLL #{dll_name} has not been loaded"
+        if not lib_host
+          raise "Library #{lib_name} has not been loaded"
         end
 
-        function = dll_host.functions[funcname]
-        if not function
-          raise "DLL #{dll_name} function #{funcname} has not been defined"
+        unless function.instance_of? LibraryFunction
+          function = lib_host.functions[function]
+          if not function
+            raise "Library #{lib_name} function #{function} has not been defined"
+          end
         end
 
         raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
-        #puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
 
         # We transmit the immediate stack and three heap-buffers:
         # in, inout and out. The reason behind the separation is bandwidth.
@@ -98,19 +97,25 @@ class MultiCaller
           end
 
           # we care only about out-only buffers
-          if param_desc[2] == "out"
-            raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes " unless args[param_idx].class == Fixnum
+          if param_desc[2] == 'out'
+            if !args[param_idx].class.kind_of? Integer
+              raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes "
+            end
             buffer_size = args[param_idx]
             # bump up the size for an x64 pointer
-            if( @native == 'Q<' and buffer_size == 4 )
+            if @native == 'Q<' && buffer_size == 4
               args[param_idx] = 8
               buffer_size = args[param_idx]
             end
 
-            if( @native == 'Q<' )
-              raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8" unless buffer_size == 8
+            if @native == 'Q<'
+              if buffer_size != 8
+                raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8"
+              end
             elsif( @native == 'V' )
-              raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4" unless buffer_size == 4
+              if buffer_size != 4
+                raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4"
+              end
             end
 
             out_only_layout[param_desc[1]] = BufferItem.new(param_idx, out_only_size_bytes, buffer_size, param_desc[0])
@@ -118,11 +123,11 @@ class MultiCaller
           end
         end
 
-        tmp = assemble_buffer("in", function, args)
+        tmp = assemble_buffer('in', function, args)
         in_only_layout = tmp[0]
         in_only_buffer = tmp[1]
 
-        tmp = assemble_buffer("inout", function, args)
+        tmp = assemble_buffer('inout', function, args)
         inout_layout = tmp[0]
         inout_buffer = tmp[1]
 
@@ -142,41 +147,41 @@ class MultiCaller
           #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
           buffer = nil
           # is it a pointer to a buffer on our stack
-          if ["PDWORD", "PWCHAR", "PCHAR", "PBLOB"].include? param_desc[0]
-            #puts "   pointer"
+          if ['PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
+            #puts '   pointer'
             if args[param_idx] == nil # null pointer?
-              buffer = [0].pack(@native) # type: DWORD  (so the dll does not rebase it)
+              buffer = [0].pack(@native) # type: DWORD  (so the library does not rebase it)
               buffer += [0].pack(@native) # value: 0
-            elsif param_desc[2] == "in"
+            elsif param_desc[2] == 'in'
               buffer = [1].pack(@native)
               buffer += [in_only_layout[param_desc[1]].addr].pack(@native)
-            elsif param_desc[2] == "out"
+            elsif param_desc[2] == 'out'
               buffer = [2].pack(@native)
               buffer += [out_only_layout[param_desc[1]].addr].pack(@native)
-            elsif param_desc[2] == "inout"
+            elsif param_desc[2] == 'inout'
               buffer = [3].pack(@native)
               buffer += [inout_layout[param_desc[1]].addr].pack(@native)
             else
-              raise "unexpected direction"
+              raise 'unexpected direction'
             end
           else
-            #puts "   not a pointer"
+            #puts '   not a pointer'
             # it's not a pointer
             buffer = [0].pack(@native)
             case param_desc[0]
-              when "LPVOID", "HANDLE"
+              when 'LPVOID', 'HANDLE', 'SIZE_T'
                 num     = param_to_number(args[param_idx])
                 buffer += [num].pack(@native)
-              when "DWORD"
+              when 'DWORD'
                 num     = param_to_number(args[param_idx])
                 buffer += [num % 4294967296].pack(@native)
-              when "WORD"
+              when 'WORD'
                 num     = param_to_number(args[param_idx])
                 buffer += [num % 65536].pack(@native)
-              when "BYTE"
+              when 'BYTE'
                 num     = param_to_number(args[param_idx])
                 buffer += [num % 256].pack(@native)
-              when "BOOL"
+              when 'BOOL'
                 case args[param_idx]
                   when true
                     buffer += [1].pack('V')
@@ -203,8 +208,8 @@ class MultiCaller
         group.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
-        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_name )
-        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
+        group.add_tlv(TLV_TYPE_RAILGUN_LIBNAME, lib_host.library_path)
+        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
         request.tlvs << group
 
         layouts << [inout_layout, out_only_layout]
@@ -217,9 +222,9 @@ class MultiCaller
       end
 
       functions.each do |f|
-        dll_name,funcname,args = f
-        dll_host = @parent.get_dll( dll_name )
-        function = dll_host.functions[funcname]
+        lib_name, function, args = f
+        lib_host = @parent.get_library(lib_name)
+        function = lib_host.functions[function] unless function.instance_of? LibraryFunction
         response = call_results.shift
         inout_layout, out_only_layout = layouts.shift
 
@@ -235,28 +240,28 @@ class MultiCaller
 
         # The hash the function returns
         return_hash = {
-          "GetLastError" => rec_last_error,
-          "ErrorMessage" => rec_err_msg
+          'GetLastError' => rec_last_error,
+          'ErrorMessage' => rec_err_msg
         }
 
         #process return value
         case function.return_type
-          when "LPVOID", "HANDLE"
+          when 'LPVOID', 'HANDLE'
             if( @native == 'Q<' )
-              return_hash["return"] = rec_return_value
+              return_hash['return'] = rec_return_value
             else
-              return_hash["return"] = rec_return_value % 4294967296
+              return_hash['return'] = rec_return_value % 4294967296
             end
-          when "DWORD"
-            return_hash["return"] = rec_return_value % 4294967296
-          when "WORD"
-            return_hash["return"] = rec_return_value % 65536
-          when "BYTE"
-            return_hash["return"] = rec_return_value % 256
-          when "BOOL"
-            return_hash["return"] = (rec_return_value != 0)
-          when "VOID"
-            return_hash["return"] = nil
+          when 'DWORD'
+            return_hash['return'] = rec_return_value % 4294967296
+          when 'WORD'
+            return_hash['return'] = rec_return_value % 65536
+          when 'BYTE'
+            return_hash['return'] = rec_return_value % 256
+          when 'BOOL'
+            return_hash['return'] = (rec_return_value != 0)
+          when 'VOID'
+            return_hash['return'] = nil
           else
             raise "unexpected return type: #{function.return_type}"
         end
@@ -271,13 +276,13 @@ class MultiCaller
           #puts "   #{param_name}"
           buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
           case buffer_item.datatype
-            when "PDWORD"
+            when 'PDWORD'
               return_hash[param_name] = buffer.unpack('V')[0]
-            when "PCHAR"
+            when 'PCHAR'
               return_hash[param_name] = asciiz_to_str(buffer)
-            when "PWCHAR"
+            when 'PWCHAR'
               return_hash[param_name] = uniz_to_str(buffer)
-            when "PBLOB"
+            when 'PBLOB'
               return_hash[param_name] = buffer
             else
               raise "unexpected type in out-only buffer of #{param_name}: #{buffer_item.datatype}"
@@ -288,16 +293,16 @@ class MultiCaller
         # process in-out buffers
         #puts "processing in-out buffers:"
         inout_layout.each_pair do |param_name, buffer_item|
-          #puts "   #{param_name}"
+          #puts '   #{param_name}'
           buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
           case buffer_item.datatype
-            when "PDWORD"
+            when 'PDWORD'
               return_hash[param_name] = buffer.unpack('V')[0]
-            when "PCHAR"
+            when 'PCHAR'
               return_hash[param_name] = asciiz_to_str(buffer)
-            when "PWCHAR"
+            when 'PWCHAR'
               return_hash[param_name] = uniz_to_str(buffer)
-            when "PBLOB"
+            when 'PBLOB'
               return_hash[param_name] = buffer
             else
               raise "unexpected type in in-out-buffer of #{param_name}: #{buffer_item.datatype}"

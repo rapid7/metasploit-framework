@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
+RSpec.shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
   let(:error) do
     begin
       subject.version_compatible!(module_path, module_reference_name)
@@ -16,18 +16,18 @@ shared_examples_for 'Msf::Modules::VersionCompatibilityError' do
   end
 
   it 'should include minimum API version' do
-    error.to_s.should include(minimum_api_version.to_s)
+    expect(error.to_s).to include(minimum_api_version.to_s)
   end
 
   it 'should include minimum Core version' do
-    error.to_s.should include(minimum_core_version.to_s)
+    expect(error.to_s).to include(minimum_core_version.to_s)
   end
 
   it 'should include module path' do
-    error.to_s.should include(module_path)
+    expect(error.to_s).to include(module_path)
   end
 
   it 'should include module reference name' do
-    error.to_s.should include(module_reference_name)
+    expect(error.to_s).to include(module_reference_name)
   end
 end

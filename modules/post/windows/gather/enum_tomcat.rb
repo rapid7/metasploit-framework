@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
 require 'rexml/document'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -56,7 +53,7 @@ class Metasploit3 < Msf::Post
     end
     print_status("Done, Tomcat Found.")
 
-    tbl_services = Rex::Ui::Text::Table.new(
+    tbl_services = Rex::Text::Table.new(
       'Header'  => "Tomcat Applications ",
       'Indent'  => 1,
       'Columns' =>
@@ -72,7 +69,7 @@ class Metasploit3 < Msf::Post
       tbl_services << r
     }
 
-    tbl_users = Rex::Ui::Text::Table.new(
+    tbl_users = Rex::Text::Table.new(
       'Header'  => "Tomcat Server Users ",
       'Indent'  => 1,
       'Columns' =>
@@ -91,7 +88,7 @@ class Metasploit3 < Msf::Post
     print_line(tbl_services.to_s)
     print_line(tbl_users.to_s)
     p = store_loot("host.webservers.tomcat", "text/plain", session, tbl_services.to_s + "\n" + tbl_users.to_s, "tomcat.txt", "Tomcat Server Enum")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
   end
 
   ### initial identification methods ###

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -42,7 +39,7 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('TARGETURI', [true, 'Path to SAP Application Server', '/'])
-      ], self.class)
+      ])
   end
 
   def extract_field(data, elem)

@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-      'Description' => %q{
+      'Name'           => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
+      'Description'    => %q{
         This module tests whether a directory traversal vulnerablity is present
         in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
         The vulnerability appears to be actually caused by the Tomcat UTF-8
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
         password hashes are stored and anonymously accessible in the passwd file.
         },
-      'References'  =>
+      'References'     =>
         [
           [ 'URL', 'http://tomcat.apache.org/' ],
           [ 'OSVDB', '47464' ],
@@ -32,8 +29,9 @@ class Metasploit3 < Msf::Auxiliary
           [ 'EDB', '17388' ],
           [ 'BID', '48225' ],
         ],
-      'Author'      => [ 'patrick' ],
-      'License'     => MSF_LICENSE
+      'Author'         => [ 'aushack' ],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Jan 9 2009'
     )
 
     register_options(
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptPath.new('SENSITIVE_FILES', [ true, "File containing senstive files, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)

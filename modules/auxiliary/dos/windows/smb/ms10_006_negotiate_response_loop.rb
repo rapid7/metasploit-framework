@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Auxiliary::Dos
 
@@ -14,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
           This module exploits a denial of service flaw in the Microsoft
         Windows SMB client on Windows 7 and Windows Server 2008 R2. To trigger
-        this bug, run this module as a service and forces a vulnerabile client
+        this bug, run this module as a service and forces a vulnerable client
         to access the IP of this system as an SMB server. This can be accomplished
         by embedding a UNC path (\\HOST\share\something) into a web page if the
         target is using Internet Explorer, or a Word document otherwise.
@@ -32,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptPort.new('SRVPORT', [ true, "The SMB port to listen on", 445 ])
-    ], self.class)
+    ])
   end
 
   def run

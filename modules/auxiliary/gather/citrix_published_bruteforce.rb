@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
 
   def initialize(info = {})
@@ -18,19 +13,18 @@ class Metasploit3 < Msf::Auxiliary
         This module attempts to brute force program names within the Citrix
         Metaframe ICA server.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'OSVDB', '50617' ],
-          [ 'BID', '5817' ],
-          [ 'URL', 'http://sh0dan.org/oldfiles/hackingcitrix.html' ],
+          [ 'BID', '5817' ]
         ]
     ))
 
     register_options(
       [
         Opt::RPORT(1604),
-      ], self.class)
+      ])
   end
 
   def autofilter
@@ -182,5 +176,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

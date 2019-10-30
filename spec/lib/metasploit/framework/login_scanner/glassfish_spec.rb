@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/glassfish'
 
-describe Metasploit::Framework::LoginScanner::Glassfish do
+RSpec.describe Metasploit::Framework::LoginScanner::Glassfish do
 
   subject(:http_scanner) { described_class.new }
 
@@ -87,13 +87,15 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
   context '#is_secure_admin_disabled?' do
     it 'returns true when Secure Admin is disabled' do
       res = Rex::Proto::Http::Response.new(res_code)
-      res.stub(:body).and_return('Secure Admin must be enabled')
+      allow(res).to receive(:body).and_return('Secure Admin must be enabled')
+
       expect(http_scanner.is_secure_admin_disabled?(res)).to be_truthy
     end
 
     it 'returns false when Secure Admin is enabled' do
       res = Rex::Proto::Http::Response.new(res_code)
-      res.stub(:body).and_return('')
+      allow(res).to receive(:body).and_return('')
+
       expect(http_scanner.is_secure_admin_disabled?(res)).to be_falsey
     end
   end
@@ -116,7 +118,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       '<title>Deploy Enterprise Applications/Modules</title>'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&
@@ -156,7 +158,7 @@ describe Metasploit::Framework::LoginScanner::Glassfish do
       '<title>Deploy Enterprise Applications/Modules</title>'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('j_security_check') &&
             req.opts['data'] &&

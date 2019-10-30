@@ -19,7 +19,7 @@ module Net # :nodoc:
         name = ""
         packetlen = packet.size
         while true
-          raise ExpandError, "offset is greater than packet lenght!" if packetlen < (offset+1)
+          raise ExpandError, "offset is greater than packet length!" if packetlen < (offset+1)
           len = packet.unpack("@#{offset} C")[0]
           
           if len == 0
@@ -46,12 +46,15 @@ module Net # :nodoc:
       end
       
       def pack_name(name)
-        if name.size > 63
-          raise ArgumentError, "Label data cannot exceed 63 chars"
+        if name.size > 255
+          raise ArgumentError, "Name data cannot exceed 255 chars"
         end
         arr = name.split(".")
         str = ""
         arr.each do |elem|
+          if elem.size > 63
+            raise ArgumentError, "Label data cannot exceed 63 chars"
+          end
           str += [elem.size,elem].pack("Ca*")
         end
         str += [0].pack("C")

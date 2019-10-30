@@ -60,7 +60,9 @@ class EventLog
   def initialize(hand)
     self.client = self.class.client
     self.handle = hand
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
+
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, hand))
   end
 
   def self.finalize(client,handle)
@@ -185,7 +187,11 @@ class EventLog
 
   # Instance method
   def close
-    self.class.close(self.client, self.handle)
+    unless self.handle.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, self.handle)
+      self.handle = nil
+    end
   end
 end
 

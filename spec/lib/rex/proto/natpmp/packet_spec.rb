@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 require 'rex/proto/natpmp/packet'
-describe Rex::Proto::NATPMP do
+RSpec.describe Rex::Proto::NATPMP do
   subject do
     mod = Module.new
     mod.extend described_class

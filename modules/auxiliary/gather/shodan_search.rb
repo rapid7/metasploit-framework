@@ -1,16 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'net/https'
 require 'uri'
 
-class Metasploit4 < Msf::Auxiliary
-
-  include Msf::Exploit::Remote::HttpClient
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -18,7 +14,7 @@ class Metasploit4 < Msf::Auxiliary
       'Name' => 'Shodan Search',
       'Description' => %q{
         This module uses the Shodan API to search Shodan. Accounts are free
-        and an API key is required to used this module. Output from the module
+        and an API key is required to use this module. Output from the module
         is displayed to the screen and can be saved to a file or the MSF database.
         NOTE: SHODAN filters (i.e. port, hostname, os, geo, city) can be used in
         queries, but there are limitations when used with a free API key. Please
@@ -35,10 +31,6 @@ class Metasploit4 < Msf::Auxiliary
       )
     )
 
-    deregister_options('RHOST', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-      'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
-
     register_options(
       [
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key']),
@@ -48,7 +40,7 @@ class Metasploit4 < Msf::Auxiliary
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
         OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
 
-      ], self.class)
+      ])
   end
 
   # create our Shodan query function that performs the actual web request
@@ -112,7 +104,12 @@ class Metasploit4 < Msf::Auxiliary
     results[page] = shodan_query(query, apikey, page)
 
     if results[page]['total'].nil? || results[page]['total'] == 0
-      print_error('No Results Found!')
+      msg = "No results."
+      if results[page]['error'].to_s.length > 0
+        msg << " Error: #{results[page]['error']}"
+      end
+      print_error(msg)
+      return
     end
 
     # Determine page count based on total results
@@ -139,7 +136,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     # Save the results to this table
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'Search Results',
       'Indent'  => 1,
       'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']

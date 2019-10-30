@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         in a given directory path named as the same name of the
         directory.
 
-        Only works if PATH is differenet than '/'.
+        Only works if PATH is different than '/'.
       },
       'Author' 		=> [ 'et [at] metasploit.com' ],
       'License'		=> BSD_LICENSE))
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The directory path  to identify files", '/']),
         OptString.new('EXT', [ true, "File extension to use", '.aspx']),
 
-      ], self.class)
+      ])
 
   end
 
@@ -89,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         }, 20)
 
         if (res and res.code >= 200 and res.code < 300)
-          print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
+          print_good("Found #{wmap_base_url}#{tpath}#{testfext}")
 
           report_web_vuln(
             :host	=> ip,

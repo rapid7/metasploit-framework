@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -24,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'     => [
           [ 'CVE', '2004-1550' ],
           [ 'OSVDB', '10232' ],
-          [ 'URL', 'http://seclists.org/bugtraq/2004/Sep/0339.html'],
+          [ 'URL', 'https://seclists.org/bugtraq/2004/Sep/0339.html'],
       ],
       'DisclosureDate' => 'Sep 24 2004'))
 

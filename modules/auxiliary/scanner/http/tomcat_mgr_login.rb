@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/tomcat'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -58,6 +56,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
+        OptString.new('USERNAME', [false, 'The HTTP username to specify for authentication', '']),
+        OptString.new('PASSWORD', [false, 'The HTTP password to specify for authentication', '']),
         OptString.new('TARGETURI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_userpass.txt") ]),
@@ -65,7 +65,9 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt") ]),
-      ], self.class)
+      ])
+
+    deregister_options('PASSWORD_SPRAY')
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])
   end
@@ -110,7 +112,9 @@ class Metasploit3 < Msf::Auxiliary
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 10
+        connection_timeout: 10,
+        http_username: datastore['HttpUsername'],
+        http_password: datastore['HttpPassword']
       )
     )
 
@@ -118,19 +122,23 @@ class Metasploit3 < Msf::Auxiliary
       credential_data = result.to_h
       credential_data.merge!(
           module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+          workspace_id: myworkspace_id,
+          private_type: :password
       )
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        if result.proof
+          vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        else
+          vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        end
       end
     end
   end
-
 end

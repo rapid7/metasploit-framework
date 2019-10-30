@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info={})
@@ -28,7 +24,7 @@ class Metasploit3 < Msf::Post
 
         OptString.new('MACRO', [true, 'File with Post Modules and Options to run in the session', nil])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -37,7 +33,7 @@ class Metasploit3 < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     macro = datastore['MACRO']
     entries = []
-    if not ::File.exists?(macro)
+    if not ::File.exist?(macro)
       print_error "Resource File does not exists!"
       return
     else

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'timeout'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -69,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 
       probe = buildprobe(shost, sport, ip, rport)
 
-      capture_sendto(probe, ip)
+      next unless capture_sendto(probe, ip)
 
       reply = probereply(pcap, to)
 
@@ -188,5 +186,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return reply
   end
-
 end

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core'
 require 'msf/core/option_container'
+require 'msf/core/payload/transport_config'
 
 ###
 #
@@ -8,6 +9,8 @@ require 'msf/core/option_container'
 #
 ###
 module Msf::Payload::Stager
+
+  include Msf::Payload::TransportConfig
 
   def initialize(info={})
     super
@@ -17,9 +20,31 @@ module Msf::Payload::Stager
         Msf::OptBool.new("EnableStageEncoding", [ false, "Encode the second stage payload", false ]),
         Msf::OptString.new("StageEncoder", [ false, "Encoder to use if EnableStageEncoding is set", nil ]),
         Msf::OptString.new("StageEncoderSaveRegisters", [ false, "Additional registers to preserve in the staged payload if EnableStageEncoding is set", "" ]),
-        Msf::OptBool.new("StageEncodingFallback", [ false, "Fallback to default encoders or no encoding if the selected StageEncoder is not compatible", true ])
+        Msf::OptBool.new("StageEncodingFallback", [ false, "Fallback to no encoding if the selected StageEncoder is not compatible", true ])
       ], Msf::Payload::Stager)
 
+  end
+
+  #
+  # Perform attempt at detecting the appropriate transport config.
+  # Call the determined config with passed options.
+  # Override this in stages/stagers to use specific transports
+  #
+  def transport_config(opts={})
+    if self.refname =~ /reverse_/
+        direction = 'reverse'
+    else
+        direction = 'bind'
+    end
+
+    if self.refname =~ /_tcp/
+        proto = 'tcp'
+    elsif self.refname =~ /_https/
+        proto = 'https'
+    else
+        proto = 'http'
+    end
+    send("transport_config_#{direction}_#{proto}", opts)
   end
 
   #
@@ -63,8 +88,11 @@ module Msf::Payload::Stager
   # Can be nil if the final stage is not pre-assembled.
   #
   # @return [String,nil]
-  def stage_payload
-    return module_info['Stage']['Payload']
+  def stage_payload(opts = {})
+    if module_info['Stage']
+      return module_info['Stage']['Payload']
+    end
+    nil
   end
 
   #
@@ -72,7 +100,10 @@ module Msf::Payload::Stager
   #
   # @return [String]
   def stage_assembly
-    return module_info['Stage']['Assembly']
+    if module_info['Stage']
+      return module_info['Stage']['Assembly']
+    end
+    nil
   end
 
   #
@@ -83,7 +114,10 @@ module Msf::Payload::Stager
   #
   # @return [Hash]
   def stage_offsets
-    return module_info['Stage']['Offsets']
+    if module_info['Stage']
+      return module_info['Stage']['Offsets']
+    end
+    nil
   end
 
   #
@@ -106,14 +140,14 @@ module Msf::Payload::Stager
   # Generates the stage payload and substitutes all offsets.
   #
   # @return [String] The generated payload stage, as a string.
-  def generate_stage
+  def generate_stage(opts={})
     # XXX: This is nearly identical to Payload#internal_generate
 
     # Compile the stage as necessary
     if stage_assembly and !stage_assembly.empty?
       raw = build(stage_assembly, stage_offsets)
     else
-      raw = stage_payload.dup
+      raw = stage_payload(opts)
     end
 
     # Substitute variables in the stage
@@ -131,7 +165,16 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      p = generate_stage
+      if respond_to? :include_send_uuid
+        if include_send_uuid
+          uuid_raw = conn.get_once(16, 1)
+          if uuid_raw
+            opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
+          end
+        end
+      end
+
+      p = generate_stage(opts)
 
       # Encode the stage if stage encoding is enabled
       begin
@@ -170,15 +213,6 @@ module Msf::Payload::Stager
 
       # Send the stage
       conn.put(p)
-    end
-
-    # If the stage implements the handle connection method, sleep before
-    # handling it.
-    if (derived_implementor?(Msf::Payload::Stager, 'handle_connection_stage'))
-      print_status("Sleeping before handling stage...")
-
-      # Sleep before processing the stage
-      Rex::ThreadSafe.sleep(1.5)
     end
 
     # Give the stages a chance to handle the connection
@@ -221,22 +255,11 @@ module Msf::Payload::Stager
   # @return [String] Encoded version of +stg+
   def encode_stage(stg)
     return stg unless encode_stage?
-    stage_enc_mod = []
+    stage_enc_mod = nil
 
     # Handle StageEncoder if specified by the user
     if datastore['StageEncoder'].to_s.length > 0
-      # Allow multiple encoders separated by commas
-      stage_enc_mod = datastore["StageEncoder"].split(',').map(&:strip).select{|x| x.to_s.length > 0}.uniq
-    end
-
-    # Add automatic encoding as a fallback if needed
-    if datastore['StageEncodingFallback']
-      stage_enc_mod << nil
-    end
-
-    # If fallback has been disabled and no encoder was parsed, exit early and rop the session
-    if stage_enc_mod.length == 0
-      raise RuntimeError, "StageEncoder is invalid and StageEncodingFallback is disabled"
+      stage_enc_mod = datastore["StageEncoder"]
     end
 
     # Allow the user to specify additional registers to preserve
@@ -247,34 +270,32 @@ module Msf::Payload::Stager
     saved_registers.strip!
 
     estg = nil
-
-    stage_enc_mod.each do |encoder_refname_from_user|
-
+    begin
       # Generate an encoded version of the stage.  We tell the encoding system
       # to save certain registers to ensure that it does not get clobbered.
       encp = Msf::EncodedPayload.create(
         self,
         'Raw'                => stg,
-        'Encoder'            => encoder_refname_from_user,
+        'Encoder'            => stage_enc_mod,
         'EncoderOptions'     => { 'SaveRegisters' => saved_registers },
         'ForceSaveRegisters' => true,
         'ForceEncode'        => true)
 
       if encp.encoder
-        print_status("Encoded stage with #{encp.encoder.refname}")
+        if stage_enc_mod
+          print_status("Encoded stage with #{stage_enc_mod}")
+        else
+          print_status("Encoded stage with #{encp.encoder.refname}")
+        end
         estg = encp.encoded
-
-        break
       end
-    end
-
-    if datastore['StageEncodingFallback'] && estg.nil?
-      print_warning("StageEncoder failed, falling back to no encoding")
-      estg = stg
-    end
-
-    unless estg
-      raise RuntimeError, "Stage encoding failed and StageEncodingFallback is disabled"
+    rescue
+      if datastore['StageEncodingFallback'] && estg.nil?
+        print_warning("StageEncoder failed, falling back to no encoding")
+        estg = stg
+      else
+        raise RuntimeError, "Stage encoding failed and StageEncodingFallback is disabled"
+      end
     end
 
     estg

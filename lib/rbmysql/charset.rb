@@ -164,7 +164,7 @@ class RbMysql
 
     if defined? Encoding
 
-      # MySQL Charset -> Ruby's Encodeing
+      # MySQL Charset -> Ruby's Encoding
       CHARSET_ENCODING = {
         "armscii8" => nil,
         "ascii"    => Encoding::US_ASCII,
@@ -208,7 +208,7 @@ class RbMysql
         value.dup.force_encoding Encoding::ASCII_8BIT
       end
 
-      # retrun corresponding Ruby encoding
+      # return corresponding Ruby encoding
       # === Return
       # encoding [Encoding]
       def encoding
@@ -217,7 +217,7 @@ class RbMysql
         enc
       end
 
-      # convert encoding to corrensponding to MySQL charset
+      # convert encoding corresponding to MySQL charset
       def convert(value)
         if value.is_a? String and value.encoding != Encoding::ASCII_8BIT
           value = value.encode encoding

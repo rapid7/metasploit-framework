@@ -41,7 +41,7 @@ class Clipboard
   def set_text(text)
     request = Packet.create_request('extapi_clipboard_set_data')
 
-    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT, text)
+    request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT, text)
 
     response = client.send_request(request)
 

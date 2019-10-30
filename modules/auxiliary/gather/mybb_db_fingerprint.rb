@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -27,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true, "MyBB forum directory path", '/forum'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -46,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
 
-    #Check PhP
+    # Check PhP
     php_version = res['X-Powered-By']
     if php_version
       php_version = "#{php_version}"
@@ -54,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
       php_version = "PHP version unknown"
     end
 
-    #Check Web-Server
+    # Check Web-Server
     web_server = res['Server']
     if web_server
       web_server = "#{web_server}"
@@ -62,9 +60,9 @@ class Metasploit3 < Msf::Auxiliary
       web_server = "unknown web server"
     end
 
-    #Check forum MyBB
+    # Check forum MyBB
     if res.body.match("&#077;&#089;&#066;&#066;")
-      print_good("#{peer} - MyBB forum found running on #{web_server} / #{php_version}")
+      print_good("MyBB forum found running on #{web_server} / #{php_version}")
       return Exploit::CheckCode::Detected
     else
       return Exploit::CheckCode::Unknown
@@ -77,13 +75,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run
-    print_status("#{peer} - Checking MyBB...")
+    print_status("Checking MyBB...")
     unless check == Exploit::CheckCode::Detected
-      print_error("#{peer} - MyBB not found")
+      print_error("MyBB not found")
       return
     end
 
-    print_status("#{peer} - Checking database...")
+    print_status("Checking database...")
     uri = normalize_uri(target_uri.path, 'memberlist.php')
     response = send_request_cgi(
       {
@@ -94,17 +92,17 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
     if response.nil?
-      print_error("#{peer} - Timeout...")
+      print_error("Timeout...")
       return
     end
 
-    #Resolve response
+    # Resolve response
     if response.body.match(/SELECT COUNT\(\*\) AS users FROM mybb_users u WHERE 1=1 AND u.username NOT REGEXP\(\'\[a-zA-Z\]\'\)/)
-      print_good("#{peer} - Running PostgreSQL Database")
+      print_good("Running PostgreSQL Database")
     elsif response.body.match(/General error\: 1 no such function\: REGEXP/)
-      print_good("#{peer} - Running SQLite Database")
+      print_good("Running SQLite Database")
     else
-      print_status("#{peer} - Running MySQL or unknown database")
+      print_status("Running MySQL or unknown database")
     end
   end
 end

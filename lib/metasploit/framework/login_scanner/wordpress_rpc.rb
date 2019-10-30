@@ -10,7 +10,7 @@ module Metasploit
         # (see Base#attempt_login)
         def attempt_login(credential)
           http_client = Rex::Proto::Http::Client.new(
-              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
+              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
           configure_http_client(http_client)
 
@@ -32,7 +32,7 @@ module Metasploit
             request = http_client.request_cgi(
                 'uri' => uri,
                 'method' => method,
-                'data' => generate_xml_request(credential.public,credential.private),
+                'data' => generate_xml_request(credential.public,credential.private)
             )
             response = http_client.send_recv(request)
 
@@ -77,5 +77,4 @@ module Metasploit
     end
   end
 end
-
 

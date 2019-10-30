@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -34,7 +30,33 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options( [ Opt::RPORT(9000) ], self.class)
+    register_options( [ Opt::RPORT(9000) ])
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -76,14 +98,14 @@ class Metasploit3 < Msf::Auxiliary
     if creds.keys.length > 0
       creds.keys.sort.each do |user|
         pass = creds[user]
-        report_auth_info({
-          :host         => rhost,
-          :port         => rport,
-          :sname        => 'dvr',
-          :duplicate_ok => false,
-          :user         => user,
-          :pass         => pass
-        })
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'dvr',
+          user: user,
+          password: pass,
+          proof: pass
+        )
         info << "(user='#{user}' pass='#{pass}') "
       end
     end
@@ -106,5 +128,4 @@ class Metasploit3 < Msf::Auxiliary
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => info)
     print_good("#{rhost}:#{rport} #{info}")
   end
-
 end

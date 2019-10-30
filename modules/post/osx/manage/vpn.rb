@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   STR_CONNECTED = '* (Connected)'
@@ -39,12 +35,12 @@ class Metasploit3 < Msf::Post
         OptString.new('VPN_CONNECTION', [true, 'Name of VPN connection. `set ACTION LIST` to get a list.', 'OSX_VPN']),
         OptString.new('SCUTIL_PATH', [true, 'Path to the scutil executable.', '/usr/sbin/scutil']),
         OptString.new('NETWORKSETUP_PATH', [true, 'Path to the networksetup executable.', '/usr/sbin/networksetup'])
-      ], self.class)
+      ])
 
   end
 
   def run
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     scutil_path = datastore['SCUTIL_PATH'].shellescape
     networksetup_path = datastore['NETWORKSETUP_PATH'].shellescape
@@ -141,5 +137,4 @@ class Metasploit3 < Msf::Post
     end
     return nil
   end
-
 end

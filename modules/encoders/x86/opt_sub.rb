@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Encoder
-
+class MetasploitModule < Msf::Encoder
   Rank = ManualRanking
 
   ASM_SUBESP20 = "\x83\xEC\x20"
@@ -52,7 +49,7 @@ class Metasploit3 < Msf::Encoder
     register_options(
       [
         OptString.new( 'ValidCharSet', [ false, "Specify a known set of valid chars (ALPHA, ALPHANUM, FILEPATH)" ]),
-        OptBool.new( 'OverwriteProtect', [ false, "Indicate if the encoded payload requires protection against being overwritten" ])
+        OptBool.new( 'OverwriteProtect', [ false, "Indicate if the encoded payload requires protection against being overwritten", false])
       ],
       self.class)
   end
@@ -161,11 +158,11 @@ class Metasploit3 < Msf::Encoder
 
     # determine if we have any invalid characters that we rely on.
     unless all_bytes_valid
-      raise RuntimeError, "Bad character set contains characters that are required for this encoder to function."
+      raise EncodingError, "Bad character set contains characters that are required for this encoder to function."
     end
 
     unless @asm['PUSH'][@base_reg]
-      raise RuntimeError, "Invalid base register"
+      raise EncodingError, "Invalid base register"
     end
 
     # get the offset from the specified base register, or default to zero if not specifed
@@ -176,13 +173,11 @@ class Metasploit3 < Msf::Encoder
 
     # if we can't then we bomb, because we know we need to clear out EAX at least once
     unless @clear1
-      raise RuntimeError, "Unable to find AND-able chars resulting 0 in the valid character set."
+      raise EncodingError, "Unable to find AND-able chars resulting 0 in the valid character set."
     end
 
-    protect_payload = (datastore['OverwriteProtect'] || "").downcase == "true"
-
     # with everything set up, we can now call the encoding routine
-    state.decoder_stub = encode_payload(state.buf, reg_offset, protect_payload)
+    state.decoder_stub = encode_payload(state.buf, reg_offset, datastore['OverwriteProtect'])
 
     state.buf = ""
     state.decoder_stub
@@ -288,7 +283,7 @@ class Metasploit3 < Msf::Encoder
     # Write out a stubbed placeholder for the offset instruction based on
     # the base register, we'll update this later on when we know how big our payload is.
     encoded, _ = sub_3(0, 0)
-    raise RuntimeError, "Couldn't offset base register." if encoded.nil?
+    raise EncodingError, "Couldn't offset base register." if encoded.nil?
     data << create_sub(encoded)
 
     # finally push the value of EAX back into ESP
@@ -312,7 +307,7 @@ class Metasploit3 < Msf::Encoder
       end
 
       # if we're still nil here, then we have an issue
-      raise RuntimeError, "Couldn't encode payload" if encoded.nil?
+      raise EncodingError, "Couldn't encode payload" if encoded.nil?
 
       data << create_sub(encoded)
     end
@@ -324,7 +319,7 @@ class Metasploit3 < Msf::Encoder
     encoded, _ = sub_3(total_offset, 0)
 
     # if we're still nil here, then we have an issue
-    raise RuntimeError, "Couldn't encode protection" if encoded.nil?
+    raise EncodingError, "Couldn't encode protection" if encoded.nil?
     patch = create_sub(encoded)
 
     # patch in the correct offset back at the start of our payload

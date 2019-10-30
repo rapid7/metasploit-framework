@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/time'
 
-describe Rex::ExtTime do
+RSpec.describe Rex::ExtTime do
 
   let(:conversions) do
     {
@@ -41,28 +41,6 @@ describe Rex::ExtTime do
     it "returns string encoded seconds" do
       conversions.each do |k, v|
         expect(subject.sec_to_s(k)).to eq(v)
-      end
-    end
-  end
-
-  describe ".str_to_sec" do
-    it "returns seconds from encoded string" do
-      conversions.each do |k, v|
-        expect(subject.str_to_sec(v)).to eq(k)
-      end
-    end
-
-    context "when invalid encoded string" do
-      let(:invalid) { 'invalid' }
-      it "returns 0" do
-        expect(subject.str_to_sec(invalid)).to eq(0)
-      end
-    end
-
-    context "when incorrect pluralization" do
-      let(:invalid) { '1 years 1 days 2 hour 1 min 1 secs' }
-      it "returns correct number of seconds" do
-        expect(subject.str_to_sec(invalid)).to eq(31629661)
       end
     end
   end

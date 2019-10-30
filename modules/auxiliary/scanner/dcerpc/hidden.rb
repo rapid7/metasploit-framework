@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
@@ -32,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RHOST', 'RPORT')
+    deregister_tcp_options
   end
 
   # Obtain information about a single host
@@ -59,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Looking for services on #{ip}:#{rport}...")
 
         ids = dcerpc_mgmt_inq_if_ids(rport)
-        return if not ids
+        next if not ids
 
         ids.each do |id|
           if (not servs.has_key?(id[0]+'_'+id[1]))

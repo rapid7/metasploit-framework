@@ -1,23 +1,22 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
     super( update_info( info,
       'Name'         => 'Windows Gather Deleted Files Enumeration and Recovering',
       'Description'  => %q{
-          This module list and try to recover deleted files from NTFS file systems. Use
-        the FILES option to guide recovery. Let it empty to enumerate deleted files in the
-        DRIVE. Set FILES to an extension (Ex. "pdf") to recover deleted files with that
-        extension. Or set FILES to a comma separated list of IDs (from enumeration) to
-        recover those files. The user must have into account file enumeration and recovery
-        could take a long time, use the TIMEOUT option to abort enumeration or recovery by
-        extension after that time (in seconds).
+        This module lists and attempts to recover deleted files from NTFS file systems. Use
+        the FILES option to guide recovery. Leave this option empty to enumerate deleted files in the
+        DRIVE. Set FILES to an extension (e.g., "pdf") to recover deleted files with that
+        extension, or set FILES to a comma separated list of IDs (from enumeration) to
+        recover those files. The user must have account file enumeration. Recovery
+        may take a long time; use the TIMEOUT option to abort enumeration or recovery by
+        extension after a specified period (in seconds).
       },
       'License'      => MSF_LICENSE,
       'Platform'     => ['win'],
@@ -32,7 +31,7 @@ class Metasploit3 < Msf::Post
         OptString.new('FILES',[false,'ID or extensions of the files to recover in a comma separated way. Let empty to enumerate deleted files.',""]),
         OptString.new('DRIVE',[true,'Drive you want to recover files from.',"C:"]),
         OptInt.new('TIMEOUT', [true,'Search timeout. If 0 the module will go through the entire $MFT.', 3600])
-      ], self.class)
+      ])
   end
 
   def run
@@ -113,7 +112,7 @@ class Metasploit3 < Msf::Post
 
       # If file is resident
       if data[0] == 0
-        print_status ("The file is resident. Saving #{name} ... ")
+        print_status("The file is resident. Saving #{name} ... ")
         path = store_loot("resident.file", "application/octet-stream", session, data[1], name.downcase, nil)
         print_good("File saved on #{path}")
 
@@ -122,7 +121,7 @@ class Metasploit3 < Msf::Post
         # Due to the size of the non-resident files we have to store small chunks of data as we go through each of the data runs
         # that make up the file (save_file function).
         size = get_size(rf['lpBuffer'][56..-1])
-        print_status ("The file is not resident. Saving #{name} ... (#{size} bytes)")
+        print_status("The file is not resident. Saving #{name} ... (#{size} bytes)")
         base = 0
         # Go through each of the data runs to save the file
         file_data = ""
@@ -297,7 +296,7 @@ class Metasploit3 < Msf::Post
       vprint_status("Bytes per Cluster: #{bytes_per_cluster}")
       vprint_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q<*')[0]}")
       vprint_status("Logical cluster where MTF starts #{mft_logical_offset}")
-      # We set the pointer to the begining of the MFT
+      # We set the pointer to the beginning of the MFT
       client.railgun.kernel32.SetFilePointer(r['return'],offset_mft_bytes,0,0)
       return r['return']
     end

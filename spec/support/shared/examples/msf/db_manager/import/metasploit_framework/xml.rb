@@ -1,7 +1,12 @@
 # -*- coding:binary -*-
 require 'builder'
 
-shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting a port of all components")}
+  end
+
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647
@@ -13,7 +18,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   def with_info
-    db_manager.should_receive(:import_msf_web_element) do |*args, &specialization|
+    expect(db_manager).to receive(:import_msf_web_element) do |*args, &specialization|
       info = specialization.call(element, options)
 
       yield info
@@ -27,7 +32,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:document) do
-    REXML::Document.new(source)
+    Nokogiri::XML::Reader.from_memory(source)
   end
 
   let(:element) do
@@ -35,7 +40,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:host_attributes) do
-    FactoryGirl.attributes_for(:mdm_host)
+    FactoryBot.attributes_for(:mdm_host)
   end
 
   let(:msf_web_text_element_names) do
@@ -65,15 +70,15 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:service_attributes) do
-    FactoryGirl.attributes_for(:web_service)
+    FactoryBot.attributes_for(:web_service)
   end
 
   let(:web_form_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_form, :exported)
+    FactoryBot.attributes_for(:mdm_web_form, :exported)
   end
 
   let(:web_page_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_page)
+    FactoryBot.attributes_for(:mdm_web_page)
   end
 
   let(:workspace) do
@@ -85,7 +90,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   it 'should include methods from module so method can be overridden easier in pro' do
-    db_manager.should be_a Msf::DBManager::Import::MetasploitFramework::XML
+    expect(db_manager).to be_a Msf::DBManager::Import::MetasploitFramework::XML
   end
 
   context 'CONSTANTS' do
@@ -132,7 +137,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     subject(:metadata) do
-      db_manager.send(:check_msf_xml_version!, document)
+      db_manager.send(:check_msf_xml_version!, Nokogiri::XML(document.source).elements.first.name)
     end
 
     it_should_behave_like(
@@ -175,7 +180,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
   context '#import_msf_text_element' do
     let(:parent_element) do
-      document.root
+      Nokogiri::XML(document.source).elements.first
     end
 
     let(:child_name) do
@@ -209,7 +214,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should strip text' do
-          info[:child].should == stripped
+          expect(info[:child]).to eq stripped
         end
       end
 
@@ -221,8 +226,8 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         it 'should have nil for child name in info' do
           # use have_key to verify info isn't just returning hash default of
           # `nil`.
-          info.should have_key(child_sym)
-          info[child_sym].should be_nil
+          expect(info).to have_key(child_sym)
+          expect(info[child_sym]).to be_nil
         end
       end
 
@@ -232,7 +237,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should have text for child name in info' do
-          info[child_sym].should == text
+          expect(info[child_sym]).to eq text
         end
       end
     end
@@ -245,14 +250,14 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should return an empty Hash' do
-        info.should == {}
+        expect(info).to eq({})
       end
     end
   end
 
   context 'import_msf_web_element' do
     let(:element) do
-      document.root
+      Nokogiri::XML(document.source).elements.first
     end
 
     let(:options) do
@@ -304,11 +309,11 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
-      before(:each) do
-        db_manager.stub(
+      before(:example) do
+        allow(db_manager).to receive(
             :report_web_vuln
         ).with(
             an_instance_of(Hash)
@@ -322,18 +327,18 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           double(':workspace')
         end
 
-        before(:each) do
+        before(:example) do
           options[:workspace] = workspace
         end
 
         it 'should not call Msf::DBManager#workspace' do
-          db_manager.should_not_receive(:workspace)
+          expect(db_manager).not_to receive(:workspace)
 
           import_msf_web_element
         end
 
         it 'should pass :workspace to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(:workspace => workspace)
@@ -345,21 +350,21 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       context 'without :workspace' do
         let(:workspace) do
-          FactoryGirl.create(:mdm_workspace)
+          FactoryBot.create(:mdm_workspace)
         end
 
-        before(:each) do
+        before(:example) do
           db_manager.workspace = workspace
         end
 
         it 'should call Msf::DBManager#workspace' do
-          db_manager.should_receive(:workspace).and_call_original
+          expect(db_manager).to receive(:workspace).and_call_original
 
           import_msf_web_element
         end
 
         it 'should pass Msf::DBManager#workspace to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(:workspace => workspace)
@@ -371,7 +376,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       it 'should import all elements in MSF_WEB_TEXT_ELEMENT_NAMES with #import_msf_text_element' do
         msf_web_text_element_names.each do |name|
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               :import_msf_text_element
           ).with(
               element,
@@ -389,12 +394,12 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           }
         end
 
-        before(:each) do
-          db_manager.stub(:import_msf_text_element).and_return(returned_hash)
+        before(:example) do
+          allow(db_manager).to receive(:import_msf_text_element).and_return(returned_hash)
         end
 
         it 'should pass returned Hash as part of Hash passed to report_web_<:type' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(returned_hash)
@@ -413,7 +418,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           end
 
           it 'should pass false for :ssl to report_web_<:type>' do
-            db_manager.should_receive(
+            expect(db_manager).to receive(
                 "report_web_#{type}"
             ).with(
                 hash_including(:ssl => false)
@@ -438,7 +443,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             end
 
             it 'should pass true for :ssl to report_web_<:type>' do
-              db_manager.should_receive(
+              expect(db_manager).to receive(
                   "report_web_#{type}"
               ).with(
                   hash_including(:ssl => true)
@@ -454,7 +459,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             end
 
             it 'should pass false for :ssl to report_web_<:type>' do
-              db_manager.should_receive(
+              expect(db_manager).to receive(
                   "report_web_#{type}"
               ).with(
                   hash_including(:ssl => false)
@@ -491,11 +496,11 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             returned_hash
           end
 
-          actual_args.should == [element, options]
+          expect(actual_args).to eq [element, options]
         end
 
         it 'should pass return Hash to report_web_<:type>' do
-          db_manager.should_receive(
+          expect(db_manager).to receive(
               "report_web_#{type}"
           ).with(
               hash_including(returned_hash)
@@ -521,20 +526,20 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
             []
           end
 
-          before(:each) do
+          before(:example) do
             options[:notifier] = notifier
           end
 
           it 'should call :notifier with event and path' do
             import_msf_web_element
 
-            successive_args.length.should == 1
+            expect(successive_args.length).to eq 1
 
             args = successive_args[0]
 
-            args.length.should == 2
-            args[0].should == event
-            args[1].should == web_vuln.path
+            expect(args.length).to eq 2
+            expect(args[0]).to eq event
+            expect(args[1]).to eq web_vuln.path
           end
         end
 
@@ -575,11 +580,12 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     context 'call to #import_msf_web_element' do
+
       it_should_behave_like 'Msf::DBManager::Import::MetasploitFramework::XML#import_msf_web_element specialization'
 
       context 'specialization return' do
         let(:element) do
-          document.root
+          Nokogiri::XML(document.source).elements.first
         end
 
         let(:source) do
@@ -599,19 +605,19 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should be a Hash' do
           with_info do |info|
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
         end
 
         it 'should include :method' do
           with_info do |info|
-            info[:method].should == web_form_attributes[:method]
+            expect(info[:method]).to eq web_form_attributes[:method]
           end
         end
 
         it 'should include :params' do
           with_info do |info|
-            info[:params].should == web_form_attributes[:params]
+            expect(info[:params]).to eq web_form_attributes[:params]
           end
         end
       end
@@ -619,7 +625,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
     context 'with required attributes' do
       let(:element) do
-        document.root
+        Nokogiri::XML(document.source).elements.first
       end
 
       let(:source) do
@@ -675,7 +681,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       context 'specialization return' do
         let(:element) do
-          document.root
+          Nokogiri::XML(document.source).elements.first
         end
 
         let(:source) do
@@ -713,10 +719,10 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
         end
 
         it 'should be a Hash' do
-          db_manager.should_receive(:import_msf_web_element) do |*args, &specialization|
+          expect(db_manager).to receive(:import_msf_web_element) do |*args, &specialization|
             info = specialization.call(element, options)
 
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
 
           import_msf_web_page_element
@@ -724,49 +730,49 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should include :auth' do
           with_info do |info|
-            info[:auth].should == web_page_attributes.fetch(:auth)
+            expect(info[:auth]).to eq web_page_attributes.fetch(:auth)
           end
         end
 
         it 'should include :body' do
           with_info do |info|
-            info[:body].should == web_page_attributes.fetch(:body)
+            expect(info[:body]).to eq web_page_attributes.fetch(:body)
           end
         end
 
         it 'should include :code' do
           with_info do |info|
-            info[:code].should == web_page_attributes.fetch(:code)
+            expect(info[:code]).to eq web_page_attributes.fetch(:code)
           end
         end
 
         it 'should include :cookie' do
           with_info do |info|
-            info[:cookie].should == web_page_attributes.fetch(:cookie)
+            expect(info[:cookie]).to eq web_page_attributes.fetch(:cookie)
           end
         end
 
         it 'should include :ctype' do
           with_info do |info|
-            info[:ctype].should == web_page_attributes.fetch(:ctype)
+            expect(info[:ctype]).to eq web_page_attributes.fetch(:ctype)
           end
         end
 
         it 'should include :headers' do
           with_info do |info|
-            info[:headers].should == web_page_attributes.fetch(:headers)
+            expect(info[:headers]).to eq web_page_attributes.fetch(:headers)
           end
         end
 
         it 'should include :location' do
           with_info do |info|
-            info[:location].should == web_page_attributes.fetch(:location)
+            expect(info[:location]).to eq web_page_attributes.fetch(:location)
           end
         end
 
         it 'should include :mtime' do
           with_info do |info|
-            info[:mtime].should == web_page_attributes.fetch(:mtime)
+            expect(info[:mtime]).to eq web_page_attributes.fetch(:mtime)
           end
         end
       end
@@ -774,7 +780,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
     context 'with required attributes' do
       let(:element) do
-        document.root
+        Nokogiri::XML(document.source).elements.first
       end
 
       let(:source) do
@@ -830,7 +836,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     let(:web_vuln_attributes) do
-      FactoryGirl.attributes_for(:exported_web_vuln)
+      FactoryBot.attributes_for(:exported_web_vuln)
     end
 
     subject(:import_msf_web_vuln_element) do
@@ -846,7 +852,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       context 'specialization return' do
         let(:element) do
-          document.root
+          Nokogiri::XML(document.source).elements.first
         end
 
         let(:source) do
@@ -885,7 +891,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should be a Hash' do
           with_info do |info|
-            info.should be_a Hash
+            expect(info).to be_a Hash
           end
 
           import_msf_web_vuln_element
@@ -893,55 +899,55 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
         it 'should include :blame' do
           with_info do |info|
-            info[:blame].should == web_vuln_attributes.fetch(:blame)
+            expect(info[:blame]).to eq web_vuln_attributes.fetch(:blame)
           end
         end
 
         it 'should include :category' do
           with_info do |info|
-            info[:category].should == web_vuln_attributes.fetch(:category)
+            expect(info[:category]).to eq web_vuln_attributes.fetch(:category)
           end
         end
 
         it 'should include :confidence' do
           with_info do |info|
-            info[:confidence].should == web_vuln_attributes.fetch(:confidence)
+            expect(info[:confidence]).to eq web_vuln_attributes.fetch(:confidence)
           end
         end
 
         it 'should include :description' do
           with_info do |info|
-            info[:description].should == web_vuln_attributes.fetch(:description)
+            expect(info[:description]).to eq web_vuln_attributes.fetch(:description)
           end
         end
 
         it 'should include :method' do
           with_info do |info|
-            info[:method].should == web_vuln_attributes.fetch(:method)
+            expect(info[:method]).to eq web_vuln_attributes.fetch(:method)
           end
         end
 
         it 'should include :name' do
           with_info do |info|
-            info[:name].should == web_vuln_attributes.fetch(:name)
+            expect(info[:name]).to eq web_vuln_attributes.fetch(:name)
           end
         end
 
         it 'should include :pname' do
           with_info do |info|
-            info[:pname].should == web_vuln_attributes.fetch(:pname)
+            expect(info[:pname]).to eq web_vuln_attributes.fetch(:pname)
           end
         end
 
         it 'should include :proof' do
           with_info do |info|
-            info[:proof].should == web_vuln_attributes.fetch(:proof)
+            expect(info[:proof]).to eq web_vuln_attributes.fetch(:proof)
           end
         end
 
         it 'should include :risk' do
           with_info do |info|
-            info[:risk].should == web_vuln_attributes.fetch(:risk)
+            expect(info[:risk]).to eq web_vuln_attributes.fetch(:risk)
           end
         end
       end
@@ -949,7 +955,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
     context 'with required attributes' do
       let(:element) do
-        document.root
+        Nokogiri::XML(document.source).elements.first
       end
 
       let(:source) do
@@ -1009,16 +1015,21 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   context '#import_msf_xml' do
+    let(:workspace) do
+      double(':workspace')
+    end
+
     let(:data) do
       '<MetasploitV4/>'
     end
 
     subject(:import_msf_xml) do
-      db_manager.import_msf_xml(:data => data)
+      expect(workspace).to receive(:name) { 'default' }
+      db_manager.import_msf_xml({:data => data, :workspace => workspace})
     end
 
     it 'should call #check_msf_xml_version!' do
-      db_manager.should_receive(:check_msf_xml_version!).and_call_original
+      expect(db_manager).to receive(:check_msf_xml_version!).and_call_original
 
       import_msf_xml
     end
@@ -1056,7 +1067,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should call #import_msf_web_form_element' do
-        db_manager.should_receive(:import_msf_web_form_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_form_element).and_call_original
 
         import_msf_xml
       end
@@ -1107,7 +1118,7 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       it 'should call #import_msf_web_page_element' do
-        db_manager.should_receive(:import_msf_web_page_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_page_element).and_call_original
 
         import_msf_xml
       end
@@ -1149,11 +1160,11 @@ shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
       it 'should call #import_msf_web_vuln_element' do
-        db_manager.should_receive(:import_msf_web_vuln_element).and_call_original
+        expect(db_manager).to receive(:import_msf_web_vuln_element).and_call_original
 
         import_msf_xml
       end

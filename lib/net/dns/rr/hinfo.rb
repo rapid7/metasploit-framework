@@ -62,7 +62,7 @@ module Net
           len = data.unpack("@#{offset} C")[0]
           @cpu = data[offset+1..offset+1+len]
           offset += len+1
-          len = @data.unpack("@#{offset} C")[0]
+          len = data.unpack("@#{offset} C")[0]
           @os = data[offset+1..offset+1+len]
           return offset += len+1
         end

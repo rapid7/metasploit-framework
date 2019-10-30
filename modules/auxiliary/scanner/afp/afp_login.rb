@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/afp'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -23,15 +21,14 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ],
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html' ]
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ],
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html' ]
 
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE
     ))
 
-    deregister_options('RHOST')
     register_options(
       [
         Opt::Proxies,
@@ -40,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
       ], self)
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)
@@ -69,6 +67,12 @@ class Metasploit3 < Msf::Auxiliary
         send_delay: datastore['TCP::send_delay'],
         framework: framework,
         framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|
@@ -82,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

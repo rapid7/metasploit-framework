@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/vnc'
 
-describe Metasploit::Framework::LoginScanner::VNC do
+RSpec.describe Metasploit::Framework::LoginScanner::VNC do
   let(:private) { 'password' }
   let(:blank) { '' }
   let(:test_cred) {
@@ -19,19 +19,20 @@ describe Metasploit::Framework::LoginScanner::VNC do
 
   context '#attempt_login' do
     it 'creates a new RFB client' do
-      Rex::Proto::RFB::Client.should_receive(:new).and_call_original
+      expect(Rex::Proto::RFB::Client).to receive(:new).and_call_original
       login_scanner.attempt_login(test_cred)
     end
 
     it 'returns a connection_error result when the handshake fails' do
-      Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return false
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:handshake).and_return false
       result = login_scanner.attempt_login(test_cred)
       expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     end
 
     it 'returns a failed result when authentication fails' do
-      Rex::Proto::RFB::Client.any_instance.should_receive(:handshake).and_return true
-      Rex::Proto::RFB::Client.any_instance.should_receive(:authenticate).with(private).and_return false
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:handshake).and_return true
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:negotiate_authentication).and_return Rex::Proto::RFB::AuthType::VNC
+      expect_any_instance_of(Rex::Proto::RFB::Client).to receive(:authenticate_with_type).with(Rex::Proto::RFB::AuthType::VNC,nil,private).and_return false
       result = login_scanner.attempt_login(test_cred)
       expect(result.status).to eq Metasploit::Model::Login::Status::INCORRECT
     end
@@ -39,7 +40,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
     context 'when the socket errors' do
       it 'returns a connection_error result for an EOFError' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::EOFError
+        expect(my_scanner).to receive(:connect).and_raise ::EOFError
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::EOFError.new.to_s
@@ -47,7 +48,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
 
       it 'returns a connection_error result for an Rex::AddressInUse' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Rex::AddressInUse
+        expect(my_scanner).to receive(:connect).and_raise ::Rex::AddressInUse
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::AddressInUse.new.to_s
@@ -55,7 +56,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
 
       it 'returns a connection_error result for an Rex::ConnectionError' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionError
+        expect(my_scanner).to receive(:connect).and_raise ::Rex::ConnectionError
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionError.new.to_s
@@ -63,7 +64,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
 
       it 'returns a connection_error result for an Rex::ConnectionTimeout' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionTimeout
+        expect(my_scanner).to receive(:connect).and_raise ::Rex::ConnectionTimeout
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Rex::ConnectionTimeout.new.to_s
@@ -71,7 +72,7 @@ describe Metasploit::Framework::LoginScanner::VNC do
 
       it 'returns a connection_error result for an ::Timeout::Error' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Timeout::Error
+        expect(my_scanner).to receive(:connect).and_raise ::Timeout::Error
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to eq ::Timeout::Error.new.to_s

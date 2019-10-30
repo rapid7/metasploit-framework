@@ -42,6 +42,8 @@ module Interactive
     # Handle suspend notifications
     handle_suspend
 
+    handle_usr1
+
     # As long as we're interacting...
     while (self.interacting == true)
 
@@ -83,8 +85,13 @@ module Interactive
       self.completed = true
     end
 
-    # Return whether or not EOF was reached
-    return eof
+    # if another session was requested, store it
+    next_session = self.next_session
+    # clear the value from the object
+    self.next_session = nil
+
+    # return this session id
+    return next_session
   end
 
   #
@@ -105,6 +112,11 @@ module Interactive
   attr_accessor   :interacting
 
   #
+  # If another session needs interaction, this is where it goes
+  #
+  attr_accessor   :next_session
+
+  #
   # Whether or not the session has completed interaction
   #
   attr_accessor	:completed
@@ -118,6 +130,7 @@ protected
   # The original suspend proc.
   #
   attr_accessor :orig_suspend
+  attr_accessor :orig_usr1
 
   #
   # Stub method that is meant to handler interaction
@@ -185,7 +198,7 @@ protected
   # writing it to the other.  Both are expected to implement Rex::IO::Stream.
   #
   def interact_stream(stream)
-    while self.interacting
+    while self.interacting && _remote_fd(stream)
 
       # Select input and rstream
       sd = Rex::ThreadSafe.select([ _local_fd, _remote_fd(stream) ], nil, nil, 0.25)
@@ -207,61 +220,19 @@ protected
 
 
   #
-  # Interacts between a local stream and a remote ring buffer. This has to use
-  # a secondary thread to prevent the select on the local stream from blocking
-  #
-  def interact_ring(ring)
-    begin
-
-    rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
-      seq = nil
-      while self.interacting
-
-        # Look for any pending data from the remote ring
-        nseq,data = ring.read_data(seq)
-
-        # Update the sequence number if necessary
-        seq = nseq || seq
-
-        # Write output to the local stream if successful
-        user_output.print(data) if data
-
-        # Wait for new data to arrive on this session
-        ring.wait(seq)
-      end
-    end
-
-    while self.interacting
-
-      # Look for any pending input from the local stream
-      sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
-
-      # Write input to the ring's input mechanism
-      if sd
-        data = user_input.gets
-        ring.put(data)
-      end
-    end
-
-    ensure
-      rdr.kill
-    end
-  end
-
-
-  #
   # Installs a signal handler to monitor suspend signal notifications.
   #
   def handle_suspend
-    if (orig_suspend == nil)
+    if orig_suspend.nil?
       begin
-        self.orig_suspend = Signal.trap("TSTP") {
-          _suspend
-        }
+        self.orig_suspend = Signal.trap("TSTP") do
+          Thread.new { _suspend }.join
+        end
       rescue
       end
     end
   end
+
 
   #
   # Restores the previously installed signal handler for suspend
@@ -269,12 +240,36 @@ protected
   #
   def restore_suspend
     begin
-      if (orig_suspend)
+      if orig_suspend
         Signal.trap("TSTP", orig_suspend)
       else
         Signal.trap("TSTP", "DEFAULT")
       end
       self.orig_suspend = nil
+    rescue
+    end
+  end
+
+  def handle_usr1
+    if orig_usr1.nil?
+      begin
+        self.orig_usr1 = Signal.trap("USR1") do
+          Thread.new { _usr1 }.join
+        end
+      rescue
+      end
+    end
+  end
+
+
+  def restore_usr1
+    begin
+      if orig_usr1
+        Signal.trap("USR1", orig_usr1)
+      else
+        Signal.trap("USR1", "DEFAULT")
+      end
+      self.orig_usr1 = nil
     rescue
     end
   end

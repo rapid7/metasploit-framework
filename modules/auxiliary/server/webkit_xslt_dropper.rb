@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -20,6 +17,10 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'      => [ 'Nicolas Gregoire' ],
       'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2011-1774' ]
+        ],
       'Actions'     =>
         [
           [ 'WebServer' ]
@@ -34,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('REMOTE_PATH', [ true, "Location of the remote file", 'flag.txt' ]),
         OptString.new('REMOTE_CONTENT', [ true, "Content of the remote file", 'Hello from CVE-2011-1774' ])
-      ], self.class)
+      ])
   end
 
   def on_request_uri(cli, request)
@@ -86,5 +87,4 @@ EOS
   def run
     exploit()
   end
-
 end

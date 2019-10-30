@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/constants'
 
 module Rex
 module Logging
@@ -41,3 +40,4 @@ end
 
 require 'rex/logging/sinks/flatfile'
 require 'rex/logging/sinks/stderr'
+require 'rex/logging/sinks/timestamp_flatfile'

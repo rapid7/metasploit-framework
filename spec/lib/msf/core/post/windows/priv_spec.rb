@@ -3,14 +3,16 @@ require 'spec_helper'
 
 require 'msf/core/post/windows/priv'
 
-describe Msf::Post::Windows::Priv do
+RSpec.describe Msf::Post::Windows::Priv do
 
   subject do
-    mod = Module.new
-    mod.extend described_class
-    stubs = [ :vprint_status, :print_status, :vprint_good, :print_good, ]
-    stubs.each { |meth| mod.stub(meth) }
-    mod
+    context_described_class = described_class
+
+    klass = Class.new(Msf::Post) do
+      include context_described_class
+    end
+
+    klass.new
   end
 
   let(:boot_key_vista) do
@@ -49,7 +51,7 @@ describe Msf::Post::Windows::Priv do
 
     it "should produce expected plaintext" do
       decrypted = subject.decrypt_lsa_data(ciphertext, lsa_key)
-      decrypted.should == plaintext
+      expect(decrypted).to eq plaintext
     end
   end
 
@@ -67,7 +69,7 @@ describe Msf::Post::Windows::Priv do
     end
 
     it "should produce expected plaintext" do
-      subject.decrypt_secret_data(ciphertext, boot_key).should == plaintext
+      expect(subject.decrypt_secret_data(ciphertext, boot_key)).to eq plaintext
     end
   end
 
@@ -99,8 +101,7 @@ describe Msf::Post::Windows::Priv do
       let(:boot_key) { boot_key_xp }
 
       it "should produce expected LSA key" do
-        subject.stub(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "").and_return(pol_enc_key_xp)
-        subject.stub(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolEKList", "").and_return(nil)
+        expect(subject).to receive(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "").and_return(pol_enc_key_xp)
         subject.capture_lsa_key(boot_key_xp)
       end
     end
@@ -110,8 +111,8 @@ describe Msf::Post::Windows::Priv do
       let(:boot_key) { boot_key_vista }
 
       it "should produce expected LSA key" do
-        subject.stub(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "").and_return(nil)
-        subject.stub(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolEKList", "").and_return(pol_enc_key_vista)
+        expect(subject).to receive(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolSecretEncryptionKey", "").and_return(nil)
+        expect(subject).to receive(:registry_getvaldata).with("HKLM\\SECURITY\\Policy\\PolEKList", "").and_return(pol_enc_key_vista)
         subject.capture_lsa_key(boot_key)
       end
     end

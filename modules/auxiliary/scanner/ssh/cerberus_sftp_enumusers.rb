@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -68,32 +66,33 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_vulnerable(ip)
-    options = {
-      :port => rport,
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+    opt_hash = {
+      :port            => rport,
+      :auth_methods    => ['password', 'keyboard-interactive'],
+      :use_agent       => false,
+      :config          => false,
+      :password_prompt => Net::SSH::Prompt.new,
+      :non_interactive => true,
+      :proxies         => datastore['Proxies'],
+      :verify_host_key => :never
     }
 
     begin
-      transport = Net::SSH::Transport::Session.new(ip, options)
+      transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     rescue Rex::ConnectionError
       return :connection_error
     end
 
-    auth = Net::SSH::Authentication::Session.new(transport, options)
+    auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
     auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
-    print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
+    print_good "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
-      :host => ip,
-      :port => rport,
-      :name => "ssh",
-      :proto => "tcp",
-      :info => auth.transport.server_version.version
+      host:  ip,
+      port:  rport,
+      name:  "ssh",
+      proto: "tcp",
+      info:  auth.transport.server_version.version
     )
 
     if auth_method.empty?
@@ -107,16 +106,15 @@ class Metasploit3 < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(8)
 
     opt_hash = {
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :msframework   => framework,
-      :msfmodule     => self,
-      :port          => port,
-      :disable_agent => true,
-      :config        => false,
-      :proxies       => datastore['Proxies']
+      :auth_methods    => ['password', 'keyboard-interactive'],
+      :port            => port,
+      :use_agent       => false,
+      :config          => false,
+      :proxies         => datastore['Proxies'],
+      :verify_host_key => :never
     }
 
-    opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opt_hash.merge!(verbose: :debug) if datastore['SSH_DEBUG']
     transport = Net::SSH::Transport::Session.new(ip, opt_hash)
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
 
@@ -140,13 +138,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def do_report(ip, user, port)
-    report_auth_info(
-      :host   => ip,
-      :port   => rport,
-      :sname  => 'ssh',
-      :user   => user,
-      :active => true
-    )
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'ssh',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: user,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def peer(rhost=nil)
@@ -173,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
     while (attempt_num <= retry_num) && (ret.nil? || ret == :connection_error)
       if attempt_num > 0
         Rex.sleep(2 ** attempt_num)
-        print_debug "#{peer(ip)} Retrying '#{user}' due to connection error"
+        vprint_status("#{peer(ip)} Retrying '#{user}' due to connection error")
       end
 
       ret = check_user(ip, user, rport)

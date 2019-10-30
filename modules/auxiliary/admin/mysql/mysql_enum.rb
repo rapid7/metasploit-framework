@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
 
@@ -27,16 +24,43 @@ class Metasploit3 < Msf::Auxiliary
 
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'mysql,mysql-sha1'
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     return if not mysql_login_datastore
     print_status("Running MySQL Enumerator...")
     print_status("Enumerating Parameters")
     #-------------------------------------------------------
-    #getting all variables
+    # getting all variables
     vparm = {}
     res = mysql_query("show variables") || []
     res.each do |row|
-      #print_status(" | #{row.join(" | ")} |")
+      # print_status(" | #{row.join(" | ")} |")
       vparm[row[0]] = row[1]
     end
 
@@ -57,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("\tOld Password Hashing Algorithm #{vparm["old_passwords"]}")
     print_status("\tLoading of local files: #{vparm["local_infile"]}")
-    print_status("\tLogins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
+    print_status("\tDeny logins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
     print_status("\tSkipping of GRANT TABLE: #{vparm["skip_grant_tables"]}") if vparm["skip_grant_tables"]
     print_status("\tAllow Use of symlinks for Database Files: #{vparm["have_symlink"]}")
     print_status("\tAllow Table Merge: #{vparm["have_merge_engine"]}")
@@ -77,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
     query = "use mysql"
     mysql_query(query)
 
-    #Account Enumeration
+    # Account Enumeration
     # Enumerate all accounts with their password hashes
     print_status("Enumerating Accounts:")
     query = "select user, host, password from mysql.user"
@@ -85,16 +109,15 @@ class Metasploit3 < Msf::Auxiliary
     if res and res.size > 0
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
-        print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
-        report_auth_info({
-          :host  => rhost,
-          :port  => rport,
-          :user  => row[0],
-          :pass  => row[2],
-          :type  => "mysql_hash",
-          :sname => "mysql",
-          :active => true
-        })
+        print_good("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          user: row[0],
+          password: row[2],
+          service_name: 'mysql',
+          proof: row.inspect
+        )
       end
     end
     # Only list accounts that can log in with SSL if SSL is enabled
@@ -217,5 +240,4 @@ class Metasploit3 < Msf::Auxiliary
 
     mysql_logoff
   end
-
 end

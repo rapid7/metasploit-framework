@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
@@ -16,11 +13,11 @@ class Metasploit3 < Msf::Auxiliary
     'Description' => %q{
         Send a spoofed router advertisement with high priority to force hosts to
         start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
-        and try to guess the link-local address by concatinating the prefix, and
+        and try to guess the link-local address by concatenating the prefix, and
         the host portion of the IPv6 address.  Use NDP host solicitation to
         determine if the IP address is valid'
     },
-    'Author'      => 'wuntee',
+    'Author'      => ['wuntee', 'd0lph1n98'],
     'License'     => MSF_LICENSE,
     'References'    =>
     [
@@ -31,22 +28,24 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       OptInt.new('TIMEOUT_NEIGHBOR', [true, "Time (seconds) to listen for a solicitation response.", 1])
-    ], self.class)
+    ])
 
-    register_advanced_options(
-      [
-        OptString.new('PREFIX', [true, "Prefix that each host should get an IPv6 address from",
-          "2001:1234:DEAD:BEEF::"]
-        )
-      ], self.class)
+    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE')
+  end
 
-    deregister_options('SNAPLEN', 'FILTER', 'RHOST', 'PCAPFILE')
+  def generate_prefix()
+    max = 16 ** 4
+    prefix = "2001:"
+    (0..2).each do
+        prefix << "%x:" % Random.rand(0..max)
+    end
+    return prefix << ':'
   end
 
   def listen_for_neighbor_solicitation(opts = {})
     hosts = []
     timeout = opts['TIMEOUT'] || datastore['TIMEOUT']
-    prefix = opts['PREFIX'] || datastore['PREFIX']
+    prefix = @prefix
 
     max_epoch = ::Time.now.to_i + timeout
     autoconf_prefix = IPAddr.new(prefix).to_string().slice(0..19)
@@ -94,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
     smac = @smac
     shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
     lifetime = opts['LIFETIME'] || datastore['TIMEOUT']
-    prefix = opts['PREFIX'] || datastore['PREFIX']
+    prefix = @prefix
     plen = 64
     dmac = "33:33:00:00:00:01"
 
@@ -141,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
     checksum = 0
     hop_limit = 0
     flags = 0x08
-    lifetime = 1800
+    lifetime = 0
     reachable = 0
     retrans = 0
     [type, code, checksum, hop_limit, flags,
@@ -149,9 +148,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    # Start caputure
+    # Start capture
     open_pcap({'FILTER' => "icmp6"})
 
+    @prefix = generate_prefix()
     @netifaces = true
     if not netifaces_implemented?
       print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
@@ -161,12 +161,12 @@ class Metasploit3 < Msf::Auxiliary
     @interface = datastore['INTERFACE'] || Pcap.lookupdev
     @shost = datastore['SHOST']
     @shost ||= get_ipv4_addr(@interface) if @netifaces
-    raise RuntimeError ,'SHOST should be defined' unless @shost
+    raise 'SHOST should be defined' unless @shost
 
     @smac  = datastore['SMAC']
     @smac ||= get_mac(@interface) if @netifaces
     @smac ||= ipv6_mac
-    raise RuntimeError ,'SMAC should be defined' unless @smac
+    raise 'SMAC should be defined' unless @smac
 
     # Send router advertisement
     print_status("Sending router advertisement...")
@@ -188,5 +188,4 @@ class Metasploit3 < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -18,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     )
     register_options([
       OptString.new('PORTS', [true, 'Ports to probe', '1-1024,1194,2000,2049,4353,5060,5061,5351,8443'])
-    ], self.class)
+    ])
   end
 
   def setup

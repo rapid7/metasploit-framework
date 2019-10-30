@@ -16,7 +16,7 @@ module Msf::DBManager::Import::Nmap
   # that. Otherwise, you'll hit the old NmapXMLStreamParser.
   def import_nmap_xml(args={}, &block)
     return nil if args[:data].nil? or args[:data].empty?
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     if Rex::Parser.nokogiri_loaded
@@ -164,9 +164,7 @@ module Msf::DBManager::Import::Nmap
         data[:host]  = hobj || addr
         data[:info]  = extra if not extra.empty?
         data[:task]  = args[:task]
-        if p["name"] != "unknown"
-          data[:name] = p["name"]
-        end
+        data[:name]  = p['tunnel'] ? "#{p['tunnel']}/#{p['name'] || 'unknown'}" : p['name']
         report_service(data)
       }
       #Parse the scripts output
@@ -184,7 +182,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Microsoft Windows Server Service Crafted RPC Request Handling Unspecified Remote Code Execution',
                 :refs =>['CVE-2008-4250',
                   'BID-31874',
-                  'OSVDB-49243',
                   'CWE-94',
                   'MSFT-MS08-067',
                   'MSF-Microsoft Server Service Relative Path Stack Corruption',
@@ -206,8 +203,6 @@ module Msf::DBManager::Import::Nmap
                   'BID-18325',
                   'BID-18358',
                   'BID-18424',
-                  'OSVDB-26436',
-                  'OSVDB-26437',
                   'MSFT-MS06-025',
                   'MSF-Microsoft RRAS Service RASMAN Registry Overflow',
                   'NSS-21689']
@@ -226,7 +221,6 @@ module Msf::DBManager::Import::Nmap
                 :info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
                 # Add more refs based on nessus/nexpose .. results
                 :refs =>['CVE-2007-1748',
-                  'OSVDB-34100',
                   'MSF-Microsoft DNS RPC Service extractQuotedChar()',
                   'NSS-25168']
               }
@@ -247,7 +241,6 @@ module Msf::DBManager::Import::Nmap
   #
   def import_nmap_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

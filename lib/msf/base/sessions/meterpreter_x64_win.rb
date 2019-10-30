@@ -14,12 +14,16 @@ module Sessions
 class Meterpreter_x64_Win < Msf::Sessions::Meterpreter
   def initialize(rstream, opts={})
     super
-    self.platform      = 'x64/win64'
-    self.binary_suffix = 'x64.dll'
+    self.base_platform = 'windows'
+    self.base_arch = ARCH_X64
   end
 
   def lookup_error(code)
     Msf::WindowsError.description(code)
+  end
+
+  def supports_ssl?
+    false
   end
 end
 

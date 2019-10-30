@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/jtr/cracker'
 
-describe Metasploit::Framework::JtR::Cracker do
+RSpec.describe Metasploit::Framework::JtR::Cracker do
 
   subject(:cracker) { described_class.new }
   let(:john_path) { '/path/to/john' }
@@ -21,7 +21,7 @@ describe Metasploit::Framework::JtR::Cracker do
 
 
     context 'when the user supplied a john_path' do
-      before(:each) do
+      before(:example) do
         cracker.john_path = john_path
       end
 
@@ -44,17 +44,11 @@ describe Metasploit::Framework::JtR::Cracker do
         expect(::File).to receive(:file?).with(john_path).once.and_return true
         expect(cracker.binary_path).to eq john_path
       end
-
-      it 'returns the shipped john binary if it does not exist in the PATH' do
-        expect(Rex::FileUtils).to receive(:find_full_path).twice.and_return nil
-        expect(cracker).to receive(:select_shipped_binary).and_return other_john_path
-        expect(cracker.binary_path).to eq other_john_path
-      end
     end
   end
 
   describe '#crack_command' do
-    before(:each) do
+    before(:example) do
       expect(cracker).to receive(:binary_path).and_return john_path
       expect(cracker).to receive(:john_session_id).and_return session_id
     end
@@ -123,7 +117,7 @@ describe Metasploit::Framework::JtR::Cracker do
   end
 
   describe '#show_command' do
-    before(:each) do
+    before(:example) do
       expect(cracker).to receive(:binary_path).and_return john_path
     end
 
@@ -159,7 +153,7 @@ describe Metasploit::Framework::JtR::Cracker do
   describe 'validations' do
     context 'failures' do
       context 'file_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:file?).and_return false
         end
 
@@ -189,7 +183,7 @@ describe Metasploit::Framework::JtR::Cracker do
       end
 
       context 'executable_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:executable?).and_return false
         end
 
@@ -203,7 +197,7 @@ describe Metasploit::Framework::JtR::Cracker do
 
     context 'successes' do
       context 'file_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:file?).and_return true
         end
 
@@ -233,7 +227,7 @@ describe Metasploit::Framework::JtR::Cracker do
       end
 
       context 'executable_path validators' do
-        before(:each) do
+        before(:example) do
           expect(File).to receive(:executable?).and_return true
         end
 

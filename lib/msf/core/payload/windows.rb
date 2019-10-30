@@ -24,6 +24,8 @@ module Msf::Payload::Windows
   require 'msf/core/payload/windows/dllinject'
   require 'msf/core/payload/windows/exec'
   require 'msf/core/payload/windows/loadlibrary'
+  require 'msf/core/payload/windows/meterpreter_loader'
+  require 'msf/core/payload/windows/x64/meterpreter_loader'
   require 'msf/core/payload/windows/reflectivedllinject'
   require 'msf/core/payload/windows/x64/reflectivedllinject'
 
@@ -32,15 +34,19 @@ module Msf::Payload::Windows
   #
   @@exit_types =
     {
+      nil       => 0,          # Default to nothing
+      ''        => 0,          # Default to nothing
       'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
       'thread'  => 0x0A2A1DE0, # ExitThread
       'process' => 0x56A2B5F0, # ExitProcess
-      'none'    => 0x5DE2C5AA, # GetLastError
+      'none'    => 0x5DE2C5AA  # GetLastError
     }
 
-
-  def generate
-    return prepends(super)
+  #
+  # Implement payload prepends for Windows payloads
+  #
+  def apply_prepends(raw)
+    apply_prepend_migrate(raw)
   end
 
   #
@@ -54,7 +60,7 @@ module Msf::Payload::Windows
 
     # All windows payload hint that the stack must be aligned to nop
     # generators and encoders.
-    if( info['Arch'] == ARCH_X86_64 )
+    if( info['Arch'] == ARCH_X64 )
       if( info['Alias'] )
         info['Alias'] = 'windows/x64/' + info['Alias']
       end
@@ -70,9 +76,12 @@ module Msf::Payload::Windows
     #	info['Alias'] = 'windows/' + info['Alias']
     #end
 
+
+    acceptable_exit_types = @@exit_types.keys.collect { |e| e.blank? ? "''" : e }.uniq
+
     register_options(
       [
-        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', @@exit_types.keys])
+        Msf::OptEnum.new('EXITFUNC', [true, 'Exit technique', 'process', acceptable_exit_types])
       ], Msf::Payload::Windows )
     ret
   end
@@ -148,6 +157,21 @@ module Msf::Payload::Windows
     conn.put([ payload.length ].pack('V'))
 
     return true
+  end
+
+  #
+  # Share the EXITFUNC mappings with other classes
+  #
+  def self.exit_types
+    @@exit_types.dup
+  end
+
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
   end
 
 end

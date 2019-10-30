@@ -12,20 +12,22 @@ module Msf::DBManager::Import::Nessus
   # Nessus NBE and NESSUS v1 methods
   #
   def handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data,task=nil)
+
     addr = hobj.address
     # The port section looks like:
     #   http (80/tcp)
     p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
-    return if not p
 
-    # Unnecessary as the caller should already have reported this host
-    #report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
-    name = p[1].strip
-    port = p[2].to_i
-    proto = p[3].downcase
+    if p
+      name = p[1].strip
+      port = p[2].to_i
+      proto = p[3].downcase
+    else
+      port = nil
+    end
 
     info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
-    if name != "unknown" and name[-1,1] != "?"
+    if name and name != "unknown" and name[-1,1] != "?"
       info[:name] = name
     end
     report_service(info)

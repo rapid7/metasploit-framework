@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'shellwords'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::OSX::RubyDL
@@ -42,13 +41,13 @@ class Metasploit3 < Msf::Post
         ),
         OptInt.new('RECORD_LEN', [true, 'Number of seconds to record', 30]),
         OptInt.new('SYNC_WAIT', [true, 'Wait between syncing chunks of output', 5])
-      ], self.class)
+      ])
   end
 
 
   def run
-    fail_with("Invalid session ID selected.") if client.nil?
-    fail_with("Invalid action") if action.nil?
+    fail_with(Failure::BadConfig, "Invalid session ID selected.") if client.nil?
+    fail_with(Failure::BadConfig, "Invalid action") if action.nil?
 
     num_chunks = (datastore['RECORD_LEN'].to_f/datastore['SYNC_WAIT'].to_f).ceil
     tmp_file = datastore['TMP_FILE'].gsub('<random>') { Rex::Text.rand_text_alpha(10)+'1' }
@@ -105,7 +104,7 @@ class Metasploit3 < Msf::Post
             end
           end
         rescue ::Timeout::Error
-          fail_with("Client did not respond to file request after #{poll_timeout}s, exiting.")
+          fail_with(Failure::TimeoutExpired, "Client did not respond to file request after #{poll_timeout}s, exiting.")
         end
       end
     end
@@ -125,9 +124,5 @@ class Metasploit3 < Msf::Post
 
   def poll_timeout
     POLL_TIMEOUT
-  end
-
-  def fail_with(msg)
-    raise msg
   end
 end

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'net/http'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   def initialize(info = {})
     super(update_info(info,
@@ -23,14 +21,14 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),
         OptString.new('OUTFILE', [ false, "Where to output the list for use"])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>",nil]),
         OptString.new('PROXY_USER', [ false, "Proxy Server User",nil]),
         OptString.new('PROXY_PASS', [ false, "Proxy Server Password",nil])
-      ], self.class)
+      ])
 
   end
 
@@ -38,11 +36,12 @@ class Metasploit3 < Msf::Auxiliary
     response = ""
     pages = []
     header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
-    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("wayback.archive.org")
-    resp = clnt.get2("/web/*/http://"+targetdom+"/*",header)
+    # https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
+    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("web.archive.org")
+    resp = clnt.get2("/cdx/search/cdx?url="+Rex::Text.uri_encode("#{targetdom}/*")+"&fl=original",header)
     response << resp.body
     response.each_line do |line|
-      pages << line.gsub!(/(.+>)(.+)(<\/a>)\n/, '\2')
+      pages << line.strip
     end
 
     pages.delete_if{|x| x==nil}
@@ -50,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     pages.sort!
 
     for i in (0..(pages.count-1))
-      fix = "http://" + pages[i].to_s
+      fix = pages[i].to_s.sub(':80', '')
       pages[i] = fix
     end
     return pages

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/vmauthd'
 
-describe Metasploit::Framework::LoginScanner::VMAUTHD do
+RSpec.describe Metasploit::Framework::LoginScanner::VMAUTHD do
   subject(:scanner) { described_class.new }
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false

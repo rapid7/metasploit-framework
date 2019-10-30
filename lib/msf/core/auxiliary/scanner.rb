@@ -17,12 +17,9 @@ def initialize(info = {})
   super
 
   register_options([
-      OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
+      Opt::RHOSTS,
       OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
     ], Auxiliary::Scanner)
-
-  # RHOST should not be used in scanner modules, only RHOSTS
-  deregister_options('RHOST')
 
   register_advanced_options([
     OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
@@ -31,9 +28,9 @@ def initialize(info = {})
 
 end
 
-
 def check
   nmod = replicant
+  nmod.datastore['RHOST'] = @original_rhost
   begin
     nmod.check_host(datastore['RHOST'])
   rescue NoMethodError
@@ -42,11 +39,15 @@ def check
 end
 
 
+def peer
+  # IPv4 addr can be 16 chars + 1 for : and + 5 for port
+  super.ljust(21)
+end
+
 #
 # The command handler when launched from the console
 #
 def run
-
   @show_progress = datastore['ShowProgress']
   @show_percent  = datastore['ShowProgressPercent'].to_i
 
@@ -87,13 +88,7 @@ def run
 
   begin
 
-  if (self.respond_to?('run_range'))
-    # No automated progress reporting or error handling for run_range
-    return run_range(datastore['RHOSTS'])
-  end
-
   if (self.respond_to?('run_host'))
-
     loop do
       # Stop scanning if we hit a fatal error
       break if has_fatal_errors?
@@ -245,7 +240,7 @@ def run
     return
   end
 
-  print_error("This module defined no run_host, run_range or run_batch methods")
+  print_error("This module defined no run_host or run_batch methods")
 
   rescue ::Interrupt
     print_status("Caught interrupt from the console...")
@@ -296,6 +291,36 @@ def scanner_show_progress
     @range_percent = @range_percent + @show_percent
     tdlen = @range_count.to_s.length
     print_status(sprintf("Scanned %#{tdlen}d of %d hosts (%d%% complete)", @range_done, @range_count, pct))
+  end
+end
+
+def add_delay_jitter(_delay, _jitter)
+  # Introduce the delay
+  delay_value = _delay.to_i
+  original_value = delay_value
+  jitter_value = _jitter.to_i
+
+  # Retrieve the jitter value and delay value
+  # Delay = number of milliseconds to wait between each request
+  # Jitter = percentage modifier. For example:
+  # Delay is 1000ms (i.e. 1 second), Jitter is 50.
+  # 50/100 = 0.5; 0.5*1000 = 500. Therefore, the per-request
+  # delay will be 1000 +/- a maximum of 500ms.
+  if delay_value > 0
+    if jitter_value > 0
+       rnd = Random.new
+       if (rnd.rand(2) == 0)
+          delay_value += rnd.rand(jitter_value)
+       else
+          delay_value -= rnd.rand(jitter_value)
+       end
+       if delay_value < 0
+          delay_value = 0
+       end
+    end
+    final_delay = delay_value.to_f / 1000.0
+    vprint_status("Delaying for #{final_delay} second(s) (#{original_value}ms +/- #{jitter_value}ms)")
+    sleep final_delay
   end
 end
 

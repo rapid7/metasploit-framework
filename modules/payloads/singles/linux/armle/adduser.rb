@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 ###
 #
@@ -14,7 +11,9 @@ require 'msf/core'
 # Adds a UID 0 user to /etc/passwd.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 119
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -35,13 +34,13 @@ module Metasploit3
         OptString.new('USER',  [ true,  "The username to create",     "metasploit" ]),
         OptString.new('PASS',  [ true,  "The password for this user", "metasploit" ]),
         OptString.new('SHELL', [ false, "The shell for this user",    "/bin/sh"    ]),
-      ], self.class)
+      ])
   end
 
   #
   # Dynamically builds the adduser payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     user    = datastore['USER']  || 'metasploit'
     pass    = datastore['PASS']  || 'metasploit'
     shell   = datastore['SHELL'] || '/bin/sh'
@@ -59,5 +58,4 @@ module Metasploit3
       str + pwdir
 
   end
-
 end

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::ApReq do
+RSpec.describe Rex::Proto::Kerberos::Model::ApReq do
 
   subject(:ap_req) do
     described_class.new

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('OID', [ true, "The object identifier (numeric notation)"]),
       OptString.new('OIDVALUE', [ true, "The value to set"]),
-    ], self.class)
+    ])
   end
 
   def run_host(ip)
@@ -91,5 +88,4 @@ class Metasploit3 < Msf::Auxiliary
       disconnect_snmp
     end
   end
-
 end

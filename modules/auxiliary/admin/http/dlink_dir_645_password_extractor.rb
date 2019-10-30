@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -22,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'OSVDB', '90733' ],
           [ 'BID', '58231' ],
-          [ 'URL', 'http://packetstormsecurity.com/files/120591/dlinkdir645-bypass.txt' ]
+          [ 'PACKETSTORM', '120591' ]
         ],
       'Author'      =>
         [
@@ -72,14 +69,27 @@ class Metasploit3 < Msf::Auxiliary
             vprint_good("user: #{@user}")
             vprint_good("pass: #{pass}")
 
-          report_auth_info(
-            :host => rhost,
-            :port => rport,
-            :sname => 'http',
-            :user => @user,
-            :pass => pass,
-            :active => true
-          )
+
+            connection_details = {
+                module_fullname: self.fullname,
+                username: @user,
+                private_data: pass,
+                private_type: :password,
+                workspace_id: myworkspace_id,
+                proof: line,
+                last_attempted_at: DateTime.now, # kept in refactor may not be valid, obtained but do not attempted here
+                status: Metasploit::Model::Login::Status::UNTRIED
+            }.merge(service_details)
+            create_credential_and_login(connection_details)
+
+            report_cred(
+              ip: rhost,
+              port: rport,
+              service_name: 'http',
+              user: @user,
+              password: pass,
+              proof: line
+            )
           end
         end
       end

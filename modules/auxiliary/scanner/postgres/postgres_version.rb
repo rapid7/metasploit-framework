@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -17,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'PostgreSQL Version Probe',
       'Description'    => %q{
-        Enumerates the verion of PostgreSQL servers.
+        Enumerates the version of PostgreSQL servers.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
@@ -27,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
         ]
     ))
 
-    register_options([ ], self.class) # None needed.
+    register_options([ ]) # None needed.
 
     deregister_options('SQL', 'RETURN_ROWSET')
   end
@@ -50,6 +46,32 @@ class Metasploit3 < Msf::Auxiliary
     datastore['RPORT']
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_fingerprint(user=nil,pass=nil,database=nil)
     begin
       msg = "#{rhost}:#{rport} Postgres -"
@@ -64,14 +86,13 @@ class Metasploit3 < Msf::Auxiliary
         vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
         print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
         vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
         print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
       end
 
       # Reporting
-
       report_service(
         :host => rhost,
         :port => rport,
@@ -80,13 +101,13 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       if self.postgres_conn
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "postgres",
-          :user => user,
-          :pass => password,
-          :active => true
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'postgres',
+          user: user,
+          password: password,
+          proof: "postgres_conn = #{self.postgres_conn.inspect}"
         )
       end
 
@@ -102,7 +123,6 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       # Logout
-
       postgres_logout
 
     rescue Rex::ConnectionError
@@ -111,5 +131,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

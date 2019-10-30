@@ -29,10 +29,13 @@ class Config
   #
   # Returns the username that the remote side is running as.
   #
-  def getuid
-    request  = Packet.create_request('stdapi_sys_config_getuid')
-    response = client.send_request(request)
-    client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+  def getuid(refresh: true)
+    if @uid.nil? || refresh
+      request  = Packet.create_request('stdapi_sys_config_getuid')
+      response = client.send_request(request)
+      @uid = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+    end
+    @uid
   end
 
   #
@@ -49,6 +52,25 @@ class Config
   #
   def is_system?
     getsid == SYSTEM_SID
+  end
+
+  #
+  # Returns a list of currently active drivers used by the target system
+  #
+  def getdrivers
+    request = Packet.create_request('stdapi_sys_config_driver_list')
+    response = client.send_request(request)
+
+    result = []
+
+    response.each(TLV_TYPE_DRIVER_ENTRY) do |driver|
+      result << {
+        basename: driver.get_tlv_value(TLV_TYPE_DRIVER_BASENAME),
+        filename: driver.get_tlv_value(TLV_TYPE_DRIVER_FILENAME)
+      }
+    end
+
+    result
   end
 
   #
@@ -83,18 +105,39 @@ class Config
   end
 
   #
+  # Returns the target's local system date and time.
+  #
+  def localtime
+    request = Packet.create_request('stdapi_sys_config_localtime')
+    response = client.send_request(request)
+    (response.get_tlv_value(TLV_TYPE_LOCAL_DATETIME) || "").strip
+  end
+
+  #
   # Returns a hash of information about the remote computer.
   #
-  def sysinfo
+  def sysinfo(refresh: false)
     request  = Packet.create_request('stdapi_sys_config_sysinfo')
-    response = client.send_request(request)
+    if @sysinfo.nil? || refresh
+      response = client.send_request(request)
 
-    {
-      'Computer'        => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
-      'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
-      'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
-      'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
-    }
+      @sysinfo = {
+        'Computer'        => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
+        'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
+        'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
+        'BuildTuple'      => response.get_tlv_value(TLV_TYPE_BUILD_TUPLE),
+        'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
+        'Domain'          => response.get_tlv_value(TLV_TYPE_DOMAIN),
+        'Logged On Users' => response.get_tlv_value(TLV_TYPE_LOGGED_ON_USER_COUNT)
+      }
+
+      # make sure we map the architecture across to x64 if x86_64 is returned
+      # to keep arch consistent across all session/machine types
+      if @sysinfo['Architecture']
+        @sysinfo['Architecture'] = ARCH_X64 if @sysinfo['Architecture'].strip == ARCH_X86_64
+      end
+    end
+    @sysinfo
   end
 
   #

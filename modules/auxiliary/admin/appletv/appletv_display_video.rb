@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'uri'
 
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -22,7 +20,7 @@ class Metasploit4 < Msf::Auxiliary
         recommended. Also, if you're playing a video, the URL must be an IP
         address. Some AppleTV devices are actually password-protected; in that
         case please set the PASSWORD datastore option. For password
-        bruteforcing, please see the module auxiliary/scanner/http/appletv_login.
+        brute forcing, please see the module auxiliary/scanner/http/appletv_login.
       ),
       'Author'         =>
         [
@@ -33,7 +31,7 @@ class Metasploit4 < Msf::Auxiliary
         [
           ['URL', 'http://nto.github.io/AirPlay.html']
         ],
-      'DefaultOptions' => { 'USERNAME' => 'AirPlay' },
+      'DefaultOptions' => { 'HttpUsername' => 'AirPlay' },
       'License'        => MSF_LICENSE
     ))
 
@@ -41,8 +39,8 @@ class Metasploit4 < Msf::Auxiliary
       Opt::RPORT(7000),
       OptInt.new('TIME', [true, 'Time in seconds to show the video', 60]),
       OptString.new('URL', [true, 'URL of video to show. Must use an IP address']),
-      OptString.new('PASSWORD', [false, 'The password for AppleTV AirPlay'])
-    ], self.class)
+      OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
+    ])
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
     # so deregister them so we don't overwhelm the user with fake options.
@@ -77,8 +75,8 @@ class Metasploit4 < Msf::Auxiliary
       ssl,
       ssl_version,
       proxies,
-      datastore['USERNAME'],
-      datastore['PASSWORD']
+      datastore['HttpUsername'],
+      datastore['HttpPassword']
     )
     add_socket(http)
 
@@ -153,5 +151,4 @@ class Metasploit4 < Msf::Auxiliary
     print_status("Video request sent. Duration set: #{datastore['TIME']} seconds")
     play_video_uri
   end
-
 end

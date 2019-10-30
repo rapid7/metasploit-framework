@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Pac::Type do
+RSpec.describe Rex::Proto::Kerberos::Pac::Type do
 
   subject(:pac_type) do
     described_class.new

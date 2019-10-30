@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::CredentialCache::Time do
+RSpec.describe Rex::Proto::Kerberos::CredentialCache::Time do
 
   subject(:time) do
     described_class.new

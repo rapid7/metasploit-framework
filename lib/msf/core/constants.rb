@@ -18,6 +18,7 @@ MODULE_NOP     = 'nop'
 MODULE_AUX     = 'auxiliary'
 MODULE_PAYLOAD = 'payload'
 MODULE_POST    = 'post'
+MODULE_EVASION = 'evasion'
 MODULE_TYPES   =
   [
     MODULE_ENCODER,
@@ -25,7 +26,8 @@ MODULE_TYPES   =
     MODULE_EXPLOIT,
     MODULE_NOP,
     MODULE_POST,
-    MODULE_AUX
+    MODULE_AUX,
+    MODULE_EVASION
   ]
 
 #
@@ -49,12 +51,62 @@ RankingName         =
     ExcellentRanking => "excellent"
   }
 
+#
+# Stability traits
+#
+
+# Module should not crash the service
+CRASH_SAFE             = 'crash-safe'
+# Module may crash the service, but the service restarts.
+CRASH_SERVICE_RESTARTS = 'crash-service-restarts'
+# Module may crash the service, and the service remains down.
+CRASH_SERVICE_DOWN     = 'crash-service-down'
+# Module may crash the OS, but the OS restarts.
+CRASH_OS_RESTARTS      = 'crash-os-restarts'
+# Module may crash the OS, and the OS remains down.
+CRASH_OS_DOWN          = 'crash-os-down'
+# Module may cause a resource (such as a file or data in database) to be unavailable for the service.
+SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
+# Modules may cause a resource (such as a file) to be unavailable for the OS.
+OS_RESOURCE_LOSS       = 'os-resource-loss'
+
+#
+# Side-effect traits
+#
+
+# Modules leaves payload or a dropper on the target machine
+ARTIFACTS_ON_DISK = 'artifacts-on-disk'
+# Module modifies some config file on the target machine
+CONFIG_CHANGES    = 'config-changes'
+# Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)
+IOC_IN_LOGS       = 'ioc-in-logs'
+# Module may cause account lockouts (likely due to brute-forcing)
+ACCOUNT_LOCKOUTS  = 'account-lockouts'
+# Module may show something on the screen (Example: a window pops up)
+SCREEN_EFFECTS    = 'screen-effects'
+# Module may cause a noise (Examples: audio output from the speakers or hardware beeps)
+AUDIO_EFFECTS     = 'audio-effects'
+# Module may produce physical effects (Examples: the device makes movement or flashes LEDs)
+PHYSICAL_EFFECTS  = 'physical-effects'
+
+#
+# Reliability
+#
+
+# The module tends to fail to get a session at first attempt
+FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
+# The module is expected to get a shell every time it fires
+REPEATABLE_SESSION = 'repeatable-session'
+# The module isn't expected to get a shell reliably (such as only once)
+UNRELIABLE_SESSION = 'unreliable-session'
+
 module HttpClients
   IE = "MSIE"
   FF = "Firefox"
   SAFARI = "Safari"
   OPERA  = "Opera"
   CHROME = "Chrome"
+  EDGE = "Edge"
 
   UNKNOWN = "Unknown"
 end
@@ -88,6 +140,7 @@ module OperatingSystems
     SEVEN = "7"
     EIGHT = "8"
     EIGHTONE = "8.1"
+    TEN = "10.0"
   end
 
   UNKNOWN = "Unknown"
@@ -108,6 +161,7 @@ module OperatingSystems
     WINDOWS_2012    = /^(?:Microsoft )?Windows 2012/
     WINDOWS_8       = /^(?:Microsoft )?Windows 8/
     WINDOWS_81      = /^(?:Microsoft )?Windows 8\.1/
+    WINDOWS_10      = /^(?:Microsoft )?Windows 10/
 
     LINUX      = /^Linux/i
     MAC_OSX    = /^(?:Apple )?Mac OS X/
@@ -129,6 +183,8 @@ end
 MSF_LICENSE      = "Metasploit Framework License (BSD)"
 GPL_LICENSE      = "GNU Public License v2.0"
 BSD_LICENSE      = "BSD License"
+# Location: https://github.com/CoreSecurity/impacket/blob/1dba4c20e0d47ec614521e251d072116f75f3ef8/LICENSE
+CORE_LICENSE     = "CORE Security License (Apache 1.1)"
 ARTISTIC_LICENSE = "Perl Artistic License"
 UNKNOWN_LICENSE  = "Unknown License"
 LICENSES         =
@@ -136,6 +192,7 @@ LICENSES         =
     MSF_LICENSE,
     GPL_LICENSE,
     BSD_LICENSE,
+    CORE_LICENSE,
     ARTISTIC_LICENSE,
     UNKNOWN_LICENSE
   ]

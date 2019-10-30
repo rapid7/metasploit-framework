@@ -1,0 +1,16 @@
+<ruby>
+print_status("Starting BAP...")
+print_status("Exploits will not be actually served, but you will know which ones the clients might be vulnerable to.")
+print_status("You can do 'notes -t baps.clicks' in msfconsole to track clicks and client-specific exploit info.")
+run_single("use auxiliary/server/browser_autopwn2")
+run_single("set ShowExploitList true")
+run_single("set MaxSessionCount 0")
+
+# Instead of set Content, you can also do set Custom404 to redirect the client to an SE training website
+# For example (why don't you try this? :-) )
+run_single("set Custom404 https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+# run_single("set HTMLContent \"Hello, this is a security test. You shouldn't have clicked on that link :-)\"")
+
+run_single("run")
+</ruby>

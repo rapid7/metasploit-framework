@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mysql'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -18,11 +15,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'			=> 'MySQL Login Utility',
+      'Name'		=> 'MySQL Login Utility',
       'Description'	=> 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
       'License'		=> MSF_LICENSE,
-      'References'     =>
+      'References'      =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ]
@@ -31,7 +28,9 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies
-      ], self.class)
+      ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def target
@@ -66,6 +65,12 @@ class Metasploit3 < Msf::Auxiliary
             send_delay: datastore['TCP::send_delay'],
             framework: framework,
             framework_module: self,
+            ssl: datastore['SSL'],
+            ssl_version: datastore['SSLVersion'],
+            ssl_verify_mode: datastore['SSLVerifyMode'],
+            ssl_cipher: datastore['SSLCipher'],
+            local_port: datastore['CPORT'],
+            local_host: datastore['CHOST']
         )
 
         scanner.scan! do |result|
@@ -124,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
+    vprint_good "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)
   end
 

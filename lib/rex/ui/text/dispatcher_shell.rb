@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 require 'rex/ui'
 require 'pp'
+require 'rex/text/table'
+require 'erb'
 
 module Rex
 module Ui
@@ -17,6 +19,8 @@ module Text
 #
 ###
 module DispatcherShell
+
+  include Resource
 
   ###
   #
@@ -59,6 +63,8 @@ module DispatcherShell
     def print_error(msg = '')
       shell.print_error(msg)
     end
+
+    alias_method :print_bad, :print_error
 
     #
     # Wraps shell.print_status
@@ -125,8 +131,8 @@ module DispatcherShell
     #
     # Wraps shell.update_prompt
     #
-    def update_prompt(prompt=nil, prompt_char = nil, mode = false)
-      shell.update_prompt(prompt, prompt_char, mode)
+    def update_prompt(*args)
+      shell.update_prompt(*args)
     end
 
     def cmd_help_help
@@ -168,10 +174,19 @@ module DispatcherShell
             end
           end
         end
+
+        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir, cmd + '.md')))
+        end
         print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
         print_error("No such command") if not cmd_found
       else
         print(shell.help_to_s)
+        if docs_dir && File.exist?(File.join(docs_dir + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir + '.md')))
+        end
       end
     end
 
@@ -201,7 +216,7 @@ module DispatcherShell
       return "" if commands.nil? or commands.length == 0
 
       # Display the commands
-      tbl = Table.new(
+      tbl = Rex::Text::Table.new(
         'Header'  => "#{self.name} Commands",
         'Indent'  => opts['Indent'] || 4,
         'Columns' =>
@@ -225,6 +240,17 @@ module DispatcherShell
     end
 
     #
+    # Return the subdir of the `documentation/` directory that should be used
+    # to find usage documentation
+    #
+    # TODO: get this value from somewhere that doesn't invert a bunch of
+    # dependencies
+    #
+    def docs_dir
+      File.expand_path(File.join(__FILE__, '..', '..', '..', '..', '..', 'documentation', 'cli'))
+    end
+
+    #
     # No tab completion items by default
     #
     attr_accessor :shell, :tab_complete_items
@@ -245,6 +271,64 @@ module DispatcherShell
       matches
     end
 
+    #
+    # Return a list of possible directory for tab completion.
+    #
+    def tab_complete_directory(str, words)
+      str = '.' + ::File::SEPARATOR if str.empty?
+      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
+
+      dirs
+    end
+
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
+    def tab_complete_generic(fmt, str, words)
+      last_word = words[-1]
+      fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
+
+      val = fmt[last_word]
+      return fmt.keys if !val  # the last word does not look like a fmtspec
+      arg = val[0]
+      return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
+
+      tabs = []
+      if arg.to_s.to_sym == :address
+        tabs = tab_complete_source_address
+      elsif arg.to_s.to_sym == :bool
+        tabs = ['true', 'false']
+      elsif arg.to_s.to_sym == :file
+        tabs = tab_complete_filenames(str, words)
+      elsif arg.kind_of?(Array)
+        tabs = arg.map {|a| a.to_s}
+      end
+      tabs
+    end
+
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
+    def tab_complete_source_address
+      addresses = [Rex::Socket.source_address]
+      # getifaddrs was introduced in 2.1.2
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.select do |ifaddr|
+          ifaddr.addr && ifaddr.addr.ip?
+        end
+        addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+      end
+      addresses
+    end
   end
 
   #
@@ -275,26 +359,26 @@ module DispatcherShell
   #
   def tab_complete(str)
     # Check trailing whitespace so we can tell 'x' from 'x '
-    str_match = str.match(/\s+$/)
+    str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
+    split_str = shellsplitex(str)
     # Split the line up by whitespace into words
-    str_words = str.split(/[\s\t\n]+/)
 
     # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
+    split_str[:words] << '' if str_trail.length > 0
 
     # Place the word list into an instance variable
-    self.tab_words = str_words
+    self.tab_words = split_str[:words]
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop)
+    tab_complete_stub(self.tab_words.pop, quote: split_str[:quote])
   end
 
   # Performs tab completion of a command, if supported
   # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str)
+  def tab_complete_stub(str, quote: nil)
     items = []
 
     return nil if not str
@@ -328,7 +412,7 @@ module DispatcherShell
 
     # Verify that our search string is a valid regex
     begin
-      Regexp.compile(str)
+      Regexp.compile(str,Regexp::IGNORECASE)
     rescue RegexpError
       str = Regexp.escape(str)
     end
@@ -337,11 +421,12 @@ module DispatcherShell
     # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
 
     # Match based on the partial word
-    items.find_all { |e|
-      e =~ /^#{str}/
+    items.find_all { |word|
+      word.downcase.start_with?(str.downcase) || word =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |e|
-      tab_words.dup.push(e).join(' ')
+    }.map { |word|
+      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word << quote.dup
+      tab_words.dup.push(word).join(' ')
     }
   end
 
@@ -368,7 +453,7 @@ module DispatcherShell
   #
   # Run a single command line.
   #
-  def run_single(line)
+  def run_single(line, propagate_errors: false)
     arguments = parse_line(line)
     method    = arguments.shift
     found     = false
@@ -389,17 +474,28 @@ module DispatcherShell
             run_command(dispatcher, method, arguments)
             found = true
           end
+        rescue ::Interrupt
+          found = true
+          print_error("#{method}: Interrupted")
+          raise if propagate_errors
+        rescue OptionParser::ParseError => e
+          print_error("#{method}: #{e.message}")
+          raise if propagate_errors
         rescue
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}" +
             "\n\nCall stack:\n#{$@.join("\n")}")
-        rescue ::Exception
+
+          raise if propagate_errors
+        rescue ::Exception => e
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}")
+
+          raise if propagate_errors
         end
 
         # If the dispatcher stack changed as a result of this command,
@@ -426,6 +522,7 @@ module DispatcherShell
     else
       dispatcher.send('cmd_' + method, *arguments)
     end
+  ensure
     self.busy = false
   end
 
@@ -460,7 +557,7 @@ module DispatcherShell
     inst = dispatcher.new(self)
     self.dispatcher_stack.each { |disp|
       if (disp.name == inst.name)
-        raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+        raise "Attempting to load already loaded dispatcher #{disp.name}"
       end
     }
     self.dispatcher_stack.push(inst)
@@ -525,6 +622,36 @@ module DispatcherShell
     self.blocked.delete(cmd)
   end
 
+  #
+  # Split a line as Shellwords.split would however instead of raising an
+  # ArgumentError on unbalanced quotes return the remainder of the string as if
+  # the last character were the closing quote.
+  #
+  def shellsplitex(line)
+    quote = nil
+    words = []
+    field = String.new
+    line.scan(/\G\s*(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do
+      |word, sq, dq, esc, garbage, sep|
+      if garbage
+        if quote.nil?
+          quote = garbage
+        else
+          field << garbage
+        end
+        next
+      end
+
+      field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
+      field << sep unless quote.nil?
+      if quote.nil? && sep
+        words << field
+        field = String.new
+      end
+    end
+    words << field unless quote.nil?
+    {:quote => quote, :words => words}
+  end
 
   attr_accessor :dispatcher_stack # :nodoc:
   attr_accessor :tab_words # :nodoc:

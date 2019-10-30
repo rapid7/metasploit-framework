@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -36,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USER_VARIABLE', [true, 'The name of the variable for the user field', 'username']),
         OptString.new('PASS_VARIABLE', [true, 'The name of the variable for the password field' , 'passwd']),
         OptString.new('WORD_ERROR', [true, 'The word of message for detect that login fail', 'mod-login-username'])
-      ], self.class)
+      ])
 
     register_autofilter_ports([80, 443])
   end
@@ -109,6 +107,33 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user, pass)
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
     response  = do_web_login(user, pass)
@@ -116,18 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if result == :success
       print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
-      report_auth_info(
-        :host         => rhost,
-        :port         => rport,
-        :sname        => (ssl ? 'https' : 'http'),
-        :user         => user,
-        :pass         => pass,
-        :proof        => target_url,
-        :type         => 'passsword',
-        :source_type  => 'cred',
-        :duplicate_ok => true,
-        :active       => true
-      )
+      report_cred(ip: rhost, port: rport, user: user, password: pass, proof: response.inspect)
       return :abort if datastore['STOP_ON_SUCCESS']
       return :next_user
     else
@@ -275,5 +289,4 @@ class Metasploit3 < Msf::Auxiliary
 
     valor_input_id
   end
-
 end

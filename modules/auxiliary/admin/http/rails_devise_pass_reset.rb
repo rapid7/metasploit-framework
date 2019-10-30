@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/element'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -55,8 +53,8 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('OBJECTNAME', [true, 'The user object name', 'user']),
         OptString.new('PASSWORD', [true, 'The password to set']),
         OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
-        OptInt.new('MAXINT', [true, 'Max integer to try (tokens begining with a higher int will fail)', 10])
-      ], self.class)
+        OptInt.new('MAXINT', [true, 'Max integer to try (tokens beginning with a higher int will fail)', 10])
+      ])
   end
 
   def generate_token(account)
@@ -130,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
           return false
         end
       when 302
-        #Success!
+        # Success!
         return true
       else
         print_error("ERROR: received code #{res.code}")

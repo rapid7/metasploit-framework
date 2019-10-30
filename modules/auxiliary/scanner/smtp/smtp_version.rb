@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -28,8 +25,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     res = connect
     banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-    print_status("#{ip}:#{rport} SMTP #{banner_sanitized}")
+    print_good("#{ip}:#{rport} SMTP #{banner_sanitized}")
     report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
   end
-
 end

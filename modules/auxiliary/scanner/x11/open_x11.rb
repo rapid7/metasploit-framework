@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -30,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(6000)
-    ],self.class)
+    ])
   end
 
   def run_host(ip)
@@ -56,8 +52,8 @@ class Metasploit3 < Msf::Auxiliary
       if(success == 1)
         vendor_len = response[24,2].unpack('v')[0]
         vendor = response[40,vendor_len].unpack('A*')[0]
-        print_status("#{ip} Open X Server (#{vendor})")
-        #Add Report
+        print_good("#{ip} Open X Server (#{vendor})")
+        # Add Report
         report_note(
           :host	=> ip,
           :proto => 'tcp',
@@ -67,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
           :data	=> "Open X Server (#{vendor})"
       )
       elsif (success == 0)
-        print_status("#{ip} Access Denied")
+        print_error("#{ip} Access Denied")
       else
         # X can return a reason for auth failure but we don't really care for this
       end
@@ -77,5 +73,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
 
@@ -37,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPROXY', [ true, 'IP of SMB proxy or sniffer.', '0.0.0.0']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -79,5 +76,4 @@ class Metasploit3 < Msf::Auxiliary
     print_good("Go check your SMB relay or capture module for goodies!")
 
   end
-
 end

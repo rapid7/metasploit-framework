@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -24,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Cisco Device HTTP Device Manager Access',
       'Description'    => %q{
           This module gathers data from a Cisco device (router or switch) with the device manager
-        web interface exposed. The USERNAME and PASSWORD options can be used to specify
+        web interface exposed. The HttpUsername and HttpPassword options can be used to specify
         authentication.
       },
       'Author'		=> [ 'hdm' ],
@@ -36,6 +33,11 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '444'],
         ],
       'DisclosureDate' => 'Oct 26 2000'))
+    register_options(
+      [
+        OptString.new('HttpUsername', [true, 'The HTTP username to specify for basic authentication', 'cisco']),
+        OptString.new('HttpPassword', [true, 'The HTTP password to specify for basic authentication', 'cisco'])
+      ])
   end
 
   def run_host(ip)
@@ -57,9 +59,10 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
       print_good("#{rhost}:#{rport} Successfully authenticated to this device")
+      store_valid_credential(user: datastore['HttpUsername'], private: datastore['HttpPassword'])
 
       # Report a vulnerability only if no password was specified
-      if datastore['PASSWORD'].to_s.length == 0
+      if datastore['HttpPassword'].to_s.length == 0
 
         report_vuln(
           {
@@ -91,5 +94,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

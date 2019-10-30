@@ -8,6 +8,7 @@ require 'active_support/concern'
 # Project
 #
 require 'msf/core/modules/loader/directory'
+require 'msf/core/modules/loader/executable'
 
 # Deals with loading modules for the {Msf::ModuleManager}
 module Msf::ModuleManager::Loading
@@ -19,7 +20,8 @@ module Msf::ModuleManager::Loading
 
   # Classes that can be used to load modules.
   LOADER_CLASSES = [
-      Msf::Modules::Loader::Directory
+      Msf::Modules::Loader::Directory,
+      Msf::Modules::Loader::Executable # TODO: XXX: When this is the first loader we can load normal exploits, but not payloads
   ]
 
   def file_changed?(path)
@@ -50,7 +52,7 @@ module Msf::ModuleManager::Loading
     changed
   end
 
-  attr_accessor :module_load_error_by_path
+  attr_accessor :module_load_error_by_path, :module_load_warnings
 
   # Called when a module is initially loaded such that it can be categorized
   # accordingly.
@@ -84,6 +86,22 @@ module Msf::ModuleManager::Loading
 
     # Notify the framework that a module was loaded
     framework.events.on_module_load(reference_name, class_or_module)
+
+    # Clear and add aliases, if any (payloads cannot)
+
+    if class_or_module.respond_to?(:realname) && aliased_as = self.inv_aliases[class_or_module.realname]
+      aliased_as.each do |a|
+        self.aliases.delete a
+      end
+      self.inv_aliases.delete class_or_module.realname
+    end
+
+    if class_or_module.respond_to? :aliases
+      class_or_module.aliases.each do |a|
+        self.aliases[a] = class_or_module.realname
+      end
+      self.inv_aliases[class_or_module.realname] = class_or_module.aliases unless class_or_module.aliases.empty?
+    end
   end
 
   protected
@@ -114,9 +132,9 @@ module Msf::ModuleManager::Loading
 
     loaders.each do |loader|
       if loader.loadable?(path)
-        count_by_type = loader.load_modules(path, options)
-
-        break
+        count_by_type.merge!(loader.load_modules(path, options)) do |key, prev, now|
+          prev + now
+        end
       end
     end
 

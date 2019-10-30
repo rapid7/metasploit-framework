@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
@@ -28,11 +23,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
+      'Actions'        => [[ 'WebServer' ]],
+      'PassiveActions' => [ 'WebServer' ],
+      'DefaultAction'  => 'WebServer',
       'DisclosureDate' => 'Nov 10 2009'
     ))
     register_options([
       OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.data_directory, "exploits", "pricedown.eot")]),
-    ], self.class)
+    ])
 
   end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/credential'
 
-describe Metasploit::Framework::Credential do
+RSpec.describe Metasploit::Framework::Credential do
 
   subject(:cred_detail) {
     described_class.new
@@ -13,12 +13,12 @@ describe Metasploit::Framework::Credential do
   let(:realm_type) { Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN }
   let(:private_type) { :password }
 
-  it { should respond_to :paired }
-  it { should respond_to :private }
-  it { should respond_to :private_type }
-  it { should respond_to :public }
-  it { should respond_to :realm }
-  it { should respond_to :realm_key }
+  it { is_expected.to respond_to :paired }
+  it { is_expected.to respond_to :private }
+  it { is_expected.to respond_to :private_type }
+  it { is_expected.to respond_to :public }
+  it { is_expected.to respond_to :realm }
+  it { is_expected.to respond_to :realm_key }
 
   describe "#paired" do
     it "defaults to true" do
@@ -33,7 +33,7 @@ describe Metasploit::Framework::Credential do
     end
 
     context 'when not paired' do
-      before(:each) do
+      before(:example) do
         cred_detail.paired = false
       end
 
@@ -53,7 +53,7 @@ describe Metasploit::Framework::Credential do
     end
 
     context 'when paired' do
-      before(:each) do
+      before(:example) do
         cred_detail.paired = true
       end
 
@@ -86,9 +86,9 @@ describe Metasploit::Framework::Credential do
     subject(:cred_detail) do
       described_class.new(public: public, private: private, realm: realm)
     end
-    it { should respond_to :to_credential }
+    it { is_expected.to respond_to :to_credential }
     it "should return self" do
-      cred_detail.to_credential.should eq(cred_detail)
+      expect(cred_detail.to_credential).to eq(cred_detail)
     end
   end
 

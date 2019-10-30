@@ -38,11 +38,41 @@ module Rex
   LogSource = "rex"
 end
 
+#
+# REX Gems
+#
+
+# Text manipulation library for things like generating random string
+require 'rex/text'
+# Library for Generating Randomized strings valid as Identifiers such as variable names
+require 'rex/random_identifier'
+# library for creating Powershell scripts for exploitation purposes
+require 'rex/powershell'
+# Library for processing and creating Zip compatible archives
+require 'rex/zip'
+# Library for processing and creating tar compatible archives (not really a gem)
+require 'rex/tar'
+# Library for parsing offline Windows Registry files
+require 'rex/registry'
+# Library for parsing Java serialized streams
+require 'rex/java'
+# Library for creating C-style Structs
+require 'rex/struct2'
+# Library for working with OLE
+require 'rex/ole'
+# Library for creating and/or parsing MIME messages
+require 'rex/mime'
+# Library for polymorphic encoders
+require 'rex/encoder'
+# Architecture subsystem
+require 'rex/arch'
+# Exploit Helper Library
+require 'rex/exploitation'
+
 # Generic classes
-require 'rex/constants'
 require 'rex/exceptions'
 require 'rex/transformer'
-require 'rex/text'
+require 'rex/random_identifier'
 require 'rex/time'
 require 'rex/job_container'
 require 'rex/file'
@@ -53,12 +83,6 @@ require 'rex/sync'
 # Thread factory
 require 'rex/thread_factory'
 
-# Encoding
-require 'rex/encoder/xor'
-require 'rex/encoding/xor'
-
-# Architecture subsystem
-require 'rex/arch'
 
 # Assembly
 require 'rex/assembly/nasm'
@@ -86,12 +110,13 @@ require 'rex/parser/ini'
 # Compatibility
 require 'rex/compat'
 
-# Platforms
-require 'rex/platforms'
-
 # SSLScan 
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
+
+# Cryptography
+require 'rex/crypto/aes256'
+require 'rex/crypto/rc4'
 
 
 # Overload the Kernel.sleep() function to be thread-safe

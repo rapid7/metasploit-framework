@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/pop3'
 
-describe Metasploit::Framework::LoginScanner::POP3 do
+RSpec.describe Metasploit::Framework::LoginScanner::POP3 do
   subject(:scanner) { described_class.new }
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false
@@ -46,13 +46,15 @@ describe Metasploit::Framework::LoginScanner::POP3 do
     context "Open Connection" do
       let(:sock) {double('socket')}
 
-      before(:each) do
-        sock.stub(:shutdown)
-        sock.stub(:close)
-        sock.stub(:closed?)
+      before(:example) do
+        allow(sock).to receive(:shutdown)
+        allow(sock).to receive(:close)
+        allow(sock).to receive(:closed?)
+
+        allow(scanner).to receive(:sock).and_return(sock)
+
         expect(scanner).to receive(:connect)
-        scanner.stub(:sock).and_return(sock)
-        scanner.should_receive(:select).with([sock],nil,nil,0.4)
+        expect(scanner).to receive(:select).with([sock],nil,nil,0.4)
       end
 
       it "Server returns +OK" do
@@ -68,7 +70,7 @@ describe Metasploit::Framework::LoginScanner::POP3 do
       end
 
       it "Server Returns Something Else" do
-        sock.stub(:get_once).and_return("+ERROR")
+        allow(sock).to receive(:get_once).and_return("+ERROR")
 
         result = scanner.attempt_login(pub_blank)
 

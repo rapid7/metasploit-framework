@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -33,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2011-0923' ],
           [ 'OSVDB', '72526' ],
           [ 'ZDI', '11-055' ],
-          [ 'URL', 'http://c4an-dl.blogspot.com/hp-data-protector-vuln.html' ],
           [ 'URL', 'http://hackarandas.com/blog/2011/08/04/hp-data-protector-remote-shell-for-hpux' ]
         ],
       'Author'         =>
@@ -51,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(5555),
         OptString.new("CMD", [true, 'File to execute', 'Windows\System32\calc.exe'])
-      ], self.class)
+      ])
   end
 
 
@@ -93,5 +89,4 @@ class Metasploit3 < Msf::Auxiliary
       disconnect
     end
   end
-
 end

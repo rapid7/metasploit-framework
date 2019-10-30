@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +28,6 @@ class Metasploit3 < Msf::Auxiliary
       {
         'SSL' => true,
         'RPORT' => 443,
-        'SSLVersion' => 'SSL3'
       },
       'References'  =>
       [
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptEnum.new('SSLVersion', [true, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL3', 'TLS1']])
+        Opt::SSLVersion
       ]
     )
 
@@ -52,14 +49,13 @@ class Metasploit3 < Msf::Auxiliary
   # Fingerprint a single host
   def run_host(ip)
     begin
-      connect
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
       if fp
         vprint_status("#{peer} connected and fingerprinted: #{fp}")
         # TODO: Interrogate the connection itself to see what version
         # was used. Where that actually lives is eluding me. :/
-        if datastore['SSLVersion'] == 'SSL3'
+        if datastore['SSL'] && datastore['SSLVersion'] == 'SSL3'
           print_good("#{peer} accepts SSLv3")
           report_poodle_vuln(ip)
         end
@@ -67,9 +63,6 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::OpenSSL::SSL::SSLError => e
       ssl_version = e.message.match(/ state=([^\s]+)/)[1]
       vprint_status("#{peer} does not accept #{ssl_version}")
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    ensure
-      disconnect
     end
   end
 
@@ -84,5 +77,4 @@ class Metasploit3 < Msf::Auxiliary
       :exploited_at => Time.now.utc
     )
   end
-
 end

@@ -1,11 +1,13 @@
-require 'msf/core'
-require 'rex'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/netapi'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI
@@ -16,7 +18,7 @@ class Metasploit3 < Msf::Post
       'Name'	       => 'Windows Gather Enumerate Active Domain Users',
       'Description'  => %q{
           This module will enumerate computers included in the primary Domain and attempt
-          to list all locations the targeted user has sessions on. If a the HOST option is specified
+          to list all locations the targeted user has sessions on. If the HOST option is specified
           the module will target only that host. If the HOST is specified and USER is set to nil, all users
           logged into that host will be returned.'
         },
@@ -32,7 +34,7 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('USER', [false, 'Target User for NetSessionEnum']),
         OptString.new('HOST', [false, 'Target a specific host']),
-      ], self.class)
+      ])
   end
 
   def run
@@ -87,6 +89,5 @@ class Metasploit3 < Msf::Post
       end
     end
   end
-
 end
 

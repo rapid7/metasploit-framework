@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 
   include Msf::Exploit::Remote::DCERPC
@@ -42,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use (ROUTER, SRVSVC)", 'ROUTER']),
-      ], self.class)
+      ])
 
   end
 
@@ -74,5 +70,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

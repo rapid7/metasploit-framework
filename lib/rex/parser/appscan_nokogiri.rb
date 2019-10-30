@@ -141,9 +141,9 @@ module Rex
 
     def report_web_page(&block)
       return unless(in_issue && has_text)
-      return unless @state[:web_site]
-      return unless @state[:response_headers]
-      return unless @state[:uri]
+      return unless @state[:web_site].present?
+      return unless @state[:response_headers].present?
+      return unless @state[:uri].present?
       web_page_info = {}
       web_page_info[:web_site] = @state[:web_site]
       web_page_info[:path] = @state[:uri].path
@@ -187,31 +187,21 @@ module Rex
 
     def record_request_and_response
       return unless(in_issue && has_text)
-      return unless @state[:web_site]
+      return unless @state[:web_site].present?
       really_original_traffic = unindent_and_crlf(@text)
-      split_traffic = really_original_traffic.split(/\r\n\r\n/)
-      request_headers_text = split_traffic.first
-      content_length = 0
-      if request_headers_text =~ /\ncontent-length:\s+([0-9]+)/mni
-        content_length = $1.to_i
-      end
-      if(content_length > 0) and (split_traffic[1].to_s.size >= content_length)
-        request_body_text = split_traffic[1].to_s[0,content_length]
-      else
-        request_body_text = nil
-      end
-      response_headers_text = split_traffic[1].to_s[content_length,split_traffic[1].to_s.size].lstrip
-      request = request_headers_text
-      return unless(request && response_headers_text)
-      response_body_text = split_traffic[2]
+      request_headers, request_body, response_headers, response_body = really_original_traffic.split(/\r\n\r\n/)
+      return unless(request_headers && response_headers)
       req_header = Rex::Proto::Http::Packet::Header.new
       res_header = Rex::Proto::Http::Packet::Header.new
-      req_header.from_s request_headers_text.dup
-      res_header.from_s response_headers_text.dup
+      req_header.from_s request_headers.lstrip
+      res_header.from_s response_headers.lstrip
+      if response_body.to_s.empty?
+        response_body = ''
+      end
       @state[:request_headers] = req_header
-      @state[:request_body] = request_body_text
+      @state[:request_body] = request_body.lstrip
       @state[:response_headers] = res_header
-      @state[:response_body] = response_body_text
+      @state[:response_body] = response_body.lstrip
     end
 
     # Appscan tab-indents which makes parsing a little difficult. They

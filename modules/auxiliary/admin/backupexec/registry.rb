@@ -1,16 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
-  include ::Rex::Platforms::Windows
+  include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(update_info(info,
@@ -18,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This modules exploits a remote registry access flaw in the BackupExec Windows
       Server RPC service. This vulnerability was discovered by Pedram Amini and is based
-      on the NDR stub information information posted to openrce.org.
+      on the NDR stub information posted to openrce.org.
       Please see the action list for the different attack modes.
 
       },
@@ -48,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
               "Compromised by Metasploit!\r\n"
             ]
           ),
-        ], self.class)
+        ])
   end
 
   def auxiliary_commands
@@ -272,5 +267,4 @@ class Metasploit3 < Msf::Auxiliary
       NDR.long(hive)
     return stub
   end
-
 end

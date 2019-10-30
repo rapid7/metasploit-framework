@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Post
         [
           OptString.new('IMAILUSER', [false, 'iMail username', '']),
           OptString.new('IMAILDOMAIN', [false, 'iMail Domain', ''])
-        ], self.class)
+        ])
   end
 
   def download_info(imail_user='', imail_domain='')
@@ -140,7 +138,7 @@ class Metasploit3 < Msf::Post
   end
 
   def report(users)
-    credentials = Rex::Ui::Text::Table.new(
+    credentials = Rex::Text::Table.new(
       'Header'  => 'Ipswitch iMail User Credentials',
       'Indent'   => 1,
       'Columns' =>
@@ -191,7 +189,7 @@ class Metasploit3 < Msf::Post
     imail_user = datastore['IMAILUSER']
     imail_domain = datastore['IMAILDOMAIN']
 
-    print_status("Download iMail user information...") if datastore['VERBOSE'] == false
+    vprint_status("Download iMail user information...")
 
     #Download user data.  If no user specified, we dump it all.
     users = download_info(imail_user, imail_domain)

@@ -12,7 +12,8 @@ module Metasploit
           #
 
           # Number of allowed threads when threads are counted in `after(:suite)` or `before(:suite)`
-          EXPECTED_THREAD_COUNT_AROUND_SUITE = 1
+          EXPECTED_THREAD_COUNT_AROUND_SUITE = ENV['REMOTE_DB'] ? 3 : 2
+
           # `caller` for all Thread.new calls
           LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/threads/suite.log')
           # Regular expression for extracting the UUID out of {LOG_PATHNAME} for each Thread.new caller block
@@ -204,7 +205,8 @@ module Metasploit
             Thread.list.reject { |thread|
               # don't do `is_a? Debugger::DebugThread` because it requires Debugger::DebugThread to be loaded, which it
               # won't when not debugging.
-              thread.class.name == 'Debugger::DebugThread'
+              thread.class.name == 'Debugger::DebugThread' ||
+                thread.class.name == 'Debase::DebugThread'
             }
           end
         end

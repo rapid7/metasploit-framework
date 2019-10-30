@@ -1,15 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/jsp'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 1501
 
   include Msf::Payload::Single
   include Msf::Payload::JSP
@@ -42,5 +43,4 @@ module Metasploit3
 
     return super + jsp_reverse_tcp
   end
-
 end

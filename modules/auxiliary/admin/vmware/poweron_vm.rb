@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -21,7 +16,8 @@ class Metasploit3 < Msf::Auxiliary
         a specified Virtual Machine.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -30,9 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
         OptString.new('VM', [true, "The VM to try to Power On"])
-      ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+      ])
   end
 
   def run
@@ -62,5 +56,4 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
   end
-
 end

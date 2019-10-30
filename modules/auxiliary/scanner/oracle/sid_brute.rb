@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TNS
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -16,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle TNS Listener SID Bruteforce',
       'Description'    => %q{
-        This module queries the TNS listner for a valid Oracle database
+        This module queries the TNS listener for a valid Oracle database
         instance name (also known as a SID).
         Any response other than a "reject" will be considered a success.
         If a specific SID is provided, that SID will be attempted. Otherwise,
@@ -31,10 +28,10 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('SID_FILE', [ false, "File containing instance names, one per line", File.join(Msf::Config.data_directory, "wordlists", "sid.txt") ]),
         OptString.new('SID', [ false, 'A specific SID to attempt.' ]),
         Opt::RPORT(1521)
-      ], self.class)
+      ])
 
     deregister_options(
-      "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
+      "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
       "BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
       "REMOVE_USERPASS_FILE"
     )
@@ -85,14 +82,15 @@ class Metasploit3 < Msf::Auxiliary
         vprint_status "#{hostport} Oracle - Refused '#{sid}'"
         return :fail
       end
-      disconnect
     rescue ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{hostport} Oracle - unable to connect to a TNS listener")
       return :abort
+    ensure
+      disconnect
     end
   end
 
-  # Based vaugely on each_user_pass in AuthBrute
+  # Based vaguely on each_user_pass in AuthBrute
   def each_sid(&block)
     @@oracle_sid_fail = []
     @@oracle_sid_success = []

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::File
 
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Post
         OptBool.new('ZERO', [ false, 'Zero overwrite. If set to false, random data will be used', false]),
         OptInt.new('ITERATIONS', [false, 'The number of overwrite passes', 1 ]),
         OptString.new('FILE',[true, 'File to be deleted',''])
-      ], self.class)
+      ])
   end
 
 
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Post
     n = datastore['ITERATIONS']
     file = datastore['FILE']
 
-    if datastore['ZERO']==true
+    if datastore['ZERO']
       type = 0
       print_status("The file will be overwritten with null bytes")
     end

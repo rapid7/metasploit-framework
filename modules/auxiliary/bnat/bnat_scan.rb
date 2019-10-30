@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
 
@@ -14,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'         => 'BNAT Scanner',
       'Description'  => %q{
           This module is a scanner which can detect Broken NAT (network address translation)
-        implementations, which could result in a inability to reach ports on remote
+        implementations, which could result in an inability to reach ports on remote
         machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
         },
       'Author'       =>
@@ -25,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE,
       'References'   =>
         [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+          [ 'URL', 'https://github.com/claudijd/bnat'],
+          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
         ]
     )
 
@@ -35,9 +33,9 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "21,22,23,80,443"]),
           OptString.new('INTERFACE', [true, "The name of the interface", "eth0"]),
           OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
-        ],self.class)
+        ])
 
-    deregister_options('FILTER','PCAPFILE','RHOST','SNAPLEN')
+    deregister_options('FILTER','PCAPFILE','SNAPLEN')
 
   end
 
@@ -89,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
       ackbpf = "tcp [8:4] == 0x#{(p.tcp_seq + 1).to_s(16)}"
       pcap.setfilter("tcp and tcp[13] == 18 and not host #{ip} and src port #{p.tcp_dst} and dst port #{p.tcp_src} and #{ackbpf}")
-      capture_sendto(p, ip)
+      break unless capture_sendto(p, ip)
       reply = probe_reply(pcap, to)
       next if reply.nil?
 
@@ -98,5 +96,4 @@ class Metasploit3 < Msf::Auxiliary
 
     close_pcap
   end
-
 end

@@ -145,7 +145,7 @@ download_more:
   test eax,eax           ; download failed? (optional?)
   jz failure
 
-  mov rax, [rdi]
+  mov ax, word ptr [edi]
   add rbx, rax           ; buffer += bytes_received
 
   test rax,rax           ; optional?

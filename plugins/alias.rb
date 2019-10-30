@@ -1,9 +1,4 @@
-##
-# $Id$
-# $Revision$
-##
-
-require 'rex/ui/text/table'
+require 'rex/text/table'
 
 module Msf
 
@@ -48,7 +43,7 @@ class Plugin::Alias < Msf::Plugin
         if @aliases.length == 0
           return print_status("No aliases currently defined")
         else
-          tbl = Rex::Ui::Text::Table.new(
+          tbl = Rex::Text::Table.new(
             'Header'  => "Current Aliases",
             'Prefix'  => "\n",
             'Postfix' => "\n",
@@ -289,7 +284,7 @@ class Plugin::Alias < Msf::Plugin
       driver.dispatcher_stack.each do |dispatcher|
         next unless dispatcher.respond_to?(:commands)
         next if (dispatcher.commands.nil? or dispatcher.commands.length == 0)
-        items << dispatcher.commands.keys
+        items.concat(dispatcher.commands.keys)
       end
       # add all the current aliases to the list
       items.concat(@aliases.keys)

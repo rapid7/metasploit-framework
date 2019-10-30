@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/http/packet'
 
-describe Rex::Proto::Http::Packet do
+RSpec.describe Rex::Proto::Http::Packet do
   it_behaves_like "hash with insensitive keys"
 
   describe "#parse" do
@@ -25,10 +25,10 @@ describe Rex::Proto::Http::Packet do
       end
 
       it "should have correct headers" do
-        subject["foo"].should == "Bar"
-        subject["Content-Length"].should == body.length.to_s
-        subject.cmd_string.should == "GET / HTTP/1.0\r\n"
-        subject.body.should == body
+        expect(subject["foo"]).to eq "Bar"
+        expect(subject["Content-Length"]).to eq body.length.to_s
+        expect(subject.cmd_string).to eq "GET / HTTP/1.0\r\n"
+        expect(subject.body).to eq body
       end
     end
 
@@ -42,10 +42,10 @@ describe Rex::Proto::Http::Packet do
       end
 
       it "should have correct headers" do
-        subject["foo"].should == "Bar"
-        subject["Content-Length"].should == body.length.to_s
-        subject.cmd_string.should == "HTTP/1.0 200 OK\r\n"
-        subject.body.should == body
+        expect(subject["foo"]).to eq "Bar"
+        expect(subject["Content-Length"]).to eq body.length.to_s
+        expect(subject.cmd_string).to eq "HTTP/1.0 200 OK\r\n"
+        expect(subject.body).to eq body
       end
     end
 

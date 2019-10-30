@@ -15,6 +15,30 @@ module Meterpreter
 ###
 class PacketResponseWaiter
 
+  # Arbitrary argument to {#completion_routine}
+  #
+  # @return [Object,nil]
+  attr_accessor :completion_param
+
+  # A callback to be called when this waiter is notified of a packet's
+  # arrival. If not nil, this will be called with the response packet as first
+  # parameter and {#completion_param} as the second.
+  #
+  # @return [Proc,nil]
+  attr_accessor :completion_routine
+
+  # @return [ConditionVariable]
+  attr_accessor :cond
+
+  # @return [Mutex]
+  attr_accessor :mutex
+
+  # @return [Packet]
+  attr_accessor :response
+
+  # @return [Integer] request ID to wait for
+  attr_accessor :rid
+
   #
   # Initializes a response waiter instance for the supplied request
   # identifier.
@@ -27,7 +51,8 @@ class PacketResponseWaiter
       self.completion_routine = completion_routine
       self.completion_param   = completion_param
     else
-      self.done  = false
+      self.mutex = Mutex.new
+      self.cond  = ConditionVariable.new
     end
   end
 
@@ -42,41 +67,37 @@ class PacketResponseWaiter
   #
   # Notifies the waiter that the supplied response packet has arrived.
   #
+  # @param response [Packet]
+  # @return [void]
   def notify(response)
-    self.response = response
-
     if (self.completion_routine)
+      self.response = response
       self.completion_routine.call(response, self.completion_param)
     else
-      self.done = true
+      self.mutex.synchronize do
+        self.response = response
+        self.cond.signal
+      end
     end
   end
 
   #
-  # Waits for a given time interval for the response packet to arrive.
-  # If the interval is -1 we can wait forever.
+  # Wait for a given time interval for the response packet to arrive.
   #
+  # @param interval [Integer,nil] number of seconds to wait, or nil to wait
+  #   forever
+  # @return [Packet,nil] the response, or nil if the interval elapsed before
+  #   receiving one
   def wait(interval)
-    if( interval and interval == -1 )
-      while(not self.done)
-        ::IO.select(nil, nil, nil, 0.1)
-      end
-    else
-      begin
-        Timeout.timeout(interval) {
-          while(not self.done)
-            ::IO.select(nil, nil, nil, 0.1)
-          end
-        }
-      rescue Timeout::Error
-        self.response = nil
+    interval = nil if interval and interval == -1
+    self.mutex.synchronize do
+      if self.response.nil?
+        self.cond.wait(self.mutex, interval)
       end
     end
     return self.response
   end
 
-  attr_accessor :rid, :done, :response # :nodoc:
-  attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
 end; end; end

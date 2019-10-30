@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -39,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new("TARGETURI", [true, 'The path to the admin CGI script', '/cgi-bin/admin.cgi']),
         OptString.new("USERNAME", [true, 'The username for your new account']),
         OptString.new("PASSWORD", [true, 'The password for your new account'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -84,5 +81,4 @@ class Metasploit3 < Msf::Auxiliary
       print_line(res.body)
     end
   end
-
 end

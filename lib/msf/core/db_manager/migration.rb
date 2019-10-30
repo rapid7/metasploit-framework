@@ -10,7 +10,7 @@ module Msf::DBManager::Migration
            "the .bundle/config manually and then `bundle install`"
     end
 
-    Rails.application.railties.engines.each do |engine|
+    ::Rails::Engine.subclasses.map(&:instance).each.each do |engine|
       migrations_paths = engine.paths['db/migrate'].existent_directories
 
       migrations_paths.each do |migrations_path|

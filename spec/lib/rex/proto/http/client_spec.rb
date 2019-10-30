@@ -5,7 +5,7 @@ require 'rex/proto/http/client'
 # connection to 127.0.0.1:1. If you have some crazy local
 # firewall that is dropping packets to this, your tests
 # might be slow. I wonder how Travis-CI will react to this...
-describe Rex::Proto::Http::Client do
+RSpec.describe Rex::Proto::Http::Client do
 
   class << self
 
@@ -38,33 +38,33 @@ describe Rex::Proto::Http::Client do
   describe "#set_config" do
 
     it "should respond to #set_config" do
-      cli.set_config.should == {}
+      expect(cli.set_config).to eq({})
     end
 
   end
 
-  it "should respond to intialize" do
-    cli.should be
+  it "should respond to initialize" do
+    expect(cli).to be
   end
 
   it "should have a set of default instance variables" do
-    cli.instance_variable_get(:@hostname).should == ip
-    cli.instance_variable_get(:@port).should == 80
-    cli.instance_variable_get(:@context).should == {}
-    cli.instance_variable_get(:@ssl).should be_falsey
-    cli.instance_variable_get(:@proxies).should be_nil
-    cli.instance_variable_get(:@username).should be_empty
-    cli.instance_variable_get(:@password).should be_empty
-    cli.config.should be_a_kind_of Hash
+    expect(cli.instance_variable_get(:@hostname)).to eq ip
+    expect(cli.instance_variable_get(:@port)).to eq 80
+    expect(cli.instance_variable_get(:@context)).to eq({})
+    expect(cli.instance_variable_get(:@ssl)).to be_falsey
+    expect(cli.instance_variable_get(:@proxies)).to be_nil
+    expect(cli.instance_variable_get(:@username)).to be_empty
+    expect(cli.instance_variable_get(:@password)).to be_empty
+    expect(cli.config).to be_a_kind_of Hash
   end
 
   it "should produce a raw HTTP request" do
-    cli.request_raw.should be_a_kind_of Rex::Proto::Http::ClientRequest
+    expect(cli.request_raw).to be_a_kind_of Rex::Proto::Http::ClientRequest
   end
 
   it "should produce a CGI HTTP request" do
     req = cli.request_cgi
-    req.should be_a_kind_of Rex::Proto::Http::ClientRequest
+    expect(req).to be_a_kind_of Rex::Proto::Http::ClientRequest
   end
 
   context "with authorization" do
@@ -84,15 +84,15 @@ describe Rex::Proto::Http::Client do
       it "should have one Authorization header" do
         req = cli.request_cgi
         match = req.to_s.match("Authorization: Basic")
-        match.should be
-        match.length.should == 1
+        expect(match).to be
+        expect(match.length).to eq 1
       end
       it "should prefer the value in the header" do
         req = cli.request_cgi
         match = req.to_s.match(/Authorization: Basic (.*)$/)
-        match.should be
-        match.captures.length.should == 1
-        match.captures[0].chomp.should == base64
+        expect(match).to be
+        expect(match.captures.length).to eq 1
+        expect(match.captures[0].chomp).to eq base64
       end
     end
   end
@@ -112,37 +112,38 @@ describe Rex::Proto::Http::Client do
     let(:pass) { "pass" }
 
     it "should not send creds on the first request in order to induce a 401" do
-      req = cli.request_cgi
-      req.to_s.should_not match("Authorization:")
+      req = subject.request_cgi
+      expect(req.to_s).not_to match("Authorization:")
     end
 
     it "should send creds after receiving a 401" do
       conn = double
-      conn.stub(:put)
-      conn.stub(:shutdown)
-      conn.stub(:close)
-      conn.stub(:closed? => false)
+      allow(conn).to receive(:put)
+      allow(conn).to receive(:peerinfo)
+      allow(conn).to receive(:shutdown)
+      allow(conn).to receive(:close)
+      allow(conn).to receive(:closed?).and_return(false)
 
-      conn.should_receive(:get_once).and_return(first_response, authed_response)
-      conn.should_receive(:put) do |str_request|
-        str_request.should_not include("Authorization")
+      expect(conn).to receive(:get_once).and_return(first_response, authed_response)
+      expect(conn).to receive(:put) do |str_request|
+        expect(str_request).not_to include("Authorization")
         nil
       end
-      conn.should_receive(:put) do |str_request|
-        str_request.should include("Authorization")
+      expect(conn).to receive(:put) do |str_request|
+        expect(str_request).to include("Authorization")
         nil
       end
 
-      cli.should_receive(:_send_recv).twice.and_call_original
+      expect(cli).to receive(:_send_recv).twice.and_call_original
 
-      Rex::Socket::Tcp.stub(:create).and_return(conn)
+      allow(Rex::Socket::Tcp).to receive(:create).and_return(conn)
 
       opts = { "username" => user, "password" => pass}
       req = cli.request_cgi(opts)
       cli.send_recv(req)
 
       # Make sure it didn't modify the argument
-      opts.should == { "username" => user, "password" => pass}
+      expect(opts).to eq({ "username" => user, "password" => pass})
     end
 
   end
@@ -153,7 +154,7 @@ describe Rex::Proto::Http::Client do
   end
 
   it "should be able to close a connection" do
-    cli.close.should be_nil
+    expect(cli.close).to be_nil
   end
 
   it "should send a request and receive a response", :skip => excuse_needs_connection do
@@ -170,9 +171,9 @@ describe Rex::Proto::Http::Client do
 
   it "should test for credentials" do
     skip "Should actually respond to :has_creds" do
-      cli.should_not have_creds
+      expect(cli).not_to have_creds
       this_cli = described_class.new("127.0.0.1", 1, {}, false, nil, nil, "user1", "pass1" )
-      this_cli.should have_creds
+      expect(this_cli).to have_creds
     end
   end
 
@@ -182,7 +183,7 @@ describe Rex::Proto::Http::Client do
     u = "user1"
     p = "pass1"
     b64 = ["#{u}:#{p}"].pack("m*").strip
-    cli.basic_auth_header("user1","pass1").should == "Basic #{b64}"
+    expect(cli.basic_auth_header("user1","pass1")).to eq "Basic #{b64}"
   end
 
   it "should perform digest authentication", :skip => excuse_needs_auth do
@@ -198,37 +199,32 @@ describe Rex::Proto::Http::Client do
   end
 
   it "should end a connection with a stop" do
-    cli.stop.should be_nil
+    expect(cli.stop).to be_nil
   end
 
   it "should test if a connection is valid" do
-    cli.conn?.should be_falsey
+    expect(cli.conn?).to be_falsey
   end
 
   it "should tell if pipelining is enabled" do
-    cli.should_not be_pipelining
+    expect(cli).not_to be_pipelining
     this_cli = Rex::Proto::Http::Client.new("127.0.0.1", 1)
     this_cli.pipeline = true
-    this_cli.should be_pipelining
+    expect(this_cli).to be_pipelining
   end
 
   it "should respond to its various accessors" do
-    cli.should respond_to :config
-    cli.should respond_to :config_types
-    cli.should respond_to :pipeline
-    cli.should respond_to :local_host
-    cli.should respond_to :local_port
-    cli.should respond_to :conn
-    cli.should respond_to :context
-    cli.should respond_to :proxies
-    cli.should respond_to :username
-    cli.should respond_to :password
-    cli.should respond_to :junk_pipeline
-    # These are protected. Why are they protected? Hysterical raisins.
-    #cli.should respond_to :ssl
-    #cli.should respond_to :ssl_version
-    #cli.should respond_to :hostname
-    #cli.should respond_to :port
+    expect(cli).to respond_to :config
+    expect(cli).to respond_to :config_types
+    expect(cli).to respond_to :pipeline
+    expect(cli).to respond_to :local_host
+    expect(cli).to respond_to :local_port
+    expect(cli).to respond_to :conn
+    expect(cli).to respond_to :context
+    expect(cli).to respond_to :proxies
+    expect(cli).to respond_to :username
+    expect(cli).to respond_to :password
+    expect(cli).to respond_to :junk_pipeline
   end
 
   # Not super sure why these are protected...

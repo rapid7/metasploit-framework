@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -17,7 +14,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
           LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
           SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
-          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browswers),
+          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browsers),
           WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
           },
         'License'       => MSF_LICENSE,
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Post
         OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']), # Enum would be a better choice
         OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
         OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', false])
-      ], self.class)
+      ])
   end
 
   def parse_netserverenum(startmem,count)
@@ -87,7 +84,7 @@ class Metasploit3 < Msf::Post
       when 'LOCAL' then lookuptype = "40000000".hex
     end
 
-    if client.platform =~ /^x64/
+    if session.arch == ARCH_X64
       nameiterator = 8
       size = 64
       addrinfoinmem = 32
@@ -103,7 +100,7 @@ class Metasploit3 < Msf::Post
       print_error("No systems found of that type")
       return
     end
-    print_status("Found #{result['totalentries']} systems.")
+    print_good("Found #{result['totalentries']} systems.")
 
     endofline = 0
     i = nameiterator
@@ -130,7 +127,7 @@ class Metasploit3 < Msf::Post
 
     netview = netview.sort_by {|e| e[:type]}
 
-    results = Rex::Ui::Text::Table.new(
+    results = Rex::Text::Table.new(
       'Header' => 'Netdiscovery Results',
       'Indent' => 2,
       'Columns' => ['TYPE', 'IP', 'COMPUTER NAME', 'VERSION', 'COMMENT']

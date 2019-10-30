@@ -11,6 +11,9 @@ class Export
 
   attr_accessor :workspace
 
+  STATUS_START = "start"
+  STATUS_COMPLETE = "complete"
+
   def initialize(workspace)
     self.workspace = workspace
   end
@@ -31,20 +34,22 @@ class Export
 
   # Performs an export of the workspace's `Metasploit::Credential::Login` objects in pwdump format
   # @param path [String] the path on the local filesystem where the exported data will be written
-  # @return [void]
+  # @return [String] The path to the location of the written file.
   def to_pwdump_file(path, &block)
     exporter = Metasploit::Credential::Exporter::Pwdump.new(workspace: workspace)
 
-    File.open(path, 'w') do |file|
+    output_file = File.open(path, 'w') do |file|
       file << exporter.rendered_output
     end
-    true
+    output_file.path
   end
 
-
+  # Performs an export of the workspace's `Metasploit::Credential::Login` objects in XML format
+  # @param path [String] the path on the local filesystem where the exported data will be written
+  # @return [String] The path to the location of the written file.
   def to_xml_file(path, &block)
 
-    yield(:status, "start", "report") if block_given?
+    yield(:status, STATUS_START, "report") if block_given?
     extract_target_entries
     report_file = ::File.open(path, "wb")
 
@@ -52,49 +57,49 @@ class Export
     report_file.write %Q|<MetasploitV5>\n|
     report_file.write %Q|<generated time="#{Time.now.utc}" user="#{myusername}" project="#{myworkspace.name.gsub(/[^A-Za-z0-9\x20]/n,"_")}" product="framework"/>\n|
 
-    yield(:status, "start", "hosts") if block_given?
+    yield(:status, STATUS_START, "hosts") if block_given?
     report_file.write %Q|<hosts>\n|
     report_file.flush
     extract_host_info(report_file)
     report_file.write %Q|</hosts>\n|
 
-    yield(:status, "start", "events") if block_given?
+    yield(:status, STATUS_START, "events") if block_given?
     report_file.write %Q|<events>\n|
     report_file.flush
     extract_event_info(report_file)
     report_file.write %Q|</events>\n|
 
-    yield(:status, "start", "services") if block_given?
+    yield(:status, STATUS_START, "services") if block_given?
     report_file.write %Q|<services>\n|
     report_file.flush
     extract_service_info(report_file)
     report_file.write %Q|</services>\n|
 
-    yield(:status, "start", "web sites") if block_given?
+    yield(:status, STATUS_START, "web sites") if block_given?
     report_file.write %Q|<web_sites>\n|
     report_file.flush
     extract_web_site_info(report_file)
     report_file.write %Q|</web_sites>\n|
 
-    yield(:status, "start", "web pages") if block_given?
+    yield(:status, STATUS_START, "web pages") if block_given?
     report_file.write %Q|<web_pages>\n|
     report_file.flush
     extract_web_page_info(report_file)
     report_file.write %Q|</web_pages>\n|
 
-    yield(:status, "start", "web forms") if block_given?
+    yield(:status, STATUS_START, "web forms") if block_given?
     report_file.write %Q|<web_forms>\n|
     report_file.flush
     extract_web_form_info(report_file)
     report_file.write %Q|</web_forms>\n|
 
-    yield(:status, "start", "web vulns") if block_given?
+    yield(:status, STATUS_START, "web vulns") if block_given?
     report_file.write %Q|<web_vulns>\n|
     report_file.flush
     extract_web_vuln_info(report_file)
     report_file.write %Q|</web_vulns>\n|
 
-    yield(:status, "start", "module details") if block_given?
+    yield(:status, STATUS_START, "module details") if block_given?
     report_file.write %Q|<module_details>\n|
     report_file.flush
     extract_module_detail_info(report_file)
@@ -105,9 +110,9 @@ class Export
     report_file.flush
     report_file.close
 
-    yield(:status, "complete", "report") if block_given?
+    yield(:status, STATUS_COMPLETE, "report") if block_given?
 
-    true
+    report_file.path
   end
 
   # A convenience function that bundles together host, event, and service extraction.
@@ -125,7 +130,7 @@ class Export
     @owned_hosts = []
     @hosts = myworkspace.hosts
     @hosts.each do |host|
-      if host.notes.find :first, :conditions => { :ntype => 'pro.system.compromise' }
+      if host.notes.where(ntype: 'pro.system.compromise').first
         @owned_hosts << host
       end
     end
@@ -133,7 +138,7 @@ class Export
 
   # Extracts all events from a project, storing them in @events
   def extract_event_entries
-    @events = myworkspace.events.find :all, :order => 'created_at ASC'
+    @events = myworkspace.events.order('created_at ASC')
   end
 
   # Extracts all services from a project, storing them in @services
@@ -171,7 +176,7 @@ class Export
     case obj
     when String
       obj.strip
-    when TrueClass, FalseClass, Float, Fixnum, Bignum, Time
+    when TrueClass, FalseClass, Float, Integer, Time
       obj.to_s.strip
     when BigDecimal
       obj.to_s("F")
@@ -183,7 +188,7 @@ class Export
   end
 
   def create_xml_element(key,value,skip_encoding=false)
-    tag = key.gsub("_","-")
+    tag = key.tr("_","-")
     el = REXML::Element.new(tag)
     if value
       unless skip_encoding
@@ -313,6 +318,8 @@ class Export
 
       # Host attributes
       h.attributes.each_pair do |k,v|
+        # Convert IPAddr -> String
+        v = v.to_s if k == 'address'
         el = create_xml_element(k,v)
         report_file.write("    #{el}\n") # Not checking types
       end
@@ -373,6 +380,18 @@ class Export
           el = create_xml_element(k,v)
           report_file.write("      #{el}\n")
         end
+
+        # Notes attached to vulns instead of the host
+        report_file.write("        <notes>\n")
+        @notes.where(vuln_id: e.id).each do |note|
+          report_file.write("      <note>\n")
+          note.attributes.each_pair do |k,v|
+            el = create_xml_element(k,v)
+            report_file.write("      #{el}\n")
+          end
+          report_file.write("      </note>\n")
+        end
+        report_file.write("        </notes>\n")
 
         # References
         report_file.write("        <refs>\n")
@@ -529,4 +548,3 @@ class Export
 end
 end
 end
-

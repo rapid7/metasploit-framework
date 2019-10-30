@@ -2,7 +2,7 @@
 #
 require 'rex/proto/ntp/modes'
 
-describe "Rex::Proto::NTP mode message handling" do
+RSpec.describe "Rex::Proto::NTP mode message handling" do
   before do
     @payload = 'R7' * 7
   end
@@ -24,12 +24,12 @@ describe "Rex::Proto::NTP mode message handling" do
     end
 
     it 'Generates control NTP messages correctly' do
-      @control_raw.should == @control.to_s
+      expect(@control_raw).to eq @control.to_binary_s
     end
 
     it 'Parses control NTP messages correctly' do
-      parsed_raw = Rex::Proto::NTP::NTPControl.new(@control_raw)
-      @control.should == parsed_raw
+      parsed_raw = Rex::Proto::NTP::NTPControl.new.read(@control_raw)
+      expect(@control).to eq parsed_raw
     end
   end
 
@@ -47,12 +47,12 @@ describe "Rex::Proto::NTP mode message handling" do
     end
 
     it 'Generates generic NTP messages correctly' do
-      @generic_raw.should == @generic.to_s
+      expect(@generic_raw).to eq @generic.to_binary_s
     end
 
     it 'Parses generic NTP messages correctly' do
-      parsed_raw = Rex::Proto::NTP::NTPGeneric.new(@generic_raw)
-      @generic.should == parsed_raw
+      parsed_raw = Rex::Proto::NTP::NTPGeneric.new.read(@generic_raw)
+      expect(@generic).to eq parsed_raw
     end
   end
 
@@ -72,12 +72,12 @@ describe "Rex::Proto::NTP mode message handling" do
     end
 
     it 'Generates private NTP messages correctly' do
-      @private_raw.should == @private.to_s
+      expect(@private_raw).to eq @private.to_binary_s
     end
 
     it 'Parses private NTP messages correctly' do
-      parsed_raw = Rex::Proto::NTP::NTPPrivate.new(@private_raw)
-      @private.should == parsed_raw
+      parsed_raw = Rex::Proto::NTP::NTPPrivate.new.read(@private_raw)
+      expect(@private).to eq parsed_raw
     end
   end
 end

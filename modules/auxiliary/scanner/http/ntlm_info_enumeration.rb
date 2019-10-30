@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -17,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
           This module makes requests to resources on the target server in
         an attempt to find resources which permit NTLM authentication. For
         resources which permit NTLM authentication, a blank NTLM type 1 message
-        is sent to enumerate a a type 2 message from the target server. The type
+        is sent to enumerate a type 2 message from the target server. The type
         2 message is then parsed for information such as the Active Directory
         domain and NetBIOS name.  A single URI can be specified with TARGET_URI
         and/or a file of URIs can be specified with TARGET_URIS_FILE (default).
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
         OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request",
           File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -41,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       # can't simply return here as we'll print an error for each host
       fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified"
     end
-    if (turi and !turi.blank?)
+    if (turi && !turi.blank?)
       test_uris << normalize_uri(turi)
     end
     if (turis_file && !turis_file.blank?)
@@ -92,20 +90,20 @@ class Metasploit3 < Msf::Auxiliary
         'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
       })
     rescue OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL error")
+      vprint_error("SSL error")
       return
     rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-      vprint_error("#{peer} - Unable to Connect")
+      vprint_error("Unable to Connect")
       return
     rescue ::Timeout::Error, ::Errno::EPIPE
-      vprint_error("#{peer} - Timeout error")
+      vprint_error("Timeout error")
       return
     end
 
     return if res.nil?
 
     vprint_status("Status: #{res.code}")
-    if res and res.code == 401 and res['WWW-Authenticate'].match(/^NTLM/i)
+    if res && res.code == 401 && res['WWW-Authenticate'] && res['WWW-Authenticate'].match(/^NTLM/i)
       hash = res['WWW-Authenticate'].split('NTLM ')[1]
       # Parse out the NTLM and just get the Target Information Data
       target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
@@ -136,5 +134,4 @@ class Metasploit3 < Msf::Auxiliary
       :new_offset => offset + size
     }
   end
-
 end

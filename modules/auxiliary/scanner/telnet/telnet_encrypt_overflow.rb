@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize
     super(
-      'Name'        => 'Telnet Service Encyption Key ID Overflow Detection',
+      'Name'        => 'Telnet Service Encryption Key ID Overflow Detection',
       'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
       'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
       'License'     => MSF_LICENSE,
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::RPORT(23),
       OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ], self.class)
+    ])
   end
 
   def to
@@ -127,11 +124,15 @@ class Metasploit3 < Msf::Auxiliary
         )
 
       end
-    rescue ::Rex::ConnectionError
-    rescue Timeout::Error
+    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
+      print_error("A network issue has occurred: #{e.message}")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    rescue Timeout::Error => e
       print_error("#{target_host}:#{rport} Timed out after #{to} seconds")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
     rescue ::Exception => e
       print_error("#{target_host}:#{rport} Error: #{e} #{e.backtrace}")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
     ensure
       disconnect
     end

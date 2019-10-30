@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -15,7 +15,7 @@
 def ls_logged
   sids = []
   sids << registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
       'Header'  => "Logged Users",
       'Indent'  => 1,
       'Columns' =>
@@ -32,7 +32,7 @@ end
 
 def ls_current
   key_base, username = "",""
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
       'Header'  => "Current Logged Users",
       'Indent'  => 1,
       'Columns' =>
@@ -89,7 +89,7 @@ end
     ls_current
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if args.length == 0
     print_line "Meterpreter Script for enumerating Current logged users and users that have loged in to the system."
     print_line(@@exec_opts.usage)

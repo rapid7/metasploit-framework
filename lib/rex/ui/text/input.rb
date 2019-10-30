@@ -18,9 +18,9 @@ class Input
   require 'rex/ui/text/input/readline'
   require 'rex/ui/text/input/socket'
   require 'rex/ui/text/input/buffer'
-  require 'rex/ui/text/color'
+  require 'rex/text/color'
 
-  include Rex::Ui::Text::Color
+  include Rex::Text::Color
 
   def initialize
     self.eof = false

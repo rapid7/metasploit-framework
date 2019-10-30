@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
@@ -39,7 +35,7 @@ class Metasploit3 < Msf::Post
       register_options(
         [
           OptString.new('PASSWORD', [false, 'The password to use when running sudo.'])
-        ], self.class)
+        ])
   end
 
   # Run Method for when run command is issued
@@ -132,5 +128,4 @@ class Metasploit3 < Msf::Post
       print_error "Timed out during sudo cleanup."
     end
   end
-
 end

@@ -1,14 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 224
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
@@ -49,5 +50,4 @@ module Metasploit3
         }
       ))
   end
-
 end

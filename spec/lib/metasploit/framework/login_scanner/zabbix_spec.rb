@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/zabbix'
 
-describe Metasploit::Framework::LoginScanner::Zabbix do
+RSpec.describe Metasploit::Framework::LoginScanner::Zabbix do
 
   subject(:http_scanner) { described_class.new }
 
@@ -102,7 +102,7 @@ describe Metasploit::Framework::LoginScanner::Zabbix do
       '<title>Zabbix 2.4 Appliance: User profile</title>'
     end
 
-    before :each do
+    before :example do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv) do |cli, req|
         if req.opts['uri'] && req.opts['uri'].include?('index.php') &&
             req.opts['data'] &&

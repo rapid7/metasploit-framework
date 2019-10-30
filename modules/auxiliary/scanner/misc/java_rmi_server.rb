@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/java/serialization'
 
-class Metasploit3 < Msf::Auxiliary
-
-  include Msf::Java::Rmi::Client
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -22,8 +20,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           # RMI protocol specification
           [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
-          # Placeholder reference for matching
-          [ 'MSF', 'java_rmi_server']
+          [ 'URL', 'http://www.securitytracker.com/id?1026215'],
+          [ 'CVE', '2011-3556']
         ],
       'DisclosureDate' => 'Oct 15 2011'
     )
@@ -31,36 +29,62 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1099)
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)
-    vprint_status("#{peer} - Sending RMI Header...")
+    vprint_status("Sending RMI Header...")
     connect
 
     send_header
     ack = recv_protocol_ack
     if ack.nil?
-      print_error("#{peer} - Filed to negotiate RMI protocol")
+      print_error("Failed to negotiate RMI protocol")
       disconnect
       return
     end
 
     # Determine if the instance allows remote class loading
-    vprint_status("#{peer} - Sending RMI Call...")
+    vprint_status("Sending RMI Call...")
     jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
     jar_url = "file:RMIClassLoaderSecurityTest/" + jar
 
-    send_call(call_data: build_gc_call_data(jar_url))
-    return_data = recv_return
+    dgc_interface_hash = calculate_interface_hash(
+      [
+        {
+          name: 'clean',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/VMID;Z)V',
+          exceptions: ['java.rmi.RemoteException']
+        },
+        {
+          name: 'dirty',
+          descriptor: '([Ljava/rmi/server/ObjID;JLjava/rmi/dgc/Lease;)Ljava/rmi/dgc/Lease;',
+          exceptions: ['java.rmi.RemoteException']
+        }
+      ]
+    )
 
-    if return_data.nil?
-      print_error("#{peer} - Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
+    # JDK 1.1 stub protocol
+    # Interface hash: 0xf6b6898d8bf28643 (sun.rmi.transport.DGCImpl_Stub)
+    # Operation: 0 (public void clean(ObjID[] paramArrayOfObjID, long paramLong, VMID paramVMID, boolean paramBoolean))
+    send_call(
+      object_number: 2,
+      uid_number: 0,
+      uid_time: 0,
+      uid_count: 0,
+      operation: 0,
+      hash: dgc_interface_hash,
+      arguments: build_dgc_clean_args(jar_url)
+    )
+    return_value = recv_return
+
+    if return_value.nil?
+      print_good("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end
 
-    if loader_enabled?(return_data)
+    if return_value.is_exception? && loader_enabled?(return_value.value)
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
       svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
       report_vuln(
@@ -76,13 +100,13 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def loader_enabled?(stream)
-    stream.contents.each do |content|
-      if content.class == Rex::Java::Serialization::Model::NewObject &&
-          content.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
-          content.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
-          content.class_data[0].class == Rex::Java::Serialization::Model::NullReference &&
-          !content.class_data[1].contents.include?('RMI class loader disabled')
+  def loader_enabled?(exception_stack)
+    exception_stack.each do |exception|
+      if exception.class == Rex::Java::Serialization::Model::NewObject &&
+          exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
+          exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
+          [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
+          !exception.class_data[1].contents.include?('RMI class loader disabled')
           return true
       end
     end
@@ -90,14 +114,10 @@ class Metasploit3 < Msf::Auxiliary
     false
   end
 
-  def build_gc_call_data(jar_url)
-    stream = Rex::Java::Serialization::Model::Stream.new
-
-    block_data = Rex::Java::Serialization::Model::BlockData.new
-    block_data.contents = "\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf6\xb6\x89\x8d\x8b\xf2\x86\x43"
-    block_data.length = block_data.contents.length
-
-    stream.contents << block_data
+  # class: sun.rmi.trasnport.DGC
+  # method: public void clean(ObjID[] paramArrayOfObjID, long paramLong, VMID paramVMID, boolean paramBoolean)
+  def build_dgc_clean_args(jar_url)
+    arguments = []
 
     new_array_annotation = Rex::Java::Serialization::Model::Annotation.new
     new_array_annotation.contents = [
@@ -124,8 +144,11 @@ class Metasploit3 < Msf::Auxiliary
     new_array.values = []
     new_array.array_description = array_desc
 
-    stream.contents << new_array
-    stream.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00\x00\x00\x00\x00\x00\x00\x00")
+    # ObjID[] paramArrayOfObjID
+    arguments << new_array
+
+    # long paramLong
+    arguments << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00\x00\x00\x00\x00\x00\x00\x00")
 
     new_class_desc = Rex::Java::Serialization::Model::NewClassDesc.new
     new_class_desc.class_name = Rex::Java::Serialization::Model::Utf.new(nil, 'metasploit.RMILoader')
@@ -145,11 +168,12 @@ class Metasploit3 < Msf::Auxiliary
     new_object.class_desc.description = new_class_desc
     new_object.class_data = []
 
-    stream.contents << new_object
+    # VMID paramVMID
+    arguments << new_object
 
-    stream.contents << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00")
+    # boolean paramBoolean
+    arguments << Rex::Java::Serialization::Model::BlockData.new(nil, "\x00")
 
-    stream
+    arguments
   end
-
 end

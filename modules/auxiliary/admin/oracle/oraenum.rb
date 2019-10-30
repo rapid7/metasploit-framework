@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::ORACLE
 
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
     return if not check_dependencies
 
     begin
-      #Get all values from v$parameter
+      # Get all values from v$parameter
       query = 'select name,value from v$parameter'
       vparm = {}
       params = prepare_exec(query)
@@ -47,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     print_status("Running Oracle Enumeration....")
 
-    #Version Check
+    # Version Check
     query =  'select * from v$version'
     ver = prepare_exec(query)
     print_status("The versions of the Components are:")
@@ -64,11 +61,11 @@ class Metasploit3 < Msf::Auxiliary
       )
     end
 
-    #Saving Major Release Number for other checks
+    # Saving Major Release Number for other checks
     majorrel = ver[0].scan(/Edition Release (\d*)./)
 
     #-------------------------------------------------------
-    #Audit Check
+    # Audit Check
     print_status("Auditing:")
     begin
       if vparm["audit_trail"] == "NONE"
@@ -122,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Security Settings
+    # Security Settings
     print_status("Security Settings:")
     begin
 
@@ -201,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Password Policy
+    # Password Policy
     print_status("Password Policy:")
     begin
       query = %Q|

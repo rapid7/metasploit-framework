@@ -181,7 +181,8 @@ module Rex
 
             data = ''
             while data.length < size_wanted
-              data << @file_handler.read(size_wanted - data.length)
+              # Use a 4Mb block size to avoid target memory consumption
+              data << @file_handler.read([size_wanted - data.length, 2**22].min)
             end
             attribut << data
           end
@@ -196,8 +197,11 @@ module Rex
       #
       # return the attribute list from the MFT record
       # deal with resident and non resident attributes (but not $DATA due to performance issue)
+      # if lazy = True, this function only gather essential non resident attributes
+      # (INDEX_ALLOCATION). Non resident attributes can still be gathered later with
+      # cluster_from_attribute_non_resident function.
       #
-      def mft_record_attribute(mft_record)
+      def mft_record_attribute(mft_record, lazy=true)
         attribute_list_offset = mft_record[20, 2].unpack('C')[0]
         curs = attribute_list_offset
         attribute_identifier = mft_record[curs, 4].unpack('V')[0]
@@ -213,10 +217,11 @@ module Rex
             res[attribute_identifier] = mft_record[curs + content_offset, content_size]
           else
             # non resident
-            if attribute_identifier == DATA_ATTRIBUTE_ID
-              res[attribute_identifier] = mft_record[curs, attribute_size]
-            else
+            if attribute_identifier == INDEX_ALLOCATION_ID or 
+              (!lazy and attribute_identifier != DATA_ATTRIBUTE_ID)
               res[attribute_identifier] = cluster_from_attribute_non_resident(mft_record[curs, attribute_size])
+            else 
+              res[attribute_identifier] = mft_record[curs, attribute_size]
             end
           end
           if attribute_identifier == DATA_ATTRIBUTE_ID

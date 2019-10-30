@@ -2,27 +2,27 @@
 
 require 'rex/proto/sip/response'
 
-describe 'Rex::Proto::SIP::Response parsing' do
+RSpec.describe 'Rex::Proto::SIP::Response parsing' do
   describe 'Parses vaild responses correctly' do
     specify do
       resp = 'SIP/1.0 123 Sure, OK'
       r = ::Rex::Proto::SIP::Response.parse(resp)
-      r.status_line.should eq(resp)
-      r.version.should eq('1.0')
-      r.code.should eq('123')
-      r.message.should eq('Sure, OK')
-      r.headers.should be_nil
+      expect(r.status_line).to eq(resp)
+      expect(r.version).to eq('1.0')
+      expect(r.code).to eq('123')
+      expect(r.message).to eq('Sure, OK')
+      expect(r.headers).to be_nil
     end
 
     specify do
       resp = "SIP/2.0 200 OK\r\nFoo: bar\r\nBlah: 0\r\nFoO: blaf\r\n"
       r = ::Rex::Proto::SIP::Response.parse(resp)
-      r.status_line.should eq('SIP/2.0 200 OK')
-      r.version.should eq('2.0')
-      r.code.should eq('200')
-      r.message.should eq('OK')
-      r.headers.should eq('Foo' => %w(bar), 'Blah' => %w(0), 'FoO' => %w(blaf))
-      r.header('Foo').should eq %w(bar blaf)
+      expect(r.status_line).to eq('SIP/2.0 200 OK')
+      expect(r.version).to eq('2.0')
+      expect(r.code).to eq('200')
+      expect(r.message).to eq('OK')
+      expect(r.headers).to eq('Foo' => %w(bar), 'Blah' => %w(0), 'FoO' => %w(blaf))
+      expect(r.header('Foo')).to eq %w(bar blaf)
     end
   end
 

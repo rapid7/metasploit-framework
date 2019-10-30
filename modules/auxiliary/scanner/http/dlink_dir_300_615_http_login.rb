@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -25,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'hdm',	#http_login module
-          'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
+          'hdm', # http_login module
+          'Michael Messner <devnull[at]s3cur1ty.de>' #dlink login included
         ],
       'References'     =>
         [
@@ -40,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-      ], self.class)
+      ])
   end
 
   def target_url
@@ -82,7 +78,34 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
-  #default to user=admin without password (default on most dlink routers)
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  # default to user=admin without password (default on most dlink routers)
   def do_login(user='admin', pass='')
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 
@@ -91,16 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if result == :success
       print_good("#{target_url} - Successful login '#{user}' : '#{pass}'")
-
-      report_auth_info(
-        :host   => rhost,
-        :port   => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user   => user,
-        :pass   => pass,
-        :proof  => "WEBAPP=\"D-Link Management Interface\", PROOF=#{response.to_s}",
-        :active => true
-      )
+      report_cred(ip: rhost, port: rport, user: user, password: pass, proof: response.inspect)
 
       return :next_user
     else
@@ -139,5 +153,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     return :fail
   end
-
 end

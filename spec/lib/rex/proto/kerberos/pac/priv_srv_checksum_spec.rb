@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Pac::PrivSvrChecksum do
+RSpec.describe Rex::Proto::Kerberos::Pac::PrivSvrChecksum do
 
   subject(:priv_svr_checksum) do
     described_class.new

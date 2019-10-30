@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/glassfish'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -42,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
         # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
-      ], self.class)
+      ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   #
@@ -94,7 +92,9 @@ class Metasploit3 < Msf::Auxiliary
         cred_details:       @cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 5
+        connection_timeout: 5,
+        http_username:      datastore['HttpUsername'],
+        http_password:      datastore['HttpPassword']
       )
     )
   end
@@ -133,11 +133,9 @@ class Metasploit3 < Msf::Auxiliary
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::DENIED_ACCESS
         print_brute :level => :status, :ip => ip, :msg => "Correct credentials, but unable to login: '#{result.credential}'"
         do_report(ip, rport, result)
-        :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
@@ -152,7 +150,6 @@ class Metasploit3 < Msf::Auxiliary
             realm_value: result.credential.realm,
             status: result.status
         )
-        :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
@@ -193,5 +190,4 @@ class Metasploit3 < Msf::Auxiliary
 
     bruteforce(ip) unless @scanner.version.blank?
   end
-
 end

@@ -5,7 +5,7 @@ require 'stringio'
 require 'rex/proto/rmi'
 require 'rex/java'
 
-describe Rex::Proto::Rmi::Model::Call do
+RSpec.describe Rex::Proto::Rmi::Model::Call do
 
   subject(:call) do
     described_class.new
@@ -57,7 +57,7 @@ describe Rex::Proto::Rmi::Model::Call do
 
     it "decodes the call data correctly" do
       call.decode(call_message_io)
-      expect(call.call_data).to be_a(Rex::Java::Serialization::Model::Stream)
+      expect(call.call_data).to be_a(Rex::Proto::Rmi::Model::CallData)
     end
   end
 

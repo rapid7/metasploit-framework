@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::KrbError do
+RSpec.describe Rex::Proto::Kerberos::Model::KrbError do
 
   subject(:krb_error) do
     described_class.new

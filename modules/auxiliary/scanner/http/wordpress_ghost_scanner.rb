@@ -1,12 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       OptInt.new('LENGTH', [false, 'Payload length', 2500]),
-    ], self.class)
+    ])
   end
 
   def length
@@ -49,12 +47,12 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
     unless wordpress_and_online?
-      print_error("#{peer} - Looks like this site is no WordPress blog")
+      print_error("Looks like this site is no WordPress blog")
       return
     end
 
     unless wordpress_xmlrpc_enabled?
-      print_error("#{peer} - XMLRPC interface is not enabled")
+      print_error("XMLRPC interface is not enabled")
       return
     end
 
@@ -70,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     )
 
     if res.nil? || res.code == 500
-      print_good("#{peer} - vulnerable to GHOST")
+      print_good("vulnerable to GHOST")
       report_vuln(
       :host   => ip,
       :proto  => 'tcp',
@@ -80,8 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       :sname  => datastore['SSL'] ? "https" : "http"
       )
     else
-      print_status("#{peer} - target not vulnerable to GHOST")
+      print_status("target not vulnerable to GHOST")
     end
   end
-
 end

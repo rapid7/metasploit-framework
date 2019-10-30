@@ -95,7 +95,7 @@ RSpec.describe Metasploit::Framework::Database do
       described_class.configurations_pathnames
     }
 
-    before(:each) do
+    before(:example) do
       allow(described_class).to receive(:environment_configurations_pathname).and_return(
                                     environment_configurations_pathname
                                 )
@@ -119,7 +119,7 @@ RSpec.describe Metasploit::Framework::Database do
         # Callbacks
         #
 
-        before(:each) do
+        before(:example) do
           allow(described_class).to receive(:user_configurations_pathname).and_return(
                                         user_configurations_pathname
                                     )
@@ -143,7 +143,7 @@ RSpec.describe Metasploit::Framework::Database do
             # Callbacks
             #
 
-            before(:each) do
+            before(:example) do
               allow(described_class).to receive(:project_configurations_pathname).and_return(
                                             project_configurations_pathname
                                         )
@@ -224,7 +224,7 @@ RSpec.describe Metasploit::Framework::Database do
             # Callbacks
             #
 
-            before(:each) do
+            before(:example) do
               allow(described_class).to receive(:project_configurations_pathname).and_return(
                                             project_configurations_pathname
                                         )
@@ -306,7 +306,7 @@ RSpec.describe Metasploit::Framework::Database do
           # Callbacks
           #
 
-          before(:each) do
+          before(:example) do
             allow(described_class).to receive(:project_configurations_pathname).and_return(
                                           project_configurations_pathname
                                       )
@@ -346,7 +346,7 @@ RSpec.describe Metasploit::Framework::Database do
       # Callbacks
       #
 
-      before(:each) do
+      before(:example) do
         allow(described_class).to receive(:user_configurations_pathname).and_return(
                                       user_configurations_pathname
                                   )
@@ -370,7 +370,7 @@ RSpec.describe Metasploit::Framework::Database do
           # Callbacks
           #
 
-          before(:each) do
+          before(:example) do
             allow(described_class).to receive(:project_configurations_pathname).and_return(
                                           project_configurations_pathname
                                       )
@@ -451,7 +451,7 @@ RSpec.describe Metasploit::Framework::Database do
           # Callbacks
           #
 
-          before(:each) do
+          before(:example) do
             allow(described_class).to receive(:project_configurations_pathname).and_return(
                                           project_configurations_pathname
                                       )
@@ -524,7 +524,7 @@ RSpec.describe Metasploit::Framework::Database do
         # Callbacks
         #
 
-        before(:each) do
+        before(:example) do
           allow(described_class).to receive(:project_configurations_pathname).and_return(
                                         project_configurations_pathname
                                     )
@@ -584,7 +584,7 @@ RSpec.describe Metasploit::Framework::Database do
       described_class.environment_configurations_pathname
     }
 
-    around(:each) do |example|
+    around(:example) do |example|
       env_before = ENV.to_hash
 
       begin
@@ -595,7 +595,7 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     context 'with MSF_DATABASE_CONFIG' do
-      before(:each) do
+      before(:example) do
         ENV['MSF_DATABASE_CONFIG'] = msf_database_config
       end
 
@@ -619,6 +619,10 @@ RSpec.describe Metasploit::Framework::Database do
     end
 
     context 'without MSF_DATABASE_CONFIG' do
+      before(:example) do
+        ENV.delete('MSF_DATABASE_CONFIG')
+      end
+
       it { is_expected.to be_nil }
     end
   end
@@ -651,7 +655,7 @@ RSpec.describe Metasploit::Framework::Database do
     # Callbacks
     #
 
-    around(:each) do |example|
+    around(:example) do |example|
       begin
         example.run
       ensure
@@ -659,8 +663,8 @@ RSpec.describe Metasploit::Framework::Database do
       end
     end
 
-    before(:each) do
-      expect(Msf::Config).to receive(:get_config_root).and_return(config_root)
+    before(:example) do
+      allow(Msf::Config).to receive(:get_config_root).and_return(config_root)
     end
 
     it 'is database.yml under the user config root' do

@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Pac::LogonInfo do
+RSpec.describe Rex::Proto::Kerberos::Pac::LogonInfo do
 
   subject(:logon_info) do
     described_class.new

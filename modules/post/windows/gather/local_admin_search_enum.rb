@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +35,7 @@ class Metasploit3 < Msf::Post
         OptBool.new('ENUM_GROUPS', [ false, 'Enumerates groups for identified users.', true]),
         OptString.new('DOMAIN', [false, 'Domain to enumerate user\'s groups for']),
         OptString.new('DOMAIN_CONTROLLER', [false, 'Domain Controller to query groups'])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -255,6 +250,6 @@ class Metasploit3 < Msf::Post
   # Write to loot database
   def db_loot(host, user, type)
     p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
-    vprint_status("User data stored in: #{p}")
+    vprint_good("User data stored in: #{p}")
   end
 end

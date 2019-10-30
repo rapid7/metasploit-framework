@@ -1,13 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -37,7 +38,7 @@ module Metasploit3
         OptString.new('EXT', [ true, "The extension to give the saved file", "exe" ]),
         OptBool.new('INCLUDECMD', [ true, "Include the cmd /q /c", false ]),
         OptBool.new('DELETE', [ true, "Delete created .vbs after download", true ])
-      ], self.class)
+      ])
   end
 
   def generate

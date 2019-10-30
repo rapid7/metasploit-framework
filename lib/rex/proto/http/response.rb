@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
+require 'cgi'
 require 'uri'
 require 'rex/proto/http'
+require 'nokogiri'
+require 'rkelly'
 
 module Rex
 module Proto
@@ -83,6 +86,102 @@ class Response < Packet
   end
 
   #
+  # Gets cookies from the Set-Cookie header in a parsed format
+  #
+  def get_cookies_parsed
+    if (self.headers.include?('Set-Cookie'))
+      ret = CGI::Cookie::parse(self.headers['Set-Cookie'])
+    else
+      ret = {}
+    end
+    ret
+  end
+
+
+  # Returns a parsed HTML document.
+  # Instead of using regexes to parse the HTML body, you should use this and use the Nokogiri API.
+  #
+  # @see http://www.nokogiri.org/
+  # @return [Nokogiri::HTML::Document]
+  def get_html_document
+    Nokogiri::HTML(self.body)
+  end
+
+  # Returns a parsed XML document.
+  # Instead of using regexes to parse the XML body, you should use this and use the Nokogiri API.
+  #
+  # @see http://www.nokogiri.org/
+  # @return [Nokogiri::XML::Document]
+  def get_xml_document
+    Nokogiri::XML(self.body)
+  end
+
+  # Returns a parsed json document.
+  # Instead of using regexes to parse the JSON body, you should use this.
+  #
+  # @return [Hash]
+  def get_json_document
+    json = {}
+
+    begin
+      json = JSON.parse(self.body)
+    rescue JSON::ParserError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    json
+  end
+
+  # Returns meta tags.
+  # You will probably want to use this the web app's version info (or other stuff) can be found
+  # in the metadata.
+  #
+  # @return [Array<Nokogiri::XML::Element>]
+  def get_html_meta_elements
+    n = get_html_document
+    n.search('//meta')
+  end
+
+  # Returns parsed JavaScript blocks.
+  # The parsed version is a RKelly object that allows you to be able do advanced parsing.
+  #
+  # @see https://github.com/tenderlove/rkelly
+  # @return [Array<RKelly::Nodes::SourceElementsNode>]
+  def get_html_scripts
+    n = get_html_document
+    rkelly = RKelly::Parser.new
+    n.search('//script').map { |s| rkelly.parse(s.text) }
+  end
+
+
+  # Returns a collection of found hidden inputs
+  #
+  # @return [Array<Hash>] An array, each element represents a form that contains a hash of found hidden inputs
+  #  * 'name' [String] The hidden input's original name. The value is the hidden input's original value.
+  # @example
+  #  res = send_request_cgi('uri'=>'/')
+  #  inputs = res.get_hidden_inputs
+  #  session_id = inputs[0]['sessionid'] # The first form's 'sessionid' hidden input
+  def get_hidden_inputs
+    forms = []
+    noko = get_html_document
+    noko.search("form").each_entry do |form|
+      found_inputs = {}
+      form.search("input").each_entry do |input|
+        input_type = input.attributes['type'] ? input.attributes['type'].value : ''
+        next if input_type !~ /hidden/i
+
+        input_name = input.attributes['name'] ? input.attributes['name'].value : ''
+        input_value = input.attributes['value'] ? input.attributes['value'].value : ''
+        found_inputs[input_name] = input_value unless input_name.empty?
+      end
+      forms << found_inputs unless found_inputs.empty?
+    end
+
+    forms
+  end
+
+  #
   # Updates the various parts of the HTTP response command string.
   #
   def update_cmd_parts(str)
@@ -139,6 +238,10 @@ class Response < Packet
   #
   attr_accessor :request
 
+  #
+  # Host address:port associated with this request/response
+  #
+  attr_accessor :peerinfo
 
   attr_accessor :code
   attr_accessor :message

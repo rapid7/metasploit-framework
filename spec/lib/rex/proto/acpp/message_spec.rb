@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/acpp'
 
-describe Rex::Proto::ACPP::Message do
+RSpec.describe Rex::Proto::ACPP::Message do
 
   subject(:message) do
     described_class.new

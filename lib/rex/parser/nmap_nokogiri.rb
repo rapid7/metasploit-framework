@@ -17,7 +17,7 @@ module Rex
         Msf::ServiceState::Closed
       when "filtered"
         Msf::ServiceState::Filtered
-      when "unknown"
+      else
         Msf::ServiceState::Unknown
       end
     end
@@ -190,7 +190,11 @@ module Rex
       return unless in_tag("host")
       attrs.each do |k,v|
         next unless k == "state"
-        @state[:host_alive] = (v == "up")
+        if v == 'up'
+          @state[:host_alive] = true
+        else
+          @state[:host_alive] = false
+        end
       end
     end
 
@@ -228,10 +232,13 @@ module Rex
     end
 
     def collect_host_data
-      if @state[:host_alive]
+      if @state[:host_alive] == true
         @report_data[:state] = Msf::HostState::Alive
-      else
+      elsif @state[:host_alive] == false
         @report_data[:state] = Msf::HostState::Dead
+      # Default to alive if no host state available (masscan)
+      else
+        @report_data[:state] = Msf::HostState::Alive
       end
       if @state[:addresses]
         if @state[:addresses].has_key? "ipv4"
@@ -277,6 +284,8 @@ module Rex
           port_hash[:state] = determine_port_state(v)
         when "name"
           port_hash[:name] = v
+        when "tunnel"
+          port_hash[:name] = "#{v}/#{port_hash[:name] || 'unknown'}"
         when "reason"
           port_hash[:reason] = v
         when "product"
@@ -367,12 +376,13 @@ module Rex
       reported = []
       @report_data[:ports].each do |svc|
         scripts = svc.delete(:scripts) || []
-        svc_obj = db_report(:service, svc.merge(:host => host_object))
+        wspace = db.workspaces({:id => host_object.workspace.id}).first
+        svc_obj = db_report(:service, svc.merge(:host => host_object, :workspace => wspace.name))
         scripts.each do |script|
           script.each_pair do |k,v|
             ntype =
             nse_note = {
-              :workspace => host_object.workspace,
+              :workspace => wspace,
               :host => host_object,
               :service => svc_obj,
               :type => "nmap.nse.#{k}." + (svc[:proto] || "tcp") +".#{svc[:port]}",

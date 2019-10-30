@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ false, 'CMD to execute.',  "echo metasploit >> %SYSTEMDRIVE%\\\\unbreakable.txt"]),
-      ], self.class)
+      ])
   end
 
   def run
@@ -53,5 +50,4 @@ class Metasploit3 < Msf::Auxiliary
       print_error("Error: #{e.class} #{e}")
     end
   end
-
 end

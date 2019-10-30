@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   Rank = NormalRanking
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => [ 'sinn3r' ],
       'References'     =>
         [
-          [ 'URL', 'http://metasploit.com' ]
+          [ 'URL', 'https://metasploit.com' ]
         ],
       'Platform'       => 'win',
       'Targets'        =>

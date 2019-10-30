@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/http'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -27,18 +26,18 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('SEARCH_YAHOO', [ true, 'Enable Yahoo! as a backend search engine', true]),
         OptString.new('OUTFILE', [ false, "A filename to store the generated email list"]),
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>",nil]),
         OptString.new('PROXY_USER', [ false, "Proxy Server User",nil]),
         OptString.new('PROXY_PASS', [ false, "Proxy Server Password",nil])
-      ], self.class)
+      ])
 
   end
 
-  #Search google.com for email's of target domain
+  # Search google.com for email's of target domain
   def search_google(targetdom)
     print_status("Searching Google for email addresses from #{targetdom}")
     response = ""
@@ -58,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
     return emails.uniq
   end
 
-  #Search Yahoo.com for email's of target domain
+  # Search Yahoo.com for email's of target domain
   def search_yahoo(targetdom)
     print_status("Searching Yahoo for email addresses from #{targetdom}")
     response = ""
@@ -79,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
     return emails.uniq
   end
 
-  #Search Bing.com for email's of target domain
+  # Search Bing.com for email's of target domain
   def search_bing(targetdom)
     print_status("Searching Bing email addresses from #{targetdom}")
     response = ""
@@ -103,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
     return emails.uniq
   end
 
-  #for writing file with all email's found
+  # for writing file with all email's found
   def write_output(data)
     print_status("Writing email address list to #{datastore['OUTFILE']}...")
     ::File.open(datastore['OUTFILE'], "ab") do |fd|

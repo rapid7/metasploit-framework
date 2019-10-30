@@ -1,6 +1,6 @@
-shared_examples_for 'Msf::Module::Search' do
+RSpec.shared_examples_for 'Msf::Module::Search' do
   describe '#search_filter' do
-    REF_TYPES = %w(CVE BID OSVDB EDB)
+    REF_TYPES = %w(CVE BID EDB)
 
     shared_examples "search_filter" do |opts|
       accept = opts[:accept] || []
@@ -9,12 +9,12 @@ shared_examples_for 'Msf::Module::Search' do
       accept.each do |query|
         it "should accept a query containing '#{query}'" do
           # if the subject matches, search_filter returns false ("don't filter me out!")
-          subject.search_filter(query).should be_falsey
+          expect(subject.search_filter(query)).to be_falsey
         end
 
         unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
           it "should reject a query containing '-#{query}'" do
-            subject.search_filter("-#{query}").should be_truthy
+            expect(subject.search_filter("-#{query}")).to be_truthy
           end
         end
       end
@@ -22,19 +22,19 @@ shared_examples_for 'Msf::Module::Search' do
       reject.each do |query|
         it "should reject a query containing '#{query}'" do
           # if the subject doesn't matches, search_filter returns true ("filter me out!")
-          subject.search_filter(query).should be_truthy
+          expect(subject.search_filter(query)).to be_truthy
         end
 
         unless opts.has_key?(:test_inverse) and not opts[:test_inverse]
           it "should accept a query containing '-#{query}'" do
-            subject.search_filter("-#{query}").should be_truthy # what? why?
+            expect(subject.search_filter("-#{query}")).to be_truthy # what? why?
           end
         end
       end
     end
 
     let(:opts) { Hash.new }
-    before { subject.stub(:fullname => '/module') }
+    before { allow(subject).to receive(:fullname).and_return('/module') }
     subject { Msf::Module.new(opts) }
     accept = []
     reject = []
@@ -44,7 +44,13 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a client module' do
-      before { subject.stub(:stance => 'passive') }
+      before do
+        if subject.respond_to? :stance
+          allow(subject).to receive(:stance).and_return('passive')
+        else
+          skip
+        end
+      end
       accept = %w(app:client)
       reject = %w(app:server)
 
@@ -52,7 +58,13 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a server module' do
-      before { subject.stub(:stance => 'aggressive') }
+      before do
+        if subject.respond_to? :stance
+          allow(subject).to receive(:stance).and_return('aggressive')
+        else
+          skip
+          end
+      end
       accept = %w(app:server)
       reject = %w(app:client)
 
@@ -116,7 +128,10 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a module with a default RPORT of 5555' do
-      before { subject.stub(:datastore => { 'RPORT' => 5555 }) }
+      before do
+        allow(subject).to receive(:datastore).and_return({ 'RPORT' => 5555 })
+      end
+
       accept = %w(port:5555)
       reject = %w(port:5556)
 
@@ -130,7 +145,7 @@ shared_examples_for 'Msf::Module::Search' do
     end
 
     context 'on a module with a #fullname of "blah"' do
-      before { subject.stub(:fullname => '/c/d/e/blah') }
+      before { allow(subject).to receive(:fullname).and_return('/c/d/e/blah') }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
       it_should_behave_like 'search_filter', :accept => %w(path:blah), :reject => %w(path:foo)
     end
@@ -144,7 +159,7 @@ shared_examples_for 'Msf::Module::Search' do
       all_module_types = Msf::MODULE_TYPES
       all_module_types.each do |mtype|
         context "on a #{mtype} module" do
-          before(:each) { subject.stub(:type => mtype) }
+          before(:example) { allow(subject).to receive(:type).and_return(mtype) }
 
           accept = ["type:#{mtype}"]
           reject = all_module_types.reject { |t| t == mtype }.map { |t| "type:#{t}" }

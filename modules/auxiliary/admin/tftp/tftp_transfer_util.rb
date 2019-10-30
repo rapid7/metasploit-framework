@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report
 
@@ -46,10 +42,10 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new( 'REMOTE_FILENAME', [false, "The remote filename"]),
       OptAddress.new('RHOST',    [true, "The remote TFTP server"]),
       OptPort.new(   'LPORT',    [false, "The local port the TFTP client should listen on (default is random)" ]),
-      OptAddress.new('LHOST',    [false, "The local address the TFTP client should bind to"]),
+      OptAddressLocal.new('LHOST',    [false, "The local address the TFTP client should bind to"]),
       OptString.new( 'MODE',     [false, "The TFTP mode; usual choices are netascii and octet.", "octet"]),
       Opt::RPORT(69)
-    ], self.class)
+    ])
   end
 
   def mode
@@ -219,5 +215,4 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status [rtarget,msg].join
     end
   end
-
 end

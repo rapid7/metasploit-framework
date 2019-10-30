@@ -23,7 +23,6 @@
 _arguments \
   {-a,--ask}"[Ask before exiting Metasploit or accept 'exit -y']" \
   "-c[Load the specified configuration file]:configuration file:_files" \
-  {-d,--defanged}"[Execute the console as defanged]" \
   {-E,--environment}"[Specify the database environment to load from the configuration]:environment:(production development)" \
   {-h,--help}"[Show help text]" \
   {-L,--real-readline}"[Use the system Readline library instead of RbReadline]" \
@@ -32,7 +31,7 @@ _arguments \
   {-n,--no-database}"[Disable database support]" \
   {-o,--output}"[Output to the specified file]:output file" \
   {-p,--plugin}"[Load a plugin on startup]:plugin file:_files" \
-  {-q,--quiet}"[Do not print the banner on start up]" \
+  {-q,--quiet}"[Do not print the banner on startup]" \
   {-r,--resource}"[Execute the specified resource file (- for stdin)]:resource file:_files" \
   {-v,--version}"[Show version]" \
   {-x,--execute-command}"[Execute the specified string as console commands]:commands" \

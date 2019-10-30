@@ -25,11 +25,7 @@ module Msf::DBManager::ModuleCache
   # @param values [Set<String>, #each] a list of strings.
   # @return [Arrray<String>] strings wrapped like %<string>%
   def match_values(values)
-    wrapped_values = values.collect { |value|
-      "%#{value}%"
-    }
-
-    wrapped_values
+    values.collect { |value| "%#{value}%" }
   end
 
   def module_to_details_hash(m)
@@ -151,14 +147,12 @@ module Msf::DBManager::ModuleCache
   # This provides a standard set of search filters for every module.
   #
   # Supported keywords with the format <keyword>:<search_value>:
-  # +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
   # +author+:: Matches modules with the given author email or name.
   # +bid+:: Matches modules with the given Bugtraq ID.
   # +cve+:: Matches modules with the given CVE ID.
   # +edb+:: Matches modules with the given Exploit-DB ID.
   # +name+:: Matches modules with the given full name or name.
   # +os+, +platform+:: Matches modules with the given platform or target name.
-  # +osvdb+:: Matches modules with the given OSVDB ID.
   # +ref+:: Matches modules with the given reference ID.
   # +type+:: Matches modules with the given type.
   #
@@ -201,102 +195,54 @@ module Msf::DBManager::ModuleCache
       end
     end
 
-    query = Mdm::Module::Detail.scoped
-
     ActiveRecord::Base.connection_pool.with_connection do
-      # Although AREL supports taking the union or two queries, the ActiveRecord where syntax only supports
-      # intersection, so creating the where clause has to be delayed until all conditions can be or'd together and
-      # passed to one call ot where.
-      union_conditions = []
+      @query = Mdm::Module::Detail.all
+
+      @archs    = Set.new
+      @authors  = Set.new
+      @names    = Set.new
+      @os       = Set.new
+      @refs     = Set.new
+      @text     = Set.new
+      @types    = Set.new
 
       value_set_by_keyword.each do |keyword, value_set|
+        formatted_values = match_values(value_set)
+
         case keyword
+          when 'arch'
+            @archs << formatted_values
           when 'author'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:authors)
-            module_authors = Mdm::Module::Author.arel_table
-            union_conditions << module_authors[:email].matches_any(formatted_values)
-            union_conditions << module_authors[:name].matches_any(formatted_values)
+            @authors << formatted_values
           when 'name'
-            formatted_values = match_values(value_set)
-
-            module_details = Mdm::Module::Detail.arel_table
-            union_conditions << module_details[:fullname].matches_any(formatted_values)
-            union_conditions << module_details[:name].matches_any(formatted_values)
+            @names << formatted_values
           when 'os', 'platform'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:platforms)
-            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:targets)
-            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
-          when 'text'
-            formatted_values = match_values(value_set)
-
-            module_details = Mdm::Module::Detail.arel_table
-            union_conditions << module_details[:description].matches_any(formatted_values)
-            union_conditions << module_details[:fullname].matches_any(formatted_values)
-            union_conditions << module_details[:name].matches_any(formatted_values)
-
-            query = query.includes(:actions)
-            union_conditions << Mdm::Module::Action.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:archs)
-            union_conditions << Mdm::Module::Arch.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:authors)
-            union_conditions << Mdm::Module::Author.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:platforms)
-            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:targets)
-            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
-          when 'type'
-            formatted_values = match_values(value_set)
-            union_conditions << Mdm::Module::Detail.arel_table[:mtype].matches_any(formatted_values)
-          when 'app'
-            formatted_values = value_set.collect { |value|
-              formatted_value = 'aggressive'
-
-              if value == 'client'
-                formatted_value = 'passive'
-              end
-
-              formatted_value
-            }
-
-            union_conditions << Mdm::Module::Detail.arel_table[:stance].eq_any(formatted_values)
+            @os << formatted_values
           when 'ref'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
-          when 'cve', 'bid', 'osvdb', 'edb'
+            @refs << formatted_values
+          when 'cve', 'bid', 'edb'
             formatted_values = value_set.collect { |value|
               prefix = keyword.upcase
-
               "#{prefix}-%#{value}%"
             }
-
-            query = query.includes(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
+            @refs << formatted_values
+          when 'text'
+            @text << formatted_values
+          when 'type'
+            @types << formatted_values
         end
       end
-
-      unioned_conditions = union_conditions.inject { |union, condition|
-        union.or(condition)
-      }
-
-      query = query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
     end
 
-    query
+    @query = @query.module_arch(            @archs.to_a.flatten   ) if @archs.any?
+    @query = @query.module_author(          @authors.to_a.flatten ) if @authors.any?
+    @query = @query.module_name(            @names.to_a.flatten   ) if @names.any?
+    @query = @query.module_os_or_platform(  @os.to_a.flatten      ) if @os.any?
+    @query = @query.module_text(            @text.to_a.flatten    ) if @text.any?
+    @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
+    @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
+
+    @query.uniq
   end
 
   # Destroys the old Mdm::Module::Detail and creates a new Mdm::Module::Detail for
@@ -329,7 +275,7 @@ module Msf::DBManager::ModuleCache
           next
         end
 
-        unless md.file and ::File.exists?(md.file)
+        unless md.file and ::File.exist?(md.file)
           refresh << md
           next
         end

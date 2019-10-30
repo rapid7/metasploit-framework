@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   LP_GROUPS = ['lpadmin', '_lpadmin']
@@ -49,7 +47,7 @@ class Metasploit3 < Msf::Post
       OptString.new("ERROR_LOG",
         [true, "The original path to the CUPS error log", '/var/log/cups/error_log']
       )
-    ], self.class)
+    ])
   end
 
   def check_exploitability
@@ -161,7 +159,7 @@ class Metasploit3 < Msf::Post
   def get_request(uri)
     output = perform_request(uri, 'nc -j localhost 631')
 
-    if output =~ /^usage: nc/
+    if output =~ /^(?:usage: nc|nc: invalid option -- 'j')/
       output = perform_request(uri, 'nc localhost 631')
     end
 

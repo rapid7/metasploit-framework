@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/jtr/wordlist'
 
-describe Metasploit::Framework::JtR::Wordlist do
+RSpec.describe Metasploit::Framework::JtR::Wordlist do
 
   subject(:wordlist) { described_class.new }
 
@@ -9,9 +9,9 @@ describe Metasploit::Framework::JtR::Wordlist do
   let(:expansion_word) { 'Foo bar_baz-bat.bam\\foo//bar' }
   let(:common_root_path) { File.expand_path('fake_common_roots.txt',FILE_FIXTURES_PATH) }
   let(:default_wordlist_path) { File.expand_path('fake_default_wordlist.txt',FILE_FIXTURES_PATH) }
-  let(:password) { FactoryGirl.create(:metasploit_credential_password) }
-  let(:public) { FactoryGirl.create(:metasploit_credential_public) }
-  let(:realm) { FactoryGirl.create(:metasploit_credential_realm) }
+  let(:password) { FactoryBot.create(:metasploit_credential_password) }
+  let(:public) { FactoryBot.create(:metasploit_credential_public) }
+  let(:realm) { FactoryBot.create(:metasploit_credential_realm) }
   let(:mutate_me) { 'password' }
   let(:mutants) {  [
       "pa55word",
@@ -28,15 +28,15 @@ describe Metasploit::Framework::JtR::Wordlist do
       "p@$$w0rd"
   ] }
 
-  it { should respond_to :appenders }
-  it { should respond_to :custom_wordlist }
-  it { should respond_to :mutate }
-  it { should respond_to :prependers }
-  it { should respond_to :use_common_root }
-  it { should respond_to :use_creds }
-  it { should respond_to :use_db_info }
-  it { should respond_to :use_default_wordlist }
-  it { should respond_to :use_hostnames }
+  it { is_expected.to respond_to :appenders }
+  it { is_expected.to respond_to :custom_wordlist }
+  it { is_expected.to respond_to :mutate }
+  it { is_expected.to respond_to :prependers }
+  it { is_expected.to respond_to :use_common_root }
+  it { is_expected.to respond_to :use_creds }
+  it { is_expected.to respond_to :use_db_info }
+  it { is_expected.to respond_to :use_default_wordlist }
+  it { is_expected.to respond_to :use_hostnames }
 
   describe 'validations' do
 

@@ -214,14 +214,14 @@ module Metasploit
           parsed_data[:machine_type] = read_pascal_string(body, machine_type_offset)
           parsed_data[:versions] = read_array(body, afp_versions_offset)
           parsed_data[:uams] = read_array(body, uam_count_offset)
-          # skiped icon
+          # skipped icon
           parsed_data[:server_flags] = parse_flags(server_flags)
           parsed_data[:signature] = body.unpack("@#{server_signature_offset}H32").first
 
           network_addresses = read_array(body, network_addresses_offset, true)
           parsed_data[:network_addresses] = parse_network_addresses(network_addresses)
-          # skiped directory names
-          #Error catching for offset issues on this field. Need better error ahndling all through here
+          # skipped directory names
+          #Error catching for offset issues on this field. Need better error handling all through here
           begin
             parsed_data[:utf8_server_name] = read_utf8_pascal_string(body, utf8_servername_offset)
           rescue

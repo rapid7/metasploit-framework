@@ -24,6 +24,7 @@ module Rex
     def start_document
       @parse_warnings = []
       @resolv_cache = {}
+      @host_object = nil
     end
 
     def start_element(name=nil,attrs=[])
@@ -32,9 +33,12 @@ module Rex
       @state[:current_tag][name] = true
       case name
       when "Scan" # Start of the thing.
-      when "Name", "StartURL", "Banner", "Os"
+        @state[:report_item] = {}
+      when "Name", "StartURL", "StartTime", "Banner", "Os", "Text", "Severity", "CWE", "URL", "Parameter"
         @state[:has_text] = true
       when "LoginSequence" # Skipping for now
+      when "ReportItem"
+        @state[:report_item] = {}
       when "Crawler"
         record_crawler(attrs)
       when "FullURL"
@@ -59,15 +63,59 @@ module Rex
         @text = nil
       when "StartURL" # Populates @state[:starturl_uri], we use this a lot
         @state[:has_text] = false
+        # StartURL does not always include the scheme
+        @text.prepend("http://") unless URI.parse(@text).scheme
         collect_host
-        collect_service
+        collect_service_from_url
         @text = nil
         handle_parse_warnings &block
-        host_object = report_host &block
-        if host_object
-          report_starturl_service(host_object,&block)
-          db.report_import_note(@args[:wspace],host_object)
+        @host_object = report_host &block
+        if @host_object
+          report_starturl_service(&block)
+          db.report_import_note(@args[:wspace],@host_object)
         end
+      when "StartTime"
+        @state[:has_text] = false
+        @state[:timestamp] = @text.to_s.tr!(',','').tr!('/','-')
+        @text = nil
+      when "Text"
+        @state[:has_text] = false
+        service = collect_service_from_kbitem_text
+        @text = nil
+        return unless service
+        handle_parse_warnings &block
+        if @host_object
+          report_kbitem_service(service,&block)
+        end
+      when "Severity"
+        @state[:has_text] = false
+        collect_report_item_severity
+        @text = nil
+      when "CWE"
+        @state[:has_text] = false
+        collect_report_item_cwe
+        @text = nil
+      when "URL"
+        @state[:has_text] = false
+        collect_report_item_reference_url
+        @text = nil
+      when "Parameter"
+        @state[:has_text] = false
+        collect_report_item_parameter
+        @text = nil
+      when "ReportItem"
+        vuln = collect_vuln_from_report_item
+        if vuln.nil?
+          @state[:page_request] = @state[:page_response] = nil
+          return
+        end
+        handle_parse_warnings &block 
+        if @state[:vuln_info][:refs].nil?
+          report_web_vuln(&block)
+        else
+          report_other_vuln(&block)
+        end
+        @state[:page_request] = @state[:page_response] = nil
       when "Banner"
         @state[:has_text] = false
         collect_and_report_banner
@@ -132,7 +180,7 @@ module Rex
       @report_data[:state] = Msf::HostState::Alive
     end
 
-    def collect_service
+    def collect_service_from_url
       return unless @report_data[:host]
       return unless in_tag("Scan")
       return unless @text
@@ -142,6 +190,44 @@ module Rex
       @state[:starturl_uri] = uri
       @report_data[:ports] ||= []
       @report_data[:ports] << @state[:starturl_port]
+    end
+
+    def collect_service_from_kbitem_text
+      return unless @host_object
+      return unless in_tag("Scan")
+      return unless in_tag("KBase")
+      return unless in_tag("KBItem")
+      return unless @text
+      return if @text.strip.empty?
+      return unless @text =~ /server is running/
+      matched = / (?<name>\w+) server is running on (?<proto>\w+) port (?<portnum>\d+)\./.match(@text)
+      @report_data[:ports] ||= []
+      @report_data[:ports] << matched[:portnum]
+      return matched
+    end
+
+    def collect_vuln_from_report_item
+      @state[:vuln_info] = nil
+      return unless @host_object
+      return unless in_tag("Scan")
+      return unless in_tag("ReportItems")
+      return unless in_tag("ReportItem")
+      return unless @state[:report_item][:name]
+      return unless @state[:report_item][:severity]
+      return unless @state[:report_item][:severity].downcase == "high"
+
+      @state[:vuln_info] = {}
+      @state[:vuln_info][:name] = @state[:report_item][:name]
+      if @state[:page_request_verb].nil? && @state[:report_item][:name] =~ /deprecated/
+        # Treating this as a regular vuln, not web-specific
+        @state[:vuln_info][:refs] = ["ACX-#{@state[:report_item][:reference_url]}"]
+        unless @state[:report_item_cwe].nil?
+          @state[:vuln_info][:refs][0] << ",#{@state[:report_item][:cwe]}"
+        end
+      end
+      @state[:vuln_info][:severity] = @state[:report_item][:severity].downcase
+      @state[:vuln_info][:cwe] = @state[:report_item][:cwe]
+      return @state[:vuln_info]
     end
 
     def collect_and_report_banner
@@ -163,7 +249,37 @@ module Rex
       return unless in_tag("ReportItem")
       return unless @text
       return if @text.strip.empty?
-      @state[:report_item] = @text
+      @state[:report_item][:name] = @text
+    end
+
+    def collect_report_item_severity
+      return unless in_tag("ReportItem")
+      return unless @text
+      return if @text.strip.empty?
+      @state[:report_item][:severity] = @text
+    end
+
+    def collect_report_item_cwe
+      return unless in_tag("ReportItem")
+      return unless @text
+      return if @text.strip.empty?
+      @state[:report_item][:cwe] = @text
+    end
+
+    def collect_report_item_reference_url
+      return unless in_tag("ReportItem")
+      return unless in_tag("References")
+      return unless in_tag("Reference")
+      return unless @text
+      return if @text.strip.empty?
+      @state[:report_item][:reference_url] = @text
+    end
+
+    def collect_report_item_parameter
+      return unless in_tag("ReportItem")
+      return unless @text
+      return if @text.strip.empty?
+      @state[:report_item][:parameter] = @text
     end
 
     # @state[:fullurl] is set by report_web_site
@@ -209,20 +325,26 @@ module Rex
     def report_web_page(&block)
       return if should_skip_this_page
       return unless @state[:web_site]
+      @state[:page_request_verb] = nil
       return unless @state[:page_request]
       return if @state[:page_request].strip.empty?
-      return unless @state[:page_response]
-      return if @state[:page_response].strip.empty?
-      path,query_string = parse_request(@state[:page_request])
+      verb,path,query_string = parse_request(@state[:page_request])
       return unless path
-      parsed_response = parse_response(@state[:page_response])
-      return unless parsed_response
+      @state[:page_request_verb] = verb
       web_page_info = {}
+      if @state[:page_response].strip.blank?
+        web_page_info[:code] = ""
+        web_page_info[:headers] = {}
+        web_page_info[:body] = ""
+      else
+        parsed_response = parse_response(@state[:page_response])
+        return unless parsed_response
+        web_page_info[:code] = parsed_response[:code].to_i
+        web_page_info[:headers] = parsed_response[:headers]
+        web_page_info[:body] = parsed_response[:body]
+      end
       web_page_info[:web_site] = @state[:web_site]
       web_page_info[:path] = path
-      web_page_info[:code] = parsed_response[:code].to_i
-      web_page_info[:headers] = parsed_response[:headers]
-      web_page_info[:body] = parsed_response[:body]
       web_page_info[:query] = query_string || ""
       url = ""
       url << @state[:web_site].service.name.to_s << "://"
@@ -232,13 +354,51 @@ module Rex
       return unless uri # Sanity checker
       db.emit(:web_page, url, &block) if block
       web_page_object = db_report(:web_page,web_page_info)
-      @state[:page_request] = @state[:page_response] = nil
       @state[:web_page] = web_page_object
+    end
+
+    def report_web_vuln(&block)
+      return if should_skip_this_page
+      return unless @state[:web_page]
+      return unless @state[:web_site]
+      return unless @state[:vuln_info]
+      
+      web_vuln_info = {}
+      web_vuln_info[:web_site] = @state[:web_site]
+      web_vuln_info[:path] = @state[:web_page][:path]
+      web_vuln_info[:query] = @state[:web_page][:query]
+      web_vuln_info[:method] = @state[:page_request_verb]
+      web_vuln_info[:pname] = ""
+      if @state[:page_response].blank?
+        web_vuln_info[:proof] = "<empty response>"
+      else
+        web_vuln_info[:proof] = @state[:page_response]
+      end
+      web_vuln_info[:risk] = 5
+      web_vuln_info[:params] = []
+      unless @state[:report_item][:parameter].blank?
+        # Acunetix only lists a single paramter...
+        web_vuln_info[:params] << [ @state[:report_item][:parameter].to_s, "" ]
+      end
+      web_vuln_info[:category] = "imported"
+      web_vuln_info[:confidence] = 100
+      web_vuln_info[:name] = @state[:vuln_info][:name]
+
+      db.emit(:web_vuln, web_vuln_info[:name], &block) if block
+      vuln = db_report(:web_vuln, web_vuln_info)
+    end
+
+    def report_other_vuln(&block)
+      return if should_skip_this_page
+      return unless @state[:vuln_info]
+
+      db.emit(:vuln, @state[:vuln_info][:name], &block) if block
+      db_report(:vuln, @state[:vuln_info].merge(:host => @host_object))
     end
 
     # Reasons why we shouldn't collect a particular web page.
     def should_skip_this_page
-      if @state[:report_item] =~ /Unrestricted File Upload/
+      if @state[:report_item][:name] =~ /Unrestricted File Upload/
         # This means that the page being collected is something the
         # auditor put there, so it's not useful to report on.
         return true
@@ -257,6 +417,7 @@ module Rex
       return unless verb
       return unless req
       path,query_string = req.split(/\?/)[0,2]
+      return verb,path,query_string
     end
 
     def parse_response(response)
@@ -300,14 +461,14 @@ module Rex
 
     # The service is super important, so we hang on to it for the
     # rest of the scan.
-    def report_starturl_service(host_object,&block)
-      return unless host_object
+    def report_starturl_service(&block)
+      return unless @host_object
       return unless @state[:starturl_uri]
       name = @state[:starturl_uri].scheme
       port = @state[:starturl_uri].port
-      addr = host_object.address
+      addr = @host_object.address
       svc = {
-        :host => host_object,
+        :host => @host_object,
         :port => port,
         :name => name.dup,
         :proto => "tcp"
@@ -315,6 +476,22 @@ module Rex
       if name and port
         db.emit(:service,[addr,port].join(":"),&block) if block
         @state[:starturl_service_object] = db_report(:service,svc)
+      end
+    end
+
+    def report_kbitem_service(service,&block)
+      return unless @host_object
+      return unless @state[:starturl_uri]
+      addr = @host_object.address
+      svc = {
+        :host => @host_object,
+        :port => service[:portnum].to_i,
+        :name => service[:name].dup.downcase,
+        :proto => service[:proto].dup.downcase
+      }
+      if service[:name] and service[:portnum]
+        db.emit(:service,[addr,service[:portnum]].join(":"),&block) if block
+        db_report(:service,svc)
       end
     end
 
@@ -331,9 +508,9 @@ module Rex
       return unless (host && port && scheme)
       address = resolve_address(host)
       return unless address
-      service_info = [ @args[:wspace], address, "tcp", port ]
-      service_object = db.get_service(*service_info)
-      service_object = db_report(:service,service_info) unless service_object
+      # If we didn't create the service, we don't care about the site
+      service_object = db.get_service @args[:wspace], address, "tcp", port
+      return unless service_object
       web_site_info = {
         :workspace => @args[:wspace],
         :service => service_object,

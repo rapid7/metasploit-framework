@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::Qualys::Scan
   def import_qualys_scan_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 
@@ -70,7 +70,7 @@ module Msf::DBManager::Import::Qualys::Scan
             refs.push(ref.elements['ID'].text.to_s)
           end
           vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
-            refs.push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
+            refs.push('CVE-' + /C..-([0-9\-]{9,})/.match(ref.elements['ID'].text.to_s)[1])
           end
           vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
             refs.push('BID-' + ref.elements['ID'].text.to_s)
@@ -87,7 +87,6 @@ module Msf::DBManager::Import::Qualys::Scan
   #
   def import_qualys_scan_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

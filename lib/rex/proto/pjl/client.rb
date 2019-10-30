@@ -1,11 +1,10 @@
 # -*- coding: binary -*-
+
 # https://en.wikipedia.org/wiki/Printer_Job_Language
 # See external links for PJL spec
 
 module Rex::Proto::PJL
 class Client
-
-  attr_reader :sock
 
   def initialize(sock)
     @sock = sock
@@ -117,19 +116,39 @@ class Client
     @sock.put(%Q{#{FSINIT} VOLUME = "#{volume}"\n})
   end
 
+  # Query a file
+  #
+  # @param path [String] Remote path
+  # @return [Boolean] True if file exists
+  def fsquery(path)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
+    end
+
+    file = false
+
+    @sock.put(%Q{#{FSQUERY} NAME = "#{path}"\n})
+
+    if @sock.get(DEFAULT_TIMEOUT) =~ /TYPE=(FILE|DIR)/m
+      file = true
+    end
+
+    file
+  end
+
   # List a directory
   #
-  # @param pathname [String] Pathname
-  # @param count [Fixnum] Number of entries to list
+  # @param path [String] Remote path
+  # @param count [Integer] Number of entries to list
   # @return [String] Directory listing
-  def fsdirlist(pathname, count = COUNT_MAX)
-    if pathname !~ /^[0-2]:/
-      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+  def fsdirlist(path, count = COUNT_MAX)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
     listing = nil
 
-    @sock.put(%Q{#{FSDIRLIST} NAME = "#{pathname}" ENTRY=1 COUNT=#{count}\n})
+    @sock.put(%Q{#{FSDIRLIST} NAME = "#{path}" ENTRY=1 COUNT=#{count}\n})
 
     if @sock.get(DEFAULT_TIMEOUT) =~ /ENTRY=1\r?\n(.*?)\f/m
       listing = $1
@@ -140,23 +159,59 @@ class Client
 
   # Download a file
   #
-  # @param pathname [String] Pathname
-  # @param size [Fixnum] Size of file
+  # @param path [String] Remote path
   # @return [String] File as a string
-  def fsupload(pathname, size = SIZE_MAX)
-    if pathname !~ /^[0-2]:/
-      raise ArgumentError, "Pathname must begin with 0:, 1:, or 2:"
+  def fsupload(path)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
     file = nil
 
-    @sock.put(%Q{#{FSUPLOAD} NAME = "#{pathname}" OFFSET=0 SIZE=#{size}\n})
+    @sock.put(%Q{#{FSUPLOAD} NAME = "#{path}" OFFSET=0 SIZE=#{SIZE_MAX}\n})
 
     if @sock.get(DEFAULT_TIMEOUT) =~ /SIZE=\d+\r?\n(.*)\f/m
       file = $1
     end
 
     file
+  end
+
+  # Upload a file or write string data to remote path
+  #
+  # @param data_or_lpath [String] data or local path
+  # @param rpath [String] Remote path
+  # @param is_file [Boolean] True if data_or_lpath is a local file path
+  # @return [Boolean] True if the file was uploaded
+  def fsdownload(data_or_lpath, rpath, is_file: true)
+    if rpath !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
+    end
+
+    file = is_file ? File.read(data_or_lpath) : data_or_lpath
+
+    @sock.put(
+      %Q{#{FSDOWNLOAD} FORMAT:BINARY SIZE=#{file.length} NAME = "#{rpath}"\n}
+    )
+
+    @sock.put(file)
+    @sock.put(UEL)
+
+    fsquery(rpath)
+  end
+
+  # Delete a file
+  #
+  # @param path [String] Remote path
+  # @return [Boolean] True if the file was deleted
+  def fsdelete(path)
+    if path !~ /^[0-2]:/
+      raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
+    end
+
+    @sock.put(%Q{#{FSDELETE} NAME = "#{path}"\n})
+
+    !fsquery(path)
   end
 
 end

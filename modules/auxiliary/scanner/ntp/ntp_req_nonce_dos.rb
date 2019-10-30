@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
@@ -27,6 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
           ['URL', 'http://r-7.co/R7-2014-12']
         ],
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
   # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
+    @results[shost] << Rex::Proto::NTP::NTPControl.new.read(data)
   end
 
   # Called before the scan block

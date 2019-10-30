@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize
@@ -23,14 +19,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'OSVDB', '55586' ],
           [ 'CVE', '2009-2367' ],
         ],
-      'Author'      => [ 'patrick' ],
+      'Author'      => [ 'aushack' ],
       'License'     => MSF_LICENSE
     )
 
     register_options(
       [
         OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
-      ], self.class)
+      ])
   end
 
   def run

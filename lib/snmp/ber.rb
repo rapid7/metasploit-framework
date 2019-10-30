@@ -8,11 +8,11 @@
 #
 
 #
-# Add ord method to Fixnum for forward compatibility with Ruby 1.9
+# Add ord method to Integer for forward compatibility with Ruby 1.9
 #
-if "a"[0].kind_of? Fixnum
-    unless Fixnum.methods.include? :ord
-        class Fixnum
+if "a"[0].kind_of? Integer
+    unless Integer.methods.include? :ord
+        class Integer
             def ord; self; end
         end
     end

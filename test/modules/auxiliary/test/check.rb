@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -34,12 +34,12 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def check
-    print_debug "Check is successful"
+    vprint_status("Check is successful")
     return Msf::Exploit::CheckCode::Vulnerable
   end
 
   def run
-    print_debug "Run is successful."
+    vprint_status("Run is successful.")
   end
 
 end

@@ -84,7 +84,7 @@ module Session
     #self.routes = []
   end
 
-  # Direct descendents
+  # Direct descendants
   require 'msf/core/session/interactive'
   require 'msf/core/session/basic'
   require 'msf/core/session/comm'
@@ -214,8 +214,9 @@ module Session
 
     dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
     rhost = session_host.gsub(':', '_')
+    sname = name.to_s.gsub(/\W+/,'_')
 
-    "#{dstr}_#{rhost}_#{type}"
+    "#{dstr}_#{sname}_#{rhost}_#{type}"
   end
 
   #
@@ -223,22 +224,6 @@ module Session
   #
   def log_source
     "session_#{name}"
-  end
-
-  #
-  # This method logs the supplied buffer as coming from the remote side of
-  # the session.
-  #
-  def log_from_remote(buf)
-    rlog(buf, log_source)
-  end
-
-  #
-  # This method logs the supplied buffer as coming from the local side of
-  # the session.
-  #
-  def log_from_local(buf)
-    rlog(buf, log_source)
   end
 
   ##
@@ -300,9 +285,7 @@ module Session
   def cleanup
     if db_record and framework.db.active
       ::ActiveRecord::Base.connection_pool.with_connection {
-        db_record.closed_at = Time.now.utc
-        # ignore exceptions
-        db_record.save
+        framework.db.update_session(id: db_record.id, closed_at: Time.now.utc, close_reason: db_record.close_reason)
         db_record = nil
       }
     end
@@ -337,6 +320,21 @@ module Session
   def alive?
     (self.alive)
   end
+
+  #
+  # Get an arch/platform combination
+  #
+  def session_type
+    # avoid unnecessary slash separator
+    if !self.arch.nil? && !self.arch.empty? && !self.platform.nil? && !self.platform.empty?
+      separator =  '/'
+    else
+      separator = ''
+    end
+
+    "#{self.arch}#{separator}#{self.platform}"
+  end
+
 
   attr_accessor :alive
 
@@ -384,6 +382,14 @@ module Session
   # The unique identifier of exploit that created this session
   #
   attr_accessor :exploit_uuid
+  #
+  # The unique identifier of the payload that created this session
+  #
+  attr_accessor :payload_uuid
+  #
+  # The unique machine identifier for the host that created this session
+  #
+  attr_accessor :machine_id
   #
   # The actual exploit module instance that created this session
   #

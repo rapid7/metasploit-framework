@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,9 +12,9 @@
 #
 ###
 
-require 'msf/core'
+module MetasploitModule
 
-module Metasploit3
+  CachedSize = 393
 
   Rank = ManualRanking
 
@@ -52,7 +52,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('VOLUMELABEL', [ false, "Set the volume label", "PwNeD" ])
-      ], self.class)
+      ])
   end
 
   def generate

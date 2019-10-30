@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -23,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Alligator Security Team <dflah[at]alligatorteam.org>',
+          'dflah_ <dflah[at]alligatorteam.org>',
         ],
       'References'     =>
         [
@@ -48,7 +45,34 @@ class Metasploit3 < Msf::Auxiliary
             'The file that contains a list of probable passwords.',
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
           ])
-      ], self.class)
+      ])
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'asterisk_manager',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -91,15 +115,7 @@ class Metasploit3 < Msf::Auxiliary
         send_manager(cmd)
         if /Response: Success/.match(@result)
           print_good("User: \"#{user}\" using pass: \"#{pass}\" - can login on #{rhost}:#{rport}!")
-          report_auth_info(
-            :host   => rhost,
-            :port   => rport,
-            :sname  => 'asterisk_manager',
-            :user   => user,
-            :pass   => pass,
-            :active => true,
-            :update => :unique_data
-          )
+          report_cred(ip: rhost, port: rport, user: user, password: pass, proof: @result)
           disconnect
           return :next_user
         else

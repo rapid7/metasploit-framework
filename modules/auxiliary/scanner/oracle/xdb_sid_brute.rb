@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
           Opt::RPORT(8080),
-        ], self.class)
+        ])
   end
 
   def run_host(ip)
@@ -176,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
         end
       end
 
-      #database links
+      # database links
       res = send_request_raw({
         'uri'     => '/oradb/PUBLIC/ALL_DB_LINKS',
         'version' => '1.1',

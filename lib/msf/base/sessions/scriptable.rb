@@ -27,7 +27,7 @@ module Scriptable
 
       # Scan all of the path combinations
       check_paths.each { |path|
-        if ::File.exists?(path)
+        if ::File.file?(path)
           full_path = path
           break
         end
@@ -52,12 +52,64 @@ module Scriptable
   end
 
   #
+  # Maps legacy Meterpreter script names to replacement post modules
+  #
+  def legacy_script_to_post_module(script_name)
+    {
+      'autoroute' => 'post/multi/manage/autoroute',
+      'checkvm' => 'post/windows/gather/checkvm',
+      'duplicate' => 'post/windows/manage/multi_meterpreter_inject',
+      'enum_chrome' => 'post/windows/gather/enum_chrome',
+      'enum_firefox' => 'post/windows/gather/enum_firefox',
+      'enum_logged_on_users' => 'post/windows/gather/enum_logged_on_users',
+      'enum_powershell_env' => 'post/windows/gather/enum_powershell_env',
+      'enum_putty' => 'post/windows/gather/enum_putty_saved_sessions',
+      'enum_shares' => 'post/windows/gather/enum_shares',
+      'file_collector' => 'post/windows/gather/enum_files',
+      'get_application_list' => 'post/windows/gather/enum_applications',
+      'get_env' => 'post/multi/gather/env',
+      'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
+      'get_local_subnets' => 'post/multi/manage/autoroute',
+      'get_valid_community' => 'post/windows/gather/enum_snmp',
+      'getcountermeasure' => 'post/windows/manage/killav',
+      'getgui' => 'post/windows/manage/enable_rdp',
+      'getvncpw' => 'post/windows/gather/credentials/vnc',
+      'hashdump' => 'post/windows/gather/smart_hashdump',
+      'hostsedit' => 'post/windows/manage/inject_host',
+      'keylogrecorder' => 'post/windows/capture/keylog_recorder',
+      'killav' => 'post/windows/manage/killav',
+      'metsvc' => 'post/windows/manage/persistence_exe',
+      'migrate' => 'post/windows/manage/migrate',
+      'pml_driver_config' => 'exploit/windows/local/service_permissions',
+      'packetrecorder' => 'post/windows/manage/rpcapd_start',
+      'persistence' => 'post/windows/manage/persistence_exe',
+      'prefetchtool' => 'post/windows/gather/enum_prefetch',
+      'remotewinenum' => 'post/windows/gather/wmic_command',
+      'schelevator' => 'exploit/windows/local/ms10_092_schelevator',
+      'screen_unlock' => 'post/windows/escalate/screen_unlock',
+      'screenspy' => 'post/windows/gather/screen_spy',
+      'search_dwld' => 'post/windows/gather/enum_files',
+      'service_permissions_escalate' => 'exploits/windows/local/service_permissions',
+      'uploadexec' => 'post/windows/manage/download_exec',
+      'webcam' => 'post/windows/manage/webcam',
+      'wmic' => 'post/windows/gather/wmic_command',
+    }[script_name]
+  end
+
+  #
   # Executes the supplied script, Post module, or local Exploit module with
   #   arguments +args+
   #
   # Will search the script path.
   #
   def execute_script(script_name, *args)
+    post_module = legacy_script_to_post_module(script_name)
+
+    if post_module
+      print_warning("Meterpreter scripts are deprecated. Try #{post_module}.")
+      print_warning("Example: run #{post_module} OPTION=value [...]")
+    end
+
     mod = framework.modules.create(script_name)
     if mod
       # Don't report module run events here as it will be taken care of
@@ -100,7 +152,7 @@ module Scriptable
           # session
           local_exploit_opts = local_exploit_opts.merge(opts)
 
-          new_session = mod.exploit_simple(
+          mod.exploit_simple(
             'Payload'       => local_exploit_opts.delete('payload'),
             'Target'        => local_exploit_opts.delete('target'),
             'LocalInput'    => self.user_input,
@@ -114,13 +166,17 @@ module Scriptable
     else
       full_path = self.class.find_script_path(script_name)
 
-      # No path found?  Weak.
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
-        return true
+        print_error("The specified #{self.type} session script could not be found: #{script_name}")
+        return
       end
-      framework.events.on_session_script_run(self, full_path)
-      execute_file(full_path, args)
+
+      begin
+        execute_file(full_path, args)
+        framework.events.on_session_script_run(self, full_path)
+      rescue StandardError => e
+        print_error("Could not execute #{script_name}: #{e.class} #{e}")
+      end
     end
   end
 

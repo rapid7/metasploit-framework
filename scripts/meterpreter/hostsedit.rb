@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -74,7 +74,7 @@ def cleardnscach(session)
   print_status("Clearing the DNS Cache")
   session.sys.process.execute("cmd /c ipconfig /flushdns",nil, {'Hidden' => true})
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   @@exec_opts.parse(args) { |opt, idx, val|
     case opt
     when "-e"
@@ -84,7 +84,7 @@ if client.platform =~ /win32|win64/
       cleardnscach(session)
     when "-l"
       checkuac(session)
-      if not ::File.exists?(val)
+      if not ::File.exist?(val)
         raise "File #{val} does not exists!"
       else
         backuphosts(session,hosts)

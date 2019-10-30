@@ -24,7 +24,7 @@ class Client
     @opts = opts
 
     @banner = nil
-    @majver = MajorVersion
+    @majver = MajorVersions
     @minver = -1
     @auth_types = []
   end
@@ -50,7 +50,7 @@ class Client
 
     if @banner =~ /RFB ([0-9]{3})\.([0-9]{3})/
       maj = $1.to_i
-      if maj != MajorVersion
+      unless MajorVersions.include?(maj)
         @error = "Invalid major version number: #{maj}"
         return false
       end
@@ -61,7 +61,12 @@ class Client
 
     @minver = $2.to_i
 
-    our_ver = "RFB %03d.%03d\n" % [MajorVersion, @minver]
+    # Forces version 3 to be used. This adds support  for version 4 servers.
+    # It may be necessary to hardcode minver as well.
+    # TODO: Add support for Version 4.
+    # Version 4 adds additional information to the packet regarding supported
+    # authentication types.
+    our_ver = "RFB %03d.%03d\n" % [3, @minver]
     @sock.put(our_ver)
 
     true
@@ -83,7 +88,15 @@ class Client
   end
 
   def authenticate(password = nil)
+    authenticate_with_user(nil, password)
+  end
+
+  def authenticate_with_user(username = nil, password = nil)
     type = negotiate_authentication
+    authenticate_with_type(type, username, password)
+  end
+
+  def authenticate_with_type(type, username = nil, password = nil)
     return false if not type
 
     # Authenticate.
@@ -93,6 +106,9 @@ class Client
 
     when AuthType::VNC
       return false if not negotiate_vnc_auth(password)
+
+    when AuthType::ARD
+      return false if not negotiate_ard_auth(username, password)
 
     end
 
@@ -171,6 +187,7 @@ class Client
     selected = nil
     selected ||= AuthType::None if @opts[:allow_none] and @auth_types.include? AuthType::None
     selected ||= AuthType::VNC if @auth_types.include? AuthType::VNC
+    selected ||= AuthType::ARD if @auth_types.include? AuthType::ARD
 
     if not selected
       @error = "No supported authentication method found."
@@ -195,6 +212,40 @@ class Client
 
     true
   end
+
+  def negotiate_ard_auth(username = nil, password = nil)
+    generator = @sock.get_once(2)
+    if not generator or generator.length != 2
+      @error = "Unable to obtain ARD challenge: invalid generator value"
+      return false
+    end
+    generator = generator.unpack("n").first
+
+    key_length = @sock.get_once(2)
+    if not key_length or key_length.length != 2
+      @error = "Unable to obtain ARD challenge: invalid key length"
+      return false
+    end
+    key_length = key_length.unpack("n").first
+
+    prime_modulus = @sock.get_once(key_length)
+    if not prime_modulus or prime_modulus.length != key_length
+      @error = "Unable to obtain ARD challenge: invalid prime modulus"
+      return false
+    end
+
+    peer_public_key = @sock.get_once(key_length)
+    if not peer_public_key or peer_public_key.length != key_length
+      @error = "Unable to obtain ARD challenge: invalid public key"
+      return false
+    end
+
+    response = Cipher.encrypt_ard(username, password, generator, key_length, prime_modulus, peer_public_key)
+    @sock.put(response)
+
+    true
+ end
+
 
   attr_reader :error, :majver, :minver, :auth_types
   attr_reader :view_only

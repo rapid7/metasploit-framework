@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'modules', :content do
+RSpec.describe 'modules', :content do
   modules_pathname = Pathname.new(__FILE__).parent.parent.join('modules')
 
   it_should_behave_like 'all modules with module type can be instantiated',

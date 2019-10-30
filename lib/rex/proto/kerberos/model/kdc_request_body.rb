@@ -8,7 +8,7 @@ module Rex
         # definition
         class KdcRequestBody < Element
           # @!attribute options
-          #   @return [Fixnum] The ticket flags
+          #   @return [Integer] The ticket flags
           attr_accessor :options
           # @!attribute cname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the client's principal identifier
@@ -29,10 +29,10 @@ module Rex
           #   @return [Time] Optional requested renew-till time
           attr_accessor :rtime
           # @!attribute nonce
-          #   @return [Fixnum] random number
+          #   @return [Integer] random number
           attr_accessor :nonce
           # @!attribute etype
-          #   @return [Array<Fixnum>] The desired encryption algorithm to be used in the response
+          #   @return [Array<Integer>] The desired encryption algorithm to be used in the response
           attr_accessor :etype
           # @!attribute enc_auth_data
           #   @return [Rex::Proto::Kerberos::Model::EncryptedData] An encoding of the desired authorization-data encrypted
@@ -80,7 +80,7 @@ module Rex
 
           # Makes a checksum from the Rex::Proto::Kerberos::Model::KdcRequestBody
           #
-          # @param etype [Fixnum] the crypto schema to checksum
+          # @param etype [Integer] the crypto schema to checksum
           # @return [String] the checksum
           # @raise [NotImplementedError] if the encryption schema isn't supported
           def checksum(etype)
@@ -228,7 +228,7 @@ module Rex
           # Decodes the options field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_options(input)
             input.value[0].value.unpack('N')[0]
           end
@@ -284,7 +284,7 @@ module Rex
           # Decodes the nonce field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_nonce(input)
             input.value[0].value.to_i
           end
@@ -292,7 +292,7 @@ module Rex
           # Decodes the etype field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Array<Fixnum>]
+          # @return [Array<Integer>]
           def decode_etype(input)
             encs = []
             input.value[0].value.each do |enc|

@@ -16,7 +16,7 @@ module Auxiliary::Login
   EOL  = CR + LF
 
   #
-  # Creates an instance of a login negoation module.
+  # Creates an instance of a login negotiation module.
   #
   def initialize(info = {})
     super
@@ -35,7 +35,7 @@ module Auxiliary::Login
     #
     # Some of these regexes borrowed from NeXpose, others added from datasets
     #
-    @login_regex = /(?:log[io]n( name|)|user(name|id|))\s*\:/i
+    @login_regex = /(?:log[io]n( name|)|user( ?name|id|))\s*\:/i
     @password_regex = /(?:password|passwd)\s*\:/i
     @false_failure_regex = /(?:(^\s*last)\ login *\:|allows only\ .*\ Telnet\ Client\ License)/i
     @failure_regex = /(?:
@@ -44,6 +44,7 @@ module Auxiliary::Login
         Unable    | Error    | Denied    | Reject   |
         Refuse    | Close    | Closing   | %\ Bad   |
         Sorry     |
+        ^http | html |
         Not\ on\ system\ console |
         Enter\ username\ and\ password |
         Auto\ Apply\ On |

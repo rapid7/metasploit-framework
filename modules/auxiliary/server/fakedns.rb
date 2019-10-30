@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'resolv'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
@@ -40,14 +36,14 @@ class Metasploit3 < Msf::Auxiliary
         OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
         OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolve (BYPASS) or fake resolve (FAKE)", 'www.google.com']),
         OptEnum.new('TARGETACTION', [ true, "Action for TARGETDOMAIN", "BYPASS", %w{FAKE BYPASS}]),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptPort.new('RR_SRV_PORT', [ false, "The port field in the SRV response when FAKE", 5060]),
         OptBool.new('LogConsole', [ false, "Determines whether to log all request to the console", true]),
         OptBool.new('LogDatabase', [ false, "Determines whether to log all request to the database", false]),
-      ], self.class)
+      ])
   end
 
 
@@ -70,11 +66,11 @@ class Metasploit3 < Msf::Auxiliary
     @log_console  = false
     @log_database = false
 
-    if (datastore['LogConsole'].to_s.match(/^(t|y|1)/i))
+    if datastore['LogConsole']
       @log_console = true
     end
 
-    if (datastore['LogDatabase'].to_s.match(/^(t|y|1)/i))
+    if datastore['LogDatabase']
       @log_database = true
     end
 
@@ -280,5 +276,4 @@ class Metasploit3 < Msf::Auxiliary
   def print_status(msg)
     @requestor ? super("%s:%p - DNS - %s" % [@requestor[3], @requestor[1], msg]) : super(msg)
   end
-
 end

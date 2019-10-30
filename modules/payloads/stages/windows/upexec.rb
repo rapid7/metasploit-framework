@@ -1,13 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows
   include Msf::Sessions::CommandShellOptions
@@ -23,7 +22,7 @@ module Metasploit3
       'Session'       => Msf::Sessions::CommandShellWindows,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockedi -https'
+          'Convention' => 'sockedi udpsockedi -http -https'
         },
       'Stage'         =>
         {
@@ -63,7 +62,7 @@ module Metasploit3
     register_options(
       [
         OptPath.new('PEXEC', [ true, "Full path to the file to upload and execute" ])
-      ], self.class)
+      ])
   end
 
   #
@@ -94,5 +93,4 @@ module Metasploit3
 
     super
   end
-
 end

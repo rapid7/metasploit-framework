@@ -19,7 +19,7 @@ module RFB
 DefaultPort = 5900
 
 # Version information
-MajorVersion = 3
+MajorVersions = [3, 4]
 # NOTE: We will emulate whatever minor version the server reports.
 
 # Security types
@@ -36,6 +36,7 @@ class AuthType
   GtkVncSasl = 20
   MD5Hash = 21
   ColinDeanXVP = 22
+  ARD = 30
 
   def self.to_s(num)
     self.constants.each { |c|

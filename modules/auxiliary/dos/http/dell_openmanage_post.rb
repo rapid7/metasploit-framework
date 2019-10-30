@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -23,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
         This module will crash the web server, however it is likely exploitable
         under certain conditions.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -55,5 +50,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

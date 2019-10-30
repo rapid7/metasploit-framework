@@ -18,10 +18,10 @@ module Metasploit
       # Module Methods
       #
 
-      # Returns first configuration pathname from {configuration_pathnames} or the overridding `:path`.
+      # Returns first configuration pathname from configuration_pathnames or the overridding `:path`.
       #
       # @param options [Hash{Symbol=>String}]
-      # @option options [String] :path Path to use instead of first element of {configurations_pathnames}
+      # @option options [String] :path Path to use instead of first element of configurations_pathnames
       # @return [Pathname] if configuration pathname exists.
       # @return [nil] if configuration pathname does not exist.
       def self.configurations_pathname(options={})
@@ -35,7 +35,7 @@ module Metasploit
           pathname = configurations_pathnames.first
         end
 
-        if pathname.present? && pathname.exist?
+        if !pathname.nil? && pathname.exist?
           pathname
         else
           nil

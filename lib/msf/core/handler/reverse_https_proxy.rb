@@ -38,14 +38,11 @@ module ReverseHttpsProxy
 
     register_options(
       [
-        OptString.new('LHOST', [ true, "The local listener hostname" ,"127.0.0.1"]),
-        OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
-        OptString.new('PROXYHOST', [true, "The address of the http proxy to use" ,"127.0.0.1"]),
-        OptInt.new('PROXYPORT', [ false, "The Proxy port to connect to", 8080 ]),
-        OptEnum.new('PROXY_TYPE', [true, 'Http or Socks4 proxy type', 'HTTP', ['HTTP', 'SOCKS']]),
-        OptString.new('PROXY_USERNAME', [ false, "An optional username for HTTP proxy authentification"]),
-        OptString.new('PROXY_PASSWORD', [ false, "An optional password for HTTP proxy authentification"])
-      ], Msf::Handler::ReverseHttpsProxy)
+        OptAddressLocal.new('LHOST', "The local listener hostname", default: "127.0.0.1"),
+        OptPort.new('LPORT', "The local listener port", default: 8443)
+      ] +
+      Msf::Opt::http_proxy_options,
+      Msf::Handler::ReverseHttpsProxy)
 
     register_advanced_options(
       [

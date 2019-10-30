@@ -49,14 +49,7 @@ class Ini < Hash
     end
   end
 
-  #
-  # Enumerates the groups hash keys.
-  #
-  def each_group(&block)
-    self.keys.each { |k|
-      yield
-    }
-  end
+  alias each_group each_key
 
   #
   # Adds a group of the supplied name if it doesn't already exist.
@@ -172,7 +165,12 @@ protected
       # Is it a VAR=VAL?
       elsif (md = line.match(/^(.+?)=(.*)$/))
         if (active_group)
-          self[active_group][md[1]] = md[2]
+          var, val = md[1], md[2]
+
+          # don't clobber datastore nils with ""
+          unless val.empty?
+            self[active_group][var] = val
+          end
         end
       end
     }

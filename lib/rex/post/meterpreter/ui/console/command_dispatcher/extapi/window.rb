@@ -21,9 +21,13 @@ class Console::CommandDispatcher::Extapi::Window
   # List of supported commands.
   #
   def commands
-    {
+    all = {
       "window_enum" => "Enumerate all current open windows"
     }
+    reqs = {
+      "window_enum" => [ "extapi_window_enum" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #
@@ -82,7 +86,7 @@ class Console::CommandDispatcher::Extapi::Window
 
     header = parent_window ? "Child windows of #{parent_window}" : "Top-level windows"
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => header,
       'Indent'    => 0,
       'SortIndex' => 0,

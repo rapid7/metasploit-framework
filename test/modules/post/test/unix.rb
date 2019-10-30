@@ -9,7 +9,7 @@ require 'module_test'
 #load 'lib/msf/core/post/linux/system.rb'
 #load 'lib/msf/core/post/unix/enum_user_dirs.rb'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Linux::System

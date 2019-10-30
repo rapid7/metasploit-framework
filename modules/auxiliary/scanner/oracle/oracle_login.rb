@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Nmap
   include Msf::Auxiliary::AuthBrute
@@ -36,10 +33,10 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
-      ], self.class)
+      ])
 
   end
 
@@ -138,6 +135,32 @@ class Metasploit3 < Msf::Auxiliary
     m[1,2]
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: opts[:status],
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def parse_script_output(addr,port,output)
     msg = "#{addr}:#{port} - Oracle -"
     @oracle_reported = false
@@ -156,10 +179,13 @@ class Metasploit3 < Msf::Auxiliary
           user,pass = extract_creds(oline)
           pass = "" if pass == "<empty>"
           print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
-          report_auth_info(
-            :host => addr, :port => port, :proto => "tcp",
-            :user => "#{sid}/#{user}", :pass => pass,
-            :source_type => "user_supplied", :active => true
+          report_cred(
+            ip: addr,
+            port: port,
+            user: "#{sid}/#{user}",
+            password: pass,
+            service_name: 'tcp',
+            status: Metasploit::Model::Login::Status::SUCCESSFUL
           )
         elsif oline =~ /Account locked/
           if not @oracle_reported
@@ -168,11 +194,13 @@ class Metasploit3 < Msf::Auxiliary
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]
-          print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
-          report_auth_info(
-            :host => addr, :port => port, :proto => "tcp",
-            :user => "#{sid}/#{user}",
-            :source_type => "user_supplied", :active => false
+          print_good "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
+          report_cred(
+            ip: addr,
+            port: port,
+            user: "#{sid}/#{user}",
+            service_name: 'tcp',
+            status: Metasploit::Model::Login::Status::DENIED_ACCESS
           )
         elsif oline =~ /^\s+ERROR: (.*)/
           print_error "#{msg} NSE script error: #{$1}"
@@ -180,5 +208,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -21,9 +18,9 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
       [
-        'x000 <3d3n[at]hotmail.com.br>',           #Initial disclosure/exploit
-        'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  #Metasploit submission
-        'sinn3r',                                  #Metasploit edit/commit
+        'x000 <3d3n[at]hotmail.com.br>',           # Initial disclosure/exploit
+        'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  # Metasploit submission
+        'sinn3r',                                  # Metasploit edit/commit
       ],
       'License'        => MSF_LICENSE,
       'References'     =>
@@ -35,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
       [
         Opt::RPORT(21)
-      ],self.class)
+      ])
   end
 
   def run
@@ -51,5 +48,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

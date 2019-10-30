@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Encoder
-
+class MetasploitModule < Msf::Encoder
   Rank = ManualRanking
 
   def initialize
@@ -99,7 +96,7 @@ class Metasploit3 < Msf::Encoder
     @inst = {}
     @set = add_or_sub(@avchars)
     if @set == 0 then
-      raise RuntimeError, "Bad character list includes essential characters."
+      raise EncodingError, "Bad character list includes essential characters."
       exit
     elsif @set == 1 then #add
       @inst["opcode"] = 0x05
@@ -112,7 +109,7 @@ class Metasploit3 < Msf::Encoder
     @inst["push_esp"] = 0x54
     @inst["pop_esp"] = 0x5c
     if state.buf.size%4 != 0 then
-      raise RuntimeError, "Shellcode size must be divisible by 4, try nop padding."
+      raise EncodingError, "Shellcode size must be divisible by 4, try nop padding."
       exit
     end
     #init

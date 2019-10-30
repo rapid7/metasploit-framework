@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/encoder/alpha2/alpha_mixed'
 
-class Metasploit3 < Msf::Encoder::Alphanum
+class MetasploitModule < Msf::Encoder::Alphanum
   Rank = LowRanking
 
   def initialize
@@ -15,6 +14,9 @@ class Metasploit3 < Msf::Encoder::Alphanum
       'Description'      => %q{
         Encodes payloads as alphanumeric mixedcase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
+        A pure alpha encoder is impossible without having a register that points at or near the shellcode.
+        In a default configuration the first few bytes at the beginning are an fnstenv getpc stub (the same as used in shikata_ga_nai) and thus are not alphanumeric.
+        You can set BufferRegister for full alpha (see Encoder options for details).
       },
       'Author'           => [ 'pusscat', 'skylined' ],
       'Arch'             => ARCH_X86,
@@ -31,6 +33,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
   # being encoded.
   #
   def decoder_stub(state)
+    modified_registers = []
     reg = datastore['BufferRegister']
     off = (datastore['BufferOffset'] || 0).to_i
     buf = ''
@@ -41,10 +44,21 @@ class Metasploit3 < Msf::Encoder::Alphanum
         buf = 'VTX630VXH49HHHPhYAAQhZYYYYAAQQDDDd36FFFFTXVj0PPTUPPa301089'
         reg = 'ECX'
         off = 0
+        modified_registers.concat (
+          [
+            Rex::Arch::X86::ESP,
+            Rex::Arch::X86::EDI,
+            Rex::Arch::X86::ESI,
+            Rex::Arch::X86::EBP,
+            Rex::Arch::X86::EBX,
+            Rex::Arch::X86::EDX,
+            Rex::Arch::X86::ECX,
+            Rex::Arch::X86::EAX
+          ])
       else
-        res = Rex::Arch::X86.geteip_fpu(state.badchars)
+        res = Rex::Arch::X86.geteip_fpu(state.badchars, modified_registers)
         if (not res)
-          raise RuntimeError, "Unable to generate geteip code"
+          raise EncodingError, "Unable to generate geteip code"
         end
       buf, reg, off = res
       end
@@ -52,7 +66,15 @@ class Metasploit3 < Msf::Encoder::Alphanum
       reg.upcase!
     end
 
-    buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off)
+    stub = buf + Rex::Encoder::Alpha2::AlphaMixed::gen_decoder(reg, off, modified_registers)
+
+    # Sanity check that saved_registers doesn't overlap with modified_registers
+    modified_registers.uniq!
+    if (modified_registers & saved_registers).length > 0
+      raise BadGenerateError
+    end
+
+    stub
   end
 
   #
@@ -68,5 +90,15 @@ class Metasploit3 < Msf::Encoder::Alphanum
   #
   def encode_end(state)
     state.encoded += Rex::Encoder::Alpha2::AlphaMixed::add_terminator()
+  end
+
+  # Indicate that this module can preserve some registers
+  def can_preserve_registers?
+    true
+  end
+
+  # Convert the SaveRegisters to an array of x86 register constants
+  def saved_registers
+    Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
   end
 end

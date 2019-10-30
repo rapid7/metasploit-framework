@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -27,7 +23,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptInt.new('DURATION', [false, 'Number of seconds to record', 5])
-      ], self.class)
+      ])
   end
 
   def rhost
@@ -80,5 +76,4 @@ class Metasploit3 < Msf::Post
       print_good("#{rhost} - Audio recording saved: #{p}")
     end
   end
-
 end

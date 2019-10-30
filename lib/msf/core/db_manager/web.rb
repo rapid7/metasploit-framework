@@ -20,7 +20,7 @@ module Msf::DBManager::Web
   def report_web_form(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]
     meth    = opts[:method].to_s.upcase
@@ -107,7 +107,7 @@ module Msf::DBManager::Web
   def report_web_page(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]
     code    = opts[:code].to_i
@@ -142,8 +142,16 @@ module Msf::DBManager::Web
     page.cookie   = opts[:cookie] if opts[:cookie]
     page.auth     = opts[:auth]   if opts[:auth]
     page.mtime    = opts[:mtime]  if opts[:mtime]
-    page.ctype    = opts[:ctype]  if opts[:ctype]
+
+
+    if opts[:ctype].blank? || opts[:ctype] == [""]
+      page.ctype = ""
+    else
+      page.ctype = opts[:ctype]
+    end
+
     page.location = opts[:location] if opts[:location]
+
     msf_import_timestamps(opts, page)
     page.save!
 
@@ -180,7 +188,7 @@ module Msf::DBManager::Web
   def report_web_site(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection { |conn|
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     vhost  = opts.delete(:vhost)
 
     addr = nil
@@ -281,7 +289,7 @@ module Msf::DBManager::Web
   def report_web_vuln(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]
     meth    = opts[:method]

@@ -51,14 +51,14 @@ module Kademlia
       bootstrap_peer_id = Rex::Proto::Kademlia.decode_peer_id(message.body.slice!(0, 16))
       bootstrap_tcp_port, bootstrap_version, num_peers = message.body.slice!(0, 5).unpack('vCv')
       # protocol says there are no peers and the body confirms this, so just return with no peers
-      if num_peers == 0 && message.body.blank?
+      if num_peers == 0 && message.body.to_s.strip.empty?
         peers = []
       else
         peers_data = message.body
         # peers data is too long/short, abort
         return if peers_data.size % BOOTSTRAP_PEER_SIZE != 0
         peers = []
-        until peers_data.blank?
+        until peers_data.to_s.strip.empty?
           peer_data = peers_data.slice!(0, BOOTSTRAP_PEER_SIZE)
           peer_id = Rex::Proto::Kademlia.decode_peer_id(peer_data.slice!(0, 16))
           ip, udp_port, tcp_port, version = peer_data.unpack('VvvC')

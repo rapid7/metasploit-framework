@@ -164,9 +164,24 @@ class Packet
   end
 
   #
+  # Outputs a readable string of the packet for terminal output
+  #
+  def to_terminal_output
+    output_packet(true)
+  end
+
+  #
   # Converts the packet to a string.
   #
   def to_s
+    output_packet(false)
+  end
+
+  #
+  # Converts the packet to a string.
+  # If ignore_chunk is set the chunked encoding is omitted (for pretty print)
+  #
+  def output_packet(ignore_chunk=false)
     content = self.body.to_s.dup
 
     # Update the content length field in the header with the body length.
@@ -187,16 +202,20 @@ class Packet
         end
       end
 
-      if (self.auto_cl == true && self.transfer_chunked == true)
-        raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
-      elsif self.auto_cl == true
-        self.headers['Content-Length'] = content.length
-      elsif self.transfer_chunked == true
-        if self.proto != '1.1'
-          raise RuntimeError, 'Chunked encoding is only available via 1.1'
+      unless ignore_chunk
+        if self.auto_cl && self.transfer_chunked
+          raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
         end
-        self.headers['Transfer-Encoding'] = 'chunked'
-        content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+
+        if self.auto_cl
+          self.headers['Content-Length'] = content.length
+        elsif self.transfer_chunked
+          if self.proto != '1.1'
+            raise RuntimeError, 'Chunked encoding is only available via 1.1'
+          end
+          self.headers['Transfer-Encoding'] = 'chunked'
+          content = self.chunk(content, self.chunk_min_size, self.chunk_max_size)
+        end
       end
     end
 
@@ -411,4 +430,3 @@ end
 end
 end
 end
-

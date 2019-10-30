@@ -16,3 +16,4 @@ xampp
 wampp
 ppmax2011
 turnkey
+vagrant

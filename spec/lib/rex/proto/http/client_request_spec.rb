@@ -4,51 +4,51 @@ require 'spec_helper'
 require 'rex/proto/http/client_request'
 
 
-shared_context "with no evasions" do
-  before(:each) do
+RSpec.shared_context "with no evasions" do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = false
     client_request.opts['uri_fake_params_start'] = false
     client_request.opts['uri_full_url'] = false
   end
 
   it "should return the unmodified uri" do
-    client_request.send(:set_uri).should == "/"
+    expect(client_request.send(:set_uri)).to eq "/"
   end
 end
 
 
-shared_context "with 'uri_dir_self_reference'" do
-  before(:each) do
+RSpec.shared_context "with 'uri_dir_self_reference'" do
+  before(:example) do
     client_request.opts['uri_dir_self_reference'] = true
   end
 
   it "should have a self reference" do
-    client_request.send(:set_uri).should include("/./")
-    client_request.to_s.should include("/./")
+    expect(client_request.send(:set_uri)).to include("/./")
+    expect(client_request.to_s).to include("/./")
   end
 end
 
 
-shared_context "with 'uri_dir_fake_relative'" do
-  before(:each) do
+RSpec.shared_context "with 'uri_dir_fake_relative'" do
+  before(:example) do
     client_request.opts['uri_dir_fake_relative'] = true
   end
 
   it "should contain sequences of '../'" do
-    client_request.send(:set_uri).should include("../")
-    client_request.to_s.should include("../")
+    expect(client_request.send(:set_uri)).to include("../")
+    expect(client_request.to_s).to include("../")
   end
 
 end
 
 
-shared_context "with 'uri_full_url'" do
+RSpec.shared_context "with 'uri_full_url'" do
 
-  before(:each) do
+  before(:example) do
     client_request.opts['uri_full_url'] = true
   end
 
-  before(:each) do
+  before(:example) do
     client_request.opts['vhost'] = host
   end
 
@@ -72,16 +72,16 @@ shared_context "with 'uri_full_url'" do
 
 end
 
-shared_examples "uri_full_url" do
+RSpec.shared_examples "uri_full_url" do
 
   it "#set_uri should have the host in the URI" do
-    client_request.send(:set_uri).should start_with("http://#{host}/")
+    expect(client_request.send(:set_uri)).to start_with("http://#{host}/")
   end
 
 end
 
 
-describe Rex::Proto::Http::ClientRequest do
+RSpec.describe Rex::Proto::Http::ClientRequest do
 
   default_options = {
     # All of these should be what you get when you pass in empty
@@ -108,9 +108,6 @@ describe Rex::Proto::Http::ClientRequest do
         :set_uri_append        => { :result => "" },
         :set_agent_header      => { :result => "User-Agent: Mozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_host_header       => { :result => "Host: www.example.com\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo: Bar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo: Bar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs: Bar\r\n" },
       }
     ],
@@ -127,9 +124,6 @@ describe Rex::Proto::Http::ClientRequest do
         :set_agent_header      => { :result => "User-Agent:\r\n\tMozilla/4.0 (compatible; Metasploit RSPEC)\r\n" },
         :set_cookie_header     => { :result => "" },
         :set_connection_header => { :result => "Connection:\r\n\tclose\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar"], :result => "Foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["foo", "Bar"], :result => "foo:\r\n\tBar\r\n" },
-        :set_formatted_header  => { :args => ["Foo", "Bar\twith\ttabs"], :result => "Foo:\r\n\tBar\twith\ttabs\r\n" },
         :set_formatted_header  => { :args => ["Foo\twith\tabs", "Bar"], :result => "Foo\twith\tabs:\r\n\tBar\r\n" },
       }
     ],
@@ -151,7 +145,36 @@ describe Rex::Proto::Http::ClientRequest do
       {
         :set_host_header       => { :result => "Host: [2001:DB8::1]:1234\r\n" },
       }
-    ]
+    ],
+
+    [
+      "with modified Content-Length header",
+      default_options.merge({
+        'headers' => { 'Content-Length' => 1337 }
+      }),
+      {
+        :set_content_len_header => { args: 0, result: ''}
+      }
+    ],
+
+    [
+      "with 1024 bytes of Content-Length",
+      default_options,
+      {
+        :set_content_len_header => { args: 1024, result: "Content-Length: 1024\r\n"}
+      }
+    ],
+
+    [
+      "with a POST request and no payload body",
+      default_options.merge({
+        'method' => 'POST'
+      }),
+      {
+        :set_content_len_header => { args: 0, result: "Content-Length: 0\r\n"}
+      }
+    ],
+
   ].each do |c, opts, expectations|
     context c do
       subject(:client_request) { Rex::Proto::Http::ClientRequest.new(opts) }
@@ -161,7 +184,7 @@ describe Rex::Proto::Http::ClientRequest do
         result = things[:result]
         describe "##{meth}" do
           it "should return #{result.inspect}" do
-            client_request.send(meth, *args).should == result
+            expect(client_request.send(meth, *args)).to eq result
           end
         end
       end
@@ -202,10 +225,10 @@ describe Rex::Proto::Http::ClientRequest do
         client_request.opts['pad_get_params'] = true
 
         client_request.opts['pad_get_params_count'] = 0
-        client_request.to_s.split("&").length.should == vars_get.length
+        expect(client_request.to_s.split("&").length).to eq vars_get.length
 
         client_request.opts['pad_get_params_count'] = 10
-        client_request.to_s.split("&").length.should == vars_get.length + 10
+        expect(client_request.to_s.split("&").length).to eq vars_get.length + 10
 
         client_request.opts['pad_get_params'] = old
       end
@@ -215,12 +238,12 @@ describe Rex::Proto::Http::ClientRequest do
       let(:encode_params) { false }
       it "should contain the unaltered params" do
         str = client_request.to_s
-        str.should include("foo[]=bar")
-        str.should include("bar=baz")
-        str.should include("frobnicate=the froozle?")
-        str.should include("foshizzle=my/nizzle")
-        str.should include("asdf&")
-        str.should include("test=")
+        expect(str).to include("foo[]=bar")
+        expect(str).to include("bar=baz")
+        expect(str).to include("frobnicate=the froozle?")
+        expect(str).to include("foshizzle=my/nizzle")
+        expect(str).to include("asdf&")
+        expect(str).to include("test=")
       end
     end
 
@@ -229,12 +252,12 @@ describe Rex::Proto::Http::ClientRequest do
       context "and 'uri_encode_mode' = default (hex-normal)" do
         it "should encode special chars" do
           str = client_request.to_s
-          str.should include("foo%5b%5d=bar")
-          str.should include("bar=baz")
-          str.should include("frobnicate=the%20froozle%3f")
-          str.should include("foshizzle=my/nizzle")
-          str.should include("asdf&")
-          str.should include("test=")
+          expect(str).to include("foo%5b%5d=bar")
+          expect(str).to include("bar=baz")
+          expect(str).to include("frobnicate=the%20froozle%3f")
+          expect(str).to include("foshizzle=my/nizzle")
+          expect(str).to include("asdf&")
+          expect(str).to include("test=")
         end
       end
 
@@ -242,10 +265,10 @@ describe Rex::Proto::Http::ClientRequest do
         let(:encode_mode) { 'hex-noslashes' }
         it "should encode all chars" do
           str = client_request.to_s
-          str.should include("%66%6f%6f%5b%5d=%62%61%72")
-          str.should include("%62%61%72=%62%61%7a")
-          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
-          str.should include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79/%6e%69%7a%7a%6c%65")
+          expect(str).to include("%66%6f%6f%5b%5d=%62%61%72")
+          expect(str).to include("%62%61%72=%62%61%7a")
+          expect(str).to include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+          expect(str).to include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79/%6e%69%7a%7a%6c%65")
         end
       end
 
@@ -253,16 +276,16 @@ describe Rex::Proto::Http::ClientRequest do
         let(:encode_mode) { 'hex-all' }
         it "should encode all chars" do
           str = client_request.to_s
-          str.should include("%66%6f%6f%5b%5d=%62%61%72")
-          str.should include("%62%61%72=%62%61%7a")
-          str.should include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
-          str.should include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79%2f%6e%69%7a%7a%6c%65")
+          expect(str).to include("%66%6f%6f%5b%5d=%62%61%72")
+          expect(str).to include("%62%61%72=%62%61%7a")
+          expect(str).to include("%66%72%6f%62%6e%69%63%61%74%65=%74%68%65%20%66%72%6f%6f%7a%6c%65%3f")
+          expect(str).to include("%66%6f%73%68%69%7a%7a%6c%65=%6d%79%2f%6e%69%7a%7a%6c%65")
         end
       end
 
       describe "#to_s" do
         it "should produce same values if called multiple times with same options" do
-          client_request.to_s.should == client_request.to_s
+          expect(client_request.to_s).to eq client_request.to_s
         end
       end
 

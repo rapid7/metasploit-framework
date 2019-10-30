@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -22,7 +19,8 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2008-3273'],
-          ['URL', 'http://seclists.org/fulldisclosure/2011/Sep/139'],
+          ['CVE', '2010-1429'], # regression
+          ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
           ['URL', 'https://www.owasp.org/images/a/a9/OWASP3011_Luca.pdf'],
           ['URL', 'http://www.slideshare.net/chrisgates/lares-fromlowtopwned']
         ],
@@ -33,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [ true,  'The JBoss status servlet URI path', '/status'])
-    ], self.class)
+    ])
   end
 
   def run_host(target_host)
@@ -88,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
   def show_results(target_host)
     print_good("#{rhost}:#{rport} JBoss application server found")
 
-    req_table = Rex::Ui::Text::Table.new(
+    req_table = Rex::Text::Table.new(
       'Header'  => 'JBoss application server requests',
         'Indent'  => 1,
         'Columns' => ['Client', 'Vhost target', 'Request']

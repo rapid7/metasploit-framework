@@ -12,34 +12,51 @@ module Auxiliary::Report
 
   optionally_include_metasploit_credential_creation
 
+  def db_warning_given?
+    if @warning_issued
+      true
+    else
+      @warning_issued = true
+      false
+    end
+  end
+
   def create_cracked_credential(opts={})
     if active_db?
-      super(opts)
-    else
+      framework.db.create_cracked_credential(opts)
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
   def create_credential(opts={})
     if active_db?
-      super(opts)
-    else
+      framework.db.create_credential(opts)
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
   def create_credential_login(opts={})
     if active_db?
-      super(opts)
-    else
+      framework.db.create_credential_login(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_and_login(opts={})
+    if active_db?
+      framework.db.create_credential_and_login(opts)
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
 
   def invalidate_login(opts={})
     if active_db?
-      super(opts)
-    else
+      framework.db.invalidate_login(opts)
+    elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
   end
@@ -61,7 +78,7 @@ module Auxiliary::Report
   # This method safely get the workspace ID. It handles if the db is not active
   #
   # @return [NilClass] if there is no DB connection
-  # @return [Fixnum] the ID of the current {Mdm::Workspace}
+  # @return [Integer] the ID of the current Mdm::Workspace
   def myworkspace_id
     if framework.db.active
       myworkspace.id
@@ -113,13 +130,11 @@ module Auxiliary::Report
 
   #
   # Report a client connection
-  #
-  # opts must contain
-  #	:host      the address of the client connecting
-  #	:ua_string a string that uniquely identifies this client
-  # opts can contain
-  #	:ua_name a brief identifier for the client, e.g. "Firefox"
-  #	:ua_ver  the version number of the client, e.g. "3.0.11"
+  # @param opts [Hash] report client information based on user-agent
+  # @option opts [String] :host the address of the client connecting
+  # @option opts [String] :ua_string a string that uniquely identifies this client
+  # @option opts [String] :ua_name a brief identifier for the client, e.g. "Firefox"
+  # @option opts [String] :ua_ver  the version number of the client, e.g. "3.0.11"
   #
   def report_client(opts={})
     return if not db
@@ -161,9 +176,9 @@ module Auxiliary::Report
   # by a module. This method is deprecated and the new Metasploit::Credential methods
   # should be used directly instead.
   #
-  # @param :opts [Hash] the option hash
-  # @option opts [String] :host the address of the host (also takes a {Mdm::Host})
-  # @option opts [Fixnum] :port the port of the connected service
+  # @param opts [Hash] the option hash
+  # @option opts [String] :host the address of the host (also takes a Mdm::Host)
+  # @option opts [Integer] :port the port of the connected service
   # @option opts [Mdm::Service] :service an optional Service object to build the cred for
   # @option opts [String] :type What type of private credential this is (e.g. "password", "hash", "ssh_key")
   # @option opts [String] :proto Which transport protocol the service uses
@@ -171,8 +186,14 @@ module Auxiliary::Report
   # @option opts [String] :user The username for the cred
   # @option opts [String] :pass The private part of the credential (e.g. password)
   def report_auth_info(opts={})
-    print_error "*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!"
-    return if not db
+    print_warning("*** #{self.fullname} is still calling the deprecated report_auth_info method! This needs to be updated!")
+    print_warning('*** For detailed information about LoginScanners and the Credentials objects see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners')
+    print_warning('     https://github.com/rapid7/metasploit-framework/wiki/How-to-write-a-HTTP-LoginScanner-Module')
+    print_warning('*** For examples of modules converted to just report credentials without report_auth_info, see:')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5376')
+    print_warning('     https://github.com/rapid7/metasploit-framework/pull/5377')
+    return unless db
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
@@ -261,7 +282,29 @@ module Auxiliary::Report
         :workspace => myworkspace,
         :task => mytask
     }.merge(opts)
-    framework.db.report_vuln(opts)
+    vuln = framework.db.report_vuln(opts)
+
+    # add vuln attempt audit details here during report
+
+    timestamp  = opts[:timestamp]
+    username   = opts[:username]
+    mname      = self.fullname # use module name when reporting attempt for correlation
+
+    # report_vuln is only called in an identified case, consider setting value reported here
+    attempt_info = {
+        :vuln_id      => vuln.id,
+        :attempted_at => timestamp || Time.now.utc,
+        :exploited    => false,
+        :fail_detail  => 'vulnerability identified',
+        :fail_reason  => 'Untried', # Mdm::VulnAttempt::Status::UNTRIED, avoiding direct dependency on Mdm, used elsewhere in this module
+        :module       => mname,
+        :username     => username  || "unknown",
+    }
+
+    # TODO: figure out what opts are required and why the above logic doesn't match that of the db_manager method
+    framework.db.report_vuln_attempt(vuln, attempt_info)
+
+    vuln
   end
 
   # This will simply log a deprecation warning, since report_exploit()
@@ -355,7 +398,7 @@ module Auxiliary::Report
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking
-    host = framework.db.normalize_host(host)
+    host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
     name =
@@ -382,6 +425,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
+      conf[:data] = data if data
 
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
@@ -399,7 +443,7 @@ module Auxiliary::Report
   # module, such as files from fileformat exploits. (TODO: actually
   # implement this on file format modules.)
   #
-  # +filenmae+ is the local file name.
+  # +filename+ is the local file name.
   #
   # +data+ is the actual contents of the file
   #
@@ -427,7 +471,7 @@ module Auxiliary::Report
       fname = ctype || "local_#{Time.now.utc.to_i}"
     end
 
-    # Split by path seperator
+    # Split by path separator
     fname = ::File.split(fname).last
 
     case ctype # Probably could use more cases

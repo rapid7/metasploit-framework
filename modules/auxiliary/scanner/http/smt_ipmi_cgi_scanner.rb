@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -119,18 +117,18 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def run_host(ip)
-    vprint_status("#{peer} - Checking if it's a Supermicro IPMI web interface...")
+    vprint_status("Checking if it's a Supermicro IPMI web interface...")
     if is_supermicro?
-      vprint_good("#{peer} - Supermicro IPMI web interface found")
+      vprint_good("Supermicro IPMI web interface found")
     else
-      vprint_error("#{peer} - Supermicro IPMI web interface not found")
+      vprint_error("Supermicro IPMI web interface not found")
       return
     end
 
-    vprint_status("#{peer} - Checking CVE-2013-3621 (login.gi Buffer Overflow) ...")
+    vprint_status("Checking CVE-2013-3621 (login.gi Buffer Overflow) ...")
     result = check_login
     if result
-      print_good("#{peer} - Vulnerable to CVE-2013-3621 (login.cgi Buffer Overflow)")
+      print_good("Vulnerable to CVE-2013-3621 (login.cgi Buffer Overflow)")
       report_vuln({
         :host  => rhost,
         :port  => rport,
@@ -140,10 +138,10 @@ class Metasploit3 < Msf::Auxiliary
       })
     end
 
-    vprint_status("#{peer} - Checking CVE-2013-3623 (close_window.gi Buffer Overflow) ...")
+    vprint_status("Checking CVE-2013-3623 (close_window.gi Buffer Overflow) ...")
     result = check_close_window
     if result
-      print_good("#{peer} - Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
+      print_good("Vulnerable to CVE-2013-3623 (close_window.cgi Buffer Overflow)")
       report_vuln({
         :host  => rhost,
         :port  => rport,
@@ -154,5 +152,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

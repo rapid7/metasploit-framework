@@ -55,6 +55,31 @@ class Output::Stdio < Rex::Ui::Text::Output
     @io ||= $stdout
   end
 
+  # Use ANSI Control chars to reset prompt position for async output
+  # SEE https://github.com/rapid7/metasploit-framework/pull/7570
+  def print_line(msg = '')
+    # TODO: there are unhandled quirks in async output buffering that
+    # we have not solved yet, for instance when loading meterpreter
+    # extensions, supporting Windows, printing output from commands, etc.
+    # Remove this guard when issues are resolved.
+=begin
+    if (/mingw/ =~ RUBY_PLATFORM)
+      print(msg + "\n")
+      return
+    end
+    print("\033[s") # Save cursor position
+    print("\r\033[K" + msg + "\n")
+    if input and input.prompt
+      print("\r\033[K")
+      print(input.prompt.tr("\001\002", ''))
+      print(input.line_buffer.tr("\001\002", ''))
+      print("\033[u\033[B") # Restore cursor, move down one line
+    end
+=end
+
+    print(msg + "\n")
+  end
+
   #
   # Prints the supplied message to standard output.
   #
@@ -70,22 +95,6 @@ class Output::Stdio < Rex::Ui::Text::Output
     msg
   end
   alias_method :write, :print_raw
-
-  def puts(*args)
-    args.each do |argument|
-      line = argument.to_s
-      write(line)
-
-      unless line.ends_with? "\n"
-        # yes, this is output, but `IO#puts` uses `rb_default_rs`, which is
-        # [`$/`](https://github.com/ruby/ruby/blob/3af8e150aded9d162bfd41426aaaae0279e5a653/io.c#L12168-L12172),
-        # which is [`$INPUT_RECORD_SEPARATOR`](https://github.com/ruby/ruby/blob/3af8e150aded9d162bfd41426aaaae0279e5a653/lib/English.rb#L83)
-        write($INPUT_RECORD_SEPARATOR)
-      end
-    end
-
-    nil
-  end
 
   def supports_color?
     case config[:color]

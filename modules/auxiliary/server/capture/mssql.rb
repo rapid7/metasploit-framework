@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/message'
 require 'rex/proto/ntlm/crypt'
@@ -12,8 +11,7 @@ NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Exploit::Remote::SMB::Server
   include Msf::Auxiliary::Report
@@ -50,13 +48,13 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
         OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
         OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
-      ], self.class)
+      ])
 
   end
 
@@ -75,11 +73,9 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
+    # those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
     @previous_lm_hash="none"
     @previous_ntlm_hash="none"
-
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 
     exploit()
   end
@@ -373,7 +369,7 @@ class Metasploit3 < Msf::Auxiliary
         if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
           arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
         end
-        #if the length of the ntlm response is not 24 then it will be bigger and represent
+        # if the length of the ntlm response is not 24 then it will be bigger and represent
         # a ntlmv2 response
       elsif nt_len > 24 #lmv2/ntlmv2
         arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,

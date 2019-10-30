@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
             File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")
           ]
         )
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
-      ], self.class)
+      ])
 
   end
 
@@ -158,13 +155,12 @@ class Metasploit3 < Msf::Auxiliary
             if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
               if dm == false
                 print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}  #{res.code.to_i}")
-                #blah
               end
             else
               if res.code.to_i == 400  and ecode != 400
                 print_error("Server returned an error code. #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
               else
-                print_status("Found #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
+                print_good("Found #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
 
                 report_web_vuln(
                   :host	=> ip,

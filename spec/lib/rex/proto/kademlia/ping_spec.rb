@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'rex/proto/kademlia/ping'
 
-describe Rex::Proto::Kademlia::Ping do
+RSpec.describe Rex::Proto::Kademlia::Ping do
   subject(:ping) do
     described_class.new
   end

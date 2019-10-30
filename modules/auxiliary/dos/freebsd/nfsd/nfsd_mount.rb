@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -23,13 +18,12 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://lists.immunitysec.com/pipermail/dailydave/2006-February/002982.html' ],
           [ 'BID', '16838' ],
           [ 'OSVDB', '23511' ],
           [ 'CVE', '2006-0900' ],
         ]))
 
-      register_options([Opt::RPORT(2049),], self.class)
+      register_options([Opt::RPORT(2049),])
   end
 
   def run
@@ -45,5 +39,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect
   end
-
 end

@@ -12,6 +12,8 @@ require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 require 'rex/post/meterpreter/packet_dispatcher'
+require 'rex/post/meterpreter/pivot'
+require 'rex/post/meterpreter/pivot_container'
 
 module Rex
 module Post
@@ -35,6 +37,7 @@ class Client
 
   include Rex::Post::Meterpreter::PacketDispatcher
   include Rex::Post::Meterpreter::ChannelContainer
+  include Rex::Post::Meterpreter::PivotContainer
 
   #
   # Extension name to class hash.
@@ -77,7 +80,7 @@ class Client
   # Initializes the client context with the supplied socket through
   # which communication with the server will be performed.
   #
-  def initialize(sock,opts={})
+  def initialize(sock, opts={})
     init_meterpreter(sock, opts)
   end
 
@@ -85,11 +88,28 @@ class Client
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
   def cleanup_meterpreter
-    ext.aliases.each_value do | extension |
-      extension.cleanup if extension.respond_to?( 'cleanup' )
+    if self.pivot_session
+      self.pivot_session.remove_pivot_session(self.session_guid)
     end
+
+    self.pivot_sessions.keys.each do |k|
+      pivot = self.pivot_sessions[k]
+      pivot.pivoted_session.kill('Pivot closed')
+      pivot.pivoted_session.shutdown_passive_dispatcher
+    end
+
+    unless self.skip_cleanup
+      ext.aliases.each_value do | extension |
+        extension.cleanup if extension.respond_to?( 'cleanup' )
+      end
+    end
+
     dispatcher_thread.kill if dispatcher_thread
-    core.shutdown rescue nil
+
+    unless self.skip_cleanup
+      core.shutdown rescue nil
+    end
+
     shutdown_passive_dispatcher
   end
 
@@ -105,13 +125,25 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
+    self.last_checkin = Time.now
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
-    self.expiration   = opts[:expiration]
-    self.comm_timeout = opts[:comm_timeout]
-    self.passive_dispatcher = opts[:passive_dispatcher]
+
+    self.pivot_session = opts[:pivot_session]
+    if self.pivot_session
+      self.expiration   = self.pivot_session.expiration
+      self.comm_timeout = self.pivot_session.comm_timeout
+      self.retry_total  = self.pivot_session.retry_total
+      self.retry_wait   = self.pivot_session.retry_wait
+    else
+      self.expiration   = opts[:expiration]
+      self.comm_timeout = opts[:comm_timeout]
+      self.retry_total  = opts[:retry_total]
+      self.retry_wait   = opts[:retry_wait]
+      self.passive_dispatcher = opts[:passive_dispatcher]
+    end
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
@@ -120,9 +152,12 @@ class Client
     # self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
     self.encode_unicode = false
 
+    self.aes_key      = nil
+    self.session_guid = opts[:session_guid] || "\x00" * 16
+
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]
-      if ! ::File.exists? opts[:ssl_cert]
+      if ! ::File.exist? opts[:ssl_cert]
         elog("SSL certificate at #{opts[:ssl_cert]} does not exist and will be ignored")
       else
         # Load the certificate the same way that SslTcpServer does it
@@ -130,32 +165,21 @@ class Client
       end
     end
 
-    if opts[:passive_dispatcher]
-      initialize_passive_dispatcher
+    # Protocol specific dispatch mixins go here, this may be neader with explicit Client classes
+    opts[:dispatch_ext].each {|dx| self.extend(dx)} if opts[:dispatch_ext]
+    initialize_passive_dispatcher if opts[:passive_dispatcher]
 
-      register_extension_alias('core', ClientCore.new(self))
+    register_extension_alias('core', ClientCore.new(self))
 
-      initialize_inbound_handlers
-      initialize_channels
+    initialize_inbound_handlers
+    initialize_channels
+    initialize_pivots
 
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-    else
-      # Switch the socket to SSL mode and receive the hello if needed
-      if capabilities[:ssl] and not opts[:skip_ssl]
-        swap_sock_plain_to_ssl()
-      end
+    # Register the channel and pivot inbound packet handlers
+    register_inbound_handler(Rex::Post::Meterpreter::Channel)
+    register_inbound_handler(Rex::Post::Meterpreter::Pivot)
 
-      register_extension_alias('core', ClientCore.new(self))
-
-      initialize_inbound_handlers
-      initialize_channels
-
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-
-      monitor_socket
-    end
+    monitor_socket 
   end
 
   def swap_sock_plain_to_ssl
@@ -194,6 +218,7 @@ class Client
     self.sock.extend(Rex::Socket::SslTcp)
     self.sock.sslsock = ssl
     self.sock.sslctx  = ctx
+    self.sock.sslhash = Rex::Text.sha1_raw(ctx.cert.to_der)
 
     tag = self.sock.get_once(-1, 30)
     if(not tag or tag !~ /^GET \//)
@@ -206,6 +231,7 @@ class Client
     self.sock.sslsock.close
     self.sock.sslsock = nil
     self.sock.sslctx  = nil
+    self.sock.sslhash = nil
     self.sock = self.sock.fd
     self.sock.extend(::Rex::Socket::Tcp)
   end
@@ -451,9 +477,21 @@ class Client
   #
   attr_accessor :comm_timeout
   #
+  # The total time for retrying connections
+  #
+  attr_accessor :retry_total
+  #
+  # The time to wait between retry attempts
+  #
+  attr_accessor :retry_wait
+  #
   # The Passive Dispatcher
   #
   attr_accessor :passive_dispatcher
+  #
+  # Reference to a session to pivot through
+  #
+  attr_accessor :pivot_session
   #
   # Flag indicating whether to hex-encode UTF-8 file names and other strings
   #
@@ -462,6 +500,10 @@ class Client
   # A list of the commands
   #
   attr_reader :commands
+  #
+  # The timestamp of the last received response
+  #
+  attr_accessor :last_checkin
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:

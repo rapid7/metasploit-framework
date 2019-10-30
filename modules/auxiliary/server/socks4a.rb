@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'thread'
-require 'msf/core'
 require 'rex/proto/proxy/socks4a'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize
@@ -32,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new( 'SRVHOST', [ true,  "The address to listen on", '0.0.0.0' ] ),
         OptPort.new( 'SRVPORT', [ true,  "The port to listen on.", 1080 ] )
-      ], self.class )
+      ])
   end
 
   def setup
@@ -67,5 +65,4 @@ class Metasploit3 < Msf::Auxiliary
 
     @socks4a.join
   end
-
 end

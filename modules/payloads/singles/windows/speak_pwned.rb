@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 =begin
 
-http://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
+https://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
 
 Copyright (c) 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 All rights reserved.
@@ -34,11 +34,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =end
 
-require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 247
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -83,5 +84,4 @@ module Metasploit3
     # EXITFUNC is not supported :/
     deregister_options('EXITFUNC')
   end
-
 end

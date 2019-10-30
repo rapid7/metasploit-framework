@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -45,9 +42,9 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'Client', '001']),
-        OptString.new('USERNAME', [true, 'Username ', 'SAP*']),
-        OptString.new('PASSWORD', [true, 'Password ', '06071992'])
-      ], self.class)
+        OptString.new('HttpUsername', [true, 'Username ', 'SAP*']),
+        OptString.new('HttpPassword', [true, 'Password ', '06071992'])
+      ])
   end
 
   def run_host(ip)
@@ -66,11 +63,12 @@ class Metasploit4 < Msf::Auxiliary
         'method' => 'POST',
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
         'data' => data,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'ctype'  => 'text/xml; charset=UTF-8',
         'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
+        'encode_params' => false,
         'vars_get' => {
           'sap-client'    => client,
           'sap-language'  => 'EN'

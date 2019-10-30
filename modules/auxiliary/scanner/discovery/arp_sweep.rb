@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -28,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('SMAC', [false, "Source MAC Address"]),
       # one re-register TIMEOUT here with a lower value, cause 5 seconds will be enough in most of the case
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'SECRET', 'GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT')
   end
@@ -49,11 +46,11 @@ class Metasploit3 < Msf::Auxiliary
     @interface = datastore['INTERFACE'] || Pcap.lookupdev
     shost = datastore['SHOST']
     shost ||= get_ipv4_addr(@interface) if @netifaces
-    raise RuntimeError ,'SHOST should be defined' unless shost
+    raise 'SHOST should be defined' unless shost
 
     smac  = datastore['SMAC']
     smac ||= get_mac(@interface) if @netifaces
-    raise RuntimeError ,'SMAC should be defined' unless smac
+    raise 'SMAC should be defined' unless smac
 
     begin
 
@@ -65,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
         while(reply = getreply())
           next unless reply.is_arp?
           company = OUI_LIST::lookup_oui_company_name(reply.arp_saddr_mac)
-          print_status("#{reply.arp_saddr_ip} appears to be up (#{company}).")
+          print_good("#{reply.arp_saddr_ip} appears to be up (#{company}).")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           report_note(:host  => reply.arp_saddr_ip, :type  => "mac_oui", :data  => company)
         end
@@ -78,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
       while(reply = getreply())
         next unless reply.is_arp?
         company = OUI_LIST::lookup_oui_company_name(reply.arp_saddr_mac)
-        print_status("#{reply.arp_saddr_ip} appears to be up (#{company}).")
+        print_good("#{reply.arp_saddr_ip} appears to be up (#{company}).")
         report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
         report_note(:host  => reply.arp_saddr_ip, :type  => "mac_oui", :data  => company)
       end
@@ -112,5 +109,4 @@ class Metasploit3 < Msf::Auxiliary
     return unless pkt.arp_opcode == 2
     pkt
   end
-
 end

@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'rex/proto/http/packet/header'
 
-describe Rex::Proto::Http::Packet::Header do
+RSpec.describe Rex::Proto::Http::Packet::Header do
 
   it_behaves_like "hash with insensitive keys"
 

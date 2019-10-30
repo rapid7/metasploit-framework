@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -30,7 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       OptString.new('INSTANCES', [true, "Instance numbers to scan (e.g. 00-05,00-99)", "00-01"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
   end

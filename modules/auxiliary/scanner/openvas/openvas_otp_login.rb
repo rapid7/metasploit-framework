@@ -1,35 +1,27 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
   def initialize
-  super(
-    'Name'        => 'OpenVAS OTP Login Utility',
-    'Description' => 'This module attempts to authenticate to an OpenVAS OTP service.',
-    'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-    'License'        => MSF_LICENSE
-  )
-  register_options(
-    [
-      Opt::RPORT(9391),
-      OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-    ], self.class)
-
-  register_advanced_options(
-  [
-    OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
-    OptString.new('SSLVersion', [ true, " Specify the version of SSL that should be used", "TLS1"])
-  ], self.class)
+    super(
+      'Name'        => 'OpenVAS OTP Login Utility',
+      'Description' => 'This module attempts to authenticate to an OpenVAS OTP service.',
+      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License'     => MSF_LICENSE
+    )
+    register_options(
+      [
+        Opt::RPORT(9391),
+        OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -61,6 +53,33 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def do_login(user=nil,pass=nil)
     begin
       otp_send("< OTP/1.0 >\n",true) # send hello
@@ -81,14 +100,13 @@ class Metasploit3 < Msf::Auxiliary
       otp_send("#{pass}\n",!@connected)
       if @result =~ /SERVER <|>.*<|> SERVER/is
         print_good("#{msg} SUCCESSFUL login for '#{user}' : '#{pass}'")
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => 'openvas-otp',
-          :user => user,
-          :pass => pass,
-          :source_type => "user_supplied",
-          :active => true
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'openvas-otp',
+          user: user,
+          password: pass,
+          proof: @result
         )
         disconnect
         @connected = false

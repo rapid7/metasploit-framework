@@ -2,6 +2,10 @@
 
 module Msf::Post::Common
 
+  def clear_screen
+    Gem.win_platform? ? (system "cls") : (system "clear")
+  end
+
   def rhost
     return nil unless session
 
@@ -35,7 +39,7 @@ module Msf::Post::Common
     when /meterpreter/
       pid_list = client.sys.process.processes.collect {|e| e['pid']}
     when /shell/
-      if client.platform =~ /win/
+      if client.platform == 'windows'
         o = cmd_exec('tasklist /FO LIST')
         pid_list = o.scan(/^PID:\s+(\d+)/).flatten
       else
@@ -84,7 +88,7 @@ module Msf::Post::Common
     case session.type
     when /meterpreter/
       #
-      # The meterpreter API requires arguments to come seperately from the
+      # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
       # blithely concatenated and passed to CreateProcess or its brethren. On
       # POSIX, this allows the server to execve just the executable when a
@@ -93,7 +97,7 @@ module Msf::Post::Common
       # /bin/sh.
       #
       # This problem was originally solved by using Shellwords.shellwords but
-      # unfortunately, it is retarded. When a backslash occurs inside double
+      # unfortunately, it is unsuitable. When a backslash occurs inside double
       # quotes (as is often the case with Windows commands) it inexplicably
       # removes them. So. Shellwords is out.
       #
@@ -101,16 +105,24 @@ module Msf::Post::Common
       # through /bin/sh, solving all the pesky parsing troubles, without
       # affecting Windows.
       #
+      start = Time.now.to_i
       if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
         args = ""
       end
 
       session.response_timeout = time_out
-      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
       o = ""
+      # Wait up to time_out seconds for the first bytes to arrive
       while (d = process.channel.read)
-        break if d == ""
         o << d
+        if d == ""
+          if Time.now.to_i - start < time_out
+            sleep 0.1
+          else
+            break
+          end
+        end
       end
       o.chomp! if o
 
@@ -121,8 +133,19 @@ module Msf::Post::Common
       end
 
       process.close
+    when /powershell/
+      if args.nil? || args.empty?
+        o = session.shell_command("#{cmd}", time_out)
+      else
+        o = session.shell_command("#{cmd} #{args}", time_out)
+      end
+      o.chomp! if o
     when /shell/
-      o = session.shell_command_token("#{cmd} #{args}", time_out)
+      if args.nil? || args.empty?
+        o = session.shell_command_token("#{cmd}", time_out)
+      else
+        o = session.shell_command_token("#{cmd} #{args}", time_out)
+      end
       o.chomp! if o
     end
     return "" if o.nil?
@@ -136,7 +159,7 @@ module Msf::Post::Common
           args = ""
         end
         session.response_timeout = time_out
-        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
         process.channel.close
         pid = process.pid
         process.close
@@ -147,19 +170,19 @@ module Msf::Post::Common
   end
 
   #
-  # Reports to the database that the host is a virtual machine and reports
-  # the type of virtual machine it is (e.g VirtualBox, VMware, Xen)
+  # Reports to the database that the host is using virtualization and reports
+  # the type of virtualization it is (e.g VirtualBox, VMware, Xen, Docker)
   #
-  def report_vm(vm)
+  def report_virtualization(virt)
     return unless session
-    return unless vm
-    vm_normal = vm.to_s.strip
-    return if vm_normal.empty?
-    vm_data = {
+    return unless virt
+    virt_normal = virt.to_s.strip
+    return if virt_normal.empty?
+    virt_data = {
       :host => session.target_host,
-      :virtual_host => vm_normal
+      :virtual_host => virt_normal
     }
-    report_host(vm_data)
+    report_host(virt_data)
   end
 
   #
@@ -170,7 +193,7 @@ module Msf::Post::Common
     when /meterpreter/
       return session.sys.config.getenv(env)
     when /shell/
-      if session.platform =~ /win/
+      if session.platform == 'windows'
         if env[0,1] == '%'
           unless env[-1,1] == '%'
             env << '%'
@@ -212,5 +235,20 @@ module Msf::Post::Common
     nil
   end
 
-end
+  #
+  # Checks if the `cmd` is installed on the system
+  # @return [Boolean]
+  #
+  def command_exists?(cmd)
+    if session.platform == 'windows'
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
+      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
+    else
+      cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+    end
+  rescue
+    raise "Unable to check if command `#{cmd}' exists"
+  end
 
+end

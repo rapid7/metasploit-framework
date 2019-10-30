@@ -1,14 +1,8 @@
-
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# $Revision: 9212 $
-
-require 'rubygems'
 require 'pathname'
 require 'nokogiri'
 require 'uri'
@@ -26,6 +20,7 @@ class CrawlerLink < BaseParser
           hreq = urltohash('GET', hr, request['uri'], nil)
           insertnewpath(hreq)
         rescue URI::InvalidURIError
+          # ignored
         end
       end
 

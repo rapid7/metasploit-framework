@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -39,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(52302),
         OptInt.new('RLIMIT', [true,  "Number of packets to send", 10])
-      ], self.class)
+      ])
   end
 
   def run
@@ -72,5 +69,4 @@ class Metasploit3 < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

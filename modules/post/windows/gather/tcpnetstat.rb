@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -22,14 +19,14 @@ class Metasploit3 < Msf::Post
       ))
     register_options(
       [
-      ], self.class)
+      ])
   end
 
   def parse_tcptable(buffer)
     entries = buffer[0,4].unpack("V*")[0]
     print_status("Total TCP Entries: #{entries}")
 
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'Connection Table',
       'Indent' => 2,
       'Columns' => ['STATE', 'LHOST', 'LPORT', 'RHOST', 'RPORT']

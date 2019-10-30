@@ -33,8 +33,12 @@ module Metasploit
         attr_accessor :john_path
 
         # @!attribute max_runtime
-        #   @return [Fixnum] An optional maximum duration of the cracking attempt in seconds
+        #   @return [Integer] An optional maximum duration of the cracking attempt in seconds
         attr_accessor :max_runtime
+
+        # @!attribute max_length
+        #   @return [Integer] An optional maximum length of password to attempt cracking
+        attr_accessor :max_length
 
         # @!attribute pot
         #   @return [String] The file path to an alternative John pot file to use
@@ -62,6 +66,12 @@ module Metasploit
                       greater_than_or_equal_to: 0
                   }, if: 'max_runtime.present?'
 
+        validates :max_length,
+                  numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0
+                  }, if: 'max_length.present?'
+
         validates :wordlist, :'Metasploit::Framework::File_path' => true, if: 'wordlist.present?'
 
         # @param attributes [Hash{Symbol => String,nil}]
@@ -87,9 +97,6 @@ module Metasploit
 
             if path && ::File.file?(path)
               bin_path = path
-            else
-              # If we can't find john anywhere else, look at our precompiled binaries
-              bin_path = select_shipped_binary
             end
           end
           raise JohnNotFoundError, 'No suitable John binary was found on the system' if bin_path.blank?
@@ -149,6 +156,10 @@ module Metasploit
             cmd << ( "--max-run-time=" + max_runtime.to_s)
           end
 
+          if max_length.present?
+            cmd << ( "--max-len=" + max_length.to_s)
+          end
+
           cmd << hash_path
         end
 
@@ -168,7 +179,7 @@ module Metasploit
         #
         # @return [String] the path to the default john.conf file
         def john_config_file
-          ::File.join( ::Msf::Config.data_directory, "john", "confs", "john.conf" )
+          ::File.join( ::Msf::Config.data_directory, "jtr", "john.conf" )
         end
 
         # This method returns the path to a default john.pot file.
@@ -206,64 +217,6 @@ module Metasploit
         end
 
         private
-
-        # This method tries to identify the correct version of the pre-shipped
-        # JtR binaries to use based on the platform.
-        #
-        # @return [NilClass] if the correct binary could not be determined
-        # @return [String] the path to the selected binary
-        def select_shipped_binary
-          cpuinfo_base = ::File.join(Msf::Config.data_directory, "cpuinfo")
-          run_path = nil
-          if File.directory?(cpuinfo_base)
-            data = nil
-
-            case ::RUBY_PLATFORM
-              when /mingw|cygwin|mswin/
-                fname = "#{cpuinfo_base}/cpuinfo.exe"
-                if File.exists?(fname) and File.executable?(fname)
-                  data = %x{"#{fname}"} rescue nil
-                end
-                case data
-                  when /sse2/
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.sse2", "john.exe")
-                  when /mmx/
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.mmx", "john.exe")
-                  else
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.win32.any", "john.exe")
-                end
-              when /x86_64-linux/
-                fname = "#{cpuinfo_base}/cpuinfo.ia64.bin"
-                if File.exists? fname
-                  ::FileUtils.chmod(0755, fname) rescue nil
-                  data = %x{"#{fname}"} rescue nil
-                end
-                case data
-                  when /mmx/
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x64.mmx", "john")
-                  else
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.any", "john")
-                end
-              when /i[\d]86-linux/
-                fname = "#{cpuinfo_base}/cpuinfo.ia32.bin"
-                if File.exists? fname
-                  ::FileUtils.chmod(0755, fname) rescue nil
-                  data = %x{"#{fname}"} rescue nil
-                end
-                case data
-                  when /sse2/
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.sse2", "john")
-                  when /mmx/
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.mmx", "john")
-                  else
-                    run_path ||= ::File.join(Msf::Config.data_directory, "john", "run.linux.x86.any", "john")
-                end
-            end
-          end
-          run_path
-        end
-
-
 
       end
 

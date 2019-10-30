@@ -87,7 +87,7 @@ cpassword_win2k8 << ['EqWFlA4kn2T6PHvGi09M7seHuqCYK/slkJWIl7mK+wFSuDccBEp/4l5EuK
 cpassword_normal = "j1Uyj3Vx8TY9LtLZil2uAuZkFQA/4latT76ZwgdHdhw"
 cpassword_bad = "blah"
 
-describe Rex::Parser::GPP do
+RSpec.describe Rex::Parser::GPP do
   GPP = Rex::Parser::GPP
 
   ##
@@ -95,23 +95,23 @@ describe Rex::Parser::GPP do
   ##
   it "Decrypt returns Local*P4ssword! for normal cpassword" do
     result = GPP.decrypt(cpassword_normal)
-    result.should eq("Local*P4ssword!")
+    expect(result).to eq("Local*P4ssword!")
   end
 
   it "Decrypt returns blank for bad cpassword" do
     result = GPP.decrypt(cpassword_bad)
-    result.should eq("")
+    expect(result).to eq("")
   end
 
   it "Decrypt returns blank for nil cpassword" do
     result = GPP.decrypt(nil)
-    result.should eq("")
+    expect(result).to eq("")
   end
 
   it 'Decrypts a cpassword containing junk padding' do
     cpassword_win2k8.each do |encrypted, expected|
       result = GPP.decrypt(encrypted)
-      result.should eq(expected)
+      expect(result).to eq(expected)
     end
   end
 
@@ -120,21 +120,21 @@ describe Rex::Parser::GPP do
   ##
 
   it "Parse returns empty [] for nil" do
-    GPP.parse(nil).should be_empty
+    expect(GPP.parse(nil)).to be_empty
   end
 
   it "Parse returns results for xml_ms and password is empty" do
     results = GPP.parse(xml_ms)
-    results.should_not be_empty
-    results[0][:PASS].should be_empty
+    expect(results).not_to be_empty
+    expect(results[0][:PASS]).to be_empty
   end
 
   it "Parse returns results for xml_datasrc, and attributes, and password is test1" do
     results = GPP.parse(xml_datasrc)
-    results.should_not be_empty
-    results[0].include?(:ATTRIBUTES).should be_truthy
-    results[0][:ATTRIBUTES].should_not be_empty
-    results[0][:PASS].should eq("test")
+    expect(results).not_to be_empty
+    expect(results[0].include?(:ATTRIBUTES)).to be_truthy
+    expect(results[0][:ATTRIBUTES]).not_to be_empty
+    expect(results[0][:PASS]).to eq("test")
   end
 
   xmls = []
@@ -147,8 +147,8 @@ describe Rex::Parser::GPP do
   it "Parse returns results for all good xmls and passwords" do
     xmls.each do |xml|
       results = GPP.parse(xml)
-      results.should_not be_empty
-      results[0][:PASS].should_not be_empty
+      expect(results).not_to be_empty
+      expect(results[0][:PASS]).not_to be_empty
     end
   end
 
@@ -159,7 +159,7 @@ describe Rex::Parser::GPP do
     xmls.each do |xml|
       results = GPP.parse(xml)
       tables = GPP.create_tables(results, "test")
-      tables.should_not be_empty
+      expect(tables).not_to be_empty
     end
   end
 end

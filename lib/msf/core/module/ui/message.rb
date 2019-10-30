@@ -8,26 +8,26 @@ module Msf::Module::UI::Message
     super(print_prefix + msg)
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg='')
     super(print_prefix + msg)
   end
 
   def print_prefix
-    ret = ''
-    if (datastore['TimestampOutput'] =~ /^(t|y|1)/i) || (
-      framework && framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
-    )
-      prefix = "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
+    prefix = ''
+    if datastore['TimestampOutput'] ||
+        (framework && framework.datastore['TimestampOutput'])
+      prefix << "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
 
       xn ||= datastore['ExploitNumber']
       xn ||= framework.datastore['ExploitNumber']
-      if xn.is_a?(Fixnum)
+      if xn.is_a?(Integer)
         prefix << "[%04d] " % xn
       end
 
-      ret = prefix
     end
-    ret
+    prefix
   end
 
   def print_status(msg='')

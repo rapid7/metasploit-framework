@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
-require 'msf/core'
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the cpuid value is generated and supplied
   # manually...
@@ -34,7 +33,7 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
           [ true,
           "CPUID key from target host (see tools/context/cpuid-key utility)",
           "0x00000000"]),
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)
@@ -194,5 +193,4 @@ protected
       Rex::Arch::X86::ESP,
       Rex::Arch::X86::ECX ], nil, state.badchars)
   end
-
 end

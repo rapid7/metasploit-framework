@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+module MetasploitModule
 
-module Metasploit3
+  CachedSize = 52
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -38,7 +38,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('CMD', [ true, "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -75,5 +75,4 @@ module Metasploit3
     return super + shellcode
 
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -37,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
         OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
         OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
         OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
-      ], self.class)
+      ])
 
     deregister_options('URIPATH')
   end
@@ -86,6 +83,5 @@ EOS
       end
     end
   end
-
 end
 

@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/postgres'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -21,29 +19,31 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate against a PostgreSQL
         instance using username and password combinations indicated
-        by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+        by the USER_FILE, PASS_FILE, and USERPASS_FILE options. Note that
+        passwords may be either plaintext or MD5 formatted hashes.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
           [ 'URL', 'http://www.postgresql.org' ],
-          [ 'CVE', '1999-0502'] # Weak password
+          [ 'CVE', '1999-0502'], # Weak password
+          [ 'URL', 'https://hashcat.net/forum/archive/index.php?thread-4148.html' ] # Pass the Hash
         ]
     ))
 
     register_options(
       [
         Opt::Proxies,
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_userpass.txt") ]),
         OptPath.new('USER_FILE',      [ false, "File containing users, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_user.txt") ]),
         OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
-      ], self.class)
+      ])
 
-    deregister_options('SQL')
+    deregister_options('SQL', 'PASSWORD_SPRAY')
 
   end
 
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

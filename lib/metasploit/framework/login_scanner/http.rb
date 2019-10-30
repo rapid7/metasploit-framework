@@ -46,11 +46,11 @@ module Metasploit
         attr_accessor :evade_uri_full_url
 
         # @!attribute evade_pad_method_uri_count
-        #   @return [Fixnum] How many whitespace characters to use between the method and uri
+        #   @return [Integer] How many whitespace characters to use between the method and uri
         attr_accessor :evade_pad_method_uri_count
 
         # @!attribute evade_pad_uri_version_count
-        #   @return [Fixnum] How many whitespace characters to use between the uri and version
+        #   @return [Integer] How many whitespace characters to use between the uri and version
         attr_accessor :evade_pad_uri_version_count
 
         # @!attribute evade_pad_method_uri_type
@@ -73,6 +73,14 @@ module Metasploit
         #   @return [Boolean] Whether to use random casing for the HTTP method
         attr_accessor :evade_method_random_case
 
+        # @!attribute evade_version_random_valid
+        #   @return [Boolean] Whether to use a random, but valid, HTTP version for request
+        attr_accessor :evade_version_random_valid
+
+        # @!attribute evade_version_random_invalid
+        #   @return [Boolean] Whether to use a random invalid, HTTP version for request
+        attr_accessor :evade_version_random_invalid
+
         # @!attribute evade_uri_dir_self_reference
         #   @return [Boolean] Whether to insert self-referential directories into the uri
         attr_accessor :evade_uri_dir_self_reference
@@ -90,7 +98,7 @@ module Metasploit
         attr_accessor :evade_pad_fake_headers
 
         # @!attribute evade_pad_fake_headers_count
-        #   @return [Fixnum] How many fake headers to insert into the HTTP request
+        #   @return [Integer] How many fake headers to insert into the HTTP request
         attr_accessor :evade_pad_fake_headers_count
 
         # @!attribute evade_pad_get_params
@@ -98,7 +106,7 @@ module Metasploit
         attr_accessor :evade_pad_get_params
 
         # @!attribute evade_pad_get_params_count
-        #   @return [Fixnum] How many fake query string variables to insert into the request
+        #   @return [Integer] How many fake query string variables to insert into the request
         attr_accessor :evade_pad_get_params_count
 
         # @!attribute evade_pad_post_params
@@ -106,7 +114,7 @@ module Metasploit
         attr_accessor :evade_pad_post_params
 
         # @!attribute evade_pad_post_params_count
-        #   @return [Fixnum] How many fake post variables to insert into the request
+        #   @return [Integer] How many fake post variables to insert into the request
         attr_accessor :evade_pad_post_params_count
 
         # @!attribute evade_uri_fake_end
@@ -153,6 +161,14 @@ module Metasploit
         #   @return [Boolean] Whether to conform to IIS digest authentication mode.
         attr_accessor :digest_auth_iis
 
+        # @!attribute http_username
+        # @return [String]
+        attr_accessor :http_username
+
+        # @!attribute http_password
+        # @return [String]
+        attr_accessor :http_password
+
 
         validates :uri, presence: true, length: { minimum: 1 }
 
@@ -163,7 +179,7 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies
+            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password
           )
           request = http_client.request_cgi(
             'uri' => uri,
@@ -187,13 +203,66 @@ module Metasploit
           error_message
         end
 
+        # Sends a HTTP request with Rex
+        #
+        # @param [Hash] opts native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
+        # @option opts [String] 'host' The remote host
+        # @option opts [Integer] 'port' The remote port
+        # @option opts [Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
+        # @option opts [String]  'proxies' The proxies setting
+        # @option opts [Credential] 'credential' A credential object
+        # @option opts ['Hash'] 'context' A context
+        # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+        # @return [Rex::Proto::Http::Response] The HTTP response
+        # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
+        def send_request(opts)
+          rhost           = opts['host'] || host
+          rport           = opts['rport'] || port
+          cli_ssl         = opts['ssl'] || ssl
+          cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_proxies     = opts['proxies'] || proxies
+          username        = opts['credential'] ? opts['credential'].public : http_username
+          password        = opts['credential'] ? opts['credential'].private : http_password
+          realm           = opts['credential'] ? opts['credential'].realm : nil
+          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+
+          res = nil
+          cli = Rex::Proto::Http::Client.new(
+            rhost,
+            rport,
+            context,
+            cli_ssl,
+            cli_ssl_version,
+            cli_proxies,
+            username,
+            password
+          )
+          configure_http_client(cli)
+
+          if realm
+            cli.set_config('domain' => realm)
+          end
+
+          begin
+            cli.connect
+            req = cli.request_cgi(opts)
+            res = cli.send_recv(req)
+          rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
+            raise Rex::ConnectionError, e.message
+          ensure
+            cli.close
+          end
+
+          res
+        end
+
+
         # Attempt a single login with a single credential against the target.
         #
         # @param credential [Credential] The credential object to attempt to
         #   login with.
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
@@ -209,32 +278,13 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
 
-          http_client = Rex::Proto::Http::Client.new(
-            host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version,
-            proxies, credential.public, credential.private
-          )
-
-          configure_http_client(http_client)
-
-          if credential.realm
-            http_client.set_config('domain' => credential.realm)
-          end
-
           begin
-            http_client.connect
-            request = http_client.request_cgi(
-              'uri' => uri,
-              'method' => method
-            )
-
-            response = http_client.send_recv(request)
+            response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
             if response && response.code == 200
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+          rescue Rex::ConnectionError => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
-          ensure
-            http_client.close
           end
 
           Result.new(result_opts)
@@ -260,6 +310,8 @@ module Metasploit
             'method_random_valid'    => evade_method_random_valid,
             'method_random_invalid'  => evade_method_random_invalid,
             'method_random_case'     => evade_method_random_case,
+            'version_random_valid'   => evade_version_random_valid,
+            'version_random_invalid' => evade_version_random_invalid,
             'uri_dir_self_reference' => evade_uri_dir_self_reference,
             'uri_dir_fake_relative'  => evade_uri_dir_fake_relative,
             'uri_use_backslashes'    => evade_uri_use_backslashes,
@@ -322,7 +374,7 @@ module Metasploit
 
         # Combine the base URI with the target URI in a sane fashion
         #
-        # @param [String] The target URL
+        # @param [String] target_uri the target URL
         # @return [String] the final URL mapped against the base
         def normalize_uri(target_uri)
           (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')

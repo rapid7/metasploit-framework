@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/quake'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
   include Rex::Proto::Quake
@@ -20,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
           This module uses the getstatus or getinfo request to obtain
           information from a Quakeserver.
         ),
-        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com',
+        'Author'        => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'    =>
           [
             ['URL', 'ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt']
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(27960)
-    ], self.class)
+    ])
   end
 
   def build_probe
@@ -55,10 +54,13 @@ class Metasploit3 < Msf::Auxiliary
       stuff = decode_info(response)
     when 'status'
       stuff = decode_status(response)
+    else
+      stuff = {}
     end
 
     if datastore['VERBOSE']
-      stuff.inspect
+      # get everything
+      stuff
     else
       # try to get the host name, game name and version
       stuff.select { |k, _| %w(hostname sv_hostname gamename com_gamename version).include?(k) }
@@ -68,9 +70,9 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_process(response, src_host, src_port)
     stuff = decode_stuff(response)
     return unless stuff
-    @results[src_host] ||= []
+    @results[src_host] ||= {}
     print_good("#{src_host}:#{src_port} found '#{stuff}'")
-    @results[src_host] << stuff
+    @results[src_host].merge!(stuff)
   end
 
   def scanner_postscan(_batch)
@@ -81,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
         proto: 'udp',
         port: rport,
         name: 'Quake',
-        info: stuff
+        info: stuff.inspect
       )
     end
   end

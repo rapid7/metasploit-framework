@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -21,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         This module attempts to brute force SOAP/XML requests to uncover
         hidden methods.
       ),
-      'Author'      => ['patrick'],
+      'Author'      => ['aushack'],
       'License'     => MSF_LICENSE))
 
     register_options(
@@ -36,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('DISPLAYHTML', [true, 'Display HTML response', false]),
         OptBool.new('SSL', [true, 'Use SSL', false]),
         OptBool.new('VERB_DELETE', [false, 'Enable DELETE verb', false])
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host
@@ -174,8 +172,8 @@ class Metasploit3 < Msf::Auxiliary
               print_status("Server #{wmap_target_host}:#{datastore['RPORT']} returned HTTP 404 for #{datastore['PATH']}.  Use a different one.")
               return false
             else
-              print_status("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
-              ## Add Report
+              print_good("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
+              # Add Report
               report_note(
                 host: ip,
                 proto: 'tcp',

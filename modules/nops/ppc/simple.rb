@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -15,7 +11,7 @@ require 'msf/core'
 # This class implements simple NOP generator for PowerPC
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
 
   def initialize
@@ -30,7 +26,7 @@ class Metasploit3 < Msf::Nop
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
 
@@ -39,7 +35,7 @@ class Metasploit3 < Msf::Nop
     badchars = opts['BadChars'] || ''
     random   = opts['Random']   || datastore['RandomNops']
 
-    if( random and random.match(/^(t|y|1)/i) )
+    if random
       1.upto(1024) do |i|
         regs_d = (rand(0x8000 - 0x0800) + 0x0800).to_i
         regs_b = [regs_d].pack('n').unpack('B*')[0][1, 15]
@@ -61,5 +57,4 @@ class Metasploit3 < Msf::Nop
 
     return ("\x60" * length)[0, length]
   end
-
 end

@@ -4,52 +4,168 @@
 # $Id$
 #
 # This user interface listens on a port and provides clients that connect to
-# it with an RPC interface to the Metasploit Framework.
+# it with an RPC or JSON-RPC interface to the Metasploit Framework.
 #
 # $Revision$
 #
 
-msfbase = __FILE__
-while File.symlink?(msfbase)
-  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+RPC_TYPE = 'Msg'
+WS_TAG = 'msf-ws'
+WS_RPC_TAG = 'msf-json-rpc'
+WS_CONF = "#{WS_RPC_TAG}.ru"
+WS_ENV = 'production'
+
+
+def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:,
+                           ssl_disable_verify:, daemonize:, log:, pid:)
+  unless File.file?(conf)
+    $stdout.puts "[-] No MSF JSON-RPC web service configuration found at #{conf}, not starting"
+    return false
+  end
+
+  # check if MSF JSON-RPC web service is already started
+  if File.file?(pid)
+    ws_pid = Msf::Util::ServiceHelper.tail(pid)
+    if ws_pid.nil? || !Msf::Util::ServiceHelper.process_active?(ws_pid.to_i)
+      $stdout.puts "[-] MSF JSON-RPC web service PID file found, but no active process running as PID #{ws_pid}"
+      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{pid}"
+      File.delete(pid)
+    else
+      $stdout.puts "[*] MSF JSON-RPC web service is already running as PID #{ws_pid}"
+      return false
+    end
+  end
+
+  # attempt to start MSF JSON-RPC service
+  thin_cmd = Msf::Util::ServiceHelper.thin_cmd(conf: conf,
+                                               address: address,
+                                               port: port,
+                                               ssl: ssl,
+                                               ssl_key: ssl_key,
+                                               ssl_cert: ssl_cert,
+                                               ssl_disable_verify: ssl_disable_verify,
+                                               env: WS_ENV,
+                                               daemonize: daemonize,
+                                               log: log,
+                                               pid: pid,
+                                               tag: WS_RPC_TAG)
+  Msf::Util::ServiceHelper.run_cmd("#{thin_cmd} start")
 end
 
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'msfenv'
+def stop_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:,
+                          ssl_disable_verify:, daemonize:, log:, pid:)
+  ws_pid = Msf::Util::ServiceHelper.tail(pid)
+  $stdout.puts ''
+  if ws_pid.nil? || !Msf::Util::ServiceHelper.process_active?(ws_pid.to_i)
+    $stdout.puts '[*] MSF JSON-RPC web service is no longer running'
+    if File.file?(pid)
+      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{pid}"
+      File.delete(pid)
+    end
+  else
+    $stdout.puts "[*] Stopping MSF JSON-RPC web service PID #{ws_pid}"
+    thin_cmd = Msf::Util::ServiceHelper.thin_cmd(conf: conf,
+                                      address: address,
+                                      port: port,
+                                      ssl: ssl,
+                                      ssl_key: ssl_key,
+                                      ssl_cert: ssl_cert,
+                                      ssl_disable_verify: ssl_disable_verify,
+                                      env: WS_ENV,
+                                      daemonize: daemonize,
+                                      log: log,
+                                      pid: pid,
+                                      tag: WS_RPC_TAG)
+    Msf::Util::ServiceHelper.run_cmd("#{thin_cmd} stop")
+  end
+end
+
+def start_rpc_service(opts, frameworkOpts, foreground)
+  # Fork into the background if requested
+  begin
+    if foreground
+      $stdout.puts "[*] #{RPC_TYPE.upcase}RPC ready at #{Time.now}."
+    else
+      $stderr.puts "[*] #{RPC_TYPE.upcase}RPC backgrounding at #{Time.now}..."
+      child_pid = Process.fork()
+      if child_pid
+        $stderr.puts "[*] #{RPC_TYPE.upcase}RPC background PID #{child_pid}"
+        exit(0)
+      end
+    end
+  rescue ::NotImplementedError
+    $stderr.puts "[-] Background mode is not available on this platform"
+  end
+
+  # Create an instance of the framework
+  $framework = Msf::Simple::Framework.create(frameworkOpts)
+
+  # Run the plugin instance in the foreground.
+  begin
+    $framework.plugins.load("#{RPC_TYPE.downcase}rpc", opts).run
+  rescue ::Interrupt
+    $stderr.puts "[*] Shutting down"
+  end
+end
 
 
+if $PROGRAM_NAME == __FILE__
+  msfbase = __FILE__
+  while File.symlink?(msfbase)
+    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  end
 
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+  require 'msfenv'
 
-require 'rex/parser/arguments'
+  $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-# Declare the argument parser for msfrpcd
-arguments = Rex::Parser::Arguments.new(
-  "-a" => [ true,  "Bind to this IP address"                              ],
-  "-p" => [ true,  "Bind to this port instead of 55553"                   ],
-  "-U" => [ true,  "Specify the username to access msfrpcd"               ],
-  "-P" => [ true,  "Specify the password to access msfrpcd"               ],
-  "-u" => [ true,  "URI for Web server"                                   ],
-  "-S" => [ false, "Disable SSL on the RPC socket"                     ],
-  "-f" => [ false, "Run the daemon in the foreground"                     ],
-  "-n" => [ false, "Disable database"                     ],
-  "-h" => [ false, "Help banner"                                          ])
+  require 'msf/base'
+  require 'msf/ui'
+  require 'msf/util/service_helper'
+  require 'msf/base/config'
+  require 'rex/parser/arguments'
 
-opts = {
-  'RunInForeground' => true,
-  'SSL'             => true,
-  'ServerHost'      => '0.0.0.0',
-  'ServerPort'      => 55553,
-  'ServerType'      => 'Msg'
-}
+  ws_ssl_key_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-key.pem")
+  ws_ssl_cert_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-cert.pem")
+  ws_log = File.join(Msf::Config.get_config_root, 'logs', "#{WS_RPC_TAG}.log")
+  ws_rpc_pid = File.join(Msf::Config.get_config_root, "#{WS_RPC_TAG}.pid")
+  ws_ssl_key = ws_ssl_key_default
+  ws_ssl_cert = ws_ssl_cert_default
+  ssl_enable_verify = false
+  foreground = false
+  json_rpc = false
+  frameworkOpts = {}
 
-foreground = false
-frameworkOpts = {}
+  opts = {
+      'RunInForeground' => true,
+      'SSL'             => true,
+      'ServerHost'      => '0.0.0.0',
+      'ServerPort'      => 55553,
+      'ServerType'      => RPC_TYPE,
+      'TokenTimeout'    => 300,
+  }
 
+  # Declare the argument parser for msfrpcd
+  arguments = Rex::Parser::Arguments.new(
+      "-a" => [ true,  "Bind to this IP address (default: #{opts['ServerHost']})"          ],
+      "-p" => [ true,  "Bind to this port (default: #{opts['ServerPort']})"                ],
+      "-U" => [ true,  "Specify the username to access msfrpcd"                            ],
+      "-P" => [ true,  "Specify the password to access msfrpcd"                            ],
+      "-u" => [ true,  "URI for Web server"                                                ],
+      "-t" => [ true,  "Token Timeout seconds (default: #{opts['TokenTimeout']})"          ],
+      "-S" => [ false, "Disable SSL on the RPC socket"                                     ],
+      "-f" => [ false, "Run the daemon in the foreground"                                  ],
+      "-n" => [ false, "Disable database"                                                  ],
+      "-j" => [ false, "(JSON-RPC) Start JSON-RPC server"                                  ],
+      "-k" => [ false, "(JSON-RPC) Path to private key (default: #{ws_ssl_key_default})"   ],
+      "-c" => [ false, "(JSON-RPC) Path to certificate (default: #{ws_ssl_cert_default})"  ],
+      "-v" => [ false, "(JSON-RPC) SSL enable verify (optional) client cert requests"      ],
+      "-h" => [ false, "Help banner"                                                       ])
 
-# Parse command line arguments.
-arguments.parse(ARGV) { |opt, idx, val|
-  case opt
+  # Parse command line arguments.
+  arguments.parse(ARGV) { |opt, idx, val|
+    case opt
     when "-a"
       opts['ServerHost'] = val
     when "-S"
@@ -60,53 +176,76 @@ arguments.parse(ARGV) { |opt, idx, val|
       opts['User'] = val
     when '-P'
       opts['Pass'] = val
+    when "-t"
+      opts['TokenTimeout'] = val.to_i
     when "-f"
       foreground = true
     when "-u"
       opts['URI'] = val
     when "-n"
       frameworkOpts['DisableDatabase'] = true
+    when "-j"
+      json_rpc = true
+    when "-k"
+      ws_ssl_key = val
+    when "-c"
+      ws_ssl_cert = val
+    when "-v"
+      ssl_enable_verify = true
     when "-h"
       print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
       exit
+    end
+  }
+
+  $0 = "msfrpcd"
+
+  begin
+    if json_rpc
+
+      if !File.file?(ws_ssl_key_default) || !File.file?(ws_ssl_cert_default)
+        $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first."
+        abort
+      end
+
+      $stderr.puts "[*] JSON-RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"})..."
+      $stderr.puts "[*] URI: /api/v1/json-rpc"
+      $stderr.puts "[*] JSON-RPC server log: #{ws_log}" unless foreground
+      $stderr.puts "[*] JSON-RPC server PID file: #{ws_rpc_pid}" unless foreground
+
+      ws_conf_full_path = File.expand_path(File.join(File.dirname(msfbase), WS_CONF))
+
+      start_json_rpc_service(conf: ws_conf_full_path,
+                             address: opts['ServerHost'],
+                             port: opts['ServerPort'],
+                             ssl: opts['SSL'],
+                             ssl_key: ws_ssl_key,
+                             ssl_cert: ws_ssl_cert,
+                             ssl_disable_verify: !ssl_enable_verify,
+                             daemonize: !foreground,
+                             log: ws_log,
+                             pid: ws_rpc_pid)
+    else
+      unless opts['Pass']
+        $stderr.puts "[-] Error: a password must be specified (-P)"
+        exit(0)
+      end
+
+      $stderr.puts "[*] #{RPC_TYPE.upcase}RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
+      $stderr.puts "[*] URI: #{opts['URI']}" if opts['URI']
+
+      start_rpc_service(opts, frameworkOpts, foreground)
+    end
+  rescue ::Interrupt
+    stop_json_rpc_service(conf: ws_conf_full_path,
+                          address: opts['ServerHost'],
+                          port: opts['ServerPort'],
+                          ssl: opts['SSL'],
+                          ssl_key: ws_ssl_key,
+                          ssl_cert: ws_ssl_cert,
+                          ssl_disable_verify: !ssl_enable_verify,
+                          daemonize: !foreground,
+                          log: ws_log,
+                          pid: ws_rpc_pid) if json_rpc
   end
-}
-
-unless opts['Pass']
-  $stderr.puts "[-] Error: a password must be specified (-P)"
-  exit(0)
-end
-
-$0 = "msfrpcd"
-
-rpctype = 'MSG'
-
-$stderr.puts "[*] #{rpctype}RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
-
-$stderr.puts "[*] URI: #{opts['URI']}" if opts['URI']
-
-require 'msf/base'
-require 'msf/ui'
-
-
-# Fork into the background if requested
-begin
-  if foreground
-    $stdout.puts "[*] #{rpctype}RPC ready at #{Time.now}."
-  else
-    $stderr.puts "[*] #{rpctype}RPC backgrounding at #{Time.now}..."
-    exit(0) if Process.fork()
-  end
-rescue ::NotImplementedError
-  $stderr.puts "[-] Background mode is not available on this platform"
-end
-
-# Create an instance of the framework
-$framework = Msf::Simple::Framework.create(frameworkOpts)
-
-# Run the plugin instance in the foreground.
-begin
-  $framework.plugins.load("#{rpctype.downcase}rpc", opts).run
-rescue ::Interrupt
-  $stderr.puts "[*] Shutting down"
 end

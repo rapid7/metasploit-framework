@@ -29,7 +29,6 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
       "dhcp_load_options" => "Load DHCP optionis from a datastore",
       "dhcp_log"          => "Log DHCP server activity"
     }
-
     reqs = {
       "dhcp_start"        => [ "lanattacks_start_dhcp" ],
       "dhcp_stop"         => [ "lanattacks_stop_dhcp" ],
@@ -38,19 +37,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
       "dhcp_load_options" => [ "lanattacks_set_dhcp_option" ],
       "dhcp_log"          => [ "lanattacks_dhcp_log" ]
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -177,7 +164,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
   def print_dhcp_load_options_usage
     print("dhcp_load_options <datastore> [-h]\n\n" +
-          "Load settings from a datstore to the active DHCP server.\n\n" +
+          "Load settings from a datastore to the active DHCP server.\n\n" +
           "The datastore must be a hash of name/value pairs.\n" +
           "Valid names are:\n" +
           @@dhcp_set_option_valid_options.map {|o| "  - #{o}\n" }.join('') +
@@ -228,7 +215,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     log = client.lanattacks.dhcp.log
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'    => 'DHCP Server Log',
       'Indent'    => 0,
       'SortIndex' => 0,

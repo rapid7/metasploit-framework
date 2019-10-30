@@ -88,9 +88,11 @@ class PayloadSet < ModuleSet
 
       # Cache the payload's size
       begin
-        sizes[name] = p.new.size
+        sizes[name] = p.cached_size || p.new.size
       # Don't cache generic payload sizes.
       rescue NoCompatiblePayloadError
+      rescue StandardError => e
+        elog("Unable to build payload #{name} due to #{e}.")
       end
     }
 
@@ -155,7 +157,7 @@ class PayloadSet < ModuleSet
         new_keys.push combined
 
         # Cache the payload's size
-        sizes[combined] = p.new.size
+        sizes[combined] = p.cached_size || p.new.size
       }
     }
 
@@ -236,7 +238,7 @@ class PayloadSet < ModuleSet
       next if (handler and not p.handler_klass.ancestors.include?(handler))
 
       # Check to see if the session classes match.
-      next if (session and not p.session.ancestors.include?(session))
+      next if (session and p.session and not p.session.ancestors.include?(session))
 
       # Check for matching payload types
       next if (payload_type and p.payload_type != payload_type)

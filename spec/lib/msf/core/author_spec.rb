@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Msf::Author do
+RSpec.describe Msf::Author do
 
   context 'KNOWN' do
     subject(:known) {

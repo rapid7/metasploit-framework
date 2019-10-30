@@ -19,7 +19,7 @@ module Metasploit::Framework::Spec::Constants::Each
     attr_accessor :leaks_cleaned
   end
 
-  # Is {Metasploit::Framework::Spec::Constants::Each.configure!} still necessary or should it be removed?
+  # Is Metasploit::Framework::Spec::Constants::Each.configure! still necessary or should it be removed?
   #
   # @return [true] if {configure!}'s `before(:each)` cleaned up leaked constants
   # @return [false] otherwise
@@ -91,7 +91,7 @@ module Metasploit::Framework::Spec::Constants::Each
     !!@configured
   end
 
-  # Adds action to `spec` task so that `rake spec` fails if {configured!} is unnecessary in `spec/spec_helper.rb` and
+  # Adds action to `spec` task so that `rake spec` fails if configured! is unnecessary in `spec/spec_helper.rb` and
   # should be removed
   #
   # @return [void]

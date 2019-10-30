@@ -33,7 +33,7 @@ if($url === "/control"){
 		if(array_key_exists('HTTP_X_INIT', $_SERVER)){
 			$f = fopen($tempdir."/init", "w"); //only one init file
 		}else{
-			$prefix = "down_" . bin2hex($_SERVER['HTTP_X_URLFRAG']);
+			$prefix = "down_" . sha1($_SERVER['HTTP_X_URLFRAG']);
 			$f = fopen(tempnam($tempdir,$prefix), "w");
 		}
 		fwrite($f, $postdata);
@@ -45,9 +45,9 @@ if($url === "/control"){
 	//get data
 	$postdata = file_get_contents("php://input");
 	//See if we should send anything down
-	if($postdata === 'RECV'){
-		findSendDelete($tempdir, "down_" . bin2hex($url));
-		$fname = $tempdir . "/up_recv_" . bin2hex($url); //Only keep one RECV poll
+	if($postdata === "RECV\x00" || $postdata === "RECV"){
+		findSendDelete($tempdir, "down_" . sha1($url));
+		$fname = $tempdir . "/up_recv_" . sha1($url); //Only keep one RECV poll
 	}else{
 		$fname = tempnam($tempdir, "up_"); //actual data gets its own filename
 	}

@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/text/color'
 require 'rex/ui'
 
 module Rex
@@ -13,6 +14,8 @@ module Text
 ###
 module Shell
 
+  include Rex::Text::Color
+
   ###
   #
   # This module is meant to be mixed into an input medium class instance as a
@@ -22,7 +25,7 @@ module Shell
   module InputShell
     attr_accessor :prompt, :output
 
-    def pgets()
+    def pgets
 
       output.print(prompt)
       output.flush
@@ -42,29 +45,35 @@ module Shell
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
-    self.stop_count	    = 0
+    self.stop_count     = 0
 
     # Initialize the prompt
-    self.init_prompt = prompt
+    self.cont_prompt = ' > '
+    self.cont_flag = false
+    self.prompt = prompt
     self.prompt_char = prompt_char
 
     self.histfile = histfile
     self.hist_last_saved = 0
+
+    # Static prompt variables
+    self.local_hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] || ENV['COMPUTERNAME']
+    self.local_username = ENV['USER'] || `whoami` || ENV['USERNAME']
 
     self.framework = framework
   end
 
   def init_tab_complete
     if (self.input and self.input.supports_readline)
-      self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
-      if Readline::HISTORY.length == 0 and histfile and File.exists?(histfile)
+      # Unless cont_flag because there's no tab complete for continuation lines
+      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
+      if Readline::HISTORY.length == 0 and histfile and File.exist?(histfile)
         File.readlines(histfile).each { |e|
           Readline::HISTORY << e.chomp
         }
         self.hist_last_saved = Readline::HISTORY.length
       end
       self.input.output = self.output
-      update_prompt(input.prompt)
     end
   end
 
@@ -85,7 +94,6 @@ module Shell
 
       self.input.output = self.output
     end
-    update_prompt('')
   end
 
   #
@@ -125,85 +133,34 @@ module Shell
 
       while true
         # If the stop flag was set or we've hit EOF, break out
-        break if (self.stop_flag or self.stop_count > 1)
+        break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
+        update_prompt
 
-        if framework
-          if input.prompt.include?("%T")
-            t = Time.now
-            if framework.datastore['PromptTimeFormat']
-              t = t.strftime(framework.datastore['PromptTimeFormat'])
-            end
-            input.prompt.gsub!(/%T/, t.to_s)
-          end
+        line = get_input_line
 
-          if input.prompt.include?("%H")
-            hostname = ENV['HOSTNAME']
-            if hostname.nil?
-              hostname = `hostname`.split('.')[0]
-            end
-
-            # check if hostname is still nil
-            if hostname.nil?
-              hostname = ENV['COMPUTERNAME']
-            end
-
-            if hostname.nil?
-              hostname = 'unknown'
-            end
-
-            input.prompt.gsub!(/%H/, hostname.chomp)
-          end
-
-          if input.prompt.include?("%U")
-            user = ENV['USER']
-            if user.nil?
-              user = `whoami`
-            end
-
-            # check if username is still nil
-            if user.nil?
-              user = ENV['USERNAME']
-            end
-
-            if user.nil?
-              user = 'unknown'
-            end
-
-            input.prompt.gsub!(/%U/, user.chomp)
-          end
-
-          input.prompt.gsub!(/%S/, framework.sessions.length.to_s)
-          input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
-          input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-          input.prompt.gsub!(/%D/, ::Dir.getwd)
-          self.init_prompt = input.prompt
-        end
-
-        line = input.pgets()
-        log_output(input.prompt)
+        # If you have sessions active, this will give you a shot to exit
+        # gracefully. If you really are ambitious, 2 eofs will kick this out
+        if input.eof? || line == nil
+          self.stop_count += 1
+          next if self.stop_count > 1
+          run_single("quit")
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
-        if (block)
-          break if (line == nil or block.call(line))
-        elsif(input.eof? or line == nil)
-        # If you have sessions active, this will give you a shot to exit gravefully
-        # If you really are ambitious, 2 eofs will kick this out
-          self.stop_count += 1
-          next if(self.stop_count > 1)
-          run_single("quit")
-        else
+        elsif block
+          break if block.call(line)
+
         # Otherwise, call what should be an overriden instance method to
         # process the line.
+        else
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
-          # command, create the file if it doesn't exist
-          if ret and self.histfile
-            File.open(self.histfile, "a+") { |f|
-              f.puts(line)
-            }
+          # command, create the file if it doesn't exist, don't save dupes
+          if ret && self.histfile && line != @last_line
+            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            @last_line = line
           end
           self.stop_count = 0
         end
@@ -235,26 +192,17 @@ module Shell
   #
   # prompt - the actual prompt
   # new_prompt_char the char to append to the prompt
-  # mode - append or not to append - false = append true = make a new prompt
-  def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
+  def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
     if (self.input)
-      if prompt
-        new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
-      else
-        new_prompt = self.prompt || ''
-      end
-
-      if mode
-        new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
-      end
+      p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
       # Save the prompt before any substitutions
       self.prompt = new_prompt
+      self.prompt_char  = new_prompt_char
 
       # Set the actual prompt to the saved prompt with any substitutions
       # or updates from our output driver, be they color or whatever
-      self.input.prompt = self.output.update_prompt(new_prompt)
-      self.prompt_char  = new_prompt_char if (new_prompt_char)
+      self.input.prompt = self.output.update_prompt(format_prompt(p))
     end
   end
 
@@ -267,11 +215,14 @@ module Shell
   #
   def print_error(msg='')
     return if (output.nil?)
+    return if (msg.nil?)
 
     self.on_print_proc.call(msg) if self.on_print_proc
     # Errors are not subject to disabled output
     log_output(output.print_error(msg))
   end
+
+  alias_method :print_bad, :print_error
 
   #
   # Prints a status message to the output handle.
@@ -335,11 +286,56 @@ module Shell
   #
   attr_reader   :output
 
+  attr_reader   :prompt, :prompt_char
   attr_accessor :on_command_proc
   attr_accessor :on_print_proc
   attr_accessor :framework
 
 protected
+
+  def supports_color?
+    true
+  end
+
+  #
+  # Get a single line of input, following continuation directives as necessary.
+  #
+  def get_input_line
+    line = "\\\n"
+    prompt_needs_reset = false
+
+    self.cont_flag = false
+    while line =~ /(^|[^\\])\\\s*$/
+      # Strip \ and all the trailing whitespace
+      line.sub!(/\\\s*/, '')
+
+      if line.length > 0
+        # Using update_prompt will overwrite the primary prompt
+        input.prompt = output.update_prompt(self.cont_prompt)
+        self.cont_flag = true
+        prompt_needs_reset = true
+      end
+
+      output.input = input
+      str = input.pgets
+      if str
+        line << str
+      else
+        line = nil
+      end
+
+      output.input = nil
+      log_output(input.prompt)
+    end
+    self.cont_flag = false
+
+    if prompt_needs_reset
+      # The continuation prompt was used so reset the prompt
+      update_prompt
+    end
+
+    line
+  end
 
   #
   # Parse a line into an array of arguments.
@@ -379,13 +375,120 @@ protected
     rlog(buf, log_source) if (log_source)
   end
 
+  #
+  # Prompt the user for input if possible. Special edition for use inside commands.
+  #
+  def prompt_yesno(query)
+    p = "#{query} [y/N]"
+    old_p = [self.prompt, self.prompt_char]
+    update_prompt p, ' '
+    /^y/i === get_input_line
+  ensure
+    update_prompt *old_p
+  end
+
+  #
+  # Handle prompt substitutions
+  #
+  def format_prompt(str)
+    return str unless framework
+
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+    default = 'unknown'
+
+    formatted = ''
+    skip_next = false
+    for prefix, spec in str.split('').each_cons(2) do
+      if skip_next
+        skip_next = false
+        next
+      end
+
+      unless prefix == '%'
+        formatted << prefix
+        skip_next = false
+        next
+      end
+
+      skip_next = true
+      if spec == 'T'
+        # This %T is the strftime shorthand for %H:%M:%S
+        strftime_format = framework.datastore['PromptTimeFormat'] || '%T'
+        formatted << Time.now.strftime(strftime_format).to_s
+      elsif spec == 'W' && framework.db.active
+        formatted << framework.db.workspace.name
+      elsif session
+        sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
+
+        case spec
+        when 'A'
+          formatted << (sysinfo.nil? ? default : sysinfo['Architecture'])
+        when 'D'
+          formatted << (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default)
+        when 'd'
+          formatted << ::Dir.getwd
+        when 'H'
+          formatted << (sysinfo.nil? ? default : sysinfo['Computer'])
+        when 'h'
+          formatted << (self.local_hostname || default).chomp
+        when 'I'
+          formatted << session.tunnel_peer
+        when 'i'
+          formatted << session.tunnel_local
+        when 'M'
+          formatted << session.session_type
+        when 'S'
+          formatted << session.sid.to_s
+        when 'U'
+          formatted << (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default)
+        when 'u'
+          formatted << (self.local_username || default).chomp
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      else
+        case spec
+        when 'H'
+          formatted << (self.local_hostname || default).chomp
+        when 'J'
+          formatted << framework.jobs.length.to_s
+        when 'U'
+          formatted << (self.local_username || default).chomp
+        when 'S'
+          formatted << framework.sessions.length.to_s
+        when 'L'
+          formatted << Rex::Socket.source_address
+        when 'D'
+          formatted << ::Dir.getwd
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      end
+    end
+
+    if str.length > 0 && !skip_next
+      formatted << str[-1]
+    end
+
+    formatted
+  end
+
   attr_writer   :input, :output # :nodoc:
-  attr_accessor :stop_flag, :init_prompt # :nodoc:
-  attr_accessor :prompt # :nodoc:
-  attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
+  attr_writer   :prompt, :prompt_char # :nodoc:
+  attr_accessor :stop_flag, :cont_prompt # :nodoc:
+  attr_accessor :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
+  attr_accessor :local_hostname, :local_username # :nodoc:
+  attr_reader   :cont_flag # :nodoc:
+
+private
+
+  attr_writer   :cont_flag # :nodoc:
 
 end
 

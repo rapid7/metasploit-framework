@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::RealPort
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new("BANNER_TIMEOUT", [true, "How long to capture data from the serial port", 5]),
         OptString.new('BAUD_RATES', [true, "A space delimited list of baud rates to try for each port", "9600 115200"]),
         OptString.new('PORTS', [true, "A space delimited list of 1-indexed serial port numbers to try, default is all supported", "ALL"])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -52,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
     return unless realport_connect
 
     info = "#{@realport_name} ( ports: #{@realport_port_count} )"
-    vprint_status("#{target_host}:#{rport} is running #{info}")
+    vprint_good("#{target_host}:#{rport} is running #{info}")
     report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
 
     1.upto(@realport_port_count) do |pnum|
@@ -83,5 +80,4 @@ class Metasploit3 < Msf::Auxiliary
 
     realport_disconnect
   end
-
 end

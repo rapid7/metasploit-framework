@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
 
 
@@ -26,13 +23,13 @@ class Metasploit3 < Msf::Post
         OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil]),
 
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
   def run
     print_status("Running module against #{sysinfo['Computer']}")
-    if not ::File.exists?(datastore['RESOURCE'])
+    if not ::File.exist?(datastore['RESOURCE'])
       raise "Resource File does not exists!"
     else
       ::File.open(datastore['RESOURCE'], "rb").each_line do |cmd|

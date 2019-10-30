@@ -1,0 +1,21 @@
+version: '3'
+services:
+  ms:
+    image: metasploitframework/metasploit-framework:latest
+    environment:
+      DATABASE_URL: postgres://postgres@db:5432/msf?pool=200&timeout=5
+    links:
+      - db
+    ports:
+      - 4444:4444
+    volumes:
+      - $HOME/.msf4:/home/msf/.msf4
+
+  db:
+    image: postgres:10-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+    driver: local

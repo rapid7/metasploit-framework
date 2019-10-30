@@ -1,14 +1,15 @@
 require 'metasploit/framework/telnet/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+
 module Metasploit
   module Framework
     module LoginScanner
-
       # This is the LoginScanner class for dealing with Telnet remote terminals.
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
       class Telnet
+
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Telnet::Client
@@ -23,13 +24,20 @@ module Metasploit
         # @!attribute verbosity
         #   The timeout to wait for the telnet banner.
         #
-        #   @return [Fixnum]
+        #   @return [Integer]
         attr_accessor :banner_timeout
+
         # @!attribute verbosity
         #   The timeout to wait for the response from a telnet command.
         #
-        #   @return [Fixnum]
+        #   @return [Integer]
         attr_accessor :telnet_timeout
+
+        # @!attribute verbosity
+        #   Prepend code to call before checking for a user login
+        #
+        #   @return [Proc]
+        attr_accessor :pre_login
 
         validates :banner_timeout,
                   presence: true,
@@ -66,6 +74,10 @@ module Metasploit
             end
 
             unless result_options[:status]
+              if pre_login
+                pre_login.call(self)
+              end
+
               unless password_prompt?
                 send_user(credential.public)
               end
@@ -73,7 +85,7 @@ module Metasploit
               recvd_sample = @recvd.dup
               # Allow for slow echos
               1.upto(10) do
-                recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+                recv_telnet(self.sock, 0.10) unless @recvd.nil? || password_prompt?(@recvd)
               end
 
               if password_prompt?(credential.public)
@@ -108,12 +120,20 @@ module Metasploit
           self.port               ||= DEFAULT_PORT
           self.banner_timeout     ||= 25
           self.telnet_timeout     ||= 10
+          self.pre_login          ||= nil
           self.connection_timeout ||= 30
           self.max_send_size      ||= 0
           self.send_delay         ||= 0
           # Shim to set up the ivars from the old Login mixin
           create_login_ivars
         end
+
+        def print_error(message)
+          return unless @parent
+          @parent.print_error(message)
+        end
+
+        alias_method :print_bad, :print_error
 
       end
     end

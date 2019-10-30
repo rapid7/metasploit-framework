@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -25,7 +22,7 @@ class Metasploit3 < Msf::Post
       'Author' =>
         [
           'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
-          'SecurityXploded Team',  #www.SecurityXploded.com
+          'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
       'Platform' => [ 'win' ],
       'SessionTypes' => [ 'meterpreter' ]
@@ -54,7 +51,7 @@ class Metasploit3 < Msf::Post
         return
       end
 
-      creds = Rex::Ui::Text::Table.new(
+      creds = Rex::Text::Table.new(
         'Header'  => 'Trillian versions 4-5 Instant Messenger Credentials',
         'Indent'	=> 1,
         'Columns' =>
@@ -82,11 +79,10 @@ class Metasploit3 < Msf::Post
         'trillian_user_creds.csv',
         'Trillian Instant Messenger User Credentials'
         )
-
-      print_status("Trillian Instant Messenger user credentials saved in: #{path}")
+      print_good("Trillian Instant Messenger user credentials saved in: #{path}")
 
     rescue ::Exception => e
-      print_error("An error has occured: #{e.to_s}")
+      print_error("An error has occurred: #{e.to_s}")
     end
   end
 

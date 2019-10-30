@@ -1,20 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Encoder::Xor
+class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
       'Name'             => 'XOR Encoder',
       'Description'      => 'An x64 XOR encoder. Uses an 8 byte key and takes advantage of x64 relative addressing.',
       'Author'           => [ 'sf' ],
-      'Arch'             => ARCH_X86_64,
+      'Arch'             => ARCH_X64,
       'License'          => MSF_LICENSE,
       'Decoder'          =>
         {
@@ -23,6 +19,13 @@ class Metasploit3 < Msf::Encoder::Xor
           'BlockSize'    => 8,
         }
       )
+  end
+  # Indicate that this module can preserve some registers
+  # ...which is currently not true. This is a temp fix
+  # until the full preserve_registers functionality is
+  # implemented.
+  def can_preserve_registers?
+    true
   end
 
   def decoder_stub( state )
@@ -42,5 +45,4 @@ class Metasploit3 < Msf::Encoder::Xor
 
     return decoder
   end
-
 end

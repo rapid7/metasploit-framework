@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -20,9 +17,9 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Prabhu S Angadi',  #Initial discovery and poc
-          'sinn3r',           #Metasploit
-          'juan vazquez'      #More improvements
+          'Prabhu S Angadi',  # Initial discovery and poc
+          'sinn3r',           # Metasploit module
+          'juan vazquez'      # More improvements
         ],
       'References'     =>
         [
@@ -39,8 +36,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(69),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
-        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
-      ], self.class)
+        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
+      ])
   end
 
   def run_host(ip)
@@ -111,7 +108,6 @@ class Metasploit3 < Msf::Auxiliary
     pkt << [block].pack("n") # Block Id
 
   end
-
 end
 
 =begin

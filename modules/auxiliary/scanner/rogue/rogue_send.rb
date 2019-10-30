@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
 
@@ -21,11 +18,7 @@ class Metasploit3 < Msf::Auxiliary
       system is using as its default route.
       },
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+      'License'     => MSF_LICENSE
     )
 
     register_options([
@@ -43,9 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
     pcap = self.capture
 
-    capture_sendto(build_tcp_syn(ip), ip)
-
-    capture_sendto(build_icmp(ip), ip)
+    capture_sendto(build_tcp_syn(ip), ip) and capture_sendto(build_icmp(ip), ip)
 
     close_pcap
   end

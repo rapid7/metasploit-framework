@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -43,12 +41,8 @@ class Metasploit3 < Msf::Auxiliary
     res
   end
 
-  def peer
-    "#{rhost}:#{rport}"
-  end
-
   def run_host(ip)
-    vprint_status("#{peer} - Login...")
+    vprint_status("Login...")
 
     if (not mysql_login_datastore)
       return
@@ -57,10 +51,10 @@ class Metasploit3 < Msf::Auxiliary
     begin
       mysql_query_no_handle("USE " + datastore['DATABASE_NAME'])
     rescue ::RbMysql::Error => e
-      vprint_error("#{peer} - MySQL Error: #{e.class} #{e.to_s}")
+      vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e
-      vprint_error("#{peer} - Timeout: #{e.message}")
+      vprint_error("Timeout: #{e.message}")
       return
     end
 
@@ -68,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
     table_exists = (res.size == 1)
 
     if !table_exists
-      vprint_status("#{peer} - Table doesn't exist so creating it")
+      vprint_status("Table doesn't exist so creating it")
       mysql_query("CREATE TABLE " + datastore['TABLE_NAME'] + " (brute int);")
     end
 
@@ -79,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
     file.close
 
     if !table_exists
-      vprint_status("#{peer} - Cleaning up the temp table")
+      vprint_status("Cleaning up the temp table")
       mysql_query("DROP TABLE " + datastore['TABLE_NAME'])
     end
   end
@@ -88,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       res = mysql_query_no_handle("LOAD DATA INFILE '" + dir + "' INTO TABLE " + datastore['TABLE_NAME'])
     rescue ::RbMysql::TextfileNotReadable
-      print_good("#{peer} - #{dir} is a directory and exists")
+      print_good("#{dir} is a directory and exists")
       report_note(
         :host  => rhost,
         :type  => "filesystem.dir",
@@ -98,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
         :update => :unique_data
       )
     rescue ::RbMysql::DataTooLong, ::RbMysql::TruncatedWrongValueForField
-      print_good("#{peer} - #{dir} is a file and exists")
+      print_good("#{dir} is a file and exists")
       report_note(
         :host  => rhost,
         :type  => "filesystem.file",
@@ -108,15 +102,15 @@ class Metasploit3 < Msf::Auxiliary
         :update => :unique_data
       )
     rescue ::RbMysql::ServerError
-      vprint_warning("#{peer} - #{dir} does not exist")
+      vprint_warning("#{dir} does not exist")
     rescue ::RbMysql::Error => e
-      vprint_error("#{peer} - MySQL Error: #{e.class} #{e.to_s}")
+      vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e
-      vprint_error("#{peer} - Timeout: #{e.message}")
+      vprint_error("Timeout: #{e.message}")
       return
     else
-      print_good("#{peer} - #{dir} is a file and exists")
+      print_good("#{dir} is a file and exists")
       report_note(
         :host  => rhost,
         :type  => "filesystem.file",
@@ -129,5 +123,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return
   end
-
 end

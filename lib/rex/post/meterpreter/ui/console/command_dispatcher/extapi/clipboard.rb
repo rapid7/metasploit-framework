@@ -20,16 +20,27 @@ class Console::CommandDispatcher::Extapi::Clipboard
   # List of supported commands.
   #
   def commands
-    {
+    all = {
       "clipboard_get_data"       => "Read the target's current clipboard (text, files, images)",
       "clipboard_set_text"       => "Write text to the target's clipboard",
       "clipboard_monitor_start"  => "Start the clipboard monitor",
       "clipboard_monitor_pause"  => "Pause the active clipboard monitor",
       "clipboard_monitor_resume" => "Resume the paused clipboard monitor",
       "clipboard_monitor_dump"   => "Dump all captured clipboard content",
-      "clipboard_monitor_purge"  => "Delete all captured cilpboard content without dumping it",
+      "clipboard_monitor_purge"  => "Delete all captured clipboard content without dumping it",
       "clipboard_monitor_stop"   => "Stop the clipboard monitor"
     }
+    reqs = {
+      "clipboard_get_data"       => [ "extapi_clipboard_get_data" ],
+      "clipboard_set_text"       => [ "extapi_clipboard_set_data" ],
+      "clipboard_monitor_start"  => [ "extapi_clipboard_monitor_start" ],
+      "clipboard_monitor_pause"  => [ "extapi_clipboard_monitor_pause" ],
+      "clipboard_monitor_resume" => [ "extapi_clipboard_monitor_resume" ],
+      "clipboard_monitor_dump"   => [ "extapi_clipboard_monitor_dump" ],
+      "clipboard_monitor_purge"  => [ "extapi_clipboard_monitor_purge" ],
+      "clipboard_monitor_stop"   => [ "extapi_clipboard_monitor_stop" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #
@@ -373,10 +384,16 @@ private
   def download_file( dest_folder, source )
     stat = client.fs.file.stat( source )
     base = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename( source )
+
+    # Basename ends up with a single name/folder. This is the only point where it
+    # may be possible to do a dir trav up one folder. We need to check to make sure
+    # that the basename doesn't result in a traversal
+    return false if base == '..'
+
     dest = File.join( dest_folder, base )
 
     if stat.directory?
-      client.fs.dir.download( dest, source, true, true ) { |step, src, dst|
+      client.fs.dir.download( dest, source, {"recursive" => true}, true ) { |step, src, dst|
         print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
@@ -386,6 +403,8 @@ private
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
     end
+
+    return true
   end
 
   def parse_dump(dump, get_images, get_files, download_path)
@@ -406,15 +425,15 @@ private
           print_line(v)
 
         when 'Files'
-          total = 0
           v.each do |f|
             print_line("Remote Path : #{f[:name]}")
             print_line("File size   : #{f[:size]} bytes")
             if get_files
-              download_file( loot_dir, f[:name] )
+              unless download_file(loot_dir, f[:name])
+                print_error("Download of #{f[:name]} failed.")
+              end
             end
             print_line
-            total += f[:size]
           end
 
         when 'Image'

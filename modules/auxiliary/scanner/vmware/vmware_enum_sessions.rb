@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -22,7 +19,8 @@ class Metasploit3 < Msf::Auxiliary
         all the login sessions.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -30,9 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+      ])
   end
 
 
@@ -41,11 +37,11 @@ class Metasploit3 < Msf::Auxiliary
       vim_sessions = vim_get_session_list
       case vim_sessions
       when :noresponse
-        print_error "Connection Error - Recieved No Reply from #{ip}"
+        print_error "Connection error - Received no reply from #{ip}"
       when :error
-        print_error "An error has occured"
+        print_error "An error has occurred"
       when :expired
-        print_error "The Session is no longer Authenticated"
+        print_error "The session is no longer authenticated"
       else
         output = ''
         vim_sessions.each do |vsession|
@@ -66,13 +62,12 @@ class Metasploit3 < Msf::Auxiliary
         end
         unless output.empty?
           f = store_loot("host.vmware.sessions", "text/plain", datastore['RHOST'], output, "vmware_sessions.txt", "Login Sessions for VMware")
-          vprint_status("Login sessions stored in: #{f}")
+          vprint_good("Login sessions stored in: #{f}")
         end
       end
     else
-      print_error "Login Failure on #{ip}"
+      print_error "Login failure on #{ip}"
       return
     end
   end
-
 end

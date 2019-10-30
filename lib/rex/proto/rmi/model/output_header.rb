@@ -11,10 +11,10 @@ module Rex
           #   @return [String] the Java RMI header signature
           attr_accessor :signature
           # @!attribute version
-          #   @return [Fixnum] the Java RMI version
+          #   @return [Integer] the Java RMI version
           attr_accessor :version
           # @!attribute protocol
-          #   @return [Fixnum] the protocol where the the messages are wrapped within
+          #   @return [Integer] the protocol where the the messages are wrapped within
           attr_accessor :protocol
 
           private
@@ -23,11 +23,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode signature
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode signature
           def decode_signature(io)
             signature = read_string(io, 4)
             unless signature == SIGNATURE
-              raise ::RuntimeError, 'Failed to decode OutputHeader signature'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode OutputHeader signature'
             end
 
             signature
@@ -36,7 +36,7 @@ module Rex
           # Reads the version from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_version(io)
             version = read_short(io)
 
@@ -46,14 +46,14 @@ module Rex
           # Reads the protocol from the IO
           #
           # @param io [IO] the IO to read from
-          # @return [Fixnum]
-          # @raise [RuntimeError] if fails to decode the protocol
+          # @return [Integer]
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode the protocol
           def decode_protocol(io)
             valid_protocols = [STREAM_PROTOCOL, SINGLE_OP_PROTOCOL, MULTIPLEX_PROTOCOL]
             protocol = read_byte(io)
 
             unless valid_protocols.include?(protocol)
-              raise ::RuntimeError, 'Failed to decode OutputHeader protocol'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode OutputHeader protocol'
             end
 
             protocol

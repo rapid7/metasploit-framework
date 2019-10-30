@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +37,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username to use', '']),
         OptString.new('PASSWORD', [true, 'Password to use', '']),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

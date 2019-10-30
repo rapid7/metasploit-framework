@@ -37,6 +37,9 @@ module FrameworkEventManager
     end
   end
 
+  def on_session_fail(reason='')
+  end
+
   #
   # Called when a session is closed and removed from the framework.
   #

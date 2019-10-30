@@ -1,14 +1,12 @@
-# encoding: UTF-8
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntp'
 require 'securerandom'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Fuzzer
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
@@ -48,16 +46,16 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(123),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
         OptInt.new('WAIT', [true, 'Wait this many ms for responses', 250])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('VERSIONS', [false, 'Specific versions to fuzz (csv)', '2,3,4']),
-        OptString.new('MODES', [false, 'Modes to fuzz (csv)', nil]),
-        OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)', nil]),
-        OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)', nil]),
-        OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)', nil])
-      ], self.class)
+        OptString.new('MODES', [false, 'Modes to fuzz (csv)']),
+        OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)']),
+        OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)']),
+        OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)'])
+      ])
   end
 
   def sleep_time
@@ -68,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
     thing = setting.upcase
     const_name = thing.to_sym
     var_name = thing.downcase
-    if datastore.key?(thing)
+    if datastore[thing]
       instance_variable_set("@#{var_name}", datastore[thing].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i })
       unsupported_things = instance_variable_get("@#{var_name}") - Rex::Proto::NTP.const_get(const_name)
       fail "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
@@ -100,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       @mode_6_operations.each do |op|
-        request = Rex::Proto::NTP.ntp_control(version, op)
+        request = Rex::Proto::NTP.ntp_control(version, op).to_binary_s
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
@@ -116,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       @mode_7_implementations.each do |implementation|
         @mode_7_request_codes.each do |request_code|
-          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\x00" * 188)
+          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\0" * 188).to_binary_s
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
           responses = probe(host, datastore['RPORT'].to_i, request)
@@ -166,6 +164,7 @@ class Metasploit3 < Msf::Auxiliary
           # TODO: is there a better way to pick this size?  Should more than one be tried?
           request.payload = SecureRandom.random_bytes(16)
         end
+        request = request.to_binary_s
         what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
@@ -177,8 +176,13 @@ class Metasploit3 < Msf::Auxiliary
 
   # Sends +message+ to +host+ on UDP port +port+, returning all replies
   def probe(host, port, message)
+    message = message.to_binary_s if message.respond_to?('to_binary_s')
     replies = []
-    udp_sock.sendto(message, host, port, 0)
+    begin
+      udp_sock.sendto(message, host, port, 0)
+    rescue ::Errno::EISCONN
+      udp_sock.write(message)
+    end
     reply = udp_sock.recvfrom(65535, datastore['WAIT'] / 1000.0)
     while reply && reply[1]
       replies << reply
@@ -190,14 +194,15 @@ class Metasploit3 < Msf::Auxiliary
   def handle_responses(host, request, responses, what)
     problems = []
     descriptions = []
+    request = request.to_binary_s if request.respond_to?('to_binary_s')
     responses.select! { |r| r[1] }
     return if responses.empty?
     responses.each do |response|
       data = response[0]
       descriptions << Rex::Proto::NTP.describe(data)
       problems << 'large response' if request.size < data.size
-      ntp_req = Rex::Proto::NTP::NTPGeneric.new(request)
-      ntp_resp = Rex::Proto::NTP::NTPGeneric.new(data)
+      ntp_req = Rex::Proto::NTP::NTPGeneric.new.read(request)
+      ntp_resp = Rex::Proto::NTP::NTPGeneric.new.read(data)
       problems << 'version mismatch' if ntp_req.version != ntp_resp.version
     end
 

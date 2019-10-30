@@ -1,6 +1,6 @@
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,7 +12,7 @@ lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Windows::Railgun

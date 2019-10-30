@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -18,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'   		=> 'HTTP Error Based SQL Injection Scanner',
       'Description'	=> %q{
-        This module identifies the existence of Error Based SQL injection issues. Still requires alot of work
+        This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
 
       },
       'Author' 		=> [ 'et [at] cyberspace.org' ],
@@ -30,12 +28,12 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
         OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
         OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ], self.class)
+      ])
 
   end
 
@@ -78,12 +76,14 @@ class Metasploit3 < Msf::Auxiliary
       if not datastore['QUERY'].empty?
         qvars = queryparse(datastore['QUERY']) #Now its a Hash
       else
+        print_error("You need to set QUERY param for GET")
         return
       end
     else
       if not datastore['DATA'].empty?
         qvars = queryparse(datastore['DATA']) #Now its a Hash
       else
+        print_error("You need to set DATA parameter for POST")
         return
       end
     end

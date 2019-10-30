@@ -1,16 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
 
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -34,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
 
   end
 
@@ -472,5 +469,4 @@ class Metasploit3 < Msf::Auxiliary
 
     return false
   end
-
 end

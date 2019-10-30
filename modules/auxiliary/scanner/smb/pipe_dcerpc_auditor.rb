@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
@@ -26,11 +22,11 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER)", 'BROWSER']),
-      ], self.class)
+      ])
   end
 
   @@target_uuids = [
@@ -274,8 +270,8 @@ class Metasploit3 < Msf::Auxiliary
 
         begin
           dcerpc_bind(handle)
-          print_line("#{ip} - UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
-          #Add Report
+          print_line("UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
+          # Add Report
           report_note(
             :host	=> ip,
             :proto => 'tcp',
@@ -285,9 +281,9 @@ class Metasploit3 < Msf::Auxiliary
             :data	=> "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
           )
         rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          # print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
+          #print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
         rescue ::Exception => e
-          # print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+          #print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
         end
       end
 

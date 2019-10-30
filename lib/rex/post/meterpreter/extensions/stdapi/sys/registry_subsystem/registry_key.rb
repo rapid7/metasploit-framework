@@ -30,7 +30,8 @@ class RegistryKey
     self.perm     = perm
     self.hkey     = hkey
 
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.hkey) )
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, hkey))
   end
 
   def self.finalize(client,hkey)
@@ -115,7 +116,11 @@ class RegistryKey
 
   # Instance method for the same
   def close()
-    self.class.close(self.client, self.hkey)
+    unless self.hkey.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, self.hkey)
+      self.hkey = nil
+    end
   end
 
   ##
@@ -163,7 +168,11 @@ class RegistryKey
   # Returns the path to the key.
   #
   def to_s
-    return self.root_key.to_s + "\\" + self.base_key
+    if self.base_key.nil?
+      self.root_key.to_s + "\\"
+    else
+      self.root_key.to_s + "\\" + self.base_key
+    end
   end
 
   #

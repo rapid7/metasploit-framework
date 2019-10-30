@@ -5,7 +5,7 @@ module Metasploit
 
     # This class is responsible for taking datastore options from the snmp_login module
     # and yielding appropriate {Metasploit::Framework::Credential}s to the {Metasploit::Framework::LoginScanner::SNMP}.
-    # This one has to be different from {credentialCollection} as it will only have a {Metasploit::Framework::Credential#public}
+    # This one has to be different from credentialCollection as it will only have a {Metasploit::Framework::Credential#public}
     # It may be slightly confusing that the attribues are called password and pass_file, because this is what the legacy
     # module used. However, community Strings are now considered more to be public credentials than private ones.
     class CommunityStringCollection
@@ -57,6 +57,10 @@ module Metasploit
         ensure
           pass_fd.close if pass_fd && !pass_fd.closed?
         end
+      end
+
+      def empty?
+        prepended_creds.empty? && !pass_file.present? && !password.present?
       end
 
       # Add {Credential credentials} that will be yielded by {#each}

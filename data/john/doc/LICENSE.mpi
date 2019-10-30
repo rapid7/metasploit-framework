@@ -1,4 +1,0 @@
-This patch for John the Ripper MPI implementation is a continuation of
-Ryan Lim's original patch against 1.6.x, later maintained by John
-Anderson at bindshell.net, and modified by AoZ and magnum.  It is
-licensed under the same terms as John the Ripper itself.

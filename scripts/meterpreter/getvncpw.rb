@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -81,7 +81,7 @@ keytosearch = nil
     keytosearch = val
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
 if keytosearch == nil
   print_status("Searching for VNC Passwords in the registry....")
   keys.each { |key|

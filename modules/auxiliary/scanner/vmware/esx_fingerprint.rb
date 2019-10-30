@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -22,14 +17,13 @@ class Metasploit3 < Msf::Auxiliary
         and attempts to identify version information for that server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options([Opt::RPORT(443),
       OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
-    ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+    ])
   end
 
 
@@ -97,5 +91,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

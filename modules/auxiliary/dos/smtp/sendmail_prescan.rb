@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Dos
 
@@ -20,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
         parsing SMTP headers. Due to the prescan function, only 0x5c and 0x00
         bytes can be used, limiting the likelihood for arbitrary code execution.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'OSVDB', '2577' ],
@@ -55,7 +51,6 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end
 
 =begin

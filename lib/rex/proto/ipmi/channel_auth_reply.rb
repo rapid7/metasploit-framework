@@ -1,56 +1,57 @@
 # -*- coding: binary -*-
 
+require 'bindata'
+
 module Rex
 module Proto
 module IPMI
 
-class Channel_Auth_Reply < BitStruct
-  unsigned :rmcp_version,                    8,     "RMCP Version"
-  unsigned :rmcp_padding,                    8,     "RMCP Padding"
-  unsigned :rmcp_sequence,                   8,     "RMCP Sequence"
-  unsigned :rmcp_mtype,                      1,     "RMCP Message Type"
-  unsigned :rmcp_class,                      7,     "RMCP Message Class"
+class Channel_Auth_Reply < BinData::Record
+  endian :little
+  uint8  :rmcp_version            ,label: "RMCP Version"
+  uint8  :rmcp_padding            ,label: "RMCP Padding"
+  uint8  :rmcp_sequence           ,label: "RMCP Sequence"
+  bit1   :rmcp_mtype              ,label: "RMCP Message Type"
+  bit7   :rmcp_class              ,label: "RMCP Message Class"
 
-  unsigned :session_auth_type,               8,     "Session Auth Type"
-  unsigned :session_sequence,               32,     "Session Sequence Number"
-  unsigned :session_id,                     32,     "Session ID"
-  unsigned :message_length,                  8,     "Message Length"
+  uint8  :session_auth_type       ,label: "Session Auth Type"
+  uint32 :session_sequence        ,label: "Session Sequence Number"
+  uint32 :session_id              ,label: "Session ID"
+  uint8  :message_length          ,label: "Message Length"
 
-  unsigned :ipmi_tgt_address,                8,     "IPMI Target Address"
-  unsigned :ipmi_tgt_lun,                    8,     "IPMI Target LUN"
-  unsigned :ipmi_header_checksum,            8,     "IPMI Header Checksum"
-  unsigned :ipmi_src_address,                8,     "IPMI Source Address"
-  unsigned :ipmi_src_lun,                    8,     "IPMI Source LUN"
-  unsigned :ipmi_command,                    8,     "IPMI Command"
-  unsigned :ipmi_completion_code,            8,     "IPMI Completion Code"
+  uint8  :ipmi_tgt_address        ,label: "IPMI Target Address"
+  uint8  :ipmi_tgt_lun            ,label: "IPMI Target LUN"
+  uint8  :ipmi_header_checksum    ,label: "IPMI Header Checksum"
+  uint8  :ipmi_src_address        ,label: "IPMI Source Address"
+  uint8  :ipmi_src_luna           ,label: "IPMI Source LUN"
+  uint8  :ipmi_command            ,label: "IPMI Command"
+  uint8  :ipmi_completion_code    ,label: "IPMI Completion Code"
 
-  unsigned :ipmi_channel,                    8,     "IPMI Channel"
+  uint8  :ipmi_channel            ,label: "IPMI Channel"
 
-  unsigned :ipmi_compat_20,                  1,     "IPMI Version Compatibility: IPMI 2.0+"
-  unsigned :ipmi_compat_reserved1,           1,     "IPMI Version Compatibility: Reserved 1"
-  unsigned :ipmi_compat_oem_auth,            1,     "IPMI Version Compatibility: OEM Authentication"
-  unsigned :ipmi_compat_password,            1,     "IPMI Version Compatibility: Straight Password"
-  unsigned :ipmi_compat_reserved2,           1,     "IPMI Version Compatibility: Reserved 2"
-  unsigned :ipmi_compat_md5,                 1,     "IPMI Version Compatibility: MD5"
-  unsigned :ipmi_compat_md2,                 1,     "IPMI Version Compatibility: MD2"
-  unsigned :ipmi_compat_none,                1,     "IPMI Version Compatibility: None"
+  bit1   :ipmi_compat_20          ,label: "IPMI Version Compatibility: IPMI 2.0+"
+  bit1   :ipmi_compat_reserved1   ,label: "IPMI Version Compatibility: Reserved 1"
+  bit1   :ipmi_compat_oem_auth    ,label: "IPMI Version Compatibility: OEM Authentication"
+  bit1   :ipmi_compat_password    ,label: "IPMI Version Compatibility: Straight Password"
+  bit1   :ipmi_compat_reserved2   ,label: "IPMI Version Compatibility: Reserved 2"
+  bit1   :ipmi_compat_md5         ,label: "IPMI Version Compatibility: MD5"
+  bit1   :ipmi_compat_md2         ,label: "IPMI Version Compatibility: MD2"
+  bit1   :ipmi_compat_none        ,label: "IPMI Version Compatibility: None"
 
-  unsigned :ipmi_user_reserved1,             2,     "IPMI User Compatibility: Reserved 1"
-  unsigned :ipmi_user_kg,                    1,     "IPMI User Compatibility: KG Set to Default"
-  unsigned :ipmi_user_disable_message_auth,  1,     "IPMI User Compatibility: Disable Per-Message Authentication"
-  unsigned :ipmi_user_disable_user_auth,     1,     "IPMI User Compatibility: Disable User-Level Authentication"
-  unsigned :ipmi_user_non_null,              1,     "IPMI User Compatibility: Non-Null Usernames Enabled"
-  unsigned :ipmi_user_null,                  1,     "IPMI User Compatibility: Null Usernames Enabled"
-  unsigned :ipmi_user_anonymous,             1,     "IPMI User Compatibility: Anonymous Login Enabled"
+  bit2   :ipmi_user_reserved1     ,label: "IPMI User Compatibility: Reserved 1"
+  bit1   :ipmi_user_kg            ,label: "IPMI User Compatibility: KG Set to Default"
+  bit1   :ipmi_user_disable_message_auth ,label: "IPMI User Compatibility: Disable Per-Message Authentication"
+  bit1   :ipmi_user_disable_user_auth ,label: "IPMI User Compatibility: Disable User-Level Authentication"
+  bit1   :ipmi_user_non_null      ,label: "IPMI User Compatibility: Non-Null Usernames Enabled"
+  bit1   :ipmi_user_null          ,label: "IPMI User Compatibility: Null Usernames Enabled"
+  bit1   :ipmi_user_anonymous     ,label: "IPMI User Compatibility: Anonymous Login Enabled"
 
-  unsigned :ipmi_conn_reserved1,             6,     "IPMI Connection Compatibility: Reserved 1"
-  unsigned :ipmi_conn_20,                    1,     "IPMI Connection Compatibility: 2.0"
-  unsigned :ipmi_conn_15,                    1,     "IPMI Connection Compatibility: 1.5"
+  bit6   :ipmi_conn_reserved1     ,label: "IPMI Connection Compatibility: Reserved 1"
+  bit1   :ipmi_conn_20            ,label: "IPMI Connection Compatibility: 2.0"
+  bit1   :ipmi_conn_15            ,label: "IPMI Connection Compatibility: 1.5"
+  bit24  :ipmi_oem_id             ,label: "IPMI OEM ID"
 
-  unsigned :ipmi_oem_id,                    24,     "IPMI OEM ID", :endian => 'little'
-
-  rest :ipm_oem_data, "IPMI OEM Data + Checksum Byte"
-
+  rest :ipm_oem_data              ,label: "IPMI OEM Data + Checksum Byte"
 
   def to_banner
     info   = self

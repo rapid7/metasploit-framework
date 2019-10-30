@@ -13,4 +13,10 @@ module Msf::Module::UI
   include Msf::Module::UI::Line
   # Overwrite the {Rex::Ui::Subscriber} print_(status|error|good) to do time stamps
   include Msf::Module::UI::Message
+
+  # Add alerts to {Rex::Ui::Subscriber#init_ui}
+  def init_ui(*args)
+    super
+    alert_user
+  end
 end

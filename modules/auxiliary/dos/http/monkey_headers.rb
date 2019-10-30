@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -26,15 +23,14 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2013-3843'],
           ['OSVDB', '93853'],
-          ['BID', '60333'],
-          ['URL', 'http://bugs.monkey-project.com/ticket/182']
+          ['BID', '60333']
         ],
       'DisclosureDate' => 'May 30 2013'))
 
     register_options(
       [
         Opt::RPORT(2001)
-      ], self.class)
+      ])
   end
 
   def dos

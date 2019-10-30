@@ -1,5 +1,6 @@
 /etc/passwd
 /etc/shadow
+/etc/group
 /etc/groups
 /etc/mysql.conf
 /etc/mysql/my.cnf

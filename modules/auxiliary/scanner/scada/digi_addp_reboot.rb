@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/addp'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       Opt::RPORT(2362),
       OptString.new('ADDP_PASSWORD', [true, 'The ADDP protocol password for each target', 'dbps'])
-    ], self.class)
+    ])
   end
 
   def scanner_prescan(batch)
@@ -70,5 +67,4 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{shost}:#{sport} Reboot Status: " + Rex::Proto::ADDP.reply_to_string(@results[shost]))
     end
   end
-
 end

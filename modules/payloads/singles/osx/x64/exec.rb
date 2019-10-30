@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
-
-module Metasploit3
+  CachedSize = 31
 
   include Msf::Payload::Single
 
@@ -18,13 +17,13 @@ module Metasploit3
                            'joev' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64
+      'Arch'          => ARCH_X64
     ))
 
     # exec payload options
     register_options([
       OptString.new('CMD',  [ true,  "The command string to execute" ])
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

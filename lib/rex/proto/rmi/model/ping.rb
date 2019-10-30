@@ -9,7 +9,7 @@ module Rex
         class Ping < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the input stream id
+          #   @return [Integer] the input stream id
           attr_accessor :stream_id
 
           private
@@ -18,11 +18,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode stream id
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode stream id
           def decode_stream_id(io)
             stream_id = read_byte(io)
             unless stream_id == PING_MESSAGE
-              raise ::RuntimeError, 'Failed to decode Ping stream id'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode Ping stream id'
             end
 
             stream_id

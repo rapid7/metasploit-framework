@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
-  include Msf::Exploit::Remote::Tcp
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Report
@@ -16,8 +13,10 @@ class Metasploit3 < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'HTTP Open Proxy Detection',
       'Description' => %q{
-          Checks if an HTTP proxy is open. False positive are avoided
-        verifing the HTTP return code and matching a pattern.
+        Checks if an HTTP proxy is open. False positive are avoided
+        verifying the HTTP return code and matching a pattern.
+        The CONNECT method is verified only the return code.
+        HTTP headers are shown regarding the use of proxy or load balancer.
       },
       'References'  =>
         [
@@ -31,228 +30,126 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptBool.new('DEBUG', [ false, 'Enable requests debugging output', false ]),
-        OptBool.new('MULTIPORTS', [ false, 'Multiple ports will be used : 80, 1080, 3128, 8080, 8123', false ]),
-        OptBool.new('RANDOMIZE_PORTS', [ false, 'Randomize the order the ports are probed', false ]),
-        OptBool.new('VERIFY_CONNECT', [ false, 'Enable test for CONNECT method', false ]),
-        OptBool.new('VERIFY_HEAD', [ false, 'Enable test for HEAD method', false ]),
-        OptBool.new('LOOKUP_PUBLIC_ADDRESS', [ false, 'Enable test for retrieve public IP address via RIPE.net', false ]),
-        OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', 'www.google.com' ]),
-        OptString.new('ValidCode', [ false, "Valid HTTP code for a successfully request", '200,302' ]),
-        OptString.new('ValidPattern', [ false, "Valid HTTP server header for a successfully request", 'server: gws' ]),
-        OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
-      ], self.class)
-
-    register_advanced_options(
-      [
-        OptString.new('RIPE_ADDRESS', [ true, 'www.ripe.net IP address', '193.0.6.139' ]),
-      ], self.class)
+        OptBool.new('MULTIPORTS', [ false, 'Multiple ports will be used: 80, 443, 1080, 3128, 8000, 8080, 8123', false ]),
+        OptBool.new('VERIFYCONNECT', [ false, 'Enable CONNECT HTTP method check', false ]),
+        OptString.new('CHECKURL', [ true, 'The web site to test via alleged web proxy', 'http://www.google.com' ]),
+        OptString.new('VALIDCODES', [ true, "Valid HTTP code for a successfully request", '200,302' ]),
+        OptString.new('VALIDPATTERN', [ true, "Valid pattern match (case-sensitive into the headers and HTML body) for a successfully request", '<TITLE>302 Moved</TITLE>' ]),
+      ])
 
     register_wmap_options({
-        'OrderID' => 1,
-        'Require' => {},
-      })
+      'OrderID' => 1,
+      'Require' => {},
+    })
   end
 
   def run_host(target_host)
 
+    check_url = datastore['CHECKURL']
+
+    if datastore['VERIFYCONNECT']
+      target_method = 'CONNECT'
+      # CONNECT doesn't need <scheme> but need port
+      check_url = check_url.gsub(/[http:\/\/|https:\/\/]/, '')
+      if check_url !~ /:443$/
+        check_url = check_url + ":443"
+      end
+    else
+      target_method = 'GET'
+      # GET only http request
+      check_url = check_url.gsub(/https:\/\//, '')
+      if check_url !~ /^http:\/\//i
+        check_url = 'http://' + check_url
+      end
+    end
+
     target_ports = []
 
     if datastore['MULTIPORTS']
-      target_ports = [ 80, 1080, 3128, 8080, 8123 ]
+      target_ports = [ 80, 443, 1080, 3128, 8000, 8080, 8123 ]
+    else
+      target_ports.push(datastore['RPORT'].to_i)
     end
 
-    target_ports.push(datastore['RPORT'].to_i)
-
-    if datastore['RANDOMIZE_PORTS']
-      target_ports = target_ports.sort_by { rand }
-    end
-
-    target_ports = target_ports.uniq
-
-    site       = datastore['SITE']
-    user_agent = datastore['UserAgent']
+    target_proxy_headers = [ 'Forwarded', 'Front-End-Https', 'Max-Forwards', 'Via', 'X-Cache', 'X-Cache-Lookup', 'X-Client-IP', 'X-Forwarded-For', 'X-Forwarded-Host' ]
 
     target_ports.each do |target_port|
-      datastore['RPORT'] = target_port
-      if target_host == site
-        print_error("Target is the same as proxy site.")
-      else
-        check_host(target_host,target_port,site,user_agent)
-      end
+      verify_target(target_host,target_port,target_method,check_url,target_proxy_headers)
     end
 
   end
 
-  def check_pattern(res,pattern)
+  def verify_target(target_host,target_port,target_method,check_url,target_proxy_headers)
 
-    if (res =~ /#{pattern}/i)
-      return 1
-    else
-      return 0
-    end
+    vprint_status("#{peer} - Sending a web request... [#{target_method}][#{check_url}]")
 
-  end
-
-  def write_request(method,site,user_agent)
-
-    request = method + " http://" + site + "/ HTTP/1.1" + "\r\n" +
-      "Host: " + site + "\r\n" +
-      "Connection: close" + "\r\n" +
-      "User-Agent: #{user_agent}" + "\r\n" +
-      "Accept-Encoding: *" + "\r\n" +
-      "Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + "\r\n" +
-      "Cache-Control: no" + "\r\n" +
-      "Accept-Language: de,en;q=0.7,en-us;q=0.3" + "\r\n" +
-      "\r\n"
-
-    return request
-
-  end
-
-  def send_request(site,user_agent)
+    datastore['RPORT'] = target_port
 
     begin
-      connect
-
-      request = write_request('GET',site,user_agent)
-      sock.put(request)
-      res = sock.get_once(-1, 10)
-
-      disconnect
-
-      validcodes = datastore['ValidCode'].split(/,/)
-
-      is_valid = 0
-      retcode  = 0
-      retvia   = 'n/a'
-      retsrv   = 'n/a'
-
-      if (res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
-
-        retcode = $1
-
-        if (res.match(/Server: (.*)/))
-          retsrv = $1.chomp
-        end
-
-        if (res.match(/Via: (.*)\((.*)\)/))
-          retvia = $2
-        end
-
-        validcodes.each do |validcode|
-          if (retcode.to_i == validcode.to_i)
-            is_valid += 1
-          end
-        end
-
-        if (check_pattern(res,datastore['ValidPattern']) == 1)
-          is_valid += 1
-        end
-      end
-
-      retres = [ is_valid, retcode, retvia, retsrv ]
-
-      return retres
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    end
-  end
-
-  def send_request_ripe(user_agent)
-
-    ripe_address = datastore['RIPE_ADDRESS']
-
-    begin
-      connect
-
-      request = write_request('GET',ripe_address,user_agent)
-      sock.put(request)
-      res = sock.get_once(-1, 10)
-
-      disconnect
-
-      retres = 0
-
-      if (res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
-
-        retcode = $1
-
-        if (retcode.to_i == 200)
-          res.match(/Your IP Address is: <strong>(\s+)([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})(\s+)<\/strong>/m)
-          retres = "#{$2}.#{$3}.#{$4}.#{$5}"
-        end
-      end
-
-      return retres
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    end
-  end
-
-  def check_host(target_host,target_port,site,user_agent)
-
-    if datastore['DEBUG']
-      print_status("Checking #{target_host}:#{target_port} [#{site}]")
-    end
-
-    is_valid,retcode,retvia,retsrv = send_request(site,user_agent)
-
-    if (is_valid == 2)
-
-      print_status("#{target_host}:#{target_port} is a potentially OPEN proxy [#{retcode}] (#{retvia})")
-
-      report_note(
-        :host   => target_host,
-        :port   => target_port,
-        :method => 'GET',
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :type  	=> 'OPEN PROXY',
-        :data   => 'Open proxy'
+      res = send_request_cgi(
+        'uri'     => check_url,
+        'method'  => target_method,
+        'version' => '1.1'
       )
 
-      if (datastore['VERIFY_CONNECT'])
+      return if not res
 
-        permit_connect,retcode,retvia,retsrv = send_request(site,user_agent)
+      vprint_status("#{peer} - Returns with '#{res.code}' status code [#{target_method}][#{check_url}]")
 
-        if (permit_connect == 2)
-          print_status("#{target_host}:#{target_port} CONNECT method successfully tested")
+      valid_codes = datastore['VALIDCODES'].split(/,/)
+
+      target_proxy_headers_results = []
+      target_proxy_headers.each do |proxy_header|
+        if (res.headers.to_s.match(/#{proxy_header}: (.*)/))
+          proxy_header_value = $1
+          # Ok...I don't like it but works...
+          target_proxy_headers_results.push("\n                          |_ #{proxy_header}: #{proxy_header_value}")
+        end
+      end
+
+      if target_proxy_headers_results.any?
+        proxy_headers = target_proxy_headers_results.join()
+      end
+
+      if datastore['VERIFYCONNECT']
+        # Verifiying CONNECT we check only the return code
+        if valid_codes.include?(res.code.to_s)
+
+          print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
             :host   => target_host,
             :port   => target_port,
-            :method => 'CONNECT'
+            :method => target_method,
+            :proto  => 'tcp',
+            :sname  => (ssl ? 'https' : 'http'),
+            :type   => 'OPEN HTTP PROXY',
+            :data   => 'Open http proxy (CONNECT)'
           )
+
         end
-      end
+      else
+        # Verify return code && (headers.pattern or body.pattern)
+        if valid_codes.include?(res.code.to_s) && (res.headers.include?(datastore['VALIDPATTERN']) || res.body.include?(datastore['VALIDPATTERN']))
 
-      if (datastore['VERIFY_HEAD'])
-
-        permit_connect,retcode,retvia,retsrv = send_request(site,user_agent)
-
-        if (permit_connect == 2)
-          print_status("#{target_host}:#{target_port} HEAD method successfully tested")
+          print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
             :host   => target_host,
             :port   => target_port,
-            :method => 'HEAD'
+            :method => target_method,
+            :proto  => 'tcp',
+            :sname  => (ssl ? 'https' : 'http'),
+            :type   => 'OPEN HTTP PROXY',
+            :data   => 'Open http proxy (GET)'
           )
+
         end
       end
 
-      if (datastore['LOOKUP_PUBLIC_ADDRESS'])
-
-        retres = send_request_ripe(user_agent)
-
-        if (retres != 0)
-          print_status("#{target_host}:#{target_port} using #{retres} public IP address")
-        end
-      end
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
+      vprint_error("#{peer} - The port '#{target_port}' is unreachable!")
+      return nil
     end
-
   end
 end

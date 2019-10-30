@@ -11,7 +11,7 @@ require 'spec_helper'
 require 'metasploit/framework/database'
 require 'msf/core'
 
-describe Msf::DBManager do
+RSpec.describe Msf::DBManager do
   include_context 'Msf::DBManager'
 
   subject do
@@ -48,9 +48,11 @@ describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
-  it { is_expected.to respond_to :check }
-  it { is_expected.to respond_to :error }
-  it { is_expected.to respond_to :initialize_database_support }
-  it { is_expected.to respond_to :service_name_map }
-  it { is_expected.to respond_to :warn_about_rubies }
+  # Not implemented in remote data service
+  unless ENV['REMOTE_DB']
+    it { is_expected.to respond_to :check }
+    it { is_expected.to respond_to :error }
+    it { is_expected.to respond_to :service_name_map }
+  end
+
 end

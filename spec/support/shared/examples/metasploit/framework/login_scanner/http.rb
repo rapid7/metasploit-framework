@@ -1,8 +1,8 @@
-shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
+RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::HTTP' do
   subject(:http_scanner) { described_class.new }
 
-  it { should respond_to :uri }
-  it { should respond_to :method }
+  it { is_expected.to respond_to :uri }
+  it { is_expected.to respond_to :method }
 
   context "#set_sane_defaults" do
 

@@ -2,7 +2,7 @@
 require 'msf/base/simple/framework'
 require 'metasploit/framework'
 
-shared_context 'Msf::Simple::Framework' do
+RSpec.shared_context 'Msf::Simple::Framework' do
   let(:dummy_pathname) do
     Rails.root.join('spec', 'dummy')
   end
@@ -19,11 +19,11 @@ shared_context 'Msf::Simple::Framework' do
     dummy_pathname.join('framework', 'config')
   end
 
-  before(:each) do
+  before(:example) do
     framework_config_pathname.mkpath
   end
 
-  after(:each) do
+  after(:example) do
     dummy_pathname.rmtree
   end
 end

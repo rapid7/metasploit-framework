@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/jtr/invalid_wordlist'
 
-describe Metasploit::Framework::JtR::InvalidWordlist do
+RSpec.describe Metasploit::Framework::JtR::InvalidWordlist do
 
   subject(:invalid) do
     described_class.new(model)
@@ -17,10 +17,10 @@ describe Metasploit::Framework::JtR::InvalidWordlist do
     end
   end
 
-  it { should be_a StandardError }
+  it { is_expected.to be_a StandardError }
 
   it 'should use ActiveModel::Errors#full_messages' do
-    model.errors.should_receive(:full_messages).and_call_original
+    expect(model.errors).to receive(:full_messages).and_call_original
 
     described_class.new(model)
   end
@@ -31,7 +31,7 @@ describe Metasploit::Framework::JtR::InvalidWordlist do
     end
 
     it 'should be the passed in model' do
-      error_model.should == model
+      expect(error_model).to eq model
     end
   end
 

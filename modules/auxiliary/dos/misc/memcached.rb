@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -29,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE
     ))
 
-    register_options([Opt::RPORT(11211),], self.class)
+    register_options([Opt::RPORT(11211),])
   end
 
   def is_alive?

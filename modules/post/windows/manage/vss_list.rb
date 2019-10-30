@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
@@ -50,7 +45,7 @@ class Metasploit3 < Msf::Post
     shadow_copies = vss_list
     unless shadow_copies.empty?
       shadow_copies.each do |copy|
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Header'  => 'Shadow Copy Data',
           'Indent'  => 1,
           'Columns' => ['Field', 'Value']
@@ -69,5 +64,4 @@ class Metasploit3 < Msf::Post
       )
     end
   end
-
 end

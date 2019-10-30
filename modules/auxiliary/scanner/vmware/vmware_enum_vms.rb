@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -22,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
         running the web interface. This would include ESX/ESXi and VMWare Server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -31,9 +27,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
         OptBool.new('SCREENSHOT', [true, "Wheter or not to try to take a screenshot", true])
-      ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
+      ])
   end
 
   def run_host(ip)
@@ -73,11 +67,10 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       f = store_loot('host.vmware.vms', "text/plain", datastore['RHOST'], YAML.dump(virtual_machines) , "#{datastore['RHOST']}_esx_vms.txt", "VMWare ESX Virtual Machines")
-      vprint_status("VM info stored in: #{f}")
+      vprint_good("VM info stored in: #{f}")
     else
       print_error "Login Failure on #{ip}"
       return
     end
   end
-
 end

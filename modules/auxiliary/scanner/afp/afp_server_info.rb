@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::AFP
@@ -21,13 +18,11 @@ class Metasploit3 < Msf::Auxiliary
       },
       'References'     =>
         [
-          [ 'URL', 'https://developer.apple.com/library/mac/#documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ]
+          [ 'URL', 'https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html' ]
         ],
       'Author'       => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
       'License'      => MSF_LICENSE
     ))
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

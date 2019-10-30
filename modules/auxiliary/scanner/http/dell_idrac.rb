@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -38,11 +35,11 @@ class Metasploit3 < Msf::Auxiliary
       OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "idrac_default_pass.txt") ]),
       OptInt.new('RPORT', [true, "Default remote port", 443])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", true])
-    ], self.class)
+    ])
   end
 
   def target_url
@@ -69,20 +66,44 @@ class Metasploit3 < Msf::Auxiliary
 
     if(auth and auth.body.to_s.match(/<authResult>[0|5]<\/authResult>/) != nil )
       print_good("#{target_url} - SUCCESSFUL login for user '#{user}' with password '#{pass}'")
-      report_auth_info(
-        :host => rhost,
-        :port => rport,
-        :proto => 'tcp',
-        :sname => (ssl ? 'https' : 'http'),
-        :user => user,
-        :pass => pass,
-        :active => true,
-        :source_type => "user_supplied",
-        :duplicate_ok => true
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: (ssl ? 'https' : 'http'),
+        user: user,
+        password: pass,
+        proof: auth.body.to_s
       )
+      return :next_user
     else
       print_error("#{target_url} - Dell iDRAC - Failed to login as '#{user}' with password '#{pass}'")
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -115,5 +136,4 @@ class Metasploit3 < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

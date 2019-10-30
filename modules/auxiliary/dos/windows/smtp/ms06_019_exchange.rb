@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Dos
 
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('SUBJECT', [ true, 'The subject of the e-mail', 're: Your Brains'])
-      ], self.class)
+      ])
 
   end
 
@@ -112,5 +107,4 @@ class Metasploit3 < Msf::Auxiliary
     print "<< " + (sock.get_once || '')
     disconnect
   end
-
 end

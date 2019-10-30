@@ -1,0 +1,20 @@
+%bld%whi
+         .                                         .
+ .
+
+      %bludBBBBBBb  dBBBP dBBBBBBP dBBBBBb  %whi.                       o
+     %blu  '   dB'                     BBP
+    dB'dB'dB' dBBP     dBP     dBP BB
+   dB'dB'dB' dBP      dBP     dBP  BB
+  dB'dB'dB' dBBBBP   dBP     dBBBBBBB
+
+                                   %reddBBBBBP  %bludBBBBBb  dBP    dBBBBP dBP dBBBBBBP
+          %whi.                  %cya.                  %bludB' dBP    dB'.BP
+                             %cya|       %reddBP%blu    dBBBB' dBP    dB'.BP dBP    dBP
+                           %cya--o--    %reddBP%blu    dBP    dBP    dB'.BP dBP    dBP
+                             %cya|     %reddBBBBP%blu dBP    dBBBBP dBBBBP dBP    dBP%whi
+
+                                                                    .
+                .
+        o                  %grnTo boldly go where no
+                            shell has gone before

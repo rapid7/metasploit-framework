@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+module MetasploitModule
 
-module Metasploit3
+  CachedSize = 1019
 
   include Msf::Payload::Single
   include Msf::Payload::Firefox
@@ -14,7 +14,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Firefox XPCOM Execute Command',
       'Description'   => %Q|
-        This module runs a shell command on the target OS withough touching the disk.
+        This module runs a shell command on the target OS without touching the disk.
         On Windows, this command will flash the command prompt momentarily.
         This can be avoided by setting WSCRIPT to true, which drops a jscript
         "launcher" to disk that hides the prompt.
@@ -27,7 +27,7 @@ module Metasploit3
     register_options([
       OptString.new('CMD', [true, "The command string to execute", 'touch /tmp/a.txt']),
       OptBool.new('WSCRIPT', [true, "On Windows, drop a vbscript to hide the cmd prompt", false])
-    ], self.class)
+    ])
   end
 
   def generate

@@ -49,7 +49,7 @@ module Metasploit
       #
       # @return [void]
       def self.optionally_active_record_railtie
-        if ::File.exist?(Rails.application.config.paths['config/database'].first)
+        if ::Rails.application.config.paths['config/database'].any?
           optionally(
             'active_record/railtie',
             'activerecord not in the bundle, so database support will be disabled.'
@@ -59,14 +59,15 @@ module Metasploit
         end
       end
 
-      # Tries to `require 'metasploit/credential/creation'` and include it in the `including_module`.
+      # Tries to `require 'metasploit/credential'` and include `Metasploit::Credential::Creation` in the
+      # `including_module`.
       #
       # @param including_module [Module] `Class` or `Module` that wants to `include Metasploit::Credential::Creation`.
       # @return [void]
       def self.optionally_include_metasploit_credential_creation(including_module)
         optionally(
-            'metasploit/credential/creation',
-            "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for #{including_module.name}",
+            'metasploit/credential',
+            "metasploit-credential not in the bundle, so Metasploit::Credential creation will fail for #{including_module.name}"
         ) do
           including_module.send(:include, Metasploit::Credential::Creation)
         end

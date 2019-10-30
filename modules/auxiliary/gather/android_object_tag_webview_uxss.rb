@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Exploit::JSObfu
   include Msf::Auxiliary::Report
@@ -60,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
         "A URL to inject into a script tag in the context of the target URLs.",
         ''
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -117,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       response = JSON.parse(request.body)
     rescue JSON::ParserError
-      print_bad "Invalid JSON request."
+      print_error "Invalid JSON request."
     else
       url = response['url']
       if response && url
@@ -144,5 +141,4 @@ class Metasploit3 < Msf::Auxiliary
   def run
     exploit
   end
-
 end

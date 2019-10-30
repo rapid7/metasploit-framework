@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize
@@ -36,11 +34,11 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('DEVICE_ID', [true, "Device ID (e.g. SIP00070EEA3156)", "SEP00070EEA3156"]),
         OptString.new('PORT', [true, "The CDP 'sent through interface' value", "Port 1"]),
         # XXX: this is not currently implemented
-        # OptString.new('CAPABILITIES',   [false, "Capabilities of the device (e.g. Router, Host, Switch)", "Router"]),
+        #OptString.new('CAPABILITIES',   [false, "Capabilities of the device (e.g. Router, Host, Switch)", "Router"]),
         OptString.new('PLATFORM', [true, "Platform of the device", "Cisco IP Phone 7975"]),
         OptString.new('SOFTWARE', [true, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
         OptBool.new('FULL_DUPLEX', [true, 'True iff full-duplex, false otherwise', true])
-      ], self.class)
+      ])
 
     deregister_options('FILTER', 'PCAPFILE', 'RHOST', 'SNAPLEN', 'TIMEOUT')
   end

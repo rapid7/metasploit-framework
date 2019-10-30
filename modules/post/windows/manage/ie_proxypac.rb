@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::File
   include Msf::Post::Windows::Registry
@@ -37,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptString.new('REMOTE_PAC',  [false, 'Remote PAC file. (Ex: http://192.168.1.20/proxy.pac)' ]),
         OptBool.new('DISABLE_PROXY', [true, 'Disable the proxy server.', false]),
         OptBool.new('AUTO_DETECT',   [true, 'Automatically detect settings.', false])
-      ], self.class)
+      ])
   end
 
   def run
@@ -90,7 +86,7 @@ class Metasploit3 < Msf::Post
     pac_file = session.sys.config.getenv("APPDATA") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
     conf_pac = ""
 
-    if ::File.exists?(local_pac)
+    if ::File.exist?(local_pac)
       conf_pac << ::File.open(local_pac, "rb").read
     else
       print_error("Local PAC file not found.")
@@ -147,7 +143,7 @@ class Metasploit3 < Msf::Post
       next if k.include? "_Classes"
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings\\Connections"
       if change_connection(16,'0D',key)
-        print_good ("Automatically Detect Settings on.")
+        print_good("Automatically Detect Settings on.")
         auto_detect_enabled = true
       end
     end
@@ -196,5 +192,4 @@ class Metasploit3 < Msf::Post
 
     return true
   end
-
 end

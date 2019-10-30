@@ -2,12 +2,12 @@
 
 dllbase = File.expand_path(File.dirname(__FILE__))
 msfbase = File.expand_path(File.join(dllbase, "..", "..", ".."))
-msfp    = File.join(msfbase, "msfpayload")
+msfv    = File.join(msfbase, "msfvenom")
 
 Dir.chdir(dllbase)
 
-system("ruby #{msfp} windows/exec CMD=calc.exe X > runcalc.exe")
-system("ruby #{msfp} windows/exec CMD=calc.exe D > runcalc.dll")
-system("ruby #{msfp} windows/exec CMD='cmd.exe /c echo yes > exploited.txt' D > runtest.dll")
-system("ruby #{msfp} windows/exec CMD='cmd.exe /c echo yes > exploited.txt' X > runtest.exe")
+system("ruby #{msfv} -p windows/exec CMD=calc.exe -f exe -o runcalc.exe")
+system("ruby #{msfv} -p windows/exec CMD=calc.exe -f dll -o runcalc.dll")
+system("ruby #{msfv} -p windows/exec CMD='cmd.exe /c echo yes > exploited.txt' -f dll -o runtest.dll")
+system("ruby #{msfv} -p windows/exec CMD='cmd.exe /c echo yes > exploited.txt' -f exe -o runtest.exe")
 

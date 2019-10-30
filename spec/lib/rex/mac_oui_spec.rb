@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/mac_oui'
 
-describe Rex::Oui do
+RSpec.describe Rex::Oui do
   describe ".lookup_oui_fullname" do
     subject(:oui_fullname) { described_class.lookup_oui_fullname(mac) }
 
@@ -28,7 +28,7 @@ describe Rex::Oui do
     context "when invalid mac format" do
       let(:mac) { 'invalid' }
       it "raises an error" do
-        expect { oui_fullname }.to raise_error
+        expect { oui_fullname }.to raise_error(RuntimeError)
       end
     end
   end
@@ -57,7 +57,7 @@ describe Rex::Oui do
     context "when invalid mac format" do
       let(:mac) { 'invalid' }
       it "raises an error" do
-        expect { oui_company_name }.to raise_error
+        expect { oui_company_name }.to raise_error(RuntimeError)
       end
     end
   end
@@ -75,12 +75,12 @@ describe Rex::Oui do
     end
 
     context "when invalid mac" do
-      it { expect { described_class.check_mac('AA') }.to raise_error }
-      it { expect { described_class.check_mac('AA:BB:CC:DD:JJ') }.to raise_error }
-      it { expect { described_class.check_mac('AA:BB') }.to raise_error }
-      it { expect { described_class.check_mac('AABB') }.to raise_error }
-      it { expect { described_class.check_mac('AA:BB:CC:DD:EE:FF:AA') }.to raise_error }
-      it { expect { described_class.check_mac('AABBCCDDEEFFAA') }.to raise_error }
+      it { expect { described_class.check_mac('AA') }.to raise_error(RuntimeError) }
+      it { expect { described_class.check_mac('AA:BB:CC:DD:JJ') }.to raise_error(RuntimeError) }
+      it { expect { described_class.check_mac('AA:BB') }.to raise_error(RuntimeError) }
+      it { expect { described_class.check_mac('AABB') }.to raise_error(RuntimeError) }
+      it { expect { described_class.check_mac('AA:BB:CC:DD:EE:FF:AA') }.to raise_error(RuntimeError) }
+      it { expect { described_class.check_mac('AABBCCDDEEFFAA') }.to raise_error(RuntimeError) }
     end
   end
 end

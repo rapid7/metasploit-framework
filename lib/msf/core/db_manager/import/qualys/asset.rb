@@ -26,7 +26,7 @@ module Msf::DBManager::Import::Qualys::Asset
       qid = vuln.elements['QID'].first.to_s
       vuln_refs[qid] ||= []
       vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
-        vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
+        vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9,})/.match(ref.elements['ID'].text.to_s)[1])
       end
       vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
         vuln_refs[qid].push('BID-' + ref.elements['ID'].text.to_s)
@@ -52,7 +52,7 @@ module Msf::DBManager::Import::Qualys::Asset
   #
   def import_qualys_asset_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
     vuln_refs = find_qualys_asset_vuln_refs(doc)

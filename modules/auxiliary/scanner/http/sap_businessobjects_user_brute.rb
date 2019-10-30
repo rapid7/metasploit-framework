@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 8080 ])
   end
 
@@ -48,6 +43,30 @@ class Metasploit3 < Msf::Auxiliary
     each_user_pass { |user, pass|
       enum_user(user,pass)
     }
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def enum_user(user='administrator', pass='pass')
@@ -89,14 +108,12 @@ class Metasploit3 < Msf::Auxiliary
 
     if success
       print_good("#{rhost}:#{rport} - Successful login '#{user}' : '#{pass}'")
-      report_auth_info(
-        :host   => rhost,
-        :proto => 'tcp',
-        :sname  => 'sap-businessobjects',
-        :user   => user,
-        :pass   => pass,
-        :target_host => rhost,
-        :target_port => rport
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'sap-businessobjects',
+        user: user,
+        proof: res.body
       )
       return :next_user
     else

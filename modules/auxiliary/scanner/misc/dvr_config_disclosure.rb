@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -138,14 +134,40 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    report_auth_info({
-      :host         => server,
-      :port         => port,
-      :sname        => 'ftp',
-      :duplicate_ok => false,
-      :user         => user,
-      :pass         => password
-    })
+    report_cred(
+      ip: server,
+      port: port,
+      service_name: 'ftp',
+      user: user,
+      password: password,
+      proof: conf.inspect
+    )
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def get_dvr_credentials(conf)
@@ -174,16 +196,41 @@ class Metasploit3 < Msf::Auxiliary
         user_active = true
       end
 
-      report_auth_info({
-        :host         => rhost,
-        :port         => rport,
-        :sname        => 'dvr',
-        :duplicate_ok => false,
-        :user         => user,
-        :pass         => password,
-        :active       => user_active
-      })
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'dvr',
+        user: user,
+        password: password,
+        proof: "user_id: #{user_id}, active: #{active}"
+      )
     }
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -216,5 +263,4 @@ class Metasploit3 < Msf::Auxiliary
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "DVR NAME: #{dvr_name}")
     print_good("#{rhost}:#{rport} DVR #{dvr_name} found")
   end
-
 end

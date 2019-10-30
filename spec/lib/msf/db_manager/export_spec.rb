@@ -2,7 +2,7 @@ require 'spec_helper'
 
 require 'msf/core/db_export'
 
-describe Msf::DBManager::Export do
+RSpec.describe Msf::DBManager::Export do
   include_context 'Msf::DBManager'
 
   subject(:export) do
@@ -14,7 +14,7 @@ describe Msf::DBManager::Export do
   end
 
   let(:workspace) do
-    FactoryGirl.create(
+    FactoryBot.create(
         :mdm_workspace
     )
   end
@@ -42,13 +42,13 @@ describe Msf::DBManager::Export do
       end
 
       let!(:module_details) do
-        FactoryGirl.create_list(
+        FactoryBot.create_list(
             :mdm_module_detail,
             module_detail_count
         )
       end
 
-      before(:each) do
+      before(:example) do
         report_file.write("<root>")
         extract_module_detail_info
         report_file.write("</root>")
@@ -57,7 +57,7 @@ describe Msf::DBManager::Export do
       it 'should have module_detail tag for each Mdm::Module::Detail' do
         nodes = root.xpath('module_detail')
 
-        nodes.length.should == module_detail_count
+        expect(nodes.length).to eq module_detail_count
       end
 
       context 'module_detail' do
@@ -73,13 +73,13 @@ describe Msf::DBManager::Export do
 
         context '/disclosure-date' do
           it 'should have Mdm::Module::Detail#disclosure_date present' do
-            module_detail.disclosure_date.should be_present
+            expect(module_detail.disclosure_date).to be_present
           end
 
           it 'should have Mdm::Module::Detail#disclosure_date from disclosure-date content' do
             node = module_detail_node.at_xpath('disclosure-date')
 
-            DateTime.parse(node.content).should == module_detail.disclosure_date
+            expect(DateTime.parse(node.content)).to eq module_detail.disclosure_date
           end
         end
 
@@ -101,7 +101,7 @@ describe Msf::DBManager::Export do
       it 'should not write anything to report_file' do
         extract_module_detail_info
 
-        report_file.string.should be_empty
+        expect(report_file.string).to be_empty
       end
     end
   end

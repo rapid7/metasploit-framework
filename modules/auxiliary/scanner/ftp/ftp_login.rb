@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -40,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -48,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
       ]
     )
 
-    deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
+    deregister_options('FTPUSER','FTPPASS', 'PASSWORD_SPRAY') # Can use these, but should use 'username' and 'password'
     @accepts_all_logins = {}
   end
 
@@ -81,6 +79,12 @@ class Metasploit3 < Msf::Auxiliary
         connection_timeout: 30,
         framework: framework,
         framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|
@@ -90,11 +94,12 @@ class Metasploit3 < Msf::Auxiliary
           workspace_id: myworkspace_id
       )
       if result.success?
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

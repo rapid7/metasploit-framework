@@ -1,0 +1,60 @@
+## <%= items[:mod_name] %>
+<%= normalize_description(items[:mod_description]) %>
+
+## Module Name
+
+<%= CGI::escapeHTML(items[:mod_fullname]) %>
+
+## Authors
+
+<%= normalize_authors(items[:mod_authors]) %>
+
+<% unless items[:mod_platforms].empty? %>
+## Platforms
+<%= normalize_platforms(items[:mod_platforms]) %>
+<% end %>
+
+## Module Ranking
+
+<%= normalize_rank(items[:mod_rank]) %>
+
+## Side Effects
+
+<%= normalize_side_effects(items[:mod_side_effects]) %>
+
+## Reliability
+
+<%= normalize_reliability(items[:mod_reliability]) %>
+
+## Stability
+
+<%= normalize_stability(items[:mod_stability]) %>
+
+## Related Pull Requests
+
+<%= normalize_pull_requests(items[:mod_pull_requests]) %>
+
+<% unless items[:mod_refs].empty? %>
+## References
+
+<%= normalize_references(items[:mod_refs]) %>
+<% end %>
+
+<% if items[:mod_targets] %>
+## Available Targets
+
+<%= normalize_targets(items[:mod_targets]) %>
+
+<% end %>
+
+## Required Options
+
+<% if normalize_options(items[:mod_options]).empty? %>
+No options required.
+<% else %>
+<%= normalize_options(items[:mod_options]) %>
+<% end %>
+
+## Basic Usage
+
+<%= normalize_demo_output(items[:mod_demo]) %>

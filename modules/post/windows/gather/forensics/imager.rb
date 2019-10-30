@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,7 @@
 require 'digest/md5'
 require 'digest/sha1'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptInt.new('BLOCKSIZE',[false,'Block size, in bytes (multiples of 512)',1048576]),
         OptInt.new('SKIP',[false,'Skip this many blocks before beginning',0]),
         OptInt.new('COUNT',[false,'Image only this many blocks (0 - read till end)',0])
-      ], self.class)
+      ])
   end
 
   def run

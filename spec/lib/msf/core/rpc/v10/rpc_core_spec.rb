@@ -5,7 +5,7 @@ require 'msf/core/rpc/v10/rpc_base'
 require 'msf/core/rpc/v10/rpc_core'
 require 'msf/core/rpc/v10/service'
 
-describe Msf::RPC::RPC_Core do
+RSpec.describe Msf::RPC::RPC_Core do
   include_context 'Msf::Simple::Framework'
 
   let(:service) do

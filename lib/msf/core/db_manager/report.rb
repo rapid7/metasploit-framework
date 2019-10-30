@@ -23,7 +23,7 @@ module Msf::DBManager::Report
     created = opts.delete(:created_at)
     updated = opts.delete(:updated_at)
 
-    unless File.exists? tmp_path
+    unless File.exist? tmp_path
       raise Msf::DBImportError 'Report artifact file to be imported does not exist.'
     end
 
@@ -31,7 +31,7 @@ module Msf::DBManager::Report
       raise Msf::DBImportError "Could not move report artifact file to #{artifacts_dir}."
     end
 
-    if File.exists? new_path
+    if File.exist? new_path
       unique_basename = "#{(Time.now.to_f*1000).to_i}_#{artifact_name}"
       new_path = File.join(artifacts_dir, unique_basename)
     end
@@ -44,7 +44,7 @@ module Msf::DBManager::Report
 
     unless artifact.valid?
       errors = artifact.errors.full_messages.join('; ')
-      raise RuntimeError "Artifact to be imported is not valid: #{errors}"
+      raise "Artifact to be imported is not valid: #{errors}"
     end
     artifact.save
   end
@@ -66,7 +66,7 @@ module Msf::DBManager::Report
 
     unless report.valid?
       errors = report.errors.full_messages.join('; ')
-      raise RuntimeError "Report to be imported is not valid: #{errors}"
+      raise "Report to be imported is not valid: #{errors}"
     end
     report.state = :complete # Presume complete since it was exported
     report.save
@@ -78,7 +78,7 @@ module Msf::DBManager::Report
   #
   # This methods returns a list of all reports in the database
   #
-  def reports(wspace=workspace)
+  def reports(wspace=framework.db.workspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.reports
   }

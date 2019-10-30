@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WDBRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -30,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
     [
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       Opt::RPORT(17185)
-    ], self.class)
+    ])
   end
 
 
@@ -137,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
     if data[48,64] =~ /^.{1,16}\(\d+,\d+\)/
       buff = data[48, data.length-48]
       boot,left = buff.split("\x00", 2)
-      print_status("#{pkt[1]}: BOOT> #{boot}")
+      print_good("#{pkt[1]}: BOOT> #{boot}")
       report_note(
         :host   => pkt[1],
         :port   => datastore['RPORT'],
@@ -152,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
     res = wdbrpc_parse_connect_reply(data)
 
     if res[:rt_membase]
-      print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
+      print_good("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
       report_note(
         :host   => pkt[1],

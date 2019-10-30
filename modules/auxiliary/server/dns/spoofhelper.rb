@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'resolv'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
 
@@ -39,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
-      ], self.class)
+      ])
   end
 
 
@@ -102,5 +98,4 @@ class Metasploit3 < Msf::Auxiliary
       @sock.close
     end
   end
-
 end

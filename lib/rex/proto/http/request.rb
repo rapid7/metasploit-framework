@@ -63,6 +63,10 @@ class Request < Packet
     self.chunk_max_size = 10
     self.uri_encode_mode = 'hex-normal'
 
+    if self.method == 'GET' || self.method == 'CONNECT'
+      self.auto_cl = false
+    end
+
     update_uri_parts
   end
 
@@ -70,7 +74,7 @@ class Request < Packet
   # Updates the command parts for this specific packet type.
   #
   def update_cmd_parts(str)
-    if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/))
+    if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/i))
       self.method  = md[1]
       self.raw_uri = URI.decode(md[2])
       self.proto   = md[3]

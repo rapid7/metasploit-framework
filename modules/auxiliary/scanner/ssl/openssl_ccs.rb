@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -89,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'         => [
         'Masashi Kikuchi', # Vulnerability discovery
         'Craig Young <CYoung[at]tripwire.com>', # Original Scanner. This module is based on it.
-        'juan vazquez' # Msf module
+        'juan vazquez' # Metasploit module
       ],
       'References'     =>
         [
@@ -108,11 +105,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptEnum.new('TLS_VERSION', [true, 'TLS/SSL version to use', '1.0', ['SSLv3','1.0', '1.1', '1.2']]),
         OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
-      ], self.class)
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
+      ])
   end
 
   def response_timeout
@@ -127,16 +120,16 @@ class Metasploit3 < Msf::Auxiliary
     connect_result = establish_connect
     return if connect_result.nil?
 
-    vprint_status("#{peer} - Sending CCS...")
+    vprint_status("Sending CCS...")
     sock.put(ccs)
     alert = sock.get_once(-1, response_timeout)
     if alert.blank?
-      print_good("#{peer} - No alert after invalid CCS message, probably vulnerable")
+      print_good("No alert after invalid CCS message, probably vulnerable")
       report
     elsif alert.unpack("C").first == ALERT_RECORD_TYPE
-      vprint_error("#{peer} - Alert record as response to the invalid CCS Message, probably not vulnerable")
+      vprint_error("Alert record as response to the invalid CCS Message, probably not vulnerable")
     elsif alert
-      vprint_warning("#{peer} - Unexpected response.")
+      vprint_warning("Unexpected response.")
     end
   end
 
@@ -185,23 +178,22 @@ class Metasploit3 < Msf::Auxiliary
   def establish_connect
     connect
 
-    vprint_status("#{peer} - Sending Client Hello...")
+    vprint_status("Sending Client Hello...")
     sock.put(client_hello)
     server_hello = sock.get_once(-1, response_timeout)
 
     unless server_hello
-      vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
+      vprint_error("No Server Hello after #{response_timeout} seconds...")
       disconnect
       return nil
     end
 
     unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
-      vprint_error("#{peer} - Server Hello Not Found")
+      vprint_error("Server Hello Not Found")
       return nil
     end
 
     true
   end
-
 end
 

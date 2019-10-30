@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/tftp'
 require 'tmpdir'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report
 
@@ -37,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 69 ]),
         OptPath.new('TFTPROOT',   [ true, "The TFTP root directory to serve files from", Dir.tmpdir  ]),
         OptPath.new('OUTPUTPATH', [ true, "The directory in which uploaded files will be written.", Dir.tmpdir ])
-      ], self.class)
+      ])
   end
 
   def srvhost
@@ -77,5 +75,4 @@ class Metasploit3 < Msf::Auxiliary
     vprint_status("Stopping TFTP server")
     @tftp.stop
   end
-
 end

@@ -3,14 +3,11 @@
 ##
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -23,7 +20,8 @@ class Metasploit3 < Msf::Auxiliary
         for Nessus XMLRPC interface.'
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -31,12 +29,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(8834),
         OptInt.new('THREADS', [true, "The number of concurrent threads", 25]),
         OptString.new('URI', [true, "URI for Nessus XMLRPC. Default is /", "/"])
-      ], self.class)
-
-    register_advanced_options(
-    [
-      OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-    ], self.class)
+      ])
   end
 
   def run_host(ip)

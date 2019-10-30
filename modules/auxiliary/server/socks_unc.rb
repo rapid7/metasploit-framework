@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -38,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 1080 ]),
         OptString.new('UNCHOST',    [ false, "The address of the UNC host.", nil ])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -47,16 +42,16 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def on_client_connect(client)
-#		print_status("New connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("New connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def on_client_data(client)
-#		print_status("Data from #{client.peerhost}:#{client.peerport}")
+    #print_status("Data from #{client.peerhost}:#{client.peerport}")
     process_socks(client)
   end
 
   def on_client_close(client)
-#		print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
+    #print_status("Closed connection from #{client.peerhost}:#{client.peerport}")
   end
 
   def run

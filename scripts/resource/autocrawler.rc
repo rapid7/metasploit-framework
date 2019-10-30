@@ -36,7 +36,7 @@ framework.db.workspace.hosts.each do |host|
 		next if not serv.host
 		next if (serv.state != Msf::ServiceState::Open)
 		next if (serv.name !~ /http/)
-		
+
 		if(verbose == 1)
 			print_line("IP: #{host.address}")
 			print_line("OS: #{host.os_name}")

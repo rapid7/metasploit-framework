@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -40,12 +37,7 @@ class Metasploit4 < Msf::Auxiliary
 
     return unless (res && res.code == 200)
 
-    begin
-      json = JSON.parse(res.body)
-    rescue JSON::ParserError
-      return
-    end
-
+    json = res.get_json_document
     name, ssid = json['name'], json['ssid']
 
     if name && ssid
@@ -59,5 +51,4 @@ class Metasploit4 < Msf::Auxiliary
       )
     end
   end
-
 end

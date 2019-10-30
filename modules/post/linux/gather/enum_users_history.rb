@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
@@ -63,18 +59,7 @@ class Metasploit3 < Msf::Post
   def save(msg, data, ctype = 'text/plain')
     ltype = 'linux.enum.users'
     loot = store_loot(ltype, ctype, session, data, nil, msg)
-    print_status("#{msg} stored in #{loot.to_s}")
-  end
-
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo['Computer']
-    when /shell/
-      host = session.shell_command_token('hostname').chomp
-    end
-    print_status("Running module against #{host}")
-    host
+    print_good("#{msg} stored in #{loot.to_s}")
   end
 
   def execute(cmd)
@@ -130,5 +115,4 @@ class Metasploit3 < Msf::Post
     vim_hist = cat_file("#{home}/.viminfo")
     save("Vim history for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
   end
-
 end

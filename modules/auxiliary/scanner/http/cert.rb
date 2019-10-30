@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::WmapScanSSL
   include Msf::Auxiliary::Scanner
@@ -21,10 +18,6 @@ class Metasploit3 < Msf::Auxiliary
           This module will check the certificate of the specified web servers
         to ensure the subject and issuer match the supplied pattern and that the certificate
         is not expired.
-
-        Note:  Be sure to check your expression if using msfcli, shells tend to not like certain
-        things and will strip/interpret them (= is a perfect example). It is better to use in
-        console.
       }
     )
 
@@ -33,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(443),
         OptRegexp.new('ISSUER', [ true,  "Show a warning if the Issuer doesn't match this regex", '.*']),
         OptBool.new('SHOWALL', [ false, "Show all certificates (issuer,time) regardless of match", false]),
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host
@@ -47,8 +40,6 @@ class Metasploit3 < Msf::Auxiliary
       print_status("#{ip} No certificate subject or CN found")
       return
     end
-
-    issuer_pattern = Regexp.new(datastore['ISSUER'], [Regexp::EXTENDED, 'n'])
     sub = cert.subject.to_a
 
     before = Time.parse("#{cert.not_before}")
@@ -65,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    if ( "#{cert.issuer}" !~ /#{issuer_pattern}/)
+    if cert.issuer.to_s !~ /#{datastore['ISSUER'].source}/n
       print_good("#{ip} - '#{vhostn}' : #{cert.issuer} (BAD ISSUER)" )
     elsif datastore['SHOWALL']
       # show verbose as status
@@ -118,5 +109,4 @@ class Metasploit3 < Msf::Auxiliary
     return if(e.to_s =~ /execution expired/)
     print_error("Error: '#{ip}' '#{e.class}' '#{e}' '#{e.backtrace}'")
   end
-
 end

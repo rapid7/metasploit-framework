@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -24,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -42,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       'htaccess.txt'
     ]
 
-    vprint_status("#{peer} - Checking for interesting pages")
+    vprint_status("Checking for interesting pages")
     pages.each do |page|
       scan_pages(tpath, page, ip)
     end
@@ -65,39 +63,40 @@ class Metasploit3 < Msf::Auxiliary
         note = "Registration Page"
       end
 
-      print_good("#{peer} - #{note}: #{tpath}#{page}")
+      msg = "#{note}: #{tpath}#{page}"
+      print_good("#{peer} - #{msg}")
 
       report_note(
-        :host  => ip,
-        :port  => datastore['RPORT'],
-        :proto => 'http',
-        :ntype => 'joomla_page',
-        :data  => "#{note}: #{tpath}#{page}",
+        :host   => ip,
+        :port   => rport,
+        :proto  => 'tcp',
+        :sname  => 'http',
+        :ntype  => 'joomla_page',
+        :data   => msg,
         :update => :unique_data
       )
     elsif (res.code == 403)
       if (res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-        vprint_status("#{ip} denied access to #{ip} (SSL Required)")
+        vprint_status("#{peer} - denied access to #{ip} (SSL Required)")
       elsif (res.body =~ /has a list of IP addresses that are not allowed/)
-        vprint_status("#{ip} restricted access by IP")
+        vprint_status("#{peer} - restricted access by IP")
       elsif (res.body =~ /SSL client certificate is required/)
-        vprint_status("#{ip} requires a SSL client certificate")
+        vprint_status("#{peer} - requires a SSL client certificate")
       else
-        vprint_status("#{ip} ip access to #{ip} #{res.code} #{res.message}")
+        vprint_status("#{peer} - ip access to #{ip} #{res.code} #{res.message}")
       end
     end
 
     return
 
     rescue OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL error")
+      vprint_error("SSL error")
       return
     rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-      vprint_error("#{peer} - Unable to Connect")
+      vprint_error("Unable to Connect")
       return
     rescue ::Timeout::Error, ::Errno::EPIPE
-      vprint_error("#{peer} - Timeout error")
+      vprint_error("Timeout error")
       return
   end
-
 end

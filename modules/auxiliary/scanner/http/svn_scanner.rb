@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -28,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
         OptBool.new('GET_SOURCE', [ false, "Attempt to obtain file source code", true ]),
         OptBool.new('SHOW_SOURCE', [ false, "Show source code", true ])
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -39,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
 
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

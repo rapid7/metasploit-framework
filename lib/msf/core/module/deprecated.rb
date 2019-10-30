@@ -4,50 +4,49 @@ module Msf::Module::Deprecated
 
   # Additional class methods for deprecated modules
   module ClassMethods
+    attr_accessor :deprecation_date
+    attr_accessor :deprecated_name
+
     # Mark this module as deprecated
     #
     # Any time this module is run it will print warnings to that effect.
     #
     # @param deprecation_date [Date,#to_s] The date on which this module will
     #   be removed
-    # @param replacement_module [String] The name of a module that users
-    #   should be using instead of this deprecated one
     # @return [void]
-    def deprecated(deprecation_date=nil, replacement_module=nil)
-      # Yes, class instance variables.
-      @replacement_module = replacement_module
-      @deprecation_date = deprecation_date
+    def deprecated(date)
+      self.deprecation_date = date
+
+      # NOTE: fullname isn't set until a module has been added to a set, which is after it is evaluated
+      add_warning do
+        [ "*%red" + "The module #{fullname} is deprecated!".center(88) + "%clr*",
+          "*" + "This module will be removed on or about #{self.class.deprecation_date}".center(88) + "*" ]
+      end
     end
 
-    # The name of a module that users should be using instead of this
-    # deprecated one
+    # Mark this module as moved from another location. This adds an alias to
+    # the module so that it can still be used by its old name and will print a
+    # warning informing the use of the new name. This currently only works for
+    # a single move, but it can be extended in the future for multiple moves.
     #
-    # @return [String,nil]
-    # @see ClassMethods#deprecated
-    def replacement_module; @replacement_module; end
+    # @param from [String] the previous `fullname` of the module
+    def moved_from(from)
+      self.deprecated_name = from
 
-    # The date on which this module will be removed
-    #
-    # @return [Date,nil]
-    # @see ClassMethods#deprecated
-    def deprecation_date; @deprecation_date; end
-  end
+      if const_defined?(:Aliases)
+        const_get(:Aliases).append from
+      else
+        const_set(:Aliases, [from])
+      end
 
-  # (see ClassMethods#replacement_module)
-  def replacement_module
-    if self.class.instance_variable_defined?(:@replacement_module)
-      return self.class.replacement_module
-    elsif self.class.const_defined?(:DEPRECATION_REPLACEMENT)
-      return self.class.const_get(:DEPRECATION_REPLACEMENT)
-    end
-  end
-
-  # (see ClassMethods#deprecation_date)
-  def deprecation_date
-    if self.class.instance_variable_defined?(:@deprecation_date)
-      return self.class.deprecation_date
-    elsif self.class.const_defined?(:DEPRECATION_DATE)
-      return self.class.const_get(:DEPRECATION_DATE)
+      # NOTE: aliases are not set until after initialization, so might as well
+      # use the block form of alert here too.
+      add_warning do
+        if fullname == self.class.deprecated_name
+          [ "*%red" + "The module #{fullname} has been moved!".center(88) + "%clr*",
+            "*" + "You are now using #{realname}".center(88) + "*" ]
+        end
+      end
     end
   end
 
@@ -55,36 +54,4 @@ module Msf::Module::Deprecated
   def self.included(base)
     base.extend(ClassMethods)
   end
-
-  # Print the module deprecation information
-  #
-  # @return [void]
-  def print_deprecation_warning
-    print_warning("*"*72)
-    print_warning("*%red"+"The module #{refname} is deprecated!".center(70)+"%clr*")
-    if deprecation_date
-      print_warning("*"+"It will be removed on or about #{deprecation_date}".center(70)+"*")
-    end
-    if replacement_module
-      print_warning("*"+"Use #{replacement_module} instead".center(70)+"*")
-    end
-    print_warning("*"*72)
-  end
-
-  def init_ui(input = nil, output = nil)
-    super(input, output)
-    print_deprecation_warning
-    @you_have_been_warned = true
-  end
-
-  def generate
-    print_deprecation_warning
-    super
-  end
-
-  def setup
-    print_deprecation_warning unless @you_have_been_warned
-    super
-  end
-
 end

@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'stringio'
 require 'rex/proto/rmi'
 
-describe Rex::Proto::Rmi::Model::ProtocolAck do
+RSpec.describe Rex::Proto::Rmi::Model::ProtocolAck do
 
   subject(:protocol_ack) do
     described_class.new

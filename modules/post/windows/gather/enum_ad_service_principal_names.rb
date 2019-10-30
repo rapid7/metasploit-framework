@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -35,7 +32,7 @@ class Metasploit3 < Msf::Post
 
     register_options([
       OptString.new('FILTER', [true, 'Search filter, DOM_REPL will be automatically replaced', '(&(objectCategory=user)(memberOf=CN=Domain Admins,CN=Users,DOM_REPL))'])
-    ], self.class)
+    ])
 
     deregister_options('FIELDS')
   end
@@ -74,7 +71,7 @@ class Metasploit3 < Msf::Post
     fields << "Host"
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
       'Header'     => "Service Principal Names",
       'Indent'     => 1,
       'SortIndex'  => -1,
@@ -92,7 +89,7 @@ class Metasploit3 < Msf::Post
 
     print_line results_table.to_s
     stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
-    print_status("Results saved to: #{stored_path}")
+    print_good("Results saved to: #{stored_path}")
   end
 
   def parse_result(result, fields)
@@ -124,6 +121,5 @@ class Metasploit3 < Msf::Post
 
     rows
   end
-
 end
 

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('DEVICE', [ true, 'DeviceObject of Shadowcopy to mount.' ]),
         OptString.new('PATH', [ true, 'Path to mount it to.' ])
-      ], self.class)
+      ])
 
   end
 
@@ -55,5 +50,4 @@ class Metasploit3 < Msf::Post
     r = session.sys.process.execute("cmd.exe /C mklink /D #{datastore['DEVICE']} #{datastore['PATH']}", nil, {'Hidden' => true})
 
   end
-
 end

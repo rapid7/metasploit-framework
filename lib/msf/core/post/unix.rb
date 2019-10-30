@@ -1,6 +1,9 @@
 # -*- coding: binary -*-
 
+require 'msf/core/post/linux/system'
+
 module Msf::Post::Unix
+
 
   #
   # Returns an array of hashes each representing a user
@@ -40,14 +43,17 @@ module Msf::Post::Unix
   #
   def get_groups
     groups = []
-    cmd_out = read_file("/etc/group").split("\n")
-    cmd_out.each do |l|
-      entry = {}
-      user_field = l.split(":")
-      entry[:name] = user_field[0]
-      entry[:gid] = user_field[2]
-      entry[:users] = user_field[3]
-      groups << entry
+    group = '/etc/group'
+    if file_exist?(group)
+      cmd_out = read_file(group).split("\n")
+      cmd_out.each do |l|
+        entry = {}
+        user_field = l.split(":")
+        entry[:name] = user_field[0]
+        entry[:gid] = user_field[2]
+        entry[:users] = user_field[3]
+        groups << entry
+      end
     end
     return groups
   end
@@ -59,8 +65,11 @@ module Msf::Post::Unix
     user_dirs = []
 
     # get all user directories from /etc/passwd
-    read_file("/etc/passwd").each_line do |passwd_line|
-      user_dirs << passwd_line.split(/:/)[5]
+    passwd = '/etc/passwd'
+    if file_exist?(passwd)
+      read_file(passwd).each_line do |passwd_line|
+        user_dirs << passwd_line.split(/:/)[5]
+      end
     end
 
     # also list other common places for home directories in the event that
@@ -76,8 +85,33 @@ module Msf::Post::Unix
     user_dirs.compact!
     user_dirs.sort!
     user_dirs.uniq!
-
     user_dirs
   end
 
+  #
+  # It returns the username of the current user
+  # @return [String] with username
+  #
+  def whoami
+    shellpid = get_session_pid()
+    statuspid = pid_uid(shellpid)
+    statuspid.each_line do |line|
+      split = line.split(":")
+      if split[0] == "Uid"
+        regex = /.*\s(.*)\s/
+        useridtmp = split[1]
+        userid = useridtmp[regex, 1]
+        uid = userid.to_s
+        passwd = read_file("/etc/passwd")
+        passwd.each_line do |line|
+          parts = line.split(":")
+          uid_passwd = parts[2].to_s
+          user = parts[0].to_s
+          if uid_passwd == uid
+            return user
+          end
+        end
+      end
+    end
+  end
 end

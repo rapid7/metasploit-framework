@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::CredentialCache::Cache do
+RSpec.describe Rex::Proto::Kerberos::CredentialCache::Cache do
 
   subject(:cache) do
     described_class.new

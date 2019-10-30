@@ -125,8 +125,6 @@ module Parser
       if @args[:blacklist]
         return false if @args[:blacklist].include?(@report_data[:host])
       end
-      return false unless @report_data[:ports]
-      return false if @report_data[:ports].empty?
       return true
     end
 
@@ -150,6 +148,7 @@ module Parser
       end
       return nil if just_the_facts.empty?
       just_the_facts[:task] = @args[:task]
+      just_the_facts[:wspace] = @args[:wspace] # workspace context is a required `fact`
       db.send("report_#{table}", just_the_facts)
     end
 
@@ -198,6 +197,11 @@ module Parser
         raise ::Msf::DBImportError.new("Unknown format for XML attributes. Please check your Nokogiri version.")
       end
       return attr_pairs
+    end
+
+    # Removes HTML from a string
+    def strip_html_tags(text)
+      return text.gsub!(/(<[^>]*>)|\n|\t/s) {" "}
     end
 
     # This breaks xml-encoded characters, so need to append.

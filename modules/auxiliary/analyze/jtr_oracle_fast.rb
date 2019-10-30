@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/auxiliary/jtr'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::JohnTheRipper
 
   def initialize
@@ -17,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module uses John the Ripper to identify weak passwords that have been
         acquired from the oracle_hashdump module. Passwords that have been successfully
-        cracked are then saved as proper credentials
+        cracked are then saved as proper credentials.
       },
       'Author'         =>
         [
@@ -29,57 +26,82 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run
-    @wordlist = Rex::Quickfile.new("jtrtmp")
+    cracker = new_john_cracker
 
-    @wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )
-    @wordlist.close
-    crack("oracle")
-    crack("oracle11g")
-  end
+    # generate our wordlist and close the file handle
+    wordlist = wordlist_file
+    wordlist.close
+    print_status "Wordlist file written out to #{wordlist.path}"
+    cracker.wordlist = wordlist.path
 
+    cleanup_files = [wordlist.path]
 
-  def crack(format)
+    # dynamic_1506 is oracle 11/12's H field, MD5.
+    ['oracle', 'dynamic_1506', 'oracle11', 'oracle12c'].each do |format|
+      cracker_instance = cracker.dup
+      cracker_instance.format = format
 
-    hashlist = Rex::Quickfile.new("jtrtmp")
-    ltype= "#{format}.hashes"
-    myloots = myworkspace.loots.where('ltype=?', ltype)
-    unless myloots.nil? or myloots.empty?
-      myloots.each do |myloot|
-        begin
-          oracle_array = CSV.read(myloot.path).drop(1)
-        rescue Exception => e
-          print_error("Unable to read #{myloot.path} \n #{e}")
-        end
-        oracle_array.each do |row|
-          hashlist.write("#{row[0]}:#{row[1]}:#{myloot.host.address}:#{myloot.service.port}\n")
-        end
+      case format
+        when 'oracle'
+          cracker_instance.hash_path = hash_file('des|oracle')
+          cleanup_files << cracker_instance.hash_path
+        when 'dynamic_1506'
+          cracker_instance.hash_path = hash_file('raw-sha1|oracle11|oracle12c|dynamic_1506')
+          cleanup_files << cracker_instance.hash_path
+        when 'oracle11'
+          cracker_instance.hash_path = hash_file('raw-sha1|oracle11')
+          cleanup_files << cracker_instance.hash_path
+        when 'oracle12c'
+          cracker_instance.hash_path = hash_file('oracle12c')
+          cleanup_files << cracker_instance.hash_path
       end
-      hashlist.close
 
-      print_status("HashList: #{hashlist.path}")
-      print_status("Trying Wordlist: #{@wordlist.path}")
-      john_crack(hashlist.path, :wordlist => @wordlist.path, :rules => 'single', :format => format)
+      print_status "Cracking #{format} hashes in normal wordlist mode..."
+      # Turn on KoreLogic rules if the user asked for it
+      if datastore['KORELOGIC']
+        cracker_instance.rules = 'KoreLogicRules'
+        print_status "Applying KoreLogic ruleset..."
+      end
+      cracker_instance.crack do |line|
+        vprint_status line.chomp
+      end
 
-      print_status("Trying Rule: All4...")
-      john_crack(hashlist.path, :incremental => "All4", :format => format)
+      print_status "Cracking #{format} hashes in single mode..."
+      cracker_instance.rules = 'single'
+      cracker_instance.crack do |line|
+        vprint_status line.chomp
+      end
 
-      print_status("Trying Rule: Digits5...")
-      john_crack(hashlist.path, :incremental => "Digits5", :format => format)
-
-      cracked = john_show_passwords(hashlist.path, format)
-
-      print_status("#{cracked[:cracked]} hashes were cracked!")
-      cracked[:users].each_pair do |k,v|
-        print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
-        report_auth_info(
-          :host  => v[1],
-          :port => v[2],
-          :sname => 'oracle',
-          :user => k,
-          :pass => v[0]
-        )
+      print_status "Cracked passwords this run:"
+      cracker_instance.each_cracked_password do |password_line|
+        password_line.chomp!
+        next if password_line.blank?
+        fields = password_line.split(":")
+        # If we don't have an expected minimum number of fields, this is probably not a hash line
+        next unless fields.count >=3
+        username = fields.shift
+        core_id  = fields.pop
+        password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
+        print_good "#{username}:#{password}"
+        create_cracked_credential( username: username, password: password, core_id: core_id)
+      end
+    end
+    if datastore['DeleteTempFiles']
+      cleanup_files.each do |f|
+        File.delete(f)
       end
     end
   end
 
+  def hash_file(format)
+    hashlist = Rex::Quickfile.new("hashes_tmp")
+    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
+      if core.private.jtr_format =~ /#{format}/
+        hashlist.puts hash_to_jtr(core)
+      end
+    end
+    hashlist.close
+    print_status "Hashes Written out to #{hashlist.path}"
+    hashlist.path
+  end
 end

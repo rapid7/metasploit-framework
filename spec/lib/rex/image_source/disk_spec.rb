@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/image_source/disk'
 
-describe Rex::ImageSource::Disk do
+RSpec.describe Rex::ImageSource::Disk do
 
   let(:path) do
     File.join(Msf::Config.data_directory, "templates", "template_x86_windows_old.exe")

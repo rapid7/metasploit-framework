@@ -1,11 +1,11 @@
 require 'rex/java'
 require 'stringio'
 
-load Metasploit::Framework.root.join('tools/java_deserializer.rb').to_path
+load Metasploit::Framework.root.join('tools/exploit/java_deserializer.rb').to_path
 
-describe JavaDeserializer do
+RSpec.describe JavaDeserializer do
 
-  before(:all) do
+  before(:context) do
     @out = $stdout
     @err = $stderr
 
@@ -13,7 +13,7 @@ describe JavaDeserializer do
     $stderr = StringIO.new
   end
 
-  after(:all) do
+  after(:context) do
     $stdout = @out
     $stderr = @err
   end
@@ -47,7 +47,7 @@ describe JavaDeserializer do
     end
 
     context "when file contains a valid stream" do
-      before(:each) do
+      before(:example) do
         $stdout.string = ''
       end
 

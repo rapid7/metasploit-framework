@@ -15,6 +15,9 @@ module Handler
 module ReverseTcpDoubleSSL
 
   include Msf::Handler
+  include Msf::Handler::Reverse
+  include Msf::Handler::Reverse::Comm
+  include Msf::Handler::Reverse::SSL
 
   #
   # Returns the string representation of the handler type, in this case
@@ -33,27 +36,25 @@ module ReverseTcpDoubleSSL
   end
 
   #
-  # Initializes the reverse TCP handler and ads the options that are required
+  # Initializes the reverse TCP handler and adds the options that are required
   # for all reverse TCP payloads, like local host and local port.
   #
   def initialize(info = {})
     super
 
-    register_options(
-      [
-        Opt::LHOST,
-        Opt::LPORT(4444)
-      ], Msf::Handler::ReverseTcpDoubleSSL)
-
     register_advanced_options(
       [
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptBool.new('ReverseAllowProxy', [ true, 'Allow reverse TCP even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST', false]),
-        OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"])
       ], Msf::Handler::ReverseTcpDoubleSSL)
 
     self.conn_threads = []
+  end
+
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "reverse TCP double SSL"
   end
 
   #
@@ -62,26 +63,18 @@ module ReverseTcpDoubleSSL
   # if it fails to start the listener.
   #
   def setup_handler
-    if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+    if !datastore['Proxies'].blank? && !datastore['ReverseAllowProxy']
       raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
     end
 
     ex = false
 
-    comm  = datastore['ReverseListenerComm']
-    if comm.to_s == "local"
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
+    comm = select_comm
     local_port = bind_port
-    addrs = bind_address
 
-    addrs.each { |ip|
+    bind_addresses.each { |ip|
       begin
 
-        comm.extend(Rex::Socket::SslTcp)
         self.listener_sock = Rex::Socket::SslTcpServer.create(
         'LocalHost' => ip,
         'LocalPort' => local_port,
@@ -96,14 +89,7 @@ module ReverseTcpDoubleSSL
 
         ex = false
 
-        comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
-        comm_used = Rex::Socket::Comm::Local if comm_used == nil
-
-        if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
-          via = "via the #{comm_used.type} on session #{comm_used.sid}"
-        else
-          via = ""
-        end
+        via = via_string_for_ip(ip, comm)
 
         print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
         break
@@ -135,8 +121,6 @@ module ReverseTcpDoubleSSL
     self.listener_thread = framework.threads.spawn("ReverseTcpDoubleSSLHandlerListener", false) {
       sock_inp = nil
       sock_out = nil
-
-      print_status("Started reverse double handler")
 
       begin
         # Accept two client connection
@@ -244,31 +228,6 @@ module ReverseTcpDoubleSSL
 
 protected
 
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
-  end
-
-  def bind_address
-    # Switch to IPv6 ANY address if the LHOST is also IPv6
-    addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    # First attempt to bind LHOST. If that fails, the user probably has
-    # something else listening on that interface. Try again with ANY_ADDR.
-    any = (addr.length == 4) ? "0.0.0.0" : "::0"
-
-    addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      # Only try to bind to this specific interface
-      addrs = [ datastore['ReverseListenerBindAddress'] ]
-
-      # Pick the right "any" address if either wildcard is used
-      addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
-    end
-
-    addrs
-  end
-
   attr_accessor :listener_sock # :nodoc:
   attr_accessor :listener_thread # :nodoc:
   attr_accessor :conn_threads # :nodoc:
@@ -297,7 +256,7 @@ protected
       initialize_abstraction
 
       self.lsock.extend(TcpReverseDoubleSSLChannelExt)
-      self.lsock.peerinfo  = @sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
+      self.lsock.peerinfo  = @sock_inp.getpeername_as_array[1,2].map{|x| x.to_s}.join(":")
       self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
       monitor_shell_stdout

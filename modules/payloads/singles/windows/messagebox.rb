@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+module MetasploitModule
 
-require 'msf/core'
-
-
-module Metasploit3
+  CachedSize = 272
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -32,7 +30,7 @@ module Metasploit3
         OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ]),
         OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ]),
         OptString.new('ICON', [ true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO" ])
-      ], self.class)
+      ])
   end
 
   #
@@ -296,5 +294,4 @@ EOS
 
     pushes
   end
-
 end

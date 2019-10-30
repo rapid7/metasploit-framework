@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   include Msf::Post::Windows::Registry
@@ -29,7 +25,6 @@ class Metasploit3 < Msf::Post
   def run
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
     domain = get_domain()
-
     if not domain.empty?
       hostname_list = get_domain_computers()
       list_computers(domain, hostname_list)
@@ -49,7 +44,7 @@ class Metasploit3 < Msf::Post
   def get_domain_computers()
     computer_list = []
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net view").split(devisor)[1]
+    raw_list = cmd_exec('net view').split(devisor)[1]
     if raw_list =~ /The command completed successfully/
       raw_list.sub!(/The command completed successfully\./,'')
       raw_list.gsub!(/\\\\/,'')
@@ -77,7 +72,7 @@ class Metasploit3 < Msf::Post
   end
 
   def list_computers(domain,hosts)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "List of Domain Hosts for the primary Domain.",
       'Indent'  => 1,
       'Columns' =>

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -58,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body)
-          #string we are regexing: <!-- Domino Release 7.0.3FP1 (Windows NT/Intel) -->
+          # string we are regexing: <!-- Domino Release 7.0.3FP1 (Windows NT/Intel) -->
           if match = res.body.match(/\<!-- Domino Release(.*) --\>/);
             server1 = $1
             report_note(
@@ -93,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
       if currentversion.length == 0 then
         ''
       else
-        print_status("#{ip}:#{rport} Lotus Domino Current Version: #{currentversion}")
+        print_good("#{ip}:#{rport} Lotus Domino Current Version: #{currentversion}")
       end
 
       check2.each do | check |
@@ -106,10 +103,10 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body)
-          #string we are regexing: <title>IBM Lotus Notes/Domino 6.5.6 Release Notes</title>
+          # string we are regexing: <title>IBM Lotus Notes/Domino 6.5.6 Release Notes</title>
           if match = res.body.match(/\<title\>(.*)Lotus Notes\/Domino (.*) Release Notes\<\/title\>/);
             server2 = $2
-            print_status("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
+            print_good("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
             report_note(
               :host	=> ip,
               :proto => 'tcp',
@@ -142,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
         if (res.nil?)
           print_error("no response for #{ip}:#{rport} #{check}")
         elsif (res.code == 200 and res.body and res.body.index('TotalFileSize') and res.body.index('FileCount'))
-          #string we are regexing: # Regex Version=8.5.1.0
+          # string we are regexing: # Regex Version=8.5.1.0
           if match = res.body.match(/Version=(.*)/);
             server3 = $1
             report_note(
@@ -177,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
       if baseversion.length == 0 then
         ''
       else
-        print_status("#{ip}:#{rport} Lotus Domino Base Install Version: #{baseversion}")
+        print_good("#{ip}:#{rport} Lotus Domino Base Install Version: #{baseversion}")
       end
     end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

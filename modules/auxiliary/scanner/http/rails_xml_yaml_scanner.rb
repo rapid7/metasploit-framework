@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -18,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
         an arbitrary object instantiation flaw in the XML request processor.
       },
       'Author'      => [
-          'hdm', #author
-          'jjarmoc' #improvements
+          'hdm', # author
+          'jjarmoc' # improvements
           ],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -32,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_options([
       OptString.new('URIPATH', [true, "The URI to test", "/"]),
       OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
-    ], self.class)
+    ])
   end
 
   def send_probe(ptype, pdata)
@@ -90,5 +87,4 @@ class Metasploit3 < Msf::Auxiliary
       vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
     end
   end
-
 end

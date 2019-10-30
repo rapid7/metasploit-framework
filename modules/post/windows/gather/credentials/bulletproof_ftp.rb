@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
@@ -290,7 +287,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Report / Show findings
-    @credentials = Rex::Ui::Text::Table.new(
+    @credentials = Rex::Text::Table.new(
       'Header'    => "BulletProof FTP Client Bookmarks",
       'Indent'    => 1,
       'Columns'   =>
@@ -322,5 +319,4 @@ class Metasploit3 < Msf::Post
     end
 
   end
-
 end

@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+#
 # Check that modules actually pass msftidy checks before committing
 # or after merging.
 #
@@ -15,6 +16,7 @@
 # That way, you will track changes to this script when it updates
 # (rarely). If you'd prefer to copy it directly, that's okay, too (mark
 # it +x and don't name it filename.rb, just filename).
+#
 
 def merge_error_message
   msg = []
@@ -59,9 +61,9 @@ end
 if files_to_check.empty?
   puts "--- No Metasploit modules to check ---"
 else
-  puts "--- Checking new and changed module syntax with tools/msftidy.rb ---"
+  puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
   files_to_check.each do |fname|
-    cmd = "ruby ./tools/msftidy.rb  #{fname}"
+    cmd = "ruby ./tools/dev/msftidy.rb  #{fname}"
     msftidy_output= %x[ #{cmd} ]
     puts "#{fname} - msftidy check passed" if msftidy_output.empty?
     msftidy_output.each_line do |line|

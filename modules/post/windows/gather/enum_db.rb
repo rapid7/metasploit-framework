@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -56,7 +53,7 @@ class Metasploit3 < Msf::Post
 
     print_status("Done, Databases Found.")
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Databases",
       'Indent'  => 1,
       'Columns' =>
@@ -74,7 +71,7 @@ class Metasploit3 < Msf::Post
 
     print_line(tbl.to_s)
     p = store_loot("host.databases", "text/plain", session, tbl.to_s, "databases.txt", "Running Databases")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
 
   end
 
@@ -343,6 +340,5 @@ class Metasploit3 < Msf::Post
     end
     return data
   end
-
 end
 

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -42,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ], self.class)
+      ])
 
   end
 
@@ -181,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
           print_status("Incorrect SID -- please set a correct (or blank) SID")
           return :abort
         elsif
-          print_status("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
+          print_error("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
           success = false
         end
       elsif res.code == 302
@@ -204,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
       report_isqlauth_info(target_host,user,pass,sid)
       return :next_user
     else
-      vprint_status "#{msg} username and password failed"
+      vprint_error "#{msg} username and password failed"
       return :failed
     end
   end
@@ -231,18 +228,45 @@ class Metasploit3 < Msf::Auxiliary
     )
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def report_isqlauth_info(ip,user,pass,sid)
     ora_info = {
-      :host => ip, :port => rport, :proto => "tcp",
-      :pass => pass, :source_type => "user_supplied",
-      :active => true
+      ip: ip,
+      port: rport,
+      password: pass,
+      proof: sid.inspect,
+      service_name: 'tcp'
     }
     if sid.nil? || sid.empty?
       ora_info.merge! :user => user
     else
       ora_info.merge! :user => "#{sid}/#{user}"
     end
-    report_auth_info(ora_info)
+    report_cred(ora_info)
   end
-
 end

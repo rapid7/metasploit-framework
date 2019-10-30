@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/db2'
 
-describe Metasploit::Framework::LoginScanner::DB2 do
+RSpec.describe Metasploit::Framework::LoginScanner::DB2 do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:test_cred) {
@@ -18,7 +18,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
     context 'when the socket errors' do
       it 'returns a connection_error result for an Rex::ConnectionError' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionError
+        expect(my_scanner).to receive(:connect).and_raise ::Rex::ConnectionError
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to be_a(::Rex::ConnectionError)
@@ -26,7 +26,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
 
       it 'returns a connection_error result for an Rex::ConnectionTimeout' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Rex::ConnectionTimeout
+        expect(my_scanner).to receive(:connect).and_raise ::Rex::ConnectionTimeout
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to be_a(::Rex::ConnectionTimeout)
@@ -34,7 +34,7 @@ describe Metasploit::Framework::LoginScanner::DB2 do
 
       it 'returns a connection_error result for an ::Timeout::Error' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:connect).and_raise ::Timeout::Error
+        expect(my_scanner).to receive(:connect).and_raise ::Timeout::Error
         result = my_scanner.attempt_login(test_cred)
         expect(result.status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         expect(result.proof).to be_a(::Timeout::Error)

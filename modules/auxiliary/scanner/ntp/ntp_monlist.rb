@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
@@ -37,19 +34,19 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
     [
       OptInt.new('RETRY', [false, "Number of tries to query the NTP server", 3]),
-      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', 'false'])
-    ], self.class)
+      OptBool.new('SHOW_LIST', [false, 'Show the recent clients list', false])
+    ])
 
     register_advanced_options(
     [
-      OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', 'false'])
-    ], self.class)
+      OptBool.new('StoreNTPClients', [true, 'Store NTP clients as host records in the database', false])
+    ])
   end
 
-# Called for each response packet
+  # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= { messages: [], peers: [] }
-    @results[shost][:messages] << Rex::Proto::NTP::NTPPrivate.new(data)
+    @results[shost][:messages] << Rex::Proto::NTP::NTPPrivate.new.read(data).to_binary_s
     @results[shost][:peers] << extract_peer_tuples(data)
   end
 
@@ -57,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
   def scanner_prescan(batch)
     @results = {}
     @aliases = {}
-    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 42)
+    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 42, "\0" * 40).to_binary_s
   end
 
   # Called after the scan block
@@ -148,14 +145,14 @@ class Metasploit3 < Msf::Auxiliary
     idx = 0
     peer_tuples = []
     1.upto(pcnt) do
-      #u_int32 firsttime; /* first time we received a packet */
-      #u_int32 lasttime;  /* last packet from this host */
-      #u_int32 restr;     /* restrict bits (was named lastdrop) */
-      #u_int32 count;     /* count of packets received */
-      #u_int32 addr;      /* host address V4 style */
-      #u_int32 daddr;     /* destination host address */
-      #u_int32 flags;     /* flags about destination */
-      #u_short port;      /* port number of last reception */
+      # u_int32 firsttime; /* first time we received a packet */
+      # u_int32 lasttime;  /* last packet from this host */
+      # u_int32 restr;     /* restrict bits (was named lastdrop) */
+      # u_int32 count;     /* count of packets received */
+      # u_int32 addr;      /* host address V4 style */
+      # u_int32 daddr;     /* destination host address */
+      # u_int32 flags;     /* flags about destination */
+      # u_short port;      /* port number of last reception */
 
       _,_,_,_,saddr,daddr,_,dport = data[idx, 30].unpack("NNNNNNNn")
 

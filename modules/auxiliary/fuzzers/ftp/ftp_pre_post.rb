@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Tcp
 
@@ -33,8 +30,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PASS', [ false, "Password",'mozilla@example.com']),
         OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
         OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true]),
-      ], self.class)
-    deregister_options('RHOST')
+      ])
 
     @evilchars = [
       'A','a','%s','%d','%n','%x','%p','-1','0','0xfffffffe','0xffffffff','A/','//','/..','//..',
@@ -59,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('FtpCommands', [ false, "Commands to fuzz at stages 4 and 5",@commands.join(" ")]),
         OptBool.new('ExpandCrash', [ false, "Expand any crash strings",false]),
-    ], self.class)
+    ])
   end
 
 
@@ -253,5 +249,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

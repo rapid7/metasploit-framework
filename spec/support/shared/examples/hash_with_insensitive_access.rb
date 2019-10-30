@@ -1,21 +1,21 @@
-shared_examples_for "hash with insensitive keys" do
+RSpec.shared_examples_for "hash with insensitive keys" do
   it "should store with insensitive key" do
     subject["asdf"] = "foo"
     subject["ASDF"] = "bar"
 
-    subject["asdf"].should == "bar"
-    subject["ASDF"].should == "bar"
+    expect(subject["asdf"]).to eq "bar"
+    expect(subject["ASDF"]).to eq "bar"
   end
   it "should fetch with insensitive key" do
     subject["foo"] = "bar"
 
-    subject["foo"].should == "bar"
-    subject["Foo"].should == "bar"
-    subject["FOo"].should == "bar"
-    subject["FOO"].should == "bar"
-    subject["fOO"].should == "bar"
-    subject["fOo"].should == "bar"
-    subject["FOo"].should == "bar"
-    subject["Foo"].should == "bar"
+    expect(subject["foo"]).to eq "bar"
+    expect(subject["Foo"]).to eq "bar"
+    expect(subject["FOo"]).to eq "bar"
+    expect(subject["FOO"]).to eq "bar"
+    expect(subject["fOO"]).to eq "bar"
+    expect(subject["fOo"]).to eq "bar"
+    expect(subject["FOo"]).to eq "bar"
+    expect(subject["Foo"]).to eq "bar"
   end
 end

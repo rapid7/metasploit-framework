@@ -1,13 +1,40 @@
+dist: trusty
+sudo: false
+group: stable
 bundler_args: --without coverage development pcap
 cache: bundler
-env:
-  - RAKE_TASKS="cucumber cucumber:boot"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
-
+addons:
+  postgresql: '9.6'
+  apt:
+    packages:
+      - libpcap-dev
+      - graphviz
 language: ruby
+rvm:
+  - '2.5.7'
+  - '2.6.5'
+
+env:
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+  # Used for testing the remote data service
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1'
+
 matrix:
   fast_finish: true
+
+jobs:
+  # build docker image
+  include:
+  - env: CMD="/usr/bin/docker-compose build" DOCKER="true"
+    # we do not need any setup
+    before_install: skip
+    install: skip
+    before_script:
+      - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+      - chmod +x docker-compose
+      - sudo mv docker-compose /usr/bin
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -15,17 +42,22 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
+  # Update the bundler
+  - gem update --system
+  - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
-script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code && bundle exec rake $RAKE_TASKS
-sudo: false
-rvm:
-  - '2.1'
+  - git diff --exit-code db/schema.rb
+script:
+  - echo "${CMD}"
+    # we need travis_wait because the Docker build job can take longer than 10 minutes
+    #- if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+    # docker_wait is currently broken on travis-ci, so let's just run CMD directly for now
+  - bash -c "${CMD}"
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
@@ -38,3 +70,6 @@ branches:
   except:
     - gh-pages
     - metakitty
+
+services:
+  - docker

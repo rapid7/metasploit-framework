@@ -17,6 +17,10 @@ module Metasploit
           self.uri = "/j_acegi_security_check" if self.uri.nil?
           self.method = "POST" if self.method.nil?
 
+          if self.uri[0] != '/'
+            self.uri = "/#{self.uri}"
+          end
+
           super
         end
 
@@ -33,24 +37,24 @@ module Metasploit
             result_opts[:service_name] = 'http'
           end
           begin
-            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies)
+            cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
             configure_http_client(cli)
             cli.connect
             req = cli.request_cgi({
-              'method'=>'POST',
-              'uri'=>'/j_acegi_security_check',
+              'method'=> method,
+              'uri'=> uri,
               'vars_post'=> {
                 'j_username' => credential.public,
-                'j_password'=>credential.private
+                'j_password'=> credential.private
                 }
             })
             res = cli.send_recv(req)
-            if res && !res.headers['location'].include?('loginError')
+            if res && res.headers['location'] && !res.headers['location'].include?('loginError')
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.headers)
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
           Result.new(result_opts)

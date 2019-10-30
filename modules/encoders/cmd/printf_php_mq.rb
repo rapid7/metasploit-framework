@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   # Has some issues, but overall it's pretty good
   # - printf(1) may not be available
@@ -23,9 +21,9 @@ class Metasploit3 < Msf::Encoder
       'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
       'Description'      => %q{
           This encoder uses the printf(1) utility to avoid restricted
-        characters. Some shell variable substituion may also be used
+        characters. Some shell variable substitution may also be used
         if needed symbols are blacklisted. Some characters are intentionally
-        left unescaped since it is assummed that PHP with magic_quotes_gpc
+        left unescaped since it is assumed that PHP with magic_quotes_gpc
         enabled will escape them during request handling.
       },
       'Author'           => 'jduck',
@@ -50,7 +48,7 @@ class Metasploit3 < Msf::Encoder
       (state.badchars.include?("|")) or
       # We must have at least ONE of these two..
       (state.badchars.include?("x") and state.badchars.include?("0"))
-      raise RuntimeError
+      raise EncodingError
     end
 
     # Now we build a string of the original payload with bad characters
@@ -75,5 +73,4 @@ class Metasploit3 < Msf::Encoder
 
     return ret
   end
-
 end

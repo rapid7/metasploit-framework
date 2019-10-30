@@ -1,13 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 97
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -45,12 +46,12 @@ module Metasploit3
         OptString.new('PASS', [ true, "The password for this user", "Metasploit$1" ]),
         OptString.new('CUSTOM', [ false, "Custom group name to be used instead of default", '' ]),
         OptBool.new('WMIC',	[ true, "Use WMIC on the target to resolve administrators group", false ]),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new("COMPLEXITY", [ true, "Check password for complexity rules", true ]),
-      ], self.class)
+      ])
 
   end
 

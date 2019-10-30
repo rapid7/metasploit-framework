@@ -9,6 +9,8 @@ GEMFILE_EXTENSIONS = [
 msfenv_real_pathname = Pathname.new(__FILE__).realpath
 root = msfenv_real_pathname.parent.parent
 
+require File.expand_path('../rails_bigdecimal_fix', __FILE__)
+
 unless ENV['BUNDLE_GEMFILE']
   require 'pathname'
 
@@ -24,9 +26,12 @@ end
 
 begin
   require 'bundler/setup'
-rescue LoadError
-  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-  $stderr.puts "    $ gem install bundler"
+rescue LoadError => e
+  $stderr.puts "[*] Bundler failed to load and returned this error:"
+  $stderr.puts
+  $stderr.puts "   '#{e}'"
+  $stderr.puts
+  $stderr.puts "[*] You may need to uninstall or upgrade bundler"
   exit(1)
 end
 

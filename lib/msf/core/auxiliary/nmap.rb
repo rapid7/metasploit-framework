@@ -24,7 +24,7 @@ def initialize(info = {})
   super
 
   register_options([
-    OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
+    Opt::RHOSTS,
     OptBool.new('NMAP_VERBOSE', [ false, 'Display nmap output', true]),
     OptString.new('RPORTS', [ false, 'Ports to target']), # RPORT supersedes RPORTS
   ], Auxiliary::Nmap)
@@ -43,7 +43,7 @@ def rport
 end
 
 def set_nmap_cmd
-  self.nmap_bin || (raise RuntimeError, "Cannot locate nmap binary")
+  self.nmap_bin || (raise "Cannot locate nmap binary")
   nmap_set_log
   nmap_add_ports
   nmap_cmd = [self.nmap_bin]
@@ -54,7 +54,7 @@ def set_nmap_cmd
 end
 
 def get_nmap_ver
-  self.nmap_bin || (raise RuntimeError, "Cannot locate nmap binary")
+  self.nmap_bin || (raise "Cannot locate nmap binary")
   res = ""
   nmap_cmd = [self.nmap_bin]
   nmap_cmd << "--version"
@@ -84,7 +84,7 @@ def nmap_version_at_least?(test_ver=nil)
 end
 
 def nmap_build_args
-  raise RuntimeError, "nmap_build_args() not defined by #{self.refname}"
+  raise "nmap_build_args() not defined by #{self.refname}"
 end
 
 def nmap_run
@@ -159,13 +159,13 @@ end
 # A helper to add in rport or rports as a -p argument
 def nmap_add_ports
   if not nmap_validate_rports
-    raise RuntimeError, "Cannot continue without a valid port list."
+    raise "Cannot continue without a valid port list."
   end
   port_arg = "-p \"#{datastore['RPORT'] || rports}\""
   if nmap_validate_arg(port_arg)
     self.nmap_args << port_arg
   else
-    raise RunTimeError, "Argument is invalid"
+    raise "Argument is invalid"
   end
 end
 
@@ -181,7 +181,7 @@ end
 # and combinations thereof.
 def nmap_validate_rports
   # If there's an RPORT specified, use that instead.
-  if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Fixnum) || !datastore['RPORT'].empty?)
+  if datastore['RPORT'] && (datastore['RPORT'].kind_of?(Integer) || !datastore['RPORT'].empty?)
     return true
   end
   if rports.nil? || rports.empty?
@@ -224,7 +224,7 @@ def nmap_validate_arg(str)
   end
   # Check for commas outside of quoted arguments
   quoted_22 = /\x22[^\x22]*\x22/n
-  requoted_str = str.gsub(/'/,"\"")
+  requoted_str = str.tr('\'','"')
   if requoted_str.split(quoted_22).join[/,/]
     print_error "Malformed nmap arguments (unquoted comma): #{str}"
     return false
@@ -237,7 +237,7 @@ end
 # module to ferret out whatever's interesting in this host
 # object.
 def nmap_hosts(&block)
-  @nmap_bin || (raise RuntimeError, "Cannot locate the nmap binary.")
+  @nmap_bin || (raise "Cannot locate the nmap binary.")
   fh = self.nmap_log[0]
   nmap_data = fh.read(fh.stat.size)
   # fh.unlink

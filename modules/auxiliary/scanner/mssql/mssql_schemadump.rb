@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -20,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description'    => %Q{
           This module attempts to extract the schema from a MSSQL Server
           Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
+          as master, model, msdb, and tempdb. The module will create
           a note for each DB found, and store a YAML formatted output
           as loot for easy reading.
       },
@@ -35,18 +32,18 @@ class Metasploit3 < Msf::Auxiliary
 
   def run_host(ip)
 
-    if (not mssql_login_datastore)
+    if !mssql_login_datastore
       print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
       return
     end
 
-    #Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
+    # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
     instancename = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     output = "Microsoft SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
 
-    #Grab all the DB schema and save it as notes
+    # Grab all the DB schema and save it as notes
     mssql_schema = get_mssql_schema
     return nil if mssql_schema.nil? or mssql_schema.empty?
     mssql_schema.each do |db|
@@ -107,13 +104,13 @@ class Metasploit3 < Msf::Auxiliary
   end
 
 
-  #Gets all of the Databases on this Instance
+  # Gets all of the Databases on this Instance
   def get_db_names
     results = mssql_query(mssql_db_names())[:rows]
     return results
   end
 
-  #Gets all the table names for the given DB
+  # Gets all the table names for the given DB
   def get_tbl_names(db_name)
     results = mssql_query("SELECT name,id FROM #{db_name}..sysobjects WHERE xtype = 'U'")[:rows]
     return results

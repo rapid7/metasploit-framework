@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-describe ActiveRecord::ConnectionAdapters::ConnectionPool do
+RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   self.use_transactional_fixtures = false
 
   def database_configurations
@@ -19,13 +19,13 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
   # Not all specs require a database connection, and railties aren't being
   # used, so have to manually establish connection.
-  before(:each) do
+  before(:example) do
     ActiveRecord::Base.configurations = database_configurations
     spec = ActiveRecord::Base.configurations[Rails.env]
     ActiveRecord::Base.establish_connection(spec)
   end
 
-  after(:each) do
+  after(:example) do
     ActiveRecord::Base.clear_all_connections!
   end
 
@@ -39,18 +39,18 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
       Thread.current
     end
 
-    before(:each) do
+    before(:example) do
       ActiveRecord::Base.connection_pool.connection
     end
 
     context 'in thread with connection' do
-      it { should be_truthy }
+      it { is_expected.to be_truthy }
     end
 
     context 'in thread without connection' do
       it 'should be false' do
         thread = Thread.new do
-          Thread.current.should_not == main_thread
+          expect(Thread.current).not_to eq main_thread
           expect(active_connection?).to be_falsey
         end
 
@@ -61,7 +61,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
   context '#with_connection' do
     def reserved_connection_count
-      connection_pool.instance_variable_get(:@reserved_connections).length
+      connection_pool.instance_variable_get(:@reserved_connections).size
     end
 
     let(:connection_id) do
@@ -69,7 +69,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     it 'should call #current_connection_id' do
-      connection_pool.should_receive(
+      expect(connection_pool).to receive(
           :current_connection_id
       ).at_least(
           :once
@@ -80,7 +80,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
 
     it 'should yield #connection' do
       connection = double('Connection')
-      connection_pool.stub(:connection => connection)
+      allow(connection_pool).to receive(:connection).and_return(connection)
 
       expect { |block|
         connection_pool.with_connection(&block)
@@ -92,7 +92,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
         connection_pool.connection
       end
 
-      after(:each) do
+      after(:example) do
         connection_pool.checkin connection
       end
 
@@ -166,18 +166,18 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
             child_count = reserved_connection_count
             count_change = child_count - before_count
 
-            count_change.should == 1
+            expect(count_change).to eq 1
 
             connection_pool.with_connection do
               grandchild_count = reserved_connection_count
 
-              grandchild_count.should == child_count
+              expect(grandchild_count).to eq child_count
             end
           end
 
           after_count = reserved_connection_count
 
-          after_count.should == before_count
+          expect(after_count).to eq before_count
         end
       end
 
@@ -197,7 +197,7 @@ describe ActiveRecord::ConnectionAdapters::ConnectionPool do
           connection_pool.with_connection do
             inside = reserved_connection_count
 
-            inside.should == outside
+            expect(inside).to eq outside
           end
         end
       end

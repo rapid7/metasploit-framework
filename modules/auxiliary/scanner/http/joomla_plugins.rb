@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -26,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/']),
         OptPath.new('PLUGINS',   [ true, "Path to list of plugins to enumerate", File.join(Msf::Config.data_directory, "wordlists", "joomla.txt")])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -35,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
       tpath += '/'
     end
 
-    vprint_status("#{peer} - Checking for interesting plugins")
+    vprint_status("Checking for interesting plugins")
     res = send_request_cgi({
       'uri' => tpath,
       'method' => 'GET'
@@ -60,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
     nsize = res.body.size
 
     if (res.code == 200 and res.body !~/#404 Component not found/ and res.body !~/<h1>Joomla! Administration Login<\/h1>/ and osize != nsize)
-      print_good("#{peer} - Plugin: #{tpath}#{papp} ")
+      print_good("Plugin: #{tpath}#{papp} ")
       report_note(
         :host  => ip,
         :port  => rport,
@@ -71,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
       )
 
       if (papp =~/passwd/ and res.body =~/root/)
-        print_good("#{peer} - Vulnerability: Potential LFI")
+        print_good("Vulnerability: Potential LFI")
         report_web_vuln(
           :host	=> ip,
           :port	=> rport,
@@ -88,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
           :name   => 'Local File Inclusion'
         )
       elsif (res.body =~/SQL syntax/)
-        print_good("#{peer} - Vulnerability: Potential SQL Injection")
+        print_good("Vulnerability: Potential SQL Injection")
         report_web_vuln(
           :host	=> ip,
           :port	=> rport,
@@ -105,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
           :name   => 'SQL Injection'
         )
       elsif (papp =~/>alert/ and res.body =~/>alert/)
-        print_good("#{peer} - Vulnerability: Potential XSS")
+        print_good("Vulnerability: Potential XSS")
         report_web_vuln(
           :host	=> ip,
           :port	=> rport,
@@ -129,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
           'method' => 'GET'
         })
         if (res1.code == 200)
-          print_good("#{peer} - Page: #{tpath}index.php?option=com_#{pages}")
+          print_good("Page: #{tpath}index.php?option=com_#{pages}")
           report_note(
             :host  => ip,
             :port  => datastore['RPORT'],
@@ -139,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
             :update => :unique_data
           )
         else
-          vprint_error("#{peer} - Page: #{tpath}index.php?option=com_#{pages} gave a #{res1.code} response")
+          vprint_error("Page: #{tpath}index.php?option=com_#{pages} gave a #{res1.code} response")
         end
       end
     elsif (res.code == 403)
@@ -156,14 +154,13 @@ class Metasploit3 < Msf::Auxiliary
     return
 
     rescue OpenSSL::SSL::SSLError
-      vprint_error("#{peer} - SSL error")
+      vprint_error("SSL error")
       return
     rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-      vprint_error("#{peer} - Unable to Connect")
+      vprint_error("Unable to Connect")
       return
     rescue ::Timeout::Error, ::Errno::EPIPE
-      vprint_error("#{peer} - Timeout error")
+      vprint_error("Timeout error")
       return
   end
-
 end

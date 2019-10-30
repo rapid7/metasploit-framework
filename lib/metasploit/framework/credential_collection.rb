@@ -79,7 +79,7 @@ class Metasploit::Framework::CredentialCollection
   # Adds a string as an addition private credential
   # to be combined in the collection.
   #
-  # @param [String] :private_str the string to use as a private
+  # @param [String] private_str the string to use as a private
   # @return [void]
   def add_private(private_str='')
     additional_privates << private_str
@@ -88,7 +88,7 @@ class Metasploit::Framework::CredentialCollection
   # Adds a string as an addition public credential
   # to be combined in the collection.
   #
-  # @param [String] :public_str the string to use as a public
+  # @param [String] public_str the string to use as a public
   # @return [void]
   def add_public(public_str='')
     additional_publics << public_str
@@ -205,11 +205,26 @@ class Metasploit::Framework::CredentialCollection
     pass_fd.close if pass_fd && !pass_fd.closed?
   end
 
+  # Returns true when #each will have no results to iterate
+  def empty?
+    prepended_creds.empty? && !has_users? || (has_users? && !has_privates?)
+  end
+
+  def has_users?
+    username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
+  end
+
+  def has_privates?
+    password.present? || pass_file.present? || userpass_file.present? || !additional_privates.empty? || blank_passwords || user_as_pass
+  end
+
   private
 
   def private_type(private)
     if private =~ /[0-9a-f]{32}:[0-9a-f]{32}/
       :ntlm_hash
+    elsif private =~ /^md5([a-f0-9]{32})$/
+      :postgres_md5
     else
       :password
     end

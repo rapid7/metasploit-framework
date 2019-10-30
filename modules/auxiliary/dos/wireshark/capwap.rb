@@ -1,12 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       'DisclosureDate' => 'Apr 28 2014'))
 
     # Protocol capwap needs port 5247 to trigger the dissector in wireshark
-    register_options([ Opt::RPORT(5247) ], self.class)
+    register_options([ Opt::RPORT(5247) ])
   end
 
   def run

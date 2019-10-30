@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -35,19 +31,19 @@ class Metasploit3 < Msf::Post
 
   def get_env_shell
     print_line @output if @output
-    if session.platform =~ /win/
+    if session.platform == 'windows'
       @ltype = "windows.environment"
       cmd = "set"
     else
       @ltype = "unix.environment"
       cmd = "env"
     end
-    @output = session.shell_command_token(cmd)
+    @output = cmd_exec(cmd)
   end
 
   def get_env_meterpreter
-    case sysinfo["OS"]
-    when /windows/i
+    case session.platform
+    when 'windows'
       var_names = []
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
@@ -67,5 +63,4 @@ class Metasploit3 < Msf::Post
       @ltype = "unix.environment"
     end
   end
-
 end

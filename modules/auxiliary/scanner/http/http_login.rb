@@ -1,17 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/http'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -46,8 +42,10 @@ class Metasploit3 < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
         OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
-      ], self.class)
+      ])
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
+
+    deregister_options('USERNAME', 'PASSWORD', 'PASSWORD_SPRAY')
   end
 
   def to_uri(uri)
@@ -119,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
     if rport == 443 or ssl
       proto = "https"
     end
-    "#{proto}://#{rhost}:#{rport}#{@uri.to_s}"
+    "#{proto}://#{vhost}:#{rport}#{@uri.to_s}"
   end
 
   def run_host(ip)
@@ -127,23 +125,29 @@ class Metasploit3 < Msf::Auxiliary
       print_error("You need need to set AUTH_URI when using PUT Method !")
       return
     end
+
+    extra_info = ""
+    if rhost != vhost
+      extra_info = " (#{rhost})"
+    end
+
     @uri = find_auth_uri
     if ! @uri
-      print_error("#{target_url} No URI found that asks for HTTP authentication")
+      print_error("#{target_url}#{extra_info} No URI found that asks for HTTP authentication")
       return
     end
 
     @uri = "/#{@uri}" if @uri[0,1] != "/"
 
-    print_status("Attempting to login to #{target_url}")
+    print_status("Attempting to login to #{target_url}#{extra_info}")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
+      password: datastore['HttpPassword'],
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
+      username: datastore['HttpUsername'],
       user_as_pass: datastore['USER_AS_PASS'],
     )
 
@@ -175,6 +179,7 @@ class Metasploit3 < Msf::Auxiliary
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)

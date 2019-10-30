@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -127,7 +126,8 @@ class Plugin::Msfd < Msf::Plugin
             'Framework'   => framework,
             'LocalInput'  => Rex::Ui::Text::Input::Socket.new(cli),
             'LocalOutput' => Rex::Ui::Text::Output::Socket.new(cli),
-            'AllowCommandPassthru' => false).run
+            'AllowCommandPassthru' => false,
+            'DisableBanner' => opts['DisableBanner'] ? true : false).run
         rescue
           elog("Msfd: Client error: #{$!}\n\n#{$@.join("\n")}", 'core')
         ensure

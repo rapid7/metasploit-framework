@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/encoder/alpha2/unicode_upper'
 
-
-class Metasploit3 < Msf::Encoder::Alphanum
-
+class MetasploitModule < Msf::Encoder::Alphanum
   Rank = ManualRanking
 
   def initialize
@@ -37,7 +33,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
     reg    = datastore['BufferRegister']
     offset = datastore['BufferOffset'].to_i || 0
     if (not reg)
-      raise RuntimeError, "Need BufferRegister"
+      raise EncodingError, "Need BufferRegister"
     end
     Rex::Encoder::Alpha2::UnicodeUpper::gen_decoder(reg, offset)
   end
@@ -63,5 +59,4 @@ class Metasploit3 < Msf::Encoder::Alphanum
   def to_native(buffer)
     Rex::Text.to_unicode(buffer)
   end
-
 end

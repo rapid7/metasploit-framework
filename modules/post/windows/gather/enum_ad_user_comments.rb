@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -33,7 +29,7 @@ class Metasploit3 < Msf::Post
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptString.new('FIELDS', [true, 'Fields to retrieve.','userPrincipalName,sAMAccountName,userAccountControl,comment,description']),
       OptString.new('FILTER', [true, 'Search filter.','(&(&(objectCategory=person)(objectClass=user))(|(description=*pass*)(comment=*pass*)))']),
-    ], self.class)
+    ])
   end
 
   def run
@@ -53,7 +49,7 @@ class Metasploit3 < Msf::Post
     end
 
     # Results table holds raw string data
-    results_table = Rex::Ui::Text::Table.new(
+    results_table = Rex::Text::Table.new(
         'Header'     => "Domain Users",
         'Indent'     => 1,
         'SortIndex'  => -1,
@@ -79,9 +75,8 @@ class Metasploit3 < Msf::Post
 
     if datastore['STORE_LOOT']
       stored_path = store_loot('ad.users', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
+      print_good("Results saved to: #{stored_path}")
     end
   end
-
 end
 

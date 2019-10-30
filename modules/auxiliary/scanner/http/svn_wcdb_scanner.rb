@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -34,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('TARGETURI', [false, 'Base path to the .svn directory', '/.svn/'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -83,5 +78,4 @@ class Metasploit3 < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

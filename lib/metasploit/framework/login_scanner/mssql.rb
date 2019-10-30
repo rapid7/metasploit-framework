@@ -21,7 +21,7 @@ module Metasploit
         # Lifted from lib/msf/core/exploit/mssql.rb
         LIKELY_PORTS         = [ 1433, 1434, 1435, 14330, 2533, 9152, 2638 ]
         # Lifted from lib/msf/core/exploit/mssql.rb
-        LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase' ]
+        LIKELY_SERVICE_NAMES = [ 'ms-sql-s', 'ms-sql2000', 'sybase', 'mssql' ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
         REALM_KEY           = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
@@ -30,6 +30,11 @@ module Metasploit
         attr_accessor :windows_authentication
 
         validates :windows_authentication,
+          inclusion: { in: [true, false] }
+
+        attr_accessor :tdsencryption
+
+        validates :tdsencryption,
           inclusion: { in: [true, false] }
 
         def attempt_login(credential)
@@ -70,6 +75,7 @@ module Metasploit
           self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
           self.use_ntlmv2             = true if self.use_ntlmv2.nil?
           self.windows_authentication = false if self.windows_authentication.nil?
+          self.tdsencryption          = false if self.tdsencryption.nil?
         end
       end
 

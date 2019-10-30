@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -30,9 +25,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 8080 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
@@ -76,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
       if res and res.code == 200
         case res.body
         when nil
-          # Nothing
+        # Nothing
         when /<Version xmlns=".*">(.*)<\/Version><\/getVersionResponse>/
           version = "#{$1}"
           success = true

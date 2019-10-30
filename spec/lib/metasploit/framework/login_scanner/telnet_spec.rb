@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/telnet'
 
-describe Metasploit::Framework::LoginScanner::Telnet do
+RSpec.describe Metasploit::Framework::LoginScanner::Telnet do
 
   subject(:login_scanner) { described_class.new }
 
@@ -9,8 +9,22 @@ describe Metasploit::Framework::LoginScanner::Telnet do
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :banner_timeout }
-  it { should respond_to :telnet_timeout }
+  it { is_expected.to respond_to :banner_timeout }
+  it { is_expected.to respond_to :telnet_timeout }
+
+  before(:each) do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:password)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return([])
+    allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(true)
+    login_scanner.cred_details = creds
+  end
 
   context 'validations' do
     context 'banner_timeout' do

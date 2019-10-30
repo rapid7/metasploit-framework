@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'rex/registry'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -226,7 +224,7 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'  =>  'MUICache Information',
       'Indent'  =>  1,
       'Columns' =>
@@ -255,8 +253,7 @@ class Metasploit3 < Msf::Post
     print_status("Phase 3: Processing results...")
     loot = store_loot("muicache_info", "text/plain", session, table.to_s, nil, "MUICache Information")
     print_line("\n" + table.to_s + "\n")
-    print_status("Results stored as: #{loot}")
+    print_good("Results stored as: #{loot}")
     print_status("Execution finished.")
   end
-
 end

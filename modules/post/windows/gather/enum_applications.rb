@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -23,7 +19,7 @@ class Metasploit3 < Msf::Post
   end
 
   def app_list
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Installed Applications",
       'Indent'  => 1,
       'Columns' =>
@@ -69,12 +65,11 @@ class Metasploit3 < Msf::Post
     print_line("\n" + results + "\n")
 
     p = store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
   end
 
   def run
     print_status("Enumerating applications installed on #{sysinfo['Computer']}")
     app_list
   end
-
 end

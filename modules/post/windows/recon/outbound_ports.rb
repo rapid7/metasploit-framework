@@ -1,14 +1,11 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -40,13 +37,13 @@ class Metasploit3 < Msf::Post
         OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
         OptInt.new('TIMEOUT', [true, 'Timeout for the ICMP socket.', 3]),
         OptBool.new('STOP', [true, 'Stop when it finds a public IP.', true])
-      ], self.class)
+      ])
   end
 
   def icmp_setup
     handler = client.railgun.ws2_32.socket("AF_INET", "SOCK_RAW", "IPPROTO_ICMP")
     if handler['GetLastError'] == 0
-      vprint_status("ICMP raw socket created successfully")
+      vprint_good("ICMP raw socket created successfully")
     else
       print_error("There was an error setting the ICMP raw socket; GetLastError: #{handler['GetLastError']}")
       return nil
@@ -54,7 +51,7 @@ class Metasploit3 < Msf::Post
 
     r = client.railgun.ws2_32.bind(handler['return'],"\x02\x00\x00\x00" << Rex::Socket.addr_aton(session.session_host) << "\x00"*8 ,16)
     if r['GetLastError'] == 0
-      vprint_status("ICMP socket successfully bound to #{session.session_host}")
+      vprint_good("ICMP socket successfully bound to #{session.session_host}")
     else
       print_error("There was an error binding the ICMP socket to #{session.session_host}; GetLastError: #{r['GetLastError']}")
       return nil

@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 
 module Rex
 module Post
@@ -14,7 +14,7 @@ module Railgun
 class  Util
 
   # Bring in some useful string manipulation utility functions
-  include DLLHelper
+  include LibraryHelper
 
   # Data type size info: http://msdn.microsoft.com/en-us/library/s3f49ktz(v=vs.80).aspx
   PRIMITIVE_TYPE_SIZES = {
@@ -313,10 +313,10 @@ class  Util
   }
 
   # param 'railgun' is a Railgun instance.
-  # param 'platform' is a value like client.platform
-  def initialize(railgun, platform)
+  # param 'arch' is the client.arch
+  def initialize(railgun, arch)
     @railgun = railgun
-    @is_64bit = is_64bit_platform?(platform)
+    @is_64bit = arch == ARCH_X64
   end
 
   #
@@ -636,18 +636,12 @@ class  Util
     end
   end
 
-  # Returns true if given platform has 64bit architecture
-  # expects client.platform
-  def is_64bit_platform?(platform)
-    platform =~ /win64/
-  end
-
   #
   # Evaluates a bit field, returning a hash representing the meaning and
   # state of each bit.
   #
   # Parameters:
-  #   +value+:: a bit field represented by a Fixnum
+  #   +value+:: a bit field represented by a Integer
   #   +mappings+:: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
   #
   # Returns:

@@ -1,7 +1,9 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -16,7 +18,7 @@ class Metasploit4 < Msf::Auxiliary
       },
       'Author' => 'Andrew Morris <andrew[at]morris.guru>',
       'References' => [
-        ['URL', 'https://cultofthedyingsun.wordpress.com/2014/09/12/death-by-magick-number-fingerprinting-kippo-2014/'],
+        ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
         ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
       ],
       'License' => MSF_LICENSE
@@ -45,5 +47,4 @@ class Metasploit4 < Msf::Auxiliary
       vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
     end
   end
-
 end

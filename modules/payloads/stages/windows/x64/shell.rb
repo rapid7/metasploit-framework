@@ -1,13 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Windows
   include Msf::Sessions::CommandShellOptions
@@ -19,11 +18,11 @@ module Metasploit3
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Session'       => Msf::Sessions::CommandShellWindows,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockrdi'
+          'Convention' => 'sockrdi -http -https'
         },
       'Stage'         =>
         {
@@ -56,5 +55,4 @@ module Metasploit3
         }
       ))
   end
-
 end

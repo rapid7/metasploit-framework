@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/smh'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -37,7 +35,9 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/proxy/ssllogin']),
       OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
       OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
-    ], self.class)
+    ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def get_version(res)
@@ -74,10 +74,10 @@ class Metasploit3 < Msf::Auxiliary
     @cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file:       datastore['PASS_FILE'],
-      password:        datastore['PASSWORD'],
+      password:        datastore['HttpPassword'],
       user_file:       datastore['USER_FILE'],
       userpass_file:   datastore['USERPASS_FILE'],
-      username:        datastore['USERNAME'],
+      username:        datastore['HttpUsername'],
       user_as_pass:    datastore['USER_AS_PASS']
     )
 
@@ -87,7 +87,9 @@ class Metasploit3 < Msf::Auxiliary
         cred_details:       @cred_collection,
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 5
+        connection_timeout: 5,
+        http_username:      datastore['HttpUsername'],
+        http_password:      datastore['HttpPassword']
       )
     )
   end
@@ -171,26 +173,30 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
+    sys_name = get_system_name(res)
+
+    if sys_name.blank?
+      print_error 'Could not retrieve system name.'
+      return
+    end
+
     version = get_version(res)
     unless version.blank?
-      print_status("#{peer} - Version detected: #{version}")
+      print_status("Version detected: #{version}")
       unless is_version_tested?(version)
-        print_warning("#{peer} - You're running the module against a version we have not tested")
+        print_warning("You're running the module against a version we have not tested.")
       end
     end
 
-    sys_name = get_system_name(res)
-    unless sys_name.blank?
-      print_status("#{peer} - System name detected: #{sys_name}")
-      report_note(
-        :host => ip,
-        :type => "system.name",
-        :data => sys_name
-      )
-    end
+    print_good("System name detected: #{sys_name}")
+    report_note(
+      :host => ip,
+      :type => "system.name",
+      :data => sys_name
+    )
 
     if anonymous_access?(res)
-      print_good("#{peer} - No login necessary. Server allows anonymous access.")
+      print_good("No login necessary. Server allows anonymous access.")
       return
     end
 

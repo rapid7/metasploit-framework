@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -15,7 +13,7 @@ class Metasploit3 < Msf::Post
       'Name'          => 'Windows Gather Wireless Profile',
       'Description'   => %q{
         This module extracts saved Wireless LAN profiles. It will also try to decrypt
-        the network key material. Behaviour is slightly different bewteen OS versions
+        the network key material. Behavior is slightly different between OS versions
         when it comes to WPA. In Windows Vista/7 we will get the passphrase. In
         Windows XP we will get the PBKDF2 derived key.
       },
@@ -173,5 +171,4 @@ class Metasploit3 < Msf::Post
     sguid << "-" + aguid[20,12] + "}"
     return sguid
   end
-
 end

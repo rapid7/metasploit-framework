@@ -81,6 +81,7 @@ module Console::InteractiveChannel
     data = self.lsock.sysread(16384)
 
     self.on_print_proc.call(data.strip) if self.on_print_proc
+    self.on_log_proc.call(data.strip) if self.on_log_proc
     user_output.print(data)
   end
 
@@ -90,6 +91,8 @@ module Console::InteractiveChannel
   def _remote_fd(stream)
     self.lsock
   end
+
+  attr_accessor :on_log_proc
 
 end
 

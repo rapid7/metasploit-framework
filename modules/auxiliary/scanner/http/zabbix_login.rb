@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/zabbix'
 require 'metasploit/framework/credential_collection'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -29,13 +27,13 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
+    deregister_options('PASSWORD_SPRAY')
+
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true,  'The path to the Zabbix server application', '/zabbix/']),
-        OptBool.new('SSL', [false, 'Negotiate SSL for outgoing connections', false]),
-        OptEnum.new('SSLVersion', [false, 'Specify the version of SSL that should be used', 'TLS1', ['SSL2', 'SSL3', 'TLS1']])
-      ], self.class)
+      ])
   end
 
   #
@@ -155,6 +153,8 @@ class Metasploit3 < Msf::Auxiliary
         stop_on_success:    datastore['STOP_ON_SUCCESS'],
         bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
+        http_username:      datastore['HttpUsername'],
+        http_password:      datastore['HttpPassword']
       )
     )
   end
@@ -162,8 +162,8 @@ class Metasploit3 < Msf::Auxiliary
   #
   # From the documentation:
   #
-  #  "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
-  #   seconds in order to prevent brute force and dictionary attacks."
+  # "In case of five consecutive failed login attempts, Zabbix interface will pause for 30
+  # seconds in order to prevent brute force and dictionary attacks."
   #
 
   # Zabbix enables a Guest mode by default that allows access to the dashboard without auth
@@ -172,5 +172,4 @@ class Metasploit3 < Msf::Auxiliary
     res = send_request_cgi({'uri'=>dashboard_uri})
     !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
   end
-
 end

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Accounts
 
@@ -24,7 +20,7 @@ class Metasploit3 < Msf::Post
       [
         OptBool.new('CURRENT', [ true, 'Enumerate currently logged on users', true]),
         OptBool.new('RECENT' , [ true, 'Enumerate Recently logged on users' , true])
-      ], self.class)
+      ])
 
   end
 
@@ -32,7 +28,7 @@ class Metasploit3 < Msf::Post
   def ls_logged
     sids = []
     sids << registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Recently Logged Users",
       'Indent'  => 1,
       'Columns' =>
@@ -51,7 +47,7 @@ class Metasploit3 < Msf::Post
 
   def ls_current
     key_base, username = "",""
-    tbl = Rex::Ui::Text::Table.new(
+    tbl = Rex::Text::Table.new(
       'Header'  => "Current Logged Users",
       'Indent'  => 1,
       'Columns' =>
@@ -74,7 +70,7 @@ class Metasploit3 < Msf::Post
 
     print_line("\n" + tbl.to_s + "\n")
     p = store_loot("host.users.active", "text/plain", session, tbl.to_s, "active_users.txt", "Active Users")
-    print_status("Results saved in: #{p}")
+    print_good("Results saved in: #{p}")
   end
 
   def run

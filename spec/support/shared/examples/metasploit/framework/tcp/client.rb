@@ -1,9 +1,23 @@
 
-shared_examples_for 'Metasploit::Framework::Tcp::Client' do
+RSpec.shared_examples_for 'Metasploit::Framework::Tcp::Client' do
   subject(:login_scanner) { described_class.new }
 
-  it { should respond_to :send_delay }
-  it { should respond_to :max_send_size }
+  it { is_expected.to respond_to :send_delay }
+  it { is_expected.to respond_to :max_send_size }
+
+  before(:example) do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:password)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return([])
+    allow(creds).to receive(:additional_publics).and_return(['user'])
+    allow(creds).to receive(:empty?).and_return(true)
+    login_scanner.cred_details = creds
+  end
 
   context 'send_delay' do
     it 'is not valid for a non-number' do

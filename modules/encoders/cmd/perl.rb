@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Encoder
-
+class MetasploitModule < Msf::Encoder
   Rank = NormalRanking
 
   def initialize
@@ -35,7 +30,7 @@ class Metasploit3 < Msf::Encoder
     end
 
     if state.badchars.include?("-")
-      raise RuntimeError
+      raise EncodingError
     else
       buf = encode_block_perl(state,buf)
     end
@@ -55,7 +50,7 @@ class Metasploit3 < Msf::Encoder
     # Convert spaces to IFS...
     if state.badchars.include?(" ")
       if state.badchars.match(/[${IFS}]/n)
-        raise RuntimeError
+        raise EncodingError
       end
       cmd.gsub!(/\s/, '${IFS}')
     end
@@ -118,7 +113,7 @@ class Metasploit3 < Msf::Encoder
     state.badchars.unpack('C*') { |c| qot.delete(c.chr) }
 
     # Throw an error if we ran out of quotes
-    raise RuntimeError if qot.length == 0
+    raise EncodingError if qot.length == 0
 
     sep = qot[0].chr
     # Use an explicit length for the H specifier instead of just "H*"
@@ -126,5 +121,4 @@ class Metasploit3 < Msf::Encoder
     # ends up unquoted so the shell doesn't try to expand a path.
     "qq#{sep}H#{hex.length}#{sep},qq#{sep}#{hex}#{sep}"
   end
-
 end

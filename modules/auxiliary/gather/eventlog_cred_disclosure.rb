@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -34,8 +32,7 @@ class Metasploit3 < Msf::Auxiliary
           [ 'CVE', '2014-6039' ],
           [ 'OSVDB', '114342' ],
           [ 'OSVDB', '114344' ],
-          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/ManageEngine/me_eventlog_info_disc.txt' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/12' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
       'DisclosureDate' => 'Nov 5 2014'))
 
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(8400),
         OptString.new('TARGETURI', [ true,  'Eventlog Analyzer application URI (should be /event for version 7)', '/']),
-      ], self.class)
+      ])
   end
 
 
@@ -91,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
 
-    cred_table = Rex::Ui::Text::Table.new(
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'ManageEngine EventLog Analyzer Managed Devices Credentials',
       'Indent'  => 1,
       'Columns' =>

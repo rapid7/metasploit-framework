@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/osx/bundleinject'
 require 'msf/base/sessions/vncinject'
 require 'fileutils'
@@ -16,7 +15,7 @@ require 'msf/base/sessions/command_shell_options'
 # Injects the VNC server DLL and runs it over the established connection.
 #
 ###
-module Metasploit3
+module MetasploitModule
 
   include Msf::Payload::Osx::BundleInject
   include Msf::Sessions::CommandShellOptions
@@ -44,7 +43,7 @@ module Metasploit3
             "Automatically open the picture in a browser ",
             true
           ])
-      ], self.class)
+      ])
   end
 
   def on_session(session)
@@ -80,12 +79,11 @@ module Metasploit3
 
     print_status("Photo saved as #{dest}")
 
-    if (datastore['AUTOVIEW'] == true)
+    if datastore['AUTOVIEW']
       print_status("Opening photo in a web browser...")
       Rex::Compat.open_browser(File.expand_path(dest))
     end
 
     super(session)
   end
-
 end

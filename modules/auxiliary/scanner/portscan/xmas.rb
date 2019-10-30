@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -27,8 +24,10 @@ class Metasploit3 < Msf::Auxiliary
       OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
       OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
       OptInt.new('BATCHSIZE', [true, "The number of hosts to scan per set", 256]),
+      OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
+      OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
       OptString.new('INTERFACE', [false, 'The name of the interface'])
-    ], self.class)
+    ])
 
     deregister_options('FILTER','PCAPFILE')
   end
@@ -48,16 +47,27 @@ class Metasploit3 < Msf::Auxiliary
     pcap = self.capture
 
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-
     if ports.empty?
       raise Msf::OptionValidateError.new(['PORTS'])
     end
 
+    jitter_value = datastore['JITTER'].to_i
+    if jitter_value < 0
+      raise Msf::OptionValidateError.new(['JITTER'])
+    end
+
+    delay_value = datastore['DELAY'].to_i
+    if delay_value < 0
+      raise Msf::OptionValidateError.new(['DELAY'])
+    end
+
     to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
+    # we copy the hosts because some may not be reachable and need to be ejected
+    host_queue = hosts.dup
     # Spread the load across the hosts
     ports.each do |dport|
-      hosts.each do |dhost|
+      host_queue.each do |dhost|
         shost, sport = getsource(dhost)
 
         pcap.setfilter(getfilter(shost, sport, dhost, dport))
@@ -65,7 +75,13 @@ class Metasploit3 < Msf::Auxiliary
         begin
           probe = buildprobe(shost, sport, dhost, dport)
 
-          capture_sendto(probe, dhost)
+          # Add the delay based on JITTER and DELAY if needs be
+          add_delay_jitter(delay_value,jitter_value)
+
+          unless capture_sendto(probe, dhost)
+            host_queue.delete(dhost)
+            next
+          end
 
           reply = probereply(pcap, to)
 
@@ -73,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
           print_status(" TCP OPEN|FILTERED #{dhost}:#{dport}")
 
-          #Add Report
+          # Add Report
           report_note(
             :host	=> dhost,
             :proto	=> 'tcp',
@@ -132,5 +148,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     return reply
   end
-
 end

@@ -28,7 +28,7 @@ module Msf::DBManager::Import::Report
     report_id = report_report(report_info)
 
     # Handle artifacts
-    report.elements['artifacts'].elements.each do |artifact|
+    report.elements.at('artifacts').elements.each do |artifact|
       artifact_opts = {}
       artifact.elements.each do |attr|
         skip_nodes = %w|id accessed-at|

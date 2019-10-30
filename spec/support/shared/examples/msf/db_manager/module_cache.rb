@@ -1,4 +1,9 @@
-shared_examples_for 'Msf::DBManager::ModuleCache' do
+RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Module Cache methods will not be ported, instead the newer module metadata cache should be used")}
+  end
+
   it { is_expected.to respond_to :match_values }
   it { is_expected.to respond_to :module_to_details_hash }
   it { is_expected.to respond_to :modules_cached }
@@ -20,14 +25,14 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     let!(:module_details) do
-      FactoryGirl.create_list(
+      FactoryBot.create_list(
           :mdm_module_detail,
           module_detail_count
       )
     end
 
-    before(:each) do
-      db_manager.stub(:migrated => migrated)
+    before(:example) do
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -39,8 +44,8 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         false
       end
 
-      before(:each) do
-        db_manager.stub(:modules_caching => modules_caching)
+      before(:example) do
+        allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
@@ -83,21 +88,21 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
     end
 
     let(:mtype) do
-      FactoryGirl.generate :mdm_module_detail_mtype
+      FactoryBot.generate :mdm_module_detail_mtype
     end
 
     let(:refname) do
-      FactoryGirl.generate :mdm_module_detail_refname
+      FactoryBot.generate :mdm_module_detail_refname
     end
 
     let!(:module_detail) do
-      FactoryGirl.create(
+      FactoryBot.create(
           :mdm_module_detail
       )
     end
 
-    before(:each) do
-      db_manager.stub(:migrated => migrated)
+    before(:example) do
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -106,7 +111,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       let!(:module_detail) do
-        FactoryGirl.create(:mdm_module_detail)
+        FactoryBot.create(:mdm_module_detail)
       end
 
       context 'with matching Mdm::Module::Detail' do
@@ -152,46 +157,6 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       search_modules.to_a
     end
 
-    context 'with app keyword' do
-      let(:search_string) do
-        "app:#{app}"
-      end
-
-      before(:each) do
-        Mdm::Module::Detail::STANCES.each do |stance|
-          FactoryGirl.create(:mdm_module_detail, :stance => stance)
-        end
-      end
-
-      context 'with client' do
-        let(:app) do
-          'client'
-        end
-
-        it "should match Mdm::Module::Detail#stance 'passive'" do
-          module_details.count.should > 0
-
-          module_details.all? { |module_detail|
-            module_detail.stance == 'passive'
-          }.should be_truthy
-        end
-      end
-
-      context 'with server' do
-        let(:app) do
-          'server'
-        end
-
-        it "should match Mdm::Module::Detail#stance 'aggressive'" do
-          module_details.count.should > 0
-
-          module_details.all? { |module_detail|
-            module_detail.stance == 'aggressive'
-          }.should be_truthy
-        end
-      end
-    end
-
     context 'with author keyword' do
       let(:search_string) do
         # us inspect so strings with spaces are quoted correctly
@@ -199,7 +164,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       let!(:module_authors) do
-        FactoryGirl.create_list(:mdm_module_author, 2)
+        FactoryBot.create_list(:mdm_module_author, 2)
       end
 
       let(:target_module_author) do
@@ -212,13 +177,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#email' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.email == target_module_author.email
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.email == target_module_author.email
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -229,13 +196,15 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Author#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.name == target_module_author.name
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.name == target_module_author.name
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
     end
@@ -250,7 +219,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       let!(:existing_module_details) do
-        FactoryGirl.create_list(:mdm_module_detail, 2)
+        FactoryBot.create_list(:mdm_module_detail, 2)
       end
 
       let(:target_module_detail) do
@@ -263,11 +232,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#fullname' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.fullname == target_module_detail.fullname
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.fullname == target_module_detail.fullname
+            }
+          ).to eq true
         end
       end
 
@@ -278,24 +249,24 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.name == target_module_detail.name
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.name == target_module_detail.name
+            }
+          ).to eq true
         end
       end
     end
 
     it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :os
 
-    it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Ref#name keyword', :osvdb
-
     it_should_behave_like 'Msf::DBManager#search_modules Mdm::Module::Platform#name or Mdm::Module::Target#name keyword', :platform
 
     context 'with ref keyword' do
       let(:ref) do
-        FactoryGirl.generate :mdm_module_ref_name
+        FactoryBot.generate :mdm_module_ref_name
       end
 
       let(:search_string) do
@@ -304,7 +275,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       let!(:module_ref) do
-        FactoryGirl.create(:mdm_module_ref)
+        FactoryBot.create(:mdm_module_ref)
       end
 
       context 'with Mdm::Module::Ref#name' do
@@ -313,26 +284,28 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.refs.any? { |module_ref|
-              module_ref.name == ref
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.refs.any? { |module_ref|
+                module_ref.name == ref
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
       context 'without Mdm::Module::Ref#name' do
         it 'should not match Mdm::Module::Ref#name' do
-          module_details.count.should == 0
+          expect(module_details.count).to eq 0
         end
       end
     end
 
     context 'with type keyword' do
       let(:type) do
-        FactoryGirl.generate :mdm_module_detail_mtype
+        FactoryBot.generate :mdm_module_detail_mtype
       end
 
       let(:search_string) do
@@ -344,7 +317,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       let!(:all_module_details) do
-        FactoryGirl.create_list(:mdm_module_detail, 2)
+        FactoryBot.create_list(:mdm_module_detail, 2)
       end
 
       context 'with Mdm::Module::Ref#name' do
@@ -353,17 +326,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should match Mdm::Module::Detail#mtype' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.mtype == type
-          }.should be_truthy
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.mtype == type
+            }
+          ).to eq true
         end
       end
 
       context 'without Mdm::Module::Detail#mtype' do
         it 'should not match Mdm::Module::Detail#mtype' do
-          module_details.count.should == 0
+          expect(module_details.count).to eq 0
         end
       end
     end
@@ -375,17 +350,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_action) do
-          FactoryGirl.create(:mdm_module_action)
+          FactoryBot.create(:mdm_module_action)
         end
 
         it 'should match Mdm::Module::Action#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.actions.any? { |module_action|
-              module_action.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.actions.any? { |module_action|
+                module_action.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -395,17 +372,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_arch) do
-          FactoryGirl.create(:mdm_module_arch)
+          FactoryBot.create(:mdm_module_arch)
         end
 
         it 'should match Mdm::Module::Arch#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.archs.any? { |module_arch|
-              module_arch.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.archs.any? { |module_arch|
+                module_arch.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -415,17 +394,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_author) do
-          FactoryGirl.create(:mdm_module_author)
+          FactoryBot.create(:mdm_module_author)
         end
 
         it 'should match Mdm::Module::Author#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.authors.any? { |module_author|
-              module_author.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.authors.any? { |module_author|
+                module_author.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -435,7 +416,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:all_module_details) do
-          FactoryGirl.create_list(:mdm_module_detail, 3)
+          FactoryBot.create_list(:mdm_module_detail, 3)
         end
 
         context 'with #description' do
@@ -445,11 +426,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#description' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.description == target_module_detail.description
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.description == target_module_detail.description
+              }
+            ).to eq true
           end
         end
 
@@ -459,11 +442,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#fullname' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.fullname == search_string
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.fullname == search_string
+              }
+            ).to eq true
           end
         end
 
@@ -474,11 +459,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
           end
 
           it 'should match Mdm::Module::Detail#name' do
-            module_details.count.should == 1
+            expect(module_details.count).to eq 1
 
-            module_details.all? { |module_detail|
-              module_detail.name == target_module_detail.name
-            }.should be_truthy
+            expect(
+              module_details.all? { |module_detail|
+                module_detail.name == target_module_detail.name
+              }
+            ).to eq true
           end
         end
       end
@@ -489,17 +476,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_platform) do
-          FactoryGirl.create(:mdm_module_platform)
+          FactoryBot.create(:mdm_module_platform)
         end
 
         it 'should match Mdm::Module::Platform#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.platforms.any? { |module_platform|
-              module_platform.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.platforms.any? { |module_platform|
+                module_platform.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -509,17 +498,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_ref) do
-          FactoryGirl.create(:mdm_module_ref)
+          FactoryBot.create(:mdm_module_ref)
         end
 
         it 'should match Mdm::Module::Ref#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.refs.any? { |module_ref|
-              module_ref.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.refs.any? { |module_ref|
+                module_ref.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
 
@@ -529,17 +520,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let!(:module_target) do
-          FactoryGirl.create(:mdm_module_target)
+          FactoryBot.create(:mdm_module_target)
         end
 
         it 'should match Mdm::Module::Target#name' do
-          module_details.count.should > 0
+          expect(module_details.count).to be > 0
 
-          module_details.all? { |module_detail|
-            module_detail.targets.any? { |module_target|
-              module_target.name == search_string
+          expect(
+            module_details.all? { |module_detail|
+              module_detail.targets.any? { |module_target|
+                module_target.name == search_string
+              }
             }
-          }.should be_truthy
+          ).to eq true
         end
       end
     end
@@ -554,8 +547,8 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       false
     end
 
-    before(:each) do
-      db_manager.stub(:migrated => migrated)
+    before(:example) do
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -567,13 +560,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         true
       end
 
-      before(:each) do
-        db_manager.stub(:modules_caching => modules_caching)
+      before(:example) do
+        allow(db_manager).to receive(:modules_caching).and_return(modules_caching)
       end
 
       context 'with modules_caching' do
         it 'should not update module details' do
-          db_manager.should_not_receive(:update_module_details)
+          expect(db_manager).not_to receive(:update_module_details)
 
           update_all_module_details
         end
@@ -585,22 +578,22 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         it 'should set framework.cache_thread to current thread and then nil' do
-          framework.should_receive(:cache_thread=).with(Thread.current).ordered
-          framework.should_receive(:cache_thread=).with(nil).ordered
+          expect(framework).to receive(:cache_thread=).with(Thread.current).ordered
+          expect(framework).to receive(:cache_thread=).with(nil).ordered
 
           update_all_module_details
         end
 
         it 'should set modules_cached to false and then true' do
-          db_manager.should_receive(:modules_cached=).with(false).ordered
-          db_manager.should_receive(:modules_cached=).with(true).ordered
+          expect(db_manager).to receive(:modules_cached=).with(false).ordered
+          expect(db_manager).to receive(:modules_cached=).with(true).ordered
 
           update_all_module_details
         end
 
         it 'should set modules_caching to true and then false' do
-          db_manager.should_receive(:modules_caching=).with(true).ordered
-          db_manager.should_receive(:modules_caching=).with(false).ordered
+          expect(db_manager).to receive(:modules_caching=).with(true).ordered
+          expect(db_manager).to receive(:modules_caching=).with(false).ordered
 
           update_all_module_details
         end
@@ -631,7 +624,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
           let!(:module_detail) do
             # needs to reference a real module so that it can be loaded
-            FactoryGirl.create(
+            FactoryBot.create(
                 :mdm_module_detail,
                 :file => module_pathname.to_path,
                 :mtime => modification_time,
@@ -658,7 +651,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
               context 'with existing Mdm::Module::Detail#file' do
                 context 'with same Mdm::Module::Detail#mtime and File.mtime' do
                   it 'should not update module details' do
-                    db_manager.should_not_receive(:update_module_details)
+                    expect(db_manager).not_to receive(:update_module_details)
 
                     update_all_module_details
                   end
@@ -668,7 +661,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                   let(:modification_time) do
                     # +1 as rand can return 0 and the time must be different for
                     # this context.
-                    super() - (rand(1.day) + 1)
+                    1.days.ago
                   end
 
                   it_should_behave_like 'Msf::DBManager#update_all_module_details refresh'
@@ -689,7 +682,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 end
 
                 it 'should not update module details' do
-                  db_manager.should_not_receive(:update_module_details)
+                  expect(db_manager).not_to receive(:update_module_details)
 
                   update_all_module_details
                 end
@@ -702,7 +695,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
     context 'without migrated' do
       it 'should not update module details' do
-        db_manager.should_not_receive(:update_module_details)
+        expect(db_manager).not_to receive(:update_module_details)
 
         update_all_module_details
       end
@@ -770,8 +763,8 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       'exploits'
     end
 
-    before(:each) do
-      db_manager.stub(:migrated => migrated)
+    before(:example) do
+      allow(db_manager).to receive(:migrated).and_return(migrated)
     end
 
     context 'with migrated' do
@@ -780,7 +773,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
       end
 
       it 'should call module_to_details_hash to get Mdm::Module::Detail attributes and association attributes' do
-        db_manager.should_receive(:module_to_details_hash).and_call_original
+        expect(db_manager).to receive(:module_to_details_hash).and_call_original
 
         update_module_details
       end
@@ -804,19 +797,19 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
         end
 
         let(:privileged) do
-          FactoryGirl.generate :mdm_module_detail_privileged
+          FactoryBot.generate :mdm_module_detail_privileged
         end
 
         let(:rank) do
-          FactoryGirl.generate :mdm_module_detail_rank
+          FactoryBot.generate :mdm_module_detail_rank
         end
 
         let(:stance) do
-          FactoryGirl.generate :mdm_module_detail_stance
+          FactoryBot.generate :mdm_module_detail_stance
         end
 
-        before(:each) do
-          db_manager.stub(
+        before(:example) do
+          allow(db_manager).to receive(
               :module_to_details_hash
           ).with(
               module_instance
@@ -830,7 +823,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             Mdm::Module::Detail.last
           end
 
-          before(:each) do
+          before(:example) do
             update_module_details
           end
 
@@ -847,13 +840,13 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             []
           end
 
-          before(:each) do
+          before(:example) do
             module_to_details_hash[:bits] = bits
           end
 
           context 'with :action' do
             let(:name) do
-              FactoryGirl.generate :mdm_module_action_name
+              FactoryBot.generate :mdm_module_action_name
             end
 
             let(:bits) do
@@ -880,7 +873,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -890,7 +883,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
           context 'with :arch' do
             let(:name) do
-              FactoryGirl.generate :mdm_module_arch_name
+              FactoryBot.generate :mdm_module_arch_name
             end
 
             let(:bits) do
@@ -917,7 +910,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -927,11 +920,11 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
 
           context 'with :author' do
             let(:email) do
-              FactoryGirl.generate :mdm_module_author_email
+              FactoryBot.generate :mdm_module_author_email
             end
 
             let(:name) do
-              FactoryGirl.generate :mdm_module_author_name
+              FactoryBot.generate :mdm_module_author_name
             end
 
             let(:bits) do
@@ -959,7 +952,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -979,7 +972,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             end
 
             let(:name) do
-              FactoryGirl.generate :mdm_module_platform_name
+              FactoryBot.generate :mdm_module_platform_name
             end
 
             it 'should create an Mdm::Module::Platform' do
@@ -997,7 +990,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -1016,7 +1009,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             end
 
             let(:name) do
-              FactoryGirl.generate :mdm_module_ref_name
+              FactoryBot.generate :mdm_module_ref_name
             end
 
             it 'should create an Mdm::Module::Ref' do
@@ -1034,7 +1027,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 
@@ -1054,11 +1047,11 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
             end
 
             let(:index) do
-              FactoryGirl.generate :mdm_module_target_index
+              FactoryBot.generate :mdm_module_target_index
             end
 
             let(:name) do
-              FactoryGirl.generate :mdm_module_target_name
+              FactoryBot.generate :mdm_module_target_name
             end
 
             it 'should create an Mdm::Module::Target' do
@@ -1076,7 +1069,7 @@ shared_examples_for 'Msf::DBManager::ModuleCache' do
                 Mdm::Module::Detail.last
               end
 
-              before(:each) do
+              before(:example) do
                 update_module_details
               end
 

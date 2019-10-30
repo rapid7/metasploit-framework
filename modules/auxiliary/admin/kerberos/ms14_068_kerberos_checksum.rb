@@ -1,19 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::Kerberos::Client
+  include Msf::Exploit::Remote::Kerberos::Client
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'MS14-068 Microsfot Kerberos Checksum Validation Vulnerability',
+      'Name' => 'MS14-068 Microsoft Kerberos Checksum Validation Vulnerability',
       'Description' => %q{
         This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
         exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS
@@ -48,7 +44,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('USER_SID', [ true, 'The Domain User SID, Ex: S-1-5-21-1755879683-3641577184-3486455962-1000'])
-      ], self.class)
+      ])
   end
 
   def run

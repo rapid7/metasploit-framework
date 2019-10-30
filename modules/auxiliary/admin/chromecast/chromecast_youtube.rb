@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -14,6 +11,9 @@ class Metasploit4 < Msf::Auxiliary
       'Name' => 'Chromecast YouTube Remote Control',
       'Description' => %q{
         This module acts as a simple remote control for Chromecast YouTube.
+
+        Only the deprecated DIAL protocol is supported by this module.
+        Casting via the newer CASTV2 protocol is unsupported at this time.
       },
       'Author' => ['wvu'],
       'References' => [
@@ -30,7 +30,7 @@ class Metasploit4 < Msf::Auxiliary
     register_options([
       Opt::RPORT(8008),
       OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
-    ], self.class)
+    ])
   end
 
   def run
@@ -51,7 +51,8 @@ class Metasploit4 < Msf::Auxiliary
     when 200
       print_status('Stopping video')
     when 404
-      print_error("Couldn't #{action.name.downcase} video")
+      print_error('Target no longer supports casting via the DIAL protocol. ' \
+                  'CASTV2 is not supported by this module at this time.')
     end
   end
 
@@ -87,5 +88,4 @@ class Metasploit4 < Msf::Auxiliary
       disconnect
     end
   end
-
 end

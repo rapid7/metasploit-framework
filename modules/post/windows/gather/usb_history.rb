@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -82,7 +78,7 @@ class Metasploit3 < Msf::Post
         print_status(info_hash_to_str(out, v))
       end
     else
-      print_error("No USB devices appear to have been connected to theis host.")
+      print_error("No USB devices appear to have been connected to this host.")
     end
   end
 
@@ -212,5 +208,4 @@ class Metasploit3 < Msf::Post
     out << sprintf("%25s\t%50s\n", "Driver", hash['Driver'])
     return out
   end
-
 end

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
-  include Msf::Exploit::Remote::HttpClient
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize
     super(
@@ -62,14 +59,16 @@ class Metasploit3 < Msf::Auxiliary
     else
       admin_password = admin_password_matches[1];
       print_good("Password for user 'admin' is: #{admin_password}")
-      report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :sname  => "ZyXEL GS1510-16",
-          :user   => 'admin',
-          :pass   => admin_password,
-          :active => true
-      )
+
+      connection_details = {
+          module_fullname: self.fullname,
+          username: 'admin',
+          private_data: admin_password,
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          proof: res.body
+      }.merge(service_details)
+      create_credential_and_login(connection_details) # makes service_name more consistent
     end
   rescue ::Rex::ConnectionError
     print_error("#{rhost}:#{rport} - Failed to connect")

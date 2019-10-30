@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -31,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('VERB',    [true, "Verb for auth bypass testing", "HEAD"]),
         OptPath.new('URLFILE', [true, "SAP ICM Paths File",
           File.join(Msf::Config.data_directory, 'wordlists', 'sap_icm_paths.txt')])
-      ], self.class)
+      ])
   end
 
   # Base Structure of module borrowed from jboss_vulnscan

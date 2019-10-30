@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,7 @@
 # Mississippi State University National Forensics Training Center
 #    http://msu-nftc.org
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
         OptString.new('DEVICE',[true,'Device to map (use enum_drives for possible names)',nil]),
         OptString.new('NBDIP',[false,'IP address for NBD server','0.0.0.0']),
         OptInt.new('NBDPORT',[false,'TCP port for NBD server',10005]),
-      ], self.class)
+      ])
   end
 
   def run
@@ -76,6 +76,12 @@ class Metasploit3 < Msf::Post
 
     while true
       request = rsock.read(28)
+
+      unless request
+        print_error("No data received")
+        break
+      end
+
       magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
 
       if magic != 0x25609513

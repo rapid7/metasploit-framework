@@ -17,8 +17,6 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'msfenv'
 
-
-
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex/parser/arguments'
@@ -59,7 +57,6 @@ arguments.parse(ARGV) do |opt, idx, val|
   end
 end
 
-
 unless opts['ServerHost']
   $stderr.puts "[-] Error: a server IP must be specified (-a)"
   $stderr.puts arguments.usage
@@ -87,10 +84,9 @@ rpc.login(opts['User'], opts['Pass'])
 
 puts "[*] The 'rpc' object holds the RPC client interface"
 puts "[*] Use rpc.call('group.command') to make RPC calls"
-puts
+puts ''
 
 while(ARGV.shift)
 end
 
 Rex::Ui::Text::IrbShell.new(binding).run
-

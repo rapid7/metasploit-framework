@@ -1,6 +1,6 @@
 ##
 #
-# This plugin requires Metasploit: http://metasploit.com/download
+# This plugin requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 ##
@@ -9,7 +9,7 @@ module Msf
 
 ###
 #
-# This plugin extends the Rex::Ui::Text::Table class and provides commands
+# This plugin extends the Rex::Text::Table class and provides commands
 # that output database information for the current workspace in a wiki
 # friendly format
 #
@@ -218,12 +218,12 @@ class Plugin::Wiki < Msf::Plugin
     # Outputs credentials in the database (within the current workspace) as a Rex table object
     # @param [Hash] opts
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
-    # @option opts [Array<Fixnum>] :ports contains list of ports used to limit results
+    # @option opts [Array<Integer>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
-    # @return [Rex::Ui::Text::Table] table containing credentials
+    # @return [Rex::Text::Table] table containing credentials
     #
     def creds_to_table(opts = {})
-      tbl = Rex::Ui::Text::Table.new({'Columns' => ['host','port','user','pass','type','proof','active?']})
+      tbl = Rex::Text::Table.new({'Columns' => ['host','port','user','pass','type','proof','active?']})
       tbl.header = 'Credentials'
       tbl.headeri = opts[:heading_size]
       framework.db.creds.each do |cred|
@@ -260,10 +260,10 @@ class Plugin::Wiki < Msf::Plugin
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
     # @option opts [Array<String>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
-    # @return [Rex::Ui::Text::Table] table containing credentials
+    # @return [Rex::Text::Table] table containing credentials
     #
     def hosts_to_table(opts = {})
-      tbl = Rex::Ui::Text::Table.new({'Columns' => ['address','mac','name','os_name','os_flavor','os_sp','purpose','info','comments']})
+      tbl = Rex::Text::Table.new({'Columns' => ['address','mac','name','os_name','os_flavor','os_sp','purpose','info','comments']})
       tbl.header = 'Hosts'
       tbl.headeri = opts[:heading_size]
       framework.db.hosts.each do |host|
@@ -302,10 +302,10 @@ class Plugin::Wiki < Msf::Plugin
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
     # @option opts [Array<String>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
-    # @return [Rex::Ui::Text::Table] table containing credentials
+    # @return [Rex::Text::Table] table containing credentials
     #
     def loot_to_table(opts = {})
-      tbl = Rex::Ui::Text::Table.new({'Columns' => ['host','service','type','name','content','info','path']})
+      tbl = Rex::Text::Table.new({'Columns' => ['host','service','type','name','content','info','path']})
       tbl.header = 'Loot'
       tbl.headeri = opts[:heading_size]
       framework.db.loots.each do |loot|
@@ -345,10 +345,10 @@ class Plugin::Wiki < Msf::Plugin
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
     # @option opts [Array<String>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
-    # @return [Rex::Ui::Text::Table] table containing credentials
+    # @return [Rex::Text::Table] table containing credentials
     #
     def services_to_table(opts = {})
-      tbl = Rex::Ui::Text::Table.new({'Columns' => ['host','port','proto','name','state','info']})
+      tbl = Rex::Text::Table.new({'Columns' => ['host','port','proto','name','state','info']})
       tbl.header = 'Services'
       tbl.headeri = opts[:heading_size]
       framework.db.services.each do |service|
@@ -384,10 +384,10 @@ class Plugin::Wiki < Msf::Plugin
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
     # @option opts [Array<String>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
-    # @return [Rex::Ui::Text::Table] table containing credentials
+    # @return [Rex::Text::Table] table containing credentials
     #
     def vulns_to_table(opts = {})
-      tbl = Rex::Ui::Text::Table.new({'Columns' => ['Title','Host','Port','Info','Detail Count','Attempt Count','Exploited At','Updated At']})
+      tbl = Rex::Text::Table.new({'Columns' => ['Title','Host','Port','Info','Detail Count','Attempt Count','Exploited At','Updated At']})
       tbl.header = 'Vulns'
       tbl.headeri = opts[:heading_size]
       framework.db.vulns.each do |vuln|
@@ -438,13 +438,13 @@ class Plugin::Wiki < Msf::Plugin
   #
   # Constructs a new instance of the plugin and registers the console
   # dispatcher. It also extends Rex by adding the following methods:
-  #   * Rex::Ui::Text::Table.to_dokuwiki
-  #   * Rex::Ui::Text::Table.to_mediawiki
+  #   * Rex::Text::Table.to_dokuwiki
+  #   * Rex::Text::Table.to_mediawiki
   #
   def initialize(framework, opts)
     super
 
-    # Extend Rex::Ui::Text::Table class so it can output wiki formats
+    # Extend Rex::Text::Table class so it can output wiki formats
     add_dokuwiki_to_rex
     add_mediawiki_to_rex
 
@@ -457,9 +457,9 @@ class Plugin::Wiki < Msf::Plugin
   # initialization and then removes the console dispatcher
   #
   def cleanup
-    # Cleanup methods added to Rex::Ui::Text::Table
-    Rex::Ui::Text::Table.class_eval { undef :to_dokuwiki }
-    Rex::Ui::Text::Table.class_eval { undef :to_mediawiki }
+    # Cleanup methods added to Rex::Text::Table
+    Rex::Text::Table.class_eval { undef :to_dokuwiki }
+    Rex::Text::Table.class_eval { undef :to_mediawiki }
     # Deregister the console dispatcher
     remove_console_dispatcher('Wiki')
   end
@@ -490,7 +490,7 @@ class Plugin::Wiki < Msf::Plugin
   # Extends Rex tables to be able to create Dokuwiki tables
   #
   def add_dokuwiki_to_rex
-    Rex::Ui::Text::Table.class_eval do
+    Rex::Text::Table.class_eval do
       def to_dokuwiki
         str = prefix.dup
         # Print the header if there is one. Use headeri to determine wiki paragraph level
@@ -521,7 +521,7 @@ class Plugin::Wiki < Msf::Plugin
   # Extends Rex tables to be able to create Mediawiki tables
   #
   def add_mediawiki_to_rex
-    Rex::Ui::Text::Table.class_eval do
+    Rex::Text::Table.class_eval do
       def to_mediawiki
         str = prefix.dup
         # Print the header if there is one. Use headeri to determine wiki

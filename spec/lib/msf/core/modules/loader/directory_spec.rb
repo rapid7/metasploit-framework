@@ -5,7 +5,7 @@ require 'msf/core/modules/loader/directory'
 
 require 'msf/core'
 
-describe Msf::Modules::Loader::Directory do
+RSpec.describe Msf::Modules::Loader::Directory do
   context 'instance methods' do
     include_context 'Msf::Modules::Loader::Base'
 
@@ -33,9 +33,9 @@ describe Msf::Modules::Loader::Directory do
           framework = double('Msf::Framework', :datastore => {})
 
           events = double('Events')
-          events.stub(:on_module_load)
-          events.stub(:on_module_created)
-          framework.stub(:events => events)
+          allow(events).to receive(:on_module_load)
+          allow(events).to receive(:on_module_created)
+          allow(framework).to receive(:events).and_return(events)
 
           framework
         end
@@ -53,15 +53,15 @@ describe Msf::Modules::Loader::Directory do
         end
 
         it 'should load a module that can be created' do
-          subject.load_module(parent_path, type, module_reference_name).should be_truthy
+          expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
 
           created_module = module_manager.create(module_full_name)
 
-          created_module.name.should == 'MS08-067 Microsoft Server Service Relative Path Stack Corruption'
+          expect(created_module.name).to eq 'MS08-067 Microsoft Server Service Relative Path Stack Corruption'
         end
 
         context 'with module previously loaded' do
-          before(:each) do
+          before(:example) do
             subject.load_module(parent_path, type, module_reference_name)
           end
 
@@ -76,7 +76,7 @@ describe Msf::Modules::Loader::Directory do
             end
 
             it 'should not load the module' do
-              subject.load_module(parent_path, type, module_reference_name).should be_falsey
+              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
           end
 
@@ -91,7 +91,7 @@ describe Msf::Modules::Loader::Directory do
             end
 
             it 'should not load the module' do
-              subject.load_module(parent_path, type, module_reference_name).should be_falsey
+              expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
             end
           end
         end
@@ -106,13 +106,13 @@ describe Msf::Modules::Loader::Directory do
           Errno::ENOENT.new(module_path)
         end
 
-        before(:each) do
-          module_manager.stub(:file_changed? => true)
-          module_manager.stub(:module_load_error_by_path => {})
+        before(:example) do
+          allow(module_manager).to receive(:file_changed?).and_return(true)
+          allow(module_manager).to receive(:module_load_error_by_path).and_return({})
         end
 
         it 'should not raise an error' do
-          File.exist?(module_path).should be_falsey
+          expect(File.exist?(module_path)).to be_falsey
 
           expect {
             subject.load_module(parent_path, type, module_reference_name)
@@ -120,9 +120,9 @@ describe Msf::Modules::Loader::Directory do
         end
 
         it 'should return false' do
-          File.exist?(module_path).should be_falsey
+          expect(File.exist?(module_path)).to be_falsey
 
-          subject.load_module(parent_path, type, module_reference_name).should be_falsey
+          expect(subject.load_module(parent_path, type, module_reference_name)).to be_falsey
         end
       end
     end
@@ -133,14 +133,14 @@ describe Msf::Modules::Loader::Directory do
           'osx/armle/safari_libtiff'
         end
 
-        before(:each) do
-          subject.stub(:load_error).with(module_path, kind_of(Errno::ENOENT))
+        before(:example) do
+          allow(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
         end
 
         # this ensures that the File.exist?(module_path) checks are checking the same path as the code under test
         it 'should attempt to open the expected module_path' do
-          File.should_receive(:open).with(module_path, 'rb')
-          File.exist?(module_path).should be_falsey
+          expect(File).to receive(:open).with(module_path, 'rb')
+          expect(File.exist?(module_path)).to be_falsey
 
           subject.send(:read_module_content, parent_path, type, module_reference_name)
         end
@@ -152,13 +152,13 @@ describe Msf::Modules::Loader::Directory do
         end
 
         it 'should return an empty string' do
-          subject.send(:read_module_content, parent_path, type, module_reference_name).should == ''
+          expect(subject.send(:read_module_content, parent_path, type, module_reference_name)).to eq ''
         end
 
         it 'should record the load error' do
-          subject.should_receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
+          expect(subject).to receive(:load_error).with(module_path, kind_of(Errno::ENOENT))
 
-          subject.send(:read_module_content, parent_path, type, module_reference_name).should == ''
+          expect(subject.send(:read_module_content, parent_path, type, module_reference_name)).to eq ''
         end
       end
     end

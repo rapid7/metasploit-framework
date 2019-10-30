@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -29,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The test path. The default value will not work.", '/']),
         OptString.new('EXT', [ true,  "Extension to include.", '.aspx']),
-      ], self.class)
+      ])
 
   end
 
@@ -85,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
         }, 20)
 
         if (res and res.code >= 200 and res.code < 300)
-          print_status("Found #{wmap_base_url}#{testf}")
+          print_good("Found #{wmap_base_url}#{testf}")
 
           report_web_vuln(
             :host	=> ip,

@@ -7,10 +7,10 @@ module Windows
 module Railgun
 
   # Go through each dll and add a corresponding convenience method of the same name
-  Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_DLLS.each do |api|
+  Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_LIBRARIES['windows'].each do |api|
     # We will be interpolating within an eval. We exercise due paranoia.
     unless api.to_s =~ /^\w+$/
-      print_error 'Something is seriously wrong with Railgun.BUILTIN_DLLS list'
+      print_error 'Something is seriously wrong with Railgun.BUILTIN_LIBRARIES list'
       next
     end
 

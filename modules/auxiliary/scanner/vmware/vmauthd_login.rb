@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,8 +7,7 @@ require 'msf/core/exploit/tcp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vmauthd'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -23,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
                 report successful logins.
       },
       'Author'      => ['theLightCosine'],
-      'References'     =>
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
@@ -32,6 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 
     register_options([Opt::RPORT(902)])
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)
@@ -78,6 +78,12 @@ class Metasploit3 < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      ssl: datastore['SSL'],
+      ssl_version: datastore['SSLVersion'],
+      ssl_verify_mode: datastore['SSLVerifyMode'],
+      ssl_cipher: datastore['SSLCipher'],
+      local_port: datastore['CPORT'],
+      local_host: datastore['CHOST']
     )
 
     scanner.scan! do |result|

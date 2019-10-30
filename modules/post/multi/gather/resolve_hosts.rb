@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
@@ -21,10 +18,11 @@ class Metasploit3 < Msf::Post
     ))
 
       register_options([
-        OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
+        OptString.new('HOSTNAMES', [false, 'Comma separated list of hostnames to resolve.']),
         OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
-        OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
-      ], self.class)
+        OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ]),
+        OptBool.new('DATABASE', [false, 'Report found hosts to DB', true])
+      ])
   end
 
   def run
@@ -61,7 +59,7 @@ class Metasploit3 < Msf::Post
 
     response = client.net.resolve.resolve_hosts(hosts, family)
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Indent' => 0,
       'SortIndex' => -1,
       'Columns' =>
@@ -74,9 +72,17 @@ class Metasploit3 < Msf::Post
     response.each do |result|
       if result[:ip].nil?
         table << [result[:hostname], '[Failed To Resolve]']
-      else
-        table << [result[:hostname], result[:ip]]
+        next
       end
+
+      if datastore['DATABASE']
+        report_host(
+          host: result[:ip],
+          name: result[:hostname]
+        )
+      end
+
+      table << [result[:hostname], result[:ip]]
     end
 
     table.print

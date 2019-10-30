@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 
@@ -36,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
         OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
         OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
-      ], self.class)
+      ])
   end
 
   def run
@@ -74,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     path = ::File.join(datastore['FTPROOT'], Rex::FileUtils.clean_path(arg))
-    if(not ::File.exists?(path))
+    if(not ::File.exist?(path))
       c.put "550 File does not exist\r\n"
       return
     end
@@ -134,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     path = ::File.join(datastore['FTPROOT'], Rex::FileUtils.clean_path(arg))
-    if(not ::File.exists?(path))
+    if(not ::File.exist?(path))
       c.put "550 File does not exist\r\n"
       return
     end
@@ -160,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     npath = ::File.expand_path(::File.join(datastore['FTPROOT'], bpath))
-    if not (::File.exists?(npath) and ::File.directory?(npath))
+    if not (::File.exist?(npath) and ::File.directory?(npath))
       c.put "550 Directory does not exist\r\n"
       return
     end

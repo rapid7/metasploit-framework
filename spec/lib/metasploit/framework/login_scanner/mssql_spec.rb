@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/mssql'
 
-describe Metasploit::Framework::LoginScanner::MSSQL do
+RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
   let(:public) { 'root' }
   let(:private) { 'toor' }
 
@@ -37,7 +37,21 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
   it_behaves_like 'Metasploit::Framework::LoginScanner::NTLM'
   it_behaves_like 'Metasploit::Framework::Tcp::Client'
 
-  it { should respond_to :windows_authentication }
+  it { is_expected.to respond_to :windows_authentication }
+
+  before(:each) do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:password)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return([])
+    allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(true)
+    login_scanner.cred_details = creds
+  end
 
   context 'validations' do
     context '#windows_authentication' do
@@ -69,7 +83,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the is a connection error' do
       it 'returns a result with the connection_error status' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_raise ::Rex::ConnectionError
+        expect(my_scanner).to receive(:mssql_login).and_raise ::Rex::ConnectionError
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
     end
@@ -77,7 +91,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the login fails' do
       it 'returns a result object with a status of Metasploit::Model::Login::Status::INCORRECT' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_return false
+        expect(my_scanner).to receive(:mssql_login).and_return false
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
     end
@@ -85,7 +99,7 @@ describe Metasploit::Framework::LoginScanner::MSSQL do
     context 'when the login succeeds' do
       it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
         my_scanner = login_scanner
-        my_scanner.should_receive(:mssql_login).and_return true
+        expect(my_scanner).to receive(:mssql_login).and_return true
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end

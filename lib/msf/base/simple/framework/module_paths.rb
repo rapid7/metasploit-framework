@@ -9,51 +9,60 @@ module Msf
         def init_module_paths(opts={})
           if @module_paths_inited
             fail "Module paths already initialized.  To add more module paths call `modules.add_module_path`"
-          else
-            # Ensure the module cache is accurate
-            self.modules.refresh_cache_from_database
-
-            add_engine_module_paths(Rails.application, opts)
-
-            Rails.application.railties.engines.each do |engine|
-              add_engine_module_paths(engine, opts)
-            end
-
-            # Initialize the user module search path
-            if (Msf::Config.user_module_directory)
-              self.modules.add_module_path(Msf::Config.user_module_directory, opts)
-            end
-
-            # If additional module paths have been defined globally, then load them.
-            # They should be separated by semi-colons.
-            if self.datastore['MsfModulePaths']
-              self.datastore['MsfModulePaths'].split(";").each { |path|
-                self.modules.add_module_path(path, opts)
-              }
-            end
-
-            @module_paths_inited = true
+            return
           end
+
+          allowed_module_paths = []
+          extract_engine_module_paths(Rails.application).each do |path|
+            allowed_module_paths << path
+          end
+
+          if Msf::Config.user_module_directory
+            allowed_module_paths << Msf::Config.user_module_directory
+          end
+
+          ::Rails::Engine.subclasses.map(&:instance).each do |engine|
+            extract_engine_module_paths(engine).each do |path|
+              allowed_module_paths << path
+            end
+          end
+
+          # If additional module paths have been defined globally, then load them.
+          # They should be separated by semi-colons.
+          self.datastore['MsfModulePaths'].to_s.split(";").each do |path|
+            allowed_module_paths << path
+          end
+
+          # If the caller had additional paths to search, load them.
+          # They should be separated by semi-colons.
+          opts.delete(:module_paths).to_s.split(";").each do |path|
+            allowed_module_paths << path
+          end
+
+          # Remove any duplicate paths
+          allowed_module_paths.uniq!
+
+          # Update the module cache from the database
+          self.modules.refresh_cache_from_database(allowed_module_paths)
+
+          # Load each of the module paths
+          allowed_module_paths.each do |path|
+            self.modules.add_module_path(path, opts)
+          end
+
+          @module_paths_inited = true
         end
 
         private
 
-        # Add directories `engine.paths['modules']` from `engine`.
+        # Extract directories `engine.paths['modules']` from `engine`.
         #
         # @param engine [Rails::Engine] a rails engine or application
-        # @param options [Hash] options for {Msf::ModuleManager::ModulePaths#add_module_paths}
-        # @return [void]
-        def add_engine_module_paths(engine, options={})
-          modules_paths = engine.paths['modules']
-
-          if modules_paths
-            modules_directories = modules_paths.existent_directories
-
-            modules_directories.each do |modules_directory|
-              modules.add_module_path(modules_directory, options)
-            end
-          end
+        # @return [Array<String>] The list of module paths to load
+        def extract_engine_module_paths(engine)
+          engine.paths['modules'] ? engine.paths['modules'].existent_directories : []
         end
+
       end
     end
   end

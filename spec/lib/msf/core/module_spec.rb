@@ -2,14 +2,12 @@
 require 'spec_helper'
 require 'msf/core/module'
 
-describe Msf::Module do
+RSpec.describe Msf::Module do
   subject(:msf_module) {
     described_class.new
   }
 
-  it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :debugging? }
-  it { is_expected.to respond_to_protected :derived_implementor? }
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
@@ -43,7 +41,7 @@ describe Msf::Module do
     }
 
     it { is_expected.to respond_to :cached? }
-    it { is_expected.to respond_to :is_usable }
+    it { is_expected.to respond_to :usable? }
   end
 
   describe "cloning modules into replicants" do
@@ -52,7 +50,7 @@ describe Msf::Module do
 
     describe "#perform_extensions" do
       describe "when there are extensions registered" do
-        before(:each) do
+        before(:example) do
           msf_module.register_extensions(MsfExtensionTestFoo, MsfExtensionTestBar)
         end
 
@@ -63,7 +61,7 @@ describe Msf::Module do
       end
 
       describe "when the datastore key has invalid data" do
-        before(:each) do
+        before(:example) do
           msf_module.datastore[Msf::Module::REPLICANT_EXTENSION_DS_KEY] = "invalid"
         end
 

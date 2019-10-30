@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'rex/proto/kademlia/bootstrap_response'
 
-describe Rex::Proto::Kademlia::BootstrapResponse do
+RSpec.describe Rex::Proto::Kademlia::BootstrapResponse do
   describe '#from_data' do
     it 'properly decodes real valid bootstrap responses' do
       data = IO.read(File.join(File.dirname(__FILE__), 'kademlia_bootstrap_res.bin'))

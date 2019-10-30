@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -20,6 +17,7 @@ class Metasploit4 < Msf::Auxiliary
       },
       'References'     =>
         [
+          ['CVE', '2009-0255'],
           ['OSVDB', '51536'],
           ['URL', 'http://blog.c22.cc/advisories/typo3-sa-2009-001'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-001/'],
@@ -34,7 +32,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('ENC_KEY', [false, "Encryption key if known", '']),
-      ], self.class)
+      ])
   end
 
   def enc_key(seed)
@@ -149,5 +147,4 @@ class Metasploit4 < Msf::Auxiliary
     print_error("#{rhost}:#{rport} [Typo3-SA-2009-001] Failed to retrieve file #{datastore['RFILE']}")
 
   end
-
 end

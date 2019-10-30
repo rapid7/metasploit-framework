@@ -3,7 +3,7 @@ require 'spec_helper'
 
 require 'rex/proto/kerberos'
 
-describe Rex::Proto::Kerberos::Model::PreAuthData do
+RSpec.describe Rex::Proto::Kerberos::Model::PreAuthData do
 
   subject(:pre_auth_data) do
     described_class.new

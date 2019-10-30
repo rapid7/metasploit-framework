@@ -1,16 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
-  include Rex::Platforms::Windows
+  include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(update_info(info,
@@ -56,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
             "The local filesystem path",
             nil
           ]),
-      ], self.class)
+      ])
   end
 
   def check_option(name)
@@ -179,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
       ret, = resp[8,4].unpack('V')
 
       if ret == 0
-        print_status("File #{args[0]} successfully deleted.")
+        print_good("File #{args[0]} successfully deleted.")
       else
         print_error("An error occurred while deleting #{args[0]}: #{ret}.")
       end
@@ -217,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 
     serverprotect_closehandle(handle)
 
-    print_status("File #{args[0]} successfully downloaded.")
+    print_good("File #{args[0]} successfully downloaded.")
   end
 
 
@@ -250,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
 
     serverprotect_closehandle(handle)
 
-    print_status("File #{args[1]} successfully uploaded.")
+    print_good("File #{args[1]} successfully uploaded.")
   end
 
 
@@ -399,5 +394,4 @@ class Metasploit3 < Msf::Auxiliary
       nil
     end
   end
-
 end

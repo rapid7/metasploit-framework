@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -27,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     print_status("Running MS SQL Server Enumeration...")
 
-    if mssql_login_datastore == false
+    if !mssql_login_datastore
       print_error("Login was unsuccessful. Check your credentials.")
       disconnect
       return
@@ -48,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
       :type => 'MSSQL_ENUM',
       :data => "Version: #{sqlversion}")
 
-    #-------------------------------------------------------
-    #Check Configuration Parameters and check what is enabled
+    #---------------------------------------------------------
+    # Check Configuration Parameters and check what is enabled
     print_status("Configuration Parameters:")
     if vernum.join != "2000"
       query = "SELECT name, CAST(value_in_use AS INT) from sys.configurations"
@@ -59,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
         sysconfig[l[0].strip] = l[1].to_i
       end
     else
-      #enable advanced options
+      # enable advanced options
       mssql_query("EXEC sp_configure \'show advanced options\', 1; RECONFIGURE")[:rows]
       query = "EXECUTE sp_configure"
       ver = mssql_query(query)[:rows]
@@ -71,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #checking for C2 Audit Mode
+    # checking for C2 Audit Mode
     if sysconfig['c2 audit mode'] == 1
       print_status("\tC2 Audit Mode is Enabled")
       report_note(:host => datastore['RHOST'],
@@ -89,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #check if xp_cmdshell is enabled
+    # check if xp_cmdshell is enabled
     if vernum.join != "2000"
       if sysconfig['xp_cmdshell'] == 1
         print_status("\txp_cmdshell is Enabled")
@@ -126,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #check if remote access is enabled
+    # check if remote access is enabled
     if sysconfig['remote access'] == 1
       print_status("\tremote access is Enabled")
       report_note(:host => datastore['RHOST'],
@@ -162,7 +159,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #check if Mail stored procedures are enabled
+    # check if Mail stored procedures are enabled
     if vernum.join != "2000"
       if sysconfig['Database Mail XPs'] == 1
         print_status("\tDatabase Mail XPs is Enabled")
@@ -199,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #check if OLE stored procedures are enabled
+    # check if OLE stored procedures are enabled
     if vernum.join != "2000"
       if sysconfig['Ole Automation Procedures'] == 1
         print_status("\tOle Automation Procedures are Enabled")
@@ -451,7 +448,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Check for local accounts with same username as password
+    # Check for local accounts with same username as password
     sameasuser = []
     if vernum.join != "2000"
       sameasuser = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(name, password_hash\) = 1")[:rows]
@@ -479,7 +476,7 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Check for local accounts with empty password
+    # Check for local accounts with empty password
     blankpass = []
     if vernum.join != "2000"
       blankpass = mssql_query("SELECT name FROM sys.sql_logins WHERE PWDCOMPARE\(\'\', password_hash\) = 1")[:rows]
@@ -507,11 +504,12 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     #-------------------------------------------------------
-    #Check for dangerous stored procedures
+    # Check for dangerous stored procedures
     fountsp = []
     dangeroussp = [
       'sp_createorphan',
       'sp_droporphans',
+      'sp_execute_external_script',
       'sp_getschemalock',
       'sp_prepexec',
       'sp_prepexecrpc',
@@ -732,7 +730,7 @@ EOS
     end
 
     #-------------------------------------------------------
-    #Enumerate Instances
+    # Enumerate Instances
     instances =[]
     if vernum.join != "2000"
       querykey = "EXEC master..xp_regenumvalues \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL\'"
@@ -769,7 +767,7 @@ EOS
     end
 
     #---------------------------------------------------------
-    #Enumerate under what accounts the instance services are running under
+    # Enumerate under what accounts the instance services are running under
     print_status("Default Server Instance SQL Server Service is running under the privilege of:")
     privdflt = mssql_query("EXEC master..xp_regread \'HKEY_LOCAL_MACHINE\' ,\'SYSTEM\\CurrentControlSet\\Services\\MSSQLSERVER\',\'ObjectName\'")[:rows]
     if privdflt != nil

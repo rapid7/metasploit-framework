@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -29,8 +24,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '2005-4797' ],
           [ 'BID', '14510' ],
-          [ 'OSVDB', '18650' ],
-          [ 'URL', 'http://sunsolve.sun.com/search/document.do?assetkey=1-26-101842-1'],
+          [ 'OSVDB', '18650' ]
         ]
       ))
 
@@ -38,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           Opt::RPORT(515),
           OptString.new('RPATH', [ true, "The remote file path to delete"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -82,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
       return
     end
 
-    print_status("Successfully deleted #{datastore['RPATH']} >:-]")
+    print_good("Successfully deleted #{datastore['RPATH']} >:-]")
     sock1.close
   end
 
@@ -106,5 +100,4 @@ class Metasploit3 < Msf::Auxiliary
     print_status(sprintf("     Uploaded %.4d bytes >> #{name}", data.length))
     return true
   end
-
 end

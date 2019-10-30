@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/post/windows/priv'
 
-class Metasploit3 < Msf::Post
-
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
@@ -34,7 +32,7 @@ class Metasploit3 < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+    if session.arch == ARCH_X86 and sysinfo['Architecture'] == ARCH_X64
       print_error("x64 platform requires x64 meterpreter and mimikatz extension")
       return
     end
@@ -76,7 +74,7 @@ class Metasploit3 < Msf::Post
       vprint_error("LiveSSP credentials not present")
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header' => "Windows SSO Credentials",
       'Indent' => 0,
       'SortIndex' => 0,
@@ -150,8 +148,7 @@ class Metasploit3 < Msf::Post
       /^LOCAL SYSTEM$/
     ]
 
-    return system_users.find{|r| user.match(r)}
+    system_users.find{|r| user.to_s.match(r)}
   end
-
 end
 

