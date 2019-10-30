@@ -206,8 +206,8 @@ class Client
   # authentication and return the final response
   #
   # @return (see #_send_recv)
-  def send_recv(req, t = -1, persist=false)
-    res = _send_recv(req,t,persist)
+  def send_recv(req, t = -1, persist = false, opts = {})
+    res = _send_recv(req, t, persist, opts)
     if res and res.code == 401 and res.headers['WWW-Authenticate']
       res = send_auth(res, req.opts, t, persist)
     end
@@ -224,10 +224,10 @@ class Client
   # authentication handling.
   #
   # @return (see #read_response)
-  def _send_recv(req, t = -1, persist=false)
+  def _send_recv(req, t = -1, persist = false, opts = {})
     @pipeline = persist
     send_request(req, t)
-    res = read_response(t)
+    res = read_response(t, opts)
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
     res
@@ -605,6 +605,9 @@ class Client
     end
 
     resp
+  rescue Timeout::Error
+    # Allow partial response due to timeout
+    resp if opts['partial']
   end
 
   #
