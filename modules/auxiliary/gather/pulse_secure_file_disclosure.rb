@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
 
         For the "Manual" action, please specify a file to dump via the "FILE"
         option. /etc/passwd will be dumped by default. If the "PRINT" option is
-        set, file contents will be dumped to the screen, with any unprintable
+        set, file contents will be printed to the screen, with any unprintable
         characters replaced by a period.
       },
       'Author'              => [
