@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           false,
           'Print file contents (manual mode only)',
-          false
+          true
         ]
       )
     ])
