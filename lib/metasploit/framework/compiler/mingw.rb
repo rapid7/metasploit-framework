@@ -1,4 +1,5 @@
 require 'msf/util/helper'
+require 'open3'
 
 module Metasploit
   module Framework
@@ -26,7 +27,8 @@ module Metasploit
         def self.compile_c(src, opts={})
           cmd = self.build_cmd(src, opts)
 
-          system(cmd)
+          stdin_err, status = Open3.capture2e(cmd)
+          stdin_err
         end
 
         def self.build_cmd(src, opts={})
