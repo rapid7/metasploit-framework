@@ -38,31 +38,31 @@ def build( name ):
 		p.wait()
 		xmit( name )
 	else:
-		print "[-] Unable to locate '%s.asm' in the src directory" % name
+		print("[-] Unable to locate '%s.asm' in the src directory" % name)
 
 #=============================================================================#
 def xmit_dump_ruby( data, length=16 ):
 	dump = ""
-	for i in xrange( 0, len( data ), length ):
+	for i in range( 0, len( data ), length ):
 		bytes = data[ i : i+length ]
 		hex = "\"%s\"" % ( ''.join( [ "\\x%02X" % ord(x) for x in bytes ] ) )
 		if i+length <= len(data):
 			hex += " +"
 		dump += "%s\n" % ( hex )
-	print dump
+	print(dump)
 
 #=============================================================================#
 def xmit_offset( data, name, value, match_offset=0 ):
 	offset = data.find( value );
 	if offset != -1:
-		print "# %s Offset: %d" % ( name, offset + match_offset )
+		print("# %s Offset: %d" % ( name, offset + match_offset ))
 
 #=============================================================================#
 def xmit( name, dump_ruby=True ):
 	bin = os.path.normpath( os.path.join( "./bin/", "%s.bin" % name ) )
 	f = open( bin, 'rb')
 	data = f.read()
-	print "# Name: %s\n# Length: %d bytes" % ( name, len( data ) )
+	print("# Name: %s\n# Length: %d bytes" % ( name, len( data ) ))
 	xmit_offset( data, "Port", pack( ">H", 4444 ) )           # 4444
 	xmit_offset( data, "LEPort", pack( "<H", 4444 ) )         # 4444
 	xmit_offset( data, "Host", pack( ">L", 0x7F000001 ) )     # 127.0.0.1
@@ -84,7 +84,7 @@ def xmit( name, dump_ruby=True ):
 	if( name.find( "egghunter" ) >= 0 ):
 		null_count = data.count( "\x00" )
 		if( null_count > 0 ):
-			print "# Note: %d NULL bytes found." % ( null_count )
+			print("# Note: %d NULL bytes found." % ( null_count ))
 	if dump_ruby:
 		xmit_dump_ruby( data )
 
@@ -94,9 +94,9 @@ def main( argv=None ):
 		argv = sys.argv
 	try:
 		if len( argv ) == 1:
-			print "Usage: build.py [clean|all|<name>]"
+			print("Usage: build.py [clean|all|<name>]")
 		else:
-			print "# Built on %s\n" % (  time.asctime( time.localtime() ) )
+			print("# Built on %s\n" % (  time.asctime( time.localtime() ) ))
 			if argv[1] == "clean":
 				clean()
 			elif argv[1] == "all":
@@ -120,8 +120,8 @@ def main( argv=None ):
 						build( name[:-4] )
 			else:
 				build( argv[1] )
-	except Exception, e:
-		print "[-] ", e
+	except Exception as e:
+		print("[-] ", e)
 #=============================================================================#
 if __name__ == "__main__":
   main()

