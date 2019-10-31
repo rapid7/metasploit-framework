@@ -23,8 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         set, file contents will be printed to the screen, with any unprintable
         characters replaced by a period.
 
-        Please see related module exploit/linux/http/pulse_secure_cmd_exec to
-        see what you can do with a valid session or credentials.
+        Please see related module exploit/linux/http/pulse_secure_cmd_exec for
+        a post-auth exploit that can leverage the results from this module.
       },
       'Author'              => [
         'Orange Tsai',    # Discovery (@orange_8361)
