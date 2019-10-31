@@ -203,4 +203,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'aws-sdk-s3'
   spec.add_runtime_dependency 'aws-sdk-ec2'
   spec.add_runtime_dependency 'aws-sdk-iam'
+  
+  # Bugfix: add faraday dependency.
+  spec.add_runtime_dependency 'faraday'
 end
