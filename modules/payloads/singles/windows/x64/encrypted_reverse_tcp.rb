@@ -31,7 +31,6 @@ module MetasploitModule
 
     register_advanced_options(
     [
-      OptPath.new('AlignObj', [ false, 'Object file to help with stack alignment', "#{Metasploit::Framework::Compiler::Mingw::UTILITY_DIR}/AdjustStack.o" ]),
       OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order64.ld" ])
     ])
   end

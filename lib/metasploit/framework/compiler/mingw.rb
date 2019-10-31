@@ -59,8 +59,6 @@ module Metasploit
           cmd << '-fno-ident '
           cmd << opt_level
 
-          cmd << "#{opts[:align_obj]} " unless opts[:align_obj].empty?
-
           link_options << '--no-seh,'
           link_options << '-s,' if opts[:strip_symbols]
           link_options << "-T#{opts[:linker_script]}" if opts[:linker_script]

