@@ -12,6 +12,9 @@ option. `/etc/passwd` will be dumped by default. If the `PRINT` option is
 set, file contents will be printed to the screen, with any unprintable
 characters replaced by a period.
 
+Please see related module exploit/linux/http/pulse_secure_cmd_exec to
+see what you can do with a valid session or credentials.
+
 ## Actions
 
 ```
