@@ -24,6 +24,7 @@ class ClientRequest
     'headers'                => nil,
     'raw_headers'            => '',
     'method'                 => 'GET',
+    'partial'                => false,
     'path_info'              => '',
     'port'                   => 80,
     'proto'                  => 'HTTP',

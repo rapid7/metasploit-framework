@@ -66,7 +66,8 @@ class Client
       'uri_fake_end'           => 'bool',
       'uri_fake_params_start'  => 'bool',
       'header_folding'         => 'bool',
-      'chunked_size'           => 'integer'
+      'chunked_size'           => 'integer',
+      'partial'                => 'bool'
     }
 
 
@@ -206,8 +207,8 @@ class Client
   # authentication and return the final response
   #
   # @return (see #_send_recv)
-  def send_recv(req, t = -1, persist = false, opts = {})
-    res = _send_recv(req, t, persist, opts)
+  def send_recv(req, t = -1, persist = false)
+    res = _send_recv(req, t, persist)
     if res and res.code == 401 and res.headers['WWW-Authenticate']
       res = send_auth(res, req.opts, t, persist)
     end
@@ -224,10 +225,10 @@ class Client
   # authentication handling.
   #
   # @return (see #read_response)
-  def _send_recv(req, t = -1, persist = false, opts = {})
+  def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
     send_request(req, t)
-    res = read_response(t, opts)
+    res = read_response(t)
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
     res
@@ -607,7 +608,7 @@ class Client
     resp
   rescue Timeout::Error
     # Allow partial response due to timeout
-    resp if opts['partial']
+    resp if config['partial']
   end
 
   #
