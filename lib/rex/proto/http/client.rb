@@ -117,7 +117,7 @@ class Client
   # @option opts 'method'        [String] HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
   # @option opts 'proto'         [String] protocol, default: HTTP
   # @option opts 'query'         [String] raw query string
-  # @option opts 'raw_headers'   [Hash]   HTTP headers
+  # @option opts 'raw_headers'   [String] Raw HTTP headers
   # @option opts 'uri'           [String] the URI to request
   # @option opts 'version'       [String] version of the protocol, default: 1.1
   # @option opts 'vhost'         [String] Host header value
