@@ -22,7 +22,7 @@ class OptAddressLocal < OptAddress
     # Strip interface name from address (see getifaddrs(3))
     addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
       begin
-        IPAddr.new(addr)
+        IPAddr.new(addr).ipv4? && !addr[/^127.*/]
       rescue IPAddr::InvalidAddressError
         false
       end
