@@ -44,7 +44,7 @@ module Msf::Module::Deprecated
       add_warning do
         if fullname == self.class.deprecated_name
           [ "*%red" + "The module #{fullname} has been moved!".center(88) + "%clr*",
-            "*" + "You are now using #{realname}".center(88) + "*" ]
+            "*" + "You are using #{realname}".center(88) + "*" ]
         end
       end
     end
