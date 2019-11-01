@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{ Post module to dump the password hashes for all users on a BSD system. },
       'License'       => MSF_LICENSE,
       'Author'        => ['bcoles'],
-      'Platform'      => ['linux'],
+      'Platform'      => ['bsd'],
       'SessionTypes'  => ['shell', 'meterpreter']
     ))
   end
