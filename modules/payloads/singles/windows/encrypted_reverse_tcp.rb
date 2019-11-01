@@ -21,7 +21,11 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Windows Encrypted Reverse Shell',
       'Description'   => 'Connect back to attacker and spawn an encrypted command shell',
-      'Author'        => [ 'Shelby Pace' ],
+      'Author'        =>
+      [
+        'Matt Graeber',
+        'Shelby Pace'
+      ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,

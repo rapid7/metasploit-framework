@@ -15,7 +15,11 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'Encrypted Reverse TCP Stager',
       'Description' => 'Connect to MSF and read in stage',
-      'Author'      => [ 'Shelby Pace' ],
+      'Author'      =>
+      [
+        'Matt Graeber',
+        'Shelby Pace'
+      ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,

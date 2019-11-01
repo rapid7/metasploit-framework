@@ -17,7 +17,11 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Windows Command Shell',
       'Description'   => 'Spawn a piped command shell (staged)',
-      'Author'        => [ 'Shelby Pace' ],
+      'Author'        =>
+      [
+        'Matt Graeber',
+        'Shelby Pace'
+      ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_X64,
