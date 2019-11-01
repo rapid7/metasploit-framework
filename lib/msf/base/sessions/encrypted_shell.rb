@@ -68,7 +68,6 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
     @key = new_key
     @iv = block_count + new_nonce
-    Rex.sleep(0.5)
   end
 
   ##
