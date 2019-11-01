@@ -16,8 +16,6 @@ group :development do
   gem 'redcarpet'
   # generating documentation
   gem 'yard'
-  # for development and testing purposes
-
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
@@ -32,6 +30,7 @@ group :development, :test do
   gem 'fivemat'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
+  # for development and testing purposes
   gem 'pry'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
