@@ -98,7 +98,7 @@ def scan( dll_path, dll_name, print_hashes=False, print_collisions=True ):
       h = hash( dll_name, export.name, print_hash=print_hashes )
       for ( col_hash, col_name ) in collisions:
         if col_hash == h and col_name != "%s!%s" % (dll_name, export.name):
-          if h not in list(collisions_detected.keys()):
+          if h not in collisions_detected.keys():
             collisions_detected[h] = []
           collisions_detected[h].append( (dll_path, dll_name, export.name) )
           break
@@ -112,7 +112,7 @@ def scan_directory( dir ):
       if file_name[-4:] == ".dll":# or file_name[-4:] == ".exe":
         scan( dot, file_name )
   print("\n[+] Found %d Collisions.\n" % ( len(collisions_detected) ))
-  for h in list(collisions_detected.keys()):
+  for h in collisions_detected.keys():
     for (col_hash, col_name ) in collisions:
       if h == col_hash:
         detected_name = col_name

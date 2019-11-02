@@ -12,8 +12,8 @@ def run_scanner(args, login_callback):
     rhost = args['rhost']
     rport = int(args['rport'])
     sleep_interval = float(args['sleep_interval'] or 0)
-
-    if isinstance(userpass, str) or isinstance(userpass, str):
+    # python 2/3 compatibility hack
+    if isinstance(userpass, str) or ('unicode' in vars(__builtins__) and isinstance(userpass, unicode)):
         userpass = [ attempt.split(' ', 1) for attempt in userpass.splitlines() ]
 
     curr = 0
