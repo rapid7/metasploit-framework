@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import print_function
 
 '''
 .       .1111...          | Title: office365userenum.py
@@ -9,7 +9,7 @@
 1                  01..   | Description:
                     ..    | Enumerate valid usernames from Office 365 using
                    ..     | ActiveSync.
-GrimHacker        ..      | Requires: Python 3.6, python-requests
+GrimHacker        ..      | Requires: Python 2.7 or 3.6, python-requests
                  ..       |
 grimhacker.com  ..        |
 @grimhacker    ..         |
@@ -40,7 +40,10 @@ import threading
 import logging
 import sys
 
-import queue
+if sys.version_info <= (3, 0):
+    import Queue as queue
+else:
+    import queue
 
 dependencies_missing = False
 try:
