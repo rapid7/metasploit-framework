@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
   def hash_file
     wrote_hash = false
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: ['mssql', 'mssql05', 'mssql12']).each do |hash|
+    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace_id }, jtr_format: ['mssql', 'mssql05', 'mssql12']).each do |hash|
       # Track the formats that we've seen so we do not attempt a format that isn't relevant
       @formats << hash.jtr_format
       hash.cores.each do |core|
