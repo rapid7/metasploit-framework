@@ -16,15 +16,15 @@
 
   **EXE_PATH**
 
-  Path to the `screencap` executable on android device. Default is `/system/bin/screencap`.
+  Path to the `screencap` executable on Android device. Default is `/system/bin/screencap`.
 
   **TMP_PATH**
 
-  Path to temp directory on android device to save the screenshot to temporarily. Default is `/data/local/tmp/`.
+  Path to temp directory on Android device to save the screenshot to temporarily. Default is `/data/local/tmp/`.
 
 ## Scenarios
 
-### Samsung Galaxy S3 Verizon (SCH-I535 w/ android 4.4.2, kernel 3.4.0)
+### Samsung Galaxy S3 Verizon (SCH-I535 w/ Android 4.4.2, kernel 3.4.0)
 
 Utilizing futex_requeue to get root access.
 
