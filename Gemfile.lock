@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.59)
+    metasploit-framework (5.0.60)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -225,7 +225,7 @@ GEM
     net-ssh (5.2.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.10.4)
+    nokogiri (1.10.5)
       mini_portile2 (~> 2.4.0)
     octokit (4.14.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -235,7 +235,7 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.13.0)
-    pdf-reader (2.2.1)
+    pdf-reader (2.3.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
