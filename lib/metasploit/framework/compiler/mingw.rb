@@ -39,7 +39,7 @@ module Metasploit
           path = File.join(Msf::Config.install_root, "#{src_file}.c")
           File.write(path, src)
 
-          opt_level = [ 'Os', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
+          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
 
           case opts[:arch]
           when 'x86'
@@ -71,7 +71,7 @@ module Metasploit
         end
 
         def self.cleanup_files(opts={})
-          file_base = opts[:f_name].split('.').first
+          file_base = File.basename(opts[:f_name], '.exe')
           src_file = "#{file_base}.c"
           exe_file = "#{file_base}.exe"
           file_path = Msf::Config.install_root
