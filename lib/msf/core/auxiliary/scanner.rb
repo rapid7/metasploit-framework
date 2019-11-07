@@ -18,7 +18,7 @@ def initialize(info = {})
 
   register_options([
       Opt::RHOSTS,
-      OptInt.new('THREADS', [ true, "The number of concurrent threads (max 1 per rhost)", 1 ] )
+      OptInt.new('THREADS', [ true, "The number of concurrent threads (max one per host)", 1 ] )
     ], Auxiliary::Scanner)
 
   register_advanced_options([
