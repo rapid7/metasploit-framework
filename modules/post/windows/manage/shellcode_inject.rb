@@ -53,13 +53,13 @@ class MetasploitModule < Msf::Post
     end
 
     if pid == 0
+      p = create_temp_proc(bits)
+      print_status("Spawned process #{p.pid}")
+    else
       if not has_pid?(pid)
         print_error("Process #{pid} was not found")
         return false
       end
-      p = create_temp_proc(bits)
-      print_status("Spawned process #{p.pid}")
-    else
       p = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
       print_status("Opening process #{p.pid}")
     end
