@@ -38,9 +38,9 @@ loofah, 2.3.1, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 2.0.14, "New BSD"
-metasploit-framework, 4.17.92, "New BSD"
+metasploit-framework, 4.17.93, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
-metasploit-payloads, 1.3.78, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 1.3.79, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 2.0.17, "New BSD"
 metasploit_payloads-mettle, 0.5.16, "3-clause (or ""modified"") BSD"
 method_source, 0.9.2, MIT
@@ -53,14 +53,14 @@ nessus_rest, 0.1.6, MIT
 net-ssh, 5.2.0, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.2.1, "New BSD"
-nokogiri, 1.10.4, MIT
+nokogiri, 1.10.5, MIT
 octokit, 4.14.0, MIT
 openssl-ccm, 1.2.2, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
 patch_finder, 1.0.2, "New BSD"
 pcaprub, 0.13.0, LGPL-2.1
-pdf-reader, 2.2.1, MIT
+pdf-reader, 2.3.0, MIT
 pg, 0.21.0, "New BSD"
 pg_array_parser, 0.0.9, unknown
 postgres_ext, 3.0.1, MIT
