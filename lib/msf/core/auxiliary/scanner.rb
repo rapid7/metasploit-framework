@@ -18,7 +18,7 @@ def initialize(info = {})
 
   register_options([
       OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
-      OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
+      OptInt.new('THREADS', [ true, "The number of concurrent threads (max one per host)", 1 ] )
     ], Auxiliary::Scanner)
 
   # RHOST should not be used in scanner modules, only RHOSTS
