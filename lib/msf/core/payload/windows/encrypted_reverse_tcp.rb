@@ -52,10 +52,11 @@ module Payload::Windows::EncryptedReverseTcp
       src = generate_c_src(conf)
     end
 
+    link_script = module_info['DefaultOptions']['LinkerScript']
     compile_opts =
     {
       strip_symbols: datastore['StripSymbols'],
-      linker_script: datastore['LinkerScript'],
+      linker_script: link_script,
       opt_lvl:       datastore['OptLevel'],
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
@@ -116,10 +117,11 @@ module Payload::Windows::EncryptedReverseTcp
     end
     iv = "\x01\x00\x00\x00" + nonce
 
+    link_script = module_info['DefaultOptions']['LinkerScript']
     comp_opts =
     {
       strip_symbols: false,
-      linker_script: datastore['LinkerScript'],
+      linker_script: link_script,
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
       f_name:        'reverse_pic_stage.exe',

@@ -39,7 +39,7 @@ module Metasploit
           path = File.join(Msf::Config.install_root, "#{src_file}.c")
           File.write(path, src)
 
-          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
+          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
 
           case opts[:arch]
           when 'x86'

@@ -20,8 +20,7 @@ module Msf
       register_advanced_options(
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
-        OptString.new('OptLevel', [ false, 'The optimization level to compile with, e.g. O0, O1, O2, O3, Os', 'O2' ]),
-        OptPath.new('LinkerScript', [ false, 'Linker script that orders payload functions', "#{LINK_SCRIPT_PATH}/func_order.ld" ]),
+        OptString.new('OptLevel', [ false, 'The optimization level to compile with, e.g. O0, O1, O2, O3, Os', 'O2', 'Og' ]),
         OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', true ]),
         OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', true ]),
         OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', true ])

@@ -19,19 +19,20 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows Encrypted Reverse Shell',
-      'Description'   => 'Connect back to attacker and spawn an encrypted command shell',
-      'Author'        =>
+      'Name'            => 'Windows Encrypted Reverse Shell',
+      'Description'     => 'Connect back to attacker and spawn an encrypted command shell',
+      'Author'          =>
       [
         'Matt Graeber',
         'Shelby Pace'
       ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::EncryptedShell,
-      'Dependency'    => Msf::Compilers::Mingw
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'win',
+      'Arch'            => ARCH_X86,
+      'Handler'         => Msf::Handler::ReverseTcp,
+      'Session'         => Msf::Sessions::EncryptedShell,
+      'DefaultOptions'  => { 'LinkerScript' => "#{LINK_SCRIPT_PATH}/func_order.ld" },
+      'Dependency'      => Msf::Compilers::Mingw
       ))
   end
 end
