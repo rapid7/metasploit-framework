@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'metasploit/framework/jtr/wordlist'
+require 'metasploit/framework/password_crackers/wordlist'
 
-RSpec.describe Metasploit::Framework::JtR::Wordlist do
+RSpec.describe Metasploit::Framework::PasswordCracker::Wordlist do
 
   subject(:wordlist) { described_class.new }
 
@@ -80,7 +80,7 @@ RSpec.describe Metasploit::Framework::JtR::Wordlist do
 
   describe '#valid!' do
     it 'raises an InvalidWordlist exception if not valid?' do
-      expect{ wordlist.valid! }.to raise_error Metasploit::Framework::JtR::InvalidWordlist
+      expect{ wordlist.valid! }.to raise_error Metasploit::Framework::PasswordCracker::InvalidWordlist
     end
   end
 

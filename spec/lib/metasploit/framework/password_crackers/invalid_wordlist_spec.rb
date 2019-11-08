@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'metasploit/framework/jtr/invalid_wordlist'
+require 'metasploit/framework/password_crackers/invalid_wordlist'
 
-RSpec.describe Metasploit::Framework::JtR::InvalidWordlist do
+RSpec.describe Metasploit::Framework::PasswordCracker::InvalidWordlist do
 
   subject(:invalid) do
     described_class.new(model)

