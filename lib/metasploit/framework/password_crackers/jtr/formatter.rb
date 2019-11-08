@@ -50,8 +50,8 @@ def hash_to_jtr(cred)
       if cred.private.jtr_format.start_with?('des') # 'des,oracle', not oracle11/12c
         return "#{cred.public.username}:O$#{cred.public.username}##{cred.private.data}:#{cred.id}:"
       end
-    when /md5|des|bsdi|crypt|bf/
-      # md5(crypt), des(crypt), b(crypt)
+    when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
+      # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
       return "#{cred.public.username}:#{cred.private.data}:::::#{cred.id}:"
     when /qnx/
       # https://moar.so/blog/qnx-password-hash-formats.html
@@ -61,6 +61,7 @@ def hash_to_jtr(cred)
       # /mysql|mysql-sha1/
       # /mssql|mssql05|mssql12/
       # /des(crypt)/
+      # /mediawiki|phpass|atlassian/
       return "#{cred.public.username}:#{cred.private.data}:#{cred.id}:"
     end
   end

@@ -1,6 +1,6 @@
 module Metasploit
   module Framework
-    module JtR
+    module PasswordCracker
 
       # This class is the generic Exception raised by a {Wordlist} when
       # it fails validation. It rolls up all validation errors into a
