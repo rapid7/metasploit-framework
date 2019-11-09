@@ -138,7 +138,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def test_keys
-    results = {}
     if key_file && File.readable?(key_file)
       keys = Array(read_keyfile(key_file))
     elsif !key_dir.nil? && !key_dir.empty?
@@ -147,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       @key_files ||= Dir.glob("#{key_dir}/**/id_*", File::FNM_DOTMATCH).reject { |f| f.include? '.pub' }
       keys = read_keyfile(@key_files)
     else
-      return results
+      return {}
     end
 
     check_git_keys(keys)
