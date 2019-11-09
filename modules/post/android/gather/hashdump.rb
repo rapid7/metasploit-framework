@@ -120,14 +120,17 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]]
-    unless salt.to_s.length == 19
+    salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]] may also be negative, therefore 20 char
+    unless salt.to_s.length.between?(19,20)
       print_error("Unable to pull salt from database.  Command output: #{salt}")
       return
     end
 
     # convert from number string to hex and lowercase
     salt = salt.to_i.to_s(16)
+    if salt.start_with?('-')
+      salt[0] = '' # fastest way to remove first character
+    end
     print_good("Password Salt: #{salt}")
 
     sha1 = hash[0...40]

@@ -49,6 +49,17 @@ module Metasploit
         #   @return [String] The incremental mode to use
         attr_accessor :incremental
 
+        # @!attribute increment_length
+        #   @return [Array] The incremental min and max to use
+        attr_accessor :increment_length
+
+        # @!attribute mask
+        #  If the cracker type is hashcat, If set, the mask to use.  Should consist of the character sets 
+        #  pre-defined by hashcat, such as ?d ?s ?l etc
+        #
+        #   @return [String] The mask to use
+        attr_accessor :mask
+
         # @!attribute max_runtime
         #   @return [Integer] An optional maximum duration of the cracking attempt in seconds
         attr_accessor :max_runtime
@@ -161,6 +172,8 @@ module Metasploit
             '400'
           when 'mediawiki' # mediawiki b type
             '3711'
+          when 'android-sha1'
+            '5800'
           else
             nil
           end
@@ -169,12 +182,14 @@ module Metasploit
 
         # This method sets the appropriate parameters to run a cracker in incremental mode
         def mode_incremental
+          self.increment_length = nil
+          self.wordlist = nil
+          self.mask = nil
+          self.max_runtime = nil
           if cracker == 'john'
-            self.wordlist = nil
             self.rules = nil
             self.incremental = 'Digits'
           elsif cracker == 'hashcat'
-            self.wordlist = nil
             self.attack = '3'
             self.incremental = true
           end
@@ -185,14 +200,29 @@ module Metasploit
         #
         # @param[String] a file location of the wordlist to use
         def mode_wordlist(file)
+          self.increment_length = nil
+          self.incremental = nil
+          self.max_runtime = nil
+          self.mask = nil
           if cracker == 'john'
             self.wordlist = file
             self.rules = 'wordlist'
-            self.incremental = nil
           elsif cracker == 'hashcat'
             self.wordlist = file
             self.attack = '0'
-            self.incremental = nil
+          end
+        end
+
+
+        # This method sets the appropriate parameters to run a cracker in a pin mode (4-8 digits) on hashcat
+        def mode_pin
+          self.rules = nil
+          if cracker == 'hashcat'
+            self.attack = '3'
+            self.mask = '?d'*8
+            self.incremental = true
+            self.increment_length = [4,8]
+            self.max_runtime = 300 #5min on an i7 got through 4-7 digits. 8digit was 32min more
           end
         end
 
@@ -200,9 +230,12 @@ module Metasploit
         # This method sets the john to 'normal' mode
         def mode_normal
           if cracker == 'john'
+            self.max_runtime = nil
+            self.mask = nil
             self.wordlist = nil
             self.rules = nil
             self.incremental = nil
+            self.increment_length = nil
           end
         end
 
@@ -215,6 +248,8 @@ module Metasploit
             self.wordlist = file
             self.rules = 'single'
             self.incremental = nil
+            self.increment_length = nil
+            self.mask = nil
           end
         end
 
@@ -365,11 +400,16 @@ module Metasploit
 
           if incremental.present?
             cmd << ( "--increment")
-            cmd << ( "--increment-max=4") 
-            # anything more than max 4 on even des took 8+min on an i7.
-            # maybe in the future this can be adjusted or made a variable
-            # but current time, we'll leave it as this seems like reasonable
-            # time expectation for a module to run
+            if increment_length.present?
+              cmd << ( "--increment-min=" + increment_length[0].to_s)
+              cmd << ( "--increment-max=" + increment_length[1].to_s)
+            else
+              # anything more than max 4 on even des took 8+min on an i7.
+              # maybe in the future this can be adjusted or made a variable
+              # but current time, we'll leave it as this seems like reasonable
+              # time expectation for a module to run
+              cmd << ( "--increment-max=4")
+            end
           end
 
           if rules.present?
@@ -381,10 +421,14 @@ module Metasploit
           end
 
           if max_runtime.present?
-            cmd << ( "--runtime=" + max_runtime.to_s)
+            cmd << ( "--runtime=" + max_runtime.to_s )
           end
 
           cmd << hash_path
+
+          if mask.present?
+            cmd << mask.to_s
+          end
 
           # must be last
           if wordlist.present?
