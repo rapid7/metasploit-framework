@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST,
         Opt::RPORT(9222),
         OptString.new('FilePath', [ false, 'File to fetch from remote machine.']),
-        OptString.new('Url', [ false, 'Url to fetch from remote machine.'])
+        OptString.new('Url', [ false, 'Url to fetch from remote machine.']),
+        OptInt.new('Timeout', [ true, 'Time to wait for response', 10])
       ]
     )
 
@@ -60,7 +61,12 @@ class MetasploitModule < Msf::Auxiliary
         else
           fetch_uri = url
         end
+
         print_status("Attempting Connection to #{data['webSocketDebuggerUrl']}")
+
+        if not data.key?('webSocketDebuggerUrl')
+          fail_with(Failure::Unknown, "Invalid JSON")
+        end
 
         driver = Faye::WebSocket::Client.new(data['webSocketDebuggerUrl'])
 
@@ -102,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
-        EM::Timer.new(10) do
+        EM::Timer.new(datastore['Timeout']) do
           EventMachine.stop
         end
       }

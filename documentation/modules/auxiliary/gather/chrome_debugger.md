@@ -1,6 +1,6 @@
 # Chrome Debugger Arbitary File Read / Abitrary Web Request Auxiliary Module
 
-This module takes advantage of misconfigured headless chrome sessions and either retrieves a specifiedfile off the remote file system, or makes a web request from the remote machine.
+This module takes advantage of misconfigured headless chrome sessions and either retrieves a specified file off the remote file system, or makes a web request from the remote machine.
 
 ## Headless Chrome Sessions
 	
