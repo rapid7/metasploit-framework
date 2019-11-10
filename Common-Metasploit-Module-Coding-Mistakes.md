@@ -15,7 +15,7 @@ Note: Some of these examples use puts() for demo purposes, but you should always
 5. Using exception handling to shut an error up
 6. Not taking advantage of the 'ensure' block
 7. Adding the 'VERBOSE' option
-8. Avoid using 'vars_post' for send_request_cgi() when crafting a POST request
+8. Neglecting to use 'vars_post' for send_request_cgi() when crafting a POST request
 9. Bad variable naming style
 10. Using global variables
 11. Modifying the datastore during execution
@@ -146,7 +146,7 @@ register_options(
   ], self.class)
 ```
 
-**8. Avoid using send_request_cgi()'s vars_get or vars_get when crafting a POST/GET request**
+**8. Neglecting to use send_request_cgi()'s vars_get or vars_get when crafting a POST/GET request**
 
 ```ruby
 data_post = 'user=jsmith&pass=hello123'
