@@ -112,7 +112,7 @@ class PayloadSet < ModuleSet
       # and doesn't have the dependency installed
       stager_dependency = stager_inst.dependency
       if stager_dependency && (!framework.has_mingw || !OpenSSL::Cipher.ciphers.include?('chacha20'))
-        elog("Unable to build payload #{name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
+        elog("Unable to build payload #{stager_name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
         next
       end
 
