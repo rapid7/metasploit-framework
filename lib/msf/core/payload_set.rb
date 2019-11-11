@@ -81,7 +81,10 @@ class PayloadSet < ModuleSet
       # Pass if the payload has a dependency and
       # the dependency is unavailable
       payload_dependency = op[4].dependency
-      next if payload_dependency && !framework.has_mingw
+      if payload_dependency && (!framework.has_mingw || !OpenSSL::Cipher.ciphers.include?('chacha20'))
+        elog("Unable to build payload #{name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
+        next
+      end
 
       # Build the payload dupe using the determined handler
       # and module
@@ -108,7 +111,10 @@ class PayloadSet < ModuleSet
       # Pass if the stager has a dependency
       # and doesn't have the dependency installed
       stager_dependency = stager_inst.dependency
-      next if stager_dependency && !framework.has_mingw
+      if stager_dependency && (!framework.has_mingw || !OpenSSL::Cipher.ciphers.include?('chacha20'))
+        elog("Unable to build payload #{name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
+        next
+      end
 
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
