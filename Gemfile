@@ -5,8 +5,6 @@ gemspec name: 'metasploit-framework'
 
 gem 'sqlite3', '~>1.3.0'
 
-gem 'memory_profiler'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -32,6 +30,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   # Make rspec output shorter and more useful
   gem 'fivemat'
+  gem 'memory_profiler'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
