@@ -13,8 +13,6 @@ while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
-require 'backports'
-
 class Msfupdate
   attr_reader :stdin
   attr_reader :stdout
