@@ -184,6 +184,7 @@ GEM
     loofah (2.4.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
+    memory_profiler (0.9.14)
     metasm (1.0.4)
     metasploit-concern (2.0.5)
       activemodel (~> 4.2.6)
@@ -395,6 +396,7 @@ PLATFORMS
 DEPENDENCIES
   factory_bot_rails
   fivemat
+  memory_profiler
   metasploit-framework!
   octokit
   pry

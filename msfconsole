@@ -5,13 +5,9 @@
 # framework.
 #
 
-#
-# Standard Library
-#
-
 require 'pathname'
 
-if ENV['METASPLOIT_FRAMEWORK_PROFILE'] == 'true'
+if ENV['METASPLOIT_CPU_PROFILE']
   gem 'perftools.rb'
   require 'perftools'
 
@@ -37,12 +33,17 @@ if ENV['METASPLOIT_FRAMEWORK_PROFILE'] == 'true'
   }
 end
 
-#
-# Project
-#
+if ENV['METASPLOIT_MEMORY_PROFILE']
+  require 'memory_profiler'
+  MemoryProfiler.start
+  at_exit {
+    report = MemoryProfiler.stop
+    report.pretty_print(to_file: 'memory.profile')
+  }
+end
 
-# @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
 begin
+# @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
   require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
   require 'metasploit/framework/command/console'
   require 'msf/core/payload_generator'
@@ -51,3 +52,4 @@ rescue Interrupt
   puts "\nAborting..."
   exit(1)
 end
+
