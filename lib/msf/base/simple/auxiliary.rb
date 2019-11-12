@@ -109,6 +109,8 @@ module Auxiliary
   # 	The local output through which data can be displayed.
   #
   def self.check_simple(mod, opts)
+    Msf::Simple::Framework.simplify_module(mod, false)
+
     mod._import_extra_options(opts)
     if opts['LocalInput']
       mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
