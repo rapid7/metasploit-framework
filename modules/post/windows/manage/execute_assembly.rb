@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Post
     print_status('Start reading output')
     begin
       loop do
-        output = process.channel.read 
+        output = process.channel.read
         output.split("\n").each { |x| print_good(x) }
         break if output.length == 0
       end
