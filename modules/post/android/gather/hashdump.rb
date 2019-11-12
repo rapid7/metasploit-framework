@@ -43,6 +43,9 @@ class MetasploitModule < Msf::Post
     file_name = File.basename(location)
     ['', '-wal', '-shm'].each do |ext|
       l = location + ext
+      unless file_exist?(l)
+        next
+      end
       f = file_name + ext
       data = read_file(l)
       if data.blank?
@@ -114,10 +117,6 @@ class MetasploitModule < Msf::Post
     end
 
     salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]] may also be negative, therefore 20 char
-    unless salt.to_s.length.between?(19,20)
-      print_error("Unable to pull salt from database.  Command output: #{salt}")
-      return
-    end
 
     # convert from number string to hex and lowercase
     salt = salt.to_i.to_s(16)
