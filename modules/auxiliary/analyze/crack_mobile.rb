@@ -84,11 +84,11 @@ class MetasploitModule < Msf::Auxiliary
           results = process_crack(results, hashes, cred, hash_type, method)
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
-          hash = fields.shift
+          hash = "#{fields.shift}:#{fields.shift}" #grab hash and salt
           password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
           next if hash.include?("Hashfile '") && hash.include?("' on line ") # skip error lines
           hashes.each do |h|
-            next unless h['hash'] == hash
+            next unless h['hash'].downcase == hash.downcase
             cred = {'core_id' => h['id'],
                     'username' => h['un'],
                     'password' => password}

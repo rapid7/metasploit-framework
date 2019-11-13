@@ -116,19 +116,18 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]] may also be negative, therefore 20 char
+    salt = salt[0][0] # pull string from results Command output: [["5381737017539487883"]] may also be negative.
 
     # convert from number string to hex and lowercase
-    salt = salt.to_i.to_s(16)
-    if salt.start_with?('-')
-      salt[0] = '' # fastest way to remove first character
-    end
+    salt = salt.to_i
+    salt += 2**64 if salt < 0 # deal with negatives
+    salt = salt.to_s(16)
     print_good("Password Salt: #{salt}")
 
     sha1 = hash[0...40]
     sha1 = "#{sha1}:#{salt}"
     print_good("SHA1: #{sha1}")
-    print_good("Crack with: hashcat -m 5800 #{sha1}")
+    #print_good("Crack with: hashcat -m 5800 #{sha1}")
     credential_data = {
         jtr_format: identify_hash(sha1),
         origin_type: :session,
