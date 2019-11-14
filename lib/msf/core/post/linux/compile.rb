@@ -27,7 +27,7 @@ module Compile
     end
 
     unless datastore['COMPILE'].eql? 'Auto'
-      fail_with Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
+      fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
     end
   end
 
@@ -48,7 +48,7 @@ module Compile
 
     unless output.blank?
       print_error output
-      fail_with Failure::Unknown, "#{path}.c failed to compile. Set COMPILE False to upload a pre-compiled executable."
+      fail_with Module::Failure::BadConfig, "#{path}.c failed to compile. Set COMPILE False to upload a pre-compiled executable."
     end
 
     chmod path
