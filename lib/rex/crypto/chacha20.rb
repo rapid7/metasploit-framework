@@ -2,7 +2,7 @@
 
 module Rex
   module Crypto
-    def self.chacha20_xor_stream(key, iv, position=0)
+    def self.chacha20_xor_stream(key, iv, position = 1)
       # Generate the xor stream with the ChaCha20 cipher
 
       raise TypeError unless position.is_a? Integer
@@ -10,7 +10,7 @@ module Rex
       raise TypeError unless iv.is_a? String
       raise RangeError.new("position > uint32") if position > 0xffffffff
       raise RangeError.new("key.length != 32") unless key.length == 32
-      raise RangeError.new("iv.length != 8 (#{iv.length})") unless iv.length == 8
+      raise RangeError.new("iv.length != 12 (#{iv.length})") unless iv.length == 12
 
       Enumerator.new do |enum|
         def self.rotate(v, c)
@@ -30,8 +30,8 @@ module Rex
 
         ctx = [1634760805, 857760878, 2036477234, 1797285236]
         ctx += key.unpack('V8')
-        ctx[12] = ctx[13] = position
-        ctx += iv.unpack('VV')
+        ctx[12] = position
+        ctx += iv.unpack('VVV')
         while true
           x = ctx.dup
           for i in 0..9
@@ -54,16 +54,13 @@ module Rex
             enum.yield(v >> 24 & 0xff)
           end
           ctx[12] = (ctx[12] + 1) & 0xffffffff
-          if ctx[12] == 0
-            ctx[13] = (ctx[13] + 1) & 0xffffffff
-          end
         end
       end
     end
 
     def self.chacha20_crypt(data, key, iv=nil, position=0)
       # Encrypt (or decrypt) with the ChaCha20 cipher.
-      iv = "\0" * 8 if iv.nil?
+      iv = "\0" * 12 if iv.nil?
       if key.length < 32
         key = (key * (32 / key.length + 1))[0..31]
       end
@@ -77,7 +74,7 @@ module Rex
     end
 
     def self.chacha_encrypt(key, iv, plaintext)
-      #chacha20_crypt(plaintext, key, iv)
+      return chacha20_crypt(plaintext, key, iv)
       cipher = OpenSSL::Cipher.new('chacha20')
       cipher.encrypt
       cipher.key = key
@@ -87,7 +84,7 @@ module Rex
     end
 
     def self.chacha_decrypt(key, iv, ciphertext)
-      #chacha20_crypt(ciphertext, key, iv)
+      return chacha20_crypt(ciphertext, key, iv)
       decipher = OpenSSL::Cipher.new('chacha20')
       decipher.decrypt
       decipher.key = key
