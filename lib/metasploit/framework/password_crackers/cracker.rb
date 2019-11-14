@@ -172,8 +172,12 @@ module Metasploit
             '400'
           when 'mediawiki' # mediawiki b type
             '3711'
-          when 'android-sha1'
+          when 'android-samsung-sha1'
             '5800'
+          when 'android-sha1'
+            '110'
+          when 'android-md5'
+            '10'
           else
             nil
           end

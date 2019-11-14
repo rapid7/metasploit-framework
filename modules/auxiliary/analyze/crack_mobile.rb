@@ -14,7 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description'     => %Q{
           This module uses Hashcat to identify weak passwords that have been
         acquired from Android systems.  These utilize MD5 or SHA1 hashing.
-        Android SHA1 is format 5800 in Hashcat.  Currently only SHA1 is supported.
+        Android (Samsung) SHA1 is format 5800 in Hashcat.  Android
+        (non-Samsung) SHA1 is format 110 in Hashcat.  Android MD5 is format 10.
         JTR does not support Android hashes at the time of writing.
       },
       'Author'          =>
@@ -31,6 +32,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptBool.new('SAMSUNG',[false, 'Include Samsung SHA1 hashes', true]),
+        OptBool.new('SHA1',[false, 'Include Android-SHA1 hashes', true]),
+        OptBool.new('MD5',[false, 'Include Android-MD5 hashes', true]),
         OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
       ]
@@ -106,7 +110,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
-    hashes_regex = ['android-sha1']
+    hashes_regex = []
+    hashes_regex << 'android-sha1' if datastore['SHA1']
+    hashes_regex << 'android-samsung-sha1' if datastore['SAMSUNG']
+    hashes_regex << 'android-md5' if datastore['MD5']
     # array of arrays for cracked passwords.
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
@@ -224,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
     wrote_hash = false
     hashlist = Rex::Quickfile.new("hashes_tmp")
     # descrypt is what JtR calls it, des is what we save it in the db as
-    hashes_regex = hashes_regex.join('|').gsub('descrypt', 'des')
+    hashes_regex = hashes_regex.join('|')
     regex = Regexp.new hashes_regex
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       next unless core.private.jtr_format =~ regex

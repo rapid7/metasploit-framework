@@ -4,19 +4,23 @@
   based password hashes, such as:
 
   * `android-sha1` based passwords
+  * `android-samsung-sha1` based passwords
+  * `android-md5` based passwords
 
   Formats:
 
-| Common       | John | Hashcat |
-|--------------| -----|---------|
-| android-sha1 | n/a  | 5800    |
+| Common               | John | Hashcat |
+|----------------------| -----|---------|
+| android-md5          | n/a  | 10      |
+| android-samsung-sha1 | n/a  | 5800    |
+| android-sha1         | n/a  | 110     |
 
   Sources of hashes can be found here:
   [source](https://hashcat.net/forum/thread-2202.html)
 
 ## Verification Steps
 
-  1. Have at least one user with a `android-sha1` password in the database
+  1. Have at least one user with a `android-sha1`, `android-samsung-sha1`, or `android-md5` password in the database
   2. Start msfconsole
   3. Do: ```use auxiliary/analyze/crack_mobile```
   4. Do: set cracker of choice
@@ -31,6 +35,17 @@
 
 ## Options
 
+   **MD5**
+
+   Crack `android-md5` based passwords.  Default is `true`
+
+   **SHA1**
+
+   Crack `android-sha1` (non-samsung) based passwords.  Default is `true`
+
+   **SAMSUNG**
+
+   Crack `android-samsung-sha1` based passwords.  Default is `true`
 
    **CONFIG**
 
@@ -165,4 +180,87 @@ nvmlDeviceGetFanSpeed(): Not Supported
 
 [*] Auxiliary module execution completed
 
+```
+
+### MD5, SHA1, SAMSUNG
+
+Create a password with each type, passwords are all `1234`.
+
+```
+msf5 > creds add user:samsungsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-samsung-sha1
+msf5 > creds add user:androidsha1 hash:9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5 jtr:android-sha1
+msf5 > creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 jtr:android-md5
+```
+
+```
+msf5 > use auxiliary/analyze/crack_mobile
+msf5 auxiliary(analyze/crack_mobile) > run
+
+[+] hashcat Version Detected: v5.1.0
+[*] Hashes Written out to /tmp/hashes_tmp20191113-29506-1xydi7
+[*] Wordlist file written out to /tmp/jtrtmp20191113-29506-aq6ph7
+[*] Checking android-sha1 hashes already cracked...
+[*] Cracking android-sha1 hashes in pin mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=ishUl4hb --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=110 --increment --increment-min=4 --increment-max=8 --attack-mode=3 --runtime=300 /tmp/hashes_tmp20191113-29506-1xydi7 ?d?d?d?d?d?d?d?d
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-sha1 hashes in incremental mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=ishUl4hb --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=110 --increment --increment-max=4 --attack-mode=3 /tmp/hashes_tmp20191113-29506-1xydi7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-sha1 hashes in wordlist mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=ishUl4hb --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=110 --attack-mode=0 /tmp/hashes_tmp20191113-29506-1xydi7 /tmp/jtrtmp20191113-29506-aq6ph7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[+] Cracked Hashes
+==============
+
+ DB ID  Hash Type     Username     Cracked Password  Method
+ -----  ---------     --------     ----------------  ------
+ 127    android-sha1  androidsha1  1234              Pin
+
+[*] Checking android-samsung-sha1 hashes already cracked...
+[*] Cracking android-samsung-sha1 hashes in pin mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=SMD3wSMl --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=5800 --increment --increment-min=4 --increment-max=8 --attack-mode=3 --runtime=300 /tmp/hashes_tmp20191113-29506-1xydi7 ?d?d?d?d?d?d?d?d
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-samsung-sha1 hashes in incremental mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=SMD3wSMl --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=5800 --increment --increment-max=4 --attack-mode=3 /tmp/hashes_tmp20191113-29506-1xydi7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-samsung-sha1 hashes in wordlist mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=SMD3wSMl --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=5800 --attack-mode=0 /tmp/hashes_tmp20191113-29506-1xydi7 /tmp/jtrtmp20191113-29506-aq6ph7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[+] Cracked Hashes
+==============
+
+ DB ID  Hash Type             Username     Cracked Password  Method
+ -----  ---------             --------     ----------------  ------
+ 126    android-samsung-sha1  samsungsha1  1234              Pin
+ 127    android-sha1          androidsha1  1234              Pin
+
+[*] Checking android-md5 hashes already cracked...
+[*] Cracking android-md5 hashes in pin mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=outBsYDa --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=10 --increment --increment-min=4 --increment-max=8 --attack-mode=3 --runtime=300 /tmp/hashes_tmp20191113-29506-1xydi7 ?d?d?d?d?d?d?d?d
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-md5 hashes in incremental mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=outBsYDa --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=10 --increment --increment-max=4 --attack-mode=3 /tmp/hashes_tmp20191113-29506-1xydi7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[*] Cracking android-md5 hashes in wordlist mode...
+[*]    Cracking Command: /usr/bin/hashcat --session=outBsYDa --logfile-disable --potfile-path=/root/.msf4/john.pot --hash-type=10 --attack-mode=0 /tmp/hashes_tmp20191113-29506-1xydi7 /tmp/jtrtmp20191113-29506-aq6ph7
+nvmlDeviceGetFanSpeed(): Not Supported
+
+[+] Cracked Hashes
+==============
+
+ DB ID  Hash Type             Username     Cracked Password  Method
+ -----  ---------             --------     ----------------  ------
+ 126    android-samsung-sha1  samsungsha1  1234              Pin
+ 127    android-sha1          androidsha1  1234              Pin
+ 128    android-md5           androidmd5   1234              Pin
+
+[*] Auxiliary module execution completed
 ```
