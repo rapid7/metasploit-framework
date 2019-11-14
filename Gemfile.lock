@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.93)
+    metasploit-framework (4.17.94)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -224,9 +224,9 @@ GEM
       activesupport (= 4.2.11.1)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (13.0.0)
+    rake (13.0.1)
     rb-readline (0.5.5)
-    recog (2.3.5)
+    recog (2.3.6)
       nokogiri
     redcarpet (3.5.0)
     rex-arch (0.1.13)
