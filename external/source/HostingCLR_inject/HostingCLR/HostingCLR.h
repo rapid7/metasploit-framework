@@ -12,7 +12,7 @@
 using namespace mscorlib;
 
 VOID Execute(LPVOID lpPayload);
-BOOL FindVersion(void * assembly, long length);
+BOOL FindVersion(void * assembly, int length);
 BOOL BypassAmsi();
 VOID PatchAmsi();
 BOOL ClrIsLoaded(LPCWSTR versione, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo);

