@@ -19,7 +19,8 @@ class MetasploitModule < Msf::Post
                       'Description' => '
                       This module execute a .net assembly in memory.
                       Refletctively load the dll that host CLR, than
-                      copy in memory the assembly that will be executed
+                      copy in memory the assembly that will be executed.
+                      Credits for Amsi bypass to Rastamouse (@_RastaMouse)
                       ',
                       'License' => MSF_LICENSE,
                       'Author' => 'b4rtik',
