@@ -58,7 +58,7 @@ module Rex
       end
     end
 
-    def self.chacha20_crypt(data, key, iv=nil, position=0)
+    def self.chacha20_crypt(data, key, iv=nil, position=1)
       # Encrypt (or decrypt) with the ChaCha20 cipher.
       iv = "\0" * 12 if iv.nil?
       if key.length < 32
