@@ -60,13 +60,16 @@ def hash_to_hashcat(cred)
       return cred.private.data.downcase.sub('*','')
     when /md5|des|bsdi|crypt|bf/, /mssql|mssql05|mssql12|mysql/, /sha256|sha-256/,
          /sha512|sha-512/, /xsha|xsha512|PBKDF2-HMAC-SHA512/,
-         /mediawiki|phpass|PBKDF2-HMAC-SHA1/
+         /mediawiki|phpass|PBKDF2-HMAC-SHA1/,
+         /android-sha1/, /android-samsung-sha1/, /android-md5/
       #            md5(crypt), des(crypt), b(crypt), sha256, sha512, xsha, xsha512, PBKDF2-HMAC-SHA512
       # hash-mode: 500          1500        3200      7400    1800   122   1722       7100
       #            mssql, mssql05, mssql12, mysql, mysql-sha1
       # hash-mode: 131,    132,     1731    200        300
       #            mediawiki, phpass, PBKDF2-HMAC-SHA1
       # hash-mode: 3711,      400,    12001
+      #            android-sha1
+      # hash-mode: 5800
       return cred.private.data
     end
   end
