@@ -42,7 +42,7 @@ module Payload::Windows::EncryptedReverseTcp
       nonce:           datastore['ChachaNonce'],
       iv:              iv,
       uuid:            opts[:uuid],
-      staged:          staged? ? true : false
+      staged:          staged?
     }
 
     src = ''
