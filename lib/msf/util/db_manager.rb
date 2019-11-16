@@ -45,11 +45,11 @@ module DBManager
     when Mdm::Workspace
       workspace_name = wspace.name
     else
-      raise "Unsupported workspace declaration"
+      workspace_name = nil
     end
 
-    wspace = framework.db.find_workspace(workspace_name)
-    raise "Couldn't find workspace #{workspace_name}" if wspace.nil?
+    wspace = framework.db.find_workspace(workspace_name) unless workspace_name.nil?
+    raise "Couldn't find workspace #{workspace_name}" if wspace.nil? && required
 
     wspace
   end
