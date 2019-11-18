@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
+require 'msf/core/payload/windows/payload_db_conf'
 module Msf
 
   class PayloadGeneratorError < StandardError
