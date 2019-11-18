@@ -100,13 +100,6 @@ REPEATABLE_SESSION = 'repeatable-session'
 # The module isn't expected to get a shell reliably (such as only once)
 UNRELIABLE_SESSION = 'unreliable-session'
 
-#
-# Supported compilers
-#
-module Compilers
-  Mingw = "mingw"
-end
-
 module HttpClients
   IE = "MSIE"
   FF = "Firefox"

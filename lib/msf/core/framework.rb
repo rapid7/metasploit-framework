@@ -62,7 +62,6 @@ class Framework
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
   require 'msf/core/cert_provider'
-  require 'metasploit/framework/compiler/mingw'
 
   #
   # Creates an instance of the framework context.
@@ -82,8 +81,6 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
-
-    self.has_mingw = Metasploit::Framework::Compiler::Mingw.mingw_available?
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)

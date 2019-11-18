@@ -78,12 +78,13 @@ class PayloadSet < ModuleSet
     _singles.each_pair { |name, op|
       mod, handler = op
 
-      # Pass if the payload has a dependency and
-      # the dependency is unavailable
-      payload_dependency = op[4].dependency
-      if payload_dependency && (!framework.has_mingw || !OpenSSL::Cipher.ciphers.include?('chacha20'))
-        elog("Unable to build payload #{name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
-        next
+      # if the payload has a dependency, check
+      # if it is supported on the system
+      payload_dependencies = op[4].dependencies
+      unless payload_dependencies.empty?
+        supported = payload_dependencies.all?(&:available?)
+        elog("Dependency for #{name} is not supported") unless supported
+        next unless supported
       end
 
       # Build the payload dupe using the determined handler
@@ -110,20 +111,23 @@ class PayloadSet < ModuleSet
 
       # Pass if the stager has a dependency
       # and doesn't have the dependency installed
-      stager_dependency = stager_inst.dependency
-      if stager_dependency && (!framework.has_mingw || !OpenSSL::Cipher.ciphers.include?('chacha20'))
-        elog("Unable to build payload #{stager_name}. Mingw-w64 and at least OpenSSL 1.1.1 are required.")
-        next
+      stager_dependencies = stager_inst.dependencies
+      unless stager_dependencies.empty?
+        supported = stager_dependencies.all?(&:available?)
+        elog("Dependency for #{stager_name} is not supported") unless supported
+        next unless supported
       end
 
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
         stage_mod, _, stage_platform, stage_arch, stage_inst = ip
 
-        # if either the stage or stager has a dependency
-        # and the other doesn't, incompatible
-        if ((stager_dependency && !stage_inst.dependency) or (!stager_dependency && stage_inst.dependency))
-          next
+        #
+        # if the stager or stage has a dependency, check
+        # if they are compatible
+        #
+        unless stager_dependencies.empty? && stage_inst.dependencies.empty?
+          next unless stager_dependencies == stage_inst.dependencies
         end
 
         # No intersection between platforms on the payloads?

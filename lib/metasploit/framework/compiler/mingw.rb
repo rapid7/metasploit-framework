@@ -11,18 +11,6 @@ module Metasploit
         INCLUDE_DIR = File.join(Msf::Config.install_root, 'data', 'headers', 'windows', 'c_payload_util')
         UTILITY_DIR = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
 
-        def self.mingw_available?
-          !!(Msf::Util::Helper.which(MINGW_X86) || Msf::Util::Helper.which(MINGW_X64))
-        end
-
-        def self.mingw_x86
-          Msf::Util::Helper.which(MINGW_X86)
-        end
-
-        def self.mingw_x64
-          Msf::Util::Helper.which(MINGW_X64)
-        end
-
         def compile_c(src)
           cmd = build_cmd(src)
 
@@ -78,48 +66,58 @@ module Metasploit
           print_error("Failed to delete file")
         end
 
-      class X86
-        include Mingw
+        class X86
+          include Mingw
 
-        attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
+          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
 
-        def initialize(opts={})
-          @file_name = opts[:f_name]
-          @keep_exe = opts[:keep_exe]
-          @keep_src = opts[:keep_src]
-          @strip_syms = opts[:strip_symbols]
-          @link_script = opts[:linker_script]
-          @opt_lvl = opts[:opt_lvl]
-          @mingw_bin = MINGW_X86
+          def initialize(opts={})
+            @file_name = opts[:f_name]
+            @keep_exe = opts[:keep_exe]
+            @keep_src = opts[:keep_src]
+            @strip_syms = opts[:strip_symbols]
+            @link_script = opts[:linker_script]
+            @opt_lvl = opts[:opt_lvl]
+            @mingw_bin = MINGW_X86
+          end
+
+          def self.available?
+            !!(Msf::Util::Helper.which(MINGW_X86))
+          end
         end
 
-        def available?
-          !!(Msf::Util::Helper.which(MINGW_X86))
+        class X64
+          include Mingw
+
+          attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
+
+          def initialize(opts={})
+            @file_name = opts[:f_name]
+            @keep_exe = opts[:keep_exe]
+            @keep_src = opts[:keep_src]
+            @strip_syms = opts[:strip_symbols]
+            @link_script = opts[:linker_script]
+            @opt_lvl = opts[:opt_lvl]
+            @mingw_bin = MINGW_X64
+          end
+
+          def self.available?
+            !!(Msf::Util::Helper.which(MINGW_X64))
+          end
+        end
+
+        class UncompilablePayloadError < StandardError
+          def initialize(msg='')
+            super(msg)
+          end
+        end
+
+        class CompiledPayloadNotFoundError < StandardError
+          def initialize(msg='Compiled executable not found')
+            super(msg)
+          end
         end
       end
-
-      class X64
-        include Mingw
-
-        attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
-
-        def initialize(opts={})
-          @file_name = opts[:f_name]
-          @keep_exe = opts[:keep_exe]
-          @keep_src = opts[:keep_src]
-          @strip_syms = opts[:strip_symbols]
-          @link_script = opts[:linker_script]
-          @opt_lvl = opts[:opt_lvl]
-          @mingw_bin = MINGW_X64
-        end
-
-        def available?
-          !!(Msf::Util::Helper.which(MINGW_X64))
-        end
-      end
-      end
-
-
     end
   end
 end

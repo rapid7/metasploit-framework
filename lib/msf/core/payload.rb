@@ -32,6 +32,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/firefox'
   require 'msf/core/payload/mainframe'
   require 'msf/core/payload/hardware'
+  require 'metasploit/framework/compiler/mingw'
 
   # Universal payload includes
   require 'msf/core/payload/multi'
@@ -71,10 +72,10 @@ class Payload < Msf::Module
     self.can_cleanup = true
 
     #
-    # Gets the Dependency if the payload requires external help
+    # Gets the Dependencies if the payload requires external help
     # to work
     #
-    self.module_info['Dependency'] = self.module_info['Dependency'] || nil
+    self.module_info['Dependencies'] = self.module_info['Dependencies'] || []
 
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
@@ -209,7 +210,7 @@ class Payload < Msf::Module
     pl = nil
     begin
       pl = generate()
-    rescue NoCompatiblePayloadError
+    rescue NoCompatiblePayloadError, Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
     end
     pl ||= ''
     pl.length
@@ -246,10 +247,10 @@ class Payload < Msf::Module
   end
 
   #
-  # Returns the compiler dependency if the payload has one
+  # Returns the compiler dependencies if the payload has one
   #
-  def dependency
-    module_info['Dependency']
+  def dependencies
+    module_info['Dependencies']
   end
 
   #
