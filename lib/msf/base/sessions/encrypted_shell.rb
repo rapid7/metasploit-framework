@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base'
 require 'securerandom'
-require 'msf/core/payload/windows/chacha'
+require 'msf/core/payload/windows/payload_db_conf'
 
 module Msf
 module Sessions
@@ -10,7 +10,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
   include Msf::Session::Basic
   include Msf::Session::Provider::SingleCommandShell
-  include Msf::Payload::Windows::Chacha
+  include Msf::Payload::Windows::PayloadDBConf
 
   attr_accessor :arch
   attr_accessor :platform
@@ -51,7 +51,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
     # handle_connection() in stager.rb
     unless @staged
       curr_uuid = rstream.get_once(16, 1)
-      @key, @nonce = get_key_nonce(curr_uuid)
+      @key, @nonce = retrieve_chacha_creds(curr_uuid)
       @iv = block_count + (@nonce ? @nonce : '')
 
       unless @key && @nonce

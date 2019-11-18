@@ -5,7 +5,7 @@ require 'rex/peparsey'
 require 'msf/core/payload/uuid/options'
 require 'msf/core/payload/windows'
 require 'msf/core/payload/windows/encrypted_payload_opts'
-require 'msf/core/payload/windows/chacha'
+require 'msf/core/payload/windows/payload_db_conf'
 require 'metasploit/framework/compiler/mingw'
 require 'rex/crypto/chacha20'
 
@@ -21,7 +21,7 @@ module Payload::Windows::EncryptedReverseTcp
   include Msf::Payload::UUID::Options
   include Msf::Payload::Windows
   include Msf::Payload::Windows::EncryptedPayloadOpts
-  include Msf::Payload::Windows::Chacha
+  include Msf::Payload::Windows::PayloadDBConf
 
 
   def initialize(*args)
@@ -65,7 +65,14 @@ module Payload::Windows::EncryptedReverseTcp
     }
 
     comp_code = get_compiled_shellcode(src, compile_opts)
-    save_to_db(conf)
+
+    chacha_conf =
+    {
+      'uuid'  =>  conf[:uuid],
+      'key'   =>  conf[:key],
+      'nonce' =>  conf[:nonce]
+    }
+    save_conf_to_db(chacha_conf)
 
     comp_code
   end
@@ -108,7 +115,7 @@ module Payload::Windows::EncryptedReverseTcp
     conf = opts[:datastore] || datastore
     conf[:staged] = true
     stage_uuid = opts[:uuid] || uuid
-    key, nonce = get_key_nonce(stage_uuid)
+    key, nonce = retrieve_chacha_creds(stage_uuid)
 
     unless key && nonce
       print_status('No existing key/nonce in db. Resorting to datastore options.')

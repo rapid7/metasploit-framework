@@ -388,7 +388,7 @@ module Msf
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         gen_payload = raw_payload
       else
-        if payload_module.dependency
+        if payload_module.dependencies
           payload_module.datastore.import_options_from_hash(datastore)
           ds_opt = payload_module.datastore
           cli_print("[!] Database is not active! Payload key and nonce must be manually set when creating handler") unless framework.db.active
