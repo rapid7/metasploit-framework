@@ -158,7 +158,15 @@ module Payload::Windows::EncryptedReverseTcp
   end
 
   def get_compiled_shellcode(src, opts={})
-    compiler_out = Metasploit::Framework::Compiler::Mingw.compile_c(src, opts)
+    comp_obj = nil
+    case opts[:arch]
+    when 'x86'
+      comp_obj = Metasploit::Framework::Compiler::Mingw::X86.new(opts)
+    when 'x64'
+      comp_obj = Metasploit::Framework::Compiler::Mingw::X64.new(opts)
+    end
+
+    compiler_out = comp_obj.compile_c(src)
     unless compiler_out.empty?
       elog(compiler_out)
       raise 'Payload did not compile. Check the logs for further information'
@@ -172,7 +180,7 @@ module Payload::Windows::EncryptedReverseTcp
     text_section = bin.sections.first
     text_section = text_section._isource
 
-    Metasploit::Framework::Compiler::Mingw.cleanup_files(opts)
+    comp_obj.cleanup_files
     text_section.rawdata
   rescue
     print_error('Payload did not compile')

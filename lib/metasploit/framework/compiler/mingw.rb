@@ -5,7 +5,6 @@ module Metasploit
   module Framework
     module Compiler
       module Mingw
-
         MINGW_X86 = 'i686-w64-mingw32-gcc'
         MINGW_X64 = 'x86_64-w64-mingw32-gcc'
 
@@ -24,34 +23,26 @@ module Metasploit
           Msf::Util::Helper.which(MINGW_X64)
         end
 
-        def self.compile_c(src, opts={})
-          cmd = self.build_cmd(src, opts)
+        def compile_c(src)
+          cmd = build_cmd(src)
 
           stdin_err, status = Open3.capture2e(cmd)
           stdin_err
         end
 
-        def self.build_cmd(src, opts={})
+        def build_cmd(src)
           cmd = ''
           link_options = '-Wl,'
 
-          src_file = opts[:f_name].split('.').first
+          src_file = File.basename(self.file_name, '.exe')
           path = File.join(Msf::Config.install_root, "#{src_file}.c")
           File.write(path, src)
 
-          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(opts[:opt_lvl]) ? "-#{opts[:opt_lvl]} " : "-O2 "
+          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
 
-          case opts[:arch]
-          when 'x86'
-            cmd << "#{MINGW_X86} "
-          when 'x64'
-            cmd << "#{MINGW_X64} "
-          else
-            return print_error('Unsupported architecture')
-          end
-
+          cmd << "#{self.mingw_bin} "
           cmd << "#{path} -I #{INCLUDE_DIR} "
-          cmd << "-o #{Msf::Config.install_root}/#{opts[:f_name]} "
+          cmd << "-o #{Msf::Config.install_root}/#{self.file_name} "
 
           # gives each function its own section
           # allowing them to be reordered
@@ -62,31 +53,73 @@ module Metasploit
           cmd << opt_level
 
           link_options << '--no-seh,'
-          link_options << '-s,' if opts[:strip_symbols]
-          link_options << "-T#{opts[:linker_script]}" if opts[:linker_script]
+          link_options << '-s,' if self.strip_syms
+          link_options << "-T#{self.link_script}" if self.link_script
 
           cmd << link_options
 
           cmd
         end
 
-        def self.cleanup_files(opts={})
-          file_base = File.basename(opts[:f_name], '.exe')
+        def cleanup_files
+          file_base = File.basename(self.file_name, '.exe')
           src_file = "#{file_base}.c"
           exe_file = "#{file_base}.exe"
           file_path = Msf::Config.install_root
 
-          unless opts[:keep_src]
+          unless self.keep_src
             File.delete("#{file_path}/#{src_file}") if File.exist?("#{file_path}/#{src_file}")
           end
 
-          unless opts[:keep_exe]
+          unless self.keep_exe
             File.delete("#{file_path}/#{exe_file}") if File.exist?("#{file_path}/#{exe_file}")
           end
         rescue Errno::ENOENT
           print_error("Failed to delete file")
         end
+
+      class X86
+        include Mingw
+
+        attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
+
+        def initialize(opts={})
+          @file_name = opts[:f_name]
+          @keep_exe = opts[:keep_exe]
+          @keep_src = opts[:keep_src]
+          @strip_syms = opts[:strip_symbols]
+          @link_script = opts[:linker_script]
+          @opt_lvl = opts[:opt_lvl]
+          @mingw_bin = MINGW_X86
+        end
+
+        def available?
+          !!(Msf::Util::Helper.which(MINGW_X86))
+        end
       end
+
+      class X64
+        include Mingw
+
+        attr_reader :file_name, :keep_exe, :keep_src, :strip_syms, :link_script, :opt_lvl, :mingw_bin
+
+        def initialize(opts={})
+          @file_name = opts[:f_name]
+          @keep_exe = opts[:keep_exe]
+          @keep_src = opts[:keep_src]
+          @strip_syms = opts[:strip_symbols]
+          @link_script = opts[:linker_script]
+          @opt_lvl = opts[:opt_lvl]
+          @mingw_bin = MINGW_X64
+        end
+
+        def available?
+          !!(Msf::Util::Helper.which(MINGW_X64))
+        end
+      end
+      end
+
+
     end
   end
 end
