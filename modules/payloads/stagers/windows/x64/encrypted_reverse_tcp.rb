@@ -28,7 +28,7 @@ module MetasploitModule
       'Convention'      => 'sockedi',
       'Stager'          => { 'RequiresMidstager' => false },
       'DefaultOptions'  => { 'LinkerScript' => "#{LINK_SCRIPT_PATH}/func_order64.ld" },
-      'Dependency'      => Msf::Compilers::Mingw
+      'Dependencies'    => [ Metasploit::Framework::Compiler::Mingw::X64 ]
     ))
   end
 end

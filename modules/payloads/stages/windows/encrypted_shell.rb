@@ -25,7 +25,7 @@ module MetasploitModule
       'Platform'        => 'win',
       'Arch'            => ARCH_X86,
       'Session'         => Msf::Sessions::EncryptedShell,
-      'Dependency'      => Msf::Compilers::Mingw,
+      'Dependencies'    => [ Metasploit::Framework::Compiler::Mingw::X86 ],
       'PayloadCompat'   => { 'Convention' => 'sockedi' }
      ))
   end

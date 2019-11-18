@@ -169,11 +169,11 @@ module Payload::Windows::EncryptedReverseTcp
     compiler_out = comp_obj.compile_c(src)
     unless compiler_out.empty?
       elog(compiler_out)
-      raise 'Payload did not compile. Check the logs for further information'
+      raise Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError.new('Payload did not compile. Check the logs for further information.')
     end
 
     comp_file = "#{Msf::Config.install_root}/#{opts[:f_name]}"
-    raise 'Payload exe was not found' unless File.exist?("#{Msf::Config.install_root}/#{opts[:f_name]}")
+    raise Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError unless File.exist?("#{Msf::Config.install_root}/#{opts[:f_name]}")
     bin = read_exe(comp_file)
     bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
 
@@ -182,8 +182,6 @@ module Payload::Windows::EncryptedReverseTcp
 
     comp_obj.cleanup_files
     text_section.rawdata
-  rescue
-    print_error('Payload did not compile')
   end
 
   def read_exe(file)

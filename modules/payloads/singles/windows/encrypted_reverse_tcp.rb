@@ -32,7 +32,7 @@ module MetasploitModule
       'Handler'         => Msf::Handler::ReverseTcp,
       'Session'         => Msf::Sessions::EncryptedShell,
       'DefaultOptions'  => { 'LinkerScript' => "#{LINK_SCRIPT_PATH}/func_order.ld" },
-      'Dependency'      => Msf::Compilers::Mingw
+      'Dependencies'    => [ Metasploit::Framework::Compiler::Mingw::X86 ]
       ))
   end
 end
