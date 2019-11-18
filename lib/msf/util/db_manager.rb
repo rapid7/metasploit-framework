@@ -37,11 +37,19 @@ module DBManager
       raise ArgumentError.new("opts must include a valid :workspace")
     end
 
-    if wspace.kind_of?(String)
+    case wspace
+    when Hash
+      workspace_name = wspace[:name]
+    when String
       workspace_name = wspace
-      wspace = framework.db.find_workspace(workspace_name)
-      raise "Couldn't find workspace #{workspace_name}" if wspace.nil?
+    when Mdm::Workspace
+      workspace_name = wspace.name
+    else
+      workspace_name = nil
     end
+
+    wspace = framework.db.find_workspace(workspace_name) unless workspace_name.nil?
+    raise "Couldn't find workspace #{workspace_name}" if wspace.nil? && required
 
     wspace
   end
