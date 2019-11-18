@@ -471,7 +471,7 @@ class Msf::Modules::Loader::Base
   def module_path?(path)
     !(path.starts_with?(".") ||
       !path.ends_with?(MODULE_EXTENSION) ||
-      path =~ UNIT_TEST_REGEX)
+      path.match?(UNIT_TEST_REGEX))
   end
 
   # Tries to determine if a file might be executable,
