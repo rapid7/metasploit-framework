@@ -253,4 +253,4 @@ If that works, great, you know you don't have any merge conflicts right now.
 
 # Questions and Corrections
 
-Bug @todb-r7, either on Freenode on the #metasploit channel (he's todb there), or by e-mailing the [metasploit-hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing list.
+Reach out in #contributors on [Metasploit Slack](https://metasploit.com/slack), or by e-mailing msfdev at metasploit dot com. 
