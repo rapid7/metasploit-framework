@@ -26,4 +26,6 @@ More information can be found on the Rapid7 Vulnerability & Exploit Database pag
       PASSWORD => myPassword
   msf auxiliary(scanner/acpp/login) > run
     [*] 1.1.1.1:5009          - 1.1.1.1:5009 - Starting ACPP login sweep
+    [*] 1.1.1.1:5009          - ACPP Login Successful: myPassword
+    [*] Auxiliary module execution completed
   ```
