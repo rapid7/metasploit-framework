@@ -2,7 +2,7 @@
 
 ACPP is an undocumented and proprietary Apple protocol found in Airport products which protects the credentials used to administer the device. This module attempts exploit a weak encryption mechanism (fixed XOR key) by brute forcing the password via a dictionary attack or specific password.
 
-More information can be found on the Rapid7 Vulnerability & Exploit Database page (https://www.rapid7.com/db/modules/auxiliary/scanner/acpp/login)
+More information can be found on the [Rapid7 Vulnerability & Exploit Database page](https://www.rapid7.com/db/modules/auxiliary/scanner/acpp/login)
 
 ## Verification Steps
 
