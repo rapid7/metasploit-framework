@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
     regex = Regexp.new hashes_regex
     framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
       next unless core.private.jtr_format =~ regex
-      # only add hashes which havne't been cracked
+      # only add hashes which haven't been cracked
       next unless already_cracked_pass(core.private.data).nil?
       if action.name == 'john'
         hashlist.puts hash_to_jtr(core)

@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Post
       fail_with Failure::NoAccess, 'This module requires root permissions.'
     end
 
-    manu = cmd_exec("getprop ro.build.manufacturer")
+    manu = cmd_exec("getprop ro.product.manufacturer")
 
     print_status('Attempting to determine unsalted hash.')
     key_file = '/data/system/password.key'
@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Post
     print_good("SHA1: #{sha1}")
     credential_data = {
         # no way to tell them apart w/o knowing one is samsung or not.
-        jtr_format: manu =~ /samsung/i ? 'android-sha1' : 'android-samsung-sha1' ,
+        jtr_format: manu =~ /samsung/i ? 'android-samsung-sha1' : 'android-sha1',
         origin_type: :session,
         post_reference_name: self.refname,
         private_type: :nonreplayable_hash,
