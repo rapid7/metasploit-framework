@@ -39,12 +39,50 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     end
   end
 
+  def start_profiler
+    if ENV['METASPLOIT_CPU_PROFILE']
+      gem 'perftools.rb'
+      require 'perftools'
+
+      formatted_time = Time.now.strftime('%Y%m%d%H%M%S')
+      root = Pathname.new(__FILE__).parent
+      profile_pathname = root.join('tmp', 'profiles', 'msfconsole', formatted_time)
+
+      profile_pathname.parent.mkpath
+      PerfTools::CpuProfiler.start(profile_pathname.to_path)
+
+      at_exit {
+        PerfTools::CpuProfiler.stop
+
+        puts "Generating pdf"
+
+        pdf_path = "#{profile_pathname}.pdf"
+
+        if Bundler.clean_system("pprof.rb --pdf #{profile_pathname} > #{pdf_path}")
+          puts "PDF saved to #{pdf_path}"
+
+          Rex::Compat.open_file(pdf_path)
+        end
+      }
+    end
+
+    if ENV['METASPLOIT_MEMORY_PROFILE']
+      require 'memory_profiler'
+      MemoryProfiler.start
+      at_exit {
+        report = MemoryProfiler.stop
+        report.pretty_print(to_file: 'memory.profile')
+      }
+    end
+  end
+
   def start
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
       spinner unless parsed_options.options.console.quiet
+      start_profiler
       driver.run
     end
   end
