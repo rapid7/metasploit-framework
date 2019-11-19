@@ -40,5 +40,6 @@ https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/
   msf auxiliary(scanner/afp/afp_login) > set RHOST 172.17.0.2
   msf auxiliary(scanner/afp/afp_login) > run
   [*] 172.17.0.2:548 - Scanning IP: 172.17.0.2
-  172.17.0.2:548 - Login Successful: myPassword
+  [*] 172.17.0.2:548 - Login Successful: myPassword
+  [*] Auxiliary module execution completed
   ```
