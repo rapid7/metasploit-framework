@@ -20,6 +20,8 @@ group :development do
   gem 'pry'
   # module documentation
   gem 'octokit'
+  # memory profiling
+  gem 'memory_profiler'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
   #gem 'metasploit-aggregator'
@@ -30,7 +32,6 @@ group :development, :test do
   gem 'factory_bot_rails'
   # Make rspec output shorter and more useful
   gem 'fivemat'
-  gem 'memory_profiler'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
