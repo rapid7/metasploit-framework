@@ -511,7 +511,15 @@ class RPC_Module < RPC_Base
       if r[:error]
         {"status" => "errored", "error" => r[:error]}
       else
-        {"status" => "completed", "result" => r[:result]}
+        if r[:result].length == 1
+          # A hash of one IP => result
+          # TODO: make hashes of IP => result the normal case
+          {"status" => "completed", "result" => r[:result].values.first}
+        else
+          # Either singular check code or multiple hosts
+          # TODO: combine underlying code so that nothing returns a bare CheckCode anymore
+          {"status" => "completed", "result" => r[:result]}
+        end
       end
     elsif self.framework.running.include? uuid
       {"status" => "running"}
