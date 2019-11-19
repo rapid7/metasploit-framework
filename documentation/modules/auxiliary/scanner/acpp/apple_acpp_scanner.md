@@ -17,11 +17,13 @@ More information can be found on the Rapid7 Vulnerability & Exploit Database pag
 
 ## Scenarios
 
-msf > use auxiliary/scanner/acpp/login
-msf auxiliary(scanner/acpp/login) > show options
-msf auxiliary(scanner/acpp/login) > set RHOSTS 1.1.1.1
-  RHOSTS => 1.1.1.1
-msf5 auxiliary(scanner/acpp/login) > set PASSWORD myPassword
-  PASSWORD => myPassword
-msf5 auxiliary(scanner/acpp/login) > run
-  [*] 1.1.1.1:5009          - 1.1.1.1:5009 - Starting ACPP login sweep
+  ```
+  msf > use auxiliary/scanner/acpp/login
+  msf auxiliary(scanner/acpp/login) > show options
+  msf auxiliary(scanner/acpp/login) > set RHOSTS 1.1.1.1
+      RHOSTS => 1.1.1.1
+  msf auxiliary(scanner/acpp/login) > set PASSWORD myPassword
+      PASSWORD => myPassword
+  msf auxiliary(scanner/acpp/login) > run
+    [*] 1.1.1.1:5009          - 1.1.1.1:5009 - Starting ACPP login sweep
+  ```
