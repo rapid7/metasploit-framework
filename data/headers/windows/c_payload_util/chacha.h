@@ -81,7 +81,7 @@ chacha_keysetup(chacha_ctx *x,const u8 *k,u32 kbits,u32 ivbits)
 static void
 chacha_ivsetup(chacha_ctx *x,const u8 *iv)
 {
-  x->input[12] = 1; // openssl counter starts at 1
+  x->input[12] = 1;
   x->input[13] = U8TO32_LITTLE(iv + 0);
   x->input[14] = U8TO32_LITTLE(iv + 4);
   x->input[15] = U8TO32_LITTLE(iv + 8);

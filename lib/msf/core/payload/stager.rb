@@ -156,6 +156,18 @@ module Msf::Payload::Stager
     return raw
   end
 
+  def sends_hex_uuid?
+    false
+  end
+
+  def format_uuid(uuid)
+    if sends_hex_uuid?
+      return uuid
+    end
+
+    return Msf::Payload::UUID.new({raw: uuid_raw})
+  end
+
   #
   # Transmit the associated stage.
   #
@@ -169,13 +181,7 @@ module Msf::Payload::Stager
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)
           if uuid_raw
-            if respond_to? :uuid_hex
-              if uuid_hex
-                opts[:uuid] = uuid_raw
-              end
-            else
-              opts[:uuid] = Msf::Payload::UUID.new({raw: uuid_raw})
-            end
+            opts[:uuid] = format_uuid(uuid_raw)
           end
         end
       end
