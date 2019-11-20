@@ -19,6 +19,8 @@ class EncryptedShell < Msf::Sessions::CommandShell
   attr_accessor :key
   attr_accessor :staged
 
+  attr_accessor :chacha_cipher
+
   # define some sort of method that checks for
   # the existence of payload in the db before
   # using datastore
@@ -62,11 +64,14 @@ class EncryptedShell < Msf::Sessions::CommandShell
 
     new_nonce = SecureRandom.hex(6)
     new_key = SecureRandom.hex(16)
-    new_cipher = Rex::Crypto.chacha_encrypt(@key, @iv, new_nonce + new_key)
+
+    @chacha_cipher = Rex::Crypto::Chacha20.new(@key, @iv)
+    new_cipher = @chacha_cipher.chacha20_crypt(new_nonce + new_key)
     rstream.write(new_cipher)
 
     @key = new_key
     @iv = new_nonce
+    @chacha_cipher.reset_cipher(@key, @iv)
   end
 
   ##
@@ -76,8 +81,9 @@ class EncryptedShell < Msf::Sessions::CommandShell
   #
   def shell_read(length=-1, timeout=1)
     rv = rstream.get_once(length, timeout)
-    decrypted = Rex::Crypto.chacha_decrypt(@key, @iv, rv)
+    decrypted = @chacha_cipher.chacha20_crypt(rv)
     framework.events.on_session_output(self, decrypted) if decrypted
+
     return decrypted
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
@@ -93,7 +99,7 @@ class EncryptedShell < Msf::Sessions::CommandShell
     return unless buf
 
     framework.events.on_session_command(self, buf.strip)
-    encrypted = Rex::Crypto.chacha_encrypt(@key, @iv, buf)
+    encrypted = @chacha_cipher.chacha20_crypt(buf)
     rstream.write(encrypted)
   rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
     shell_close
