@@ -48,14 +48,14 @@ module Rex
         collect_host_data
         host_object = report_host &block
         if host_object
-          db.report_import_note(@args[:wspace],host_object)
+          db.report_import_note(@args[:workspace],host_object)
           report_fingerprint(host_object)
           report_services(host_object)
           report_vulns(host_object)
         end
         # Reset the state once we close a host
         @state.delete_if {|k| k != :current_tag}
-        @report_data = {:wspace => args[:wspace]}
+        @report_data = {:workspace => args[:workspace]}
       when "Port"
         @state[:has_text] = false
         collect_port
@@ -217,7 +217,7 @@ module Rex
       return unless in_tag("HostData")
       if host_is_okay
         db.emit(:address,@report_data[:host],&block) if block
-        host_info = @report_data.merge(:workspace => @args[:wspace])
+        host_info = @report_data.merge(:workspace => @args[:workspace])
         db_report(:host,host_info)
       end
     end
