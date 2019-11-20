@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
       path.chomp!
       print_status("Looting #{path} directory")
       if cmd_exec("test -x #{path} || echo false").include? 'false'
-        print_warning("Can not access the directory. Missing execute bit. Skipping")
+        print_warning("Can not access the directory. Missing execute bit. Skipping.")
         next
       end
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
       files.each do |file|
         next if [".", ".."].include?(file)
         if cmd_exec("test -r #{path}#{sep}#{file} || echo false").include? 'false'
-          print_warning("Can not read file: #{path}#{sep}#{file} . Missing read permission. Skipping")
+          print_warning("Can not read file: #{path}#{sep}#{file} . Missing read permission. Skipping.")
           next
         end
         data = read_file("#{path}#{sep}#{file}")
