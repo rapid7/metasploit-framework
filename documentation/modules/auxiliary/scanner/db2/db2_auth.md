@@ -25,7 +25,7 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
       [-] 172.17.0.2:50000      - 172.17.0.2:50000 - LOGIN FAILED: db2inst1:db2inst1@testdb (Incorrect: )
       [-] 172.17.0.2:50000      - 172.17.0.2:50000 - LOGIN FAILED: db2inst1:dasusr1@testdb (Incorrect: )
       [-] 172.17.0.2:50000      - 172.17.0.2:50000 - LOGIN FAILED: db2inst1:db2fenc1@testdb (Incorrect: )
-      [*] 172.17.0.2:50000      - Login Successful: db2pass
+      [*] 172.17.0.2:50000      - Login Successful: db2inst1:db2pass
       [*] 172.17.0.2:50000      - Scanned 1 of 1 hosts (100% complete)
       [*] Auxiliary module execution completed
     ```
