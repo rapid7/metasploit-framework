@@ -115,8 +115,6 @@ require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 
 # Cryptography
-require 'rex/crypto/aes256'
-require 'rex/crypto/rc4'
 require 'rex/crypto/chacha20'
 
 
