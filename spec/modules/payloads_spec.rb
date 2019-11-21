@@ -588,6 +588,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/bind_lua'
   end
 
+  context 'cmd/unix/bind_jjs' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/bind_jjs'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_jjs'
+  end
+
   context 'cmd/unix/bind_netcat' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -786,6 +796,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ksh'
+  end
+
+  context 'cmd/unix/reverse_jjs' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_jjs'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_jjs'
   end
 
   context 'cmd/unix/reverse_lua' do
