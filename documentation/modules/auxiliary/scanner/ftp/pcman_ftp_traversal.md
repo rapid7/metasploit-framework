@@ -28,3 +28,25 @@ A run on Windows 7 (x64) and PCMan FTP Server 2.0.7.
     [*] 192.168.2.252:21      - Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
+
+## Client Software Log
+
+  ```
+  2019/11/20 [12:46] (00588) 1.1.1.2> User connecting from 1.1.1.2
+
+  2019/11/20 [12:46] (00588) 1.1.1.2> USER anonymous
+  2019/11/20 [12:46] (00588) Anonymous> 331 User name okay, need password.
+
+  2019/11/20 [12:46] (00588) Anonymous> PASS *****
+  2019/11/20 [12:46] (00588) Anonymous> 230 User logged in
+
+  2019/11/20 [12:46] (00588) Anonymous> PASV
+  2019/11/20 [12:46] (00588) Anonymous> 227 Entering Passive Mode (1.1.1.1,8,1)
+
+  2019/11/20 [12:46] (00588) Anonymous> RETR ..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//..//WINDOWS\win.ini
+  2019/11/20 [12:46] (00588) Anonymous> 150 File status okay; Open data connection.
+
+  2019/11/20 [12:46] (00588) Anonymous> 226 Data Sent okay.
+
+  2019/11/20 [12:46] (00588) Anonymous> User Disconnected.
+  ```
