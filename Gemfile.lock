@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.61)
+    metasploit-framework (5.0.62)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -115,22 +115,22 @@ GEM
     arel-helpers (2.10.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.239.0)
-    aws-sdk-core (3.77.0)
+    aws-partitions (1.242.0)
+    aws-sdk-core (3.80.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.115.0)
+    aws-sdk-ec2 (1.118.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-iam (1.31.0)
+    aws-sdk-iam (1.32.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-kms (1.25.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.54.0)
+    aws-sdk-s3 (1.57.0)
       aws-sdk-core (~> 3, >= 3.77.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -235,7 +235,7 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.13.0)
-    pdf-reader (2.3.0)
+    pdf-reader (2.4.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -300,7 +300,7 @@ GEM
       rex-arch
     rex-ole (0.1.6)
       rex-text
-    rex-powershell (0.1.82)
+    rex-powershell (0.1.83)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.4)
