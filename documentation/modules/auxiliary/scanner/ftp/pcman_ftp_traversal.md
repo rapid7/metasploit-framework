@@ -8,13 +8,12 @@ Linked to software download [Exploit-DB](https://www.exploit-db.com/apps/9fceb6f
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/ftp/pcman_ftp_traversal`
-  3. Do: `show options`
-      ...show and set options...
+  3. set RHOSTS [ip]
   4. Do: `run`
 
 ## Scenarios
 
-A run on Windows 7 (x64) and PCMan FTP Server 2.0.7.
+### PCMan FTP Server 2.0.7 on Windows 7 (X64)
 
   ```
   msf > use modules/auxiliary/scanner/ftp/pcman_ftp_traversal
@@ -29,7 +28,7 @@ A run on Windows 7 (x64) and PCMan FTP Server 2.0.7.
     [*] Auxiliary module execution completed
   ```
 
-## Client Software Log
+### Manual Exploitation
 
   ```
   2019/11/20 [12:46] (00588) 1.1.1.2> User connecting from 1.1.1.2

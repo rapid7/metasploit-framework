@@ -8,11 +8,12 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/dcerpc/windows_deployment_services`
-  3. Do: `show options`
-    ...show and set options...
+  3. set RHOST [ip]
   4. Do: `run`
 
 ## Scenarios
+
+### A run on Windows Server 2008
 
   ```
   msf > use modules/auxiliary/scanner/dcerpc/windows_deployment_services

@@ -3,9 +3,9 @@
 Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS. This module attempts to bruteforce authentication credentials for AFP.
 
 References:
-[developer.apple.com](https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html)
+[AFP_Reference](https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html)
 
-[developer.apple/com](https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html)
+[AFP_Security](https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html)
 
 1. `sudo apt-get install netatalk`
 2. edit `/etc/default/netatalk` and add the following lines:
@@ -23,9 +23,8 @@ References:
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/afp/afp_login`
-  3. Do: `show options`
-      ...show and set options...
-  4. Do: `run`
+  4. set RHOSTS [ip]
+  5. Do: `run`
 
 ## Scenarios
 
