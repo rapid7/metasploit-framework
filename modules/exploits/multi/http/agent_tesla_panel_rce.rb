@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Exploit::Remote
         'mekhalleh (RAMELLA Sébastien)' # add. targetting windows and authenticated RCE
       ],
       'References' => [
+        ['EDB', '47256'], # original module published.
         ['URL', 'https://github.com/mekhalleh/agent_tesla_panel_rce/tree/master/resources'], # Agent-Tesla WebPanel's available for download
         ['URL', 'https://www.pirates.re/agent-tesla-remote-command-execution-(fighting-the-webpanel)'], # fr
         ['URL', 'https://www.cyber.nj.gov/threat-profiles/trojan-variants/agent-tesla'],
