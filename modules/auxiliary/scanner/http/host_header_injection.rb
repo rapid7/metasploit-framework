@@ -26,17 +26,16 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('PATH', [ true, "The PATH to use while testing", '/']),
-      OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 20]),
+      OptString.new('PATH', [true, "The PATH to use while testing", '/']),
       OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
       OptString.new('TARGETHOST', [false, 'The redirector target. Default is <random>.com']),
-      OptBool.new('SHOW_EVIDENCE', [ false, "Show evidences: headers or body", false ])
+      OptString.new('DATA', [false, 'POST data, if necessary', '']),
+      OptBool.new('SHOW_EVIDENCE', [false, "Show evidences: headers or body", false])
     ])
   end
 
   def run_host(ip)
 
-    timeout = datastore['TIMEOUT']
     web_path = normalize_uri(datastore['PATH'])
     http_method = datastore['METHOD']
     target_host = datastore['TARGETHOST'] || Rex::Text.rand_text_alpha_lower(8)+".com"
@@ -57,12 +56,13 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw({
         'uri'     => web_path,
         'method'  => http_method,
+        'data'    => datastore['DATA'],
         'headers' => {
           'Host'             => target_host,
           'X-Host'           => target_host,
           'X-Forwarded-Host' => target_host
         }
-      }, timeout)
+      })
 
       unless res
         vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) did not reply to our request")
