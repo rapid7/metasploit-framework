@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Exploit::Remote
         parameter in an ajax/render/widget_php routestring POST request.
       },
       'Author' => [
-        # discovered by an unknown sender.
+        'unknown', # discovered by an unknown sender.
         'mekhalleh (RAMELLA Sébastien)' # this module.
       ],
       'References' => [
@@ -37,7 +37,8 @@ class MetasploitModule < Msf::Exploit::Remote
             'BadChars' => "\x22",
           },
           'DefaultOptions' => {
-            'PAYLOAD' => 'php/meterpreter/reverse_tcp'
+            'PAYLOAD' => 'php/meterpreter/reverse_tcp',
+            'DisablePayloadHandler' => 'false'
           }
         ],
         ['Unix (CMD In-Memory)',
