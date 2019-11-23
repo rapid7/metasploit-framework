@@ -13,7 +13,7 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
 ## Scenarios
 
-##  A run on Kali Linux 2019.3 and DB2 11.5.0.0a
+###  A run on Kali Linux 2019.3 and DB2 11.5.0.0a
 
     ```
     msf > use auxiliary/scanner/db2/db2_auth

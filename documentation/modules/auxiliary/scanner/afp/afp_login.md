@@ -28,9 +28,10 @@ References:
 
 ## Scenarios
 
+### A run on Kali Linux 2019.3 and Netatalk 3.1.12
+
   ```
   msf > use modules/auxiliary/scanner/afp/afp_login
-  msf auxiliary(scanner/afp/afp_login) > show options
   msf auxiliary(scanner/afp/afp_login) > set USERNAME tuser
   msf auxiliary(scanner/afp/afp_login) > set PASSWORD myPassword
   msf auxiliary(scanner/afp/afp_login) > set RHOST 172.17.0.2
