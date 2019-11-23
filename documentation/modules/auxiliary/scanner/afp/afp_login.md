@@ -3,27 +3,31 @@
 Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS. This module attempts to brute force authentication credentials for AFP.
 
 References:
-[AFP_Reference](https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html)
 
-[AFP_Security](https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html)
+* [AFP_Reference](https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html)
+* [AFP_Security](https://developer.apple.com/library/mac/documentation/networking/conceptual/afp/AFPSecurity/AFPSecurity.html)
+
+### Kali 2019.3 Install Instructions
 
 1. `sudo apt-get install netatalk`
 2. edit `/etc/default/netatalk` and add the following lines:
-  ```
-  ATALKD_RUN=no
-  PAPD_RUN=no
-  CNID_METAD_RUN=yes
-  AFPD_RUN=yes
-  TIMELORD_RUN=no
-  A2BOOT_RUN=no
-```
+
+    ```
+    ATALKD_RUN=no
+    PAPD_RUN=no
+    CNID_METAD_RUN=yes
+    AFPD_RUN=yes
+    TIMELORD_RUN=no
+    A2BOOT_RUN=no
+    ```
+
 3. Restart the service: `sudo /etc/init.d/netatalk restart`
 
 ## Verification Steps
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/afp/afp_login`
-  3. set RHOSTS [ip]
+  3. Do: `set RHOSTS [ip]`
   4. Do: `run`
 
 ## Scenarios

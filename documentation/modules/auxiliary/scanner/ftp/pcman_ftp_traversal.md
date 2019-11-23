@@ -1,6 +1,7 @@
 ## Vulnerable Application
 
-This module exploits a directory traversal vulnerability found in PCMan FTP Server 2.0.7. This vulnerability allows an attacker to download arbitrary files from the server by crafting a RETR command that includes file system traversal strings such as '..//'
+This module exploits a directory traversal vulnerability found in PCMan FTP Server 2.0.7.
+This vulnerability allows an attacker to download arbitrary files from the server by crafting a `RETR` command that includes file system traversal strings such as `..//`
 
 Linked to software download [Exploit-DB](https://www.exploit-db.com/apps/9fceb6fefd0f3ca1a8c36e97b6cc925d-PCMan.7z)
 
@@ -8,7 +9,7 @@ Linked to software download [Exploit-DB](https://www.exploit-db.com/apps/9fceb6f
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/ftp/pcman_ftp_traversal`
-  3. set RHOSTS [ip]
+  3. Do: `set RHOSTS [ip]`
   4. Do: `run`
 
 ## Scenarios

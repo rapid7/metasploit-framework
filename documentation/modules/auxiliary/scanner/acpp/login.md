@@ -8,7 +8,7 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
   1. Start msfconsole
   2. Do: `use auxiliary/scanner/acpp/login`
-  3. set RHOSTS [ip]
+  3. Do: `set RHOSTS [ip]`
   4. Do: `run`
 
 ## Scenarios

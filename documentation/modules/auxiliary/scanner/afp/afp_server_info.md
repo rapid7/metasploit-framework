@@ -7,6 +7,7 @@ The following was done on Ubuntu 16.04, and is largely based on [missingreadme.w
 
   1. `sudo apt-get install netatalk`
   2. edit `/etc/default/netatalk` and add the following lines:
+
     ```
     ATALKD_RUN=no
     PAPD_RUN=no
@@ -15,6 +16,7 @@ The following was done on Ubuntu 16.04, and is largely based on [missingreadme.w
     TIMELORD_RUN=no
     A2BOOT_RUN=no
     ```
+
   3. Restart the service: `sudo /etc/init.d/netatalk restart`
 
 ## Verification Steps
@@ -22,12 +24,12 @@ The following was done on Ubuntu 16.04, and is largely based on [missingreadme.w
   1. Install and configure afp (or netatalk in a Linux environment)
   2. Start msfconsole
   3. Do: `auxiliary/scanner/afp/afp_server_info`
-  4. Do: set RHOSTS [ip]
+  4. Do: `set RHOSTS [ip]`
   5. Do: `run`
 
 ## Scenarios
 
-  A run against the configuration from these docs
+### Ubuntu 16.04 with Netatalk 2.2.5
 
   ```
   msf5 auxiliary(scanner/acpp/login) > use auxiliary/scanner/afp/afp_server_info

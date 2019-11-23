@@ -2,7 +2,7 @@
 
 This module retrieves the client unattend file from Windows Deployment Services RPC service and parses out the stored credentials. Tested against Windows 2008 R2 x64 and Windows 2003 x86.
 
-More information can be found on the [Rapid7 Vulnerability & Exploit Database page](https://www.rapid7.com/db/modules/auxiliary/scanner/dcerpc/windows_deployment_services) and pull request #1420 (https://github.com/rapid7/metasploit-framework/pull/1420).
+More information can be found on the [Rapid7 Vulnerability & Exploit Database page](https://www.rapid7.com/db/modules/auxiliary/scanner/dcerpc/windows_deployment_services) and pull request [PR #1420](https://github.com/rapid7/metasploit-framework/pull/1420).
 
 ## Verification Steps
 
@@ -13,7 +13,7 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
 ## Scenarios
 
-### A run on Windows Server 2008
+### A run on Windows Server 2008 R2 X64
 
   ```
   msf > use modules/auxiliary/scanner/dcerpc/windows_deployment_services

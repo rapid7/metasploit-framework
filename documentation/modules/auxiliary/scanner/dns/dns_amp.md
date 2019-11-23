@@ -2,8 +2,8 @@
 
 This module can be used to discover DNS servers which expose recursive name lookups which can be used in an amplification attack against a third party.
 
-BIND 9.4.1-P1 source: ftp://ftp.isc.org/isc/bind9/9.4.1-P1/bind-9.4.1-P1.tar.gz
-Ubuntu 7.10 (Gutsy Gibbon): http://old-releases.ubuntu.com/releases/7.10/
+BIND 9.4.1-P1: [source](ftp://ftp.isc.org/isc/bind9/9.4.1-P1/bind-9.4.1-P1.tar.gz)
+Ubuntu 7.10: [Gutsy Gibbon](http://old-releases.ubuntu.com/releases/7.10/)
 
 
 ## Verification Steps

@@ -1,6 +1,7 @@
 ## Vulnerable Application
 
-This module exploits a directory traversal vulnerability found in Konica Minolta FTP Utility 1.0. This vulnerability allows an attacker to download arbitrary files from the server by crafting a RETR command that includes file system traversal strings such as '..//'
+This module exploits a directory traversal vulnerability found in Konica Minolta FTP Utility 1.0.
+This vulnerability allows an attacker to download arbitrary files from the server by crafting a `RETR` command that includes file system traversal strings such as `..//`.
 
 Link to Konica Minolta FTP Utility 1.00 software download [Exploit-DB](https://www.exploit-db.com/apps/6388a2ae7dd2965225b3c8fad62f2b3b-ftpu_10.zip)
 
