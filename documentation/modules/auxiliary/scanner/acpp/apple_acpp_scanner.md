@@ -13,6 +13,8 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
 ## Scenarios
 
+### Apple AirPort Extreme 802.11g
+
   ```
   msf > use auxiliary/scanner/acpp/login
   msf auxiliary(scanner/acpp/login) > show options
