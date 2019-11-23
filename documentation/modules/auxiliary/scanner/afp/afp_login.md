@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS. This module attempts to bruteforce authentication credentials for AFP.
+Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS. This module attempts to brute force authentication credentials for AFP.
 
 References:
 [AFP_Reference](https://developer.apple.com/library/mac/documentation/Networking/Reference/AFP_Reference/Reference/reference.html)
@@ -23,8 +23,8 @@ References:
 
   1. Start msfconsole
   2. Do: `use modules/auxiliary/scanner/afp/afp_login`
-  4. set RHOSTS [ip]
-  5. Do: `run`
+  3. set RHOSTS [ip]
+  4. Do: `run`
 
 ## Scenarios
 

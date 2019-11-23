@@ -3,7 +3,7 @@
 Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS.  This module will gather information about the service.
 Netatalk is a Linux implementation of AFP.
 
-The following was done on Ubuntu 16.04, and is largely base on [missingreadme.wordpress.com](https://missingreadme.wordpress.com/2010/05/08/how-to-set-up-afp-filesharing-on-ubuntu/):
+The following was done on Ubuntu 16.04, and is largely based on [missingreadme.wordpress.com](https://missingreadme.wordpress.com/2010/05/08/how-to-set-up-afp-filesharing-on-ubuntu/):
 
   1. `sudo apt-get install netatalk`
   2. edit `/etc/default/netatalk` and add the following lines:
@@ -23,7 +23,7 @@ The following was done on Ubuntu 16.04, and is largely base on [missingreadme.wo
   2. Start msfconsole
   3. Do: `auxiliary/scanner/afp/afp_server_info`
   4. Do: set RHOSTS [ip]
-  4. Do: `run`
+  5. Do: `run`
 
 ## Scenarios
 

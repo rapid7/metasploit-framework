@@ -9,7 +9,7 @@ More information can be found on the [Rapid7 blog page](https://blog.rapid7.com/
 2. Do: `use auxiliary/scanner/discovery/empty_udp`
 3. Do: `set RHOSTS [ip]`
 4. Do: `set RPORT [port]`
-4. Do: `run`
+5. Do: `run`
 
 ## Scenarios
 

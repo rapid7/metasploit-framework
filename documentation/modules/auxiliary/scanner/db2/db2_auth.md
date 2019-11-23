@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module attempts to authenticate against a DB2 instance using username and password combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+This module attempts to authenticate against a DB2 instance using username and password combinations indicated by the `USER_FILE`, `PASS_FILE`, and `USERPASS_FILE` options.
 
 More information can be found on the [Rapid7 Vulnerability & Exploit Database page](https://www.rapid7.com/db/modules/auxiliary/scanner/db2/db2_auth) and https://nvd.nist.gov/vuln/detail/CVE-1999-0502
 
