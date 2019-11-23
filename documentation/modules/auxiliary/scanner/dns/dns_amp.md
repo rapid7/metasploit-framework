@@ -12,7 +12,7 @@ Ubuntu 7.10 (Gutsy Gibbon): http://old-releases.ubuntu.com/releases/7.10/
   2. Do: `use modules/auxiliary/scanner/dns/dns_amp`
   3. Do: `set DOMAINNAME [domain]`
   4. Do: `set RHOST [ip]`
-  4. Do: `run`
+  5. Do: `run`
 
 ## Scenarios
 
