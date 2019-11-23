@@ -8,11 +8,13 @@ More information can be found on the [Rapid7 Vulnerability & Exploit Database pa
 
   1. Start msfconsole
   2. Do: `use auxiliary/scanner/db2/db2_version`
-  3. Do: `show options`
-      ...show and set options...
-  4. Do: `run`
+  3. Do: `set RHOSTS [ip]`
+  3. Do: `run`
 
 ## Scenarios
+
+##  A run on Kali Linux 2019.3 and DB2 11.5.0.0a
+
   ```
   msf > use auxiliary/scanner/db2/db2_version
   msf auxiliary(scanner/db2/db2_version) > show options
