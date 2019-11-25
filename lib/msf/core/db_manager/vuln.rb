@@ -95,6 +95,8 @@ module Msf::DBManager::Vuln
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     exploited_at = opts[:exploited_at] || opts["exploited_at"]
     details = opts.delete(:details)
     rids = opts.delete(:ref_ids)
@@ -242,6 +244,8 @@ module Msf::DBManager::Vuln
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
@@ -261,6 +265,8 @@ module Msf::DBManager::Vuln
   def update_vuln(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+    opts = opts.clone()
+    opts.delete(:workspace)
     opts[:workspace] = wspace if wspace
     v = Mdm::Vuln.find(opts.delete(:id))
     v.update!(opts)

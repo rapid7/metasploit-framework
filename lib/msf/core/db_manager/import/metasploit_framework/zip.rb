@@ -4,6 +4,8 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   def import_msf_collateral(args={}, &block)
     data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    args = args.clone()
+    args.detele(:workspace)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.data_directory, "msf")
 
