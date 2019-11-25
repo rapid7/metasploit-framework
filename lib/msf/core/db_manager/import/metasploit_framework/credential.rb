@@ -14,7 +14,7 @@ module Msf::DBManager::Import::MetasploitFramework::Credential
   # Import credentials given a path to a valid manifest file
   #
   # @option args [String] :filename
-  # @option args [Mdm::Workspace] :wspace Default: {#workspace}
+  # @option args [Mdm::Workspace] :workspace Default: {#workspace}
   # @return [void]
   def import_msf_cred_dump_zip(args = {})
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)

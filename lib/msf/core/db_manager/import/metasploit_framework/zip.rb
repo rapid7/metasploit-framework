@@ -57,7 +57,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     return 0 if bl.include? host_info[loot.at("host-id").text.to_s.strip]
     loot_info              = {}
     loot_info[:host]       = host_info[loot.at("host-id").text.to_s.strip]
-    loot_info[:workspace]  = args[:wspace]
+    loot_info[:workspace]  = args[:workspace]
     loot_info[:ctype]      = nils_for_nulls(loot.at("content-type").text.to_s.strip)
     loot_info[:info]       = nils_for_nulls(unserialize_object(loot.at("info"), allow_yaml))
     loot_info[:ltype]      = nils_for_nulls(loot.at("ltype").text.to_s.strip)
@@ -102,7 +102,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
   # Parses task Nokogiri::XML::Element
   def parse_zip_task(task, wspace, bl, allow_yaml, btag, args, basedir, host_info, &block)
     task_info = {}
-    task_info[:workspace] = args[:wspace]
+    task_info[:workspace] = args[:workspace]
     # Should user be imported (original) or declared (the importing user)?
     task_info[:user] = nils_for_nulls(task.at("created-by").text.to_s.strip)
     task_info[:desc] = nils_for_nulls(task.at("description").text.to_s.strip)

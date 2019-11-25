@@ -104,7 +104,7 @@ module Msf::DBManager::Host
     if opts.kind_of? ::Mdm::Host
       return opts
     elsif opts.kind_of? String
-      raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
+      raise RuntimeError, "This invocation of get_host is no longer supported: #{caller}"
     else
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host

@@ -54,7 +54,7 @@ module Msf::DBManager::Workspace
 
     search_term = opts.delete(:search_term)
     # Passing these values to the search will cause exceptions, so remove them if they accidentally got passed in.
-    Msf::Util::DBManager.delete_opts_workspace(opts)
+    opts.delete(:workspace)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       if search_term && !search_term.empty?
@@ -94,7 +94,7 @@ module Msf::DBManager::Workspace
 
   def update_workspace(opts)
     raise ArgumentError.new("The following options are required: :id") if opts[:id].nil?
-    Msf::Util::DBManager.delete_opts_workspace(opts)
+    opts.delete(:workspace)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       ws_id = opts.delete(:id)
