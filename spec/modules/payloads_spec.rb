@@ -4184,15 +4184,21 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
   end
 
-  context 'windows/x64/encrypted_shell_reverse_tcp' do
+  context 'windows/x64/encrypted_shell/reverse_tcp' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
-                              'singles/windows/x64/encrypted_shell_reverse_tcp',
                               'stagers/windows/x64/encrypted_reverse_tcp',
                               'stages/windows/x64/encrypted_shell'
                           ],
-                          reference_name: 'windows/x64/encrypted_shell_reverse_tcp'
+                          reference_name: 'windows/x64/encrypted_shell/reverse_tcp'
+  end
 
+  context 'windows/x64/encrypted_shell_reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/encrypted_shell_reverse_tcp'
+                          ],
+                          reference_name: 'windows/x64/encrypted_shell_reverse_tcp'
   end
 
   context 'windows/x64/exec' do
