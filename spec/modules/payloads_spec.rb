@@ -2959,6 +2959,18 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/download_exec'
   end
 
+  context 'windows/encrypted_reverse_tcp' do
+    # payload depends on mingw skip testing
+  end
+
+  context 'windows/encrypted_shell' do
+    # payload depends on mingw skip testing
+  end
+
+  context 'windows/encrypted_shell_reverse_tcp' do
+    # payload depends on mingw skip testing
+  end
+
   context 'windows/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4172,6 +4184,18 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
+  end
+
+  context 'windows/x64/encrypted_reverse_tcp' do
+    # payload depends on mingw skip testing
+  end
+
+  context 'windows/x64/encrypted_shell' do
+    # payload depends on mingw skip testing
+  end
+
+  context 'windows/x64/encrypted_shell_reverse_tcp' do
+    # payload depends on mingw skip testing
   end
 
   context 'windows/x64/exec' do
