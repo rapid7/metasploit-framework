@@ -2959,12 +2959,19 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/download_exec'
   end
 
+  context 'windows/encrypted_shell/reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'stagers/windows/encrypted_reverse_tcp',
+                              'stages/windows/encrypted_shell'
+                          ],
+                          reference_name: 'windows/encrypted_shell/reverse_tcp'
+  end
+
   context 'windows/encrypted_shell_reverse_tcp' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
-                              'singles/windows/encrypted_shell_reverse_tcp',
-                              'stagers/windows/encrypted_reverse_tcp',
-                              'stages/windows/encrypted_shell'
+                              'singles/windows/encrypted_shell_reverse_tcp'
                           ],
                           reference_name: 'windows/encrypted_shell_reverse_tcp'
   end
