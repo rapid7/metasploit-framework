@@ -9,8 +9,8 @@ Enumerate TCP services via the FTP bounce PORT/LIST method
 3. Do: `set BOUNCEHOST [ip]`
 4. Do: `set PORTS [number(s)]`
 5. Do: `set RHOSTS [ip]`
-6. Do: `SET FTPUSER [user]`
-7. Do: `SET FTPPASS [password]`
+6. Do: `set FTPUSER [user]`
+7. Do: `set FTPPASS [password]`
 8. Do: `run`
 
 ## Scenarios
