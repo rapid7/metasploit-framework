@@ -221,6 +221,11 @@ protected
       # and any relevant information
       s.set_from_exploit(assoc_exploit)
 
+      # set injected worksapce value if db is active
+      if framework.db.active && wspace = framework.db.find_workspace(s.workspace)
+        framework.db.workspace = wspace
+      end
+
       # Pass along any associated payload uuid if specified
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
