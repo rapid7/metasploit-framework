@@ -6,7 +6,7 @@ This module implements the DLSw information disclosure retrieval. There is a bug
 
 1. Start msfconsole
 2. Do: `use modules/auxiliary/scanner/dlsw/dlsw_leak_capture`
-3. Set: `RHOSTS [ip]`
+3. Do: `set RHOSTS [ip]`
 4. Do: `run`
 
 ## Scenarios
