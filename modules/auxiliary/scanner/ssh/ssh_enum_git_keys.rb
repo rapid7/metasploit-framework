@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPath.new('KEY_FILE', [false, 'Filename of a private key.', nil]),
         OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames will be recursivley found matching id_* (Ex: /home/user/.ssh)', nil]),
-        OptString.new('GITSERVER', [false, 'Optional parameter to specify alternate Git Server (GitHub, GitLab, etc)', 'github.com'])
+        OptString.new('GITSERVER', [true, 'Parameter to specify alternate Git Server (GitHub, GitLab, etc)', 'github.com'])
       ]
     )
     deregister_options(
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     if keys.empty?
-      print_error "SSH - No valid keys found"
+      print_error "#{file} - No valid keys found"
     end
     return keys
   end
@@ -144,6 +144,7 @@ class MetasploitModule < Msf::Auxiliary
       return :missing_keyfile unless (File.directory?(key_dir) && File.readable?(key_dir))
 
       @key_files ||= Dir.glob("#{key_dir}/**/id_*", File::FNM_DOTMATCH).reject { |f| f.include? '.pub' }
+      vprint_status("Identified #{@key_files.size} potential keys")
       keys = read_keyfile(@key_files)
     else
       return {}
