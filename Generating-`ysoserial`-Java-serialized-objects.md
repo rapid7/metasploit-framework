@@ -1,7 +1,5 @@
 Instead of embedding static Java serialized objects, Metasploit offers ysoserial-generated binaries with built-in randomization.  The benefits of using the Metasploit library include quicker module development, easier-to-read code, and future-proof Java serialized objects.
 
-From the user's perspective, the use of the 
-
 To use the ysoserial libraries, let's look at an example from the [`hp_imc_java_deserialization`](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/http/hp_imc_java_deserialize.rb) module:
 
 ### Example code
