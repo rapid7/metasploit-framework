@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::IPList
   def import_ip_list(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     data.each_line do |ip|
@@ -17,7 +17,6 @@ module Msf::DBManager::Import::IPList
 
   def import_ip_list_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

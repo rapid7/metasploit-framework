@@ -49,7 +49,7 @@ module Parser
       @state = {}
       @state[:current_tag] = {}
       @block = block if block
-      @report_data = {:wspace => args[:wspace]}
+      @report_data = {:workspace => args[:workspace]}
       @nx_console_id = args[:nx_console_id]
       super()
     end
@@ -148,6 +148,7 @@ module Parser
       end
       return nil if just_the_facts.empty?
       just_the_facts[:task] = @args[:task]
+      just_the_facts[:workspace] = @args[:workspace] # workspace context is a required `fact`
       db.send("report_#{table}", just_the_facts)
     end
 

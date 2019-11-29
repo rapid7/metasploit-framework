@@ -18,4 +18,4 @@ end
 # Note: setup Rails environment before calling require
 require 'msf/core/web_services/json_rpc_app'
 
-run JsonRpcApp
+run Msf::WebServices::JsonRpcApp

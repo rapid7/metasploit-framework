@@ -15,6 +15,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
   Klass = Console::CommandDispatcher::Stdapi::Webcam
 
   include Console::CommandDispatcher
+  include Console::CommandDispatcher::Stdapi::Stream
 
   #
   # List of supported commands.
@@ -197,61 +198,14 @@ class Console::CommandDispatcher::Stdapi::Webcam
     end
 
     print_status("Preparing player...")
-    html = %|<html>
-<head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-<title>Metasploit webcam_stream - #{client.sock.peerhost}</title>
-<script language="javascript">
-function updateStatus(msg) {
-  var status = document.getElementById("status");
-  status.innerText = msg;
-}
-
-function noImage() {
-  document.getElementById("streamer").style = "display:none";
-  updateStatus("Waiting");
-}
-
-var i = 0;
-function updateFrame() {
-  var img = document.getElementById("streamer");
-  img.src = "#{stream_path}#" + i;
-  img.style = "display:";
-  updateStatus("Playing");
-  i++;
-}
-
-setInterval(function() {
-  updateFrame();
-},25);
-
-</script>
-</head>
-<body>
-<noscript>
-  <h2><font color="red">Error: You need Javascript enabled to watch the stream.</font></h2>
-</noscript>
-<pre>
-Target IP  : #{client.sock.peerhost}
-Start time : #{Time.now}
-Status     : <span id="status"></span>
-</pre>
-<br>
-<img onerror="noImage()" id="streamer">
-<br><br>
-<a href="http://www.metasploit.com" target="_blank">www.metasploit.com</a>
-</body>
-</html>
-    |
-
+    html = stream_html_template('screenshare', client.sock.peerhost, stream_path)
     ::File.open(player_path, 'wb') do |f|
       f.write(html)
     end
     path = ::File.expand_path(player_path)
     if view
       print_status("Opening player at: #{path}")
-      Rex::Compat.open_file(player_path)
+      Rex::Compat.open_file(path)
     else
       print_status("Please open the player manually with a browser: #{path}")
     end

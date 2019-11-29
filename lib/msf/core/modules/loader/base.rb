@@ -148,18 +148,18 @@ class Msf::Modules::Loader::Base
 
       if namespace_module.const_defined?('Metasploit3', false)
         klass = namespace_module.const_get('Metasploit3', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit3 to MetasploitModule')
+        load_warning(module_path, "Please change the module's class name from Metasploit3 to MetasploitModule")
       elsif namespace_module.const_defined?('Metasploit4', false)
         klass = namespace_module.const_get('Metasploit4', false)
-        load_warning(module_path, 'Please change the modules class name from Metasploit4 to MetasploitModule')
+        load_warning(module_path, "Please change the module's class name from Metasploit4 to MetasploitModule")
       elsif namespace_module.const_defined?('MetasploitModule', false)
         klass = namespace_module.const_get('MetasploitModule', false)
       else
-        load_error(module_path, Msf::Modules::Error.new({
-          :module_path => module_path,
-          :module_reference_name => module_reference_name,
-          :causal_message => 'Invalid module (no MetasploitModule class or module name)'
-        }))
+        load_error(module_path, Msf::Modules::Error.new(
+          module_path:           module_path,
+          module_reference_name: module_reference_name,
+          causal_message:        'invalid module class name (must be MetasploitModule)'
+        ))
         return false
       end
 
@@ -174,11 +174,18 @@ class Msf::Modules::Loader::Base
       true
     }
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name,
-      :reload => reload, &try_eval_module)
-    unless loaded
+    begin
+      loaded = namespace_module_transaction("#{type}/#{module_reference_name}", reload: reload, &try_eval_module)
+      return false unless loaded
+    rescue NameError
+      load_error(module_path, Msf::Modules::Error.new(
+        module_path:           module_path,
+        module_reference_name: module_reference_name,
+        causal_message:        'invalid module filename (must be lowercase alphanumeric snake case)'
+      ))
       return false
     end
+
 
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
@@ -276,14 +283,20 @@ class Msf::Modules::Loader::Base
     namespace_module = original_metasploit_class.parent
     parent_path = namespace_module.parent_path
 
-    type = original_metasploit_class_or_instance.type
-    module_reference_name = original_metasploit_class_or_instance.refname
+    type = original_metasploit_class.type
+    module_reference_name = original_metasploit_class.refname
+    module_fullname = original_metasploit_class.fullname
+    module_used_name = original_metasploit_instance.fullname if original_metasploit_instance
 
-    dlog("Reloading module #{module_reference_name}...", 'core')
+    dlog("Reloading module #{module_fullname}...", 'core')
 
     if load_module(parent_path, type, module_reference_name, :force => true, :reload => true)
-      # Create a new instance of the module
-      reloaded_module_instance = module_manager.create(module_reference_name)
+      # Create a new instance of the module, using the alias if one was used
+      reloaded_module_instance = module_manager.create(module_used_name || module_fullname)
+      if !reloaded_module_instance && module_fullname != module_used_name
+        reloaded_module_instance = module_manager.create(module_fullname)
+        reloaded_module_instance&.add_warning "Alias #{module_used_name} no longer available after reloading, using #{module_fullname}"
+      end
 
       if reloaded_module_instance
         if original_metasploit_instance
@@ -297,7 +310,7 @@ class Msf::Modules::Loader::Base
         return original_metasploit_class_or_instance
       end
     else
-      elog("Failed to reload #{module_reference_name}")
+      elog("Failed to reload #{module_fullname}")
 
       return nil
     end
@@ -367,18 +380,8 @@ class Msf::Modules::Loader::Base
       # semantically equivalent to providing false for the 1.9-only
       # "inherit" parameter to const_defined?. If we ever drop 1.8
       # support, we can save a few cycles here by adding it back.
-      begin
-        if parent.const_defined?(module_name)
-          parent.const_get(module_name)
-        else
-          break
-        end
-      # HACK: This doesn't slow load time as much as checking proactively
-      rescue NameError
-        reversed_name = self.class.reverse_relative_name(module_name)
-        # TODO: Consolidate this with Msftidy#check_snake_case_filename ?
-        raise Msf::ModuleLoadError, "#{reversed_name} must be lowercase alphanumeric snake case"
-      end
+      return unless parent.const_defined?(module_name)
+      parent.const_get(module_name)
     end
 
     named_module
@@ -420,7 +423,7 @@ class Msf::Modules::Loader::Base
       log_lines += error.backtrace
     end
 
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     elog(log_message)
   end
 
@@ -437,7 +440,7 @@ class Msf::Modules::Loader::Base
     log_lines = []
     log_lines << "#{module_path} generated a warning during load:"
     log_lines << error.to_s
-    log_message = log_lines.join("\n")
+    log_message = log_lines.join(' ')
     wlog(log_message)
   end
 
@@ -479,10 +482,11 @@ class Msf::Modules::Loader::Base
     module_path
   end
 
+  # Tries to determine if a file might be executable,
   def script_path?(path)
     File.executable?(path) &&
       !File.directory?(path) &&
-      File.read(path, 2) == "#!"
+      ['#!', '//'].include?(File.read(path, 2))
   end
 
   # Changes a file name path to a canonical module reference name.

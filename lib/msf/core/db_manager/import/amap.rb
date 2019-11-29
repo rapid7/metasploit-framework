@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::Amap
   def import_amap_log(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     data.each_line do |line|
@@ -31,7 +31,6 @@ module Msf::DBManager::Import::Amap
 
   def import_amap_log_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
     data = ""
     ::File.open(filename, 'rb') do |f|
       data = f.read(f.stat.size)
@@ -49,7 +48,7 @@ module Msf::DBManager::Import::Amap
 
   def import_amap_mlog(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     data.each_line do |line|

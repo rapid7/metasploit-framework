@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def rport

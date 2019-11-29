@@ -43,7 +43,7 @@ def init_framework(create_opts={})
     type = Msf.const_get("MODULE_#{type.upcase}")
   end
 
-  @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
+  @framework = ::Msf::Simple::Framework.create
 end
 
 # Cached framework object
@@ -90,11 +90,15 @@ def parse_args(args)
   end
 
   opt.on('-f', '--format          <format>', String, "Output format (use --list formats to list)") do |f|
-    opts[:format] = f
+    opts[:format] = f.downcase
   end
 
   opt.on('-e', '--encoder         <encoder>', String, 'The encoder to use (use --list encoders to list)') do |e|
     opts[:encoder] = e
+  end
+
+  opt.on('--sec-name        <value>', String, 'The new section name to use when generating large Windows binaries. Default: random 4-character alpha string') do |s|
+    opts[:secname] = s
   end
 
   opt.on('--smallest', 'Generate the smallest possible payload using all available encoders') do
@@ -106,7 +110,8 @@ def parse_args(args)
   end
 
   opt.on('--encrypt-key     <value>', String, 'A key to be used for --encrypt') do |e|
-    opts[:encryption_key] = e
+    init_framework
+    opts[:encryption_key] = Rex::Text.dehex(e)
   end
 
   opt.on('--encrypt-iv      <value>', String, 'An initialization vector for --encrypt') do |e|
@@ -126,12 +131,16 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars       <list>', String, 'Characters to avoid example: \'\x00\xff\'') do |b|
-    init_framework()
-    opts[:badchars] = Rex::Text.hex_to_raw(b)
+    init_framework
+    opts[:badchars] = Rex::Text.dehex(b)
   end
 
   opt.on('-n', '--nopsled         <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
     opts[:nops] = n.to_i
+  end
+
+  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)') do
+    opts[:padnops] = true
   end
 
   opt.on('-s', '--space           <length>', Integer, 'The maximum size of the resulting payload') do |s|
@@ -188,7 +197,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ && datastore['LHOST'].nil?
-      init_framework()
+      init_framework
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
@@ -213,7 +222,6 @@ def parse_args(args)
 
   opts
 end
-
 # Read a raw payload from stdin (or whatever IO object we're currently
 # using as stdin, see {#initialize})
 #
@@ -371,6 +379,7 @@ end
 
 begin
   generator_opts = parse_args(ARGV)
+
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
@@ -440,6 +449,9 @@ generator_opts[:cli] = true
 begin
   venom_generator = Msf::PayloadGenerator.new(generator_opts)
   payload = venom_generator.generate_payload
+rescue Msf::InvalidFormat => e
+  $stderr.puts "Error: #{e.message}"
+  $stderr.puts dump_formats
 rescue ::Exception => e
   elog("#{e.class} : #{e.message}\n#{e.backtrace * "\n"}")
   $stderr.puts "Error: #{e.message}"

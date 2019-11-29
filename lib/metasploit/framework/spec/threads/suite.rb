@@ -12,7 +12,7 @@ module Metasploit
           #
 
           # Number of allowed threads when threads are counted in `after(:suite)` or `before(:suite)`
-          EXPECTED_THREAD_COUNT_AROUND_SUITE = 2
+          EXPECTED_THREAD_COUNT_AROUND_SUITE = ENV['REMOTE_DB'] ? 3 : 2
 
           # `caller` for all Thread.new calls
           LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/threads/suite.log')

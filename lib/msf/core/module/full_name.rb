@@ -24,6 +24,14 @@ module Msf::Module::FullName
       "#{type}/#{refname}"
     end
 
+    #
+    # Classes themselves are never aliased (at the moment, anyway), but this is
+    # always just the {#fullname}.
+    #
+    def realname
+      fullname
+    end
+
     def promptname
       refname
     end
@@ -31,11 +39,20 @@ module Msf::Module::FullName
     def shortname
       refname.split('/').last
     end
+
+    #
+    # Returns a list of alternate names the module might go by.
+    #
+    def aliases
+      const_defined?(:Aliases) ? const_get(:Aliases) : []
+    end
   end
 
   #
   # Instance Methods
   #
+
+  attr_accessor :aliased_as
 
   #
   # Returns the module's framework full reference name.  This is the
@@ -45,6 +62,14 @@ module Msf::Module::FullName
   # payloads/windows/shell/reverse_tcp
   #
   def fullname
+    aliased_as || self.class.fullname
+  end
+
+  #
+  # Always return the module's framework full reference name, even when the
+  # module is aliased.
+  #
+  def realname
     self.class.fullname
   end
 
@@ -55,16 +80,16 @@ module Msf::Module::FullName
   # windows/shell/reverse_tcp
   #
   def refname
-    self.class.refname
+    fullname.sub(type + '/', '')
   end
 
   #
   # Returns the module's framework prompt-friendly name.
   #
-  # reverse_tcp
+  # windows/shell/reverse_tcp
   #
   def promptname
-    self.class.promptname
+    refname
   end
 
   #
@@ -73,6 +98,10 @@ module Msf::Module::FullName
   # reverse_tcp
   #
   def shortname
-    self.class.shortname
+    refname.split('/').last
+  end
+
+  def aliases
+    self.class.aliases
   end
 end

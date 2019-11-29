@@ -157,7 +157,8 @@ class RemoteHTTPDataService
       # simplify query by removing nil values
       query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
-      dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
+      # TODO: Re-enable this logging when framework handles true log levels.
+      #dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
       client = @client_pool.pop
       case request_type
@@ -180,14 +181,16 @@ class RemoteHTTPDataService
           return SuccessResponse.new(response)
         else
           ilog "HTTP #{request_type} request: #{uri.request_uri} failed with code: #{response.code} message: #{response.body}"
-          return FailedResponse.new(response)
+          return ErrorResponse.new(response)
       end
     rescue EOFError => e
-      elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
-      return FailedResponse.new('')
+      error_msg = "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
+      ilog error_msg
+      return FailedResponse.new(error_msg)
     rescue => e
-      elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
-      return FailedResponse.new('')
+      error_msg = "Problem with HTTP request for type/path: #{request_type} #{path} message: #{e.message}"
+      ilog error_msg
+      return FailedResponse.new(error_msg)
     ensure
       @client_pool << client
     end
@@ -202,9 +205,14 @@ class RemoteHTTPDataService
   # for the Metasploit version number from the remote endpoint
   #
   def is_online?
-    response = self.get_msf_version
-    if response && !response[:metasploit_version].empty?
-      return true
+    begin
+      response = self.get_msf_version
+      if response && !response[:metasploit_version].empty?
+        return true
+      end
+    rescue
+      # Ignore exceptions that are raised when checking the version,
+      # and assume the server is not online.
     end
 
     return false
@@ -235,20 +243,52 @@ class RemoteHTTPDataService
   #
   class ResponseWrapper
     attr_reader :response
-    attr_reader :expected
 
-    def initialize(response, expected)
+    def initialize(response)
       @response = response
-      @expected = expected
+    end
+
+    def response_body
+      if @response
+        @response.body
+      else
+        nil
+      end
+    end
+
+    def to_s
+      if @response
+        @response.to_s
+      else
+        ''
+      end
+    end
+  end
+
+  #
+  # Error response wrapper
+  # There is a response object, however, the request was unsuccessful.
+  #
+  class ErrorResponse < ResponseWrapper
+    def initialize(response)
+      super(response)
     end
   end
 
   #
   # Failed response wrapper
+  # There is no response object.
   #
-  class FailedResponse < ResponseWrapper
-    def initialize(response)
-      super(response, false)
+  class FailedResponse < ErrorResponse
+    attr_reader :error_msg
+
+    def initialize(error_msg)
+      @error_msg = error_msg
+      super(nil)
+    end
+
+    def to_s
+      return error_msg
     end
   end
 
@@ -257,7 +297,7 @@ class RemoteHTTPDataService
   #
   class SuccessResponse < ResponseWrapper
     def initialize(response)
-      super(response, true)
+      super(response)
     end
   end
 

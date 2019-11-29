@@ -119,6 +119,7 @@ class Auxiliary < Msf::Module
   # Called directly before 'run'
   #
   def setup
+    alert_user
   end
 
   #

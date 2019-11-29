@@ -24,6 +24,7 @@ class ClientRequest
     'headers'                => nil,
     'raw_headers'            => '',
     'method'                 => 'GET',
+    'partial'                => false,
     'path_info'              => '',
     'port'                   => 80,
     'proto'                  => 'HTTP',
@@ -173,22 +174,19 @@ class ClientRequest
     req << set_version
 
     # Set a default Host header if one wasn't passed in
-    if opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
-      host = opts['headers'].keys.each { |k| break opts['headers'][k] if k =~ /host/i }
-      req << set_formatted_header('Host', host)
-    else
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
       req << set_host_header
     end
 
     # If an explicit User-Agent header is set, then use that instead of
     # the default
-    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('user-agent')
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('user-agent')
       req << set_agent_header
     end
 
     # Similar to user-agent, only add an automatic auth header if a
     # manual one hasn't been provided
-    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('authorization')
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('authorization')
       req << set_auth_header
     end
 
@@ -198,7 +196,7 @@ class ClientRequest
 
     req << set_content_type_header
     req << set_content_len_header(pstr.length)
-    req << set_chunked_header()
+    req << set_chunked_header
     req << opts['raw_headers']
     req << set_body(pstr)
   end

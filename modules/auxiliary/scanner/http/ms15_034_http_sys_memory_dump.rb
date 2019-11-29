@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      unless check_host(ip)
+      if check_host(ip) == Exploit::CheckCode::Safe
         print_error("Target is not vulnerable")
         return
       else

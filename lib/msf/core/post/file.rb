@@ -32,7 +32,12 @@ module Msf::Post::File
         # and 2k
         return session.shell_command_token("echo %CD%")
       else
-        return session.shell_command_token("pwd")
+        if command_exists?("pwd")
+          return session.shell_command_token("pwd").to_s.strip
+        else
+          # Result on systems without pwd command
+          return session.shell_command_token("echo $PWD").to_s.strip
+        end
       end
     end
   end
@@ -43,13 +48,29 @@ module Msf::Post::File
   def dir(directory)
     if session.type == 'meterpreter'
       return session.fs.dir.entries(directory)
-    else
-      if session.platform == 'windows'
-        return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
-      else
-        return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
-      end
     end
+
+    if session.platform == 'windows'
+      return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
+    end
+
+    if command_exists?('ls')
+      return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
+    end
+
+    # Result on systems without ls command
+    if directory[-1] != '/'
+      directory = directory + "/"
+    end
+    result = []
+    data = session.shell_command_token("for fn in #{directory}*; do echo $fn; done")
+    parts = data.split("\n")
+    parts.each do |line|
+      line = line.split("/")[-1]
+      result.insert(-1, line)
+    end
+
+    result
   end
 
   alias ls dir
@@ -69,7 +90,6 @@ module Msf::Post::File
       else
         f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -106,7 +126,6 @@ module Msf::Post::File
       else
         f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -128,7 +147,6 @@ module Msf::Post::File
       if session.platform != 'windows'
         f = session.shell_command_token("test -u \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -149,6 +167,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is readable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is readable
+  #
+  def readable?(path)
+    raise "`readable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -r '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # Check for existence of +path+ on the remote file system
   #
   # @param path [String] Remote filename to check
@@ -162,7 +193,6 @@ module Msf::Post::File
       else
         f = cmd_exec("test -e \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -181,7 +211,6 @@ module Msf::Post::File
     unless ::File.exist?(local_file_name)
       ::FileUtils.touch(local_file_name)
     end
-
     output = ::File.open(local_file_name, "a")
     data.each_line do |d|
       output.puts(d)
@@ -288,19 +317,28 @@ module Msf::Post::File
   #
   # @param file_name [String] Remote file name to read
   # @return [String] Contents of the file
+  #
+  # @return [Array] of strings(lines)
+  #
   def read_file(file_name)
-    data = nil
-    if session.type == "meterpreter"
-      data = _read_file_meterpreter(file_name)
-    elsif session.type == "shell"
-      if session.platform == 'windows'
-        data = session.shell_command_token("type \"#{file_name}\"")
-      else
-        data = session.shell_command_token("cat \"#{file_name}\"")
-      end
-
+    if session.type == 'meterpreter'
+      return _read_file_meterpreter(file_name)
     end
-    data
+
+    return nil unless session.type == 'shell'
+
+    if session.platform == 'windows'
+      return session.shell_command_token("type \"#{file_name}\"")
+    end
+
+    return nil unless readable?(file_name)
+
+    if command_exists?('cat')
+      return session.shell_command_token("cat \"#{file_name}\"")
+    end
+
+    # Result on systems without cat command
+    session.shell_command_token("while read line; do echo $line; done <#{file_name}")
   end
 
   # Platform-agnostic file write. Writes given object content to a remote file.
@@ -321,7 +359,6 @@ module Msf::Post::File
       else
         _write_file_unix_shell(file_name, data)
       end
-
     end
     true
   end
@@ -362,6 +399,18 @@ module Msf::Post::File
   end
 
   #
+  # Upload a binary and write it as an executable file +remote+ on the
+  # remote filesystem.
+  #
+  # @param remote [String] Destination file name on the remote filesystem
+  # @param data [String] Data to be uploaded
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    write_file path, data
+    chmod(path)
+  end
+
+  #
   # Sets the permissions on a remote file
   #
   # @param path [String] Path on the remote filesystem
@@ -376,6 +425,16 @@ module Msf::Post::File
     else
       cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
     end
+  end
+
+  #
+  # Read a local exploit file binary from the data directory
+  #
+  # @param path [String] Directory in the exploits folder
+  # @param path [String] Filename in the data folder
+  def exploit_data(data_directory, file)
+    file_path = ::File.join(::Msf::Config.data_directory, "exploits", data_directory, file)
+    ::File.binread(file_path)
   end
 
   #
@@ -417,7 +476,6 @@ module Msf::Post::File
       end
     end
   end
-
   alias :file_rm :rm_f
   alias :dir_rm :rm_rf
 

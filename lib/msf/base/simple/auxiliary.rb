@@ -153,8 +153,14 @@ protected
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Auxiliary interrupted by the console user")
+      mod.print_error("Stopping running againest current target...")
       mod.cleanup
+      mod.print_status("Control-C again to force quit all targets.")
+      begin
+        Rex.sleep(0.5)
+      rescue ::Interrupt
+        raise $!
+      end
       return
     rescue ::Exception => e
       mod.error = e

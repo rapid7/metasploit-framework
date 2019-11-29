@@ -59,6 +59,7 @@ module Msf
     end
 
     def setup
+      alert_user
     end
 
     def file_format_filename
@@ -283,7 +284,12 @@ module Msf
     end
 
     def target_index
-      target_idx = Integer(datastore['TARGET']) rescue datastore['TARGET']
+      target_idx =
+        begin
+          Integer(datastore['TARGET'])
+        rescue TypeError, ArgumentError
+          datastore['TARGET']
+        end
 
       default_idx = default_target || 0
       # Use the default target if one was not supplied.

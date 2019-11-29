@@ -284,7 +284,7 @@ class Plugin::Alias < Msf::Plugin
       driver.dispatcher_stack.each do |dispatcher|
         next unless dispatcher.respond_to?(:commands)
         next if (dispatcher.commands.nil? or dispatcher.commands.length == 0)
-        items << dispatcher.commands.keys
+        items.concat(dispatcher.commands.keys)
       end
       # add all the current aliases to the list
       items.concat(@aliases.keys)

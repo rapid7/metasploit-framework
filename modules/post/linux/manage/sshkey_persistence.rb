@@ -28,12 +28,7 @@ class MetasploitModule < Msf::Post
             'h00die <mike@shorebreaksecurity.com>'
           ],
         'Platform'       => [ 'linux' ],
-        'SessionTypes'   => [ 'meterpreter', 'shell' ],
-        'Targets'        =>
-          [
-            [ 'Automatic', {} ]
-          ],
-        'DefaultTarget'  => 0
+        'SessionTypes'   => [ 'meterpreter', 'shell' ]
       )
     )
 

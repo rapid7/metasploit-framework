@@ -8,11 +8,12 @@ class Evasion
 
   def commands
     super.update({
-      'run'      => 'Launches the evasion module',
-      'rerun'    => 'Reloads and launches the evasion module',
-      'exploit'  => 'This is an alias for the run command',
-      'rexploit' => 'This is an alias for the rerun command',
-      'reload'   => 'Reloads the auxiliary module'
+      'run'        => 'Launches the evasion module',
+      'rerun'      => 'Reloads and launches the evasion module',
+      'exploit'    => 'This is an alias for the run command',
+      'rexploit'   => 'This is an alias for the rerun command',
+      'reload'     => 'Reloads the auxiliary module',
+      'to_handler' => 'Creates a handler with the specified payload'
     }).merge(mod ? mod.evasion_commands : {})
   end
 
@@ -63,6 +64,24 @@ class Evasion
       '-z' => [ nil                                               ]
     }
     tab_complete_generic(fmt, str, words)
+  end
+
+  def cmd_to_handler(*_args)
+    handler = framework.modules.create('exploit/multi/handler')
+
+    handler_opts = {
+      'Payload'        => mod.datastore['PAYLOAD'],
+      'LocalInput'     => driver.input,
+      'LocalOutput'    => driver.output,
+      'ExitOnSession'  => false,
+      'RunAsJob'       => true
+    }
+
+    handler.share_datastore(mod.datastore)
+    handler.exploit_simple(handler_opts)
+    job_id = handler.job_id
+
+    print_status "Payload Handler Started as Job #{job_id}"
   end
 
   private

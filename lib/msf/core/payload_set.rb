@@ -78,6 +78,15 @@ class PayloadSet < ModuleSet
     _singles.each_pair { |name, op|
       mod, handler = op
 
+      # if the payload has a dependency, check
+      # if it is supported on the system
+      payload_dependencies = op[4].dependencies
+      unless payload_dependencies.empty?
+        supported = payload_dependencies.all?(&:available?)
+        elog("Dependency for #{name} is not supported") unless supported
+        next unless supported
+      end
+
       # Build the payload dupe using the determined handler
       # and module
       p = build_payload(handler, mod)
@@ -91,6 +100,8 @@ class PayloadSet < ModuleSet
         sizes[name] = p.cached_size || p.new.size
       # Don't cache generic payload sizes.
       rescue NoCompatiblePayloadError
+      rescue StandardError => e
+        elog("Unable to build payload #{name} due to #{e}.")
       end
     }
 
@@ -98,9 +109,26 @@ class PayloadSet < ModuleSet
     _stagers.each_pair { |stager_name, op|
       stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
+      # Pass if the stager has a dependency
+      # and doesn't have the dependency installed
+      stager_dependencies = stager_inst.dependencies
+      unless stager_dependencies.empty?
+        supported = stager_dependencies.all?(&:available?)
+        elog("Dependency for #{stager_name} is not supported") unless supported
+        next unless supported
+      end
+
       # Walk the array of stages
       _stages.each_pair { |stage_name, ip|
         stage_mod, _, stage_platform, stage_arch, stage_inst = ip
+
+        #
+        # if the stager or stage has a dependency, check
+        # if they are compatible
+        #
+        unless stager_dependencies.empty? && stage_inst.dependencies.empty?
+          next unless stager_dependencies == stage_inst.dependencies
+        end
 
         # No intersection between platforms on the payloads?
         if ((stager_platform) and

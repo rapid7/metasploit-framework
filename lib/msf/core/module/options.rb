@@ -29,8 +29,12 @@ module Msf::Module::Options
   #
   def deregister_options(*names)
     names.each { |name|
-      self.options.remove_option(name)
+      real_name = self.datastore.find_key_case(name)
       self.datastore.delete(name)
+      self.options.remove_option(name)
+      if real_name != name
+        self.options.remove_option(real_name)
+      end
     }
   end
 

@@ -12,7 +12,9 @@ class Obj
   # @return [String]
   attr_reader :name
   # @return [String]
-  attr_reader :full_name
+  attr_reader :fullname
+  # @return [Array<String>]
+  attr_reader :aliases
   # @return [Integer]
   attr_reader :rank
   # @return [Date]
@@ -26,10 +28,6 @@ class Obj
   # @return [Array<String>]
   attr_reader :references
   # @return [Boolean]
-  attr_reader :is_server
-  # @return [Boolean]
-  attr_reader :is_client
-  # @return [String]
   attr_reader :platform
   # @return [String]
   attr_reader :arch
@@ -63,15 +61,14 @@ class Obj
     end
 
     @name               = module_instance.name
-    @full_name          = module_instance.fullname
+    @fullname           = module_instance.realname
+    @aliases            = module_instance.aliases
     @disclosure_date    = module_instance.disclosure_date
     @rank               = module_instance.rank.to_i
     @type               = module_instance.type
     @description        = module_instance.description.to_s.strip
     @author             = module_instance.author.map{|x| x.to_s}
     @references         = module_instance.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-    @is_server          = (module_instance.respond_to?(:stance) and module_instance.stance == "aggressive")
-    @is_client          = (module_instance.respond_to?(:stance) and module_instance.stance == "passive")
     @post_auth          = module_instance.post_auth?
     @default_credential = module_instance.default_cred?
 
@@ -83,7 +80,9 @@ class Obj
     @rport              = module_instance.datastore['RPORT']
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
-    @ref_name           = module_instance.refname
+    @ref_name           = module_instance.class.refname
+    @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
+
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
     end
@@ -116,15 +115,14 @@ class Obj
   def to_json(*args)
     {
       'name'               => @name,
-      'full_name'          => @full_name,
+      'fullname'           => @fullname,
+      'aliases'            => @aliases,
       'rank'               => @rank,
       'disclosure_date'    => @disclosure_date.nil? ? nil : @disclosure_date.to_s,
       'type'               => @type,
       'author'             => @author,
       'description'        => @description,
       'references'         => @references,
-      'is_server'          => @is_server,
-      'is_client'          => @is_client,
       'platform'           => @platform,
       'arch'               => @arch,
       'rport'              => @rport,
@@ -138,7 +136,8 @@ class Obj
       'check'              => @check,
       'post_auth'          => @post_auth,
       'default_credential' => @default_credential,
-      'notes'              => @notes
+      'notes'              => @notes,
+      'needs_cleanup'      => @needs_cleanup
     }.to_json(*args)
   end
 
@@ -167,15 +166,14 @@ class Obj
 
   def init_from_hash(obj_hash)
     @name               = obj_hash['name']
-    @full_name          = obj_hash['full_name']
+    @fullname           = obj_hash['fullname']
+    @aliases            = obj_hash['aliases'] || []
     @disclosure_date    = obj_hash['disclosure_date'].nil? ? nil : Time.parse(obj_hash['disclosure_date'])
     @rank               = obj_hash['rank']
     @type               = obj_hash['type']
     @description        = obj_hash['description']
     @author             = obj_hash['author'].nil? ? [] : obj_hash['author']
     @references         = obj_hash['references']
-    @is_server          = obj_hash['is_server']
-    @is_client          = obj_hash['is_client']
     @platform           = obj_hash['platform']
     @arch               = obj_hash['arch']
     @rport              = obj_hash['rport']
@@ -188,6 +186,8 @@ class Obj
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
     @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup      = obj_hash['needs_cleanup']
+
   end
 
   def sort_platform_string
@@ -203,8 +203,11 @@ class Obj
   end
 
   def force_encoding(encoding)
+    @name.force_encoding(encoding)
+    @fullname.force_encoding(encoding)
     @description.force_encoding(encoding)
     @author.each {|a| a.force_encoding(encoding)}
+    @references.each {|r| r.force_encoding(encoding)}
   end
 
 end

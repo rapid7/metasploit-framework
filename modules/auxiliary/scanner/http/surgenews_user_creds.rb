@@ -31,10 +31,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://news.netwinsite.com:8119/webnews?cmd=body&item=34896&group=netwin.surgemail'],
         ],
-      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'         => 'bcoles',
       'DisclosureDate' => 'Jun 16 2017'))
+
     register_options [ Opt::RPORT(9080) ]
-    deregister_options 'RHOST'
   end
 
   def max_retries

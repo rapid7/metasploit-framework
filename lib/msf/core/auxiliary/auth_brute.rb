@@ -626,7 +626,7 @@ module Auxiliary::AuthBrute
     port = host_port.to_s.strip if host_port
     complete_message = nil
     old_msg = msg.to_s.strip
-    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/i
     if old_msg.match(msg_regex)
       complete_message = msg.to_s.strip
     else

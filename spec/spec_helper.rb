@@ -1,7 +1,10 @@
 # -*- coding: binary -*-
 require 'stringio'
+require 'factory_bot'
 
 ENV['RAILS_ENV'] = 'test'
+
+require File.expand_path('../../config/rails_bigdecimal_fix', __FILE__)
 
 # @note must be before loading config/environment because railtie needs to be loaded before
 #   `Metasploit::Framework::Application.initialize!` is called.
@@ -112,7 +115,7 @@ RSpec.configure do |config|
   if ENV['REMOTE_DB']
     require 'metasploit/framework/data_service/remote/managed_remote_data_service'
     opts = {}
-    opts[:process_name] = 'msfdb_ws'
+    opts[:process_name] = File.join('tools', 'dev', 'msfdb_ws')
     opts[:host] = 'localhost'
     opts[:port] = '8080'
 

@@ -1,82 +1,58 @@
 # Hello, World!
 
 Thanks for your interest in making Metasploit -- and therefore, the
-world -- a better place!
-
-Are you about to report a bug? Sorry to hear it. Here's our [Issue tracker].
-Please try to be as specific as you can about your problem; include steps
-to reproduce (cut and paste from your console output if it's helpful) and
-what you were expecting to happen.
-
-Are you about to report a security vulnerability in Metasploit itself?
-How ironic! Please take a look at Rapid7's [Vulnerability
-Disclosure Policy](https://www.rapid7.com/disclosure.jsp), and send
-your report to security@rapid7.com using our [PGP key].
-
-Are you about to contribute some new functionality, a bug fix, or a new
-Metasploit module? If so, read on...
+world -- a better place!  Before you get started, review our
+[Code of Conduct].  There are multiple ways to help beyond just writing code:
+ - [Submit bugs and feature requests] with detailed information about your issue or idea.
+ - [Help fellow users with open issues] or [help fellow committers test recently submitted pull requests].
+ - [Report a security vulnerability in Metasploit itself] to Rapid7.
+ - Submit an updated or brand new module!  We are always eager for exploits, scanners, and new
+   integrations or features. Don't know where to start? Set up a [development environment], then head over to ExploitDB to look for [proof-of-concept exploits] that might make a good module.
 
 # Contributing to Metasploit
 
-What you see here in CONTRIBUTING.md is a bullet point list of the do's
-and don'ts of how to make sure *your* valuable contributions actually
-make it into Metasploit's master branch.
-
-If you care not to follow these rules, your contribution **will** be
-closed. Sorry!
-
-This is intended to be a **short** list. The [wiki] is much more
-exhaustive and reveals many mysteries. If you read nothing else, take a
-look at the standard [development environment setup] guide
-and Metasploit's [Common Coding Mistakes].
+Here's a short list of do's and don'ts to make sure *your* valuable contributions actually make
+it into Metasploit's master branch.  If you do not care to follow these rules, your contribution
+**will** be closed. Sorry!
 
 ## Code Contributions
 
-* **Do** stick to the [Ruby style guide].
-* **Do** get [Rubocop] relatively quiet against the code you are adding or modifying.
+* **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
 * **Do** follow the [50/72 rule] for Git commit messages.
-* **Don't** use the default merge messages when merging from other branches.
 * **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 * **Do** create a [topic branch] to work on instead of working directly on `master`.
- If you do not send a PR from a topic branch, the history of your PR will be
- lost as soon as you update your own master branch. See
- https://github.com/rapid7/metasploit-framework/pull/8000 for an example of
- this in action.
+  This helps protect the process, ensures users are aware of commits on the branch being considered for merge,
+  allows for a location for more commits to be offered without mingling with other contributor changes,
+  and allows contributors to make progress while a PR is still being reviewed.
 
 
 ### Pull Requests
 
-* **Do** target your pull request to the **master branch**. Not staging, not develop, not release.
+* **Do** write "WIP" on your PR and/or open a [draft PR] if submitting **working** yet unfinished code.
+* **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for witnessable effects in `msfconsole`.
 * **Do** list [verification steps] so your code is testable.
 * **Do** [reference associated issues] in your pull request description.
-* **Do** write [release notes] once a pull request is landed.
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
+* **Don't** post questions in older closed PRs.
 
-Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
+Pull request [PR#9966] is a good example to follow.
 
 #### New Modules
 
-* **Do** run `tools/dev/msftidy.rb` against your module and fix any errors or warnings that come up.
-  - It would be even better to set up `msftidy.rb` as a [pre-commit hook].
-* **Do** use the many module mixin [API]s. Wheel improvements are welcome; wheel reinventions, not so much.
+* **Do** set up `msftidy` to fix any errors or warnings that come up as a [pre-commit hook].
+* **Do** use the many module mixin [API]s.
 * **Don't** include more than one module per pull request.
 * **Do** include instructions on how to setup the vulnerable environment or software.
-* **Do** include [Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Generating-Module-Documentation) showing sample run-throughs.
-
-
-
-#### Scripts
-
-* **Don't** submit new [scripts].  Scripts are shipped as examples for
-  automating local tasks, and anything "serious" can be done with post
-  modules and local exploits.
+* **Do** include [Module Documentation] showing sample run-throughs.
+* **Don't** submit new [scripts].  Scripts are shipped as examples for automating local tasks, and
+  anything "serious" can be done with post modules and local exploits.
 
 #### Library Code
 
-* **Do** write [RSpec] tests - even the smallest change in library land can thoroughly screw things up.
+* **Do** write [RSpec] tests - even the smallest change in a library can break existing code.
 * **Do** follow [Better Specs] - it's like the style guide for specs.
 * **Do** write [YARD] documentation - this makes it easier for people to use your code.
 * **Don't** fix a lot of things in one pull request. Small fixes are easier to validate.
@@ -84,44 +60,47 @@ Pull requests [PR#2940] and [PR#3043] are a couple good examples to follow.
 #### Bug Fixes
 
 * **Do** include reproduction steps in the form of verification steps.
-* **Do** include a link to any corresponding [Issues] in the format of
-  `See #1234` in your commit description.
+* **Do** link to any corresponding [Issues] in the format of `See #1234` in your commit description.
 
 ## Bug Reports
 
-* **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
+Please report vulnerabilities in Rapid7 software directly to security@rapid7.com. For more on our disclosure policy and Rapid7's approach to coordinated disclosure, [head over here](https://www.rapid7.com/security). 
+
+When reporting Metasploit issues:
 * **Do** write a detailed description of your bug and use a descriptive title.
-* **Do** include reproduction steps, stack traces, and anything else that might help us verify and fix your bug.
+* **Do** include reproduction steps, stack traces, and anything that might help us fix your bug.
 * **Don't** file duplicate reports; search for your bug before filing a new report.
+* **Don't** attempt to report issues on a closed PR.
 
-If you need some more guidance, talk to the main body of open
-source contributors over on the [Freenode IRC channel],
-or e-mail us at the [metasploit-hackers] mailing list.
+If you need some more guidance, talk to the main body of open source contributors over on our
+[Metasploit Slack] or [#metasploit on Freenode IRC].
 
-Also, **thank you** for taking the few moments to read this far! You're
-already way ahead of the curve, so keep it up!
+Finally, **thank you** for taking the few moments to read this far! You're already way ahead of the
+curve, so keep it up!
 
-[Issue Tracker]:http://r-7.co/MSF-BUGv1
-[PGP key]:http://pgp.mit.edu:11371/pks/lookup?op=vindex&search=0x2380F85B8AD4DB8D
-[wiki]:https://github.com/rapid7/metasploit-framework/wiki
-[scripts]:https://github.com/rapid7/metasploit-framework/tree/master/scripts
-[development environment setup]:http://r-7.co/MSF-DEV
-[Common Coding Mistakes]:https://github.com/rapid7/metasploit-framework/wiki/Common-Metasploit-Module-Coding-Mistakes
+[Code of Conduct]:https://github.com/rapid7/metasploit-framework/wiki/CODE_OF_CONDUCT.md
+[Submit bugs and feature requests]:http://r-7.co/MSF-BUGv1
+[Help fellow users with open issues]:https://github.com/rapid7/metasploit-framework/issues
+[help fellow committers test recently submitted pull requests]:https://github.com/rapid7/metasploit-framework/pulls
+[Report a security vulnerability in Metasploit itself]:https://www.rapid7.com/disclosure.jsp
+[development environment]:http://r-7.co/MSF-DEV
+[proof-of-concept exploits]:https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true
 [Ruby style guide]:https://github.com/bbatsov/ruby-style-guide
 [Rubocop]:https://rubygems.org/search?query=rubocop
 [50/72 rule]:http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [topic branch]:http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches
+[draft PR]:https://help.github.com/en/articles/about-pull-requests#draft-pull-requests
 [console output]:https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 [verification steps]:https://help.github.com/articles/writing-on-github#task-lists
 [reference associated issues]:https://github.com/blog/1506-closing-issues-via-pull-requests
-[release notes]:https://github.com/rapid7/metasploit-framework/wiki/Adding-Release-Notes-to-PRs
-[PR#2940]:https://github.com/rapid7/metasploit-framework/pull/2940
-[PR#3043]:https://github.com/rapid7/metasploit-framework/pull/3043
+[PR#9966]:https://github.com/rapid7/metasploit-framework/pull/9966
 [pre-commit hook]:https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb
 [API]:https://rapid7.github.io/metasploit-framework/api
+[Module Documentation]:https://github.com/rapid7/metasploit-framework/wiki/Generating-Module-Documentation
+[scripts]:https://github.com/rapid7/metasploit-framework/tree/master/scripts
 [RSpec]:http://rspec.info
 [Better Specs]:http://betterspecs.org
 [YARD]:http://yardoc.org
 [Issues]:https://github.com/rapid7/metasploit-framework/issues
-[Freenode IRC channel]:http://webchat.freenode.net/?channels=%23metasploit&uio=d4
-[metasploit-hackers]:https://groups.google.com/forum/#!forum/metasploit-hackers
+[Metasploit Slack]:https://www.metasploit.com/slack
+[#metasploit on Freenode IRC]:http://webchat.freenode.net/?channels=%23metasploit&uio=d4

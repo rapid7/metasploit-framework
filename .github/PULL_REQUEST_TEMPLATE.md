@@ -2,6 +2,8 @@
 Tell us what this change does. If you're fixing a bug, please mention
 the github issue number.
 
+Please ensure you are submitting **from a unique branch** in your [repository](https://github.com/rapid7/metasploit-framework/pull/11086#issuecomment-445506416) to master in Rapid7's.
+
 ## Verification
 
 List the steps needed to make sure this thing works

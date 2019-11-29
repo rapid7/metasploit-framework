@@ -53,6 +53,7 @@ module Payload
     e = EncodedPayload.create(payload,
         'BadChars'    => opts['BadChars'],
         'MinNops'     => opts['NopSledSize'],
+        'PadNops'     => opts['PadNops'],
         'Encoder'     => opts['Encoder'],
         'Iterations'  => opts['Iterations'],
         'ForceEncode' => opts['ForceEncode'],
@@ -64,7 +65,8 @@ module Payload
     exeopts = {
       :inject => opts['KeepTemplateWorking'],
       :template => opts['Template'],
-      :template_path => opts['ExeDir']
+      :template_path => opts['ExeDir'],
+      :secname => opts['SecName']
     }
 
     arch = payload.arch
@@ -96,7 +98,7 @@ module Payload
         output =
           Buffer.comment(
             "#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
-            "http://www.metasploit.com\n" +
+            "https://metasploit.com/\n" +
             ((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
             ((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
             "#{ou}",
@@ -113,7 +115,7 @@ module Payload
               "\n" +
               Buffer.comment(
                 "#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
-                "http://www.metasploit.com\n",
+                "https://metasploit.com/\n",
                 fmt) +
               Buffer.transform(stage, fmt)
           end

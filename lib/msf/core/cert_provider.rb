@@ -45,11 +45,11 @@ module Ssl
     # identification by NIDS and the like.
     #
     # @return [String, String, Array]
-    def self.ssl_generate_certificate(opts = {}, ksize = 2048)
+    def self.ssl_generate_certificate(cert_vars: {}, ksize: 2048, **opts)
       yr      = 24*3600*365
       vf      = opts[:not_before] || Time.at(Time.now.to_i - rand(yr * 3) - yr)
       vt      = opts[:not_after]  || Time.at(vf.to_i + (rand(9)+1) * yr)
-      cvars   = opts[:cert_vars]  || self.rand_vars
+      cvars   = self.rand_vars(cert_vars)
       subject = opts[:subject]    || ssl_generate_subject(cvars)
       ctype   = opts[:cert_type]  || opts[:ca_cert].nil? ? :ca : :server
       key     = opts[:key] || OpenSSL::PKey::RSA.new(ksize){ }

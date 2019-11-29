@@ -4,6 +4,7 @@ require 'json'
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/ui/console/command_dispatcher/db/analyze'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
 
@@ -18,6 +19,7 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
+  include Msf::Ui::Console::CommandDispatcher::Analyze
 
   DB_CONFIG_PATH = 'framework/database'
 
@@ -50,12 +52,14 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
-      "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
+      "analyze"       => "Analyze database information about a specific address or address range",
     }
 
     # Always include commands that only make sense when connected.
     # This avoids the problem of them disappearing unexpectedly if the
     # database dies or times out.  See #1923
+
     base.merge(more)
   end
 
@@ -175,10 +179,6 @@ class Db
           name: names.last
       }
       begin
-        if names.last == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
-          print_error("Unable to rename a workspace to '#{Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}'")
-          return
-        end
         updated_ws = framework.db.update_workspace(opts)
         if updated_ws
           framework.db.workspace = updated_ws if names.first == framework.db.workspace.name
@@ -193,7 +193,6 @@ class Db
         end
       rescue => e
         print_error "Failed to rename workspace: #{e.message}"
-        e.backtrace.each { |line| print_error "#{line}"}
       end
 
     elsif names
@@ -292,7 +291,7 @@ class Db
     end
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
@@ -543,7 +542,7 @@ class Db
 
     matched_host_ids = []
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
 
       framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
         matched_host_ids << host.id
@@ -759,11 +758,15 @@ class Db
     matched_service_ids = []
 
     each_host_range_chunk(host_ranges) do |host_search|
-      break if !host_search.nil? && host_search.empty?
+      next if host_search && host_search.empty?
       opts[:workspace] = framework.db.workspace
       opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
       framework.db.services(opts).each do |service|
+
+        unless service.state == 'open'
+          next if onlyup
+        end
 
         host = service.host
         matched_service_ids << service.id
@@ -901,7 +904,7 @@ class Db
       vulns = framework.db.vulns({:search_term => search_term})
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
       end
@@ -1083,7 +1086,7 @@ class Db
     else
       # Collect notes of specified hosts
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
         opts[:ntype] = types if mode != :update && types && !types.empty?
@@ -1299,7 +1302,7 @@ class Db
       loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
     else
       each_host_range_chunk(host_ranges) do |host_search|
-        break if !host_search.nil? && host_search.empty?
+        next if host_search && host_search.empty?
 
         loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
       end
@@ -1710,17 +1713,28 @@ class Db
   end
 
   def cmd_db_connect_help
-    print_line("   Usage: db_connect <user:pass>@<host:port>/<database>")
-    print_line("      OR: db_connect -y [path/to/database.yml]")
-    print_line("      OR: db_connect [options] <http|https>://<host:port>")
-    print_line("Examples:")
-    print_line("       db_connect user@metasploit3")
-    print_line("       db_connect user:pass@192.168.0.2/metasploit3")
-    print_line("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-    print_line("       db_connect http://localhost:8080")
-    print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
-    print_line("       db_connect --name LA-server http://laoffice.org:8080")
-    print_line("       db_connect LA-server")
+    print_line("   USAGE:")
+    print_line("      * Postgres Data Service:")
+    print_line("          db_connect <user:[pass]>@<host:[port]>/<database>")
+    print_line("        Examples:")
+    print_line("          db_connect user@metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2/metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2:1500/metasploit3")
+    print_line("          db_connect -y [path/to/database.yml]")
+    print_line(" ")
+    print_line("      * HTTP Data Service:")
+    print_line("          db_connect [options] <http|https>://<host:[port]>")
+    print_line("        Examples:")
+    print_line("          db_connect http://localhost:8080")
+    print_line("          db_connect http://my-super-msf-data.service.com")
+    print_line("          db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line("        NOTE: You must be connected to a Postgres data service in order to successfully connect to a HTTP data service.")
+    print_line(" ")
+    print_line("      Persisting Connections:")
+    print_line("        db_connect --name <name to save connection as> [options] <address>")
+    print_line("      Examples:")
+    print_line("        Saving:     db_connect --name LA-server http://123.123.123.45:1234")
+    print_line("        Connecting: db_connect LA-server")
     print_line(" ")
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
@@ -1729,6 +1743,7 @@ class Db
     print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token         The API token used to authenticate to the remote data service.")
     print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
+    print_line("")
   end
 
   def cmd_db_connect(*args)
@@ -1750,7 +1765,7 @@ class Db
         when '-l', '--list-services'
           list_saved_data_services
           return
-      when '-n', '--name'
+        when '-n', '--name'
           name = args.shift
           if name =~ /\/|\[|\]/
             print_error "Provided name contains an invalid character. Aborting connection."
@@ -1869,24 +1884,8 @@ class Db
     end
   end
 
-  def cmd_db_rebuild_cache
-    unless framework.db.active
-      print_error("The database is not connected")
-      return
-    end
-
-    print_status("Purging and rebuilding the module cache in the background...")
-    framework.threads.spawn("ModuleCacheRebuild", true) do
-      framework.db.purge_all_module_details
-      framework.db.update_all_module_details
-    end
-  end
-
-  def cmd_db_rebuild_cache_help
-    print_line "Usage: db_rebuild_cache"
-    print_line
-    print_line "Purge and rebuild the SQL module cache."
-    print_line
+  def cmd_db_rebuild_cache(*args)
+    print_line "This command is deprecated with Metasploit 5"
   end
 
   def cmd_db_save_help
@@ -2158,7 +2157,6 @@ class Db
     conf.each_pair do |k,v|
       name = k.split('/').last
       rv = name if name == search_criteria
-      rv = name if v.values.include?(search_criteria)
     end
     rv
   end

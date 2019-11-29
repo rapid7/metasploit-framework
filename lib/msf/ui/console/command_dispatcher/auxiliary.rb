@@ -60,15 +60,12 @@ class Auxiliary
   end
 
   #
-  # Reloads an auxiliary module and executes it
+  # Tab completion for the run command
   #
-  def cmd_rerun(*args)
-    if reload(true)
-      cmd_run(*args)
-    end
+  def cmd_run_tabs(str, words)
+    return [] if words.length > 1
+    @@auxiliary_opts.fmt.keys
   end
-
-  alias cmd_rexploit cmd_rerun
 
   #
   # Executes an auxiliary module
@@ -108,15 +105,41 @@ class Auxiliary
       jobify = true
     end
 
+    rhosts = datastore['RHOSTS']
     begin
-      mod.run_simple(
-        'Action'         => action,
-        'OptionStr'      => opts.join(','),
-        'LocalInput'     => driver.input,
-        'LocalOutput'    => driver.output,
-        'RunAsJob'       => jobify,
-        'Quiet'          => quiet
-      )
+      # Check if this is a scanner module or doesn't target remote hosts
+      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
+        mod.run_simple(
+          'Action'         => action,
+          'OptionStr'      => opts.join(','),
+          'LocalInput'     => driver.input,
+          'LocalOutput'    => driver.output,
+          'RunAsJob'       => jobify,
+          'Quiet'          => quiet
+        )
+      # For multi target attempts with non-scanner modules.
+      else
+        rhosts_opt = Msf::OptAddressRange.new('RHOSTS')
+        if !rhosts_opt.valid?(rhosts)
+          print_error("Auxiliary failed: option RHOSTS failed to validate.")
+          return false
+        end
+
+        rhosts_range = Rex::Socket::RangeWalker.new(rhosts_opt.normalize(rhosts))
+        rhosts_range.each do |rhost|
+          nmod = mod.replicant
+          nmod.datastore['RHOST'] = rhost
+          print_status("Running module against #{rhost}")
+          nmod.run_simple(
+            'Action'         => action,
+            'OptionStr'      => opts.join(','),
+            'LocalInput'     => driver.input,
+            'LocalOutput'    => driver.output,
+            'RunAsJob'       => false,
+            'Quiet'          => quiet
+          )
+        end
+      end
     rescue ::Timeout::Error
       print_error("Auxiliary triggered a timeout exception")
       print_error("Call stack:")
@@ -147,6 +170,7 @@ class Auxiliary
   end
 
   alias cmd_exploit cmd_run
+  alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_run_help
     print_line "Usage: run [options]"
@@ -156,6 +180,19 @@ class Auxiliary
   end
 
   alias cmd_exploit_help cmd_run_help
+
+  #
+  # Reloads an auxiliary module and executes it
+  #
+  def cmd_rerun(*args)
+    if reload(true)
+      cmd_run(*args)
+    end
+  end
+
+  alias cmd_rerun_tabs cmd_run_tabs
+  alias cmd_rexploit cmd_rerun
+  alias cmd_rexploit_tabs cmd_exploit_tabs
 
   #
   # Reloads an auxiliary module and checks the target to see if it's

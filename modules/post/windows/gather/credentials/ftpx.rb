@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
         FTP client for Windows.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Brendan Coles <bcoles[at]gmail.com>' ],
+      'Author'        => [ 'bcoles' ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))

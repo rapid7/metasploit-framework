@@ -2,12 +2,13 @@ module LootDataProxy
 
   def report_loot(opts)
     begin
-      data_service = self.get_data_service
-      if !data_service.is_a?(Msf::DBManager)
-        opts[:data] = Base64.urlsafe_encode64(opts[:data]) if opts[:data]
+      self.data_service_operation do |data_service|
+        if !data_service.is_a?(Msf::DBManager)
+          opts[:data] = Base64.urlsafe_encode64(opts[:data]) if opts[:data]
+        end
+        add_opts_workspace(opts)
+        data_service.report_loot(opts)
       end
-      add_opts_workspace(opts)
-      data_service.report_loot(opts)
     rescue => e
       self.log_error(e, "Problem reporting loot")
     end
@@ -37,9 +38,10 @@ module LootDataProxy
 
   def loots(opts = {})
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.loot(opts)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.loot(opts)
+      end
     rescue => e
       self.log_error(e, "Problem retrieving loot")
     end
@@ -49,8 +51,9 @@ module LootDataProxy
 
   def update_loot(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_loot(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_loot(opts)
+      end
     rescue => e
       self.log_error(e, "Problem updating loot")
     end

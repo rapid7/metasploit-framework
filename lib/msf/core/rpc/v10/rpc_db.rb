@@ -439,7 +439,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:port]
     conditions["services.proto"] = opts[:proto] if opts[:proto]
@@ -522,7 +522,7 @@ public
   #    * 'created_at' [Integer] Last created at.
   #    * 'updated_at' [Integer] Last updated at.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_workspace')
+  #  rpc.call('db.get_workspace', 'default')
   def rpc_get_workspace(wspace)
     db_check
     wspace = find_workspace(wspace)
@@ -576,7 +576,7 @@ public
   # @return [Hash] A hash indicating the action was successful. It contains the following:
   #  * 'result' [String] A message that says 'success'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.wspace', 'temp_workspace')
+  #  rpc.call('db.del_workspace', 'temp_workspace')
   def rpc_del_workspace(wspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     db_check
@@ -622,6 +622,7 @@ public
   # Returns information about a host.
   #
   # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -644,7 +645,7 @@ public
   #    * 'purpose' [String] Purpose. Example: 'server'.
   #    * 'info' [String] Additional information.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_host', {:host => ip})
+  #  rpc.call('db.get_host', {:workspace => 'default', :host => ip})
   def rpc_get_host(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -673,11 +674,58 @@ public
   }
   end
 
+  # Returns analysis of module suggestions for known data about a host.
+  #
+  # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'host' [Array<Hash>] Each hash in the array contains the following:
+  #    * 'address' [String] Address.
+  #    * 'modules' [Array<Hash>] Each hash in the array modules contains the following:
+  #      * 'mtype' [String] Module type.
+  #      * 'mname' [String] Module name. For example: 'windows/wlan/wlan_profile'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.analyze_host', {:workspace => 'default', :host => ip})
+def rpc_analyze_host(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    _opts, _wspace = init_db_opts_workspace(xopts)
+
+    ret = {}
+    ret[:host] = []
+    opts = fix_options(xopts)
+    h = self.framework.db.get_host(opts)
+    return ret unless h
+    h_result = self.framework.analyze.host(h)
+    host_detail = {}
+    host_detail[:address] = h.address
+    # for now only modules can be returned, in future maybe process whole result map
+    unless h_result[:modules].empty?
+      host_detail[:modules] = []
+      h_result[:modules].each do |mod|
+        mod_detail = {}
+        mod_detail[:mtype]  = mod.type
+        mod_detail[:mname]  = mod.fullname
+        host_detail[:modules] << mod_detail
+      end
+    end
+    ret[:host] << host_detail
+    ret
+  }
+end
+
 
   # Reports a new host to the database.
   #
   # @param [Hash] xopts Information to report about the host. See below:
-  # @option xopts [String] :host IP address. You msut supply this.
+  # @option xopts [String] :workspace Name of the workspace.
+  # @option xopts [String] :host IP address. You must supply this.
   # @option xopts [String] :state One of the Msf::HostState constants. (See Most::HostState Documentation)
   # @option xopts [String] :os_name Something like "Windows", "Linux", or "Mac OS X".
   # @option xopts [String] :os_flavor Something like "Enterprise", "Pro", or "Home".
@@ -711,6 +759,7 @@ public
   # Reports a service to the database.
   #
   # @param [Hash] xopts Information to report about the service. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :host Required. The host where this service is running.
   # @option xopts [String] :port Required. The port where this service listens.
   # @option xopts [String] :proto Required. The transport layer protocol (e.g. tcp, udp).
@@ -776,9 +825,9 @@ public
       conditions[:proto] = opts[:proto] if opts[:proto]
       conditions[:port] = opts[:port] if opts[:port]
       conditions[:name] = opts[:names] if opts[:names]
-      sret = wspace.services.where(conditions).order("hosts.address, port")
+      sret = wspace.services.where(conditions).order("hosts.address, port").to_a()
     elsif host
-      sret = host.services
+      sret = host.services.to_a()
     end
     return ret if sret == nil
     services << sret if sret.class == ::Mdm::Service
@@ -805,6 +854,7 @@ public
   # Returns a note.
   #
   # @param [Hash] xopts Options.
+  # @option xopts [String] :workspace Workspace name.
   # @option xopts [String] :addr Host address.
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
@@ -899,6 +949,7 @@ public
   # Reports a client connection.
   #
   # @param [Hash] xopts Information about the client.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_string Required. User-Agent string.
   # @option xopts [String] :host Required. Host IP.
   # @option xopts [String] :ua_name One of the Msf::HttpClients constants. (See Msf::HttpClient Documentation.)
@@ -970,6 +1021,7 @@ public
   # Returns notes from the database.
   #
   # @param [Hash] xopts Filters for the search. See below:
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :address Host address.
   # @option xopts [String] :names Names (separated by ',').
   # @option xopts [String] :ntype Note type.
@@ -996,7 +1048,7 @@ public
     offset = opts.delete(:offset) || 0
 
     conditions = {}
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
+    conditions["hosts.address"] = opts[:address] if opts[:address]
     conditions[:name] = opts[:names].strip().split(",") if opts[:names]
     conditions[:ntype] = opts[:ntype] if opts[:ntype]
     conditions["services.port"] = Rex::Socket.portspec_to_portlist(opts[:ports]) if opts[:ports]
@@ -1070,14 +1122,14 @@ public
     vulns = []
 
     if opts[:host] or opts[:address] or opts[:addresses]
-      hosts = opts_to_hosts(xopts)
+      hosts = opts_to_hosts(opts)
     end
 
     if opts[:port] or opts[:proto]
       if opts[:host] or opts[:address] or opts[:addresses]
-        services = opts_to_services(hosts,xopts)
+        services = opts_to_services(hosts, opts)
       else
-        services = opts_to_services([],xopts)
+        services = opts_to_services([], opts)
       end
     end
 
@@ -1087,7 +1139,7 @@ public
         if opts[:name]
           vret = s.vulns.find_by_name(opts[:name])
         else
-          vret = s.vulns
+          vret = s.vulns.to_a()
         end
         next if vret == nil
         vulns << vret if vret.class == ::Mdm::Vuln
@@ -1099,7 +1151,7 @@ public
         if opts[:name]
           vret = h.vulns.find_by_name(opts[:name])
         else
-          vret = h.vulns
+          vret = h.vulns.to_a()
         end
         next if vret == nil
         vulns << vret if vret.class == ::Mdm::Vuln
@@ -1110,7 +1162,7 @@ public
       if opts[:name]
         vret = wspace.vulns.find_by_name(opts[:name])
       else
-        vret = wspace.vulns
+        vret = wspace.vulns.to_a()
       end
       vulns << vret if vret.class == ::Mdm::Vuln
       vulns |= vret if vret.class == Array
@@ -1540,6 +1592,8 @@ public
   #
   # @param [Hash] xopts Filters to narrow down which vulnerabilities to find.
   # @option xopts [String] :workspace Workspace name.
+  # @option xopts [String] :host Host address.
+  # @option xopts [String] :address Same as :host.
   # @option xopts [String] :proto Protocol.
   # @option xopts [Integer] :port Port.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
@@ -1557,7 +1611,7 @@ public
   #    * 'info' [String] Additional information.
   #    * 'refs' [Array<String>] Reference names.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.get_vuln', {:proto=>'tcp'})
+  #  rpc.call('db.get_vuln', {:host => ip, :proto => 'tcp'})
   def rpc_get_vuln(xopts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
@@ -1612,6 +1666,7 @@ public
   # Returns browser clients information.
   #
   # @param [Hash] xopts Filters that narrow down the search.
+  # @option xopts [String] :workspace Name of the workspace.
   # @option xopts [String] :ua_name User-Agent name.
   # @option xopts [String] :ua_ver Browser version.
   # @option xopts [Array] :addresses Addresses.
@@ -1755,11 +1810,12 @@ public
   # Connects to the database.
   #
   # @param [Hash] xopts Options:
+  # This must contain :driver and driver specific options.
   # @option xopts [String] :driver Driver name. For example: 'postgresql'.
   # @return [Hash] A hash that indicates whether the action was successful or not.
   #  * 'result' [String] A message that says either 'success' or 'failed'.
   # @example Here's how you would use this from the client:
-  #  rpc.call('db.connect', {:driver=>'postgresql'})
+  #  rpc.call('db.connect', {:driver=>'postgresql', :host => db_host, :port => db_port, :database => db_name, :username => db_username, :password=> db_password})
   def rpc_connect(xopts)
     opts = fix_options(xopts)
     if not self.framework.db.driver and not opts[:driver]

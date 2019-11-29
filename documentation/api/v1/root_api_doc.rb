@@ -17,6 +17,15 @@ module RootApiDoc
   AUTH_CODE_DESC = 'The authentication error code that was generated.'
   AUTH_CODE_EXAMPLE = 401
   AUTH_MESSAGE_DESC = 'A message describing the authentication error that occurred.'
+  LIMIT_DEFAULT = 100
+  LIMIT_DESC = "The maximum number of results that will be retrieved from the query. (Default: #{LIMIT_DEFAULT})"
+  OFFSET_DEFAULT = 0
+  OFFSET_DESC = "The number of results the query will begin reading from the beginning of the set. (Default: #{OFFSET_DEFAULT})"
+  ORDER_DESC = 'The order in which results are returned, based on the created_at datetime. (Default: desc)'
+  ORDER_ENUM = [
+      'asc',
+      'desc'
+  ]
 
   DEFAULT_RESPONSE_200 = 'Successful operation.'
   DEFAULT_RESPONSE_401 = 'Authenticate to access this resource.'
@@ -63,6 +72,7 @@ module RootApiDoc
     tag name: 'msf', description: 'Utility operations around Metasploit Framework.'
     tag name: 'nmap', description: 'Nmap operations.'
     tag name: 'note', description: 'Note operations.'
+    tag name: 'payload', description: 'Payload operations.'
     tag name: 'service', description: 'Service operations.'
     tag name: 'session', description: 'Session operations.'
     tag name: 'session_event', description: 'Session Event operations.'

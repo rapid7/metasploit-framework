@@ -138,6 +138,9 @@ class Process < Rex::Post::Process
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
       end
+      if (opts['Subshell'])
+        flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
+      end
       inmem = opts['InMemory']
       if inmem
 

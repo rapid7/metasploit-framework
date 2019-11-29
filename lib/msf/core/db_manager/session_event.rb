@@ -1,16 +1,52 @@
 module Msf::DBManager::SessionEvent
+  DEFAULT_ORDER = :desc
+  DEFAULT_LIMIT = 100
+  DEFAULT_OFFSET = 0
 
+  # Retrieves session events that are stored in the database.
+  #
+  # @param opts [Hash] Hash containing query key-value pairs based on the session event model.
+  # @option opts :id [Integer] A specific session event ID. If specified, all other options are ignored.
+  #
+  # Additional query options:
+  # @option opts :order [Symbol|String] The session event created_at sort order.
+  #   Valid values: :asc, :desc, 'asc' or 'desc'. Default: :desc
+  # @option opts :limit [Integer] The maximum number of session events that will be retrieved from the query.
+  #   Default: 100
+  # @option opts :offset [Integer] The number of session events the query will begin reading from the start
+  #   of the set. Default: 0
+  # @option opts :search_term [String] Search regular expression used to filter results.
+  #   All fields are converted to strings and results are returned if the pattern is matched.
+  # @return [Array<Mdm::SessionEvent>|Mdm::SessionEvent::ActiveRecord_Relation] session events that are matched.
   def session_events(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::SessionEvent.find(opts[:id]))
       end
-      conditions = {}
 
-      Mdm::SessionEvent.all
+      # Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
+      opts.delete(:workspace)
+
+      order = opts.delete(:order)
+      order = order.nil? ? DEFAULT_ORDER : order.to_sym
+
+      limit = opts.delete(:limit) || DEFAULT_LIMIT
+      offset = opts.delete(:offset) || DEFAULT_OFFSET
+
+      search_term = opts.delete(:search_term)
+      results = Mdm::SessionEvent.where(opts).order(created_at: order).offset(offset).limit(limit)
+
+      if search_term && !search_term.empty?
+        re_search_term = /#{search_term}/mi
+        results = results.select { |event|
+          event.attribute_names.any? { |a| event[a.intern].to_s.match(re_search_term) }
+        }
+      end
+      results
     }
   end
+
   #
   # Record a session event in the database
   #
