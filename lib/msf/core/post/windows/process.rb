@@ -6,6 +6,36 @@ module Windows
 
 module Process
 
+  # Checks the Architeture of a Payload and PID are compatible
+  # Returns true if they are false if they are not
+  def arch_check(test_arch, pid)
+    # get the pid arch
+    client.sys.process.processes.each do |p|
+      # Check Payload Arch
+      if pid == p["pid"]
+        if test_arch == p['arch']
+          return true
+        else
+          return false
+        end
+      end
+    end
+  end
+
+  # returns the path to the notepad process based on syswow extension
+  def get_notepad_pathname(bits, windir, client_arch)
+    if bits == ARCH_X86 and client_arch == ARCH_X86
+      cmd = "#{windir}\\System32\\notepad.exe"
+    elsif bits == ARCH_X64 and client_arch == ARCH_X64
+      cmd = "#{windir}\\System32\\notepad.exe"
+    elsif bits == ARCH_X64 and client_arch == ARCH_X86
+      cmd = "#{windir}\\Sysnative\\notepad.exe"
+    elsif bits == ARCH_X86 and client_arch == ARCH_X64
+      cmd = "#{windir}\\SysWOW64\\notepad.exe"
+    end
+    return cmd
+  end
+
   #
   # Injects shellcode to a process, and executes it.
   #
@@ -37,10 +67,42 @@ module Process
       vprint_error("Unable to create thread")
       nil
     end
-
     thread
   end
 
+  def inject_unhook(proc, bits, delay_sec)
+    if bits == ARCH_X64
+      dll_file_name = 'x64.dll'
+    elsif bits == ARCH_X86
+      dll_file_name = 'x86.dll'
+    else
+      return false
+    end
+    dll_file = MetasploitPayloads.meterpreter_ext_path('unhook', dll_file_name)
+    dll, offset = inject_dll_into_process(proc, dll_file)
+    proc.thread.create(dll + offset, 0)
+    Rex.sleep(delay_sec)
+  end
+
+  # Determines if a PID actually exists
+  def has_pid?(pid)
+    procs = []
+    begin
+      procs = client.sys.process.processes
+    rescue Rex::Post::Meterpreter::RequestError
+      print_error("Unable to enumerate processes")
+      return false
+    end
+
+    procs.each do |p|
+      found_pid = p['pid']
+      return true if found_pid == pid
+    end
+
+    print_error("PID #{pid.to_s} does not actually exist.")
+
+    return false
+  end
 end # Process
 end # Windows
 end # Post
