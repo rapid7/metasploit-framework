@@ -17,7 +17,7 @@ PATH
       ed25519
       em-http-request
       faker
-      faraday (= 0.17.0)
+      faraday (<= 0.17.0)
       filesize
       jsobfu
       json
@@ -170,7 +170,7 @@ GEM
       railties (>= 4.2.0)
     faker (2.2.1)
       i18n (>= 0.8)
-    faraday (0.17.1)
+    faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     filesize (0.2.0)
     fivemat (1.3.7)
