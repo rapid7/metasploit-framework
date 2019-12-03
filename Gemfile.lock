@@ -13,6 +13,7 @@ PATH
       dnsruby
       ed25519
       faker
+      faraday (= 0.17.0)
       filesize
       jsobfu
       json
