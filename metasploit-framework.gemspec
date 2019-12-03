@@ -205,4 +205,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'aws-sdk-s3'
   spec.add_runtime_dependency 'aws-sdk-ec2'
   spec.add_runtime_dependency 'aws-sdk-iam'
+  
+  # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
+  spec.add_runtime_dependency 'faraday', '0.17.0'
+
 end

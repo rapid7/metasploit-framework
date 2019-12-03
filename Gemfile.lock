@@ -17,6 +17,7 @@ PATH
       ed25519
       em-http-request
       faker
+      faraday (= 0.17.0)
       filesize
       jsobfu
       json
