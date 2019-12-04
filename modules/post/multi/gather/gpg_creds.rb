@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         machine. Password protected secret keyrings can be cracked with John the Ripper (JtR).
       },
       'License'        => MSF_LICENSE,
-      'Author'         => 
+      'Author'         =>
         [
           'Dhiru Kholia <dhiru[at]openwall.com>', # Original author
           'Henry Hoggard' # Add GPG 2.1 keys, stop writing empty files
