@@ -323,8 +323,9 @@ class ReadableText
     end
 
     # Check
+    has_check = mod.class.instance_methods(false).include?(:check) || mod.respond_to?(:check_host)
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{has_check ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
