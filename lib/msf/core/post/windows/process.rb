@@ -1,10 +1,14 @@
 # -*- coding: binary -*-
 
+require 'msf/core/post/windows/reflective_dll_injection'
+
 module Msf
 class Post
 module Windows
 
 module Process
+
+  include Msf::Post::Windows::ReflectiveDLLInjection
 
   # Checks the Architeture of a Payload and PID are compatible
   # Returns true if they are false if they are not
