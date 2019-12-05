@@ -42,9 +42,11 @@ class MetasploitModule < Msf::Post
   def download_loot(paths)
     paths.each do |path|
       path.chomp!
+
       print_status("Looting #{path} directory")
+
       unless executable?(path)
-        print_warning("Can not access the directory. Missing execute bit. Skipping.")
+        print_warning("Cannot access directory: #{path} . Missing execute permission. Skipping.")
         next
       end
 
@@ -61,8 +63,11 @@ class MetasploitModule < Msf::Post
       user = path_array.pop
       files.each do |file|
         next if [".", ".."].include?(file)
-        unless readable?(path + sep + file)
-          print_warning("Can not read file: #{path}#{sep}#{file} . Missing read permission. Skipping.")
+
+        file_path = "#{path}#{sep}#{file}"
+
+        unless readable?(file_path)
+          print_warning("Cannot read file: #{file_path} . Missing read permission. Skipping.")
           next
         end
 
