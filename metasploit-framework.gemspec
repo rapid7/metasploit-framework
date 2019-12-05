@@ -55,7 +55,7 @@ Gem::Specification.new do |spec|
   # Backports Ruby features across language versions
   spec.add_runtime_dependency 'backports'
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
-  spec.add_runtime_dependency 'bcrypt', '3.1.12'
+  spec.add_runtime_dependency 'bcrypt', '>= 3.1.12'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
