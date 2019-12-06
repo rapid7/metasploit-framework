@@ -281,7 +281,7 @@ public
             ret[:creds] << {
                 :user => cred.public.username.to_s,
                 :pass => nil,
-                :updated_at => nil,
+                :updated_at => cred.public.updated_at.to_i,
                 :type => nil,
                 :host => host,
                 :port => port,
