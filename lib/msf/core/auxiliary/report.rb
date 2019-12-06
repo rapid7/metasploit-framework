@@ -93,7 +93,7 @@ module Auxiliary::Report
   end
 
   def mytask
-    if self[:task]
+    if self.respond_to?(:[]) && self[:task]
       return self[:task].record
     elsif @task && @task.class == Mdm::Task
       return @task
