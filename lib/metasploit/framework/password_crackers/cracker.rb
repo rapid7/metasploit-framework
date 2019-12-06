@@ -322,6 +322,7 @@ module Metasploit
                 # John the Ripper 1.9.0-jumbo-1 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
                 #return $1 if line =~ /John the Ripper ([\.\w-]+) 20\d{2}-\d{2}-\d{2}/
                 return $1 if line =~ /John the Ripper (.+) \[/
+                return $2 if line =~ /John the Ripper (.+), version (.+)/
               elsif cracker == 'hashcat'
                 # v5.1.0
                 return $1 if line =~ /(v[\d\.]+)/
