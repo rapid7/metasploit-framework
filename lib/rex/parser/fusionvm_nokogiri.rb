@@ -22,7 +22,7 @@ module Parser
       thost = {
         :host      => attrs["IPAddress"],
         :name      => attrs["HostName"],
-        :workspace => @args[:wspace]
+        :workspace => @args[:workspace]
       }
       thost[:host] = attrs["IPAddress"]
       thost[:name] = attrs["HostName"]
@@ -64,7 +64,7 @@ module Parser
             :type       => "host.os.fusionvm_fingerprint",
             :data       => { :os => @text.strip },
             :host       => @host,
-            :workspace  => @args[:wspace]
+            :workspace  => @args[:workspace]
           }
           db_report(:note, tnote)
           @host.normalize_os

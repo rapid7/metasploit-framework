@@ -3,7 +3,8 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
-require 'metasploit/framework/jtr/formatter'
+require 'metasploit/framework/password_crackers/hashcat/formatter'
+require 'metasploit/framework/password_crackers/jtr/formatter'
 
 module Msf
 module Ui
@@ -168,6 +169,7 @@ class Creds
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv/jtr (john the ripper) format."
     print_line "                        If file name ends in '.jtr', that format will be used."
+    print_line "                        If file name ends in '.hcat', the hashcat format will be used."
     print_line "                        csv by default."
     print_line "  -d,--delete           Delete one or more credentials"
     print_line
@@ -179,7 +181,7 @@ class Creds
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -O,--origins <IP>     List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
-    print_line "  -S,--search-term      Search across all fields using regex"
+    print_line "  -v,--verbose          Don't truncate long password hashes"
 
     print_line
     print_line "Examples, John the Ripper hash types:"
@@ -333,6 +335,7 @@ class Creds
     opts          = {}
 
     set_rhosts = false
+    truncate = true
 
     #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
@@ -397,6 +400,8 @@ class Creds
       when '-S', '--search-term'
         search_term = args.shift
         opts[:search_term] = search_term
+      when '-v', '--verbose'
+        truncate = false
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -469,6 +474,9 @@ class Creds
         matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.to_s : ""
+        if truncate && private_val.length > 87
+          private_val = "#{private_val[0,87]} (TRUNCATED)"
+        end
         realm_val = core.realm ? core.realm.value : ""
         human_val = core.private ? core.private.class.model_name.human : ""
         jtr_val = core.private ? core.private.jtr_format : ""
@@ -506,6 +514,9 @@ class Creds
           matched_cred_ids << core.id
           public_val = core.public ? core.public.username : ""
           private_val = core.private ? core.private.to_s : ""
+          if truncate && private_val.to_s.length > 87
+            private_val = "#{private_val[0,87]} (TRUNCATED)"
+          end
           realm_val = core.realm ? core.realm.value : ""
           human_val = core.private ? core.private.class.model_name.human : ""
           if human_val == ""
@@ -540,6 +551,19 @@ class Creds
          'Metasploit::Credential::NTLMHash'].each do |type|
           framework.db.creds(type: type).each do |core|
             formatted = hash_to_jtr(core)
+            unless formatted.nil?
+              hashlist.puts formatted
+            end
+          end
+        end
+        hashlist.close
+      elsif output_file.end_with? '.hcat'
+        hashlist = ::File.open(output_file, "wb")
+        ['Metasploit::Credential::NonreplayableHash',
+         'Metasploit::Credential::PostgresMD5',
+         'Metasploit::Credential::NTLMHash'].each do |type|
+          framework.db.creds(type: type).each do |core|
+            formatted = hash_to_hashcat(core)
             unless formatted.nil?
               hashlist.puts formatted
             end

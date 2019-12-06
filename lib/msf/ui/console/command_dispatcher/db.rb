@@ -179,10 +179,6 @@ class Db
           name: names.last
       }
       begin
-        if names.last == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
-          print_error("Unable to rename a workspace to '#{Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}'")
-          return
-        end
         updated_ws = framework.db.update_workspace(opts)
         if updated_ws
           framework.db.workspace = updated_ws if names.first == framework.db.workspace.name
@@ -197,7 +193,6 @@ class Db
         end
       rescue => e
         print_error "Failed to rename workspace: #{e.message}"
-        e.backtrace.each { |line| print_error "#{line}"}
       end
 
     elsif names

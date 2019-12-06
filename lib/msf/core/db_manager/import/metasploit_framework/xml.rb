@@ -369,7 +369,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath('tags/tag').each do |tag|
       tag_data = {}
       tag_data[:addr] = host_address
-      tag_data[:wspace] = wspace
+      tag_data[:workspace] = wspace
       tag_data[:name] = tag.at("name").text.to_s.strip
       tag_data[:desc] = tag.at("desc").text.to_s.strip
       if tag.at("report-summary").text

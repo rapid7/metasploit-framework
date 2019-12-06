@@ -24,6 +24,7 @@ class ClientRequest
     'headers'                => nil,
     'raw_headers'            => '',
     'method'                 => 'GET',
+    'partial'                => false,
     'path_info'              => '',
     'port'                   => 80,
     'proto'                  => 'HTTP',
@@ -195,7 +196,7 @@ class ClientRequest
 
     req << set_content_type_header
     req << set_content_len_header(pstr.length)
-    req << set_chunked_header()
+    req << set_chunked_header
     req << opts['raw_headers']
     req << set_body(pstr)
   end

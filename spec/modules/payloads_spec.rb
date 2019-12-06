@@ -588,6 +588,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/bind_lua'
   end
 
+  context 'cmd/unix/bind_jjs' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/bind_jjs'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_jjs'
+  end
+
   context 'cmd/unix/bind_netcat' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -728,6 +738,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/interact'
   end
 
+  context 'cmd/unix/pingback_bind' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/pingback_bind'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/pingback_bind'
+  end
+
+  context 'cmd/unix/pingback_reverse' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/pingback_reverse'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/pingback_reverse'
+  end
+
   context 'cmd/unix/reverse' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -786,6 +816,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_ksh'
+  end
+
+  context 'cmd/unix/reverse_jjs' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_jjs'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_jjs'
   end
 
   context 'cmd/unix/reverse_lua' do
@@ -1568,6 +1608,26 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x64/exec'
+  end
+
+  context 'linux/x64/pingback_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/pingback_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/pingback_bind_tcp'
+  end
+
+  context 'linux/x64/pingback_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/pingback_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/pingback_reverse_tcp'
   end
 
   context 'linux/x64/shell/bind_tcp' do
@@ -2572,6 +2632,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'python/meterpreter_reverse_tcp'
   end
 
+  context 'python/pingback_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/python/pingback_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/pingback_bind_tcp'
+  end
+
+  context 'python/pingback_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/python/pingback_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/pingback_reverse_tcp'
+  end
+
   context 'python/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2610,6 +2690,26 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/shell_reverse_udp'
+  end
+
+  context 'ruby/pingback_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/ruby/pingback_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'ruby/pingback_bind_tcp'
+  end
+
+  context 'ruby/pingback_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/ruby/pingback_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'ruby/pingback_reverse_tcp'
   end
 
   context 'ruby/shell_bind_tcp' do
@@ -2937,6 +3037,23 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/download_exec'
+  end
+
+  context 'windows/encrypted_shell/reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'stagers/windows/encrypted_reverse_tcp',
+                              'stages/windows/encrypted_shell'
+                          ],
+                          reference_name: 'windows/encrypted_shell/reverse_tcp'
+  end
+
+  context 'windows/encrypted_shell_reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'singles/windows/encrypted_shell_reverse_tcp'
+                          ],
+                          reference_name: 'windows/encrypted_shell_reverse_tcp'
   end
 
   context 'windows/exec' do
@@ -3620,6 +3737,26 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_rc4_dns'
   end
 
+  context 'windows/pingback_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/pingback_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/pingback_bind_tcp'
+  end
+
+  context 'windows/pingback_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/pingback_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/pingback_reverse_tcp'
+  end
+
   context 'windows/shell/bind_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4154,6 +4291,23 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
   end
 
+  context 'windows/x64/encrypted_shell/reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/encrypted_reverse_tcp',
+                              'stages/windows/x64/encrypted_shell'
+                          ],
+                          reference_name: 'windows/x64/encrypted_shell/reverse_tcp'
+  end
+
+  context 'windows/x64/encrypted_shell_reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/encrypted_shell_reverse_tcp'
+                          ],
+                          reference_name: 'windows/x64/encrypted_shell_reverse_tcp'
+  end
+
   context 'windows/x64/exec' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4416,6 +4570,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_reverse_tcp'
+  end
+
+  context 'windows/x64/pingback_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/windows/x64/pingback_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/pingback_reverse_tcp'
   end
 
   context 'windows/x64/shell/bind_named_pipe' do

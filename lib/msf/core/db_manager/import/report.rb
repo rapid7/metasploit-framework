@@ -22,7 +22,7 @@ module Msf::DBManager::Import::Report
       report_info[node_name.parameterize.underscore.to_sym] = node_value
     end
     # Use current workspace
-    report_info[:workspace_id] = args[:wspace].id
+    report_info[:workspace_id] = args[:workspace].id
 
     # Create report, need new ID to record artifacts
     report_id = report_report(report_info)

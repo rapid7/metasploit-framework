@@ -48,7 +48,7 @@ module Ssl
     def self.ssl_generate_certificate(cert_vars: {}, ksize: 2048, **opts)
       yr      = 24*3600*365
       vf      = opts[:not_before] || Time.at(Time.now.to_i - rand(yr * 3) - yr)
-      vt      = opts[:not_after]  || Time.at(vf.to_i + (rand(9)+1) * yr)
+      vt      = opts[:not_after]  || Time.at(vf.to_i + (rand(4..9) * yr))
       cvars   = self.rand_vars(cert_vars)
       subject = opts[:subject]    || ssl_generate_subject(cvars)
       ctype   = opts[:cert_type]  || opts[:ca_cert].nil? ? :ca : :server

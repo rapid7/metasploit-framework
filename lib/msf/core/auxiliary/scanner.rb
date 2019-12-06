@@ -18,7 +18,7 @@ def initialize(info = {})
 
   register_options([
       Opt::RHOSTS,
-      OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
+      OptInt.new('THREADS', [ true, "The number of concurrent threads (max one per host)", 1 ] )
     ], Auxiliary::Scanner)
 
   register_advanced_options([
@@ -59,6 +59,9 @@ def run
   threads_max = datastore['THREADS'].to_i
   @tl = []
   @scan_errors = []
+
+  res = Queue.new
+  results = Hash.new
 
   #
   # Sanity check threading given different conditions
@@ -108,7 +111,7 @@ def run
           nmod.datastore['RHOST'] = targ
 
           begin
-            nmod.run_host(targ)
+            res << {tip => nmod.run_host(targ)}
           rescue ::Rex::BindFailed
             if datastore['CHOST']
               @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
@@ -123,6 +126,11 @@ def run
             nmod.cleanup
           end
         end
+      end
+
+      # Do as much of this work as possible while other threads are running
+      while !res.empty?
+        results.merge! res.pop
       end
 
       # Stop scanning if we hit a fatal error
@@ -148,7 +156,7 @@ def run
     end
 
     scanner_handle_fatal_errors
-    return
+    return results
   end
 
   if (self.respond_to?('run_batch'))

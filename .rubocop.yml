@@ -119,7 +119,7 @@ Naming/UncommunicativeMethodParamName:
 
 # %q() is super useful for long strings split over multiple lines and
 # is very common in module constructors for things like descriptions
-Style/UnneededPercentQ:
+Style/RedundantPercentQ:
   Enabled: false
 
 Style/NumericLiterals:
