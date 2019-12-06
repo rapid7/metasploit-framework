@@ -1,0 +1,14 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - init: sleep 10 &&
+          echo 'Enter Github Username:' && 
+          read -p user && 
+          eval $(gp env -e GITHUB_USERNAME=$user GITHUB_EMAIL=$(git config user.email)) && 
+          git remote add upstream git@github.com:rapid7/metasploit-framework.git && 
+          git fetch upstream && 
+          git checkout -b upstream-master --track upstream/master && 
+          git config --global github.username "$GITHUB_USERNAME"
+  - command: gem install bundler && bundle install
+
