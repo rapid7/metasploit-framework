@@ -219,22 +219,6 @@ module Msf::Post::File
   end
 
   #
-  # Returns a MD5 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestmd5(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/md5'
-      chksum = nil
-      chksum = Digest::MD5.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
-  end
-
-  #
   # Returns a MD5 checksum of a given remote file
   #
   # @note THIS DOWNLOADS THE FILE
@@ -250,22 +234,6 @@ module Msf::Post::File
   end
 
   #
-  # Returns a SHA1 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestsha1(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/sha1'
-      chksum = nil
-      chksum = Digest::SHA1.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
-  end
-
-  #
   # Returns a SHA1 checksum of a given remote file
   #
   # @note THIS DOWNLOADS THE FILE
@@ -278,22 +246,6 @@ module Msf::Post::File
       chksum = Digest::SHA1.hexdigest(data)
     end
     return chksum
-  end
-
-  #
-  # Returns a SHA256 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestsha2(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/sha2'
-      chksum = nil
-      chksum = Digest::SHA256.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
   end
 
   #
