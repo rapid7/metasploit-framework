@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.63)
+    metasploit-framework (5.0.64)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -17,6 +17,7 @@ PATH
       ed25519
       em-http-request
       faker
+      faraday (<= 0.17.0)
       filesize
       jsobfu
       json
@@ -24,7 +25,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.3.79)
+      metasploit-payloads (= 1.3.83)
       metasploit_data_models (= 3.0.10)
       metasploit_payloads-mettle (= 0.5.16)
       mqtt
@@ -115,13 +116,13 @@ GEM
     arel-helpers (2.10.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.246.0)
-    aws-sdk-core (3.82.0)
+    aws-partitions (1.251.0)
+    aws-sdk-core (3.84.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.121.0)
+    aws-sdk-ec2 (1.123.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.32.0)
@@ -130,8 +131,8 @@ GEM
     aws-sdk-kms (1.26.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.57.0)
-      aws-sdk-core (~> 3, >= 3.77.0)
+    aws-sdk-s3 (1.59.0)
+      aws-sdk-core (~> 3, >= 3.83.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.0)
@@ -169,7 +170,7 @@ GEM
       railties (>= 4.2.0)
     faker (2.2.1)
       i18n (>= 0.8)
-    faraday (0.17.1)
+    faraday (0.17.0)
       multipart-post (>= 1.2, < 3)
     filesize (0.2.0)
     fivemat (1.3.7)
@@ -203,7 +204,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.3.79)
+    metasploit-payloads (1.3.83)
     metasploit_data_models (3.0.10)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -225,7 +226,7 @@ GEM
     net-ssh (5.2.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.10.5)
+    nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
     octokit (4.14.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -310,7 +311,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.20)
+    rex-socket (0.1.21)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
