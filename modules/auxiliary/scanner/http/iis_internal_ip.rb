@@ -18,7 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2000-0649'],
-          ['BID', '1499']
+          ['BID', '1499'],
+          ['EDB', '20096']
         ]
     ))
   end
