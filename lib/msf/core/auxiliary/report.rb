@@ -23,6 +23,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -31,6 +32,7 @@ module Auxiliary::Report
 
   def create_credential(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -39,6 +41,7 @@ module Auxiliary::Report
 
   def create_credential_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -47,6 +50,7 @@ module Auxiliary::Report
 
   def create_credential_and_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -55,6 +59,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -88,7 +93,7 @@ module Auxiliary::Report
   end
 
   def mytask
-    if self[:task]
+    if self.respond_to?(:[]) && self[:task]
       return self[:task].record
     elsif @task && @task.class == Mdm::Task
       return @task
@@ -515,6 +520,7 @@ module Auxiliary::Report
     end
     cred_opts = opts
     cred_opts = opts.merge(:workspace => myworkspace)
+    cred_opts = { :task_id => mytask.id }.merge(cred_opts) if mytask
     cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
     unless opts[:port]
       possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])
