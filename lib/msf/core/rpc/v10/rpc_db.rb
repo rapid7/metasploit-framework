@@ -269,6 +269,7 @@ public
         port = 0
         proto = ''
         sname = ''
+
         unless cred.logins.empty?
           login = cred.logins.first
           host = login.service.host.address.to_s
@@ -277,30 +278,28 @@ public
           proto = login.service.proto.to_s
         end
 
-        if cred.private.nil?
-            ret[:creds] << {
-                :user => cred.public.username.to_s,
-                :pass => nil,
-                :updated_at => cred.public.updated_at.to_i,
-                :type => nil,
-                :host => host,
-                :port => port,
-                :proto => proto,
-                :sname => sname
-            }
+        updated_at = nil
+        pass = nil   
+        type = nil
+        
+        unless cred.private.nil?
+          updated_at = cred.private.updated_at.to_i   
+          pass = cred.private.data.to_s
+          type = cred.private.type.to_s
         else
-            ret[:creds] << {
-                :user => cred.public.username.to_s,
-                :pass => cred.private.data.to_s,
-                :updated_at => cred.private.updated_at.to_i,
-                :type => cred.private.type.to_s,
-                :host => host,
-                :port => port,
-                :proto => proto,
-                :sname => sname
-            }
+          updated_at = cred.public.updated_at.to_i        
         end
 
+        ret[:creds] << {
+          :user => cred.public.username.to_s,
+          :pass => pass,
+          :updated_at => updated_at,
+          :type => type,
+          :host => host,
+          :port => port,
+          :proto => proto,
+          :sname => sname
+        }
       end
       ret
     }
