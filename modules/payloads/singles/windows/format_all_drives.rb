@@ -43,6 +43,7 @@ module MetasploitModule
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
       'Privileged'    => true,
+      'Notes' => {'AKA' => ['ShellcodeOfDeath']}
       ))
 
     # EXITFUNC is not supported
