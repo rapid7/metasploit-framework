@@ -154,6 +154,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is executable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is executable
+  #
+  def executable?(path)
+    raise "`executable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -x '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # See if +path+ on the remote system exists and is writable
   #
   # @param path [String] Remote path to check
