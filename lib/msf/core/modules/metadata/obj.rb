@@ -99,7 +99,7 @@ class Obj
     end
 
     # Store whether a module has a check method
-    @check = (module_instance.class.instance_methods(false) & %i[check check_host]).any?
+    @check = module_instance.respond_to?(:check) ? true : false
 
     @notes = module_instance.notes
 
