@@ -160,9 +160,9 @@ module Msf::Payload::Stager
     false
   end
 
-  def format_uuid(uuid)
+  def format_uuid(uuid_raw)
     if sends_hex_uuid?
-      return uuid
+      return uuid_raw
     end
 
     return Msf::Payload::UUID.new({raw: uuid_raw})
