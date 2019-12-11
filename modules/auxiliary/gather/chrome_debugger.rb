@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
 
-    if datastore['FilePath'].empty? and datastore['Url'].empty?
+    if (datastore['FilePath'].nil? || datastore['FilePath'].empty?) && (datastore['Url'].nil? || datastore['Url'].empty?)
       print_error('Must set FilePath or Url')
       return
     end
@@ -107,8 +107,8 @@ class MetasploitModule < Msf::Auxiliary
           data = JSON.parse(event.data)
 
           if data['result']['result']
-            print_good('Retrieved resource')
-            store_loot('chrome.debugger.resource', 'text/plain', rhost, data['result']['result']['value'], fetch_uri, 'Resource Gathered via Chrome Debugger')
+            loot_path = store_loot('chrome.debugger.resource', 'text/plain', rhost, data['result']['result']['value'], fetch_uri, 'Resource Gathered via Chrome Debugger')
+            print_good("Stored #{fetch_uri} at #{loot_path}")
             @succeeded = true
           end
         end
