@@ -33,10 +33,12 @@
     Installed Applications
     ======================
 
-    Name  Version
-    ----  -------
+      Name                Version
+      ----                -------
+      PuTTY release 0.73  0.73.0.0
+      PuTTY release 0.73  0.73.0.0
 
 
-    [+] Results stored in: /root/.msf4/loot/20191210142153_default_192.168.1.4_host.application_382950.txt
+    [+] Results stored in: /root/.msf4/loot/20191211092812_default_192.168.1.4_host.application_951840.txt
     [*] Post module execution completed
     ```
