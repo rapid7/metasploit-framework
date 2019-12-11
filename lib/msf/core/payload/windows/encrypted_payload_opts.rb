@@ -21,8 +21,8 @@ module Msf
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
         OptEnum.new('OptLevel', [ false, 'The optimization level to compile with', 'O2', [ 'Og', 'Os', 'O0', 'O1', 'O2', 'O3' ] ]),
-        OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', true ]),
-        OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', true ]),
+        OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', false ]),
+        OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', false ]),
         OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', true ])
       ], self.class)
     end
