@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module enumerates ways to decrypt bitlocker volume and if a recovery key is stored locally or can be generated, dump the Bitlocker master key (FVEK)
+This module enumerates ways to decrypt Bitlocker volume and if a recovery key is stored locally or can be generated, dump the Bitlocker master key (FVEK)
 
 ## Verification Steps
   1. Start `msfconsole`
@@ -45,7 +45,7 @@ This module enumerates ways to decrypt bitlocker volume and if a recovery key is
     [*] Trying to gather a recovery key
     [+] Recovery key found : 579744-627517-149402-208362-055022-542289-041470-364089
     [*] The recovery key derivation usually take 20 seconds...
-    [+] Successfuly extract FVEK in /root/.msf4/loot/20191211125311_default_192.168.1.6_windows.file_437952.bin
+    [+] Successfully extract FVEK in /root/.msf4/loot/20191211125311_default_192.168.1.6_windows.file_437952.bin
     [+] This hard drive could later be decrypted using : dislocker -k <key_file> ...
     [*] Post Successful
     [*] Post module execution completed
@@ -53,11 +53,11 @@ This module enumerates ways to decrypt bitlocker volume and if a recovery key is
     [*] Starting interaction with 1...
 
   meterpreter > sysinfo
-    Computer        : BITLOCKER-PC
+    Computer        : TEST-PC
     OS              : Windows 7 (6.1 Build 7601, Service Pack 1).
     Architecture    : x86
     System Language : en_US
-    Domain          : MSF
+    Domain          : DOMAIN
     Logged On Users : 1
     Meterpreter     : x86/windows
   meterpreter > getuid
