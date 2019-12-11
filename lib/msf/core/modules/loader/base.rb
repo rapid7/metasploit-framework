@@ -469,17 +469,9 @@ class Msf::Modules::Loader::Base
   #                   the path is not hidden (starts with '.')
   # @return [false] otherwise
   def module_path?(path)
-    module_path = false
-
-    extension = File.extname(path)
-
-    unless (path[0,1] == "." or
-            extension != MODULE_EXTENSION or
-            path =~ UNIT_TEST_REGEX)
-      module_path = true
-    end
-
-    module_path
+    !(path.starts_with?(".") ||
+      !path.ends_with?(MODULE_EXTENSION) ||
+      path.match?(UNIT_TEST_REGEX))
   end
 
   # Tries to determine if a file might be executable,
