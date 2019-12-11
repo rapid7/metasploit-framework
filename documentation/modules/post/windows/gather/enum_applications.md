@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  This module will enumerate all installed applications
+  This module will enumerate all installed applications on a Windows system.
 
 ## Verification Steps
   1. Start `msfconsole`
