@@ -16,4 +16,4 @@ This module was tested on Apache 2.4.18.
 
 ## Demo
 
-![apache_userdir_enum_demo](https://github.com/jkollross/metasploit-framework/releases/download/untagged-874b8904bb448c5d0fac/2019-12-10_20-55-02.gif}
+![apache_userdir_enum_demo](https://github.com/jkollross/metasploit-framework/releases/download/untagged-874b8904bb448c5d0fac/2019-12-10_20-55-02.gif)
