@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  This module will enumerate all installed applications on a Windows system.
+This module will enumerate all installed applications on a Windows system.
 
 ## Verification Steps
   1. Start `msfconsole`
@@ -28,7 +28,7 @@
     SESSION => 1
   msf post(windows/gather/enum_applications) > run
 
-    [*] Enumerating applications installed on MSF-PC
+    [*] Enumerating applications installed on PC
 
     Installed Applications
     ======================
