@@ -5,7 +5,7 @@ module Msf
   module Payload::Windows::EncryptedPayloadOpts
     include Msf::Payload::UUID::Options
 
-    LINK_SCRIPT_PATH = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
+    LINK_SCRIPT_PATH = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
 
     def initialize(info={})
       super
