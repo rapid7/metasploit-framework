@@ -13,6 +13,7 @@ module CredentialDataProxy
   def create_cracked_credential(opts)
     begin
       self.data_service_operation do |data_service|
+        opts = opts.clone
         opts[:workspace_id] = workspace.id
         opts[:private_data] = opts.delete(:password)
         opts[:private_type] = :password
@@ -36,10 +37,11 @@ module CredentialDataProxy
   def create_credential_and_login(opts)
     begin
       self.data_service_operation do |data_service|
+        opts = opts.clone
         core = data_service.create_credential(opts)
         opts[:core] = core
         login = data_service.create_credential_login(opts)
-        core
+        login
       end
     rescue => e
       self.log_error(e, "Problem creating credential and login")
