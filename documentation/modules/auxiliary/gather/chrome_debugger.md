@@ -18,13 +18,13 @@ This will start a webserver running on port 9222 for all network interfaces.
 2. Execute `auxiliary/gather/chrome_debugger`
 3. Execute `set RHOST $REMOTE_ADDRESS`
 4. Execute `set RPORT 9222`
-5. Execute either `set FilePath $FILE_PATH_ON_REMOTE` or `set Url $URL_FROM_REMOTE`
+5. Execute either `set FILEPATH $FILE_PATH_ON_REMOTE` or `set URL $URL_FROM_REMOTE`
 6. Execute `run`
 
 ## Options
 
-* FilePath - The file path on the remote you wish to retrieve
-* Url - A URL you wish to fetch the contents of from the remote machine
+* FILEPATH - The file path on the remote you wish to retrieve
+* URL - A URL you wish to fetch the contents of from the remote machine
 
 **Note:** One or the other must be set!
 

