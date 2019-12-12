@@ -19,18 +19,19 @@ module Metasploit
         end
 
         def build_cmd(src)
+          src_file = "#{self.file_name}.c"
+          exe_file = "#{self.file_name}.exe"
+
           cmd = ''
           link_options = '-Wl,'
 
-          src_file = File.basename(self.file_name, '.exe')
-          path = "#{src_file}.c"
-          File.write(path, src)
+          File.write(src_file, src)
 
           opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
 
           cmd << "#{self.mingw_bin} "
-          cmd << "#{path} -I #{INCLUDE_DIR} "
-          cmd << "-o #{self.file_name} "
+          cmd << "#{src_file} -I #{INCLUDE_DIR} "
+          cmd << "-o #{exe_file} "
 
           # gives each function its own section
           # allowing them to be reordered
@@ -50,9 +51,8 @@ module Metasploit
         end
 
         def cleanup_files
-          file_base = File.basename(self.file_name, '.exe')
-          src_file = "#{file_base}.c"
-          exe_file = "#{file_base}.exe"
+          src_file = "#{self.file_name}.c"
+          exe_file = "#{self.file_name}.exe"
 
           unless self.keep_src
             File.delete(src_file) if File.exist?(src_file)

@@ -59,7 +59,7 @@ module Payload::Windows::EncryptedReverseTcp
       opt_lvl:       datastore['OptLevel'],
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
-      f_name:        Tempfile.new(staged? ? 'reverse_pic_stager.exe' : 'reverse_pic_stageless.exe').path,
+      f_name:        Tempfile.new(staged? ? 'reverse_pic_stager' : 'reverse_pic_stageless').path,
       arch:          self.arch_to_s
     }
 
@@ -130,7 +130,7 @@ module Payload::Windows::EncryptedReverseTcp
       linker_script: link_script,
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
-      f_name:        Tempfile.new('reverse_pic_stage.exe').path,
+      f_name:        Tempfile.new('reverse_pic_stage').path,
       arch:          self.arch_to_s
     }
 
@@ -180,8 +180,8 @@ module Payload::Windows::EncryptedReverseTcp
       raise Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError.new('Payload did not compile. Check the logs for further information.')
     end
 
-    comp_file = opts[:f_name]
-    raise Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError unless File.exist?(opts[:f_name])
+    comp_file = "#{opts[:f_name]}.exe"
+    raise Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError unless File.exist?(comp_file)
     bin = File.binread(comp_file)
     bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
 
