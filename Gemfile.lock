@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.97)
+    metasploit-framework (4.17.98)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -115,7 +115,7 @@ GEM
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.4)
     bit-struct (0.16)
-    builder (3.2.3)
+    builder (3.2.4)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     crass (1.0.5)
@@ -145,7 +145,7 @@ GEM
       concurrent-ruby (~> 1.0)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.2.0)
+    json (2.3.0)
     loofah (2.4.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
