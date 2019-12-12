@@ -17,11 +17,7 @@ module Process
     client.sys.process.processes.each do |p|
       # Check Payload Arch
       if pid == p["pid"]
-        if test_arch == p['arch']
-          return true
-        else
-          return false
-        end
+        return test_arch == p['arch']
       end
     end
   end

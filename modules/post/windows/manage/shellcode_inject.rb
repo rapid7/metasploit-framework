@@ -57,6 +57,7 @@ class MetasploitModule < Msf::Post
 
     # Start Notepad if Required
     if pid == 0
+      print_warning("It's not possible to retrieve output when injecting existing processes.")
       notepad_pathname = get_notepad_pathname(bits, client.sys.config.getenv('windir'), client.arch)
       vprint_status("Starting  #{notepad_pathname}")
       proc = client.sys.process.execute(notepad_pathname, nil, {
@@ -66,7 +67,10 @@ class MetasploitModule < Msf::Post
       })
       print_status("Spawned Notepad process #{proc.pid}")
     else
-      if not has_pid?(pid)
+      if datastore['CHANNELIZED'] && datastore['PID'] != 0
+        fail_with(Failure::BadConfig, "It's not possible to retrieve output when injecting existing processes!")
+      end
+      unless has_pid?(pid)
         print_error("Process #{pid} was not found")
         return false
       end
@@ -84,7 +88,8 @@ class MetasploitModule < Msf::Post
       print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
       print_error("Migrate to an x64 process and try again.")
       return false
-    elsif arch_check(bits, proc.pid)
+    end
+    if arch_check(bits, proc.pid)
       if datastore['AUTOUNHOOK']
         print_status("Executing unhook")
         print_status("Waiting #{datastore['WAIT_UNHOOK']} seconds for unhook Reflective DLL to be executed...")
@@ -98,6 +103,8 @@ class MetasploitModule < Msf::Post
         print_error("Failed to inject Payload to #{proc.pid}!")
         print_error(e.to_s)
       end
+    else
+      fail_with(Failure::BadConfig, "Arch mismatch between shellcode and process!")
     end
   end
 
@@ -112,8 +119,6 @@ class MetasploitModule < Msf::Post
       print_status("Retrieving output")
       data = proc.channel.read
       print_line(data) if data
-    elsif datastore['CHANNELIZED'] && datastore['PID'] != 0
-      print_warning("It's not possible to retrieve output when injecting existing processes.")
     end
   end
 end
