@@ -8,8 +8,8 @@ module Metasploit
         MINGW_X86 = 'i686-w64-mingw32-gcc'
         MINGW_X64 = 'x86_64-w64-mingw32-gcc'
 
-        INCLUDE_DIR = File.join(Msf::Config.install_root, 'data', 'headers', 'windows', 'c_payload_util')
-        UTILITY_DIR = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
+        INCLUDE_DIR = File.join(Msf::Config.data_directory, 'headers', 'windows', 'c_payload_util')
+        UTILITY_DIR = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
 
         def compile_c(src)
           cmd = build_cmd(src)
@@ -19,18 +19,19 @@ module Metasploit
         end
 
         def build_cmd(src)
+          src_file = "#{self.file_name}.c"
+          exe_file = "#{self.file_name}.exe"
+
           cmd = ''
           link_options = '-Wl,'
 
-          src_file = File.basename(self.file_name, '.exe')
-          path = File.join(Msf::Config.install_root, "#{src_file}.c")
-          File.write(path, src)
+          File.write(src_file, src)
 
           opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
 
           cmd << "#{self.mingw_bin} "
-          cmd << "#{path} -I #{INCLUDE_DIR} "
-          cmd << "-o #{Msf::Config.install_root}/#{self.file_name} "
+          cmd << "#{src_file} -I #{INCLUDE_DIR} "
+          cmd << "-o #{exe_file} "
 
           # gives each function its own section
           # allowing them to be reordered
@@ -50,17 +51,15 @@ module Metasploit
         end
 
         def cleanup_files
-          file_base = File.basename(self.file_name, '.exe')
-          src_file = "#{file_base}.c"
-          exe_file = "#{file_base}.exe"
-          file_path = Msf::Config.install_root
+          src_file = "#{self.file_name}.c"
+          exe_file = "#{self.file_name}.exe"
 
           unless self.keep_src
-            File.delete("#{file_path}/#{src_file}") if File.exist?("#{file_path}/#{src_file}")
+            File.delete(src_file) if File.exist?(src_file)
           end
 
           unless self.keep_exe
-            File.delete("#{file_path}/#{exe_file}") if File.exist?("#{file_path}/#{exe_file}")
+            File.delete(exe_file) if File.exist?(exe_file)
           end
         rescue Errno::ENOENT
           print_error("Failed to delete file")

@@ -5,7 +5,7 @@ module Msf
   module Payload::Windows::EncryptedPayloadOpts
     include Msf::Payload::UUID::Options
 
-    LINK_SCRIPT_PATH = File.join(Msf::Config.install_root, 'data', 'utilities', 'encrypted_payload')
+    LINK_SCRIPT_PATH = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
 
     def initialize(info={})
       super
@@ -21,8 +21,8 @@ module Msf
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
         OptEnum.new('OptLevel', [ false, 'The optimization level to compile with', 'O2', [ 'Og', 'Os', 'O0', 'O1', 'O2', 'O3' ] ]),
-        OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', true ]),
-        OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', true ]),
+        OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', false ]),
+        OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', false ]),
         OptBool.new('PayloadUUIDTracking', [ true, 'Whether or not to automatically register generated UUIDs', true ])
       ], self.class)
     end
