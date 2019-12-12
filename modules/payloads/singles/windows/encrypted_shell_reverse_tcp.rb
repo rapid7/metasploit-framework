@@ -11,7 +11,7 @@ require 'msf/core/payload/windows/encrypted_payload_opts'
 
 module MetasploitModule
 
-  CachedSize = 4608
+  CachedSize = 5120
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
