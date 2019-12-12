@@ -10,7 +10,7 @@ require 'msf/core/payload/windows/encrypted_reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 4608
+  CachedSize = 4064
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

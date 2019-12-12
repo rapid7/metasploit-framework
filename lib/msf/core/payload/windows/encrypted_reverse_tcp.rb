@@ -142,7 +142,6 @@ module Payload::Windows::EncryptedReverseTcp
 
     stage_obj = Rex::Crypto::Chacha20.new(key, iv)
     stage_obj.chacha20_crypt(shellcode)
-    #Rex::Crypto.chacha_encrypt(key, iv, shellcode)
   end
 
   def generate_c_src(conf)
@@ -182,7 +181,7 @@ module Payload::Windows::EncryptedReverseTcp
 
     comp_file = "#{opts[:f_name]}.exe"
     raise Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError unless File.exist?(comp_file)
-    bin = File.binread(comp_file)
+    bin = File.binread(comp_file).strip
     bin = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(bin))
 
     text_section = bin.sections.first
