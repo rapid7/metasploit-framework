@@ -3,17 +3,17 @@
 This module displays the records stored in the DNS cache.
 
 ## Verification Steps
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/dnscache_dump`
-  4. Do: `set SESSION <session id>`
-  6. Do: `run`
+  3. Do: ```use post/windows/gather/dnscache_dump```
+  4. Do: ```set SESSION <session id>```
+  6. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run this module on.
 
 
@@ -24,7 +24,7 @@ This module displays the records stored in the DNS cache.
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.6:49184) at 2019-12-11 12:51:59 -0700
 
-  msf post(windows/gather/cachedump) > use post/windows/gather/dnscache_dump
+  msf > use post/windows/gather/dnscache_dump
   msf post(windows/gather/dnscache_dump) > set SESSION 1
     SESSION => 1
   msf post(windows/gather/dnscache_dump) > run

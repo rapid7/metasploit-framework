@@ -3,27 +3,27 @@
 This Module will perform an ARP scan for a given IP range through a Meterpreter Session.
 
 ## Verification Steps
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/arp_scanner`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/arp_scanner```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   RHOSTS
-  ```
+  ***
   The target address range or CIDR identifier.
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run this module on.
 
-  ```
+  ***
   THREADS
-  ```
+  ***
   The number of concurrent threads.
 
 ## Scenarios

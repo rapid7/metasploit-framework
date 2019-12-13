@@ -3,17 +3,17 @@
 This module will enumerate all installed applications on a Windows system.
 
 ## Verification Steps
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/enum_applications`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/enum_applications```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run this module on.
 
 ## Scenarios
@@ -35,7 +35,6 @@ This module will enumerate all installed applications on a Windows system.
 
       Name                Version
       ----                -------
-      PuTTY release 0.73  0.73.0.0
       PuTTY release 0.73  0.73.0.0
 
 

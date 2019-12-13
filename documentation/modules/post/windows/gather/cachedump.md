@@ -3,17 +3,17 @@
 This module uses the registry to extract the stored domain hashes that have been cached as a result of a GPO setting. The default setting on Windows is to store the last ten successful logins.
 
 ## Verification Steps
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/cachedump`
-  4. Do: `set SESSION <session id>`
-  6. Do: `run`
+  3. Do: ```use post/windows/gather/cachedump```
+  4. Do: ```set SESSION <session id>```
+  6. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run this module on.
 
 
