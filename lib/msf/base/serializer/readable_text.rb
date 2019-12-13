@@ -257,7 +257,7 @@ class ReadableText
 
     # Check
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -434,7 +434,7 @@ class ReadableText
 
     # Check
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
