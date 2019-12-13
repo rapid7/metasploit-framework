@@ -1,4 +1,3 @@
-
 ## Vulnerable Application
 
   This Module lists current TCP sessions.
@@ -23,10 +22,10 @@
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.10:49184) at 201 9-12-12 14:55:42 -0700
 
-  msf5 exploit(multi/handler) > use post/windows/gather/tcpnetstat
-  msf5 post(windows/gather/tcpnetstat) > set SESSION 1
+  msf > use post/windows/gather/tcpnetstat
+  msf post(windows/gather/tcpnetstat) > set SESSION 1
     SESSION => 1
-  msf5 post(windows/gather/tcpnetstat) > run
+  msf post(windows/gather/tcpnetstat) > run
 
     [*] TCP Table Size: 412
     [*] Total TCP Entries: 10
