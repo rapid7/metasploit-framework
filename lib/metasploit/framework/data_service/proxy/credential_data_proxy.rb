@@ -40,8 +40,7 @@ module CredentialDataProxy
         opts = opts.clone
         core = data_service.create_credential(opts)
         opts[:core] = core
-        login = data_service.create_credential_login(opts)
-        login
+        data_service.create_credential_login(opts)
       end
     rescue => e
       self.log_error(e, "Problem creating credential and login")
