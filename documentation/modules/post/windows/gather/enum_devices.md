@@ -1,21 +1,23 @@
 
 ## Vulnerable Application
 
-  Enumerate PCI hardware information from the registry. Please note this script will run through registry subkeys such as: 'PCI', 'ACPI', 'ACPI_HAL', 'FDC', 'HID', 'HTREE', 'IDE', 'ISAPNP', 'LEGACY'', LPTENUM', 'PCIIDE', 'SCSI', 'STORAGE', 'SW', and 'USB'; it will take time to finish. It is recommended to run this module as a background job.
+  Enumerate PCI hardware information from the registry. Please note this script will run through registry subkeys such as: 'PCI', 'ACPI',
+  'ACPI_HAL', 'FDC', 'HID', 'HTREE', 'IDE', 'ISAPNP', 'LEGACY'', LPTENUM', 'PCIIDE', 'SCSI', 'STORAGE', 'SW', and 'USB'; it will take time to
+  finish. It is recommended to run this module as a background job.
 
 ## Verification Steps
 
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/enum_devices`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/enum_devices```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run the module on.
 
 

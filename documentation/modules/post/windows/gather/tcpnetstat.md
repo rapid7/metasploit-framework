@@ -4,17 +4,17 @@
 
 ## Verification Steps
 
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/tcpnetstat`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/tcpnetstat```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run the module on.
 
 ## Scenarios

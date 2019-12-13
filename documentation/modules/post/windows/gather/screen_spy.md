@@ -12,9 +12,9 @@
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run the module on.
 
 ## Scenarios

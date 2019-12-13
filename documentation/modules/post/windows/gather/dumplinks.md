@@ -1,21 +1,23 @@
 
 ## Vulnerable Application
 
-  The dumplinks module is a modified port of Harlan Carvey's lslnk.pl Perl script. This module will parse .lnk files from a user's Recent Documents folder and Microsoft Office's Recent Documents folder, if present. Windows creates these link files automatically for many common file types. The .lnk files contain time stamps, file locations, including share names, volume serial numbers, and more.
+  The dumplinks module is a modified port of Harlan Carvey's lslnk.pl Perl script. This module will parse .lnk files from a user's
+  Recent Documents folder and Microsoft Office's Recent Documents folder, if present. Windows creates these link files automatically
+  for many common file types. The .lnk files contain time stamps, file locations, including share names, volume serial numbers, and more.
 
 ## Verification Steps
 
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/dumplinks`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/dumplinks```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
-  ```
+  ***
   SESSION
-  ```
+  ***
   The session to run the module on.
 
 
