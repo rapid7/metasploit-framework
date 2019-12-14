@@ -1,14 +1,20 @@
 ## Vulnerable Application
 
-  This Module lists current TCP sessions.
+This module will incrementally take desktop screenshots from the
+host. This allows for screen spying which can be useful to determine
+if there is an active user on a machine, or to record the screen for
+later data extraction. Note: As of March, 2014, the VIEW_CMD option
+has been removed in favor of the Boolean VIEW_SCREENSHOTS option,
+which will control if (but not how) the collected screenshots will
+be viewed from the Metasploit interface.
 
 ## Verification Steps
 
-  1. Start `msfconsole`
+  1. Start msfconsole
   2. Get meterpreter session
-  3. Do: `use post/windows/gather/screen_spy`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  3. Do: ```use post/windows/gather/screen_spy```
+  4. Do: ```set SESSION <session id>```
+  5. Do: ```run```
 
 ## Options
 
