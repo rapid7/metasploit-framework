@@ -13,19 +13,16 @@ This module will enumerate current and recently logged on Windows users.
 
 ## Options
 
-  ***
-  CURRENT
-  ***
+  **CURRENT**
+
   Enumerate currently logged on users.
 
-  ***
-  RECENT      
-  ***
+  **RECENT**
+
   Enumerate Recently logged on users.
 
-  ***
-  SESSION
-  ***
+  **SESSION**
+
   The session to run this module on.
 
 ## Scenarios
