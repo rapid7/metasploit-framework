@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module enumerates ways to decrypt Bitlocker volume and if a recovery key is stored locally or can be generated, dump the Bitlocker master key (FVEK)
+This module enumerates ways to decrypt a Bitlocker volume and if a recovery key is stored locally or can be generated, dump the Bitlocker master key (FVEK)
 
 ## Verification Steps
   1. Start msfconsole
@@ -12,24 +12,21 @@ This module enumerates ways to decrypt Bitlocker volume and if a recovery key is
 
 ## Options
 
-  ***
-  DRIVE_LETTER
-  ***
+  **DRIVE_LETTER**
+
   Dump information from the DRIVE_LETTER encrypted with Bitlocker.
 
-  ***
-  RECOVERY_KEY
-  ***
+  **RECOVERY_KEY**
+
   Use the recovery key provided to decrypt the Bitlocker master key (FVEK).
 
-  ***
-  SESSION
-  ***
+  **SESSION**
+
   The session to run this module on.
 
 ## Scenarios
 
-### A run on Windows 7 (6.1 Build 7601, Service Pack 1).
+### Windows 7 (6.1 Build 7601, Service Pack 1).
 
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.6:49184) at 2019-12-11 12:51:59 -0700

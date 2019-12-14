@@ -11,14 +11,13 @@ This module will enumerate all installed applications on a Windows system.
 
 ## Options
 
-  ***
-  SESSION
-  ***
+  **SESSION**
+
   The session to run this module on.
 
 ## Scenarios
 
-### A run on Windows 7 (6.1 Build 7601, Service Pack 1).
+### Windows 7 (6.1 Build 7601, Service Pack 1).
 
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.4:49178) at 2019-12-10 14:18:44 -0700
