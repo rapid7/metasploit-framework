@@ -27,6 +27,8 @@ This module will enumerate current and recently logged on Windows users.
 
 ## Scenarios
 
+### Windows 7 (6.1 Build 7601, Service Pack 1).
+
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.10:49196) at 2019-12-13 04:36:54 -0700
 

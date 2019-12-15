@@ -22,6 +22,8 @@
 
 ## Scenarios
 
+### Windows 7 (6.1 Build 7601, Service Pack 1).
+
   ```
   [*] Meterpreter session 1 opened (192.168.1.3:4444 -> 192.168.1.10:49160) at 2019-12-11 15:45:16 -0700
 
