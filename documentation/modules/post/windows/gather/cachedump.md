@@ -7,7 +7,7 @@ This module uses the registry to extract the stored domain hashes that have been
   2. Get meterpreter session
   3. Do: ```use post/windows/gather/cachedump```
   4. Do: ```set SESSION <session id>```
-  6. Do: ```run```
+  5. Do: ```run```
 
 ## Options
 
