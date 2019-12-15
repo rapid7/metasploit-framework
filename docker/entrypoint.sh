@@ -20,7 +20,7 @@ else
 
   # check if user id already exists
   if ! grep ":$MSF_UID:" /etc/passwd > /dev/null; then
-    adduser -u $MSF_UID -D $MSF_USER -g $MSF_USER -G $MSF_GROUP $MSF_USER
+    adduser -u $MSF_UID -D -h $APP_HOME -g $MSF_USER -G $MSF_GROUP $MSF_USER
     # add user to metasploit group so it can read the source
     addgroup $MSF_USER $METASPLOIT_GROUP
     su-exec $MSF_USER "$@"
