@@ -43,7 +43,7 @@ before_install:
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
   # Update the bundler
-  - gem update --system
+  - gem update --system 3.0.6
   - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
