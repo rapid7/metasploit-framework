@@ -322,7 +322,7 @@ module Metasploit
                 # John the Ripper 1.9.0-jumbo-1 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
                 # John the Ripper password cracker, version 1.8.0.2-bleeding-jumbo_omp [64-bit AVX-autoconf]
                 # John the Ripper password cracker, version 1.8.0
-                return $1 if line =~ /(?: password cracker, version)? ([^\[]+)?/
+                return $1.strip if line =~ /John the Ripper(?: password cracker, version)? ([^\[]+)/
               elsif cracker == 'hashcat'
                 # v5.1.0
                 return $1 if line =~ /(v[\d\.]+)/
