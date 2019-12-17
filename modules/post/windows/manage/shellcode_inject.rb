@@ -67,6 +67,8 @@ class MetasploitModule < Msf::Post
       if ppid and not has_pid?(ppid)
         print_error("Process #{ppid} was not found")
         return false
+      elsif ppid
+        print_status("Spoofing PPID #{ppid}")
       end
       print_status("Spoofing PPID #{ppid}")
       notepad_pathname = get_notepad_pathname(bits, client.sys.config.getenv('windir'), client.arch)
