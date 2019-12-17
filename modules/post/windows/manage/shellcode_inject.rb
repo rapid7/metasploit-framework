@@ -83,6 +83,8 @@ class MetasploitModule < Msf::Post
     else
       if datastore['CHANNELIZED'] && datastore['PID'] != 0
         fail_with(Failure::BadConfig, "It's not possible to retrieve output when injecting existing processes!")
+      elsif datastore['CHANNELIZED'] && datastore['PPID'] != 0
+        fail_with(Failure::BadConfig, "It's not possible to retrieve output when using PPID spoofing!")
       end
       unless has_pid?(pid)
         print_error("Process #{pid} was not found")
