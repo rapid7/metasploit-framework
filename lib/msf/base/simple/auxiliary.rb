@@ -131,7 +131,7 @@ module Auxiliary
         ctx,
         Proc.new do |ctx_|
           self.job_run_proc(ctx_) do |m|
-            m.respond_to?(:check) ? m.check : Msf::Exploit::CheckCode::Unsupported
+            m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
           end
         end,
         Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
@@ -141,7 +141,7 @@ module Auxiliary
     else
       # Run check if it exists
       result = self.job_run_proc(ctx) do |m|
-        m.respond_to?(:check) ? m.check : Msf::Exploit::CheckCode::Unsupported
+        m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
       end
       self.job_cleanup_proc(ctx)
 

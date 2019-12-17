@@ -28,6 +28,10 @@ def initialize(info = {})
 
 end
 
+def has_check?
+  respond_to?(:check_host)
+end
+
 def check
   nmod = replicant
   nmod.datastore['RHOST'] = @original_rhost

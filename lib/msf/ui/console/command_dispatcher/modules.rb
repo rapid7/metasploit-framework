@@ -1223,7 +1223,7 @@ module Msf
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
-                      o.respond_to?(:check) ? 'Yes' : 'No',
+                      o.has_check? ? 'Yes' : 'No',
                       o.name
                     ]
                   end
