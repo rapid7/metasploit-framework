@@ -320,8 +320,9 @@ module Metasploit
               if cracker == 'john'
                 # John the Ripper 1.8.0.13-jumbo-1-bleeding-973a245b96 2018-12-17 20:12:51 +0100 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
                 # John the Ripper 1.9.0-jumbo-1 OMP [linux-gnu 64-bit x86_64 AVX2 AC]
-                #return $1 if line =~ /John the Ripper ([\.\w-]+) 20\d{2}-\d{2}-\d{2}/
-                return $1 if line =~ /John the Ripper (.+) \[/
+                # John the Ripper password cracker, version 1.8.0.2-bleeding-jumbo_omp [64-bit AVX-autoconf]
+                # John the Ripper password cracker, version 1.8.0
+                return $1.strip if line =~ /John the Ripper(?: password cracker, version)? ([^\[]+)/
               elsif cracker == 'hashcat'
                 # v5.1.0
                 return $1 if line =~ /(v[\d\.]+)/
