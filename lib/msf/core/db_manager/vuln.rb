@@ -102,12 +102,14 @@ module Msf::DBManager::Vuln
     if opts[:refs]
       rids ||= []
       opts[:refs].each do |r|
-        if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
-          r = "#{r.ctx_id}-#{r.ctx_val}"
+        if r.instance_of?(Mdm::Module::Ref)
+          str = r.name
+        elsif (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
+          str = "#{r.ctx_id}-#{r.ctx_val}"
         elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
-          r = "#{r[:ctx_id]}-#{r[:ctx_val]}"
+          str = "#{r[:ctx_id]}-#{r[:ctx_val]}"
         end
-        rids << find_or_create_ref(:name => r)
+        rids << find_or_create_ref(:name => str) unless str.nil?
       end
     end
 
