@@ -57,20 +57,20 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, "Cannot inject a 64-bit payload into any process on a 32-bit OS")
     end
 
-    if datastore['PPID'] and datastore['PID']
+    if datastore['PPID'] != 0 and datastore['PID'] != 0
       print_error("PID and PPID are mutually exclusive")
       return false
     end
 
     # Start Notepad if Required
     if pid == 0
-      if ppid and not has_pid?(ppid)
+      if ppid != 0 and not has_pid?(ppid)
         print_error("Process #{ppid} was not found")
         return false
-      elsif ppid
+      elsif ppid != 0
         print_status("Spoofing PPID #{ppid}")
       end
-      print_status("Spoofing PPID #{ppid}")
+
       notepad_pathname = get_notepad_pathname(bits, client.sys.config.getenv('windir'), client.arch)
       vprint_status("Starting  #{notepad_pathname}")
       proc = client.sys.process.execute(notepad_pathname, nil, {
