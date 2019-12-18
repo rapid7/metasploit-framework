@@ -15,11 +15,11 @@ This module will enumerate current and recently logged on Windows users.
 
   **CURRENT**
 
-  Enumerate currently logged on users.
+  Enumerate currently logged on users. Default: ```true```
 
   **RECENT**
 
-  Enumerate Recently logged on users.
+  Enumerate Recently logged on users. Default: ```true```
 
   **SESSION**
 
