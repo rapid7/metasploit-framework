@@ -188,6 +188,8 @@ module Msf::DBManager::Host
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone
+    opts.delete(:workspace)
 
     begin
       retry_attempts ||= 0
@@ -280,6 +282,7 @@ module Msf::DBManager::Host
     ::ActiveRecord::Base.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

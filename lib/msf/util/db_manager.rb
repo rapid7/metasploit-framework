@@ -32,7 +32,7 @@ module DBManager
   # @raise [RuntimeError] couldn't find workspace
   # @return [Mdm::Workspace] The workspace object that was referenced by name in opts.
   def self.process_opts_workspace(opts, framework, required = true)
-    wspace = opts.delete(:workspace)
+    wspace = opts[:workspace]
     if required && (wspace.nil? || (wspace.kind_of?(String) && wspace.empty?))
       raise ArgumentError.new("opts must include a valid :workspace")
     end

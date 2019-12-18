@@ -14,10 +14,10 @@ module Msf::DBManager::HostTag
 
 
     host = get_host(:workspace => wspace, :address => addr)
-    desc = opts.delete(:desc)
-    summary = opts.delete(:summary)
-    detail = opts.delete(:detail)
-    crit = opts.delete(:crit)
+    desc = opts[:desc]
+    summary = opts[:summary]
+    detail = opts[:detail]
+    crit = opts[:crit]
     possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("tags.id DESC").limit(1)
     tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
     tag.name = name

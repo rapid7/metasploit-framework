@@ -229,6 +229,8 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   def import_msf_xml(args={}, &block)
     data = args[:data]
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    args = args.clone()
+    args.delete(:workspace)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = Nokogiri::XML::Reader.from_memory(data)
