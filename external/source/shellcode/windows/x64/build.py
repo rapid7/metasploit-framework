@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
 #=============================================================================#
-# A simple python build script to build the singles/stages/stagers and 
+# A simple python build script to build the singles/stages/stagers and
 # some usefull information such as offsets and a hex dump. The binary output
 # will be placed in the bin directory. A hex string and usefull comments will
 # be printed to screen.
@@ -44,7 +46,7 @@ def xmit_dump_ruby( data, length=16 ):
   dump = ""
   for i in range( 0, len( data ), length ):
     bytes = data[ i : i+length ]
-    hex = "\"%s\"" % ( ''.join( [ "\\x%02X" % ord(x) for x in bytes ] ) )
+    hex = "\"%s\"" % ( ''.join( [ "\\x%02X" % x for x in bytes ] ) )
     if i+length <= len(data):
       hex += " +"
     dump += "%s\n" % ( hex )
