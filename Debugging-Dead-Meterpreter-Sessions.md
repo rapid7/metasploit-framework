@@ -14,7 +14,7 @@ Prior to diving into the possible breakages and their causes, it's important to 
 * [[Meterpreter Configuration]] - Covers how configuration works in Meterpreter. This is important because it highlights the separation of configuration in stagers and Meterpreter. This alone is the key to many breakages, especially in HTTP/S payloads.
 * [[The ins and outs of HTTP and HTTPS communications in Meterpreter and Metasploit Stagers]] - Covers the detail of HTTP/S based communications in the stagers and in Meterpreter itself.
 
-## Stagers, Stages, and Handlers
+# Stagers, Stages, and Handlers
 
 Each exploit and handler is made up of multiple things, and they're all independent:
 
