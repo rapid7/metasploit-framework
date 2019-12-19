@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 #=============================================================================#
-# This script can detect hash collisions between exported API functions in 
+# This script can detect hash collisions between exported API functions in
 # multiple modules by either scanning a directory tree or just a single module.
 # This script can also just output the correct hash value for any single API
 # function for use with the 'api_call' function in 'block_api.asm'.
@@ -33,7 +34,7 @@ collisions = [  ( 0x006B8029, "ws2_32.dll!WSAStartup" ),
                 ( 0x6174A599, "ws2_32.dll!connect" ),
                 ( 0x5FC8D902, "ws2_32.dll!recv" ),
                 ( 0x5F38EBC2, "ws2_32.dll!send" ),
-                
+
                 ( 0x5BAE572D, "kernel32.dll!WriteFile" ),
                 ( 0x4FDAF6DA, "kernel32.dll!CreateFileA" ),
                 ( 0x13DD2ED7, "kernel32.dll!DeleteFileA" ),
@@ -50,9 +51,9 @@ collisions = [  ( 0x006B8029, "ws2_32.dll!WSAStartup" ),
                 ( 0xEA320EFE, "kernel32.dll!SetUnhandledExceptionFilter" ),
                 ( 0x56A2B5F0, "kernel32.dll!ExitProcess" ),
                 ( 0x0A2A1DE0, "kernel32.dll!ExitThread" ),
-                
+
                 ( 0x6F721347, "ntdll.dll!RtlExitUserThread" ),
-                
+
                 ( 0x23E38427, "advapi32.dll!RevertToSelf" )
               ]
 
@@ -77,7 +78,7 @@ def hash( module, function, bits=13, print_hash=True ):
   for c in unicode( module + "\x00" ):
     module_hash  = ror( module_hash, bits )
     module_hash += ord( c )
-  for c in str( function + "\x00" ):
+  for c in str( function + b"\x00" ):
     function_hash  = ror( function_hash, bits )
     function_hash += ord( c )
   h = module_hash + function_hash & 0xFFFFFFFF
@@ -88,23 +89,23 @@ def hash( module, function, bits=13, print_hash=True ):
 def scan( dll_path, dll_name, print_hashes=False, print_collisions=True ):
   global modules_scanned
   global functions_scanned
-  try:
-    dll_name = dll_name.lower()
-    modules_scanned += 1
-    pe = pefile.PE( os.path.join( dll_path, dll_name ) )
-    for export in pe.DIRECTORY_ENTRY_EXPORT.symbols:
-      if export.name is None:
-        continue
-      h = hash( dll_name, export.name, print_hash=print_hashes )
-      for ( col_hash, col_name ) in collisions:
-        if col_hash == h and col_name != "%s!%s" % (dll_name, export.name):
-          if h not in collisions_detected.keys():
-            collisions_detected[h] = []
-          collisions_detected[h].append( (dll_path, dll_name, export.name) )
-          break
-      functions_scanned += 1
-  except:
-    pass
+  #try:
+  dll_name = dll_name.lower()
+  modules_scanned += 1
+  pe = pefile.PE( os.path.join( dll_path, dll_name ) )
+  for export in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+    if export.name is None:
+      continue
+    h = hash( dll_name, export.name, print_hash=print_hashes )
+    for ( col_hash, col_name ) in collisions:
+      if col_hash == h and col_name != "%s!%s" % (dll_name, export.name):
+        if h not in collisions_detected.keys():
+          collisions_detected[h] = []
+        collisions_detected[h].append( (dll_path, dll_name, export.name) )
+        break
+    functions_scanned += 1
+  #except:
+  #  pass
 #=============================================================================#
 def scan_directory( dir ):
   for dot, dirs, files in os.walk( dir ):
@@ -122,24 +123,26 @@ def scan_directory( dir ):
       print("\t%s!%s (%s)" % ( collided_dll_name, collided_export_name, collided_dll_path ))
   print("\n[+] Scanned %d exported functions via %d modules.\n" % ( functions_scanned, modules_scanned ))
 #=============================================================================#
+def usage():
+    print("Usage: hash.py [/dir <path>] | [/mod <path> <module.dll>] | [<module.dll> <function>]")
+
 def main( argv=None ):
   if not argv:
     argv = sys.argv
-  try:
-    if len( argv ) == 1:
-      print("Usage: hash.py [/dir <path>] | [/mod <path> <module.dll>] | [<module.dll> <function>]")
+  if len( argv ) == 1:
+    usage()
+  else:
+    print("[+] Ran on %s\n" % (  time.asctime( time.localtime() ) ))
+    if argv[1] == "/dir":
+      print("[+] Scanning directory '%s' for collisions..." % argv[2])
+      scan_directory( argv[2] )
+    elif argv[1] == "/mod":
+      print("[+] Scanning module '%s' in directory '%s'..." % ( argv[3], argv[2] ))
+      scan( argv[2], argv[3], print_hashes=True )
+    elif len(argv) < 3:
+      usage()
     else:
-      print("[+] Ran on %s\n" % (  time.asctime( time.localtime() ) ))
-      if argv[1] == "/dir":
-        print("[+] Scanning directory '%s' for collisions..." % argv[2])
-        scan_directory( argv[2] )
-      elif argv[1] == "/mod":
-        print("[+] Scanning module '%s' in directory '%s'..." % ( argv[3], argv[2] ))
-        scan( argv[2], argv[3], print_hashes=True )
-      else:
-        hash( argv[1], argv[2] )
-  except Exception as e:
-    print("[-] ", e)
+      hash( argv[1], argv[2] )
 #=============================================================================#
 if __name__ == "__main__":
   main()
