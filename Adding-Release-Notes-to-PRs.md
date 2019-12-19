@@ -2,13 +2,13 @@ Release notes inform our users about the stuff we're shipping in each release. B
 
 To add a release note to a pull request, you'll need to add it as a comment, like so:
 
-![](http://i1097.photobucket.com/albums/g350/doanosaur/gh-release-notes_zpsbdkholll.jpg)
+![Release Notes Example](https://i.imgur.com/dgzQxyD.png)
 
 You'll need to tag the comment for inclusion in the release notes by using the `# Release Notes` heading. After you apply the release notes heading, you can enter the release notes text you want to use. 
 
 That's it! After you add the release notes text, we'll be able to extract them from the pull requests when we run our release notes script and compile them into a single document. 
 
-### Writing Release Notes 
+## Writing Release Notes 
 
 Okay, so now that you know how to add a release note, you're wondering what you're supposed to write. 
 
@@ -18,7 +18,14 @@ Here's an example of what a release note looks likes:
 
 >The Beholder plugin automatically captures keystrokes, screenshots, and webcam snapshots from your active sessions. Run this plugin to collect data from your compromised targets every 30 seconds. 
 
-#### Release Notes for Enhancements
+## Types of Release Notes
+
+There are three types of release notes:
+* [Enhancement](#release-notes-for-enhancements)
+* [Fix](#release-notes-for-fixes)
+* [Modules](#release-notes-for-modules)
+
+### Release Notes for Enhancements
 
 An enhancement indicates that an improvement or new feature has been added to the framework. Enhancements include things like auxiliary modules, post-exploitation modules, and new payloads. 
 
@@ -32,21 +39,21 @@ For example, the following is a release note for an enhancement:
 
 > The new  'resolve' command enables you to perform DNS lookups with Meterpreter, without leaving the session to run additional modules. To resolve host names on the target, you can run the 'resolve' command followed by the host name. For example, in the Meterpreter prompt, you can type something like 'resolve rapid7.com' to view the host resolutions for Rapid7.
 
-#### Release Notes for Defects
+### Release Notes for Fixes
 
-A defect is a fix for an issue that caused a particular feature or functionality to not work the way it's expected to work. Basically, a defect indicates that something was broken, and we've fixed it. 
+A fix is for an issue that caused a particular feature or functionality to not work the way it's expected to work. Basically, a defect indicates that something was broken, and we've fixed it. 
 
-When you write release notes for a defect, you should try to answer the following questions:
+When you write release notes for a fix, you should try to answer the following questions:
 
 * What was broken?
 * How was it fixed?
 * Why is this important to users? 
 
-Here's an example for a defect: 
+Here's an example for a fix: 
 
 > The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that campaigns can send emails successfully. 
 
-#### Release Notes for Exploits
+### Release Notes for Modules
 
 An exploit is a module that takes advantage of a vulnerability and provides some type of access to the target. We call out exploits explicitly because they're the hotness.
 
