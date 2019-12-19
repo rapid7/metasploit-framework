@@ -74,34 +74,31 @@ def xmit( name, dump_ruby=True ):
 def main( argv=None ):
   if not argv:
     argv = sys.argv
-  try:
-    if len( argv ) == 1:
-      print("Usage: build.py [clean|all|<name>]")
+  if len( argv ) == 1:
+    print("Usage: build.py [clean|all|<name>]")
+  else:
+    print("# Built on %s\n" % (  time.asctime( time.localtime() ) ))
+    if argv[1] == "clean":
+      clean()
+    elif argv[1] == "all":
+      for root, dirs, files in os.walk( "./src/migrate/" ):
+        for name in files:
+          if name[-4:] == ".asm":
+            build( name[:-4] )
+      for root, dirs, files in os.walk( "./src/single/" ):
+        for name in files:
+          if name[-4:] == ".asm":
+            build( name[:-4] )
+      for root, dirs, files in os.walk( "./src/stage/" ):
+        for name in files:
+          if name[-4:] == ".asm":
+            build( name[:-4] )
+      for root, dirs, files in os.walk( "./src/stager/" ):
+        for name in files:
+          if name[-4:] == ".asm":
+            build( name[:-4] )
     else:
-      print("# Built on %s\n" % (  time.asctime( time.localtime() ) ))
-      if argv[1] == "clean":
-        clean()
-      elif argv[1] == "all":
-        for root, dirs, files in os.walk( "./src/migrate/" ):
-          for name in files:
-            if name[-4:] == ".asm":
-              build( name[:-4] )
-        for root, dirs, files in os.walk( "./src/single/" ):
-          for name in files:
-            if name[-4:] == ".asm":
-              build( name[:-4] )
-        for root, dirs, files in os.walk( "./src/stage/" ):
-          for name in files:
-            if name[-4:] == ".asm":
-              build( name[:-4] )
-        for root, dirs, files in os.walk( "./src/stager/" ):
-          for name in files:
-            if name[-4:] == ".asm":
-              build( name[:-4] )
-      else:
-        build( argv[1] )
-  except Exception as e:
-    print("[-] ", e)
+      build( argv[1] )
 #=============================================================================#
 if __name__ == "__main__":
   main()
