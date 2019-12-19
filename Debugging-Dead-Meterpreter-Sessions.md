@@ -6,8 +6,6 @@ Over time, this post should become a canonical resource for debugging sessions.
 
 # Background Knowledge
 
-## Requisite Reading
-
 Prior to diving into the possible breakages and their causes, it's important to have some background knowledge of stagers, and how Meterpreter works. Please be sure to read the following articles prior to reading the rest of this post:
 
 * [[Meterpreter Stageless Mode]] - Covers the exploitation process, and how Meterpreter sessions are established. This is important because understanding how the different components interact, and what, allows for easier debugging later.
