@@ -1,7 +1,7 @@
 This page lists the keys in use by [Metasploit committers][msf-committers] and
 can be used to verify merge commits made to https://github.com/rapid7/metasploit-framework.
 
-### Keybase.io identities
+## Keybase.io identities
 
 Keybase.io is used by Metasploit as an easy way to verify identities of committers.
 
@@ -48,7 +48,7 @@ line, there should be no need to store your (encrypted) private key with a
 third party. So, please don't, unless you have amazingly good reasons (and a great
 local password).
 
-# Tracking criteria
+## Tracking criteria
 
 In order to get [@bcook-r7](https://github.com/bcook-r7) to track your key, you
 alert him to its existence through some non-GitHub means, and verify your
@@ -58,7 +58,7 @@ It would be sociable to track him (and everyone else on this list) back.
 Tracking is essentially "trusting" and "verifying" -- see the much longer
 discussion [here][tracking].
 
-# Signing your commits and merges
+## Signing your commits and merges
 
 Contributors are encouraged to sign commits, while Metasploit committers are required to sign their merge commits.  Note that the name and e-mail address must match the information on the signing key exactly.  To begin:
 
