@@ -12,7 +12,7 @@ Metasploit committers are a mix of [Rapid7](http://rapid7.com) employees and out
 
 The Metasploit community is built on the core belief that open contributions and open discussion of security issues has strong benefits for the Internet in general and human society as a whole. By helping each other demonstrate security vulnerabilities and exposures, we foster a community of excellent, ethical practitioners of information security.
 
-## How to be a Committer
+# How to be a Committer
 
 Committers tend to review pull requests that come in from other committers and from the wider Metasploit community. Committers generally should not land their own code without some sort of review from another contributor or committer.
 
@@ -26,7 +26,7 @@ Even if someone else approves of a pull request, and it is shown to be broken la
 
 A list of committer public keys [is here](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys).
 
-## How to Gain Commit Rights
+# How to Gain Commit Rights
 
 Commit rights are granted via votes on the committers mailing list. Voting records are archived for the benefit for current and future committers.
 
@@ -37,13 +37,13 @@ Commit rights are granted via votes on the committers mailing list. Voting recor
 
 Committers introduced in this way will have commit rights to the [public framework repositories](https://github.com/orgs/rapid7/teams/framework-public-committers/repositories).
 
-## How to Lose Commit Rights
+# How to Lose Commit Rights
 
 Committer rights are not granted strictly on the basis of proven code quality; committer rights are a statement of trust by the existing body of committers, so there are highly subjective criteria in play as well. Elements like an agreeable personality, the ability to remain calm in the face of trolling, the avoidance of criminal proceedings, and other aspects of a committer's life all play a part in the initial granting of commit access.
 
 Breaches of trust in terms of malicious or malformed code, or the demonstration of poor judgement that would reflect poorly on the Metasploit project will lead to a discussion on the committer mailing list, and which is likely result in the removal of committer rights.
 
-## Useful Links for Committers
+# Useful Links for Committers
 
   * [http://r-7.co/MSF-DEV](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) is pretty much required reading.
   * So is [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
