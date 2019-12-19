@@ -35,27 +35,11 @@ The result is that the payload has the following structure once it has been prep
   +--------------+
 ```
 
-### Loading configuration in POSIX Meterpreter
+### Loading configuration in POSIX Meterpreter (Mettle)
 
-POSIX Meterpreter functions in the same way, except that it doesn't have patched header that does the bootstrapping. The format of the payload is otherwise the same, and hence looks like this:
+All of the configuration for the POSIX Meterpreter is able to be passed via command line arguments to the payload. When generating a payload with a specific configuration, a simulated command line is patched into a static variable in the main startup code. Generate a payload and see `./mettle -h` for a full description of available arguments.
 
-```
-  +--------------+
-  |              |
-  .              .
-  .  metsrv bin  .
-  .              .
-  |              |
-  +--------------+
-  | config block |
-  +--------------+
-```
-
-**TODO: confirm with @bcook-r7 that this is correct**
-
-The structure of the configuration block is documented next.
-
-## Configuration Block Structure
+## Windows Meterpreter Configuration Block Structure
 
 In order to pass information to Meterpreter and not have it break, a known format of configuration is required. This format needs to be consistent on each invocation much like you would expect with any configuration. In the case of binary Meterpreter (POSIX and Windows), this configuration block contains the following:
 
