@@ -13,7 +13,7 @@ So, you want to make a Login Scanner Module in Metasploit, eh? There are a few t
   * [The scan block](#the-scan-block)
   * [ftp_login final view](#ftp_login-final-view)
 
-### Credential Objects
+# Credential Objects
 
 Metasploit::Framework::Credential
 (lib/metasploit/framework/credential.rb)
@@ -23,14 +23,14 @@ These objects represent the most basic concept of how we now think about Credent
 - Public: The public part of a credential refers to the part that can be publicly known. In almost all cases this is the username.
 - Private: The private part of the credential, this is the part that should be a secret. This currently represents: Password, SSH Key, NTLM Hash etc.
 - Private Type: This defines what type of private credential is defined above
-- Realm: This represents an authentication realm that the credential is valid for. This is a teritary part of the authentication process. Examples include: Active Directory Domain, Postgres Database etc.
+- Realm: This represents an authentication realm that the credential is valid for. This is a tertiary part of the authentication process. Examples include: Active Directory Domain, Postgres Database etc.
 - Realm Key: This defines what type of Realm the Realm Attribute represents
 - Paired: This attribute is a boolean value that sets whether the Credential must have both a public and private to be valid
 
 
 All LoginScanners use Credential objects as the basis for their attempts.
 
-### Result Objects
+# Result Objects
 
 Metasploit::Framework::LoginScanner::Result
 (lib/metasploit/framework/login_scanner/result.rb)
@@ -42,12 +42,12 @@ These are the objects yielded by the scan! method on each LoginScanner.  They co
 - Proof: an optional proof string to show why we think the result is valid
 - Status: The status of the login attempt. These values come from Metasploit::model::Login::Status , examples include "Incorrect", "Unable to Connect", "Untried" etc
 
-### CredentialCollection
+# CredentialCollection
 
 Metasploit::Framework::CredentialCollection
 (lib/metasploit/framework/credential_collection.rb)
 
-This class is used to take datastore options from a module and yield Credential objects from an each method. It takes wordlist files, as well as direct username and password options. It also takes options for username as pass and blank apssword. It can be passed in as the cred_details on the LoginScanner, and responds to #each and yields crafted Credentials.
+This class is used to take datastore options from a module and yield Credential objects from an each method. It takes wordlist files, as well as direct username and password options. It also takes options for username as pass and blank password. It can be passed in as the cred_details on the LoginScanner, and responds to #each and yields crafted Credentials.
 
 Example (from modules/auxiliary/scanner/ftp/ftp_login.rb):
 
@@ -66,7 +66,7 @@ cred_collection = Metasploit::Framework::CredentialCollection.new(
 
 
 
-### LoginScanner Base
+# LoginScanner Base
 
 Metasploit::Framework::LoginScanner::Base
 (lib/metasploit/framework/login_scanner/base.rb)
@@ -81,19 +81,19 @@ it_behaves_like 'Metasploit::Framework::LoginScanner::Base', has_realm_key: fals
 ```
  Where has_realm_key and has_default_realm should be set according to whether your LoginScanner has those things. (More on this later)
 
-LoginScanners always take a collection of Crednetials to try and one host and port. so each LoginScanner object attempts to login to only one specific service.
+LoginScanners always take a collection of Credentials to try and one host and port. so each LoginScanner object attempts to login to only one specific service.
 
-#### Attributes
+## Attributes
 
 
  - connection_timeout: The time to wait for a connection to timeout
- - cred_details: An object that yeilds credentials on each (like credentialCollection or an Array)
+ - cred_details: An object that yields credentials on each (like credentialCollection or an Array)
  - host: The address for the target host
  - port: the port number for the target service
  - proxies: any proxies to use in the connection (some scanners might not support this)
  - stop_on_success: whether to stop trying after a successful login is found
  
-#### Methods
+## Methods
 
  - each_credential : You will not have to worry much about this method, Be aware that it is there. It iterates through whatever is in cred_details, does some normalization and tries to make sure each Credential is properly setup for use by the given LoginScanner. It yields each Credential in a block.
  
@@ -144,7 +144,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
           end
  ```
  
- -  attempt_login: This method is just a stub on the Base mixin. It will be ovverriden in each LoginScanner class to contain the logic to take one single Credential object and use it to make a login attempt against the target service. It returns a ::Metasploit::Framework::LoginScanner::Result object containing all the information about that attempt's result. For an example let's look at the attempt_login method from Metasploit::Framework::LoginScanner::FTP (lib/metasploit/framework/login_scanner/ftp.rb)
+ -  attempt_login: This method is just a stub on the Base mixin. It will be overridden in each LoginScanner class to contain the logic to take one single Credential object and use it to make a login attempt against the target service. It returns a ::Metasploit::Framework::LoginScanner::Result object containing all the information about that attempt's result. For an example let's look at the attempt_login method from Metasploit::Framework::LoginScanner::FTP (lib/metasploit/framework/login_scanner/ftp.rb)
  
  ```ruby
  # (see Base#attempt_login)
@@ -173,9 +173,9 @@ LoginScanners always take a collection of Crednetials to try and one host and po
  ```
  
  - scan! : This method is the main one you will be concerned with. This method does several things. 
- 	- It calls valid! which will check all of the validations on the class and raise an Metasploit::Framework::LoginScanner::Invalid if any of the Vlidations fail. This exception will contain all the errors messages for any failing validations.
+ 	- It calls valid! which will check all of the validations on the class and raise an Metasploit::Framework::LoginScanner::Invalid if any of the Validations fail. This exception will contain all the errors messages for any failing validations.
  	- it keeps track of the connection error count, and will bail out if we have too many connection errors or too many in a row
- 	- it runs throguh all of the credentials by calling each_credential with a block
+ 	- it runs through all of the credentials by calling each_credential with a block
  	- in that block it passes each credential to #attempt_login
  	- it yields the Result object into the block it is passed
  	- if stop_on_success is set it will also exit out early if it the reuslt was a success
@@ -225,7 +225,7 @@ LoginScanners always take a collection of Crednetials to try and one host and po
           end
 ```
 
-#### Constants
+## Constants
 
 Although not defined on Base, each LoginScanner has a series of Constants that can be defined on it to assist with critical behaviour.
 
@@ -266,9 +266,9 @@ These constants are fore LoginScanners that have to deal with Realms such as AD 
 ```
 
 
-### Pulling it all Together in a module
+# Pulling it all Together in a module
 
-So now you hopefully have a good diea of all the moving peices involved in creating a LoginScanner. The next step is using your brand new LoginScanner in an actual module. 
+So now you hopefully have a good idea of all the moving pieces involved in creating a LoginScanner. The next step is using your brand new LoginScanner in an actual module. 
 
 Let's look at the ftp_login module:
 
@@ -276,7 +276,7 @@ Let's look at the ftp_login module:
 
 Every Bruteforce/Login module should be a scanner and should use the run_host method which will run once for each RHOST.
 
-#### The Cred Collection
+## The Cred Collection
 
 ```ruby
     cred_collection = Metasploit::Framework::CredentialCollection.new(
@@ -295,7 +295,7 @@ So here we see the CredentialCollection getting created using the datastore opti
 
 you'll also notice an option here called prepended_creds. FTP is one of the only module to make use of this, but it is generally available through the CredentialCollection. This option is an array of Metasploit::Framework::Credential objects that should be spit back by the collection before any others. FTP uses this to deal with testing for anon FTP access.
 
-#### Initialising the Scanner
+## Initialising the Scanner
 
 ```ruby
 scanner = Metasploit::Framework::LoginScanner::FTP.new(
@@ -313,7 +313,7 @@ Here we actually create our Scanner object. We set the IP and Port based on data
 This gives us our scanner object, all configured and ready to go.
 
 
-#### The scan block
+## The Scan Block
 
 ```ruby
  scanner.scan! do |result|
@@ -348,7 +348,7 @@ Finally, for a success, we output the result to the console.
 
 In the case of a failure, we call the invalidate_login method. This method also comes from the Creation mixin. This method looks to see if a Login object already exists for this credential:service pair. If it does, it updates the status to the status we got back from the scanner. This is primarily to account for Login objects created by things like Post modules that have an untried status.
 
-#### ftp_login final view
+## `ftp_login` Final View
 
 Pulling it all together, we get a new ftp_login module that looks something like this:
 
