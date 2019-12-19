@@ -137,7 +137,7 @@ class ClientRequest
       opts['vars_post'].each_pair do |var,val|
         var = var.to_s
         unless val.is_a?(Array)
-          val = val.split
+          val = [val]
         end
         val.each do |v|
           v = v.to_s
