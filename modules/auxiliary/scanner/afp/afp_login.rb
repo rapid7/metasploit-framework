@@ -29,7 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'      => MSF_LICENSE
     ))
 
-    deregister_options('RHOST')
     register_options(
       [
         Opt::Proxies,
@@ -38,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
       ], self)
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

@@ -14,6 +14,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
@@ -115,7 +116,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
   end
@@ -152,6 +153,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
 
+      # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+      if datastore['AutoUnhookProcess'] == true
+        console.run_single('load unhook')
+        console.run_single('unhook_pe')
+      end
+
       unless datastore['AutoLoadStdapi'] == false
 
         session.load_stdapi
@@ -161,7 +168,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         end
 
         # only load priv on native windows
-        # TODO: abastrct this too, to remove windows stuff
+        # TODO: abstract this too, to remove windows stuff
         if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
@@ -302,11 +309,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the Meterpreter script or resource file
+  # Runs the Meterpreter script or resource file.
   #
   def execute_file(full_path, args)
-    # Infer a Meterpreter script by it having an .rb extension
-    if File.extname(full_path) == ".rb"
+    # Infer a Meterpreter script by .rb extension
+    if File.extname(full_path) == '.rb'
       Rex::Script::Meterpreter.new(self, full_path).run(args)
     else
       console.load_resource(full_path)
@@ -422,6 +429,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   def update_session_info
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    fs.dir.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
@@ -516,8 +525,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           })
 
           if self.db_record
-            self.db_record.desc = safe_info
-            self.db_record.save!
+            framework.db.update_session(self)
           end
 
           # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
@@ -563,11 +571,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    if framework.datastore['MeterpreterPrompt']
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.

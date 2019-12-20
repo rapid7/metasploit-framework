@@ -66,7 +66,8 @@ class Client
       'uri_fake_end'           => 'bool',
       'uri_fake_params_start'  => 'bool',
       'header_folding'         => 'bool',
-      'chunked_size'           => 'integer'
+      'chunked_size'           => 'integer',
+      'partial'                => 'bool'
     }
 
 
@@ -92,7 +93,7 @@ class Client
       # config.
 
       if(typ == 'bool')
-        val = (val =~ /^(t|y|1)$/i ? true : false || val === true)
+        val = (val =~ /^(t|y|1)/i ? true : false || val === true)
       end
 
       if(typ == 'integer')
@@ -116,7 +117,7 @@ class Client
   # @option opts 'method'        [String] HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
   # @option opts 'proto'         [String] protocol, default: HTTP
   # @option opts 'query'         [String] raw query string
-  # @option opts 'raw_headers'   [Hash]   HTTP headers
+  # @option opts 'raw_headers'   [String] Raw HTTP headers
   # @option opts 'uri'           [String] the URI to request
   # @option opts 'version'       [String] version of the protocol, default: 1.1
   # @option opts 'vhost'         [String] Host header value
@@ -206,8 +207,8 @@ class Client
   # authentication and return the final response
   #
   # @return (see #_send_recv)
-  def send_recv(req, t = -1, persist=false)
-    res = _send_recv(req,t,persist)
+  def send_recv(req, t = -1, persist = false)
+    res = _send_recv(req, t, persist)
     if res and res.code == 401 and res.headers['WWW-Authenticate']
       res = send_auth(res, req.opts, t, persist)
     end
@@ -224,7 +225,7 @@ class Client
   # authentication handling.
   #
   # @return (see #read_response)
-  def _send_recv(req, t = -1, persist=false)
+  def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
     send_request(req, t)
     res = read_response(t)
@@ -523,18 +524,17 @@ class Client
   #
   # Read a response from the server
   #
+  # Wait at most t seconds for the full response to be read in.
+  # If t is specified as a negative value, it indicates an indefinite wait cycle.
+  # If t is specified as nil or 0, it indicates no response parsing is required.
+  #
   # @return [Response]
   def read_response(t = -1, opts = {})
+    # Return a nil response if timeout is nil or 0
+    return if t.nil? || t == 0
 
     resp = Response.new
     resp.max_data = config['read_max_data']
-
-    # Wait at most t seconds for the full response to be read in.  We only
-    # do this if t was specified as a negative value indicating an infinite
-    # wait cycle.  If t were specified as nil it would indicate that no
-    # response parsing is required.
-
-    return resp if not t
 
     Timeout.timeout((t < 0) ? nil : t) do
 
@@ -606,6 +606,9 @@ class Client
     end
 
     resp
+  rescue Timeout::Error
+    # Allow partial response due to timeout
+    resp if config['partial']
   end
 
   #

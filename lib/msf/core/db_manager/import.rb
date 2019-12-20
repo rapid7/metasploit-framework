@@ -94,9 +94,72 @@ module Msf::DBManager::Import
     data = args[:data] || args['data']
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
-    self.send "import_#{ftype}".to_sym, args.merge(workspace: wspace.name), &block
+    # this code looks to intentionally convert workspace to a string, why?
+    opts = args.clone()
+    opts.delete(:workspace)
+    self.send "import_#{ftype}".to_sym, opts.merge(workspace: wspace.name), &block
+    # post process the import here for missing default port maps
+    mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
+    # the map build above is a little expensive, another option is to do
+    # a host by ref search for each vuln ref and then check port reported for each module
+    # IMHO this front loaded cost here is worth it with only a small number of modules
+    # compared to the vast number of possible references offered by a Vulnerability scanner.
+    deferred_service_ports = [ 139 ] # I hate special cases, however 139 is no longer a preferred default
+
+    new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
+    (new_host_ids - existing_host_ids).each do |id|
+      imported_host = Mdm::Host.where(id: id).first
+      next if imported_host.vulns.nil? || imported_host.vulns.empty?
+      # get all vulns with ports
+      with_ports = []
+      imported_host.vulns.each do |vuln|
+        next if vuln.service.nil?
+        with_ports << vuln.name
+      end
+
+      imported_host.vulns.each do |vuln|
+        # now get default ports for vulns where service is nil
+        next unless vuln.service.nil?
+        next if with_ports.include?(vuln.name)
+        serv = nil
+
+        # Module names that match this vulnerability
+        matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
+        next if matched.empty?
+        match_names = matched.map { |mod| mod.fullname }
+
+        second_pass_services = []
+
+        imported_host.services.each do |service|
+          if deferred_service_ports.include?(service.port)
+            second_pass_services << service
+            next
+          end
+          next unless mports[service.port]
+          if (match_names - mports[service.port].keys).count < match_names.count
+            serv = service
+            break
+          end
+        end
+
+        # post process any deferred services if no match has been found
+        if serv.nil? && !second_pass_services.empty?
+          second_pass_services.each do |service|
+            next unless mports[service.port]
+            if (match_names - mports[service.port].keys).count < match_names.count
+              serv = service
+              break
+            end
+          end
+        end
+
+        next if serv.nil?
+        vuln.service = serv
+        vuln.save
+
+      end
+    end
     if preserve_hosts
-      new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
       (new_host_ids - existing_host_ids).each do |id|
         Mdm::Host.where(id: id).first.normalize_os
       end
@@ -149,10 +212,13 @@ module Msf::DBManager::Import
     # Override REXML's expansion text limit to 50k (default: 10240 bytes)
     REXML::Security.entity_expansion_text_limit = 51200
 
+    # this code looks to intentionally convert workspace to a string, why?
+    opts = args.clone()
+    opts.delete(:workspace)
     if block
-      import(args.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
+      import(opts.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
     else
-      import(args.merge(data: data, workspace: wspace.name))
+      import(opts.merge(data: data, workspace: wspace.name))
     end
   end
 
@@ -347,6 +413,9 @@ module Msf::DBManager::Import
         when /ReportInfo/
           @import_filedata[:type] = "Foundstone"
           return :foundstone_xml
+        when /scanJob/
+          @import_filedata[:type] = "Retina XML"
+          return :retina_xml
         when /ScanGroup/
           @import_filedata[:type] = "Acunetix"
           return :acunetix_xml

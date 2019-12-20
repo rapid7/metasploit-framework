@@ -126,7 +126,8 @@ module ModuleCommandDispatcher
       return
     end
 
-    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
+    ip_range_arg = args.join(' ') unless args.empty?
+    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
     begin
@@ -221,6 +222,7 @@ module ModuleCommandDispatcher
       rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
+    peer_msg = peer ? "#{peer} - " : ''
 
     begin
       if instance.respond_to?(:check_simple)
@@ -233,17 +235,17 @@ module ModuleCommandDispatcher
         raise NotImplementedError, msg
       end
 
-      if (code and code.kind_of?(Array) and code.length > 1)
+      if (code && code.kind_of?(Msf::Exploit::CheckCode))
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} #{code[1]}")
+          print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
           instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
-          print_status("#{peer} #{code[1]}")
+          print_status("#{peer_msg}#{code[1]}")
         end
       else
-        msg = "#{peer} Check failed: The state could not be determined."
+        msg = "#{peer_msg}Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end

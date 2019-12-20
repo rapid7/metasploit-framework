@@ -50,7 +50,7 @@ module Rex
         collect_host_data
         host_object = report_host &block
         if host_object
-          db.report_import_note(@args[:wspace],host_object)
+          db.report_import_note(@args[:workspace],host_object)
           report_fingerprint(host_object)
           report_vulns(host_object,&block)
         end
@@ -207,7 +207,7 @@ module Rex
     def report_host(&block)
       if host_is_okay
         db.emit(:address,@report_data[:host],&block) if block
-        host_info = @report_data.merge(:workspace => @args[:wspace])
+        host_info = @report_data.merge(:workspace => @args[:workspace])
         db_report(:host, host_info)
       end
     end

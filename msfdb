@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'io/console'
 require 'json'
 require 'net/http'
 require 'net/https'
@@ -8,9 +9,11 @@ require 'open3'
 require 'optparse'
 require 'rex/socket'
 require 'rex/text'
-require 'sysrandom/securerandom'
+require 'securerandom'
 require 'uri'
 require 'yaml'
+
+include Rex::Text::Color
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -20,18 +23,18 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+require 'msf/base/config'
 require 'msf/util/helper'
-
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
-@localconf = "#{ENV['HOME']}/.msf4"
+@localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
 
 @ws_tag = 'msf-ws'
-@ws_conf = "#{@localconf}/#{@ws_tag}-config.ru"
+@ws_conf = File.join(@framework, "#{@ws_tag}.ru")
 @ws_ssl_key_default = "#{@localconf}/#{@ws_tag}-key.pem"
 @ws_ssl_cert_default = "#{@localconf}/#{@ws_tag}-cert.pem"
 @ws_log = "#{@localconf}/logs/#{@ws_tag}.log"
@@ -55,7 +58,7 @@ require 'msf/util/helper'
     db_port: 5433,
     db_pool: 200,
     address: 'localhost',
-    port: 8080,
+    port: 5443,
     ssl: true,
     ssl_cert: @ws_ssl_cert_default,
     ssl_key: @ws_ssl_key_default,
@@ -63,8 +66,45 @@ require 'msf/util/helper'
     ws_env: ENV['RACK_ENV'] || 'production',
     retry_max: 10,
     retry_delay: 5.0,
-    ws_user: nil
+    ws_user: nil,
+    add_data_service: true,
+    data_service_name: nil,
+    use_defaults: false,
+    delete_existing_data: true
 }
+
+def supports_color?
+  return true if Rex::Compat.is_windows
+  term = Rex::Compat.getenv('TERM')
+  term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil
+end
+
+class String
+  def bold
+    substitute_colors("%bld#{self}%clr")
+  end
+
+  def underline
+    substitute_colors("%und#{self}%clr")
+  end
+
+  def red
+    substitute_colors("%red#{self}%clr")
+  end
+
+  def green
+    substitute_colors("%grn#{self}%clr")
+  end
+
+  def blue
+    substitute_colors("%blu#{self}%clr")
+  end
+
+  def cyan
+    substitute_colors("%cya#{self}%clr")
+  end
+
+end
 
 
 def run_cmd(cmd, input: nil, env: {})
@@ -137,10 +177,10 @@ def started_db
   run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
   sleep(2)
   if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
-    puts 'failed'
+    puts "#{'failed'.red.bold}"
     false
   else
-    puts 'success'
+    puts "#{'success'.green.bold}"
     true
   end
 end
@@ -153,23 +193,13 @@ def start_db
 
   update_db_port
 
-  while !started_db
+  if !started_db
     last_log = tail("#{@db}/log")
     puts last_log
-    fixed = false
     if last_log =~ /not compatible/
       puts 'Please attempt to upgrade the database manually using pg_upgrade.'
     end
-    if !fixed
-      if ask_yn('Your database may be corrupt, would you like to reinitialize it?')
-        fixed = reinit_db
-      end
-    end
-    if !fixed
-      if !ask_yn('Database not started, try again?')
-        return
-      end
-    end
+    print_error "Your database may be corrupt. Try reinitializing."
   end
 end
 
@@ -206,8 +236,7 @@ def init_db
     return
   end
 
-  if File.exist?(@db_conf) &&
-      !ask_yn("Found database config at #{@db_conf}, do you want to overwrite it?")
+  if File.exist?(@db_conf) && !@options[:delete_existing_data]
     if !load_db_config
       puts "Failed to load existing database config. Please reinit and overwrite the file."
       return
@@ -337,7 +366,7 @@ end
 
 def ask_yn(question)
   loop do
-    print "#{question}: "
+    print "#{'[?]'.blue.bold} #{question}: "
     yn = STDIN.gets
     case yn
     when /^[Yy]/
@@ -351,7 +380,7 @@ def ask_yn(question)
 end
 
 def ask_value(question, default_value)
-  print "#{question}[#{default_value}]: "
+  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
     return default_value
@@ -360,17 +389,31 @@ def ask_value(question, default_value)
   end
 end
 
+def ask_password(question)
+  print "#{'[?]'.blue.bold} #{question}: "
+  input = STDIN.noecho(&:gets).chomp
+  print "\n"
+  if input.nil? || input.empty?
+    return pw_gen
+  else
+    return input
+  end
+end
+
+def print_error(error)
+  puts "#{'[!]'.red.bold} #{error}"
+end
 
 def delete_db
   if Dir.exist?(@db)
     stop_db
 
-    if ask_yn("Delete all data at #{@db}?")
+    if @options[:delete_existing_data]
       puts "Deleting all data at #{@db}"
       FileUtils.rm_rf(@db)
     end
 
-    if File.file?(@db_conf) && ask_yn("Delete database configuration at #{@db_conf}?")
+    if @options[:delete_existing_data]
       File.delete(@db_conf)
     end
   else
@@ -383,76 +426,64 @@ def reinit_db
   init_db
 end
 
-def status_web_service
+class WebServicePIDStatus
+  RUNNING = 0
+  INACTIVE = 1
+  NO_PID_FILE = 2
+end
+
+def web_service_pid
+  File.file?(@ws_pid) ? tail(@ws_pid) : nil
+end
+
+def web_service_pid_status
   if File.file?(@ws_pid)
     ws_pid = tail(@ws_pid)
     if ws_pid.nil? || !process_active?(ws_pid.to_i)
-      puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
+      WebServicePIDStatus::INACTIVE
     else
-      puts "MSF web service is running as PID #{ws_pid}"
+      WebServicePIDStatus::RUNNING
     end
   else
+    WebServicePIDStatus::NO_PID_FILE
+  end
+end
+
+def status_web_service
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
+  elsif status == WebServicePIDStatus::NO_PID_FILE
     puts "MSF web service is not running: no PID file found at #{@ws_pid}"
   end
 end
 
 def init_web_service
-  if File.file?(@ws_conf)
-    puts "Found web service config at #{@ws_conf}, checking to see if it is started"
-    start_web_service(expect_auth: true)
-    return
+  if web_service_pid_status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{web_service_pid}"
+    return false
   end
 
-  if @options[:ws_user].nil?
-    @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
+  unless @options[:use_defaults]
+    if @options[:ws_user].nil?
+      @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
+    else
+      @msf_ws_user = @options[:ws_user]
+    end
+  end
+
+  if @options[:use_defaults]
+    @msf_ws_pass = pw_gen
+  elsif @options[:ws_pass].nil?
+    @msf_ws_pass = ask_password('Initial MSF web service account password? (Leave blank for random password)')
   else
-    @msf_ws_user = @options[:ws_user]
+    @msf_ws_pass = @options[:ws_pass]
   end
 
-  # Write a default Rack config file for the web service
-  Dir.mkdir(@localconf) unless File.directory?(@localconf)
-  # TODO: free the REST API from all of these requirements
-  File.open(@ws_conf, 'w') do |f|
-    f.puts <<~EOF
-      # #{File.basename(@ws_conf)}
-      # created on: #{Time.now.utc}
-
-      @framework_path = '#{@framework}'
-      $LOAD_PATH << @framework_path unless $LOAD_PATH.include?(@framework_path)
-
-      require File.expand_path('./config/boot', @framework_path)
-      require 'metasploit/framework/parsed_options/remote_db'
-      require 'msf/core/db_manager/http/metasploit_api_app'
-
-      def require_environment!(parsed_options)
-        # RAILS_ENV must be set before requiring 'config/application.rb'
-        parsed_options.environment!
-        ARGV.replace(parsed_options.positional)
-
-        # allow other Rails::Applications to use this command
-        if !defined?(Rails) || Rails.application.nil?
-          # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
-          require File.expand_path('./config/application', @framework_path)
-        end
-
-        # have to configure before requiring environment because
-        # config/environment.rb calls initialize! and the initializers will use
-        # the configuration from the parsed options.
-        parsed_options.configure(Rails.application)
-
-        Rails.application.require_environment!
-      end
-
-      parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
-      require_environment!(parsed_options)
-
-      run MetasploitApiApp
-    EOF
-  end
-  File.chmod(0640, @ws_conf)
-
-  if @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
-      (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+  if should_generate_web_service_ssl && @options[:delete_existing_data]
     generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
   end
 
@@ -473,20 +504,19 @@ def start_web_service(expect_auth: true)
   end
 
   # check if MSF web service is already started
-  if File.file?(@ws_pid)
-    ws_pid = tail(@ws_pid)
-    if ws_pid.nil? || !process_active?(ws_pid.to_i)
-      puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
-      puts "Deleting MSF web service PID file #{@ws_pid}"
-      File.delete(@ws_pid)
-    else
-      puts "MSF web service is already running as PID #{ws_pid}"
-      return false
-    end
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "MSF web service is already running as PID #{ws_pid}"
+    return false
+  elsif status == WebServicePIDStatus::INACTIVE
+    puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
+    puts "Deleting MSF web service PID file #{@ws_pid}"
+    File.delete(@ws_pid)
   end
 
   # daemonize MSF web service
-  puts 'Attempting to start MSF web service...'
+  print 'Attempting to start MSF web service...'
   if run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
@@ -502,34 +532,39 @@ def start_web_service(expect_auth: true)
       is_online = response_data[:state] != :offline
     end
 
-    if response_data[:state] == :online
+      if response_data[:state] == :online
+      puts "#{'success'.green.bold}"
       puts 'MSF web service started and online'
       return true
-    elsif response_data[:state] == :error
-      puts 'MSF web service appears to be started, but may not operate as expected.'
+      elsif response_data[:state] == :error
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service appears to be started, but may not operate as expected.'
       puts "#{response_data[:message]}"
-    else
-      puts 'MSF web service does not appear to be started.'
+      else
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service does not appear to be started.'
     end
     puts "Please see #{@ws_log} for additional details."
     return false
   else
+    puts "#{'failed'.red.bold}"
     puts 'Failed to start MSF web service'
     return false
   end
 end
 
 def stop_web_service
-  ws_pid = tail(@ws_pid)
-  if ws_pid.nil? || !process_active?(ws_pid.to_i)
+  ws_pid = web_service_pid
+  status = web_service_pid_status
+  if status == WebServicePIDStatus::RUNNING
+    puts "Stopping MSF web service PID #{ws_pid}"
+    run_cmd("#{thin_cmd} stop")
+  else
     puts 'MSF web service is no longer running'
-    if File.file?(@ws_pid)
+    if status == WebServicePIDStatus::INACTIVE
       puts "Deleting MSF web service PID file #{@ws_pid}"
       File.delete(@ws_pid)
     end
-  else
-    puts "Stopping MSF web service PID #{ws_pid}"
-    run_cmd("#{thin_cmd} stop")
   end
 end
 
@@ -540,8 +575,11 @@ end
 
 def delete_web_service
   stop_web_service
-  if File.file?(@ws_conf) && ask_yn("Delete MSF web service configuration at #{@ws_conf}?")
-    File.delete(@ws_conf)
+
+  File.delete(@ws_pid) if web_service_pid_status == WebServicePIDStatus::INACTIVE
+  if @options[:delete_existing_data]
+    File.delete(@options[:ssl_key]) if File.file?(@options[:ssl_key])
+    File.delete(@options[:ssl_cert]) if File.file?(@options[:ssl_cert])
   end
 end
 
@@ -552,13 +590,11 @@ end
 
 def generate_web_service_ssl(key:, cert:)
   @ws_generated_ssl = true
-  if (File.file?(key) || File.file?(cert)) &&
-      !ask_yn("Either MSF web service SSL key #{key} or certificate #{cert} already exist, overwrite both?")
+  if (File.file?(key) || File.file?(cert)) && !@options[:delete_existing_data]
     return
   end
 
   puts 'Generating SSL key and certificate for MSF web service'
-  # @ssl_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
   @ssl_key, @ssl_cert, @ssl_extra_chain_cert = Rex::Socket::Ssl.ssl_generate_certificate
 
   # write PEM format key and certificate
@@ -607,7 +643,7 @@ def add_web_service_workspace(name: 'default')
   response = response_data[:response]
   puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :name) != name
-    puts "Error creating MSF web service workspace '#{name}'"
+    print_error "Error creating MSF web service workspace '#{name}'"
     return false
   end
   return true
@@ -617,8 +653,7 @@ def add_web_service_user
   puts "Creating MSF web service user #{@msf_ws_user}"
 
   # Generate new web service user password
-  msf_ws_pass = pw_gen
-  cred_data = { username: @msf_ws_user, password: msf_ws_pass }
+  cred_data = { username: @msf_ws_user, password: @msf_ws_pass }
 
   # Send request to create new admin user
   user_data = cred_data.merge({ admin: true })
@@ -628,31 +663,47 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: create user response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :username) != @msf_ws_user
-    puts "Error creating MSF web service user #{@msf_ws_user}"
+    print_error "Error creating MSF web service user #{@msf_ws_user}"
     return false
   end
-  puts "\nMSF web service username: #{@msf_ws_user}"
-  puts "MSF web service password: #{msf_ws_pass}"
+
+  puts "\n#{'    ############################################################'.cyan}"
+  print "#{'    ##              '.cyan}"
+  print"#{'MSF Web Service Credentials'.cyan.bold.underline}"
+  puts"#{'               ##'.cyan}"
+  puts "#{'    ##                                                        ##'.cyan}"
+  puts "#{'    ##        Please store these credentials securely.        ##'.cyan}"
+  puts "#{'    ##    You will need them to connect to the webservice.    ##'.cyan}"
+  puts "#{'    ############################################################'.cyan}"
+
+  puts "\n#{'MSF web service username'.cyan.bold}: #{@msf_ws_user}"
+  puts "#{'MSF web service password'.cyan.bold}: #{@msf_ws_pass}"
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response_data = http_request(uri: generate_token_uri, query: cred_data, method: :get,
+  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
-    puts 'Error creating MSF web service user API token'
+    print_error "Error creating MSF web service user API token"
     return false
   end
-  puts "MSF web service user API token: #{@ws_api_token}"
-  puts 'Please store these credentials securely.'
+  puts "#{'MSF web service user API token'.cyan.bold}: #{@ws_api_token}"
   return true
 end
 
 def output_web_service_information
-  puts ''
+  puts "\n\n"
   puts 'MSF web service configuration complete'
-  puts 'Connect to the data service in msfconsole using the command:'
+  if @options[:add_data_service]
+    data_service_name = @options[:data_service_name] || "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+    puts "The web service has been configured as your default data service in msfconsole with the name \"#{data_service_name}\""
+  else
+    puts "No data service has been configured in msfconsole."
+  end
+  puts ''
+  puts 'If needed, manually reconnect to the data service in msfconsole using the command:'
   puts "#{get_db_connect_command}"
   puts ''
   puts 'The username and password are credentials for the API account:'
@@ -663,19 +714,23 @@ def output_web_service_information
 end
 
 def persist_data_service
-  if ask_yn('Add data service connection to local msfconsole and persist as default?')
-    data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
-    data_service_name = ask_value('Data service connection name?', data_service_name)
-    # execute msfconsole commands to add and persist the data service connection
-    connect_cmd = get_db_connect_command(name: data_service_name)
-    cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
-    if run_cmd(cmd) != 0
-      # attempt to execute msfconsole in the current working directory
-      if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
-        puts 'Failed to run msfconsole and persist the data service connection'
-      end
+  data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+  if !@options[:add_data_service]
+    return
+  elsif !@options[:data_service_name].nil?
+    data_service_name = @options[:data_service_name]
+  end
+
+  # execute msfconsole commands to add and persist the data service connection
+  connect_cmd = get_db_connect_command(name: data_service_name)
+  cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
+  if run_cmd(cmd) != 0
+    # attempt to execute msfconsole in the current working directory
+    if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+      puts 'Failed to run msfconsole and persist the data service connection'
     end
   end
+
 end
 
 def get_db_connect_command(name: nil)
@@ -820,6 +875,9 @@ def parse_args(args)
       puts opts
       exit
     }
+    opts.on('--use-defaults', 'Accept all defaults and do not prompt for options during an init') { |d|
+      @options[:use_defaults] = d
+    }
 
     opts.separator('')
     opts.separator('Database Options:')
@@ -894,6 +952,18 @@ def parse_args(args)
       @options[:ws_user] = u
     }
 
+    opts.on('--pass PASS', 'Initial web service admin password') { |p|
+      @options[:ws_pass] = p
+    }
+
+    opts.on('--[no-]msf-data-service NAME', 'Local msfconsole data service connection name') { |n|
+      if !n
+        @options[:add_data_service] = false
+      else
+        @options[:data_service_name] = n
+      end
+    }
+
     opts.separator('')
     opts.separator(subtext)
   end
@@ -913,7 +983,7 @@ def invoke_command(commands, component, command)
   if !method.nil?
     send(method)
   else
-    puts "Error: unrecognized command '#{command}' for #{component}"
+    print_error "Error: unrecognized command '#{command}' for #{component}"
   end
 end
 
@@ -921,16 +991,17 @@ def has_requirements
   ret_val = true
   postgresql_cmds = %w(psql pg_ctl initdb createdb)
   other_cmds = %w(bundle thin)
-  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+  missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
-  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
-    puts missing_msg % { name: 'PostgreSQL' }
+  postgresql_cmds.each do |cmd|
+    next unless Msf::Util::Helper.which(cmd).nil?
+    puts missing_msg % { name: 'PostgreSQL', prog: cmd }
     ret_val = false
   end
 
   other_cmds.each do |cmd|
     if Msf::Util::Helper.which(cmd).nil?
-      puts missing_msg % { name: "'#{cmd}'" }
+      puts missing_msg % { name: "'#{cmd}'", prog: cmd }
       ret_val = false
     end
   end
@@ -938,6 +1009,38 @@ def has_requirements
   ret_val
 end
 
+
+def should_generate_web_service_ssl
+  @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
+      (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+end
+
+def prompt_for_deletion(command)
+  destructive_operations = [:init, :reinit, :delete]
+
+  if destructive_operations.include? command
+    if command == :init
+      return if web_service_pid_status != WebServicePIDStatus::NO_PID_FILE
+      if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
+          (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
+        @options[:delete_existing_data] = should_delete
+        return
+      end
+      if (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
+        @options[:delete_existing_data] = should_delete
+        return
+      end
+    else
+      @options[:delete_existing_data] = should_delete
+    end
+  end
+end
+
+
+def should_delete
+  return true if @options[:use_defaults]
+  ask_yn("Would you like to delete your existing data and configurations?")
+end
 
 
 if $PROGRAM_NAME == __FILE__
@@ -976,6 +1079,7 @@ if $PROGRAM_NAME == __FILE__
   parse_args(ARGV)
 
   command = ARGV[0].to_sym
+  prompt_for_deletion(command)
   if @options[:component] == :all
     @components.each { |component|
       invoke_command(commands, component.to_sym, command)

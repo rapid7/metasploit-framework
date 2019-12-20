@@ -257,7 +257,7 @@ class ReadableText
 
     # Check
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -286,8 +286,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
 
@@ -323,8 +323,9 @@ class ReadableText
     end
 
     # Check
+    has_check = mod.has_check?
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{has_check ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -341,8 +342,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
   end
@@ -401,8 +402,8 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
-    # AKA
-    output << dump_aka(mod, indent)
+    # Notes
+    output << dump_notes(mod, indent)
 
     return output
   end
@@ -433,7 +434,7 @@ class ReadableText
 
     # Check
     output << "Check supported:\n"
-    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+    output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -641,19 +642,8 @@ class ReadableText
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
 
-      cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
-      if cve_collection.empty?
-        output << "#{indent}CVE: Not available\n"
-      end
-
       mod.references.each do |ref|
         case ref.ctx_id
-        when 'CVE', 'cve'
-          if !cve_collection.empty? && ref.ctx_val.blank?
-            output << "#{indent}CVE: Not available\n"
-          else
-            output << indent + ref.to_s + "\n"
-          end
         when 'LOGO', 'SOUNDTRACK'
           output << indent + ref.to_s + "\n"
           Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
@@ -668,19 +658,42 @@ class ReadableText
     output
   end
 
-  # Dumps the aka names associated with the supplied module.
+  # Dumps the notes associated with the supplied module.
   #
   # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use.
   # @return [String] the string form of the information.
-  def self.dump_aka(mod, indent = '')
+  def self.dump_notes(mod, indent = '')
     output = ''
 
-    if mod.notes['AKA'].present?
-      output << "AKA:\n"
+    mod.notes.each do |name, val|
+      next unless val.present?
 
-      mod.notes['AKA'].each do |aka_name|
-        output << indent + aka_name + "\n"
+      case name
+      when 'AKA'
+        output << "Also known as:\n"
+        val.each { |aka| output << "#{indent}#{aka}\n" }
+      when 'NOCVE'
+        output << "CVE not available for the following reason:\n" \
+                  "#{indent}#{val}\n"
+      when 'RelatedModules'
+        output << "Related modules:\n"
+        val.each { |related| output << "#{indent}#{related}\n" }
+      when 'Stability', 'SideEffects', 'Reliability'
+        # Handled by dump_traits
+        next
+      else
+        output << "#{name}:\n"
+
+        case val
+        when Array
+          val.each { |v| output << "#{indent}#{v}\n" }
+        when Hash
+          val.each { |k, v| output << "#{indent}#{k}: #{v}\n" }
+        else
+          # Display the raw note
+          output << "#{indent}#{val}\n"
+        end
       end
 
       output << "\n"

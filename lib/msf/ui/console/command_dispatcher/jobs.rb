@@ -296,7 +296,6 @@ module Msf
             print_line "Usage: kill <job1> [job2 ...]"
             print_line
             print_line "Equivalent to 'jobs -k job1 -k job2 ...'"
-            print @@jobs_opts.usage
           end
 
           def cmd_kill(*args)

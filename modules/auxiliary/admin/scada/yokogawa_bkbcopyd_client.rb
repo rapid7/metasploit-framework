@@ -29,8 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['RETR',  { 'Description' => 'Retrieve remote file' }],
           ['STOR',  { 'Description' => 'Store remote file' }]
         ],
-      'DisclosureDate' => 'Aug 9 2014',
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => 'Aug 9 2014'))
 
     register_options(
       [
@@ -90,12 +89,6 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     return data
-  end
-
-  def valid_response?(data)
-    return false unless !!data
-    return false unless data =~ /500  'yyparse error': command not understood/
-    return true
   end
 
   def on_client_connect(c)

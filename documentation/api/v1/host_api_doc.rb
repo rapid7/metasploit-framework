@@ -266,7 +266,7 @@ module HostApiDoc
 
     # Swagger documentation for /api/v1/hosts/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing host.'
+      key :description, 'Update the attributes on an existing host.'
       key :tags, [ 'host' ]
 
       parameter :update_id

@@ -10,7 +10,7 @@ require 'msf/core/handler/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 1518
+  CachedSize = 1553
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
@@ -36,7 +36,7 @@ module MetasploitModule
       'Payload'       => { 'Payload' => '' }
       ))
       register_options( [
-        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
+        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules separated by a comma to download over the web", nil ]),
       ])
   end
 

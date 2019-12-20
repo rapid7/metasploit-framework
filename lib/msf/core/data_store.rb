@@ -64,6 +64,7 @@ class DataStore < Hash
   # Case-insensitive wrapper around delete
   #
   def delete(k)
+    @aliases.delete_if { |_, v| v.casecmp(k) == 0 }
     super(find_key_case(k))
   end
 
@@ -305,8 +306,6 @@ class DataStore < Hash
     list.each(&block)
   end
 
-protected
-
   #
   # Case-insensitive key lookup
   #
@@ -320,7 +319,7 @@ protected
 
     # Scan each key looking for a match
     self.each_key do |rk|
-      if rk.downcase == search_k
+      if rk.casecmp(search_k) == 0
         return rk
       end
     end

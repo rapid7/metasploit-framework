@@ -27,6 +27,7 @@ arches = [
   ['zarch',     'Linux', 's390x-linux-musl'],
   ['x64',       'OSX',   'x86_64-apple-darwin'],
   ['aarch64',   'Apple_iOS',   'aarch64-iphone-darwin'],
+  ['armle',     'Apple_iOS',   'arm-iphone-darwin'],
 ]
 
 arch = ''

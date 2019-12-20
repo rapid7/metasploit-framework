@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('OBJECTNAME', [true, 'The user object name', 'user']),
         OptString.new('PASSWORD', [true, 'The password to set']),
         OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
-        OptInt.new('MAXINT', [true, 'Max integer to try (tokens begining with a higher int will fail)', 10])
+        OptInt.new('MAXINT', [true, 'Max integer to try (tokens beginning with a higher int will fail)', 10])
       ])
   end
 

@@ -64,6 +64,8 @@ module Msf::DBManager::Service
     hmac  = opts.delete(:mac)
     host  = nil
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace) # this may not be needed however the service creation below might complain if missing
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
     hopts[:mac]  = hmac  if hmac
@@ -143,6 +145,7 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
+    opts = opts.clone()
     search_term = opts.delete(:search_term)
 
     order_args = [:port]
@@ -155,6 +158,7 @@ module Msf::DBManager::Service
     end
 
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts.delete(:workspace)
 
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
@@ -166,11 +170,14 @@ module Msf::DBManager::Service
   end
 
   def update_service(opts)
+    opts = opts.clone() # it is not polite to change arguments passed from callers
     opts.delete(:workspace) # Workspace isn't used with Mdm::Service. So strip it if it's present.
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     id = opts.delete(:id)
-    Mdm::Service.update(id, opts)
+    service = Mdm::Service.find(id)
+    service.update!(opts)
+    return service
   }
   end
 end

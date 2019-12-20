@@ -48,31 +48,32 @@ class Console::CommandDispatcher::Core
   #
   def commands
     c = {
-      '?'            => 'Help menu',
-      'background'   => 'Backgrounds the current session',
-      'bg'           => 'Alias for background',
-      'close'        => 'Closes a channel',
-      'channel'      => 'Displays information or control active channels',
-      'exit'         => 'Terminate the meterpreter session',
-      'help'         => 'Help menu',
-      'irb'          => 'Open an interactive Ruby shell on the current session',
-      'pry'          => 'Open the Pry debugger on the current session',
-      'use'          => 'Deprecated alias for "load"',
-      'load'         => 'Load one or more meterpreter extensions',
-      'machine_id'   => 'Get the MSF ID of the machine attached to the session',
-      'guid'         => 'Get the session GUID',
-      'quit'         => 'Terminate the meterpreter session',
-      'resource'     => 'Run the commands stored in a file',
-      'uuid'         => 'Get the UUID for the current session',
-      'read'         => 'Reads data from a channel',
-      'run'          => 'Executes a meterpreter script or Post module',
-      'bgrun'        => 'Executes a meterpreter script as a background thread',
-      'bgkill'       => 'Kills a background meterpreter script',
-      'get_timeouts' => 'Get the current session timeout values',
-      'set_timeouts' => 'Set the current session timeout values',
-      'sessions'     => 'Quickly switch to another session',
-      'bglist'       => 'Lists running background scripts',
-      'write'        => 'Writes data to a channel',
+      '?'                        => 'Help menu',
+      'background'               => 'Backgrounds the current session',
+      'bg'                       => 'Alias for background',
+      'close'                    => 'Closes a channel',
+      'channel'                  => 'Displays information or control active channels',
+      'exit'                     => 'Terminate the meterpreter session',
+      'help'                     => 'Help menu',
+      'irb'                      => 'Open an interactive Ruby shell on the current session',
+      'pry'                      => 'Open the Pry debugger on the current session',
+      'use'                      => 'Deprecated alias for "load"',
+      'load'                     => 'Load one or more meterpreter extensions',
+      'machine_id'               => 'Get the MSF ID of the machine attached to the session',
+      'secure'                   => '(Re)Negotiate TLV packet encryption on the session',
+      'guid'                     => 'Get the session GUID',
+      'quit'                     => 'Terminate the meterpreter session',
+      'resource'                 => 'Run the commands stored in a file',
+      'uuid'                     => 'Get the UUID for the current session',
+      'read'                     => 'Reads data from a channel',
+      'run'                      => 'Executes a meterpreter script or Post module',
+      'bgrun'                    => 'Executes a meterpreter script as a background thread',
+      'bgkill'                   => 'Kills a background meterpreter script',
+      'get_timeouts'             => 'Get the current session timeout values',
+      'set_timeouts'             => 'Set the current session timeout values',
+      'sessions'                 => 'Quickly switch to another session',
+      'bglist'                   => 'Lists running background scripts',
+      'write'                    => 'Writes data to a channel',
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
       'disable_unicode_encoding' => 'Disables encoding of unicode strings'
     }
@@ -148,7 +149,7 @@ class Console::CommandDispatcher::Core
     print_line
     print_line('Supported pivot types:')
     print_line('     - pipe (using named pipes over SMB)')
-    print_line('Supported arhiectures:')
+    print_line('Supported architectures:')
     @@pivot_supported_archs.each do |a|
       print_line('     - ' + a)
     end
@@ -317,6 +318,12 @@ class Console::CommandDispatcher::Core
       client.next_session = args[0]
       client.interacting = false
     end
+  end
+
+  def cmd_secure
+    print_status('Negotiating new encryption key ...')
+    client.core.secure
+    print_good('Done.')
   end
 
   def cmd_background_help
@@ -1405,7 +1412,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       cmd_run_help
       return true
     end
@@ -1475,7 +1482,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       print_line('Usage: bgrun <script> [arguments]')
       print_line
       print_line('Executes a ruby script in the context of the meterpreter session.')

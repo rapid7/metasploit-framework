@@ -429,11 +429,13 @@ module PacketDispatcher
   def monitor_stop
     if self.receiver_thread
       self.receiver_thread.kill
+      self.receiver_thread.join
       self.receiver_thread = nil
     end
 
     if self.dispatcher_thread
       self.dispatcher_thread.kill
+      self.dispatcher_thread.join
       self.dispatcher_thread = nil
     end
   end

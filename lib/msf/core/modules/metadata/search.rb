@@ -6,7 +6,7 @@ require 'msf/core/modules/metadata'
 module Msf::Modules::Metadata::Search
 
   VALID_PARAMS =
-      %w[aka app author authors arch cve bid edb check date disclosure_date description full_name fullname mod_time
+      %w[aka author authors arch cve bid edb check date disclosure_date description fullname fullname mod_time
       name os platform path port rport rank ref ref_name reference references target targets text type]
 
   #
@@ -49,9 +49,6 @@ module Msf::Modules::Metadata::Search
           case keyword
             when 'aka'
               match = [keyword, search_term] if (module_metadata.notes['AKA'] || []).any? { |aka| aka =~ regex }
-            when 'app'
-              match = [keyword, search_term] if (search_term == "server" and module_metadata.is_server)
-              match = [keyword, search_term] if (search_term == "client" and module_metadata.is_client)
             when 'author', 'authors'
               match = [keyword, search_term] if module_metadata.author.any? { |author| author =~ regex }
             when 'arch'
@@ -73,8 +70,8 @@ module Msf::Modules::Metadata::Search
               match = [keyword, search_term] if module_metadata.disclosure_date.to_s =~ regex
             when 'description'
               match = [keyword, search_term] if module_metadata.description =~ regex
-            when 'full_name', 'fullname'
-              match = [keyword, search_term] if module_metadata.full_name =~ regex
+            when 'fullname'
+              match = [keyword, search_term] if module_metadata.fullname =~ regex
             when 'mod_time'
               match = [keyword, search_term] if module_metadata.mod_time.to_s =~ regex
             when 'name'
@@ -85,7 +82,7 @@ module Msf::Modules::Metadata::Search
                 match = [keyword, search_term] if module_metadata.targets.any? { |target| target =~ regex }
               end
             when 'path'
-              match = [keyword, search_term] if module_metadata.full_name =~ regex
+              match = [keyword, search_term] if module_metadata.fullname =~ regex
             when 'port', 'rport'
               match = [keyword, search_term] if module_metadata.rport.to_s =~ regex
             when 'rank'
@@ -123,7 +120,7 @@ module Msf::Modules::Metadata::Search
             when 'target', 'targets'
               match = [keyword, search_term] if module_metadata.targets.any? { |target| target =~ regex }
             when 'text'
-              terms = [module_metadata.name, module_metadata.full_name, module_metadata.description] + module_metadata.references + module_metadata.author + (module_metadata.notes['AKA'] || [])
+              terms = [module_metadata.name, module_metadata.fullname, module_metadata.description] + module_metadata.references + module_metadata.author + (module_metadata.notes['AKA'] || [])
 
               if module_metadata.targets
                 terms = terms + module_metadata.targets
@@ -158,7 +155,6 @@ module Msf::Modules::Metadata::Search
         :cve => 'references',
         :edb => 'references',
         :bid => 'references',
-        :fullname => 'full_name',
         :os => 'platform',
         :port => 'rport',
         :reference => 'references',

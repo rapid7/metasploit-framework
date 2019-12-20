@@ -15,6 +15,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
+  Aliases = [
+    'auxiliary/scanner/smb/login'
+  ]
+
   def proto
     'smb'
   end
@@ -46,7 +50,6 @@ class MetasploitModule < Msf::Auxiliary
           'USER_AS_PASS'    => false
         }
     )
-    deregister_options('RHOST','USERNAME','PASSWORD')
 
     # These are normally advanced options, but for this module they have a
     # more active role, so make them regular options.
@@ -60,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
       ])
 
+    deregister_options('USERNAME','PASSWORD', 'PASSWORD_SPRAY')
   end
 
   def run_host(ip)
@@ -85,13 +89,13 @@ class MetasploitModule < Msf::Auxiliary
       bogus_result = @scanner.attempt_bogus_login(domain)
       if bogus_result.success?
         if bogus_result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST
-          print_status("This system allows guest sessions with any credentials")
+          print_status("This system allows guest sessions with random credentials")
         else
-          print_error("This system accepts authentication with any credentials, brute force is ineffective.")
+          print_error("This system accepts authentication with random credentials, brute force is ineffective.")
           return
         end
       else
-        vprint_status('This system does not accept authentication with any credentials, proceeding with brute force')
+        vprint_status('This system does not accept authentication with random credentials, proceeding with brute force')
       end
     end
 

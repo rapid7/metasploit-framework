@@ -36,10 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini']),
         OptInt.new('DEPTH',       [true, 'The max traversal depth', 8])
       ])
-
-    deregister_options('RHOST')
   end
-
 
   #
   # The web server will actually return two HTTP statuses: A 400 (Bad Request), and the actual

@@ -42,8 +42,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as']),
         OptString.new('PASSWORD', [true, 'The password to login with'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def auth(username, password, sid, last_login)

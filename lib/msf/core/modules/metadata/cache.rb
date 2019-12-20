@@ -6,6 +6,7 @@ require 'msf/core/modules/metadata'
 require 'msf/core/modules/metadata/obj'
 require 'msf/core/modules/metadata/search'
 require 'msf/core/modules/metadata/store'
+require 'msf/core/modules/metadata/maps'
 
 #
 # Core service class that provides storage of module metadata as well as operations on the metadata.
@@ -19,6 +20,7 @@ class Cache
   include Singleton
   include Msf::Modules::Metadata::Search
   include Msf::Modules::Metadata::Store
+  include Msf::Modules::Metadata::Maps
 
   #
   # Refreshes cached module metadata as well as updating the store
@@ -79,7 +81,10 @@ class Cache
         end
       end
 
-      update_store if has_changes
+      if has_changes
+        update_store
+        clear_maps
+      end
     }
   end
 
@@ -141,7 +146,7 @@ class Cache
     key = ''
     key << (module_instance.type.nil? ? '' : module_instance.type)
     key << '_'
-    key << module_instance.refname
+    key << module_instance.class.refname
     return key
   end
 

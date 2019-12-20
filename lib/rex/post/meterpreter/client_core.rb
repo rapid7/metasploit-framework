@@ -343,7 +343,7 @@ class ClientCore < Extension
     unless commands.length > 0
       image = nil
       path = nil
-      # If client.sys isn't setup, it's a Windows meterpreter 
+      # If client.sys isn't setup, it's a Windows meterpreter
       if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
         # Query the payload gem directly for the extension image
         image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
@@ -688,7 +688,7 @@ class ClientCore < Extension
     end
 
     # Renegotiate TLV encryption on the migrated session
-    client.tlv_enc_key = negotiate_tlv_encryption
+    secure
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
@@ -699,6 +699,10 @@ class ClientCore < Extension
     client.send_keepalives = keepalive
 
     return true
+  end
+
+  def secure
+    client.tlv_enc_key = negotiate_tlv_encryption
   end
 
   #

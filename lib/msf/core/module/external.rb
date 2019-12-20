@@ -119,8 +119,44 @@ module Msf::Module::External
       })
 
       invalidate_login(**cred)
+
+    when 'credential_login'
+      handle_credential_login(data, mod)
     else
       print_warning "Skipping unrecognized report type #{m.params['type']}"
     end
   end
+end
+
+#
+# Handles login report that does not necessarily need to include a password
+#
+def handle_credential_login(data, mod)
+  # Required
+  service_data = {
+      address: data['address'],
+      port: data['port'],
+      protocol: data['protocol'],
+      service_name: data['service_name'],
+      module_fullname: self.fullname,
+      workspace_id: myworkspace_id
+  }
+
+  # Optional
+  credential_data = {
+      origin_type: :service,
+      username: data['username']
+  }.merge(service_data)
+
+  if data.has_key?(:password)
+    credential_data[:private_data] = data['password']
+    credential_data[:private_type] = :password
+  end
+
+  login_data = {
+      core: create_credential(credential_data),
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+  }.merge(service_data)
+  create_credential_login(login_data)
 end

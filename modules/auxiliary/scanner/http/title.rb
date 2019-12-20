@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         if rx[:title] != ''
           rx_title = Rex::Text.html_decode(rx[:title])
           if datastore['SHOW_TITLES']
-            print_status("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
+            print_good("[#{target_host}:#{rport}] [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
           end
           if datastore['STORE_NOTES']
             notedata = { code: res.code, port: rport, server: server_header, title: rx_title, redirect: location_header, uri: datastore['TARGETURI'] }

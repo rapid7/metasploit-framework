@@ -42,8 +42,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
     ])
-
-    deregister_options('RHOST')
   end
 
   # This is the main controller function

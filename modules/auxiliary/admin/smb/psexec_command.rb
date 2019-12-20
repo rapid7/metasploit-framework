@@ -50,8 +50,6 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
-
-    deregister_options('RHOST')
   end
 
   # This is the main controle method
@@ -72,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
 
       unless output.nil?
-        print_good("Command completed successfuly!")
+        print_good("Command completed successfully!")
         print_status("Output for \"#{datastore['COMMAND']}\":\n")
         print_line("#{output}\n")
         report_note(

@@ -29,6 +29,8 @@ module Msf::DBManager::Note
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
 
       data = opts.delete(:data)
       search_term = opts.delete(:search_term)
@@ -78,6 +80,8 @@ module Msf::DBManager::Note
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     seen = opts.delete(:seen) || false
     crit = opts.delete(:critical) || false
     host = nil
@@ -197,10 +201,14 @@ module Msf::DBManager::Note
   def update_note(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Note.update(id, opts)
+      note = Mdm::Note.find(id)
+      note.update!(opts)
+      return note
     }
   end
 

@@ -45,23 +45,29 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi('uri' => target_uri.path)
 
     unless res
-      print_error("Connection timed out")
+      vprint_error('Unable to connect to target')
       return Exploit::CheckCode::Unknown
     end
 
-    online = joomla_and_online?
-    unless online
-      print_error("Unable to detect joomla on #{target_uri.path}")
+    unless joomla_and_online?
+      vprint_error('Unable to detect Joomla')
       return Exploit::CheckCode::Safe
     end
 
     version = Gem::Version.new(joomla_version)
-    if version
-      print_status("Detected Joomla version #{joomla_version}")
-      return Exploit::CheckCode::Appears if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
+
+    unless version
+      vprint_error('Unable to detect Joomla version')
+      return Exploit::CheckCode::Detected
     end
 
-    return Exploit::CheckCode::Detected if online
+    vprint_status("Detected Joomla version #{version}")
+
+    if version.between?(Gem::Version.new('3.4.4'), Gem::Version.new('3.6.3'))
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
   end
 
   def get_csrf(hidden_fields)

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       self.class
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   # Constants used by this module

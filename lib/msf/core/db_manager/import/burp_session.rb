@@ -13,13 +13,13 @@ module Msf::DBManager::Import::BurpSession
 
   def import_burp_session_xml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     if Rex::Parser.nokogiri_loaded
       # Rex::Parser.reload("burp_session_nokogiri.rb")
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, parser)
         import_burp_session_noko_stream(noko_args) {|type, data| yield type,data}

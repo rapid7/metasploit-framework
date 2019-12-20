@@ -37,8 +37,8 @@ class Console::CommandDispatcher::Kiwi
   def initialize(shell)
     super
     print_line
-    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
-    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
+    print_line("  .#####.   mimikatz 2.2.0 20191125 (#{client.session_type})")
+    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\" - (oe.eo)")
     print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
     print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
     print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
@@ -402,8 +402,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the shared wifi profiles/credentials
   #
   def cmd_wifi_list_shared(*args)
-    interfaces_dir = '%AllUsersProfile%\Microsoft\Wlansvc\Profiles\Interfaces'
-    interfaces_dir = client.fs.file.expand_path(interfaces_dir)
+    interfaces_dir = client.sys.config.getenv('AllUsersProfile') + '\Microsoft\Wlansvc\Profiles\Interfaces'
     files = client.fs.file.search(interfaces_dir, '*.xml', true)
 
     if files.length == 0

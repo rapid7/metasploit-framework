@@ -119,7 +119,7 @@ module Common
       if (p)
         p_opt = Serializer::ReadableText.dump_options(p, '   ')
         print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
-        print("   **DisablePayloadHandler: True   (RHOST and RPORT settings will be ignored!)**\n\n") if mod.datastore['DisablePayloadHandler']
+        print("   **DisablePayloadHandler: True   (RHOST and RPORT settings will be ignored!)**\n\n") if mod.datastore['DisablePayloadHandler'].to_s == 'true'
       end
     end
 
@@ -142,6 +142,21 @@ module Common
     #print("\nTarget: #{mod.target.name}\n\n")
   end
 
+  # This is for the "use" and "set" commands
+  def index_from_list(list, index, &block)
+    return unless list.kind_of?(Array) && index
+
+    begin
+      idx = Integer(index)
+    rescue ArgumentError
+      return
+    end
+
+    # Don't support negative indices
+    return if idx < 0
+
+    yield list[idx]
+  end
 
 end
 

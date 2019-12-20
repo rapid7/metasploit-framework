@@ -88,7 +88,7 @@ module Rex
       def report_web_host_info
         return unless @state[:host]
         address = Rex::Socket.resolv_to_dotted(@state[:host]) rescue nil
-        host_info = {workspace: @args[:wspace]}
+        host_info = {workspace: @args[:workspace]}
         host_info[:address] = address
         host_info[:name] = @state[:host]
         db_report(:host, host_info)
@@ -99,7 +99,7 @@ module Rex
         return unless @state[:port]
         return unless @state[:proto]
         return unless @state[:service_name]
-        service_info = {workspace: @args[:wspace]}
+        service_info = {workspace: @args[:workspace]}
         service_info[:host] = @state[:host]
         service_info[:port] = @state[:port]
         service_info[:proto] = @state[:proto]
@@ -111,7 +111,7 @@ module Rex
         return unless @state[:service_object]
         return unless @state[:vuln_name]
         return unless @state[:issue_detail]
-        vuln_info = {workspace: @args[:wspace]}
+        vuln_info = {workspace: @args[:workspace]}
         vuln_info[:service_id] = @state[:service_object].id
         vuln_info[:host] = @state[:host]
         vuln_info[:name] = @state[:vuln_name]

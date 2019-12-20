@@ -1344,7 +1344,7 @@ class Plugin::Wmap < Msf::Plugin
           ssl = true
         end
 
-        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl)
+        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl, :workspace => self.framework.db.workspace)
 
         return site
     end

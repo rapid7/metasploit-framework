@@ -203,11 +203,13 @@ class Packet
       end
 
       unless ignore_chunk
-        if (self.auto_cl == true && self.transfer_chunked == true)
+        if self.auto_cl && self.transfer_chunked
           raise RuntimeError, "'Content-Length' and 'Transfer-Encoding: chunked' are incompatible"
-        elsif self.auto_cl == true
+        end
+
+        if self.auto_cl
           self.headers['Content-Length'] = content.length
-        elsif self.transfer_chunked == true
+        elsif self.transfer_chunked
           if self.proto != '1.1'
             raise RuntimeError, 'Chunked encoding is only available via 1.1'
           end

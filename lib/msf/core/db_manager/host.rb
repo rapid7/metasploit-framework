@@ -104,7 +104,7 @@ module Msf::DBManager::Host
     if opts.kind_of? ::Mdm::Host
       return opts
     elsif opts.kind_of? String
-      raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
+      raise RuntimeError, "This invocation of get_host is no longer supported: #{caller}"
     else
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host
@@ -188,6 +188,8 @@ module Msf::DBManager::Host
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone
+    opts.delete(:workspace)
 
     begin
       retry_attempts ||= 0
@@ -241,7 +243,7 @@ module Msf::DBManager::Host
       host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
       # Set default fields if needed
-      host.state = Msf::HostState::Alive unless host.state
+      host.state = Msf::HostState::Alive if host.state.nil? || host.state.empty?
       host.comm = '' unless host.comm
       host.workspace = wspace unless host.workspace
 
@@ -258,9 +260,9 @@ module Msf::DBManager::Host
         msf_import_timestamps(opts, host)
         host.save!
       end
-    rescue ActiveRecord::RecordNotUnique
-      # two concurrent report requests for a new host could result in a RecordNotUnique exception
-      # simply retry the report once more as an optimistic approach
+    rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
+      # two concurrent report requests for a new host could result in a RecordNotUnique or
+      # RecordInvalid exception, simply retry the report once more as an optimistic approach
       retry if (retry_attempts+=1) <= 1
       raise
     end
@@ -280,10 +282,13 @@ module Msf::DBManager::Host
     ::ActiveRecord::Base.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Host.update(id, opts)
+      host = Mdm::Host.find(id)
+      host.update!(opts)
+      return host
     }
   end
 

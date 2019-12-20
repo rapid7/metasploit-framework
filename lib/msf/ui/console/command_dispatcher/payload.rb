@@ -23,7 +23,8 @@ module Msf
             "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
             "-E" => [ false, "Force encoding" ],
             "-e" => [ true,  "The encoder to use" ],
-            "-s" => [ true,  "NOP sled length."                                     ],
+            "-P" => [ true,  "Total desired payload size, auto-produce appropriate NOP sled length"],
+            "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
             "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
             "-i" => [ true,  "The number of times to encode the payload" ],
             "-x" => [ true,  "Specify a custom executable file to use as a template" ],
@@ -71,7 +72,9 @@ module Msf
           def cmd_generate_help
             print_line "Usage: generate [options]"
             print_line
-            print_line "Generates a payload."
+            print_line "Generates a payload. Datastore options may be supplied after normal options."
+            print_line
+            print_line "Example: generate -f python LHOST=127.0.0.1"
             print @@generate_opts.usage
           end
 
@@ -82,6 +85,8 @@ module Msf
             # Parse the arguments
             encoder_name = nil
             sled_size    = nil
+            pad_nops     = nil
+            sec_name     = nil
             option_str   = nil
             badchars     = nil
             format       = "ruby"
@@ -95,19 +100,23 @@ module Msf
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
               when '-b'
-                badchars = Rex::Text.hex_to_raw(val)
+                badchars = Rex::Text.dehex(val)
               when '-e'
                 encoder_name = val
               when '-E'
                 force = true
               when '-n'
                 sled_size = val.to_i
+              when '-P'
+                pad_nops = val.to_i
+              when '-S'
+                sec_name = val
               when '-f'
                 format = val
               when '-o'
                 if val.include?('=')
-                  print("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom")
-                  mod.datastore[key] = val
+                  print_error("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom\n")
+                  option_str = val
                 else
                   ofile = val
                 end
@@ -126,13 +135,12 @@ module Msf
                 cmd_generate_help
                 return false
               else
-                (key, val) = val.split('=')
-                if key && val
-                  mod.datastore[key] = val
-                else
+                unless val.include?('=')
                   cmd_generate_help
                   return false
                 end
+
+                mod.datastore.import_options_from_s(val)
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
@@ -146,6 +154,8 @@ module Msf
                 'Encoder'     => encoder_name,
                 'Format'      => format,
                 'NopSledSize' => sled_size,
+                'PadNops'     => pad_nops,
+                'SecName'     => sec_name,
                 'OptionStr'   => option_str,
                 'ForceEncode' => force,
                 'Template'    => template,
@@ -177,7 +187,8 @@ module Msf
               '-e' => [ framework.encoders.map { |refname, mod| refname } ],
               '-h' => [ nil                                               ],
               '-o' => [ true                                              ],
-              '-s' => [ true                                              ],
+              '-P' => [ true                                              ],
+              '-S' => [ true                                              ],
               '-f' => [ :file                                             ],
               '-t' => [ @@supported_formats                               ],
               '-p' => [ true                                              ],

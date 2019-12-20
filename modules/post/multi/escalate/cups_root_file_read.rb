@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Post
   def get_request(uri)
     output = perform_request(uri, 'nc -j localhost 631')
 
-    if output =~ /^usage: nc/
+    if output =~ /^(?:usage: nc|nc: invalid option -- 'j')/
       output = perform_request(uri, 'nc localhost 631')
     end
 

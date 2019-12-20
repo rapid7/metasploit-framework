@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Netsparker
   # Process NetSparker XML
   def import_netsparker_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     addr = nil
     parser = Rex::Parser::NetSparkerXMLStreamParser.new
@@ -161,7 +161,6 @@ module Msf::DBManager::Import::Netsparker
   # Process a NetSparker XML file
   def import_netsparker_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

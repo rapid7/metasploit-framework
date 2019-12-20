@@ -32,6 +32,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/firefox'
   require 'msf/core/payload/mainframe'
   require 'msf/core/payload/hardware'
+  require 'metasploit/framework/compiler/mingw'
 
   # Universal payload includes
   require 'msf/core/payload/multi'
@@ -68,6 +69,13 @@ class Payload < Msf::Module
   #
   def initialize(info = {})
     super
+    self.can_cleanup = true
+
+    #
+    # Gets the Dependencies if the payload requires external help
+    # to work
+    #
+    self.module_info['Dependencies'] = self.module_info['Dependencies'] || []
 
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
@@ -202,7 +210,7 @@ class Payload < Msf::Module
     pl = nil
     begin
       pl = generate()
-    rescue NoCompatiblePayloadError
+    rescue NoCompatiblePayloadError, Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
     end
     pl ||= ''
     pl.length
@@ -236,6 +244,13 @@ class Payload < Msf::Module
   #
   def offsets
     return module_info['Payload'] ? module_info['Payload']['Offsets'] : nil
+  end
+
+  #
+  # Returns the compiler dependencies if the payload has one
+  #
+  def dependencies
+    module_info['Dependencies']
   end
 
   #
@@ -538,6 +553,11 @@ class Payload < Msf::Module
   end
 
   #
+  # This attribute designates if the payload supports onsession()
+  # method calls (typically to clean up artifacts)
+  #
+  attr_accessor :can_cleanup
+  #
   # This attribute holds the string that should be prepended to the buffer
   # when it's generated.
   #
@@ -668,6 +688,7 @@ protected
   # Merge the name to prefix the existing one and separate them
   # with a comma
   #
+
   def merge_name(info, val)
     if (info['Name'])
       info['Name'] = val + ',' + info['Name']
