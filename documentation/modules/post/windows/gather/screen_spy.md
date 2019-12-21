@@ -3,8 +3,10 @@
 This module will incrementally take desktop screenshots from the
 host. This allows for screen spying which can be useful to determine
 if there is an active user on a machine, or to record the screen for
-later data extraction. Note: As of March, 2014, the VIEW_CMD option
-has been removed in favor of the Boolean VIEW_SCREENSHOTS option,
+later data extraction.
+
+Note: As of March, 2014, the `VIEW_CMD` option
+has been removed in favor of the Boolean `VIEW_SCREENSHOTS` option,
 which will control if (but not how) the collected screenshots will
 be viewed from the Metasploit interface.
 
