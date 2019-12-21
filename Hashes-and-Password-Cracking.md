@@ -1,7 +1,5 @@
 # Intro
 
-**WORK IN PROGRESS** - This page is a work in progress as the hashcat functionality is included in the metasploit framework, and as documentation is put together.  The information on this page may quickly become outdated, but can be used as a general guide.
-
 This article will discuss the various libraries, dependencies, and functionality built in to metasploit for dealing with password hashes, and cracking them.  In general, this will not cover storing credentials in the database, which can be read about [here](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners#the-scan-block).  Metasploit currently support cracking passwords with [John the Ripper](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary/analyze) and (soon as of Apr 2, 2019) [hashcat](https://github.com/rapid7/metasploit-framework/pull/11671).
 
 # Hashes
