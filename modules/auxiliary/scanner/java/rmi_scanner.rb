@@ -74,27 +74,24 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection.each do |cred|
       user = cred.public
       pass = cred.private
-      if check.jmxprober.trylogin(user, pass)
-        print_good "#{host}:#{rport} - LOGIN SUCCESSFUL: #{cred}"
-        core = store_valid_credential(
-          service_data: {
-            origin_type: :service,
-            protocol: 'tcp',
-            service_name: 'jmxrmi',
-            address: host,
-            port: rport
-          },
-          private_type: :password,
-          user: user,
-          private: pass
-        )
-        break if datastore['STOP_ON_SUCCESS']
-      else
-        #             invalidate_login(cred)
-        if datastore['VERBOSE']
-          print_status "#{host}:#{rport} - LOGIN FAILED: #{cred}"
-        end
+      unless check.jmxprober.trylogin(user, pass)
+        vprint_status "#{host}:#{rport} - LOGIN FAILED: #{cred}"
+        next
       end
+      print_good "#{host}:#{rport} - LOGIN SUCCESSFUL: #{cred}"
+      core = store_valid_credential(
+        service_data: {
+          origin_type: :service,
+          protocol: 'tcp',
+          service_name: 'jmxrmi',
+          address: host,
+          port: rport
+        },
+        private_type: :password,
+        user: user,
+        private: pass
+      )
+      break if datastore['STOP_ON_SUCCESS']
     end
   end
 end
