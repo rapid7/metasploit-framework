@@ -175,7 +175,7 @@ class DCOMEXEC:
                 self.shell = RemoteShell(self.__share, (iMMC, pQuit), (iActiveView, pExecuteShellCommand), smbConnection)
 
             self.shell.onecmd(self.__command)
-        except  (Exception, KeyboardInterrupt), e:
+        except  (Exception, KeyboardInterrupt) as e:
             if self.shell is not None:
                 self.shell.do_exit('')
             logging.error(str(e))
