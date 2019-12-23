@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # KillerBee Metasploit relay server
 
 import re
@@ -12,8 +12,8 @@ import socket
 import threading
 import pkg_resources # Used to get killerbee version
 
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-from urlparse import parse_qs,urlparse
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from urlparse import parse_qs, urlparse
 from killerbee import *
 
 last_errors = 0
@@ -82,7 +82,7 @@ class MSFHandler(BaseHTTPRequestHandler):
         try:
             kb.inject(base64.urlsafe_b64decode(args["data"][0]))
             packets_sent+=1
-        except Exception, e:
+        except Exception as e:
             print("ERROR: Unable to inject packet: {0}".format(e))
             return { "success": False }
         return { "success": True }
@@ -112,7 +112,7 @@ class MSFHandler(BaseHTTPRequestHandler):
 
     def send(self, data, resp=200):
         self.send_response(resp)
-        self.send_header('Content-type','application/json')
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(data))
         return
@@ -123,7 +123,7 @@ class MSFHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write("Please Authenticate")
-        
+
     def do_GET(self):
         if not password == None:
             if self.headers.getheader('Authorization') == None:
@@ -246,6 +246,6 @@ if __name__ == "__main__":
                 wait_msg = True
 
     beerelay = Killerbee_MSFRelay(ip, port)
-    
+
 import atexit
 atexit.register(cleanupInteractiveAtExit)
