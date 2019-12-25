@@ -215,6 +215,16 @@ module Msf::Post::File
   alias :exists? :exist?
 
   #
+  # Retrieve file attributes for +path+ on the remote system
+  #
+  # @param path [String] Remote filename to check
+  def attributes(path)
+    raise "`attributes' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
+  end
+
+  #
   # Writes a given string to a given local file
   #
   # @param local_file_name [String]
