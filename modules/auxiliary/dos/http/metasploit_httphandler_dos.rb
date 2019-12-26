@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
         [
-            OptString.new('DOSTYPE', [true, 'GENTLE|SOFT|HARD', 'HARD'])
+            OptEnum.new('DOSTYPE', [true, 'Type of DoS to trigger', 'HARD', %w[GENTLE SOFT HARD]])
         ])
   end
 
@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     else
-      bla = ""
+      fail_with Failure::BadConfig, 'Invalid DOSTYPE selected'
     end
 
     print_status("DOS request sent")
@@ -146,7 +146,6 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("#{rhost}:#{rport} - Sending DoS packet...")
     dos
-
   end
 
 end
