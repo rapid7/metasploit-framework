@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.99)
+    metasploit-framework (4.17.100)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -108,7 +108,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
     arel (6.0.4)
-    arel-helpers (2.10.0)
+    arel-helpers (2.11.0)
       activerecord (>= 3.1.0, < 7)
     backports (3.15.0)
     bcrypt (3.1.12)
@@ -328,7 +328,7 @@ GEM
     thread_safe (0.3.6)
     timecop (0.9.1)
     ttfunk (1.5.1)
-    tzinfo (1.2.5)
+    tzinfo (1.2.6)
       thread_safe (~> 0.1)
     tzinfo-data (1.2019.3)
       tzinfo (>= 1.0.0)
