@@ -9,8 +9,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name' => 'Metasploit HTTP(S) handler DoS',
-                      'Description' => %q{
+      'Name' => 'Metasploit HTTP(S) handler DoS',
+      'Description' => %q{
         This module exploits the Metasploit HTTP(S) handler by sending
         a specially crafted HTTP request that gets added as a resource handler.
         Resources (which come from the external connections) are evaluated as RegEx
@@ -37,16 +37,16 @@ class MetasploitModule < Msf::Auxiliary
 
         Metasploit 5.0.20
       },
-                      'Author' => [
-                          'Jose Garduno, Dreamlab Technologies AG', #Vulnerability Discovery, Metasploit module.
-                          'Angelo Seiler, Dreamlab Technologies AG', #Additional research, debugging.
-                      ],
-                      'License' => MSF_LICENSE,
-                      'References' => [
-                          ['CVE', '2019-5645']
-                      ],
-                      'DisclosureDate' => '2019-09-04'
-          ))
+      'Author' => [
+        'Jose Garduno, Dreamlab Technologies AG', #Vulnerability Discovery, Metasploit module.
+        'Angelo Seiler, Dreamlab Technologies AG', #Additional research, debugging.
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2019-5645']
+      ],
+      'DisclosureDate' => '2019-09-04'
+    ))
 
     register_options(
         [
