@@ -16,26 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         Resources (which come from the external connections) are evaluated as RegEx
         in the handler server. Specially crafted input can trigger Gentle, Soft and Hard DoS.
 
-        GENTLE: *Current sessions will continue to work, but not future ones*
-        A lack of input sanitation permits an attacker to submit a
-        request that will be added to the resources and will be used as regex rule
-        it is possible then to make a valid regex rule that captures all the new handler
-        requests. The sessions that were established previously will continue to work.
-
-        SOFT: *No past or future sessions will work*
-        A lack of input sanitation and lack of exception handling causes
-        metasploit to behave abnormally when looking an appropriate resource for the
-        request, by submitting an invalid regex as a resource. This means that no request,
-        current or future will get served an answer.
-
-        HARD: *ReDOS or Catastrophic Regex Backtracking*
-        A lack of input sanitization on paths added as resources allows
-        an attacker to execute a catastrophic regex backtracking operation
-        causing a Denial of Service by CPU consumption.
-
-        Tested against:
-
-        Metasploit 5.0.20
+        Tested against Metasploit 5.0.20.
       },
       'Author' => [
         'Jose Garduno, Dreamlab Technologies AG', #Vulnerability Discovery, Metasploit module.
