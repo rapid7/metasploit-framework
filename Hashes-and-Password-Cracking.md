@@ -37,7 +37,7 @@ des,bsdi,crypt
 
 ## Crackers
 
-## Differences Between Hashcat vs JtR
+### Differences Between Hashcat vs JtR
 This section will cover the differences between the two crackers.  This is not a comparison of speed, or why one may work better in a specific case than another.
 
 ### General Settings
@@ -82,7 +82,21 @@ This section will cover the differences between the two crackers.  This is not a
 
 While Metasploit standardizes with the JtR format, the hashcat [library](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb) includes the `jtr_format_to_hashcat_format` function to translate from jtr to hashcat.
 
-### Example Hashes
+### Cracker Modes
+
+Each crack mode is a set of rules which apply to that specific mode.  The idea being any optimizations can be applied to that mode, and reset on other modes.  These modes include:
+
+ * Incremental https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L188
+ * Wordlist https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L206
+ * Pin (mobile devices - hashcat specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L222
+ * Normal (jtr specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L234
+ * Single (jtr specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L250
+
+### Hashcat Optimized Kernel
+
+Hashcat contains a `-O` flag which uses an optimized kernel.  From internal testing it looks to be >200% faster, with a password length tradeoff.  For more information see https://github.com/rapid7/metasploit-framework/pull/12790
+
+# Example Hashes
 
 Hashcat
 * [hashcat.net](https://hashcat.net/wiki/doku.php?id=example_hashes)
