@@ -46,6 +46,7 @@ module Auxiliary::PasswordCracker
     register_advanced_options(
       [
         OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true]),
+        OptBool.new('OptimizeKernel',     [false, 'Utilize Opitmized Kernels in Hashcat', true]),
         OptBool.new('ShowCommand',        [false, 'Print the cracker command being used', true]),
       ], Msf::Auxiliary::PasswordCracker
     )
@@ -81,6 +82,7 @@ module Auxiliary::PasswordCracker
         cracker_path: datastore['CRACKER_PATH'],
         max_runtime: datastore['ITERATION_TIMEOUT'],
         pot: datastore['POT'],
+        optimize: datastore['OptimizeKernel'],
         wordlist: datastore['CUSTOM_WORDLIST']
     )
   end
