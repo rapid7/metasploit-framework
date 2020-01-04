@@ -54,7 +54,7 @@ module Metasploit
         attr_accessor :increment_length
 
         # @!attribute mask
-        #  If the cracker type is hashcat, If set, the mask to use.  Should consist of the character sets 
+        #  If the cracker type is hashcat, If set, the mask to use.  Should consist of the character sets
         #  pre-defined by hashcat, such as ?d ?s ?l etc
         #
         #   @return [String] The mask to use
@@ -86,7 +86,7 @@ module Metasploit
 
         validates :config, :'Metasploit::Framework::File_path' => true, if: 'config.present?'
 
-        validates :cracker, inclusion: {in: %w(john hashcat)} 
+        validates :cracker, inclusion: {in: %w(john hashcat)}
 
         validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: 'cracker_path.present?'
 
