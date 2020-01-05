@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - #{res.body}")
+    print_good("#{peer} - Downloaded #{res.body.length} bytes")
     path = store_loot(
       'nvms.traversal',
       'text/plain',
