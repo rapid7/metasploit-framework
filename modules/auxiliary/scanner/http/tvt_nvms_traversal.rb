@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => uri
+      'uri'    => normalize_uri(traversal)
     })
 
     unless res && res.code == 200
