@@ -29,7 +29,7 @@ RUN apk add --no-cache \
       git \
     && echo "gem: --no-document" > /etc/gemrc \
     && gem update --system 3.0.6 \
-    && bundle install --clean --no-cache --system $BUNDLER_ARGS \
+    && bundle install --force --clean --no-cache --system $BUNDLER_ARGS \
     # temp fix for https://github.com/bundler/bundler/issues/6680
     && rm -rf /usr/local/bundle/cache \
     # needed so non root users can read content of the bundle
