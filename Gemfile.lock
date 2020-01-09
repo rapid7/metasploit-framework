@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.101)
+    metasploit-framework (4.17.102)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -191,7 +191,8 @@ GEM
     nexpose (7.2.1)
     nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
-    octokit (4.14.0)
+    octokit (4.15.0)
+      faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.2)
     openvas-omp (0.0.4)
@@ -214,7 +215,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (4.0.2)
+    public_suffix (4.0.3)
     rack (1.6.12)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -327,7 +328,7 @@ GEM
     thor (1.0.1)
     thread_safe (0.3.6)
     timecop (0.9.1)
-    ttfunk (1.5.1)
+    ttfunk (1.6.1)
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
     tzinfo-data (1.2019.3)
@@ -340,7 +341,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.22)
+    yard (0.9.24)
 
 PLATFORMS
   ruby
