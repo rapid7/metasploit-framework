@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.68)
+    metasploit-framework (5.0.69)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -117,13 +117,13 @@ GEM
     arel-helpers (2.11.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.260.0)
+    aws-partitions (1.262.0)
     aws-sdk-core (3.86.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.129.0)
+    aws-sdk-ec2 (1.130.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.32.0)
@@ -231,7 +231,8 @@ GEM
     nexpose (7.2.1)
     nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
-    octokit (4.14.0)
+    octokit (4.15.0)
+      faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.2)
     openvas-omp (0.0.4)
@@ -254,7 +255,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (4.0.2)
+    public_suffix (4.0.3)
     rack (1.6.12)
     rack-protection (1.5.5)
       rack
@@ -379,7 +380,7 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.10)
     timecop (0.9.1)
-    ttfunk (1.5.1)
+    ttfunk (1.6.1)
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
     tzinfo-data (1.2019.3)
@@ -394,7 +395,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.22)
+    yard (0.9.24)
 
 PLATFORMS
   ruby

@@ -10,9 +10,9 @@ afm, 0.2.2, MIT
 arel, 6.0.4, MIT
 arel-helpers, 2.11.0, MIT
 aws-eventstream, 1.0.3, "Apache 2.0"
-aws-partitions, 1.260.0, "Apache 2.0"
+aws-partitions, 1.262.0, "Apache 2.0"
 aws-sdk-core, 3.86.0, "Apache 2.0"
-aws-sdk-ec2, 1.129.0, "Apache 2.0"
+aws-sdk-ec2, 1.130.0, "Apache 2.0"
 aws-sdk-iam, 1.32.0, "Apache 2.0"
 aws-sdk-kms, 1.27.0, "Apache 2.0"
 aws-sdk-s3, 1.60.1, "Apache 2.0"
@@ -53,7 +53,7 @@ loofah, 2.4.0, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.4, "New BSD"
-metasploit-framework, 5.0.68, "New BSD"
+metasploit-framework, 5.0.69, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.83, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -69,7 +69,7 @@ net-ssh, 5.2.0, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.2.1, "New BSD"
 nokogiri, 1.10.7, MIT
-octokit, 4.14.0, MIT
+octokit, 4.15.0, MIT
 openssl-ccm, 1.2.2, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
@@ -80,7 +80,7 @@ pg, 0.21.0, "New BSD"
 pg_array_parser, 0.0.9, unknown
 postgres_ext, 3.0.1, MIT
 pry, 0.12.2, MIT
-public_suffix, 4.0.2, MIT
+public_suffix, 4.0.3, MIT
 rack, 1.6.12, MIT
 rack-protection, 1.5.5, MIT
 rack-test, 0.6.3, MIT
@@ -135,7 +135,7 @@ thor, 1.0.1, MIT
 thread_safe, 0.3.6, "Apache 2.0"
 tilt, 2.0.10, MIT
 timecop, 0.9.1, MIT
-ttfunk, 1.5.1, "Nonstandard, GPL-2.0, GPL-3.0"
+ttfunk, 1.6.1, "Nonstandard, GPL-2.0, GPL-3.0"
 tzinfo, 1.2.6, MIT
 tzinfo-data, 1.2019.3, MIT
 warden, 1.2.7, MIT
@@ -144,4 +144,4 @@ websocket-extensions, 0.1.4, "Apache 2.0"
 windows_error, 0.1.2, BSD
 xdr, 2.0.0, "Apache 2.0"
 xmlrpc, 0.3.0, ruby
-yard, 0.9.22, MIT
+yard, 0.9.24, MIT
