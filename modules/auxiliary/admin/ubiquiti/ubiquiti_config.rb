@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
             gz = Zlib::GzipReader.new(entry.get_input_stream)
             f = gz.read
             gz.close
-            
+
           end
         end
       end
