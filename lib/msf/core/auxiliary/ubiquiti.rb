@@ -239,7 +239,7 @@ module Auxiliary::Ubiquiti
             # we need to re-find the cred we just made since nil is returned
             # we treat this in a loop incase we crack more than one hash this way
             framework.db.creds(cred).each do |c|
-              create_cracked_credential(username: admin_name, password: admin_password, core_id: c.id, address: c.address)
+              create_cracked_credential(username: admin_name, password: admin_password, core_id: c.id)
             end
           end
           line['x_ssh_keys'].each do |key|
