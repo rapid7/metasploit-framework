@@ -142,7 +142,7 @@ module Msf
 
             if !ofile
               # Display generated payload
-              print(buf)
+              puts(buf)
             else
               print_status("Writing #{buf.length} bytes to #{ofile}...")
               fd = File.open(ofile, "wb")
