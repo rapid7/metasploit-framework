@@ -46,12 +46,12 @@ class Metasploit4 < Msf::Auxiliary
                })
 
                if res
-                   print_good(“No IPS! for #{url}”)
+                   print_good(“Vulnerable! for #{url}”)
                else
-                   print_status(“IPS(no response) detected for #{url}”)
+                   print_status(“Vulnerable(no response) detected for #{url}”)
                end
            rescue Errno::ECONNRESET
-               print_status(“IPS(rst) detected for #{url}”)
+               print_status(“Vulnerable(rst) detected for #{url}”)
            rescue Exception
                print_error(“Connection failed.”)
            end
