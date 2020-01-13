@@ -41,8 +41,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('192.168.100.1'),
         Opt::RPORT(8080),
-        OptString.new('WS_USERNAME', [ true, 'File to fetch from remote machine.', 'admin']),
-        OptString.new('WS_PASSWORD', [ true, 'Url to fetch from remote machine.', 'password']),
+        OptString.new('WS_USERNAME', [ true, 'WebSocket connection basic auth username', 'admin']),
+        OptString.new('WS_PASSWORD', [ true, 'WebSocket connection basic auth password', 'password']),
         OptInt.new('TIMEOUT', [ true, 'Time to wait for response', 15])
       ]
     )
