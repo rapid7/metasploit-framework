@@ -19,8 +19,8 @@ class MetasploitModule < Msf::Auxiliary
         a "[global]" directive in smb.conf, which this file should always contain.
       },
       'Author'         => [
-        'Erik Wynter', # @wyntererik
-        'altonjx'      # @altonjx
+        'Erik Wynter', # Module (@wyntererik)
+        'altonjx'      # Module (@altonjx)
       ],
       'References'     => [
         ['CVE', '2019-19781'],
@@ -60,8 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    case turi
-    when /smb\.conf$/
+    if turi.end_with?('smb.conf')
       unless res.headers['Content-Type'].starts_with?('text/plain') && res.body.include?('[global]')
         vprint_warning("#{turi} does not contain \"[global]\" directive.")
       end
