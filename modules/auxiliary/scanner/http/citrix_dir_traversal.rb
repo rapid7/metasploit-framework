@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [
         'Erik Wynter', # @wyntererik
-        'altonjx'      # @altjx
+        'altonjx'      # @altonjx
       ],
       'References'     => [
         ['CVE', '2019-19781'],
