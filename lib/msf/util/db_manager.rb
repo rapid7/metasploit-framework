@@ -32,28 +32,28 @@ module DBManager
   # @raise [RuntimeError] couldn't find workspace
   # @return [Mdm::Workspace] The workspace object that was referenced by name in opts.
   def self.process_opts_workspace(opts, framework, required = true)
-    wspace = delete_opts_workspace(opts)
+    wspace = opts[:workspace]
     if required && (wspace.nil? || (wspace.kind_of?(String) && wspace.empty?))
       raise ArgumentError.new("opts must include a valid :workspace")
     end
 
-    if wspace.kind_of?(String)
+    case wspace
+    when Hash
+      workspace_name = wspace[:name]
+    when String
       workspace_name = wspace
-      wspace = framework.db.find_workspace(workspace_name)
-      raise "Couldn't find workspace #{workspace_name}" if wspace.nil?
+    when Mdm::Workspace
+      workspace_name = wspace.name
+    else
+      workspace_name = nil
     end
+
+    wspace = framework.db.find_workspace(workspace_name) unless workspace_name.nil?
+    raise "Couldn't find workspace #{workspace_name}" if wspace.nil? && required
 
     wspace
   end
 
-  # Removes the :workspace or :wspace key from the opts hash.
-  #
-  # @param [Hash] opts The opts hash passed in from the data request.
-  # @return [String] The name of the workspace that was contained in the key.
-  def self.delete_opts_workspace(opts)
-    wlog("Both :workspace and :wspace were found in opts. Using :workspace.") if opts[:workspace] && opts[:wspace]
-    opts.delete(:workspace) || opts.delete(:wspace)
-  end
 end
 end
 end

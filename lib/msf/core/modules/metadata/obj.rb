@@ -61,7 +61,7 @@ class Obj
     end
 
     @name               = module_instance.name
-    @fullname           = module_instance.fullname
+    @fullname           = module_instance.realname
     @aliases            = module_instance.aliases
     @disclosure_date    = module_instance.disclosure_date
     @rank               = module_instance.rank.to_i
@@ -80,7 +80,7 @@ class Obj
     @rport              = module_instance.datastore['RPORT']
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
-    @ref_name           = module_instance.refname
+    @ref_name           = module_instance.class.refname
     @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
 
     if module_instance.respond_to?(:autofilter_ports)
@@ -101,7 +101,7 @@ class Obj
     end
 
     # Store whether a module has a check method
-    @check = module_instance.respond_to?(:check) ? true : false
+    @check = module_instance.has_check?
 
     @notes = module_instance.notes
 

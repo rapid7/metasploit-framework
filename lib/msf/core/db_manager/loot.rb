@@ -23,6 +23,8 @@ module Msf::DBManager::Loot
       data = opts.delete(:data)
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace_id] = wspace.id
 
       if search_term && !search_term.empty?
@@ -46,6 +48,8 @@ module Msf::DBManager::Loot
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
     host = nil
@@ -101,6 +105,8 @@ module Msf::DBManager::Loot
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       # Prevent changing the data field to ensure the file contents remain the same as what was originally looted.
       raise ArgumentError, "Updating the data attribute is not permitted." if opts[:data]
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

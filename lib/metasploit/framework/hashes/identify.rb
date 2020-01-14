@@ -6,6 +6,7 @@
 
 # Resource list:
 #  https://code.google.com/archive/p/hash-identifier/
+#  https://github.com/psypanda/hashID
 #  https://hashcat.net/wiki/doku.php?id=example_hashes
 #  http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats
 #  https://openwall.info/wiki/john/sample-hashes
@@ -74,6 +75,17 @@ def identify_hash(hash)
     when hash.start_with?('$P$') && hash.length == 34,
          hash.start_with?('$H$') && hash.length == 34
       return 'phpass' # wordpress, drupal, phpbb3 (H not P)
+    when hash.start_with?('$ml$') && hash.length == 203
+      return 'PBKDF2-HMAC-SHA512'
+    when hash.start_with?('{PKCS5S2}') && hash.length == 73
+      return 'PBKDF2-HMAC-SHA1'
+    when hash.start_with?('$B$') && hash.split('$').last.length == 32
+      return 'mediawiki'
+    # mobile
+    when hash  =~/^[A-F0-9]{40}:[a-f0-9]{16}$/
+      return 'android-sha1'
+    when hash  =~/^[A-F0-9]{32}:[a-f0-9]{16}$/
+      return 'android-md5'
   end
   ''
 end

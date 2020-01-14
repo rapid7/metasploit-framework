@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans for the Fortinet SSH backdoor and creates sessions.
 

@@ -42,7 +42,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
           relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
-          next if File::basename(relative_entry_descendant_path) == "example.rb"
+          next if File::basename(relative_entry_descendant_path).start_with?('example')
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 

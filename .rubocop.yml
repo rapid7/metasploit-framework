@@ -112,21 +112,21 @@ Metrics/MethodLength:
                   often exceed 200 lines.
   Max: 300
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:            
   Enabled: true
   Description: 'Whoever made this requirement never looked at crypto methods, IV'
   MinNameLength: 2
 
 # %q() is super useful for long strings split over multiple lines and
 # is very common in module constructors for things like descriptions
-Style/UnneededPercentQ:
+Style/RedundantPercentQ:
   Enabled: false
 
 Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Layout/AlignHash:
+Layout/HashAlignment:
   Enabled: false
   Description: 'aligning info hashes to match these rules is almost impossible to get right'
 
@@ -142,7 +142,7 @@ Layout/EmptyLinesAroundMethodBody:
   Enabled: false
   Description: 'these are used to increase readability'
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   Enabled: true
   EnforcedStyle: 'with_fixed_indentation'
   Description: 'initialize method of every module has fixed indentation for Name, Description, etc'

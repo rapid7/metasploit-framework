@@ -3,7 +3,7 @@
   This module attempts to use [john the ripper](https://www.openwall.com/john/) to decode Linux
   based password hashes, such as:
 
-  * `DES` based passwords  
+  * `DES` based passwords
   * `MD5` based passwords
   * `BSDi` based passwords
   * With `crypt` set to `true`:

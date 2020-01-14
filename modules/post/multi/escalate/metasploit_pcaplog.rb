@@ -38,12 +38,7 @@ class MetasploitModule < Msf::Post
             [ 'URL', 'https://community.rapid7.com/docs/DOC-1946' ],
           ],
         'DisclosureDate' => "Jul 16 2012",
-        'Targets'       =>
-          [
-            [ 'Linux/Unix Universal', {} ],
-          ],
         'Stance' => Msf::Exploit::Stance::Passive,
-        'DefaultTarget' => 0,
       }
       ))
       register_options(

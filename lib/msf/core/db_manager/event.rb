@@ -27,6 +27,8 @@ module Msf::DBManager::Event
     end
 
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
 
     order = opts.delete(:order)
     order = order.nil? ? DEFAULT_ORDER : order.to_sym
@@ -52,6 +54,9 @@ module Msf::DBManager::Event
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     return if not wspace # Temp fix?
+
+    opts = opts.clone()
+    opts.delete(:workspace)
     uname  = opts.delete(:username)
 
     if !opts[:host].nil? && !opts[:host].kind_of?(::Mdm::Host)

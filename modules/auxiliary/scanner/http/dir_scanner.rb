@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
               :risk   => 0,
               :confidence   => 100,
               :category     => 'directory',
-              :description  => 'Directoy found.',
+              :description  => 'Directory found.',
               :name   => 'directory'
             )
 

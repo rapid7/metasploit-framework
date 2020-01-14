@@ -104,7 +104,7 @@ module Msf::DBManager::Host
     if opts.kind_of? ::Mdm::Host
       return opts
     elsif opts.kind_of? String
-      raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
+      raise RuntimeError, "This invocation of get_host is no longer supported: #{caller}"
     else
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host
@@ -188,6 +188,8 @@ module Msf::DBManager::Host
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone
+    opts.delete(:workspace)
 
     begin
       retry_attempts ||= 0
@@ -280,6 +282,7 @@ module Msf::DBManager::Host
     ::ActiveRecord::Base.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

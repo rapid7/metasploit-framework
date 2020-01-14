@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This is going to be a quick rundown of how to use this module to
 retrieve the admin hash from a vulnerable QNAP device.

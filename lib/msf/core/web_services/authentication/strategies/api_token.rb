@@ -16,7 +16,6 @@ module Authentication
       # Authenticate the request.
       def authenticate!
         auth_initialized = request.env['msf.auth_initialized']
-        db_manager = env['msf.db_manager']
         authorization = request.env[AUTHORIZATION]
         if !auth_initialized
           success!({message: "Initialize authentication by creating an initial user account."})
@@ -27,14 +26,20 @@ module Authentication
             token = params[TOKEN_QUERY_PARAM]
           end
 
-          user = db_manager.users(persistence_token: token).first
+          request.env['msf.api_token'].nil? ? auth_from_db(token) : auth_from_env(token)
+        end
+      end
 
-          validation_data = validate_user(user)
-          if validation_data[:valid]
-            success!(user)
-          else
-            throw(:warden, message: validation_data[:message], code: validation_data[:code])
-          end
+      # Authenticates the user associated with the API token from the DB
+      def auth_from_db(token)
+        db_manager = env['msf.db_manager']
+        user = db_manager.users(persistence_token: token).first
+
+        validation_data = validate_user(user)
+        if validation_data[:valid]
+          success!(user)
+        else
+          throw(:warden, message: validation_data[:message], code: validation_data[:code])
         end
       end
 
@@ -48,6 +53,14 @@ module Authentication
         !user.nil? ? {valid: true, code: 0, message: nil} : {valid: false, code: 401, message: "Invalid API token."}
       end
 
+      # Authenticates the API token from an environment variable
+      def auth_from_env(token)
+        if token == request.env['msf.api_token']
+          success!(message: "Successful auth from token")
+        else
+          throw(:warden, message: 'Invalid API token.', code: 401)
+        end
+      end
     end
   end
 end
