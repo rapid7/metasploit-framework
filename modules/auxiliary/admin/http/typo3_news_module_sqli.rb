@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -40,9 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       'Privileged'     => false,
       'Platform'       => ['php'],
       'Arch'           => ARCH_PHP,
-      'Targets'        => [['Automatic', {}]],
-      'DisclosureDate' => 'Apr 6 2017',
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => 'Apr 6 2017'))
 
     register_options(
       [

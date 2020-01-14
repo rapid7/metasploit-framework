@@ -41,7 +41,7 @@ RSpec.describe Msf::Module do
     }
 
     it { is_expected.to respond_to :cached? }
-    it { is_expected.to respond_to :is_usable }
+    it { is_expected.to respond_to :usable? }
   end
 
   describe "cloning modules into replicants" do

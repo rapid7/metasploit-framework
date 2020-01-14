@@ -26,6 +26,15 @@ module Msf::Module::DataStore
   end
 
   #
+  # Import the target's DefaultOptions hash into the datastore.
+  #
+  def import_target_defaults
+    return unless target && target.default_options
+
+    datastore.import_options_from_hash(target.default_options, true, 'self')
+  end
+
+  #
   # Overrides the class' own datastore with the one supplied.  This is used
   # to allow modules to share datastores, such as a payload sharing an
   # exploit module's datastore.

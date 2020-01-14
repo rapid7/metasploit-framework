@@ -323,7 +323,7 @@ class CommandShell
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-    binary_path = shell_command_token("which #{binary}").strip
+    binary_path = shell_command_token("which #{binary}").to_s.strip
     if binary_path.eql?("#{binary} not found")
       print_error(binary_path)
       return nil
@@ -347,7 +347,7 @@ class CommandShell
     # /etc/passwd
     # $ ls /etc/nosuchfile
     # ls: cannot access '/etc/nosuchfile': No such file or directory
-    result = shell_command_token("ls #{path}").strip
+    result = shell_command_token("ls #{path}").to_s.strip
     if result.eql?(path)
       return true
     end
@@ -449,7 +449,7 @@ class CommandShell
           print_error("Appending content to the target file <#{dst}> failed. (#{result})")
           # Do some cleanup
           # Delete the target file
-          shell_command_token("rm -rf #{dst}")
+          shell_command_token("rm -rf '#{dst}'")
           print_status("Target file <#{dst}> deleted")
           return
         end
@@ -504,7 +504,7 @@ class CommandShell
       print_line(shell_command("sh -x #{remote_file}"))
     end
     print_status("Cleaning temp file on remote machine")
-    shell_command("rm -rf #{remote_file}")
+    shell_command("rm -rf '#{remote_file}'")
   end
 
   def cmd_irb_help

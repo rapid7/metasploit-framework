@@ -1,4 +1,4 @@
-FROM ruby:2.6.2-alpine3.9 AS builder
+FROM ruby:2.6.5-alpine3.10 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
@@ -27,16 +27,16 @@ RUN apk add --no-cache \
       zlib-dev \
       ncurses-dev \
       git \
-    && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
-    && gem update --system \
-    && bundle install --clean --no-cache --system $BUNDLER_ARGS \
+    && echo "gem: --no-document" > /etc/gemrc \
+    && gem update --system 3.0.6 \
+    && bundle install --force --clean --no-cache --system $BUNDLER_ARGS \
     # temp fix for https://github.com/bundler/bundler/issues/6680
     && rm -rf /usr/local/bundle/cache \
     # needed so non root users can read content of the bundle
     && chmod -R a+r /usr/local/bundle
 
 
-FROM ruby:2.6.2-alpine3.9
+FROM ruby:2.6.5-alpine3.10
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework
@@ -51,8 +51,11 @@ RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresq
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
 
-COPY --chown=root:metasploit --from=builder /usr/local/bundle /usr/local/bundle
-COPY --chown=root:metasploit . $APP_HOME/
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+RUN chown -R root:metasploit /usr/local/bundle
+COPY . $APP_HOME/
+RUN chown -R root:metasploit $APP_HOME/
+RUN chmod 664 $APP_HOME/Gemfile.lock
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
 
 WORKDIR $APP_HOME

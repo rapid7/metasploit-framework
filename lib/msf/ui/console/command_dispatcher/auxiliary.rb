@@ -130,7 +130,7 @@ class Auxiliary
           nmod = mod.replicant
           nmod.datastore['RHOST'] = rhost
           print_status("Running module against #{rhost}")
-          mod.run_simple(
+          nmod.run_simple(
             'Action'         => action,
             'OptionStr'      => opts.join(','),
             'LocalInput'     => driver.input,

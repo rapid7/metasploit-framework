@@ -61,7 +61,7 @@ class Obj
     end
 
     @name               = module_instance.name
-    @fullname           = module_instance.fullname
+    @fullname           = module_instance.realname
     @aliases            = module_instance.aliases
     @disclosure_date    = module_instance.disclosure_date
     @rank               = module_instance.rank.to_i
@@ -80,7 +80,9 @@ class Obj
     @rport              = module_instance.datastore['RPORT']
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
-    @ref_name           = module_instance.refname
+    @ref_name           = module_instance.class.refname
+    @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
+
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
     end
@@ -99,7 +101,7 @@ class Obj
     end
 
     # Store whether a module has a check method
-    @check = module_instance.respond_to?(:check) ? true : false
+    @check = module_instance.has_check?
 
     @notes = module_instance.notes
 
@@ -134,7 +136,8 @@ class Obj
       'check'              => @check,
       'post_auth'          => @post_auth,
       'default_credential' => @default_credential,
-      'notes'              => @notes
+      'notes'              => @notes,
+      'needs_cleanup'      => @needs_cleanup
     }.to_json(*args)
   end
 
@@ -183,6 +186,8 @@ class Obj
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
     @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
+    @needs_cleanup      = obj_hash['needs_cleanup']
+
   end
 
   def sort_platform_string

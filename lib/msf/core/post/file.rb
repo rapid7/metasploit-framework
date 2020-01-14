@@ -154,6 +154,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is executable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is executable
+  #
+  def executable?(path)
+    raise "`executable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -x '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # See if +path+ on the remote system exists and is writable
   #
   # @param path [String] Remote path to check
@@ -219,22 +232,6 @@ module Msf::Post::File
   end
 
   #
-  # Returns a MD5 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestmd5(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/md5'
-      chksum = nil
-      chksum = Digest::MD5.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
-  end
-
-  #
   # Returns a MD5 checksum of a given remote file
   #
   # @note THIS DOWNLOADS THE FILE
@@ -250,22 +247,6 @@ module Msf::Post::File
   end
 
   #
-  # Returns a SHA1 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestsha1(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/sha1'
-      chksum = nil
-      chksum = Digest::SHA1.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
-  end
-
-  #
   # Returns a SHA1 checksum of a given remote file
   #
   # @note THIS DOWNLOADS THE FILE
@@ -278,22 +259,6 @@ module Msf::Post::File
       chksum = Digest::SHA1.hexdigest(data)
     end
     return chksum
-  end
-
-  #
-  # Returns a SHA256 checksum of a given local file
-  #
-  # @param local_file_name [String] Local file name
-  # @return [String] Hex digest of file contents
-  def file_local_digestsha2(local_file_name)
-    if ::File.exist?(local_file_name)
-      require 'digest/sha2'
-      chksum = nil
-      chksum = Digest::SHA256.hexdigest(::File.open(local_file_name, "rb") { |f| f.read})
-      return chksum
-    else
-      raise "File #{local_file_name} does not exists!"
-    end
   end
 
   #
@@ -399,6 +364,18 @@ module Msf::Post::File
   end
 
   #
+  # Upload a binary and write it as an executable file +remote+ on the
+  # remote filesystem.
+  #
+  # @param remote [String] Destination file name on the remote filesystem
+  # @param data [String] Data to be uploaded
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    write_file path, data
+    chmod(path)
+  end
+
+  #
   # Sets the permissions on a remote file
   #
   # @param path [String] Path on the remote filesystem
@@ -413,6 +390,16 @@ module Msf::Post::File
     else
       cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
     end
+  end
+
+  #
+  # Read a local exploit file binary from the data directory
+  #
+  # @param path [String] Directory in the exploits folder
+  # @param path [String] Filename in the data folder
+  def exploit_data(data_directory, file)
+    file_path = ::File.join(::Msf::Config.data_directory, "exploits", data_directory, file)
+    ::File.binread(file_path)
   end
 
   #

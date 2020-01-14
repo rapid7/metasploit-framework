@@ -59,6 +59,7 @@ module Msf
     end
 
     def setup
+      alert_user
     end
 
     def file_format_filename
@@ -286,7 +287,7 @@ module Msf
       target_idx =
         begin
           Integer(datastore['TARGET'])
-        rescue ArgumentError, TypeError
+        rescue TypeError, ArgumentError
           datastore['TARGET']
         end
 

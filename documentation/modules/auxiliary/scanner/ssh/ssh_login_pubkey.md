@@ -34,7 +34,7 @@
   
   **RHOSTS**
   
-  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file://root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
+  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file:/root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
 
   **STOP_ON_SUCCESS**
   

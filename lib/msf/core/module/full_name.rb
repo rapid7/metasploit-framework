@@ -24,6 +24,14 @@ module Msf::Module::FullName
       "#{type}/#{refname}"
     end
 
+    #
+    # Classes themselves are never aliased (at the moment, anyway), but this is
+    # always just the {#fullname}.
+    #
+    def realname
+      fullname
+    end
+
     def promptname
       refname
     end
@@ -58,13 +66,21 @@ module Msf::Module::FullName
   end
 
   #
+  # Always return the module's framework full reference name, even when the
+  # module is aliased.
+  #
+  def realname
+    self.class.fullname
+  end
+
+  #
   # Returns the module's framework reference name.  This is the
   # short name that end-users work with.  Ex:
   #
   # windows/shell/reverse_tcp
   #
   def refname
-    fullname.sub(type + '/', '')
+    fullname.delete_prefix("#{type}/")
   end
 
   #

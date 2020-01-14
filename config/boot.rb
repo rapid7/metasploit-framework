@@ -9,6 +9,8 @@ GEMFILE_EXTENSIONS = [
 msfenv_real_pathname = Pathname.new(__FILE__).realpath
 root = msfenv_real_pathname.parent.parent
 
+require File.expand_path('../rails_bigdecimal_fix', __FILE__)
+
 unless ENV['BUNDLE_GEMFILE']
   require 'pathname'
 
@@ -21,18 +23,6 @@ unless ENV['BUNDLE_GEMFILE']
     end
   end
 end
-
-# Remove bigdecimal warning - start
-# https://github.com/ruby/bigdecimal/pull/115
-# https://github.com/rapid7/metasploit-framework/pull/11184#issuecomment-461971266
-# TODO: remove when upgrading from rails 4.x
-require 'bigdecimal'
-
-def BigDecimal.new(*args, **kwargs)
-  return BigDecimal(*args) if kwargs.empty?
-  BigDecimal(*args, **kwargs)
-end
-# Remove bigdecimal warning - end
 
 begin
   require 'bundler/setup'

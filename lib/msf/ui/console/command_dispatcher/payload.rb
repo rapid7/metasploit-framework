@@ -23,8 +23,7 @@ module Msf
             "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
             "-E" => [ false, "Force encoding" ],
             "-e" => [ true,  "The encoder to use" ],
-            "-s" => [ true,  "NOP sled length."                                     ],
-            "-P" => [ true,  "Total desired payload size, auto-produce approproate NOPsled length"],
+            "-P" => [ true,  "Total desired payload size, auto-produce appropriate NOP sled length"],
             "-S" => [ true,  "The new section name to use when generating (large) Windows binaries"],
             "-b" => [ true,  "The list of characters to avoid example: '\\x00\\xff'" ],
             "-i" => [ true,  "The number of times to encode the payload" ],
@@ -73,7 +72,9 @@ module Msf
           def cmd_generate_help
             print_line "Usage: generate [options]"
             print_line
-            print_line "Generates a payload."
+            print_line "Generates a payload. Datastore options may be supplied after normal options."
+            print_line
+            print_line "Example: generate -f python LHOST=127.0.0.1"
             print @@generate_opts.usage
           end
 
@@ -99,7 +100,7 @@ module Msf
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
               when '-b'
-                badchars = Rex::Text.hex_to_raw(val)
+                badchars = Rex::Text.dehex(val)
               when '-e'
                 encoder_name = val
               when '-E'
@@ -114,8 +115,8 @@ module Msf
                 format = val
               when '-o'
                 if val.include?('=')
-                  print("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom")
-                  mod.datastore[key] = val
+                  print_error("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom\n")
+                  option_str = val
                 else
                   ofile = val
                 end
@@ -134,13 +135,12 @@ module Msf
                 cmd_generate_help
                 return false
               else
-                (key, val) = val.split('=')
-                if key && val
-                  mod.datastore[key] = val
-                else
+                unless val.include?('=')
                   cmd_generate_help
                   return false
                 end
+
+                mod.datastore.import_options_from_s(val)
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
@@ -170,7 +170,7 @@ module Msf
 
             if !ofile
               # Display generated payload
-              print(buf)
+              puts(buf)
             else
               print_status("Writing #{buf.length} bytes to #{ofile}...")
               fd = File.open(ofile, "wb")
@@ -187,7 +187,6 @@ module Msf
               '-e' => [ framework.encoders.map { |refname, mod| refname } ],
               '-h' => [ nil                                               ],
               '-o' => [ true                                              ],
-              '-s' => [ true                                              ],
               '-P' => [ true                                              ],
               '-S' => [ true                                              ],
               '-f' => [ :file                                             ],

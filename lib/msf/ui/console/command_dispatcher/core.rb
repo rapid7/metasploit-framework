@@ -39,6 +39,7 @@ module CommandDispatcher
 class Core
 
   include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::CommandDispatcher::Common
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
@@ -1574,6 +1575,16 @@ class Core
     name  = args[0]
     value = args[1, args.length-1].join(' ')
 
+    # Set PAYLOAD by index
+    if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
+      index_from_list(payload_show_results, value) do |mod|
+        return false unless mod && mod.respond_to?(:first)
+
+        # [name, class] from payload_show_results
+        value = mod.first
+      end
+    end
+
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
@@ -1592,11 +1603,15 @@ class Core
     end
 
     # Set PAYLOAD from TARGET
-    if name.upcase == 'TARGET' && active_module && active_module.exploit?
-      active_module.import_target_datastore
+    if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
+      active_module.import_target_defaults
     end
 
     print_line("#{name} => #{datastore[name]}")
+  end
+
+  def payload_show_results
+    Msf::Ui::Console::CommandDispatcher::Modules.class_variable_get(:@@payload_show_results)
   end
 
   #
@@ -1628,6 +1643,7 @@ class Core
       Prompt
       PromptChar
       PromptTimeFormat
+      MeterpreterPrompt
     }
     mod = active_module
 
