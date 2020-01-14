@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 223
+  CachedSize = 218
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
