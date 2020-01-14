@@ -60,8 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     end
 
-    case turi
-    when /smb\.conf$/
+    if turi.end_with?('smb.conf')
       unless res.headers['Content-Type'].starts_with?('text/plain') && res.body.include?('[global]')
         vprint_warning("#{turi} does not contain \"[global]\" directive.")
       end
