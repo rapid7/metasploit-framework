@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions'      => {
         'RPORT'             => 443,
         'SSL'               => true,
-        'HttpClientTimeout' => 5 # This seems sane, but it's not a float
+        'HttpClientTimeout' => 5 # This seems sane
       },
       'Notes'               => {
         'Stability'         => [CRASH_SAFE],
