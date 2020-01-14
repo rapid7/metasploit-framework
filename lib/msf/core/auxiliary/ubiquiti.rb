@@ -234,13 +234,9 @@ module Auxiliary::Ubiquiti
           cred[:username] = admin_name
           cred[:private_data] = admin_password_hash
           cred[:private_type] = :nonreplayable_hash
-          create_credential_and_login(cred) #returns nil
+          login = create_credential_and_login(cred)
           unless admin_password.empty?
-            # we need to re-find the cred we just made since nil is returned
-            # we treat this in a loop incase we crack more than one hash this way
-            framework.db.creds(cred).each do |c|
-              create_cracked_credential(username: admin_name, password: admin_password, core_id: c.id)
-            end
+            create_cracked_credential(username: admin_name, password: admin_password, core_id: login.core.id)
           end
           line['x_ssh_keys'].each do |key|
             print_good("SSH user #{admin_name} found with SSH key: #{key}")
