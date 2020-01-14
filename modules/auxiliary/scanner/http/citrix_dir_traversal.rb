@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if turi.end_with?('smb.conf')
-      unless res.headers['Content-Type'].starts_with?('text/plain') && res.body.include?('[global]')
+      unless res.headers['Content-Type'].starts_with?('text/plain') && res.body.match(/\[\s*global\s*\]/)
         vprint_warning("#{turi} does not contain \"[global]\" directive.")
       end
     end
