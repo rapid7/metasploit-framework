@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
    def initialize
        super(
-           'Name'        => 'Huawei HG255 Directory Traversal',
+           ‘Name‘        => ‘Huawei HG255 Directory Traversal‘,
            ‘Description’ => ‘Server Directory Traversal at Huawei HG255 by malicious GET requests’,
            ‘Author’      => ‘Ismail Tasdelen’,
            ‘License’     => MSF_LICENSE,
