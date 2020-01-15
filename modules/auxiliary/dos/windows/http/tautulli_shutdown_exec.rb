@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
            ‘References’     =>
            [
               ['CVE', '2019-19833' ],
-	      ['EDB', '47785'],
+              ['EDB', '47785'],
               ['URL', 'https://www.exploit-db.com/exploits/47785']
            ]
        )
