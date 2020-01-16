@@ -22,8 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'	=> MSF_LICENSE
     )
+
     register_options([
-      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w{tcp udp}]),
+      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w[tcp udp]]),
     ])
   end
 
