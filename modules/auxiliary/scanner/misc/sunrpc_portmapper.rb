@@ -22,10 +22,15 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'	=> MSF_LICENSE
     )
+
+    register_options([
+      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w[tcp udp]]),
+    ])
   end
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
+    proto = datastore['PROTOCOL']
     vprint_status "SunRPC - Enumerating programs"
 
     begin
@@ -33,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       progver		= 2
       procedure	= 4
 
-      sunrpc_create('udp', program, progver)
+      sunrpc_create(proto, program, progver)
       sunrpc_authnull
       resp = sunrpc_call(procedure, "")
 
