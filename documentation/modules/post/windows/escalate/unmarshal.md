@@ -7,7 +7,7 @@ handle serialized objects.
 * https://github.com/codewhitesec/UnmarshalPwn/
 * https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-0824
 
-## Module Options
+## Options
 
 "COMMAND" This command will be executed on successful escalation.</br>
 "SESSION" The session to run this module on.

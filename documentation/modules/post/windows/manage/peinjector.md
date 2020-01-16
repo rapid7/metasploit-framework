@@ -3,7 +3,7 @@ This module inserts a payload into an existing PE file on a remote
 machine.  When a user launches the binary, the payload will run
 as a thread within the process with the same privs.
 
-## Module Options
+## Options
 LHOST  IP of host that will receive the connection from the payload.
 LPORT  Port for Payload to connect to.
 OPTIONS Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.

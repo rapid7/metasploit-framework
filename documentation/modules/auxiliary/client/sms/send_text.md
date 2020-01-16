@@ -4,7 +4,7 @@ of phone numbers of the same carrier.
 In order to use this module, you must set up your own SMTP server to deliver messages. Popular
 mail services such as Gmail, Yahoo, Live should work fine.
 
-## Module Options
+## Options
 
 **CELLNUMBERS**
 
