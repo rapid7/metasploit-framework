@@ -22,7 +22,7 @@ EXITS.  Be careful closing sessions that were spawned using this method!
 If a setting is wrong, it may cause the binary to fail to launch,
 alerting the user to possible shinnanigans.
 
-## Vulnerable Applications
+## Vulnerable Application
 `Vulnerable` is a bad term; this module inserts shellcode into a pe
 file.  That means any Windows pe files are `vulnerable`.
 Be aware that some files like calc.exe on later Windows versions
