@@ -9,7 +9,7 @@ Related links :
 * https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2015-016/?fid=6904
 * http://download.oracle.com/glassfish/4.1/release/glassfish-4.1.zip - Download Oracle Glass Fish 4.1
 
-## Verification
+## Verification Steps
 
   1. Start msfconsole
   2. Do: ```use auxiliary/scanner/http/glassfish_traversal```

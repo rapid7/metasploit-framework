@@ -7,7 +7,7 @@ Spring Cloud Config listens by default on port 8888.
 
 * https://github.com/spring-cloud/spring-cloud-config/archive/v2.1.1.RELEASE.zip
 
-## Verification
+## Verification Steps
 
 1. `./msfconsole`
 2. `use auxiliary/scanner/http/springcloud_traversal`
