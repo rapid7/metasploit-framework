@@ -2,8 +2,7 @@
 ## Vulnerable Application
 
   This module will attempt to enumerate which patches are applied to a
-  windows system based on the result of the WMI query: SELECT HotFixID
-  FROM Win32_QuickFixEngineering.
+  windows system based on the result of the WMI query: `SELECT HotFixID FROM Win32_QuickFixEngineering`.
 
 ## Verification Steps
 
@@ -17,11 +16,11 @@
 
   **KB**
 
-  A comma separated list of KB patches to search for.
+  A comma separated list of KB patches to search for. Default is: `KB2871997, KB2928120`
 
   **MSFLOCALS**
 
-  Search for missing patches for which there is a MSF local module.
+  Search for missing patches for which there is a MSF local module. Default is `true`.
 
   **SESSION**
 

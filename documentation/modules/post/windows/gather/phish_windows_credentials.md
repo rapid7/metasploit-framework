@@ -19,11 +19,11 @@
 
   **DESCRIPTION**
 
-  Message shown in the loginprompt.
+  Message shown in the login prompt.
 
   **PROCESS**
 
-  Prompt if a specific process is started by the target. (e.g. calc.exe or specify * for all processes.
+  Prompt if a specific process is started by the target. (e.g. `calc.exe` or specify * for all processes.)
 
   **SESSION**
 
