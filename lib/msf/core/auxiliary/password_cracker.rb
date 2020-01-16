@@ -46,7 +46,7 @@ module Auxiliary::PasswordCracker
     register_advanced_options(
       [
         OptBool.new('DeleteTempFiles',    [false, 'Delete temporary wordlist and hash files', true]),
-        OptBool.new('OptimizeKernel',     [false, 'Utilize Opitmized Kernels in Hashcat', true]),
+        OptBool.new('OptimizeKernel',     [false, 'Utilize Optimized Kernels in Hashcat', true]),
         OptBool.new('ShowCommand',        [false, 'Print the cracker command being used', true]),
       ], Msf::Auxiliary::PasswordCracker
     )
