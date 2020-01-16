@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptBool.new('MSFLOCALS', [ true, 'Search for missing patchs for which there is a MSF local module', true]),
+        OptBool.new('MSFLOCALS', [ true, 'Search for missing patches for which there is a MSF local module', true]),
         OptString.new('KB',  [ true, 'A comma separated list of KB patches to search for', 'KB2871997, KB2928120'])
       ])
   end
