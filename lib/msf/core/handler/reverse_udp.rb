@@ -42,6 +42,23 @@ module ReverseUdp
     "reverse UDP"
   end
 
+  # A URI describing what the payload is configured to use for transport
+  def payload_uri
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "udp://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  # A URI describing where we are listening
+  #
+  # @param addr [String] the address that
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri(addr = datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "udp://#{uri_host}:#{bind_port}"
+  end
+
   #
   # Initializes the reverse UDP handler and ads the options that are required
   # for all reverse UDP payloads, like local host and local port.
