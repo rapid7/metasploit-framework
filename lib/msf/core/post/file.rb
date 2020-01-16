@@ -180,6 +180,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is immutable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is immutable
+  #
+  def immutable?(path)
+    raise "`immutable?' method does not support Windows systems" if session.platform == 'windows'
+
+    attributes(path).include?('Immutable')
+  end
+
+  #
   # See if +path+ on the remote system exists and is readable
   #
   # @param path [String] Remote path to check
@@ -213,6 +226,16 @@ module Msf::Post::File
   end
 
   alias :exists? :exist?
+
+  #
+  # Retrieve file attributes for +path+ on the remote system
+  #
+  # @param path [String] Remote filename to check
+  def attributes(path)
+    raise "`attributes' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("lsattr -l '#{path}'").to_s.scan(/^#{path}\s+(.+)$/).flatten.first.to_s.split(', ')
+  end
 
   #
   # Writes a given string to a given local file
