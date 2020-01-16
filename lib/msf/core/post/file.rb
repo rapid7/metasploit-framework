@@ -561,7 +561,7 @@ protected
       { :cmd => %q^echo -ne 'CONTENTS'^ , :enc => :hex },
     ].each { |foo|
       # Some versions of printf mangle %.
-      test_str = "\0\xff\xfeABCD\x7f%%\r\n"
+      test_str = "\0\xff\xfe#{Rex::Text.rand_text_alpha_upper(4)}\x7f%%\r\n"
       #test_str = "\0\xff\xfe"
       case foo[:enc]
       when :hex
