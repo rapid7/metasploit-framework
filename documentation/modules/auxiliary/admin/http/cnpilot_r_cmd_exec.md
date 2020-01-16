@@ -8,7 +8,7 @@ Cambium cnPilot r200/r201 device software versions 4.2.3-R4 and newer, contain a
 4. Do: ```set CMD [command]```
 5. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/cnpilot_r_cmd_exec

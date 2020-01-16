@@ -15,7 +15,7 @@ attacker on the local network can send a crafted request to broadcast a fake vid
 
 Doo-doodoodoodoodoo-doo, Epic Sax Guy will be broadcasted to the remote system.
 
-## Sample Output
+## Scenarios
 
 ```
 msf5 > use auxiliary/admin/http/supra_smart_cloud_tv_rfi 
