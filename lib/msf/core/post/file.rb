@@ -180,6 +180,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is immutable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is immutable
+  #
+  def immutable?(path)
+    raise "`immutable?' method does not support Windows systems" if session.platform == 'windows'
+
+    attributes(path).include?('Immutable')
+  end
+
+  #
   # See if +path+ on the remote system exists and is readable
   #
   # @param path [String] Remote path to check
