@@ -2,7 +2,7 @@
 
 This module allows you to collect login information for PureVPN client, specifically the `login.conf` file.
 
-# Vulnerable Application
+## Vulnerable Application
 
 Versions before 6.0 should be vulnerable. For testing purposes, you may find the vulnerable version here:
 
