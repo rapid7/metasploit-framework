@@ -42,7 +42,7 @@ Detects a closed port via a RST received in response to the FIN
   4. Do: `run`
   5. The open/filtered ports will be discovered, status will be printed indicating as such.
 
-# Scenarios
+## Scenarios
   
 ### Metaspliotable 2
 
