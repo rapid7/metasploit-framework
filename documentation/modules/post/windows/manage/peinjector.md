@@ -28,7 +28,7 @@ file.  That means any Windows pe files are `vulnerable`.
 Be aware that some files like calc.exe on later Windows versions
 are not entirely normal in their behvior and are not `vulnerable`
 
-## Verification steps
+## Verification Steps
 * get session on target
 * `use post/windows/manage/peinjector`
 * `set payload <payload>`

@@ -17,7 +17,7 @@ handle serialized objects.
 The payload will not spawn ant independent session it simply creates process with the system privilege.
 If the system is not vulnerable, then payload will execute but new process will not spawn.
 
-## Verification steps
+## Verification Steps
 
 If you want to confirm the vulnerability before you add user or perform any other sensitive action. 
 
