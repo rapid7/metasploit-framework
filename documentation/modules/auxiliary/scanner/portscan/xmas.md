@@ -34,7 +34,7 @@ Detects a closed port via a RST received in response to the FIN
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were not open/filtered.
 
-# Verification Steps
+## Verification Steps
 
   1. Do: `use auxiliary/scanner/portscan/xmas`
   2. Do: `set RHOSTS [IP]`
