@@ -13,7 +13,7 @@ Detects a closed port via a RST received in response to the FIN
   XMAS scan requires the use of raw sockets, and thus cannot be performed from some Windows
   systems (Windows XP SP 2, for example). On Unix and Linux, raw socket manipulations require root privileges.
 
-# Options
+## Options
 
   **PORTS**
   
