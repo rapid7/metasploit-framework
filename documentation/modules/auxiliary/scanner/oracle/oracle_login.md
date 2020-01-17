@@ -94,10 +94,12 @@ For Oracle Server, please follow the following [guide](https://tutorialforlinux.
 
 ## Scenarios
 Module can be used to perform a bruteforce attack on the Oracle server to discover a valid username/password combination.
+
+Default port for SQL*Net listener is 1521/tcp. If this port is open, try this module to login.
 ### Version of software and OS as applicable
 All versions of Oracle database, and all OSes
 
 ```
-msf > use auxiliary/scanner/oracle/oracle_login
-msf axuiliary(oracle_login) > exploit
+msf > auxiliary/scanner/oracle/oracle_login
+msf auxiliary(scanner/oracle/oracle_login) > run
 ```
