@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultTarget' => 0,
       'References'    =>
         [
+          ['EDB', '47936'],
           ['CVE', '2019-19494'],
           ['URL', 'https://cablehaunt.com/'],
           ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
