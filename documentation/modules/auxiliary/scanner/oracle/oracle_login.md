@@ -21,40 +21,75 @@ For Oracle Server, please follow the following [guide](https://tutorialforlinux.
 
 ## Options
   **BLANK_PASSWORDS**
+
   Try blank passwords for all users
+  
   **BRUTEFORCE_SPEED**
+  
   How fast to bruteforce, scale of 0 to 5
+  
   **DB_ALL_CREDS**
+  
   Try each user/password couple stored in the current database
+  
   **DB_ALL_PASS**
+  
   Add all passwords in the current database to the list to try
+  
   **DB_ALL_USERS**
+  
   Add all users in the current database to the list to try
+  
   **NMAP_VERBOSE**
+  
   Display nmap output
+  
   **PASSWORD**
+  
   Specify one password to use for all usernames
+  
   **PASS_FILE**
+  
   File of passwords, one per line.
+  
   **RHOSTS**
+  
   Target hosts, range CIDR identifier, or hosts file with syntax 'file:<path>'
+  
   **RPORTS**
+  
   Ports of the target
+  
   **SID**
+  
   Instance (SID) to authenticate against. Default 'XE'
+  
   **STOP_ON_SUCCESS**
+  
   Stop the bruteforce attack when a valid combination is found
+  
   **THREADS**
+  
   Number of concurrent threads (max of one per host)
+  
   **USERNAME**
+  
   Specific username to try for all passwords
+  
   **USERPASS_FILE**
+  
   File of username and passwords, separated by space, one set per line. Default 'oracle_default_userpass.txt'
+  
   **USER_AS_PASS**
+  
   Try the username as the password for all users
+  
   **USER_FILE**
+  
   File containing usernames, one per line
+  
   **VERBOSE**
+  
   Print output for all attempts
 
 ## Scenarios
