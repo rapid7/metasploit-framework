@@ -34,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
+        OptString.new('TARGETURI', [true, "The base URI path of nvms", '/']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 13 ])
       ])
   end
