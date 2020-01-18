@@ -343,46 +343,46 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def john_crack_command
           cmd_string = binary_path
-          cmd = [ cmd_string,  '--session=' + cracker_session_id, '--nolog' ]
+          cmd = [cmd_string,  '--session=' + cracker_session_id, '--nolog']
 
           if config.present?
-            cmd << ( "--config=" + config )
+            cmd << ("--config=" + config)
           else
-            cmd << ( "--config=" + john_config_file )
+            cmd << ("--config=" + john_config_file)
           end
 
           if pot.present?
-            cmd << ( "--pot=" + pot )
+            cmd << ("--pot=" + pot)
           else
-            cmd << ( "--pot=" + john_pot_file)
+            cmd << ("--pot=" + john_pot_file)
           end
 
           if fork.present? && fork > 1
-            cmd << ( "--fork=" + fork.to_s )
+            cmd << ("--fork=" + fork.to_s)
           end
 
           if format.present?
-            cmd << ( "--format=" + format )
+            cmd << ("--format=" + format)
           end
 
           if wordlist.present?
-            cmd << ( "--wordlist=" + wordlist )
+            cmd << ("--wordlist=" + wordlist)
           end
 
           if incremental.present?
-            cmd << ( "--incremental=" + incremental )
+            cmd << ("--incremental=" + incremental)
           end
 
           if rules.present?
-            cmd << ( "--rules=" + rules )
+            cmd << ("--rules=" + rules)
           end
 
           if max_runtime.present?
-            cmd << ( "--max-run-time=" + max_runtime.to_s)
+            cmd << ("--max-run-time=" + max_runtime.to_s)
           end
 
           if max_length.present?
-            cmd << ( "--max-len=" + max_length.to_s)
+            cmd << ("--max-len=" + max_length.to_s)
           end
 
           cmd << hash_path
@@ -395,16 +395,16 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def hashcat_crack_command
           cmd_string = binary_path
-          cmd = [ cmd_string,  '--session=' + cracker_session_id, '--logfile-disable' ]
+          cmd = [cmd_string,  '--session=' + cracker_session_id, '--logfile-disable']
 
           if pot.present?
-            cmd << ( "--potfile-path=" + pot )
+            cmd << ("--potfile-path=" + pot)
           else
-            cmd << ( "--potfile-path=" + john_pot_file)
+            cmd << ("--potfile-path=" + john_pot_file)
           end
 
           if format.present?
-            cmd << ( "--hash-type=" + jtr_format_to_hashcat_format(format) )
+            cmd << ("--hash-type=" + jtr_format_to_hashcat_format(format))
           end
 
           if optimize.present?
@@ -433,33 +433,33 @@ module Metasploit
             # wouldn't be tested inside of MSF since most users are using the MSF modules for word list and easy cracks.
             # Anything of length where this would cut off is most likely being done independently (outside MSF)
 
-            cmd << ( "-O")
+            cmd << ("-O")
           end
 
           if incremental.present?
-            cmd << ( "--increment")
+            cmd << ("--increment")
             if increment_length.present?
-              cmd << ( "--increment-min=" + increment_length[0].to_s)
-              cmd << ( "--increment-max=" + increment_length[1].to_s)
+              cmd << ("--increment-min=" + increment_length[0].to_s)
+              cmd << ("--increment-max=" + increment_length[1].to_s)
             else
               # anything more than max 4 on even des took 8+min on an i7.
               # maybe in the future this can be adjusted or made a variable
               # but current time, we'll leave it as this seems like reasonable
               # time expectation for a module to run
-              cmd << ( "--increment-max=4")
+              cmd << ("--increment-max=4")
             end
           end
 
           if rules.present?
-            cmd << ( "--rules-file=" + rules )
+            cmd << ("--rules-file=" + rules)
           end
 
           if attack.present?
-            cmd << ( "--attack-mode=" + attack )
+            cmd << ("--attack-mode=" + attack)
           end
 
           if max_runtime.present?
-            cmd << ( "--runtime=" + max_runtime.to_s )
+            cmd << ("--runtime=" + max_runtime.to_s)
           end
 
           cmd << hash_path
@@ -470,7 +470,7 @@ module Metasploit
 
           # must be last
           if wordlist.present?
-            cmd << ( wordlist )
+            cmd << (wordlist)
           end
           cmd
         end
@@ -486,14 +486,14 @@ module Metasploit
         #
         # @return [String] the path to the default john.conf file
         def john_config_file
-          ::File.join( ::Msf::Config.data_directory, "jtr", "john.conf" )
+          ::File.join(::Msf::Config.data_directory, "jtr", "john.conf")
         end
 
         # This method returns the path to a default john.pot file.
         #
         # @return [String] the path to the default john.pot file
         def john_pot_file
-          ::File.join( ::Msf::Config.config_directory, "john.pot" )
+          ::File.join(::Msf::Config.config_directory, "john.pot")
         end
 
         # This method is a getter for a random Session ID for the cracker.
@@ -513,14 +513,14 @@ module Metasploit
 
           pot_file = pot || john_pot_file
           if cracker=='hashcat'
-            cmd = [cmd_string, "--show", "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}" ]
+            cmd = [cmd_string, "--show", "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
           elsif cracker=='john'
-            cmd = [cmd_string, "--show", "--pot=#{pot_file}", "--format=#{format}" ]
+            cmd = [cmd_string, "--show", "--pot=#{pot_file}", "--format=#{format}"]
 
             if config
               cmd << "--config=#{config}"
             else
-              cmd << ( "--config=" + john_config_file )
+              cmd << ("--config=" + john_config_file)
             end
           end
           cmd << hash_path
