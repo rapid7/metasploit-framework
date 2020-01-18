@@ -54,7 +54,7 @@ module Metasploit
         attr_accessor :increment_length
 
         # @!attribute mask
-        #  If the cracker type is hashcat, If set, the mask to use.  Should consist of the character sets 
+        #  If the cracker type is hashcat, If set, the mask to use.  Should consist of the character sets
         #  pre-defined by hashcat, such as ?d ?s ?l etc
         #
         #   @return [String] The mask to use
@@ -67,6 +67,10 @@ module Metasploit
         # @!attribute max_length
         #   @return [Integer] An optional maximum length of password to attempt cracking
         attr_accessor :max_length
+
+        # @!attribute optimize
+        #   @return [Boolean] If the Optimize flag should be given to Hashcat
+        attr_accessor :optimize
 
         # @!attribute pot
         #   @return [String] The file path to an alternative John pot file to use
@@ -82,7 +86,7 @@ module Metasploit
 
         validates :config, :'Metasploit::Framework::File_path' => true, if: 'config.present?'
 
-        validates :cracker, inclusion: {in: %w(john hashcat)} 
+        validates :cracker, inclusion: {in: %w[john hashcat]}
 
         validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: 'cracker_path.present?'
 
@@ -401,6 +405,35 @@ module Metasploit
 
           if format.present?
             cmd << ( "--hash-type=" + jtr_format_to_hashcat_format(format) )
+          end
+
+          if optimize.present?
+            # https://hashcat.net/wiki/doku.php?id=frequently_asked_questions#what_is_the_maximum_supported_password_length_for_optimized_kernels
+            # Optimized Kernels has a large impact on speed.  Here are some stats from Hashcat 5.1.0:
+
+            # Kali Linux on Dell Precision M3800            
+            ## hashcat -b -w 2 -m 0
+            # * Device #1: Quadro K1100M, 500/2002 MB allocatable, 2MCU
+            # Speed.#1.........:   185.9 MH/s (11.15ms) @ Accel:64 Loops:16 Thr:1024 Vec:1
+
+            ## hashcat -b -w 2 -O -m 0
+            # * Device #1: Quadro K1100M, 500/2002 MB allocatable, 2MCU
+            # Speed.#1.........:   463.6 MH/s (8.92ms) @ Accel:64 Loops:32 Thr:1024 Vec:1
+
+            # Windows 10
+            # PS C:\hashcat-5.1.0> .\hashcat64.exe -b -O -w 2 -m 0
+            # * Device #1: GeForce RTX 2070 SUPER, 2048/8192 MB allocatable, 40MCU
+            # Speed.#1.........: 13914.0 MH/s (5.77ms) @ Accel:128 Loops:64 Thr:256 Vec:1
+
+            # PS C:\hashcat-5.1.0> .\hashcat64.exe -b -O -w 2 -m 0
+            # * Device #1: GeForce RTX 2070 SUPER, 2048/8192 MB allocatable, 40MCU
+            # Speed.#1.........: 31545.6 MH/s (10.36ms) @ Accel:256 Loops:128 Thr:256 Vec:1
+
+            # This change should result in 225%-250% speed boost at the sacrifice of some password length, which most likely
+            # wouldn't be tested inside of MSF since most users are using the MSF modules for word list and easy cracks.
+            # Anything of length where this would cut off is most likely being done independently (outside MSF)
+
+            cmd << ( "-O")
           end
 
           if incremental.present?
