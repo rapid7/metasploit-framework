@@ -86,7 +86,7 @@ module Metasploit
 
         validates :config, :'Metasploit::Framework::File_path' => true, if: 'config.present?'
 
-        validates :cracker, inclusion: {in: %w(john hashcat)}
+        validates :cracker, inclusion: {in: %w[john hashcat]}
 
         validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: 'cracker_path.present?'
 
