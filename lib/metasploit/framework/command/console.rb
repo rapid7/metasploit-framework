@@ -44,7 +44,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
-      spinner unless parsed_options.options.console.quiet
+      spinner unless parsed_options.options.console.quiet || parsed_options.options.console.screen_reader
       driver.run
     end
   end
@@ -80,6 +80,7 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
       driver_options['DeferModuleLoads'] = options.modules.defer_loads
+      driver_options['ScreenReader'] = options.console.screen_reader
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable
       driver_options['HistFile'] = options.console.histfile

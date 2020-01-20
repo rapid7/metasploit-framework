@@ -215,40 +215,52 @@ class Core
   # Display one of the fabulous banners.
   #
   def cmd_banner(*args)
-    banner  = "%cya" + Banner.to_s + "%clr\n\n"
+    stats       = framework.stats
+    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
+    padding     = 48
 
-    # These messages should /not/ show up when you're on a git checkout;
-    # you're a developer, so you already know all this.
-    if (is_apt || binary_install)
-      content = [
-        "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
-        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
-        "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Save 45% of your time on large engagements with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
-        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro -- Learn more on http://rapid7.com/metasploit"
-      ]
-      banner << content.sample # Ruby 1.9-ism!
-      banner << "\n\n"
+    if (args.length == 0)
+      banner  = "%cya" + Banner.to_s + "%clr\n\n"
+
+      # These messages should /not/ show up when you're on a git checkout;
+      # you're a developer, so you already know all this.
+      if (is_apt || binary_install)
+        content = [
+          "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+          "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+          "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
+          "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+          "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
+          "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
+          "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
+          "Save 45% of your time on large engagements with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
+          "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro -- Learn more on http://rapid7.com/metasploit"
+        ]
+        banner << content.sample # Ruby 1.9-ism!
+        banner << "\n\n"
+      end
+
+      exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
+      pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+      eva         = "#{stats.num_evasion} evasion",
+
+      banner << ("       =[ %-#{padding+8}s]\n" % version)
+      banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
+      banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+      banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
+    elsif (args[0] == "-s")
+      exp_aux_pos = "#{stats.num_exploits.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} exploits, #{stats.num_auxiliary.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} auxiliary, #{stats.num_post.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} post",
+      pay_enc_nop = "#{stats.num_payloads} payloads, #{stats.num_encoders.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} encoders, #{stats.num_nops.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} nops",
+      eva         = "#{stats.num_evasion.to_s.chars.to_a.reverse.each_slice(3).map(&:join).join(",").reverse} evasion",
+
+      banner = ""
+      banner << ("%s,.\n" % version)
+      banner << ("%s,.\n" % exp_aux_pos)
+      banner << ("%s,.\n" % pay_enc_nop)
+      banner << ("%s,.\n" % eva)
     end
 
     avdwarn = nil
-
-    stats       = framework.stats
-    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
-    exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
-    pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
-    eva         = "#{stats.num_evasion} evasion",
-    padding     = 48
-
-    banner << ("       =[ %-#{padding+8}s]\n" % version)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
-
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
       avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."

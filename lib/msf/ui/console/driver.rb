@@ -387,7 +387,11 @@ class Driver < Msf::Ui::Driver
       $stderr.print "\r" + (" " * 50) + "\n"
     end
 
-    run_single("banner") unless opts['DisableBanner']
+    if opts['ScreenReader']
+      run_single("banner -s")
+    else
+      run_single("banner") unless opts['DisableBanner']
+    end
 
     opts["Plugins"].each do |plug|
       run_single("load '#{plug}'")

@@ -13,6 +13,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         options.console.histfile = nil
         options.console.local_output = nil
         options.console.plugins = []
+        options.console.screen_reader = false
         options.console.quiet = false
         options.console.real_readline = false
         options.console.resources = []
@@ -53,6 +54,10 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
 
         option_parser.on('-p', '--plugin PLUGIN', 'Load a plugin on startup') do |plugin|
           options.console.plugins << plugin
+        end
+
+        option_parser.on('-s', '--screen-reader', 'Enable better screen reader compatibility') do
+          options.console.screen_reader = true
         end
 
         option_parser.on('-q', '--quiet', 'Do not print the banner on startup') do

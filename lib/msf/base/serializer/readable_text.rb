@@ -591,16 +591,21 @@ class ReadableText
       'Indent'  => indent.length,
       'Columns' =>
         [
-          'Name',
-          'Current Setting',
-          'Required',
-          'Description'
+          'Name,',
+          'Current Setting,',
+          'Required,',
+          'Description,.'
         ])
 
     mod.options.sorted.each do |name, opt|
       next unless opt.advanced?
       val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      if opt.display_value(val) and !opt.display_value(val).empty?
+        dval = "#{opt.display_value(val)},"
+      else
+        dval = "NIL,"
+      end
+      tbl << [ "#{name},", dval, opt.required? ? "yes," : "no,", "#{opt.desc},." ]
     end
 
     return tbl.to_s

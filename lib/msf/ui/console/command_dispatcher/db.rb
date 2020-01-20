@@ -502,11 +502,15 @@ class Db
     col_names.map do |col|
       cp_hsh[col] = { 'MaxChar' => 52 }
     end
+    col_names_modified = []
+    col_names.each do |n|
+      col_names_modified << "#{n},"
+    end
     # If we got here, we're searching.  Delete implies search
+    # 'Header'  => "Hosts",
     tbl = Rex::Text::Table.new(
       {
-        'Header'  => "Hosts",
-        'Columns' => col_names,
+        'Columns' => col_names_modified,
         'ColProps' => cp_hsh,
         'SortIndex' => order_by
       })
@@ -561,7 +565,11 @@ class Db
             end
           # Otherwise, it's just an attribute
           else
-            host[n] || ""
+            if host[n]
+              "#{host[n].to_s},"
+            else
+              "NIL,"
+            end
           end
         end
 
