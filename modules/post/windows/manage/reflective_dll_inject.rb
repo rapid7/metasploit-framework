@@ -15,11 +15,11 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name' => 'Windows Manage Reflective DLL Injection 
+                      'Name' => 'Windows Manage Reflective DLL Injection
                       Module with arguments',
                       'Description' => '
-                      This module will inject a specified reflective DLL 
-                      into the memory of a process, new or existing, 
+                      This module will inject a specified reflective DLL
+                      into the memory of a process, new or existing,
                       passing any arguments.
                       ',
                       'License' => MSF_LICENSE,
