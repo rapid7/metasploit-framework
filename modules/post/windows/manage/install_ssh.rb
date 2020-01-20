@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::File
+  include Msf::Post::Windows::Powershell
 
   def initialize(info = {})
     super(update_info(info,
@@ -79,26 +80,22 @@ class MetasploitModule < Msf::Post
     if datastore['AUTOSTART']
       script << "Set-Service -Name sshd -StartupType 'Automatic'"
     end
-    script = "-c \"#{script}\""
-    cmd_exec("powershell.exe", script, 60)
+    psh_exec(script)
   end
 
   def install_ssh_client
     script = "Add-WindowsCapability -Online -Name #{datastore['CLIENT_VER']}; "
-    script = "-c \"#{script}\""
-    cmd_exec("powershell.exe", script, 60)
+    psh_exec(script)
   end
 
   def uninstall_ssh_server
     script = "Stop-Service sshd; "
     script << "Remove-WindowsCapability -Online -Name #{datastore['SERVER_VER']}"
-    script = " -c \"#{script}\""
-    cmd_exec("powershell.exe", script, 60)
+    psh_exec(script)
   end
 
   def uninstall_ssh_client
     script = "Remove-WindowsCapability -Online -Name #{datastore['CLIENT_VER']}"
-    script = " -c \"#{script}\""
-    cmd_exec("powershell.exe", script, 60)
+    psh_exec(script)
   end
 end
