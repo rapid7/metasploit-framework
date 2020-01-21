@@ -1,19 +1,11 @@
 ## Overview
 Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the /shutdown URL.
 
-## Vulnerable Application :
+## Scenario
 
-```
-Date: 2018-12-17 
-Exploit Author: Ismail Tasdelen
-Vendor Homepage: https://tautulli.com/
-Software : https://github.com/Tautulli/Tautulli
-Product Version: v2.1.9
-Platform: Windows 10 (10.0.18362)
-Python Version: 2.7.11 (v2.7.11:6d1b6a68f775, Dec 5 2015, 20:40:30) [MSC v.1500 64 bit (AMD64)]
-```
+![72550314-80cd8a00-38a3-11ea-9bad-942668a29390](https://user-images.githubusercontent.com/15425071/72602337-29bdc880-3928-11ea-8aec-ddadb3ff4f2d.png)
 
-### Verification Steps :
+## Verification Steps :
 
 ```
 List the steps needed to make sure this thing works
@@ -23,8 +15,3 @@ List the steps needed to make sure this thing works
 3. ```set RHOSTS XXX.XXX.XXX.XXX```
 4. ```run```
 ```
-
-### References :
-
-CVE:2019-19833
-EDB:47785
