@@ -116,7 +116,7 @@ module Msf::Payload::UUID::Options
     payload_info = {
         uuid: uuid.puid_hex,
     }
-    payload = framework.db.get_payload(payload_info)
+    payload = framework.db.payloads(payload_info).first
     unless payload.nil?
       urls = payload.urls.nil? ? [] : payload.urls
       urls << url
