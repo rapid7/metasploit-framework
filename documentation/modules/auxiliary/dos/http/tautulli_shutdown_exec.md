@@ -7,11 +7,10 @@ Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the /s
 
 ## Verification Steps :
 
-```
+
 List the steps needed to make sure this thing works
 
 1. Start ```msfconsole```
 2. ```use auxiliary/dos/http/tautulli_shutdown_exec```
 3. ```set RHOSTS XXX.XXX.XXX.XXX```
 4. ```run```
-```
