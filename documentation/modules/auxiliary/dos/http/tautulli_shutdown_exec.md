@@ -1,5 +1,3 @@
-# Tautulli 2.1.9 - Shutdown Denial of Service
-
 ## Overview
 Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the /shutdown URL.
 
