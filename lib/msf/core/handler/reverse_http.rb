@@ -325,7 +325,7 @@ protected
       request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-      if datastore['IgnoreUnknownPayloads'] && ! framework.db.get_payload({uuid: uuid.puid_hex})
+      if datastore['IgnoreUnknownPayloads'] && ! framework.db.payloads({uuid: Rex::Text.to_hex(uuid.puid, '')})
         print_status("Ignoring unknown UUID: #{request_summary}")
         info[:mode] = :unknown_uuid
       end
@@ -333,9 +333,9 @@ protected
       # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
       if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
         payload_info = {
-            uuid: uuid.puid_hex,
+            uuid: Rex::Text.to_hex(uuid.puid, ''),
         }
-        payload = framework.db.get_payload(payload_info)
+        payload = framework.db.payloads(payload_info).first
         allowed_urls = payload ? payload.urls : []
         unless allowed_urls.include?(req.relative_resource)
           print_status("Ignoring unknown UUID URL: #{request_summary}")
