@@ -1,4 +1,4 @@
-## Description
+## Vulnerable Application
 
 Nuuo CMS Authenticated Arbitrary File Download
 
@@ -25,8 +25,6 @@ This module works in the following way:
 - if not, tries to authenticate with USERNAME and PASSWORD
 
 Due to the lack of ZIP encryption support in Metasploit, the module prints a warning indicating that the archive cannot be unzipped in Msf.
-
-## Vulnerable Application
 
 [NUUO Central Management Server (CMS): all versions up to and including 3.5.0](http://d1.nuuo.com/NUUO/CMS/)
 
@@ -63,9 +61,3 @@ msf5 auxiliary(gather/nuuo_cms_file_download) > exploit
 [*] Auxiliary module execution completed
 msf5 auxiliary(gather/nuuo_cms_file_download) >
 ```
-
-## References
-
-- https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02
-
-- https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-cms-ownage.txt

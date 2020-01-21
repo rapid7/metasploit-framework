@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 The ```auxiliary/client/mms/send_mms``` module allows you to send a malicious attachment to a
 collection of phone numbers of the same carrier.
 
@@ -74,7 +76,7 @@ in order to receive the text, such as AT&T.
 
 The MMS subject. Some carriers require this in order to receive the text, such as AT&T.
 
-## Supported Carrier Gateways
+### Supported Carrier Gateways
 
 The module supports the following carriers:
 
@@ -84,14 +86,14 @@ The module supports the following carriers:
 * Verizon
 * Google Fi
 
-## Finding the Carrier for a Phone Number
+### Finding the Carrier for a Phone Number
 
 Since you need to manually choose the carrier gateway for the phone numbers, you need to figure out
 how to identify the carrier of a phone number. There are many services that can do this, such as:
 
 http://freecarrierlookup.com/
 
-## Gmail SMTP Example
+### Gmail SMTP Example
 
 Gmail is a popular mail server, so we will use this as a demonstration.
 
@@ -111,7 +113,7 @@ After creating the application password, configure auxiliary/client/mms/send_mms
 
 And you should be ready to go.
 
-## Yahoo SMTP Example
+### Yahoo SMTP Example
 
 Yahoo is also a fairly popular mail server (although much slower to deliver comparing to Gmail),
 so we will demonstrate as well.
@@ -136,7 +138,7 @@ After configuring your Yahoo account, configure auxiliary/client/mms/send_mms th
 
 And you're good to go.
 
-## Demonstration
+## Scenarios
 
 After setting up your mail server and the module, your output should look similar to this:
 
