@@ -3,7 +3,7 @@
 ## Overview
 Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the /shutdown URL.
 
-## Affected System Information :
+## Vulnerable Application :
 
 ```
 Date: 2018-12-17 
