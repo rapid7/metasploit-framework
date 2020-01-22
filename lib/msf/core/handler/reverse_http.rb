@@ -313,6 +313,8 @@ protected
       # Configure the UUID architecture and payload if necessary
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
+      puid = Rex::Text.to_hex(uuid ? uuid.puid : '', '')
+      print_status("Received connection from uuid: #{puid}")
 
       conn_id = luri
       if info[:mode] && info[:mode] != :connect
@@ -325,20 +327,20 @@ protected
       request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-      if datastore['IgnoreUnknownPayloads'] && ! framework.db.payloads({uuid: Rex::Text.to_hex(uuid.puid, '')})
-        print_status("Ignoring unknown UUID: #{request_summary}")
+      if datastore['IgnoreUnknownPayloads'] && ! framework.db.payloads({uuid: puid})
+        print_warning("Ignoring unknown UUID: #{request_summary}")
         info[:mode] = :unknown_uuid
       end
 
       # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
       if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
         payload_info = {
-            uuid: Rex::Text.to_hex(uuid.puid, ''),
+            uuid: puid,
         }
         payload = framework.db.payloads(payload_info).first
         allowed_urls = payload ? payload.urls : []
         unless allowed_urls.include?(req.relative_resource)
-          print_status("Ignoring unknown UUID URL: #{request_summary}")
+          print_warning("Ignoring unknown UUID URL: #{request_summary}")
           info[:mode] = :unknown_uuid_url
         end
       end
@@ -348,6 +350,7 @@ protected
 
     else
       info[:mode] = :unknown
+      print_warning("Received connection without uuid")
     end
 
     self.pending_connections += 1
@@ -407,7 +410,7 @@ protected
 
       else
         unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
-          print_status("Unknown request to #{request_summary}")
+          print_warning("Unknown request to #{request_summary}")
         end
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
         self.pending_connections -= 1
