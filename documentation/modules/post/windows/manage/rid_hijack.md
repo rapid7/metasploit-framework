@@ -35,7 +35,7 @@ This module was not tested against, but may work on:
 
 - **RID**: Specify the RID number in decimal of the _victim account_. This number should be the RID of an existing account on the target host, no matter if it is disabled (i.e.: The RID of the _**Administrator**_ built-in account is 500). Set the RID owned by the account that will be _hijacked_. Default: `500`
  
-## Verification steps
+## Verification Steps
 
 1. Get a `meterpreter` session on some host.
 2. Do: `use post/windows/manage/rid_hijack`

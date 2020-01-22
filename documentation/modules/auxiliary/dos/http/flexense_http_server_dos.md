@@ -3,7 +3,7 @@ This module triggers a Denial of Service vulnerability in the Flexense Enterpris
 a write access memory vialation via rapidly sending HTTP requests with large HTTP header values.  
 
 
-## Vulnerable Application 
+## Verification Steps
 According To publicly exploit Disclosure of Flexense HTTP Server v10.6.24
 Following list of softwares are vulnerable to Denial Of Service.
 read more : http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8065

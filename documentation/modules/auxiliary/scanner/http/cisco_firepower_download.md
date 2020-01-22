@@ -1,9 +1,8 @@
+## Vulnerable Application
+
 This module exploits a vulnerability found in Cisco Firepower Management console. A logged in
 user can abuse the report viewing feature to download an arbitrary file. Authentication is
 required to exploit this vulnerability.
-
-
-## Vulnerable Application
 
 This module was written specifically against Cisco Firepower Management 6.0.1 (build 1213) during
 development. To test, you may download the virtual appliance here:
@@ -26,6 +25,6 @@ admin:Admin123 by default:
 If the file is found, it will be saved in the loot directory. If not found, the module should
 print an error indicating so.
 
-## Demo
+## Scenarios
 
 ![cisco_download_demo](https://cloud.githubusercontent.com/assets/1170914/21782825/78ada38e-d67a-11e6-9b7b-c7b8e2956fba.gif)

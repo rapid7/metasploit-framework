@@ -1,4 +1,7 @@
-The module use the Censys REST API to access the same data accessible through web interface. The search endpoint allows searches against the current data in the IPv4, Top Million Websites, and Certificates indexes using the same search syntax as the primary site.
+## Vulnerable Application
+
+The module use the Censys REST API to access the same data accessible through web interface.
+The search endpoint allows searches against the current data in the IPv4, Top Million Websites, and Certificates indexes using the same search syntax as the primary site.
 
 ## Verification Steps
 
@@ -207,8 +210,3 @@ msf auxiliary(censys_search) > run
 [+] wesecure.nl - [997423]
 [*] Auxiliary module execution completed
 ```
-
-
-## References
-
-1. https://censys.io/api

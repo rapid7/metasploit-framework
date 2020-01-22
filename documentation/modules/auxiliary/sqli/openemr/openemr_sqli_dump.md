@@ -1,4 +1,4 @@
-## Intro
+## Vulnerable Application
 
 This module exploits a SQLi vulnerability found in
 OpenEMR version 5.0.1 Patch 6 and lower. The
@@ -9,18 +9,6 @@ extracted.
 This module saves each table as a `.csv` file in your
 loot directory and has been tested with
 OpenEMR 5.0.1 (3).
-
-
-## Author
-
-Will Porter (will.porter@lodestonesecurity.com) from Lodestone Security
-
-
-## References
-
-https://www.cvedetails.com/cve/CVE-2018-17179/
-https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617
-
 
 ## Options
 
@@ -39,7 +27,7 @@ Module options (auxiliary/sqli/openemr/openemr_sqli_dump):
    VHOST                       no        HTTP server virtual host
 ```
 
-## Usage
+## Scenarios
 
 This module has both `check` and `run` functions.
 

@@ -1,4 +1,4 @@
-## Description
+## Vulnerable Application
 
 Nuuo CMS Session Bruteforce
 
@@ -49,8 +49,6 @@ Secondly, due to the nature of this application, it is normal to have the softwa
 
 It is worth noticing that when a user logs in, the session has to be maintained by periodically sending a PING request. To bruteforce the session, we send each guess with a PING request until a 200 OK message is received. 
 
-## Vulnerable Application
-
 [NUUO Central Management Server (CMS): all versions below 2.4.0](d1.nuuo.com/NUUO/CMS/)
 
  - 1.5.2 OK
@@ -73,9 +71,3 @@ msf5 auxiliary(gather/nuuo_cms_bruteforce) > exploit
 [*] Auxiliary module execution completed
 msf5 auxiliary(gather/nuuo_cms_bruteforce) >
 ```
-
-## References
-
-https://ics-cert.us-cert.gov/advisories/ICSA-18-284-02
-
-https://raw.githubusercontent.com/pedrib/PoC/master/advisories/nuuo-cms-ownage.txt

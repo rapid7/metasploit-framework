@@ -7,7 +7,7 @@ Cambium cnPilot r200/r201 devices can be administered using SNMP. The device con
 3. Do: ```set COMMUNITY public```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/snmp/cnpilot_r_snmp_loot
