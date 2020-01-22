@@ -1,4 +1,4 @@
-## Description
+## Vulnerable Application
 
 This module scans one or more web servers for interesting directories that can be further explored.
 

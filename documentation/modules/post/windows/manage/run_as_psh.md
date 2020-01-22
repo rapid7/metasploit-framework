@@ -2,7 +2,7 @@
 This module will start a process as another user using powershell.
 By default, it will start an interactive cmd as the target user.
 
-## Module Options
+## Options
 - **USER** - The use to run the program as. 
 - **PASS** - The user's password  
 - **DOMAIN** - The domain of the user

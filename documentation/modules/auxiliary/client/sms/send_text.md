@@ -1,10 +1,12 @@
+## Vulnerable Application
+
 The ```auxiliary/client/sms/send_text``` module allows you to send a malicious text/link to a collection
 of phone numbers of the same carrier.
 
 In order to use this module, you must set up your own SMTP server to deliver messages. Popular
 mail services such as Gmail, Yahoo, Live should work fine.
 
-## Module Options
+## Options
 
 **CELLNUMBERS**
 
@@ -57,7 +59,7 @@ The password you use to log into the SMTP server.
 
 The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```.
 
-## Supported Carrier Gateways
+### Supported Carrier Gateways
 
 The module supports the following carriers:
 
@@ -73,7 +75,7 @@ The module supports the following carriers:
 **Note:** During development, we could not find a valid gateway for Sprint, therefore it is currently
 not supported.
 
-## Finding the Carrier for a Phone Number
+### Finding the Carrier for a Phone Number
 
 Since you need to manually choose the carrier gateway for the phone numbers, you need to figure out
 how to identify the carrier of a phone number. There are many services that can do this, such as:
@@ -82,7 +84,7 @@ http://freecarrierlookup.com/
 
 **Note:** If the phone is using Google Fi, then it may appear as a different carrier.
 
-## Gmail SMTP Example
+### Gmail SMTP Example
 
 Gmail is a popular mail server, so we will use this as a demonstration.
 
@@ -100,7 +102,7 @@ After creating the application password, configure auxiliary/client/sms/send_tex
 
 And you should be ready to go.
 
-## Yahoo SMTP Example
+### Yahoo SMTP Example
 
 Yahoo is also a fairly popular mail server (although much slower to deliver comparing to Gmail),
 so we will demonstrate as well.
@@ -123,7 +125,7 @@ After configuring your Yahoo account, configure auxiliary/client/sms/send_text t
 
 And you're good to go.
 
-## Demonstration
+### Scenarios
 
 After setting up your mail server and the module, your output should look similar to this:
 

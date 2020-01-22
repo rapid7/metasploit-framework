@@ -15,7 +15,7 @@
 
   - **SESSION** - The session to run the module on.
 
-## Example Scenario
+## Scenarios
 
   **Using the module with a version earlier than PowerShell 5.0**
 

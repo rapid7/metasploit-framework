@@ -20,7 +20,7 @@
 
   - subscribe information
 
-## Example Scenario
+## Scenarios
 
 
   ```

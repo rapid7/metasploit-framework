@@ -22,7 +22,7 @@ This should not be confused with security groups and AD managed groups; this is 
 internal organizational hierarchy representation but could be very useful for situational awareness
 or in order to construct a more plausible or targeted internal phishing exercise.
 
-# Options
+## Options
 
 Option             | Value
 -------------------| ---

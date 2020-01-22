@@ -8,7 +8,7 @@ This module exploits an OS Command Injection vulnerability in Cambium ePMP 1000 
 4. Do: ```set CMD [COMMAND]```
 5. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/epmp1000_get_chart_cmd_exec

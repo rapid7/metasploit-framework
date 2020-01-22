@@ -1,15 +1,11 @@
-## Description
+## Vulnerable Application
+
   This module attempts to authenticate against a Wordpress-site (via 
   XMLRPC) using username and password combinations indicated by the 
   `USER_FILE`, `PASS_FILE`, and `USERPASS_FILE` options.
 
-## References
-* [https://codex.wordpress.org/XML-RPC_Support](https://codex.wordpress.org/XML-RPC_Support)
-* [http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/](http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/)
-
-## Vulnerable Application
-
 ### Setup using Docksal
+
 Install [Docksal](https://docksal.io/)
 
 Create a new WordPress installation using `fin project create`

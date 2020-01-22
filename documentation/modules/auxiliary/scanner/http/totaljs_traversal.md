@@ -34,11 +34,15 @@ Affecting total.js package, versions:
 
 ## Options
 
-* **TARGETURI**: Path to Total.js App installation (“/” is the default)
-* **DEPTH**: Traversal depth (“1” is the default)
-* **FILE**: File to obtain (“databases/settings.json” is the default for Total.js CMS App)
+ **DEPTH**
 
-## Scenario
+  Traversal depth. Default is `1`
+
+ **FILE**
+
+  File to obtain. Default is `databases/settings.json`
+
+## Scenarios
 
 ### Tested on Total.js framework 3.2.0 and Total.js CMS 12.0.0
 

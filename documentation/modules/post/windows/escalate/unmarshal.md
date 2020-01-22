@@ -7,7 +7,7 @@ handle serialized objects.
 * https://github.com/codewhitesec/UnmarshalPwn/
 * https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-0824
 
-## Module Options
+## Options
 
 "COMMAND" This command will be executed on successful escalation.</br>
 "SESSION" The session to run this module on.
@@ -17,7 +17,7 @@ handle serialized objects.
 The payload will not spawn ant independent session it simply creates process with the system privilege.
 If the system is not vulnerable, then payload will execute but new process will not spawn.
 
-## Verification steps
+## Verification Steps
 
 If you want to confirm the vulnerability before you add user or perform any other sensitive action. 
 

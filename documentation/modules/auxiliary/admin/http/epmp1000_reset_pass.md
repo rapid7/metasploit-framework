@@ -9,7 +9,7 @@ This module exploits an access control vulnerability in Cambium ePMP device mana
 5. Do: ```set NEW_PASSWORD newpass```
 6. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use use auxiliary/scanner/http/epmp1000_reset_pass

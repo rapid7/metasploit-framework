@@ -6,7 +6,7 @@ regulations, and licensing requirements for transmitting on any
 given radio frequency.
 
 
-## Options ##
+## Options
 
   **FREQ**
 

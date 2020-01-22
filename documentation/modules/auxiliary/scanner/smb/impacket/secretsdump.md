@@ -9,7 +9,7 @@
 1. Set: `RHOSTS`, `SMBUser`, `SMBPass`
 1. Do: `run`, see hashes from the remote machine
 
-## Scenario
+## Scenarios
 
 ```
 metasploit-framework (S:0 J:1) auxiliary(scanner/smb/impacket/secretsdump) > show options 
