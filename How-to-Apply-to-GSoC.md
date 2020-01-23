@@ -6,7 +6,7 @@ When making your proposal, please include:
 
 ## Title
 
-A brief description of what you would like to work on. See [[GSoC-2018-Project-Ideas]] for ideas.
+A brief description of what you would like to work on. See [[GSoC-2020-Project-Ideas]] for ideas.
 
 ## Vitals
 
