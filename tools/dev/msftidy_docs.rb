@@ -175,11 +175,11 @@ class MsftidyDoc
       warn('Missing Section: ## Options')
     end
 
-    unless has_bad_description
+    if has_bad_description
       warn('Descriptions should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
     end
 
-    unless has_bad_intro
+    if has_bad_intro
       warn('Intro/Introduction should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
     end
   end
