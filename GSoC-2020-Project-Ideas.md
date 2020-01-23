@@ -26,7 +26,7 @@ Metasploit has the concept of 'sessions' where a connection context can define i
 
 Difficulty: 3/5
 
-### Enhance Sql Injenction Support
+### Enhance Sql Injection Support
 
 Enable faster implementation of SQL injection based explot modules by adding library support for common injection attack vectors. Currently very few sql injection exploits are implemented for Metasploit possibly due to the high complexity of building out injection queries and posting them to a vulnerable URI.
 
