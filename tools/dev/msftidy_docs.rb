@@ -199,8 +199,14 @@ class MsftidyDoc
 
   def line_checks
     idx = 0
+    in_codeblock = false
+
     @lines.each do |ln|
       idx += 1
+
+      if ln.scan(/```/).length.odd?
+        in_codeblock = !in_codeblock
+      end
 
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)
@@ -211,7 +217,7 @@ class MsftidyDoc
       end
 
       l = 140
-      if ln.length > l
+      if ln.length > l && !in_codeblock
         warn("Line too long (#{ln.length}).  Consider a newline (which resolves to a space in markdown) to break it up around #{l} characters.", idx)
       end
 
