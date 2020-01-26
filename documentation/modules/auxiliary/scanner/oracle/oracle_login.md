@@ -1,5 +1,6 @@
 ## Vulnerable Application
 This module attempts to authenticate against an Oracle RDBMS instance using username and password combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options. The default wordlist is [oracle_default_userpass.txt](https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/oracle_default_userpass.txt).
+Default port for SQL*Net listener is 1521/tcp. If this port is open, try this module to login.
 
 ### Install
 This module needs nmap 5.50 or above to function.
@@ -62,7 +63,7 @@ For Oracle Server, please follow the following [guide](https://tutorialforlinux.
   
   **SID**
   
-  Instance (SID) to authenticate against. Default 'XE'
+  Instance (SID) to authenticate against. Default `XE`
   
   **STOP_ON_SUCCESS**
   
@@ -87,17 +88,9 @@ For Oracle Server, please follow the following [guide](https://tutorialforlinux.
   **USER_FILE**
   
   File containing usernames, one per line
-  
-  **VERBOSE**
-  
-  Print output for all attempts
 
-## Scenarios
-Module can be used to perform a bruteforce attack on the Oracle server to discover a valid username/password combination.
-
-Default port for SQL*Net listener is 1521/tcp. If this port is open, try this module to login.
 ### Version of software and OS as applicable
-All versions of Oracle database, and all OSes
+Oracle 19c (19.3.0)
 
 ```
 msf > auxiliary/scanner/oracle/oracle_login
