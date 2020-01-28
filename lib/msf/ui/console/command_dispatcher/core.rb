@@ -1513,6 +1513,8 @@ class Core
     print_line "If run from a module context, this will set the value in the module's"
     print_line "datastore.  Use -g to operate on the global datastore"
     print_line
+    print_line "If setting a PAYLOAD, this command can take an index from `show payloads'."
+    print_line
   end
 
   #
