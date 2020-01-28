@@ -208,7 +208,8 @@ class MsftidyDoc
         in_codeblock = !in_codeblock
       end
 
-      if ln =~ /[ \t]$/
+      # find spaces at EOL not in a code block which is ``` or starts with four spaces
+      if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)
         warn("Spaces at EOL", idx)
       end
 
