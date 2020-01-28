@@ -745,6 +745,8 @@ module Msf
             print_line
             print_line "Set the previously loaded module as the current module"
             print_line
+            print_line "Previous module: #{@previous_module ? @previous_module.fullname : 'none'}"
+            print_line
           end
 
           #
