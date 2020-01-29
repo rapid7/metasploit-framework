@@ -806,7 +806,7 @@ module Msf
                 @module_name_stack = []
                 print_status("The module stack is empty")
               else
-                @module_name_stack.pop[args[0]]
+                @module_name_stack.pop(args[0].to_i)
               end
             else #then just pop the array and make that the active module
               pop = @module_name_stack.pop
@@ -838,11 +838,11 @@ module Msf
 
           def cmd_listm(*_args)
             if @module_name_stack.empty?
-              print_error('Module stack is empty')
+              print_error('The module stack is empty')
               return
             end
 
-            print_status("Listing module stack\n")
+            print_status("Module stack:\n")
 
             @module_name_stack.to_enum.with_index.reverse_each do |name, idx|
               print_line("[#{idx}]\t#{name}")
@@ -857,7 +857,7 @@ module Msf
           end
 
           def cmd_clearm(*_args)
-            print_status('Clearing module stack')
+            print_status('Clearing the module stack')
             @module_name_stack.clear
           end
 
