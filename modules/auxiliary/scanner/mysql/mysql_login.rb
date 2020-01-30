@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'root']),
         Opt::Proxies
       ])
 

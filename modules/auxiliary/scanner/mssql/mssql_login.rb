@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
+    register_options(
+      [
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'sa']),
+      ])
+
     deregister_options('PASSWORD_SPRAY')
   end
 
