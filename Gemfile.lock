@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.72)
+    metasploit-framework (5.0.73)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -117,7 +117,7 @@ GEM
     arel-helpers (2.11.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.267.0)
+    aws-partitions (1.269.0)
     aws-sdk-core (3.89.1)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -126,7 +126,7 @@ GEM
     aws-sdk-ec2 (1.137.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-iam (1.32.0)
+    aws-sdk-iam (1.33.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-kms (1.28.0)
@@ -356,15 +356,14 @@ GEM
       rubyntlm
       windows_error
     rubyntlm (0.6.2)
-    rubyzip (2.0.0)
+    rubyzip (2.1.0)
     sawyer (0.8.2)
       addressable (>= 2.3.5)
       faraday (> 0.8, < 2.0)
-    simplecov (0.17.1)
+    simplecov (0.18.0)
       docile (~> 1.1)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.2)
+      simplecov-html (~> 0.11.0)
+    simplecov-html (0.11.0)
     sinatra (1.4.8)
       rack (~> 1.5)
       rack-protection (~> 1.4)
