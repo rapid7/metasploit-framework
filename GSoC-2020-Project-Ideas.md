@@ -32,7 +32,7 @@ Enable faster implementation of SQL injection based explot modules by adding lib
 
 Difficulty: 3/5
 
-## Conditionally Exposed Options
+### Conditionally Exposed Options
 
 The Metasploit Framework's modules offer the core functionality of the project and these each use a set of datastore options for configuration. Many modules specify a particular system that they target or action that they provide. Modules should (but currently lack) the ability to expose and hide options through the UI based on either the target or action that they take. This would allow module developers to create more flexible modules without sacrificing user experience by exposing options that are irrelevant based on the current configuration.
 
