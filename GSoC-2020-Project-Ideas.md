@@ -30,7 +30,13 @@ Difficulty: 3/5
 
 Enable faster implementation of SQL injection based explot modules by adding library support for common injection attack vectors. Currently very few sql injection exploits are implemented for Metasploit possibly due to the high complexity of building out injection queries and posting them to a vulnerable URI.
 
-Diffculty: 3/5
+Difficulty: 3/5
+
+## Conditionally Exposed Options
+
+The Metasploit Framework's modules offer the core functionality of the project and these each use a set of datastore options for configuration. Many modules specify a particular system that they target or action that they provide. Modules should (but currently lack) the ability to expose and hide options through the UI based on either the target or action that they take. This would allow module developers to create more flexible modules without sacrificing user experience by exposing options that are irrelevant based on the current configuration.
+
+Difficulty: 2/5
 
 ## Goliath
 
