@@ -233,6 +233,17 @@ m = merge -S --no-ff --edit
 
 People with commit rights to rapid7/metasploit-framework will have their [keys listed here](https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys).
 
+# Post-Merge
+
+After a pull request has been merged, release notes should be added to the pull request in the form of a comment. These release notes will automatically be extracted and used as documentation when creating the [metasploit release notes](https://help.rapid7.com/metasploit/release-notes/).
+
+Release note examples:
+
+- [12873 Release notes](https://github.com/rapid7/metasploit-framework/pull/12873#issuecomment-577247684)
+- [12831 Release notes](https://github.com/rapid7/metasploit-framework/pull/12831#issuecomment-577399914)
+
+The [rn-no-release-notes](https://github.com/rapid7/metasploit-framework/issues?utf8=%E2%9C%93&q=label%3Arn-no-release-notes+) label must be added if there are no release notes for the merged pull request.
+
 # Cross-linking PRs, Bugs, and Commits
 
 TODO: Update in this new post-Redmine, GitHub issues world
