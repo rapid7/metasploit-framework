@@ -37,6 +37,12 @@ class MetasploitModule < Msf::Post
         OptInt.new('WAIT', [false, 'Time in seconds to wait.', 0])
       ], self.class
     )
+
+    register_advanced_options(
+      [
+        OptBool.new('KILL',   [ true,  'Kill the injected process at the end of the task', false ])
+      ]
+    )
   end
 
   def run
@@ -68,8 +74,8 @@ class MetasploitModule < Msf::Post
       print_bad("Invalid PID")
 	  return false
 	end
-	
-	host_processes = client.sys.process.get_processes
+
+    host_processes = client.sys.process.get_processes
     if host_processes.length < 1
       print_bad("No running processes found on the target host.")
       return false
@@ -99,7 +105,6 @@ class MetasploitModule < Msf::Post
   end
 
   def inject_dll(process,dll_path)
-    print_status("Reflectively injecting the DLL into #{process.pid}..")
     library_path = ::File.expand_path(dll_path)
     exploit_mem, offset = inject_dll_into_process(process, library_path)
     [exploit_mem, offset]
@@ -126,13 +131,13 @@ class MetasploitModule < Msf::Post
     else
       process, hprocess = open_process
     end
-    
+
 	if hprocess.nil?
       print_bad("Execution finished")
       return
     end
-	
-	exploit_mem, offset = inject_dll(hprocess,dll_path)
+
+    exploit_mem, offset = inject_dll(hprocess,dll_path)
 
     if datastore['ARGUMENTS'].nil?
       arg_mem = nil
@@ -145,13 +150,17 @@ class MetasploitModule < Msf::Post
 
     if datastore['WAIT'] != 0
       sleep(datastore['WAIT'])
+	end
 
-      if datastore['PID'] <= 0
-        read_output(process)
-        print_good("Killing process #{hprocess.pid}")
-        hprocess.kill(hprocess.pid)
-      end
+    if datastore['PID'] <= 0
+      read_output(process)
     end
+
+	if datastore['KILL'] == true
+      print_good("Killing process #{hprocess.pid}")
+      hprocess.kill(hprocess.pid)
+    end
+
     print_good('Execution finished.')
   end
 
@@ -175,7 +184,7 @@ class MetasploitModule < Msf::Post
         break if output.length == 0
       end
     rescue ::Exception => e
-      
+
     end
 
     print_status('End output.')
