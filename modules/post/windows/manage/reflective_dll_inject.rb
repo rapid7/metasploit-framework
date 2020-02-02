@@ -72,8 +72,8 @@ class MetasploitModule < Msf::Post
 
     if pid == mypid
       print_bad("Invalid PID")
-	  return false
-	end
+      return false
+    end
 
     host_processes = client.sys.process.get_processes
     if host_processes.length < 1
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Post
     if not pid_exists(pid)
       print_bad("Pid not found")
       [nil, nil]
-	else
+    else
       print_status('Warning: output unavailable')
       print_status("Opening handle to process #{datastore['PID']} ...")
       hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Post
       process, hprocess = open_process
     end
 
-	if hprocess.nil?
+    if hprocess.nil?
       print_bad("Execution finished")
       return
     end
@@ -150,13 +150,13 @@ class MetasploitModule < Msf::Post
 
     if datastore['WAIT'] != 0
       sleep(datastore['WAIT'])
-	end
+    end
 
     if datastore['PID'] <= 0
       read_output(process)
     end
 
-	if datastore['KILL'] == true
+    if datastore['KILL'] == true
       print_good("Killing process #{hprocess.pid}")
       hprocess.kill(hprocess.pid)
     end
