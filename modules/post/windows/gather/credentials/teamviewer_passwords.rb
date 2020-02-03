@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Post
         return nil
       end
     rescue OpenSSL::Cipher::CipherError => e
-      puts "Unable to decode: \"#{encrypted_data}\" Exception: #{e}"
+      print_error("Unable to decode: \"#{encrypted_data}\" Exception: #{e}")
     end
 
     password
