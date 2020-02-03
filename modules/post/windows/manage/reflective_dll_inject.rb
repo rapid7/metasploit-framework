@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptBool.new('KILL',   [ true, 'Kill the injected process at the end of the task.', false ])
+        OptBool.new('KILL',   [ true, 'Kill the injected process at the end of the task. ', false ])
       ]
     )
   end
