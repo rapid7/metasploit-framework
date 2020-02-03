@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
       passing any arguments.
       ',
       'License' => MSF_LICENSE,
-      'Author' => 'Ben Campbell,b4rtik',
+      'Author' => ['Ben Campbell','b4rtik'],
       'Platform' => 'win',
       'SessionTypes' => ['meterpreter'],
       'References'   =>
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
     mypid = client.sys.process.getpid.to_i
 
     if pid == mypid
-      print_bad("Invalid PID")
+      print_bad('Can not select the current process as the injection target')
       return false
     end
 
@@ -83,11 +83,7 @@ class MetasploitModule < Msf::Post
 
     theprocess = host_processes.find {|x| x["pid"] == pid}
 
-    if ( theprocess.nil? )
-      return false
-    else
-      return true
-    end
+    !theprocess.nil?
 
   end
 
@@ -112,15 +108,16 @@ class MetasploitModule < Msf::Post
 
   def open_process
     pid = datastore['PID'].to_i
-    if not pid_exists(pid)
-      print_bad("Pid not found")
-      [nil, nil]
-    else
-      print_status('Warning: output unavailable')
+
+    if pid_exists(pid)
+      print_warning('Output unavailable')
       print_status("Opening handle to process #{datastore['PID']} ...")
       hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
       print_good("Handle opened")
       [nil, hprocess]
+    else
+      print_bad("Pid not found")
+      [nil, nil]
     end
   end
 
@@ -184,7 +181,7 @@ class MetasploitModule < Msf::Post
         break if output.length == 0
       end
     rescue ::Exception => e
-
+      print_error("Exception: #{e.inspect}")
     end
 
     print_status('End output.')
