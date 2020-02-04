@@ -387,7 +387,14 @@ module Msf
               end
             end
 
-            cached = true if args.empty?
+            if args.empty?
+              if @module_search_results.empty?
+                cmd_search_help
+                return false
+              else
+                cached = true
+              end
+            end
 
             # Display the table of matches
             tbl = generate_module_table('Matching Modules', search_term)
