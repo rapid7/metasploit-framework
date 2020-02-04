@@ -7,20 +7,20 @@ Before we get into the details of contributing code, you should know there are m
 
  - You can [submit bugs and feature requests](https://github.com/rapid7/metasploit-framework/issues/new) with detailed information about your issue or idea: 
  	- If you'd like to propose a feature, describe what you'd like to see. Mock ups of console views would be great.
- 	- If you're reporting a bug, please be sure to include the expected behavior, the observed behavior, and steps to reproduce the problem. Resource scripts, console copy-pastes, and any background on the environment you encountered the bug in would be appreciated. More information can be found [below](#bug-reports).
+ 	- If you're reporting a bug, please be sure to include the expected behaviour, the observed behaviour, and steps to reproduce the problem. Resource scripts, console copy-pastes, and any background on the environment you encountered the bug in would be appreciated. More information can be found [below](#bug-reports).
  - [Help fellow users with open issues]. This can require technical knowledge, but you can also get involved in conversations about bug reports and feature requests. This is a great way to get involved without getting too overwhelmed! 
- - [Help fellow committers test recently submitted pull requests](https://github.com/rapid7/metasploit-framework/pulls). Again this can require some technical skill, but by pulling down someone elses pull request and testing it, you can help ensure our new code contributions for stability and quality. 
- - [Report a security vulnerability in Metasploit itself] to Rapid7. If you see something you think makes Metasploit vulnerable to an attack, let us know! 
+ - [Help fellow committers test recently submitted pull requests](https://github.com/rapid7/metasploit-framework/pulls). Again this can require some technical skill, but by pulling down a pull request and testing it, you can help ensure our new code contributions for stability and quality. 
+ - [Report a security vulnerability in Metasploit itself] to Rapid7. If you see something you think makes Metasploit vulnerable to an attack, let us know!  
+ - [Add module documentation](https://github.com/rapid7/metasploit-framework/wiki/Generating-Module-Documentation). New documentation is always needed and cleaning up existing documents is just as important! If you're a non-native english speaker, you can help by replacing any ambiguous idioms, metaphors, or unclear language that might make our documentation hard to understand. 
 
 
 ## Code Contributions
+For those of you who are looking to add code to Metasploit, your first step is to set up a [development environment]. Once that's done, we recommend beginners start by adding a [proof-of-concept exploit from ExploitDB,](https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true) as a new module to the Metasploit framework. These exploits have been verified as recreatable and their ExploitDB page includes a copy of the exploitable software. This makes testing your module locally much simpler, and most importantly the exploits don't have an existing Metasploit implementation. ExploitDB can be slow to update however, so please double check that there isn't an existing module before beginning development! If you're certain the exploit you've chosen isn't already in Metasploit, read our [writing an exploit guide](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-started-with-writing-an-exploit). It will help you to get started and avoid some common mistakes.
 
-For those of you who are looking to add code to Metasploit, your first step is to set up a [development environment]. Once that's done, we recommend beginners start by adding a [proof-of-concept exploit](https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true) as a new module to the Metasploit framework. These exploits have been verified as recreatable, their ExploitDB page includes a copy of the exploitable software making testing your module locally much simpler, and most importanlty the exploits don't have an existing Metasploit implementation. ExploitDB can be slow to update however, so please double check that there definetly isn't an existing module before beginning development! If you're certain the exploit you've chosen isn't already in Metasploit, read our [writing an exploit guide](https://github.com/rapid7/metasploit-framework/wiki/How-to-get-started-with-writing-an-exploit). It will help you to get started and avoid some common mistakes. 
-
-Once you've finished your new module and tested it locally to ensure it's working as expected, check out our [guide for accepting modules](https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements#module-additions). This will give you a good idea of how to clean up your code so that it's likely to get accepted.  
+Once you have finished your new module and tested it locally to ensure it's working as expected, check out our [guide for accepting modules](https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements#module-additions). This will give you a good idea of how to clean up your code so that it's likely to get accepted.  
 
 Finally, follow our short list of do's and don'ts below to make sure your valuable contributions actually make it into Metasploit's master branch! We try to consider all our pull requests fairly and in detail, but if you do not follow these rules, your contribution
-will be closed. We only have so much time and we need to ensure the code we're adding to master is written to a high standard.  
+will be closed. We need to ensure the code we're adding to master is written to a high standard.
 
 
 ### Code Contribution Do's & Don'ts:
@@ -28,12 +28,16 @@ will be closed. We only have so much time and we need to ensure the code we're a
 #### <u>Pull Requests</u>
 **Pull request [PR#9966] is a good example to follow.**
 
-* **Do** create a [topic branch] to work on instead of working directly on `master`. This helps protect the process, ensures users are aware of commits on the branch being considered for merge, allows for a location for more commits to be offered without mingling with other contributor changes, and allows contributors to make progress while a PR is still being reviewed.
+* **Do** create a [topic branch] to work on instead of working directly on `master`. This helps to:
+	*  Protect the process.
+	* Ensures users are aware of commits on the branch being considered for merge.  
+	* Allows for a location for more commits to be offered without mingling with other contributor changes.
+	* Allows contributors to make progress while a PR is still being reviewed.
 * **Do** follow the [50/72 rule] for Git commit messages.
 * **Do** write "WIP" on your PR and/or open a [draft PR] if submitting **working** yet unfinished code.
 * **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
-* **Do** include [console output], especially for witnessable effects in `msfconsole`.
+* **Do** include [console output], especially for effects that can be witnessed in the  `msfconsole`.
 * **Do** list [verification steps] so your code is testable.
 * **Do** [reference associated issues] in your pull request description.
 * **Don't** leave your pull request description blank.
@@ -45,9 +49,9 @@ will be closed. We only have so much time and we need to ensure the code we're a
 * **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
 * **Do** set up `msftidy` to fix any errors or warnings that come up as a [pre-commit hook].
 * **Do** use the many module mixin [API]s.
-* **Don't** include more than one module per pull request.
 * **Do** include instructions on how to setup the vulnerable environment or software.
 * **Do** include [Module Documentation] showing sample run-throughs.
+* **Don't** include more than one module per pull request.
 * **Don't** submit new [scripts].  Scripts are shipped as examples for automating local tasks, and anything "serious" can be done with post modules and local exploits.
 
 #### <u>Library Code</u>
