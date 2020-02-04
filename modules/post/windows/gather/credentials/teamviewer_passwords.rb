@@ -1,6 +1,7 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
+#
 # @blurbdust based this code off of https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/credentials/gpp.rb
 # and https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/gather/enum_ms_product_keys.rb
 ##
@@ -140,4 +141,3 @@ class MetasploitModule < Msf::Post
     app_list
   end
 end
-
