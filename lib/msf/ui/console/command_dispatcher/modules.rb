@@ -391,9 +391,9 @@ module Msf
               if @module_search_results.empty?
                 cmd_search_help
                 return false
-              else
-                cached = true
               end
+
+              cached = true
             end
 
             # Display the table of matches
