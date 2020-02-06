@@ -4,7 +4,7 @@ This module will add an SSH key to a specified user (or all), to allow remote lo
 
   This module has been tested against:
 
-1. Windows 10, 1809
+1. Windows 10, 1903
 
 ## Verification Steps
 
@@ -42,10 +42,6 @@ This module will add an SSH key to a specified user (or all), to allow remote lo
   **EDIT_CONFIG**
   
   Allow the module to edit the sshd_config to enable public key authentication 
-
-## Scenarios
-
-### Windows 10, 1809
 
 Get initial access
 
