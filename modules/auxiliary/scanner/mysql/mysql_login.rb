@@ -22,12 +22,17 @@ class MetasploitModule < Msf::Auxiliary
       'References'      =>
         [
           [ 'CVE', '1999-0502'] # Weak password
-        ]
+        ],
+      # some overrides from authbrute since there is a default username and a blank password
+      'DefaultOptions' =>
+        {
+          'USERNAME' => 'root',
+          'BLANK_PASSWORDS' => true
+        }
     ))
 
     register_options(
       [
-        OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'root']),
         Opt::Proxies
       ])
 
