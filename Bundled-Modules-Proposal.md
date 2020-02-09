@@ -43,7 +43,7 @@ bundled_module/
  - Would the JSON metadata file be named after the module or given a standard name?
  - Would we ever allow multiple closely related modules per directory? (eg. routersploit integration, impacts how we think about the above)
  - If so or not, how would we deal with closely related functionality that has different options for different actions?
- - Do things like client blobs (HTML, JavaScript, images, etc.) belong in data/ or should we also have a static/? (static/ seems to get a bit fiddly to me; data/static/?)
+ - Do things like client blobs (HTML, JavaScript, images, etc.) belong in `data/` or should we also have a `static/`? (`static/` seems to get a bit fiddly to me; `data/static/`?)
 
 ## Required files
 
@@ -73,19 +73,19 @@ All additional build info should be specified as tasks in the module Rakefile. A
 
 ### Blobs and sources
 
-Sources are handy, it should be easy to find them! Now they will live in the module in the src/ directory. Here the Rakefile can easily find them and transform them into the beautiful exploitation resources they were meant to be.
+Sources are handy, it should be easy to find them! Now they will live in the module in the `src/` directory. Here the Rakefile can easily find them and transform them into the beautiful exploitation resources they were meant to be.
 
-As much as possible, only sources should be checked into the tree. For super-specific platform targeting things though, that's not always feasible (eg. VisualStudio projects). It's times like these that the {{data/}} directory should be used. As mentioned above, the Rakefile should still be able to build the thing given the correct environment.
+As much as possible, only sources should be checked into the tree. For super-specific platform targeting things though, that's not always feasible (eg. VisualStudio projects). It's times like these that the `data/` directory should be used. As mentioned above, the Rakefile should still be able to build the thing given the correct environment.
 
-Blobs or assets without a checked-in source also belong in data/, like images or downloaded things. Things for client exploits to download should probably also go in here, like HTML files and static JavaScripts.
+Blobs or assets without a checked-in source also belong in `data/`, like images or downloaded things. Things for client exploits to download should probably also go in here, like HTML files and static JavaScripts.
 
 ### Templates
 
-Modules that use a large literal interspersed with runtime data should use the templates/ directory to store templates. ERB should be used for printable data by Ruby, and equivalents for other languages (DTL, mustache, etc.). Binary data should maybe be blobs with accompanying offset listings?
+Modules that use a large literal interspersed with runtime data should use the `templates/` directory to store templates. ERB should be used for printable data by Ruby, and equivalents for other languages (DTL, mustache, etc.). Binary data should maybe be blobs with accompanying offset listings?
 
 ### Docs
 
-The docs/ directory will contain the files that a user will reference when trying to understand module. This may include PoCs, markdown, pcaps, etc. The HTML we currently show to users would be generated from the module and files here using rake tasks.
+The `docs/` directory will contain the files that a user will reference when trying to understand module. This may include PoCs, markdown, pcaps, etc. The HTML we currently show to users would be generated from the module and files here using rake tasks.
 
 ### Additional tooling
 
