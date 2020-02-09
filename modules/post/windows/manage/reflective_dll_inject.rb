@@ -101,7 +101,6 @@ class MetasploitModule < Msf::Post
     pid = datastore['PID'].to_i
 
     if pid_exists(pid)
-      print_warning('Output unavailable')
       print_status("Opening handle to process #{datastore['PID']}...")
       hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
       print_good('Handle opened')
@@ -114,6 +113,10 @@ class MetasploitModule < Msf::Post
 
   def run_dll(dll_path)
     print_status("Running module against #{sysinfo['Computer']}") unless sysinfo.nil?
+    if datastore['PID'] > 0 or datastore['WAIT'] == 0
+      print_warning('Output unavailable')
+    end
+
     if datastore['PID'] <= 0
       process, hprocess = launch_process
     else
@@ -140,13 +143,13 @@ class MetasploitModule < Msf::Post
       sleep(datastore['WAIT'])
     end
 
-    if datastore['PID'] <= 0
+    if datastore['PID'] <= 0 and datastore['WAIT'] != 0
       read_output(process)
     end
 
     if datastore['KILL']
       print_good("Killing process #{hprocess.pid}")
-      hprocess.kill(hprocess.pid)
+      client.sys.process.kill(hprocess.pid)
     end
 
     print_good('Execution finished.')
@@ -164,16 +167,24 @@ class MetasploitModule < Msf::Post
 
   def read_output(process)
     print_status('Start reading output')
+    old_timeout = client.response_timeout
+    client.response_timeout = 5
+
     begin
       loop do
         output = process.channel.read
-        output.split("\n").each { |x| print_good(x) }
-        break if output.length == 0
+        if !output.nil? and output.length > 0
+          output.split("\n").each { |x| print_good(x) }
+        end
+        break if output.nil? or output.length == 0
       end
+    rescue Rex::TimeoutError => e
+      print_warning("Time out Exception: configured waiting limit exceeded (5 sec)")
     rescue ::Exception => e
       print_error("Exception: #{e.inspect}")
     end
 
+    client.response_timeout = old_timeout
     print_status('End output.')
   end
 end
