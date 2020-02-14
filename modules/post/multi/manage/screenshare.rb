@@ -9,12 +9,15 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-      'Name'           => 'Multi Manage the desktop of the target computer',
+      'Name'           => 'Multi Manage the screen of the target meterpreter session',
       'Description'    => %q{
+        This module allows you to view and control the screen of the target computer via
+        a local browser window. The module continually screenshots the target screen and
+        also relays all mouse and keyboard events to session.
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'timwr'],
-      'Platform'       => [ 'linux', 'osx', 'win' ],
+      'Platform'       => [ 'linux', 'win' ],
       'SessionTypes'   => [ 'meterpreter' ],
       'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
     ))
