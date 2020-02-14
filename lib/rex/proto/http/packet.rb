@@ -166,22 +166,22 @@ class Packet
   #
   # Outputs a readable string of the packet for terminal output
   #
-  def to_terminal_output
-    output_packet(true)
+  def to_terminal_output(headers_only: false)
+    output_packet(true, headers_only: headers_only)
   end
 
   #
   # Converts the packet to a string.
   #
-  def to_s
-    output_packet(false)
+  def to_s(headers_only: false)
+    output_packet(false, headers_only: headers_only)
   end
 
   #
   # Converts the packet to a string.
   # If ignore_chunk is set the chunked encoding is omitted (for pretty print)
   #
-  def output_packet(ignore_chunk=false)
+  def output_packet(ignore_chunk = false, headers_only: false)
     content = self.body.to_s.dup
 
     # Update the content length field in the header with the body length.
@@ -220,7 +220,9 @@ class Packet
     end
 
     str  = self.headers.to_s(cmd_string)
-    str += content || ''
+    str += content || '' unless headers_only
+
+    str
   end
 
   #
