@@ -193,6 +193,8 @@ class MetasploitModule < Msf::Auxiliary
         'data'     => data
       })
 
+      # define elapsed_time even if AUTH_TIME is set to "false", because it is used in all of the following print* messages
+      elapsed_time = 0
       if datastore['AUTH_TIME']
         elapsed_time = Time.now - start_time
       end
@@ -253,7 +255,8 @@ class MetasploitModule < Msf::Auxiliary
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
-        if elapsed_time <= 1
+        # Added check for default value (0), since elapsed_time is not measured if AUTH_TIME is set to "false"
+        if (elapsed_time > 0) && (elapsed_time <= 1)
           unless user =~ /@\w+\.\w+/
             report_cred(
               ip: res.peerinfo['addr'],
@@ -301,7 +304,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.redirect?
-      if elapsed_time <= 1
+      # Added check for default value (0), since elapsed_time is not measured if AUTH_TIME is set to "false"
+      if (elapsed_time > 0) && (elapsed_time <= 1)
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],
@@ -329,7 +333,8 @@ class MetasploitModule < Msf::Auxiliary
       )
       return :next_user
     else
-      if elapsed_time <= 1
+      # Added check for default value (0), since elapsed_time is not measured if AUTH_TIME is set to "false"
+      if (elapsed_time > 0) && (elapsed_time <= 1)
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],
