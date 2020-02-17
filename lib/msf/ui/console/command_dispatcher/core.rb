@@ -1579,11 +1579,22 @@ class Core
 
     # Set PAYLOAD by index
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      index_from_list(payload_show_results, value) do |mod|
-        return false unless mod && mod.respond_to?(:first)
+      list_item = index_from_list(payload_show_results, value)
 
-        # [name, class] from payload_show_results
-        value = mod.first
+      if list_item.nil?
+        if value.start_with?("/")
+          value = value[1,value.length]
+        end
+
+        if value.start_with?("payload/")
+          value = value["payload/".length, value.length]
+        end
+      else
+        list_item do |mod|
+            return false unless mod && mod.respond_to?(:first)
+          # [name, class] from payload_show_results
+          value = mod.first
+        end
       end
     end
 
