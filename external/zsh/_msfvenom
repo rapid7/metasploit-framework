@@ -20,9 +20,49 @@
 #
 # ------------------------------------------------------------------------------
 
+_msfvenom_archs_list=(
+  'aarch64'
+  'armbe'
+  'armle'
+  'cbea'
+  'cbea64'
+  'cmd'
+  'dalvik'
+  'firefox'
+  'java'
+  'mips'
+  'mips64'
+  'mips64le'
+  'mipsbe'
+  'mipsle'
+  'nodejs'
+  'php'
+  'ppc'
+  'ppc64'
+  'ppc64le'
+  'ppce500v2'
+  'python'
+  'r'
+  'ruby'
+  'sparc'
+  'sparc64'
+  'tty'
+  'x64'
+  'x86'
+  'x86_64'
+  'zarch'
+)
+
+_msfvenom_arch() {
+  _describe -t archs 'available archs' _msfvenom_archs_list || compadd "$@"
+}
+
 _msfvenom_encoders_list=(
+  'cmd/brace'
+  'cmd/echo'
   'cmd/generic_sh'
   'cmd/ifs'
+  'cmd/perl'
   'cmd/powershell_base64'
   'cmd/printf_php_mq'
   'generic/eicar'
@@ -34,14 +74,19 @@ _msfvenom_encoders_list=(
   'php/base64'
   'ppc/longxor'
   'ppc/longxor_tag'
+  'ruby/base64'
   'sparc/longxor_tag'
   'x64/xor'
+  'x64/xor_context'
+  'x64/xor_dynamic'
+  'x64/zutto_dekiru'
   'x86/add_sub'
   'x86/alpha_mixed'
   'x86/alpha_upper'
   'x86/avoid_underscore_tolower'
   'x86/avoid_utf8_tolower'
   'x86/bloxor'
+  'x86/bmp_polyglot'
   'x86/call4_dword_xor'
   'x86/context_cpuid'
   'x86/context_stat'
@@ -52,30 +97,140 @@ _msfvenom_encoders_list=(
   'x86/nonalpha'
   'x86/nonupper'
   'x86/opt_sub'
+  'x86/service'
   'x86/shikata_ga_nai'
   'x86/single_static_bit'
   'x86/unicode_mixed'
   'x86/unicode_upper'
+  'x86/xor_dynamic'
 )
 
 _msfvenom_encoder() {
   _describe -t encoders 'available encoders' _msfvenom_encoders_list || compadd "$@"
 }
 
+_msfvenom_formats_list=(
+  # Executable formats
+  'asp'
+  'aspx'
+  'aspx-exe'
+  'axis2'
+  'dll'
+  'elf'
+  'elf-so'
+  'exe'
+  'exe-only'
+  'exe-service'
+  'exe-small'
+  'hta-psh'
+  'jar'
+  'jsp'
+  'loop-vbs'
+  'macho'
+  'msi'
+  'msi-nouac'
+  'osx-app'
+  'psh'
+  'psh-cmd'
+  'psh-net'
+  'psh-reflection'
+  'vba'
+  'vba-exe'
+  'vba-psh'
+  'vbs'
+  'war'
+  # Transform formats
+  'bash'
+  'c'
+  'csharp'
+  'dw'
+  'dword'
+  'hex'
+  'java'
+  'js_be'
+  'js_le'
+  'num'
+  'perl'
+  'pl'
+  'powershell'
+  'ps1'
+  'py'
+  'python'
+  'raw'
+  'rb'
+  'ruby'
+  'sh'
+  'vbapplication'
+  'vbscript'
+)
+
+_msfvenom_format() {
+  _describe -t formats 'available formats' _msfvenom_formats_list || compadd "$@"
+}
+
+_msfvenom_platforms_list=(
+  'aix'
+  'android'
+  'apple_ios'
+  'brocade'
+  'bsd'
+  'bsdi'
+  'cisco'
+  'firefox'
+  'freebsd'
+  'hardware'
+  'hpux'
+  'irix'
+  'java'
+  'javascript'
+  'juniper'
+  'linux'
+  'mainframe'
+  'multi'
+  'netbsd'
+  'netware'
+  'nodejs'
+  'openbsd'
+  'osx'
+  'php'
+  'python'
+  'r'
+  'ruby'
+  'solaris'
+  'unifi'
+  'unix'
+  'unknown'
+  'windows'
+)
+
+_msfvenom_platform() {
+  _describe -t platforms 'available platforms' _msfvenom_platforms_list || compadd "$@"
+}
+
 _arguments \
-  {-a,--arch}"[The architecture to encode as]:architecture:(cmd generic mipsbe mipsle php ppc sparc x64 x86)" \
+  "--smallest[Generate the smallest possible payload using all available encoders]" \
+  "--sec-name[The new section name to use when generating large Windows binaries. Default: random 4-character alpha string]" \
+  "--encoder-space[The maximum size of the encoded payload (defaults to the -s value)]:length" \
+  "--encrypt[The type of encryption or encoding to apply to the shellcode]:value" \
+  "--encrypt-key[A key to be used for --encrypt]:value" \
+  "--encrypt-iv[An initialization vector for --encrypt]:value" \
+  "--help-formats[List available formats]" \
+  "--list-options[List --payload <value>'s standard, advanced and evasion options]" \
+  "--pad-nops[Use nopsled size specified by -n \<length\> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)]" \
+  "--platform[The platform to encode for]:target platform:_msfvenom_platform" \
+  {-a,--arch}"[The architecture to encode as]:architecture:_msfvenom_archs" \
   {-b,--bad-chars}"[The list of characters to avoid, example: '\x00\xff']:bad characters" \
   {-c,--add-code}"[Specify an additional win32 shellcode file to include]:shellcode file:_files" \
   {-e,--encoder}"[The encoder to use]:encoder:_msfvenom_encoder" \
-  {-f,--format}"[Output format]:output format:(bash c csharp dw dword java js_be js_le num perl pl powershell ps1 py python raw rb ruby sh vbapplication vbscript asp aspx aspx-exe dll elf exe exe-only exe-service exe-small loop-vbs macho msi msi-nouac osx-app psh psh-net psh-reflection vba vba-exe vbs war)" \
-  "--help-formats[List available formats]" \
+  {-f,--format}"[Output format]:output format:_msfvenom_formats" \
   {-h,--help}"[Help banner]" \
   {-i,--iterations}"[The number of times to encode the payload]:iterations" \
-  {-k,--keep}"[Preserve the template behavior and inject the payload as a new thread]" \
-  {-l,--list}"[List a module type]:module type:(all encoders nops payloads)" \
+  {-k,--keep}"[Preserve the --template behavior and inject the payload as a new thread]" \
+  {-l,--list}"[List all modules for type]:module type:(payloads encoders nops platforms archs encrypt formats all)" \
   {-n,--nopsled}"[Prepend a nopsled of length size on to the payload]:nopsled length" \
-  {-o,--options}"[List the payload's standard options]" \
-  "--platform[The platform to encode for]:target platform:(android bsd bsdi java linux netware nodejs osx php python ruby solaris unix win)" \
+  {-o,--out}"[Save the payload to a file]:output file:_files" \
   {-p,--payload}"[Payload to use. Specify a '-' or stdin to use custom payloads]:payload" \
   {-s,--space}"[The maximum size of the resulting payload]:length" \
-  {-x,--template}"[Specify an alternate executable template]:template file:_files"
+  {-t,--timeout}"[The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable)]:second" \
+  {-v,--var-name}"[Specify a custom variable name to use for certain output formats]:value" \
+  {-x,--template}"[Specify a custom executable file to use as a template]:template file:_files"
