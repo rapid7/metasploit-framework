@@ -36,5 +36,5 @@ _arguments \
   {-q,--quiet}"[Do not print the banner on startup]" \
   {-r,--resource}"[Execute the specified resource file (- for stdin)]:resource file:_files" \
   {-v,--version}"[Show version]" \
-  {-x,--execute-command}"[EExecute the specified console commands (use ; for multiples)]:commands" \
+  {-x,--execute-command}"[Execute the specified console commands (use ; for multiples)]:commands" \
   {-y,--yaml}"[Specify a YAML file containing database settings]:yaml file:_files"
