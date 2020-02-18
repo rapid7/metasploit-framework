@@ -1579,9 +1579,9 @@ class Core
 
     # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      if value.start_with?(/^\/?(payload\/)?/i)
-        # Trimming `/payload/`
-        value = value.gsub(/^\/?(payload\/)?/i, "")
+      if value.match(/^(\/?payload\/)|^\//i)
+        # Trims starting `/`, `payload/`, `/payload/` from user input
+        value = value.gsub(/^(\/?payload\/)|^\//i, "")
       else
         # Checking set PAYLOAD by index
         index_from_list(payload_show_results, value) do |mod|
