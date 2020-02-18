@@ -38,10 +38,6 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
 
     cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
     pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
-    localhost = packet.get_tlv_value( TLV_TYPE_LOCAL_HOST )
-    localport = packet.get_tlv_value( TLV_TYPE_LOCAL_PORT )
-    peerhost  = packet.get_tlv_value( TLV_TYPE_PEER_HOST )
-    peerport  = packet.get_tlv_value( TLV_TYPE_PEER_PORT )
 
     return false if cid.nil? || pid.nil?
 
@@ -52,15 +48,11 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
     params = Rex::Socket::Parameters.from_hash(
       {
         'Proto'     => 'tcp',
-        'LocalHost' => localhost,
-        'LocalPort' => localport,
-        'PeerHost'  => peerhost,
-        'PeerPort'  => peerport,
         'Comm'      => server_channel.client
       }
     )
 
-    client_channel = TcpClientChannel.new(client, cid, TcpClientChannel, CHANNEL_FLAG_SYNCHRONOUS)
+    client_channel = TcpClientChannel.new(client, cid, TcpClientChannel, CHANNEL_FLAG_SYNCHRONOUS, packet, {:sock_params => params})
 
     client_channel.params = params
 
