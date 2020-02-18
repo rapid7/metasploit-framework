@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2013-0156'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/01/09/serialization-mischief-in-ruby-land-cve-2013-0156']
+          ['URL', 'https://blog.rapid7.com/2013/01/09/serialization-mischief-in-ruby-land-cve-2013-0156']
         ]
     ))
 
