@@ -25,6 +25,13 @@ module Net
 #
 ###
 class Socket
+  TLV_PARAM_MAP = {
+    TLV_TYPE_CONNECT_RETRIES => 'Retries',
+    TLV_TYPE_LOCAL_HOST      => 'LocalHost',
+    TLV_TYPE_LOCAL_PORT      => 'LocalPort',
+    TLV_TYPE_PEER_HOST       => 'PeerHost',
+    TLV_TYPE_PEER_PORT       => 'PeerPort'
+  }
 
   ##
   #
@@ -50,6 +57,20 @@ class Socket
   #
   def shutdown
     client.deregister_inbound_handler(Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel)
+  end
+
+  #
+  # Process a response packet and extract TLVs that are relevant for updating
+  # socket parameters.
+  #
+  def self.params_hash_from_response(response)
+    params = {}
+    TLV_PARAM_MAP.each do |tlv_type, param_key|
+      value = response.get_tlv_value(tlv_type)
+      next if value.nil?
+      params[param_key] = value
+    end
+    params
   end
 
   ##

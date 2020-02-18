@@ -79,13 +79,13 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   #
   # @return [Channel]
   def self.open(client, params)
-    c = Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_tcp_server', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
         {'type'  => TLV_TYPE_LOCAL_HOST, 'value' => params.localhost},
         {'type'  => TLV_TYPE_LOCAL_PORT, 'value' => params.localport}
-      ] )
-    c.params = params
-    c
+      ],
+      klass_args = {:sock_params => params}
+    )
   end
 
   #
@@ -93,6 +93,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   #
   def initialize(client, cid, type, flags, response, klass_args)
     super(client, cid, type, flags, response, klass_args)
+    @params = klass_args[:sock_params].merge_hash(Socket.params_hash_from_response(response))
     # add this instance to the class variables dictionary of tcp server channels
     @@server_channels[self] ||= ::Queue.new
   end

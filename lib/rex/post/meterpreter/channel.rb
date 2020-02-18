@@ -158,23 +158,6 @@ class Channel
     }
   end
 
-  def self.params_hash_from_response(response)
-    tlv_param_map = {
-      TLV_TYPE_CONNECT_RETRIES => 'Retries',
-      TLV_TYPE_LOCAL_HOST      => 'LocalHost',
-      TLV_TYPE_LOCAL_PORT      => 'LocalPort',
-      TLV_TYPE_PEER_HOST       => 'PeerHost',
-      TLV_TYPE_PEER_PORT       => 'PeerPort'
-    }
-    params = {}
-    tlv_param_map.each do |tlv_type, param_key|
-      value = response.get_tlv(tlv_type)
-      next if value.nil?
-      params[param_key] = value
-    end
-    params
-  end
-
   ##
   #
   # Channel interaction

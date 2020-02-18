@@ -35,27 +35,27 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # @return [Channel]
   def self.open(client, params)
-    c = Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
     [
-      {
-        'type'  => TLV_TYPE_LOCAL_HOST,
-        'value' => params.localhost
-      },
-      {
-        'type'  => TLV_TYPE_LOCAL_PORT,
-        'value' => params.localport
-      },
-      {
-        'type'  => TLV_TYPE_PEER_HOST,
-        'value' => params.peerhost
-      },
-      {
-        'type'  => TLV_TYPE_PEER_PORT,
-        'value' => params.peerport
-      }
-    ] )
-    c.params = params
-    c
+        {
+          'type'  => TLV_TYPE_LOCAL_HOST,
+          'value' => params.localhost
+        },
+        {
+          'type'  => TLV_TYPE_LOCAL_PORT,
+          'value' => params.localport
+        },
+        {
+          'type'  => TLV_TYPE_PEER_HOST,
+          'value' => params.peerhost
+        },
+        {
+          'type'  => TLV_TYPE_PEER_PORT,
+          'value' => params.peerport
+        }
+      ],
+      klass_args = {:sock_params => params}
+    )
   end
 
   #
@@ -73,6 +73,7 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
     # rsock.extend( Rex::Socket::Udp )
     rsock.extend(SocketInterface)
     rsock.channel = self
+    @params = klass_args[:sock_params].merge_hash(Socket.params_hash_from_response(response))
 
   end
 

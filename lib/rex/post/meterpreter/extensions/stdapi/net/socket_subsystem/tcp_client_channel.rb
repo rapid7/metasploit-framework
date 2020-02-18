@@ -78,7 +78,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
     rsock.extend(SocketInterface)
     rsock.channel = self
-    @params = klass_args[:sock_params].merge_hash(Channel.params_hash_from_response(response))
+    @params = klass_args[:sock_params].merge_hash(Socket.params_hash_from_response(response))
   end
 
   #
