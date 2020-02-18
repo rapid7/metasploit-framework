@@ -1577,21 +1577,16 @@ class Core
     name  = args[0]
     value = args[1, args.length-1].join(' ')
 
-    # Set PAYLOAD by index
+    # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      list_item = index_from_list(payload_show_results, value)
-
-      if list_item.nil?
-        if value.start_with?("/")
-          value = value[1,value.length]
-        end
-
-        if value.start_with?("payload/")
-          value = value["payload/".length, value.length]
-        end
+      if value.start_with?(/^\/?(payload\/)?/i)
+        # Trimming `/payload/`
+        value = value.gsub(/^\/?(payload\/)?/i, "")
       else
-        list_item do |mod|
-            return false unless mod && mod.respond_to?(:first)
+        # Checking set PAYLOAD by index
+        index_from_list(payload_show_results, value) do |mod|
+          return false unless mod && mod.respond_to?(:first)
+
           # [name, class] from payload_show_results
           value = mod.first
         end
