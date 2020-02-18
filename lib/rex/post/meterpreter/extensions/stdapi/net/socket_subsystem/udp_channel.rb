@@ -61,8 +61,8 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args)
+    super(client, cid, type, flags, response, klass_args)
 
     lsock.extend(Rex::Socket::Udp)
     lsock.initsock

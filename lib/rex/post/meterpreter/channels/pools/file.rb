@@ -52,8 +52,8 @@ class File < Rex::Post::Meterpreter::Channels::Pool
   ##
 
   # Initializes the file channel instance
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args)
+    super(client, cid, type, flags, response, klass_args)
   end
 
 end

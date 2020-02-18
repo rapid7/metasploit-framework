@@ -45,7 +45,6 @@ CHANNEL_DIO_CLOSE        = 'close'
 #
 ###
 class Channel
-
   # Class modifications to support global channel message
   # dispatching without having to register a per-instance handler
   class << self
@@ -94,7 +93,7 @@ class Channel
   # based on a given type.
   #
   def Channel.create(client, type = nil, klass = nil,
-      flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil)
+      flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil, klass_args = nil)
     request = Packet.create_request('core_channel_open')
 
     # Set the type of channel that we're allocating
@@ -109,7 +108,7 @@ class Channel
 
     request.add_tlv(TLV_TYPE_CHANNEL_CLASS, klass.cls)
     request.add_tlv(TLV_TYPE_FLAGS, flags)
-    request.add_tlvs(addends);
+    request.add_tlvs(addends)
 
     # Transmit the request and wait for the response
     cid = nil
@@ -122,7 +121,7 @@ class Channel
     end
 
     # Create the channel instance
-    klass.new(client, cid, type, flags)
+    klass.new(client, cid, type, flags, response, klass_args)
   end
 
   ##
@@ -135,7 +134,7 @@ class Channel
   # Initializes the instance's attributes, such as client context,
   # class identifier, type, and flags.
   #
-  def initialize(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args = nil)
     self.client = client
     self.cid    = cid
     self.type   = type
@@ -157,6 +156,23 @@ class Channel
         self._close(client, cid)
       end
     }
+  end
+
+  def self.params_hash_from_response(response)
+    tlv_param_map = {
+      TLV_TYPE_CONNECT_RETRIES => 'Retries',
+      TLV_TYPE_LOCAL_HOST      => 'LocalHost',
+      TLV_TYPE_LOCAL_PORT      => 'LocalPort',
+      TLV_TYPE_PEER_HOST       => 'PeerHost',
+      TLV_TYPE_PEER_PORT       => 'PeerPort'
+    }
+    params = {}
+    tlv_param_map.each do |tlv_type, param_key|
+      value = response.get_tlv(tlv_type)
+      next if value.nil?
+      params[param_key] = value
+    end
+    params
   end
 
   ##

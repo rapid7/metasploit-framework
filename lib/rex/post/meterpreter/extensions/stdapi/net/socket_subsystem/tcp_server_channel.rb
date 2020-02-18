@@ -91,8 +91,8 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args)
+    super(client, cid, type, flags, response, klass_args)
     # add this instance to the class variables dictionary of tcp server channels
     @@server_channels[self] ||= ::Queue.new
   end

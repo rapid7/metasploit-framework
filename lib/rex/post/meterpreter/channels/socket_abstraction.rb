@@ -86,13 +86,13 @@ module SocketAbstraction
   #
   # Passes the initialization information up to the base class
   #
-  def initialize(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args)
     # sf: initialize_abstraction() before super() as we can get a scenario where dio_write_handler() is called
     # with data to write to the rsock but rsock has not yet been initialized. This happens if the channel
     # is registered (client.add_channel(self) in Channel.initialize) to a session and a 'core_channel_write'
     # request comes in before we have called self.initialize_abstraction()
     initialize_abstraction
-    super(client, cid, type, flags)
+    super(client, cid, type, flags, response, klass_args)
   end
 
   ##

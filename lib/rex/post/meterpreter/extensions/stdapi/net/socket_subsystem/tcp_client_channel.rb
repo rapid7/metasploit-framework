@@ -33,7 +33,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   # Opens a TCP client channel using the supplied parameters.
   #
   def TcpClientChannel.open(client, params)
-    c = Channel.create(client, 'stdapi_net_tcp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_tcp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
         {
           'type'  => TLV_TYPE_PEER_HOST,
@@ -55,11 +55,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
           'type'  => TLV_TYPE_CONNECT_RETRIES,
           'value' => params.retries
         }
-      ])
-    if c
-      c.params = params
-    end
-    c
+      ],
+      klass_args = {:sock_params => params}
+    )
   end
 
   ##
@@ -71,8 +69,8 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   #
   # Passes the channel initialization information up to the base class.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, response, klass_args)
+    super(client, cid, type, flags, response, klass_args)
 
     lsock.extend(SocketInterface)
     lsock.extend(DirectChannelWrite)
@@ -80,7 +78,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
     rsock.extend(SocketInterface)
     rsock.channel = self
-
+    @params = klass_args[:sock_params].merge_hash(Channel.params_hash_from_response(response))
   end
 
   #
