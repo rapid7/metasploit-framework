@@ -238,6 +238,7 @@ class LocalRelay
       self.relays[name] = relay
       self.rev_chans << channel
     }
+    relay
   end
 
   #
@@ -260,10 +261,12 @@ class LocalRelay
       'LocalHost' => opts['LocalHost'],
       'LocalPort' => lport)
 
+    _, lhost, lport = listener.getlocalname()
+    opts['LocalHost']   = lhost
     opts['LocalPort']   = lport
     opts['__RelayType'] = 'tcp'
 
-    start_relay(listener, lport.to_s + (opts['LocalHost'] || '0.0.0.0'), opts)
+    start_relay(listener, lport.to_s + opts['LocalHost'], opts)
   end
 
   #
@@ -284,6 +287,7 @@ class LocalRelay
 
       self.rfds << stream_server
     }
+    relay
   end
 
   #
