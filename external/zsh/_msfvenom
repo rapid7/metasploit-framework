@@ -217,19 +217,19 @@ _arguments \
   "--help-formats[List available formats]" \
   "--list-options[List --payload <value>'s standard, advanced and evasion options]" \
   "--pad-nops[Use nopsled size specified by -n \<length\> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)]" \
-  "--platform[The platform to encode for]:target platform:_msfvenom_platform" \
-  {-a,--arch}"[The architecture to encode as]:architecture:_msfvenom_archs" \
-  {-b,--bad-chars}"[The list of characters to avoid, example: '\x00\xff']:bad characters" \
+  "--platform[The platform for --payload (use --list platforms to list)]:target platform:_msfvenom_platform" \
+  {-a,--arch}"[The architecture to use for --payload and --encoders (use --list archs to list)]:architecture:_msfvenom_archs" \
+  {-b,--bad-chars}"[Characters to avoid example: '\x00\xff']:bad characters" \
   {-c,--add-code}"[Specify an additional win32 shellcode file to include]:shellcode file:_files" \
-  {-e,--encoder}"[The encoder to use]:encoder:_msfvenom_encoder" \
-  {-f,--format}"[Output format]:output format:_msfvenom_formats" \
-  {-h,--help}"[Help banner]" \
+  {-e,--encoder}"[The encoder to use (use --list encoders to list)]:encoder:_msfvenom_encoder" \
+  {-f,--format}"[Output format (use --list formats to list)]:output format:_msfvenom_formats" \
+  {-h,--help}"[Show the help banner]" \
   {-i,--iterations}"[The number of times to encode the payload]:iterations" \
   {-k,--keep}"[Preserve the --template behavior and inject the payload as a new thread]" \
-  {-l,--list}"[List all modules for type]:module type:(payloads encoders nops platforms archs encrypt formats all)" \
-  {-n,--nopsled}"[Prepend a nopsled of length size on to the payload]:nopsled length" \
+  {-l,--list}"[List all modules for \[type\]]:module type:(payloads encoders nops platforms archs encrypt formats all)" \
+  {-n,--nopsled}"[Prepend a nopsled of \[length\] size on to the payload]:nopsled length" \
   {-o,--out}"[Save the payload to a file]:output file:_files" \
-  {-p,--payload}"[Payload to use. Specify a '-' or stdin to use custom payloads]:payload" \
+  {-p,--payload}"[Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom]:payload" \
   {-s,--space}"[The maximum size of the resulting payload]:length" \
   {-t,--timeout}"[The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable)]:second" \
   {-v,--var-name}"[Specify a custom variable name to use for certain output formats]:value" \

@@ -24,17 +24,17 @@ _arguments \
   "--defer-module-loads[Defer module loading unless explicitly asked]" \
   {-a,--ask}"[Ask before exiting Metasploit or accept 'exit -y']" \
   "-c[Load the specified configuration file]:configuration file:_files" \
-  {-E,--environment}"[Specify the database environment to load from the configuration]:environment:(production development)" \
+  {-E,--environment}"[Set Rails environment, defaults to RAIL_ENV environment variable or 'production']:environment:(production development)" \
   {-H,--history-file}"[Save command history to the specified file]:history file:_files" \
   {-h,--help}"[Show help text]" \
   {-L,--real-readline}"[Use the system Readline library instead of RbReadline]" \
   {-M,--migration-path}"[Specify a directory containing additional DB migrations]:directory:_files -/" \
-  {-m,--module-path}"[Specifies an additional module search path]:search path:_files -/" \
+  {-m,--module-path}"[Load an additional module path]:module path:_files -/" \
   {-n,--no-database}"[Disable database support]" \
   {-o,--output}"[Output to the specified file]:output file" \
   {-p,--plugin}"[Load a plugin on startup]:plugin file:_files" \
   {-q,--quiet}"[Do not print the banner on startup]" \
   {-r,--resource}"[Execute the specified resource file (- for stdin)]:resource file:_files" \
   {-v,--version}"[Show version]" \
-  {-x,--execute-command}"[Execute the specified string as console commands]:commands" \
+  {-x,--execute-command}"[EExecute the specified console commands (use ; for multiples)]:commands" \
   {-y,--yaml}"[Specify a YAML file containing database settings]:yaml file:_files"
