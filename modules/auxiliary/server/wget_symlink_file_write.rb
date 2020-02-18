@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2014-4877'],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1139181' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/10/28/r7-2014-15-gnu-wget-ftp-symlink-arbitrary-filesystem-access' ]
+          [ 'URL', 'https://blog.rapid7.com/2014/10/28/r7-2014-15-gnu-wget-ftp-symlink-arbitrary-filesystem-access' ]
         ],
       'DefaultAction'  => 'Service',
       'DisclosureDate' => 'Oct 27 2014'
