@@ -11,7 +11,7 @@ module HrrRbSsh
 class Connection
 
 class GlobalRequestHandler
-  def tcpip_forward message
+  def tcpip_forward(message)
     if @connection.permit?(message[:'address to bind'], message[:'port number to bind'], true)
       @logger.info { "starting tcpip-forward" }
       begin

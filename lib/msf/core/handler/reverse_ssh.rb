@@ -151,7 +151,7 @@ module ReverseSsh
   # Always wait at least 5 seconds for this payload (due to channel delays)
   #
   def wfs_delay
-    datastore['WfsDelay'] > 4 ? dstastore['WfsDelay'] : 5
+    datastore['WfsDelay'] > 4 ? datastore['WfsDelay'] : 5
   end
   attr_accessor :service # :nodoc:
 
