@@ -173,7 +173,7 @@ protected
         mod.framework.ready.delete run_uuid
         result = block.call(mod)
         mod.framework.results[run_uuid] = {result: result}
-      rescue Exception => e
+      rescue ::Exception => e
         mod.framework.results[run_uuid] = {error: e.to_s}
         raise
       ensure

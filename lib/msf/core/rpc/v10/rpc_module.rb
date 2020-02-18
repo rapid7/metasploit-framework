@@ -498,7 +498,7 @@ class RPC_Module < RPC_Base
     when 'exploit'
       _check_exploit(mod, opts)
     when 'auxiliary'
-      _run_auxiliary(mod, opts)
+      _check_auxiliary(mod, opts)
     else
       error(500, "Invalid Module Type: #{mtype}")
     end
