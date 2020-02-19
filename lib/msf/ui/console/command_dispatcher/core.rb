@@ -1579,7 +1579,7 @@ class Core
 
     # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      if value.start_with?(%r{^(/?payload/)|^/}i)
+      if value.start_with?('/', 'payload/')
         # Trims starting `/`, `payload/`, `/payload/` from user input
         value.sub!(%r{^(/?payload/)|^/}i, "")
       else
