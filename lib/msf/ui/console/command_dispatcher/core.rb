@@ -1581,7 +1581,7 @@ class Core
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
       if value.start_with?('/', 'payload/')
         # Trims starting `/`, `payload/`, `/payload/` from user input
-        value.sub!(%r{^/?(?:payload/)?}, "")
+        value.sub!(%r{^/?(?:payload/)?}, '')
       else
         # Checking set PAYLOAD by index
         index_from_list(payload_show_results, value) do |mod|
