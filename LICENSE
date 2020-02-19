@@ -71,6 +71,10 @@ Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
 
+Files: lib/expect.rb
+Copyright: 2017 Yukihiro Matsumoto
+License: Ruby
+
 Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov
 License: Apache 2.0
