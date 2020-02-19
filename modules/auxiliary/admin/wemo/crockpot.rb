@@ -74,9 +74,11 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check
 
-    unless checkcode == Exploit::CheckCode::Appears || datastore['ForceExploit']
-      print_error("#{checkcode[1]}. Set ForceExploit to override.")
-      return
+    unless datastore['ForceExploit']
+      unless checkcode == Exploit::CheckCode::Appears
+        print_error("#{checkcode[1]}. Set ForceExploit to override.")
+        return
+      end
     end
 
     case action.name
