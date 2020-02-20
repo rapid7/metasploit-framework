@@ -54,8 +54,6 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
 
     client_channel = TcpClientChannel.new(client, cid, TcpClientChannel, CHANNEL_FLAG_SYNCHRONOUS, packet, {:sock_params => params})
 
-    client_channel.params = params
-
     @@server_channels[server_channel] ||= ::Queue.new
     @@server_channels[server_channel].enq(client_channel)
 
@@ -83,9 +81,9 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags, response, klass_args)
-    super(client, cid, type, flags, response, klass_args)
-    @params = klass_args[:sock_params].merge_hash(Socket.params_hash_from_response(response))
+  def initialize(client, cid, type, flags, packet, klass_args)
+    super(client, cid, type, flags, packet, klass_args)
+    @params = klass_args[:sock_params].merge(Socket.parameters_from_response(packet))
     # add this instance to the class variables dictionary of tcp server channels
     @@server_channels[self] ||= ::Queue.new
   end

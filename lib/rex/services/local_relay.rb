@@ -128,7 +128,7 @@ class LocalRelay
       end
     end
 
-    def shudown
+    def shutdown
       # don't need to do anything here, it's only "close" we care about
     end
 

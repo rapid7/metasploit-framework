@@ -69,8 +69,8 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   #
   # Passes the channel initialization information up to the base class.
   #
-  def initialize(client, cid, type, flags, response, klass_args)
-    super(client, cid, type, flags, response, klass_args)
+  def initialize(client, cid, type, flags, packet, klass_args)
+    super(client, cid, type, flags, packet, klass_args)
 
     lsock.extend(SocketInterface)
     lsock.extend(DirectChannelWrite)
@@ -78,7 +78,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 
     rsock.extend(SocketInterface)
     rsock.channel = self
-    @params = klass_args[:sock_params].merge_hash(Socket.params_hash_from_response(response))
+    @params = klass_args[:sock_params].merge(Socket.parameters_from_response(packet))
   end
 
   #

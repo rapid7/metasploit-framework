@@ -33,8 +33,8 @@ class StreamPool < Rex::Post::Meterpreter::Channels::Pool
   ##
 
   # Initializes the file channel instance
-  def initialize(client, cid, type, flags, response, klass_args)
-    super(client, cid, type, flags, response, klass_args)
+  def initialize(client, cid, type, flags, packet, klass_args)
+    super(client, cid, type, flags, packet, klass_args)
 
     initialize_abstraction
   end
