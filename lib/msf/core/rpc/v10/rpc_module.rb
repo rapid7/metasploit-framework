@@ -409,8 +409,8 @@ class RPC_Module < RPC_Base
   #  * 'running' [Integer] The number of modules currently in progress.
   #  * 'results' [Integer] The number of module run/check results.
   # @exampleHere's how you would use this from the client:
-  #  rpc.call('module.running_module_stats')
-  def rpc_running_module_stats
+  #  rpc.call('module.module_stats')
+  def rpc_module_stats
     {
         "ready" => self.framework.ready.size,
         "running" => self.framework.running.size,
