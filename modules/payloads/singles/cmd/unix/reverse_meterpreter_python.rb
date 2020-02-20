@@ -35,7 +35,6 @@ module MetasploitModule
   end
 
   def generate
-    
     if datastore['SHELL'].downcase.strip == 'meterpreter'
         payload_size = 0x7e
     elsif datastore['SHELL'].downcase.strip == 'shell'
