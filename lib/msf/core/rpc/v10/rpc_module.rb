@@ -402,6 +402,22 @@ class RPC_Module < RPC_Base
     res
   end
 
+  # Returns the total modules in each state.
+  #
+  # @return [Hash] Running module stats that contain the following keys:
+  #  * 'ready' [Integer] The number of modules waiting to be kicked off.
+  #  * 'running' [Integer] The number of modules currently in progress.
+  #  * 'results' [Integer] The number of module run/check results.
+  # @exampleHere's how you would use this from the client:
+  #  rpc.call('module.running_modules_stats')
+  def rpc_running_modules_stats
+    {
+        "ready" => self.framework.ready.size,
+        "running" => self.framework.running.size,
+        "results" => self.framework.results.size,
+    }
+  end
+
 
   # Returns the module's datastore options.
   #
