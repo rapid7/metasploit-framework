@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.76)
+    metasploit-framework (5.0.77)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -117,7 +117,7 @@ GEM
     arel-helpers (2.11.0)
       activerecord (>= 3.1.0, < 7)
     aws-eventstream (1.0.3)
-    aws-partitions (1.274.0)
+    aws-partitions (1.275.0)
     aws-sdk-core (3.90.1)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
