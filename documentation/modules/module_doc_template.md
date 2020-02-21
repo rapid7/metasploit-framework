@@ -2,7 +2,7 @@ The following is the recommended format for module documentation. But feel free 
 One of the general ideas behind these documents is to help someone troubleshoot the module if it were to stop
 functioning in 5+ years, so giving links or specific examples can be VERY helpful.
 
-## Vulnerable Applications
+## Vulnerable Application
 
 Instructions to get the vulnerable application.  If applicable, include links to the vulnerable install files, as well as instructions on installing/configuring the environment if it is different than a standard install. Much of this will come from the PR, and can be copy/pasted.
 
