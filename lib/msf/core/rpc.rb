@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 module Msf::RPC
   require 'msf/core/rpc/v10/constants'
 
@@ -40,6 +41,5 @@ module Msf::RPC
     autoload :InvalidResponse, 'msf/core/rpc/json/error'
     autoload :JSONParseError, 'msf/core/rpc/json/error'
     autoload :ErrorResponse, 'msf/core/rpc/json/error'
-
   end
 end

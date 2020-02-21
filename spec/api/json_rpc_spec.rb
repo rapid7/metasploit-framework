@@ -1,5 +1,7 @@
 require 'spec_helper'
+require 'msf/core/rpc'
 require 'rack/test'
+require 'rack/protection'
 
 # These tests ensure the full end to end functionality of metasploit's JSON RPC
 # endpoint. There are multiple layers of possible failure in our API, and unit testing
@@ -58,6 +60,16 @@ RSpec.describe "Metasploit's json-rpc" do
 
   def expect_error_status(rpc_response)
     expect(rpc_response).to include({ 'result' => hash_including({ 'status' => 'errored' }) })
+  end
+
+  def mock_rack_env(mock_rack_env_value)
+    allow(ENV).to receive(:[]).and_wrap_original do |original_env, key|
+      if key == 'RACK_ENV'
+        mock_rack_env_value
+      else
+        original_env[key]
+      end
+    end
   end
 
   # Waits until the given expectations are all true. This function executes the given block,
@@ -175,6 +187,105 @@ RSpec.describe "Metasploit's json-rpc" do
             'status' => 'errored',
             'error' => "undefined method `body' for nil:NilClass"
           }
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
+    context "when there is a sinatra level application error in the development environment" do
+      before(:each) do
+        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process) do
+          raise Exception, "Sinatra level exception raised"
+        end
+        mock_rack_env("development")
+      end
+
+      it 'returns the error results' do
+        create_job
+
+        expect(last_response).to be_server_error
+        expected_error_response = {
+          "error" => {
+            "code" => -32000,
+            "data" => {
+              "backtrace" => include(a_kind_of(String))
+            },
+            "message" => "Application server error: Sinatra level exception raised"
+          },
+          "id" => 1
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
+    context "when rack middleware raises an error in the development environment" do
+      before(:each) do
+        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?) do
+          raise Exception, "Middleware error raised"
+        end
+
+        mock_rack_env("development")
+      end
+
+      it 'returns the error results' do
+        create_job
+
+        expect(last_response).to be_server_error
+        expected_error_response = {
+          "error" => {
+            "code" => -32000,
+            "data" => {
+              "backtrace" => include(a_kind_of(String))
+            },
+            "message" => "Application server error: Middleware error raised"
+          },
+          "id" => 1
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
+    context "when rack middleware raises an error in the production environment" do
+      before(:each) do
+        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?) do
+          raise Exception, "Middleware error raised"
+        end
+        mock_rack_env("production")
+      end
+
+      it 'returns the error results' do
+        create_job
+
+        expect(last_response).to be_server_error
+        expected_error_response = {
+          "error" => {
+            "code" => -32000,
+            "message" => "Application server error: Middleware error raised"
+          },
+          "id" => 1
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
+    context "when there is a sinatra level application error in the production environment" do
+      before(:each) do
+        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process) do
+          raise Exception, "Sinatra level exception raised"
+        end
+        mock_rack_env("production")
+      end
+
+      it 'returns the error results' do
+        create_job
+
+        expect(last_response).to be_server_error
+        expected_error_response = {
+          "error" => {
+            "code" => -32000,
+            "message" => "Application server error: Sinatra level exception raised"
+          },
+          "id" => 1
         }
         expect(last_json_response).to include(expected_error_response)
       end
