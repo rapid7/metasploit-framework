@@ -214,7 +214,6 @@ _arguments \
   "--encrypt[The type of encryption or encoding to apply to the shellcode]:value" \
   "--encrypt-key[A key to be used for --encrypt]:value" \
   "--encrypt-iv[An initialization vector for --encrypt]:value" \
-  "--help-formats[List available formats]" \
   "--list-options[List --payload <value>'s standard, advanced and evasion options]" \
   "--pad-nops[Use nopsled size specified by -n \<length\> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)]" \
   "--platform[The platform for --payload (use --list platforms to list)]:target platform:_msfvenom_platform" \
