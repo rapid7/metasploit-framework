@@ -1,22 +1,26 @@
 require 'spec_helper'
 require 'rack/test'
-require 'msf/core/modules/loader/base'
-require 'msf/core/web_services/json_rpc_app'
 
 # These tests ensure the full end to end functionality of metasploit's JSON RPC
 # endpoint. There are multiple layers of possible failure in our API, and unit testing
 # alone will not cover all edge cases. For instance, middleware may raise exceptions
 # and return HTML to the calling client unintentionally - which will break our JSON
 # response contract. These test should help catch such scenarios.
-RSpec.describe ::Msf::WebServices::JsonRpcApp do
+RSpec.describe "Metasploit's json-rpc" do
   include Rack::Test::Methods
   include_context 'Metasploit::Framework::Spec::Constants cleaner'
+  include_context 'Msf::Framework#threads cleaner'
 
   let(:app) { subject }
   let(:api_url) { '/api/v1/json-rpc' }
   let(:framework) { app.settings.framework }
   let(:module_name) { 'scanner/ssl/openssl_heartbleed' }
   let(:a_valid_result_uuid) { { 'result' => hash_including({ 'uuid' => match(/\w+/) }) } }
+  let(:app) do
+    # Lazy load to ensure that the json rpc app doesn't create an instance of framework out of band
+    require 'msf/core/web_services/json_rpc_app'
+    ::Msf::WebServices::JsonRpcApp.new
+  end
 
   def create_job
     post api_url, {
@@ -27,7 +31,7 @@ RSpec.describe ::Msf::WebServices::JsonRpcApp do
         'auxiliary',
         module_name,
         {
-          'RHOSTS': '192.168.0.0'
+          'RHOSTS': '192.0.2.0'
         }
       ]
     }.to_json
@@ -113,9 +117,11 @@ RSpec.describe ::Msf::WebServices::JsonRpcApp do
       end
     end
 
-    context 'when the module has an internal error' do
+    context 'when the check command raises a known msf error' do
       before(:each) do
-        allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check).and_raise(Timeout::Error)
+        allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do |mod|
+          mod.fail_with(Msf::Module::Failure::UnexpectedReply, "Expected failure reason")
+        end
       end
 
       it 'returns the error results' do
@@ -135,7 +141,39 @@ RSpec.describe ::Msf::WebServices::JsonRpcApp do
         expected_error_response = {
           'result' => {
             'status' => 'errored',
-            'error' => 'Timeout::Error'
+            'error' => 'unexpected-reply: Expected failure reason'
+          }
+        }
+        expect(last_json_response).to include(expected_error_response)
+      end
+    end
+
+    context 'when the check command has an unexpected error' do
+      before(:each) do
+        allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do
+          res = nil
+          res.body
+        end
+      end
+
+      it 'returns the error results' do
+        create_job
+        expect(last_response).to be_ok
+        expect(last_json_response).to include(a_valid_result_uuid)
+
+        uuid = last_json_response['result']['uuid']
+
+        wait_for_expect do
+          get_job_results(uuid)
+
+          expect(last_response).to be_ok
+          expect_error_status(last_json_response)
+        end
+
+        expected_error_response = {
+          'result' => {
+            'status' => 'errored',
+            'error' => "undefined method `body' for nil:NilClass"
           }
         }
         expect(last_json_response).to include(expected_error_response)
