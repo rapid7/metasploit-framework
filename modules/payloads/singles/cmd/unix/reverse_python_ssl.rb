@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Reverse TCP SSL (via python)',
       'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
-      'Author'        => 'RageLtMan',
+      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
       'License'       => BSD_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,

@@ -20,7 +20,7 @@ module MetasploitModule
       'Description'   => 'Creates an interactive shell through two inbound connections, encrypts using SSL via "-z" option',
       'Author'        => [
         'hdm',	# Original module
-        'RageLtMan', # SSL support
+        'RageLtMan <rageltman[at]sempervictus>', # SSL support
       ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
