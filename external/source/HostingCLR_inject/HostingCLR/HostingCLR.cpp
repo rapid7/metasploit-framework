@@ -71,6 +71,10 @@ int executeSharp(LPVOID lpPayload)
 	unsigned char *arg_s = (unsigned char*)malloc(raw_args_length * sizeof(unsigned char));
 	unsigned char *rawData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char));
 
+	SecureZeroMemory(allData, raw_assembly_length * sizeof(unsigned char) + raw_args_length * sizeof(unsigned char) + 8 * sizeof(unsigned char));
+	SecureZeroMemory(arg_s, raw_args_length * sizeof(unsigned char));
+	SecureZeroMemory(rawData, raw_assembly_length * sizeof(unsigned char));
+
 	rgsabound[0].cElements = raw_assembly_length;
 	rgsabound[0].lLbound = 0;
 	SAFEARRAY* pSafeArray = SafeArrayCreate(VT_UI1, 1, rgsabound);
@@ -95,7 +99,7 @@ int executeSharp(LPVOID lpPayload)
 	//Taking pointer to args
 	unsigned char *offsetargs = allData + 9;
 	//Store parameters 
-	memcpy(arg_s, offsetargs, sizeof(arg_s));
+	memcpy(arg_s, offsetargs, raw_args_length);
 
 	//Taking pointer to assembly
 	unsigned char *offset = allData + raw_args_length + 9;
@@ -232,10 +236,14 @@ int executeSharp(LPVOID lpPayload)
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
 		int arg_n = 1;
+		bool skip = false;
 		//Parameters number
-		for (int i = 0; i < ((int)strlen((char*)arg_s)); i++)
+		for (int i = 0; i < raw_args_length; i++)
 		{
-			if (arg_s[i] == ' ')
+			if (arg_s[i] == '"')
+				skip = !skip;
+
+			if (arg_s[i] == ' ' && !skip)
 				arg_n++;
 		}
 		
