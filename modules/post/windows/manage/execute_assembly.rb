@@ -6,7 +6,7 @@
 require 'msf/core/post/windows/reflective_dll_injection'
 
 class MetasploitModule < Msf::Post
-  
+
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
       'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
       'References' => [['URL', 'https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html']],
       'DefaultTarget' => 0
-	))
+    ))
     register_options(
       [
         OptString.new('ASSEMBLY', [true, 'Assembly file name']),
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('WAIT', [false, 'Time in seconds to wait', 10])
       ], self.class
     )
-	
+
     register_advanced_options(
       [
         OptBool.new('KILL',   [ true, 'Kill the injected process at the end of the task', false ])
