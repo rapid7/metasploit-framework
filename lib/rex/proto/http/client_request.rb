@@ -90,8 +90,7 @@ class ClientRequest
     @opts['headers'] ||= {}
   end
 
-  def to_s
-
+  def to_s(headers_only: false)
     # Start GET query string
     qstr = opts['query'] ? opts['query'].dup : ""
 
@@ -202,7 +201,9 @@ class ClientRequest
     req << set_content_len_header(pstr.length)
     req << set_chunked_header
     req << opts['raw_headers']
-    req << set_body(pstr)
+    req << set_body(pstr) unless headers_only
+
+    req
   end
 
   protected
