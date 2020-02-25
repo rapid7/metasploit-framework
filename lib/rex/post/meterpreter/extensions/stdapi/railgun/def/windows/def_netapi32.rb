@@ -30,6 +30,28 @@ class Def_windows_netapi32
       ["PWCHAR","username","in"],
     ])
 
+    dll.add_function('NetUserAdd', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","buf","in"],
+      ["PDWORD","parm_err","out"]
+    ])
+
+    dll.add_function('NetLocalGroupAdd', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","buf","in"],
+      ["PDWORD","parm_err","out"]
+    ])
+
+    dll.add_function('NetLocalGroupAddMembers', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["PWCHAR","groupname","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","buf","in"],
+      ["PDWORD","totalentries","in"]
+    ])
+
     dll.add_function('NetGetJoinInformation', 'DWORD',[
       ["PWCHAR","lpServer","in"],
       ["PDWORD","lpNameBuffer","out"],
