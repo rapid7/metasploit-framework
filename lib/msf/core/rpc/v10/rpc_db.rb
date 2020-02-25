@@ -324,7 +324,7 @@ public
         workspace_id: wspace
       ).offset(offset).limit(limit)
       query.each do |cred|
-        ost = ''
+        host = ''
         port = 0
         proto = ''
         sname = ''
