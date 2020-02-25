@@ -1579,18 +1579,15 @@ class Core
 
     # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      if value.start_with?('/', 'payload/')
-        # Trims starting `/`, `payload/`, `/payload/` from user input
-        value.sub!(%r{^/?(?:payload/)?}, '')
-      else
-        # Checking set PAYLOAD by index
-        index_from_list(payload_show_results, value) do |mod|
-          return false unless mod && mod.respond_to?(:first)
+      value = trim_path(value, 'payload')
 
-          # [name, class] from payload_show_results
-          value = mod.first
-        end
+      index_from_list(payload_show_results, value) do |mod|
+        return false unless mod && mod.respond_to?(:first)
+
+        # [name, class] from payload_show_results
+        value = mod.first
       end
+
     end
 
     # If the driver indicates that the value is not valid, bust out.

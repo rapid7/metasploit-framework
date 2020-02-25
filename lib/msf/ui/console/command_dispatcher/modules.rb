@@ -675,12 +675,7 @@ module Msf
             mod_resolved = args[1] == true ? true : false
 
             # Ensure we have a reference name and not a path
-            if mod_name.start_with?('./', 'modules/')
-              mod_name.sub!(%r{^(?:\./)?modules/}, '')
-            end
-            if mod_name.end_with?('.rb')
-              mod_name.sub!(/\.rb$/, '')
-            end
+            mod_name = trim_path(mod_name, "modules")
 
             begin
               mod = framework.modules.create(mod_name)
