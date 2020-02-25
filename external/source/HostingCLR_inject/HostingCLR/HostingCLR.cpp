@@ -235,40 +235,32 @@ int executeSharp(LPVOID lpPayload)
 		//if we have at least 1 parameter set cEleemnt to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
-		int arg_n = 1;
-		bool skip = false;
-		//Parameters number
-		for (int i = 0; i < raw_args_length; i++)
+		LPWSTR *szArglist;
+		int nArgs;
+		wchar_t *wtext;
+		wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length +1));
+
+		mbstowcs(wtext, (char *)arg_s, strlen((char *)arg_s) + 1);
+		szArglist = CommandLineToArgvW(wtext, &nArgs);
+
+		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs);
+
+		for(long i = 0;i< nArgs;i++)
 		{
-			if (arg_s[i] == '"')
-				skip = !skip;
-
-			if (arg_s[i] == ' ' && !skip)
-				arg_n++;
-		}
-		
-		//Set cElement to parametes number
-		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, arg_n);
-
-		char delim[] = " ";
-		char *next_token = NULL;
-		const char *ptr = strtok_s((char*)arg_s, delim, &next_token);
-
-		long i = 0;
-		//Wallking parameters
-		while (i < arg_n && ptr != NULL)
-		{
-			size_t strlength = strlen(ptr) + 1;
-			OLECHAR *sOleText1 = new OLECHAR[strlen(ptr) + 1];
-			//mbstowcs(sOleText1, ptr, strlen(ptr) + 1);
 			size_t converted;
-			mbstowcs_s(&converted, sOleText1, strlength, ptr, strlength);
+			size_t strlength = wcslen(szArglist[i]) + 1;
+			OLECHAR *sOleText1 = new OLECHAR[strlength];
+			char * buffer = (char *)malloc(strlength * sizeof(char));
+			
+			wcstombs(buffer, szArglist[i], strlength);
+			
+			mbstowcs_s(&converted, sOleText1, strlength, buffer, strlength);
 			BSTR strParam1 = SysAllocString(sOleText1);
 
 			SafeArrayPutElement(vtPsa.parray, &i, strParam1);
-			ptr = strtok_s(NULL, delim, &next_token);
-			i++;
+			free(buffer);
 		}
+
 		long iEventCdIdx(0);
 		hr = SafeArrayPutElement(psaStaticMethodArgs, &iEventCdIdx, &vtPsa);
 	}
