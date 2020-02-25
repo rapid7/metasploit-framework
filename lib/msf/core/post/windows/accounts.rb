@@ -338,6 +338,87 @@ module Msf
 
           result
         end
+
+        ##
+        # add_user(username, password = nil, dont_expire_pwd = false, server_name = nil)
+        #
+        # Summary:
+        #   Adds a user account to the given server (or local, if none specified)
+        #
+        # Parameters
+        #   username        - The username of the account to add (not-qualified, e.g. BOB)
+        #   password        - The password to be assigned to the new user account
+        #   dont_expire_pwd - toggles the "Password never expires" flag on the account
+        #   server_name     - DNS or NetBIOS name of remote server on which to add user
+        #
+        # Returns:
+        #   One of the following:
+        #      :success          - Account was created successfully
+        #      :access_denied    - You do not have permission to add the account
+        #      :user_exists      - A user account with +username+ already exists
+        #      :group_exists     - Group exists (unclear why NetUserAdd would return this, but it does)
+        #      :invalid_server   - The server name provided was invalid
+        #      :not_on_primary   - Operation allowed only on domain controller
+        #      :invalid_password - Password violates password policy somehow (complexity, length, etc.)
+        #
+        #   OR nil if there was an exceptional windows error (example: ran out of memory)
+        #
+        # Caveats:
+        #   nil is returned if there is an *exceptional* windows error. That error is printed.
+        #   Everything other than ':success' signifies failure
+        ##
+
+        def add_user(server_name = nil, user_info)
+          result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
+          user_info_array = user_info.unpack("VVVVVVVV")
+
+          # free memory
+          client.railgun.multi([
+            ["kernel32", "VirtualFree", [user_info_array[0], 0, MEM_RELEASE]], #  addr_username
+            ["kernel32", "VirtualFree", [user_info_array[1], 0, MEM_RELEASE]]  #  addr_password
+          ])
+
+          case result['return']
+          when 0
+            return :success
+          when client.railgun.const('ERROR_ACCESS_DENIED')
+            return :access_denied
+          when 2224 # NERR_UserExists
+            return :user_exists
+          when 2223 # NERR_GroupExists
+            return :group_exists
+          when 2351 # NERR_InvalidComputer
+            return :invalid_server
+          when 2226 # NERR_NotPrimary
+            return :not_on_primary
+          when 2245 # NERR_PasswordTooShort
+            return :invalid_password
+          else
+            error = result['GetLastError']
+            if error != 0
+              print_error "Unexpected Windows System Error #{error}"
+            else
+              # Uh... we shouldn't be here
+              print_error "add_user unexpectedly returned #{result['return']}"
+            end
+          end
+
+          # If we got here, then something above failed
+          return nil
+        end
+
+        #  Netlocalgroupadd work, I tried to call NetLocalGroupAddMembers, but that didn't work either...
+
+        # def add_localgroup(server_name = nil, localgroup_info)
+        #   result1 = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
+        #   localgroup_info_array = localgroup_info.unpack("VV")
+        #   return nil
+        # end
+
+        # def add_members_localgroup(server_name = nil, localgroup = "administrators", localgroup_members)
+        #   result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 0x3, localgroup_members, 0x1)
+        #   return nil
+        # end
       end # Accounts
     end # Windows
   end # Post
