@@ -5,6 +5,7 @@ class JobStateTracker
   include MonitorMixin
 
   def initialize(result_ttl=nil)
+    self.results_size = 0
     self.ready = Set.new
     self.running = Set.new
     # Can be expanded upon later to allow the option of a MemCacheStore being backed by redis for example
@@ -23,7 +24,7 @@ class JobStateTracker
   def completed(id, result, ttl=nil)
     begin
       # ttl of nil means it will take the default expiry time
-      results.write(id, {result: result}, ttl)
+      self.results_size += 1 if results.write(id, {result: result}, ttl)
     ensure
       running.delete(id)
     end
@@ -32,7 +33,7 @@ class JobStateTracker
   def failed(id, error, ttl=nil)
     begin
       # ttl of nil means it will take the default expiry time
-      results.write(id, {error: error.to_s}, ttl)
+      self.results_size += 1 if results.write(id, {error: error.to_s}, ttl)
     ensure
       running.delete(id)
     end
@@ -55,12 +56,25 @@ class JobStateTracker
   end
 
   def delete(id)
-    results.delete(id)
+    result_deleted = results.delete(id)
+    self.results_size -= 1 if result_deleted
+    result_deleted
+  end
+
+  def waiting_size
+    ready.size
+  end
+
+  def running_size
+    running.size
   end
 
   alias :ack :delete
 
+  attr_accessor :results_size
+
   private
 
+  attr_writer :results_size
   attr_accessor :ready, :running, :results
 end

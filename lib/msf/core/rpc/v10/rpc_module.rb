@@ -412,9 +412,9 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.running_stats')
   def rpc_running_stats
     {
-        "ready" => self.framework.ready.size,
-        "running" => self.framework.running.size,
-        "results" => self.framework.results.size,
+        "waiting" => self.framework.job_state_tracker.waiting_size,
+        "running" => self.framework.job_state_tracker.running_size,
+        "results" => self.framework.job_state_tracker.results_size,
     }
   end
 
