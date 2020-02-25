@@ -85,10 +85,12 @@ module Msf
           aliases: ['PayloadProxyPort']
         ),
         OptString.new('HttpProxyUser', 'An optional proxy server username',
-          aliases: ['PayloadProxyUser']
+          aliases: ['PayloadProxyUser'],
+          max_length: Rex::Payloads::Meterpreter::Config::PROXY_USER_SIZE - 1
         ),
         OptString.new('HttpProxyPass', 'An optional proxy server password',
-          aliases: ['PayloadProxyPass']
+          aliases: ['PayloadProxyPass'],
+          max_length: Rex::Payloads::Meterpreter::Config::PROXY_PASS_SIZE - 1
         ),
         OptEnum.new('HttpProxyType', 'The type of HTTP proxy',
           enums: ['HTTP', 'SOCKS'],
