@@ -397,7 +397,8 @@ class Core
       return false
     end
 
-    print_status("Connected to #{host}:#{port}")
+    _, lhost, lport = sock.getlocalname()
+    print_status("Connected to #{host}:#{port} (via: #{lhost}:#{lport})")
 
     if justconn
       sock.close
