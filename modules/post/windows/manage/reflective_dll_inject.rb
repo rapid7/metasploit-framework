@@ -13,10 +13,13 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Windows Manage Reflective DLL Injection Module with arguments',
+      'Name'        => 'Windows Manage Reflective DLL Injection Module',
       'Description' => %q{
         This module will inject a specified reflective DLL into the memory of a
-        process, new or existing, passing any arguments.
+        process, new or existing. If arguments are specified, they are passed to
+        the DllMain entry point as the lpvReserved (3rd) parameter. To read
+        output from the injected process, set PID to zero and WAIT to non-zero.
+        Make sure the architecture of the DLL matches the target process.
       },
       'License'      => MSF_LICENSE,
       'Author'       => ['Ben Campbell', 'b4rtik'],
@@ -33,13 +36,13 @@ class MetasploitModule < Msf::Post
         OptInt.new('PID', [false, 'Pid to inject', 0]),
         OptString.new('PROCESS', [false, 'Process to spawn', 'notepad.exe']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
-        OptInt.new('WAIT', [false, 'Time in seconds to wait', 0])
+        OptInt.new('WAIT', [false, 'Time in seconds to wait before reading output', 0])
       ], self.class
     )
 
     register_advanced_options(
       [
-        OptBool.new('KILL',   [ true, 'Kill the injected process at the end of the task', false ])
+        OptBool.new('KILL', [ true, 'Kill the injected process at the end of the task', false ])
       ]
     )
   end
@@ -179,7 +182,7 @@ class MetasploitModule < Msf::Post
         break if output.nil? or output.length == 0
       end
     rescue Rex::TimeoutError => e
-      print_warning("Time out Exception: configured waiting limit exceeded (5 sec)")
+      vprint_warning("Time out exception: wait limit exceeded (5 sec)")
     rescue ::Exception => e
       print_error("Exception: #{e.inspect}")
     end
