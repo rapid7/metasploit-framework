@@ -41,14 +41,17 @@ RSpec.describe JobStateTracker do
 
       it 'should show as waiting' do
         expect(job_state_tracker).to be_waiting(job_id)
+        expect(job_state_tracker.waiting_size).to be(1)
       end
 
       it 'should not show as running' do
         expect(job_state_tracker).not_to be_running(job_id)
+        expect(job_state_tracker.running_size).to be(0)
       end
 
       it 'should not show as finished' do
         expect(job_state_tracker).not_to be_finished(job_id)
+        expect(job_state_tracker.results_size).to be(0)
       end
 
       context "The job is started" do
@@ -58,14 +61,17 @@ RSpec.describe JobStateTracker do
 
         it 'should no longer show as waiting' do
           expect(job_state_tracker).not_to be_waiting(job_id)
+          expect(job_state_tracker.waiting_size).to be(0)
         end
 
         it 'should now show as running' do
           expect(job_state_tracker).to be_running(job_id)
+          expect(job_state_tracker.running_size).to be(1)
         end
 
         it 'should not show as finished' do
           expect(job_state_tracker).not_to be_finished(job_id)
+          expect(job_state_tracker.results_size).to be(0)
         end
 
         context "The job completes successfully" do
@@ -75,14 +81,17 @@ RSpec.describe JobStateTracker do
 
           it 'should not show as waiting' do
             expect(job_state_tracker).not_to be_waiting(job_id)
+            expect(job_state_tracker.waiting_size).to be(0)
           end
 
           it 'should no longer show as running' do
             expect(job_state_tracker).not_to be_running(job_id)
+            expect(job_state_tracker.running_size).to be(0)
           end
 
           it 'should show as finished' do
             expect(job_state_tracker).to be_finished(job_id)
+            expect(job_state_tracker.results_size).to be(1)
           end
 
           it 'should have a retrievable result' do
@@ -96,14 +105,17 @@ RSpec.describe JobStateTracker do
 
             it 'should not show as waiting' do
               expect(job_state_tracker).not_to be_waiting(job_id)
+              expect(job_state_tracker.waiting_size).to be(0)
             end
 
             it 'should not show as running' do
               expect(job_state_tracker).not_to be_running(job_id)
+              expect(job_state_tracker.running_size).to be(0)
             end
 
             it 'should no longer show as finished' do
               expect(job_state_tracker).not_to be_finished(job_id)
+              expect(job_state_tracker.results_size).to be(0)
             end
           end
         end
@@ -115,14 +127,17 @@ RSpec.describe JobStateTracker do
 
           it 'should not show as waiting' do
             expect(job_state_tracker).not_to be_waiting(job_id)
+            expect(job_state_tracker.waiting_size).to be(0)
           end
 
           it 'should no longer show as running' do
             expect(job_state_tracker).not_to be_running(job_id)
+            expect(job_state_tracker.running_size).to be(0)
           end
 
           it 'should show as finished' do
             expect(job_state_tracker).to be_finished(job_id)
+            expect(job_state_tracker.results_size).to be(1)
           end
 
           it 'should have a retrievable result' do
@@ -136,14 +151,17 @@ RSpec.describe JobStateTracker do
 
             it 'should not show as waiting' do
               expect(job_state_tracker).not_to be_waiting(job_id)
+              expect(job_state_tracker.waiting_size).to be(0)
             end
 
             it 'should not show as running' do
               expect(job_state_tracker).not_to be_running(job_id)
+              expect(job_state_tracker.running_size).to be(0)
             end
 
             it 'should no longer show as finished' do
               expect(job_state_tracker).not_to be_finished(job_id)
+              expect(job_state_tracker.results_size).to be(0)
             end
           end
         end
