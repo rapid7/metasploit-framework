@@ -8,6 +8,13 @@ module Msf
       module CommandDispatcher
 
         #
+        # Module Type Shorthands
+        #
+        MODULE_TYPE_SHORTHANDS = {
+          "aux" => Msf::MODULE_AUX
+        }
+
+        #
         # {CommandDispatcher} for commands related to background jobs in Metasploit Framework.
         #
         class Modules
@@ -470,6 +477,11 @@ module Msf
               next if search_term.length == 0
               keyword.downcase!
               search_term.downcase!
+
+              if keyword == "type"
+                search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
+              end
+
               res[keyword] ||=[   [],    []   ]
               if search_term[0,1] == "-"
                 next if search_term.length == 1
