@@ -49,7 +49,7 @@ class Def_windows_netapi32
       ["PWCHAR","groupname","in"],
       ["DWORD","level","in"],
       ["PBLOB","buf","in"],
-      ["PDWORD","totalentries","in"]
+      ["DWORD","totalentries","in"]
     ])
 
     dll.add_function('NetGetJoinInformation', 'DWORD',[
