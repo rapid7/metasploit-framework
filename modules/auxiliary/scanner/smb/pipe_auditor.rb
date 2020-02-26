@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
 
         break
       rescue Rex::Proto::SMB::Exceptions::SimpleClientError => e
-        vprint_bad("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
+        vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
       end
     end
 
