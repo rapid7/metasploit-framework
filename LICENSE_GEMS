@@ -10,32 +10,33 @@ afm, 0.2.2, MIT
 arel, 6.0.4, MIT
 arel-helpers, 2.11.0, MIT
 aws-eventstream, 1.0.3, "Apache 2.0"
-aws-partitions, 1.275.0, "Apache 2.0"
+aws-partitions, 1.278.0, "Apache 2.0"
 aws-sdk-core, 3.90.1, "Apache 2.0"
-aws-sdk-ec2, 1.144.0, "Apache 2.0"
+aws-sdk-ec2, 1.145.0, "Apache 2.0"
 aws-sdk-iam, 1.33.0, "Apache 2.0"
 aws-sdk-kms, 1.29.0, "Apache 2.0"
 aws-sdk-s3, 1.60.2, "Apache 2.0"
-aws-sigv4, 1.1.0, "Apache 2.0"
+aws-sigv4, 1.1.1, "Apache 2.0"
 bcrypt, 3.1.12, MIT
 bcrypt_pbkdf, 1.0.1, MIT
-bindata, 2.4.4, ruby
+bindata, 2.4.6, ruby
 bit-struct, 0.16, ruby
 builder, 3.2.4, MIT
 bundler, 1.17.3, MIT
+byebug, 11.1.1, "Simplified BSD"
 coderay, 1.1.2, MIT
 concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
 daemons, 1.3.1, MIT
-diff-lcs, 1.3, "Artistic-2.0, GPL-2.0+, MIT"
+diff-lcs, 1.3, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.61.3, "Apache 2.0"
 docile, 1.3.2, MIT
 ed25519, 1.2.4, MIT
 em-http-request, 1.1.5, MIT
 em-socksify, 0.3.2, MIT
 erubis, 2.7.0, MIT
-eventmachine, 1.2.7, "GPL-2.0, ruby"
+eventmachine, 1.2.7, "ruby, GPL-2.0"
 factory_bot, 5.1.1, MIT
 factory_bot_rails, 5.1.1, MIT
 faker, 2.2.1, MIT
@@ -44,6 +45,7 @@ faye-websocket, 0.10.9, "Apache 2.0"
 filesize, 0.2.0, MIT
 fivemat, 1.3.7, MIT
 hashery, 2.1.2, "Simplified BSD"
+hrr_rb_ssh, 0.3.0.pre2, "Apache 2.0"
 http_parser.rb, 0.6.0, MIT
 i18n, 0.9.5, MIT
 jmespath, 1.4.0, "Apache 2.0"
@@ -53,7 +55,7 @@ loofah, 2.4.0, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.4, "New BSD"
-metasploit-framework, 5.0.77, "New BSD"
+metasploit-framework, 5.0.78, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.84, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -80,6 +82,7 @@ pg, 0.21.0, "New BSD"
 pg_array_parser, 0.0.9, unknown
 postgres_ext, 3.0.1, MIT
 pry, 0.12.2, MIT
+pry-byebug, 3.8.0, MIT
 public_suffix, 4.0.3, MIT
 rack, 1.6.13, MIT
 rack-protection, 1.5.5, MIT
@@ -90,7 +93,7 @@ rails-html-sanitizer, 1.3.0, MIT
 railties, 4.2.11.1, MIT
 rake, 13.0.1, MIT
 rb-readline, 0.5.5, BSD
-recog, 2.3.6, unknown
+recog, 2.3.7, unknown
 redcarpet, 3.5.0, MIT
 rex-arch, 0.1.13, "New BSD"
 rex-bin_tools, 0.1.6, "New BSD"
@@ -101,7 +104,7 @@ rex-java, 0.1.5, "New BSD"
 rex-mime, 0.1.5, "New BSD"
 rex-nop, 0.1.1, "New BSD"
 rex-ole, 0.1.6, "New BSD"
-rex-powershell, 0.1.86, "New BSD"
+rex-powershell, 0.1.87, "New BSD"
 rex-random_identifier, 0.1.4, "New BSD"
 rex-registry, 0.1.3, "New BSD"
 rex-rop_builder, 0.1.3, "New BSD"
@@ -124,8 +127,8 @@ ruby_smb, 1.1.0, "New BSD"
 rubyntlm, 0.6.2, MIT
 rubyzip, 2.2.0, "Simplified BSD"
 sawyer, 0.8.2, MIT
-simplecov, 0.18.2, MIT
-simplecov-html, 0.12.0, MIT
+simplecov, 0.18.5, MIT
+simplecov-html, 0.12.2, MIT
 sinatra, 1.4.8, MIT
 sqlite3, 1.3.13, "New BSD"
 sshkey, 2.0.0, MIT
@@ -135,7 +138,7 @@ thor, 1.0.1, MIT
 thread_safe, 0.3.6, "Apache 2.0"
 tilt, 2.0.10, MIT
 timecop, 0.9.1, MIT
-ttfunk, 1.6.2.1, "GPL-2.0, GPL-3.0, Nonstandard"
+ttfunk, 1.6.2.1, "Nonstandard, GPL-2.0, GPL-3.0"
 tzinfo, 1.2.6, MIT
 tzinfo-data, 1.2019.3, MIT
 warden, 1.2.7, MIT
