@@ -27,6 +27,10 @@ module Msf
           ['ClientSiteName', :LPSTR]
         ].freeze
 
+        GROUP_USERS_INFO = [
+          ['grui0_name', :LPWSTR],
+        ].freeze
+
         ##
         # get_domain(server_name = nil)
         #
@@ -340,7 +344,7 @@ module Msf
         end
 
         ##
-        # add_user(username, password = nil, dont_expire_pwd = false, server_name = nil)
+        # add_user(username, password = nil, user_info)
         #
         # Summary:
         #   Adds a user account to the given server (or local, if none specified)
@@ -348,77 +352,59 @@ module Msf
         # Parameters
         #   username        - The username of the account to add (not-qualified, e.g. BOB)
         #   password        - The password to be assigned to the new user account
+        #   group                - The local group to which the specified users or global groups will be added
         #   dont_expire_pwd - toggles the "Password never expires" flag on the account
         #   server_name     - DNS or NetBIOS name of remote server on which to add user
-        #
-        # Returns:
-        #   One of the following:
-        #      :success          - Account was created successfully
-        #      :access_denied    - You do not have permission to add the account
-        #      :user_exists      - A user account with +username+ already exists
-        #      :group_exists     - Group exists (unclear why NetUserAdd would return this, but it does)
-        #      :invalid_server   - The server name provided was invalid
-        #      :not_on_primary   - Operation allowed only on domain controller
-        #      :invalid_password - Password violates password policy somehow (complexity, length, etc.)
-        #
-        #   OR nil if there was an exceptional windows error (example: ran out of memory)
-        #
-        # Caveats:
-        #   nil is returned if there is an *exceptional* windows error. That error is printed.
-        #   Everything other than ':success' signifies failure
         ##
 
         def add_user(server_name = nil, user_info)
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
           user_info_array = user_info.unpack("VVVVVVVV")
-
-          # free memory
-          client.railgun.multi([
-            ["kernel32", "VirtualFree", [user_info_array[0], 0, MEM_RELEASE]], #  addr_username
-            ["kernel32", "VirtualFree", [user_info_array[1], 0, MEM_RELEASE]]  #  addr_password
-          ])
-
-          case result['return']
-          when 0
-            return :success
-          when client.railgun.const('ERROR_ACCESS_DENIED')
-            return :access_denied
-          when 2224 # NERR_UserExists
-            return :user_exists
-          when 2223 # NERR_GroupExists
-            return :group_exists
-          when 2351 # NERR_InvalidComputer
-            return :invalid_server
-          when 2226 # NERR_NotPrimary
-            return :not_on_primary
-          when 2245 # NERR_PasswordTooShort
-            return :invalid_password
-          else
-            error = result['GetLastError']
-            if error != 0
-              print_error "Unexpected Windows System Error #{error}"
-            else
-              # Uh... we shouldn't be here
-              print_error "add_user unexpectedly returned #{result['return']}"
-            end
+          return result
           end
 
-          # If we got here, then something above failed
-          return nil
+        #  Add localgroup
+        def add_localgroup(server_name = nil, localgroup_info)
+          result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
+          return result
         end
 
-        #  Netlocalgroupadd work, I tried to call NetLocalGroupAddMembers, but that didn't work either...
+        #  Add group to Domain
+        def add_group(server_name = nil, group_info)
+          result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info,4)
+          return result
+        end
 
-        # def add_localgroup(server_name = nil, localgroup_info)
-        #   result1 = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
-        #   localgroup_info_array = localgroup_info.unpack("VV")
-        #   return nil
-        # end
+        #  Add user to localgroup
+        def add_members_localgroup(server_name = nil, localgroup, localgroup_members)
+          result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
+          return result
+        end
 
-        # def add_members_localgroup(server_name = nil, localgroup = "administrators", localgroup_members)
-        #   result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 0x3, localgroup_members, 0x1)
-        #   return nil
-        # end
+        #  Add user to Domain group
+        def add_members_group(server_name = nil, group, group_members)
+          result = client.railgun.netapi32.NetGroupAddUser(server_name, group, group_members)
+          return result
+        end
+
+      #  Get members from group
+      def get_members_from_group(server_name = nil, groupname)
+        members = []
+        result = client.railgun.netapi32.NetGroupGetUsers(server_name, groupname, 0, 4, 1024, 4, 4, 0)
+        begin
+          members_info_addr = result['bufptr'].unpack("V")[0]
+          unless members_info_addr == 0
+            members_info = session.railgun.util.read_array(GROUP_USERS_INFO, result['entriesread'], members_info_addr)
+            for member in members_info
+              members<<member["grui0_name"]
+            end
+            return members
+          end
+        end
+        ensure
+          session.railgun.netapi32.NetApiBufferFree(members_info_addr)
+      end
+
       end # Accounts
     end # Windows
   end # Post
