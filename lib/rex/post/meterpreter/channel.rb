@@ -93,7 +93,7 @@ class Channel
   # based on a given type.
   #
   def Channel.create(client, type = nil, klass = nil,
-      flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil, klass_args = nil)
+      flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil, **klass_kwargs)
     request = Packet.create_request('core_channel_open')
 
     # Set the type of channel that we're allocating
@@ -121,7 +121,7 @@ class Channel
     end
 
     # Create the channel instance
-    klass.new(client, cid, type, flags, response, klass_args)
+    klass.new(client, cid, type, flags, response, **klass_kwargs)
   end
 
   ##
@@ -134,7 +134,7 @@ class Channel
   # Initializes the instance's attributes, such as client context,
   # class identifier, type, and flags.
   #
-  def initialize(client, cid, type, flags, response, klass_args = nil)
+  def initialize(client, cid, type, flags, packet, **_)
     self.client = client
     self.cid    = cid
     self.type   = type

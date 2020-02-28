@@ -54,15 +54,15 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
           'value' => params.peerport
         }
       ],
-      klass_args = {:sock_params => params}
+      sock_params: params
     )
   end
 
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags, packet, klass_args)
-    super(client, cid, type, flags, packet, klass_args)
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
 
     lsock.extend(Rex::Socket::Udp)
     lsock.initsock
@@ -73,7 +73,10 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
     # rsock.extend( Rex::Socket::Udp )
     rsock.extend(SocketInterface)
     rsock.channel = self
-    @params = klass_args[:sock_params].merge(Socket.parameters_from_response(packet))
+
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+    end
   end
 
   #

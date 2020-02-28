@@ -74,18 +74,22 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
         {'type'  => TLV_TYPE_LOCAL_HOST, 'value' => params.localhost},
         {'type'  => TLV_TYPE_LOCAL_PORT, 'value' => params.localport}
       ],
-      klass_args = {:sock_params => params}
+      sock_params: params
     )
   end
 
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags, packet, klass_args)
-    super(client, cid, type, flags, packet, klass_args)
-    @params = klass_args[:sock_params].merge(Socket.parameters_from_response(packet))
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
+
     # add this instance to the class variables dictionary of tcp server channels
     @@server_channels[self] ||= ::Queue.new
+
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+    end
   end
 
   #
