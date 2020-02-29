@@ -23,7 +23,7 @@ module MetasploitModule
         without /dev/tcp support. This module uses the '-z'
         option included on some systems to encrypt using SSL.
         },
-      'Author'        => 'RageLtMan',
+      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,

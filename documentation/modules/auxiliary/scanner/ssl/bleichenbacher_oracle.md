@@ -1,6 +1,6 @@
 Some TLS implementations handle errors processing RSA key exchanges and encryption (PKCS #1 v1.5 messages) in a broken way that leads an adaptive chosen-chiphertext attack. Attackers cannot recover a server's private key, but they can decrypt and sign messages with it. A strong oracle occurs when the TLS server does not strictly check message formatting and needs less than a million requests on average to decode a given ciphertext. A weak oracle server strictly checks message formatting and often requires many more requests to perform the attack.
 
-## Vulnerable Applications
+## Vulnerable Application
 
 * F5 BIG-IP 11.6.0-11.6.2 (fixed in 11.6.2 HF1), 12.0.0-12.1.2 HF1 (fixed in 12.1.2 HF2), or 13.0.0-13.0.0 HF2 (fixed in 13.0.0 HF3) (CVE 2017-6168)
 * Citrix NetScaler Gateway 10.5 before build 67.13, 11.0 before build 71.22, 11.1 before build 56.19, and 12.0 before build 53.22 (CVE 2017-17382)

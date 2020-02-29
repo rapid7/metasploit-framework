@@ -12,7 +12,7 @@
   * [RIPS v0.54 Source](https://sourceforge.net/projects/rips-scanner/files/rips-0.54.zip/download)
 
 
-## Verification
+## Verification Steps
 
   1. Start `msfconsole`
   2. `use auxiliary/scanner/http/rips_traversal`

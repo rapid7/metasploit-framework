@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2018, Rapid7, Inc.
+Copyright: 2006-2020, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
@@ -70,6 +70,10 @@ License: GPL-2
 Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
+
+Files: lib/expect.rb
+Copyright: 2017 Yukihiro Matsumoto
+License: Ruby
 
 Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov

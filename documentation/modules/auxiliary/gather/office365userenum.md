@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 External python module compatible with v2 and v3.
 
 Enumerate valid usernames (email addresses) from Office 365 using ActiveSync.
@@ -14,9 +16,7 @@ Microsoft Security Response Center stated on 2017-06-28 that this issue does not
 
 This script is maintaing the ability to run independently of MSF.
 
-## Vulnerable Application
-
-  Office365's implementation of ActiveSync
+Office365's implementation of ActiveSync is vulnerable.
 
 ## Verification Steps
 
@@ -41,6 +41,7 @@ This script is maintaing the ability to run independently of MSF.
 
 
 ## Scenarios
+
 The following demonstrates basic usage, using the supplied users wordlist
 and default options.
 
@@ -72,6 +73,3 @@ grimhacker.com  ..        |
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
-
-## References
-https://grimhacker.com/2017/07/24/office365-activesync-username-enumeration/

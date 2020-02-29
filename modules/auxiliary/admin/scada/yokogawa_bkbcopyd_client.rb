@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2014-5208' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/08/09/r7-2014-10-disclosure-yokogawa-centum-cs3000-bkbcopydexe-file-system-access']
+          [ 'URL', 'https://blog.rapid7.com/2014/08/09/r7-2014-10-disclosure-yokogawa-centum-cs3000-bkbcopydexe-file-system-access']
         ],
       'Actions'     =>
         [

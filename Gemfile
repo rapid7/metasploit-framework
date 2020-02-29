@@ -17,7 +17,7 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry'
+  gem 'pry-byebug'
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy

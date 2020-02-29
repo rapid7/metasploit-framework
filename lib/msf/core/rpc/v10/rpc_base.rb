@@ -9,10 +9,10 @@ class RPC_Base
   #
   # return [void]
   def initialize(service)
-    self.service   = service
-    self.framework = service.framework
-    self.tokens    = service.tokens
-    self.users     = service.users
+    self.service           = service
+    self.framework         = service.framework
+    self.tokens            = service.tokens
+    self.users             = service.users
   end
 
   # Raises an Msf::RPC Exception.

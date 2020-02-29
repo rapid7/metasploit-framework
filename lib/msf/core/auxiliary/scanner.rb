@@ -34,7 +34,6 @@ end
 
 def check
   nmod = replicant
-  nmod.datastore['RHOST'] = @original_rhost
   begin
     nmod.check_host(datastore['RHOST'])
   rescue NoMethodError

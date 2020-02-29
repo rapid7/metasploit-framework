@@ -3,7 +3,7 @@ This module inserts a payload into an existing PE file on a remote
 machine.  When a user launches the binary, the payload will run
 as a thread within the process with the same privs.
 
-## Module Options
+## Options
 LHOST  IP of host that will receive the connection from the payload.
 LPORT  Port for Payload to connect to.
 OPTIONS Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
@@ -22,13 +22,13 @@ EXITS.  Be careful closing sessions that were spawned using this method!
 If a setting is wrong, it may cause the binary to fail to launch,
 alerting the user to possible shinnanigans.
 
-## Vulnerable Applications
+## Vulnerable Application
 `Vulnerable` is a bad term; this module inserts shellcode into a pe
 file.  That means any Windows pe files are `vulnerable`.
 Be aware that some files like calc.exe on later Windows versions
 are not entirely normal in their behvior and are not `vulnerable`
 
-## Verification steps
+## Verification Steps
 * get session on target
 * `use post/windows/manage/peinjector`
 * `set payload <payload>`

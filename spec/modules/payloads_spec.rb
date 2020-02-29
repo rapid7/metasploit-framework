@@ -898,6 +898,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_socat_udp'
   end
 
+  context 'cmd/unix/reverse_ssh' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_ssh'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_ssh'
+  end
+
   context 'cmd/unix/reverse_perl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
