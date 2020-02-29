@@ -1511,7 +1511,9 @@ class Core
     print_line "If both are omitted, print options that are currently set."
     print_line
     print_line "If run from a module context, this will set the value in the module's"
-    print_line "datastore.  Use -g to operate on the global datastore"
+    print_line "datastore.  Use -g to operate on the global datastore."
+    print_line
+    print_line "If setting a PAYLOAD, this command can take an index from `show payloads'."
     print_line
   end
 
@@ -1575,13 +1577,19 @@ class Core
     name  = args[0]
     value = args[1, args.length-1].join(' ')
 
-    # Set PAYLOAD by index
+    # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
-      index_from_list(payload_show_results, value) do |mod|
-        return false unless mod && mod.respond_to?(:first)
+      if value.start_with?('/', 'payload/')
+        # Trims starting `/`, `payload/`, `/payload/` from user input
+        value.sub!(%r{^/?(?:payload/)?}, '')
+      else
+        # Checking set PAYLOAD by index
+        index_from_list(payload_show_results, value) do |mod|
+          return false unless mod && mod.respond_to?(:first)
 
-        # [name, class] from payload_show_results
-        value = mod.first
+          # [name, class] from payload_show_results
+          value = mod.first
+        end
       end
     end
 

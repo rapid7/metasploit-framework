@@ -33,7 +33,7 @@ module SocketAbstraction
       _address_family,caddr,_cport = csock.getsockname
       address_family,raddr,_rport = csock.getpeername_as_array
       _maddr,mport = [ channel.params.localhost, channel.params.localport ]
-      [ address_family, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", "#{mport}" ]
+      [ address_family, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", mport ]
     end
 
     def getpeername

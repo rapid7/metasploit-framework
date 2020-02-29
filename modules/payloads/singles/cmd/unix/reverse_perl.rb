@@ -38,6 +38,7 @@ module MetasploitModule
   # Constructs the payload
   #
   def generate
+    vprint_good(command_string)
     return super + command_string
   end
 

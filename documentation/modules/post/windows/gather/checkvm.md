@@ -21,7 +21,7 @@ msf post(windows/gather/checkvm) > run
 [*] Post module execution completed
 ```
 
-# Example Output
+## Scenarios
 
 ### On a Windows 10 x64 physical machine
 ```

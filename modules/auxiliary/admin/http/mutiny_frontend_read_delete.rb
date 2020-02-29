@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2013-0136' ],
           [ 'US-CERT-VU', '701572' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/05/15/new-1day-exploits-mutiny-vulnerabilities' ]
+          [ 'URL', 'https://blog.rapid7.com/2013/05/15/new-1day-exploits-mutiny-vulnerabilities' ]
         ],
       'Actions'     =>
         [

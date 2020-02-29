@@ -1,4 +1,4 @@
-## Introduction
+## Vulnerable Application
 
 Cisco Data Center Network Manager exposes a servlet to download files on /fm/downloadServlet.
 An authenticated user can abuse this servlet to download arbitrary files as root by specifying
@@ -8,21 +8,7 @@ This module was tested on the DCNM Linux virtual appliance 10.4(2), 11.0(1) and 
 work on a few versions below 10.4(2). Only version 11.0(1) requires authentication to exploit
 (see References to understand why), on the other versions it abuses CVE-2019-1619 to bypass authentication.
 
-
-## Author and discoverer
-
-Pedro Ribeiro (pedrib@gmail.com) from Agile Information Security
-
-
-## References
-
-https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-bypass
-https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20190626-dcnm-file-dwnld
-https://raw.githubusercontent.com/pedrib/PoC/master/exploits/metasploit/cisco_dcnm_download.rb
-https://seclists.org/fulldisclosure/2019/Jul/7
-
-
-## Usage
+## Scenarios
 
 Setup RHOST, pick the file to download (FILENAME, default is /etc/shadow) and enjoy!
 

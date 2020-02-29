@@ -61,16 +61,16 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 2.0.0'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 3.0.0'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models', '3.0.10'
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 3.0.10'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  spec.add_runtime_dependency 'metasploit-model', '~> 2.0.4'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.83'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.84'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.5.16'
   # Needed by msfgui and other rpc components
@@ -198,6 +198,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'faker'
   # Pinned as a dependency of i18n to the last working version
   spec.add_runtime_dependency 'concurrent-ruby','1.0.5'
+  # SSH server library
+  spec.add_runtime_dependency 'hrr_rb_ssh', '0.3.0.pre2'
 
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'

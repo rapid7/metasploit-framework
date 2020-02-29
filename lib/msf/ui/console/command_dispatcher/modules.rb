@@ -31,6 +31,8 @@ module Msf
               "loadpath"   => "Searches for and loads modules from a path",
               "popm"       => "Pops the latest module off the stack and makes it active",
               "pushm"      => "Pushes the active or list of modules onto the module stack",
+              "listm"      => "List the module stack",
+              "clearm"     => "Clear the module stack",
               "previous"   => "Sets the previously loaded module as the current module",
               "reload_all" => "Reloads all modules from all defined module paths",
               "search"     => "Searches module names and descriptions",
@@ -385,7 +387,14 @@ module Msf
               end
             end
 
-            cached = true if args.empty?
+            if args.empty?
+              if @module_search_results.empty?
+                cmd_search_help
+                return false
+              end
+
+              cached = true
+            end
 
             # Display the table of matches
             tbl = generate_module_table('Matching Modules', search_term)
@@ -745,6 +754,8 @@ module Msf
             print_line
             print_line "Set the previously loaded module as the current module"
             print_line
+            print_line "Previous module: #{@previous_module ? @previous_module.fullname : 'none'}"
+            print_line
           end
 
           #
@@ -802,7 +813,7 @@ module Msf
                 @module_name_stack = []
                 print_status("The module stack is empty")
               else
-                @module_name_stack.pop[args[0]]
+                @module_name_stack.pop(args[0].to_i)
               end
             else #then just pop the array and make that the active module
               pop = @module_name_stack.pop
@@ -823,6 +834,38 @@ module Msf
             print_line "pop the latest module off of the module stack and make it the active module"
             print_line "or pop n modules off the stack, but don't change the active module"
             print_line
+          end
+
+          def cmd_listm_help
+            print_line 'Usage: listm'
+            print_line
+            print_line 'List the module stack'
+            print_line
+          end
+
+          def cmd_listm(*_args)
+            if @module_name_stack.empty?
+              print_error('The module stack is empty')
+              return
+            end
+
+            print_status("Module stack:\n")
+
+            @module_name_stack.to_enum.with_index.reverse_each do |name, idx|
+              print_line("[#{idx}]\t#{name}")
+            end
+          end
+
+          def cmd_clearm_help
+            print_line 'Usage: clearm'
+            print_line
+            print_line 'Clear the module stack'
+            print_line
+          end
+
+          def cmd_clearm(*_args)
+            print_status('Clearing the module stack')
+            @module_name_stack.clear
           end
 
           #

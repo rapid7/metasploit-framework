@@ -3,7 +3,7 @@ Port of a brute force utility by Corey Harding of LegacySecurityGroup.com, the o
 It's a generic AM/OOK brute forcer with PWM translations.  It has been
 demonstrated to work against static key garage door openers.
 
-## Options ##
+## Options
 
   **FREQ**
 

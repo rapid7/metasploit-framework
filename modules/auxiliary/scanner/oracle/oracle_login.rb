@@ -17,6 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to authenticate against an Oracle RDBMS
         instance using username and password combinations indicated
         by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+
+        Due to a bug in nmap versions 6.50-7.80 may not work.
       },
       'Author'         => [
         'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse

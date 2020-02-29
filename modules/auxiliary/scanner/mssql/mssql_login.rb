@@ -22,7 +22,13 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '1999-0506'] # Weak password
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      # some overrides from authbrute since there is a default username and a blank password
+      'DefaultOptions' =>
+        {
+          'USERNAME' => 'sa',
+          'BLANK_PASSWORDS' => true
+        }
     )
 
     deregister_options('PASSWORD_SPRAY')

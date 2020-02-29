@@ -5,7 +5,7 @@ module Msf::Module::Deprecated
   # Additional class methods for deprecated modules
   module ClassMethods
     attr_accessor :deprecation_date
-    attr_accessor :deprecated_name
+    attr_accessor :deprecated_names
 
     # Mark this module as deprecated
     #
@@ -26,12 +26,11 @@ module Msf::Module::Deprecated
 
     # Mark this module as moved from another location. This adds an alias to
     # the module so that it can still be used by its old name and will print a
-    # warning informing the use of the new name. This currently only works for
-    # a single move, but it can be extended in the future for multiple moves.
+    # warning informing the use of the new name.
     #
     # @param from [String] the previous `fullname` of the module
     def moved_from(from)
-      self.deprecated_name = from
+      self.deprecated_names << from
 
       if const_defined?(:Aliases)
         const_get(:Aliases).append from
@@ -42,7 +41,7 @@ module Msf::Module::Deprecated
       # NOTE: aliases are not set until after initialization, so might as well
       # use the block form of alert here too.
       add_warning do
-        if fullname == self.class.deprecated_name
+        if fullname == from
           [ "*%red" + "The module #{fullname} has been moved!".center(88) + "%clr*",
             "*" + "You are using #{realname}".center(88) + "*" ]
         end
@@ -53,5 +52,6 @@ module Msf::Module::Deprecated
   # Extends with {ClassMethods}
   def self.included(base)
     base.extend(ClassMethods)
+    base.deprecated_names = []
   end
 end
