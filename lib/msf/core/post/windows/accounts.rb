@@ -32,7 +32,7 @@ module Msf
         ].freeze
 
         ##
-        # get_domain(server_name = nil)
+        # get_domain(server_name = nil, info_key)
         #
         # Summary:
         #   Retrieves the current DomainName the given server is
@@ -44,9 +44,16 @@ module Msf
         #   The DomainName of the remote server or nil if windows
         #   could not retrieve the DomainControllerInfo or encountered
         #   an exception.
-        #
+        #   info_key[
+        #   DomainControllerName,
+        #   DomainControllerAddress,
+        #   DomainControllerAddressType,
+        #   DomainGuid,
+        #   DomainName,
+        #   DcSiteName,
+        #   ClientSiteName]
         ##
-        def get_domain(server_name = nil)
+        def get_domain(server_name = nil, info_key='DomainName')
           domain = nil
           result = session.railgun.netapi32.DsGetDcNameA(
             server_name,
@@ -61,7 +68,7 @@ module Msf
             dc_info_addr = result['DomainControllerInfo']
             unless dc_info_addr == 0
               dc_info = session.railgun.util.read_data(DOMAIN_CONTROLLER_INFO, dc_info_addr)
-              pointer = session.railgun.util.unpack_pointer(dc_info['DomainName'])
+              pointer = session.railgun.util.unpack_pointer(dc_info[info_key])
               domain = session.railgun.util.read_string(pointer)
             end
           ensure
