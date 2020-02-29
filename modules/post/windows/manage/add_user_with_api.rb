@@ -112,7 +112,7 @@ def local_mode()
     datastore['GROUP'] = 'administrators'
     print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
   end
-  if datastore['SERVER_NAME'][0,2] != '\\\\'
+  if datastore['SERVER_NAME'] != nil and datastore['SERVER_NAME'][0,2] != '\\\\'
     print_error("Wrong format of service name, e.g. \\\\XXX.kali-team.cn,(Escape sequences:\\\\\\\\ => \\\\)")
     return nil
   end
@@ -195,7 +195,7 @@ def domain_mode()
     datastore['SERVER_NAME'] = domain
     print_status("You have not set up a server_name. The default is '#{datastore['SERVER_NAME']}' " )
   end
-  if datastore['SERVER_NAME'][0,2] != '\\\\'
+  if datastore['SERVER_NAME'] != nil and datastore['SERVER_NAME'][0,2] != '\\\\'
     print_error("Wrong format of service name, e.g. \\\\XXX.kali-team.cn,(Escape sequences:\\\\\\\\ => \\\\)")
     return nil
   end
