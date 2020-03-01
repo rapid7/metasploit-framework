@@ -351,67 +351,153 @@ module Msf
         end
 
         ##
-        # add_user(username, password = nil, user_info)
+        # add_user(server_name = nil,  username, password, acct_flags)
         #
         # Summary:
         #   Adds a user account to the given server (or local, if none specified)
         #
         # Parameters
-        #   username        - The username of the account to add (not-qualified, e.g. BOB)
-        #   password        - The password to be assigned to the new user account
-        #   group                - The local group to which the specified users or global groups will be added
-        #   dont_expire_pwd - toggles the "Password never expires" flag on the account
-        #   server_name     - DNS or NetBIOS name of remote server on which to add user
+        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   username              - The username of the account to add (not-qualified, e.g. BOB)
+        #   password               - The password to be assigned to the new user account
+        #   acct_flags              - Note that setting user account control flags may require certain privileges and control access rights.
         ##
-
-        def add_user(server_name = nil, user_info)
+        def add_user(server_name = nil, username, password, acct_flags)
+          addr_username = session.railgun.util.alloc_and_write_wstring(username)
+          addr_password = session.railgun.util.alloc_and_write_wstring(password)
+          #  Set up the USER_INFO_1 structure.
+          #  https://docs.microsoft.com/en-us/windows/win32/api/Lmaccess/ns-lmaccess-user_info_1
+          user_info = [
+            addr_username,
+            addr_password,
+            0x0,
+            0x1,
+            0x0,
+            0x0,
+            client.railgun.const(acct_flags),
+            0x0
+          ].pack("VVVVVVVV")
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
-          user_info_array = user_info.unpack("VVVVVVVV")
+          client.railgun.multi([
+            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
+            ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]],  #  addr_password
+          ])
           return result
-          end
+        end
 
-        #  Add localgroup
-        def add_localgroup(server_name = nil, localgroup_info)
+        ##
+        # add_localgroup(server_name = nil, localgroup)
+        #
+        # Summary:
+        #   Creates a local group to the given server (or local, if none specified)
+        #
+        # Parameters
+        #   server_name    - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   localgroup         -  Specifies a local group name
+        ##
+        def add_localgroup(server_name = nil, localgroup)
+          #  Set up the #  LOCALGROUP_INFO_1 structure.
+          addr_group   = session.railgun.util.alloc_and_write_wstring(localgroup)
+          #  https://docs.microsoft.com/windows/desktop/api/lmaccess/ns-lmaccess-localgroup_info_1
+          localgroup_info = [
+            addr_group, #  lgrpi1_name
+            0x0 #  lgrpi1_comment
+          ].pack("VV")
           result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
+          client.railgun.multi([
+            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+          ])
           return result
         end
 
-        #  Add group to Domain
-        def add_group(server_name = nil, group_info)
-          result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info,4)
+        # add_group(server_name = nil, group)
+        #
+        # Summary:
+        #    Creates a global group in the security database,
+        #
+        # Parameters
+        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group                       -  Specifies a global group name
+        ##
+        def add_group(server_name = nil, group)
+          addr_group   = session.railgun.util.alloc_and_write_wstring(group)
+            #  https://docs.microsoft.com/zh-cn/windows/win32/api/lmaccess/ns-lmaccess-group_info_1
+            # Set up the GROUP_INFO_1 structure.
+            group_info_1 = [
+              addr_group,
+              0x0
+            ].pack("VV")
+          result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info_1,4)
+          client.railgun.multi([
+            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+          ])
           return result
         end
 
-        #  Add user to localgroup
-        def add_members_localgroup(server_name = nil, localgroup, localgroup_members)
+        # add_members_localgroup(server_name = nil, localgroup, username)
+        #
+        # Summary:
+        #    Adds membership of one existing user accounts or global group accounts to an existing local group.
+        #
+        # Parameters
+        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   localgroup             -  Specifies a local group name
+        #   username               -  Specifies a local username
+        ##
+        def add_members_localgroup(server_name = nil, localgroup, username)
+          addr_username = session.railgun.util.alloc_and_write_wstring(username)
+            #  Set up the LOCALGROUP_MEMBERS_INFO_3 structure.
+            #  https://docs.microsoft.com/windows/desktop/api/lmaccess/ns-lmaccess-localgroup_members_info_3
+            localgroup_members = [
+              addr_username,
+            ].pack("V")
           result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
+          client.railgun.multi([
+            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
+          ])
           return result
         end
 
-        #  Add user to Domain group
-        def add_members_group(server_name = nil, group, group_members)
-          result = client.railgun.netapi32.NetGroupAddUser(server_name, group, group_members)
+        # add_members_group(server_name = nil, group, username)
+        #
+        # Summary:
+        #    Gives an existing user account membership in an existing global group in the security database
+        #
+        # Parameters
+        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group                       -  Specifies a global group name
+        #   username              -   Specifies a global username
+        ##
+        def add_members_group(server_name = nil, group, username)
+          result = client.railgun.netapi32.NetGroupAddUser(server_name, group, username)
           return result
         end
 
-      #  Get members from group
-      def get_members_from_group(server_name = nil, groupname)
-        members = []
-        result = client.railgun.netapi32.NetGroupGetUsers(server_name, groupname, 0, 4, 1024, 4, 4, 0)
-        begin
-          members_info_addr = result['bufptr'].unpack("V")[0]
-          unless members_info_addr == 0
-            members_info = session.railgun.util.read_array(GROUP_USERS_INFO, result['entriesread'], members_info_addr)
-            for member in members_info
-              members<<member["grui0_name"]
+        # get_members_from_group(server_name = nil, groupname)
+        #
+        # Summary:
+        #    retrieves a list of the members in a particular global group in the security database.
+        #
+        # Parameters
+        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group                       -  Specifies a group name
+        ##
+        def get_members_from_group(server_name = nil, groupname)
+          members = []
+          result = client.railgun.netapi32.NetGroupGetUsers(server_name, groupname, 0, 4, 1024, 4, 4, 0)
+          begin
+            members_info_addr = result['bufptr'].unpack("V")[0]
+            unless members_info_addr == 0
+              members_info = session.railgun.util.read_array(GROUP_USERS_INFO, result['entriesread'], members_info_addr)
+              for member in members_info
+                members<<member["grui0_name"]
+              end
+              return members
             end
-            return members
           end
+          ensure
+            session.railgun.netapi32.NetApiBufferFree(members_info_addr)
         end
-        ensure
-          session.railgun.netapi32.NetApiBufferFree(members_info_addr)
-      end
-
       end # Accounts
     end # Windows
   end # Post
