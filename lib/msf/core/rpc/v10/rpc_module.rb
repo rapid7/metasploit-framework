@@ -539,7 +539,7 @@ class RPC_Module < RPC_Base
       end
     elsif self.framework.job_state_tracker.running? uuid
       {"status" => "running"}
-    elsif self.framework.job_state_tracker.waiting uuid
+    elsif self.framework.job_state_tracker.waiting? uuid
       {"status" => "ready"}
     else
       error(404, "Results not found for module instance #{uuid}")
