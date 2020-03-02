@@ -145,6 +145,7 @@ class MetasploitModule < Msf::Auxiliary
             private: result.credential.private,
             realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
             realm_value: result.credential.realm,
+            last_attempted_at: DateTime.now,
             status: result.status
         )
         :abort
@@ -160,6 +161,7 @@ class MetasploitModule < Msf::Auxiliary
           private: result.credential.private,
           realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
           realm_value: result.credential.realm,
+          last_attempted_at: DateTime.now,
           status: result.status
         )
       end
