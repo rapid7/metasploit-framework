@@ -69,7 +69,7 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.job_state_tracker.waiting run_uuid
+    mod.framework.ready << run_uuid
     ctx = [mod, run_uuid]
     if(mod.passive? or opts['RunAsJob'])
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -122,7 +122,7 @@ module Auxiliary
 
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.job_state_tracker.waiting run_uuid
+    mod.framework.ready << run_uuid
     ctx = [mod, run_uuid]
 
     if opts['RunAsJob']
@@ -169,12 +169,15 @@ protected
       mod.setup
       mod.framework.events.on_module_run(mod)
       begin
-        mod.framework.job_state_tracker.start run_uuid
+        mod.framework.running << run_uuid
+        mod.framework.ready.delete run_uuid
         result = block.call(mod)
-        mod.framework.job_state_tracker.completed(run_uuid, result)
+        mod.framework.results[run_uuid] = {result: result}
       rescue ::Exception => e
-        mod.framework.job_state_tracker.failed(run_uuid, e)
+        mod.framework.results[run_uuid] = {error: e.to_s}
         raise
+      ensure
+        mod.framework.running.delete run_uuid
       end
     rescue Msf::Auxiliary::Complete
       mod.cleanup
@@ -191,7 +194,7 @@ protected
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Stopping running against current target...")
+      mod.print_error("Stopping running againest current target...")
       mod.cleanup
       mod.print_status("Control-C again to force quit all targets.")
       begin

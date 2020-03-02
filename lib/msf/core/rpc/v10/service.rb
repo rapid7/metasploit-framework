@@ -15,6 +15,7 @@ require 'msf/core/rpc/v10/rpc_plugin'
 require 'msf/core/rpc/v10/rpc_job'
 require 'msf/core/rpc/v10/rpc_db'
 
+
 module Msf
 module RPC
 
