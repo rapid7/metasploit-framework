@@ -166,10 +166,10 @@ protected
     mod = ctx[0]
     run_uuid = ctx[1]
     begin
-      mod.setup
-      mod.framework.events.on_module_run(mod)
       begin
         mod.framework.job_state_tracker.start run_uuid
+        mod.setup
+        mod.framework.events.on_module_run(mod)
         result = block.call(mod)
         mod.framework.job_state_tracker.completed(run_uuid, result)
       rescue ::Exception => e
