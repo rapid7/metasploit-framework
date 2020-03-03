@@ -31,3 +31,6 @@ require 'msf/util/db_manager'
 
 # Java deserialization payload generators
 require 'msf/util/java_deserialization'
+
+# .NET deserialization payload generators
+require 'msf/util/dot_net_deserialization'
