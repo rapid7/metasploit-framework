@@ -158,6 +158,44 @@ module Common
     yield list[idx]
   end
 
+  # Trims starting `.`, `./` `/`, `+path_head+/`, & `/+path_head+/` from +path+. Also trims trailing `.+extension+`
+  # from +path+, and any possible combination of misspellings of +extension+.
+  #
+  # @param path [String] The path to be trimmed
+  # @param path_head [String] The top-level directory that should be removed from the path
+  # @param extensions [Array] File extensions to be trimmed from +path+. `.` is automatically included. Defaults to ['rb', 'py', 'go'].
+  # @return [String] Altered +path+. Will return unaltered +path+ if regex constructed with +path_head+ & +path+ is not detected
+  def trim_path(path, path_head, extensions: ['rb', 'py', 'go'])
+    #Builds capture groups for all supported file extensions
+    regex_extension = ''
+    extensions.each do |ext|
+      regex_extension << "([#{ext}])+|"
+    end
+    regex_extension.delete_suffix!('|')
+
+    regexp = %r{
+        (
+          ^\.?                      # Dot at beginning of path
+          /?                        # Slash at beginning of path
+          (#{path_head}/)?          # top level directory (slash prepending directory name is optional)
+        )
+
+        |                           # OR
+
+        (
+          \.(#{regex_extension})$   # any possible file extension at end of path
+        )
+
+        |                           # OR
+
+        (
+          \.$                       # trailing dot
+        )
+    }ix
+
+    path.gsub(regexp, '')
+  end
+
 end
 
 end
