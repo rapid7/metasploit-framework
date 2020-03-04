@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base/simple'
 require 'msf/base/simple/framework/module_paths'
+require 'msf/base/simple/job_state_tracker'
 
 module Msf
 module Simple
@@ -150,9 +151,7 @@ module Framework
   #
   def init_simplified
     self.stats = Statistics.new(self)
-    self.ready = Set.new
-    self.running = Set.new
-    self.results = Hash.new
+    self.job_state_tracker = JobStateTracker.new
   end
 
   #
@@ -174,6 +173,12 @@ module Framework
   #
   attr_reader :stats
 
+
+  #
+  # JobStateTracker
+  #
+  attr_reader :job_state_tracker
+
   #
   # Boolean indicating whether the cache is initialized yet
   #
@@ -183,32 +188,14 @@ module Framework
   # Thread of the running rebuild operation
   #
   attr_reader :cache_thread
-
-  #
-  # {Set<String>} of module run/check UUIDs waiting to be kicked off
-  #
-  attr_reader :ready
-
-  #
-  # {Hash<String,Hash>} of module run/check results, by UUID. Successful runs
-  # look like `{result: check_code}` and errors like `{error: message}`.
-  #
-  attr_reader :results
-
-  #
-  # {Set<String>} of module run/check UUIDs currently in progress
-  #
-  attr_reader :running
   attr_writer :cache_initialized # :nodoc:
   attr_writer :cache_thread # :nodoc:
 
 
 protected
 
-  attr_writer :ready # :nodoc:
-  attr_writer :results # :nodoc:
-  attr_writer :running # :nodoc:
   attr_writer :stats # :nodoc:
+  attr_writer :job_state_tracker # :nodoc:
 
 end
 
