@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base/simple'
 require 'msf/base/simple/framework/module_paths'
-require 'msf/base/simple/job_state_tracker'
+require 'msf/base/simple/noop_job_status_tracker'
 
 module Msf
 module Simple
@@ -151,7 +151,6 @@ module Framework
   #
   def init_simplified
     self.stats = Statistics.new(self)
-    self.job_state_tracker = JobStateTracker.new
   end
 
   #
@@ -175,11 +174,6 @@ module Framework
 
 
   #
-  # JobStateTracker
-  #
-  attr_reader :job_state_tracker
-
-  #
   # Boolean indicating whether the cache is initialized yet
   #
   attr_reader :cache_initialized
@@ -195,7 +189,6 @@ module Framework
 protected
 
   attr_writer :stats # :nodoc:
-  attr_writer :job_state_tracker # :nodoc:
 
 end
 

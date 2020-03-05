@@ -41,7 +41,7 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, &block)
+  def self.run_simple(omod, opts = {}, job_status_tracker: NoopJobStatusTracker.instance, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -69,8 +69,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.job_state_tracker.waiting run_uuid
-    ctx = [mod, run_uuid]
+    job_status_tracker.waiting run_uuid
+    ctx = [mod, run_uuid, job_status_tracker]
     if(mod.passive? or opts['RunAsJob'])
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Auxiliary: #{mod.refname}",
@@ -108,7 +108,7 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts)
+  def self.check_simple(mod, opts, job_status_tracker: NoopJobStatusTracker.instance)
     Msf::Simple::Framework.simplify_module(mod, false)
 
     mod._import_extra_options(opts)
@@ -122,8 +122,8 @@ module Auxiliary
 
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.job_state_tracker.waiting run_uuid
-    ctx = [mod, run_uuid]
+    job_status_tracker.waiting run_uuid
+    ctx = [mod, run_uuid, job_status_tracker]
 
     if opts['RunAsJob']
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -165,15 +165,16 @@ protected
   def self.job_run_proc(ctx, &block)
     mod = ctx[0]
     run_uuid = ctx[1]
+    job_status_tracker = ctx[2]
     begin
       begin
-        mod.framework.job_state_tracker.start run_uuid
+        job_status_tracker.start run_uuid
         mod.setup
         mod.framework.events.on_module_run(mod)
         result = block.call(mod)
-        mod.framework.job_state_tracker.completed(run_uuid, result)
+        job_status_tracker.completed(run_uuid, result)
       rescue ::Exception => e
-        mod.framework.job_state_tracker.failed(run_uuid, e)
+        job_status_tracker.failed(run_uuid, e)
         raise
       end
     rescue Msf::Auxiliary::Complete

@@ -412,9 +412,9 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.running_stats')
   def rpc_running_stats
     {
-        "waiting" => self.framework.job_state_tracker.waiting_size,
-        "running" => self.framework.job_state_tracker.running_size,
-        "results" => self.framework.job_state_tracker.results_size,
+        "waiting" => self.job_status_tracker.waiting_size,
+        "running" => self.framework.job_status_tracker.running_size,
+        "results" => self.framework.job_status_tracker.results_size,
     }
   end
 
@@ -484,6 +484,11 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.execute', 'exploit', 'multi/handler', opts)
   def rpc_execute(mtype, mname, opts)
     mod = _find_module(mtype,mname)
+
+    require 'pry'; binding.pry
+
+    # listener = self.settings.listener
+
     case mtype
       when 'exploit'
         _run_exploit(mod, opts)
@@ -512,7 +517,7 @@ class RPC_Module < RPC_Base
     mod = _find_module(mtype,mname)
     case mtype
     when 'exploit'
-      _check_exploit(mod, opts)
+      _check_exploit(mod, opts, )
     when 'auxiliary'
       _check_auxiliary(mod, opts)
     else
@@ -523,7 +528,7 @@ class RPC_Module < RPC_Base
   # TODO: expand these to take a list of UUIDs or stream with event data if
   # required for performance
   def rpc_results(uuid)
-    if (r = self.framework.job_state_tracker.result(uuid))
+    if (r = self.job_status_tracker.result(uuid))
       if r[:error]
         {"status" => "errored", "error" => r[:error]}
       else
@@ -537,9 +542,9 @@ class RPC_Module < RPC_Base
           {"status" => "completed", "result" => r[:result]}
         end
       end
-    elsif self.framework.job_state_tracker.running? uuid
+    elsif self.job_status_tracker.running? uuid
       {"status" => "running"}
-    elsif self.framework.job_state_tracker.waiting? uuid
+    elsif self.job_status_tracker.waiting? uuid
       {"status" => "ready"}
     else
       error(404, "Results not found for module instance #{uuid}")
@@ -547,7 +552,7 @@ class RPC_Module < RPC_Base
   end
 
   def rpc_ack(uuid)
-    {"success" => !!self.framework.job_state_tracker.ack(uuid)}
+    {"success" => !!self.job_status_tracker.ack(uuid)}
   end
 
   # Returns a list of executable format names.
@@ -744,7 +749,7 @@ private
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
-    })
+    }, job_status_tracker: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid
@@ -755,7 +760,7 @@ private
     uuid, job = Msf::Simple::Exploit.check_simple(mod,{
         'RunAsJob' => true,
         'Options'  => opts
-    })
+    }, job_status_tracker: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid
@@ -767,7 +772,7 @@ private
         'Action'   => opts['ACTION'],
         'RunAsJob' => true,
         'Options'  => opts
-    })
+    }, job_status_tracker: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid

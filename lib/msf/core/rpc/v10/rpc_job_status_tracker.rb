@@ -1,6 +1,6 @@
 require 'monitor'
 
-class JobStateTracker
+class RpcJobStatusTracker
 
   include MonitorMixin
 
@@ -71,7 +71,7 @@ class JobStateTracker
   end
 
   alias :ack :delete
-  
+
   private
 
   attr_accessor :ready, :running, :results
