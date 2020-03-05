@@ -21,21 +21,11 @@ class RpcJobStatusTracker
   end
 
   def completed(id, result, ttl=nil)
-    begin
-      # ttl of nil means it will take the default expiry time
-      results.write(id, {result: result}, ttl)
-    ensure
-      running.delete(id)
-    end
+    add_result(id, {result: result}, ttl)
   end
 
   def failed(id, error, ttl=nil)
-    begin
-      # ttl of nil means it will take the default expiry time
-      results.write(id, {error: error.to_s}, ttl)
-    ensure
-      running.delete(id)
-    end
+    add_result( id,{error: error.to_s}, ttl)
   end
 
   def running?(id)
@@ -73,6 +63,29 @@ class RpcJobStatusTracker
   alias :ack :delete
 
   private
+
+  def add_result(id, result, ttl=nil)
+    begin
+      # ttl of nil means it will take the default expiry time
+      results.write(id, result, ttl)
+    rescue Exception => e
+      print_error("Job with id: #{id} finished but the result could not be stored")
+      print_error("#{e.class}, #{e.message}")
+      add_fallback_result(id, ttl)
+    ensure
+      running.delete(id)
+    end
+  end
+
+  def add_fallback_result(id, ttl)
+    begin
+      vprint_debug("Writing fallback result to cache for Job id: #{id}")
+      results.write(id, {unexpected_error: 'Job finished but the result could not be stored'}, ttl)
+    rescue Exception => e
+      print_error("Job with id: #{id} fallback result failed to be stored")
+      print_error("#{e.class}, #{e.message}")
+    end
+  end
 
   attr_accessor :ready, :running, :results
 
