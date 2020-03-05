@@ -253,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
-        if elapsed_time <= 1
+        if elapsed_time && elapsed_time <= 1
           unless user =~ /@\w+\.\w+/
             report_cred(
               ip: res.peerinfo['addr'],
@@ -301,7 +301,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.redirect?
-      if elapsed_time <= 1
+      if elapsed_time && elapsed_time <= 1
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],
@@ -329,7 +329,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return :next_user
     else
-      if elapsed_time <= 1
+      if elapsed_time && elapsed_time <= 1
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],
