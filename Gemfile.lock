@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.79)
+    metasploit-framework (5.0.80)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -124,7 +124,7 @@ GEM
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.145.0)
+    aws-sdk-ec2 (1.146.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.33.0)
@@ -323,7 +323,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.21)
+    rex-socket (0.1.22)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
