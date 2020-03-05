@@ -318,7 +318,7 @@ def dump_formats
   "\n" + tbl1.to_s + "\n" + tbl2.to_s + "\n"
 end
 
-def dump_payloads
+def dump_payloads(platform = nil, arch = nil)
   init_framework(:module_types => [ :payload ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
@@ -329,9 +329,11 @@ def dump_payloads
       "Description"
     ])
 
-  framework.payloads.each_module { |name, mod|
-    tbl << [ name, mod.new.description.split.join(' ') ]
-  }
+  framework.payloads.each_module(
+    'Platform' => platform ? Msf::Module::PlatformList.transform(platform.split(',')) : nil,
+    'Arch'     => arch ? arch.split(',') : nil) do |name, mod|
+      tbl << [ name, mod.new.description.split.join(' ') ]
+  end
 
   "\n" + tbl.to_s + "\n"
 end
@@ -350,11 +352,11 @@ def dump_encoders(arch = nil)
   cnt = 0
 
   framework.encoders.each_module(
-    'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+    'Arch' => arch ? arch.split(',') : nil) do |name, mod|
       tbl << [ name, mod.rank_to_s, mod.new.name ]
 
       cnt += 1
-    }
+  end
 
     (cnt > 0) ? "\n" + tbl.to_s + "\n" : "\nNo compatible encoders found.\n\n"
 end
@@ -370,9 +372,9 @@ def dump_nops
       "Description"
     ])
 
-  framework.nops.each_module { |name, mod|
+  framework.nops.each_module do |name, mod|
     tbl << [ name, mod.new.description.split.join(' ') ]
-  }
+  end
 
   "\n" + tbl.to_s + "\n"
 end
@@ -392,7 +394,7 @@ if generator_opts[:list]
   generator_opts[:list].each do |mod|
     case mod.downcase
     when "payloads", "payload", "p"
-      $stdout.puts dump_payloads
+      $stdout.puts dump_payloads(generator_opts[:platform], generator_opts[:arch])
     when "encoders", "encoder", "e"
       $stdout.puts dump_encoders(generator_opts[:arch])
     when "nops", "nop", "n"
