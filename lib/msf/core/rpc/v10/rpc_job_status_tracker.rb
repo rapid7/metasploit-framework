@@ -69,8 +69,8 @@ class RpcJobStatusTracker
       # ttl of nil means it will take the default expiry time
       results.write(id, result, ttl)
     rescue Exception => e
-      print_error("Job with id: #{id} finished but the result could not be stored")
-      print_error("#{e.class}, #{e.message}")
+      wlog("Job with id: #{id} finished but the result could not be stored")
+      wlog("#{e.class}, #{e.message}")
       add_fallback_result(id, ttl)
     ensure
       running.delete(id)
@@ -79,11 +79,10 @@ class RpcJobStatusTracker
 
   def add_fallback_result(id, ttl)
     begin
-      vprint_debug("Writing fallback result to cache for Job id: #{id}")
       results.write(id, {unexpected_error: 'Job finished but the result could not be stored'}, ttl)
     rescue Exception => e
-      print_error("Job with id: #{id} fallback result failed to be stored")
-      print_error("#{e.class}, #{e.message}")
+      wlog("Job with id: #{id} fallback result failed to be stored")
+      wlog("#{e.class}, #{e.message}")
     end
   end
 
