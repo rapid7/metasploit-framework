@@ -402,19 +402,19 @@ class RPC_Module < RPC_Base
     res
   end
 
-  # Returns the total modules in each state.
+  # Returns the currently running module stats in each state.
   #
   # @return [Hash] Running module stats that contain the following keys:
-  #  * 'ready' [Integer] The number of modules waiting to be kicked off.
-  #  * 'running' [Integer] The number of modules currently in progress.
-  #  * 'results' [Integer] The number of module run/check results.
+  #  * 'waiting' [Array<string>] The uuids of modules waiting to be kicked off.
+  #  * 'running' [Array<string>] The uuids of modules currently in progress.
+  #  * 'results' [Array<string>] The uuids of module run/check results.
   # @exampleHere's how you would use this from the client:
   #  rpc.call('module.running_stats')
   def rpc_running_stats
     {
-        "waiting" => self.job_status_tracker.waiting_size,
-        "running" => self.framework.job_status_tracker.running_size,
-        "results" => self.framework.job_status_tracker.results_size,
+        "waiting" => self.job_status_tracker.waiting_ids,
+        "running" => self.job_status_tracker.running_ids,
+        "results" => self.job_status_tracker.result_ids
     }
   end
 
