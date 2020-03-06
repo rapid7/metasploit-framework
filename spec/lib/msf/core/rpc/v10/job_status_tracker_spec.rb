@@ -35,7 +35,6 @@ RSpec.describe RpcJobStatusTracker do
 
     context 'A job is waiting' do
       before(:each) do
-        job_id = "super_random_job_id"
         job_status_tracker.waiting(job_id)
       end
 
@@ -163,6 +162,21 @@ RSpec.describe RpcJobStatusTracker do
               expect(job_status_tracker).not_to be_finished(job_id)
               expect(job_status_tracker.results_size).to be(0)
             end
+          end
+        end
+
+        context 'The job result is not serializable' do
+          before(:each) do
+            job_status_tracker.completed(job_id, proc {"procs can't be serialized"})
+          end
+
+          it 'should show as finished' do
+            expect(job_status_tracker).to be_finished(job_id)
+            expect(job_status_tracker.results_size).to be(1)
+          end
+
+          it 'should have an unexpected_error result' do
+            expect(job_status_tracker.result job_id).to have_key(:unexpected_error)
           end
         end
       end
