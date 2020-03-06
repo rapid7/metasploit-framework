@@ -10,7 +10,7 @@ To to able to use the ```WBemExec``` mixin, you must meet these requirements:
 
 ### Usage
 
-First, include the ```WbemExec``` mixin under the scope of your ```Metasploit3``` class. You will also need the ```EXE``` mixin to generate an executable:
+First, include the ```WbemExec``` mixin under the scope of your ```MetasploitModule``` class. You will also need the ```EXE``` mixin to generate an executable:
 
 ```ruby
 include Msf::Exploit::EXE
