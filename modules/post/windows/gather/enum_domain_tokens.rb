@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -33,7 +34,7 @@ class MetasploitModule < Msf::Post
 
     if not domain.empty?
       uid = client.sys.config.getuid
-      dom_admins = list_domain_group_mem("Domain Admins")
+      dom_admins = get_members_from_group("Domain Admins")
 
       if  uid =~ /#{domain}/
         user = uid.split("\\")[1]
@@ -49,27 +50,6 @@ class MetasploitModule < Msf::Post
       list_tokens(domain, dom_admins)
       list_processes(domain, dom_admins)
     end
-  end
-
-  # List local group members
-  def list_group_mem(group)
-    devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = cmd_exec("net localgroup #{group}").split(devisor)[1]
-    account_list = raw_list.split("\r\n")
-    account_list.delete("The command completed successfully.")
-    return account_list
-  end
-
-  # List Members of a domain group
-  def list_domain_group_mem(group)
-    account_list = []
-    devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = cmd_exec("net groups \"#{group}\" /domain").split(devisor)[1]
-    raw_list.split(" ").each do |m|
-      account_list << m
-    end
-    account_list.delete("The command completed successfully.")
-    return account_list
   end
 
   # Gets the Domain Name
@@ -167,9 +147,9 @@ class MetasploitModule < Msf::Post
         "Domain Admin"
       ])
     print_status("Checking local groups for Domain Accounts and Groups")
-    admins = list_group_mem("Administrators")
-    users = list_group_mem("users")
-    backops = list_group_mem("\"Backup Operators\"")
+    admins = get_members_from_localgroup("Administrators")
+    users = get_members_from_localgroup("users")
+    backops = get_members_from_localgroup("\"Backup Operators\"")
     admins.each do |dt|
       if dt =~ /#{domain}/
         user = dt.split("\\")[1]
