@@ -25,6 +25,37 @@ class Def_windows_netapi32
       ["PDWORD","DomainControllerInfo","out"]
     ])
 
+    dll.add_function('NetUserEnum', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["DWORD","level","in"],
+      ["DWORD","filter","in"],
+      ["PBLOB","bufptr","out"],
+      ["DWORD","prefmaxlen","in"],
+      ["PDWORD","entriesread","out"],
+      ["PDWORD","totalentries","out"],
+      ["PDWORD","ResumeHandle","inout"],
+    ])
+
+    dll.add_function('NetLocalGroupEnum', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","bufptr","out"],
+      ["DWORD","prefmaxlen","in"],
+      ["PDWORD","entriesread","out"],
+      ["PDWORD","totalentries","out"],
+      ["PDWORD","ResumeHandle","inout"],
+    ])
+
+    dll.add_function('NetGroupEnum', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","bufptr","out"],
+      ["DWORD","prefmaxlen","in"],
+      ["PDWORD","entriesread","out"],
+      ["PDWORD","totalentries","out"],
+      ["PDWORD","ResumeHandle","inout"],
+    ])
+
     dll.add_function('NetUserDel', 'DWORD',[
       ["PWCHAR","servername","in"],
       ["PWCHAR","username","in"],
@@ -40,6 +71,17 @@ class Def_windows_netapi32
     dll.add_function('NetGroupGetUsers', 'DWORD', [
       ["PWCHAR","servername","in"],
       ["PWCHAR","groupname","in"],
+      ["DWORD","level","in"],
+      ["PBLOB","bufptr","out"],
+      ["DWORD","prefmaxlen","in"],
+      ["PDWORD","entriesread","out"],
+      ["PDWORD","totalentries","out"],
+      ["PDWORD","ResumeHandle","inout"],
+    ])
+
+    dll.add_function('NetLocalGroupGetMembers', 'DWORD', [
+      ["PWCHAR","servername","in"],
+      ["PWCHAR","localgroupname","in"],
       ["DWORD","level","in"],
       ["PBLOB","bufptr","out"],
       ["DWORD","prefmaxlen","in"],
