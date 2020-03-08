@@ -26,19 +26,14 @@ module Auxiliary::Ubiquiti
   def repair_zip(fname)
     zip_exe = Msf::Util::Helper.which('zip')
     if zip_exe.nil?
+      print_error('Zip utility not found.')
       return nil
     end
     print_status('Attempting to repair zip file (this is normal and takes some time)')
     temp_file = Rex::Quickfile.new("fixed_zip")
     system("yes | #{zip_exe} -FF #{fname} --out #{temp_file.path}.zip > /dev/null")
-    if $? == 0
-      return File.read("#{temp_file.path}.zip")
-    else
-      print_error('Error fixing zip.  Attempt manually.')
-      nil
-    end
+    return File.read("#{temp_file.path}.zip")
   end
-
 
   def bson_to_json(byte_buffer)
     # This function takes a byte buffer (db file from Unifi read in), which is a bson string
@@ -185,24 +180,19 @@ module Auxiliary::Ubiquiti
       lines.each do |line|
         case line['key']
         when 'snmp'
+          cred = credential_data.dup
+          cred[:protocol] = 'udp'
+          cred[:port] = 161
+          cred[:service_name] = 'snmp'
+          cred[:private_type] = :password
           unless line['community'].blank?
-            cred = credential_data.dup
-            cred[:protocol] = 'udp'
-            cred[:port] = 161
-            cred[:service_name] = 'snmp'
             cred[:private_data] = line['community']
-            cred[:private_type] = :password
             create_credential_and_login(cred)
             print_good("SNMP v2 #{line['enabled'] ? 'enabled' : 'disabled'} with password #{line['community']}")
           end
           unless line['x_password'].blank? || line['username'].blank?
-            cred = credential_data.dup
-            cred[:protocol] = 'udp'
-            cred[:port] = 161
-            cred[:service_name] = 'snmp'
             cred[:username] = line['username']
             cred[:private_data] = line['x_password']
-            cred[:private_type] = :password
             create_credential_and_login(cred)
             print_good("SNMP v3 #{line['enabledV3'] ? 'enabled' : 'disabled'} with username #{line['username']} password #{line['x_password']}")
           end

@@ -17,12 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         Unifi. This module can take either the db file or .unf.
         },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'h00die'],
-      'Actions'       =>
-        [
-          ['UNIFI', {'Description' => 'Import Unifi .unf or db File'}],
-        ],
-      'DefaultAction' => 'UNIFI',
+      'Author'        => ['h00die']
     ))
 
     register_options(
@@ -34,24 +29,27 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
+  def i_file
+    datastore['CONFIG'].to_s
+  end
+
   def run
-    unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Unifi config file #{datastore['CONFIG']} does not exists!"
+    unless ::File.exist?(i_file)
+      fail_with Failure::BadConfig, "Unifi config file #{i_file} does not exists!"
     end
-    unifi_config = ::File.open(datastore['CONFIG'], "rb")
-    f = unifi_config.read()
-    unifi_config.close()
+    # input_file could be a unf (encrypted zip), or the db file contained within.
+    input_file = ::File.open(i_file, "rb")
+    f = input_file.read()
+    input_file.close()
 
     if f.nil?
-      print_error("#{full} read at 0 bytes.  Either file is empty or error reading.")
-      return
+      fail_with Failure::BadConfig, "#{i_file} read at 0 bytes.  Either file is empty or error reading."
     end
 
-    if datastore['CONFIG'].end_with? ".unf"
+    if i_file.end_with? ".unf"
       decrypted_data = decrypt_unf(f)
       if decrypted_data.nil? || decrypted_data.empty?
-        print_error('Unable to decrypt')
-        return
+        fail_with Failure::Unknown, 'Unable to decrypt'
       end
       print_good("File DECRYPTED.  Still needs to be repaired")
       loot_path = Rex::Quickfile.new("decrypted_zip.zip")
@@ -61,8 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       # tested on kali
       repaired = repair_zip(loot_path.path)
       if repaired.nil?
-        print_bad("Repair failed on #{loot_path.path}")
-        return
+        fail_with Failure::Unknown, "Repair failed on #{loot_path.path}"
       end
       loot_path = Rex::Quickfile.new("fixed_zip.zip")
       loot_path.write(repaired)
@@ -77,18 +74,22 @@ class MetasploitModule < Msf::Auxiliary
             gz = Zlib::GzipReader.new(entry.get_input_stream)
             f = gz.read
             gz.close
-
+            break
           end
         end
       end
     end
-    print_status('Converting config BSON to JSON')
-    unifi_config = bson_to_json(f)
-    if unifi_config == {}
-      print_bad('Error in conversion')
-      return
+
+    if f.nil?
+      fail_with Failure::Unknown, "#{loot_path.path} does not contain a db.gz config file."
     end
-    unifi_config_eater(datastore['RHOSTS'],datastore['RPORT'],unifi_config)
+
+    print_status('Converting config BSON to JSON')
+    unifi_config_db_json = bson_to_json(f)
+    if unifi_config_db_json == {}
+      fail_with Failure::Unknown, 'Error in file conversion from BSON to JSON.'
+    end
+    unifi_config_eater(datastore['RHOSTS'],datastore['RPORT'],unifi_config_db_json)
     print_good('Config import successful')
   end
 end

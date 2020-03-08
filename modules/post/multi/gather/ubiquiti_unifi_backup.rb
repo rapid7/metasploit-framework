@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         a known encryption key, then attempted to be repaired by zip.  Meterpreter must be
         used due to the large file sizes, which can be flaky on regular shells to read.
         Confirmed to work on 5.10.19 - 5.10.23, but most likely quite a bit more.
-        If the zip can be repaired, the db will be extracted and information extracted.
+        If the zip can be repaired, the db and its information will be extracted.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
