@@ -11,6 +11,16 @@
 AllCops:
   TargetRubyVersion: 2.4
 
+require:
+  - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
+  - ./lib/rubocop/cop/layout/module_description_indentation.rb
+
+Layout/ModuleHashOnNewLine:
+  Enabled: true
+
+Layout/ModuleDescriptionIndentation:
+  Enabled: true
+
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
@@ -59,6 +69,25 @@ Style/Documentation:
   Exclude:
     - 'modules/**/*'
 
+Layout/FirstArgumentIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/ArgumentAlignment:
+  Enabled: true
+  EnforcedStyle: with_first_argument
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/FirstHashElementIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/FirstHashElementLineBreak:
+  Enabled: true
+  Description: 'Enforce consistency by breaking hash elements on to new lines'
+
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
   Description: 'Almost all module metadata have space in brackets'
@@ -93,26 +122,26 @@ Style/TrailingCommaInArrayLiteral:
 
 Metrics/LineLength:
   Description: >-
-                  Metasploit modules often pattern match against very
-                  long strings when identifying targets.
+    Metasploit modules often pattern match against very
+    long strings when identifying targets.
   Enabled: true
   Max: 180
 
 Metrics/BlockLength:
   Enabled: true
   Description: >-
-                  While the style guide suggests 10 lines, exploit definitions
-                  often exceed 200 lines.
+    While the style guide suggests 10 lines, exploit definitions
+    often exceed 200 lines.
   Max: 300
 
 Metrics/MethodLength:
   Enabled: true
   Description: >-
-                  While the style guide suggests 10 lines, exploit definitions
-                  often exceed 200 lines.
+    While the style guide suggests 10 lines, exploit definitions
+    often exceed 200 lines.
   Max: 300
 
-Naming/MethodParameterName:            
+Naming/MethodParameterName:
   Enabled: true
   Description: 'Whoever made this requirement never looked at crypto methods, IV'
   MinNameLength: 2
@@ -126,13 +155,10 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Layout/HashAlignment:
-  Enabled: false
-  Description: 'aligning info hashes to match these rules is almost impossible to get right'
-
-Layout/EmptyLines:
-  Enabled: false
-  Description: 'these are used to increase readability'
+Layout/FirstArrayElementIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful to force values within the register_options array to have sane indentation'
 
 Layout/EmptyLinesAroundClassBody:
   Enabled: false
@@ -142,18 +168,23 @@ Layout/EmptyLinesAroundMethodBody:
   Enabled: false
   Description: 'these are used to increase readability'
 
-Layout/ParameterAlignment:
+Layout/ExtraSpacing:
+  Description: 'Do not use unnecessary spacing.'
   Enabled: true
-  EnforcedStyle: 'with_fixed_indentation'
-  Description: 'initialize method of every module has fixed indentation for Name, Description, etc'
+  # When true, allows most uses of extra spacing if the intent is to align
+  # things with the previous or next line, not counting empty lines or comment
+  # lines.
+  AllowForAlignment: false
+  # When true, allows things like 'obj.meth(arg)  # comment',
+  # rather than insisting on 'obj.meth(arg) # comment'.
+  # If done for alignment, either this OR AllowForAlignment will allow it.
+  AllowBeforeTrailingComments: false
+  # When true, forces the alignment of `=` in assignments on consecutive lines.
+  ForceEqualSignAlignment: false
 
 Style/For:
   Enabled: false
   Description: 'if a module is written with a for loop, it cannot always be logically replaced with each'
-
-Style/StringLiterals:
-  Enabled: false
-  Description: 'Single vs double quote fights are largely unproductive.'
 
 Style/WordArray:
   Enabled: false
@@ -162,6 +193,22 @@ Style/WordArray:
 Style/IfUnlessModifier:
   Enabled: false
   Description: 'This style might save a couple of lines, but often makes code less clear'
+
+Style/PercentLiteralDelimiters:
+  Description: 'Use `%`-literal delimiters consistently.'
+  Enabled: true
+  # Specify the default preferred delimiter for all types with the 'default' key
+  # Override individual delimiters (even with default specified) by specifying
+  # an individual key
+  PreferredDelimiters:
+    default: ()
+    '%i': '[]'
+    '%I': '[]'
+    '%r': '{}'
+    '%w': '[]'
+    '%W': '[]'
+    '%q': '{}' # Chosen for module descriptions as () are frequently used characters, whilst {} are rarely used
+  VersionChanged: '0.48.1'
 
 Style/RedundantBegin:
   Exclude:
