@@ -57,11 +57,11 @@ class MetasploitModule < Msf::Post
     end
 
     begin
-      print_status("Migrating to #{target_pid}")
+      print_status("Migrating into #{target_pid}")
       session.core.migrate(target_pid)
-      print_good("Successfully migrated to process #{target_pid}")
+      print_good("Successfully migrated into process #{target_pid}")
     rescue ::Exception => e
-      print_error("Could not migrate in to process.")
+      print_error("Could not migrate into process")
       print_error("Exception: #{e.class} : #{e}")
     end
 
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Post
     target_ppid = session.sys.process[datastore['PPID_NAME']] || datastore['PPID']
     cmd = get_notepad_pathname(client.arch, client.sys.config.getenv('windir'), client.arch)
 
-    print_status("Spawning notepad.exe process to migrate to")
+    print_status("Spawning notepad.exe process to migrate into")
 
     if target_ppid != 0 and not has_pid?(target_ppid)
       print_error("Process #{target_ppid} not found")
