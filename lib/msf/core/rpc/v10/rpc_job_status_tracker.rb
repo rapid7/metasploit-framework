@@ -20,12 +20,12 @@ class RpcJobStatusTracker
     ready.delete(id)
   end
 
-  def completed(id, result, ttl=nil)
-    add_result(id, {result: result}, ttl)
+  def completed(id, result, mod, ttl=nil)
+    add_result(id, {result: result}, mod, ttl)
   end
 
-  def failed(id, error, ttl=nil)
-    add_result( id,{error: error.to_s}, ttl)
+  def failed(id, error, mod, ttl=nil)
+    add_result( id,{error: error.to_s}, mod, ttl)
   end
 
   def running?(id)
@@ -41,7 +41,10 @@ class RpcJobStatusTracker
   end
 
   def result(id)
-    results.fetch(id)
+    result = results.fetch(id)
+    return unless result
+
+    JSON.parse(result).with_indifferent_access
   end
 
   def delete(id)
@@ -60,26 +63,31 @@ class RpcJobStatusTracker
     running.to_a
   end
 
+  def data
+    results.data
+  end
+
   alias :ack :delete
 
   private
 
-  def add_result(id, result, ttl=nil)
+  def add_result(id, result, mod, ttl=nil)
     begin
       # ttl of nil means it will take the default expiry time
-      results.write(id, result, ttl)
+      string = result.to_json
+      results.write(id, string, ttl)
     rescue Exception => e
       wlog("Job with id: #{id} finished but the result could not be stored")
       wlog("#{e.class}, #{e.message}")
-      add_fallback_result(id, ttl)
+      add_fallback_result(id, mod, ttl)
     ensure
       running.delete(id)
     end
   end
 
-  def add_fallback_result(id, ttl)
+  def add_fallback_result(id, mod, ttl)
     begin
-      results.write(id, {unexpected_error: 'Job finished but the result could not be stored'}, ttl)
+      results.write(id, {error: { message: 'Job finished but the result could not be stored'}, data: { mod: mod.fullname }}, ttl)
     rescue Exception => e
       wlog("Job with id: #{id} fallback result failed to be stored")
       wlog("#{e.class}, #{e.message}")

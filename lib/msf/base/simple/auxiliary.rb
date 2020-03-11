@@ -172,9 +172,9 @@ protected
         mod.setup
         mod.framework.events.on_module_run(mod)
         result = block.call(mod)
-        job_status_tracker.completed(run_uuid, result)
+        job_status_tracker.completed(run_uuid, result, mod)
       rescue ::Exception => e
-        job_status_tracker.failed(run_uuid, e)
+        job_status_tracker.failed(run_uuid, e, mod)
         raise
       end
     rescue Msf::Auxiliary::Complete
