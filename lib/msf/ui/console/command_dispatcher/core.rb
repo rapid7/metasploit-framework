@@ -69,6 +69,10 @@ class Core
     "-l" => [ false, "List all background threads."                   ],
     "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
+  @@tip_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-l" => [ false, "List all available tips."                       ])
+
   @@connect_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-p" => [ true,  "List of proxies to use."                        ],
@@ -115,6 +119,7 @@ class Core
       "set"        => "Sets a context-specific variable to a value",
       "setg"       => "Sets a global variable to a value",
       "sleep"      => "Do nothing for the specified number of seconds",
+      "tip"        => "Show a useful productivity tip",
       "threads"    => "View and manipulate background threads",
       "unload"     => "Unload a framework plugin",
       "unset"      => "Unsets one or more context-specific variables",
@@ -217,24 +222,6 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    # These messages should /not/ show up when you're on a git checkout;
-    # you're a developer, so you already know all this.
-    if (is_apt || binary_install)
-      content = [
-        "Trouble managing data? List, sort, group, tag and search your pentest data\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Frustrated with proxy pivoting? Upgrade to layer-2 VPN pivoting with\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Payload caught by AV? Fly under the radar with Dynamic Payloads in\nMetasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Easy phishing: Set up email templates, landing pages and listeners\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Taking notes in notepad? Have Metasploit Pro track & report\nyour progress and findings -- learn more on http://rapid7.com/metasploit",
-        "Tired of typing 'set RHOSTS'? Click & pwn with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
-        "Love leveraging credentials? Check out bruteforcing\nin Metasploit Pro -- learn more on http://rapid7.com/metasploit",
-        "Save 45% of your time on large engagements with Metasploit Pro\nLearn more on http://rapid7.com/metasploit",
-        "Validate lots of vulnerabilities to demonstrate exposure\nwith Metasploit Pro -- Learn more on http://rapid7.com/metasploit"
-      ]
-      banner << content.sample # Ruby 1.9-ism!
-      banner << "\n\n"
-    end
-
     avdwarn = nil
 
     stats       = framework.stats
@@ -248,6 +235,9 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
+
+    banner << "\n"
+    banner << "Metasploit tip: #{Tip.sample}\n"
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
@@ -265,6 +255,35 @@ class Core
       avdwarn.map{|line| print_error(line) }
     end
 
+  end
+
+  def cmd_tip_help
+    print_line "Usage: tip [options]"
+    print_line
+    print_line "Print a useful tip on how to use Metasploit"
+    print @@tip_opts.usage
+  end
+
+  #
+  # Display a useful productivity tip to the user.
+  #
+  def cmd_tip(*args)
+    if args.include?("-h")
+      cmd_tip_help
+    elsif args.include?("-l")
+      tbl = Table.new(
+        Table::Style::Default,
+        'Columns' => %w[Id Tip]
+      )
+
+      Tip.all.each_with_index do |tip, index|
+        tbl << [ index, tip ]
+      end
+
+      print(tbl.to_s)
+    else
+      print_line Tip.sample
+    end
   end
 
   def cmd_connect_help
@@ -2456,26 +2475,6 @@ class Core
       print_error("Invalid session identifier: #{session_id}") unless quiet
       nil
     end
-  end
-
-  # Determines if this is an apt-based install
-  def is_apt
-    File.exist?(File.expand_path(File.join(Msf::Config.install_root, '.apt')))
-  end
-
-  # Determines if we're a Metasploit Pro/Community/Express
-  # installation or a tarball/git checkout
-  #
-  # XXX This will need to be update when we embed framework as a gem in
-  # commercial packages
-  #
-  # @return [Boolean] true if we are a binary install
-  def binary_install
-    binary_paths = [
-      'C:/metasploit/apps/pro/msf3',
-      '/opt/metasploit/apps/pro/msf3'
-    ]
-    return binary_paths.include? Msf::Config.install_root
   end
 
   #
