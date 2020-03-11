@@ -39,12 +39,56 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
     end
   end
 
+  def start_profiler
+    root_path = Pathname.new(Msf::Config::install_root)
+    tmp_directory = root_path.join('tmp')
+    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+
+    if ENV['METASPLOIT_CPU_PROFILE']
+      require 'ruby-prof'
+
+      dump_path = tmp_directory.join("#{timestamp}-cpu")
+      ::FileUtils.mkdir_p(dump_path)
+
+      RubyProf.start
+
+      at_exit do
+        puts "Generating CPU dump #{dump_path}"
+        result = RubyProf.stop
+        printer = RubyProf::MultiPrinter.new(result, [:flat, :graph_html, :tree, :stack])
+        printer.print(path: dump_path)
+
+        Rex::Compat.open_file(dump_path)
+      end
+    end
+
+    if ENV['METASPLOIT_MEMORY_PROFILE']
+      require 'memory_profiler'
+
+      ::FileUtils.mkdir_p(tmp_directory)
+      report_name = "#{timestamp}-memory.profile"
+      report_path = tmp_directory.join(report_name)
+
+      MemoryProfiler.start
+
+      at_exit do
+        puts "Generating memory report #{dump_path}"
+        report = MemoryProfiler.stop
+        report.pretty_print(to_file: report_path)
+
+        puts "Memory report saved to #{report_path}"
+        Rex::Compat.open_file(report_path)
+      end
+    end
+  end
+
   def start
     case parsed_options.options.subcommand
     when :version
       $stderr.puts "Framework Version: #{Metasploit::Framework::VERSION}"
     else
       spinner unless parsed_options.options.console.quiet
+      start_profiler
       driver.run
     end
   end
