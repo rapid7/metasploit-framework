@@ -1,6 +1,6 @@
 require 'singleton'
 
-class NoopJobStatusTracker
+class NoopJobListener
 
   include Singleton
 
@@ -10,10 +10,10 @@ class NoopJobStatusTracker
   def start(id)
   end
 
-  def completed(id, result, ttl=nil)
+  def completed(id, result, mod)
   end
 
-  def failed(id, error, ttl=nil)
+  def failed(id, error, mod)
   end
 
   def running?(id)

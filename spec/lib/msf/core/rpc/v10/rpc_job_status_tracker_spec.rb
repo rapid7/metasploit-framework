@@ -4,34 +4,13 @@ require 'msf/core/rpc/v10/rpc_job_status_tracker'
 
 RSpec.describe RpcJobStatusTracker do
 
-  context "With a 1 second ttl " do
-    let(:job_status_tracker) { described_class.new(result_ttl=1) }
-    let(:job_id) { "super_random_job_id" }
-
-
-    before(:each) do
-      allow(ActiveSupport::Cache::MemoryStore).to receive(:new).and_call_original
-    end
-
-    context "A job has completed" do
-      before(:each) do
-        generic_result = "This is a job that has finished"
-        job_status_tracker.completed(job_id, generic_result)
-      end
-
-      it 'should show as finished' do
-        expect(job_status_tracker).to be_finished(job_id)
-      end
-
-      it { expect(ActiveSupport::Cache::MemoryStore).to have_received(:new).with(expires_in: 1) }
-    end
-  end
-
   context "With default options" do
     let(:job_status_tracker) { described_class.new }
     let(:job_id) { "super_random_job_id" }
     let(:good_result) { 'yay_success' }
     let(:bad_result) { 'boo_fail' }
+    let(:mod) { double("mod") }
+
 
     context 'A job is waiting' do
       before(:each) do
@@ -75,7 +54,7 @@ RSpec.describe RpcJobStatusTracker do
 
         context "The job completes successfully" do
           before(:each) do
-            job_status_tracker.completed(job_id, good_result)
+            job_status_tracker.completed(job_id, good_result, mod)
           end
 
           it 'should not show as waiting' do
@@ -94,7 +73,7 @@ RSpec.describe RpcJobStatusTracker do
           end
 
           it 'should have a retrievable result' do
-            expect(job_status_tracker.result job_id).to eq({result: good_result})
+            expect(job_status_tracker.result job_id).to eql({"result" => good_result})
           end
 
           context "The job is acknowledged" do
@@ -121,7 +100,7 @@ RSpec.describe RpcJobStatusTracker do
 
         context "The job fails" do
           before(:each) do
-            job_status_tracker.failed(job_id, bad_result)
+            job_status_tracker.failed(job_id, bad_result, mod)
           end
 
           it 'should not show as waiting' do
@@ -140,7 +119,7 @@ RSpec.describe RpcJobStatusTracker do
           end
 
           it 'should have a retrievable result' do
-            expect(job_status_tracker.result job_id).to eq({error: bad_result})
+            expect(job_status_tracker.result job_id).to eql({"error" => bad_result})
           end
 
           context "The job is acknowledged" do
@@ -166,8 +145,14 @@ RSpec.describe RpcJobStatusTracker do
         end
 
         context 'The job result is not serializable' do
+          let(:mock_result) { {mock: "result"} }
           before(:each) do
-            job_status_tracker.completed(job_id, proc {"procs can't be serialized"})
+            allow(mod).to receive(:fullname).and_return("module_name")
+
+            allow(job_status_tracker.instance_variable_get(:@results)).to receive(:write).with(job_id, mock_result.to_json).and_raise Exception, 'Intentional explosion'
+            allow(job_status_tracker.instance_variable_get(:@results)).to receive(:write).with(job_id, /error/).and_call_original
+
+            job_status_tracker.completed(job_id, mock_result, mod)
           end
 
           it 'should show as finished' do
@@ -175,8 +160,11 @@ RSpec.describe RpcJobStatusTracker do
             expect(job_status_tracker.result_ids).to eql([job_id])
           end
 
-          it 'should have an unexpected_error result' do
-            expect(job_status_tracker.result job_id).to have_key(:unexpected_error)
+          it 'should have an error result' do
+            puts job_status_tracker.result job_id
+            expect(job_status_tracker.result job_id).to have_key("error")
+            expect(job_status_tracker.result job_id).to have_key("data")
+
           end
         end
       end
