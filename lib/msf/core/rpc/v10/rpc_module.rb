@@ -485,10 +485,6 @@ class RPC_Module < RPC_Base
   def rpc_execute(mtype, mname, opts)
     mod = _find_module(mtype,mname)
 
-    require 'pry'; binding.pry
-
-    # listener = self.settings.listener
-
     case mtype
       when 'exploit'
         _run_exploit(mod, opts)
@@ -749,7 +745,7 @@ private
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
-    }, job_status_tracker: self.job_status_tracker)
+    }, job_listener: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid
@@ -760,7 +756,7 @@ private
     uuid, job = Msf::Simple::Exploit.check_simple(mod,{
         'RunAsJob' => true,
         'Options'  => opts
-    }, job_status_tracker: self.job_status_tracker)
+    }, job_listener: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid
@@ -772,7 +768,7 @@ private
         'Action'   => opts['ACTION'],
         'RunAsJob' => true,
         'Options'  => opts
-    }, job_status_tracker: self.job_status_tracker)
+    }, job_listener: self.job_status_tracker)
     {
       "job_id" => job,
       "uuid" => uuid

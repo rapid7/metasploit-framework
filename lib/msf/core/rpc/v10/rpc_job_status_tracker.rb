@@ -4,11 +4,11 @@ class RpcJobStatusTracker
 
   include MonitorMixin
 
-  def initialize(result_ttl=nil)
+  def initialize
     @ready = Set.new
     @running = Set.new
     # Can be expanded upon later to allow the option of a MemCacheStore being backed by redis for example
-    @results = ResultsMemoryStore.new(expires_in: result_ttl || 5.minutes)
+    @results = ResultsMemoryStore.new
   end
 
   def waiting(id)
@@ -20,12 +20,12 @@ class RpcJobStatusTracker
     ready.delete(id)
   end
 
-  def completed(id, result, mod, ttl=nil)
-    add_result(id, {result: result}, mod, ttl)
+  def completed(id, result, mod)
+    add_result(id, { result: result }, mod)
   end
 
-  def failed(id, error, mod, ttl=nil)
-    add_result( id,{error: error.to_s}, mod, ttl)
+  def failed(id, error, mod)
+    add_result(id, { error: error.to_s }, mod)
   end
 
   def running?(id)
@@ -67,28 +67,33 @@ class RpcJobStatusTracker
     results.data
   end
 
-  alias :ack :delete
+  alias ack delete
 
   private
 
-  def add_result(id, result, mod, ttl=nil)
-    begin
-      # ttl of nil means it will take the default expiry time
-      string = result.to_json
-      results.write(id, string, ttl)
-    rescue Exception => e
-      wlog("Job with id: #{id} finished but the result could not be stored")
-      wlog("#{e.class}, #{e.message}")
-      add_fallback_result(id, mod, ttl)
-    ensure
-      running.delete(id)
-    end
+  def add_result(id, result, mod)
+    string = result.to_json
+    results.write(id, string)
+  rescue ::Exception => e
+    wlog("Job with id: #{id} finished but the result could not be stored")
+    wlog("#{e.class}, #{e.message}")
+    add_fallback_result(id, mod)
+  ensure
+    running.delete(id)
+
   end
 
-  def add_fallback_result(id, mod, ttl)
+  def add_fallback_result(id, mod)
     begin
-      results.write(id, {error: { message: 'Job finished but the result could not be stored'}, data: { mod: mod.fullname }}, ttl)
-    rescue Exception => e
+      string = {
+        error: {
+          message: 'Job finished but the result could not be stored'
+        },
+        data: { mod: mod.fullname }
+      }.to_json
+      puts string
+      results.write(id, string)
+    rescue ::Exception => e
       wlog("Job with id: #{id} fallback result failed to be stored")
       wlog("#{e.class}, #{e.message}")
     end
