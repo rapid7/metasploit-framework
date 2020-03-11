@@ -1,10 +1,17 @@
 # -*- coding: binary -*-
 
+require 'msf/core/exploit/windows_constants'
+require 'msf/core/post/windows/error'
+
 module Msf
 class Post
 module Windows
 
 module FileSystem
+  include Msf::Exploit::Windows_Constants
+  include Msf::Post::Windows::Error
+
+
 
   class String16 < BinData::String
     def assign(val)
@@ -114,6 +121,7 @@ module FileSystem
   IO_REPARSE_TAG_WOF              = 0x80000017
 
   FSCTL_SET_REPARSE_POINT = 0x000900a4
+  SYMBOLIC_LINK_ALL_ACCESS = STANDARD_RIGHTS_REQUIRED | 0x1
 
 
   def set_reparse_point(handle, reparse_buffer)
@@ -183,10 +191,6 @@ module FileSystem
     set_reparse_point(handle, buffer.to_binary_s)
     #result = session.railgun.kernel32.CloseHandle(handle)
   end
-
-
-
-  SYMBOLIC_LINK_ALL_ACCESS = STANDARD_RIGHTS_REQUIRED | 0x1
 
   def create_symlink(root, link_name, target_name)
     object_attributes = ObjectAttributes.new(
