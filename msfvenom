@@ -8,13 +8,17 @@ class UsageError < MsfVenomError; end
 require 'optparse'
 require 'timeout'
 
-def require_deps
-  msfbase = __FILE__
-  while File.symlink?(msfbase)
-    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-  end
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
 
-  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+
+require 'metasploit/framework/profiler'
+Metasploit::Framework::Profiler.start
+
+def require_deps
   require 'msfenv'
 
   $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
