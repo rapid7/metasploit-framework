@@ -513,7 +513,7 @@ class RPC_Module < RPC_Base
     mod = _find_module(mtype,mname)
     case mtype
     when 'exploit'
-      _check_exploit(mod, opts, )
+      _check_exploit(mod, opts)
     when 'auxiliary'
       _check_auxiliary(mod, opts)
     else

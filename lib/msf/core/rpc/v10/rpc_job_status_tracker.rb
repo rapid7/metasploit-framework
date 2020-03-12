@@ -80,23 +80,18 @@ class RpcJobStatusTracker
     add_fallback_result(id, mod)
   ensure
     running.delete(id)
-
   end
 
   def add_fallback_result(id, mod)
-
     string = {
-      error: {
-        message: 'Job finished but the result could not be stored'
-      },
+      error: 'Job finished but the result could not be stored',
       data: { mod: mod.fullname }
     }.to_json
-    puts string
+
     results.write(id, string)
   rescue ::Exception => e
     wlog("Job with id: #{id} fallback result failed to be stored")
     wlog("#{e.class}, #{e.message}")
-
   end
 
   attr_accessor :ready, :running, :results
