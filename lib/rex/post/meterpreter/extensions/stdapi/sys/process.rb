@@ -42,6 +42,8 @@ class Process < Rex::Post::Process
   # valid.
   #
   def Process.[](key)
+    return if key.nil?
+
     each_process { |p|
       if (p['name'].downcase == key.downcase)
         return p['pid']
