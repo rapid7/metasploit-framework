@@ -159,9 +159,16 @@ RSpec.describe RpcJobStatusTracker do
           end
 
           it 'should have an error result' do
-            puts job_status_tracker.result job_id
-            expect(job_status_tracker.result(job_id)).to have_key('error')
-            expect(job_status_tracker.result(job_id)).to have_key('data')
+            expect(job_status_tracker.result(job_id)).to eql(
+              {
+                'error' => {
+                  'message' => 'Job finished but the result could not be stored',
+                  'data' => {
+                    'mod' => 'module_name'
+                  }
+                }
+              }
+            )
           end
         end
       end
