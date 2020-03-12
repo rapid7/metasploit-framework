@@ -39,7 +39,8 @@ class NetworkPug < Extension
         client,
         channel_id,
         "networkpug_interface",
-        CHANNEL_FLAG_SYNCHRONOUS
+        CHANNEL_FLAG_SYNCHRONOUS,
+        response
       )
     end
 

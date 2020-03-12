@@ -179,7 +179,7 @@ class Process < Rex::Post::Process
     # If we were creating a channel out of this
     if (channel_id != nil)
       channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
-          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS, nil)
+          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS, response)
     end
 
     # Return a process instance
