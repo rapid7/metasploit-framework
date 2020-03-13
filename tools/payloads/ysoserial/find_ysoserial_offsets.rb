@@ -22,8 +22,8 @@ if ARGV.include?("-h")
 end
 
 debug = ARGV.include?('-d')
-ysoserial_modified = ARGV.include?('-m')
-if ysoserial_modified
+@ysoserial_modified = ARGV.include?('-m')
+if @ysoserial_modified
   payload_type = ARGV[ARGV.find_index('-m')+1]
   unless ['cmd', 'bash', 'powershell', 'none'].include?(payload_type)
     STDERR.puts 'ERROR: Invalid payload type specified'
@@ -36,7 +36,7 @@ def generate_payload(payload_name,search_string_length)
   searchString = 'A' * search_string_length
 
   # Build the command line with ysoserial parameters
-  if ysoserial_modified
+  if @ysoserial_modified
     stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar',payload_name.to_s,payload_type.to_s,searchString.to_s)
   else
     stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar',payload_name.to_s,searchString.to_s)
@@ -156,7 +156,7 @@ payloadList.each do |payload|
     diffs = diff(payload_array[i],payload_array[i+1])
 
     break if diffs.nil?
- 
+
     # Iterate through each diff, searching for offsets of the length and the payload
     (0..diffs.length-1).each do |j|
       current_byte = diffs[j]
@@ -218,7 +218,7 @@ results.each do |k,v|
 end
 
 unless debug
-  puts JSON.generate(results)
+  puts JSON.pretty_generate(results)
 end
 
 STDERR.puts "DONE!  Successfully generated #{payloadCount['static']} static payloads and #{payloadCount['dynamic']} dynamic payloads.  Skipped #{payloadCount['skipped']} unsupported payloads."
