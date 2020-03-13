@@ -41,7 +41,7 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, &block)
+  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -69,8 +69,8 @@ module Auxiliary
     end
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.ready << run_uuid
-    ctx = [mod, run_uuid]
+    job_listener.waiting run_uuid
+    ctx = [mod, run_uuid, job_listener]
     if(mod.passive? or opts['RunAsJob'])
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Auxiliary: #{mod.refname}",
@@ -108,7 +108,7 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts)
+  def self.check_simple(mod, opts, job_listener: Msf::Simple::NoopJobListener.instance)
     Msf::Simple::Framework.simplify_module(mod, false)
 
     mod._import_extra_options(opts)
@@ -122,8 +122,8 @@ module Auxiliary
 
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
-    mod.framework.ready << run_uuid
-    ctx = [mod, run_uuid]
+    job_listener.waiting run_uuid
+    ctx = [mod, run_uuid, job_listener]
 
     if opts['RunAsJob']
       mod.job_id = mod.framework.jobs.start_bg_job(
@@ -165,19 +165,17 @@ protected
   def self.job_run_proc(ctx, &block)
     mod = ctx[0]
     run_uuid = ctx[1]
+    job_listener = ctx[2]
     begin
-      mod.setup
-      mod.framework.events.on_module_run(mod)
       begin
-        mod.framework.running << run_uuid
-        mod.framework.ready.delete run_uuid
+        job_listener.start run_uuid
+        mod.setup
+        mod.framework.events.on_module_run(mod)
         result = block.call(mod)
-        mod.framework.results[run_uuid] = {result: result}
+        job_listener.completed(run_uuid, result, mod)
       rescue ::Exception => e
-        mod.framework.results[run_uuid] = {error: e.to_s}
+        job_listener.failed(run_uuid, e, mod)
         raise
-      ensure
-        mod.framework.running.delete run_uuid
       end
     rescue Msf::Auxiliary::Complete
       mod.cleanup
@@ -194,7 +192,7 @@ protected
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Stopping running againest current target...")
+      mod.print_error("Stopping running against current target...")
       mod.cleanup
       mod.print_status("Control-C again to force quit all targets.")
       begin

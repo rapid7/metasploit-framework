@@ -12,6 +12,7 @@ require 'msf/core/web_services/json_rpc_exception_handling'
 
 module Msf::WebServices
   class JsonRpcApp < Sinatra::Base
+
     helpers ServletHelper
     helpers Msf::RPC::JSON::DispatcherHelper
 
