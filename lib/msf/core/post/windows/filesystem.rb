@@ -185,6 +185,11 @@ module FileSystem
     str
   end
 
+  def create_mount_point(path, target, printname)
+    return false if target.nil?
+    create_mount_point_internal(path, build_mount_point(fixup_path(target), printname))
+  end
+
   def create_mount_point_internal(path, buffer)
     handle = open_reparse_point(path, true)
     return nil unless handle
