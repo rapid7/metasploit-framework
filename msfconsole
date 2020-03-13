@@ -42,32 +42,20 @@ end
 #
 
 # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
-def parse_args(args)
-  options = {}
-  opts = OptionParser.new do |opts|
-    opts.on('-v', '--version' , 'Msfconsole version') do |version|
-      require 'metasploit/framework/version'
-      options[:version] = Metasploit::Framework::VERSION
-    end
-  end
-  begin
-    opts.parse(args)
-  rescue Exception => e
-    puts "Exception encountered: #{e}"
-    exit 1
-  end
-  options
-end
 
 begin
   require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
-  options = parse_args(ARGV)
-  if options.empty?
+  case ARGV[0]
+  when "-v"
+    require 'metasploit/framework/version'
+    puts "Framework Version: #{Metasploit::Framework::VERSION}"
+  when "--version"
+    require 'metasploit/framework/version'
+    puts "Framework Version: #{Metasploit::Framework::VERSION}"
+  else
     require 'metasploit/framework/command/console'
     require 'msf/core/payload_generator'
     Metasploit::Framework::Command::Console.start
-  elsif options[:version] != nil
-    puts "Framework Version: " + options[:version]
   end
 rescue Interrupt
   puts "\nAborting..."
