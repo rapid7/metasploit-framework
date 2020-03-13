@@ -194,6 +194,7 @@ GEM
     loofah (2.4.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
+    memory_profiler (0.9.14)
     metasm (1.0.4)
     metasploit-concern (2.0.5)
       activemodel (~> 4.2.6)
@@ -373,6 +374,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
     ruby-macho (2.2.0)
+    ruby-prof (1.3.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby_smb (1.1.0)
@@ -427,6 +429,7 @@ PLATFORMS
 DEPENDENCIES
   factory_bot_rails
   fivemat
+  memory_profiler
   metasploit-framework!
   octokit
   pry-byebug
@@ -435,6 +438,7 @@ DEPENDENCIES
   rspec-rails
   rspec-rerun
   rubocop
+  ruby-prof
   simplecov (= 0.18.2)
   sqlite3 (~> 1.3.0)
   swagger-blocks

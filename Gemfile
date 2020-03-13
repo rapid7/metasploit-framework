@@ -20,6 +20,10 @@ group :development do
   gem 'pry-byebug'
   # module documentation
   gem 'octokit'
+  # memory profiling
+  gem 'memory_profiler'
+  # cpu profiling
+  gem 'ruby-prof'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
   #gem 'metasploit-aggregator'
