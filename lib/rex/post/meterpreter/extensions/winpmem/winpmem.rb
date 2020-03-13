@@ -46,7 +46,7 @@ class Winpmem < Extension
 
     # Open the compressed Channel
     channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "winpmem",
-      CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS)
+      CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS, response)
     return memory_size, response_code, channel
   end
 end

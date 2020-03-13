@@ -43,7 +43,7 @@ module Rex
                 response = client.send_request(request)
                 return nil unless response.result == 0
 
-                channel = Channel.create(client, 'audio_mic', Rex::Post::Meterpreter::Channels::Pools::StreamPool, CHANNEL_FLAG_SYNCHRONOUS)
+                channel = Channel.create(client, 'audio_mic', Rex::Post::Meterpreter::Channels::Pools::StreamPool, CHANNEL_FLAG_SYNCHRONOUS, response)
               end
 
               # Stop recording from microphone

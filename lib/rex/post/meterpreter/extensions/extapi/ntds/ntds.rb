@@ -28,7 +28,7 @@ class Ntds
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "extapi_ntds", CHANNEL_FLAG_SYNCHRONOUS)
+    Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "extapi_ntds", CHANNEL_FLAG_SYNCHRONOUS, response)
   end
 
   attr_accessor :client
