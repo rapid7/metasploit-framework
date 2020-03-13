@@ -12,7 +12,7 @@ class JavaDeserialization
 
   PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
-  def self.ysoserial_payload(payload_name, command=nil, serial_version_uid: nil)
+  def self.ysoserial_payload(payload_name, command=nil)
     # Open the JSON file and parse it
     begin
       path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
@@ -54,20 +54,6 @@ class JavaDeserialization
         bytes[(length_offset-1)..length_offset] = length
       end
 
-      # HACK: Update serialVersionUID if specified
-      if serial_version_uid
-        unless serial_version_uid.is_a?(String)
-          raise ArgumentError, 'serial_version_uid must be a string'
-        end
-
-        if serial_version_uid.length != 8
-          raise ArgumentError, 'serial_version_uid must be 8 bytes'
-        end
-
-        # XXX: This hardcoded value may change!
-        bytes.sub!("\xe3\xa1\x88\xea\x73\x22\xa4\x48", serial_version_uid)
-      end
-
       # Replace "ysoserial\/Pwner" timestamp string with randomness for evasion
       bytes.gsub!(/ysoserial\/Pwner00000000000000/, Rex::Text.rand_text_alphanumeric(29))
 
@@ -76,6 +62,7 @@ class JavaDeserialization
       raise RuntimeError, 'Malformed JSON file'
     end
   end
+
 end
 end
 end
