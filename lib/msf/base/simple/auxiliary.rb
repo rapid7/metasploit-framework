@@ -41,7 +41,7 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, job_listener: NoopJobListener.instance, &block)
+  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -108,7 +108,7 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts, job_listener: NoopJobListener.instance)
+  def self.check_simple(mod, opts, job_listener: Msf::Simple::NoopJobListener.instance)
     Msf::Simple::Framework.simplify_module(mod, false)
 
     mod._import_extra_options(opts)
