@@ -391,7 +391,7 @@ module Msf
             0x0,
             client.railgun.const('UF_SCRIPT | UF_NORMAL_ACCOUNT|UF_DONT_EXPIRE_PASSWD'),
             0x0
-          ].pack(client.arch == "x86" ? "VVVVVVVV" :"QQQQQQQQ")
+          ].pack(client.arch == "x86" ? "VVVVVVVV" : "QQVVQQVQ")
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
           client.railgun.multi([
             ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
@@ -500,7 +500,7 @@ module Msf
         def get_members_from_group(server_name = nil, groupname)
           members = []
           result = client.railgun.netapi32.NetGroupGetUsers(server_name, groupname, 0, 4, 1024, 4, 4, 0)
-          if result['return'] == 0
+          if result['return'] == 0 and (result['totalentries'] % 4294967296) != 0
             begin
               members_info_addr = result['bufptr'].unpack("V").first
               unless members_info_addr == 0
@@ -533,7 +533,7 @@ module Msf
         def get_members_from_localgroup(server_name = nil, localgroupname)
           members = []
           result = client.railgun.netapi32.NetLocalGroupGetMembers(server_name, localgroupname, 3, 4, 1024, 4, 4, 0)
-          if result['return'] == 0
+          if result['return'] == 0 and (result['totalentries'] % 4294967296) != 0
             begin
               members_info_addr = result['bufptr'].unpack("V").first
               unless members_info_addr == 0
@@ -563,7 +563,7 @@ module Msf
           users = []
           filter = 'FILTER_NORMAL_ACCOUNT|FILTER_TEMP_DUPLICATE_ACCOUNT'
           result = client.railgun.netapi32.NetUserEnum(server_name, 0, client.railgun.const(filter) , 4, 1024, 4, 4, 0)
-          if result['return'] == 0
+          if result['return'] == 0 and (result['totalentries'] % 4294967296) != 0
             begin
               user_info_addr = result['bufptr'].unpack("V").first
               unless user_info_addr == 0
@@ -592,7 +592,7 @@ module Msf
         def enum_localgroup(server_name = nil)
           localgroups = []
           result = client.railgun.netapi32.NetLocalGroupEnum(server_name, 0 , 4, 1024, 4, 4, 0)
-          if result['return'] == 0
+          if result['return'] == 0 and (result['totalentries'] % 4294967296) != 0
             begin
               localgroup_info_addr = result['bufptr'].unpack("V").first
               unless localgroup_info_addr == 0
@@ -621,7 +621,7 @@ module Msf
         def enum_group(server_name = nil)
           groups = []
           result = client.railgun.netapi32.NetGroupEnum(server_name, 0, 4, 1024, 4, 4, 0)
-          if result['return'] == 0
+          if result['return'] == 0 and (result['totalentries'] % 4294967296) != 0
             begin
               group_info_addr = result['bufptr'].unpack("V").first
               unless group_info_addr == 0
