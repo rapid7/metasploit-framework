@@ -1,0 +1,28 @@
+#
+# Automatically respond to any issues/pull requests that have the given labels assigned.
+#
+name: Label Commenter
+
+on:
+  issues:
+    types:
+      - labeled
+      - unlabeled
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+
+jobs:
+  comment:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Label Commenter
+        uses: peaceiris/actions-label-commenter@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          config_file: .github/label-commenter-config.yml
