@@ -9,7 +9,7 @@ labels:
           - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
         action: open
     unlabeled:
-      issue:
+      pr:
         body: |
           Thank you for adding module documentation :tada:
         action: open
