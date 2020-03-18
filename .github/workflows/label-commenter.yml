@@ -22,7 +22,8 @@ jobs:
           ref: master
 
       - name: Label Commenter
-        uses: peaceiris/actions-label-commenter@v1
+        # Note: Using SHA explicitly for v1.2.3 - https://julienrenaux.fr/2019/12/20/github-actions-security-risk/
+        uses: peaceiris/actions-label-commenter@93941f8f189a4b92ab75059aa39fe421469253f4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           config_file: .github/label-commenter-config.yml
