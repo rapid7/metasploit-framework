@@ -1,5 +1,6 @@
-## Overview
-Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the /shutdown URL.
+## Vulnerable Application
+Tautulli versions 2.1.9 and prior are vulnerable to denial of service via the `/shutdown` URL in applications that do
+not have a user login area enabled.
 
 ## Scenario
 
