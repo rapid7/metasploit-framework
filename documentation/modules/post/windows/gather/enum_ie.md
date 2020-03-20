@@ -24,7 +24,7 @@
     - HTTP auth credentials
     - Saved form credentials
 
-## Example Scenario
+## Scenarios
 
   **Using the module with an earlier version than IE7 (IE6)**
 

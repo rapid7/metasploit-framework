@@ -86,7 +86,7 @@ module Rex
         report_fingerprint(host_object)
         # Reset the state once we close a host
         @state.delete_if {|k| k.to_s !~ /^(current_tag|in_nodes)$/}
-        @report_data = {:wspace => @args[:wspace]}
+        @report_data = {:workspace => @args[:workspace]}
       when "name"
         collect_hostname
         @state[:has_text] = false
@@ -368,7 +368,7 @@ module Rex
       return unless @state[:test]
 
       vuln_info = {
-        :workspace => @args[:wspace],
+        :workspace => @args[:workspace],
         # This name will be overwritten during the vuln definition
         # parsing via mass-update.
         :name => "NEXPOSE-" + @state[:test][:id].downcase,
@@ -655,7 +655,7 @@ module Rex
         db.emit(:address,@report_data[:host],&block) if block
         device_id   = @report_data[:nx_device_id]
 
-        host_object = db_report(:host, @report_data.merge(:workspace => @args[:wspace] ) )
+        host_object = db_report(:host, @report_data.merge(:workspace => @args[:workspace] ) )
         if host_object
           db.report_import_note(host_object.workspace, host_object)
           if device_id

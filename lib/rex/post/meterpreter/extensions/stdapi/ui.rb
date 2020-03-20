@@ -245,6 +245,17 @@ class UI < Rex::Post::UI
   end
 
   #
+  # Send key events
+  #
+  def keyevent_send(key_code, action = 0)
+    key_data = [ action, key_code ].pack("VV")
+    request = Packet.create_request('stdapi_ui_send_keyevent')
+    request.add_tlv( TLV_TYPE_KEYEVENT_SEND, key_data )
+    response = client.send_request(request)
+    return true
+  end
+
+  #
   # Mouse input
   #
   def mouse(mouseaction, x=-1, y=-1)
@@ -265,6 +276,8 @@ class UI < Rex::Post::UI
       action = 5
     when "rightup"
       action = 6
+    when "doubleclick"
+      action = 7
     else
       action = mouseaction.to_i
     end

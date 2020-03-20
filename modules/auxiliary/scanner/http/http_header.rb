@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('IGN_HEADER', [ true, 'List of headers to ignore, seperated by comma',
+      OptString.new('IGN_HEADER', [ true, 'List of headers to ignore, separated by comma',
         'Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges']),
       OptEnum.new('HTTP_METHOD', [ true, 'HTTP Method to use, HEAD or GET', 'HEAD', ['GET', 'HEAD'] ]),
       OptString.new('TARGETURI', [ true, 'The URI to use', '/'])

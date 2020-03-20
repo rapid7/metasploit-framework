@@ -29,7 +29,7 @@ module Msf::DBManager::VulnAttempt
     end
 
     # 'workspace' is not a valid attribute for Mdm::VulnAttempt. Remove it.
-    Msf::Util::DBManager.delete_opts_workspace(opts)
+    opts.delete(:workspace)
 
     search_term = opts.delete(:search_term)
     if search_term && !search_term.empty?

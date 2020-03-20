@@ -80,14 +80,14 @@ module Rex
         collect_host_data
         host_object = report_host &block
         if host_object
-          db.report_import_note(@args[:wspace],host_object)
+          db.report_import_note(@args[:workspace],host_object)
           report_services(host_object,&block)
           report_fingerprint(host_object)
           report_uptime(host_object)
           report_traceroute(host_object)
         end
         @state.delete_if {|k| k != :current_tag}
-        @report_data = {:wspace => @args[:wspace]}
+        @report_data = {:workspace => @args[:workspace]}
       end
       @state[:current_tag].delete name
     end
@@ -348,7 +348,7 @@ module Rex
     def report_host(&block)
       if host_is_okay
         scripts = @report_data.delete(:scripts) || []
-        host_object = db_report(:host, @report_data.merge( :workspace => @args[:wspace] ) )
+        host_object = db_report(:host, @report_data.merge( :workspace => @args[:workspace] ) )
         db.emit(:address,@report_data[:host],&block) if block
 
         scripts.each do |script|

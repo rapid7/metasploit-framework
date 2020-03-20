@@ -235,7 +235,7 @@ module ModuleCommandDispatcher
         raise NotImplementedError, msg
       end
 
-      if (code and code.kind_of?(Array) and code.length > 1)
+      if (code && code.kind_of?(Msf::Exploit::CheckCode))
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln

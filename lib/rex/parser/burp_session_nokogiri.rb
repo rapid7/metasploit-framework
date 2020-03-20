@@ -154,7 +154,7 @@ module Rex
       return unless @state[:web_site]
       return unless @state[:uri].kind_of? URI::HTTP
       return unless @state[:web_site].service.host.name.to_s.empty?
-      host_info = {:workspace => @args[:wspace]}
+      host_info = {:workspace => @args[:workspace]}
       host_info[:address] = @state[:web_site].service.host.address
       host_info[:name] = @state[:uri].host
       db_report(:host, host_info)
@@ -186,7 +186,7 @@ module Rex
         @state[:service_info] = headers["server"].first
       end
       return unless @state[:response_body]
-      web_page_info = {:workspace => @args[:wspace]}
+      web_page_info = {:workspace => @args[:workspace]}
       web_page_info[:web_site] = @state[:web_site]
       web_page_info[:code] = @state[:status]
       web_page_info[:path] = @state[:uri].path
@@ -201,7 +201,7 @@ module Rex
     def report_web_site(&block)
       return unless @state[:uri].kind_of? URI::HTTP
       vhost = @state[:uri].host
-      web_site_info = {:workspace => @args[:wspace]}
+      web_site_info = {:workspace => @args[:workspace]}
       web_site_info[:vhost] = vhost
       address = resolve_vhost_address(@state[:uri])
       return unless address

@@ -101,7 +101,7 @@ class Obj
     end
 
     # Store whether a module has a check method
-    @check = module_instance.respond_to?(:check) ? true : false
+    @check = module_instance.has_check?
 
     @notes = module_instance.notes
 

@@ -81,7 +81,7 @@ def run(args)
       break
       sockets.each &:close
     rescue Errno::EMFILE
-      Metasploit.log "At open socket limit with #{sockets.length} sockets open. Try increasing you system limits.", level: 'warning' unless warned
+      Metasploit.log "At open socket limit with #{sockets.length} sockets open. Try increasing your system limits.", level: 'warning' unless warned
       warned = true
       sockets.slice(0).close
     rescue Exception => e

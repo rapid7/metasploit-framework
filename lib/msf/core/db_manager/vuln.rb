@@ -95,6 +95,8 @@ module Msf::DBManager::Vuln
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     exploited_at = opts[:exploited_at] || opts["exploited_at"]
     details = opts.delete(:details)
     rids = opts.delete(:ref_ids)
@@ -102,12 +104,14 @@ module Msf::DBManager::Vuln
     if opts[:refs]
       rids ||= []
       opts[:refs].each do |r|
-        if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
-          r = "#{r.ctx_id}-#{r.ctx_val}"
+        if r.instance_of?(Mdm::Module::Ref)
+          str = r.name
+        elsif (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
+          str = "#{r.ctx_id}-#{r.ctx_val}"
         elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
-          r = "#{r[:ctx_id]}-#{r[:ctx_val]}"
+          str = "#{r[:ctx_id]}-#{r[:ctx_val]}"
         end
-        rids << find_or_create_ref(:name => r)
+        rids << find_or_create_ref(:name => str) unless str.nil?
       end
     end
 
@@ -242,6 +246,8 @@ module Msf::DBManager::Vuln
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
@@ -261,6 +267,8 @@ module Msf::DBManager::Vuln
   def update_vuln(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+    opts = opts.clone()
+    opts.delete(:workspace)
     opts[:workspace] = wspace if wspace
     v = Mdm::Vuln.find(opts.delete(:id))
     v.update!(opts)

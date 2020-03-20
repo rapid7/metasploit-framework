@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 module Msf
 module Util
 
@@ -56,11 +58,11 @@ class JavaDeserialization
       bytes.gsub!(/ysoserial\/Pwner00000000000000/, Rex::Text.rand_text_alphanumeric(29))
 
       return bytes
-    else 
+    else
       raise RuntimeError, 'Malformed JSON file'
     end
   end
-end
-end
-end
 
+end
+end
+end

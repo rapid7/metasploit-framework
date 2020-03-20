@@ -56,7 +56,7 @@ All of the leaked versions are available in the module
 
 `**` We currently can't distinguish between normal and NPE versions from the SNMP strings. We've commented out the NPE offsets, as NPE is very rare (it is for exporting to places where encryption is crappy), but in the future, we'd like to incorporate these versions. Perhaps as a bool option?
 
-## Verification
+## Verification Steps
 
 - Start `msfconsole`
 - `use auxiliary/admin/cisco/cisco_asa_extrabacon`

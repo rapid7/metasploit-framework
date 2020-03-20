@@ -67,6 +67,7 @@ class MetasploitModule < Msf::Post
     save("Disk info", disks)
     save("Logfiles", logfiles)
     save("Setuid/setgid files", uidgid)
+    save("CPU Vulnerabilities", get_cpu_vulnerabilities)
   end
 
   def save(msg, data, ctype = 'text/plain')
@@ -120,6 +121,10 @@ class MetasploitModule < Msf::Post
       print_error("Could not determine the Linux Distribution to get list of configured services")
     end
     services_installed
+  end
+
+  def get_cpu_vulnerabilities
+    execute('grep -r . /sys/devices/system/cpu/vulnerabilities').to_s
   end
 
   def get_crons(users, user)

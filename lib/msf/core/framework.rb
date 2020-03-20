@@ -197,6 +197,12 @@ class Framework
   attr_reader   :analyze
 
   #
+  # The framework instance's dependency
+  #
+  #
+  attr_accessor   :has_mingw
+
+  #
   # The framework instance's data service proxy
   #
   # @return [Metasploit::Framework::DataService::DataProxy]

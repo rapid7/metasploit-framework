@@ -29,12 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://securify.nl/advisory/SFY20160301/internet_explorer_iframe_sandbox_local_file_name_disclosure_vulnerability.html'],
         ],
       'Platform'       => 'win',
-      'Targets'        =>
-        [
-          [ 'Internet Explorer', {} ],
-        ],
-      'DisclosureDate' => "Aug 9 2016",
-      'DefaultTarget'  => 0
+      'DisclosureDate' => "Aug 9 2016"
     ))
 
     register_options(

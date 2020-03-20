@@ -144,7 +144,7 @@ class DumpSecrets:
                         bootKey             = self.__remoteOps.getBootKey()
                         # Let's check whether target system stores LM Hashes
                         self.__noLMHash = self.__remoteOps.checkNoLMHashPolicy()
-                except Exception, e:
+                except Exception as e:
                     self.__canProcessSAMLSA = False
                     if str(e).find('STATUS_USER_SESSION_DELETED') and os.getenv('KRB5CCNAME') is not None \
                         and self.__doKerberos is True:
@@ -166,7 +166,7 @@ class DumpSecrets:
                     self.__SAMHashes.dump()
                     if self.__outputFileName is not None:
                         self.__SAMHashes.export(self.__outputFileName)
-                except Exception, e:
+                except Exception as e:
                     logging.error('SAM hashes extraction failed: %s' % str(e))
 
                 try:
@@ -184,7 +184,7 @@ class DumpSecrets:
                     self.__LSASecrets.dumpSecrets()
                     if self.__outputFileName is not None:
                         self.__LSASecrets.exportSecrets(self.__outputFileName)
-                except Exception, e:
+                except Exception as e:
                     logging.error('LSA hashes extraction failed: %s' % str(e), exc_info=True)
 
             # NTDS Extraction we can try regardless of RemoteOperations failing. It might still work
@@ -204,7 +204,7 @@ class DumpSecrets:
                                            printUserStatus=self.__printUserStatus, perSecretCallback=self.perSecretCallback2)
             try:
                 self.__NTDSHashes.dump()
-            except Exception, e:
+            except Exception as e:
                 if str(e).find('ERROR_DS_DRA_BAD_DN') >= 0:
                     # We don't store the resume file if this error happened, since this error is related to lack
                     # of enough privileges to access DRSUAPI.
@@ -219,7 +219,7 @@ class DumpSecrets:
                 elif self.__useVSSMethod is False:
                     logging.info('Something wen\'t wrong with the DRSUAPI approach. Try again with -use-vss parameter')
             self.cleanup()
-        except (Exception, KeyboardInterrupt), e:
+        except (Exception, KeyboardInterrupt) as e:
             logging.error(e, exc_info=True)
             try:
                 self.cleanup()
@@ -253,7 +253,7 @@ def run(args):
     dumper = DumpSecrets(args['rhost'], args['SMBUser'], args['SMBPass'], args['SMBDomain'], args['OutputFile'], args['ExecMethod'])
     try:
         dumper.dump()
-    except Exception, e:
+    except Exception as e:
         logging.error(e, exc_info=True)
 
 if __name__ == "__main__":

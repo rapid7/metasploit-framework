@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module acts as a simple remote control for Belkin Wemo-enabled
 Crock-Pots by implementing a subset of the functionality provided by the

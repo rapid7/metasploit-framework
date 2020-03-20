@@ -33,7 +33,7 @@ module SocketAbstraction
       _address_family,caddr,_cport = csock.getsockname
       address_family,raddr,_rport = csock.getpeername_as_array
       _maddr,mport = [ channel.params.localhost, channel.params.localport ]
-      [ address_family, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", "#{mport}" ]
+      [ address_family, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", mport ]
     end
 
     def getpeername
@@ -86,13 +86,13 @@ module SocketAbstraction
   #
   # Passes the initialization information up to the base class
   #
-  def initialize(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, **_)
     # sf: initialize_abstraction() before super() as we can get a scenario where dio_write_handler() is called
     # with data to write to the rsock but rsock has not yet been initialized. This happens if the channel
     # is registered (client.add_channel(self) in Channel.initialize) to a session and a 'core_channel_write'
     # request comes in before we have called self.initialize_abstraction()
     initialize_abstraction
-    super(client, cid, type, flags)
+    super(client, cid, type, flags, packet)
   end
 
   ##

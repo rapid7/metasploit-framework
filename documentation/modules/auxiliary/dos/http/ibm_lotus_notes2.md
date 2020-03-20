@@ -15,7 +15,7 @@ IBM Notes 8.5 release
 
 Related security bulletin from IBM: http://www-01.ibm.com/support/docview.wss?uid=swg21999384 
 
-## Verification
+## Verification Steps
 
 Start msfconsole
 

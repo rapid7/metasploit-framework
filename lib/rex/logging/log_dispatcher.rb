@@ -87,12 +87,12 @@ class LogDispatcher
   #
   # Performs the actual log operation against the supplied source
   #
-  def log(sev, src, level, msg, from)
+  def log(sev, src, level, msg)
     log_sinks_lock.synchronize {
       if ((sink = log_sinks[src]))
         next if (log_levels[src] and level > log_levels[src])
 
-        sink.log(sev, src, level, msg, from)
+        sink.log(sev, src, level, msg)
       end
     }
   end
@@ -130,28 +130,28 @@ end
 ###
 ExceptionCallStack = "__EXCEPTCALLSTACK__"
 
-def dlog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_DEBUG, src, level, msg, from)
+def dlog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_DEBUG, src, level, msg)
 end
 
-def elog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_ERROR, src, level, msg, from)
+def elog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_ERROR, src, level, msg)
 end
 
-def wlog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_WARN, src, level, msg, from)
+def wlog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_WARN, src, level, msg)
 end
 
-def ilog(msg, src = 'core', level = 0, from = caller)
-  $dispatcher.log(LOG_INFO, src, level, msg, from)
+def ilog(msg, src = 'core', level = 0)
+  $dispatcher.log(LOG_INFO, src, level, msg)
 end
 
-def rlog(msg, src = 'core', level = 0, from = caller)
+def rlog(msg, src = 'core', level = 0)
   if (msg == ExceptionCallStack)
     msg = "\nCall stack:\n" + $@.join("\n") + "\n"
   end
 
-  $dispatcher.log(LOG_RAW, src, level, msg, from)
+  $dispatcher.log(LOG_RAW, src, level, msg)
 end
 
 def log_source_registered?(src)

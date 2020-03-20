@@ -64,7 +64,7 @@ module Payload::Python::ReverseHttp
 
     # Generate the short default URL if we don't have enough space
     if self.available_space.nil? || required_space > self.available_space
-      uri_req_len = 5
+      uri_req_len = 30
     end
 
     generate_uri_uuid_mode(opts[:uri_uuid_mode] || :init_python, uri_req_len)

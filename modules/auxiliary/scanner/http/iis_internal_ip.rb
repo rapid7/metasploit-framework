@@ -14,7 +14,13 @@ class MetasploitModule < Msf::Auxiliary
         Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
       },
       'Author'       => ['Heather Pilkington'],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2000-0649'],
+          ['BID', '1499'],
+          ['EDB', '20096']
+        ]
     ))
   end
 

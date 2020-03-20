@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # sends the frame data over tcp connection and returns recieved string
+  # sends the frame data over tcp connection and returns received string
   # using sock.get is causing quite some delay, but scripte needs to process responses from 104 server
   def send_frame(data)
     begin
@@ -490,23 +490,23 @@ class MetasploitModule < Msf::Auxiliary
         parse_m_bo_na_1(response_element)
 
       elsif response_element[5].eql?("\x46")
-        print_good("Recieved end of initialisation confirmation")
+        print_good("Received end of initialisation confirmation")
         parse_headers(response_element)
       elsif response_element[0].eql?("\x04") && response_element[1].eql?("\x01") && response_element[2].eql?("\x00")
-        print_good("Recieved S-Frame")
+        print_good("Received S-Frame")
         parse_headers(response_element)
       elsif response_element[0].eql?("\x04") && response_element[1].eql?("\x0b") && response_element[2].eql?("\x00") && response_element[3].eql?("\x00")
-        print_good("Recieved STARTDT_ACT")
+        print_good("Received STARTDT_ACT")
       elsif response_element[0].eql?("\x04") && response_element[1].eql?("\x23") && response_element[2].eql?("\x00") && response_element[3].eql?("\x00")
-        print_good("Recieved STOPDT_ACT")
+        print_good("Received STOPDT_ACT")
       elsif response_element[0].eql?("\x04") && response_element[1].eql?("\x43") && response_element[2].eql?("\x00") && response_element[3].eql?("\x00")
-        print_good("Recieved TESTFR_ACT")
+        print_good("Received TESTFR_ACT")
       else
-        print_status("Recieved unknown message")
+        print_status("Received unknown message")
         parse_headers(response_element)
         print_status(response_element.unpack('H*').first)
       end
-      # Uncomment for print recieved data
+      # Uncomment for print received data
       # print_good("DEBUG: " + response_element.unpack('H*').first)
     end
   end

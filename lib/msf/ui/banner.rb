@@ -28,7 +28,7 @@ module Banner
     fdata = "<< Missing banner: #{pathname} >>"
     begin
       raise ArgumentError unless File.readable?(pathname)
-      raise ArgumentError unless File.stat(pathname).size < 16384
+      raise ArgumentError unless File.stat(pathname).size < 65_536
       fdata = File.open(pathname) {|f| f.read f.stat.size}
     rescue SystemCallError, ArgumentError
       nil

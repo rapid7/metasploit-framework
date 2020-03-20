@@ -85,7 +85,7 @@ RSpec.describe Msf::PayloadGenerator do
 
 
   context 'when creating a new generator' do
-    subject(:new_payload_generator) { -> { described_class.new(generator_opts) } }
+    subject(:new_payload_generator) { described_class.new(generator_opts) }
 
     context 'when not given a framework instance' do
       let(:generator_opts) {
@@ -107,7 +107,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(KeyError, 'key not found: :framework') }
+      it { expect { new_payload_generator }.to raise_error(KeyError, 'key not found: :framework') }
     end
 
     context 'when not given a payload' do
@@ -131,7 +131,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(ArgumentError, "invalid payload: ") }
+      it { expect { new_payload_generator }.to raise_error(ArgumentError, "invalid payload: ") }
     end
 
     context 'when given an invalid payload' do
@@ -155,7 +155,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(ArgumentError, "invalid payload: beos/meterpreter/reverse_gopher") }
+      it { expect { new_payload_generator }.to raise_error(ArgumentError, "invalid payload: beos/meterpreter/reverse_gopher") }
     end
 
     context 'when given a payload through stdin' do
@@ -179,7 +179,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
 
     context 'when given an invalid format' do
@@ -203,7 +203,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(Msf::InvalidFormat, "invalid format: foobar") }
+      it { expect { new_payload_generator }.to raise_error(Msf::InvalidFormat, "invalid format: foobar") }
     end
 
     context 'when given any valid transform format' do
@@ -227,7 +227,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
 
     context 'when given any valid executable format' do
@@ -252,7 +252,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
   end
 

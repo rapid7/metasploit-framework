@@ -18,7 +18,7 @@ module Msf::DBManager::Import::Nexpose::Simple
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, parser)
         import_nexpose_noko_stream(noko_args) {|type, data| yield type,data}
@@ -155,7 +155,6 @@ module Msf::DBManager::Import::Nexpose::Simple
   #
   def import_nexpose_simplexml_file(args={})
     filename = args[:filename]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
 
     data = ""
     ::File.open(filename, 'rb') do |f|

@@ -412,6 +412,14 @@ class Msf::Module::Platform
   end
 
   #
+  # Brocade
+  #
+  class Brocade < Msf::Module::Platform
+    Rank = 100
+    Alias = "brocade"
+  end
+
+  #
   # Solaris
   #
   class Solaris < Msf::Module::Platform

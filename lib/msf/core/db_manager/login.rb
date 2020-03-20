@@ -8,6 +8,7 @@ module Msf::DBManager::Login
   def update_login(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
       opts[:workspace] = wspace if wspace
       id = opts.delete(:id)
       login = Metasploit::Credential::Login.find(id)

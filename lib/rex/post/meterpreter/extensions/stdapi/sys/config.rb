@@ -29,10 +29,13 @@ class Config
   #
   # Returns the username that the remote side is running as.
   #
-  def getuid
-    request  = Packet.create_request('stdapi_sys_config_getuid')
-    response = client.send_request(request)
-    client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+  def getuid(refresh: true)
+    if @uid.nil? || refresh
+      request  = Packet.create_request('stdapi_sys_config_getuid')
+      response = client.send_request(request)
+      @uid = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+    end
+    @uid
   end
 
   #

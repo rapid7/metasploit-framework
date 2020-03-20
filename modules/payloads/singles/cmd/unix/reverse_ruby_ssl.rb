@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'Unix Command Shell, Reverse TCP SSL (via Ruby)',
       'Description' => 'Connect back and create a command shell via Ruby, uses SSL',
-      'Author'      => 'RageLtMan',
+      'Author'      => 'RageLtMan <rageltman[at]sempervictus>',
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,

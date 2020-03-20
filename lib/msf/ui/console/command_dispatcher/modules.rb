@@ -8,6 +8,13 @@ module Msf
       module CommandDispatcher
 
         #
+        # Module Type Shorthands
+        #
+        MODULE_TYPE_SHORTHANDS = {
+          "aux" => Msf::MODULE_AUX
+        }
+
+        #
         # {CommandDispatcher} for commands related to background jobs in Metasploit Framework.
         #
         class Modules
@@ -31,6 +38,8 @@ module Msf
               "loadpath"   => "Searches for and loads modules from a path",
               "popm"       => "Pops the latest module off the stack and makes it active",
               "pushm"      => "Pushes the active or list of modules onto the module stack",
+              "listm"      => "List the module stack",
+              "clearm"     => "Clear the module stack",
               "previous"   => "Sets the previously loaded module as the current module",
               "reload_all" => "Reloads all modules from all defined module paths",
               "search"     => "Searches module names and descriptions",
@@ -385,7 +394,14 @@ module Msf
               end
             end
 
-            cached = true if args.empty?
+            if args.empty?
+              if @module_search_results.empty?
+                cmd_search_help
+                return false
+              end
+
+              cached = true
+            end
 
             # Display the table of matches
             tbl = generate_module_table('Matching Modules', search_term)
@@ -461,6 +477,11 @@ module Msf
               next if search_term.length == 0
               keyword.downcase!
               search_term.downcase!
+
+              if keyword == "type"
+                search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
+              end
+
               res[keyword] ||=[   [],    []   ]
               if search_term[0,1] == "-"
                 next if search_term.length == 1
@@ -654,12 +675,7 @@ module Msf
             mod_resolved = args[1] == true ? true : false
 
             # Ensure we have a reference name and not a path
-            if mod_name.start_with?('./', 'modules/')
-              mod_name.sub!(%r{^(?:\./)?modules/}, '')
-            end
-            if mod_name.end_with?('.rb')
-              mod_name.sub!(/\.rb$/, '')
-            end
+            mod_name = trim_path(mod_name, "modules")
 
             begin
               mod = framework.modules.create(mod_name)
@@ -745,6 +761,8 @@ module Msf
             print_line
             print_line "Set the previously loaded module as the current module"
             print_line
+            print_line "Previous module: #{@previous_module ? @previous_module.fullname : 'none'}"
+            print_line
           end
 
           #
@@ -802,7 +820,7 @@ module Msf
                 @module_name_stack = []
                 print_status("The module stack is empty")
               else
-                @module_name_stack.pop[args[0]]
+                @module_name_stack.pop(args[0].to_i)
               end
             else #then just pop the array and make that the active module
               pop = @module_name_stack.pop
@@ -823,6 +841,38 @@ module Msf
             print_line "pop the latest module off of the module stack and make it the active module"
             print_line "or pop n modules off the stack, but don't change the active module"
             print_line
+          end
+
+          def cmd_listm_help
+            print_line 'Usage: listm'
+            print_line
+            print_line 'List the module stack'
+            print_line
+          end
+
+          def cmd_listm(*_args)
+            if @module_name_stack.empty?
+              print_error('The module stack is empty')
+              return
+            end
+
+            print_status("Module stack:\n")
+
+            @module_name_stack.to_enum.with_index.reverse_each do |name, idx|
+              print_line("[#{idx}]\t#{name}")
+            end
+          end
+
+          def cmd_clearm_help
+            print_line 'Usage: clearm'
+            print_line
+            print_line 'Clear the module stack'
+            print_line
+          end
+
+          def cmd_clearm(*_args)
+            print_status('Clearing the module stack')
+            @module_name_stack.clear
           end
 
           #
@@ -1096,6 +1146,7 @@ module Msf
               [ 'Prompt', framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt.to_s.gsub(/%.../,"") , "The prompt string" ],
               [ 'PromptChar', framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar.to_s.gsub(/%.../,""), "The prompt character" ],
               [ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || Time::DATE_FORMATS[:db].to_s, 'Format for timestamp escapes in prompts' ],
+              [ 'MeterpreterPrompt', framework.datastore['MeterpreterPrompt'] || '%undmeterpreter%clr', 'The meterpreter prompt string' ],
             ].each { |r| tbl << r }
 
             print(tbl.to_s)
@@ -1222,7 +1273,7 @@ module Msf
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
-                      o.respond_to?(:check) ? 'Yes' : 'No',
+                      o.has_check? ? 'Yes' : 'No',
                       o.name
                     ]
                   end

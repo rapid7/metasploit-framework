@@ -55,7 +55,7 @@ at ../src/ephy-main.c line 432
 
 ```
 
-## Verification
+## Verification Steps
 
     Start msfconsole
     use auxiliary/dos/http/webkitplus

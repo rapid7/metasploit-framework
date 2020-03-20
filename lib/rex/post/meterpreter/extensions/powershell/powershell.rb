@@ -75,7 +75,7 @@ class Powershell < Extension
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS)
+    Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS, response)
   end
 
 end

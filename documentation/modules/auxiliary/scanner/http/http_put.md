@@ -11,7 +11,7 @@ This module can abuse misconfigured web servers to upload and delete web content
 6. Do: ```set FILEDATA [PATH]```
 7. Do: ```run```
 
-## Options 
+## Options
 
 ### ACTION
 

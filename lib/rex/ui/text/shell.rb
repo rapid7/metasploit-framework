@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/text/color'
 require 'rex/ui'
 
 module Rex
@@ -12,6 +13,8 @@ module Text
 #
 ###
 module Shell
+
+  include Rex::Text::Color
 
   ###
   #
@@ -52,6 +55,10 @@ module Shell
 
     self.histfile = histfile
     self.hist_last_saved = 0
+
+    # Static prompt variables
+    self.local_hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] || ENV['COMPUTERNAME']
+    self.local_username = ENV['USER'] || `whoami` || ENV['USERNAME']
 
     self.framework = framework
   end
@@ -187,7 +194,7 @@ module Shell
   # new_prompt_char the char to append to the prompt
   def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
     if (self.input)
-      p = new_prompt + ' ' + new_prompt_char + ' '
+      p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
       # Save the prompt before any substitutions
       self.prompt = new_prompt
@@ -286,6 +293,10 @@ module Shell
 
 protected
 
+  def supports_color?
+    true
+  end
+
   #
   # Get a single line of input, following continuation directives as necessary.
   #
@@ -380,50 +391,89 @@ protected
   # Handle prompt substitutions
   #
   def format_prompt(str)
-    if framework
-      if str.include?('%T')
-        t = Time.now
+    return str unless framework
+
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+    default = 'unknown'
+
+    formatted = ''
+    skip_next = false
+    for prefix, spec in str.split('').each_cons(2) do
+      if skip_next
+        skip_next = false
+        next
+      end
+
+      unless prefix == '%'
+        formatted << prefix
+        skip_next = false
+        next
+      end
+
+      skip_next = true
+      if spec == 'T'
         # This %T is the strftime shorthand for %H:%M:%S
-        format = framework.datastore['PromptTimeFormat'] || '%T'
-        t = t.strftime(format)
-        # This %T is the marker in the prompt where we need to place the time
-        str.gsub!('%T', t.to_s)
-      end
+        strftime_format = framework.datastore['PromptTimeFormat'] || '%T'
+        formatted << Time.now.strftime(strftime_format).to_s
+      elsif spec == 'W' && framework.db.active
+        formatted << framework.db.workspace.name
+      elsif session
+        sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
 
-      if str.include?('%H')
-        hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
-          ENV['COMPUTERNAME'] || 'unknown'
-
-        str.gsub!('%H', hostname.chomp)
-      end
-
-      if str.include?('%U')
-        user = ENV['USER'] || `whoami` || ENV['USERNAME'] || 'unknown'
-        str.gsub!('%U', user.chomp)
-      end
-
-      if str.include?('%S')
-        str.gsub!('%S', framework.sessions.length.to_s)
-      end
-
-      if str.include?('%J')
-        str.gsub!('%J', framework.jobs.length.to_s)
-      end
-
-      if str.include?('%L')
-        str.gsub!('%L', Rex::Socket.source_address)
-      end
-
-      if str.include?('%D')
-        str.gsub!('%D', ::Dir.getwd)
-      end
-
-      if str.include?('%W') && framework.db.active
-        str.gsub!('%W', framework.db.workspace.name)
+        case spec
+        when 'A'
+          formatted << (sysinfo.nil? ? default : sysinfo['Architecture'])
+        when 'D'
+          formatted << (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default)
+        when 'd'
+          formatted << ::Dir.getwd
+        when 'H'
+          formatted << (sysinfo.nil? ? default : sysinfo['Computer'])
+        when 'h'
+          formatted << (self.local_hostname || default).chomp
+        when 'I'
+          formatted << session.tunnel_peer
+        when 'i'
+          formatted << session.tunnel_local
+        when 'M'
+          formatted << session.session_type
+        when 'S'
+          formatted << session.sid.to_s
+        when 'U'
+          formatted << (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default)
+        when 'u'
+          formatted << (self.local_username || default).chomp
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      else
+        case spec
+        when 'H'
+          formatted << (self.local_hostname || default).chomp
+        when 'J'
+          formatted << framework.jobs.length.to_s
+        when 'U'
+          formatted << (self.local_username || default).chomp
+        when 'S'
+          formatted << framework.sessions.length.to_s
+        when 'L'
+          formatted << Rex::Socket.source_address
+        when 'D'
+          formatted << ::Dir.getwd
+        else
+          formatted << prefix
+          skip_next = false
+        end
       end
     end
 
-    str
+    if str.length > 0 && !skip_next
+      formatted << str[-1]
+    end
+
+    formatted
   end
 
   attr_writer   :input, :output # :nodoc:
@@ -433,6 +483,7 @@ protected
   attr_accessor :histfile # :nodoc:
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
+  attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
 
 private

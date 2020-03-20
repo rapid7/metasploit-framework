@@ -10,6 +10,8 @@ module Msf::DBManager::Task
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     path = opts.delete(:path) || (raise RuntimeError, "A task :path is required")
 
     ret = {}

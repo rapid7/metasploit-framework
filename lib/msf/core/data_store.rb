@@ -319,7 +319,7 @@ class DataStore < Hash
 
     # Scan each key looking for a match
     self.each_key do |rk|
-      if rk.downcase == search_k
+      if rk.casecmp(search_k) == 0
         return rk
       end
     end

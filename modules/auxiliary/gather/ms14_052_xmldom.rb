@@ -32,12 +32,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.alienvault.com/open-threat-exchange/blog/attackers-abusing-internet-explorer-to-enumerate-software-and-detect-securi' ]
         ],
       'Platform'       => 'win',
-      'Targets'        =>
-        [
-          [ 'Internet Explorer 8 / Internet Explorer 9', {} ],
-        ],
       'DisclosureDate' => "Sep 9 2014", # MSB. Used in the wild since Feb 2014
-      'DefaultTarget'  => 0))
+      ))
 
     register_options(
       [

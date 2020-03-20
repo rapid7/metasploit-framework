@@ -114,7 +114,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
 
     # Check badchars in stub
     if Rex::Text.badchar_index(stub.gsub(stub_key_term, "").gsub(stub_payload_term, ""), badchars)
-      raise EncodingError, "Bad character found in stub for the #{self.name} encoder.", caller
+      raise Msf::BadcharError, "Bad character found in stub for the #{self.name} encoder.", caller
     end
 
     # Set allowed chars
@@ -129,7 +129,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     key = find_key(buf, badchars, keyChars)
 
     if key == nil
-      raise EncodingError, "A key could not be found for the #{self.name} encoder.", caller
+      raise Msf::BadcharError, "A key could not be found for the #{self.name} encoder.", caller
     end
 
     # Search for key terminator
@@ -142,7 +142,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     end
 
     if keyTerm == nil
-      raise EncodingError, "Key terminator could not be found for the #{self.name} encoder.", caller
+      raise Msf::BadcharError, "Key terminator could not be found for the #{self.name} encoder.", caller
     end
 
     # Encode paylod
@@ -165,14 +165,14 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     end
 
     if payloadTerm == nil
-      raise EncodingError, "Payload terminator could not be found for the #{self.name} encoder.", caller
+      raise Msf::BadcharError, "Payload terminator could not be found for the #{self.name} encoder.", caller
     end
 
     finalPayload = stub.gsub(stub_key_term, keyTerm).gsub(stub_payload_term, payloadTerm) + key + keyTerm + encoded + payloadTerm
 
     # Check badchars in finalPayload
     if Rex::Text.badchar_index(finalPayload, badchars)
-      raise EncodingError, "Bad character found for the #{self.name} encoder.", caller
+      raise Msf::BadcharError, "Bad character found for the #{self.name} encoder.", caller
     end
 
     return finalPayload

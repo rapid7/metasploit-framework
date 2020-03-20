@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Windows Gather Installed Application Enumeration',
-        'Description'   => %q{ This module will enumerate all installed applications },
+        'Description'   => %q{ This module will enumerate all installed applications on a Windows system },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => [ 'win' ],

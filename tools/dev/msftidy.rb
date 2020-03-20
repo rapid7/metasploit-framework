@@ -380,6 +380,12 @@ class Msftidy
     end
   end
 
+  def check_executable
+    if File.executable?(@full_filepath)
+      error("Module should not be executable (+x)")
+    end
+  end
+
   def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
@@ -728,6 +734,7 @@ class Msftidy
     check_verbose_option
     check_badchars
     check_extname
+    check_executable
     check_old_rubies
     check_ranking
     check_disclosure_date

@@ -19,11 +19,14 @@ class MetasploitModule < Msf::Post
   end
 
   def test_cmd_exec
+    # we are inconsistent reporting windows session types
+    windows_strings = ['windows', 'win']
     vprint_status("Starting cmd_exec tests")
 
     it "should return the result of echo" do
       test_string = Rex::Text.rand_text_alpha(4)
-      if session.platform.eql? 'windows'
+      if windows_strings.include? session.platform and session.type.eql? 'meterpreter'
+        vprint_status("meterpreter?")
         output = cmd_exec('cmd.exe', "/c echo #{test_string}")
       else
         output = cmd_exec("echo #{test_string}")
@@ -31,37 +34,30 @@ class MetasploitModule < Msf::Post
       output == test_string
     end
 
-    # trying to do a sleep in windows without trashing stdout is hard
-    unless session.platform.eql? 'windows'
-      it "should return the result after sleeping" do
+    # Powershell supports this, but not windows meterpreter (unsure about windows shell)
+    if not windows_strings.include? session.platform or session.type.eql? 'powershell'
+      it "should return the full response after sleeping" do
         test_string = Rex::Text.rand_text_alpha(4)
         output = cmd_exec("sleep 1; echo #{test_string}")
         output == test_string
       end
-
       it "should return the full response after sleeping" do
         test_string = Rex::Text.rand_text_alpha(4)
         test_string2 = Rex::Text.rand_text_alpha(4)
-        if session.platform.eql? 'windows'
-          output = cmd_exec('cmd.exe', "/c echo #{test_string} & timeout 1 > null & echo #{test_string2}")
-        else
-          output = cmd_exec("echo #{test_string}; sleep 1; echo #{test_string2}")
-        end
+        output = cmd_exec("echo #{test_string}; sleep 1; echo #{test_string2}")
         output.delete("\r") == "#{test_string}\n#{test_string2}"
       end
-    end
 
-    it "should return the result of echo 10 times" do
-      10.times do
-        test_string = Rex::Text.rand_text_alpha(4)
-        if session.platform.eql? 'windows'
-          output = cmd_exec("cmd.exe", "/c echo #{test_string}")
-        else
+      it "should return the result of echo 10 times" do
+        10.times do
+          test_string = Rex::Text.rand_text_alpha(4)
           output = cmd_exec("echo #{test_string}")
+          return false unless output == test_string
         end
-        return false unless output == test_string
+        true
       end
-      true
+    else
+      vprint_status("Session does not support sleep, skipping sleep tests")
     end
     vprint_status("Finished cmd_exec tests")
   end

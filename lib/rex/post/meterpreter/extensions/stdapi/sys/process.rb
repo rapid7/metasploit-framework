@@ -42,6 +42,8 @@ class Process < Rex::Post::Process
   # valid.
   #
   def Process.[](key)
+    return if key.nil?
+
     each_process { |p|
       if (p['name'].downcase == key.downcase)
         return p['pid']
@@ -141,6 +143,11 @@ class Process < Rex::Post::Process
       if (opts['Subshell'])
         flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
       end
+      if (opts['ParentPid'])
+        request.add_tlv(TLV_TYPE_PARENT_PID, opts['ParentPid']);
+        request.add_tlv(TLV_TYPE_PROCESS_PERMS, PROCESS_ALL_ACCESS)
+        request.add_tlv(TLV_TYPE_INHERIT, false)
+      end
       inmem = opts['InMemory']
       if inmem
 
@@ -174,7 +181,7 @@ class Process < Rex::Post::Process
     # If we were creating a channel out of this
     if (channel_id != nil)
       channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
-          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
+          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS, response)
     end
 
     # Return a process instance
@@ -424,4 +431,3 @@ class ProcessList < Array
 end
 
 end; end; end; end; end; end
-

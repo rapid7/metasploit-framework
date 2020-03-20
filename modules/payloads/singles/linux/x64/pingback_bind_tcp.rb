@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core/payload/pingback'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/pingback'
 
 

@@ -22,7 +22,7 @@ module Msf::DBManager::Import::Nmap
     if Rex::Parser.nokogiri_loaded
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, "Nokogiri v#{::Nokogiri::VERSION}")
         import_nmap_noko_stream(noko_args) {|type, data| yield type,data }

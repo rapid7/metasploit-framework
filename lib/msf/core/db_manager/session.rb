@@ -14,6 +14,8 @@ module Msf::DBManager::Session
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?

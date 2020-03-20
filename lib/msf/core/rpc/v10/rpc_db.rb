@@ -269,6 +269,80 @@ public
         port = 0
         proto = ''
         sname = ''
+
+        unless cred.logins.empty?
+          login = cred.logins.first
+          host = login.service.host.address.to_s
+          sname = login.service.name.to_s if login.service.name.present?
+          port = login.service.port.to_i
+          proto = login.service.proto.to_s
+        end
+
+        updated_at = nil
+        pass = nil   
+        type = nil
+        
+        unless cred.private.nil?
+          updated_at = cred.private.updated_at.to_i   
+          pass = cred.private.data.to_s
+          type = cred.private.type.to_s
+        else
+          updated_at = cred.public.updated_at.to_i        
+        end
+
+        ret[:creds] << {
+          :user => cred.public.username.to_s,
+          :pass => pass,
+          :updated_at => updated_at,
+          :type => type,
+          :host => host,
+          :port => port,
+          :proto => proto,
+          :sname => sname
+        }
+      end
+      ret
+    }
+  end
+
+
+  # Delete credentials from a specific workspace.
+  #
+  # @param [Hash] xopts Options:
+  # @option xopts [String] :workspace Name of the workspace.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] Credentials with the following hash key:
+  #  * 'result' [String] A message that says 'success'.
+  #  * 'deleted' [Array<Hash>] An array of credentials. Each hash in the array will have the following:
+  #    * 'user' [String] Username.
+  #    * 'pass' [String] Password.
+  #    * 'updated_at' [Integer] Last updated at.
+  #    * 'type' [String] Password type.
+  #    * 'host' [String] Host.
+  #    * 'port' [Integer] Port.
+  #    * 'proto' [String] Protocol.
+  #    * 'sname' [String] Service name.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.del_creds', {})
+  def rpc_del_creds(xopts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      ret = {}
+      ret[:creds] = []
+      opts, wspace = init_db_opts_workspace(xopts)
+      limit = opts.delete(:limit) || 100
+      offset = opts.delete(:offset) || 0
+      query = Metasploit::Credential::Core.where(
+        workspace_id: wspace
+      ).offset(offset).limit(limit)
+      query.each do |cred|
+        host = ''
+        port = 0
+        proto = ''
+        sname = ''
         unless cred.logins.empty?
           login = cred.logins.first
           host = login.service.host.address.to_s
@@ -285,8 +359,10 @@ public
                 :port => port,
                 :proto => proto,
                 :sname => sname}
+        deleted << ret
+        cred.destroy
       end
-      ret
+      return { :result => 'success', :deleted => deleted }
     }
   end
 

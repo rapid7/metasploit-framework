@@ -16,7 +16,7 @@ The onion_omega2_login module is used to brute-force credentials for Onion Omage
 4. Do: `use auxiliary/scanner/http/onion_omega2_login`
 5. Do: `set RHOSTS 192.168.3.1`
 6. Do: `set USERPASS_FILE <user pass dictionary>`
-    - username and password seperated by space and one pair per line.
+    - username and password separated by space and one pair per line.
 7. Do: `run`
 
 Sample userpass file:

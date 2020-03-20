@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(21),
         OptString.new('TRAVERSAL', [ true, "String to traverse to the drive's root directory", "..\\..\\" ]),
-        OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'windows\\win.ini'])
+        OptString.new('PATH', [ true, "Path to the file to disclose, relative to the root dir.", 'windows\\win.ini'])
       ])
   end
 

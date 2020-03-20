@@ -77,16 +77,14 @@ RSpec.describe Mdm::Workspace, type: :model do
         nil
       end
 
-      subject do
-        -> {workspace.send(:valid_ip_or_range?, ip_or_range)}
-      end
+      subject(:valid_ip_or_range?) { workspace.send(:valid_ip_or_range?, ip_or_range) }
 
       context 'with exception from Rex::Socket::RangeWalker' do
         before(:example) do
           allow(Rex::Socket::RangeWalker).to receive(:new).with(ip_or_range).and_raise(StandardError)
         end
 
-        it { is_expected.to raise_error(StandardError) }
+        it { expect { valid_ip_or_range? }.to raise_error(StandardError) }
       end
 
       context 'without exception from Rex::Socket::RangeWalker' do
@@ -95,7 +93,7 @@ RSpec.describe Mdm::Workspace, type: :model do
             '192.168.0.1'
           end
 
-          it { is_expected.to be_truthy }
+          it { expect(valid_ip_or_range?).to be_truthy }
         end
       end
     end

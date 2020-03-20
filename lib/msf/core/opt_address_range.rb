@@ -18,7 +18,8 @@ class OptAddressRange < OptBase
 
   def normalize(value)
     return nil unless value.kind_of?(String)
-    if (value =~ /^file:(.*)/)
+    # accept both "file://<path>" and "file:<path>" syntax
+    if (value =~ /^file:\/\/(.*)/) || (value =~ /^file:(.*)/)
       path = $1
       return false if not File.exist?(path) or File.directory?(path)
       return File.readlines(path).map{ |s| s.strip}.join(" ")

@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module is designed to evade solutions such as software restriction policies and Applocker.
 Applocker in its default configuration will block code in the form of executables (.exe and .com, .msi), scripts (.ps1, .vbs, .js) and dll's from running in user controlled directories.

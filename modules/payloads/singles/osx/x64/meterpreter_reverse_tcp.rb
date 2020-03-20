@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_x64_osx'
 
 module MetasploitModule
 
-  CachedSize = 813560
+  CachedSize = 818064
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions

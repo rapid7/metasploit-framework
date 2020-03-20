@@ -402,6 +402,22 @@ class RPC_Module < RPC_Base
     res
   end
 
+  # Returns the currently running module stats in each state.
+  #
+  # @return [Hash] Running module stats that contain the following keys:
+  #  * 'waiting' [Array<string>] The uuids of modules waiting to be kicked off.
+  #  * 'running' [Array<string>] The uuids of modules currently in progress.
+  #  * 'results' [Array<string>] The uuids of module run/check results.
+  # @exampleHere's how you would use this from the client:
+  #  rpc.call('module.running_stats')
+  def rpc_running_stats
+    {
+        "waiting" => self.job_status_tracker.waiting_ids,
+        "running" => self.job_status_tracker.running_ids,
+        "results" => self.job_status_tracker.result_ids
+    }
+  end
+
 
   # Returns the module's datastore options.
   #
@@ -468,6 +484,7 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.execute', 'exploit', 'multi/handler', opts)
   def rpc_execute(mtype, mname, opts)
     mod = _find_module(mtype,mname)
+
     case mtype
       when 'exploit'
         _run_exploit(mod, opts)
@@ -481,6 +498,57 @@ class RPC_Module < RPC_Base
         _run_evasion(mod, opts)
     end
 
+  end
+
+  # Runs the check method of a module.
+  #
+  # @param [String] mtype Module type. Supported types include (case-sensitive):
+  #                       * exploit
+  #                       * auxiliary
+  # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
+  # @param [Hash] opts Options for the module (such as datastore options).
+  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @return
+  def rpc_check(mtype, mname, opts)
+    mod = _find_module(mtype,mname)
+    case mtype
+    when 'exploit'
+      _check_exploit(mod, opts)
+    when 'auxiliary'
+      _check_auxiliary(mod, opts)
+    else
+      error(500, "Invalid Module Type: #{mtype}")
+    end
+  end
+
+  # TODO: expand these to take a list of UUIDs or stream with event data if
+  # required for performance
+  def rpc_results(uuid)
+    if (r = self.job_status_tracker.result(uuid))
+      if r[:error]
+        {"status" => "errored", "error" => r[:error]}
+      else
+        if r[:result].length == 1
+          # A hash of one IP => result
+          # TODO: make hashes of IP => result the normal case
+          {"status" => "completed", "result" => r[:result].values.first}
+        else
+          # Either singular check code or multiple hosts
+          # TODO: combine underlying code so that nothing returns a bare CheckCode anymore
+          {"status" => "completed", "result" => r[:result]}
+        end
+      end
+    elsif self.job_status_tracker.running? uuid
+      {"status" => "running"}
+    elsif self.job_status_tracker.waiting? uuid
+      {"status" => "ready"}
+    else
+      error(404, "Results not found for module instance #{uuid}")
+    end
+  end
+
+  def rpc_ack(uuid)
+    {"success" => !!self.job_status_tracker.ack(uuid)}
   end
 
   # Returns a list of executable format names.
@@ -673,14 +741,37 @@ private
   end
 
   def _run_auxiliary(mod, opts)
-    Msf::Simple::Auxiliary.run_simple(mod, {
+    uuid, job = Msf::Simple::Auxiliary.run_simple(mod,{
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
-    })
+    }, job_listener: self.job_status_tracker)
     {
-      "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_exploit(mod, opts)
+    uuid, job = Msf::Simple::Exploit.check_simple(mod,{
+        'RunAsJob' => true,
+        'Options'  => opts
+    }, job_listener: self.job_status_tracker)
+    {
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_auxiliary(mod, opts)
+    uuid, job = Msf::Simple::Auxiliary.check_simple(mod,{
+        'Action'   => opts['ACTION'],
+        'RunAsJob' => true,
+        'Options'  => opts
+    }, job_listener: self.job_status_tracker)
+    {
+      "job_id" => job,
+      "uuid" => uuid
     }
   end
 

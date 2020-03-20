@@ -21,10 +21,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => ['URL', 'https://github.com/whoot/TelpOWN'],
       'Platform'       => 'linux',
-      'Targets'        =>
-        [
-          ['Telpho10', {}]
-        ],
       'Privileged'     => false,
       'DisclosureDate' => 'Sep 2 2016'))
 

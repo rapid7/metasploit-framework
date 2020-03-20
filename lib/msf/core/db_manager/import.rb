@@ -94,7 +94,10 @@ module Msf::DBManager::Import
     data = args[:data] || args['data']
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
-    self.send "import_#{ftype}".to_sym, args.merge(workspace: wspace.name), &block
+    # this code looks to intentionally convert workspace to a string, why?
+    opts = args.clone()
+    opts.delete(:workspace)
+    self.send "import_#{ftype}".to_sym, opts.merge(workspace: wspace.name), &block
     # post process the import here for missing default port maps
     mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
     # the map build above is a little expensive, another option is to do
@@ -209,10 +212,13 @@ module Msf::DBManager::Import
     # Override REXML's expansion text limit to 50k (default: 10240 bytes)
     REXML::Security.entity_expansion_text_limit = 51200
 
+    # this code looks to intentionally convert workspace to a string, why?
+    opts = args.clone()
+    opts.delete(:workspace)
     if block
-      import(args.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
+      import(opts.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
     else
-      import(args.merge(data: data, workspace: wspace.name))
+      import(opts.merge(data: data, workspace: wspace.name))
     end
   end
 

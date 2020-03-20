@@ -80,7 +80,7 @@ module Msf::Module::FullName
   # windows/shell/reverse_tcp
   #
   def refname
-    fullname.sub(type + '/', '')
+    fullname.delete_prefix("#{type}/")
   end
 
   #

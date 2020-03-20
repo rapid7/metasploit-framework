@@ -105,11 +105,15 @@ end
 class Authentification < Message
   register_message_type 'R'
 
-  AuthTypeMap = Hash.new { UnknownAuthType }
+  AuthTypeMap = {}
 
   def self.create(buffer)
     buffer.position = 5
     authtype = buffer.read_int32_network
+    unless AuthTypeMap.key? authtype
+      return UnknownAuthType.new(authtype, buffer)
+    end
+
     klass = AuthTypeMap[authtype]
     obj = klass.allocate
     obj.parse(buffer)
@@ -142,6 +146,13 @@ class Authentification < Message
 end
 
 class UnknownAuthType < Authentification
+  attr_reader :auth_type
+  attr_reader :buffer
+
+  def initialize(auth_type, buffer)
+    @auth_type = auth_type
+    @buffer = buffer
+  end
 end
 
 class AuthentificationOk < Authentification 

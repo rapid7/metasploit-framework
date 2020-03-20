@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans for Docker servers listening on a TCP port (default 2375).
 

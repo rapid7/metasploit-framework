@@ -26,7 +26,7 @@ module Msf::DBManager::SessionEvent
       end
 
       # Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
-      Msf::Util::DBManager.delete_opts_workspace(opts)
+      opts.delete(:workspace)
 
       order = opts.delete(:order)
       order = order.nil? ? DEFAULT_ORDER : order.to_sym

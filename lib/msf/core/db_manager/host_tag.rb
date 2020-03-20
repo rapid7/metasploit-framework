@@ -8,16 +8,16 @@ module Msf::DBManager::HostTag
     raise Msf::DBImportError.new("Missing required option :addr") unless addr
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-    raise Msf::DBImportError.new("Missing required option :wspace") unless wspace
+    raise Msf::DBImportError.new("Missing required option :workspace") unless wspace
     host = nil
     report_host(:workspace => wspace, :address => addr)
 
 
     host = get_host(:workspace => wspace, :address => addr)
-    desc = opts.delete(:desc)
-    summary = opts.delete(:summary)
-    detail = opts.delete(:detail)
-    crit = opts.delete(:crit)
+    desc = opts[:desc]
+    summary = opts[:summary]
+    detail = opts[:detail]
+    crit = opts[:crit]
     possible_tags = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("tags.id DESC").limit(1)
     tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
     tag.name = name

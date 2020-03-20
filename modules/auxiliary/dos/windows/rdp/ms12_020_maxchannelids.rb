@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
           [ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
           [ 'EDB', '18606' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/03/21/metasploit-update' ]
+          [ 'URL', 'https://blog.rapid7.com/2012/03/21/metasploit-update' ]
         ],
       'Author'         =>
         [

@@ -37,8 +37,8 @@ class Pool < Rex::Post::Meterpreter::Channel
   #
   # Passes the initialization information up to the base class
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, **_)
+    super(client, cid, type, flags, packet)
   end
 
   ##

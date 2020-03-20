@@ -41,7 +41,7 @@ module Auxiliary
   # 	Whether or not the exploit should be run in the context of a background
   # 	job.
   #
-  def self.run_simple(omod, opts = {}, &block)
+  def self.run_simple(omod, opts = {}, job_listener: Msf::Simple::NoopJobListener.instance, &block)
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
@@ -68,21 +68,25 @@ module Auxiliary
       mod.init_ui(nil, nil)
     end
 
-    ctx = [ mod ]
+    run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    job_listener.waiting run_uuid
+    ctx = [mod, run_uuid, job_listener]
     if(mod.passive? or opts['RunAsJob'])
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Auxiliary: #{mod.refname}",
         ctx,
-        Proc.new { |ctx_| self.job_run_proc(ctx_) },
+        Proc.new { |ctx_| self.job_run_proc(ctx_, &:run) },
         Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
       )
       # Propagate this back to the caller for console mgmt
       omod.job_id = mod.job_id
+      return [run_uuid, mod.job_id]
     else
-      self.job_run_proc(ctx)
+      result = self.job_run_proc(ctx, &:run)
       self.job_cleanup_proc(ctx)
-    end
 
+      return result
+    end
   end
 
   #
@@ -104,7 +108,10 @@ module Auxiliary
   #
   # 	The local output through which data can be displayed.
   #
-  def self.check_simple(mod, opts)
+  def self.check_simple(mod, opts, job_listener: Msf::Simple::NoopJobListener.instance)
+    Msf::Simple::Framework.simplify_module(mod, false)
+
+    mod._import_extra_options(opts)
     if opts['LocalInput']
       mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
     end
@@ -113,10 +120,33 @@ module Auxiliary
     # be normalized
     mod.validate
 
-    mod.setup
 
-    # Run check if it exists
-    mod.respond_to?(:check) ? mod.check : Msf::Exploit::CheckCode::Unsupported
+    run_uuid = Rex::Text.rand_text_alphanumeric(24)
+    job_listener.waiting run_uuid
+    ctx = [mod, run_uuid, job_listener]
+
+    if opts['RunAsJob']
+      mod.job_id = mod.framework.jobs.start_bg_job(
+        "Auxiliary: #{mod.refname} check",
+        ctx,
+        Proc.new do |ctx_|
+          self.job_run_proc(ctx_) do |m|
+            m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
+          end
+        end,
+        Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
+      )
+
+      [run_uuid, mod.job_id]
+    else
+      # Run check if it exists
+      result = self.job_run_proc(ctx) do |m|
+        m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
+      end
+      self.job_cleanup_proc(ctx)
+
+      result
+    end
   end
 
   #
@@ -132,12 +162,21 @@ protected
   #
   # Job run proc, sets up the module and kicks it off.
   #
-  def self.job_run_proc(ctx)
+  def self.job_run_proc(ctx, &block)
     mod = ctx[0]
+    run_uuid = ctx[1]
+    job_listener = ctx[2]
     begin
-      mod.setup
-      mod.framework.events.on_module_run(mod)
-      mod.run
+      begin
+        job_listener.start run_uuid
+        mod.setup
+        mod.framework.events.on_module_run(mod)
+        result = block.call(mod)
+        job_listener.completed(run_uuid, result, mod)
+      rescue ::Exception => e
+        job_listener.failed(run_uuid, e, mod)
+        raise
+      end
     rescue Msf::Auxiliary::Complete
       mod.cleanup
       return
@@ -153,7 +192,7 @@ protected
       return
     rescue ::Interrupt => e
       mod.error = e
-      mod.print_error("Stopping running againest current target...")
+      mod.print_error("Stopping running against current target...")
       mod.cleanup
       mod.print_status("Control-C again to force quit all targets.")
       begin
@@ -178,8 +217,8 @@ protected
 
       mod.cleanup
 
-      return
     end
+    return result
   end
 
   #

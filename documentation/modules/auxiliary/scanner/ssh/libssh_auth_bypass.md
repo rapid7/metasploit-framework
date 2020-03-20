@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module exploits an authentication bypass in libssh server code
 where a `USERAUTH_SUCCESS` message is sent in place of the expected

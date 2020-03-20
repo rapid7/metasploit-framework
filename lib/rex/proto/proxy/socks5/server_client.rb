@@ -247,7 +247,7 @@ module Socks5
       setup_tcp_relay
       response              = ResponsePacket.new
       response.command      = REPLY_SUCCEEDED
-      response.address      = @rsock.getlocalname[HOST]
+      response.address      = @rsock.getlocalname[HOST].split('-')[-1]
       response.port         = @rsock.getlocalname[PORT]
       response
     end
