@@ -622,7 +622,7 @@ module Msf
         ##
         def enum_group(server_name = nil)
           groups = []
-          result = client.railgun.netapi32.NetGroupEnum(server_name, 0, 4, 2048, 4, 4, 0)
+          result = client.railgun.netapi32.NetGroupEnum(server_name, 0, 4, 4096, 4, 4, 0)
           if (result['return'] == 0) && ((result['totalentries'] % 4294967296) != 0)
             begin
               group_info_addr = result['bufptr'].unpack1("V")
