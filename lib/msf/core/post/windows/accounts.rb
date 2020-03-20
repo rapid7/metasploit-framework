@@ -48,7 +48,7 @@ module Msf
         ].freeze
 
         ##
-        # get_domain(server_name = nil, info_key)
+        # get_domain(info_key, server_name = nil)
         #
         # Summary:
         #   Retrieves the current DomainName the given server is
