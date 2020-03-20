@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
     when client.railgun.const('NERR_PasswordTooShort')
       print_error 'The password does not appear to be valid (too short, too long, too recent, etc.).'
     when client.railgun.const('ERROR_ALIAS_EXISTS')
-      print_status 'The group already exists.'
+      print_status 'The local group already exists.'
     when client.railgun.const('NERR_UserInGroup')
       print_status 'The user already belongs to this group.'
     when client.railgun.const('ERROR_MORE_DATA')
@@ -249,6 +249,14 @@ class MetasploitModule < Msf::Post
   end
 
   def domain_mode
+    ## check domain
+    server_name = get_domain("DomainControllerName")
+    if server_name
+      print_good("Found Domain : #{server_name}")
+    else
+      print_error("No DC is available for the specified domain or the domain does not exist. ")
+      return false
+    end
     #  set up default group
     if datastore['GROUP'].nil?
       datastore['GROUP'] = 'Domain Admins'
@@ -263,8 +271,6 @@ class MetasploitModule < Msf::Post
     if domain.nil?
       return
     end
-
-    server_name = get_domain("DomainControllerName")
 
     ## steal token if neccessary
     if datastore['TOKEN'] == ''
@@ -319,6 +325,8 @@ class MetasploitModule < Msf::Post
           check_result(result)
         end
       end
+    else
+      print_error("The #{datastore['GROUP']} group not exist in the domain, It is possible that the same group name exists for the local group")
     end
   end
 
