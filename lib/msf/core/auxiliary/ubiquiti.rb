@@ -35,6 +35,24 @@ module Auxiliary::Ubiquiti
     return File.read("#{temp_file.path}.zip")
   end
 
+  def extract_and_process_db(db_path)
+    f = nil
+    Zip::File.open(db_path) do |zip_file|
+      # Handle entries one by one
+      zip_file.each do |entry|
+        # Extract to file
+        if entry.name == 'db.gz'
+          print_status('extracting db.gz')
+          gz = Zlib::GzipReader.new(entry.get_input_stream)
+          f = gz.read
+          gz.close
+          break
+        end
+      end
+    end
+    f
+  end
+
   def bson_to_json(byte_buffer)
     # This function takes a byte buffer (db file from Unifi read in), which is a bson string
     # it then converts it to JSON, where it uses the 'select collection' documents
