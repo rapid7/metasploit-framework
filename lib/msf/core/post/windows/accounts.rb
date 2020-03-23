@@ -393,7 +393,7 @@ module Msf
             0x0,
             client.railgun.const('UF_SCRIPT | UF_NORMAL_ACCOUNT|UF_DONT_EXPIRE_PASSWD'),
             0x0
-          ].pack(client.arch == "x86" ? "VVVVVVVV" : "QQVVQQVQ")
+          ].pack(client.arch == ARCH_X86 ? "VVVVVVVV" : "QQVVQQVQ")
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
           client.railgun.multi([
                                  ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
@@ -419,7 +419,7 @@ module Msf
           localgroup_info = [
             addr_group, #  lgrpi1_name
             0x0 #  lgrpi1_comment
-          ].pack(client.arch == "x86" ? "VV" : "QQ")
+          ].pack(client.arch == ARCH_X86 ? "VV" : "QQ")
           result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
           client.railgun.multi([
                                  ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
@@ -443,7 +443,7 @@ module Msf
           group_info_1 = [
             addr_group,
             0x0
-          ].pack(client.arch == "x86" ? "VV" : "QQ")
+          ].pack(client.arch == ARCH_X86 ? "VV" : "QQ")
           result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info_1, 4)
           client.railgun.multi([
                                  ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
@@ -467,7 +467,7 @@ module Msf
           #  https://docs.microsoft.com/windows/desktop/api/lmaccess/ns-lmaccess-localgroup_members_info_3
           localgroup_members = [
             addr_username,
-          ].pack(client.arch == "x86" ? "V" : "Q")
+          ].pack(client.arch == ARCH_X86 ? "V" : "Q")
           result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
           client.railgun.multi([
                                  ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
