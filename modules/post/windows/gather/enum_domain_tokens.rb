@@ -10,20 +10,21 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Windows Gather Enumerate Domain Tokens',
-                      'Description'   => %q(
-            This module will enumerate tokens present on a system that are part of the
-            domain the target host is part of, will also enumerate users in the local
-            Administrators, Users and Backup Operator groups to identify Domain members.
-            Processes will be also enumerated and checked if they are running under a
-            Domain account, on all checks the accounts, processes and tokens will be
-            checked if they are part of the Domain Admin group of the domain the machine
-            is a member of.
-        ),
-                      'License'       => MSF_LICENSE,
-                      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-                      'Platform'      => [ 'win'],
-                      'SessionTypes'  => [ 'meterpreter' ]))
+      'Name'          => 'Windows Gather Enumerate Domain Tokens',
+      'Description'   => %q(
+        This module will enumerate tokens present on a system that are part of the
+        domain the target host is part of, will also enumerate users in the local
+        Administrators, Users and Backup Operator groups to identify Domain members.
+        Processes will be also enumerated and checked if they are running under a
+        Domain account, on all checks the accounts, processes and tokens will be
+        checked if they are part of the Domain Admin group of the domain the machine
+        is a member of.
+      ),
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Platform'      => [ 'win'],
+      'SessionTypes'  => [ 'meterpreter' ]
+    ))
   end
 
   # Run Method for when run command is issued

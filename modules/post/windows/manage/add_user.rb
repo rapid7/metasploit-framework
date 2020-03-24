@@ -6,30 +6,33 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Accounts
+  include Msf::Exploit::Deprecated
+  
+  moved_from 'post/windows/manage/add_user_domain'
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'          => 'Windows Manage Add User to the Domain and/or to a Domain Group',
-                      'Description'   => %q(
-              This module adds a user to the Domain and/or to a Domain group. It will
-            check if sufficient privileges are present for certain actions and run
-            getprivs for system.  If you elevated privs to system, the
-            SeAssignPrimaryTokenPrivilege will not be assigned. You need to migrate to
-            a process that is running as system. If you don't have privs, this script
-            exits.
-          ),
-                      'License'       => MSF_LICENSE,
-                      'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
-                      'Platform'      => [ 'win' ],
-                      'SessionTypes'  => [ 'meterpreter' ]))
+      'Name'          => 'Windows Manage Add User to the Domain and/or to a Domain Group',
+      'Description'   => %q(
+          This module adds a user to the Domain and/or to a Domain group. It will
+        check if sufficient privileges are present for certain actions and run
+        getprivs for system.  If you elevated privs to system, the
+        SeAssignPrimaryTokenPrivilege will not be assigned. You need to migrate to
+        a process that is running as system. If you don't have privs, this script
+        exits.
+      ),
+      'License'       => MSF_LICENSE,
+      'Author'        => 'Joshua Abraham <jabra[at]rapid7.com>',
+      'Platform'      => [ 'win' ],
+      'SessionTypes'  => [ 'meterpreter' ]))
     register_options(
       [
         OptString.new('USERNAME',  [true,  'The username of the user to add (not-qualified, e.g. BOB)']),
         OptString.new('PASSWORD',  [false, 'Password of the user']),
-        OptString.new('GROUP',     [false, 'Group to add the user into.']),
-        OptBool.new('ADDTOGROUP', [true, ' Add group if it not exists', false]),
-        OptBool.new('ADDTODOMAIN', [true,  'Add to Domain if true, Add to Local if false', false]),
-        OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated.', '']),
+        OptString.new('GROUP',     [false, 'Add user into group, creating it if necessary']),
+        OptBool.new('ADDTOGROUP',  [true,  'Add group if it does not exist', false]),
+        OptBool.new('ADDTODOMAIN', [true,  'Add to Domain if true, otherwise add locally', true]),
+        OptString.new('TOKEN',     [false, 'Username or PID of the token which will be used (if blank, Domain Admin tokens will be enumerated)', '']),
       ]
     )
   end
@@ -212,7 +215,7 @@ class MetasploitModule < Msf::Post
   def local_mode
     if datastore['PASSWORD'].nil?
       datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
-      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}' ")
+      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}'")
     end
     #  Add user
     if enum_user.include? datastore['USERNAME']
@@ -261,7 +264,7 @@ class MetasploitModule < Msf::Post
     end
     if datastore['PASSWORD'].nil?
       datastore['PASSWORD'] = Rex::Text.rand_text_alphanumeric(16) + Rex::Text.rand_text_numeric(2)
-      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}' ")
+      print_status("You have not set up a PASSWORD. The default is '#{datastore['PASSWORD']}'")
     end
     ## enum domain
     domain = primary_domain
@@ -304,7 +307,7 @@ class MetasploitModule < Msf::Post
           check_result(result)
         end
         if (!enum_group(server_name).include? datastore['GROUP'])
-          print_error("The #{datastore['GROUP']} group not exist in the domain, It is possible that the same group name exists for the local group")
+          print_error("The #{datastore['GROUP']} group not exist in the domain. It is possible that the same group name exists for the local group.")
         end
       else
         print_error("Check your group name")

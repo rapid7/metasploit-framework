@@ -379,12 +379,11 @@ class  Util
   # Write Unicode strings to memory.
   #
   # Given a Unicode string, returns a pointer to a null terminated WCHARs array.
-  # InitializeUnicodeStr(&uStr,L"string");
+  # InitializeUnicodeStr(&uStr, sL"string");
   #
   def alloc_and_write_wstring(value)
-    if value == nil
-    return 0
-    else
+    return nil if value == nil
+
     data = str_to_uni_z(value)
     result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
     if result['return'].nil?
@@ -396,7 +395,6 @@ class  Util
     else
       return nil
     end
-    end
   end
 
   #
@@ -406,9 +404,8 @@ class  Util
   # InitializeStr(&Str,"string");
   #
   def alloc_and_write_string(value)
-    if value == nil
-    return 0
-    else
+    return nil if value == nil
+
     data = str_to_ascii_z(value)
     result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
     if result['return'].nil?
@@ -419,7 +416,6 @@ class  Util
       return addr
     else
       return nil
-    end
     end
   end
 

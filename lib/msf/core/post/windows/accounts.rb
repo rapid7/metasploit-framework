@@ -375,9 +375,9 @@ module Msf
         #   Adds a user account to the given server (or local, if none specified)
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   username              - The username of the account to add (not-qualified, e.g. BOB)
-        #   password               - The password to be assigned to the new user account
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   username    - The username of the account to add (not-qualified, e.g. BOB)
+        #   password    - The password to be assigned to the new user account
         ##
         def add_user(username, password, server_name = nil)
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
@@ -396,9 +396,9 @@ module Msf
           ].pack(client.arch == "x86" ? "VVVVVVVV" : "QQVVQQVQ")
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
           client.railgun.multi([
-                                 ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
-                                 ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]], #  addr_password
-                               ])
+            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]], #  addr_username
+            ["kernel32", "VirtualFree", [addr_password, 0, MEM_RELEASE]], #  addr_password
+          ])
           return result
         end
 
@@ -409,8 +409,8 @@ module Msf
         #   Creates a local group to the given server (or local, if none specified)
         #
         # Parameters
-        #   server_name    - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   localgroup         -  Specifies a local group name
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   localgroup  - Specifies a local group name
         ##
         def add_localgroup(localgroup, server_name = nil)
           #  Set up the #  LOCALGROUP_INFO_1 structure.
@@ -422,8 +422,8 @@ module Msf
           ].pack(client.arch == "x86" ? "VV" : "QQ")
           result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
           client.railgun.multi([
-                                 ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
-                               ])
+            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+          ])
           return result
         end
 
@@ -433,8 +433,8 @@ module Msf
         #    Creates a global group in the security database,
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   group                       -  Specifies a global group name
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group       - Specifies a global group name
         ##
         def add_group(group, server_name = nil)
           addr_group = session.railgun.util.alloc_and_write_wstring(group)
@@ -446,8 +446,8 @@ module Msf
           ].pack(client.arch == "x86" ? "VV" : "QQ")
           result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info_1, 4)
           client.railgun.multi([
-                                 ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
-                               ])
+            ["kernel32", "VirtualFree", [addr_group, 0, MEM_RELEASE]], #  addr_group
+          ])
           return result
         end
 
@@ -457,9 +457,9 @@ module Msf
         #    Adds membership of one existing user accounts or global group accounts to an existing local group.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   localgroup             -  Specifies a local group name
-        #   username               -  Specifies a local username
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   localgroup  - Specifies a local group name
+        #   username    - Specifies a local username
         ##
         def add_members_localgroup(localgroup, username, server_name = nil)
           addr_username = session.railgun.util.alloc_and_write_wstring(username)
@@ -470,8 +470,8 @@ module Msf
           ].pack(client.arch == "x86" ? "V" : "Q")
           result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
           client.railgun.multi([
-                                 ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
-                               ])
+            ["kernel32", "VirtualFree", [addr_username, 0, MEM_RELEASE]],
+          ])
           return result
         end
 
@@ -481,9 +481,9 @@ module Msf
         #    Gives an existing user account membership in an existing global group in the security database
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   group                       -  Specifies a global group name
-        #   username              -   Specifies a global username
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group       - Specifies a global group name
+        #   username    - Specifies a global username
         ##
         def add_members_group(group, username, server_name = nil)
           result = client.railgun.netapi32.NetGroupAddUser(server_name, group, username)
@@ -496,8 +496,8 @@ module Msf
         #    retrieves a list of the members in a particular global group in the security database.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   group                       -  Specifies a group name
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group       - Specifies a group name
         ##
         def get_members_from_group(groupname, server_name = nil)
           members = []
@@ -529,8 +529,8 @@ module Msf
         #    retrieves a list of the members in a particular local group in the security database.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
-        #   group                       -  Specifies a group name
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   group       - Specifies a group name
         ##
         def get_members_from_localgroup(localgroupname, server_name = nil)
           members = []
@@ -559,7 +559,7 @@ module Msf
         #    provides information about all user accounts on a server.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_user(server_name = nil)
           users = []
@@ -589,7 +589,7 @@ module Msf
         #    returns information about each local group account on the specified server.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_localgroup(server_name = nil)
           localgroups = []
@@ -618,7 +618,7 @@ module Msf
         #    retrieves information about each global group in the security database.
         #
         # Parameters
-        #   server_name        - The DNS or NetBIOS name of the remote server on which the function is to execute.
+        #   server_name - The DNS or NetBIOS name of the remote server on which the function is to execute.
         ##
         def enum_group(server_name = nil)
           groups = []

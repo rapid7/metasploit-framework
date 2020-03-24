@@ -8,15 +8,16 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-                      'Name'            => "Windows Gather Enumerate Domain",
-                      'Description'     => %q(
+      'Name'            => "Windows Gather Enumerate Domain",
+      'Description'     => %q(
         This module identifies the primary domain via the registry. The registry value used is:
         HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName.
-        ),
-                      'License'         => MSF_LICENSE,
-                      'Platform'        => ['win'],
-                      'SessionTypes'    => ['meterpreter'],
-                      'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']))
+      ),
+      'License'         => MSF_LICENSE,
+      'Platform'        => ['win'],
+      'SessionTypes'    => ['meterpreter'],
+      'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
+    ))
   end
 
   def gethost(hostorip)
