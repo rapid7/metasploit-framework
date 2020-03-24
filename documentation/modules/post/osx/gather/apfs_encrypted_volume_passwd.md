@@ -1,6 +1,6 @@
-This module uses a vulnerability in macOS High Sierra's `log` command. It uses the logs of the Disk Utility app to recover the password of an APFS encrypted volume from when it was created. 
-
 ## Vulnerable Application
+
+This module uses a vulnerability in macOS High Sierra's `log` command. It uses the logs of the Disk Utility app to recover the password of an APFS encrypted volume from when it was created. 
 
   * macOS 10.13.0
   * macOS 10.13.1
@@ -12,8 +12,6 @@ This module uses a vulnerability in macOS High Sierra's `log` command. It uses t
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Start `msfconsole`
   2. Do: `use post/osx/gather/apfs_encrypted_volume_passwd`
   3. Do: set the `MOUNT_PATH` option if needed
@@ -22,7 +20,7 @@ This module uses a vulnerability in macOS High Sierra's `log` command. It uses t
 
 ## Options
 
-  **MOUNT_PATH**
+### MOUNT_PATH
 
   `MOUNT_PATH` is the path on the macOS system where the encrypted drive is (or was) mounted. This is *not* the path under `/Volumes`
 
