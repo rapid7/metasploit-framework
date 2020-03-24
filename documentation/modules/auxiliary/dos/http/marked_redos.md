@@ -6,7 +6,7 @@ Versions before 0.3.19 are vulnerable.
 Any application that uses a vulnerable version of this module and passes untrusted input
 to the module will be vulnerable.
 
-## How to Install
+### How to Install
 
 To install a vulnerable version of `marked`, run:
 ```
