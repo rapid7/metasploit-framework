@@ -26,11 +26,12 @@ module Msf
     # also be a string as standin for the required description field.
     #
     def initialize(in_name, attrs = [],
-                   required: false, desc: nil, default: nil, enums: [], regex: nil, aliases: [])
+                   required: false, desc: nil, default: nil, enums: [], regex: nil, aliases: [], max_length: nil)
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
       self.aliases  = aliases
+      self.max_length = max_length
 
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
@@ -55,6 +56,10 @@ module Msf
         regex_temp    = attrs[4] || regex
       end
 
+      unless max_length.nil?
+        self.desc += " Max parameter length: #{max_length} characters"
+      end
+      
       if regex_temp
         # convert to string
         regex_temp = regex_temp.to_s if regex_temp.is_a? Regexp
@@ -144,6 +149,15 @@ module Msf
     end
 
     #
+    # Returns true if the value supplied is longer then the max allowed length
+    #
+    def invalid_value_length?(value)
+      if !value.nil? && !max_length.nil?
+        value.length > max_length
+      end
+    end
+
+    #
     # The name of the option.
     #
     attr_reader   :name
@@ -187,7 +201,11 @@ module Msf
     # Aliases for this option for backward compatibility
     #
     attr_accessor :aliases
-
+    # 
+    # The max length of the input value
+    #
+    attr_accessor :max_length
+    
     protected
 
     attr_writer   :required, :desc, :default # :nodoc:
