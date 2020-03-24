@@ -1,0 +1,15 @@
+labels:
+  - name: needs-docs
+    labeled:
+      pr:
+        body: |
+          Thanks for your pull request, before this can be merged - corresponding documentation for your module is required:
+          - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
+          - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
+          - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
+        action: open
+    unlabeled:
+      issue:
+        body: |
+          Thank you for adding module documentation :tada:
+        action: open

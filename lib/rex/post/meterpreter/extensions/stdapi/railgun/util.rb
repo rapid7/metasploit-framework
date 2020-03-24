@@ -376,6 +376,50 @@ class  Util
   end
 
   #
+  # Write Unicode strings to memory.
+  #
+  # Given a Unicode string, returns a pointer to a null terminated WCHARs array.
+  # InitializeUnicodeStr(&uStr, sL"string");
+  #
+  def alloc_and_write_wstring(value)
+    return nil if value == nil
+
+    data = str_to_uni_z(value)
+    result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
+    if result['return'].nil?
+      return nil
+    end
+    addr = result['return']
+    if railgun.memwrite(addr, data, data.length)
+      return addr
+    else
+      return nil
+    end
+  end
+
+  #
+  # Write ASCII strings to memory.
+  #
+  # Given a  string, returns a pointer to a null terminated CHARs array.
+  # InitializeStr(&Str,"string");
+  #
+  def alloc_and_write_string(value)
+    return nil if value == nil
+
+    data = str_to_ascii_z(value)
+    result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
+    if result['return'].nil?
+      return nil
+    end
+    addr = result['return']
+    if railgun.memwrite(addr, data, data.length)
+      return addr
+    else
+      return nil
+    end
+  end
+
+  #
   # Reads null-terminated ASCII strings from memory.
   #
   # Given a pointer to a null terminated array of CHARs, return a ruby

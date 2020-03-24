@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
   config.ssh.forward_x11 = true
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/bionic64"
   config.vm.network :forwarded_port, guest: 4444, host: 4444
   config.vm.provider "vmware" do |v|
 	  v.memory = 2048

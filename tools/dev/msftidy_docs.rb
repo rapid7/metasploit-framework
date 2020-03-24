@@ -126,6 +126,7 @@ class MsftidyDoc
     has_options = false
     has_bad_description = false
     has_bad_intro = false
+    has_bad_scenario_sub = false
 
     @lines.each do |line|
       if line =~ /^## Vulnerable Application$/
@@ -157,6 +158,11 @@ class MsftidyDoc
         has_bad_intro = true
         next
       end
+
+      if line =~ /### Version and OS$/
+        has_bad_scenario_sub = true
+        next
+      end
     end
 
     unless has_vulnerable_application
@@ -181,6 +187,10 @@ class MsftidyDoc
 
     if has_bad_intro
       warn('Intro/Introduction should be within Vulnerable Application, or an H3 sub-section of Vulnerable Application')
+    end
+
+    if has_bad_scenario_sub
+      warn('Scenario sub-sections should include the vulnerable application version and OS tested on in an H3, not just ### Version and OS')
     end
   end
 
@@ -211,6 +221,10 @@ class MsftidyDoc
       # find spaces at EOL not in a code block which is ``` or starts with four spaces
       if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)
         warn("Spaces at EOL", idx)
+      end
+
+      if ln =~ /Example steps in this format/
+        warn("Instructional text not removed", idx)
       end
 
       if ln =~ /^# /

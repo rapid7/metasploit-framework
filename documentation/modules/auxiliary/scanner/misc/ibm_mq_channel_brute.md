@@ -11,8 +11,6 @@
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Install IBM MQ Server 7.5, 8, or 9
   2. Start msfconsole
   3. Do: ```use auxiliary/scanner/misc/ibm_mq_channel_brute```
@@ -21,7 +19,17 @@
   6. Do: ```set rport <port>```
   7. Do: ```run```
   
-  Example output:
+## Options
+
+  **The CHANNELS_FILE option**
+
+  This option should contain the path to a text file which contains a list of channel names that will be checked. One channel name per line.
+
+## Scenarios
+
+  This module can be used to identify a list of channel names that are configured on the Queue Manager. Additionally, the module will return whether each identified channel uses SSL and if it MQI type.
+  After obtaining a list of valid channel names, these can be used to further enumerate the MQ installation. For example, the ibm_mq_enum module can be executed using a valid channel name in order to obtain information regarding the Queue Manager.
+
   ```
   msf auxiliary(scanner/misc/ibm_mq_channel_brute) > run
   
@@ -35,14 +43,3 @@
 [*] Auxiliary module execution completed
 
   ```
-
-## Options
-
-  **The CHANNELS_FILE option**
-
-  This option should contain the path to a text file which contains a list of channel names that will be checked. One channel name per line.
-
-## Scenarios
-
-  This module can be used to identify a list of channel names that are configured on the Queue Manager. Additionally, the module will return whether each identified channel uses SSL and if it MQI type.
-  After obtaining a list of valid channel names, these can be used to further enumerate the MQ installation. For example, the ibm_mq_enum module can be executed using a valid channel name in order to obtain information regarding the Queue Manager.
