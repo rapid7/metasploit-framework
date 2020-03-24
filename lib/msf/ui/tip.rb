@@ -26,7 +26,7 @@ module Msf
         "View advanced module options with #{highlight('advanced')}",
         "You can use #{highlight('help')} to view all available commands",
         "Use #{highlight('help <command>')} to learn more about any command",
-        "View a module's description using #{highlight('info')}, or view it in your browser with #{highlight('info -d')}",
+        "View a module's description using #{highlight('info')}, or the enhanced version in your browser with #{highlight('info -d')}",
         "After running #{highlight('db_nmap')}, be sure to check out the result of #{highlight('hosts')} and #{highlight('services')}",
         "Save the current environment with the #{highlight('save')} command, future console restarts will use this environment again",
         "Search can apply complex filters such as #{highlight('search cve:2009 type:exploit')}, see all the filters with #{highlight('help search')}",
