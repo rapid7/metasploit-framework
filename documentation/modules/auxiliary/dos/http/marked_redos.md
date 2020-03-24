@@ -15,8 +15,6 @@ npm i marked@0.3.19
 
 ## Verification Steps
 
-Example steps in this format (is also in the PR):
-
 1. Create a new directory for test application.
 2. Copy below example server into test application directory as `server.js`.
 3. Run `npm i express` to install express in the test application directory.

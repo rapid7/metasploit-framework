@@ -213,6 +213,10 @@ class MsftidyDoc
         warn("Spaces at EOL", idx)
       end
 
+      if ln =~ /Example steps in this format/
+        warn("Instructional text not removed", idx)
+      end
+
       if ln =~ /^# /
         warn("No H1 (#) headers.  If this is code, indent.", idx)
       end
