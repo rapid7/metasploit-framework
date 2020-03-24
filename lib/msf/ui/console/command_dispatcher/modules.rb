@@ -1,6 +1,10 @@
 # -*- coding: binary -*-
 
 require 'rex/ui/text/output/buffer/stdout'
+require 'msf/ui/console/table_print/rank_styler'
+require 'msf/ui/console/table_print/rank_formatter'
+require 'msf/ui/console/table_print/highlight_substring_styler'
+
 
 module Msf
   module Ui
@@ -22,10 +26,12 @@ module Msf
           include Msf::Ui::Console::CommandDispatcher
           include Msf::Ui::Console::CommandDispatcher::Common
 
+          include Rex::Text::Color
+
           @@search_opts = Rex::Parser::Arguments.new(
             '-h' => [false, 'Help banner'],
             '-o' => [true,  'Send output to a file in csv format'],
-            '-S' => [true,  'Search string for row filter'],
+            '-S' => [true,  'Regex pattern used to filter search results'],
             '-u' => [false, 'Use module if there is one result']
           )
 
@@ -326,14 +332,15 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [<options>] [<keywords>]"
+            print_line "Usage: search [<options>] [<keywords>:<value>]"
             print_line
+            print_line "Prepending a value with '-' will exclude any matching results."
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
             print_line "  -h                Show this help information"
             print_line "  -o <file>         Send output to a file in csv format"
-            print_line "  -S <string>       Search string for row filter"
+            print_line "  -S <string>       Regex pattern used to filter search results"
             print_line "  -u                Use module if there is one result"
             print_line
             print_line "Keywords:"
@@ -364,6 +371,7 @@ module Msf
             print_line
             print_line "Examples:"
             print_line "  search cve:2009 type:exploit"
+            print_line "  search cve:2009 type:exploit platform:-linux"
             print_line
           end
 
@@ -371,17 +379,18 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            match       = ''
-            search_term = nil
-            output_file = nil
-            cached      = false
-            use         = false
-            count       = -1
+            match        = ''
+            row_filter  = nil
+            output_file  = nil
+            cached       = false
+            use          = false
+            count        = -1
+            search_terms = []
 
             @@search_opts.parse(args) do |opt, idx, val|
               case opt
               when '-S'
-                search_term = val
+                row_filter = val
               when '-h'
                 cmd_search_help
                 return false
@@ -403,9 +412,6 @@ module Msf
               cached = true
             end
 
-            # Display the table of matches
-            tbl = generate_module_table('Matching Modules', search_term)
-
             begin
               if cached
                 print_status('Displaying cached results')
@@ -419,14 +425,23 @@ module Msf
                 return false
               end
 
+              if !search_params.nil? && !search_params['text'].nil?
+                search_params['text'][0].each do |t|
+                  search_terms << t
+                end
+              end
+
+              # Generate the table used to display matches
+              tbl = generate_module_table('Matching Modules', search_terms, row_filter)
+
               @module_search_results.each do |m|
                 tbl << [
                     count += 1,
                     m.fullname,
                     m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                    RankingName[m.rank].to_s,
+                    m.rank,
                     m.check ? 'Yes' : 'No',
-                    m.name
+                    m.name,
                 ]
               end
 
@@ -452,6 +467,7 @@ module Msf
 
             true
           end
+
 
           #
           # Parses command line search string into a hash
@@ -1284,17 +1300,35 @@ module Msf
             print(tbl.to_s)
           end
 
-          def generate_module_table(type, search_term = nil) # :nodoc:
-            Table.new(
-              Table::Style::Default,
-              'Header'     => type,
-              'Prefix'     => "\n",
-              'Postfix'    => "\n",
-              'Columns'    => [ '#', 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
-              'SearchTerm' => search_term
-            )
+          def generate_module_table(type, search_terms = [], row_filter = nil) # :nodoc:
+              Table.new(
+                Table::Style::Default,
+                'Header'     => type,
+                'Prefix'     => "\n",
+                'Postfix'    => "\n",
+                'SearchTerm' => row_filter,
+                'Columns' => [
+                  '#',
+                  'Name',
+                  'Disclosure Date',
+                  'Rank',
+                  'Check',
+                  'Description'
+                ],
+                'ColProps' => {
+                  'Rank' => {
+                    'Formatters' => [Msf::Ui::Console::TablePrint::RankFormatter.new],
+                    'Stylers' => [Msf::Ui::Console::TablePrint::RankStyler.new]
+                  },
+                  'Name' => {
+                    'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
+                  },
+                  'Description' => {
+                    'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
+                  }
+                }
+              )
           end
-
         end
       end
     end
