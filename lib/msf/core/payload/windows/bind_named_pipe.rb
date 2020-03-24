@@ -110,7 +110,7 @@ module Payload::Windows::BindNamedPipe
 
   #
   # hPipe must be in edi. eax will contain WriteFile return value
-  # 
+  #
   def asm_send_uuid(uuid=nil)
     uuid ||= generate_payload_uuid
     uuid_raw = uuid.to_raw
@@ -155,7 +155,7 @@ module Payload::Windows::BindNamedPipe
         push #{chunk_size}      ; nInBufferSize
         push #{chunk_size}      ; nOutBufferSize
         push 255                ; nMaxInstances (PIPE_UNLIMITED_INSTANCES). in case pipe isn't released
-        push #{pipe_mode}       ; dwPipeMode 
+        push #{pipe_mode}       ; dwPipeMode
         push 3                  ; dwOpenMode (PIPE_ACCESS_DUPLEX)
         call get_pipe_name      ; lpName
         db "#{full_pipe_name}", 0x00

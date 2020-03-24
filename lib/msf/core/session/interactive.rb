@@ -110,7 +110,7 @@ protected
   def _interrupt
     begin
       intent = user_want_abort?
-      # Judge the user wants to abort the reverse shell session 
+      # Judge the user wants to abort the reverse shell session
       # Or just want to abort the process running on the target machine
       # If the latter, just send ASCII Control Character \u0003 (End of Text) to the socket fd
       # The character will be handled by the line dicipline program of the pseudo-terminal on target machine

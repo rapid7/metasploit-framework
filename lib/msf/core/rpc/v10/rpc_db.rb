@@ -279,15 +279,15 @@ public
         end
 
         updated_at = nil
-        pass = nil   
+        pass = nil
         type = nil
-        
+
         unless cred.private.nil?
-          updated_at = cred.private.updated_at.to_i   
+          updated_at = cred.private.updated_at.to_i
           pass = cred.private.data.to_s
           type = cred.private.type.to_s
         else
-          updated_at = cred.public.updated_at.to_i        
+          updated_at = cred.public.updated_at.to_i
         end
 
         ret[:creds] << {
