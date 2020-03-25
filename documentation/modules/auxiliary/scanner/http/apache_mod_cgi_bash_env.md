@@ -69,7 +69,7 @@ bash: BASH_FUNC_x(): line 0: `BASH_FUNC_x() () { :;}; echo vulnerable'
 bash: error importing function definition for `BASH_FUNC_x'
 test
 ```
-(NOTE: The next series of commands should be run as root or with sudo)
+(NOTE: The next series of commands should be run as root or with sudo) <br>
 5. Also install Apache2 from the apt repository with the following command
 ```
 apt-get install apache2
