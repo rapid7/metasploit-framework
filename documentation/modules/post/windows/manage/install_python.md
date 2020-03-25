@@ -1,6 +1,12 @@
 ## Overview
 
-This module downloads an embeddable Python3 distribution onto the target file system, granting pentesters access to a lightweight Python interpreter. This module does not require administrative privileges or user interaction with installation prompts.
+This module downloads an embeddable Python3 distribution onto the target
+file system, granting pentesters access to a lightweight Python
+interpreter. This module does not require administrative privileges or
+user interaction with installation prompts.
+This is useful in cases where the in-memory python interpreter might
+be limited.  If you only want to run a python script while connected,
+see https://github.com/rapid7/metasploit-framework/wiki/Python-Extension.
 
 ## Tested Version
 This module has been tested against:
