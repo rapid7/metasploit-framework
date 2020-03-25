@@ -58,7 +58,8 @@ class MetasploitModule < Msf::Post
     end
 
     # download python embeddable zip file
-    script = "Invoke-WebRequest -Uri #{python_url} -OutFile #{datastore['FILE_PATH']}; "
+    script = "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;"
+    script << "Invoke-WebRequest -Uri #{python_url} -OutFile #{datastore['FILE_PATH']}; "
     print_status("Downloading Python embeddable zip from #{python_url}")
     psh_exec(script)
 
