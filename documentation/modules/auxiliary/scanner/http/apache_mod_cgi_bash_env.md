@@ -90,5 +90,5 @@ printf "Test!\n"
 ```
   9. Set the file to be executable with the following command
 ```
-sudo chmod +x /usr/lib/cgi-bin/test.sh
+chmod +x /usr/lib/cgi-bin/test.sh
 ```
