@@ -164,7 +164,7 @@ _msfvenom_formats_list=(
   'vbscript'
 )
 
-_msfvenom_format() {
+_msfvenom_formats() {
   _describe -t formats 'available formats' _msfvenom_formats_list || compadd "$@"
 }
 
@@ -207,6 +207,25 @@ _msfvenom_platform() {
   _describe -t platforms 'available platforms' _msfvenom_platforms_list || compadd "$@"
 }
 
+local -a _msfvenom_payloads_list
+
+if [ -f "$HOME/.local/cache/msfvenom/payloads.txt" ]; then
+  while read line; do
+    _msfvenom_payloads_list+=("$line")
+  done < "$HOME/.local/cache/msfvenom/payloads.txt"
+fi
+
+_msfvenom_payload() {
+  if [ ${#_msfvenom_payloads_list[@]} -ne 0 ]; then
+    _describe -t payloads 'available payloads' _msfvenom_payloads_list || compadd "$@"
+  else
+    _message -r "You need to pre-populate the payload cache, run the following commands:"
+    _message -r ""
+    _message -r "mkdir -p \$HOME/.local/cache/msfvenom/"
+    _message -r "msfvenom --list payloads 2> /dev/null | tail -n +5 | sed '2d' | awk -F '  +' '{print \$2 \":\" \$3}' > \$HOME/.local/cache/msfvenom/payloads.txt"
+  fi
+}
+
 _arguments \
   "--smallest[Generate the smallest possible payload using all available encoders]" \
   "--sec-name[The new section name to use when generating large Windows binaries. Default: random 4-character alpha string]" \
@@ -228,7 +247,7 @@ _arguments \
   {-l,--list}"[List all modules for \[type\]]:module type:(payloads encoders nops platforms archs encrypt formats all)" \
   {-n,--nopsled}"[Prepend a nopsled of \[length\] size on to the payload]:nopsled length" \
   {-o,--out}"[Save the payload to a file]:output file:_files" \
-  {-p,--payload}"[Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom]:payload" \
+  {-p,--payload}"[Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom]:target payload:_msfvenom_payload" \
   {-s,--space}"[The maximum size of the resulting payload]:length" \
   {-t,--timeout}"[The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable)]:second" \
   {-v,--var-name}"[Specify a custom variable name to use for certain output formats]:value" \
