@@ -9,7 +9,7 @@ This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
 4. Do: `run`
 
 ### To check if a host is vulnerable to the attack
-1. run
+1. run (on the host)
 ```
 env 'x=() { :;}; echo vulnerable' 'BASH_FUNC_x()=() { :;}; echo vulnerable' bash -c "echo test"
 ```
