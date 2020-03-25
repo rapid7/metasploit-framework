@@ -207,22 +207,24 @@ _msfvenom_platform() {
   _describe -t platforms 'available platforms' _msfvenom_platforms_list || compadd "$@"
 }
 
-local -a _msfvenom_payloads_list
-
-if [ -f "$HOME/.local/cache/msfvenom/payloads.txt" ]; then
+_msfvenom_payload() {
+  local cacheFile="${XDG_CACHE_HOME:-$HOME/.cache}/metasploit/payloads.txt"
+  local -a _msfvenom_payloads_list
+  if [ ! -f "$cacheFile" ]; then
+    mkdir -p $(dirname "$cacheFile")
+    msfvenom --list payloads 2> /dev/null | tail -n +5 | sed '2d' | awk -F '  +' '{print $2 ":" $3}' > "$cacheFile"
+  else
+    local lastModified="$(date +%s -r "$cacheFile")"
+    local currentDate="$(date +%s)"
+    if [ $(( $currentDate - $lastModified )) -gt "604800" ]; then # 604800 = Seconds in a week
+      msfvenom --list payloads 2> /dev/null | tail -n +5 | sed '2d' | awk -F '  +' '{print $2 ":" $3}' > "$cacheFile"
+    fi
+  fi
   while read line; do
     _msfvenom_payloads_list+=("$line")
-  done < "$HOME/.local/cache/msfvenom/payloads.txt"
-fi
-
-_msfvenom_payload() {
+  done < "$cacheFile"
   if [ ${#_msfvenom_payloads_list[@]} -ne 0 ]; then
     _describe -t payloads 'available payloads' _msfvenom_payloads_list || compadd "$@"
-  else
-    _message -r "You need to pre-populate the payload cache, run the following commands:"
-    _message -r ""
-    _message -r "mkdir -p \$HOME/.local/cache/msfvenom/"
-    _message -r "msfvenom --list payloads 2> /dev/null | tail -n +5 | sed '2d' | awk -F '  +' '{print \$2 \":\" \$3}' > \$HOME/.local/cache/msfvenom/payloads.txt"
   fi
 }
 
