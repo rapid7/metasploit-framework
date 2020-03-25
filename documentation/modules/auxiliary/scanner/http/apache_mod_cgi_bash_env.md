@@ -70,7 +70,7 @@ bash: error importing function definition for `BASH_FUNC_x'
 test
 ```
 (NOTE: The next series of commands should be run as root or with sudo)
-  5. Also install Apache2 from the apt repository with the following command
+5. Also install Apache2 from the apt repository with the following command
 ```
 apt-get install apache2
 ```
