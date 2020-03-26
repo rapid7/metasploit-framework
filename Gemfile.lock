@@ -17,7 +17,7 @@ PATH
       em-http-request
       eventmachine
       faker
-      faraday (<= 0.17.0)
+      faraday
       faye-websocket
       filesize
       hrr_rb_ssh (= 0.3.0.pre2)
@@ -119,8 +119,8 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.0)
     aws-eventstream (1.0.3)
-    aws-partitions (1.285.0)
-    aws-sdk-core (3.91.1)
+    aws-partitions (1.287.0)
+    aws-sdk-core (3.92.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -173,7 +173,7 @@ GEM
       railties (>= 4.2.0)
     faker (2.2.1)
       i18n (>= 0.8)
-    faraday (0.17.0)
+    faraday (1.0.0)
       multipart-post (>= 1.2, < 3)
     faye-websocket (0.10.9)
       eventmachine (>= 0.12.0)
