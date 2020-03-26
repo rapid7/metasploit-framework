@@ -17,7 +17,7 @@ PATH
       em-http-request
       eventmachine
       faker
-      faraday (= 0.17.3)
+      faraday
       faye-websocket
       filesize
       hrr_rb_ssh (= 0.3.0.pre2)
@@ -173,7 +173,7 @@ GEM
       railties (>= 4.2.0)
     faker (2.2.1)
       i18n (>= 0.8)
-    faraday (0.17.3)
+    faraday (1.0.0)
       multipart-post (>= 1.2, < 3)
     faye-websocket (0.10.9)
       eventmachine (>= 0.12.0)
