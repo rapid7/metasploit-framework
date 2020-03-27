@@ -210,7 +210,9 @@ class Payload < Msf::Module
     pl = nil
     begin
       pl = generate()
-    rescue NoCompatiblePayloadError, Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
+    rescue Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
+    rescue NoCompatiblePayloadError
+    rescue PayloadItemSizeError
     end
     pl ||= ''
     pl.length
@@ -688,7 +690,6 @@ protected
   # Merge the name to prefix the existing one and separate them
   # with a comma
   #
-
   def merge_name(info, val)
     if (info['Name'])
       info['Name'] = val + ',' + info['Name']

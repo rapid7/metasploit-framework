@@ -72,7 +72,7 @@ Gem::Specification.new do |spec|
   # Needed for Meterpreter
   spec.add_runtime_dependency 'metasploit-payloads', '1.3.86'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.5.19'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.5.20'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -211,6 +211,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'eventmachine'
 
   # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
-  spec.add_runtime_dependency 'faraday', '<= 0.17.0'
+  spec.add_runtime_dependency 'faraday'
 
 end
