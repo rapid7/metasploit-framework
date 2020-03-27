@@ -211,6 +211,7 @@ _msfvenom_payload() {
   local cacheFile="$HOME/.msf4/store/modules_metadata.json"
   local -a _msfvenom_payloads_list
   [ -f "$cacheFile" ] || cacheFile="/opt/metasploit/db/modules_metadata_base.json"
+  [ -f "$cacheFile" ] || cacheFile="./db/modules_metadata_base.json"
   if [ ! -f "$cacheFile" ]; then
     _message -r "Cannot find metasploit cache file. Run msfconsole to populate it"
     compadd "$@"
