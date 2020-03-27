@@ -211,8 +211,13 @@ _msfvenom_payload() {
   local cacheFile="$HOME/.msf4/store/modules_metadata.json"
   local -a _msfvenom_payloads_list
   [ -f "$cacheFile" ] || cacheFile="/opt/metasploit/db/modules_metadata_base.json"
-  _msfvenom_payloads_list=("${(f)$(sed -n '/"type": "payload"/,/"ref_name"/p' "$cacheFile" | grep -E '(ref_name|description)' | cut -d '"' -f 4 | sed -n 'h;n;p;g;p' | sed 'N;s/\n/:/')}")
-  _describe -t payloads 'available payloads' _msfvenom_payloads_list || compadd "$@"
+  if [ ! -f "$cacheFile" ]; then
+    _message -r "Cannot find metasploit cache file. Run msfconsole to populate it"
+    compadd "$@"
+  else
+    _msfvenom_payloads_list=("${(f)$(sed -n '/"type": "payload"/,/"ref_name"/p' "$cacheFile" | grep -E '(ref_name|description)' | cut -d '"' -f 4 | sed -n 'h;n;p;g;p' | sed 'N;s/\n/:/')}")
+    _describe -t payloads 'available payloads' _msfvenom_payloads_list || compadd "$@"
+  fi
 }
 
 _arguments \
