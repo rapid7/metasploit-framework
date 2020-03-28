@@ -69,10 +69,19 @@ test
 4. Do: `run`
 
 ## Options
-1. `CMD`. The default setting is /usr/bin/id
-2. `CVE`. The default setting is `CVE-2014-6271` but valid options are CVE-2014-6271 or CVE-2014-6278
-3. `HEADER`. The default setting is User-Agent
-4. `METHOD`. The default setting is GET
+**CMD**
+
+This is the command that will be run by the scanner. The default setting is `/usr/bin/id`.
+
+**CVE** 
+This is the CVE that will be used to exploit the vulnerability. 
+The default setting is `CVE-2014-6271` but valid options are CVE-2014-6271 or CVE-2014-6278.
+
+**HEADER**
+This is the user agent string that is sent when the module is run. The default setting is `User-Agent`.
+
+**METHOD**
+This is HTTP method used by the module.  The default setting is `GET`.
 
 ## Scenarios
 ### Ubuntu 12.04.5 LTS on Apache 2.2.22
