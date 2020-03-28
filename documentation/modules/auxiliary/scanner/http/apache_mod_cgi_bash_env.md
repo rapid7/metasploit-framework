@@ -2,7 +2,7 @@
 
 This module scans for the Shellshock vulnerability, a flaw in how the Bash shell handles external
  environment variables. This module targets CGI scripts in the Apache web server by setting
- the HTTP_USER_AGENT environment variable to a malicious function definition.
+ the `HTTP_USER_AGENT` environment variable to a malicious function definition.
 
 ### Creating a Vulnerable Environment
 To setup an Environment that the scanner can be run against, follow the below steps to install a
