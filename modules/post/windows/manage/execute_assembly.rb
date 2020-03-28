@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name' => 'Execute .net Assembly (x64 only)',
       'Description' => '
-        This module execute a .net assembly in memory. Refletctively load the dll that host CLR, than
+        This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
+        
         copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
       ',
       'License' => MSF_LICENSE,
