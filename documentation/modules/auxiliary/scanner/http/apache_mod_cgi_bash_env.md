@@ -63,7 +63,7 @@ test
 
 ## Verification Steps
 1. Do: run `msfconsole`
-2. Do: use `auxiliary/scanner/http/apache_mod_cgi_bash_env'
+2. Do: use `auxiliary/scanner/http/apache_mod_cgi_bash_env`
 2. Do: set `RHOSTS [IP]`
 3. Do: set `TARGETURI [URI]`
 4. Do: `run`
