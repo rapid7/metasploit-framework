@@ -9,6 +9,8 @@ module Msf::Payload::Android
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
 
+  @@jar_signing_key = OpenSSL::PKey::RSA.new(2048)
+
   #
   # Fix the dex header checksum and signature
   # http://source.android.com/tech/dalvik/dex-format.html
@@ -52,7 +54,8 @@ module Msf::Payload::Android
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: opts[:transport_config] || [transport_config(opts)],
-      stageless:  opts[:stageless] == true
+      stageless:  opts[:stageless] == true,
+      new_key:    opts[:new_key] == true
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
@@ -65,11 +68,13 @@ module Msf::Payload::Android
     config
   end
 
-  def sign_jar(jar)
+  def sign_jar(jar, new_key)
     x509_name = OpenSSL::X509::Name.parse(
       "C=US/O=Android/CN=Android Debug"
     )
-    key  = OpenSSL::PKey::RSA.new(2048)
+
+    key = (new_key ? OpenSSL::PKey::RSA.new(1024) : @@jar_signing_key)
+
     cert = OpenSSL::X509::Certificate.new
     cert.version = 2
     cert.serial = 1
@@ -129,11 +134,10 @@ module Msf::Payload::Android
     jar.add_file("classes.dex", fix_dex_header(classes))
     jar.build_manifest
 
-    sign_jar(jar)
+    sign_jar(jar, opts[:new_key])
 
     jar
   end
-
 
 end
 

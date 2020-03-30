@@ -96,7 +96,7 @@ module Msf
             module_instance = create(aliased, aliased_as: "#{type}/#{name}")
           else
             module_reference_name = names.join("/")
-            module_instance = set.has_key?(module_reference_name) ? set.create(module_reference_name) : nil
+            module_instance = set.create(module_reference_name)
           end
           break if module_instance
         end
