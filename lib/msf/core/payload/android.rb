@@ -9,7 +9,9 @@ module Msf::Payload::Android
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
 
-  @@jar_signing_key = OpenSSL::PKey::RSA.new(2048)
+  def signing_key
+    @@signing_key ||= OpenSSL::PKey::RSA.new(2048)
+  end
 
   #
   # Fix the dex header checksum and signature
@@ -54,8 +56,7 @@ module Msf::Payload::Android
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: opts[:transport_config] || [transport_config(opts)],
-      stageless:  opts[:stageless] == true,
-      new_key:    opts[:new_key] == true
+      stageless:  opts[:stageless] == true
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
@@ -68,12 +69,12 @@ module Msf::Payload::Android
     config
   end
 
-  def sign_jar(jar, new_key)
+  def sign_jar(jar)
     x509_name = OpenSSL::X509::Name.parse(
       "C=US/O=Android/CN=Android Debug"
     )
 
-    key = (new_key ? OpenSSL::PKey::RSA.new(1024) : @@jar_signing_key)
+    key = signing_key
 
     cert = OpenSSL::X509::Certificate.new
     cert.version = 2
@@ -134,7 +135,7 @@ module Msf::Payload::Android
     jar.add_file("classes.dex", fix_dex_header(classes))
     jar.build_manifest
 
-    sign_jar(jar, opts[:new_key])
+    sign_jar(jar)
 
     jar
   end
