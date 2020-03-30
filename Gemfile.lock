@@ -29,7 +29,7 @@ PATH
       metasploit-model (~> 2.0.4)
       metasploit-payloads (= 1.3.86)
       metasploit_data_models (~> 3.0.10)
-      metasploit_payloads-mettle (= 0.5.20)
+      metasploit_payloads-mettle (= 0.5.21)
       mqtt
       msgpack
       nessus_rest
@@ -225,7 +225,7 @@ GEM
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.5.20)
+    metasploit_payloads-mettle (0.5.21)
     method_source (1.0.0)
     mini_portile2 (2.4.0)
     minitest (5.14.0)
