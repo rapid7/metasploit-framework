@@ -14,7 +14,7 @@ module Msf::Post::Windows::Dotnet
   # actual version, rather than the over-arching release
   # An alternative would be to query for it, and catch the exception.
   #
-  
+
   def search_for_version(dotnet_subkey)
     dotnet_version = nil
     begin
@@ -57,7 +57,7 @@ module Msf::Post::Windows::Dotnet
     end
     return exact_version
   end
-  
+
   #
   # 'Public' function that returns a list of all .NET versions on
   # a windows host
@@ -76,7 +76,7 @@ module Msf::Post::Windows::Dotnet
         if temp_key[0] == 'v'
           key = 'HKLM\\SOFTWARE\\Microsoft\NET Framework Setup\\NDP\\' + temp_key
           dotnet_version = get_versionception(key)
-          unless dotnet_version.nil? 
+          unless dotnet_version.nil?
             ret_val << dotnet_version
           end
         end

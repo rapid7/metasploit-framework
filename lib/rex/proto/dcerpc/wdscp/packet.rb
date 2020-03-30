@@ -34,7 +34,7 @@ class Packet
     value_length ||= value.length
     # Variable block total size should be evenly divisible by 16.
     len = 16 * (1 + (value_length/16))
-    @variables << 
+    @variables <<
       [	name,
         padding,
         value_type,

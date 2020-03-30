@@ -29,7 +29,7 @@ module Metasploit
 
         # Returns the latest sid from MSP
         #
-        # @param res [Rex::Proto::Http::Response] 
+        # @param res [Rex::Proto::Http::Response]
         # @return [String] The session ID for MSP
         def get_sid(res)
           cookies = res.get_cookies
