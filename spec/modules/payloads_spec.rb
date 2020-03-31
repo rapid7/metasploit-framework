@@ -1008,6 +1008,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_stub'
   end
 
+  context 'cmd/unix/reverse_tclsh' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_tclsh'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_tclsh'
+  end
+
   context 'cmd/unix/reverse_zsh' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

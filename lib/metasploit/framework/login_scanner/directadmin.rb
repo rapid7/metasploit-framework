@@ -6,7 +6,7 @@ module Metasploit
 
       class DirectAdmin < HTTP
 
-        DEFAULT_PORT  = 443 
+        DEFAULT_PORT  = 443
         PRIVATE_TYPES = [ :password ]
 
 
@@ -25,7 +25,7 @@ module Metasploit
         end
 
 
-        # Returns the latest sid from DirectAdmin Control Panel  
+        # Returns the latest sid from DirectAdmin Control Panel
         #
         # @return [String] The PHP Session ID for DirectAdmin Web Control login
         def get_last_sid

@@ -2079,7 +2079,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     return self.smb_recv_parse(CONST::SMB_COM_ECHO)
   end
 
-  
+
 # public read/write methods
   attr_accessor :native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
   attr_accessor :verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm

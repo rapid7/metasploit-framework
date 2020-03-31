@@ -75,7 +75,7 @@ module Auxiliary::Juniper
     end
 
     # snmp
-    # Example lines: 
+    # Example lines:
     # set snmp community "sales" Read-Write Trap-on traffic version v1
     config.scan(/set snmp community "(?<snmp_community>[a-z0-9]+)" (?<snmp_permissions>Read-Write|Read-Only)/i).each do |result|
       snmp_community = result[0].strip
@@ -214,7 +214,7 @@ module Auxiliary::Juniper
       cred[:private_type] = :password
       cred[:service_name] = 'snmp'
       create_credential_and_login(cred)
-    end    
+    end
 
     config.scan(/radius-server \{[\s]+(?<radius_server>[0-9\.]{7,15}) secret "(?<radius_hash>[^"]+)";/i).each do |result|
       radius_hash = result[1].strip

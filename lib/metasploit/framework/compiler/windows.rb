@@ -47,7 +47,7 @@ module Metasploit
         # Returns randomized c source code.
         #
         # @param c_template [String]
-        # 
+        #
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
         def self.generate_random_c(c_template, opts={})
@@ -63,7 +63,7 @@ module Metasploit
         # Returns the binary of a randomized and compiled source code.
         #
         # @param c_template [String]
-        # 
+        #
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
         def self.compile_random_c(c_template, opts={})

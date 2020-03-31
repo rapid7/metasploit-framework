@@ -15,7 +15,7 @@ module Msf::Module::Alert
     # the module is about to start running, or when the module generates its
     # output.
     #
-    # @param msg [String] an optional warning message 
+    # @param msg [String] an optional warning message
     # @param block [Proc] an optional block that will be executed in the
     #   context of the module instance at alert time to generate the warning
     #   message. If provided the msg parameter is ignored.
@@ -30,7 +30,7 @@ module Msf::Module::Alert
     # the module is about to start running, or when the module generates its
     # output. Adding an error will cause {#is_usable} to return `false`.
     #
-    # @param msg [String] an optional error message 
+    # @param msg [String] an optional error message
     # @param block [Proc] an optional block that will be executed in the
     #   context of the module instance at alert time to generate the error
     #   message. If provided the msg parameter is ignored.
@@ -109,7 +109,7 @@ module Msf::Module::Alert
   # command, when the module is about to start running, or when the module
   # generates its output.
   #
-  # @param msg [String] an optional warning message 
+  # @param msg [String] an optional warning message
   # @param block [Proc] an optional block that will be executed in the
   #   context of the module instance at alert time to generate the warning
   #   message. If provided the msg parameter is ignored.
@@ -125,7 +125,7 @@ module Msf::Module::Alert
   # generates its output. Adding an error will cause {#is_usable} to return
   # `false`.
   #
-  # @param msg [String] an optional error message 
+  # @param msg [String] an optional error message
   # @param block [Proc] an optional block that will be executed in the
   #   context of the module instance at alert time to generate the error
   #   message. If provided the msg parameter is ignored.
@@ -164,7 +164,7 @@ module Msf::Module::Alert
   # the context of this module instance and returns a flattened list of strings.
   # (see {ClassMethods#get_alerts})
   # @param [Symbol] the alert level to return
-  # @return [Array<String>] 
+  # @return [Array<String>]
   def get_alerts(level)
     self.alerts ||= {}
     self.alerts[level] ||= []

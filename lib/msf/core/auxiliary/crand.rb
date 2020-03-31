@@ -25,7 +25,7 @@ module Auxiliary::CRand
 
   def initialize(info = {})
     super
-    
+
     @randtbl =
     [
       # we omit TYPE_3 from here, not needed
@@ -38,7 +38,7 @@ module Auxiliary::CRand
       -205601318,
     ]
 
-    @unsafe_state = { 
+    @unsafe_state = {
       "fptr" => SEP_3,
       "rptr" => 0,
       "state" => 0,
@@ -56,7 +56,7 @@ module Auxiliary::CRand
       seed = 1
     end
     state[0] = seed
-    
+
     dst = 0
     word = seed
     kc = DEG_3
@@ -70,10 +70,10 @@ module Auxiliary::CRand
       dst += 1
       state[dst] = word
     end
-    
+
     @unsafe_state['fptr'] = @unsafe_state['rand_sep']
     @unsafe_state['rptr'] = 0
-    
+
     kc *= 10
     kc -= 1
     while (kc >= 0)
@@ -81,17 +81,17 @@ module Auxiliary::CRand
       kc -= 1
     end
   end
-    
-  # Emulate the behaviour of C's rand  
+
+  # Emulate the behaviour of C's rand
   def random_r
     buf = @unsafe_state
     state = buf['state']
-    
+
     fptr = buf['fptr']
     rptr = buf['rptr']
     end_ptr = buf['end_ptr']
     val = @randtbl[fptr] += @randtbl[rptr]
-    
+
     result = (val >> 1) & 0x7fffffff
     fptr += 1
     if (fptr >= end_ptr)
@@ -105,7 +105,7 @@ module Auxiliary::CRand
     end
     buf['fptr'] = fptr
     buf['rptr'] = rptr
-    
+
     result
   end
 

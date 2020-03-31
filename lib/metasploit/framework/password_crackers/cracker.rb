@@ -411,7 +411,7 @@ module Metasploit
             # https://hashcat.net/wiki/doku.php?id=frequently_asked_questions#what_is_the_maximum_supported_password_length_for_optimized_kernels
             # Optimized Kernels has a large impact on speed.  Here are some stats from Hashcat 5.1.0:
 
-            # Kali Linux on Dell Precision M3800            
+            # Kali Linux on Dell Precision M3800
             ## hashcat -b -w 2 -m 0
             # * Device #1: Quadro K1100M, 500/2002 MB allocatable, 2MCU
             # Speed.#1.........:   185.9 MH/s (11.15ms) @ Accel:64 Loops:16 Thr:1024 Vec:1
