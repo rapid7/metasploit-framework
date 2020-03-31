@@ -38,6 +38,9 @@ else:
 for doc in list_docs:
     docs.append(doc.split('.')[0].replace('/documentation/','/'))
 for module in list_modules:
+    # skip compiled python code, and python internal use files
+    if module.split('.')[1] == 'pyc': continue
+    if '/_' in module.split('.')[0]: continue
     modules.append(module.split('.')[0])
 
 missings = 0
