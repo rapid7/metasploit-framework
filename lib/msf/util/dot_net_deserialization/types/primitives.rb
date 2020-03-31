@@ -121,6 +121,68 @@ module Primitives
     end
   end
 
+  class MemberValues < BinData::Primitive
+    endian                   :little
+    mandatory_parameter      :class_info
+    mandatory_parameter      :member_type_info
+    array                    :member_values, initial_length: -> { class_info.member_count } do
+      choice :member_value, :selection => lambda { selection_routine(index) } do
+        record                  -1
+        boolean                 Enums::PrimitiveTypeEnum[:Boolean]
+        uint8                   Enums::PrimitiveTypeEnum[:Byte]
+        #???                    Enums::PrimitiveTypeEnum[:Char] # todo: implement this primitive type
+        length_prefixed_string  Enums::PrimitiveTypeEnum[:Decimal]
+        double                  Enums::PrimitiveTypeEnum[:Double]
+        int16                   Enums::PrimitiveTypeEnum[:Int16]
+        int32                   Enums::PrimitiveTypeEnum[:Int32]
+        int64                   Enums::PrimitiveTypeEnum[:Int64]
+        int8                    Enums::PrimitiveTypeEnum[:SByte]
+        float                   Enums::PrimitiveTypeEnum[:Single]
+        int64                   Enums::PrimitiveTypeEnum[:TimeSpan]
+        date_time               Enums::PrimitiveTypeEnum[:DateTime]
+        uint16                  Enums::PrimitiveTypeEnum[:UInt16]
+        uint32                  Enums::PrimitiveTypeEnum[:UInt32]
+        uint64                  Enums::PrimitiveTypeEnum[:UInt64]
+        null                    Enums::PrimitiveTypeEnum[:Null]
+        length_prefixed_string  Enums::PrimitiveTypeEnum[:String]
+      end
+    end
+
+    def get
+      self.member_values
+    end
+
+    def set(v)
+      self.member_values = v
+    end
+
+    private
+
+    def selection_routine(index)
+      index = index || 0
+      member_type = eval_parameter(:member_type_info).member_types[index]
+      if member_type[:binary_type] == Enums::BinaryTypeEnum[:Primitive]
+        return member_type[:additional_info]
+      end
+
+      -1
+    end
+
+    module Factory
+      def from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
+        raise ArgumentError unless class_info.member_count == member_values.length
+
+        mv = MemberValues.new(
+            member_values,
+            class_info: class_info,
+            member_type_info: member_type_info
+        )
+
+        self.new(class_info: class_info, member_type_info: member_type_info, member_values: mv, **kwargs)
+      end
+    end
+  end
+
 end
 end
 end

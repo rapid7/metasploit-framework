@@ -61,8 +61,8 @@ module RecordValues
     int32                  :library_id
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
 
-    include General::MemberValues::Factory
-    self.singleton_class.include General::MemberValues::Factory
+    include Primitives::MemberValues::Factory
+    self.singleton_class.include Primitives::MemberValues::Factory
   end
 
   class MemberReference < BinData::Record
@@ -111,8 +111,8 @@ module RecordValues
     member_type_info       :member_type_info, member_count: -> { class_info.member_count }
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
 
-    include General::MemberValues::Factory
-    self.singleton_class.include General::MemberValues::Factory
+    include Primitives::MemberValues::Factory
+    self.singleton_class.include Primitives::MemberValues::Factory
   end
 end
 end
