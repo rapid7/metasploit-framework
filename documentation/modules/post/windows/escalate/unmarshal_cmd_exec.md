@@ -1,4 +1,5 @@
-## Overview
+## Vulnerable Application
+
 This is a post exploitation module for local privilege escalation bug
 which exists in Microsoft COM for windows when it fails to properly
 handle serialized objects.
@@ -7,29 +8,32 @@ handle serialized objects.
 * https://github.com/codewhitesec/UnmarshalPwn/
 * https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-0824
 
-## Options
-
-"COMMAND" This command will be executed on successful escalation.</br>
-"SESSION" The session to run this module on.
-
-## Limitations
+### Limitations
 
 The payload will not spawn ant independent session it simply creates process with the system privilege.
 If the system is not vulnerable, then payload will execute but new process will not spawn.
 
 ## Verification Steps
 
-If you want to confirm the vulnerability before you add user or perform any other sensitive action. 
+If you want to confirm the vulnerability before you add user or perform any other sensitive action.
 
-1. `set COMMAND /s notepad.exe` 
-2. `run` 
+1. `set COMMAND /s notepad.exe`
+2. `run`
 
 Confirmation:
 
 Then go to meterpreter session and confirm running process (ps)
 If you see notepad.exe running as SYSYEM then that is as indication of vulnerable system.
 
-## Usage
+## Options
+
+### COMMAND
+
+This command will be executed on successful escalation.</br>
+
+## Scenarios
+
+### Windows 10 (Build 15063)
 
 ```
 meterpreter > sysinfo
