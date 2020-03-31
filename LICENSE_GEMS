@@ -62,7 +62,7 @@ metasploit-framework, 5.0.83, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.3.86, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
-metasploit_payloads-mettle, 0.5.20, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 0.5.21, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
 mini_portile2, 2.4.0, MIT
 minitest, 5.14.0, MIT
