@@ -21,7 +21,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Starting server...")
     execute_module(<%= meta[:path] %>)
   end
 end
