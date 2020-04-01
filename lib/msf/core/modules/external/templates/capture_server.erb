@@ -6,7 +6,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super({
-	  <%= common_metadata meta %>
+      <%= common_metadata meta %>
       'Actions'     => [ ['Capture'] ],
       'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture'
