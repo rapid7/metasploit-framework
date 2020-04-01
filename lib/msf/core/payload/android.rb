@@ -10,7 +10,7 @@ module Msf::Payload::Android
   include Msf::Payload::UUID::Options
 
   def signing_key
-    @@signing_key ||= OpenSSL::PKey::RSA.new(2048)
+    @@signing_key ||= OpenSSL::PKey::RSA.new(1024)
   end
 
   #
