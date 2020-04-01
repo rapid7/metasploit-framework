@@ -22,6 +22,8 @@ class Msf::Modules::External::Shim
       multi_scanner(mod)
     when 'evasion'
       evasion(mod)
+    when 'post'
+      post(mod)
     else
       nil
     end
@@ -179,6 +181,16 @@ class Msf::Modules::External::Shim
       end
     end.join(",\n          ")
     render_template('evasion.erb', meta)
+  end
+
+  def self.post(mod)
+    meta = mod_meta_common(mod)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
+    render_template('post.erb', meta)
   end
 
   #

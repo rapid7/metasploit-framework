@@ -1,9 +1,8 @@
 require 'msf/core/modules/external/bridge'
 require 'msf/core/module/external'
 
-class MetasploitModule < Msf::Auxiliary
+class MetasploitModule < Msf::Post
   include Msf::Module::External
-  include Msf::Auxiliary::Dos
 
   def initialize
     super({
