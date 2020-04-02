@@ -32,6 +32,7 @@ module Metasploit
             profile.start
 
             at_exit do
+              puts "Generating memory dump #{results_path}"
               result = profile.stop
               save_memory_result(result, path: results_path)
             end
@@ -104,8 +105,6 @@ module Metasploit
 
         def save_memory_result(result, path:)
           require 'rex/compat'
-
-          puts "Generating memory dump #{path}"
 
           result.pretty_print(to_file: path)
           Rex::Compat.open_file(path)
