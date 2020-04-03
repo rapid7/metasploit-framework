@@ -91,6 +91,186 @@ scripts << {
     [/\s+$/, '']    # trailing whitespace
   ]
 }
+###
+# JTR files
+###
+scripts << {
+  name: 'JTR - dumb16.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/dumb16.conf',
+  dest: '/data/jtr/dumb16.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - alnumspace.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/alnumspace.chr',
+  dest: '/data/jtr/alnumspace.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - regex_alphabets.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/regex_alphabets.conf',
+  dest: '/data/jtr/regex_alphabets.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - latin1.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/latin1.chr',
+  dest: '/data/jtr/latin1.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - lowerspace.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/lowerspace.chr',
+  dest: '/data/jtr/lowerspace.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - utf8.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/utf8.chr',
+  dest: '/data/jtr/utf8.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - john.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/john.conf',
+  dest: '/data/jtr/john.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - dumb32.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/dumb32.conf',
+  dest: '/data/jtr/dumb32.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - alpha.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/alpha.chr',
+  dest: '/data/jtr/alpha.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - dynamic.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/dynamic.conf',
+  dest: '/data/jtr/dynamic.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - repeats32.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/repeats32.conf',
+  dest: '/data/jtr/repeats32.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - lm_ascii.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/lm_ascii.chr',
+  dest: '/data/jtr/lm_ascii.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - upper.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/upper.chr',
+  dest: '/data/jtr/upper.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - lowernum.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/lowernum.chr',
+  dest: '/data/jtr/lowernum.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - ascii.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/ascii.chr',
+  dest: '/data/jtr/ascii.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - dynamic_disabled.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/dynamic_disabled.conf',
+  dest: '/data/jtr/dynamic_disabled.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - hybrid.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/hybrid.conf',
+  dest: '/data/jtr/hybrid.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - repeats16.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/repeats16.conf',
+  dest: '/data/jtr/repeats16.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - digits.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/digits.chr',
+  dest: '/data/jtr/digits.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - uppernum.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/uppernum.chr',
+  dest: '/data/jtr/uppernum.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - lanman.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/lanman.chr',
+  dest: '/data/jtr/lanman.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - dynamic_flat_sse_formats.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/dynamic_flat_sse_formats.conf',
+  dest: '/data/jtr/dynamic_flat_sse_formats.conf',
+  subs: []
+}
+scripts << {
+  name: 'JTR - alnum.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/alnum.chr',
+  dest: '/data/jtr/alnum.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - lower.chr',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/lower.chr',
+  dest: '/data/jtr/lower.chr',
+  subs: []
+}
+scripts << {
+  name: 'JTR - korelogic.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/korelogic.conf',
+  dest: '/data/jtr/korelogic.conf',
+  subs: []
+}
+###
+# SQLMap UDF files
+###
+scripts << {
+  name: 'SQLMap UDF - lib_mysqludf_sys_32.so',
+  addr: 'https://github.com/sqlmapproject/sqlmap/blob/master/data/udf/mysql/linux/32/lib_mysqludf_sys.so_?raw=true',
+  dest: '/data/exploits/mysql/lib_mysqludf_sys_32.so',
+  subs: []
+}
+scripts << {
+  name: 'SQLMap UDF - lib_mysqludf_sys_64.so',
+  addr: 'https://github.com/sqlmapproject/sqlmap/blob/master/data/udf/mysql/linux/64/lib_mysqludf_sys.so_?raw=true',
+  dest: '/data/exploits/mysql/lib_mysqludf_sys_64.so',
+  subs: []
+}
+scripts << {
+  name: 'SQLMap UDF - lib_mysqludf_sys_32.dll',
+  addr: 'https://github.com/sqlmapproject/sqlmap/blob/master/data/udf/mysql/windows/32/lib_mysqludf_sys.dll_?raw=true',
+  dest: '/data/exploits/mysql/lib_mysqludf_sys_32.dll',
+  subs: []
+}
+scripts << {
+  name: 'SQLMap UDF - lib_mysqludf_sys_64.dll',
+  addr: 'https://github.com/sqlmapproject/sqlmap/blob/master/data/udf/mysql/windows/64/lib_mysqludf_sys.dll_?raw=true',
+  dest: '/data/exploits/mysql/lib_mysqludf_sys_64.dll',
+  subs: []
+}
 
 path = File.expand_path('../../', File.dirname(__FILE__))
 
