@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
-  self.use_transactional_fixtures = false
+  self.use_transactional_tests = false
 
   def database_configurations
     YAML.load_file(database_configurations_pathname)
@@ -14,19 +14,19 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
   end
 
   subject(:connection_pool) do
-    ActiveRecord::Base.connection_pool
+    ApplicationRecord.connection_pool
   end
 
   # Not all specs require a database connection, and railties aren't being
   # used, so have to manually establish connection.
   before(:example) do
-    ActiveRecord::Base.configurations = database_configurations
-    spec = ActiveRecord::Base.configurations[Rails.env]
-    ActiveRecord::Base.establish_connection(spec)
+    ApplicationRecord.configurations = database_configurations
+    spec = ApplicationRecord.configurations[Rails.env]
+    ApplicationRecord.establish_connection(spec)
   end
 
   after(:example) do
-    ActiveRecord::Base.clear_all_connections!
+    ApplicationRecord.clear_all_connections!
   end
 
   context '#active_connection?' do
@@ -40,7 +40,7 @@ RSpec.describe ActiveRecord::ConnectionAdapters::ConnectionPool do
     end
 
     before(:example) do
-      ActiveRecord::Base.connection_pool.connection
+      ApplicationRecord.connection_pool.connection
     end
 
     context 'in thread with connection' do

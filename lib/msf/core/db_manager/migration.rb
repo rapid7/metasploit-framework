@@ -37,7 +37,7 @@ module Msf::DBManager::Migration
     ran = []
     ActiveRecord::Migration.verbose = verbose
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       begin
         ran = ActiveRecord::Migrator.migrate(
             ActiveRecord::Migrator.migrations_paths
@@ -52,7 +52,7 @@ module Msf::DBManager::Migration
 
     # Since the connections that existed before the migrations ran could
     # have outdated column information, reset column information for all
-    # ActiveRecord::Base descendents to prevent missing method errors for
+    # ApplicationRecord descendents to prevent missing method errors for
     # column methods for columns created in migrations after the column
     # information was cached.
     reset_column_information
@@ -67,13 +67,13 @@ module Msf::DBManager::Migration
 
   private
 
-  # Resets the column information for all descendants of ActiveRecord::Base
+  # Resets the column information for all descendants of ApplicationRecord
   # since some of the migrations may have cached column information that
   # has been updated by later migrations.
   #
   # @return [void]
   def reset_column_information
-    ActiveRecord::Base.descendants.each do |descendant|
+    ApplicationRecord.descendants.each do |descendant|
       descendant.reset_column_information
     end
   end

@@ -129,20 +129,20 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       db_manager.send(:reset_column_information)
     end
 
-    it 'should use ActiveRecord::Base.descendants to find both direct and indirect subclasses' do
-      expect(ActiveRecord::Base).to receive(:descendants).and_return([])
+    it 'should use ApplicationRecord.descendants to find both direct and indirect subclasses' do
+      expect(ApplicationRecord).to receive(:descendants).and_return([])
 
       reset_column_information
     end
 
-    it 'should reset column information on each descendant of ActiveRecord::Base' do
+    it 'should reset column information on each descendant of ApplicationRecord' do
       descendants = []
 
       1.upto(2) do |i|
         descendants << double("Descendant #{i}")
       end
 
-      expect(ActiveRecord::Base).to receive(:descendants).and_return(descendants)
+      expect(ApplicationRecord).to receive(:descendants).and_return(descendants)
 
       descendants.each do |descendant|
         expect(descendant).to receive(:reset_column_information)

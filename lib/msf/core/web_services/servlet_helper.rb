@@ -200,7 +200,7 @@ module ServletHelper
   #   # => { "id" => 1, "name" => "Konata Izumi", "age" => 16,
   #   #     "created_at" => "2006/08/01", "awesome" => true}
   #
-  #   ActiveRecord::Base.include_root_in_json = true
+  #   ApplicationRecord.include_root_in_json = true
   #
   #   user.as_json
   #   # => { "user" => { "id" => 1, "name" => "Konata Izumi", "age" => 16,

@@ -4,7 +4,7 @@ module Msf::DBManager::Vuln
   # vuln instance of each entry.
   #
   def each_vuln(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.vulns.each do |vulns|
       block.call(vulns)
     end
@@ -55,7 +55,7 @@ module Msf::DBManager::Vuln
 
   def get_vuln(wspace, host, service, name, data='')
     raise RuntimeError, "Not workspace safe: #{caller.inspect}"
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     vuln = nil
     if (service)
       vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("vulns.id DESC").first()
@@ -71,7 +71,7 @@ module Msf::DBManager::Vuln
   # Find a vulnerability matching this name
   #
   def has_vuln?(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     Mdm::Vuln.find_by_name(name)
   }
   end
@@ -93,7 +93,7 @@ module Msf::DBManager::Vuln
     name = opts[:name] || return
     info = opts[:info]
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     opts = opts.clone()
     opts.delete(:workspace)
@@ -239,7 +239,7 @@ module Msf::DBManager::Vuln
   # This methods returns a list of all vulnerabilities in the database
   #
   def vulns(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Vuln.find(opts[:id]))
@@ -265,7 +265,7 @@ module Msf::DBManager::Vuln
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Vuln] The updated Mdm::Vuln object.
   def update_vuln(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
     opts = opts.clone()
     opts.delete(:workspace)
@@ -283,7 +283,7 @@ module Msf::DBManager::Vuln
   def delete_vuln(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     deleted = []
     opts[:ids].each do |vuln_id|
       vuln = Mdm::Vuln.find(vuln_id)

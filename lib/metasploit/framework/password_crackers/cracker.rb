@@ -84,35 +84,35 @@ module Metasploit
         #   @return [String] The file path to the wordlist to use
         attr_accessor :wordlist
 
-        validates :config, :'Metasploit::Framework::File_path' => true, if: 'config.present?'
+        validates :config, :'Metasploit::Framework::File_path' => true, if: -> { config.present? }
 
         validates :cracker, inclusion: {in: %w[john hashcat]}
 
-        validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: 'cracker_path.present?'
+        validates :cracker_path, :'Metasploit::Framework::Executable_path' => true, if: -> { cracker_path.present? }
 
         validates :fork,
                   numericality: {
                       only_integer:             true,
                       greater_than_or_equal_to: 1
-                  }, if: 'fork.present?'
+                  }, if: -> { fork.present? }
 
-        validates :hash_path, :'Metasploit::Framework::File_path' => true, if: 'hash_path.present?'
+        validates :hash_path, :'Metasploit::Framework::File_path' => true, if: -> { hash_path.present? }
 
-        validates :pot, :'Metasploit::Framework::File_path' => true, if: 'pot.present?'
+        validates :pot, :'Metasploit::Framework::File_path' => true, if: -> { pot.present? }
 
         validates :max_runtime,
                   numericality: {
                       only_integer:             true,
                       greater_than_or_equal_to: 0
-                  }, if: 'max_runtime.present?'
+                  }, if: -> { max_runtime.present? }
 
         validates :max_length,
                   numericality: {
                       only_integer:             true,
                       greater_than_or_equal_to: 0
-                  }, if: 'max_length.present?'
+                  }, if: -> { max_length.present? }
 
-        validates :wordlist, :'Metasploit::Framework::File_path' => true, if: 'wordlist.present?'
+        validates :wordlist, :'Metasploit::Framework::File_path' => true, if: -> { wordlist.present? }
 
         # @param attributes [Hash{Symbol => String,nil}]
         def initialize(attributes={})
