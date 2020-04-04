@@ -34,22 +34,40 @@ module RecordValues
   class ClassWithId < BinData::Record
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/2d168388-37f4-408a-b5e0-e48dbce73e26
     RECORD_TYPE =          Enums::RecordTypeEnum[:ClassWithId]
+    default_parameter      class_info: nil
+    default_parameter      member_type_info: nil
     endian                 :little
     obj_id                 :obj_id
     int32                  :metadata_id
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
 
+    attr_reader :params
+
+    def assign(val, *args)
+      self.params.merge!(val.params) if val.is_a? self.class
+      super(val, *args)
+    end
+
     def class_info
+      ci = eval_parameter(:class_info)
+      return ci unless ci.nil?
+
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
       object = stream.get_object(metadata_id.value)
       object.record_value.class_info
     end
 
     def member_type_info
+      mti = eval_parameter(:member_type_info)
+      return mti unless mti.nil?
+
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
       object = stream.get_object(metadata_id.value)
       object.record_value.member_type_info
     end
+
+    include Primitives::MemberValues::Factory
+    self.singleton_class.include Primitives::MemberValues::Factory
   end
 
   class ClassWithMembersAndTypes < BinData::Record

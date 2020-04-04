@@ -13,8 +13,8 @@ module Primitives
       self.val != 0
     end
 
-    def set(v)
-      self.val = v ? 1 : 0
+    def set(value)
+      self.val = value ? 1 : 0
     end
   end
 
@@ -55,8 +55,8 @@ module Primitives
 
   class LengthPrefixedString < BinData::BasePrimitive
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/10b218f5-9b2b-4947-b4b7-07725a2c8127
-    def assign(val)
-      super(binary_string(val))
+    def assign(value)
+      super(binary_string(value))
     end
 
     private
@@ -91,7 +91,7 @@ module Primitives
     def get
     end
 
-    def set(v)
+    def set(value)
     end
   end
 
@@ -107,8 +107,8 @@ module Primitives
       self.val
     end
 
-    def set(v)
-      self.val = v
+    def set(value)
+      self.val = value
       register_self
     end
 
@@ -127,7 +127,7 @@ module Primitives
     mandatory_parameter      :member_type_info
     array                    :member_values, initial_length: -> { class_info.member_count } do
       choice :member_value, :selection => lambda { selection_routine(index) } do
-        record                  -1
+        record                  Types::Record
         boolean                 Enums::PrimitiveTypeEnum[:Boolean]
         uint8                   Enums::PrimitiveTypeEnum[:Byte]
         #???                    Enums::PrimitiveTypeEnum[:Char] # todo: implement this primitive type
@@ -148,37 +148,42 @@ module Primitives
       end
     end
 
+    attr_reader :params
+
     def get
       self.member_values
     end
 
-    def set(v)
-      self.member_values = v
+    def set(member_values)
+      return if self.member_values.object_id == member_values.object_id
+      self.member_values = member_values
     end
 
     private
 
     def selection_routine(index)
-      index = index || 0
       member_type = eval_parameter(:member_type_info).member_types[index]
       if member_type[:binary_type] == Enums::BinaryTypeEnum[:Primitive]
         return member_type[:additional_info]
       end
 
-      -1
+      Types::Record
     end
 
     module Factory
       def from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
         raise ArgumentError unless class_info.member_count == member_values.length
 
-        mv = MemberValues.new(
-            member_values,
-            class_info: class_info,
-            member_type_info: member_type_info
+        kwargs[:class_info] = class_info
+        kwargs[:member_type_info] = member_type_info
+        kwargs[:member_values] = MemberValues.new(
+          member_values,
+          class_info: class_info,
+          member_type_info: member_type_info
         )
 
-        self.new(class_info: class_info, member_type_info: member_type_info, member_values: mv, **kwargs)
+        # pass class_info and member_type_info as *both* a value and a parameter
+        self.new(kwargs, class_info: class_info, member_type_info: member_type_info)
       end
     end
   end
