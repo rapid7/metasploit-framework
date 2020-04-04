@@ -1,22 +1,28 @@
 ## Vulnerable Application
 
-  This module will execute the BloodHound C# Ingestor (aka SharpHound) to gather sessions, local admin, domain trusts and more. With this information BloodHound will easily identify highly complex privilage elevation attack paths that would otherwise be impossible to quickly identify within an Active Directory environment.
+This module will execute the BloodHound C# Ingestor (aka SharpHound) to gather sessions, local admin, domain trusts and more.
+With this information BloodHound will easily identify highly complex privilage elevation attack paths that would otherwise be
+impossible to quickly identify within an Active Directory environment.
+
+This module can take several/many minutes to run due to the volume of data being collected.
 
 ## Verification Steps
 
   1. Start `msfconsole`
-  2. Get meterpreter session
+  2. Get meterpreter session on a Windows domain
   3. Do: `use post/windows/gather/bloodhound`
   4. Do: `set SESSION <session id>`
   5. Do: `run`
   6. You should be able to see that the module is running a powershell in the target machine
-  7. You should be ablte to see, after few minutes, that the module created a loot with the BloodHound results in zip format
+  7. You should be able to see, after few minutes, that the module created a loot with the BloodHound results in zip format
 
 ## Options
 
   **CollectionMethode**
 
-  The collection method to use. This parameter accepts a comma separated list of values. Accepted values are Default, Group, LocalAdmin, RDP, DCOM, GPOLocalGroup, Session, ObjectProps, ComputerOnly, LoggedOn, Trusts, ACL, Container, DcOnly, All. The default method is Default.
+  The collection method to use. This parameter accepts a comma separated list of values. Accepted values are Default, Group,
+  LocalAdmin, RDP, DCOM, GPOLocalGroup, Session, ObjectProps, ComputerOnly, LoggedOn, Trusts, ACL, Container, DcOnly, All.
+  The default method is `Default`.
 
   **Domain**
 
@@ -24,20 +30,21 @@
 
   **SearchForest**
 
-  Expands data collection to include all domains in the forest. The default value is false.
-  
+  Expands data collection to include all domains in the forest. The default value is `false`.
+
   **Stealth**
 
-  Use stealth collection options, will sacrifice data quality in favor of much reduced network impact. The default value is false.
+  Use stealth collection options, will sacrifice data quality in favor of much reduced network impact. The default value is `false`.
 
   **SkipGCDeconfliction**
 
-  Skips Global Catalog deconfliction during session enumeration. This option can result in more inaccuracy in data. The default value is false.
+  Skips Global Catalog deconfliction during session enumeration. This option can result in more inaccuracy in data.
+  The default value is `false`.
 
   **ExcludeDC**
 
-  Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior. The default value is false.
- 
+  Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior. The default value is `false`.
+
   **OU**
 
   Limit enumeration to this OU. Takes a DistinguishedName.
@@ -45,52 +52,59 @@
   **DomainController**
 
   Specify which Domain Controller to request data from. Defaults to closest DC using Site Names.
-  
+
   **LdapPort**
 
-  Override the port used to connect to LDAP. The default value is false.
-  
+  Override the port used to connect to LDAP.
+
   **SecureLdap**
 
-  Uses LDAPs instead of unencrypted LDAP on port 636. The default value is false.
-  
+  Uses LDAPs instead of unencrypted LDAP on port 636. The default value is `false`.
+
   **IgnoreLdapCert**
 
-  Ignores the certificate for LDAP. The default value is false.
+  Ignores the certificate for LDAP. The default value is `false`.
 
   **LDAPUser**
 
   User to connect to LDAP with.
-  
+
   **LDAPPass**
 
   Password for user you are connecting to LDAP with.
 
   **DisableKerbSigning**
 
-  Disables Kerberos Signing on requests. The default value is false.
+  Disables Kerberos Signing on requests. The default value is `false`.
 
   **Threads**
 
-  Specifies the number of threads to use during enumeration. The default value is 10.
+  Specifies the number of threads to use during enumeration. The default value is `10`.
 
   **PingTimeout**
 
-  Specifies timeout for ping requests to computers in milliseconds. The default value is 259.
+  Specifies timeout for ping requests to computers in milliseconds. The default value is `259`.
 
   **SkipPing**
 
-  Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of being up Use this option if ping is disabled on the network for some reason. The default value is false.
+  Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of
+  being up Use this option if ping is disabled on the network for some reason. The default value is `false`.
 
   **LoopDelay**
 
-  Amount of time to wait between session enumeration loops in minutes. This option should be used in conjunction with the SessionLoop enumeration method. The default value is 300.
-  
+  Amount of time to wait between session enumeration loops in minutes. This option should be used in conjunction with
+  the `SessionLoop` enumeration method. The default value is `300`.
+
   **MaxLoopTime**
 
-  Length of time to run looped session collection. Format: 0d0h0m0s or any variation of this format. Use in conjunction with -CollectionMethod SessionLoop. Default will loop for two hours.
+  Length of time to run looped session collection. Format: 0d0h0m0s or any variation of this format.
+  Use in conjunction with `-CollectionMethod SessionLoop`. Default will loop for two hours.
 
-## Expected Output
+  **JSONFolder**
+
+  Folder to write the JSON output to.  Default is to enumerate the Windows Temp folder.
+
+## Scenarios
 
 ```
 meterpreter > run post/windows/gather/bloodhound
