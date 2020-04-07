@@ -34,9 +34,8 @@ module RecordValues
   class ClassWithId < BinData::Record
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/2d168388-37f4-408a-b5e0-e48dbce73e26
     RECORD_TYPE =          Enums::RecordTypeEnum[:ClassWithId]
-    default_parameter      class_info: nil
-    default_parameter      member_type_info: nil
     endian                 :little
+    optional_parameters    :ex_class_info, :ex_member_type_info
     obj_id                 :obj_id
     int32                  :metadata_id
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
@@ -44,12 +43,12 @@ module RecordValues
     attr_reader :params
 
     def assign(val, *args)
-      self.params.merge!(val.params) if val.is_a? self.class
+      @params.merge!(val.params) if val.is_a? self.class
       super(val, *args)
     end
 
     def class_info
-      ci = eval_parameter(:class_info)
+      ci = eval_parameter(:ex_class_info)
       return ci unless ci.nil?
 
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
@@ -58,7 +57,7 @@ module RecordValues
     end
 
     def member_type_info
-      mti = eval_parameter(:member_type_info)
+      mti = eval_parameter(:ex_member_type_info)
       return mti unless mti.nil?
 
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
@@ -66,8 +65,18 @@ module RecordValues
       object.record_value.member_type_info
     end
 
-    include Primitives::MemberValues::Factory
-    self.singleton_class.include Primitives::MemberValues::Factory
+    def self.from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
+      raise ArgumentError unless class_info.member_count == member_values.length
+
+      kwargs[:member_values] = Types::Primitives::MemberValues.new(
+        member_values,
+        class_info: class_info,
+        member_type_info: member_type_info
+      )
+
+      # pass class_info and member_type_info as *both* a value and a parameter
+      self.new(kwargs, ex_class_info: class_info, ex_member_type_info: member_type_info)
+    end
   end
 
   class ClassWithMembersAndTypes < BinData::Record

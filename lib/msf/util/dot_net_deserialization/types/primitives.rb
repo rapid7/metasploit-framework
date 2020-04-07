@@ -121,48 +121,41 @@ module Primitives
     end
   end
 
-  class MemberValues < BinData::Primitive
+  class MemberValues < BinData::Array
     endian                   :little
     mandatory_parameter      :class_info
     mandatory_parameter      :member_type_info
-    array                    :member_values, initial_length: -> { class_info.member_count } do
-      choice :member_value, :selection => lambda { selection_routine(index) } do
-        record                  Types::Record
-        boolean                 Enums::PrimitiveTypeEnum[:Boolean]
-        uint8                   Enums::PrimitiveTypeEnum[:Byte]
-        #???                    Enums::PrimitiveTypeEnum[:Char] # todo: implement this primitive type
-        length_prefixed_string  Enums::PrimitiveTypeEnum[:Decimal]
-        double                  Enums::PrimitiveTypeEnum[:Double]
-        int16                   Enums::PrimitiveTypeEnum[:Int16]
-        int32                   Enums::PrimitiveTypeEnum[:Int32]
-        int64                   Enums::PrimitiveTypeEnum[:Int64]
-        int8                    Enums::PrimitiveTypeEnum[:SByte]
-        float                   Enums::PrimitiveTypeEnum[:Single]
-        int64                   Enums::PrimitiveTypeEnum[:TimeSpan]
-        date_time               Enums::PrimitiveTypeEnum[:DateTime]
-        uint16                  Enums::PrimitiveTypeEnum[:UInt16]
-        uint32                  Enums::PrimitiveTypeEnum[:UInt32]
-        uint64                  Enums::PrimitiveTypeEnum[:UInt64]
-        null                    Enums::PrimitiveTypeEnum[:Null]
-        length_prefixed_string  Enums::PrimitiveTypeEnum[:String]
-      end
-    end
-
-    attr_reader :params
-
-    def get
-      self.member_values
-    end
-
-    def set(member_values)
-      return if self.member_values.object_id == member_values.object_id
-      self.member_values = member_values
+    default_parameter        initial_length: -> { class_info.member_count }
+    choice :member_value, :selection => lambda { selection_routine(index) } do
+      record                  Types::Record
+      boolean                 Enums::PrimitiveTypeEnum[:Boolean]
+      uint8                   Enums::PrimitiveTypeEnum[:Byte]
+      #???                    Enums::PrimitiveTypeEnum[:Char] # todo: implement this primitive type
+      length_prefixed_string  Enums::PrimitiveTypeEnum[:Decimal]
+      double                  Enums::PrimitiveTypeEnum[:Double]
+      int16                   Enums::PrimitiveTypeEnum[:Int16]
+      int32                   Enums::PrimitiveTypeEnum[:Int32]
+      int64                   Enums::PrimitiveTypeEnum[:Int64]
+      int8                    Enums::PrimitiveTypeEnum[:SByte]
+      float                   Enums::PrimitiveTypeEnum[:Single]
+      int64                   Enums::PrimitiveTypeEnum[:TimeSpan]
+      date_time               Enums::PrimitiveTypeEnum[:DateTime]
+      uint16                  Enums::PrimitiveTypeEnum[:UInt16]
+      uint32                  Enums::PrimitiveTypeEnum[:UInt32]
+      uint64                  Enums::PrimitiveTypeEnum[:UInt64]
+      null                    Enums::PrimitiveTypeEnum[:Null]
+      length_prefixed_string  Enums::PrimitiveTypeEnum[:String]
     end
 
     private
 
     def selection_routine(index)
-      member_type = eval_parameter(:member_type_info).member_types[index]
+      member_type_info = eval_parameter(:member_type_info)
+      if member_type_info.is_a? BinData::Record::Snapshot
+        member_type_info = Types::General::MemberTypeInfo.new(member_type_info)
+      end
+
+      member_type = member_type_info.member_types[index]
       if member_type[:binary_type] == Enums::BinaryTypeEnum[:Primitive]
         return member_type[:additional_info]
       end
