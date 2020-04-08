@@ -4,7 +4,7 @@ This module exploits an authenticated path traversal vulnerability found in Lime
 CVE-2020-11455 or <= 3.15.9 with CVE-2019-9960, inclusive.
 
 In CVE-2020-11455 the `getZipFile` function within the `filemanager` functionality allows for arbitrary file download. The file retrieved
-may be deleted after viewing, however this was not confirmed in testing.
+may be deleted after viewing.
 
 In CVE-2019-9960 the `szip` function within the `downloadZip` functionality allows for arbitrary file download.
 

