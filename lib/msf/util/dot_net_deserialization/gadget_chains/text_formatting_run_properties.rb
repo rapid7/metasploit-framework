@@ -37,7 +37,7 @@ module TextFormattingRunProperties
           member_names: ['ForegroundBrush']
         ),
         member_type_info: Types::General::MemberTypeInfo.new(
-          binary_type_enums: [Enums::BinaryTypeEnum.fetch(:String)]
+          binary_type_enums: [ :String ]
         ),
         library_id: library.library_id,
         member_values: [

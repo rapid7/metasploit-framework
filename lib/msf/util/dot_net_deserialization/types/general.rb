@@ -34,9 +34,9 @@ module General
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/aa509b5a-620a-4592-a5d8-7e9613e0a03e
     endian                   :little
     default_parameter        member_count: 0
-    array                    :binary_type_enums, :type => :uint8, :initial_length => :member_count
+    enum_array               :binary_type_enums, enum: Enums::BinaryTypeEnum, initial_length: :member_count
     array                    :additional_infos, initial_length: -> { filter_binary_type_enums.length } do
-      choice :additional_info, :selection => lambda { selection_routine(index) } do
+      choice                 :additional_info, selection: -> { selection_routine(index) } do
         uint8                  Enums::BinaryTypeEnum[:Primitive]
         length_prefixed_string Enums::BinaryTypeEnum[:SystemClass]
         class_type_info        Enums::BinaryTypeEnum[:Class]

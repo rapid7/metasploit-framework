@@ -53,6 +53,19 @@ module Primitives
     end
   end
 
+  class EnumArray < BinData::Array
+    mandatory_parameter :enum
+    default_parameters  :type => :uint8
+
+    def assign(values)
+      if values.is_a? ::Array
+        enum = eval_parameter(:enum)
+        values.map! { |value| (value.is_a? Symbol) ? enum.fetch(value) : value }
+      end
+      super(values)
+    end
+  end
+
   class LengthPrefixedString < BinData::BasePrimitive
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/10b218f5-9b2b-4947-b4b7-07725a2c8127
     def assign(value)
@@ -126,7 +139,7 @@ module Primitives
     mandatory_parameter      :class_info
     mandatory_parameter      :member_type_info
     default_parameter        initial_length: -> { class_info.member_count }
-    choice :member_value, :selection => lambda { selection_routine(index) } do
+    choice                   :member_value, selection: -> { selection_routine(index) } do
       record                  Types::Record
       boolean                 Enums::PrimitiveTypeEnum[:Boolean]
       uint8                   Enums::PrimitiveTypeEnum[:Byte]
