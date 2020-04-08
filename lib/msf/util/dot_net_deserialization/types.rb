@@ -51,7 +51,7 @@ module Types
 
     def self.from_values(values)
       records = []
-      values.each_with_index do |contents, index|
+      values.each do |contents|
         records << Record.from_value(contents)
       end
       self.new(records: records)
