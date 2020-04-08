@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
     ))
     register_options(
       [
-        OptString.new('DOTNET_EXE', [true, 'Assembly file name']),
+        OptPath.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
         OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation',true]),
