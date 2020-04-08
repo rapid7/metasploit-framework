@@ -772,6 +772,12 @@ class Db
         matched_service_ids << service.id
 
         if mode == :update
+          if service.name == "unknown"
+            arr = []
+            arr << service.id 
+            framework.db.delete_service(ids: arr)
+            next 
+          end 
           service.name = names.first if names
           service.proto = proto if proto
           service.port = ports.first if ports
