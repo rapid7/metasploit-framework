@@ -19,6 +19,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
 | [@Green-m](https://github.com/Green-m)            | [green-m](https://keybase.io/green_m)              |
+| [@gwillcox-r7](https://github.com/gwillcox-r7)    | [grantwillcox](https://keybase.io/grantwillcox)    |
 | [@h00die](https://github.com/h00die)              | [h00die](https://keybase.io/h00die)                |
 | [@jbarnett-r7](https://github.com/jbarnett-r7)    | [jmbarnett](https://keybase.io/jmbarnett)          |
 | [@jmartin-r7](https://github.com/jmartin-r7)      | [jmartinr7](https://keybase.io/jmartinr7)          |
