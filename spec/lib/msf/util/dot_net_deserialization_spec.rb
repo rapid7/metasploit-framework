@@ -3,13 +3,26 @@ require 'msf/util/dot_net_deserialization'
 
 RSpec.describe Msf::Util::DotNetDeserialization do
   describe '#generate' do
+    it 'generate correct gadget chains' do
+      command = 'ping 127.0.0.1'
+      table = {
+        :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
+        :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1'
+      }
+      table.each do |gadget_chain, correct_digest|
+        stream = Msf::Util::DotNetDeserialization.generate_gadget_chain(command, gadget_chain: gadget_chain)
+        real_digest = OpenSSL::Digest::SHA1.digest(stream.to_binary_s).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+        expect(real_digest).to eq correct_digest
+      end
+    end
+
     it 'generates formatted payloads' do
       gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain('command')
       payload = Msf::Util::DotNetDeserialization.generate('command', formatter: :LosFormatter)
       expect(gadget_chain).to_not eq payload
     end
 
-    it 'generates unformatted payloads' do
+    it 'generates payloads' do
       gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain('command')
       payload = Msf::Util::DotNetDeserialization.generate('command', formatter: nil)
       expect(gadget_chain).to eq payload
@@ -46,24 +59,30 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       gadget_chain =  Msf::Util::DotNetDeserialization.generate_gadget_chain(
         'command',
         gadget_chain: :TextFormattingRunProperties
-      )
+      ).to_binary_s
       it 'should start with a SerializationHeaderRecord' do
-        header = Msf::Util::DotNetDeserialization::SerializationHeaderRecord.new
-        header.read(gadget_chain)
+        record = Msf::Util::DotNetDeserialization::Types::Record.new
+        record.read(gadget_chain)
+
+        expect(record.record_type).to eq Msf::Util::DotNetDeserialization::Types::RecordValues::SerializationHeaderRecord::RECORD_TYPE
+
+        header = record.record_value
         expect(header.major_version).to eq 1
         expect(header.minor_version).to eq 0
         expect(header.root_id).to eq 1
       end
 
       it 'should end with MessageEnd' do
-        message_end = Msf::Util::DotNetDeserialization::MessageEnd.new
+        message_end = Msf::Util::DotNetDeserialization::Types::Record.from_value(
+          Msf::Util::DotNetDeserialization::Types::RecordValues::MessageEnd.new
+        )
         expect(gadget_chain.ends_with? message_end.to_binary_s).to be_truthy
       end
     end
   end
 
   describe 'LengthPrefixedString' do
-    LengthPrefixedString = Msf::Util::DotNetDeserialization::LengthPrefixedString
+    LengthPrefixedString = Msf::Util::DotNetDeserialization::Types::Primitives::LengthPrefixedString
     it 'parses well-formed strings' do
       lps = LengthPrefixedString.new
       expect(lps.read("\x01A")).to eq "A"
