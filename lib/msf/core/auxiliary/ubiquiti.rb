@@ -104,6 +104,7 @@ module Auxiliary::Ubiquiti
       protocol: 'tcp',
       workspace_id: myworkspace.id,
       origin_type: :service,
+      private_type: :password,
       service_name: '',
       module_fullname: self.fullname,
       status: Metasploit::Model::Login::Status::UNTRIED
@@ -174,7 +175,6 @@ module Auxiliary::Ubiquiti
             cred = credential_data.dup
             cred[:username] = ''
             cred[:private_data] = server['x_secret']
-            cred[:private_type] = :password
             cred[:address] = server['ip']
             cred[:port] = server['port']
             create_credential_and_login(cred)
@@ -202,7 +202,6 @@ module Auxiliary::Ubiquiti
           cred[:protocol] = 'udp'
           cred[:port] = 161
           cred[:service_name] = 'snmp'
-          cred[:private_type] = :password
           unless line['community'].blank?
             cred[:private_data] = line['community']
             create_credential_and_login(cred)
@@ -218,7 +217,6 @@ module Auxiliary::Ubiquiti
           cred = credential_data.dup
           cred[:username] = line['x_mesh_essid']
           cred[:private_data] = line['x_mesh_psk']
-          cred[:private_type] = :password
           create_credential_and_login(cred)
           print_good("Mesh Wifi Network #{line['x_mesh_essid']} password #{line['x_mesh_psk']}")
         when 'ntp'
@@ -264,7 +262,6 @@ module Auxiliary::Ubiquiti
         cred = credential_data.dup
         cred[:username] = ssid
         cred[:private_data] = password
-        cred[:private_type] = :password
         create_credential_and_login(cred)
         print_good("#{line['enabled'] ? 'Enabled' : 'Disabled'} wifi #{ssid} on #{mode}(#{line['wpa_mode']},#{line['wpa_enc']}) has password #{password}")
       end

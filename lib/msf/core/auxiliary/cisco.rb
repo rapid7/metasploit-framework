@@ -41,6 +41,7 @@ module Auxiliary::Cisco
       protocol: 'tcp',
       workspace_id: myworkspace.id,
       origin_type: :service,
+      private_type: :password,
       service_name: '',
       module_fullname: self.fullname,
       status: Metasploit::Model::Login::Status::UNTRIED
@@ -95,7 +96,6 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = shash
-            cred[:private_type] = :password
             create_credential_and_login(cred)
 
           end
@@ -107,7 +107,6 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = shash
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -117,7 +116,6 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :password
           create_credential_and_login(cred)
 
 #
@@ -137,7 +135,6 @@ module Auxiliary::Cisco
           cred[:protocol] = "udp"
           cred[:port] = 161
           cred[:private_data] = scomm
-          cred[:private_type] = :password
           create_credential_and_login(cred)
 #
 # VTY Passwords
@@ -150,7 +147,6 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :password
           create_credential_and_login(cred)
 
 
@@ -171,7 +167,6 @@ module Auxiliary::Cisco
 
           cred = credential_data.dup
           cred[:private_data] = spass
-          cred[:private_type] = :password
           create_credential_and_login(cred)
 
 #
@@ -202,7 +197,6 @@ module Auxiliary::Cisco
             store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password")
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -212,7 +206,6 @@ module Auxiliary::Cisco
             store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Decrypted Password")
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -286,7 +279,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = user.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -298,7 +290,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = user.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -314,7 +305,6 @@ module Auxiliary::Cisco
           cred = credential_data.dup
           cred[:username] = user.to_s
           cred[:private_data] = spass
-          cred[:private_type] = :password
           create_credential_and_login(cred)
 
         when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
@@ -340,7 +330,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = user.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -352,18 +341,15 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = user.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
         # https://www.cisco.com/c/en/us/td/docs/voice_ip_comm/cucme/command/reference/cme_cr/cme_cr_chapter_010101.html#wp3722577363
         when /^\s*web admin (customer|system) name ([^\s]+) (secret [0|5]|password) ([^\s]+)/i
-          puts "GOTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
           login = $1
           suser = $2
           stype = $3
           spass = $4
-          puts stype.to_s
           if stype == 'secret 5'
             print_good("#{thost}:#{tport} Web Admin Username: #{suser} Type: #{login} MD5 Encrypted Password: #{spass}")
             store_loot("cisco.ios.web_username_password_hash", "text/plain", thost, "#{suser}:#{spass}", "web_username_password_hash.txt", "Cisco IOS Web Username and Password Hash (MD5)")
@@ -383,7 +369,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = suser.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -412,7 +397,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = suser.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -424,7 +408,6 @@ module Auxiliary::Cisco
             cred = credential_data.dup
             cred[:username] = suser.to_s
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -448,7 +431,6 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
 
@@ -459,7 +441,6 @@ module Auxiliary::Cisco
 
             cred = credential_data.dup
             cred[:private_data] = spass
-            cred[:private_type] = :password
             create_credential_and_login(cred)
           end
       end
