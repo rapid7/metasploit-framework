@@ -6,7 +6,16 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
 
  - Configure your git environment as described [here](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment#keeping-in-sync).
  - Add the `fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*` line to your `.git/config`.
- - Add your signing key: `git config --global user.signingkey`
+ - Add your signing key `git config --global user.signingkey`
+     - Use `gpg --list-keys` to view your available keys. Note that on certain systems you may need to replace `gpg` with `gpg2`. Sample output can be seen below: 
+
+        ```
+        pub   rsa4096 2020-04-07 [SC]
+          3198961E148FF5E527E31A5FD35E05C0F2B81E83
+        uid           [ultimate] Grant Willcox <gwillcox@rapid7.com>
+        sub   rsa4096 2020-04-07 [E]
+        ```
+     - Set the GPG key as your signing key. In this example I would set the above key as my signing key with the command `git config --global user.signingkey 3198961E148FF5E527E31A5FD35E05C0F2B81E83`
  - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful [50/72](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). For example, your message should look like this:
 
 ````
