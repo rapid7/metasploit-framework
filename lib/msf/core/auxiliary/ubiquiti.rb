@@ -243,7 +243,7 @@ module Auxiliary::Ubiquiti
           cred[:private_data] = admin_password_hash
           cred[:private_type] = :nonreplayable_hash
           login = create_credential_and_login(cred)
-          unless admin_password.empty?
+          if login.present? && admin_password.present?
             create_cracked_credential(username: admin_name, password: admin_password, core_id: login.core.id)
           end
           line['x_ssh_keys'].each do |key|
