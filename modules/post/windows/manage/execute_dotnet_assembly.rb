@@ -52,7 +52,44 @@ class MetasploitModule < Msf::Post
   def check_dotnet_version
     vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
   end
-
+  
+  def find_required_clr(exe_path)
+    filecontent = File.read(exe_path).bytes
+    sign = "v4.0.30319".bytes
+    filecontent.each_with_index do |item, index|
+      sign.each_with_index do |subitem, indexsub|
+        if subitem.to_s(16) != filecontent[index + indexsub].to_s(16)
+          break
+        else
+          if indexsub == 9
+            vprint_status("CLR versione required v4.0.30319")
+            return "v4.0.30319"
+          end
+        end
+      end
+    end
+    vprint_status("CLR versione required v2.0.50727")
+    return "v2.0.50727"
+  end
+  
+  def check_requirements(clr_req, installed_dotnet_versions)
+    installed_dotnet_versions.each do | fi |
+      if clr_req == "v4.0.30319"
+        if fi[0] == "4"
+          vprint_status("Requirements ok")
+          return true
+        end
+      else
+      	if fi[0] == "3"
+      	  vprint_status("Requirements ok")
+          return true
+        end
+      end
+    end
+    vprint_status("Requirements ko")
+    return false
+  end
+  
   def run
     installed_dotnet_versions = get_dotnet_versions
     vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
@@ -60,6 +97,9 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::BadConfig, "Target has no .NET framework installed")
     end
     exe_path = datastore['DOTNET_EXE']
+    if check_requirements(find_required_clr(exe_path), installed_dotnet_versions) == false
+      fail_with(Failure::BadConfig, "CLR required for assembly not installed")
+    end
     if File.file?(exe_path)
       assembly_size = File.size(exe_path)
       if datastore['ARGUMENTS'].nil?
