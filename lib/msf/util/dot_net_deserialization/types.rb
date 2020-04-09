@@ -38,10 +38,15 @@ module Types
       #method_return                           Enums::RecordTypeEnum[:MethodReturn]
     end
 
-    def self.from_value(record_value)
+    def self.from_value(record_value, parent: nil)
       raise ArgumentError unless record_value.class.const_defined?('RECORD_TYPE')
 
-      self.new(record_type: record_value.class::RECORD_TYPE, record_value: record_value)
+      args = [{record_type: record_value.class::RECORD_TYPE, record_value: record_value}]
+      unless parent.nil?
+        args << {}      # params
+        args <<  parent  # parent object
+      end
+      self.new(*args)
     end
   end
 
@@ -50,11 +55,11 @@ module Types
     array                  :records, type: :record, read_until: -> { records[-1]&.record_type == Enums::RecordTypeEnum[:MessageEnd] }
 
     def self.from_values(values)
-      records = []
+      stream = self.new
       values.each do |contents|
-        records << Record.from_value(contents)
+        stream.records << Record.from_value(contents, parent: stream.records)
       end
-      self.new(records: records)
+      stream
     end
 
     def get_object(id)

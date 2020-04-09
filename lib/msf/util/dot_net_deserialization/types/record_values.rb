@@ -35,17 +35,10 @@ module RecordValues
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/2d168388-37f4-408a-b5e0-e48dbce73e26
     RECORD_TYPE =          Enums::RecordTypeEnum[:ClassWithId]
     endian                 :little
-    optional_parameters    :ex_class_info, :ex_member_type_info
+    optional_parameters    :class_info, :member_type_info
     obj_id                 :obj_id
     int32                  :metadata_id
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
-
-    attr_reader :params
-
-    def assign(val, *args)
-      @params.merge!(val.params) if val.is_a? self.class
-      super(val, *args)
-    end
 
     def class_info
       ci = eval_parameter(:ex_class_info)

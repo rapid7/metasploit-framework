@@ -291,8 +291,8 @@ module DotNetDeserialization
         Types::RecordValues::ClassWithId.from_member_values(
           obj_id: 10,
           metadata_id: 9,
-          class_info: obj_id_9.class_info.snapshot,
-          member_type_info: obj_id_9.member_type_info.snapshot,
+          class_info: obj_id_9.class_info,
+          member_type_info: obj_id_9.member_type_info,
           member_values: [
             Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
               obj_id: 22,
@@ -318,8 +318,8 @@ module DotNetDeserialization
         Types::RecordValues::ClassWithId.from_member_values(
           obj_id: 16,
           metadata_id: 8,
-          class_info: obj_id_8.class_info.snapshot,
-          member_type_info: obj_id_8.member_type_info.snapshot,
+          class_info: obj_id_8.class_info,
+          member_type_info: obj_id_8.member_type_info,
           member_values: [
             Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
               obj_id: 27,
@@ -333,7 +333,7 @@ module DotNetDeserialization
             Types::Record.from_value(Types::RecordValues::ObjectNull.new)
           ]
         ),
-      #Types::RecordValues::MessageEnd.new,
+        Types::RecordValues::MessageEnd.new,
       ])
     else
       raise NotImplementedError, 'The specified gadget chain is not implemented'
