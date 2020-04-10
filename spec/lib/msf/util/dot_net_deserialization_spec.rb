@@ -24,8 +24,8 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
     it 'generates payloads' do
       gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain('command')
-      payload = Msf::Util::DotNetDeserialization.generate('command', formatter: nil)
-      expect(gadget_chain).to eq payload
+      payload = Msf::Util::DotNetDeserialization.generate('command', formatter: :BinaryFormatter)
+      expect(gadget_chain.to_binary_s).to eq payload
     end
   end
 
@@ -39,7 +39,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
     context 'when formatting using the LosFormatter it' do
       formatted = Msf::Util::DotNetDeserialization.generate('command', formatter: :LosFormatter)
       it 'should start with ObjectStateFormatter' do
-        osf = Msf::Util::DotNetDeserialization::ObjectStateFormatter.new
+        osf = Msf::Util::DotNetDeserialization::Formatters::LosFormatter::ObjectStateFormatter.new
         osf.read(formatted)
         expect(osf.marker_format).to eq 0xff
         expect(osf.marker_version).to eq 1
