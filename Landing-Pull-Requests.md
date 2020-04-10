@@ -38,7 +38,7 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
     - The `--edit` flag will drop you into your default editor (normally vim), and will allow you 
       to edit the commit message so that it conforms to Metasploit standards, rather than sticking 
       with git's pre-generated commit message which does not.
-  - Note that the `--no-ff` flag should be used both for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch.
+  - Note that the `--no-ff` flag should be used both for PRs that go back to a contributor's branch as well as PRs that land in Metasploit's master branch.
  - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the `-S --no-ff --edit` options.
 
 # Handy Git aliases
