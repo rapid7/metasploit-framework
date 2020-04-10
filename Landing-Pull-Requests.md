@@ -158,6 +158,12 @@ modules/exploits/windows/local/payload_inject.rb - msftidy check passed
 
 This ensures that the contributor's PR is being tested against the latest codebase and not an outdated one. **If you do not do this**, when you land the PR, you may end up breaking Metasploit.
 
+Note that the example above will leave you in a detached HEAD state. This is fine if you just want to test the module in question, however if you want to make any changes, don't forget to make a new branch. For the example above this could be done by running the following command:
+
+```
+git checkout -b land-6594
+```
+
 ## Checking out branches from a remote forked repo in your forked repo
 After your .git/config is set up per the above, and you successfully run `git fetch --all`, you are two steps away from being able to check out a branch from a contributor's forked repo.
 
