@@ -15,20 +15,30 @@ Metasploit is built incrementally by the community through GitHub's [Pull Reques
         uid           [ultimate] Grant Willcox <gwillcox@rapid7.com>
         sub   rsa4096 2020-04-07 [E]
         ```
-     - Set the GPG key as your signing key. In this example I would set the above key as my signing key with the command `git config --global user.signingkey 3198961E148FF5E527E31A5FD35E05C0F2B81E83`
+     - Set the GPG key as your signing key. To set the key shown above as the signing key for all repositories, one would execute:
+ 
+       ```
+       git config --global user.signingkey 3198961E148FF5E527E31A5FD35E05C0F2B81E83
+       ```
  - When merging code from a pull request, always, always `merge -S --no-ff --edit`, and write a meaningful [50/72](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) commit message that references the original PR as `#1234` (not PR1234, not PR#1234, not 1234). For example, your message should look like this:
 
-````
-Land #1234, a whizbang bug fix
+    ````
+    Land #1234, a whizbang bug fix
 
-Adds a whiz to the existing bang. It appears that without this,
-bad things can occasionally happen. Thanks @mcfakepants!
+    Adds a whiz to the existing bang. It appears that without this,
+    bad things can occasionally happen. Thanks @mcfakepants!
 
-Fixes #1024, also see #999.
-````
-
-  - The `--no-ff` flag goes for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch.
-  - The `-S` indicates that you're going to sign the merge with your PGP/GPG key, which is a nice assurance that you're really you.
+    Fixes #1024, also see #999.
+    ````
+    - The `-S` flag indicates that you're going to sign the merge with your PGP/GPG key, which is a 
+      nice assurance that you're really you.
+    - The `--no-ff` flag indicates that you want to create a merge commit no matter what, even if 
+      the merge would normally be resolved as a fast forwards. This ensure that all changes have a
+      commit associated with them.
+    - The `--edit` flag will drop you into your default editor (normally vim), and will allow you 
+      to edit the commit message so that it conforms to Metasploit standards, rather than sticking 
+      with git's pre-generated commit message which does not.
+  - Note that the `--no-ff` flag should be used both for PRs that go back to a contributor's branch as well as PRs that land in rapid7's master branch.
  - If you're making changes (often the case), merge to a landing branch, then merge **that** branch to upstream/master with the `-S --no-ff --edit` options.
 
 # Handy Git aliases
