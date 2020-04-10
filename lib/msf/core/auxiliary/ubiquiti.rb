@@ -98,19 +98,17 @@ module Auxiliary::Ubiquiti
     # {"__cmd"=>"select", "collection"=>"heatmap"}
     # we can pull the relevant section name via the collection value.
 
-    def creds_template(thost, tport)
-      {
-        address: thost,
-        port: tport,
-        protocol: 'tcp',
-        workspace_id: myworkspace.id,
-        origin_type: :service,
-        private_type: :password,
-        service_name: '',
-        module_fullname: self.fullname,
-        status: Metasploit::Model::Login::Status::UNTRIED
-      }
-    end
+    creds_template = {
+      address: thost,
+      port: tport,
+      protocol: 'tcp',
+      workspace_id: myworkspace.id,
+      origin_type: :service,
+      private_type: :password,
+      service_name: '',
+      module_fullname: self.fullname,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
 
     report_host({
       :host => thost,
@@ -122,13 +120,13 @@ module Auxiliary::Ubiquiti
     # Example BSON lines
     # {"__cmd"=>"select", "collection"=>"admin"}
     # {"_id"=>BSON::ObjectId('5c7f23af3825ce2067a1d9ce'), "name"=>"adminuser", "email"=>"admin@admin.com", "x_shadow"=>"$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.", "time_created"=>1551825823, "last_site_name"=>"default", "ubic_name"=>"admin@admin.com", "ubic_uuid"=>"c23da064-3f4d-282f-1dc9-7e25f9c6812c", "ui_settings"=>{"dashboardConfig"=>{"lastActiveDashboardId"=>"2c7f2d213813ce2487d1ac38", "dashboards"=>{"3c7f678a3815ce2021d1d9c7"=>{"order"=>1}, "5b4f2d269115ce2087d1abb9"=>{}}}}}
-    def process_admin(lines, cred_template)
+    def process_admin(lines, credential_data)
       lines.each do |line|
         admin_name = line['name']
         admin_email = line['email']
         admin_password_hash = line['x_shadow']
         print_good("Admin user #{admin_name} with email #{admin_email} found with password hash #{admin_password_hash}")
-        cred = cred_template
+        cred = credential_data.dup
         cred[:username] = admin_name
         cred[:private_data] = admin_password_hash
         cred[:private_type] = :nonreplayable_hash
@@ -163,7 +161,7 @@ module Auxiliary::Ubiquiti
     # Example BSON lines
     # {"__cmd"=>"select", "collection"=>"radiusprofile"}
     # {"_id"=>BSON::ObjectId('2c7a318c38c5ce2f86d179cb'), "attr_no_delete"=>true, "attr_hidden_id"=>"Default", "name"=>"Default", "site_id"=>"3c7f226b2315be2087a1d5b2", "use_usg_auth_server"=>true, "auth_servers"=>[{"ip"=>"192.168.0.1", "port"=>1812, "x_secret"=>""}], "acct_servers"=>[]}
-    def process_radiusprofile(lines, cred_template)
+    def process_radiusprofile(lines, credential_data)
       lines.each do |line|
         line['auth_servers'].each do |server|
           report_service(
@@ -174,7 +172,7 @@ module Auxiliary::Ubiquiti
           )
           if server['x_secret'] # no need to output if the secret is blank, therefore its not configured
             print_good("Radius server: #{server['ip']}:#{server['port']} with secret '#{server['x_secret']}'")
-            cred = cred_template
+            cred = credential_data.dup
             cred[:username] = ''
             cred[:private_data] = server['x_secret']
             cred[:address] = server['ip']
@@ -196,11 +194,11 @@ module Auxiliary::Ubiquiti
     # {"_id"=>BSON::ObjectId('3c3e21ac3715ce20a721d9bb'), "site_id"=>"3c2f215b3825ca2087c1dfb6", "key"=>"mgmt", "advanced_feature_enabled"=>false, "x_ssh_enabled"=>true, "x_ssh_bind_wildcard"=>false, "x_ssh_auth_password_enabled"=>true, "unifi_idp_enabled"=>true, "x_mgmt_key"=>"ba6cbe170f8276cd86b24ac79ab29afc", "x_ssh_username"=>"admin", "x_ssh_password"=>"16xoB6F2UyAcU6fP", "x_ssh_keys"=>[], "x_ssh_sha512passwd"=>"$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V."}
     # {"_id"=>BSON::ObjectId('3c3e21ac3715ce20a721d9bc'), "site_id"=>"3c2f215b3825ca2087c1dfb6", "key"=>"connectivity", "enabled"=>true, "uplink_type"=>"gateway", "x_mesh_essid"=>"vwire-851237d214c8c6ba", "x_mesh_psk"=>"523a9b872b4624c7894f96c3ae22cdfa"}
     # {"_id"=>BSON::ObjectId('3c3e21ac3715ce20a721d9bd'), "site_id"=>"3c2f215b3825ca2087c1dfb6", "key"=>"snmp", "community": "public", "enabled": true, "enabledV3": true, "username": "usernamesnmpv3", "x_password": "passwordsnmpv3"}
-    def process_setting(lines, cred_template)
+    def process_setting(lines, credential_data)
       lines.each do |line|
         case line['key']
         when 'snmp'
-          cred = cred_template
+          cred = credential_data.dup
           cred[:protocol] = 'udp'
           cred[:port] = 161
           cred[:service_name] = 'snmp'
@@ -216,7 +214,7 @@ module Auxiliary::Ubiquiti
             print_good("SNMP v3 #{line['enabledV3'] ? 'enabled' : 'disabled'} with username #{line['username']} password #{line['x_password']}")
           end
         when 'connectivity'
-          cred = cred_template
+          cred = credential_data.dup
           cred[:username] = line['x_mesh_essid']
           cred[:private_data] = line['x_mesh_psk']
           create_credential_and_login(cred)
@@ -238,7 +236,7 @@ module Auxiliary::Ubiquiti
           admin_password_hash = line['x_ssh_sha512passwd']
           admin_password = line['x_ssh_password']
           print_good("SSH user #{admin_name} found with password #{admin_password} and hash #{admin_password_hash}")
-          cred = cred_template
+          cred = credential_data.dup
           cred[:username] = admin_name
           cred[:private_data] = admin_password_hash
           cred[:private_type] = :nonreplayable_hash
@@ -256,12 +254,12 @@ module Auxiliary::Ubiquiti
     # Example lines
     # {"__cmd"=>"select", "collection"=>"wlanconf"}
     # {"_id"=>BSON::ObjectId('3c3e21ac3715ce20a721d9ba'), "enabled" => true, "security" => "wpapsk", "wep_idx" => 1, "wpa_mode" => "wpa2", "wpa_enc" => "ccmp", "usergroup_id" => "5a7f111a3815ce1111a1d1c3", "dtim_mode" => "default", "dtim_ng" => 1, "dtim_na" => 1, "minrate_ng_enabled" => false, "minrate_ng_advertising_rates" => false, "minrate_ng_data_rate_kbps" => 1000, "minrate_ng_cck_rates_enabled" => true, "minrate_na_enabled" => false, "minrate_na_advertising_rates" => false, "minrate_na_data_rate_kbps" => 6000, "mac_filter_enabled" => false, "mac_filter_policy" => "allow", "mac_filter_list" => [], "bc_filter_enabled" => false, "bc_filter_list" => [], "group_rekey" => 3600, "name" => "ssid_name", "x_passphrase" => "supersecret", "wlangroup_id" => "5c7f208c3815ce2087d1d9c4", "schedule" => [], "minrate_ng_mgmt_rate_kbps" => 1000, "minrate_na_mgmt_rate_kbps" => 6000, "minrate_ng_beacon_rate_kbps" => 1000, "minrate_na_beacon_rate_kbps" => 6000, "site_id" => "5c7f208b3815ce2087d1d9b6", "x_iapp_key" => "d11a1c86df1111be86aaa69e8aa1c57f", "no2ghz_oui" => true}
-    def process_wlanconf(lines, cred_template)
+    def process_wlanconf(lines, credential_data)
       lines.each do |line|
         ssid = line['name']
         mode = line['security']
         password = line['x_passphrase']
-        cred = cred_template
+        cred = credential_data.dup
         cred[:username] = ssid
         cred[:private_data] = password
         create_credential_and_login(cred)
@@ -319,8 +317,8 @@ module Auxiliary::Ubiquiti
     # here is where we actually process the file
     config.each do |key,value|
       next unless self.respond_to?("process_#{key}")
-      cred = creds_template(thost, tport)
-      self.send("process_#{key}", value, cred)
+      credential_data = creds_template.dup
+      self.send("process_#{key}", value, credential_data)
     end
   end
 end
