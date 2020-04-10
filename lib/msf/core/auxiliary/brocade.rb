@@ -44,7 +44,7 @@ module Auxiliary::Brocade
 
     login_object
   end
-  
+
 
   def brocade_config_eater(thost, tport, config)
     # this is for brocade type devices.
@@ -104,7 +104,7 @@ module Auxiliary::Brocade
     end
 
     # snmp
-    # Example lines: 
+    # Example lines:
     # snmp-server community 1 $Si2^=d rw
     # these at times look base64 encoded, which they may be, but are also encrypted
     config.scan(/snmp-server community (?<snmp_id>[\d]+) (?<snmp_community>.+) (?<snmp_permissions>rw|ro)/i).each do |result|

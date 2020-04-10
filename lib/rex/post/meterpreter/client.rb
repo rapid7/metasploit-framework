@@ -179,7 +179,7 @@ class Client
     register_inbound_handler(Rex::Post::Meterpreter::Channel)
     register_inbound_handler(Rex::Post::Meterpreter::Pivot)
 
-    monitor_socket 
+    monitor_socket
   end
 
   def swap_sock_plain_to_ssl

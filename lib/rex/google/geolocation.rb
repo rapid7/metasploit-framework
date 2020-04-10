@@ -25,7 +25,7 @@ module Rex
 
       # Ask Google's Maps API for the location of a given set of BSSIDs (MAC
       # addresses of access points), ESSIDs (AP names), and signal strengths.
-      def fetch!        
+      def fetch!
         request = Net::HTTP::Post.new(@uri.request_uri)
         request.body = {'wifiAccessPoints' => @wlan_list}.to_json
         request['Content-Type'] = 'application/json'

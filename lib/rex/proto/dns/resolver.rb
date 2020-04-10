@@ -146,7 +146,7 @@ module DNS
           method = :send_tcp
         else # Finally use UDP
           @logger.info "Sending #{packet_size} bytes using UDP"
-          method = :send_udp unless method == :send_tcp 
+          method = :send_udp unless method == :send_tcp
         end
       end
 

@@ -31,7 +31,7 @@ class Server
     # @return [Array] Records found
     def find(search, type = 'A')
       self.records.select do |record,expire|
-        record.type == type and (expire < 1 or expire > Time.now.to_i) and 
+        record.type == type and (expire < 1 or expire > Time.now.to_i) and
         (
           record.name == '*' or
           record.name == search or record.name[0..-2] == search or
@@ -184,7 +184,7 @@ class Server
   attr_accessor :serve_tcp, :serve_udp, :fwd_res, :cache
   attr_reader :serve_udp, :serve_tcp, :sock_options, :lock, :udp_sock, :tcp_sock
   def initialize(lhost = '0.0.0.0', lport = 53, udp = true, tcp = false, res = nil, comm = nil, ctx = {}, dblock = nil, sblock = nil)
-    
+
     @serve_udp = udp
     @serve_tcp = tcp
     @sock_options = {
@@ -253,7 +253,7 @@ class Server
   # @param flush_cache [TrueClass,FalseClass] Flush eDNS cache on stop
   def stop(flush_cache = false)
     ensure_close = [self.udp_sock, self.tcp_sock].compact
-    begin 
+    begin
       self.listener_thread.kill if self.listener_thread.respond_to?(:kill)
       self.listener_thread = nil
     ensure
@@ -301,7 +301,7 @@ class Server
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and @fwd_res
       forwarded = self.fwd_res.send(validate_packet(forward))
-      req.answer = req.answer + forwarded.answer 
+      req.answer = req.answer + forwarded.answer
       forwarded.answer.each do |ans|
         self.cache.cache_record(ans)
       end

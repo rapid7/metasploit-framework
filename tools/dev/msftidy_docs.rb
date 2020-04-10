@@ -210,6 +210,7 @@ class MsftidyDoc
   def line_checks
     idx = 0
     in_codeblock = false
+    in_options = false
 
     @lines.each do |ln|
       idx += 1
@@ -218,6 +219,23 @@ class MsftidyDoc
         in_codeblock = !in_codeblock
       end
 
+      if ln =~ /## Options/
+        in_options = true
+      end
+
+      if ln =~ /## Scenarios/ || (in_options && ln =~ /$\s*## /) # we're not in options anymore
+        # we set a hard false here because there isn't a guarantee options exists
+        in_options = false
+      end
+
+      if in_options && ln =~ /^\s*\*\*[a-z]+\*\*$/i # catch options in old format like **command** instead of ### comand
+        warn("Options should use ### instead of bolds (**)", idx)
+      end
+
+      # this will catch either bold or h2/3 universal options.  Defaults aren't needed since they're not unique to this exploit
+      if in_options && ln =~ /^\s*[\*#]{2,3}\s*(rhost|rhosts|rport|lport|lhost|srvhost|srvport|ssl|uripath|session|proxies|payload)\*{0,2}$/i
+        warn('Universal options such as rhost(s), rport, lport, lhost, srvhost, srvport, ssl, uripath, session, proxies, payload can be removed.', idx)
+      end
       # find spaces at EOL not in a code block which is ``` or starts with four spaces
       if !in_codeblock && ln =~ /[ \t]$/ && !(ln =~ /^    /)
         warn("Spaces at EOL", idx)

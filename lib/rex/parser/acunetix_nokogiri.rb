@@ -109,7 +109,7 @@ module Rex
           @state[:page_request] = @state[:page_response] = nil
           return
         end
-        handle_parse_warnings &block 
+        handle_parse_warnings &block
         if @state[:vuln_info][:refs].nil?
           report_web_vuln(&block)
         else
@@ -362,7 +362,7 @@ module Rex
       return unless @state[:web_page]
       return unless @state[:web_site]
       return unless @state[:vuln_info]
-      
+
       web_vuln_info = {}
       web_vuln_info[:web_site] = @state[:web_site]
       web_vuln_info[:path] = @state[:web_page][:path]

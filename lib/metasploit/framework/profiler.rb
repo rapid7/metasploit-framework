@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pathname'
 require 'tmpdir'
 
@@ -6,57 +8,106 @@ module Metasploit
     module Profiler
       class << self
         def start
-          return unless record_cpu? || record_memory?
+          return unless record_global_cpu? || record_global_memory?
+          raise 'Cannot profile memory and cpu at the same time' if record_global_cpu? && record_global_memory?
 
-          timestamp = Time.now.strftime('%Y%m%d%H%M%S')
-          tmp_directory = Dir.mktmpdir("msf-profile-#{timestamp}")
-          tmp_path = Pathname.new(tmp_directory)
-
-          if record_cpu?
+          if record_global_cpu?
             require 'ruby-prof'
-            require 'rex/compat'
 
-            dump_path = tmp_path.join("cpu")
-            ::FileUtils.mkdir_p(dump_path)
-
-            RubyProf.start
+            results_path = tmp_cpu_results_path
+            profile = RubyProf::Profile.new
+            profile.start
 
             at_exit do
-              puts "Generating CPU dump #{dump_path}"
-              result = RubyProf.stop
-              printer = RubyProf::MultiPrinter.new(result, %i[flat graph_html tree stack])
-              printer.print(path: dump_path)
-
-              Rex::Compat.open_file(dump_path)
+              result = profile.stop
+              save_cpu_result(result, path: results_path)
             end
           end
 
-          if record_memory?
+          if record_global_memory?
             require 'memory_profiler'
-            require 'rex/compat'
 
-            report_name = "memory.profile"
-            report_path = tmp_path.join(report_name)
-
-            MemoryProfiler.start
+            results_path = tmp_memory_results_path
+            profile = MemoryProfiler
+            profile.start
 
             at_exit do
-              puts "Generating memory report #{dump_path}"
-              report = MemoryProfiler.stop
-              report.pretty_print(to_file: report_path)
-
-              puts "Memory report saved to #{report_path}"
-              Rex::Compat.open_file(report_path)
+              puts "Generating memory dump #{results_path}"
+              result = profile.stop
+              save_memory_result(result, path: results_path)
             end
           end
         end
 
-        def record_cpu?
+        def record_cpu
+          require 'ruby-prof'
+
+          results_path = tmp_cpu_results_path
+          profile = RubyProf::Profile.new
+          profile.start
+
+          yield
+
+          result = profile.stop
+          save_cpu_result(result, path: results_path)
+        end
+
+        def record_memory
+          raise 'Cannot mix global memory recording and localised memory recording' if record_global_memory?
+
+          require 'memory_profiler'
+
+          results_path = tmp_memory_results_path
+          profile = MemoryProfiler
+          profile.start
+
+          yield
+
+          result = profile.stop
+          save_memory_result(result, path: results_path)
+        end
+
+        private
+
+        def record_global_cpu?
           ENV['METASPLOIT_CPU_PROFILE']
         end
 
-        def record_memory?
+        def record_global_memory?
           ENV['METASPLOIT_MEMORY_PROFILE']
+        end
+
+        def tmp_path_for(name:)
+          tmp_directory = Dir.mktmpdir("msf-profile-#{Time.now.strftime('%Y%m%d%H%M%S')}")
+          Pathname.new(tmp_directory).join(name)
+        end
+
+        def tmp_cpu_results_path
+          path = tmp_path_for(name: 'cpu')
+          ::FileUtils.mkdir_p(path)
+          path
+        end
+
+        def tmp_memory_results_path
+          tmp_path_for(name: 'memory')
+        end
+
+        def save_cpu_result(result, path:)
+          require 'rex/compat'
+
+          puts "Generating CPU dump #{path}"
+
+          printer = RubyProf::MultiPrinter.new(result, %i[flat graph_html tree stack])
+          printer.print(path: path)
+
+          Rex::Compat.open_file(path)
+        end
+
+        def save_memory_result(result, path:)
+          require 'rex/compat'
+
+          result.pretty_print(to_file: path)
+          Rex::Compat.open_file(path)
         end
       end
     end

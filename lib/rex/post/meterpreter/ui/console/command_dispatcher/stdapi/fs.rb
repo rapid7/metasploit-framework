@@ -42,7 +42,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
     "-r" => [ false, "Upload recursively" ])
-  
+
   #
   # Options for the ls command
   #
