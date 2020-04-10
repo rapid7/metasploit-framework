@@ -14,29 +14,11 @@ module TypeConfuseDelegate
       class_info: Types::General::ClassInfo.new(
         obj_id: 8,
         name: 'System.DelegateSerializationHolder+DelegateEntry',
-        member_names: [
-          'type',
-          'assembly',
-          'target',
-          'targetTypeAssembly',
-          'targetTypeName',
-          'methodName',
-          'delegateEntry'
-        ]
+        member_names: %w{ type assembly target targetTypeAssembly targetTypeName methodName delegateEntry }
       ),
       member_type_info: Types::General::MemberTypeInfo.new(
-        binary_type_enums: [
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:Object),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:SystemClass)
-        ],
-        additional_infos: [
-          'System.DelegateSerializationHolder+DelegateEntry'
-        ]
+        binary_type_enums: %i{ String String Object String String String SystemClass },
+        additional_infos: [ 'System.DelegateSerializationHolder+DelegateEntry' ]
       ),
       member_values: [
         Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
@@ -68,26 +50,10 @@ module TypeConfuseDelegate
       class_info: Types::General::ClassInfo.new(
         obj_id: 9,
         name: 'System.Reflection.MemberInfoSerializationHolder',
-        member_names: [
-          'Name',
-          'AssemblyName',
-          'ClassName',
-          'Signature',
-          'Signature2',
-          'MemberType',
-          'GenericArguments'
-        ]
+        member_names: %w{ Name AssemblyName ClassName Signature Signature2 MemberType GenericArguments }
       ),
       member_type_info: Types::General::MemberTypeInfo.new(
-        binary_type_enums: [
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:String),
-          Enums::BinaryTypeEnum.fetch(:Primitive),
-          Enums::BinaryTypeEnum.fetch(:SystemClass)
-        ],
+        binary_type_enums: %i{ String String String String String Primitive SystemClass },
         additional_infos: [
           Enums::PrimitiveTypeEnum.fetch(:Int32),
           'System.Type[]'
@@ -110,22 +76,17 @@ module TypeConfuseDelegate
       ]
     )
 
-    serialized = Types::SerializedStream.from_values([
+    Types::SerializedStream.from_values([
       Types::RecordValues::SerializationHeaderRecord.new(root_id: 1, header_id: -1),
       library,
       Types::RecordValues::ClassWithMembersAndTypes.from_member_values(
         class_info: Types::General::ClassInfo.new(
           obj_id: 1,
           name: 'System.Collections.Generic.SortedSet`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
-          member_names: ['Count', 'Comparer', 'Version', 'Items']
+          member_names: %w{ Count Comparer Version Items }
         ),
         member_type_info: Types::General::MemberTypeInfo.new(
-          binary_type_enums: [
-            Enums::BinaryTypeEnum.fetch(:Primitive),
-            Enums::BinaryTypeEnum.fetch(:SystemClass),
-            Enums::BinaryTypeEnum.fetch(:Primitive),
-            Enums::BinaryTypeEnum.fetch(:StringArray)
-          ],
+          binary_type_enums: %i{ Primitive SystemClass Primitive StringArray },
           additional_infos: [
             Enums::PrimitiveTypeEnum.fetch(:Int32),
             'System.Collections.Generic.ComparisonComparer`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
@@ -144,15 +105,11 @@ module TypeConfuseDelegate
         class_info: Types::General::ClassInfo.new(
           obj_id: 3,
           name: 'System.Collections.Generic.ComparisonComparer`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
-          member_names: ['_comparison']
+          member_names: %w{ _comparison }
         ),
         member_type_info: Types::General::MemberTypeInfo.new(
-          binary_type_enums: [
-            Enums::BinaryTypeEnum.fetch(:SystemClass)
-          ],
-          additional_infos: [
-            'System.DelegateSerializationHolder'
-          ]
+          binary_type_enums: %i{ SystemClass },
+          additional_infos: [ 'System.DelegateSerializationHolder' ]
         ),
         member_values: [
           Types::Record.from_value(Types::RecordValues::MemberReference.new(id_ref: 5))
@@ -169,14 +126,10 @@ module TypeConfuseDelegate
         class_info: Types::General::ClassInfo.new(
           obj_id: 5,
           name: 'System.DelegateSerializationHolder',
-          member_names: ['Delegate', 'method0', 'method1']
+          member_names: %w{ Delegate method0 method1 }
         ),
         member_type_info: Types::General::MemberTypeInfo.new(
-          binary_type_enums: [
-            Enums::BinaryTypeEnum.fetch(:SystemClass),
-            Enums::BinaryTypeEnum.fetch(:SystemClass),
-            Enums::BinaryTypeEnum.fetch(:SystemClass)
-          ],
+          binary_type_enums: %i{ SystemClass SystemClass SystemClass },
           additional_infos: [
             'System.DelegateSerializationHolder+DelegateEntry',
             'System.Reflection.MemberInfoSerializationHolder',

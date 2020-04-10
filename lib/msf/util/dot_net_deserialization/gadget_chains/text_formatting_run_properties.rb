@@ -27,17 +27,17 @@ module TextFormattingRunProperties
       library_name: "Microsoft.PowerShell.Editor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
     )
 
-    serialized = Types::SerializedStream.from_values([
+    Types::SerializedStream.from_values([
       Types::RecordValues::SerializationHeaderRecord.new(root_id: 1, header_id: -1),
       library,
       Types::RecordValues::ClassWithMembersAndTypes.from_member_values(
         class_info: Types::General::ClassInfo.new(
           obj_id: 1,
           name: 'Microsoft.VisualStudio.Text.Formatting.TextFormattingRunProperties',
-          member_names: ['ForegroundBrush']
+          member_names: %w{ ForegroundBrush }
         ),
         member_type_info: Types::General::MemberTypeInfo.new(
-          binary_type_enums: [ :String ]
+          binary_type_enums: %i{ String }
         ),
         library_id: library.library_id,
         member_values: [
@@ -46,8 +46,6 @@ module TextFormattingRunProperties
       ),
       Types::RecordValues::MessageEnd.new
     ])
-
-    serialized
   end
 
 end
