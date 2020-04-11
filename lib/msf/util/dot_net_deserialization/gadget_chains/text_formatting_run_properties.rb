@@ -4,6 +4,11 @@ module DotNetDeserialization
 module GadgetChains
 module TextFormattingRunProperties
 
+  # TextFormattingRunProperties
+  #   Credits:
+  #     Finders: Oleksandr Mirosh, Alvaro Munoz
+  #     Contributors: Alvaro Munoz, Soroush Dalili
+
   def self.generate(cmd)
     # see: https://github.com/pwntester/ysoserial.net/blob/master/ysoserial/Generators/TextFormattingRunPropertiesGenerator.cs
     resource_dictionary = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)

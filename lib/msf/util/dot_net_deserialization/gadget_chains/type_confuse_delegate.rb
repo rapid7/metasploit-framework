@@ -4,6 +4,11 @@ module DotNetDeserialization
 module GadgetChains
 module TypeConfuseDelegate
 
+  # TypeConfuseDelegate
+  #   Credits:
+  #     Finders: James Forshaw
+  #     Contributors: Alvaro Munoz
+
   def self.generate(cmd)
     library = Types::RecordValues::BinaryLibrary.new(
       library_id: 2,
