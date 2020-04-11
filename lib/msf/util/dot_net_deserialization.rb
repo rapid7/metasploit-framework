@@ -87,6 +87,8 @@ module DotNetDeserialization
       stream = GadgetChains::TextFormattingRunProperties.generate(cmd)
     when :TypeConfuseDelegate
       stream = GadgetChains::TypeConfuseDelegate.generate(cmd)
+    when :WindowsIdentity
+      stream = GadgetChains::WindowsIdentity.generate(cmd)
     else
       raise NotImplementedError, 'The specified gadget chain is not implemented'
     end

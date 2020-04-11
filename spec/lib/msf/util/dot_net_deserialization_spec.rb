@@ -7,7 +7,8 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       command = 'ping 127.0.0.1'
       table = {
         :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
-        :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1'
+        :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1',
+        :WindowsIdentity             => '8dab1805a165cabea8ce96a7721317096f072166'
       }
       table.each do |gadget_chain, correct_digest|
         stream = Msf::Util::DotNetDeserialization.generate_gadget_chain(command, gadget_chain: gadget_chain)
