@@ -174,21 +174,9 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
-    # for windows we write a file to ensure everything is in order
-    if session.platform == 'windows'
-      f="#{path}\\#{Rex::Text.rand_text_alphanumeric(4..8)}.txt"
-      words = Rex::Text.rand_text_alphanumeric(9)
-      begin
-        # path needs to have double, not single quotes
-        c= %Q(cmd.exe /C echo '#{words}' >> "#{f}" && type "#{f}" && del "#{f}")
-        cmd_exec(c).to_s.include? words
-      rescue Rex::Post::Meterpreter::RequestError => e
-        puts e
-        false
-      end
-    else
-      cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
-    end
+    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
   end
 
   #
