@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
   def check_dotnet_version
     vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
   end
-  
+
   def find_required_clr(exe_path)
     filecontent = File.read(exe_path).bytes
     sign = "v4.0.30319".bytes
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
     vprint_status("CLR versione required v2.0.50727")
     return "v2.0.50727"
   end
-  
+
   def check_requirements(clr_req, installed_dotnet_versions)
     installed_dotnet_versions.each do | fi |
       if clr_req == "v4.0.30319"
@@ -80,8 +80,8 @@ class MetasploitModule < Msf::Post
           return true
         end
       else
-      	if fi[0] == "3"
-      	  vprint_status("Requirements ok")
+        if fi[0] == "3"
+          vprint_status("Requirements ok")
           return true
         end
       end
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Post
     vprint_status("Requirements ko")
     return false
   end
-  
+
   def run
     installed_dotnet_versions = get_dotnet_versions
     vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
