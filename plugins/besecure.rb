@@ -28,7 +28,7 @@ class Plugin::BeSECURE < Msf::Plugin
         'besecure_hostname' => "Set the beSECURE Hostname",
         'besecure_debug' => "Enable/Disable debugging",
 
-        'besecure_target_list' => "Display list of targets",
+        'besecure_report_list' => "Display list of reports",
 
         'besecure_report_download' => "Save a report to disk",
         'besecure_report_import' => "Import report specified by ID into framework",
@@ -43,12 +43,9 @@ class Plugin::BeSECURE < Msf::Plugin
       print_status("besecure_hostname              Set the beSECURE Hostname")
 
       print_status
-      print_status("TARGETS")
-      print_status("=======")
-      print_status("besecure_target_list           Lists targets")
-      print_status
       print_status("REPORTS")
       print_status("=======")
+      print_status("besecure_report_list           Lists reports")
       print_status("besecure_report_download       Downloads an beSECURE report specified by ID")
       print_status("besecure_report_import         Import report specified by ID into framework")
     end
@@ -145,9 +142,10 @@ class Plugin::BeSECURE < Msf::Plugin
   end
 
   #--------------------------
-  # Target Functions
+  # Report Functions
   #--------------------------
-    def cmd_besecure_target_list(*args)
+  
+    def cmd_besecure_report_list(*args)
       tbl = Rex::Text::Table.new(
             'Columns' => ["ID", "Name", "Hosts"])
       
@@ -192,15 +190,12 @@ class Plugin::BeSECURE < Msf::Plugin
 
       # print_good(body)
   
-      print_good("beSECURE list of targets")
+      print_good("beSECURE list of reports")
       print_line
       print_line tbl.to_s
       print_line
     end
 
-  #--------------------------
-  # Report Functions
-  #--------------------------
     def cmd_besecure_report_download(*args)
       if args?(args, 4)
         req = Net::HTTP::Post.new('/json.cgi', initheader={'Host'=>@hostname})
