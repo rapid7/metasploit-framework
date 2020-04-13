@@ -3,7 +3,7 @@ require 'msf/util/dot_net_deserialization'
 
 RSpec.describe Msf::Util::DotNetDeserialization do
   describe '#generate' do
-    it 'generate correct gadget chains' do
+    it 'generates correct gadget chains' do
       command = 'ping 127.0.0.1'
       table = {
         :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
