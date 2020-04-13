@@ -626,6 +626,8 @@ class Db
 
     # option parsing
     while (arg = args.shift)
+      puts "printing prady "
+      puts args
       case arg
         when '-a','--add'
           mode = :add
@@ -633,6 +635,8 @@ class Db
           mode = :delete
         when '-U', '--update'
           mode = :update
+        when '--delete-unknown'
+          mode = :delete_unknown
         when '-u','--up'
           onlyup = true
         when '-c'
@@ -700,6 +704,7 @@ class Db
           print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
           print_line "  -S,--search       Search string to filter by"
           print_line "  -U,--update       Update data for existing service"
+          print_line "  --delete-unknown  Update data for existing service by deleting unknown services"
           print_line
           print_line "Available columns: #{default_columns.join(", ")}"
           print_line
@@ -772,18 +777,19 @@ class Db
         matched_service_ids << service.id
 
         if mode == :update
-          if service.name == "unknown"
-            arr = []
-            arr << service.id 
-            framework.db.delete_service(ids: arr)
-            next 
-          end 
           service.name = names.first if names
           service.proto = proto if proto
           service.port = ports.first if ports
           framework.db.update_service(service.as_json.symbolize_keys)
         end
-
+  
+    if (mode == :delete_unknown ) 
+      if service.name =~ /unknown/
+        arr = []
+        arr << service.id 
+        framework.db.delete_service(ids: arr)
+      end 
+    end 
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
@@ -792,7 +798,7 @@ class Db
         end
       end
     end
-
+    
     if (mode == :delete)
       result = framework.db.delete_service(ids: matched_service_ids)
       delete_count += result.size
