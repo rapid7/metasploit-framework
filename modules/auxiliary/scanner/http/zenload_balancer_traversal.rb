@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['FILEPATH'].nil? or datastore['FILEPATH'].empty?
+    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
       print_error("Please supply the name of the file you want to download")
       return
     end
