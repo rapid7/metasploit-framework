@@ -11,8 +11,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => "Zen Load Balancer Directory Traversal",
       'Description'    => %q{
-          This module exploits a authenticated directory traversal vulnerability in zen load
-          balancer v3.10.1. The flaw exists in 'index.cgi' not properly handling 'filelog='
+          This module exploits a authenticated directory traversal vulnerability in Zen Load
+          Balancer `v3.10.1`. The flaw exists in 'index.cgi' not properly handling 'filelog='
           parameter which allows a malicious actor to load arbitrary file path.
       },
       'License'        => MSF_LICENSE,
@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(444),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 16]),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'etc/passwd']),
+        OptString.new('TARGETURI', [true, "The base URI path of the ZenConsole install", '/']),
         OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'admin']),
         OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'admin']),
       ])
