@@ -33,6 +33,7 @@ module Auxiliary::Juniper
       workspace_id: myworkspace.id,
       origin_type: :service,
       service_name: '',
+      private_type: :nonreplayable_hash,
       module_fullname: self.fullname,
       status: Metasploit::Model::Login::Status::UNTRIED
     }
@@ -50,7 +51,6 @@ module Auxiliary::Juniper
       cred = credential_data.dup
       cred[:username] = admin_name
       cred[:private_data] = admin_hash
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 
@@ -70,7 +70,6 @@ module Auxiliary::Juniper
       cred[:username] = user_name
       cred[:jtr_format] = 'sha1'
       cred[:private_data] = user_hash
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 
@@ -111,7 +110,6 @@ module Auxiliary::Juniper
       cred[:private_data] = ppp_hash
       cred[:service_name] = 'PPTP'
       cred[:port] = 1723
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 
@@ -151,6 +149,7 @@ module Auxiliary::Juniper
       protocol: 'tcp',
       workspace_id: myworkspace.id,
       origin_type: :service,
+      private_type: :nonreplayable_hash,
       service_name: '',
       module_fullname: self.fullname,
       status: Metasploit::Model::Login::Status::UNTRIED
@@ -176,7 +175,6 @@ module Auxiliary::Juniper
       cred[:username] = 'root'
       cred[:jtr_format] = jtr_format
       cred[:private_data] = root_hash
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 
@@ -193,7 +191,6 @@ module Auxiliary::Juniper
       cred[:username] = user_name
       cred[:jtr_format] = jtr_format
       cred[:private_data] = user_hash
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 
@@ -225,7 +222,6 @@ module Auxiliary::Juniper
       cred[:port] = 1812
       cred[:protocol] = 'udp'
       cred[:private_data] = radius_hash
-      cred[:private_type] = :nonreplayable_hash
       cred[:service_name] = 'radius'
       create_credential_and_login(cred)
     end
@@ -239,7 +235,6 @@ module Auxiliary::Juniper
       cred[:private_data] = ppp_hash
       cred[:service_name] = 'pptp'
       cred[:port] = 1723
-      cred[:private_type] = :nonreplayable_hash
       create_credential_and_login(cred)
     end
 

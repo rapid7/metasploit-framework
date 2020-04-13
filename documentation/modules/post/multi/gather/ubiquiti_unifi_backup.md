@@ -11,6 +11,14 @@
   This work is based on zhangyoufu's [unifi-backup-decrypt](https://github.com/zhangyoufu/unifi-backup-decrypt)
   and justingist's [POSH-Ubiquiti](https://github.com/justingist/POSH-Ubiquiti/blob/master/Posh-UBNT.psm1).  
 
+  The unf file has the following actions performed:
+
+  1. Decrypt the file
+  2. Fix the zip file if a `zip` utility is on the system
+  3. Extract db.gz
+  4. Unzip the db file
+  5. Import the db file
+
 ### Install Instructions
 
   1. Download the file from https://www.ui.com/download/unifi (Java required on Windows)

@@ -719,11 +719,13 @@ private
 
     if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post|evasion)\//
       mname = mtype + "/" + mname
+    elsif !mname.start_with?(mtype)
+      error(400, "Client provided module type '#{mtype}' did not match expected type for '#{mname}'")
     end
 
     mod = self.framework.modules.create(mname)
 
-    error(500, "Invalid Module") if not mod
+    error(500, "Invalid Module") unless mod
     mod
   end
 
