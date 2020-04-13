@@ -626,8 +626,6 @@ class Db
 
     # option parsing
     while (arg = args.shift)
-      puts "printing prady "
-      puts args
       case arg
         when '-a','--add'
           mode = :add
