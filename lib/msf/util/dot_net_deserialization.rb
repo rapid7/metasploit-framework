@@ -68,6 +68,8 @@ module DotNetDeserialization
       formatted = Formatters::BinaryFormatter.generate(stream)
     when :LosFormatter
       formatted = Formatters::LosFormatter.generate(stream)
+    when :SoapFormatter
+      formatted = Formatters::SoapFormatter.generate(stream)
     else
       raise NotImplementedError, 'The specified formatter is not implemented'
     end

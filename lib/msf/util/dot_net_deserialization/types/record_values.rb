@@ -19,7 +19,7 @@ module RecordValues
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/7fcf30e1-4ad4-4410-8f1a-901a4a1ea832
     RECORD_TYPE =          Enums::RecordTypeEnum[:BinaryLibrary]
     endian                 :little
-    int32                  :library_id
+    obj_id                 :library_id
     length_prefixed_string :library_name
   end
 
@@ -45,8 +45,8 @@ module RecordValues
       return ci unless ci.nil?
 
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
-      object = stream.get_object(metadata_id.value)
-      object.record_value.class_info
+      object = stream.get_object(metadata_id)
+      object.class_info
     end
 
     def member_type_info
@@ -54,8 +54,8 @@ module RecordValues
       return mti unless mti.nil?
 
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
-      object = stream.get_object(metadata_id.value)
-      object.record_value.member_type_info
+      object = stream.get_object(metadata_id)
+      object.member_type_info
     end
 
     def self.from_member_values(class_info:, member_type_info:, member_values:, **kwargs)

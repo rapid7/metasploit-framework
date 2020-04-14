@@ -43,7 +43,7 @@ module Types
 
       args = [{record_type: record_value.class::RECORD_TYPE, record_value: record_value}]
       unless parent.nil?
-        args << {}      # params
+        args << {}       # params
         args <<  parent  # parent object
       end
       self.new(*args)
@@ -63,11 +63,15 @@ module Types
     end
 
     def get_object(id)
+      id = id.value if id.is_a? BinData::BasePrimitive
+
       @objects = @objects || {}
       @objects[id]
     end
 
     def set_object(id, object)
+      id = id.value if id.is_a? BinData::BasePrimitive
+
       @objects = @objects || {}
       @objects[id] = object
     end

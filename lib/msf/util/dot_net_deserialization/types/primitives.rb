@@ -130,7 +130,7 @@ module Primitives
     def register_self
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream, required: false)
       return if stream.nil?
-      stream.set_object(self.val.value, DotNetDeserialization.get_ancestor(self, Record))
+      stream.set_object(self.val, DotNetDeserialization.get_ancestor(self, Record).record_value)
     end
   end
 
