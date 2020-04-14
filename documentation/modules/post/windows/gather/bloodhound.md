@@ -104,6 +104,23 @@ This module can take several/many minutes to run due to the volume of data being
 
   Folder to write the JSON output to.  Default is to enumerate the Windows Temp folder.
 
+  **Method**
+
+  Which method to use to get shaphound running.  Default is `download`.
+
+  1. `download` requires the compromised host to have connectivity back to metasploit to download and execute the
+      payload.  Sharphound is not written to disk.
+  2. `disk` requires admin privileges to bypass the execution policy (if it isn't open).  Writes the sharphound.ps1
+     file to disk.  No connectivity is required but a disk write does happen which is likely to get caught by AV.
+
+  **EncryptZip**
+
+  If the zip should be encrypted by SharpHound using a random password.  Password is stored to `notes`, default is `true`.
+
+  **NoSaveCache**
+
+  If the cache file (.bin) should NOT be written to disk.  Default is `true`.
+
 ## Scenarios
 
 ```
