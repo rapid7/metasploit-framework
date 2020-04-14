@@ -120,7 +120,7 @@ class Driver < Msf::Ui::Driver
     # Report readline error if there was one..
     if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{@rl_err}")
+      print_error("* Unable to load readline: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end
@@ -133,14 +133,12 @@ class Driver < Msf::Ui::Driver
     load_db_config(opts['Config'])
 
     if !framework.db || !framework.db.active
-      print_error("***")
       if framework.db.error == "disabled"
-        print_error("* WARNING: Database support has been disabled")
+        print_warning("Database support has been disabled")
       else
         error_msg = "#{framework.db.error.class.is_a?(String) ? "#{framework.db.error.class} " : nil}#{framework.db.error}"
-        print_error("* WARNING: No database support: #{error_msg}")
+        print_warning("No database support: #{error_msg}")
       end
-      print_error("***")
     end
 
     # Register event handlers
@@ -357,13 +355,13 @@ class Driver < Msf::Ui::Driver
 
     # Check for modules that failed to load
     if framework.modules.module_load_error_by_path.length > 0
-      print_error("WARNING! The following modules could not be loaded!")
+      print_warning("The following modules could not be loaded!")
 
       framework.modules.module_load_error_by_path.each do |path, _error|
-        print_error("\t#{path}")
+        print_warning("\t#{path}")
       end
 
-      print_error(log_msg)
+      print_warning(log_msg)
     end
 
     if framework.modules.module_load_warnings.length > 0
