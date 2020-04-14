@@ -207,7 +207,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
           "  -U,--update       Update data for existing service",
-          "  --delete-unknown  Update data for existing service by deleting unknown services"
+          "  --delete-unknown  Update data for existing service by deleting unknown services",
           "Available columns: created_at, info, name, port, proto, state, updated_at"
         ]
       end
