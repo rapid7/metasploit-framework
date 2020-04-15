@@ -3,11 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# I'm tired of reinventing the wheel, so use a gem this time
-require 'net-ldap'
-
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -48,8 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      Opt::RHOST,      # XXX: No included mixin provides this
-      Opt::RPORT(389), # XXX: No included mixin provides this
       OptString.new('BASE_DN',  [false, 'LDAP base DN (discovered if unset)']),
       OptBool.new('PRINT_DATA', [false, 'Print LDAP data to screen', false])
     ])
@@ -57,18 +53,6 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options([
       OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
     ])
-  end
-
-  def rhost
-    datastore['RHOST']
-  end
-
-  def rport
-    datastore['RPORT']
-  end
-
-  def peer
-    "#{rhost}:#{rport}"
   end
 
 =begin PoC using ldapsearch(1)
