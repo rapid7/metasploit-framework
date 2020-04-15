@@ -48,7 +48,7 @@ module Primitives
 
     def kind_initial_value
       value = KindEnum.fetch(get_parameter(:kind_name), nil)
-      raise ArgumentError.new('kind_name must be either :unspecified, :utc, or :local') if value.nil?
+      raise ::ArgumentError, 'Parameter kind_name must be either :unspecified, :utc, or :local' if value.nil?
       value
     end
   end
@@ -84,7 +84,7 @@ module Primitives
       shift = 0
       loop do |i|
         if shift == 5 * 7
-          raise Msf::Exception('The value exceeds the 5 byte limit for 7-bit encoded integers')
+          raise ::EncodingError, 'The value exceeds the 5 byte limit for 7-bit encoded integers'
         end
         ch = io.readbytes(1).unpack('C')[0]
         count |= (ch & 0x7f) << shift
@@ -178,7 +178,7 @@ module Primitives
 
     module Factory
       def from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
-        raise ArgumentError unless class_info.member_count == member_values.length
+        raise ::ArgumentError, 'Invalid member count' unless class_info.member_count == member_values.length
 
         kwargs[:class_info] = class_info
         kwargs[:member_type_info] = member_type_info

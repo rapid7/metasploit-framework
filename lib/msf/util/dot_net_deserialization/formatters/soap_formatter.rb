@@ -28,7 +28,6 @@ module SoapFormatter
           build_class_with_members_and_types(body, record_value, library_name: library.library_name)
         end
       end
-
     end
 
     attr_reader :root
@@ -36,6 +35,7 @@ module SoapFormatter
     protected
 
     def build_class_with_members_and_types(body, record_value, library_name: 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
+      library_name = Rex::Text.uri_encode(library_name)
       ns = "a#{body.children.length + 1}"
       class_node = node("#{ns}:#{record_value.class_info.name.split('.')[-1]}", parent: body, attributes: {
         'id'          => "ref-#{record_value.class_info.obj_id}",
@@ -44,6 +44,7 @@ module SoapFormatter
       member_value_nodes(record_value).each do |value_node|
         class_node.add_child value_node
       end
+
       class_node
     end
 
@@ -60,7 +61,7 @@ module SoapFormatter
             'xmlns'    => ''
           })
         else
-          raise NotImplementedError.new("Member value type #{Enums::BinaryTypeEnum.key(binary_type)}")
+          raise ::NotImplementedError, "Member value type #{Enums::BinaryTypeEnum.key(binary_type)} is not implemented"
         end
       end
 
@@ -74,13 +75,14 @@ module SoapFormatter
       end
       node.content = content unless content.nil?
       parent.add_child node unless parent.nil?
+
       node
     end
   end
 
   def self.generate(stream)
     unless stream.is_a?(GadgetChains::TextFormattingRunProperties) || stream.is_a?(GadgetChains::WindowsIdentity)
-      raise RuntimeError.new('stream is not supported by this formatter')
+      raise ::NotImplementedError, 'Stream is not supported by this formatter'
     end
 
     builder = SoapBuilder.new(stream)

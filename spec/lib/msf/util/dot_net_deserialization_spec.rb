@@ -3,48 +3,70 @@ require 'msf/util/dot_net_deserialization'
 
 RSpec.describe Msf::Util::DotNetDeserialization do
   describe '#generate' do
+    COMMAND = 'ping 127.0.0.1'
+
     it 'generates correct gadget chains' do
-      command = 'ping 127.0.0.1'
+      # this is a quick but important check to ensure consistency of the
+      # serialized payloads which are deterministic
       table = {
         :TextFormattingRunProperties => '8aa639e141b325e8bf138d09380bdf7714f70c72',
         :TypeConfuseDelegate         => '97cf63717ea751f81c382bd178fdf56d0ec3edb1',
         :WindowsIdentity             => '8dab1805a165cabea8ce96a7721317096f072166'
       }
       table.each do |gadget_chain, correct_digest|
-        stream = Msf::Util::DotNetDeserialization.generate_gadget_chain(command, gadget_chain: gadget_chain)
-        real_digest = OpenSSL::Digest::SHA1.digest(stream.to_binary_s).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+        stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
+        expect(stream).to be_kind_of String
+        real_digest = OpenSSL::Digest::SHA1.digest(stream).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
         expect(real_digest).to eq correct_digest
       end
     end
 
-    it 'generates formatted payloads' do
-      gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain('command')
-      payload = Msf::Util::DotNetDeserialization.generate('command', formatter: :LosFormatter)
-      expect(gadget_chain).to_not eq payload
-    end
-
-    it 'generates payloads' do
-      gadget_chain = Msf::Util::DotNetDeserialization.generate_gadget_chain('command')
-      payload = Msf::Util::DotNetDeserialization.generate('command', formatter: :BinaryFormatter)
-      expect(gadget_chain.to_binary_s).to eq payload
+    it 'generates parsable gadget chains' do
+      Msf::Util::DotNetDeserialization::GadgetChains::NAMES.each do |gadget_chain|
+        stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
+        serialized = stream
+        stream = Msf::Util::DotNetDeserialization::Types::SerializedStream.new
+        stream.read(serialized)
+        expect(stream.to_binary_s).to eq serialized
+      end
     end
   end
 
   describe '#generate_formatted' do
+    stream = Msf::Util::DotNetDeserialization.generate_gadget_chain(COMMAND, gadget_chain: :TextFormattingRunProperties)
+
     it 'should raise a NotImplementedError for an unsupported formatter' do
       expect{
-        Msf::Util::DotNetDeserialization.generate_formatted("\x00", formatter: :DoesNotExist)
+        Msf::Util::DotNetDeserialization.generate_formatted(stream, formatter: :DoesNotExist)
       }.to raise_error(NotImplementedError)
     end
 
     context 'when formatting using the LosFormatter it' do
-      formatted = Msf::Util::DotNetDeserialization.generate('command', formatter: :LosFormatter)
+      formatted = Msf::Util::DotNetDeserialization.generate_formatted(stream, formatter: :LosFormatter)
+
+      it 'should be a string' do
+        expect(formatted).to be_kind_of String
+      end
+
       it 'should start with ObjectStateFormatter' do
         osf = Msf::Util::DotNetDeserialization::Formatters::LosFormatter::ObjectStateFormatter.new
         osf.read(formatted)
         expect(osf.marker_format).to eq 0xff
         expect(osf.marker_version).to eq 1
         expect(osf.token).to eq 50  # Token_BinarySerialized
+      end
+    end
+
+    context 'when formatting using the SoapFormatter it' do
+      formatted = Msf::Util::DotNetDeserialization.generate_formatted(stream, formatter: :SoapFormatter)
+
+      it 'should be a string' do
+        expect(formatted).to be_kind_of String
+      end
+
+      it 'should be valid XML' do
+        xml = Nokogiri::XML(formatted)
+        expect(xml.errors.length).to eq 0
       end
     end
   end

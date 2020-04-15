@@ -39,7 +39,7 @@ module Types
     end
 
     def self.from_value(record_value, parent: nil)
-      raise ArgumentError unless record_value.class.const_defined?('RECORD_TYPE')
+      raise ::ArgumentError, 'Parameter record_value is invalid' unless record_value.class.const_defined?('RECORD_TYPE')
 
       args = [{record_type: record_value.class::RECORD_TYPE, record_value: record_value}]
       unless parent.nil?

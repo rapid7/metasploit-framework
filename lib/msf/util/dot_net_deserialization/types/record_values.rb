@@ -59,7 +59,7 @@ module RecordValues
     end
 
     def self.from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
-      raise ArgumentError unless class_info.member_count == member_values.length
+      raise ::ArgumentError, 'Invalid member count' unless class_info.member_count == member_values.length
 
       kwargs[:member_values] = Types::Primitives::MemberValues.new(
         member_values,
