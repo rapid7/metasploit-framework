@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'msf/core/exploit/java/serialized'
 require 'msf/core/exploit/java/serialized/rmi'
 require 'metasploit/framework/credential_collection'
@@ -15,9 +14,17 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'JRMP/RMI/JMX Vulnerabilitiy Scanner',
       'Description' =>
       'Detects various vulnerabilites regaring JRMP/RMI/JMX protocol use,
-      including remote classloading, MLET loading and deserialization 
+      including remote classloading, MLET loading and deserialization
       vulnerabilities. Also acts as a login scanner for JMX endpoints.',
-      'Author'      => 'mbechler'
+      'Author'      => 'mbechler',
+      'References'     =>
+      [
+        ['CVE', '2011-3556'],
+        ['CVE', '2015-2342'],
+        ['CVE', '2017-3241'],
+        ['CVE', '2017-3241'],
+        ['CVE', '2018-2637']
+      ]
     )
 
     register_options(
