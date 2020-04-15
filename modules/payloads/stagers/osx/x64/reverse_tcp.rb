@@ -23,6 +23,7 @@ module MetasploitModule
       'Platform'    => 'osx',
       'Arch'        => ARCH_X64,
       'Handler'     => Msf::Handler::ReverseTcp,
+      'Stager'      => { 'RequiresMidstager' => true },
       'Convention'  => 'sockedi',
     ))
   end

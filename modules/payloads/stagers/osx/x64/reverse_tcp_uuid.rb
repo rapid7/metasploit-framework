@@ -8,7 +8,7 @@ require 'msf/core/payload/osx/x64/reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 209
+  CachedSize = 204
 
   include Msf::Payload::Osx::ReverseTcp_x64
   include Msf::Payload::TransportConfig
@@ -27,6 +27,7 @@ module MetasploitModule
       'Platform'    => 'osx',
       'Arch'        => ARCH_X64,
       'Handler'     => Msf::Handler::ReverseTcp,
+      'Stager'      => { 'RequiresMidstager' => true },
       'Convention'  => 'sockedi',
     ))
   end
