@@ -11,8 +11,8 @@ addons:
       - graphviz
 language: ruby
 rvm:
-  - '2.5.7'
-  - '2.6.5'
+  - '2.5.8'
+  - '2.6.6'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
