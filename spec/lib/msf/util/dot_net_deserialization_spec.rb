@@ -23,8 +23,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
     it 'generates parsable gadget chains' do
       Msf::Util::DotNetDeserialization::GadgetChains::NAMES.each do |gadget_chain|
-        stream = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
-        serialized = stream
+        serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
         stream = Msf::Util::DotNetDeserialization::Types::SerializedStream.new
         stream.read(serialized)
         expect(stream.to_binary_s).to eq serialized

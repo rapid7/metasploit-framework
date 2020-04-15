@@ -35,41 +35,24 @@ module RecordValues
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/2d168388-37f4-408a-b5e0-e48dbce73e26
     RECORD_TYPE =          Enums::RecordTypeEnum[:ClassWithId]
     endian                 :little
-    optional_parameters    :class_info, :member_type_info
     obj_id                 :obj_id
     int32                  :metadata_id
     member_values          :member_values, class_info: -> { class_info }, member_type_info: -> { member_type_info }
 
     def class_info
-      ci = eval_parameter(:ex_class_info)
-      return ci unless ci.nil?
-
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
       object = stream.get_object(metadata_id)
       object.class_info
     end
 
     def member_type_info
-      mti = eval_parameter(:ex_member_type_info)
-      return mti unless mti.nil?
-
       stream = DotNetDeserialization.get_ancestor(self, SerializedStream)
       object = stream.get_object(metadata_id)
       object.member_type_info
     end
 
-    def self.from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
-      raise ::ArgumentError, 'Invalid member count' unless class_info.member_count == member_values.length
-
-      kwargs[:member_values] = Types::Primitives::MemberValues.new(
-        member_values,
-        class_info: class_info,
-        member_type_info: member_type_info
-      )
-
-      # pass class_info and member_type_info as *both* a value and a parameter
-      self.new(kwargs, ex_class_info: class_info, ex_member_type_info: member_type_info)
-    end
+    include Primitives::MemberValues::Factory
+    self.singleton_class.include Primitives::MemberValues::Factory
   end
 
   class ClassWithMembersAndTypes < BinData::Record
