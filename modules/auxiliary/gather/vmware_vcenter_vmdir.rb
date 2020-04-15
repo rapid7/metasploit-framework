@@ -102,32 +102,6 @@ class MetasploitModule < Msf::Auxiliary
     return
   end
 
-  def discover_base_dn(ldap)
-    print_status('Searching root DSE for namingContexts attribute with base DN')
-
-    unless (root_dse = ldap.search_root_dse)
-      print_error('Could not retrieve root DSE')
-      return
-    end
-
-    vprint_line(root_dse.to_ldif)
-
-    # NOTE: Net::LDAP converts attribute names to lowercase
-    if root_dse[:namingcontexts].nil? || root_dse[:namingcontexts].empty?
-      print_error('Could not find namingContexts attribute with base DN')
-      return
-    end
-
-    # NOTE: We assume the first namingContexts value is the base DN
-    base_dn = root_dse[:namingcontexts].first
-
-    print_good("Discovered base DN: #{base_dn}")
-    base_dn
-  rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
-    return
-  end
-
   def pillage(entries)
     # TODO: Make this more efficient?
     ldif = entries.map(&:to_ldif).join("\n")
