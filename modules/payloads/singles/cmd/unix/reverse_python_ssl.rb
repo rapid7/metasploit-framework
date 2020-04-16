@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core/handler/reverse_tcp_ssl'
+require 'msf/core/payload/python'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
