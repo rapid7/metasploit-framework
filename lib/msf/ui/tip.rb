@@ -33,6 +33,8 @@ module Msf
         "Metasploit can be configured at startup, see #{highlight('msfconsole --help')} to learn more",
         "Display the Framework log using the #{highlight('log')} command, learn more with #{highlight('help log')}",
         "Adapter names can be used for IP params #{highlight('set LHOST eth0')}",
+        "Use #{highlight('sessions -1')} to interact with the last opened session",
+        "View missing module options with #{highlight('show missing')}",
       ].freeze
       private_constant :COMMON_TIPS
 
