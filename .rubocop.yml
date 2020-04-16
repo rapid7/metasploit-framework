@@ -155,6 +155,10 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
+Layout/FirstArrayElementLineBreak:
+  Enabled: true
+  Description: 'This cop checks for a line break before the first element in a multi-line array.'
+
 Layout/FirstArrayElementIndentation:
   Enabled: true
   EnforcedStyle: consistent

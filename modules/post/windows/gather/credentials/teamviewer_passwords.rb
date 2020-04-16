@@ -16,8 +16,10 @@ class MetasploitModule < Msf::Post
         'Name' => 'Windows Gather TeamViewer Passwords',
         'Description' => %q{ This module will find and decrypt stored TeamViewer passwords },
         'License' => MSF_LICENSE,
-        'References' => [ ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'],
-                          [ 'URL', 'https://www.cnblogs.com/Kali-Team/p/12468066.html' ]],
+        'References' => [
+          ['CVE', '2019-18988'], [ 'URL', 'https://whynotsecurity.com/blog/teamviewer/'],
+          [ 'URL', 'https://www.cnblogs.com/Kali-Team/p/12468066.html' ]
+        ],
         'Author' => [ 'Nic Losby <blurbdust[at]gmail.com>', 'Kali-Team <kali-team[at]qq.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
