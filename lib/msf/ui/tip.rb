@@ -14,7 +14,7 @@ module Msf
       end
 
       COMMON_TIPS = [
-        "View useful productivity tips with the #{highlight('tip')} command, or view them all with #{highlight('tip -l')}",
+        "View all productivity tips with the #{highlight('tips')} command",
         "Enable verbose logging with #{highlight('set VERBOSE true')}",
         "When in a module, use #{highlight('back')} to go back to the top level prompt",
         "Tired of setting RHOSTS for modules? Try globally setting it with #{highlight('setg RHOSTS x.x.x.x')}",
