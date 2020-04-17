@@ -129,8 +129,10 @@ creds add user:DEMO hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C
 ## oracle 11/12 uses a LONG format, see lib/msf/core/auxiliary/jtr.rb
 creds add user:oracle11_epsilon hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C' jtr:raw-sha1,oracle
 creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B' jtr:pbkdf2,oracle12c
-##postgres uses username, so we can't overide that here
+## postgres uses username, so we can't overide that here
 creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
+## other
+creds add user:hmac_password hash:'<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9' jtr:hmac-md5
 ```
 
 This data breaks down to the following table:
@@ -156,3 +158,4 @@ This data breaks down to the following table:
 | Oracle 11 | oracle11_epsilon | `S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:DC9894A01797D91D92ECA1DA66242209;T:23D1F8CAC9001F69630ED2DD8DF67DD3BE5C470B5EA97B622F757FE102D8BF14BEDC94A3CC046D10858D885DB656DC0CBF899A79CD8C76B788744844CADE54EEEB4FDEC478FB7C7CBFBBAC57BA3EF22C` | epsilon | raw-sha1,oracle | [modules/auxiliary/scanner/oracle/oracle_hashdump](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/oracle/oracle_hashdump.rb) | [auxiliary/analyze/jtr_oracle_fast](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/jtr_oracle_fast.rb) |
 | Oracle 12 | oracle12_epsilon | `H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B` | epsilon | pbkdf2,oracle12c | [auxiliary/scanner/oracle/oracle_hashdump](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/oracle/oracle_hashdump.rb) | [auxiliary/analyze/jtr_oracle_fast](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/jtr_oracle_fast.rb) |
 | Postgres | example | `md5be86a79bf2043622d58d5453c47d4860` | password | raw-md5,postgres | [auxiliary/scanner/postgres/postgres_hashdump](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/postgres/postgres_hashdump.rb) | [auxiliary/analyze/jtr_postgres_fast](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/jtr_postgres_fast.rb) |
+| HMAC-MD5 | hmac_password | `<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9` | password | hmac-md5 | [auxiliary/server/capture/smtp](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/server/capture/smtp.rb) | None |
