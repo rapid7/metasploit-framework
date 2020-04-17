@@ -44,6 +44,10 @@ class MetasploitModule < Msf::Auxiliary
     @base_dn || 'dc=vsphere,dc=local'
   end
 
+  def policy_dn
+    "cn=password and lockout policy,#{base_dn}"
+  end
+
 =begin PoC using ldapsearch(1)
   Retrieve root DSE with base DN:
     ldapsearch -xb "" -s base -H ldap://[redacted]
@@ -107,6 +111,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("Saved LDAP data to #{ldif_filename}")
+
+    policy = entries.find { |entry| entry.dn == policy_dn }
+
+    if policy
+      print_status('Password and lockout policy:')
+      print_line(policy.to_ldif)
+    end
   end
 
 end
