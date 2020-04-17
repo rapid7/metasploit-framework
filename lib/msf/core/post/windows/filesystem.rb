@@ -23,6 +23,21 @@ module FileSystem
     end
   end
 
+  class UnicodeString < BinData::Record
+    ARCH_X86 = 0
+    ARCH_X64 = 1
+
+    endian :little
+
+    uint16 :str_length
+    uint16 :maximum_length
+    string :padding, length: -> { arch == ARCH_X64 ? 4 : 0 }
+    choice :p_buffer, selection: -> { arch } do # PWTR
+      uint32 ARCH_X86
+      uint64 ARCH_X64
+    end
+  end
+
   class ObjectAttributes < BinData::Record
     #
     # Valid values for the Attributes field
@@ -44,6 +59,7 @@ module FileSystem
     endian :little
 
     uint32 :total_length, initial_value: -> { num_bytes }
+    string :padding1, length: -> { arch == ARCH_X64 ? 4 : 0 }
     choice :p_root_directory, selection: -> { arch } do
       uint32 ARCH_X86
       uint64 ARCH_X64
@@ -53,6 +69,7 @@ module FileSystem
       uint64 ARCH_X64
     end
     uint32 :attributes
+    string :padding2, length: -> { arch == ARCH_X64 ? 4 : 0 }
     choice :p_security_descriptor, selection: -> { arch } do
       uint32 ARCH_X86
       uint64 ARCH_X64
@@ -61,6 +78,25 @@ module FileSystem
       uint32 ARCH_X86
       uint64 ARCH_X64
     end
+  end
+
+  class Guid < BinData::Record
+    endian :little
+
+    uint32 :data1, initial_value: 0
+    uint16 :data2, initial_value: 0
+    uint16 :data3, initial_value: 0
+    string :data4, length: 8, initial_value: "\x00\x00\x00\x00\x00\x00\x00\x00"
+  end
+
+  class ReparseGuidDataBuffer < BinData::Record
+    endian :little
+
+    uint32 :reparse_tag
+    uint16 :reparse_data_length, initial_value: 0
+    uint16 :reserved,            initial_value: 0
+    guid   :reparse_guid
+    string :reparse_data
   end
 
   class ReparseDataBuffer < BinData::Record
@@ -120,8 +156,8 @@ module FileSystem
   IO_REPARSE_TAG_DFM              = 0x80000016
   IO_REPARSE_TAG_WOF              = 0x80000017
 
-  FSCTL_SET_REPARSE_POINT = 0x000900a4
-  SYMBOLIC_LINK_ALL_ACCESS = STANDARD_RIGHTS_REQUIRED | 0x1
+  FSCTL_SET_REPARSE_POINT    = 0x000900a4
+  FSCTL_DELETE_REPARSE_POINT = 0x000900ac
 
 
   def set_reparse_point(handle, reparse_buffer)
@@ -142,6 +178,24 @@ module FileSystem
     result['return']
   end
 
+  def delete_reparse_point(handle, reparse_buffer)
+    result = session.railgun.kernel32.DeviceIoControl(
+      handle,
+      FSCTL_DELETE_REPARSE_POINT,
+      reparse_buffer,
+      reparse_buffer.size,
+      nil,
+      0,
+      4,
+      nil
+    )
+
+    unless result['return']
+      print_error("Error deleting the reparse point. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+    end
+    result['return']
+  end
+
   def open_reparse_point(path, writable)
     result = session.railgun.kernel32.CreateFileW(
       path,
@@ -154,17 +208,107 @@ module FileSystem
     )
 
     handle = result['return']
-
     if handle.nil? || handle == INVALID_HANDLE_VALUE
       print_error("Error opening #{path}. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-      return false
+      return nil
     end
-
     vprint_good("Successfuly opened #{path}")
     handle
   end
 
-  def build_mount_point(target, print_name)
+  def delete_mount_point(path)
+    buffer = ReparseGuidDataBuffer.new
+    buffer.reparse_tag = IO_REPARSE_TAG_MOUNT_POINT
+
+    handle = open_reparse_point(path, true);
+    return nil unless handle
+    delete_reparse_point(handle, buffer.to_binary_s)
+  end
+
+  def write_to_memory(process, str)
+    p_buffer = process.memory.allocate(str.size)
+    unless p_buffer
+      print_error("Error alocating memory for \"#{str}\": Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+      return nil
+    end
+    unless process.memory.write(p_buffer, str) == str.size
+      print_error("Error writting \"#{str}\" to memory buffer: Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+      return nil
+    end
+    p_buffer
+  end
+
+  def build_unicode_string(str_byte_size, p_buffer)
+    unicode_str = UnicodeString.new(
+      arch: client.native_arch == ARCH_X64 ? UnicodeString::ARCH_X64 : UnicodeString::ARCH_X86
+    )
+    unicode_str.str_length = str_byte_size - 2
+    unicode_str.maximum_length = str_byte_size
+    unicode_str.p_buffer = p_buffer
+    unicode_str
+  end
+
+  def str_to_unicode(str)
+    str.encode('UTF-16LE').force_encoding('binary') + "\x00\x00"
+  end
+
+  def setup_unicode_str_in_memory(process, str)
+    enc_str = str_to_unicode(str)
+    p_buffer = write_to_memory(process, enc_str)
+    return nil unless p_buffer
+    build_unicode_string(enc_str.size, p_buffer)
+  end
+
+  def build_object_attributes(p_unicode_buf)
+    object_attributes = ObjectAttributes.new(
+      arch: client.native_arch == ARCH_X64 ? ObjectAttributes::ARCH_X64 : ObjectAttributes::ARCH_X86
+    )
+    object_attributes.p_root_directory = 0 # root argument is nil, otherwise, we need to get a valid handle to root (TODO later)
+    object_attributes.attributes = ObjectAttributes::OBJ_CASE_INSENSITIVE
+    object_attributes.p_security_descriptor = 0
+    object_attributes.p_security_quality_of_service = 0
+    object_attributes.p_object_name = p_unicode_buf
+    object_attributes
+  end
+
+  def create_symlink(root, link_name, target_name)
+    process = session.sys.process.open
+
+    unicode_str = setup_unicode_str_in_memory(process, link_name)
+    return nil unless unicode_str
+
+    p_unicode_buf = write_to_memory(process, unicode_str.to_binary_s)
+    return nil unless p_unicode_buf
+
+    object_attributes = build_object_attributes(p_unicode_buf)
+
+    unicode_str = setup_unicode_str_in_memory(process, target_name)
+    return nil unless unicode_str
+
+    symbolic_link_all_access = STANDARD_RIGHTS_REQUIRED | 0x1
+
+    result = session.railgun.ntdll.NtCreateSymbolicLinkObject(
+      client.native_arch == ARCH_X64 ? 8 : 4,
+      symbolic_link_all_access,
+      object_attributes.to_binary_s,
+      unicode_str.to_binary_s
+    )
+    unless result['GetLastError'] == SUCCESS
+      print_error("Error creating the symlink. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+      return nil
+    end
+    unless result['return'] == ::WindowsError::NTStatus::STATUS_SUCCESS.value
+      error = ::WindowsError::NTStatus.find_by_retval(result['return']).first
+      print_error("Something went wrong while creating the symlink. Return value: NTSTATUS #{error} ()")
+      return nil
+    end
+    @handles << result['LinkHandle']
+    result['return']
+  ensure
+    process.close
+  end
+
+  def build_reparse_data_buffer(target, print_name)
     buffer = ReparseDataBuffer.new(type: ReparseDataBuffer::MOUNT_POINT)
     target_byte_size = target.size * 2
     print_name_byte_size = print_name.size * 2
@@ -180,62 +324,15 @@ module FileSystem
     buffer
   end
 
-  def fixup_path(str)
-    return str.prepend('\\??\\') unless str.start_with?('\\')
-    str
-  end
+  def create_mount_point(path, target, print_name = '')
+    return nil if target.empty? || path.empty?
 
-  def create_mount_point(path, target, printname)
-    return false if target.nil?
-    create_mount_point_internal(path, build_mount_point(fixup_path(target), printname))
-  end
+    fixed_target = target.start_with?('\\') ? target : "\\??\\#{target}"
+    reparse_data = build_reparse_data_buffer(fixed_target, print_name)
 
-  def create_mount_point_internal(path, buffer)
     handle = open_reparse_point(path, true)
     return nil unless handle
-    set_reparse_point(handle, buffer.to_binary_s)
-    #result = session.railgun.kernel32.CloseHandle(handle)
-  end
-
-  def create_symlink(root, link_name, target_name)
-    object_attributes = ObjectAttributes.new(
-      arch: client.native_arch == ARCH_X64 ? ObjectAttributes::ARCH_X64 : ObjectAttributes::ARCH_X86
-    )
-    object_attributes.p_root_directory = 0 # root argument is nil, otherwise, we need to get a valid handle to root (TODO later)
-    object_attributes.attributes = ObjectAttributes::OBJ_CASE_INSENSITIVE
-    object_attributes.p_security_descriptor = 0
-    object_attributes.p_security_quality_of_service = 0
-
-    result = session.railgun.ntdll.RtlInitUnicodeString(
-      client.native_arch == ARCH_X64 ? 8 : 4,
-      link_name
-    )
-    unless result['GetLastError'] == SUCCESS
-      print_error("Error init unicode string #{link_name}. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-      return nil
-    end
-    object_attributes.p_object_name.read(result['DestinationString'])
-
-    result = session.railgun.ntdll.RtlInitUnicodeString(
-      client.native_arch == ARCH_X64 ? 8 : 4,
-      target_name
-    )
-    unless result['GetLastError'] == SUCCESS
-      print_error("Error init unicode string #{target_name}. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-      return nil
-    end
-    target = result['DestinationString']
-
-    result = session.railgun.ntdll.NtCreateSymbolicLinkObject(
-      client.native_arch == ARCH_X64 ? 8 : 4,
-      SYMBOLIC_LINK_ALL_ACCESS,
-      object_attributes.to_binary_s,
-      target
-    )
-    unless result['return'] == SUCCESS
-      print_error("Error creating the symlink. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-      return nil
-    end
+    set_reparse_point(handle, reparse_data.to_binary_s)
   end
 
 end # FileSystem
