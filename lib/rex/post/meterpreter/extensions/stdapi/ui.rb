@@ -156,6 +156,28 @@ class UI < Rex::Post::UI
     request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 
     if client.platform == 'windows'
+      # Check if the target is running Windows 8/Windows Server 2012 or later and there are session 0 desktops visible.
+      # Session 0 desktops should only be visible to services. Windows 8/Server 2012 and later introduce the restricted
+      # desktop for services, which means that services cannot view the normal user's desktop or otherwise interact with
+      # it in any way. Attempting to take a screenshot from a service on these systems can lead to non-desireable
+      # behavior, such as explorer.exe crashing, which will force the compromised user to log back into their system
+      # again. For these reasons, any attempt to perform screenshots under these circumstances will be met with an error message.
+      opSys = client.sys.config.sysinfo['OS']
+      build = opSys.match(/Build (\d+)/)
+      if build.nil?
+        raise RuntimeError, 'Could not determine Windows build number to determine if taking a screenshot is safe.', caller
+      else
+        build_number = build[1].to_i
+        if build_number >= 9200 # Windows 8/Windows Server 2012 and later
+          current_desktops = enum_desktops
+          current_desktops.each do |desktop|
+            if desktop["session"].to_s == '0'
+              raise RuntimeError, 'Current session was spawned by a service on Windows 8+. No desktops are available to screenshot.', caller
+            end
+          end
+        end
+      end
+
       # include the x64 screenshot dll if the host OS is x64
       if( client.sys.config.sysinfo['Architecture'] =~ /^\S*x64\S*/ )
         screenshot_path = MetasploitPayloads.meterpreter_path('screenshot','x64.dll')
