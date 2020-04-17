@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       'Actions'        => [['Add', 'Description' => 'Add an admin user']],
       'DefaultAction'  => 'Add',
       'DefaultOptions' => {
-        'CheckModule'  => 'auxiliary/gather/vmware_vcenter_vmdir'
+        'CheckModule'  => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
       },
       'Notes'          => {
         'Stability'    => [SERVICE_RESOURCE_LOSS],
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    # NOTE: check is provided by auxiliary/gather/vmware_vcenter_vmdir
+    # NOTE: check is provided by auxiliary/gather/vmware_vcenter_vmdir_ldap
     checkcode = check
 
     return unless checkcode == Exploit::CheckCode::Vulnerable
