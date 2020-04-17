@@ -61,6 +61,7 @@ This section will cover the differences between the two crackers.  This is not a
 |-------------------|-------------------------|--------------------|
 | List formats      | `john --list=formats` `john --list=format-all-details` | `hashcat -h` |
 | | | |
+| cram-md5          | hmac-md5                | 10200              |
 | des               | descrypt                | 1500               |
 | md5 (crypt is $1$)| md5crypt                | 500                |
 | sha1              |                         | 100                |
