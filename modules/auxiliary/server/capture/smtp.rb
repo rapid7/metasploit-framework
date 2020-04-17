@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction'  => 'Capture',
       'References' =>
         [
-          ['URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm']
+          ['URL', 'https://www.samlogic.net/articles/smtp-commands-reference-auth.htm'],
+          ['URL', 'http://fehcom.de/qmail/smtpauth.html']
         ],
     )
 
@@ -236,7 +237,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Unknown command: #{arg}")
     end
     c.put "503 Server Error\r\n"
-  
+
   end
 
   def report_cred(opts)
