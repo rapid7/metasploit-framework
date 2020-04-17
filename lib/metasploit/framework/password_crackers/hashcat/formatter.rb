@@ -37,6 +37,10 @@ def hash_to_hashcat(cred)
       #         legacy MD5
       # T: = 160 characters
       #         PBKDF2-based SHA512 hash specific to 12C (12.1.0.2+)
+    when /hmac-md5/
+      data = cred.private.data.split('#')
+      password = Rex::Text.encode_base64("#{cred.public.username} #{data[1]}")
+      return "$cram_md5$#{Rex::Text.encode_base64(data[0])}$#{password}"
     when /raw-sha1|oracle11/ # oracle 11, hash-mode: 112
       if cred.private.data =~ /S:([\dA-F]{60})/ # oracle 11
         # hashcat wants a 40 character string, : 20 character string
