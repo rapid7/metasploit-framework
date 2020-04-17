@@ -110,6 +110,13 @@ function mouseEvent(action, x, y) {
 }
 
 function keyEvent(action, key) {
+  if (key == 59) {
+    key = 186
+  } else if (key == 61) {
+    key = 187
+  } else if (key == 173) {
+    key = 189
+  }
   var req = new XMLHttpRequest;
   req.open("POST", "#{uripath}event", true);
   req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
