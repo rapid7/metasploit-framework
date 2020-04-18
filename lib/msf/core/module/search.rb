@@ -53,7 +53,7 @@ module Msf::Module::Search
           match = false if mode == 0
 
           # Convert into a case-insensitive regex
-          r = Regexp.new(Regexp.escape(w), true)
+          r = Regexp.new(Regexp.escape(w.force_encoding('UTF-8')), true)
 
           case t
             when 'text'
