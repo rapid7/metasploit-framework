@@ -44,7 +44,7 @@ module Msf::Modules::Metadata::Search
           match = false if mode == 0
 
           # Convert into a case-insensitive regex
-          regex = Regexp.new(Regexp.escape(search_term), true)
+          regex = Regexp.new(Regexp.escape(search_term.force_encoding('UTF-8')), true)
 
           case keyword
             when 'aka'
