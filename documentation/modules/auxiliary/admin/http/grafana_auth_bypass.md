@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-The following list is a list of vulnerable versions of Grafana:
+The following list shows the vulnerable versions of Grafana when configured for LDAP or OAuth:
 
   1.  2.x 
   2.  3.x
