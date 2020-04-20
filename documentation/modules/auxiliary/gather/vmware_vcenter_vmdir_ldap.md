@@ -11,17 +11,15 @@ as 6.0 or 6.5, are affected. Clean installations of 6.7 are unaffected.
 
 Tested in the wild. No setup notes available at this time.
 
-### Actions
-
-```
-Name  Description
-----  -----------
-Dump  Dump all LDAP data
-```
-
 ## Verification Steps
 
 Follow [Setup](#setup) and [Scenarios](#scenarios).
+
+## Actions
+
+### Dump
+
+Dump all LDAP data from the target.
 
 ## Options
 

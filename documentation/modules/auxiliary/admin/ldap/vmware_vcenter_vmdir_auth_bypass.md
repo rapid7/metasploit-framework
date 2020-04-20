@@ -13,27 +13,25 @@ Clean installations of 6.7 are unaffected.
 
 Tested in the wild. No setup notes available at this time.
 
-### Actions
-
-```
-Name  Description
-----  -----------
-Add   Add an admin user
-```
-
 ## Verification Steps
 
 Follow [Setup](#setup) and [Scenarios](#scenarios).
+
+## Actions
+
+### Add
+
+Add an admin user to the target.
 
 ## Options
 
 ### USERNAME
 
-Set this to the username for the new admin user that will be added.
+Set this to the username for the new admin user.
 
 ### PASSWORD
 
-Set this to the password for the new admin user that will be added.
+Set this to the password for the new admin user.
 
 ### ConnectTimeout
 
