@@ -27,15 +27,16 @@ msf5 auxiliary(admin/http/grafana_auth_bypass) > show options
 
 Module options (auxiliary/admin/http/grafana_auth_bypass):
 
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   BASEURL   /                no        Base URL of grafana instance
-   COOKIE                     no        Decrypt captured cookie
-   RHOSTS    192.168.202.3    yes       Address of target
-   RPORT     3000             yes       Port of target
-   THREADS   1                yes       The number of concurrent threads
-   USERNAME  Administrator    no        Valid username
-   VERSION   5                yes       Grafana version
+   Name       Current Setting  Required  Description
+   ----       ---------------  --------  -----------
+   COOKIE                      no        Decrypt captured cookie
+   RHOSTS     127.0.0.1        yes       Address of target
+   RPORT      3000             yes       Port of target
+   SSL        false            yes       set SSL/TLS based connection
+   TARGETURI  /                no        Base URL of grafana instance
+   THREADS    1                yes       The number of concurrent threads
+   USERNAME                    no        Valid username
+   VERSION    5                yes       Grafana version: "2-4" or "5" (Accepted: 2-4, 5)
 
 msf5 auxiliary(admin/http/grafana_auth_bypass) > set RHOSTS 192.168.202.3
 RHOSTS => 192.168.202.3

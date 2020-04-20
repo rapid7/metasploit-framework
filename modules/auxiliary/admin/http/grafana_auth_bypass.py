@@ -44,7 +44,7 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'VERSION': {'type': 'string', 'description': 'Grafana version: "5" or "2-4"', 'required': True, 'default': '5'},
+        'VERSION': {'type': 'enum', 'description': 'Grafana version: "2-4" or "5"', 'required': True, 'default': '5', 'values': ['2-4', '5']},
         'USERNAME': {'type': 'string', 'description': 'Valid username', 'required': False},
         'RHOSTS': {'type': 'address', 'description': 'Address of target', 'required': True, 'default': '127.0.0.1'},
         'RPORT': {'type': 'port', 'description': 'Port of target', 'required': True, 'default': 3000},
@@ -56,7 +56,6 @@ metadata = {
 
 
 def encrypt_version5(username):
-
     salt = b''
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
@@ -70,7 +69,6 @@ def encrypt_version5(username):
 
 
 def encrypt_version4(username):
-
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
@@ -84,7 +82,6 @@ def encrypt_version4(username):
 
 
 def decrypt_version5(cookie):
-
     salt = b''
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
@@ -96,7 +93,6 @@ def decrypt_version5(cookie):
 
 
 def decrypt_version4(cookie):
-
     salt = hashlib.md5(''.encode("utf-8")).hexdigest().encode()
     iterations = 1000
     key = hashlib.pbkdf2_hmac('sha256', salt, salt, iterations, 16)
@@ -108,7 +104,6 @@ def decrypt_version4(cookie):
 
 
 def run(args):
-
     if dependencies_requests_missing:
         logging.error('Module dependency (requests) is missing, cannot continue')
         return
@@ -155,18 +150,18 @@ def run(args):
 
         if args['SSL'] == "false":
             if args['TARGETURI'].endswith('/'):
-                url = "http://"+args['RHOSTS']+":" + \
-                    args['RPORT']+args['TARGETURI']+"login/"
+                url = "http://" + args['RHOSTS'] + ":" + \
+                    args['RPORT'] + args['TARGETURI'] + "login/"
             else:
-                url = "http://"+args['RHOSTS']+":" + \
-                    args['RPORT']+args['TARGETURI']+"/login/"
+                url = "http://" + args['RHOSTS'] + ":" + \
+                    args['RPORT'] + args['TARGETURI'] + "/login/"
         elif args['SSL'] == "true":
             if args['TARGETURI'].endswith('/'):
-                url = "https://"+args['RHOSTS']+":" + \
-                    args['RPORT']+args['TARGETURI']+"login/"
+                url = "https://" + args['RHOSTS'] + ":" + \
+                    args['RPORT'] + args['TARGETURI'] + "login/"
             else:
-                url = "https://"+args['RHOSTS']+":" + \
-                    args['RPORT']+args['TARGETURI']+"/login/"
+                url = "https://" + args['RHOSTS'] + ":" + \
+                    args['RPORT'] + args['TARGETURI'] + "/login/"
         module.log('Targeting URL: ' + url, 'debug')
         r = requests.get(url=url, cookies=cookies, allow_redirects=False)
 
