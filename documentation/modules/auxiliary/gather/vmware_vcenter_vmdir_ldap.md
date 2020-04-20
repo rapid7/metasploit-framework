@@ -4,8 +4,7 @@
 
 This module uses an anonymous-bind LDAP connection to dump data from the
 vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
-update. Only installations upgraded from a previous release line, such
-as 6.0 or 6.5, are affected. Clean installations of 6.7 are unaffected.
+update.
 
 ### Setup
 

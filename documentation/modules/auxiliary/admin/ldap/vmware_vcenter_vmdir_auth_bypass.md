@@ -3,11 +3,8 @@
 ### Description
 
 This module bypasses LDAP authentication in VMware vCenter Server's
-vmdir service to add an arbitrary administrator user.
-
-Version 6.7 prior to the 6.7U3f update is vulnerable. Only installations
-upgraded from a previous release line, such as 6.0 or 6.5, are affected.
-Clean installations of 6.7 are unaffected.
+vmdir service to add an arbitrary administrator user. Version 6.7 prior
+to the 6.7U3f update is vulnerable.
 
 ### Setup
 
