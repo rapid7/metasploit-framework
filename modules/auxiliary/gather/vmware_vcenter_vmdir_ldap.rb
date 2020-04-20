@@ -75,7 +75,8 @@ class MetasploitModule < Msf::Auxiliary
       entries = ldap.search(base: base_dn)
     end
 
-    if entries.nil? || entries.empty?
+    # Look for a non-empty vmwSTSPrivateKey attribute
+    unless entries && entries.find { |entry| !entry[:vmwstsprivatekey] }
       print_error("#{peer} is NOT vulnerable to CVE-2020-3952")
       return Exploit::CheckCode::Safe
     end
