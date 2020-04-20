@@ -71,6 +71,18 @@ module HostDataProxy
     end
   end
 
+  def get_host_tags(opts)
+    use_id_or_get_id_from_host_address(opts, :get_host_tags)
+  end
+
+  def add_host_tag(opts)
+    use_id_or_get_id_from_host_address(opts, :add_host_tag)
+  end
+
+  def delete_host_tag(opts)
+    use_id_or_get_id_from_host_address(opts, :delete_host_tag)
+  end
+
   private
 
   def valid(opts)
@@ -86,6 +98,27 @@ module HostDataProxy
     end
 
     return true
+  end
+
+  def use_id_or_get_id_from_host_address(opts, method)
+    begin
+      if opts[:id]
+        self.data_service_operation do |data_service|
+          data_service.send(method, opts)
+        end
+      elsif opts[:address]
+        self.data_service_operation do |data_service|
+          host = data_service.get_host(opts)
+
+          if host
+            opts[:id] = host.id
+            data_service.send(method, opts.reject {|k,v| k==:address})
+          end
+        end
+      end
+    rescue => e
+      self.log_error(e, "Problem retrieving host")
+    end
   end
 
 end
