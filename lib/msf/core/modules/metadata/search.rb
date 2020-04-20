@@ -44,8 +44,12 @@ module Msf::Modules::Metadata::Search
           match = false if mode == 0
 
           # Convert into a case-insensitive regex
-          regex = Regexp.new(Regexp.escape(search_term), true)
-
+          utf8_buf = search_term.dup.force_encoding('UTF-8')
+          if utf8_buf.valid_encoding?
+            regex = Regexp.new(Regexp.escape(utf8_buf), true)
+          else
+            return false
+          end
           case keyword
             when 'aka'
               match = [keyword, search_term] if (module_metadata.notes['AKA'] || []).any? { |aka| aka =~ regex }
