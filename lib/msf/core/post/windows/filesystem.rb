@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core/exploit/windows_constants'
+require 'msf/core/post/windows'
 require 'msf/core/post/windows/error'
 
 module Msf
@@ -10,6 +11,8 @@ module Windows
 module FileSystem
   include Msf::Exploit::Windows_Constants
   include Msf::Post::Windows::Error
+  include Msf::Post::Common
+
 
 
 
