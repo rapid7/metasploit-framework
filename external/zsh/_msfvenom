@@ -164,7 +164,7 @@ _msfvenom_formats_list=(
   'vbscript'
 )
 
-_msfvenom_format() {
+_msfvenom_formats() {
   _describe -t formats 'available formats' _msfvenom_formats_list || compadd "$@"
 }
 
@@ -207,6 +207,19 @@ _msfvenom_platform() {
   _describe -t platforms 'available platforms' _msfvenom_platforms_list || compadd "$@"
 }
 
+_msfvenom_payload() {
+  local cacheFile="$HOME/.msf4/store/modules_metadata.json"
+  local -a _msfvenom_payloads_list
+  [ -f "$cacheFile" ] || cacheFile="/opt/metasploit/db/modules_metadata_base.json"
+  if [ ! -f "$cacheFile" ]; then
+    _message -r "Cannot find metasploit cache file. Run msfconsole to populate it"
+    compadd "$@"
+  else
+    _msfvenom_payloads_list=("${(f)$(sed -n '/"type": "payload"/,/"ref_name"/p' "$cacheFile" | grep -E '(ref_name|description)' | cut -d '"' -f 4 | sed -n 'h;n;p;g;p' | sed 'N;s/\n/:/; s/\\n.*$//')}")
+    _describe -t payloads 'available payloads' _msfvenom_payloads_list || compadd "$@"
+  fi
+}
+
 _arguments \
   "--smallest[Generate the smallest possible payload using all available encoders]" \
   "--sec-name[The new section name to use when generating large Windows binaries. Default: random 4-character alpha string]" \
@@ -228,7 +241,7 @@ _arguments \
   {-l,--list}"[List all modules for \[type\]]:module type:(payloads encoders nops platforms archs encrypt formats all)" \
   {-n,--nopsled}"[Prepend a nopsled of \[length\] size on to the payload]:nopsled length" \
   {-o,--out}"[Save the payload to a file]:output file:_files" \
-  {-p,--payload}"[Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom]:payload" \
+  {-p,--payload}"[Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom]:target payload:_msfvenom_payload" \
   {-s,--space}"[The maximum size of the resulting payload]:length" \
   {-t,--timeout}"[The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable)]:second" \
   {-v,--var-name}"[Specify a custom variable name to use for certain output formats]:value" \

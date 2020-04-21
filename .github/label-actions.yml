@@ -1,9 +1,34 @@
 # Configuration for Github App - https://github.com/dessant/label-actions
+#
+# Note: Be aware of the edge cases of YAML when writing multiline strings:
+#   - https://yaml-multiline.info/
+#   - https://github.com/dessant/label-actions/issues/1
 pulls:
   actions:
     needs-docs:
       comment: |
         Thanks for your pull request, before this can be merged - corresponding documentation for your module is required:
+
           - [Writing Module Documentation](https://github.com/rapid7/metasploit-framework/wiki/Writing-Module-Documentation)
           - [Template](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/module_doc_template.md)
           - [Examples](https://github.com/rapid7/metasploit-framework/tree/master/documentation/modules)
+
+issues:
+  actions:
+    termux:
+      comment: |
+        Termux is not officially supported. https://github.com/rapid7/metasploit-framework/issues/11023
+
+        However, Metasploit reportedly does work with Termux.
+
+        Refer to the following for more information:
+
+        * https://wiki.termux.com/wiki/Metasploit_Framework
+        * termux/termux-packages/issues/715
+
+    potato:
+      close: true
+      comment: |
+        When creating an issue, please ensure that the default issue template has been updated with the required details.
+
+        Closing this issue. If you believe this issue has been closed in error, please provide any relevant output and logs which may be useful in diagnosing the issue.

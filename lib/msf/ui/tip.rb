@@ -14,7 +14,7 @@ module Msf
       end
 
       COMMON_TIPS = [
-        "View useful productivity tips with the #{highlight('tip')} command, or view them all with #{highlight('tip -l')}",
+        "View all productivity tips with the #{highlight('tips')} command",
         "Enable verbose logging with #{highlight('set VERBOSE true')}",
         "When in a module, use #{highlight('back')} to go back to the top level prompt",
         "Tired of setting RHOSTS for modules? Try globally setting it with #{highlight('setg RHOSTS x.x.x.x')}",
@@ -33,6 +33,8 @@ module Msf
         "Metasploit can be configured at startup, see #{highlight('msfconsole --help')} to learn more",
         "Display the Framework log using the #{highlight('log')} command, learn more with #{highlight('help log')}",
         "Adapter names can be used for IP params #{highlight('set LHOST eth0')}",
+        "Use #{highlight('sessions -1')} to interact with the last opened session",
+        "View missing module options with #{highlight('show missing')}",
       ].freeze
       private_constant :COMMON_TIPS
 
