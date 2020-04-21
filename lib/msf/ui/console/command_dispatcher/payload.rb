@@ -49,11 +49,13 @@ module Msf
             handler = framework.modules.create('exploit/multi/handler')
 
             handler_opts = {
-              'Payload'        => mod.refname,
-              'LocalInput'     => driver.input,
-              'LocalOutput'    => driver.output,
-              'ExitOnSession'  => false,
-              'RunAsJob'       => true
+              'Payload'     => mod.refname,
+              'LocalInput'  => driver.input,
+              'LocalOutput' => driver.output,
+              'RunAsJob'    => true,
+              'Options'     => {
+                'ExitOnSession' => false,
+              }
             }
 
             handler.datastore.merge!(mod.datastore)
