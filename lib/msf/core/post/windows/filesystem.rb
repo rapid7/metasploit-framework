@@ -305,7 +305,6 @@ module FileSystem
       print_error("Something went wrong while creating the symlink. Return value: NTSTATUS #{error} ()")
       return nil
     end
-    @handles << result['LinkHandle']
     result['return']
   ensure
     process.close
@@ -323,7 +322,6 @@ module FileSystem
     buffer.reparse_data.substitute_name_length = target_byte_size
     buffer.reparse_data.print_name_offset = target_byte_size + 2
     buffer.reparse_data.path_buffer = target + "\0" + print_name + "\0"
-
     buffer
   end
 
