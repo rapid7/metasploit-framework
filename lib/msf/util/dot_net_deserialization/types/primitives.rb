@@ -62,6 +62,7 @@ module Primitives
         enum = eval_parameter(:enum)
         values = values.map { |value| (value.is_a? Symbol) ? enum.fetch(value) : value }
       end
+
       super(values)
     end
   end
