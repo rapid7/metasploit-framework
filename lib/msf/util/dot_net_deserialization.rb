@@ -59,6 +59,9 @@ module DotNetDeserialization
   # Take the specified serialized blob and encapsulate it with the specified
   # formatter.
   #
+  # @param stream [Msf::Util::DotNetDeserialization::Types::SerializedStream]
+  #   The serialized stream representing the gadget chain to format into a
+  #   string.
   # @param formatter [Symbol] The formatter to use to encapsulate the serialized
   #   data blob.
   # @return [String]
@@ -81,6 +84,8 @@ module DotNetDeserialization
   # the OS command. The chosen gadget chain must be compatible with the target
   # application.
   #
+  # @param cmd [String] The operating system command to execute. It will
+  #   automatically be prefixed with "cmd /c" by the gadget chain.
   # @param gadget_chain [Symbol] The gadget chain to use for execution.
   # @return [Types::SerializedStream]
   def self.generate_gadget_chain(cmd, gadget_chain: DEFAULT_GADGET_CHAIN)

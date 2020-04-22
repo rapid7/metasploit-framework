@@ -65,14 +65,14 @@ module Types
     def get_object(id)
       id = id.value if id.is_a? BinData::BasePrimitive
 
-      @objects = @objects || {}
+      @objects ||= {}
       @objects[id]
     end
 
     def set_object(id, object)
       id = id.value if id.is_a? BinData::BasePrimitive
 
-      @objects = @objects || {}
+      @objects ||= {}
       @objects[id] = object
     end
   end

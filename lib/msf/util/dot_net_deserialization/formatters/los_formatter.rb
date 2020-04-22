@@ -4,6 +4,8 @@ module DotNetDeserialization
 module Formatters
 module LosFormatter
 
+  TOKEN_BINARY_SERIALIZED = 50
+
   #
   # Limited Object Stream Types
   #
@@ -20,8 +22,7 @@ module LosFormatter
 
   def self.generate(stream)
     stream = stream.to_binary_s
-    # token: 50 =  Token_BinarySerialized
-    formatted  = ObjectStateFormatter.new(token: 50).to_binary_s
+    formatted  = ObjectStateFormatter.new(token: TOKEN_BINARY_SERIALIZED).to_binary_s
     formatted << DotNetDeserialization.encode_7bit_int(stream.length)
     formatted << stream
   end

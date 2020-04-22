@@ -60,7 +60,7 @@ module Primitives
     def assign(values)
       if values.is_a? ::Array
         enum = eval_parameter(:enum)
-        values.map! { |value| (value.is_a? Symbol) ? enum.fetch(value) : value }
+        values = values.map { |value| (value.is_a? Symbol) ? enum.fetch(value) : value }
       end
       super(values)
     end
@@ -178,6 +178,8 @@ module Primitives
 
     module Factory
       def from_member_values(class_info:, member_type_info:, member_values:, **kwargs)
+        raise ::ArgumentError, 'Invalid class_info type' unless class_info.is_a? Types::General::ClassInfo
+        raise ::ArgumentError, 'Invalid member_type_info type' unless member_type_info.is_a? Types::General::MemberTypeInfo
         raise ::ArgumentError, 'Invalid member count' unless class_info.member_count == member_values.length
 
         kwargs[:class_info] = class_info
