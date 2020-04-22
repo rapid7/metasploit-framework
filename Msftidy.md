@@ -21,7 +21,7 @@ EDB references should only contain numbers
 ### US-CERT-VU
 US-CERT references should only contain numbers
 ### ZDI
-ZDI references should be in the format `dd-ddd` (d = digit)
+ZDI references should be in the format `ddd-dddd` (d = digit)
 ### URL
 If you supply an URL where a short identifiert is available, please use the identifier.
 
