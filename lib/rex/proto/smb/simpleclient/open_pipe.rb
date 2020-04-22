@@ -78,10 +78,10 @@ class OpenPipe < OpenFile
   end
 
   def peek
-    if versions.include?(2)
-      avail = peek_ruby_smb
-    else
+    if versions == [1]
       avail = peek_rex_smb
+    else
+      avail = peek_ruby_smb
     end
     avail
   end
