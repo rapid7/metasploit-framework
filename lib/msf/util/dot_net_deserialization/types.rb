@@ -50,9 +50,36 @@ module Types
     end
   end
 
+  class RecordArray < BinData::Array
+    default_parameters  type: :record
+
+    # Allow reading records until either EoF or the last record type is MessageEnd
+    module ReadRecordsUntilPlugin
+      def do_read(io)
+        loop do
+          element = append_new_element
+          begin
+            element.do_read(io)
+          rescue EOFError, IOError
+            elements.pop
+            break
+          end
+
+          break if elements[-1].record_type == Enums::RecordTypeEnum[:MessageEnd]
+        end
+      end
+    end
+
+    def initialize_shared_instance
+      super
+
+      extend ReadRecordsUntilPlugin
+    end
+  end
+
   class SerializedStream < BinData::Record
     endian                 :little
-    array                  :records, type: :record, read_until: -> { records[-1]&.record_type == Enums::RecordTypeEnum[:MessageEnd] }
+    record_array           :records
 
     def self.from_values(values)
       stream = self.new

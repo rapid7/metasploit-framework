@@ -20,7 +20,7 @@ module General
     obj_id                 :obj_id
     length_prefixed_string :name
     int32                  :member_count, value: -> { member_names.length }
-    array                  :member_names, :type => :length_prefixed_string, read_until: -> { index == member_count - 1 }
+    array                  :member_names, type: :length_prefixed_string, read_until: -> { index == member_count - 1 }
   end
 
   class ClassTypeInfo < BinData::Record

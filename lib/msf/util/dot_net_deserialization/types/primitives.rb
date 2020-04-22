@@ -55,7 +55,7 @@ module Primitives
 
   class EnumArray < BinData::Array
     mandatory_parameter :enum
-    default_parameters  :type => :uint8
+    default_parameters  type: :uint8
 
     def assign(values)
       if values.is_a? ::Array

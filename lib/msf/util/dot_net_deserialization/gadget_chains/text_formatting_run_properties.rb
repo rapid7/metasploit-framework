@@ -22,7 +22,7 @@ module GadgetChains
           <ObjectDataProvider X:Key="" ObjectType="{X:Type D:Process}" MethodName="Start">
             <ObjectDataProvider.MethodParameters>
               <S:String>cmd</S:String>
-              <S:String>/c #{cmd.encode(:xml => :text)}</S:String>
+              <S:String>/c #{cmd.encode(xml: :text)}</S:String>
             </ObjectDataProvider.MethodParameters>
           </ObjectDataProvider>
         </ResourceDictionary>

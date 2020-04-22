@@ -15,8 +15,8 @@ module LosFormatter
     default_parameter      marker_format: 0xff
     default_parameter      marker_version: 1
     hide                   :marker_format,  :marker_version
-    uint8                  :marker_format,  :initial_value => :marker_format
-    uint8                  :marker_version, :initial_value => :marker_version
+    uint8                  :marker_format,  initial_value: :marker_format
+    uint8                  :marker_version, initial_value: :marker_version
     uint8                  :token
   end
 

@@ -93,8 +93,8 @@ module RecordValues
     default_parameter      minor_version: 0
     int32                  :root_id
     int32                  :header_id
-    int32                  :major_version, :initial_value => :major_version
-    int32                  :minor_version, :initial_value => :minor_version
+    int32                  :major_version, initial_value: :major_version
+    int32                  :minor_version, initial_value: :minor_version
   end
 
   class SystemClassWithMembers < BinData::Record
