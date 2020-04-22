@@ -275,9 +275,3 @@ class MetasploitModule < Msf::Post
     end
   end
 end
-
-# Linux xchat path:
-# /home/[username]/.xchat2/
-#   * /home/[username]/.xchat2/servlist_.conf
-#   * /home/[username]/.xchat2/xchat.conf
-#   * /home/[username]/.xchat2/xchatlogs/FreeNode-#aha.log

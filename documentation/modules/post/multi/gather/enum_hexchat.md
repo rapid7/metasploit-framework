@@ -3,6 +3,21 @@
 This module enumerates the config and log files for XChat and HexChat.  XChat was retired in 2015, although the site and downloads
 are still available in April 2020.  It was forked and replaced by HexChat.
 
+Linux xchat path:
+```
+ /home/[username]/.xchat2/
+   * /home/[username]/.xchat2/servlist_.conf
+   * /home/[username]/.xchat2/xchat.conf
+   * /home/[username]/.xchat2/xchatlogs/FreeNode-#aha.log
+```
+Linux hexchat path:
+```
+ /home/[username]/.xchat2/
+   * /home/[username]/.config/hexchat/servlist.conf
+   * /home/[username]/.config/hexchat/hexchat.conf
+   * /home/[username]/.config/hexchat/logs/FreeNode/Freenode-#aha.log
+```
+
 ## Verification Steps
 
   1. Install the application(s)
