@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def base_dn
-    @base_dn || 'dc=vsphere,dc=local'
+    @base_dn ||= 'dc=vsphere,dc=local'
   end
 
   def policy_dn
