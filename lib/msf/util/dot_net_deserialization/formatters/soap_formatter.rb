@@ -34,7 +34,8 @@ module SoapFormatter
 
     protected
 
-    def build_class_with_members_and_types(body, record_value, library_name: 'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089')
+    def build_class_with_members_and_types(body, record_value, library_name: Assemblies::VERSIONS['4.0.0.0']['mscorlib'])
+      library_name = library_name.to_s if library_name.is_a? Assemblies::StrongName
       library_name = Rex::Text.uri_encode(library_name)
       ns = "a#{body.children.length + 1}"
       class_node = node("#{ns}:#{record_value.class_info.name.split('.')[-1]}", parent: body, attributes: {
