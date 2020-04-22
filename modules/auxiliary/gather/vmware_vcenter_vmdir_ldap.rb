@@ -14,9 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'VMware vCenter Server vmdir Information Disclosure',
         'Description' => %q{
-          This module uses an anonymous-bind LDAP connection to dump data from the
-          vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
-          update.
+          This module uses an anonymous-bind LDAP connection to dump data from
+          the vmdir service in VMware vCenter Server version 6.7 prior to the
+          6.7U3f update.
         },
         'Author' => [
           # Discovered by unknown researcher(s)
@@ -28,7 +28,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
-        'Actions' => [['Dump', 'Description' => 'Dump all LDAP data']],
+        'Actions' => [
+          ['Dump', 'Description' => 'Dump all LDAP data']
+        ],
         'DefaultAction' => 'Dump',
         'Notes' => {
           'Stability' => [CRASH_SAFE],

@@ -2,9 +2,9 @@
 
 ### Description
 
-This module uses an anonymous-bind LDAP connection to dump data from the
-vmdir service in VMware vCenter Server version 6.7 prior to the 6.7U3f
-update.
+This module uses an anonymous-bind LDAP connection to dump data from
+the vmdir service in VMware vCenter Server version 6.7 prior to the
+6.7U3f update.
 
 ### Setup
 

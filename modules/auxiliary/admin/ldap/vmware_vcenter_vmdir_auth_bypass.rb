@@ -15,8 +15,8 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'VMware vCenter Server vmdir Authentication Bypass',
         'Description' => %q{
           This module bypasses LDAP authentication in VMware vCenter Server's
-          vmdir service to add an arbitrary administrator user. Version 6.7 prior
-          to the 6.7U3f update is vulnerable.
+          vmdir service to add an arbitrary administrator user. Version 6.7
+          prior to the 6.7U3f update is vulnerable.
         },
         'Author' => [
           # Discovered by unknown researcher(s)
@@ -31,7 +31,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
-        'Actions' => [['Add', 'Description' => 'Add an admin user']],
+        'Actions' => [
+          ['Add', 'Description' => 'Add an admin user']
+        ],
         'DefaultAction' => 'Add',
         'DefaultOptions' => {
           'CheckModule' => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
