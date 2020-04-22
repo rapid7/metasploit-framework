@@ -11,7 +11,7 @@ This module only supports some target sessions, where the keyboard, mouse and sc
 ## Verification Steps
 
 1. Obtain a native OSX or Windows session (or a Java session).
-2. In msfconsole do `use post/multi/screenshare`.
+2. In msfconsole do `use post/multi/manage/screenshare`.
 3. Set the `SESSION` option.
 4. Do `run`.
 5. Open the page in a javascript enabled browser

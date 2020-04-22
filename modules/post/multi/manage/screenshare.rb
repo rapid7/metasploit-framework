@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'timwr'],
-        'Platform' => [ 'linux', 'win' ],
+        'Platform' => [ 'linux', 'win', 'osx' ],
         'SessionTypes' => [ 'meterpreter' ],
         'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' }
       )
