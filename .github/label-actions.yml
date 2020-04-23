@@ -8,16 +8,16 @@ pulls:
     attic:
       close: true
       comment: |
-        Thanks for your interest in contributing to the Metasploit Framework! For now it seems that this pull request isn't quite ready to land, and we have opted to close and tag the pull request with the `attic` label.
+        Thanks for your contribution to Metasploit Framework! We've looked at this pull request, and we agree that it seems like a good addition to Metasploit, but it looks like it is not quite ready to land. We've labeled it `attic` and closed it for now.
 
-        What does this generally mean?
-        
-        - It doesn't look like there's been any activity on this Pull Request in quite some time
-        - We or the contributor doesn't have the time or equipment necessary to test it or fix it up
-        - Sometimes the implementation isn't quite right and a different approach is necessary
-        
-        We would love to land this pull request when it's ready. If you have a chance to address the comments, we'd be happy to reopen and discuss merging this contribution into the framework! :tada:
-        
+        What does this generally mean? It could be one or more of several things:
+
+        - It doesn't look like there has been any activity on this pull request in a while
+        - We may not have the proper access or equipment to test this pull request, or the contributor doesn't have time to work on it right now.
+        - Sometimes the implementation isn't quite right and a different approach is necessary.
+
+        We would love to land this pull request when it's ready. If you have a chance to address all comments, we would be happy to reopen and discuss how to merge this!
+
     needs-docs:
       comment: |
         Thanks for your pull request! Before this can be merged, we need the following documentation for your module:
@@ -29,24 +29,24 @@ pulls:
     needs-linting:
       comment: |
         Thanks for your pull request! Before this pull request can be merged, it must pass the checks of our automated linting tools.
-        
+
         We use Rubocop and msftidy to ensure the quality of our code. This can be ran from the root directory of Metasploit:
-        
+
         ```
         rubocop <directory or file>
         tools/dev/msftidy.rb <directory or file>
         ```
-        
+
         You can automate most of these changes with the `-a` flag:
-        
+
         ```
         rubocop -a <directory or file>
         ```
-        
+
         Please update your branch after these have been made, and reach out if you have any problems.
 
     needs-unique-branch:
-      close: true    
+      close: true
       comment: |
         Thanks for your pull request! We require for all contributed code to come from a **from a unique branch** in your repository before it can be merged.
 
@@ -71,7 +71,7 @@ pulls:
         git push origin <BRANCH_NAME>
 
         # Now browse to the following URL and create your pull request!
-        # - https://github.com/rapid7/metasploit-framework/pulls        
+        # - https://github.com/rapid7/metasploit-framework/pulls
         ```
 
         This helps protect the process, ensure users are aware of commits on the branch being considered for merge, allows for a location for more commits to be offered without mingling with other contributor changes and allows contributors to make progress while a PR is still being reviewed.
@@ -81,14 +81,14 @@ pulls:
     needs-testing-environment:
       comment: |
         Thanks for your pull request! As part of our landing process, we manually verify that all modules work as expected.
-        
-        However in this case we are unable to test this module successfully, either due to software or hardware requirements that we can not replicate.
-        
-        This is different for each pull request, but to help unblock this pull request, please:
+
+        We have been unable to test this module successfully. This may be due to software or hardware requirements we cannot replicate.
+
+        To help unblock this pull request, please:
 
         - Comment with links to documentation on how to set up an environment, and provide exact software version numbers to use
         - Or comment guided steps on how to set up our environment for testing this module
-        - Or send pcaps/screenshots/recordings of it working and logging in as a new user - you can email us msfdev[at]rapid7.com
+        - Or send pcaps/screenshots/recordings of it working - you can email us msfdev[at]rapid7.com
 
         Once there's a clear path for testing and evaluating this module, we can progress with this further.
 
