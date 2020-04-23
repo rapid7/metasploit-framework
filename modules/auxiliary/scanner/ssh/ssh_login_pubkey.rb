@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
         OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
-        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', false])
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
 
