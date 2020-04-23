@@ -76,6 +76,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    unless username && password
+      print_error('Please set the USERNAME and PASSWORD options to proceed')
+      return
+    end
+
     # NOTE: check is provided by auxiliary/gather/vmware_vcenter_vmdir_ldap
     checkcode = check
 
@@ -83,11 +88,6 @@ class MetasploitModule < Msf::Auxiliary
 
     # HACK: We stashed the detected base DN in the CheckCode's reason
     @base_dn = checkcode.reason
-
-    unless username && password
-      print_error('Please set the USERNAME and PASSWORD options to proceed')
-      return
-    end
 
     opts = {
       host: rhost,
