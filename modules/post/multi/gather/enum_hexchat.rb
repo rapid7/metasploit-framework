@@ -96,21 +96,11 @@ class MetasploitModule < Msf::Post
         end
       end
     elsif mode == 'XCHAT'
-      if session.platform == 'windows'
-        file = dir base
-        file.each do |f|
-          if f.end_with? '.log'
-            files << "#{base}#{sep}#{f}"
-          end
+      file = dir base
+      file.each do |f|
+        if f.end_with? '.log'
+          files << "#{base}#{sep}#{f}"
         end
-
-      else
-        # the original methods written by @sinn3r
-        list = cmd_exec("ls -l #{base}*.log")
-        return [] if list =~ /No such file or directory/
-
-        # currently unsure what this is intending to do -h00die
-        files = list.scan(/\d+\x20\w{3}\x20\d+\x20\d{2}\:\d{2}\x20(.+)$/).flatten
       end
     end
     files
@@ -255,8 +245,8 @@ class MetasploitModule < Msf::Post
         configs = get_configs(base, 'XCHAT') if action.name =~ /ALL|CONFIGS/i
         chatlogs = get_chatlogs(base, 'XCHAT') if action.name =~ /ALL|CHATS/i
 
-        save(:configs, configs, 'XCHAT') unless configs.empty?
-        save(:chatlogs, chatlogs, 'XCHAT') unless chatlogs.empty?
+        save(:configs, configs, 'XCHAT') unless configs.blank?
+        save(:chatlogs, chatlogs, 'XCHAT') unless chatlogs.blank?
       end
     end
 
@@ -269,8 +259,8 @@ class MetasploitModule < Msf::Post
         configs = get_configs(base) if action.name =~ /ALL|CONFIGS/i
         chatlogs = get_chatlogs(base) if action.name =~ /ALL|CHATS/i
 
-        save(:configs, configs) unless configs.empty?
-        save(:chatlogs, chatlogs) unless chatlogs.empty?
+        save(:configs, configs) unless configs.blank?
+        save(:chatlogs, chatlogs) unless chatlogs.blank?
       end
     end
   end
