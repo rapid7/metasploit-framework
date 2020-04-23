@@ -8,7 +8,8 @@ the vmdir service in VMware vCenter Server version 6.7 prior to the
 
 ### Setup
 
-Tested in the wild. No setup notes available at this time.
+Tested in the wild. No setup notes available at this time, as setup will
+be specific to target environment.
 
 ## Verification Steps
 
@@ -18,7 +19,7 @@ Follow [Setup](#setup) and [Scenarios](#scenarios).
 
 ### Dump
 
-Dump all LDAP data from the target.
+Dump all LDAP data from the vCenter Server.
 
 ## Options
 
@@ -29,7 +30,7 @@ default is 10.0 seconds and should be more than sufficient.
 
 ## Scenarios
 
-### VMware vCenter Server 6.7
+### VMware vCenter Server 6.7 virtual appliance on ESXi
 
 ```
 msf5 > use auxiliary/gather/vmware_vcenter_vmdir_ldap

@@ -8,7 +8,8 @@ prior to the 6.7U3f update is vulnerable.
 
 ### Setup
 
-Tested in the wild. No setup notes available at this time.
+Tested in the wild. No setup notes available at this time, as setup will
+be specific to target environment.
 
 ## Verification Steps
 
@@ -18,7 +19,7 @@ Follow [Setup](#setup) and [Scenarios](#scenarios).
 
 ### Add
 
-Add an admin user to the target.
+Add an admin user to the vCenter Server.
 
 ## Options
 
@@ -37,7 +38,7 @@ default is 10.0 seconds and should be more than sufficient.
 
 ## Scenarios
 
-### VMware vCenter Server 6.7
+### VMware vCenter Server 6.7 virtual appliance on ESXi
 
 ```
 msf5 > use auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass
