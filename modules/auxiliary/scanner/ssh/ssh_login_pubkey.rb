@@ -155,6 +155,12 @@ class MetasploitModule < Msf::Auxiliary
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
           session_setup(result, scanner, ssh_key.fingerprint) if datastore['CreateSession']
+          if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+            msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+            msg << " 'set gatherproof off'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+            msg << " device details so it can be handled in the future."
+            print_brute :level => :error, :ip => ip, :msg => msg
+          end
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
