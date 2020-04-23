@@ -295,13 +295,19 @@ module Msf
     # This returns a hash for the exe format generation of payloads
     # @return [Hash] The hash needed for generating an executable format
     def exe_options
-      opts = { inject: keep }
+      opts = { inject: keep, payload: payload }
       unless template.blank?
         opts[:template_path] = File.dirname(template)
         opts[:template]      = File.basename(template)
       end
       unless secname.blank?
         opts[:secname]       = secname
+      end
+      if datastore['LHOST']
+        opts[:lhost] = datastore['LHOST']
+      end
+      if datastore['LPORT']
+        opts[:lport] = datastore['LPORT']
       end
       opts
     end
