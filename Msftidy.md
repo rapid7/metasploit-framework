@@ -21,9 +21,9 @@ EDB references should only contain numbers
 ### US-CERT-VU
 US-CERT references should only contain numbers
 ### ZDI
-ZDI references should be in the format `dd-ddd...` (d = digit)
+ZDI references should be in the format `dd-ddd` or `dd-dddd` (d = digit)
 ### URL
-If you supply an URL where a short identifiert is available, please use the identifier.
+If you supply an URL where a short identifier is available, please use the identifier.
 
 ## Old Keywords
 Before Metasploit moved to Github the sources were stored in a SVN repository. SVN has support to replace custom variables with current values like the last revision. Since GIT does not support them, the references should be removed from code.
@@ -35,7 +35,7 @@ You should not define a VERBOSE option in your module. A VERBOSE option is alrea
 This checks looks for bad characters in the module title. If you encounter this error, please replace the characters.
 
 ## File Extension
-All modules should have a `.rb` file extenstion to be loaded by the framework.
+All modules should have a `.rb` file extension to be loaded by the framework.
 
 ## Old Rubies
 This check checks the file for syntax errors with old Ruby versions. By default this check will not run. To execute this check you need to set the environment variable `MSF_CHECK_OLD_RUBIES`.
@@ -60,7 +60,7 @@ If you define a function which defines a lot of input arguments, the check ensur
 Your module must not contain Unicode characters.
 
 ### Spaces at EOL
-Your module must not conatin spaces at the end of a line.
+Your module must not contain spaces at the end of a line.
 
 ### Mixed Tab Spaces
 Your module contains Tabs and Spaces in one line. Only spaces should be used
