@@ -1637,6 +1637,11 @@ class Core
       active_module.import_target_defaults
     end
 
+    # Warn the user that setting SSL may require changing RPORT
+    if name.upcase == 'SSL' && datastore[name] == true
+      print_warning('Setting the SSL option may require changing the RPORT value!')
+    end
+
     print_line("#{name} => #{datastore[name]}")
   end
 
