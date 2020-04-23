@@ -98,7 +98,7 @@ module HostServlet
         data = get_db.get_host_tags(opts)
         set_json_data_response(response: data)
       rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error adding the host tag:', code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving the host tag(s):', code: 500)
       end
     }
   end

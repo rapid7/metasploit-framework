@@ -85,11 +85,15 @@ module Msf::DBManager::Host
         tag_ids << t.id
       end
 
+      deleted_tags = []
+
       tag_ids.each do |id|
         tag = Mdm::Tag.find_by_id(id)
-        tag.hosts.delete
+        deleted_tags << tag
         tag.destroy
       end
+
+      deleted_tags
     end
   end
 
@@ -99,7 +103,7 @@ module Msf::DBManager::Host
 
     host = wspace.hosts.find(host_id)
     if host
-      Mdm::Tag.joins(:hosts).where(id: host.id)
+      host.tags
     end
   end
 
