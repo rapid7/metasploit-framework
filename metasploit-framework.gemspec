@@ -137,6 +137,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'ed25519' # Adds ed25519 keys for net-ssh
   spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb'
+  spec.add_runtime_dependency 'net-ldap'
 
   #
   # REX Libraries
