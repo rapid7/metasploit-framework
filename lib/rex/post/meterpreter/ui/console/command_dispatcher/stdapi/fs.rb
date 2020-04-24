@@ -711,7 +711,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         cmd_ls_help
         return 0
       when nil
-        path = val
+        path = client.fs.file.expand_path(val)
       end
     }
 
