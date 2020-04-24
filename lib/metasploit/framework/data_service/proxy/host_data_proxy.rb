@@ -117,7 +117,7 @@ module HostDataProxy
         end
       end
     rescue => e
-      self.log_error(e, "Problem retrieving host")
+      self.log_error(e, "Problem calling #{method.to_s} method.")
     end
   end
 
