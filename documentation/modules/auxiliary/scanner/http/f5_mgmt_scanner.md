@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module scans for web management interfaces of the following F5 Networks devices:
+This module attempts to identify the web management interfaces of the following F5 Networks devices:
 
  * BigIP
  * BigIQ
@@ -15,7 +15,7 @@ This module scans for web management interfaces of the following F5 Networks dev
   3. Do: ```use scanner/http/f5_mgmt_scanner```
   4. DO: ```set rhosts```
   5. Do: ```run```
-  6. You will learn if this is a F5 web management interface
+  6. You will learn if IPs in rhosts are F5 web management interface
 
 ## Options
 
