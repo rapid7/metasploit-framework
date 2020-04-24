@@ -15,7 +15,7 @@ This module attempts to identify the web management interfaces of the following 
   3. Do: ```use scanner/http/f5_mgmt_scanner```
   4. DO: ```set rhosts```
   5. Do: ```run```
-  6. You will learn if IPs in rhosts are F5 web management interface
+  6. You will learn if IPs in rhosts are F5 web management interfaces
 
 ## Options
 
