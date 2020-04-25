@@ -1,4 +1,4 @@
-FROM ruby:2.6.6-alpine3.10 AS builder
+FROM ruby:2.7.1-alpine3.11 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
@@ -36,7 +36,7 @@ RUN apk add --no-cache \
     && chmod -R a+r /usr/local/bundle
 
 
-FROM ruby:2.6.5-alpine3.10
+FROM ruby:2.7.1-alpine3.11
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework
