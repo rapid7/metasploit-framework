@@ -250,7 +250,7 @@ module Kernel
   # Returns true if PaX is installed
   #
   def pax_installed?
-    cmd_exec('test -x /sbin/paxctl && echo true').to_s.strip.include? 'true'
+    cmd_exec('/bin/grep -q "PaX:" /proc/self/status && echo true').to_s.strip.include? 'true'
   rescue
     raise 'Could not determine PaX status'
   end
