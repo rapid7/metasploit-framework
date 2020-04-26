@@ -3,10 +3,10 @@
 
 * [Dependencies](#install-dependencies)
 * [Downloading](#set-up-your-local-copy-of-the-repository)
-* [Ruby](#installing-ruby)
+* [Ruby](#install-ruby)
 * [Ruby Gems](#install-gems)
 * [REST and PostgreSQL](#optional-set-up-the-rest-api-and-postgresql-database)
-* [Workflows](optional-tips-to-speed-up-common-workflows)
+* [Workflows](#optional-tips-to-speed-up-common-workflows)
 
 #### Metasploit Wiki Pages
 ----
