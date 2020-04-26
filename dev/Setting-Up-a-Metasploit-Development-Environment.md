@@ -96,6 +96,7 @@ If the two versions don't match, restart your terminal. If that does not work, c
 ```
 cd ~/git/metasploit-framework/
 gem install bundler
+cd .
 bundle install
 ```
 
