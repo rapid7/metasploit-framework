@@ -72,7 +72,7 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 
 Linux distributions do not ship with the latest Ruby, nor are package managers routinely updated.  Additionally, if you are working with multiple Ruby projects, each one has dependencies and Ruby versions which can start to conflict.  For these reasons, it is advisable  to use a Ruby manager.
 
-You could just install Ruby directly (eg. `sudo apt install ruby-dev`), but you may likely end up with the incorrect version and no way to update.  Instead, consider using one of the many different [Ruby environment managers] available.  The Metasploit team prefers [rbenv] and [rvm].
+You could just install Ruby directly (eg. `sudo apt install ruby-dev`), but you may likely end up with the incorrect version and no way to update.  Instead, consider using one of the many different [Ruby environment managers] available.  The Metasploit team prefers [rbenv] and [rvm] (note that [rvm] does require a re-login to complete).
 
 Regardless of your choice, you'll want to make sure that, when inside the `~/git/metasploit-framework` directory, you are running the correct version of Ruby:
 
