@@ -91,7 +91,7 @@ If the two versions don't match, restart your terminal. If that does not work, c
 
 ## Install Gems
 
-1. Before you run Metasploit, you will need to update the gems (Ruby libraries) that Metasploit depends on:
+Before you run Metasploit, you will need to update the gems (Ruby libraries) that Metasploit depends on:
 
 ```
 cd ~/git/metasploit-framework/
@@ -100,7 +100,7 @@ cd .
 bundle install
 ```
 
-2. If you encounter an error with the above command, refer to the `bundle` output and search for the error message along with the name of the gem that failed. Likely, you'll need to `apt get install` a dependency that is required by that particular gem.
+If you encounter an error with the above command, refer to the `bundle` output and search for the error message along with the name of the gem that failed. Likely, you'll need to `apt get install` a dependency that is required by that particular gem.
 
 Congratulations! You have now set up a development environment and the latest version of the Metasploit Framework. If you followed this guide step-by-step, and you ran into any problems, it would be super great if you could open a [new issue] so we can either help you, or, more likely, update the docs.
 
