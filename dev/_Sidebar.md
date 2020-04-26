@@ -1,15 +1,12 @@
 #### MSF-DEV Contents
 ----
 
-* [Assumptions](#assumptions)
-* [Base Packages](#install-the-base-dev-packages)
-* [Fork and Clone](#fork-and-clone)
-* [RVM](#install-rvm)
-* [Gems](#install-bundled-gems)
-* [Database](#set-up-postgresql)
-* [Testing](#run-specs)
-* [Git](#configure-git)
-* [Aliases](#handy-aliases)
+* [Dependencies](#install-dependencies)
+* [Downloading](#set-up-your-local-copy-of-the-repository)
+* [Ruby](#installing-ruby)
+* [Ruby Gems](#install-gems)
+* [REST and PostgreSQL](#optional-set-up-the-rest-api-and-postgresql-database)
+* [Workflows](optional-tips-to-speed-up-common-workflows)
 
 #### Metasploit Wiki Pages
 ----
