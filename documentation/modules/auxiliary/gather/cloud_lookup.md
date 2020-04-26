@@ -3,20 +3,19 @@ This module can be useful if you need to test the security of your server and yo
 website behind a solution Cloud based. By discovering the origin IP address of the
 targeted host.
 
-More precisely, I use multiple data sources (in order ViewDNS.info, DNS enumeration and Censys)
+More precisely, this module uses multiple data sources (in order ViewDNS.info, DNS enumeration and Censys)
 to collect assigned (or have been assigned) IP addresses from the targeted site or domain
 that uses the following:
   Amazon Cloudflare, Amazon CloudFront, ArvanCloud, Envoy Proxy, Fastly, Stackpath Fireblade,
-  Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Netlify and
-  Sucuri.
+  Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Microsoft AzureCDN,
+  Netlify and Sucuri.
 
 ## Verification Steps
 
-  1. Install the module as usual
-  2. Start msfconsole
-  3. Do: `use auxiliary/gather/cloud_lookup`
-  4. Do: `set hostname www.zataz.com`
-  5. Do: `run`
+  1. Start msfconsole
+  2. Do: `use auxiliary/gather/cloud_lookup`
+  3. Do: `set hostname www.zataz.com`
+  4. Do: `run`
 
 ## Options
 
@@ -65,6 +64,10 @@ that uses the following:
   Name list required for DNS enumeration. Default: ~/metasploit-framework/data/wordlists/namelist.txt
 
 ## Advanced options
+
+  **ALLOW_NOWAF**
+
+  Automatically switch to NoWAFBypass when detection fails with the Automatic action. Default: false
 
   **DNSENUM**
 
@@ -136,7 +139,7 @@ msf5 auxiliary(gather/cloud_lookup) > run
   to force the passage through the WAF. This makes the IP address leak in the 'location'
   parameter of the HTTP header.
 
-  For exemple:
+  For example:
   ```
   msf5 auxiliary(gather/cloud_lookup) > set hostname www.exodata.fr
   hostname => www.exodata.fr
@@ -184,9 +187,9 @@ msf5 auxiliary(gather/cloud_lookup) > run
   ```
   In this case 'A leaked IP address was found' is displayed but the bypass is NOT effective.
 
-  You can also use the 'REPORT_LEAKS' option for write that in the notes.
+  You can also use the 'REPORT_LEAKS' option to write that in the notes.
 
-  For some reason you may need to change the URI path to interoperate with other than the index page.
+  For some reason you may need to change the URI path to interoperate with a page other than the index page.
   To do this specific thing.
 
   For example:
