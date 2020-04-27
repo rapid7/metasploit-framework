@@ -85,6 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     self.simple.connect("\\\\#{ip}\\#{share}")
 
     begin
+      # XXX: not implemented with RubySMB client, should I implement it?
       device_type = self.simple.client.queryfs_fs_device['device_type']
       unless device_type
         vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
@@ -330,7 +331,7 @@ class MetasploitModule < Msf::Auxiliary
       @smb_redirect = info[1]
 
       begin
-        connect(versions: [2,1])
+        connect
         smb_login
         shares = smb_netshareenumall
 
@@ -354,6 +355,11 @@ class MetasploitModule < Msf::Auxiliary
           )
 
           if datastore['SpiderShares']
+            # This feature is not available with RubySMB client.
+            # Force using Rex client by setting SMBv1 as the only version to negotiate.
+            # So, this won't work if SMBv1 is disabled on the target.
+            connect(versions: [1])
+            smb_login
             get_files_info(ip, rport, shares, info)
           end
 
