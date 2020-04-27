@@ -228,6 +228,16 @@ Style/RedundantBegin:
     # end
     - 'modules/**/*'
 
+Style/SafeNavigation:
+  Description: >-
+    This cop transforms usages of a method call safeguarded by
+    a check for the existence of the object to
+    safe navigation (`&.`).
+
+    This has been disabled as in some scenarios it produced invalid code, and disobeyed the 'AllowedMethods'
+    configuration.
+  Enabled: false
+
 Documentation:
   Exclude:
     - 'modules/**/*'
