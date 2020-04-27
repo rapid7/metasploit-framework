@@ -31,7 +31,7 @@ attr_accessor :last_error, :server_max_buffer_size
 attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false, versions = [1, 2, 3])
+  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true)
     self.socket = socket
     self.direct = direct
     self.versions = versions
@@ -46,7 +46,8 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
                                         password: '',
                                         smb1: self.versions.include?(1),
                                         smb2: self.versions.include?(2),
-                                        smb3: self.versions.include?(3)
+                                        smb3: self.versions.include?(3),
+                                        always_encrypt: always_encrypt
                     )
       self.client.evasion_opts = {
         # Padding is performed between packet headers and data
@@ -82,10 +83,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       ok = self.client.negotiate
       dlog("Negotiated SMB version: #{self.client.is_a?(Rex::Proto::SMB::Client) ? 'SMB1' : ok}")
 
-      if self.versions == [1]
-        self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
-      else
+      if self.client.is_a?(RubySMB::Client)
         self.server_max_buffer_size = self.client.server_max_buffer_size
+      else
+        self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
       end
 
       # Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
@@ -101,10 +102,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       # always a string
       pass ||= ''
 
-      if self.versions == [1]
-        ok = self.client.session_setup(user, pass, domain)
-      else
+      if self.client.is_a?(RubySMB::Client)
         ok = self.client.session_setup(user, pass, domain, true)
+      else
+        ok = self.client.session_setup(user, pass, domain)
       end
     rescue ::Interrupt
       raise $!
@@ -169,10 +170,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   def connect(share)
     ok = self.client.tree_connect(share)
 
-    if self.versions == [1]
-      tree_id = ok['Payload']['SMB'].v['TreeID']
-    else
+    if self.client.is_a?(RubySMB::Client)
       tree_id = ok.id
+    else
+      tree_id = ok['Payload']['SMB'].v['TreeID']
     end
 
     self.shares[share] = tree_id
@@ -189,13 +190,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   end
 
   def open(path, perm, chunk_size = 48000, read: true, write: false)
-    if self.versions == [1]
-      mode = UTILS.open_mode_to_mode(perm)
-      access = UTILS.open_mode_to_access(perm)
-
-      ok = self.client.open(path, mode, access)
-      file_id = ok['Payload'].v['FileID']
-    else
+    if self.client.is_a?(RubySMB::Client)
       mode = 0
       perm.each_byte { |c|
         case [c].pack('C').downcase
@@ -213,6 +208,12 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       else
         file_id = self.client.open(path, mode, read: true)
       end
+    else
+      mode = UTILS.open_mode_to_mode(perm)
+      access = UTILS.open_mode_to_access(perm)
+
+      ok = self.client.open(path, mode, access)
+      file_id = ok['Payload'].v['FileID']
     end
 
     fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id, self.versions)
@@ -221,10 +222,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   end
 
   def delete(*args)
-    if self.versions == [1]
-      self.client.delete(*args)
-    else
+    if self.client.is_a?(RubySMB::Client)
       self.client.delete(args[0])
+    else
+      self.client.delete(*args)
     end
   end
 
@@ -232,10 +233,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
 
-    if self.versions == [1]
-      file_id = ok['Payload'].v['FileID']
-    else
+    if self.client.is_a?(RubySMB::Client)
       file_id = ok
+    else
+      file_id = ok['Payload'].v['FileID']
     end
 
     fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id, self.versions)
