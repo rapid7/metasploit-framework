@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
           }],
           ['Imperva Incapsula', {
             'Description' => 'Cloud based Web application firewall of Imperva',
-            'Signatures' => ['X-CDN: Incapsula']
+            'Signatures' => ['X-CDN: Incapsula', '_incap_']
           }],
           ['InGen Security (BinarySec EasyWAF)', { # Reunion island powa!
             'Description' => 'Cloud based Web application firewall of InGen Security and BinarySec',
@@ -98,6 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CENSYS_UID', [false, 'The Censys API UID']),
       OptString.new('COMPSTR', [false, 'You can use a custom string to perform the comparison (read documentation)']),
       OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address']),
+      OptPath.new('IPBLACKLIST_FILE', [false, 'Files containing IP addresses to blacklist during the analysis process, one per line', nil]),
       OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
       OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', 443]),
       OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
@@ -174,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-  def wildcard(domain)
+  def dns_wildcard(domain)
     ar_ips = []
 
     response = dns_query("#{rand(10000)}.#{domain}", 'A')
@@ -193,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
     wordlist = datastore['WORDLIST']
     return if wordlist.blank?
 
-    ar_ips = wildcard(domain)
+    ar_ips = dns_wildcard(domain)
     return ar_ips if !ar_ips.empty?
 
     threads = 1 if threads <= 0
@@ -238,6 +239,31 @@ class MetasploitModule < Msf::Auxiliary
     response.answer.each do |row|
       next unless row.class == Net::DNS::RR::A
     end
+  end
+
+  # auxiliary/gather/enum_dns.rb
+  def dns_get_mx(domain)
+    begin
+      response = dns_query(domain, 'MX')
+      return [] if response.blank? || response.answer.blank?
+
+      records = []
+      response.answer.each do |r|
+        next unless r.class == Net::DNS::RR::MX
+
+        records << r.exchange.to_s
+      end
+    rescue SocketError
+    end
+    return [] if records.blank?
+
+    ar_ips = []
+    records.each.map do |r|
+      a = /(\d*\.\d*\.\d*\.\d*)/.match(dns_get_a(r).to_s)
+      ar_ips.push(a) if a
+    end
+
+    ar_ips
   end
 
   # auxiliary/gather/enum_dns.rb
@@ -321,8 +347,9 @@ class MetasploitModule < Msf::Auxiliary
       })
       response = http.send_recv(request)
       http.close
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, StandardError => error
-      print_error(error.message)
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+    rescue StandardError => e
+      print_error(e.message)
     end
     return false if response.nil?
 
@@ -445,7 +472,7 @@ class MetasploitModule < Msf::Auxiliary
       true,
       '/en/ips.txt'
     )
-    return false if response.nil?
+    return [] if response.nil?
 
     response.get_html_document.text.split("\n")
   end
@@ -483,7 +510,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless results
       print_error('Unable to retrieve any data from Azurerange website.')
-      return false
+      return []
     end
 
     results.get_html_document.css('p').text.split("\r\n")
@@ -496,7 +523,7 @@ class MetasploitModule < Msf::Auxiliary
       true,
       '/ips-v4'
     )
-    return false if response.nil?
+    return [] if response.nil?
 
     response.get_html_document.css('p').text.split("\n")
   end
@@ -508,7 +535,7 @@ class MetasploitModule < Msf::Auxiliary
       true,
       '/tools/list-cloudfront-ips'
     )
-    return false if response.nil?
+    return [] if response.nil?
 
     ip_list = response.get_json_document['CLOUDFRONT_GLOBAL_IP_LIST']
     ip_list += response.get_json_document['CLOUDFRONT_REGIONAL_EDGE_IP_LIST']
@@ -523,7 +550,7 @@ class MetasploitModule < Msf::Auxiliary
       true,
       '/public-ip-list'
     )
-    return false if response.nil?
+    return [] if response.nil?
 
     response.get_json_document['addresses'].map { |ip| ip.gsub('"', '') }
   end
@@ -546,28 +573,10 @@ class MetasploitModule < Msf::Auxiliary
 
     unless results
       print_error('Unable to retrieve any data from Incapsula website.')
-      return false
+      return []
     end
 
     results.get_json_document['ipRanges'].map { |ip| ip.gsub('"', '') }
-  end
-
-  def stackpath_ips
-    response = http_get_request_raw(
-      'support.stackpath.com',
-      443,
-      true,
-      nil,
-      '/hc/en-us/article_attachments/360030796372/ipblocks.txt'
-    )
-    return false if response.nil?
-
-    ip_list = []
-    response.get_html_document.text.split("\n").each do |ip|
-      ip_list.push(ip) if ip =~ /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(3[0-2]|[1-2][0-9]|[0-9]))$/
-    end
-
-    ip_list
   end
 
   def pick_action
@@ -616,6 +625,13 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status(" * ViewDNS.info: #{ip_records.count} IP address(es) found.")
 
+    # Mail eXchanger
+    ip_records = dns_get_mx(domain_name)
+    if ip_records && !ip_records.empty?
+      ip_list |= ip_records
+    end
+    print_status(" * Grab MX records: #{ip_records.count} IP address(es) found.")
+
     # DNS Enumeration
     if datastore['DNSENUM']
       ip_records = dns_enumeration(domain_name, datastore['THREADS'])
@@ -643,9 +659,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # Comparison to remove address(es) that match the security solution to be tested.
     # except:
-    #  - the selected action is set to NoWAFBypass
+    #  - the selected action is set to NoWAFBypass (except if blacklist ip file is set)
     #  - addresses are not provided
 
+    ip_blacklist = []
     # Cleaning IP addresses if nessesary.
     case @my_action.name
     when /ArvanCloud/
@@ -668,13 +685,23 @@ class MetasploitModule < Msf::Auxiliary
           ip_blacklist << ip.to_s if a.to_s.downcase.include? signature.downcase
         end
       end
-    when /Stackpath/
-      ip_blacklist = stackpath_ips
+    end
+
+    # Add. Blacklisted IP address(es) from file.
+    unless datastore['IPBLACKLIST_FILE'].nil?
+      if File.readable? datastore['IPBLACKLIST_FILE']
+        ips = File.new(datastore['IPBLACKLIST_FILE']).read.split
+        ips.each do |ip|
+          ip_blacklist << ip
+        end
+      else
+        raise ArgumentError, "Cannot read file #{datastore['IPBLACKLIST_FILE']}"
+      end
     end
 
     # Time to clean, removing bad address(es).
     records = []
-    if ip_blacklist
+    if !ip_blacklist.empty?
       print_status("Clean #{@my_action.name} server(s)...")
       ip_list.uniq.each do |ip|
         is_listed = false
@@ -716,10 +743,17 @@ class MetasploitModule < Msf::Auxiliary
       html = response.get_html_document
       begin
         fingerprint = html.at(datastore['TAG'])
+        unless fingerprint
+          print_bad('Auto-Fingerprinting value is empty. Please, considere COMPSTR option!')
+          return
+        end
       rescue NoMethodError
         print_bad('Please, considere COMPSTR option!')
         return
       end
+
+      vprint_status(" * Fingerprint: #{fingerprint.to_s.gsub("\n", '')}")
+      vprint_status
     else
       # The user-defined comparison string does not require a request to initiate a connection to the target server.
       # The comparison is made by the check_bypass function in the user-defined TAG (default: <title>).

@@ -39,6 +39,10 @@ that uses the following:
     --or--
     msf5 auxiliary(gather/cloud_lookup) > set hostname discordapp.com
 
+  **IPBLACKLIST_FILE**
+
+  Files containing IP addresses to blacklist during the analysis process, one per line. It's optional.
+
   **Proxies**
 
   A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
