@@ -55,45 +55,55 @@ module Msf::DBManager::Host
   def add_host_tag(opts)
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
-    ip = opts[:ip]
+    host_id = opts[:id]
     tag_name = opts[:tag_name]
 
-    host = get_host(workspace: wspace, address: ip)
+    host = wspace.hosts.find(host_id)
     if host
-      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host_id, tag_name).order("tags.id DESC").limit(1)
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
       tag.name = tag_name
       tag.hosts = [host]
       tag.save! if tag.changed?
+      tag
     end
   end
 
+  #@todo This will have to be pulled out if tags are used for more than just hosts
+  # ATM it will delete the tag from the tag table, not the host<->tag link
   def delete_host_tag(opts)
-    workspace = opts[:workspace]
-    if workspace.kind_of? String
-      workspace = framework.db.find_workspace(workspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
-    ip = opts[:rws]
+    host_id = opts[:id]
     tag_name = opts[:tag_name]
-
     tag_ids = []
-    if ip.nil?
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", workspace.id, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
-    else
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
-    end
 
-    tag_ids.each do |id|
-      tag = Mdm::Tag.find_by_id(id)
-      tag.hosts.delete
-      tag.destroy
+    host = wspace.hosts.find(host_id)
+    if host
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+
+      deleted_tags = []
+
+      tag_ids.each do |id|
+        tag = Mdm::Tag.find_by_id(id)
+        deleted_tags << tag
+        tag.destroy
+      end
+
+      deleted_tags
+    end
+  end
+
+  def get_host_tags(opts)
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    host_id = opts[:id]
+
+    host = wspace.hosts.find(host_id)
+    if host
+      host.tags
     end
   end
 
