@@ -72,15 +72,33 @@ module HostDataProxy
   end
 
   def get_host_tags(opts)
-    use_id_or_get_id_from_host_address(opts, :get_host_tags)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.get_host_tags(opts)
+      end
+    else
+      nil
+    end
   end
 
   def add_host_tag(opts)
-    use_id_or_get_id_from_host_address(opts, :add_host_tag)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.add_host_tag(opts)
+      end
+    else
+      nil
+    end
   end
 
   def delete_host_tag(opts)
-    use_id_or_get_id_from_host_address(opts, :delete_host_tag)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.delete_host_tag(opts)
+      end
+    else
+      nil
+    end
   end
 
   private
@@ -100,25 +118,22 @@ module HostDataProxy
     return true
   end
 
-  def use_id_or_get_id_from_host_address(opts, method)
-    begin
-      if opts[:id]
-        self.data_service_operation do |data_service|
-          data_service.send(method, opts)
-        end
-      elsif opts[:address]
-        self.data_service_operation do |data_service|
-          host = data_service.get_host(opts)
+  def add_host_id_to_opts(opts)
+    if opts[:id]
+      return true
+    end
 
-          if host
-            opts[:id] = host.id
-            data_service.send(method, opts.reject {|k,v| k==:address})
-          end
+    if opts[:address]
+      self.data_service_operation do |data_service|
+        host = data_service.get_host(opts)
+
+        if host
+          opts[:id] = host.id
         end
       end
-    rescue => e
-      self.log_error(e, "Problem calling #{method.to_s} method.")
     end
+
+    opts.key?(:id)
   end
 
 end

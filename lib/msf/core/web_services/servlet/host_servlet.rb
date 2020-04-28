@@ -9,7 +9,7 @@ module HostServlet
   end
 
   def self.api_path_with_id_and_tags
-    "#{HostServlet.api_path_with_id}/tag"
+    "#{HostServlet.api_path_with_id}/tags"
   end
 
   def self.api_search_path

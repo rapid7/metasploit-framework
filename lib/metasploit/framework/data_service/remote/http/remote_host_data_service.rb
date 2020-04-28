@@ -35,17 +35,17 @@ module RemoteHostDataService
   end
 
   def get_host_tags(opts)
-    path = get_path_select(opts, HOST_API_PATH) + '/tag'
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
     json_to_mdm_object(self.get_data(path, opts, nil), TAG_MDM_CLASS)
   end
 
   def add_host_tag(opts)
-    path = get_path_select(opts, HOST_API_PATH) + '/tag'
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
     json_to_mdm_object(self.post_data(path, opts, nil), TAG_MDM_CLASS)
   end
 
   def delete_host_tag(opts)
-    path = get_path_select(opts, HOST_API_PATH) + '/tag'
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
     json_to_mdm_object(self.delete_data(path, opts, nil), TAG_MDM_CLASS)
   end
 

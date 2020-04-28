@@ -313,7 +313,9 @@ class Db
     rws.each do |rw|
       rw.each do |ip|
         opts[:address] = ip
-        framework.db.add_host_tag(opts)
+        unless framework.db.add_host_tag(opts)
+          print_error("Host #{ip} could not be found.")
+        end
       end
     end
   end
@@ -332,12 +334,16 @@ class Db
     opts[:tag_name] = tag_name
 
     if rws == [nil]
-      framework.db.delete_host_tag(opts)
+      unless framework.db.delete_host_tag(opts)
+        print_error("Host #{opts[:address].to_s + " " if opts[:address]}could not be found.")
+      end
     else
       rws.each do |rw|
         rw.each do |ip|
           opts[:address] = ip
-          framework.db.delete_host_tag(opts)
+          unless framework.db.delete_host_tag(opts)
+            print_error("Host #{ip} could not be found.")
+          end
         end
       end
     end
