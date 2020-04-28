@@ -129,6 +129,9 @@ module PacketDispatcher
       tlv_enc_key = opts[:tlv_enc_key]
     end
 
+    # Uncomment this line if you want to see outbound packets in the console.
+    #STDERR.puts("SEND: #{packet.inspect}\n")
+
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
     err   = nil
@@ -558,6 +561,9 @@ module PacketDispatcher
   #
   def dispatch_inbound_packet(packet)
     handled = false
+
+    # Uncomment this line if you want to see inbound packets in the console
+    #STDERR.puts("RECV: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = Time.now

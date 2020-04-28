@@ -26,7 +26,7 @@ module Rex
 
               # List available microphones
               def mic_list
-                response = client.send_request(Packet.create_request('audio_mic_list'))
+                response = client.send_request(Packet.create_request('stdapi_audio_mic_list'))
                 names = []
                 if response.result == 0
                   response.get_tlvs(TLV_TYPE_AUDIO_INTERFACE_NAME).each do |tlv|
@@ -38,7 +38,7 @@ module Rex
 
               # Starts recording audio from microphone
               def mic_start(device_id)
-                request = Packet.create_request('audio_mic_start')
+                request = Packet.create_request('stdapi_audio_mic_start')
                 request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_ID, device_id)
                 response = client.send_request(request)
                 return nil unless response.result == 0
@@ -48,7 +48,7 @@ module Rex
 
               # Stop recording from microphone
               def mic_stop
-                client.send_request(Packet.create_request('audio_mic_stop'))
+                client.send_request(Packet.create_request('stdapi_audio_mic_stop'))
                 true
               end
 

@@ -125,7 +125,7 @@ class ClientCore < Extension
     end
 
     commands = []
-    response.each(TLV_TYPE_STRING) { |c|
+    response.each(TLV_TYPE_UINT) { |c|
       commands << c.value
     }
 
@@ -295,11 +295,11 @@ class ClientCore < Extension
     end
 
     commands = []
-    response.each(TLV_TYPE_METHOD) { |c|
+    response.each(TLV_TYPE_UINT) { |c|
       commands << c.value
     }
 
-    return commands
+    commands
   end
 
   #

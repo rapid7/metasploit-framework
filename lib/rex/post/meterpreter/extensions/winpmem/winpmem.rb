@@ -33,7 +33,7 @@ class Winpmem < Extension
   end
 
   def dump_ram
-    request = Packet.create_request('dump_ram')
+    request = Packet.create_request('winpmem_dump_ram')
     response = client.send_request(request)
     response_code = response.get_tlv_value(TLV_TYPE_WINPMEM_ERROR_CODE)
 

