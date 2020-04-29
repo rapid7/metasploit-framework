@@ -305,7 +305,7 @@ module FileSystem
       print_error("Something went wrong while creating the symlink. Return value: NTSTATUS #{error} ()")
       return nil
     end
-    result['return']
+    result
   ensure
     process.close
   end
