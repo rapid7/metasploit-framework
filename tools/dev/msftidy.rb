@@ -178,7 +178,7 @@ class Msftidy
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
         when 'ZDI'
-          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3,}$/
+          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3,4}$/
         when 'WPVDB'
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
