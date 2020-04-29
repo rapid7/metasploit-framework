@@ -104,6 +104,8 @@ module YSoSerialDotNet
     end
 
     def run
+      $stderr.puts "Gadget chain: #{@opts[:gadget_chain]}"
+      $stderr.puts "Formatter:    #{@opts[:formatter]}"
       serialized = DND.generate(
         @opts[:command],
         gadget_chain: @opts[:gadget_chain],
@@ -111,6 +113,7 @@ module YSoSerialDotNet
       )
 
       transformed = ::Msf::Simple::Buffer.transform(serialized, @opts[:output_format])
+      $stderr.puts "Size:         #{transformed.length}"
       $stdout.puts transformed
     end
 
