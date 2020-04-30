@@ -33,9 +33,6 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' =>
           [
-            [ 'CVE', 'TODO' ],
-            [ 'CVE', 'TODO' ],
-            [ 'CVE', 'TODO' ],
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
           ],
         'DisclosureDate' => 'Apr 21 2020'
