@@ -711,11 +711,8 @@ class Console::CommandDispatcher::Stdapi::Fs
         cmd_ls_help
         return 0
       when nil
-        if client.platform == 'windows' && val.include?('%')
-          path = client.fs.file.expand_path(val)
-        else
-          path = val
-        end
+        path = val
+        path = client.fs.file.expand_path(path) if path =~ PATH_EXPAND_REGEX
       end
     }
 
