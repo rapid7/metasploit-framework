@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Dns
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -175,115 +176,13 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-  def dns_wildcard(domain)
-    ar_ips = []
-
-    response = dns_query("#{rand(10000)}.#{domain}", 'A')
-    if !response.answer.empty?
-      print_warning('This domain has wildcards enabled!')
-      response.answer.each do |rr|
-        ar_ips << rr.address.to_s
-      end
-    end
-
-    ar_ips
-  end
-
-  # auxiliary/gather/enum_dns.rb
-  def dns_enumeration(domain, threads)
-    wordlist = datastore['WORDLIST']
-    return if wordlist.blank?
-
-    ar_ips = dns_wildcard(domain)
-    return ar_ips if !ar_ips.empty?
-
-    threads = 1 if threads <= 0
-    queue = []
-    File.foreach(wordlist) do |line|
-      queue << "#{line.chomp}.#{domain}"
-    end
-
-    until queue.empty?
-      t = []
-      threads = 1 if threads <= 0
-
-      if queue.length < threads
-        # work around issue where threads not created as the queue isn't large enough
-        threads = queue.length
-      end
-
-      begin
-        1.upto(threads) do
-          t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do |test_current|
-            Thread.current.kill unless test_current
-            a = /(\d*\.\d*\.\d*\.\d*)/.match(dns_get_a(test_current).to_s)
-            ar_ips.push(a) if a
-          end
-        end
-        t.map(&:join)
-      rescue ::Timeout::Error
-        next
-      ensure
-        t.each { |x| x.kill rescue nil }
-      end
-    end
-
-    ar_ips
-  end
-
-  # auxiliary/gather/enum_dns.rb
-  def dns_get_a(fqdn)
-    response = dns_query(fqdn, 'A')
-    return if response.blank? || response.answer.blank?
-
-    response.answer.each do |row|
-      next unless row.class == Net::DNS::RR::A
-    end
-  end
-
-  # auxiliary/gather/enum_dns.rb
-  def dns_get_mx(domain)
-    begin
-      response = dns_query(domain, 'MX')
-      return [] if response.blank? || response.answer.blank?
-
-      records = []
-      response.answer.each do |r|
-        next unless r.class == Net::DNS::RR::MX
-
-        records << r.exchange.to_s
-      end
-    rescue SocketError
-    end
-    return [] if records.blank?
-
+  def parse_mx(records)
     ar_ips = []
     records.each.map do |r|
       a = /(\d*\.\d*\.\d*\.\d*)/.match(dns_get_a(r).to_s)
       ar_ips.push(a) if a
     end
-
     ar_ips
-  end
-
-  # auxiliary/gather/enum_dns.rb
-  def dns_query(request, type)
-    nameserver = datastore['NS']
-
-    if nameserver.blank?
-      dns = Net::DNS::Resolver.new
-    else
-      dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
-    end
-
-    dns.use_tcp = false
-    dns.udp_timeout = 8
-    dns.retry_number = 2
-    dns.retry_interval = 2
-    dns.query(request, type)
-  rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-    print_error("Query #{request} DNS #{type} - exception: #{e}")
-    return nil
   end
 
   def grab_domain_ip_history(domain)
@@ -365,7 +264,6 @@ class MetasploitModule < Msf::Auxiliary
     ip_list
   end
 
-  # auxiliary/gather/enum_dns.rb
   def save_note(hostname, ip, port, proto, ebypass)
     data = { 'vhost' => hostname, 'detected_ip' => ip, 'action' => @my_action.name, 'effective_bypass' => ebypass }
     report_note(
@@ -480,13 +378,15 @@ class MetasploitModule < Msf::Auxiliary
   # https://docs.microsoft.com/fr-fr/azure/cdn/cdn-pop-list-api
   def azurecdn_ips
     regions = {
-      'region' => 'asiaeast', 'region' => 'asiasoutheast', 'region' => 'australiaeast', 'region' => 'australiasoutheast', 'region' => 'canadacentral',
-      'region' => 'canadaeast', 'region' => 'chinaeast', 'region' => 'chinanorth', 'region' => 'europenorth', 'region' => 'europewest',
-      'region' => 'germanycentral', 'region' => 'germanyn', 'region' => 'germanynortheast', 'region' => 'indiacentral', 'region' => 'indiasouth',
-      'region' => 'indiawest', 'region' => 'japaneast', 'region' => 'japanwest', 'region' => 'brazilsouth', 'region' => 'koreasouth',
-      'region' => 'koreacentral', 'region' => 'ukwest', 'region' => 'uksouth', 'region' => 'uscentral', 'region' => 'useast',
-      'region' => 'useast2', 'region' => 'usnorth', 'region' => 'ussouth', 'region' => 'uswestcentral', 'region' => 'uswest',
-      'region' => 'uswest2'
+      'region' => [
+        'asiaeast', 'asiasoutheast', 'australiaeast', 'australiasoutheast', 'canadacentral',
+        'canadaeast', 'chinaeast', 'chinanorth', 'europenorth', 'europewest',
+        'germanycentral', 'germanyn', 'germanynortheast', 'indiacentral', 'indiasouth',
+        'indiawest', 'japaneast', 'japanwest', 'brazilsouth', 'koreasouth',
+        'koreacentral', 'ukwest', 'uksouth', 'uscentral', 'useast',
+        'useast2', 'usnorth', 'ussouth', 'uswestcentral', 'uswest',
+        'uswest2'
+      ]
     }
     params = regions.merge({
       'complement' => 'on',
@@ -626,7 +526,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status(" * ViewDNS.info: #{ip_records.count} IP address(es) found.")
 
     # Mail eXchanger
-    ip_records = dns_get_mx(domain_name)
+    ip_records = parse_mx(dns_get_mx(domain_name))
     if ip_records && !ip_records.empty?
       ip_list |= ip_records
     end

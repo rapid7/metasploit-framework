@@ -6,6 +6,7 @@
 require 'net/dns/resolver'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Dns
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
