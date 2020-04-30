@@ -228,11 +228,11 @@ module Msf
         def write_to_memory(process, str)
           p_buffer = process.memory.allocate(str.size)
           unless p_buffer
-            print_error("Error alocating memory for \"#{str}\": Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            print_error("Error allocating memory for \"#{str}\": Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
             return nil
           end
           unless process.memory.write(p_buffer, str) == str.size
-            print_error("Error writting \"#{str}\" to memory buffer: Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            print_error("Error writing \"#{str}\" to memory buffer: Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
             return nil
           end
           p_buffer
