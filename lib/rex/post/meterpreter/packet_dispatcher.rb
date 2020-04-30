@@ -320,6 +320,9 @@ module PacketDispatcher
         incomplete = []
         backlog    = []
 
+        # Note: this first call to pqueue.pop is important. If the Queue is empty, this
+        # calling thread is suspended until data is pushed onto the queue.
+        backlog << decrypt_inbound_packet(@pqueue.pop)
         while(@pqueue.length > 0)
           backlog << decrypt_inbound_packet(@pqueue.pop)
         end
