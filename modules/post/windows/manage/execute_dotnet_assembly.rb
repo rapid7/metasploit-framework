@@ -18,9 +18,11 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Execute .net Assembly (x64 only)',
-        'Description' => %{
-          This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
-          copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
+        'Description' => %q{
+          This module executes a .net assembly in memory. It
+          reflectively loads a dll that will host CLR, then it copies
+          the assembly to be executed into memory. Credits for Amsi
+          bypass to Rastamouse (@_RastaMouse)
         },
         'License' => MSF_LICENSE,
         'Author' => 'b4rtik',
@@ -53,10 +55,6 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def check_dotnet_version
-    vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
-  end
-
   def find_required_clr(exe_path)
     filecontent = File.read(exe_path).bytes
     sign = 'v4.0.30319'.bytes
@@ -65,12 +63,12 @@ class MetasploitModule < Msf::Post
         break if subitem.to_s(16) != filecontent[index + indexsub].to_s(16)
 
         if indexsub == 9
-          vprint_status('CLR versione required v4.0.30319')
+          vprint_status('CLR version required: v4.0.30319')
           return 'v4.0.30319'
         end
       end
     end
-    vprint_status('CLR versione required v2.0.50727')
+    vprint_status('CLR version required: v2.0.50727')
     'v2.0.50727'
   end
 
@@ -86,7 +84,7 @@ class MetasploitModule < Msf::Post
         return true
       end
     end
-    vprint_status('Requirements ko')
+    print_error('Required dotnet version not present')
     false
   end
 
@@ -120,7 +118,7 @@ class MetasploitModule < Msf::Post
     mypid = client.sys.process.getpid.to_i
 
     if pid == mypid
-      print_bad('Can not select the current process as the injection target')
+      print_bad('Cannot select the current process as the injection target')
       return false
     end
 
