@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Encoder::Alphanum
         {
           'BlockSize' => 1,
         })
+    register_options(
+      [
+        OptBase.new('BufferRegister',[true, "Register pointing to our shellcode", "ECX"])
+      ]
+    )
   end
 
   #

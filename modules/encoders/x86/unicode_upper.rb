@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Encoder::Alphanum
     super(
       'Name'             => "Alpha2 Alphanumeric Unicode Uppercase Encoder",
       'Description'      => %q{
-        Encodes payload as unicode-safe uppercase text.  This encoder uses
+        Encodes payloads as unicode-safe uppercase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
       },
       'Author'           => [ 'pusscat', 'skylined' ],
@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Encoder::Alphanum
         {
           'BlockSize' => 1,
         })
+    register_options(
+      [
+        OptBase.new('BufferRegister',[true, "Register pointing to our shellcode", "ECX"])
+      ]
+    )
   end
 
   #
