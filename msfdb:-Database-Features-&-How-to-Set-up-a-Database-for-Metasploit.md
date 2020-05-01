@@ -1,6 +1,8 @@
 ## What is msfdb?
 msfdb is a script included with all installations of Metasploit that allows you to easily setup and control both a database and a Web Service capable of connecting this database with Metasploit.
 
+While msfdb is the simplest method for setting up a database, you can also set one up manually. Instructions on manual setup can be found [here](https://metasploit.help.rapid7.com/docs/managing-the-database). 
+
 ## Why should I use msfdb?
 It's not mandatory to use a database with Metasploit, it can run perfectly fine without one. However, a lot of the features that makes Metasploit so great require a database, and msfdb is the simplest way to setup a Metasploit compatible database. 
 
@@ -101,7 +103,7 @@ The commands for msfdb are as follows:
 *   `./msfdb init`     Creates and begins execution of a database & web service. Additional prompts displayed after this command is executed allows optional configuration of both the username and the password used to connect to the database via the web service. Web service usernames and passwords can be set to a default value, or a value of the users choice. 
 *   `./msfdb delete`   Deletes the web service and database configuration files. You will also be prompted to delete the database's contents, but this is not mandatory.  
 *   `./msfdb reinit`   The same as running `./msfdb delete` followed immediately by `./msfdb init`.
-*   `./msfdb status`   Displays if the database & web service are currently active. If the database is active it displays the path to it's location. If the web service is active, the Process ID it has been assigned will be displayed. 
+*   `./msfdb status`   Displays if the database & web service are currently active. If the database is active it displays the path to its location. If the web service is active, the Process ID it has been assigned will be displayed. 
 *   `./msfdb start`    Start the database & web service.
 *   `./msfdb stop`     Stop the database & web service. 
 *   `./msfdb restart`  The same as running `./msfdb stop` followed immediately by `./msfdb start`.
@@ -110,3 +112,11 @@ The commands for msfdb are as follows:
 ## msfdb errors
 
 In the case of any of the above commands printing either a stack trace or error, your first step should be to run `./msfdb reinit` (again making sure to say no to the prompt asking you if you want to delete the Database contents) and reattempt the command that caused the error. If the error persists, copy the command you executed, the output generated, and paste it into an [error ticket](https://github.com/rapid7/metasploit-framework/issues/new). 
+
+## What's next?
+That's it for the simple high level explanation of how to setup a database for metasploit. If that wasn't enough detail for you you can check out our more in depth explanation [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
+
+If you want to get started hacking but don't know how to, here are a few guides we really like:
+* [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf) | A great, easy to follow guide on how to set up Metasploit and Metasploitable (Our intentionally vulnerable Linux virtual machine used to for security training) for VMs. Also has a fantastic guide on penetration testing Metasploitable 2, from information gathering right up to exploitation.      
+* [Offensive Security: Metasploit Unleashed](https://www.offensive-security.com/metasploit-unleashed/) | Still dealing with Metasploitable 2, this guide covers similar content as the [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf), but with much more detail.
+
