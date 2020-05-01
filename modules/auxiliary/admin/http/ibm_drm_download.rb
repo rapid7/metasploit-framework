@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [
             'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and Metasploit module
             [ 'CVE', '2020-4427' ],   # auth bypass
-            [ 'CVE', '2020-4429' ],   # insecure default password            
+            [ 'CVE', '2020-4429' ],   # insecure default password
           ],
         'License' => MSF_LICENSE,
         'References' =>
