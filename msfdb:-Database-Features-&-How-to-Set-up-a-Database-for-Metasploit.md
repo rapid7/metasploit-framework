@@ -120,3 +120,5 @@ If you want to get started hacking but don't know how to, here are a few guides 
 * [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf) | A great, easy to follow guide on how to set up Metasploit and Metasploitable (Our intentionally vulnerable Linux virtual machine used to for security training) for VMs. Also has a fantastic guide on penetration testing Metasploitable 2, from information gathering right up to exploitation.      
 * [Offensive Security: Metasploit Unleashed](https://www.offensive-security.com/metasploit-unleashed/) | Still dealing with Metasploitable 2, this guide covers similar content as the [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf), but with much more detail.
 
+However, if you're confident in your knowledge of Metasploit and just want to get stuck in, then get stuck in! Good luck, be nice and have fun.
+
