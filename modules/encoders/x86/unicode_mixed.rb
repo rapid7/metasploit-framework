@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Encoder::Alphanum
         })
     register_options(
       [
-        OptBase.new('BufferRegister',[true, "Register pointing to our shellcode", "ECX"])
+        OptBase.new('BufferRegister',[true, "The register that points to the encoded payload", "ECX"])
       ]
     )
   end
