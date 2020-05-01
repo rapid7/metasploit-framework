@@ -29,13 +29,13 @@ class MetasploitModule < Msf::Auxiliary
         'Author' =>
           [
             'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and Metasploit module
-            [ 'CVE', '2020-4427' ],   # auth bypass
-            [ 'CVE', '2020-4429' ],   # insecure default password
           ],
         'License' => MSF_LICENSE,
         'References' =>
           [
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
+            [ 'CVE', '2020-4427' ],   # auth bypass
+            [ 'CVE', '2020-4429' ],   # insecure default password
           ],
         'DisclosureDate' => 'Apr 21 2020'
       )
