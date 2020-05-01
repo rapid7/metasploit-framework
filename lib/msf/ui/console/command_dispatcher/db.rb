@@ -2049,7 +2049,11 @@ class Db
   def db_connect_http(opts)
     # local database is required to use Mdm objects
     unless framework.db.active
-      print_error("No local database connected. Please connect to a local database before connecting to a remote data service.")
+      err_msg = 'No local database connected, meaning some Metasploit features will not be available. A full list of '\
+      'the affected features & database setup instructions can be found here: '\
+      'https://github.com/rapid7/metasploit-framework/wiki/msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit'
+
+      print_error(err_msg)
       return
     end
 
