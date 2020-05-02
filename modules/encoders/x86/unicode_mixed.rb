@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Encoder::Alphanum
     super(
       'Name'             => "Alpha2 Alphanumeric Unicode Mixedcase Encoder",
       'Description'      => %q{
-        Encodes payloads as unicode-safe mixedcase text.  This encoder uses
+        Encodes payload as unicode-safe mixedcase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
       },
       'Author'           => [ 'pusscat', 'skylined' ],
@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Encoder::Alphanum
         })
     register_options(
       [
-        OptBase.new('BufferRegister',[true, "The register that points to the encoded payload", "ECX"])
+        OptString.new('BufferRegister',[true, "The register that points to the encoded payload", "ECX"])
       ]
     )
   end
