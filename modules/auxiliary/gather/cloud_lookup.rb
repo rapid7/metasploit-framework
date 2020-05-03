@@ -110,12 +110,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptBool.new('ALLOW_NOWAF', [true, 'Automatically switch to NoWAFBypass when detection fails with the Automatic action', false]),
-      OptBool.new('DNSENUM', [true, 'Set DNS enumeration as optional', true]),
+      OptBool.new('DNS_NOTE', [false, 'Save all DNS result into the notes (default: false)', false]),
+      OptBool.new('ENUM_BRT', [true, 'Set DNS bruteforce as optional', true]),
       OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
       OptBool.new('REPORT_LEAKS', [true, 'Set to write leaked ip addresses in notes', false]),
       OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0']),
       OptEnum.new('TAG', [true, 'Specify the HTML tag in which you want to find the fingerprint', 'title', ['title', 'html']]),
-      OptInt.new('TIMEOUT', [true, 'HTTP(s) request timeout', 8])
+      OptInt.new('HTTP_TIMEOUT', [true, 'HTTP(s) request timeout', 8])
     ])
   end
 
@@ -176,10 +177,10 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-  def parse_mx(records)
+  def wrap_mx(records)
     ar_ips = []
     records.each.map do |r|
-      a = /(\d*\.\d*\.\d*\.\d*)/.match(dns_get_a(r).to_s)
+      a = /(\d*\.\d*\.\d*\.\d*)/.match(dns_get_a(r.exchange.to_s).to_s)
       ar_ips.push(a) if a
     end
     ar_ips
@@ -233,7 +234,7 @@ class MetasploitModule < Msf::Auxiliary
   def http_get_request_raw(host, port, ssl, uri, vhost = nil)
     begin
       http = Rex::Proto::Http::Client.new(host, port, {}, ssl, nil, datastore['Proxies'])
-      http.connect(datastore['TIMEOUT'])
+      http.connect(datastore['HTTP_TIMEOUT'])
 
       unless vhost.nil?
         http.set_config({ 'vhost' => vhost })
@@ -526,15 +527,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status(" * ViewDNS.info: #{ip_records.count} IP address(es) found.")
 
     # Mail eXchanger
-    ip_records = parse_mx(dns_get_mx(domain_name))
+    ip_records = wrap_mx(dns_get_mx(domain_name))
     if ip_records && !ip_records.empty?
       ip_list |= ip_records
     end
     print_status(" * Grab MX records: #{ip_records.count} IP address(es) found.")
 
     # DNS Enumeration
-    if datastore['DNSENUM']
-      ip_records = dns_enumeration(domain_name, datastore['THREADS'])
+    if datastore['ENUM_BRT'] && !dns_wildcard_enabled?(domain_name)
+      ip_records = dns_bruteforce(domain_name, datastore['WORDLIST'], datastore['THREADS'])
       if ip_records && !ip_records.empty?
         ip_list |= ip_records
       end
