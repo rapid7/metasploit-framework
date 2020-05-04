@@ -35,7 +35,6 @@ require 'msf/core/auxiliary/pii'
 require 'msf/core/auxiliary/redis'
 require 'msf/core/auxiliary/sms'
 require 'msf/core/auxiliary/mms'
-require 'msf/core/auxiliary/dns'
 
 #
 # Custom HTTP modules

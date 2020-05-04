@@ -3,11 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'net/dns/resolver'
+require 'msf/core/exploit/dns'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Dns
-  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::DNS::Enumeration
 
   def initialize(info = {})
     super(update_info(info,
@@ -55,14 +54,14 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
         OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
       ])
-    deregister_options('DNS_TIMEOUT', 'DNS_RETRY', 'DNS_RETRY_INTERVAL', 'DNS_TCP')
+    deregister_options('DnsClientUdpTimeout', 'DnsClientRetry', 'DnsClientRetryInterval', 'DnsClientTcpDns')
   end
 
   def run
-    datastore['DNS_TIMEOUT'] = datastore['TIMEOUT']
-    datastore['DNS_RETRY'] = datastore['RETRY']
-    datastore['DNS_RETRY_INTERVAL'] = datastore['RETRY_INTERVAL']
-    datastore['DNS_TCP'] = datastore['TCP_DNS']
+    datastore['DnsClientUdpTimeout'] = datastore['TIMEOUT']
+    datastore['DnsClientRetry'] = datastore['RETRY']
+    datastore['DnsClientRetryInterval'] = datastore['RETRY_INTERVAL']
+    datastore['DnsClientTcpDns'] = datastore['TCP_DNS']
 
     domain = datastore['DOMAIN']
     is_wildcard = dns_wildcard_enabled?(domain)

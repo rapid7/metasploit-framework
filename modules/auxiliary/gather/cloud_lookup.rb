@@ -3,8 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/exploit/dns'
+
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Dns
+  include Msf::Exploit::Remote::DNS::Enumeration
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -110,13 +112,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptBool.new('ALLOW_NOWAF', [true, 'Automatically switch to NoWAFBypass when detection fails with the Automatic action', false]),
-      OptBool.new('DNS_NOTE', [false, 'Save all DNS result into the notes (default: false)', false]),
       OptBool.new('ENUM_BRT', [true, 'Set DNS bruteforce as optional', true]),
-      OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
       OptBool.new('REPORT_LEAKS', [true, 'Set to write leaked ip addresses in notes', false]),
       OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0']),
       OptEnum.new('TAG', [true, 'Specify the HTML tag in which you want to find the fingerprint', 'title', ['title', 'html']]),
-      OptInt.new('HTTP_TIMEOUT', [true, 'HTTP(s) request timeout', 8])
+      OptInt.new('HTTP_TIMEOUT', [true, 'HTTP(s) request timeout', 8]),
+      # DNS options
+      OptBool.new('DnsNote', [false, 'Save all DNS result into the notes (default: false)', false]),
     ])
   end
 
