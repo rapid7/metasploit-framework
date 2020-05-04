@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/kiwi/tlv'
+require 'rex/post/meterpreter/extensions/kiwi/command_ids'
 require 'rexml/document'
 require 'set'
 

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/espia/tlv'
+require 'rex/post/meterpreter/extensions/espia/command_ids'
 
 module Rex
 module Post

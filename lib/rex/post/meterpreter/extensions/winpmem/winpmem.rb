@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/winpmem/tlv'
+require 'rex/post/meterpreter/extensions/winpmem/command_ids'
 
 module Rex
 module Post

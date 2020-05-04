@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   Klass = Console::CommandDispatcher::Extapi::Adsi
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Extapi
 
   # Zero indicates "no limit"
   DEFAULT_MAX_RESULTS = 0

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/mimikatz/tlv'
+require 'rex/post/meterpreter/extensions/mimikatz/command_ids'
 require 'csv'
 
 module Rex

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/exensions/android/command_ids'
 require 'msf/core/auxiliary/report'
 require 'rex/google/geolocation'
 require 'date'
@@ -13,8 +14,10 @@ module Ui
 # extension by Anwar Mohamed (@anwarelmakrahy)
 ###
 class Console::CommandDispatcher::Android
+
   include Console::CommandDispatcher
   include Msf::Auxiliary::Report
+  include Rex::Post::Meterpreter::Extensions::Android
 
   #
   # List of supported commands.

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex/service_manager'
 
 module Rex
@@ -17,6 +18,7 @@ class Console::CommandDispatcher::Stdapi::Net
   Klass = Console::CommandDispatcher::Stdapi::Net
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # This module is used to extend the meterpreter session
@@ -426,11 +428,7 @@ class Console::CommandDispatcher::Stdapi::Net
           direction = 'Forward'
           direction = 'Reverse' if opts['Reverse'] == true
 
-          if opts['Reverse'] == true
-            table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", 'Reverse']
-          else
-            table << [cnt + 1, "#{lhost}:#{lport}", "#{rhost}:#{rport}", 'Forward']
-          end
+          table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", direction]
 
           cnt += 1
         }

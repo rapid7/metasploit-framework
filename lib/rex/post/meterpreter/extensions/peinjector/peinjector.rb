@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter/extensions/peinjector/tlv'
+require 'rex/post/meterpreter/extensions/peinjector/command_ids'
 
 module Rex
 module Post

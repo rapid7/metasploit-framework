@@ -2,6 +2,7 @@
 require 'tempfile'
 require 'filesize'
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -18,6 +19,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   Klass = Console::CommandDispatcher::Stdapi::Fs
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
   private_constant :CHECKSUM_ALGORITHMS
@@ -100,7 +102,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'cat'        => [],
       'cd'         => [COMMAND_ID_STDAPI_FS_CHDIR],
       'checksum'   => [COMMAND_ID_STDAPI_FS_MD5, COMMAND_ID_STDAPI_FS_SHA1],
-      'del'        => [COMMAND_ID_STDAPI_FS_RM],
+      'del'        => [COMMAND_ID_STDAPI_FS_DELETE_FILE],
       'dir'        => [COMMAND_ID_STDAPI_FS_STAT, COMMAND_ID_STDAPI_FS_LS],
       'download'   => [],
       'edit'       => [],

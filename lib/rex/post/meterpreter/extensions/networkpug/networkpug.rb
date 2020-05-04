@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/networkpug/tlv'
+require 'rex/post/meterpreter/extensions/networkpug/command_ids'
 
 module Rex
 module Post

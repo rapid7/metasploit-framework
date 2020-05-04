@@ -318,7 +318,7 @@ class Client
   #
   def add_extension(name, commands=[])
     self.commands |= []
-    self.commands.concat(commands.map {|v| Rex::Post::Meterpreter.command_id_to_method_string(v)})
+    self.commands.concat(commands)
 
     # Check to see if this extension has already been loaded.
     if ((klass = self.class.check_ext_hash(name.downcase)) == nil)

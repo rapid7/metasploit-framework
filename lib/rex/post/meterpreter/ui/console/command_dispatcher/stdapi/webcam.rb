@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 
   include Console::CommandDispatcher
   include Console::CommandDispatcher::Stdapi::Stream
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # List of supported commands.

@@ -5,14 +5,6 @@ module Meterpreter
 module Extensions
 module Python
 
-# ID for the extension (needs to be a multiple of 1000)
-EXTENSION_ID_PYTHON = 13000
-
-# Associated command ids
-COMMAND_ID_PYTHON_EXECUTE = EXTENSION_ID_PYTHON + 1
-COMMAND_ID_PYTHON_RESET   = EXTENSION_ID_PYTHON + 2
-
-
 TLV_TYPE_PYTHON_STDOUT             = TLV_META_TYPE_STRING | (TLV_EXTENSIONS + 1)
 TLV_TYPE_PYTHON_STDERR             = TLV_META_TYPE_STRING | (TLV_EXTENSIONS + 2)
 TLV_TYPE_PYTHON_CODE               = TLV_META_TYPE_RAW    | (TLV_EXTENSIONS + 3)

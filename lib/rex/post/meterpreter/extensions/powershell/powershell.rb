@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/powershell/tlv'
+require 'rex/post/meterpreter/extensions/powershell/command_ids'
 
 module Rex
 module Post

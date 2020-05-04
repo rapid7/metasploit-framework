@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/unhook/tlv'
+require 'rex/post/meterpreter/extensions/unhook/command_ids'
 
 module Rex
 module Post
@@ -18,7 +19,7 @@ class Unhook < Extension
   UNHOOK_ERROR_SUCCESS = 0
 
   def self.extension_id
-    EXTENSION_ID_UNOOK
+    EXTENSION_ID_UNHOOK
   end
 
   def initialize(client)

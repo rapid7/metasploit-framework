@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/lanattacks/tlv'
+require 'rex/post/meterpreter/extensions/lanattacks/command_ids'
 require 'rex/post/meterpreter/extensions/lanattacks/dhcp/dhcp'
 require 'rex/post/meterpreter/extensions/lanattacks/tftp/tftp'
 

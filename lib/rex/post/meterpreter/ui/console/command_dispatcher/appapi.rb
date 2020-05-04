@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/appapi/command_ids'
 
 module Rex
 module Post
@@ -13,7 +14,9 @@ module Ui
 #
 ###
 class Console::CommandDispatcher::AppApi
+
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::AppApi
 
   #
   # List of supported commands.

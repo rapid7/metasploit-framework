@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   Klass = Console::CommandDispatcher::Stdapi::Sys
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # Options used by the 'execute' command.
@@ -1103,7 +1105,6 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Columns'   => ['Name']
     )
 
-    privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
       table << [priv]
     end

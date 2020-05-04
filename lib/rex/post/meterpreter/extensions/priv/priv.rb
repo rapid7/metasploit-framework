@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
+require 'rex/post/meterpreter/extensions/priv/command_ids'
 require 'rex/post/meterpreter/extensions/priv/passwd'
 require 'rex/post/meterpreter/extensions/priv/fs'
 

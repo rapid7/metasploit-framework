@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -17,6 +18,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
   include Console::CommandDispatcher
   include Console::CommandDispatcher::Stdapi::Stream
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # List of supported commands.
@@ -393,15 +395,15 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     keyscan_opts.parse(args) { | opt |
       case opt
-       when "-h"
+      when "-h"
         print_line("Usage: keyscan_start <options>")
         print_line("Starts the key logger")
         print_line(keyscan_opts.usage)
         return
-       when "-v"
+      when "-v"
         print_line("Verbose logging selected ...")
         trackwin = true
-       end
+      end
     }
 
     print_line("Starting the keystroke sniffer ...")

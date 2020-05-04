@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/incognito/tlv'
+require 'rex/post/meterpreter/extensions/incognito/command_ids'
 
 module Rex
 module Post

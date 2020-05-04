@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/lanattacks/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   Klass = Console::CommandDispatcher::Lanattacks::Dhcp
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Lanattacks
 
   #
   # List of supported commands.

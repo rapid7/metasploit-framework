@@ -24,9 +24,9 @@ class Extension
   #
   # The name of the extension.
   #
-  attr_reader :name
+  attr_accessor :name
 protected
-  attr_reader :client # :nodoc:
+  attr_accessor :client # :nodoc:
 end
 
 end; end; end

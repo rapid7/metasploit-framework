@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/appapi/tlv'
+require 'rex/post/meterpreter/extensions/appapi/command_ids'
 
 module Rex
 module Post

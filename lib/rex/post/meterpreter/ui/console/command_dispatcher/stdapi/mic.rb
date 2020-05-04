@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'bindata'
 
 module Rex
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Mic
   Klass = Console::CommandDispatcher::Stdapi::Mic
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # List of supported commands.
