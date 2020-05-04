@@ -355,9 +355,7 @@ class MetasploitModule < Msf::Auxiliary
           )
 
           if datastore['SpiderShares']
-            # This feature is not available with RubySMB client.
-            # Force using Rex client by setting SMBv1 as the only version to negotiate.
-            # So, this won't work if SMBv1 is disabled on the target.
+            vprint_status('Use Rex client (SMB1 only) for SpiderShares, since it is not compatible with RubySMB client')
             connect(versions: [1])
             smb_login
             get_files_info(ip, rport, shares, info)
