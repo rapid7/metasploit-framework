@@ -22,6 +22,10 @@ module Kiwi
 
 class Kiwi < Extension
 
+  def self.extension_id
+    EXTENSION_ID_KIWI
+  end
+
   #
   # Typical extension initialization routine.
   #
@@ -43,7 +47,7 @@ class Kiwi < Extension
   end
 
   def exec_cmd(cmd)
-    request = Packet.create_request('kiwi_exec_cmd')
+    request = Packet.create_request(COMMAND_ID_KIWI_EXEC_CMD)
     request.add_tlv(TLV_TYPE_KIWI_CMD, cmd)
     response = client.send_request(request)
     output = response.get_tlv_value(TLV_TYPE_KIWI_CMD_RESULT)

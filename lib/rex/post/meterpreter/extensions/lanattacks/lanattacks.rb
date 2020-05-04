@@ -17,6 +17,10 @@ module Lanattacks
 ###
 class Lanattacks < Extension
 
+  def self.extension_id
+    EXTENSION_ID_LANATTACKS
+  end
+
   #
   # Initializes an instance of the lanattacks extension.
   #

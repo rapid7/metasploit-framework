@@ -21,6 +21,10 @@ module Mimikatz
 
 class Mimikatz < Extension
 
+  def self.extension_id
+    EXTENSION_ID_MIMIKATZ
+  end
+
   def initialize(client)
     super(client, 'mimikatz')
 
@@ -34,7 +38,7 @@ class Mimikatz < Extension
   end
 
   def send_custom_command_raw(function, args=[])
-    request = Packet.create_request('mimikatz_custom_command')
+    request = Packet.create_request(COMMAND_ID_MIMIKATZ_CUSTOM_COMMAND)
     request.add_tlv(TLV_TYPE_MIMIKATZ_FUNCTION, function)
     args.each do |a|
       request.add_tlv(TLV_TYPE_MIMIKATZ_ARGUMENT, a)

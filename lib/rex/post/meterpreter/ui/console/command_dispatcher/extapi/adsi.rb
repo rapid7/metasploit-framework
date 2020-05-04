@@ -34,12 +34,12 @@ class Console::CommandDispatcher::Extapi::Adsi
       'adsi_domain_query'           => 'Enumerate all objects on the specified domain that match a filter.'
     }
     reqs = {
-      "adsi_user_enum"              => [ "extapi_adsi_domain_query" ],
-      "adsi_group_enum"             => [ "extapi_adsi_domain_query" ],
-      "adsi_nested_group_user_enum" => [ "extapi_adsi_domain_query" ],
-      "adsi_computer_enum"          => [ "extapi_adsi_domain_query" ],
-      "adsi_dc_enum"                => [ "extapi_adsi_domain_query" ],
-      "adsi_domain_query"           => [ "extapi_adsi_domain_query" ],
+      'adsi_user_enum'              => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
+      'adsi_group_enum'             => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
+      'adsi_nested_group_user_enum' => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
+      'adsi_computer_enum'          => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
+      'adsi_dc_enum'                => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
+      'adsi_domain_query'           => [COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY],
     }
     filter_commands(all, reqs)
   end

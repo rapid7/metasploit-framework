@@ -38,8 +38,8 @@ class Console::CommandDispatcher::NetworkPug
   #
   def commands
     {
-      "networkpug_start" => "Start slinging packets between hosts",
-      "networkpug_stop"  => "Stop slinging packets between hosts",
+      'networkpug_start' => 'Start slinging packets between hosts',
+      'networkpug_stop'  => 'Stop slinging packets between hosts',
     }
   end
 
@@ -75,7 +75,7 @@ class Console::CommandDispatcher::NetworkPug
   end
 
   def proxy_packets()
-    while 1
+    while True
       # Ghetto :\
 
       sd = Rex::ThreadSafe.select([ @channel.lsock, @tapdev ], nil, nil)
@@ -175,7 +175,7 @@ class Console::CommandDispatcher::NetworkPug
 
     print_line("#{tapname} created with a hwaddr of #{mac}, ctrl-c when done")
 
-    response, @channel = client.networkpug.networkpug_start(interface, filter)
+    _, @channel = client.networkpug.networkpug_start(interface, filter)
 
     if(@channel)
       @thread_stuff = Rex::ThreadFactory.spawn("MeterpreterNetworkPUGReceiver", false) {

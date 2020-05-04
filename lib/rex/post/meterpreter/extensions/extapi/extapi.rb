@@ -23,6 +23,10 @@ module Extapi
 ###
 class Extapi < Extension
 
+  def self.extension_id
+    EXTENSION_ID_EXTAPI
+  end
+
   def initialize(client)
     super(client, 'extapi')
 

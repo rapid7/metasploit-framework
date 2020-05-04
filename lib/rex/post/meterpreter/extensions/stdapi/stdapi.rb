@@ -37,6 +37,10 @@ module Stdapi
 ###
 class Stdapi < Extension
 
+  def self.extension_id
+    EXTENSION_ID_STDAPI
+  end
+
   #
   # Initializes an instance of the standard API extension.
   #

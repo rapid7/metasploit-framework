@@ -17,6 +17,10 @@ module Unhook
 class Unhook < Extension
   UNHOOK_ERROR_SUCCESS = 0
 
+  def self.extension_id
+    EXTENSION_ID_UNOOK
+  end
+
   def initialize(client)
     super(client, 'unhook')
 
@@ -30,11 +34,11 @@ class Unhook < Extension
   end
 
   def unhook_pe
-    request = Packet.create_request('unhook_pe')
+    request = Packet.create_request(COMMAND_ID_UNHOOK_PE)
     response = client.send_request(request)
     response_code = response.get_tlv_value(TLV_TYPE_UNHOOK_ERROR_CODE)
 
-    raise Exception, "Did not get ERROR_SUCCESS back!" if response_code != UNHOOK_ERROR_SUCCESS
+    raise Exception, 'Did not get ERROR_SUCCESS back!' if response_code != UNHOOK_ERROR_SUCCESS
     return 0, response_code, nil
   end
 

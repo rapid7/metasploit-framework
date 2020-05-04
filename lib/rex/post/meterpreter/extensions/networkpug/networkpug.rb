@@ -13,6 +13,10 @@ module NetworkPug
 
 class NetworkPug < Extension
 
+  def self.extension_id
+    EXTENSION_ID_NETWORKPUG
+  end
+
   def initialize(client)
     super(client, 'networkpug')
 
@@ -26,7 +30,7 @@ class NetworkPug < Extension
   end
 
   def networkpug_start(interface, filter)
-    request = Packet.create_request('networkpug_start')
+    request = Packet.create_request(COMMAND_ID_NETWORKPUG_START)
     request.add_tlv(TLV_TYPE_NETWORKPUG_INTERFACE, interface)
     request.add_tlv(TLV_TYPE_NETWORKPUG_FILTER, filter) if(filter and filter != "")
     response = client.send_request(request)
@@ -38,7 +42,7 @@ class NetworkPug < Extension
       channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(
         client,
         channel_id,
-        "networkpug_interface",
+        'networkpug_interface',
         CHANNEL_FLAG_SYNCHRONOUS,
         response
       )
@@ -48,9 +52,9 @@ class NetworkPug < Extension
   end
 
   def networkpug_stop(interface)
-    request = Packet.create_request('networkpug_stop')
+    request = Packet.create_request(COMMAND_ID_NETWORKPUG_STOP)
     request.add_tlv(TLV_TYPE_NETWORKPUG_INTERFACE, interface)
-    response = client.send_request(request)
+    client.send_request(request)
   end
 
 end

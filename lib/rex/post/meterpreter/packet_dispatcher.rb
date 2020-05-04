@@ -246,7 +246,7 @@ module PacketDispatcher
         self.alive = false
       end
     else
-      pkt = Packet.create_request('core_channel_eof')
+      pkt = Packet.create_request(COMMAND_ID_CORE_CHANNEL_EOF)
       pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
       add_response_waiter(pkt, Proc.new { @ping_sent = false })
       send_packet(pkt)
