@@ -33,9 +33,13 @@ class OpenPipe < OpenFile
   end
 
   def write(data, offset = 0)
+
     case self.mode
 
     when 'trans'
+      if self.client.is_a?(RubySMB::Client)
+        raise ArgumentError, '\'trans\' mode is not supported by RubySMB'
+      end
       write_trans(data, offset)
     when 'rw'
       super(data, offset)

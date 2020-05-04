@@ -81,7 +81,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
       dlog("SMB version(s) to negotiate: #{self.versions}")
       ok = self.client.negotiate
-      dlog("Negotiated SMB version: #{self.client.is_a?(Rex::Proto::SMB::Client) ? 'SMB1' : ok}")
+      dlog("Negotiated SMB version: SMB#{negotiated_smb_version}")
 
       if self.client.is_a?(RubySMB::Client)
         self.server_max_buffer_size = self.client.server_max_buffer_size
@@ -102,11 +102,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       # always a string
       pass ||= ''
 
-      if self.client.is_a?(RubySMB::Client)
-        ok = self.client.session_setup(user, pass, domain, true)
-      else
-        ok = self.client.session_setup(user, pass, domain)
-      end
+      res = self.client.session_setup(user, pass, domain)
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -116,6 +112,15 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
         n.error_code   = e.error_code
         n.error_reason = e.get_error(e.error_code)
       end
+      raise n
+    end
+
+    # RubySMB does not raise any exception if the Session Setup fails
+    if self.client.is_a?(RubySMB::Client) && res != WindowsError::NTStatus::STATUS_SUCCESS
+      n = XCEPT::LoginError.new
+      n.source       = res
+      n.error_code   = res.value
+      n.error_reason = res.name
       raise n
     end
 
@@ -244,6 +249,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   def trans_pipe(fid, data, no_response = nil)
     client.trans_named_pipe(fid, data, no_response)
+  end
+
+  def negotiated_smb_version
+    return 1 if self.client.is_a?(Rex::Proto::SMB::Client)
+    self.client.negotiated_smb_version || -1
   end
 
 end
