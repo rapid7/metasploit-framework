@@ -13,12 +13,10 @@ module Msf
     def initialize(info)
       super(info)
 
-      off = 0
-
       register_options(
         [
           OptString.new('BufferRegister', [ false, 'The register that points to the encoded payload' ]),
-          OptInt.new('BufferOffset', [ false, 'The offset to the buffer from the start of the register', off ]),
+          OptInt.new('BufferOffset', [ false, 'The offset to the buffer from the start of the register', 0 ]),
           OptBool.new('AllowWin32SEH', [ true, 'Use SEH to determine the address of the stub (Windows only)', false ])
         ], Msf::Encoder::Alphanum
       )
