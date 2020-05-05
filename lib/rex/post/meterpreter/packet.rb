@@ -914,6 +914,7 @@ class Packet < GroupTlv
   # Sets the packet's method TLV to the method supplied.
   #
   def method=(method)
+    raise ArgumentError.new('Packet.method must be an integer') unless method.is_a?(Integer)
     add_tlv(TLV_TYPE_COMMAND_ID, method, true)
   end
 

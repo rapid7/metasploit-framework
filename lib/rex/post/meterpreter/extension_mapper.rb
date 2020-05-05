@@ -17,7 +17,12 @@ class ExtensionMapper
     name.downcase!
 
     unless @@klasses[name]
-      require("rex/post/meterpreter/extensions/#{name}/#{name}")
+      begin
+        require("rex/post/meterpreter/extensions/#{name}/#{name}")
+      rescue LoadError
+        # the extension doesn't exist on disk
+        raise RuntimeError, "Unable to load extension '#{name}' - module does not exist."
+      end
       s = Rex::Post::Meterpreter::Extensions.constants.select { |c|
         name == c.to_s.downcase
       }[0]
