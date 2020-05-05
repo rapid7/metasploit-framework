@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Cloud Lookup (and bypass)',
+        'Name' => 'Cloud Lookup (and Bypass)',
         'Description' => %q{
           This module can be useful if you need to test the security of your server and your
           website behind a solution Cloud based. By discovering the origin IP address of the
@@ -120,6 +120,14 @@ class MetasploitModule < Msf::Auxiliary
       # DNS options
       OptBool.new('DnsNote', [false, 'Save all DNS result into the notes (default: false)', false]),
     ])
+  end
+
+  def setup_resolver
+    dns_resolver = super
+    # set the DNS port explicitly so it does not conflict with the datastore
+    # RPORT value which is for HTTP
+    dns_resolver.port = 53
+    @dns_resolver = dns_resolver
   end
 
   # ------------------------------------------------------------------------- #
@@ -529,11 +537,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status(" * ViewDNS.info: #{ip_records.count} IP address(es) found.")
 
     # Mail eXchanger
-    ip_records = wrap_mx(dns_get_mx(domain_name))
+    ip_records = dns_get_mx(domain_name)
     if ip_records && !ip_records.empty?
+      ip_records = wrap_mx(ip_records)
       ip_list |= ip_records
+      print_status(" * Received MX records: #{ip_records.count} IP address(es) found.")
     end
-    print_status(" * Grab MX records: #{ip_records.count} IP address(es) found.")
 
     # DNS Enumeration
     if datastore['ENUM_BRT'] && !dns_wildcard_enabled?(domain_name)
@@ -628,7 +637,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status(" * TOTAL: #{records.uniq.count} IP address(es) found after cleaning.")
+    print_status(" * Total: #{records.uniq.count} IP address(es) found after cleaning.")
     print_status
 
     # Processing bypass steps.
@@ -647,11 +656,11 @@ class MetasploitModule < Msf::Auxiliary
       begin
         fingerprint = html.at(datastore['TAG'])
         unless fingerprint
-          print_bad('Auto-Fingerprinting value is empty. Please, considere COMPSTR option!')
+          print_bad('Auto-fingerprinting value is empty. Please consider the COMPSTR option')
           return
         end
       rescue NoMethodError
-        print_bad('Please, considere COMPSTR option!')
+        print_bad('Please consider the COMPSTR option')
         return
       end
 
