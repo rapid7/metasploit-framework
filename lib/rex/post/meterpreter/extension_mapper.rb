@@ -14,7 +14,7 @@ class ExtensionMapper
   end
 
   def self.get_extension_klass(name)
-    name.downcase
+    name.downcase!
 
     unless @@klasses[name]
       require("rex/post/meterpreter/extensions/#{name}/#{name}")
