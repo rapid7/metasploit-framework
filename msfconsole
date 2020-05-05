@@ -8,7 +8,8 @@
 require 'pathname'
 
 begin
-  # TODO: Temporary until warnings can be turned on only for developers to prevent confusion for end users
+
+  # Silences warnings as they only serve to confuse end users
   if defined?(Warning) && Warning.respond_to?(:[]=)
     Warning[:deprecated] = false
   end
