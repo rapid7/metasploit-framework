@@ -26,7 +26,7 @@ group :development do
   gem 'ruby-prof'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
-  #gem 'metasploit-aggregator'
+  # gem 'metasploit-aggregator'
 end
 
 group :development, :test do

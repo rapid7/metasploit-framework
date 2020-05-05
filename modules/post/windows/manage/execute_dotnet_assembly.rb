@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Post
   end
 
   def sanitize_process_name(process_name)
-    if process_name.split(//).last(4).join.eql? '.exe'
+    if process_name.split(//).last(4).join.eql?('.exe')
       out_process_name = process_name
     else
       process_name + '.exe'

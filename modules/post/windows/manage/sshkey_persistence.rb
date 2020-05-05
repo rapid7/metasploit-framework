@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Post
     if auth_key_file
       auth_key_file = auth_key_file.gsub('%h', '')
       auth_key_file = auth_key_file.gsub('%%', '%')
-      if auth_key_file.start_with? '/'
+      if auth_key_file.start_with?('/')
         auth_key_file = auth_key_file[1..-1]
       end
     else

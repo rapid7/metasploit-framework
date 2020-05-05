@@ -214,6 +214,22 @@ Style/PercentLiteralDelimiters:
     '%q': '{}' # Chosen for module descriptions as () are frequently used characters, whilst {} are rarely used
   VersionChanged: '0.48.1'
 
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  Description: 'This cop enforces the presence (default) in method calls containing parameters.'
+  IgnoredPatterns:
+    # Common functions that we're impartial towards
+    - ^puts
+    - ^sleep
+    - ^Rex.sleep
+    - ^cmd_exec
+    - ^require
+    - ^raise
+    # Gemfile DSL
+    - ^gemspec
+    - ^gem
+    - ^source
+
 Style/RedundantBegin:
   Exclude:
     # this pattern is very common and somewhat unavoidable
