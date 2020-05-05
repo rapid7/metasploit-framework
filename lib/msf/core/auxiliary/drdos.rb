@@ -20,7 +20,7 @@ module Auxiliary::DRDoS
   def setup
     super
     if spoofed? && datastore['NUM_REQUESTS'] < 1
-      raise Msf::OptionValidateError.new(['NUM_REQUESTS']), 'The number of requests must be >= 1'
+      raise Msf::OptionValidateError.new(['NUM_REQUESTS - The number of requests must be >= 1'])
     end
   end
 

@@ -22,7 +22,7 @@ module Evasion
 
       # Make sure parameters are valid.
       if (opts['Payload'] == nil)
-        raise MissingPayloadError.new, caller
+        raise MissingPayloadError.new, 'A payload has not been selected.', caller
       end
 
       # Verify the options
