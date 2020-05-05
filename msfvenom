@@ -8,6 +8,11 @@ class UsageError < MsfVenomError; end
 require 'optparse'
 require 'timeout'
 
+# Silences warnings as they only serve to confuse end users
+if defined?(Warning) && Warning.respond_to?(:[]=)
+  Warning[:deprecated] = false
+end
+
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
