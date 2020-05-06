@@ -746,10 +746,9 @@ class ClientCore < Extension
     sym_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
-    der = rsa_pub_key.to_der
 
     request  = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
-    request.add_tlv(TLV_TYPE_RSA_PUB_KEY, der)
+    request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
       response = client.send_request(request)
