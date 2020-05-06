@@ -629,9 +629,7 @@ class ClientCore < Extension
     request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
 
     request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
-    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
     request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv(TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length)
     request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
@@ -752,7 +750,6 @@ class ClientCore < Extension
 
     request  = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, der)
-    request.add_tlv(TLV_TYPE_RSA_PUB_KEY_LEN, der.length)
 
     begin
       response = client.send_request(request)
