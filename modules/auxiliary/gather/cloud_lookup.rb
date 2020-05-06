@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://citadelo.com/en/blog/cloudflare-how-to-do-it-right-and-do-not-reveal-your-real-ip/']
         ],
+        'DefaultOptions' => { 'DnsNote' => false },
         'License' => MSF_LICENSE,
         'Actions' => [
           ['Automatic', {}],
@@ -117,8 +118,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERAGENT', [true, 'Specify a personalized User-Agent header in HTTP requests', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0']),
       OptEnum.new('TAG', [true, 'Specify the HTML tag in which you want to find the fingerprint', 'title', ['title', 'html']]),
       OptInt.new('HTTP_TIMEOUT', [true, 'HTTP(s) request timeout', 8]),
-      # DNS options
-      OptBool.new('DnsNote', [false, 'Save all DNS result into the notes (default: false)', false]),
     ])
   end
 
