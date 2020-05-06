@@ -197,22 +197,23 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   def open(path, perm, chunk_size = 48000, read: true, write: false)
     if self.client.is_a?(RubySMB::Client)
       mode = 0
-      perm.each_byte { |c|
-        case [c].pack('C').downcase
-          when 'x', 'c'
-            mode |= RubySMB::Dispositions::FILE_CREATE
-          when 'o'
-            mode |= RubySMB::Dispositions::FILE_OPEN
-          when 's'
-            mode |= RubySMB::Dispositions::FILE_SUPERSEDE
+      if perm.include?('c')
+        if perm.include?('o')
+          mode = RubySMB::Dispositions::FILE_OPEN_IF
+        elsif perm.include?('t')
+          mode = RubySMB::Dispositions::FILE_OVERWRITE_IF
+        else
+          mode = RubySMB::Dispositions::FILE_CREATE
         end
-      }
-
-      if write
-        file_id = self.client.open(path, mode, read: true, write: true)
       else
-        file_id = self.client.open(path, mode, read: true)
+        if perm.include?('o')
+          mode = RubySMB::Dispositions::FILE_OPEN
+        elsif perm.include?('t')
+          mode = RubySMB::Dispositions::FILE_OVERWRITE
+        end
       end
+
+      file_id = self.client.open(path, mode, read: true, write: write || perm.include?('w'))
     else
       mode = UTILS.open_mode_to_mode(perm)
       access = UTILS.open_mode_to_access(perm)
