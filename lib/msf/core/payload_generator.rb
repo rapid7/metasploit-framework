@@ -384,6 +384,9 @@ module Msf
         encoded_payload = raw_payload
         gen_payload = raw_payload
       elsif payload.start_with? "android/" and not template.blank?
+        if payload.start_with? "android/meterpreter_"
+          raise PayloadGeneratorError, "Stageless Android payloads (e.g #{payload}) are not compatible with injection (-x)"
+        end
         cli_print "Using APK template: #{template}"
         apk_backdoor = ::Msf::Payload::Apk.new
         raw_payload = apk_backdoor.backdoor_apk(template, generate_raw_payload)
