@@ -417,7 +417,6 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
-    save_note(domain, 'DNS AXFR recods', records)
     records
   end
 
