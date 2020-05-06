@@ -23,9 +23,6 @@ module Msf
         end
 
         class UnicodeString < BinData::Record
-          ARCH_X86 = 0
-          ARCH_X64 = 1
-
           endian :little
 
           uint16 :str_length
@@ -51,9 +48,6 @@ module Msf
           OBJ_IGNORE_IMPERSONATED_DEVICEMAP = 0x00000800
           OBJ_DONT_REPARSE                  = 0x00001000
           OBJ_VALID_ATTRIBUTES              = 0x00001FF2
-
-          ARCH_X86 = 0
-          ARCH_X64 = 1
 
           endian :little
 
@@ -240,7 +234,7 @@ module Msf
 
         def build_unicode_string(str_byte_size, p_buffer)
           unicode_str = UnicodeString.new(
-            arch: client.native_arch == ARCH_X64 ? UnicodeString::ARCH_X64 : UnicodeString::ARCH_X86
+            arch: client.native_arch
           )
           unicode_str.str_length = str_byte_size - 2
           unicode_str.maximum_length = str_byte_size
@@ -262,7 +256,7 @@ module Msf
 
         def build_object_attributes(p_unicode_buf)
           object_attributes = ObjectAttributes.new(
-            arch: client.native_arch == ARCH_X64 ? ObjectAttributes::ARCH_X64 : ObjectAttributes::ARCH_X86
+            arch: client.native_arch
           )
           object_attributes.p_root_directory = 0 # root argument is nil, otherwise, we need to get a valid handle to root (TODO later)
           object_attributes.attributes = ObjectAttributes::OBJ_CASE_INSENSITIVE
