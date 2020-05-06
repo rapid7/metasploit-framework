@@ -43,8 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
-        OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
-        OptPath.new('WORDLIST_TLD', [false, 'Wordlist of TLDs', ::File.join(Msf::Config.data_directory, 'wordlists', 'tlds.txt')])
+        OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
       ])
 
     register_advanced_options(
@@ -73,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     dns_get_mx(domain) if datastore['ENUM_MX']
     dns_get_soa(domain) if datastore['ENUM_SOA']
     dns_get_txt(domain) if datastore['ENUM_TXT']
-    dns_get_tld(domain, datastore['WORDLIST_TLD']) if datastore['ENUM_TLD']
+    dns_get_tld(domain) if datastore['ENUM_TLD']
     dns_get_srv(domain) if datastore['ENUM_SRV']
     threads = datastore['THREADS']
     dns_reverse(datastore['IPRANGE'], threads) if datastore['ENUM_RVL']
