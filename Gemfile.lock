@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.88)
+    metasploit-framework (5.0.89)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -121,13 +121,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.306.0)
-    aws-sdk-core (3.94.0)
+    aws-partitions (1.310.0)
+    aws-sdk-core (3.94.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.154.0)
+    aws-sdk-ec2 (1.156.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.36.0)
@@ -136,7 +136,7 @@ GEM
     aws-sdk-kms (1.30.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.63.0)
+    aws-sdk-s3 (1.63.1)
       aws-sdk-core (~> 3, >= 3.83.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -350,8 +350,8 @@ GEM
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
-    rspec-core (3.9.1)
-      rspec-support (~> 3.9.1)
+    rspec-core (3.9.2)
+      rspec-support (~> 3.9.3)
     rspec-expectations (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
@@ -368,7 +368,7 @@ GEM
       rspec-support (~> 3.9)
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
-    rspec-support (3.9.2)
+    rspec-support (3.9.3)
     rubocop (0.82.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
@@ -425,7 +425,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.24)
+    yard (0.9.25)
 
 PLATFORMS
   ruby
