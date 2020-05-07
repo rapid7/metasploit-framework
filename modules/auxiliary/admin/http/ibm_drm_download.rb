@@ -40,7 +40,11 @@ class MetasploitModule < Msf::Auxiliary
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/IBM/ibm_drm/ibm_drm_rce.md' ],
             [ 'URL', 'https://seclists.org/fulldisclosure/2020/Apr/33' ]
           ],
-        'DisclosureDate' => '2020-04-21'
+        'DisclosureDate' => '2020-04-21',
+        'Actions' => [
+          ['Download', 'Description' => 'Download arbitrary file']
+        ],
+        'DefaultAction' => 'Download'
       )
     )
 
