@@ -1,6 +1,6 @@
 Meterpreter is an advanced payload that has been part of Metasploit since 2004. Originally written in C by Matt "skape" Miller, dozens of contributors have provided additional code, including implementations in PHP, Python, and Java. The payload continues to be frequently updated as part of Metasploit development.
 
-Meterpreter development occurs in [the metasploit-payloads repository](https://github.com/rapid7/metasploit-payloads) and the compiled results are published as part of the [metasploit-payloads gem](https://rubygems.org/gems/metasploit-payloads). For a detailed understanding of the Meterpreter architecture, please review the [original specification](https://dev.metasploit.com/documents/meterpreter.pdf).
+Meterpreter development occurs in [the metasploit-payloads repository](https://github.com/rapid7/metasploit-payloads) and the compiled results are published as part of the [metasploit-payloads gem](https://rubygems.org/gems/metasploit-payloads). For a detailed understanding of the Meterpreter architecture, please review the [original specification](http://www.hick.org/code/skape/papers/meterpreter.pdf).
 
 Additional documentation about Meterpreter can be found on this wiki:
  * [[Meterpreter Reliable Network Communication]]
