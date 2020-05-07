@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
 
     deregister_options('RPORT')
     deregister_options('SMBDIRECT')
+    deregister_options('SMB::ProtocolVersion')
     @smb_port = 445
   end
 
