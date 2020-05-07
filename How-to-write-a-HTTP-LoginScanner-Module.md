@@ -4,7 +4,7 @@ Before we begin, it's probably a good idea to read [Creating Metasploit Framewor
 
 ## Step 1: Set up your target environment
 
-For our demonstration, we will be using [Symantec Web Gateway](http://www.symantec.com/web-gateway/). A trial is available at the vendor's website. Obviously downloading/installing it would be your first step.
+For our demonstration, we will be using [Symantec Web Gateway](https://www.broadcom.com/products/cyber-security/web-and-email/gateway/). A trial is available at the vendor's website. Obviously downloading/installing it would be your first step.
 
 ## Step 2: Set up a client
 
@@ -89,7 +89,7 @@ module Metasploit
         # @param [Metasploit::Framework::Credential] credential The credential information.
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
-          
+
         end
 
       end
@@ -388,7 +388,7 @@ msf auxiliary(symantec_web_gateway_login) > run
 [+] 192.168.1.176:443 SYMANTEC_WEB_GATEWAY - Success: 'sinn3r:GoodPassword'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf auxiliary(symantec_web_gateway_login) > 
+msf auxiliary(symantec_web_gateway_login) >
 ```
 
 Test for a failed login:
