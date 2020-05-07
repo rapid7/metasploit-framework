@@ -23,7 +23,7 @@ msf >
 
 ## Log Levels
 
-There are 4 different logging levels defined in [log/rex/constants.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/constants.rb):
+There are 4 different logging levels defined in [log/rex/logging.rb](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/logging.rb):
 
 Log Level | Description
 --------- | -----------
