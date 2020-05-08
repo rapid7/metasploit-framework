@@ -30,7 +30,7 @@ class Console::CommandDispatcher::Sniffer
   # List of supported commands.
   #
   def commands
-    all = {
+    {
       'sniffer_interfaces' => 'Enumerate all sniffable network interfaces',
       'sniffer_start'      => 'Start packet capture on a specific interface',
       'sniffer_stop'       => 'Stop packet capture on a specific interface',
@@ -39,16 +39,16 @@ class Console::CommandDispatcher::Sniffer
       'sniffer_release'    => 'Free captured packets on a specific interface instead of downloading them',
     }
 
-    reqs = {
-      'sniffer_interfaces' => [COMMAND_ID_SNIFFER_INTERFACES],
-      'sniffer_start'      => [COMMAND_ID_SNIFFER_CAPTURE_START],
-      'sniffer_stop'       => [COMMAND_ID_SNIFFER_CAPTURE_STOP],
-      'sniffer_stats'      => [COMMAND_ID_SNIFFER_CAPTURE_STATS],
-      'sniffer_dump'       => [COMMAND_ID_SNIFFER_CAPTURE_DUMP],
-      'sniffer_release'    => [COMMAND_ID_SNIFFER_CAPTURE_RELEASE],
-    }
+    #reqs = {
+    #  'sniffer_interfaces' => [COMMAND_ID_SNIFFER_INTERFACES],
+    #  'sniffer_start'      => [COMMAND_ID_SNIFFER_CAPTURE_START],
+    #  'sniffer_stop'       => [COMMAND_ID_SNIFFER_CAPTURE_STOP],
+    #  'sniffer_stats'      => [COMMAND_ID_SNIFFER_CAPTURE_STATS],
+    #  'sniffer_dump'       => [COMMAND_ID_SNIFFER_CAPTURE_DUMP],
+    #  'sniffer_release'    => [COMMAND_ID_SNIFFER_CAPTURE_RELEASE],
+    #}
 
-    filter_commands(all, reqs)
+    #filter_commands(all, reqs)
   end
 
 
