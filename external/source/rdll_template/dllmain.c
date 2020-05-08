@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <windows.h>
-#include "general.h"
 
 LPVOID main(LPVOID lpReserved) {
 	return;
