@@ -131,11 +131,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # ------------------------------------------------------------------------- #
 
-  # auxiliary/gather/censys_search.rb
-  def basic_auth_header(username, password)
-    auth_str = username.to_s + ':' + password.to_s
-    'Basic ' + Rex::Text.encode_base64(auth_str)
-  end
 
   # auxiliary/gather/censys_search.rb
   def censys_search(keyword, search_type, uid, secret)
@@ -150,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => "/api/v1/search/#{search_type}",
         'agent' => datastore['USERAGENT'],
         'headers' => {
-          'Authorization' => basic_auth_header(uid, secret)
+          'Authorization' => 'Basic ' + Rex::Text.encode_base64(uid.to_s + ':' + secret.to_s)
         },
         'data' => payload.to_json
       )
@@ -355,17 +350,6 @@ class MetasploitModule < Msf::Auxiliary
     return false
   end
 
-  def detect_action(data)
-    actions.each do |my_action|
-      next if my_action.name == 'Automatic'
-
-      my_action['Signatures'].each do |signature|
-        return my_action if data.headers.to_s.downcase.include?(signature.downcase)
-      end
-    end
-    return nil
-  end
-
   def detect_signature(data)
     @my_action['Signatures'].each do |signature|
       return true if data.headers.to_s.downcase.include?(signature.downcase)
@@ -500,7 +484,15 @@ class MetasploitModule < Msf::Auxiliary
     )
     return nil unless response
 
-    detect_action(response)
+    actions.each do |my_action|
+      next if my_action.name == 'Automatic'
+
+      my_action['Signatures'].each do |signature|
+        return my_action if response.headers.to_s.downcase.include?(signature.downcase)
+      end
+    end
+
+    nil
   end
 
   # ------------------------------------------------------------------------- #
@@ -511,7 +503,7 @@ class MetasploitModule < Msf::Auxiliary
     if @my_action.nil?
       # If the automatic search fails, bye bye.
       unless datastore['ALLOW_NOWAF']
-        print_error('Couldn\'t determine the action automatically.')
+        print_error('Couldn\'t determine the action automatically because no target signatures matched')
         return
       end
       # If allowed, and the automatic action fails, searches for all website occurrences without regard to filtering systems.
