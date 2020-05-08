@@ -369,7 +369,7 @@ module PacketDispatcher
             tmp_command << pkt
             next
           end
-          if(pkt.method == "core_channel_close")
+          if(pkt.method == COMMAND_ID_CORE_CHANNEL_CLOSE)
             tmp_close << pkt
             next
           end

@@ -397,12 +397,12 @@ class Channel
   # per-instance basis as other instances may add custom dio
   # handlers.
   #
-  def dio_map(method)
-    if (method == 'core_channel_read')
+  def dio_map(command_id)
+    if command_id == COMMAND_ID_CORE_CHANNEL_READ
       return CHANNEL_DIO_READ
-    elsif (method == 'core_channel_write')
+    elsif command_id == COMMAND_ID_CORE_CHANNEL_WRITE
       return CHANNEL_DIO_WRITE
-    elsif (method == 'core_channel_close')
+    elsif command_id == COMMAND_ID_CORE_CHANNEL_CLOSE
       return CHANNEL_DIO_CLOSE
     end
 
