@@ -93,7 +93,7 @@ class Client
       # config.
 
       if(typ == 'bool')
-        val = (val =~ /^(t|y|1)/i ? true : false || val === true)
+        val = (val == true || val.to_s =~ /^(t|y|1)/i)
       end
 
       if(typ == 'integer')

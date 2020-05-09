@@ -9,7 +9,7 @@ require 'msf/core/payload/python/reverse_http'
 
 module MetasploitModule
 
-  CachedSize = 526
+  CachedSize = 509
 
   include Msf::Payload::Stager
   include Msf::Payload::Python

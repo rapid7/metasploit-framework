@@ -1621,6 +1621,9 @@ class Core
       return false
     end
 
+    # Save the old value before changing it, in case we need to compare it
+    old_value = datastore[name]
+
     begin
       if append
         datastore[name] = datastore[name] + value
@@ -1635,6 +1638,11 @@ class Core
     # Set PAYLOAD from TARGET
     if name.upcase == 'TARGET' && active_module && (active_module.exploit? || active_module.evasion?)
       active_module.import_target_defaults
+    end
+
+    # If the new SSL value already set in datastore[name] is different from the old value, warn the user
+    if name.casecmp('SSL') == 0 && datastore[name] != old_value
+      print_warning("Changing the SSL option's value may require changing RPORT!")
     end
 
     print_line("#{name} => #{datastore[name]}")

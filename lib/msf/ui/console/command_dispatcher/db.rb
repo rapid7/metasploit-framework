@@ -312,27 +312,20 @@ class Db
 
     rws.each do |rw|
       rw.each do |ip|
-        opts[:ip] = ip
-        framework.db.add_host_tag(opts)
+        opts[:address] = ip
+        unless framework.db.add_host_tag(opts)
+          print_error("Host #{ip} could not be found.")
+        end
       end
     end
   end
 
-  def find_hosts_with_tag(workspace_id, host_address, tag_name)
+  def find_host_tags(workspace, host_id)
     opts = Hash.new()
-    opts[:workspace_id] = workspace_id
-    opts[:host_address] = host_address
-    opts[:tag_name] = tag_name
+    opts[:workspace] = workspace
+    opts[:id] = host_id
 
-    framework.db.find_hosts_with_tag(opts)
-  end
-
-  def find_host_tags(workspace_id, host_address)
-    opts = Hash.new()
-    opts[:workspace_id] = workspace_id
-    opts[:host_address] = host_address
-
-    framework.db.find_host_tags(opts)
+    framework.db.get_host_tags(opts)
   end
 
   def delete_host_tag(rws, tag_name)
@@ -341,12 +334,16 @@ class Db
     opts[:tag_name] = tag_name
 
     if rws == [nil]
-      framework.db.delete_host_tag(opts)
+      unless framework.db.delete_host_tag(opts)
+        print_error("Host #{opts[:address].to_s + " " if opts[:address]}could not be found.")
+      end
     else
       rws.each do |rw|
         rw.each do |ip|
-          opts[:ip] = ip
-          framework.db.delete_host_tag(opts)
+          opts[:address] = ip
+          unless framework.db.delete_host_tag(opts)
+            print_error("Host #{ip} could not be found.")
+          end
         end
       end
     end
@@ -554,7 +551,7 @@ class Db
             when "vulns";     host.vuln_count
             when "workspace"; host.workspace.name
             when "tags"
-              found_tags = find_host_tags(framework.db.workspace.id, host.address)
+              found_tags = find_host_tags(framework.db.workspace, host.id)
               tag_names = []
               found_tags.each { |t| tag_names << t.name }
               found_tags * ", "
@@ -2052,7 +2049,11 @@ class Db
   def db_connect_http(opts)
     # local database is required to use Mdm objects
     unless framework.db.active
-      print_error("No local database connected. Please connect to a local database before connecting to a remote data service.")
+      err_msg = 'No local database connected, meaning some Metasploit features will not be available. A full list of '\
+      'the affected features & database setup instructions can be found here: '\
+      'https://github.com/rapid7/metasploit-framework/wiki/msfdb:-Database-Features-&-How-to-Set-up-a-Database-for-Metasploit'
+
+      print_error(err_msg)
       return
     end
 

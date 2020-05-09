@@ -214,7 +214,7 @@ module Msf
 
       if (errors.empty? == false)
         raise OptionValidateError.new(errors),
-          "One or more options failed to validate", caller
+          "One or more options failed to validate: #{errors.join(', ')}.", caller
       end
 
       return true

@@ -152,6 +152,14 @@ module Metasploit
                   if proof =~ /Version:(?<os_version>.+).+HW: (?<hardware>)/mi
                     proof = "Model: #{hardware}, OS: #{os_version}"
                   end
+                # Windows
+                elsif proof =~ /is not recognized as an internal or external command/
+                  proof = ssh_socket.exec!("systeminfo\n").to_s
+                  /OS Name:\s+(?<os_name>.+)$/ =~ proof
+                  /OS Version:\s+(?<os_num>.+)$/ =~ proof
+                  if os_name && os_num
+                    proof = "#{os_name.chomp} #{os_num.chomp}"
+                  end
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
                 end
@@ -186,7 +194,7 @@ module Metasploit
             'hpux'
           when /AIX/
             'aix'
-          when /Win32|Windows/
+          when /Win32|Windows|Microsoft/
             'windows'
           when /Unknown command or computer name|Line has invalid autocommand/
             'cisco-ios'

@@ -76,7 +76,7 @@ class Request < Packet
   def update_cmd_parts(str)
     if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/i))
       self.method  = md[1]
-      self.raw_uri = URI.decode(md[2])
+      self.raw_uri = CGI.unescape(md[2])
       self.proto   = md[3]
 
       update_uri_parts

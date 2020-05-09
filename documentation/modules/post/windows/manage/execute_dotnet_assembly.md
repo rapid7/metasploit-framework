@@ -1,10 +1,17 @@
 # Execute .Net assembly via Meterpreter session
 
-This module to executing a .NET Assembly from Meterpreter session
+This module executes a .NET Assembly from a Meterpreter session
 
-It spawn a process (or use an existing process providing pid) and use Reflective dll injection to load HostingCLRx64.dll needed to run .Net assembly
-The unmanaged injected dll takes care of verifying if the process has already loaded the clr, and loads it if necessary. The version of the CLR to be loaded is determined by executing the parsing of the assembly provided searching for a known signature. Then run the assembly from memory.
-Before loading the assembly in the context of the clr, Amsi is bypassed using the AmsiScanBuffer patching technique (https://rastamouse.me/2018/10/amsiscanbuffer-bypass-part-1/)
+It spawns a process (or uses an existing process if provided a pid) and
+uses Reflective dll injection to load HostingCLRx64.dll needed to run
+.Net assembly. The unmanaged injected dll takes care of verifying if the
+process has already loaded the clr, and loads it if necessary. The
+version of the CLR to be loaded is determined by parsing of the assembly
+provided and searching for a known signature. Then it runs the assembly
+from memory.
+Before loading the assembly in the context of the clr, Amsi is bypassed
+using the AmsiScanBuffer patching technique.
+(https://rastamouse.me/2018/10/amsiscanbuffer-bypass-part-1/)
 
 You'll find details at [Execute assembly via Meterpreter session](https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html)
 
@@ -209,14 +216,20 @@ Module options (post/windows/manage/execute_dotnet_assembly):
 
 AMSIBYPASS
 
-Enable or Disable Amsi bypass. This parameter is necessary due to the technique used. It is possible that subsequent updates will make the bypass unstable which could result in a crash. By setting the parameter to false the module continues to work.
+Enable or Disable Amsi bypass. This parameter is necessary due to the
+technique used. It is possible that subsequent updates will make the
+bypass unstable which could result in a crash. By setting the parameter
+to false the module continues to work.
 
 ARGUMENTS
 
-Command line arguments. The signature of the Main method must match with the parameters that have been set in the module, for example:
+Command line arguments. The signature of the Main method must match with
+the parameters that have been set in the module, for example:
 
-If the property ARGUMENTS is set to "antani sblinda destra" the main method should be "static void main (string [] args)"<br />
-If the property ARGUMENTS is set to "" the main method should be "static void main ()"
+If the property ARGUMENTS is set to "antani sblinda destra" the main
+method should be "static void main (string [] args)"<br />
+If the property ARGUMENTS is set to "" the main method should be "static
+void main ()"
 
 DOTNET_EXE 
 
@@ -224,7 +237,8 @@ Dotnet Executable to execute
 
 PID
 
-Pid to inject. If different from 0 the module does not create a new process but uses the existing process identified by the PID parameter.
+Pid to inject. If different from 0 the module does not create a new
+process but uses the existing process identified by the PID parameter.
 
 PROCESS
 

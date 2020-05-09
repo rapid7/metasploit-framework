@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.86)
+    metasploit-framework (5.0.89)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -28,12 +28,13 @@ PATH
       metasploit-concern (~> 2.0.0)
       metasploit-credential (~> 3.0.0)
       metasploit-model (~> 2.0.4)
-      metasploit-payloads (= 1.3.91)
+      metasploit-payloads (= 1.4.1)
       metasploit_data_models (~> 3.0.10)
       metasploit_payloads-mettle (= 0.5.21)
       mqtt
       msgpack
       nessus_rest
+      net-ldap
       net-ssh
       network_interface
       nexpose
@@ -120,26 +121,26 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.0)
     aws-eventstream (1.1.0)
-    aws-partitions (1.296.0)
-    aws-sdk-core (3.94.0)
+    aws-partitions (1.310.0)
+    aws-sdk-core (3.94.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.152.0)
+    aws-sdk-ec2 (1.156.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-iam (1.35.0)
+    aws-sdk-iam (1.36.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-kms (1.30.0)
       aws-sdk-core (~> 3, >= 3.71.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.61.2)
+    aws-sdk-s3 (1.63.1)
       aws-sdk-core (~> 3, >= 3.83.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
-    aws-sigv4 (1.1.1)
+    aws-sigv4 (1.1.3)
       aws-eventstream (~> 1.0, >= 1.0.2)
     bcrypt (3.1.12)
     bcrypt_pbkdf (1.0.1)
@@ -147,7 +148,7 @@ GEM
     bit-struct (0.16)
     bson (4.8.2)
     builder (3.2.4)
-    byebug (11.1.1)
+    byebug (11.1.3)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     cookiejar (0.3.3)
@@ -168,10 +169,10 @@ GEM
       eventmachine (>= 1.0.0.beta.4)
     erubis (2.7.0)
     eventmachine (1.2.7)
-    factory_bot (5.1.2)
+    factory_bot (5.2.0)
       activesupport (>= 4.2.0)
-    factory_bot_rails (5.1.1)
-      factory_bot (~> 5.1.0)
+    factory_bot_rails (5.2.0)
+      factory_bot (~> 5.2.0)
       railties (>= 4.2.0)
     faker (2.2.1)
       i18n (>= 0.8)
@@ -216,7 +217,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.3.91)
+    metasploit-payloads (1.4.1)
     metasploit_data_models (3.0.10)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -235,7 +236,8 @@ GEM
     msgpack (1.3.3)
     multipart-post (2.1.1)
     nessus_rest (0.1.6)
-    net-ssh (5.2.0)
+    net-ldap (0.16.2)
+    net-ssh (6.0.2)
     network_interface (0.0.2)
     nexpose (7.2.1)
     nokogiri (1.10.9)
@@ -248,7 +250,7 @@ GEM
     packetfu (1.1.13)
       pcaprub
     parallel (1.19.1)
-    parser (2.7.1.1)
+    parser (2.7.1.2)
       ast (~> 2.4.0)
     patch_finder (1.0.2)
     pcaprub (0.13.0)
@@ -308,7 +310,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.22)
+    rex-exploitation (0.1.24)
       jsobfu
       metasm
       rex-arch
@@ -348,8 +350,8 @@ GEM
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
-    rspec-core (3.9.1)
-      rspec-support (~> 3.9.1)
+    rspec-core (3.9.2)
+      rspec-support (~> 3.9.3)
     rspec-expectations (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
@@ -366,7 +368,7 @@ GEM
       rspec-support (~> 3.9)
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
-    rspec-support (3.9.2)
+    rspec-support (3.9.3)
     rubocop (0.82.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
@@ -376,7 +378,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
     ruby-macho (2.2.0)
-    ruby-prof (1.3.1)
+    ruby-prof (1.3.2)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby_smb (1.1.0)
@@ -410,7 +412,7 @@ GEM
     ttfunk (1.6.2.1)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2019.3)
+    tzinfo-data (1.2020.1)
       tzinfo (>= 1.0.0)
     unicode-display_width (1.7.0)
     warden (1.2.7)
@@ -423,7 +425,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.24)
+    yard (0.9.25)
 
 PLATFORMS
   ruby
