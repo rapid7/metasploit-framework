@@ -19,6 +19,9 @@ class MetasploitModule < Msf::Auxiliary
           versions 2019.2.3 and earlier and 3000.1 and earlier, to disclose the
           root key used to authenticate administrative commands to the master.
 
+          VMware vRealize Operations Manager versions 7.5.0 through 8.1.0 are
+          known to be affected by the Salt vulnerabilities.
+
           Tested against SaltStack Salt 2019.2.3 and 3000.1 on Ubuntu 18.04, as
           well as Vulhub's Docker image.
         },
@@ -31,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2020-11652'], # Authed directory traversals (not used here)
           ['URL', 'https://labs.f-secure.com/advisories/saltstack-authorization-bypass'],
           ['URL', 'https://community.saltstack.com/blog/critical-vulnerabilities-update-cve-2020-11651-and-cve-2020-11652/'],
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0009.html'],
           ['URL', 'https://github.com/saltstack/salt/blob/master/tests/integration/master/test_clear_funcs.py']
         ],
         'DisclosureDate' => '2020-04-30', # F-Secure advisory
