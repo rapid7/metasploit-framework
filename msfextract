@@ -1,20 +1,28 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-class MsfExtractError < StandardError; end
+class ExtractError < StandardError; end
 class HelpError < StandardError; end
-class UsageError < MsfExtractError; end
+class UsageError < ExtractError; end
 
+require 'rex'
 require 'tmpdir'
 require 'optparse'
-require 'timeout'
 require 'open3'
 require 'nokogiri'
 require 'fileutils'
 
-def run_cmd(cmd)
+def run_cmd(bin, args, verbose)
   begin
+    path = Rex::FileUtils.find_full_path(bin)
+    cmd = [path, args].join(" ")
     stdin, stdout, stderr = Open3.popen3(cmd)
+
+    if verbose
+      $stderr.puts "[+] Running: #{cmd}"
+      $stderr.puts stdout.read + stderr.read
+    end
+
     return stdout.read + stderr.read
   rescue Errno::ENOENT
     return nil
@@ -29,45 +37,36 @@ def parse_manifest(manifest_file)
 end
 
 def extract_data(java_file, text_file)
-  file_data = File.read("#{java_file}")
+  file_data = File.read(java_file)
   mid = file_data.split("[]{")
   bytes = mid[1].split("}")
   bytes[0]
 
-  File.open("#{text_file}", 'wb') do |f|
+  File.open(text_file, 'wb') do |f|
     f.write(bytes[0])
   end
 
   $stderr.puts "[+] Saved as: #{text_file}"
 end
 
-def check_tools
+def check_tools(verbose)
   # CHECK IF ALL TOOLS ARE INCLUDED BEFORE STARTING
-  unzip_test = run_cmd("unzip")
-  unless unzip_test != nil
-    raise RuntimeError, "unzip command not found."
-  end
+  tools = ["unzip", "d2j-dex2jar", "java", "apktool"]
 
-  d2j_test = run_cmd("d2j-dex2jar")
-  unless d2j_test != nil
-    raise RuntimeError, "d2j-dex2jar command not found."
-  end
-
-  java_test = run_cmd("java")
-  unless java_test != nil
-    raise RuntimeError, "java command not found."
-  end
-
-  apktool_test = run_cmd("apktool")
-  unless apktool_test != nil
-    raise RuntimeError, "apktool command not found."
+  tools.each do |tool|
+    path = Rex::FileUtils.find_full_path(tool)
+    if path && ::File.file?(path)
+      $stderr.puts "[+] Saved as: #{text_file}" if verbose
+    else
+      raise RuntimeError, "[-] #{tool} command not found."
+    end
   end
 end
 
 def parse_args(args)
   opts = {}
   opt = OptionParser.new
-  banner = "MsfExtract - a tool to extract configbytes from an android payload.\n"
+  banner = "apk_configbytes_extract - a tool to extract configbytes from an android payload.\n"
   banner << "Usage: #{$0} < -a apk-file -o path -j path > [options]\n"
   banner << "Example: #{$0} -a metasploit.apk -o /root/configbytes.txt -j /root/fernflower.jar"
   opt.banner = banner
@@ -93,7 +92,6 @@ def parse_args(args)
   opt.on('-k', '--keep', 'Keep working directory') do
     opts[:keep] = true
   end
-
 
   opt.on_tail('-h', '--help', 'Show this message') do
     raise HelpError, "#{opt}"
@@ -129,13 +127,15 @@ begin
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
-rescue MsfExtractError => e
+rescue ExtractError => e
   $stderr.puts "Error: #{e.message}"
   exit(1)
 end
 
 begin
-  check_tools()
+  verbose = options[:verbose]
+
+  check_tools(verbose)
 
   temp_dir = Dir.mktmpdir
   temp_dir << "/"
@@ -157,23 +157,19 @@ begin
   File.rename(temp_apk, zip_file)
 
   $stderr.puts "[+] Using unzip on zip file for dex file"
-  unzip_cmd = run_cmd("unzip #{temp_dir}temp.zip -d #{temp_dir}")
-  if options[:verbose] then $stderr.puts "#{unzip_cmd}" else unzip_cmd end
+  unzip_cmd = run_cmd("unzip", "#{temp_dir}temp.zip -d #{temp_dir}", verbose)
 
   $stderr.puts "[+] Using d2j-dex2jar on dex file to create jar file"
   dex_file = "#{temp_dir}classes.dex"
-  d2j_cmd =  run_cmd("d2j-dex2jar -o #{temp_dir}classes.jar #{dex_file}")
-  if options[:verbose] then $stderr.puts "#{d2j_cmd}" else d2j_cmd end
+  d2j_cmd =  run_cmd("d2j-dex2jar", "-o #{temp_dir}classes.jar #{dex_file}", verbose)
 
   $stderr.puts "[+] Using unzip on jar file for class files"
   classes_dir = "#{temp_dir}classes/"
   FileUtils.mkdir_p classes_dir
-  unzip_jar_cmd = run_cmd("unzip #{temp_dir}classes.jar -d #{classes_dir}")
-  if options[:verbose] then $stderr.puts "#{unzip_jar_cmd}" else unzip_jar_cmd end
+  unzip_jar_cmd = run_cmd("unzip", "#{temp_dir}classes.jar -d #{classes_dir}", verbose)
   
   $stderr.puts "[+] Using apktool to read AndroidManifest"
-  apktool_cmd = run_cmd("apktool d #{apk} -o #{temp_dir}decompile/")
-  if options[:verbose] then $stderr.puts "#{apktool_cmd}" else apktool_cmd end
+  apktool_cmd = run_cmd("apktool", "d #{apk} -o #{temp_dir}decompile/", verbose)
 
   amanifest = parse_manifest("#{temp_dir}decompile/AndroidManifest.xml")
   package_path = amanifest.xpath("//manifest").first['package'].gsub(/\./, "/")
@@ -194,25 +190,20 @@ begin
 
   if File.exist?(payload_file) # SEARCH DEFAULT METASPLOIT APK
     $stderr.puts "[+] Using fernflower to change class file to java file"
-
-    fernflower_cmd =  run_cmd("java -jar #{fernflower_jar} #{payload_file} #{java_dir}")
-    if options[:verbose] then $stderr.puts "#{fernflower_cmd}" else fernflower_cmd end
+    fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{payload_file} #{java_dir}", verbose)
 
     payload_file = File.dirname(payload_file)
     $stderr.puts "[+] Class Path: #{payload_file}"
 
     java_file ="#{java_dir}Payload.java"
-
     $stderr.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
     extract_data(java_file, output)
 
   elsif File.exist?(searchable_payload) # SEARCHING APK WTIH METERPRETER INJECTION
     $stderr.puts "[+] Looking for Backdoored Metasploit Payload Classes"
     $stderr.puts "[+] Using fernflower to change class files to java files"
-
     for class_file in class_files
-      fernflower_cmd =  run_cmd("java -jar #{fernflower_jar} #{class_file} #{java_dir}")
-      if options[:verbose] then $stderr.puts "#{fernflower_cmd}" else fernflower_cmd end
+      fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{class_file} #{java_dir}", verbose)
     end
 
     class_path = File.dirname(class_file)
@@ -235,6 +226,7 @@ begin
   end
 
   unless options[:keep] then FileUtils.remove_entry temp_dir end
+
 rescue ::Exception => e
   $stderr.puts "Error: #{e.class} : #{e.message}\n#{e.backtrace * "\n"}"
 end

@@ -1,9 +1,9 @@
-msfextract
+apk_configbytes_extract
 ==========
 
-    MsfExtract - a tool to extract configbytes from an android payload.
-    Usage: ./msfextract < -a apk-file -o path -j path > [options]
-    Example: ./msfextract -a metasploit.apk -o /root/configbytes.txt -j /root/fernflower.jar
+    apk_configbytes_extract - a tool to extract configbytes from an android payload.
+    Usage: ./apk_configbytes_extract.rb < -a apk-file -o path -j path > [options]
+    Example: ./apk_configbytes_extract.rb -a metasploit.apk -o /root/configbytes.txt -j /root/fernflower.jar
      
     Options:
         -a, --apk             <path>     Specify apk to extract configbytes
@@ -25,7 +25,7 @@ TOOLS: (JAVA NEEDED)
 
 ### Fernflower
 
-Among the tools needed to run msfextract, you will need the `fernflower.jar` file
+Among the tools needed to run apk_configbytes_extract.rb, you will need the `fernflower.jar` file
 
 Follow these steps:
 
@@ -40,7 +40,7 @@ You will find `fernflower.jar` in `intellij-community/plugins/java-decompiler/en
 ### Side Note:
 If you do not select an output option...
 
-(ex. `./msfextract -a whatsapp_injected.apk -j /root/fernflower.jar`)
+(ex. `./apk_configbytes_extract -a whatsapp_injected.apk -j /root/fernflower.jar`)
 
 program will still run. 
 
@@ -67,7 +67,7 @@ as configbytes.txt
 ---
 
 ### In the end
-msfextract will save configbytes of an apk in a seperate file, preferably a text file
+apk_configbytes_extract will save configbytes of an apk in a seperate file, preferably a text file
 (see [Payload 
 Class](https://github.com/rapid7/metasploit-payloads/blob/master/java/androidpayload/app/src/com/metasploit/stage/Payload.java#L32))
 
