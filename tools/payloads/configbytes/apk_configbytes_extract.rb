@@ -56,7 +56,7 @@ def check_tools(verbose)
   tools.each do |tool|
     path = Rex::FileUtils.find_full_path(tool)
     if path && ::File.file?(path)
-      $stderr.puts "[+] Saved as: #{text_file}" if verbose
+      $stderr.puts "[+] Tool present: #{path}" if verbose
     else
       raise RuntimeError, "[-] #{tool} command not found."
     end
