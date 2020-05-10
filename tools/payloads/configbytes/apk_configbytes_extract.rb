@@ -199,7 +199,7 @@ begin
     $stderr.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
     extract_data(java_file, output)
 
-  elsif File.exist?(searchable_payload) # SEARCHING APK WTIH METERPRETER INJECTION
+  elsif !searchable_payload.nil? # SEARCHING APK WTIH METERPRETER INJECTION
     $stderr.puts "[+] Looking for Backdoored Metasploit Payload Classes"
     $stderr.puts "[+] Using fernflower to change class files to java files"
     for class_file in class_files
@@ -220,7 +220,6 @@ begin
     end
 
   else
-    $stderr.puts "[+] Unable to find payload class."
     unless options[:keep] then FileUtils.rm_rf("#{temp_dir}") end
     raise RuntimeError, "Unable to find payload class."
   end
@@ -228,5 +227,5 @@ begin
   unless options[:keep] then FileUtils.remove_entry temp_dir end
 
 rescue ::Exception => e
-  $stderr.puts "Error: #{e.class} : #{e.message}\n#{e.backtrace * "\n"}"
+  $stderr.puts "Error: #{e.class}: #{e.message}\n#{e.backtrace * "\n"}"
 end
