@@ -167,7 +167,8 @@ def met_aes_decrypt(key, iv, pt):
 
   def python_rsa_source
     %Q?
-import struct as s, base64 as b, sys, math, random, binascii, os
+import base64 as b, sys, math, random, binascii as ba, os
+from struct import unpack as u
 is2 = sys.version_info[0] < 3
 def bt(b):
 	if is2:
@@ -181,12 +182,12 @@ def i2b(i):
 	h='{0:x}'.format(i)
 	if len(h)%2==1:
 		h = '0'+h
-	return binascii.unhexlify(h)
+	return ba.unhexlify(h)
 def rs(a, o):
 	if a[o] == bt(b'\\x81'):
-		return (s.unpack('B', a[o+1])[0], 2 + o)
+		return (u('B', a[o+1])[0], 2 + o)
 	elif a[o] == bt(b'\\x82'):
-		return (s.unpack('>H', a[o+1:o+3])[0], 3 + o)
+		return (u('>H', a[o+1:o+3])[0], 3 + o)
 def ri(b, o):
 	i, o = rs(b, o)
 	return (b[o:o+i], o+i)
@@ -207,7 +208,7 @@ def der2me(d):
 	_, o = rs(d, 1)
 	while o < len(d):
 		if d[o] == bt(b'\\x30'):
-			o += s.unpack('B', d[o+1:o+2])[0]
+			o += u('B', d[o+1:o+2])[0]
 		elif d[o] == bt(b'\\x05'):
 			o += 2
 		elif d[o] == bt(b'\\x03'):
@@ -219,7 +220,6 @@ def rsa_enc(der, msg):
 	m, e = der2me(der)
 	h=b'\\x00\\x02'
 	d=b'\\00'
-	#p=os.urandom(256-len(h)-len(msg)-len(d))
 	l=256-len(h)-len(msg)-len(d)
 	p=os.urandom(512).replace(b'\\x00',b'')
 	return i2b(pow(b2i(h+p[:l]+d+msg), e, m))
