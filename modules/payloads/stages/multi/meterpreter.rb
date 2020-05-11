@@ -59,6 +59,11 @@ module MetasploitModule
       if opts[:uuid].arch == ARCH_X86
         c.include(::Msf::Payload::Windows::MeterpreterLoader)
       else
+        # If payload is x64, default to x64/xor instead of x86/shikata_ga_nai 
+        if datastore['EnableStageEncoding'] and datastore['StageEncoder'].nil?
+          print_warning('EnableStageEncoding is set but StageEncoder is not; changing default encoder to 'x64/xor' to match payload arch')
+          datastore['StageEncoder'] = 'x64/xor'
+        end
         c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
       end
     else
