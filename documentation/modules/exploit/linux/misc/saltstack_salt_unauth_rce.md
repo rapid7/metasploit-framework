@@ -15,13 +15,45 @@ well as Vulhub's Docker image.
 
 ### Setup
 
-Follow [SaltStack's instructions for
-Ubuntu](https://repo.saltstack.com/#ubuntu) and "pin to minor release"
-either version **2019.2.3** or **3000.1**.
+**Note:** I did the bulk of my testing after manually installing Salt in
+an [Ubuntu 18.04 VM](#using-a-virtual-machine), but the [Docker image
+from Vulhub](#using-docker) may be quicker. YMMV.
 
-Alternatively, you may use [Vulhub's Docker
-image](https://github.com/vulhub/vulhub/tree/master/saltstack/CVE-2020-11651)
-for ease of installation. Version **2019.2.3** will be used.
+#### Using a virtual machine
+
+1. Set up an Ubuntu 18.04 VM
+2. Browse to [SaltStack's instructions for
+   Ubuntu](https://repo.saltstack.com/#ubuntu)
+3. Select `Pin to Minor Release` and change all versions to either
+   **2019.2.3** or **3000.1**, depending on the version you wish to test
+4. Follow the instructions, installing only the `salt-master` and
+   `salt-minion` packages necessary for testing
+5. Follow the [post-installation
+   configuration](https://docs.saltstack.com/en/latest/ref/configuration/index.html)
+
+You may now begin testing.
+
+#### Using Docker
+
+**Prerequisites:** [Docker](https://docs.docker.com/get-docker/) and
+[Docker Compose](https://docs.docker.com/compose/install/) must be
+installed first.
+
+**Note:** The Salt master is already configured and running in the
+following scenario. The majority of the steps below are for configuring
+and starting the minion. Version **2019.2.3** will be used.
+
+1. Run `git clone https://github.com/vulhub/vulhub`
+2. Run `cd vulhub/saltstack/CVE-2020-11651`
+3. Run `docker-compose up -d` to start the container in the background
+4. Run `docker exec -it cve-2020-11651_saltstack_1 bash` to drop to a
+   root shell inside the container
+5. Run `echo $'127.0.0.1\tsalt' >> /etc/hosts` to add the master to
+   `/etc/hosts` (this allows the minion to find the master)
+6. Run `salt-minion -d` to execute the minion in the background
+7. Run `salt-key -A` and accept the key for the minion
+
+You may now begin testing.
 
 ## Verification Steps
 
