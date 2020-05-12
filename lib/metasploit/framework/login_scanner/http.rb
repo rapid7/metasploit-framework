@@ -261,8 +261,10 @@ module Metasploit
         #
         # @param credential [Credential] The credential object to attempt to
         #   login with.
+        # @param success_codes [Array] The HTTP codes that indicate login success
+        #
         # @return [Result] A Result object indicating success or failure
-        def attempt_login(credential)
+        def attempt_login(credential, success_codes=[200])
           result_opts = {
             credential: credential,
             status: Metasploit::Model::Login::Status::INCORRECT,
@@ -280,7 +282,7 @@ module Metasploit
 
           begin
             response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && response.code == 200
+            if response && success_codes.any?{|code| response.code == code}
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e

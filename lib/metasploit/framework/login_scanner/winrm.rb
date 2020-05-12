@@ -38,7 +38,11 @@ module Metasploit
 
           super
         end
-
+		
+		def attempt_login(credential)
+          # call the attempt_login method of HTTP, but accept "411 Length Required" as a success code
+          super(credential, [200, 411]);
+		end
         # The method *must* be "POST", so don't let the user change it
         # @raise [RuntimeError] Unconditionally
         def method=(_)
