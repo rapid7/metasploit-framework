@@ -282,7 +282,7 @@ module Metasploit
 
           begin
             response = send_request('credential'=>credential, 'uri'=>uri, 'method'=>method)
-            if response && success_codes.any?{|code| response.code == code}
+            if response && success_codes.include?(response.code)
               result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response.headers)
             end
           rescue Rex::ConnectionError => e
