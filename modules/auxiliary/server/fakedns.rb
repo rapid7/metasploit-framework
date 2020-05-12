@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run DNS server' ]
         ],
       'PassiveActions' =>
         [

@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          ['DOS'],
-          ['CHECK']
+          ['DOS', 'Description' => 'Trigger Denial of Service against target'],
+          ['CHECK', 'Description' => 'Check if target is vulnerable']
         ],
       'DefaultAction'  => 'DOS',
       'References'     =>

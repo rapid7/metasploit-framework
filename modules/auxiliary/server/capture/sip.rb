@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run SIP capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )

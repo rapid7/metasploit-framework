@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
       'Actions'         =>
         [
-          ['hashcat', {'Description' => 'Use Hashcat'}],
+          ['hashcat', 'Description' => 'Use Hashcat'],
         ],
       'DefaultAction' => 'hashcat',
     )

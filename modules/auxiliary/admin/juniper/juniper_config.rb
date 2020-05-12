@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author'        => [ 'h00die'],
       'Actions'       =>
         [
-          ['JUNOS', {'Description' => 'Import JunOS Config File'}],
-          ['SCREENOS', {'Description' => 'Import ScreenOS Config File'}],
+          ['JUNOS', 'Description' => 'Import JunOS Config File'],
+          ['SCREENOS', 'Description' => 'Import ScreenOS Config File'],
         ],
       'DefaultAction' => 'JUNOS',
     ))
