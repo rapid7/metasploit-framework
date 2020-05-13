@@ -136,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
     deploy_shares = []
 
     begin
-      connect
+      connect(versions: [1])
       smb_login
       srvsvc_netshareenum.each do |share|
         # Ghetto unicode to ascii conversation
