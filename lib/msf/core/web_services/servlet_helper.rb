@@ -29,8 +29,9 @@ module ServletHelper
     [code, headers, to_json(data, includes)]
   end
 
-  def set_json_data_response(response:, includes: nil, code: 200)
+  def set_json_data_response(response:, includes: nil, code: 200, merge_data: {})
     data_response = { data: response }
+    data_response.merge!(merge_data) if merge_data.class == Hash &&  !merge_data.empty?
     set_json_response(data_response, includes = includes, code = code)
   end
 
