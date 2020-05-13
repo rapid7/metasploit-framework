@@ -26,7 +26,6 @@ module Msf::DBManager::Event
       return Array.wrap(Mdm::Event.find(opts[:id]))
     end
 
-    # require 'pry'; binding.pry
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     opts = opts.clone()
     opts.delete(:workspace)
@@ -39,8 +38,7 @@ module Msf::DBManager::Event
 
     search_term = opts.delete(:search_term)
     pagination_total = wspace.events.where(opts).length
-    results = wspace.events.where(opts).order(created_at: order).offset(offset).limit(limit).as_json
-    results.first.merge!('pagination_total' => pagination_total) if pagination_total > 0
+    results = wspace.events.where(opts).order(created_at: order).offset(offset).limit(limit)
 
     if search_term && !search_term.empty?
       re_search_term = /#{search_term}/mi
@@ -48,7 +46,7 @@ module Msf::DBManager::Event
         event.attribute_names.any? { |a| event[a.intern].to_s.match(re_search_term) }
       }
     end
-    results
+    [results, pagination_total]
   }
   end
 
