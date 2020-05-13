@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Post
       'SessionTypes' => [ 'meterpreter' ],
       'References'   =>
             [
-              ['URL', 'https://www.positronsecurity.com/blog/2020-04-28-gog-galaxy-client-local-privilege-escalation/']
+              ['URL', 'https://www.positronsecurity.com/blog/2020-04-28-gog-galaxy-client-local-privilege-escalation/'],
+              ['CVE', '2020-7352']
             ]
     ))
 
