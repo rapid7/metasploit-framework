@@ -19,7 +19,7 @@ module Msf::DBManager::SessionEvent
   #   All fields are converted to strings and results are returned if the pattern is matched.
   # @return [Array<Mdm::SessionEvent>|Mdm::SessionEvent::ActiveRecord_Relation] session events that are matched.
   def session_events(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ActiveRecord::Base.connection_pool.with_connection do
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::SessionEvent.find(opts[:id]))
@@ -35,16 +35,17 @@ module Msf::DBManager::SessionEvent
       offset = opts.delete(:offset) || DEFAULT_OFFSET
 
       search_term = opts.delete(:search_term)
+      pagination_total = Mdm::SessionEvent.where(opts).count
       results = Mdm::SessionEvent.where(opts).order(created_at: order).offset(offset).limit(limit)
 
       if search_term && !search_term.empty?
         re_search_term = /#{search_term}/mi
-        results = results.select { |event|
+        results = results.select do |event|
           event.attribute_names.any? { |a| event[a.intern].to_s.match(re_search_term) }
-        }
+        end
       end
-      results
-    }
+      [results, pagination_total]
+    end
   end
 
   #
@@ -61,44 +62,45 @@ module Msf::DBManager::SessionEvent
   # +:local_path+::  path to the associated file for upload, and download
   #
   def report_session_event(opts)
-    return if not active
-    raise ArgumentError.new("Missing required option :session") if opts[:session].nil?
-    raise ArgumentError.new("Expected an :etype") unless opts[:etype]
+    return if !active
+    raise ArgumentError, 'Missing required option :session' if opts[:session].nil?
+    raise ArgumentError, 'Expected an :etype' unless opts[:etype]
+
     session = nil
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    if opts[:session].respond_to? :db_record
-      session = opts[:session].db_record
-      if session.nil?
-        # The session doesn't have a db_record which means
-        #  a) the database wasn't connected at session registration time
-        # or
-        #  b) something awful happened and the report_session call failed
-        #
-        # Either way, we can't do anything with this session as is, so
-        # log a warning and punt.
-        wlog("Warning: trying to report a session_event for a session with no db_record (#{opts[:session].sid})")
-        return
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      if opts[:session].respond_to? :db_record
+        session = opts[:session].db_record
+        if session.nil?
+          # The session doesn't have a db_record which means
+          #  a) the database wasn't connected at session registration time
+          # or
+          #  b) something awful happened and the report_session call failed
+          #
+          # Either way, we can't do anything with this session as is, so
+          # log a warning and punt.
+          wlog("Warning: trying to report a session_event for a session with no db_record (#{opts[:session].sid})")
+          return
+        end
+        event_data = { created_at: Time.now }
+      else
+        session = opts[:session]
+        event_data = { created_at: opts[:created_at] }
       end
-      event_data = { :created_at => Time.now }
-    else
-      session = opts[:session]
-      event_data = { :created_at => opts[:created_at] }
-    end
 
-    session_id = nil
-    if session.is_a?(Mdm::Session)
-      session_id = session.id
-    elsif session.is_a?(Hash) && session.key?(:id)
-      session_id = session[:id]
-    end
+      session_id = nil
+      if session.is_a?(Mdm::Session)
+        session_id = session.id
+      elsif session.is_a?(Hash) && session.key?(:id)
+        session_id = session[:id]
+      end
 
-    event_data[:session_id] = session_id
-    [:remote_path, :local_path, :output, :command, :etype].each do |attr|
-      event_data[attr] = opts[attr] if opts[attr]
-    end
+      event_data[:session_id] = session_id
+      %i[remote_path local_path output command etype].each do |attr|
+        event_data[attr] = opts[attr] if opts[attr]
+      end
 
-    s = ::Mdm::SessionEvent.create(event_data)
-  }
+      s = ::Mdm::SessionEvent.create(event_data)
+    end
   end
 end
