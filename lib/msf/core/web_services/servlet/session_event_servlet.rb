@@ -1,5 +1,4 @@
 module SessionEventServlet
-
   def self.api_path
     '/api/v1/session-events'
   end
@@ -15,6 +14,7 @@ module SessionEventServlet
 
   #######
   private
+
   #######
 
   def self.get_session_event
@@ -22,10 +22,10 @@ module SessionEventServlet
       warden.authenticate!
       begin
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
-        data = get_db.session_events(sanitized_params)
+        data, pagination_total = get_db.session_events(sanitized_params)
         data = data.first if is_single_object?(data, sanitized_params)
-        set_json_data_response(response: data)
-      rescue => e
+        set_json_data_response(response: data, merge_data: { 'pagination_total' => pagination_total })
+      rescue StandardError => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving session events:', code: 500)
       end
     }
