@@ -20,51 +20,52 @@ module Msf::DBManager::Event
   #   All fields are converted to strings and results are returned if the pattern is matched.
   # @return [Array<Mdm::Event>|Mdm::Event::ActiveRecord_AssociationRelation] events that are matched.
   def events(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    # If we have the ID, there is no point in creating a complex query.
-    if opts[:id] && !opts[:id].to_s.empty?
-      return Array.wrap(Mdm::Event.find(opts[:id]))
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Event.find(opts[:id]))
+      end
+
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone
+      opts.delete(:workspace)
+
+      order = opts.delete(:order)
+      order = order.nil? ? DEFAULT_ORDER : order.to_sym
+
+      limit = opts.delete(:limit) || DEFAULT_LIMIT
+      offset = opts.delete(:offset) || DEFAULT_OFFSET
+
+      search_term = opts.delete(:search_term)
+      pagination_total = wspace.events.where(opts).count
+      results = wspace.events.where(opts).order(created_at: order).offset(offset).limit(limit)
+
+      if search_term && !search_term.empty?
+        re_search_term = /#{search_term}/mi
+        results = results.select do |event|
+          event.attribute_names.any? { |a| event[a.intern].to_s.match(re_search_term) }
+        end
+      end
+      [results, pagination_total]
     end
-
-    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-    opts = opts.clone()
-    opts.delete(:workspace)
-
-    order = opts.delete(:order)
-    order = order.nil? ? DEFAULT_ORDER : order.to_sym
-
-    limit = opts.delete(:limit) || DEFAULT_LIMIT
-    offset = opts.delete(:offset) || DEFAULT_OFFSET
-
-    search_term = opts.delete(:search_term)
-    pagination_total = wspace.events.where(opts).length
-    results = wspace.events.where(opts).order(created_at: order).offset(offset).limit(limit)
-
-    if search_term && !search_term.empty?
-      re_search_term = /#{search_term}/mi
-      results = results.select { |event|
-        event.attribute_names.any? { |a| event[a.intern].to_s.match(re_search_term) }
-      }
-    end
-    [results, pagination_total]
-  }
   end
 
   def report_event(opts)
-    return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-    return if not wspace # Temp fix?
+    return if !active
 
-    opts = opts.clone()
-    opts.delete(:workspace)
-    uname  = opts.delete(:username)
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      return if !wspace # Temp fix?
 
-    if !opts[:host].nil? && !opts[:host].kind_of?(::Mdm::Host)
-      opts[:host] = find_or_create_host(workspace: wspace, host: opts[:host])
+      opts = opts.clone
+      opts.delete(:workspace)
+      uname = opts.delete(:username)
+
+      if !opts[:host].nil? && !opts[:host].is_a?(::Mdm::Host)
+        opts[:host] = find_or_create_host(workspace: wspace, host: opts[:host])
+      end
+
+      ::Mdm::Event.create(opts.merge(workspace_id: wspace[:id], username: uname))
     end
-
-    ::Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
-  }
   end
 end
