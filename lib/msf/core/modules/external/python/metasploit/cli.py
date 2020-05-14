@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import argparse
 import json
@@ -41,7 +41,7 @@ def parse(meta):
             choices=actions)
 
     required_group = parser.add_argument_group('required arguments')
-    for opt, props in meta['options'].items():
+    for opt, props in list(meta['options'].items()):
         group = parser
         desc = props['description']
         required = props['required'] and (props.get('default', None) is None)
