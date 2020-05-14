@@ -10,6 +10,7 @@
 require 'digest'
 require 'open-uri'
 require 'optparse'
+require 'tempfile'
 
 options = {}
 optparse = OptionParser.new do |opts|
@@ -55,7 +56,7 @@ end
 #
 # Display a warning message, given some text
 #
-def warn(txt)
+def warning(txt)
   line_msg = ''
   puts "[#{'WARNING'.yellow}] #{cleanup_text(txt)}"
 end
@@ -75,6 +76,15 @@ def cleanup_text(txt)
   txt.gsub(/\s{2,}/, ' ')
 end
 
+# https://github.com/rapid7/metasploit-framework/pull/13191#issuecomment-626584689
+def decloak(file)
+  system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak')
+  system("python /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
+  f = File.binread("#{file.path}_decloak")
+  system('rm -rf /tmp/sqlmap_decloak')
+  f
+end
+
 #
 #
 #  Main
@@ -87,8 +97,8 @@ scripts << {
   addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.ps1',
   dest: '/data/post/powershell/SharpHound.ps1',
   subs: [
-    ["\t", "    "], # tabs to spaces
-    [/\s+$/, '']    # trailing whitespace
+    ["\t", '    '], # tabs to spaces
+    [/\s+$/, ''] # trailing whitespace
   ]
 }
 ###
@@ -281,19 +291,28 @@ scripts.each do |script|
     old_hash = Digest::SHA1.hexdigest old_content
     info "Old Hash: #{old_hash}"
 
-    new_content = open(script[:addr]).read
-    if script.key?(:subs) then
+    new_content = URI.open(script[:addr]).read
+    if script.key?(:subs)
       script[:subs].each do |sub|
         new_content.gsub!(sub[0], sub[1])
       end
     end
+
+    if script[:name].start_with?('SQLMap UDF')
+      info(' Performing decloaking')
+      f = Tempfile.new('sqlmap_udf')
+      f.write(new_content)
+      f.close
+      new_content = decloak(f)
+    end
+
     new_hash = Digest::SHA1.hexdigest new_content
     info "New Hash: #{new_hash}"
 
     unless old_hash == new_hash
-      warn "  New version identified!"
+      warning '  New version identified!'
       if options[:update] == true
-        warn "    Updating MSF copy of #{script[:dest]}"
+        warning "    Updating MSF copy of #{script[:dest]}"
         File.binwrite(path + script[:dest], new_content)
       end
     end
@@ -303,4 +322,3 @@ scripts.each do |script|
     error "Destination not found, check path: #{path + script[:dest]}"
   end
 end
-
