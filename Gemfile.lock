@@ -376,7 +376,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
     ruby-macho (2.2.0)
-    ruby-prof (1.4.0)
+    ruby-prof (1.4.1)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby_smb (1.1.0)
