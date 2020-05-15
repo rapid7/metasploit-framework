@@ -99,7 +99,7 @@ The following script should test the following:
 
 ### Output from testing script
 
-When this script is run from the metasploit console, it intermingles with the commands, which is great!
+When this script is run from the Metasploit console, it intermingles with the commands, which is great!
 
 ```
 $ sudo ./msfconsole -qx 'use auxiliary/server/capture/smtp; set srvhost 127.0.0.1;run;ruby tools/dev/test_capture_smtp.rb'
