@@ -291,6 +291,7 @@ module PacketDispatcher
     self.waiters = []
 
     @pqueue = ::Queue.new
+    @iqueue = ::Queue.new
     @ping_sent = false
 
     # Spawn a thread for receiving packets
@@ -300,7 +301,7 @@ module PacketDispatcher
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
           if rv
             packet = receive_packet
-            @pqueue << packet if packet
+            @pqueue << decrypt_inbound_packet(packet) if packet
           elsif self.send_keepalives && @pqueue.empty?
             keepalive
           end
@@ -320,11 +321,20 @@ module PacketDispatcher
         incomplete = []
         backlog    = []
 
-        # Note: this first call to pqueue.pop is important. If the Queue is empty, this
-        # calling thread is suspended until data is pushed onto the queue.
-        backlog << decrypt_inbound_packet(@pqueue.pop)
-        while(@pqueue.length > 0)
-          backlog << decrypt_inbound_packet(@pqueue.pop)
+        # prioritise existing/incomplete packets
+        if @iqueue.length > 0
+          while @iqueue.length > 0
+            backlog << @iqueue.pop
+          end
+        end
+
+
+        # Perform a blocking wait via Queue.pop if we don't have any
+        # left over packets to handle.
+        backlog << @pqueue.pop if backlog.length == 0
+        # When we get here, always clear the incoming queue.
+        while @pqueue.length > 0
+          backlog << @pqueue.pop
         end
 
         #
@@ -356,7 +366,6 @@ module PacketDispatcher
         #
         # Process the message queue
         #
-
         backlog.each do |pkt|
 
           begin
@@ -390,10 +399,10 @@ module PacketDispatcher
         end
 
         while incomplete.length > 0
-          @pqueue << incomplete.shift
+          @iqueue << incomplete.shift
         end
 
-        if(@pqueue.length > 100)
+        if(@iqueue.length > 100)
           removed = []
           (1..25).each {
             removed << @pqueue.pop
