@@ -30,7 +30,7 @@ The following script will attempt a login of the server.
 
 ### Output from testing script
 
-When this script is run from teh metasploit console, it intermingles with the commands.
+When this script is run from the Metasploit console, it intermingles with the commands.
 
 ```
 $ sudo ./msfconsole -qx 'use auxiliary/server/capture/pop3; set srvhost 127.0.0.1; run; ruby test_capture_pop3.rb;creds'
