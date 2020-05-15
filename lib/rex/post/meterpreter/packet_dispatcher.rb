@@ -322,10 +322,8 @@ module PacketDispatcher
         backlog    = []
 
         # prioritise existing/incomplete packets
-        if @iqueue.length > 0
-          while @iqueue.length > 0
-            backlog << @iqueue.pop
-          end
+        while @iqueue.length > 0
+          backlog << @iqueue.pop
         end
 
 
@@ -405,7 +403,7 @@ module PacketDispatcher
         if(@iqueue.length > 100)
           removed = []
           (1..25).each {
-            removed << @pqueue.pop
+            removed << @iqueue.pop
           }
           dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{removed.map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
         end
