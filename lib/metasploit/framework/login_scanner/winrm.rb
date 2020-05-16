@@ -39,7 +39,7 @@ module Metasploit
           super
         end
 
-        # send an HTTP request that WinRM would consider as 
+        # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
         def send_request(opts)
             opts['headers'] ||= { }
             opts['ctype'] = 'application/soap+xml;charset=UTF-8'
