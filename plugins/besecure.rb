@@ -261,9 +261,15 @@ class Plugin::BeSECURE < Msf::Plugin
         output = ::File.new(name, "w")
         output.puts(decompressed)
         output.close
+       
+        ###
+        # Return the report
+        return decompressed
       else
         print_status("Usage: besecure_report_download <network_id> <format_name> <path> <report_name>")
       end
+      
+      return ''
     end
 
     def cmd_besecure_report_import(*args)
@@ -275,7 +281,11 @@ class Plugin::BeSECURE < Msf::Plugin
         
         tempfile = Tempfile.new('results')
 
-        cmd_besecure_report_download(args[0], 'nbe', File.dirname(tempfile) + "/", File.basename(tempfile) )
+        res = cmd_besecure_report_download(args[0], 'nbe', File.dirname(tempfile) + "/", File.basename(tempfile) )
+        if res.empty?
+          print_error("An empty report has been received")
+          return ''
+        end
 
         print_status("Importing report to database.")
         framework.db.import_file({:filename => tempfile})
