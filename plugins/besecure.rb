@@ -4,7 +4,7 @@
 # Distributed under MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 #
-# Version 10.4.9
+# Version 10.5.17
 
 require "base64"
 require "zlib"
@@ -148,6 +148,11 @@ class Plugin::BeSECURE < Msf::Plugin
     def cmd_besecure_report_list(*args)
       tbl = Rex::Text::Table.new(
             'Columns' => ["ID", "Name", "Hosts"])
+      
+      if @hostname.empty?
+        print_error("Missing host value")
+        return ''
+      end
       
       req = Net::HTTP::Post.new('/json.cgi', initheader={'Host'=>@hostname})
       req.set_form_data({'apikey' => @apikey, 'primary' => 'admin', 'secondary' => 'networks', 'action' => 'returnnetworks', 'search_limit' => 10000 })
