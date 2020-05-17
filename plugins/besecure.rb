@@ -268,6 +268,11 @@ class Plugin::BeSECURE < Msf::Plugin
 
     def cmd_besecure_report_import(*args)
       if args?(args, 2)
+        if !database?
+          print_error("Database not ready")
+          return ''
+        end
+        
         tempfile = Tempfile.new('results')
 
         cmd_besecure_report_download(args[0], 'nbe', File.dirname(tempfile) + "/", File.basename(tempfile) )
