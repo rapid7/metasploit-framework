@@ -87,7 +87,8 @@ TLV_TYPE_MIGRATE_BASE_ADDR   = TLV_META_TYPE_UINT   | 407
 TLV_TYPE_MIGRATE_ENTRY_POINT = TLV_META_TYPE_UINT   | 408
 TLV_TYPE_MIGRATE_SOCKET_PATH = TLV_META_TYPE_STRING | 409
 TLV_TYPE_MIGRATE_STUB        = TLV_META_TYPE_RAW    | 411
-
+TLV_TYPE_LIB_LOADER_NAME     = TLV_META_TYPE_STRING | 412
+TLV_TYPE_LIB_LOADER_ORDINAL  = TLV_META_TYPE_UINT   | 413
 
 TLV_TYPE_TRANS_TYPE          = TLV_META_TYPE_UINT   | 430
 TLV_TYPE_TRANS_URL           = TLV_META_TYPE_STRING | 431
@@ -220,6 +221,8 @@ class Tlv
       when TLV_TYPE_MIGRATE_ENTRY_POINT; "MIGRATE-ENTRY-POINT"
       when TLV_TYPE_MIGRATE_STUB; "MIGRATE-STUB"
       when TLV_TYPE_MIGRATE_SOCKET_PATH; "MIGRATE-SOCKET-PATH"
+      when TLV_TYPE_LIB_LOADER_NAME; "LIB-LOADER-NAME"
+      when TLV_TYPE_LIB_LOADER_ORDINAL; "LIB-LOADER-ORDINAL"
       when TLV_TYPE_TRANS_TYPE; "TRANS-TYPE"
       when TLV_TYPE_TRANS_URL; "TRANS-URL"
       when TLV_TYPE_TRANS_COMM_TIMEOUT; "TRANS-COMM-TIMEOUT"
@@ -241,16 +244,6 @@ class Tlv
       when TLV_TYPE_PIVOT_ID; "PIVOT-ID"
       when TLV_TYPE_PIVOT_STAGE_DATA; "PIVOT-STAGE-DATA"
       when TLV_TYPE_PIVOT_NAMED_PIPE_NAME; "PIVOT-NAMED-PIPE-NAME"
-
-      #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
-      #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
-      #when Extensions::Stdapi::TLV_TYPE_NETMASK; 'netmask'
-      #when Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS; 'mac-address'
-      #when Extensions::Stdapi::TLV_TYPE_MAC_NAME; 'interface-name'
-      #when Extensions::Stdapi::TLV_TYPE_IP6_SCOPE; 'address-scope'
-      #when Extensions::Stdapi::TLV_TYPE_INTERFACE_MTU; 'interface-mtu'
-      #when Extensions::Stdapi::TLV_TYPE_INTERFACE_FLAGS; 'interface-flags'
-      #when Extensions::Stdapi::TLV_TYPE_INTERFACE_INDEX; 'interface-index'
 
       else; "unknown-#{type}"
       end
