@@ -280,7 +280,6 @@ class RPC_Session < RPC_Base
   end
 
   def rpc_meterpreter_execute(sid, data)
-    # binding.pry
     s = _valid_session(sid, "meterpreter")
 
     s.single_session_mutex.synchronize {
