@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/core'
+require 'thread'
 
 module Msf
 
@@ -81,6 +82,7 @@ module Session
     self.alive = true
     self.uuid  = Rex::Text.rand_text_alphanumeric(8).downcase
     @routes = RouteArray.new(self)
+    @single_session_mutex=Mutex.new
     #self.routes = []
   end
 
@@ -406,6 +408,10 @@ module Session
   # This session's associated database record
   #
   attr_accessor :db_record
+  #
+  # An mutex for single sesssion for special session_id
+  #
+  attr_accessor :single_session_mutex
 protected
 
   attr_accessor :via # :nodoc:

@@ -279,6 +279,30 @@ class RPC_Session < RPC_Base
     { "result" => "success" }
   end
 
+  def rpc_meterpreter_execute(sid, data)
+    # binding.pry
+    s = _valid_session(sid, "meterpreter")
+
+    s.single_session_mutex.synchronize {
+      if not s.user_output.respond_to? :dump_buffer
+        s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
+      end
+
+      interacting = false
+      s.channels.each_value do |ch|
+        interacting ||= ch.respond_to?('interacting') && ch.interacting
+      end
+      if interacting
+        s.user_input.put(data + "\n")
+      else
+        s.console.run_single(data)
+      end
+      
+      data = s.user_output.dump_buffer
+      { "data" => data }
+    }
+  end
+
 
   # Detaches from a meterpreter session. Serves the same purpose as [CTRL]+[Z].
   #
