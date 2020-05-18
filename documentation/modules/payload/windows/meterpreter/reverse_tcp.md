@@ -580,7 +580,7 @@ The route command in Meterpreter allows you change the routing table that is on 
 The portfwd command allows you to talk to a remote service like it's local. For example, if you are able to compromise a host via SMB, but are not able to connect to the remote desktop service, then you can do:
 
 ```
-meterpreter > portfwd add –l 3389 –p 3389 –r [Target Host]
+meterpreter > portfwd add -l 3389 -p 3389 -r [Target Host]
 ```
 
 And that should allow you to connect to remote desktop this way on the attacker's box:
