@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2012-6301' ]
         ],
         'DisclosureDate' => "Dec 1 2012",
-        'Actions'        => [[ 'WebServer' ]],
+        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
       )

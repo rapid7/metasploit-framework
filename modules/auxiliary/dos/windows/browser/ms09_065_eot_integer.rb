@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
-      'Actions'        => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
       'DisclosureDate' => 'Nov 10 2009'

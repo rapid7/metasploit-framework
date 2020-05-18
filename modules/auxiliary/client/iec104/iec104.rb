@@ -22,9 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
-      [
-        ['SEND_COMMAND', { 'Description' => 'Send command to device' }]
-      ],
+        [
+          ['SEND_COMMAND', 'Description' => 'Send command to device']
+        ],
       'DefaultAction' => 'SEND_COMMAND'))
 
     register_options(

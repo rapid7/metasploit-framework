@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://quaxio.com/jsonp_handcrafted_flash_files/']
         ],
       'DisclosureDate' => 'Jul 8 2014',
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer'))
 

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://fr.0day.today/exploit/description/28434']
         ],
         'DisclosureDate' => 'Nov 08 2017',
-        'Actions'        => [[ 'WebServer' ]],
+        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
       )
