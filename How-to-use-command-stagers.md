@@ -354,6 +354,8 @@ execute_cmdstager(flavor: :bourne)
 
 ## Echo Command Stager - Multi Platform
 
+Linemax minimum: 26
+
 The [echo](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/echo.rb) command stager is suitable for multiple platforms except for Windows. It just [echos](http://manpages.ubuntu.com/manpages/trusty/man1/echo.1fun.html) the payload, chmod and execute it. An example of that looks similar to this:
 
 ```
@@ -374,6 +376,8 @@ execute_cmdstager(flavor: :echo)
 
 
 ## Printf Command Stager - Multi Platform
+
+Linemax minimum: 25
 
 The [printf](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/printf.rb) command stager is also suitable for multiple platforms except for Windows. It just uses the printf command to write the payload to disk, chmod and execute it. An example of that looks similar to this:
 
