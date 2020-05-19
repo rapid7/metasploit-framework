@@ -394,7 +394,7 @@ class FrameworkEventSubscriber
     if framework.db.active
       ws = framework.db.find_workspace(session.workspace)
       opts.each_key do |attr|
-        opts[attr].force_encoding('UTF-8') if opts[attr].class == String
+        opts[attr].force_encoding('UTF-8') if opts[attr].is_a?(String)
       end
 
       event = {
