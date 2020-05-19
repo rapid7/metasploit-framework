@@ -416,6 +416,7 @@ module PacketDispatcher
         # If we have any packets that weren't handled, they go back
         # on the incomplete queue so that they're prioritised over
         # new packets that are coming in off the wire.
+        dlog("Requeuing #{incomplete.length} packet(s)", 'meterpreter', LEV_1) if incomplete.length > 0 
         while incomplete.length > 0
           @incomplete_queue << incomplete.shift
         end
