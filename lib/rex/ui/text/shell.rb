@@ -136,7 +136,9 @@ module Shell
         break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
-        update_prompt
+        pchar = framework.datastore['PromptChar'] || prompt_char
+        p = framework.datastore['Prompt'] || prompt
+        update_prompt(p, pchar)
 
         line = get_input_line
 
