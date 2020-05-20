@@ -433,16 +433,9 @@ class Driver < Msf::Ui::Driver
   #
   # Proxies to shell.rb's update prompt with our own extras
   #
-  def update_prompt(*args)
-    if args.empty?
-      pchar = framework.datastore['PromptChar'] || DefaultPromptChar
-      p = framework.datastore['Prompt'] || DefaultPrompt
-      p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
-      super(p, pchar)
-    else
-      # Don't squash calls from within lib/rex/ui/text/shell.rb
-      super(*args)
-    end
+  def update_prompt(p, pchar)
+    p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
+    super(p, pchar)
   end
 
   #
