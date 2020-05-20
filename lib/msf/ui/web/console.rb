@@ -58,9 +58,9 @@ class WebConsole
     end
 
     # Initialize the console with our pipe
-    self.console = Msf::Ui::Console::Driver.new(
-      'msf',
-      '>',
+    web_prompt = opts['PROMPT'] || 'web_msf'
+    web_prompt_char =  opts['PROMPTCHAR'] || '>'
+    self.console = Msf::Ui::Console::Driver.new(web_prompt, web_prompt_char,
       opts.merge({
         'Framework'   => self.framework,
         'LocalInput'  => self.pipe,
