@@ -19,6 +19,10 @@ class MetasploitModule < Msf::Auxiliary
         These count as login attempts, and the default is 10 logins in 5min to
         get a permanent block.  Set delay accordingly to avoid this, as default
         is permanent.
+        Vulnerable DSMs are:
+          DSM 6.1 < 6.1.3-15152
+          DSM 6.0 < 6.0.3-8754-4
+          DSM 5.2 < 5.2-5967-04
       },
       'Author'         => [
         'h00die', # msf module
@@ -116,6 +120,9 @@ class MetasploitModule < Msf::Auxiliary
       if j['msg'] == 5
         fail_with(Failure::Disconnected, 'You have been locked out.  Retry later or increase DELAY')
       end
+      if j['msg'] == 3
+        fail_with(Failure::UnexpectedReply, 'Device patched or feature disabled')
+      end
       if j['msg'] == 2 || j['msg'] == 1
         print_good("#{username} - #{j['info']}")
         @users_found[username] = :reported
@@ -128,6 +135,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       # msg 1 means user can login to GUI
       # msg 2 means user exists but no GUI login
+      # msg 3 means not supported/disabled/patched
       # msg 4 means no user
       # msg 5 means auto block is enabled and youre blocked. Default is 10 login attempts, and these
       #     count as lgin attempts.

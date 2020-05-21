@@ -5,6 +5,11 @@ for the forgot password URL. The Synology NAS will respond differently if a user
 present or not. These count as login attempts, and the default is 10 logins in 5min to
 get a permanent block.  Set delay accordingly to avoid this, as default is permanent.
 
+Vulnerable DSMs are:
+ * DSM 6.1 < 6.1.3-15152
+ * DSM 6.0 < 6.0.3-8754-4 
+ * DSM 5.2 < 5.2-5967-04
+
 Enumeration is case insensitive.
 
 To turn off Auto Block: Control Panel > Security > Auto Block.
@@ -17,6 +22,7 @@ The server responds with a JSON object and a 'msg' key.  The values translate as
 
  * msg 1 - means user can login to GUI
  * msg 2 - means user exists but no GUI login
+ * msg 3 - means feature disabled, or patched
  * msg 4 - means no user
  * msg 5 - means auto block is enabled and youre blocked. Default is 10 login attempts, and these
 
