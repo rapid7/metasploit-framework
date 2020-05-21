@@ -433,9 +433,18 @@ class Driver < Msf::Ui::Driver
   #
   # Proxies to shell.rb's update prompt with our own extras
   #
-  def update_prompt(p, pchar)
-    p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
-    super(p, pchar)
+  def update_prompt(old_prompt, old_prompt_char)
+    if active_module && !old_prompt.include?(active_module.promptname.to_s)
+      framework.datastore['Prompt'] = old_prompt
+      framework.datastore['PromptChar'] = old_prompt_char
+      new_prompt = "#{old_prompt} #{active_module.type}(#{active_module.promptname})"
+      new_prompt = "#{old_prompt} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if supports_color?
+      new_prompt_char = old_prompt_char
+    else
+      new_prompt = framework.datastore['Prompt'] || prompt
+      new_prompt_char = framework.datastore['PromptChar'] || prompt_char
+    end
+    super(new_prompt, new_prompt_char)
   end
 
   #
