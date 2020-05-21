@@ -12,9 +12,9 @@ Vulnerable DSMs are:
 
 Enumeration is case insensitive.
 
-To turn off Auto Block: Control Panel > Security > Auto Block.
+To turn off Auto Block: Control Panel (Advanced Mode) > Security > Auto Block.
 
-To unblock: Control Panel > Security > Auto Block > Allow/Block List > Block List.
+To unblock: Control Panel (Advanced Mode) > Security > Auto Block > Allow/Block List > Block List.
 
 ### Responses
 
