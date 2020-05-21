@@ -7,7 +7,7 @@ get a permanent block.  Set delay accordingly to avoid this, as default is perma
 
 Vulnerable DSMs are:
  * DSM 6.1 < 6.1.3-15152
- * DSM 6.0 < 6.0.3-8754-4 
+ * DSM 6.0 < 6.0.3-8754-4
  * DSM 5.2 < 5.2-5967-04
 
 Enumeration is case insensitive.

