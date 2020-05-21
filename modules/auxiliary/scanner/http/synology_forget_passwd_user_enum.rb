@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
           false, 'File containing users, one per line',
           File.join(Msf::Config.data_directory, 'wordlists', 'unix_users.txt')
         ]),
-        OptInt.new('DELAY', [true, 'Seconds delay to add to avoid lockout', 31])
+        OptInt.new('DELAY', [true, 'Seconds delay to add to avoid lockout', 36])
       ]
     )
   end

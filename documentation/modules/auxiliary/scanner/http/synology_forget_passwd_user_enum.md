@@ -40,7 +40,7 @@ The server responds with a JSON object and a 'msg' key.  The values translate as
 ### Delay
 
 The delay in seconds between enumeration attempts.  Default lockout policy is 10 attempts in 5min,
-so this should avoid the lockout.  Default is `31`.
+so this should avoid the lockout.  Default is `36`.
 
 ### USER_LIST
 
