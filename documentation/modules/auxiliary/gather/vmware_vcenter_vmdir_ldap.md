@@ -23,6 +23,10 @@ Dump all LDAP data from the vCenter Server.
 
 ## Options
 
+### BASE_DN
+
+If you already have the LDAP base DN, you may set it in this option.
+
 ### ConnectTimeout
 
 You may configure the timeout for LDAP connects if necessary. The
@@ -38,10 +42,11 @@ msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > options
 
 Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
 
-   Name    Current Setting  Required  Description
-   ----    ---------------  --------  -----------
-   RHOSTS                   yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT   389              yes       The target port
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   BASE_DN                   no        LDAP base DN if you already have it
+   RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+   RPORT    389              yes       The target port
 
 
 Auxiliary action:

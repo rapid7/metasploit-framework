@@ -39,6 +39,10 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    register_options([
+      OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it'])
+    ])
+
     register_advanced_options([
       OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
     ])
@@ -69,10 +73,14 @@ class MetasploitModule < Msf::Auxiliary
     entries = nil
 
     Net::LDAP.open(opts) do |ldap|
-      print_status('Discovering base DN automatically')
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{base_dn}")
+      else
+        print_status('Discovering base DN automatically')
 
-      unless (@base_dn = discover_base_dn(ldap))
-        print_warning('Falling back on default base DN of dc=vsphere,dc=local')
+        unless (@base_dn = discover_base_dn(ldap))
+          print_warning('Falling back on default base DN dc=vsphere,dc=local')
+        end
       end
 
       print_status("Dumping LDAP data from vmdir service at #{peer}")
