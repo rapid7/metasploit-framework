@@ -48,6 +48,7 @@ module Shell
     self.stop_count     = 0
 
     # Initialize the prompt
+    self.first_run_flag = true
     self.cont_prompt = ' > '
     self.cont_flag = false
     self.prompt = prompt
@@ -136,10 +137,8 @@ module Shell
         break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
-        p = framework.datastore['Prompt'] || prompt
-        pchar = framework.datastore['PromptChar'] || prompt_char
-        update_prompt(p, pchar)
-
+        first_run_flag ? update_prompt(prompt, prompt_char): update_prompt
+        self.first_run_flag = false
         line = get_input_line
 
         # If you have sessions active, this will give you a shot to exit
@@ -480,7 +479,7 @@ protected
 
   attr_writer   :input, :output # :nodoc:
   attr_writer   :prompt, :prompt_char # :nodoc:
-  attr_accessor :stop_flag, :cont_prompt # :nodoc:
+  attr_accessor :stop_flag, :cont_prompt, :first_run_flag # :nodoc:
   attr_accessor :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
