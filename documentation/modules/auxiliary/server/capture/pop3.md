@@ -16,17 +16,17 @@ This module creates a mock POP3 server which accepts credentials.
 
 The following script will attempt a login of the server.
 
-    ```
-    require 'net/pop'
-    
-    puts 'Attempting Login'
-    Net::POP3.start('127.0.0.1', 110, 'username', 'password') do |pop|
-      # check for email, should be none
-      if pop.mails.empty?
-        puts 'No mail'
-      end
-    end
-    ```
+```
+require 'net/pop'
+
+puts 'Attempting Login'
+Net::POP3.start('127.0.0.1', 110, 'username', 'password') do |pop|
+  # check for email, should be none
+  if pop.mails.empty?
+    puts 'No mail'
+  end
+end
+```
 
 ### Output from testing script
 
