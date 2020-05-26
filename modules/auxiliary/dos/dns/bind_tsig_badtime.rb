@@ -12,10 +12,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'BIND TSIG Badtime Query Denial of Service',
       'Description'    => %q{
-        A logic error in code which checks TSIG validity can be used to 
+        A logic error in code which checks TSIG validity can be used to
         trigger an assertion failure in tsig.c.
       },
-      
       'Author'         => [
         'Mark Andrews', # Research and Original PoC
         'Shuto Imai', # msf module author
