@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         'Platform' => 'php',
         'Arch' => ARCH_PHP,
         'Targets' => [
-          [ 'vBulletin 5.2+', {}]
+          [ 'Automatic', {}]
         ],
         'Privileged' => false,
         'Payload' => {},
@@ -270,10 +270,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     # Get node_id for requests
     node_id = get_node
-
-    if node_id.nil?
-      return CheckCode::Unknown
-    end
+    fail_with(Failure::Unknown, 'Could not get a valid node id for the vBulletin install.') unless node_id
 
     # Get vBulletin table prefix (from known vb table 'language')
     table_prfx = get_table_prefix(node_id)

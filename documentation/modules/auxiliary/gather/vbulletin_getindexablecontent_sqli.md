@@ -1,6 +1,14 @@
-## Description
+## Vulnerable Application
 
-This module exploits a SQL injection vulnerability present in vBulletin 5.2.0 through 5.6.1 in the `getIndexableContent` function. This vulnerability is triggered through the `nodeId` variable and can be reached through multiple paths (listed below) but is exploited in this module utilizing the `/ajax/api/content_infraction/getIndexableContent` path.
+  [vBulletin](https://www.vbulletin.com) A popular PHP bulletin board and blog web application.
+  This module has been tested successfully against vBulletin 5.6.1 running on Ubuntu Linux 19.04
+
+### Description
+
+This module exploits a SQL injection vulnerability present in vBulletin 5.2.0 through 5.6.1 in the
+`getIndexableContent` function. This vulnerability is triggered through the `nodeId` variable and
+can be reached through multiple paths (listed below) but is exploited in this module utilizing the
+`/ajax/api/content_infraction/getIndexableContent` path.
 
 - /ajax/api/content_video/getIndexableContent
 - /ajax/api/content_text/getIndexableContent
@@ -16,35 +24,10 @@ This module exploits a SQL injection vulnerability present in vBulletin 5.2.0 th
 - /ajax/api/content_channel/getIndexableContent
 - /ajax/api/content_attach/getIndexableContent
 
-Each path listed above reaches the `getIndexableContent` function within the `/core/vb/library/content.php` file. The SQL injection attack used utilizes a 
-UNION query in order to leak data back in the response `rawtext` field. The data stored on the file system contains the entire `user` table or a dump of all the vBulletin tables in json format.
-
-## Vulnerable Application
-
-  [vBulletin](https://www.vbulletin.com) A popular PHP bulletin board and blog web application.
-  This module has been tested successfully against vBulletin 5.6.1 running on Ubuntu Linux 19.04
-
-## Options
-
-**DUMPALL**
-
-A boolean value used to determine if the module should dump the `user` table (false), or (true) to dump all tables with the vBulletin table prefix.
-
-**NODE**
-
-A valid node id value for the vBulletin install. When provided, this value is used instead of that acquired by brute-forcing 
-
-**MINNODE**
-
-A minimum nodeid value to begin with when brute-forcing for a valid node id. **Default: 1**
-
-**MAXNODE**
-
-A maximum nodeid value to end with when brute-forcing for a valid node id. **Default: 200**
-
-**TARGETURI**
-
-The base URI path of vBulletin. **Default: /**
+Each path listed above reaches the `getIndexableContent` function within the `/core/vb/library/content.php`
+file. The SQL injection attack used utilizes a UNION query in order to leak data back in the response
+`rawtext` field. The data stored on the file system contains the entire `user` table or a dump of all the
+vBulletin tables in json format.
 
 ## Verification Steps
 
@@ -53,6 +36,30 @@ The base URI path of vBulletin. **Default: /**
 3. Do: ```set VHOST [HOSTNAME]```
 4. Do: ```set TARGETURI [PATH]```
 5. Do: ```run```
+
+## Options
+
+### DUMPALL
+
+A boolean value used to determine if the module should dump the `user` table (false), or (true) to dump all
+tables with the vBulletin table prefix.
+
+### NODE
+
+A valid node id value for the vBulletin install. When provided, this value is used instead of that acquired
+by brute-forcing
+
+### MINNODE
+
+A minimum nodeid value to begin with when brute-forcing for a valid node id. **Default: 1**
+
+### MAXNODE
+
+A maximum nodeid value to end with when brute-forcing for a valid node id. **Default: 200**
+
+### TARGETURI
+
+The base URI path of vBulletin. **Default: /**
 
 ## Scenarios
 
