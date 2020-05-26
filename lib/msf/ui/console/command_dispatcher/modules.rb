@@ -30,6 +30,7 @@ module Msf
 
           @@search_opts = Rex::Parser::Arguments.new(
             '-h' => [false, 'Help banner'],
+            '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Regex pattern used to filter search results'],
             '-u' => [false, 'Use module if there is one result']
@@ -387,6 +388,8 @@ module Msf
             count        = -1
             search_terms = []
 
+            ignore_use_exact_match = false
+
             @@search_opts.parse(args) do |opt, idx, val|
               case opt
               when '-S'
@@ -398,6 +401,8 @@ module Msf
                 output_file = val
               when '-u'
                 use = true
+              when '-I'
+                ignore_use_exact_match = true
               else
                 match += val + ' '
               end
@@ -422,6 +427,11 @@ module Msf
 
               if @module_search_results.empty?
                 print_error('No results from search')
+                return false
+              end
+
+              if ignore_use_exact_match && @module_search_results.length == 1 &&
+                  @module_search_results.first.fullname == match.strip
                 return false
               end
 
@@ -698,7 +708,10 @@ module Msf
 
               unless mod
                 unless mod_resolved
-                  mods_found = cmd_search('-u', mod_name)
+                  # Avoid trying to use the search result if it exactly matches
+                  # the module we were trying to load. The module cannot be
+                  # loaded and searching isn't going to change that.
+                  mods_found = cmd_search('-I', '-u', mod_name)
                 end
 
                 unless mods_found
