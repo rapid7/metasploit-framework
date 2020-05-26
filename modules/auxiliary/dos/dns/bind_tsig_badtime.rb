@@ -37,10 +37,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scan_host(ip)
+    print_status("Sending packet to #{ip}")
     if datastore['SRC_ADDR']
       scanner_spoof_send(payload, ip, rport, datastore['SRC_ADDR'])
     else
-      print_status("Sending packet to #{ip}")
       scanner_send(payload, ip, rport)
     end
   end
@@ -53,13 +53,13 @@ class MetasploitModule < Msf::Auxiliary
     query << "\x00\x00"  # Authority RRs: 0
     query << "\x00\x01"  # Additional RRs: 1
 
-    # Doman Name
+    # Domain Name
     query << get_domain   # Random DNS Name
     query << "\x00"      # [End of name]
     query << "\x00\x01"  # Type: A (Host Address) (1)
     query << "\x00\x01"  # Class: IN (0x0001)
 
-    # Aditional records. Name
+    # Additional records. Name
     query << "\x0a" + "local-ddns"
     query << "\x00"
 
