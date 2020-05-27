@@ -16,12 +16,13 @@ class MetasploitModule < Msf::Auxiliary
         trigger an assertion failure in tsig.c.
       },
       'Author'         => [
-        'Mark Andrews', # Research and Original PoC
-        'Shuto Imai', # msf module author
+        'Tobias Klein',  # Research and Original PoC
+        'Shuto Imai',    # msf module author
       ],
       'References'     => [
         ['CVE', '2020-8617'],
-        ['URL', 'https://gitlab.isc.org/isc-projects/bind9/-/issues/1703']
+        ['URL', 'https://gitlab.isc.org/isc-projects/bind9/-/issues/1703'],
+        ['URL', 'https://www.trapkit.de/advisories/TKADV2020-002.txt']
       ],
       'DisclosureDate' => 'May 19 2020',
       'License'        => MSF_LICENSE,
