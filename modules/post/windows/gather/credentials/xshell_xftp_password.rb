@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Post
       'Password'
     ]
     tbl = Rex::Text::Table.new(
-      'Header' => "UserName: #{path}",
+      'Header' => "Path: #{path}",
       'Columns' => columns
     )
     xsh.each do |item|
