@@ -3,6 +3,7 @@ require 'rex/parser/ini'
 module Rex
   module Parser
     module NetSarang
+      # @author Kali-Team
       class NetSarangCrypto
         attr_accessor :version
         attr_accessor :username
@@ -10,15 +11,15 @@ module Rex
         attr_accessor :master_password
         attr_accessor :key
 
-        # new(type, version, username, sid, master_password = nil)
+        # This class implements encryption and decryption of NetSarang
         #
-        # === Argument
-        # === Options
-        # :type              :: [Enum]   xshell or xftp.
-        # :version           :: [String] Specify version of session file.
-        # :username          :: [String] Specify username. This parameter will be used if version > 5.2.
-        # :sid               :: [String] Specify SID. This parameter will be used if version >= 5.1.
-        # :master_password   :: [String] Specify user's master password.
+        # @param type [String] only xshell or xftp.
+        # @param version [String] Specify version of session file. e.g.:5.3
+        # @param username [String] Specify username. This parameter will be used if version > 5.2.
+        # @param sid [String] Specify SID. This parameter will be used if version >= 5.1.
+        # @option master_password [String] Specify user's master password.
+        #
+        # @return [Rex::Parser::NetSarang::NetSarangCrypto] The NetSarangCrypto object
         def initialize(type, version, username, sid, master_password = nil)
           self.version = version.to_f
           self.username = username
@@ -41,6 +42,10 @@ module Rex
           end
         end
 
+        # Encrypt
+        #
+        # @param string [String]
+        # @return [String] ciphertext
         def encrypt_string(string)
           cipher = Rex::Crypto.rc4(key, string)
           if (version < 5.1)
@@ -53,6 +58,10 @@ module Rex
           end
         end
 
+        # Decrypt
+        #
+        # @param string [String]
+        # @return [String, Boolean] plaintext, is_valid
         def decrypt_string(string)
           if (version < 5.1)
             return Rex::Crypto.rc4(key, Rex::Text.decode_base64(string))
@@ -69,15 +78,23 @@ module Rex
         end
       end
 
+      # parser xsh session file
+      #
+      # @param ini [String]
+      # @return [version, host, port, username, password]
       def parser_xsh(ini)
         version = ini['SessionInfo']['Version']
-        port = ini['CONNECTION']['Port'] || 22
+        port = ini['CONNECTION']['Port']
         host = ini['CONNECTION']['Host']
         username = ini['CONNECTION:AUTHENTICATION']['UserName']
         password = ini['CONNECTION:AUTHENTICATION']['Password'] || nil
         [version, host, port, username, password]
       end
 
+      # parser xfp session file
+      #
+      # @param ini [String]
+      # @return [version, host, port, username, password]
       def parser_xfp(ini)
         version = ini['SessionInfo']['Version']
         port = ini['Connection']['Port']
