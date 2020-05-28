@@ -31,10 +31,9 @@ class MetasploitModule < Msf::Auxiliary
         'Platform' => %w[linux],
         'References' =>
           [
-            [ 'CVE', '2019-7192'],
-            [ 'CVE', '2019-7193'],
-            [ 'CVE', '2019-7194'],
-            [ 'CVE', '2019-7195'],
+            [ 'CVE', '2019-7192' ],
+            [ 'CVE', '2019-7194' ],
+            [ 'CVE', '2019-7195' ],
             [ 'EDB', '48531' ],
             [ 'URL', 'https://medium.com/bugbountywriteup/qnap-pre-auth-root-rce-affecting-450k-devices-on-the-internet-d55488d28a05' ],
             [ 'URL', 'https://github.com/Imanfeng/QNAP-NAS-RCE' ]
