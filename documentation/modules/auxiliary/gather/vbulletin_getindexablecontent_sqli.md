@@ -39,11 +39,6 @@ vBulletin tables in json format.
 
 ## Options
 
-### DUMPALL
-
-A boolean value used to determine if the module should dump the `user` table (false), or (true) to dump all
-tables with the vBulletin table prefix.
-
 ### NODE
 
 A valid node id value for the vBulletin install. When provided, this value is used instead of that acquired
@@ -70,6 +65,15 @@ msf5 auxiliary(gather/vbulletin_getindexablecontent_sqli) > set VHOST vb.local
 VHOST => vb.local
 msf5 auxiliary(gather/vbulletin_getindexablecontent_sqli) > set TARGETURI /
 TARGETURI => /vb5
+msf5 auxiliary(gather/vbulletin_getindexablecontent_sqli) > show actions 
+
+Auxiliary actions:
+
+   Name      Description
+   ----      -----------
+   DumpAll   Dump all tables used by vbulletin.
+   DumpUser  Dump only user table used by vbulletin.
+
 msf5 auxiliary(gather/vbulletin_getindexablecontent_sqli) > run
 
 [*] Running module against 192.168.1.100

