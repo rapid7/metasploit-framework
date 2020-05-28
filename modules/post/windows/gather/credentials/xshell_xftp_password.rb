@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/HyperSine/how-does-Xmanager-encrypt-password/blob/master/doc/how-does-Xmanager-encrypt-password.md']
         ],
         'Author' => [
-          'Kali-Team'
+          'Kali-Team <kali-team[at]qq.com>'
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
