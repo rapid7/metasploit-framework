@@ -71,7 +71,7 @@ Loot
 
 host           service  type       name    content                   info  path
 ----           -------  ----       ----    -------                   ----  ----
-[REDACTED]              qnap.http  shadow  application/octet-stream        /home/redouane/.msf4/loot/20200528212705_default_[REDACTED]_qnap.http_394810.bin
+[REDACTED]              qnap.http  shadow  text/plain                      /home/redouane/.msf4/loot/20200528212705_default_[REDACTED]_qnap.http_394810.bin
 
 msf5 auxiliary(gather/qnap_lfi) > 
 
