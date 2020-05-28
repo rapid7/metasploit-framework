@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'BIND TKEY Query Denial of Service',
+      'Name'           => 'BIND TSIG Query Denial of Service',
       'Description'    => %q{
         A defect in the rendering of messages into packets can cause named to
         exit with an assertion failure in buffer.c while constructing a response
