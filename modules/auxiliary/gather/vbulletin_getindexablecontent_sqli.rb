@@ -58,15 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    unless res && res.code == 200
-      return nil
-    end
-
-    parsed_resp = JSON.parse(res.body.to_s)
-
-    unless parsed_resp['rawtext']
-      return nil
-    end
+    return nil unless res.code == 200 && (parsed_resp = res.get_json_document) && parsed_resp['rawtext']
 
     parsed_resp['rawtext']
   end
@@ -115,15 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    unless res && res.code == 200
-      return nil
-    end
-
-    parsed_resp = JSON.parse(res.body.to_s)
-
-    if parsed_resp['errors']
-      return false
-    end
+    return nil unless res.code == 200 && (parsed_resp = res.get_json_document) && !parsed_resp['errors']
 
     print_good("Sucessfully found node at id #{id}")
     true
@@ -137,11 +121,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status("Checking node id '#{datastore['NODE']}'.")
-    if exists_node?(datastore['NODE'])
-      return datastore['NODE']
-    else
-      return nil
-    end
+    return datastore['NODE'] if exists_node?(datastore['NODE'])
+
+    nil
   end
 
   # Report credentials to MSF DB
