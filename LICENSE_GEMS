@@ -11,12 +11,12 @@ arel, 6.0.4, MIT
 arel-helpers, 2.11.0, MIT
 ast, 2.4.0, MIT
 aws-eventstream, 1.1.0, "Apache 2.0"
-aws-partitions, 1.318.0, "Apache 2.0"
+aws-partitions, 1.322.0, "Apache 2.0"
 aws-sdk-core, 3.96.1, "Apache 2.0"
-aws-sdk-ec2, 1.161.0, "Apache 2.0"
+aws-sdk-ec2, 1.163.0, "Apache 2.0"
 aws-sdk-iam, 1.37.0, "Apache 2.0"
 aws-sdk-kms, 1.31.0, "Apache 2.0"
-aws-sdk-s3, 1.65.0, "Apache 2.0"
+aws-sdk-s3, 1.66.0, "Apache 2.0"
 aws-sigv4, 1.1.3, "Apache 2.0"
 bcrypt, 3.1.12, MIT
 bcrypt_pbkdf, 1.0.1, MIT
@@ -58,7 +58,7 @@ memory_profiler, 0.9.14, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.4, "New BSD"
-metasploit-framework, 5.0.91, "New BSD"
+metasploit-framework, 5.0.92, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.4.2, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -80,7 +80,7 @@ openssl-ccm, 1.2.2, MIT
 openvas-omp, 0.0.4, MIT
 packetfu, 1.1.13, BSD
 parallel, 1.19.1, MIT
-parser, 2.7.1.2, MIT
+parser, 2.7.1.3, MIT
 patch_finder, 1.0.2, "New BSD"
 pcaprub, 0.13.0, LGPL-2.1
 pdf-reader, 2.4.0, MIT
@@ -155,7 +155,7 @@ tzinfo, 1.2.7, MIT
 tzinfo-data, 1.2020.1, MIT
 unicode-display_width, 1.7.0, MIT
 warden, 1.2.7, MIT
-websocket-driver, 0.7.1, "Apache 2.0"
+websocket-driver, 0.7.2, "Apache 2.0"
 websocket-extensions, 0.1.4, "Apache 2.0"
 windows_error, 0.1.2, BSD
 xdr, 2.0.0, "Apache 2.0"
