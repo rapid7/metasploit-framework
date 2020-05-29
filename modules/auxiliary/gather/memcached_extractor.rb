@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         sock.send("stats cachedump #{sid} #{max_keys}\r\n", 0)
         data = sock.recv(4096)
-        break if !data || data.length == 0
+        break if !data || data.length == 0 || data == "END\r\n"
         matches = data.scan(/^ITEM (?<key>.*) \[/)
         keys = keys + matches.flatten! if matches
         break if data =~ /^END/
