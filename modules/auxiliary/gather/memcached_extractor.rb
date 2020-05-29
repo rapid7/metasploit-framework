@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.send("lru_crawler metadump all\r\n", 0)
     loop do
       data = sock.recv(4096)
-      break if !data || data.length == 0
+      break if !data || data.length == 0 || data == "END\r\n"
       matches = data.scan(/^key=(?<key>.*) exp=/)
       keys = keys + matches.flatten! if matches
       break if data =~ /^END/
