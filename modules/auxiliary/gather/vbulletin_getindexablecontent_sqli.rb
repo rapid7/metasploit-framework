@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    return nil unless res.code == 200 && (parsed_resp = res.get_json_document) && parsed_resp['rawtext']
+    return nil unless res && res.code == 200 && (parsed_resp = res.get_json_document) && parsed_resp['rawtext']
 
     parsed_resp['rawtext']
   end
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    return nil unless res.code == 200 && (parsed_resp = res.get_json_document) && !parsed_resp['errors']
+    return nil unless res && res.code == 200 && (parsed_resp = res.get_json_document) && !parsed_resp['errors']
 
     print_good("Sucessfully found node at id #{id}")
     true
