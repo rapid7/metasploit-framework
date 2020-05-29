@@ -24,7 +24,11 @@ module SessionEventServlet
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data, pagination_total = get_db.session_events(sanitized_params)
         data = data.first if is_single_object?(data, sanitized_params)
-        set_json_data_response(response: data, merge_data: { 'pagination_total' => pagination_total })
+        if pagination_total.nil?
+          set_json_data_response(response: data)
+        else
+          set_json_data_response(response: data, merge_data: { 'pagination_total' => pagination_total })
+        end
       rescue StandardError => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving session events:', code: 500)
       end
