@@ -22,7 +22,7 @@ module Msf::DBManager::SessionEvent
     ::ActiveRecord::Base.connection_pool.with_connection do
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
-        return Array.wrap(Mdm::SessionEvent.find(opts[:id]))
+        return [Array.wrap(Mdm::SessionEvent.find(opts[:id])), nil]
       end
 
       # Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
