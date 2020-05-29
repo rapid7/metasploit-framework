@@ -23,7 +23,7 @@ module Msf::DBManager::Event
     ::ActiveRecord::Base.connection_pool.with_connection do
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
-        return Array.wrap(Mdm::Event.find(opts[:id]))
+        return [Array.wrap(Mdm::Event.find(opts[:id])), nil]
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
