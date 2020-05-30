@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
-          OptString.new('RPORT', [true, "SMTP server port",'25']),
+          OptPort.new('RPORT', [true, "SMTP server port", 25]),
           OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
             File.join(Msf::Config.data_directory,"emailer_config.yaml")]),
         ])
