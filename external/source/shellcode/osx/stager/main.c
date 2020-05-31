@@ -34,6 +34,7 @@ static void print(char * str);
 #endif
 
 #define DYLD_BASE_ADDR 0x00007fff5fc00000
+#define MAX_OSXVM_ADDR 0x00007ffffffff000
 
 int main(int argc, char** argv)
 {
@@ -66,12 +67,12 @@ int main(int argc, char** argv)
   }
 
   NSCreateObjectFileImageFromMemory_ptr NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory");
-  if (!NSCreateObjectFileImageFromMemory_func) {
+  while (!NSCreateObjectFileImageFromMemory_func) {
     dyld = find_macho(dyld + 0x1000, 0x1000);
-    NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory");
-    if (!NSCreateObjectFileImageFromMemory_func) {
+    if (!dyld) {
       return 1;
     }
+    NSCreateObjectFileImageFromMemory_func = (void*)find_symbol(dyld, "_NSCreateObjectFileImageFromMemory");
   } 
 #ifdef DEBUG
   print("good symbol!\n");
@@ -213,7 +214,7 @@ uint64_t syscall_chmod(uint64_t path, long mode)
 
 uint64_t find_macho(uint64_t addr, unsigned int increment)
 {
-  while(1) {
+  while(addr < MAX_OSXVM_ADDR) {
     uint64_t ptr = addr;
     unsigned long ret = syscall_chmod(ptr, 0777);
     if (ret == 0x2 && ((int *)ptr)[0] == MH_MAGIC_64) {

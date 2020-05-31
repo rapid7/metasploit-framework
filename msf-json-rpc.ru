@@ -4,7 +4,7 @@
 #
 
 require 'pathname'
-@framework_path = '.'
+@framework_path = File.expand_path(File.dirname(__FILE__))
 root = Pathname.new(@framework_path).expand_path
 @framework_lib_path = root.join('lib')
 $LOAD_PATH << @framework_lib_path unless $LOAD_PATH.include?(@framework_lib_path)

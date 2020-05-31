@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
-        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', false])
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
 
@@ -132,6 +132,12 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         session_setup(result, scanner) if datastore['CreateSession']
+        if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+          msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+          msg << " 'set gatherproof off'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+          msg << " device details so it can be handled in the future."
+          print_brute :level => :error, :ip => ip, :msg => msg
+        end
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"

@@ -26,10 +26,7 @@ class OptionValidateError < ArgumentError
 
   def initialize(options = [])
     @options = options
-  end
-
-  def to_s
-    "The following options failed to validate: #{options.join(', ')}."
+    super("The following options failed to validate: #{options.join(', ')}.")
   end
 
   attr_reader :options
@@ -43,8 +40,8 @@ end
 class ValidationError < ArgumentError
   include Exception
 
-  def to_s
-    "One or more requirements could not be validated."
+  def initialize(msg="One or more requirements could not be validated.")
+    super(msg)
   end
 end
 
@@ -72,8 +69,8 @@ end
 class EncodingError < RuntimeError
   include Exception
 
-  def to_s
-    "An encoding exception occurred."
+  def initialize(msg = "An encoding exception occurred.")
+    super(msg)
   end
 end
 
@@ -83,8 +80,8 @@ end
 #
 ###
 class NoKeyError < EncodingError
-  def to_s
-    "A valid encoding key could not be found."
+  def initialize(msg="A valid encoding key could not be found.")
+    super(msg)
   end
 end
 
@@ -125,9 +122,8 @@ end
 #
 ###
 class NoEncodersSucceededError < EncodingError
-
-  def to_s
-    "No encoders encoded the buffer successfully."
+  def initialize(msg="No encoders encoded the buffer successfully.")
+    super(msg)
   end
 end
 
@@ -137,8 +133,8 @@ end
 #
 ###
 class BadGenerateError < EncodingError
-  def to_s
-    "A valid opcode permutation could not be found."
+  def initialize(msg="A valid opcode permutation could not be found.")
+    super(msg)
   end
 end
 
@@ -169,8 +165,8 @@ end
 module AuxiliaryError
   include Exception
 
-  def to_s
-    "An auxiliary error occurred."
+  def initialize(msg="An auxiliary error occurred.")
+    super(msg)
   end
 end
 
@@ -183,8 +179,8 @@ end
 class MissingTargetError < ArgumentError
   include ExploitError
 
-  def to_s
-    "A target has not been selected."
+  def initialize(msg="A target has not been selected.")
+    super(msg)
   end
 end
 
@@ -197,8 +193,8 @@ end
 class MissingPayloadError < ArgumentError
   include ExploitError
 
-  def to_s
-    "A payload has not been selected."
+  def initialize(msg="A payload has not been selected.")
+    super(msg)
   end
 end
 
@@ -213,12 +209,8 @@ class MissingActionError < ArgumentError
   attr_accessor :reason
 
   def initialize(reason='')
-    self.reason = reason
-    super
-  end
-
-  def to_s
-    "Invalid action: #{reason}"
+    @reason = reason
+    super("Invalid action: #{@reason}")
   end
 end
 
@@ -233,10 +225,7 @@ class IncompatiblePayloadError < ArgumentError
 
   def initialize(pname = nil)
     @pname = pname
-  end
-
-  def to_s
-    "#{pname} is not a compatible payload."
+    super("#{pname} is not a compatible payload.")
   end
 
   #
@@ -263,8 +252,8 @@ end
 module NopError
   include Exception
 
-  def to_s
-    "A NOP generator error occurred."
+  def initialize(msg="A NOP generator error occurred.")
+    super(msg)
   end
 end
 
@@ -277,8 +266,8 @@ end
 class NoNopsSucceededError < RuntimeError
   include NopError
 
-  def to_s
-    "No NOP generators succeeded."
+  def initialize(msg="No NOP generators succeeded.")
+    super(msg)
   end
 end
 
@@ -293,12 +282,8 @@ class PluginLoadError < RuntimeError
   attr_accessor :reason
 
   def initialize(reason='')
-    self.reason = reason
-    super
-  end
-
-  def to_s
-    "This plugin failed to load:  #{reason}"
+    @reason = reason
+    super("This plugin failed to load: #{reason}")
   end
 end
 

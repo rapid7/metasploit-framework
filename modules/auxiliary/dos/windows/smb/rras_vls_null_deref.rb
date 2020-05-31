@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Attack'],
+          ['Attack', 'Description' => 'Run Denial of Service'],
         ],
       'DefaultAction' => 'Attack',
       'DisclosureDate' => 'Jun 14 2006'

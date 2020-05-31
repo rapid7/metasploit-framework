@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Sep 06 2012',
       'Actions'        =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Download arbitrary file']
         ],
       'DefaultAction'  => 'Download'
       ))

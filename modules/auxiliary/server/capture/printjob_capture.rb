@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         # Readers for resulting PCL/PC
         ['URL', 'http://www.ghostscript.com']
       ],
-      'Actions'        => [[ 'Capture' ]],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run print job capture server' ]],
       'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture'
     )

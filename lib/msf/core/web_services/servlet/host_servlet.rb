@@ -8,6 +8,10 @@ module HostServlet
     "#{HostServlet.api_path}/?:id?"
   end
 
+  def self.api_path_with_id_and_tags
+    "#{HostServlet.api_path_with_id}/tags"
+  end
+
   def self.api_search_path
     "#{HostServlet.api_path}/search"
   end
@@ -18,6 +22,9 @@ module HostServlet
     app.put HostServlet.api_path_with_id, &update_host
     app.delete HostServlet.api_path, &delete_host
     app.post HostServlet.api_search_path, &search
+    app.get HostServlet.api_path_with_id_and_tags, &get_host_tags
+    app.post HostServlet.api_path_with_id_and_tags, &add_host_tag
+    app.delete HostServlet.api_path_with_id_and_tags, &delete_host_tag
   end
 
   #######
@@ -76,6 +83,53 @@ module HostServlet
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error deleting hosts:', code: 500)
+      end
+    }
+  end
+
+  def self.get_host_tags
+    lambda {
+      warden.authenticate!
+      begin
+        opts = parse_json_request(request, false)
+
+        tmp_params = sanitize_params(params)
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
+        data = get_db.get_host_tags(opts)
+        set_json_data_response(response: data)
+      rescue => e
+        print_error_and_create_response(error: e, message: 'There was an error retrieving the host tag(s):', code: 500)
+      end
+    }
+  end
+
+  def self.add_host_tag
+    lambda {
+      warden.authenticate!
+      begin
+        opts = parse_json_request(request, false)
+
+        tmp_params = sanitize_params(params)
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
+        data = get_db.add_host_tag(opts)
+        set_json_data_response(response: data)
+      rescue => e
+        print_error_and_create_response(error: e, message: 'There was an error adding the host tag:', code: 500)
+      end
+    }
+  end
+
+  def self.delete_host_tag
+    lambda {
+      warden.authenticate!
+      begin
+        opts = parse_json_request(request, false)
+        tmp_params = sanitize_params(params)
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
+        data = get_db.delete_host_tag(opts)
+        set_json_data_response(response: data)
+      rescue => e
+        print_error_and_create_response(error: e, message: 'There was an error deleting the host tag:', code: 500)
       end
     }
   end

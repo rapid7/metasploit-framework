@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Run capture web server' ]
         ],
       'PassiveActions' =>
         [

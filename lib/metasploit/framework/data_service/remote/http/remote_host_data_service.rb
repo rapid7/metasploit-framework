@@ -6,6 +6,7 @@ module RemoteHostDataService
   HOST_API_PATH = '/api/v1/hosts'
   HOST_SEARCH_PATH = HOST_API_PATH + "/search"
   HOST_MDM_CLASS = 'Mdm::Host'
+  TAG_MDM_CLASS = 'Mdm::Tag'
 
   def hosts(opts)
     path = get_path_select(opts, HOST_API_PATH)
@@ -32,4 +33,20 @@ module RemoteHostDataService
   def delete_host(opts)
     json_to_mdm_object(self.delete_data(HOST_API_PATH, opts), HOST_MDM_CLASS)
   end
+
+  def get_host_tags(opts)
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
+    json_to_mdm_object(self.get_data(path, opts, nil), TAG_MDM_CLASS)
+  end
+
+  def add_host_tag(opts)
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
+    json_to_mdm_object(self.post_data(path, opts, nil), TAG_MDM_CLASS)
+  end
+
+  def delete_host_tag(opts)
+    path = get_path_select(opts, HOST_API_PATH) + '/tags'
+    json_to_mdm_object(self.delete_data(path, opts, nil), TAG_MDM_CLASS)
+  end
+
 end

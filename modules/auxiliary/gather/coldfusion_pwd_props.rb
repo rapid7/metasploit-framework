@@ -13,8 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
           This module uses a directory traversal vulnerability to extract information
         such as password, rdspassword, and "encrypted" properties. This module has been
-        tested successfully on ColdFusion 9 and ColdFusion 10. Use actions to select the
-        target ColdFusion version.
+        tested successfully on ColdFusion 9 and ColdFusion 10 (auto-detect).
       },
       'References'     =>
         [
@@ -29,12 +28,6 @@ class MetasploitModule < Msf::Auxiliary
           'nebulus'
         ],
       'License'        => MSF_LICENSE,
-      'Actions'     =>
-        [
-          ['ColdFusion10'],
-          ['ColdFusion9']
-        ],
-      'DefaultAction' => 'ColdFusion10',
       'DisclosureDate' => "May 7 2013"  #The day we saw the subzero poc
     ))
 

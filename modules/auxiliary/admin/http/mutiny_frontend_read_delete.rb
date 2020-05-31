@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Read'],
-          ['Delete']
+          ['Read', 'Description' => 'Read arbitrary file'],
+          ['Delete', 'Description' => 'Delete arbitrary file']
         ],
       'DefaultAction' => 'Read',
       'DisclosureDate' => 'May 15 2013'))

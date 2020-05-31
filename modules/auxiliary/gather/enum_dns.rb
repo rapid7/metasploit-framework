@@ -3,10 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'net/dns/resolver'
+require 'msf/core/exploit/dns'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::DNS::Enumeration
 
   def initialize(info = {})
     super(update_info(info,
@@ -41,7 +41,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUM_TLD', [true, 'Perform a TLD expansion by replacing the TLD with the IANA TLD list', false]),
         OptBool.new('ENUM_SRV', [true, 'Enumerate the most common SRV records', true]),
         OptBool.new('STOP_WLDCRD', [true, 'Stops bruteforce enumeration if wildcard resolution is detected', false]),
-        OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
         OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
@@ -54,133 +53,35 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
         OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
       ])
+    deregister_options('DnsClientUdpTimeout', 'DnsClientRetry', 'DnsClientRetryInterval', 'DnsClientTcpDns')
   end
 
   def run
+    datastore['DnsClientUdpTimeout'] = datastore['TIMEOUT']
+    datastore['DnsClientRetry'] = datastore['RETRY']
+    datastore['DnsClientRetryInterval'] = datastore['RETRY_INTERVAL']
+    datastore['DnsClientTcpDns'] = datastore['TCP_DNS']
+
     domain = datastore['DOMAIN']
     is_wildcard = dns_wildcard_enabled?(domain)
 
-    axfr(domain) if datastore['ENUM_AXFR']
-    get_a(domain) if datastore['ENUM_A']
-    get_cname(domain) if datastore['ENUM_CNAME']
-    get_ns(domain) if datastore['ENUM_NS']
-    get_mx(domain) if datastore['ENUM_MX']
-    get_soa(domain) if datastore['ENUM_SOA']
-    get_txt(domain) if datastore['ENUM_TXT']
-    get_tld(domain) if datastore['ENUM_TLD']
-    get_srv(domain) if datastore['ENUM_SRV']
+    dns_axfr(domain) if datastore['ENUM_AXFR']
+    dns_get_a(domain) if datastore['ENUM_A']
+    dns_get_cname(domain) if datastore['ENUM_CNAME']
+    dns_get_ns(domain) if datastore['ENUM_NS']
+    dns_get_mx(domain) if datastore['ENUM_MX']
+    dns_get_soa(domain) if datastore['ENUM_SOA']
+    dns_get_txt(domain) if datastore['ENUM_TXT']
+    dns_get_tld(domain) if datastore['ENUM_TLD']
+    dns_get_srv(domain) if datastore['ENUM_SRV']
     threads = datastore['THREADS']
     dns_reverse(datastore['IPRANGE'], threads) if datastore['ENUM_RVL']
 
     return unless datastore['ENUM_BRT']
     if is_wildcard
-      dns_bruteforce(domain, threads) unless datastore['STOP_WLDCRD']
+      dns_bruteforce(domain, datastore['WORDLIST'], threads) unless datastore['STOP_WLDCRD']
     else
-      dns_bruteforce(domain, threads)
-    end
-  end
-
-  def dns_query(domain, type)
-    begin
-      nameserver = datastore['NS']
-      if nameserver.blank?
-        dns = Net::DNS::Resolver.new
-      else
-        dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
-      end
-      dns.use_tcp = datastore['TCP_DNS']
-      dns.udp_timeout = datastore['TIMEOUT']
-      dns.retry_number = datastore['RETRY']
-      dns.retry_interval = datastore['RETRY_INTERVAL']
-      dns.query(domain, type)
-    rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-      print_error("Query #{domain} DNS #{type} - exception: #{e}")
-      return nil
-    end
-  end
-
-  def dns_bruteforce(domain, threads)
-    wordlist = datastore['WORDLIST']
-    return if wordlist.blank?
-    threads = 1 if threads <= 0
-
-    queue = []
-    File.foreach(wordlist) do |line|
-      queue << "#{line.chomp}.#{domain}"
-    end
-
-    records = []
-    until queue.empty?
-      t = []
-      threads = 1 if threads <= 0
-
-      if queue.length < threads
-        # work around issue where threads not created as the queue isn't large enough
-        threads = queue.length
-      end
-
-      begin
-        1.upto(threads) do
-          t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do |test_current|
-            Thread.current.kill unless test_current
-            a = get_a(test_current, 'DNS bruteforce records')
-            records |= a if a
-          end
-        end
-        t.map(&:join)
-
-      rescue ::Timeout::Error
-      ensure
-        t.each { |x| x.kill rescue nil }
-      end
-    end
-    records
-  end
-
-  def dns_reverse(cidr, threads)
-    unless cidr
-      print_error 'ENUM_RVL enabled, but no IPRANGE specified'
-      return
-    end
-
-    iplst = []
-    ipadd = Rex::Socket::RangeWalker.new(cidr)
-    numip = ipadd.num_ips
-    while iplst.length < numip
-      ipa = ipadd.next_ip
-      break unless ipa
-      iplst << ipa
-    end
-
-    records = []
-    while !iplst.nil? && !iplst.empty?
-      t = []
-      threads = 1 if threads <= 0
-      begin
-        1.upto(threads) do
-          t << framework.threads.spawn("Module(#{refname})", false, iplst.shift) do |ip_text|
-            next if ip_text.nil?
-            a = get_ptr(ip_text)
-            records |= a if a
-          end
-        end
-        t.map(&:join)
-
-      rescue ::Timeout::Error
-      ensure
-        t.each { |x| x.kill rescue nil }
-      end
-    end
-    records
-  end
-
-  def dns_wildcard_enabled?(domain)
-    records = get_a("#{Rex::Text.rand_text_alpha(16)}.#{domain}", 'DNS wildcard records')
-    if records.blank?
-      false
-    else
-      print_warning('dns wildcard is enable OR fake dns server')
-      true
+      dns_bruteforce(domain, datastore['WORDLIST'], threads)
     end
   end
 
@@ -417,7 +318,6 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{domain} Zone Transfer: #{zone}")
     end
     return if records.blank?
-    save_note(domain, 'DNS AXFR recods', records)
     records
   end
 

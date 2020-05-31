@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Dump system memory']
         ],
       'DefaultAction' => 'Download'
       ))

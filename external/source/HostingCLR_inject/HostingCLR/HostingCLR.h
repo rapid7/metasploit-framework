@@ -20,4 +20,4 @@ VOID Execute(LPVOID lpPayload);
 BOOL FindVersion(void * assembly, int length);
 BOOL PatchAmsi();
 BOOL ClrIsLoaded(LPCWSTR versione, IEnumUnknown* pEnumerator, LPVOID * pRuntimeInfo);
-INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch);
+INT InlinePatch(LPVOID lpFuncAddress, UCHAR * patch, int patchsize);

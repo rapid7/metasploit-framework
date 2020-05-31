@@ -26,9 +26,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License'        => MSF_LICENSE,
         'Actions'        => [
-          ['UPDATE',  {'Description' => 'Add or update a record. (default)'}],
-          ['ADD',     {'Description' => 'Add a new record. Fail if it already exists.'}],
-          ['DELETE',  {'Description' => 'Delete an existing record.'}]
+          ['UPDATE', 'Description' => 'Add or update a record. (default)'],
+          ['ADD',    'Description' => 'Add a new record. Fail if it already exists.'],
+          ['DELETE', 'Description' => 'Delete an existing record.']
         ],
         'DefaultAction' => 'UPDATE'
     )
