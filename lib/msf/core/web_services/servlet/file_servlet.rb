@@ -193,13 +193,13 @@ def list_local_path(path)
 end
 
 def safe_expand_path?(path)
-  current_directory = File.expand_path(Msf::Config.rest_files_directory)
-  tested_path = File.expand_path(path)
+  current_directory = File.expand_path(Msf::Config.rest_files_directory) + File::SEPARATOR
+  tested_path = File.expand_path(path) + File::SEPARATOR
   tested_path.starts_with?(current_directory)
 end
 
 def rest_files_directory?(path)
-  tested_path = File.expand_path(path)
-  current_directory = File.expand_path(Msf::Config.rest_files_directory)
+  tested_path = File.expand_path(path) + File::SEPARATOR
+  current_directory = File.expand_path(Msf::Config.rest_files_directory) + File::SEPARATOR
   tested_path == current_directory
 end
