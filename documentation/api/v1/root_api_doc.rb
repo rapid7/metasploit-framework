@@ -80,6 +80,7 @@ module RootApiDoc
     tag name: 'vuln', description: 'Vuln operations.'
     tag name: 'vuln_attempt', description: 'Vuln Attempt operations.'
     tag name: 'workspace', description: 'Workspace operations.'
+    tag name: 'file', description: 'file operations.'
 
     #################################
     #
