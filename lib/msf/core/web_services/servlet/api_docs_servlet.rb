@@ -20,6 +20,7 @@ load 'documentation/api/v1/user_api_doc.rb'
 load 'documentation/api/v1/vuln_api_doc.rb'
 load 'documentation/api/v1/vuln_attempt_api_doc.rb'
 load 'documentation/api/v1/workspace_api_doc.rb'
+load 'documentation/api/v1/file_api_doc.rb'
 
 
 module ApiDocsServlet
@@ -65,7 +66,8 @@ module ApiDocsServlet
           UserApiDoc,
           VulnApiDoc,
           VulnAttemptApiDoc,
-          WorkspaceApiDoc
+          WorkspaceApiDoc,
+          FileApiDoc
       ].freeze
       json = Swagger::Blocks.build_root_json(swaggered_classes)
       set_json_response(json, [])
