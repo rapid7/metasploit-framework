@@ -32,8 +32,8 @@ module FileServlet
   #######
   # file
   def self.file_download
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
       opts_path = sanitized_params[:path] || ''
       path = File.join(Msf::Config.rest_files_directory, opts_path)
@@ -47,8 +47,8 @@ module FileServlet
   end
 
   def self.file_upload
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
       if sanitized_params[:filename]
         opts_path = sanitized_params[:path] || ''
@@ -70,8 +70,8 @@ module FileServlet
   end
 
   def self.file_delete
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       opts = parse_json_request(request, true)
       opts_path = opts[:path] || ''
       path = File.join(Msf::Config.rest_files_directory, opts_path)
@@ -86,8 +86,8 @@ module FileServlet
   end
 
   def self.file_rename
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       opts = parse_json_request(request, true)
       opts_path = opts[:path] || ''
       opts_new_path = opts[:new_path] || ''
@@ -106,8 +106,8 @@ module FileServlet
 
   # dir
   def self.dir_entries
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
       opts_path = sanitized_params[:path] || ''
       path = File.join(Msf::Config.rest_files_directory, opts_path)
@@ -121,8 +121,8 @@ module FileServlet
   end
 
   def self.dir_mkdir
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       opts = parse_json_request(request, true)
       opts_path = opts[:path] || ''
       path = File.join(Msf::Config.rest_files_directory, opts_path)
@@ -137,8 +137,8 @@ module FileServlet
   end
 
   def self.dir_delete
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       opts = parse_json_request(request, true)
       opts_path = opts[:path] || ''
       path = File.join(Msf::Config.rest_files_directory, opts_path)
@@ -153,8 +153,8 @@ module FileServlet
   end
 
   def self.dir_rename
-    warden.authenticate!
     lambda {
+      warden.authenticate!
       opts = parse_json_request(request, true)
       opts_path = opts[:path] || ''
       opts_new_path = opts[:new_path] || ''
