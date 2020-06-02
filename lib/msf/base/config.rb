@@ -146,6 +146,13 @@ class Config < Hash
     self.new.session_log_directory
   end
 
+  # Returns the directory in which rest files are to reside.
+  #
+  # @return [String] path to rest file directory.
+  def self.rest_files_directory
+    self.new.rest_files_directory
+  end
+
   # Returns the directory in which captured data will reside.
   #
   # @return [String] path to loot directory.
@@ -349,6 +356,13 @@ class Config < Hash
     config_directory + FileSep + self['LocalDirectory']
   end
 
+  # Returns the user-specific rest file path.
+  #
+  # @return [String] path to rest file directory.
+  def rest_files_directory
+    config_directory + FileSep + 'rest_files'
+  end
+
   # Return the user-specific directory that logo files should be loaded from.
   #
   # @return [String] path to the logos directory.
@@ -397,6 +411,7 @@ class Config < Hash
     FileUtils.mkdir_p(user_logos_directory)
     FileUtils.mkdir_p(user_module_directory)
     FileUtils.mkdir_p(user_plugin_directory)
+    FileUtils.mkdir_p(rest_files_directory)
   end
 
   # Loads configuration from the supplied file path, or the default one if
