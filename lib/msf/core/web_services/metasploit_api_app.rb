@@ -27,6 +27,7 @@ require 'msf/core/web_services/servlet/user_servlet'
 require 'msf/core/web_services/servlet/payload_servlet'
 require 'msf/core/web_services/servlet/module_search_servlet'
 require 'msf/core/web_services/servlet/db_import_servlet'
+require 'msf/core/web_services/servlet/file_servlet'
 
 class MetasploitApiApp < Sinatra::Base
   helpers ServletHelper
@@ -55,6 +56,7 @@ class MetasploitApiApp < Sinatra::Base
   register PayloadServlet
   register ModuleSearchServlet
   register DbImportServlet
+  register FileServlet
 
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}
