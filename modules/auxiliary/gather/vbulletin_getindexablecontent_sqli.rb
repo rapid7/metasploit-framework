@@ -252,7 +252,6 @@ class MetasploitModule < Msf::Auxiliary
 
     # Get vBulletin table prefix (from known vb table 'language')
     table_prfx = get_table_prefix(node_id)
-    fail_with(Failure::UnexpectedReply, 'Could not determine the table prefix for the vBulletin install.') unless table_prfx
 
     tables = action.name == 'DumpAll' ? get_all_tables(node_id, table_prfx) : ["#{table_prfx}user"]
     tables.each do |table|
