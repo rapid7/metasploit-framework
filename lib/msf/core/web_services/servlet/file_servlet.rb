@@ -50,10 +50,10 @@ module FileServlet
     lambda {
       warden.authenticate!
       sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
-      if sanitized_params[:filename]
+      if sanitized_params[:file]
         opts_path = sanitized_params[:path] || ''
         path = File.join(Msf::Config.rest_files_directory, opts_path)
-        temp_path = sanitized_params[:filename][:tempfile].path
+        temp_path = sanitized_params[:file][:tempfile].path
         if safe_expand_path?(path) && !File.exist?(path)
           FileUtils.mkdir_p(File.dirname(path))
           FileUtils.cp_r(temp_path, path)
