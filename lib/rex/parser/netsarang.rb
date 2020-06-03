@@ -13,7 +13,7 @@ module Rex
 
         # This class implements encryption and decryption of NetSarang
         #
-        # @param type [String] only xshell or xftp.
+        # @param type [String] only Xshell or Xftp.
         # @param version [String] Specify version of session file. e.g.:5.3
         # @param username [String] Specify username. This parameter will be used if version > 5.2.
         # @param sid [String] Specify SID. This parameter will be used if version >= 5.1.
@@ -28,7 +28,7 @@ module Rex
           md5 = OpenSSL::Digest::MD5.new
           sha256 = OpenSSL::Digest::SHA256.new
           if (self.version > 0) && (self.version < 5.1)
-            self.key = (type == 'xshell') ? md5.digest('!X@s#h$e%l^l&') : md5.digest('!X@s#c$e%l^l&')
+            self.key = (type == 'Xshell') ? md5.digest('!X@s#h$e%l^l&') : md5.digest('!X@s#c$e%l^l&')
           elsif (self.version >= 5.1) && (self.version <= 5.2)
             self.key = sha256.digest(self.sid)
           elsif (self.version > 5.2)
@@ -61,7 +61,7 @@ module Rex
         # Decrypt
         #
         # @param string [String]
-        # @return [String, Boolean] plaintext, is_valid
+        # @return [String] plaintext failed return nil
         def decrypt_string(string)
           if (version < 5.1)
             return Rex::Crypto.rc4(key, Rex::Text.decode_base64(string))
@@ -70,9 +70,9 @@ module Rex
             ciphertext = data[0, data.length - 0x20]
             plaintext = Rex::Crypto.rc4(key, ciphertext)
             if plaintext.is_utf8?
-              return [plaintext, true]
+              return plaintext
             else
-              return [nil, false]
+              return nil
             end
           end
         end
@@ -82,7 +82,8 @@ module Rex
       #
       # @param ini [String]
       # @return [version, host, port, username, password]
-      def parser_xsh(ini)
+      def parser_xsh(file)
+        ini = Rex::Parser::Ini.from_s(file)
         version = ini['SessionInfo']['Version']
         port = ini['CONNECTION']['Port']
         host = ini['CONNECTION']['Host']
@@ -95,7 +96,8 @@ module Rex
       #
       # @param ini [String]
       # @return [version, host, port, username, password]
-      def parser_xfp(ini)
+      def parser_xfp(file)
+        ini = Rex::Parser::Ini.from_s(file)
         version = ini['SessionInfo']['Version']
         port = ini['Connection']['Port']
         host = ini['Connection']['Host']
