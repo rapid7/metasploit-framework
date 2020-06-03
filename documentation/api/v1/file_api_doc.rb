@@ -59,6 +59,7 @@ module FileApiDoc
         key :required, true
         schema do
           property :path, type: :string, required: true, description: FILE_DESC
+          property :file, type: :string, format: :binary, required: true, description: 'Please upload a file'
         end
       end
 
