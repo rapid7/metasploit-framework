@@ -11,6 +11,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2020, 10, 6))
+
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
   XCEPT  = Rex::Proto::SMB::Exceptions
