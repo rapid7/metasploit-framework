@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => [ 'joev' ],
       'DisclosureDate' => 'Apr 08 2015',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
       'References' => [

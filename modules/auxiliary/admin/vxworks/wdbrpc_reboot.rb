@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Reboot']
+          ['Reboot', 'Description' => 'Reboot target']
         ],
       'DefaultAction' => 'Reboot'
       ))

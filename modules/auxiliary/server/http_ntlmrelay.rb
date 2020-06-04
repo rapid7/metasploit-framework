@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Start web server waiting for incoming authenticated connections' ]
         ],
       'PassiveActions' =>
         [

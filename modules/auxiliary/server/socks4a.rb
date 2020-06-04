@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Proxy' ]
+          [ 'Proxy', 'Description' => 'Run SOCKS4a proxy' ]
         ],
       'PassiveActions' =>
         [

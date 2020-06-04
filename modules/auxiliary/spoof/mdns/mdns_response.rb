@@ -29,7 +29,7 @@ attr_accessor :sock, :thread
 
         'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run mDNS spoofing service' ]
         ],
       'PassiveActions' =>
         [

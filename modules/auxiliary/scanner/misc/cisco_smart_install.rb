@@ -32,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'DefaultAction' => 'SCAN',
         'Actions' => [
-          ['SCAN', {'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'}],
-          ['DOWNLOAD', {'Description' => 'Retrieve configuration via Smart Install Protocol'}]
+          ['SCAN', 'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'],
+          ['DOWNLOAD', 'Description' => 'Retrieve configuration via Smart Install Protocol']
         ],
       )
     )

@@ -23,6 +23,10 @@ Add an admin user to the vCenter Server.
 
 ## Options
 
+### BASE_DN
+
+If you already have the LDAP base DN, you may set it in this option.
+
 ### USERNAME
 
 Set this to the username for the new admin user.
@@ -48,6 +52,7 @@ Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
    Name      Current Setting  Required  Description
    ----      ---------------  --------  -----------
+   BASE_DN                    no        LDAP base DN if you already have it
    PASSWORD                   no        Password of admin user to add
    RHOSTS                     yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT     389              yes       The target port

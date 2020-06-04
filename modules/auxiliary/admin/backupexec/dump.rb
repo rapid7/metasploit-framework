@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Download arbitrary file']
         ],
       'DefaultAction' => 'Download'
       ))

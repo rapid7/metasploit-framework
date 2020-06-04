@@ -89,7 +89,7 @@ RSpec.describe Msf::Util::DotNetDeserialization do
 
       it 'should be valid XML' do
         xml = Nokogiri::XML(formatted)
-        expect(xml.errors.length).to eq 0
+        expect(xml.errors.select { |error| error.fatal? }.length).to eq 0
       end
     end
   end
