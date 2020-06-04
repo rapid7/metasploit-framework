@@ -4,6 +4,7 @@ module FileApiDoc
   include Swagger::Blocks
 
   FILE_DESC = 'Specify a file.'.freeze
+  PATH_DESC = 'Specify a path.'.freeze
 
   # Swagger documentation for File model
   swagger_schema :File do
@@ -297,6 +298,75 @@ module FileApiDoc
 
       response 200 do
         key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        schema do
+          property :data do
+            key :type, :string
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+    end
+  end
+  swagger_path '/api/v1/files/root' do
+    # Swagger documentation for api/v1/files/root GET
+    operation :get do
+      key :description, 'Return rest_file directory path.'
+      key :tags, [ 'file' ]
+
+      response 200 do
+        key :description, 'Return rest_file directory path.'
+        schema do
+          property :data do
+            key :type, :string
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+    end
+  end
+  swagger_path '/api/v1/files/search' do
+    # Swagger documentation for api/v1/files/search GET
+    operation :get do
+      key :description, 'Return search keywords file path.'
+      key :tags, [ 'file' ]
+      parameter do
+        key :in, :query
+        key :name, :path
+        key :description, PATH_DESC
+      end
+      parameter do
+        key :in, :query
+        key :name, :search_term
+        key :description, 'search keywords'
+      end
+      response 200 do
+        key :description, 'Returns file data.'
         schema do
           property :data do
             key :type, :string
