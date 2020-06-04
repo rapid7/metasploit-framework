@@ -18,65 +18,65 @@ This module can take several/many minutes to run due to the volume of data being
 
 ## Options
 
-  **CollectionMethode**
+### Method
 
-  The collection method to use. This parameter accepts a comma separated list of values. Accepted values are Default, Group,
-  LocalAdmin, RDP, DCOM, GPOLocalGroup, Session, ObjectProps, ComputerOnly, LoggedOn, Trusts, ACL, Container, DcOnly, All.
-  The default method is `Default`.
-
-  **Domain**
-
-  Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies.
-
-  **Stealth**
-
-  Use stealth collection options, will sacrifice data quality in favor of much reduced network impact. The default value is `false`.
-
-  **ExcludeDomainControllers**
-
-  Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior. The default value is `false`.
-
-  **DomainController**
-
-  Specify which Domain Controller to request data from. Defaults to closest DC using Site Names.
-
-  **LdapPort**
-
-  Override the port used to connect to LDAP.
-
-  **SecureLdap**
-
-  Uses LDAPs instead of unencrypted LDAP on port 636. The default value is `false`.
-
-  **DisableKerbSigning**
-
-  Disables Kerberos Signing on requests. The default value is `false`.
-
-  **SkipPing**
-
-  Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of
-  being up Use this option if ping is disabled on the network for some reason. The default value is `false`.
-
-  **OutputFolder**
-
-  Folder to write the JSON output to.  Default is to enumerate the Windows Temp folder.
-
-  **Method**
-
-  Which method to use to get shaphound running.  Default is `download`.
+Which method to use to get shaphound running.  Default is `download`.
 
   1. `download` requires the compromised host to have connectivity back to metasploit to download and execute the
       payload.  Sharphound is not written to disk.
-  2. `disk` requires admin privileges to bypass the execution policy (if it isn't open).  Writes the sharphound.ps1
+  2. `disk` requires admin privileges to bypass the execution policy (if it isn't open).  Writes the `sharphound.exe`
      file to disk.  No connectivity is required but a disk write does happen which is likely to get caught by AV.
 
-  **EncryptZip**
+### CollectionMethode
 
-  If the zip should be encrypted by SharpHound using a random password.  Password is stored to `notes`, default is `true`.
+The collection method to use. This parameter accepts a comma separated list of values. Accepted values are `Default`, `Group`,
+`LocalAdmin`, `RDP`, `DCOM`, `GPOLocalGroup`, `Session`, `ObjectProps`, `ComputerOnly`, `LoggedOn`, `Trusts`, `ACL`, `Container`,
+`DcOnly`, `All`.  The default method is `Default`.
 
-  **NoSaveCache**
+### Domain
 
-  If the cache file (.bin) should NOT be written to disk.  Default is `true`.
+Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies.
+
+### Stealth
+
+Use stealth collection options, will sacrifice data quality in favor of much reduced network impact. The default value is `false`.
+
+### ExcludeDomainControllers
+
+Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior. The default value is `false`.
+
+### DomainController
+
+Specify which Domain Controller to request data from. Defaults to closest DC using Site Names.
+
+### LdapPort
+
+Override the port used to connect to LDAP.
+
+### SecureLdap
+
+Uses LDAPs instead of unencrypted LDAP on port 636. The default value is `false`.
+
+### DisableKerbSigning
+
+Disables Kerberos Signing on requests. The default value is `false`.
+
+### SkipPing
+
+Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of
+being up Use this option if ping is disabled on the network for some reason. The default value is `false`.
+
+### OutputFolder
+
+Folder to write the JSON output to.  Default is to enumerate the Windows Temp folder.
+
+### EncryptZip
+
+If the zip should be encrypted by SharpHound using a random password.  Password is stored to `notes`, default is `true`.
+
+### NoSaveCache
+
+If the cache file (.bin) should NOT be written to disk.  Default is `true`.
 
 ## Scenarios
 
