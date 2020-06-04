@@ -71,7 +71,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb
+      ruby_smb (~> 1.1)
       rubyntlm
       rubyzip
       sinatra
