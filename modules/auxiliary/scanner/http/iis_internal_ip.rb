@@ -29,8 +29,11 @@ class MetasploitModule < Msf::Auxiliary
 
     uris.each do |uri|
       #Must use send_recv() in order to send a HTTP request without the 'Host' header
+      request = "GET #{uri} HTTP/1.0"
+      vhost_status = datastore['VHOST'].blank? ? '' : " against #{vhost}"
+      vprint_status("#{peer} - Requesting #{request}#{vhost_status}")
       c = connect
-      res = c.send_recv("GET #{uri} HTTP/1.0\r\n\r\n", 25)
+      res = c.send_recv("#{request}\r\n\r\n", 25)
 
       if res.nil?
         print_error("no response for #{target_host}")
