@@ -1,0 +1,6 @@
+export GITHUB_USERNAME=alibaba-max
+export GITHUB_EMAIL=alibabamax3@gmail.com
+mkdir -p ~/git
+cd ~/git
+git clone git@github.com:$alibaba-max/metasploit-framework
+cd ~/git/metasploit-framework
