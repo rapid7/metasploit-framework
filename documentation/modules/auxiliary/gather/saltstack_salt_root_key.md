@@ -7,8 +7,11 @@ method in the SaltStack Salt master's ZeroMQ request server, for
 versions 2019.2.3 and earlier and 3000.1 and earlier, to disclose the
 root key used to authenticate administrative commands to the master.
 
-VMware vRealize Operations Manager versions 7.5.0 through 8.1.0 are
-known to be affected by the Salt vulnerabilities.
+VMware vRealize Operations Manager versions 7.5.0 through 8.1.0, as
+well as Cisco Modeling Labs Corporate Edition (CML) and Cisco Virtual
+Internet Routing Lab Personal Edition (VIRL-PE), for versions 1.2,
+1.3, 1.5, and 1.6 in certain configurations, are known to be affected
+by the Salt vulnerabilities.
 
 Tested against SaltStack Salt 2019.2.3 and 3000.1 on Ubuntu 18.04, as
 well as Vulhub's Docker image.

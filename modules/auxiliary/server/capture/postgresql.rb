@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         capture clear-text authentication credentials.},
       'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run PostgreSQL capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )

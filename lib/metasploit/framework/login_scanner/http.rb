@@ -261,6 +261,7 @@ module Metasploit
         #
         # @param credential [Credential] The credential object to attempt to
         #   login with.
+        #
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {

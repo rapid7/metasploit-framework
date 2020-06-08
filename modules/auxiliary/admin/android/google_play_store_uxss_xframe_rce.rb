@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # Play Store vector and Metasploit module
       ],
       'License'        => MSF_LICENSE,
-      'Actions'        => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' => [
         [ 'URL', 'https://blog.rapid7.com/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041'],

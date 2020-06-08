@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_advanced_options(
       [
-        OptString.new('RPORT', [true, 'AWS EC2 Endpoint TCP Port', 443]),
+        OptPort.new('RPORT', [true, 'AWS EC2 Endpoint TCP Port', 443]),
         OptBool.new('SSL', [true, 'AWS EC2 Endpoint SSL', true]),
         OptString.new('INSTANCE_TYPE', [true, 'The instance type', 'm3.medium']),
         OptString.new('ROLE_NAME', [false, 'The instance profile/role name', '']),

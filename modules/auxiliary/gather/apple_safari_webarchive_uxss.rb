@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://blog.rapid7.com/2013/04/25/abusing-safaris-webarchive-file-format']
         ],
       'DisclosureDate' => 'Feb 22 2013',
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer'))
   end

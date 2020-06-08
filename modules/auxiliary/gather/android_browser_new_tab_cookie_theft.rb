@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # Cookie theft vector, msf module
       ],
       'License'     => MSF_LICENSE,
-      'Actions'     => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [

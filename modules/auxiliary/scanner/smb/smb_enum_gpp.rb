@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
     ])
   end

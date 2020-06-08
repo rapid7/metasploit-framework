@@ -23,8 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'	    => MSF_LICENSE,
       'Actions'	    =>
         [
-          [ 'Sniffer' ],
-          [ 'List' ]
+          [ 'Sniffer', 'Description' => 'Run sniffer' ],
+          [ 'List', 'Description' => 'List protocols' ]
         ],
       'PassiveActions' => [ 'Sniffer' ],
       'DefaultAction'  => 'Sniffer'

