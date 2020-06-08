@@ -30,20 +30,20 @@ module Msf
 
       def commands
         {
-          'set_session_smtp_address' => 'Set the SMTP address for the session notifier',
-          'set_session_smtp_port' => 'Set the SMTP port for the session notifier',
-          'set_session_smtp_username' => 'Set the SMTP username',
-          'set_session_smtp_password' => 'Set the SMTP password',
-          'set_session_smtp_from' => 'Set the from field of SMTP',
-          'set_session_mobile_number' => 'Set the 10-digit mobile number you want to notify',
-          'set_session_mobile_carrier' => 'Set the mobile carrier of the phone',
-          'set_session_minimum_ip' => 'Set the minimum session IP range you want to be notified for',
-          'set_session_maximum_ip' => 'Set the maximum session IP range you want to be notified for',
-          'set_session_dingtalk_webhook' => 'Set the DingTalk webhook for the session notifier',
+          'set_session_smtp_address'       => 'Set the SMTP address for the session notifier',
+          'set_session_smtp_port'          => 'Set the SMTP port for the session notifier',
+          'set_session_smtp_username'      => 'Set the SMTP username',
+          'set_session_smtp_password'      => 'Set the SMTP password',
+          'set_session_smtp_from'          => 'Set the from field of SMTP',
+          'set_session_mobile_number'      => 'Set the 10-digit mobile number you want to notify',
+          'set_session_mobile_carrier'     => 'Set the mobile carrier of the phone',
+          'set_session_minimum_ip'         => 'Set the minimum session IP range you want to be notified for',
+          'set_session_maximum_ip'         => 'Set the maximum session IP range you want to be notified for',
+          'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
-          'start_session_notifier' => 'Start notifying sessions',
-          'stop_session_notifier' => 'Stop notifying sessions',
-          'restart_session_notifier' => 'Restart notifying sessions'
+          'start_session_notifier'         => 'Start notifying sessions',
+          'stop_session_notifier'          => 'Stop notifying sessions',
+          'restart_session_notifier'       => 'Restart notifying sessions'
         }
       end
 
@@ -177,15 +177,15 @@ module Msf
         config_file = Msf::Config.config_file
         ini = Rex::Parser::Ini.new(config_file)
         ini.add_group(name) unless ini[name]
-        ini[name]['smtp_address'] = smtp_address
-        ini[name]['smtp_port'] = smtp_port
-        ini[name]['smtp_username'] = smtp_username
-        ini[name]['smtp_password'] = smtp_password
-        ini[name]['smtp_from'] = smtp_from
-        ini[name]['sms_number'] = sms_number
-        ini[name]['sms_carrier'] = sms_carrier
-        ini[name]['minimum_ip'] = minimum_ip.to_s unless minimum_ip.blank?
-        ini[name]['maximum_ip'] = maximum_ip.to_s unless maximum_ip.blank?
+        ini[name]['smtp_address']     = smtp_address
+        ini[name]['smtp_port']        = smtp_port
+        ini[name]['smtp_username']    = smtp_username
+        ini[name]['smtp_password']    = smtp_password
+        ini[name]['smtp_from']        = smtp_from
+        ini[name]['sms_number']       = sms_number
+        ini[name]['sms_carrier']      = sms_carrier
+        ini[name]['minimum_ip']       = minimum_ip.to_s unless minimum_ip.blank?
+        ini[name]['maximum_ip']       = maximum_ip.to_s unless maximum_ip.blank?
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?
         ini.to_file(config_file)
       end
@@ -195,15 +195,15 @@ module Msf
         ini = Rex::Parser::Ini.new(config_file)
         group = ini[name]
         if group
-          @sms_carrier = group['sms_carrier'].to_sym if group['sms_carrier']
-          @sms_number = group['sms_number'] if group['sms_number']
-          @smtp_address = group['smtp_address'] if group['smtp_address']
-          @smtp_port = group['smtp_port'] if group['smtp_port']
-          @smtp_username = group['smtp_username'] if group['smtp_username']
-          @smtp_password = group['smtp_password'] if group['smtp_password']
-          @smtp_from = group['smtp_from'] if group['smtp_from']
-          @minimum_ip = IPAddr.new(group['minimum_ip']) if group['minimum_ip']
-          @maximum_ip = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
+          @sms_carrier      = group['sms_carrier'].to_sym if group['sms_carrier']
+          @sms_number       = group['sms_number'] if group['sms_number']
+          @smtp_address     = group['smtp_address'] if group['smtp_address']
+          @smtp_port        = group['smtp_port'] if group['smtp_port']
+          @smtp_username    = group['smtp_username'] if group['smtp_username']
+          @smtp_password    = group['smtp_password'] if group['smtp_password']
+          @smtp_from        = group['smtp_from'] if group['smtp_from']
+          @minimum_ip       = IPAddr.new(group['minimum_ip']) if group['minimum_ip']
+          @maximum_ip       = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
           @dingtalk_webhook = group['dingtalk_webhook'] if group['dingtalk_webhook']
 
           print_status('Session Notifier settings loaded from config file.')
