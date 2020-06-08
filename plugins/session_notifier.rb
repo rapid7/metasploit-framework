@@ -195,16 +195,16 @@ module Msf
         ini = Rex::Parser::Ini.new(config_file)
         group = ini[name]
         if group
-          @sms_carrier      = group['sms_carrier'].to_sym if group['sms_carrier']
-          @sms_number       = group['sms_number'] if group['sms_number']
-          @smtp_address     = group['smtp_address'] if group['smtp_address']
-          @smtp_port        = group['smtp_port'] if group['smtp_port']
-          @smtp_username    = group['smtp_username'] if group['smtp_username']
-          @smtp_password    = group['smtp_password'] if group['smtp_password']
-          @smtp_from        = group['smtp_from'] if group['smtp_from']
+          @sms_carrier      = group['sms_carrier'].to_sym     if group['sms_carrier']
+          @sms_number       = group['sms_number']             if group['sms_number']
+          @smtp_address     = group['smtp_address']           if group['smtp_address']
+          @smtp_port        = group['smtp_port']              if group['smtp_port']
+          @smtp_username    = group['smtp_username']          if group['smtp_username']
+          @smtp_password    = group['smtp_password']          if group['smtp_password']
+          @smtp_from        = group['smtp_from']              if group['smtp_from']
           @minimum_ip       = IPAddr.new(group['minimum_ip']) if group['minimum_ip']
           @maximum_ip       = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
-          @dingtalk_webhook = group['dingtalk_webhook'] if group['dingtalk_webhook']
+          @dingtalk_webhook = group['dingtalk_webhook']       if group['dingtalk_webhook']
 
           print_status('Session Notifier settings loaded from config file.')
         end
