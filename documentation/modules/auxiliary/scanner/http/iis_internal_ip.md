@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-IIS, under varios conditions, may respond to a request for `/`, `/images`, or `/default.htm` with `HTTP/1.0`
+IIS, under various conditions, may respond to a request for `/`, `/images`, or `/default.htm` with `HTTP/1.0`
 with a 300 HTTP response and a location header that contains an internal (192.x.x.x, 10.x.x.x, or 172.x.x.x)
 IP address.
 
