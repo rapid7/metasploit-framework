@@ -768,6 +768,16 @@ module Msf
               active_module.datastore.update(@dscache[active_module.fullname])
             end
 
+            # Choose a default payload when the module is used, not run
+            if mod.datastore['PAYLOAD'].nil? && dispatcher.respond_to?(:choose_payload)
+              chosen_payload = dispatcher.choose_payload(mod)
+
+              # XXX: No vprint_status in this context
+              if framework.datastore['VERBOSE'].to_s == 'true' && chosen_payload
+                print_status("No payload configured, defaulting to #{chosen_payload}")
+              end
+            end
+
             mod.init_ui(driver.input, driver.output)
           end
 
