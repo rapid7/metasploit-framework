@@ -355,10 +355,17 @@ class MetasploitModule < Msf::Auxiliary
           )
 
           if datastore['SpiderShares']
-            vprint_status('Use Rex client (SMB1 only) for SpiderShares, since it is not compatible with RubySMB client')
-            connect(versions: [1])
-            smb_login
-            get_files_info(ip, rport, shares, info)
+            begin
+              connect(versions: [1])
+              smb_login
+              get_files_info(ip, rport, shares, info)
+            rescue ::Rex::Proto::SMB::Exceptions::Error, Errno::ECONNRESET => e
+              print_error(
+                "Error when Spidering shares recursively (#{e}). This feature "\
+                "is only available with Rex client (SMB1 only) and the host "\
+                "probably doesn't support SMB1."
+              )
+            end
           end
 
           break if rport == 139
