@@ -337,6 +337,8 @@ You will also need to remember to set the platform in the metadata:
 
 ## Bourne Command Stager - Multi Platform
 
+**Linemax** minimum: 373
+
 The [Bourne](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/bourne.rb) command stager supports multiple platforms except for Windows (because the use of the which command that Windows does not have). It functions rather similar to the VBS stager, except when it decodes the Base64 payload at runtime, there are multiple commands to choose from: base64, openssl, python, or perl.
 
 To use the Bourne stager, either specify your CmdStagerFlavor in the metadata:
@@ -354,7 +356,7 @@ execute_cmdstager(flavor: :bourne)
 
 ## Echo Command Stager - Multi Platform
 
-Linemax minimum: 26
+**Linemax** minimum: 26
 
 The [echo](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/echo.rb) command stager is suitable for multiple platforms except for Windows. It just [echos](http://manpages.ubuntu.com/manpages/trusty/man1/echo.1fun.html) the payload, chmod and execute it. An example of that looks similar to this:
 
@@ -377,7 +379,7 @@ execute_cmdstager(flavor: :echo)
 
 ## Printf Command Stager - Multi Platform
 
-Linemax minimum: 25
+**Linemax** minimum: 25
 
 The [printf](https://github.com/rapid7/rex-exploitation/blob/master/lib/rex/exploitation/cmdstager/printf.rb) command stager is also suitable for multiple platforms except for Windows. It just uses the printf command to write the payload to disk, chmod and execute it. An example of that looks similar to this:
 
