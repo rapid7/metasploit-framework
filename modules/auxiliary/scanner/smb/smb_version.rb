@@ -28,8 +28,14 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMB Version Detection',
-      'Description' => 'Display version information about each system',
-      'Author'      => ['hdm', 'Spencer McIntyre'],
+      'Description' => %q{
+        Fingerprint and display version information about SMB servers. Protocol
+        information and host operating system (if available) will be reported.
+        Host operating system detection requires the remote server to support
+        version 1 of the SMB protocol. Compression and encryption capability
+        negotiation is only present in version 3.1.1.
+      },
+      'Author'      => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
       'License'     => MSF_LICENSE
     )
 
@@ -47,9 +53,28 @@ class MetasploitModule < Msf::Auxiliary
     (@smb_port == 445)
   end
 
-  def smb_versions
-    preferred_dialect = nil
-    supported = []
+  def seconds_to_timespan(seconds)
+    timespan = []
+    [
+      ['w', 60 * 60 * 24 * 7],
+      ['d', 60 * 60 * 24    ],
+      ['h', 60 * 60         ],
+      ['m', 60              ]
+    ].each do |spec, span|
+      if seconds > span || timespan.length > 0
+        timespan << "#{(seconds / span).floor}#{spec}"
+        seconds %= span
+      end
+    end
+
+    timespan.join(' ')
+  end
+
+  def smb_proto_info
+    info = {
+      capabilities: {},
+      versions: []
+    }
     (1..3).each do |version|
       begin
         simple = connect(false, versions: [version])
@@ -65,18 +90,32 @@ class MetasploitModule < Msf::Auxiliary
 
       preferred_dialect = simple.client.dialect
       if simple.client.is_a? RubySMB::Client
-        preferred_dialect = SMB2_DIALECT_STRINGS[preferred_dialect]
+        if preferred_dialect == '0x0311'
+          info[:capabilities][:compression] = simple.client.server_encryption_algorithms.map do |algorithm|
+            RubySMB::SMB2::CompressionCapabilities::COMPRESSION_ALGORITHM_MAP[algorithm]
+          end
+          info[:capabilities][:encryption] = simple.client.server_encryption_algorithms.map do |algorithm|
+            RubySMB::SMB2::EncryptionCapabilities::ENCRYPTION_ALGORITHM_MAP[algorithm]
+          end
+        end
+        # assume that if the server supports multiple versions, the preferred
+        # dialect will correspond to the latest version
+        info[:preferred_dialect] = SMB2_DIALECT_STRINGS[preferred_dialect]
+
+        if simple.client.server_start_time && simple.client.server_system_time
+          uptime = simple.client.server_system_time - simple.client.server_start_time
+          info[:uptime] = seconds_to_timespan(uptime)
+        end
+        info[:server_guid] = simple.client.server_guid
       end
 
-      supported << version unless protocol.nil?
+      info[:versions] << version unless protocol.nil?
     end
 
-    # assume that if the server supports multiple versions, the preferred
-    # dialect will correspond to the latest version
-    {versions: supported, preferred_dialect: preferred_dialect}
+    info
   end
 
-  def smb_description(res, nd_smb_fingerprint)
+  def smb_os_description(res, nd_smb_fingerprint)
     #
     # Create the note hash for fingerprint.match
     #
@@ -130,11 +169,13 @@ class MetasploitModule < Msf::Auxiliary
       self.simple = nil
 
       begin
-        res = smb_fingerprint()
+        res = smb_fingerprint
 
-        version_info = smb_versions
-        #next unless versions.length
-        desc = "SMB Detected (versions:#{version_info[:versions].join(', ')}) (preferred dialect:#{version_info[:preferred_dialect]})"
+        info = smb_proto_info
+        desc = "SMB Detected (versions:#{info[:versions].join(', ')}) (preferred dialect:#{info[:preferred_dialect]})"
+        info[:capabilities].each do |name, values|
+          desc << " (#{name} capabilities:#{values.join(', ')})"
+        end
 
         if simple.client.peer_require_signing
           desc << " (signatures:required)"
@@ -151,6 +192,8 @@ class MetasploitModule < Msf::Auxiliary
             ]
           })
         end
+        desc << " (uptime:#{info[:uptime]})" if info[:uptime]
+        desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
         print_status(desc)
 
         #
@@ -162,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
         }
 
         if res['os'] && res['os'] != 'Unknown'
-          description = smb_description(res, nd_smb_fingerprint)
+          description = smb_os_description(res, nd_smb_fingerprint)
           desc = description[:text]
           nd_fingerprint_match = description[:fingerprint_match]
           nd_smb_fingerprint = description[:smb_fingerprint]
