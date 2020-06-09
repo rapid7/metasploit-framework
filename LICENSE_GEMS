@@ -11,22 +11,22 @@ arel, 6.0.4, MIT
 arel-helpers, 2.11.0, MIT
 ast, 2.4.0, MIT
 aws-eventstream, 1.1.0, "Apache 2.0"
-aws-partitions, 1.322.0, "Apache 2.0"
-aws-sdk-core, 3.96.1, "Apache 2.0"
-aws-sdk-ec2, 1.163.0, "Apache 2.0"
-aws-sdk-iam, 1.37.0, "Apache 2.0"
-aws-sdk-kms, 1.31.0, "Apache 2.0"
-aws-sdk-s3, 1.66.0, "Apache 2.0"
-aws-sigv4, 1.1.3, "Apache 2.0"
+aws-partitions, 1.324.0, "Apache 2.0"
+aws-sdk-core, 3.97.1, "Apache 2.0"
+aws-sdk-ec2, 1.164.0, "Apache 2.0"
+aws-sdk-iam, 1.39.0, "Apache 2.0"
+aws-sdk-kms, 1.33.0, "Apache 2.0"
+aws-sdk-s3, 1.67.1, "Apache 2.0"
+aws-sigv4, 1.1.4, "Apache 2.0"
 bcrypt, 3.1.12, MIT
 bcrypt_pbkdf, 1.0.1, MIT
 bindata, 2.4.7, ruby
 bit-struct, 0.16, ruby
-bson, 4.8.2, "Apache 2.0"
+bson, 4.9.1, "Apache 2.0"
 builder, 3.2.4, MIT
 bundler, 1.17.3, MIT
 byebug, 11.1.3, "Simplified BSD"
-coderay, 1.1.2, MIT
+coderay, 1.1.3, MIT
 concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
@@ -35,7 +35,7 @@ diff-lcs, 1.3, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.61.3, "Apache 2.0"
 docile, 1.3.2, MIT
 ed25519, 1.2.4, MIT
-em-http-request, 1.1.5, MIT
+em-http-request, 1.1.6, MIT
 em-socksify, 0.3.2, MIT
 erubis, 2.7.0, MIT
 eventmachine, 1.2.7, "ruby, GPL-2.0"
@@ -50,6 +50,8 @@ hashery, 2.1.2, "Simplified BSD"
 hrr_rb_ssh, 0.3.0.pre2, "Apache 2.0"
 http_parser.rb, 0.6.0, MIT
 i18n, 0.9.5, MIT
+io-console, 0.5.6, "Simplified BSD"
+irb, 1.2.4, "Simplified BSD"
 jmespath, 1.4.0, "Apache 2.0"
 jsobfu, 0.4.2, "New BSD"
 json, 2.3.0, ruby
@@ -58,7 +60,7 @@ memory_profiler, 0.9.14, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 2.0.5, "New BSD"
 metasploit-credential, 3.0.4, "New BSD"
-metasploit-framework, 5.0.92, "New BSD"
+metasploit-framework, 5.0.93, "New BSD"
 metasploit-model, 2.0.4, "New BSD"
 metasploit-payloads, 1.4.2, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 3.0.10, "New BSD"
@@ -100,8 +102,10 @@ railties, 4.2.11.3, MIT
 rainbow, 3.0.0, MIT
 rake, 13.0.1, MIT
 rb-readline, 0.5.5, BSD
-recog, 2.3.7, unknown
+recog, 2.3.8, unknown
 redcarpet, 3.5.0, MIT
+regexp_parser, 1.7.0, MIT
+reline, 0.1.4, "Ruby License"
 rex-arch, 0.1.13, "New BSD"
 rex-bin_tools, 0.1.6, "New BSD"
 rex-core, 0.1.13, "New BSD"
@@ -129,7 +133,7 @@ rspec-mocks, 3.9.1, MIT
 rspec-rails, 4.0.1, MIT
 rspec-rerun, 1.1.0, MIT
 rspec-support, 3.9.3, MIT
-rubocop, 0.84.0, MIT
+rubocop, 0.85.0, MIT
 rubocop-ast, 0.0.3, MIT
 ruby-macho, 2.2.0, MIT
 ruby-prof, 1.4.1, "Simplified BSD"
@@ -156,7 +160,7 @@ tzinfo-data, 1.2020.1, MIT
 unicode-display_width, 1.7.0, MIT
 warden, 1.2.7, MIT
 websocket-driver, 0.7.2, "Apache 2.0"
-websocket-extensions, 0.1.4, "Apache 2.0"
+websocket-extensions, 0.1.5, "Apache 2.0"
 windows_error, 0.1.2, BSD
 xdr, 2.0.0, "Apache 2.0"
 xmlrpc, 0.3.0, ruby

@@ -6,21 +6,29 @@ module Msf::Module::Deprecated
   module ClassMethods
     attr_accessor :deprecation_date
     attr_accessor :deprecated_names
+    attr_accessor :deprecation_reason
 
     # Mark this module as deprecated
     #
     # Any time this module is run it will print warnings to that effect.
     #
-    # @param deprecation_date [Date,#to_s] The date on which this module will
+    # @param date [Date,#to_s] The date on which this module will
     #   be removed
+    # @param reason [String] A description reason for this module being deprecated
     # @return [void]
-    def deprecated(date)
+    def deprecated(date, reason = nil)
       self.deprecation_date = date
+      self.deprecation_reason = reason
 
       # NOTE: fullname isn't set until a module has been added to a set, which is after it is evaluated
       add_warning do
-        [ "*%red" + "The module #{fullname} is deprecated!".center(88) + "%clr*",
-          "*" + "This module will be removed on or about #{self.class.deprecation_date}".center(88) + "*" ]
+        details = [
+          "*%red" + "The module #{fullname} is deprecated!".center(88) + "%clr*",
+          "*" + "This module will be removed on or about #{date}".center(88) + "*"
+        ]
+        details << "*#{reason.center(88)}*" if reason.present?
+
+        details
       end
     end
 
