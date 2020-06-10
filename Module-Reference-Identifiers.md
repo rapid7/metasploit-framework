@@ -1,6 +1,11 @@
+## On this page
+* [List of supported reference identifiers](#list-of-supported-reference-identifiers)
+* [Code example of references in a module](#code-example-of-references-in-a-module)
+
+
 A reference in a Metasploit module is a source of information related to the module. This can be a link to the vulnerability advisory, a news article, a blog post about a specific technique the module uses, a specific tweet, etc. The more you have the better. However, you should not use this as a form of advertisement.
 
-## List of supported reference identifiers ##
+## List of supported reference identifiers 
 
 ID  | Source | Code Example
 ------------- | ------------- | -------------
@@ -16,9 +21,10 @@ PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
 URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
 AKA (_deprecated_*) | anything | ~~`['AKA', 'shellshock']`~~
 
-*Note: AKA names for modules are no longer stored as a reference identifier, but rather in the `Notes` metadata field as shown in the example below.
+> **Good to know**    
+> AKA names for modules are no longer stored as a reference identifier, but rather in the `Notes` metadata field as shown in the example below.
 
-## Code Example of having references in a module ##
+## Code example of references in a module
 
 ```ruby
 require 'msf/core'
