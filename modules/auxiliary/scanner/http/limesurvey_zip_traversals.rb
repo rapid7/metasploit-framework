@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Auxiliary
           for arbitrary file download.
           Verified against 4.1.11-200316, 3.15.0-181008, 3.9.0-180604, 3.6.0-180328,
           3.0.0-171222, and 2.70.0-170921.
-
         },
         'License' => MSF_LICENSE,
         'Author' =>
