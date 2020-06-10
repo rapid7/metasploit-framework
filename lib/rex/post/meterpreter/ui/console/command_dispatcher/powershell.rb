@@ -36,7 +36,7 @@ class Console::CommandDispatcher::Powershell
     }
   end
 
-  @@powershell_session_remove = Rex::Parser::Arguments.new(
+  @@powershell_session_remove_opts = Rex::Parser::Arguments.new(
     '-s' => [true, 'Specify the id/name of the Powershell session to interact with (cannot be "default").'],
     '-h' => [false, 'Help banner']
   )
@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Powershell
       return false
     else
       client.powershell.session_remove(opts)
-      print_success("Session '#{opts[:session_id]}' removed.")
+      print_good("Session '#{opts[:session_id]}' removed.")
       return true
     end
   end
