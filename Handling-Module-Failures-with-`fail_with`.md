@@ -1,16 +1,23 @@
-When a module fails, the `fail_with` method provides a standardized way to describe the reason for the failure.  The first parameter depends on the cause of the failure.
+## On this page
+* [Example uses](#example-uses)
+* [Comprehensive list of `fail_with` parameters](#comprehensive-list-of-fail_with-parameters)
+
+
+When a module fails, the `fail_with` method provides a standardized way to describe the reason for the failure. The first parameter depends on the cause of the failure.
 
 ## Example uses
 
-`modules/exploits/osx/local/sudo_password_bypass.rb` fails using `Failure::NotVulnerable` if the `check` method does not indicate that the target is indeed vulnerable:
-```
+`modules/exploits/osx/local/sudo_password_bypass.rb` fails using `Failure::NotVulnerable` if the `check` method does not indicate that the target is vulnerable:
+
+```ruby
   if check != CheckCode::Vulnerable
     fail_with Failure::NotVulnerable, 'Target is not vulnerable'
   end
 ```
 
 `modules/exploits/multi/http/struts2_namespace_ognl.rb` fails using the `Failure::PayloadFailed` if the target's response does not include a string indicating that the payload successfully executed.  Alternatively, if the target responds with an HTTP error, the module invokes `fail_with` using the `Failure::UnexpectedReply` parameter:
-```
+
+```ruby
   if r && r.headers && r.headers['Location'].split('/')[1] == success_string
     print_good("Payload successfully dropped and executed.")
   elsif r && r.headers['Location']
@@ -23,14 +30,14 @@ When a module fails, the `fail_with` method provides a standardized way to descr
 
 ## Comprehensive list of `fail_with` parameters
 
-The following are currently used `fail_with` parameters, and a brief description of common uses.
+The following are currently used `fail_with` parameters  and a brief description of common uses.
 
 | `fail_with` parameter    | Reason for failure                                                    |
 |--------------------------|-----------------------------------------------------------------------|
 | Failure::BadConfig       | The user-provided parameters are invalid and must be corrected.       |
 | Failure::Disconnected    | The target closed the connection forcibly.                            |
 | Failure::NoAccess        | An attempt to authenticate failed, likely due to invalid credentials. |
-| Failure::None            | The outcome for the module has already been met (eg. a privilege escalation is already in an elevated context) |
+| Failure::None            | The outcome for the module has already been met, for example a privilege escalation is already in an elevated context) |
 | Failure::NoTarget        | The specified TARGET or PAYLOAD variables are misconfigured or the target environment is unsupported. |
 | Failure::NotFound        | A preexisting file or resource on target is missing.                  |
 | Failure::NotVulnerable   | The target returned a response indicative of being patched or otherwise mitigated. |
