@@ -21,9 +21,9 @@ class MetasploitModule < Msf::Auxiliary
       'Actions'     =>
         [
           [
-            'WebServer', {
-              'Description' => 'A web that collects information about the browser.'
-          }]
+            'WebServer',
+              'Description' => 'A web server that collects information about the browser.'
+          ]
         ],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer'

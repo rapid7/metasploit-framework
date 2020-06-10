@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21999385' ]
         ],
         'DisclosureDate' => 'Aug 31 2017',
-        'Actions'        => [[ 'WebServer' ]],
+        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
       )

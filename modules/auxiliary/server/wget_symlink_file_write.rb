@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => ['hdm'],
       'License'        => MSF_LICENSE,
-      'Actions'        => [['Service']],
+      'Actions'        => [['Service', 'Description' => 'Run malicious FTP server']],
       'PassiveActions' => ['Service'],
       'References'     =>
         [

@@ -28,9 +28,9 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Nov 1 2006',
       'Actions'        =>
         [
-          ['Download']
+          ['Dump', 'Description' => 'Dump user and password']
         ],
-      'DefaultAction'  => 'Download'
+      'DefaultAction'  => 'Dump'
       ))
 
     register_options(

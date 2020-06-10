@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'kris katterjohn',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run telnet capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )

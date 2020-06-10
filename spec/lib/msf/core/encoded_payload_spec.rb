@@ -121,12 +121,20 @@ RSpec.describe Msf::EncodedPayload do
     context 'with bad characters: "\\0"' do
       let(:badchars) { "\0".force_encoding('binary') }
 
-      specify 'chooses x86/shikata_ga_nai' do
-        expect(encoded_payload.encoder.refname).to eq("x86/shikata_ga_nai")
+      context 'when the payload contains the bad characters' do
+        specify 'chooses x86/shikata_ga_nai' do
+          expect(encoded_payload.encoder.refname).to eq("x86/shikata_ga_nai")
+        end
+
+        specify do
+          expect(encoded_payload.encoded).not_to include(badchars)
+        end
       end
 
-      specify do
-        expect(encoded_payload.encoded).not_to include(badchars)
+      context 'when the payload does not contain the bad characters' do
+        specify 'returns the raw value' do
+          expect(encoded_payload.generate("RAW")).to eql("RAW")
+        end
       end
 
     end

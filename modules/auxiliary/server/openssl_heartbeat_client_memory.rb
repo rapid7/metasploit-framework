@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           'hdm' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'Actions'        => [['Capture']],
+      'Actions'        => [['Capture', 'Description' => 'Run server to disclose memory from incoming clients']],
       'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture',
       'References'     =>
