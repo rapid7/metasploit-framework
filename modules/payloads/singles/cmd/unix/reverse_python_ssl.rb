@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = :dynamic
+  CachedSize = 629
 
   include Msf::Payload::Single
   include Msf::Payload::Python

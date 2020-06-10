@@ -29,10 +29,43 @@ class Console::CommandDispatcher::Powershell
   #
   def commands
     {
-      'powershell_import'   => 'Import a PS1 script or .NET Assembly DLL',
-      'powershell_shell'    => 'Create an interactive Powershell prompt',
-      'powershell_execute'  => 'Execute a Powershell command string'
+      'powershell_import'         => 'Import a PS1 script or .NET Assembly DLL',
+      'powershell_shell'          => 'Create an interactive Powershell prompt',
+      'powershell_execute'        => 'Execute a Powershell command string',
+      'powershell_session_remove' => 'Remove/clear a session (other than default)',
     }
+  end
+
+  @@powershell_session_remove_opts = Rex::Parser::Arguments.new(
+    '-s' => [true, 'Specify the id/name of the Powershell session to interact with (cannot be "default").'],
+    '-h' => [false, 'Help banner']
+  )
+
+  def powershell_session_remove_usage
+    print_line('Usage: powershell_session_remove -s session-id')
+    print_line
+    print_line('Removes a named session from the powershell instance.')
+    print_line(@@powershell_session_remove_opts.usage)
+  end
+
+  def cmd_powershell_session_remove(*args)
+    opts = {}
+
+    @@powershell_session_remove_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-s'
+        opts[:session_id] = val
+      end
+    }
+
+    if opts[:session_id].nil? || opts[:session_id].downcase == 'default' || args.include?('-h')
+      powershell_session_remove_usage
+      return false
+    else
+      client.powershell.session_remove(opts)
+      print_good("Session '#{opts[:session_id]}' removed.")
+      return true
+    end
   end
 
   @@powershell_shell_opts = Rex::Parser::Arguments.new(

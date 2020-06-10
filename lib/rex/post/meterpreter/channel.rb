@@ -94,7 +94,7 @@ class Channel
   #
   def Channel.create(client, type = nil, klass = nil,
       flags = CHANNEL_FLAG_SYNCHRONOUS, addends = nil, **klass_kwargs)
-    request = Packet.create_request('core_channel_open')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_OPEN)
 
     # Set the type of channel that we're allocating
     if !type.nil?
@@ -179,7 +179,7 @@ class Channel
       raise IOError, "Channel has been closed.", caller
     end
 
-    request = Packet.create_request('core_channel_read')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_READ)
 
     if length.nil?
       # Default block size to a higher amount for passive dispatcher
@@ -227,7 +227,7 @@ class Channel
       raise IOError, "Channel has been closed.", caller
     end
 
-    request = Packet.create_request('core_channel_write')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_WRITE)
 
     # Truncation and celebration
     if ((length != nil) &&
@@ -290,7 +290,7 @@ class Channel
       raise IOError, "Channel has been closed.", caller
     end
 
-    request = Packet.create_request('core_channel_close')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_CLOSE)
 
     # Populate the request
     request.add_tlv(TLV_TYPE_CHANNEL_ID, cid)
@@ -322,7 +322,7 @@ class Channel
       raise IOError, "Channel has been closed.", caller
     end
 
-    request = Packet.create_request('core_channel_interact')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_INTERACT)
 
     # Populate the request
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
@@ -397,12 +397,12 @@ class Channel
   # per-instance basis as other instances may add custom dio
   # handlers.
   #
-  def dio_map(method)
-    if (method == 'core_channel_read')
+  def dio_map(command_id)
+    if command_id == COMMAND_ID_CORE_CHANNEL_READ
       return CHANNEL_DIO_READ
-    elsif (method == 'core_channel_write')
+    elsif command_id == COMMAND_ID_CORE_CHANNEL_WRITE
       return CHANNEL_DIO_WRITE
-    elsif (method == 'core_channel_close')
+    elsif command_id == COMMAND_ID_CORE_CHANNEL_CLOSE
       return CHANNEL_DIO_CLOSE
     end
 

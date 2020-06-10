@@ -129,6 +129,9 @@ module PacketDispatcher
       tlv_enc_key = opts[:tlv_enc_key]
     end
 
+    # Uncomment this line if you want to see outbound packets in the console.
+    #STDERR.puts("SEND: #{packet.inspect}\n")
+
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
     err   = nil
@@ -243,7 +246,7 @@ module PacketDispatcher
         self.alive = false
       end
     else
-      pkt = Packet.create_request('core_channel_eof')
+      pkt = Packet.create_request(COMMAND_ID_CORE_CHANNEL_EOF)
       pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
       add_response_waiter(pkt, Proc.new { @ping_sent = false })
       send_packet(pkt)
@@ -366,7 +369,7 @@ module PacketDispatcher
             tmp_command << pkt
             next
           end
-          if(pkt.method == "core_channel_close")
+          if(pkt.method == COMMAND_ID_CORE_CHANNEL_CLOSE)
             tmp_close << pkt
             next
           end
@@ -558,6 +561,9 @@ module PacketDispatcher
   #
   def dispatch_inbound_packet(packet)
     handled = false
+
+    # Uncomment this line if you want to see inbound packets in the console
+    #STDERR.puts("RECV: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = Time.now

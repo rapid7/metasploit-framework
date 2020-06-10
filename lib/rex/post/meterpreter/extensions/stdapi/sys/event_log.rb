@@ -34,7 +34,7 @@ class EventLog
   #++
   #
   def EventLog.open(name)
-    request = Packet.create_request('stdapi_sys_eventlog_open')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_OPEN)
 
     request.add_tlv(TLV_TYPE_EVENT_SOURCENAME, name);
 
@@ -73,7 +73,7 @@ class EventLog
   # Return the number of records in the event log.
   #
   def length
-    request = Packet.create_request('stdapi_sys_eventlog_numrecords')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_NUMRECORDS)
 
     request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
 
@@ -86,7 +86,7 @@ class EventLog
   # the low level read function (takes flags, not hash, etc).
   #
   def _read(flags, offset = 0)
-    request = Packet.create_request('stdapi_sys_eventlog_read')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_READ)
 
     request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle)
     request.add_tlv(TLV_TYPE_EVENT_READFLAGS, flags)
@@ -150,7 +150,7 @@ class EventLog
   # Return the record number of the oldest event (not necessarily 1).
   #
   def oldest
-    request = Packet.create_request('stdapi_sys_eventlog_oldest')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_OLDEST)
 
     request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
 
@@ -167,11 +167,11 @@ class EventLog
   #++
   #
   def clear
-    request = Packet.create_request('stdapi_sys_eventlog_clear')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_CLEAR)
 
     request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
 
-    response = client.send_request(request)
+    client.send_request(request)
     return self
   end
 
@@ -179,9 +179,9 @@ class EventLog
   # Close the event log
   #
   def self.close(client, handle)
-    request = Packet.create_request('stdapi_sys_eventlog_close')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_EVENTLOG_CLOSE)
     request.add_tlv(TLV_TYPE_EVENT_HANDLE, handle);
-    response = client.send_request(request, nil)
+    client.send_request(request, nil)
     return nil
   end
 

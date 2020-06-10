@@ -254,7 +254,7 @@ class Library
     end
 
     #puts "\n\nsending Stuff to meterpreter"
-    request = Packet.create_request('stdapi_railgun_api')
+    request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_API)
     request.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
 
     request.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)

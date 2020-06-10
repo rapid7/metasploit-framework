@@ -50,7 +50,7 @@ TLV_TEMP                    = 60000
 # TLV Specific Types
 #
 TLV_TYPE_ANY                 = TLV_META_TYPE_NONE   |   0
-TLV_TYPE_METHOD              = TLV_META_TYPE_STRING |   1
+TLV_TYPE_COMMAND_ID          = TLV_META_TYPE_UINT   |   1
 TLV_TYPE_REQUEST_ID          = TLV_META_TYPE_STRING |   2
 TLV_TYPE_EXCEPTION           = TLV_META_TYPE_GROUP  |   3
 TLV_TYPE_RESULT              = TLV_META_TYPE_UINT   |   4
@@ -189,7 +189,7 @@ class Tlv
       when PACKET_TYPE_REQUEST; "Request"
       when PACKET_TYPE_RESPONSE; "Response"
       when TLV_TYPE_REQUEST_ID; "REQUEST-ID"
-      when TLV_TYPE_METHOD; "METHOD"
+      when TLV_TYPE_COMMAND_ID; "COMMAND-ID"
       when TLV_TYPE_RESULT; "RESULT"
       when TLV_TYPE_EXCEPTION; "EXCEPTION"
       when TLV_TYPE_STRING; "STRING"
@@ -272,9 +272,9 @@ class Tlv
       }
       tlvs_inspect << "]"
     else
-      tlvs_inspect = "meta=#{meta.ljust 10} value=#{val}"
+      tlvs_inspect = "meta=#{meta.ljust(10)} value=#{val}"
     end
-    "#<#{self.class} type=#{stype.ljust 15} #{tlvs_inspect}>"
+    "#<#{self.class} type=#{stype.ljust(15)} #{tlvs_inspect}>"
   end
 
   ##
@@ -894,8 +894,7 @@ class Packet < GroupTlv
   # Checks to see if the packet is a response.
   #
   def response?
-    return ((self.type == PACKET_TYPE_RESPONSE) ||
-            (self.type == PACKET_TYPE_PLAIN_RESPONSE))
+    (self.type == PACKET_TYPE_RESPONSE || self.type == PACKET_TYPE_PLAIN_RESPONSE)
   end
 
   ##
@@ -908,21 +907,22 @@ class Packet < GroupTlv
   # Checks to see if the packet's method is equal to the supplied method.
   #
   def method?(method)
-    return (get_tlv_value(TLV_TYPE_METHOD) == method)
+    (get_tlv_value(TLV_TYPE_COMMAND_ID) == method)
   end
 
   #
   # Sets the packet's method TLV to the method supplied.
   #
   def method=(method)
-    add_tlv(TLV_TYPE_METHOD, method, true)
+    raise ArgumentError.new("Packet.method must be an integer. Current value is #{method}") unless method.is_a?(Integer)
+    add_tlv(TLV_TYPE_COMMAND_ID, method, true)
   end
 
   #
   # Returns the value of the packet's method TLV.
   #
   def method
-    return get_tlv_value(TLV_TYPE_METHOD)
+    get_tlv_value(TLV_TYPE_COMMAND_ID)
   end
 
   #
@@ -930,7 +930,7 @@ class Packet < GroupTlv
   # result.
   #
   def result?(result)
-    return (get_tlv_value(TLV_TYPE_RESULT) == result)
+    (get_tlv_value(TLV_TYPE_RESULT) == result)
   end
 
   #
@@ -944,14 +944,14 @@ class Packet < GroupTlv
   # Gets the value of the packet's result TLV.
   #
   def result
-    return get_tlv_value(TLV_TYPE_RESULT)
+    get_tlv_value(TLV_TYPE_RESULT)
   end
 
   #
   # Gets the value of the packet's request identifier TLV.
   #
   def rid
-    return get_tlv_value(TLV_TYPE_REQUEST_ID)
+    get_tlv_value(TLV_TYPE_REQUEST_ID)
   end
 end
 
