@@ -70,10 +70,7 @@ class Pingback
       rescue => e
         # TODO: Can we have a more specific exception handler?
         # Test: what if we send no bytes back?  What if we send less than 16 bytes?  Or more than?
-        elog("Can't get original UUID")
-        elog("Exception Class: #{e.class.name}")
-        elog("Exception Message: #{e.message}")
-        elog("Exception Backtrace: #{e.backtrace}")
+        elog('Can\'t get original UUID', error: e)
       end
     else
       print_warning("WARNING: UUID verification and logging is not available, because the database is not active.")

@@ -92,7 +92,7 @@ class Service
     begin
       res.body = process(req).to_msgpack
     rescue Msf::RPC::Exception => e
-      elog("RPC Exception: #{e.class} #{e} #{e.backtrace} #{cli.inspect} #{req.inspect}")
+      elog('RPC Exception', error: e)
       res.body = process_exception(e).to_msgpack
       res.code = e.code
     end
@@ -155,7 +155,7 @@ class Service
       ::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(mname, *msg) }
 
     rescue ::Exception => e
-      elog("RPC Exception: #{e.class} #{e.to_s} #{e.backtrace} #{msg.inspect} #{req.inspect}")
+      elog('RPC Exception', error: e)
       process_exception(e)
     end
   end

@@ -36,7 +36,7 @@ class Evasion
       print_error('Evasion interrupted by the console user')
     rescue ::Exception => e
       print_error("Evasion failed: #{e.class} #{e}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog('Evasion Failed', error: e)
     end
   end
 

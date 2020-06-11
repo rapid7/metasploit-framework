@@ -18,8 +18,7 @@ module Msf::DBManager::Connection
       migrate
     rescue ::Exception => exception
       self.error = exception
-      elog("DB.connect threw an exception: #{exception}")
-      dlog("Call stack: #{exception.backtrace.join("\n")}", LEV_1)
+      elog('DB.connect threw an exception', error: exception)
 
       # remove connection to prevent issues when re-establishing connection
       ActiveRecord::Base.remove_connection
@@ -59,8 +58,7 @@ module Msf::DBManager::Connection
       end
     rescue ::Exception => e
       self.error = e
-      elog("DB.connect threw an exception: #{e}")
-      dlog("Call stack: #{$@.join"\n"}", LEV_1)
+      elog('DB.connect threw an exception', error: e)
       return false
     ensure
       after_establish_connection
@@ -135,7 +133,7 @@ module Msf::DBManager::Connection
       self.modules_cached = false
     rescue ::Exception => e
       self.error = e
-      elog("DB.disconnect threw an exception: #{e}")
+      elog('DB.disconnect threw an exception:', error: e)
     end
   end
 end

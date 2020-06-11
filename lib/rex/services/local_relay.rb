@@ -183,8 +183,8 @@ class LocalRelay
       self.relay_thread = Rex::ThreadFactory.spawn("LocalRelay", false) {
         begin
           monitor_relays
-        rescue ::Exception
-          elog("Error in #{self} monitor_relays: #{$!}", 'rex')
+        rescue ::Exception => e
+          elog("Error in #{self} monitor_relays", 'rex', error: e)
         end
       }
     end
@@ -494,8 +494,8 @@ protected
         dlog("monitor_relays: closed stream #{e.stream}", 'rex', LEV_3)
 
         next
-      rescue
-        elog("Error in #{self} monitor_relays select: #{$!.class} #{$!}", 'rex')
+      rescue => e
+        elog("Error in #{self} monitor_relays select:", 'rex', error: e)
         return
       end
 
@@ -516,8 +516,8 @@ protected
             data = rfd.sysread(65536)
             rfd.other_stream.on_other_data(data)
           # If we catch an error, close the connection
-          rescue ::Exception
-            elog("Error in #{self} monitor_relays read: #{$!}", 'rex')
+          rescue ::Exception => e
+            elog("Error in #{self} monitor_relays read", 'rex', error: e)
             close_relay_conn(rfd)
           end
         end

@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           user_list = JSON.parse(res.body)
         rescue JSON::ParserError => e
-          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          elog('Exception encountered parsing JSON response', error: e)
           return []
         end
         if user_list.empty?

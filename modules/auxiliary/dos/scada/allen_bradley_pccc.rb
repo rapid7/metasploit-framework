@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
-    elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    elog(e)
   ensure
     disconnect
   end
@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(pccc_dos_pkt(enip_session_id, cip_connection_id))
 
   rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
-    elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    elog(e)
   ensure
     disconnect
   end

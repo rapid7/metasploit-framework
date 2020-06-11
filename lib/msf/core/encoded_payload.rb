@@ -235,9 +235,8 @@ class EncodedPayload
             next_encoder = true
             break
 
-          rescue ::Exception
-            elog("#{err_start}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
-            dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
+          rescue ::Exception => e
+            elog("Broken encoder #{encoder.refname}", error: e)
             next_encoder = true
             break
           end

@@ -46,8 +46,7 @@ module Msf::DBManager::Migration
           # as StandardError
       rescue StandardError => error
         self.error = error
-        elog("DB.migrate threw an exception: #{error}")
-        dlog("Call stack:\n#{error.backtrace.join "\n"}")
+        elog('DB.migrate threw an exception', error: error)
       end
     end
 

@@ -352,7 +352,7 @@ module Msf
             begin
               session = handle_connection(simple_copy.pipe, opts)
             rescue => e
-              elog("Exception raised from BindNamedPipe.handle_connection: #{$!}")
+              elog('Exception raised from BindNamedPipe.handle_connection', error: e)
             end
           }
         }
