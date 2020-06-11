@@ -212,8 +212,9 @@ module Msf
               # Remove persistence by job id.
               job_list.map(&:to_s).each do |job|
                 if framework.jobs.key?(job)
-                  next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
-                  payload_option = framework.jobs[job.to_s].ctx[1].datastore
+                  ctx_1 = framework.jobs[job.to_s].ctx[1]
+                  next if ctx_1.nil? || !ctx_1.respond_to?(:datastore)  # next if no payload context in the job
+                  payload_option = ctx_1.datastore
                   persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
                 end
               end
