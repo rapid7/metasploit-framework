@@ -47,6 +47,7 @@ RSpec.describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::WMAP'
   it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
+  it_should_behave_like 'Msf::DBManager::FileManager'
 
   # Not implemented in remote data service
   unless ENV['REMOTE_DB']
