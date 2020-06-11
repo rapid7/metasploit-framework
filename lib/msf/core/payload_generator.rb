@@ -48,6 +48,9 @@ module Msf
     # @!attribute  secname
     #   @return [String] The name of the new section within the generated Windows binary
     attr_accessor :secname
+    # @!attribute  servicename
+    #   @return [String] The name of the service to be associated with the generated Windows binary
+    attr_accessor :servicename
     # @!attribute  format
     #   @return [String] The format you want the payload returned in
     attr_accessor :format
@@ -133,6 +136,7 @@ module Msf
       @datastore  = opts.fetch(:datastore, {})
       @encoder    = opts.fetch(:encoder, '')
       @secname    = opts.fetch(:secname, '')
+      @servicename = opts.fetch(:servicename, '')
       @format     = opts.fetch(:format, 'raw')
       @iterations = opts.fetch(:iterations, 1)
       @keep       = opts.fetch(:keep, false)
@@ -302,6 +306,9 @@ module Msf
       end
       unless secname.blank?
         opts[:secname]       = secname
+      end
+      unless servicename.blank?
+        opts[:servicename] = servicename
       end
       opts
     end

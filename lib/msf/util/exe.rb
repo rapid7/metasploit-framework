@@ -529,6 +529,7 @@ require 'msf/core/exe/segment_appender'
   # @option opts [Boolean] :sub_method
   # @return      [String]
   def self.exe_sub_method(code,opts ={})
+    require 'pry'; binding.pry
     pe = self.get_file_contents(opts[:template])
 
     case opts[:exe_type]
@@ -667,6 +668,7 @@ require 'msf/core/exe/segment_appender'
   def self.to_win64pe_service(framework, code, opts = {})
     # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x64_windows_svc.exe")
+    require 'pry'; binding.pry
     opts[:exe_type] = :service_exe
     exe_sub_method(code,opts)
   end
