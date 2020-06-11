@@ -10,6 +10,7 @@ require 'metasploit/framework/data_service/stubs/session_event_service'
 require 'metasploit/framework/data_service/stubs/exploit_data_service'
 require 'metasploit/framework/data_service/stubs/loot_data_service'
 require 'metasploit/framework/data_service/stubs/msf_data_service'
+require 'metasploit/framework/data_service/stubs/file_data_service'
 
 #
 # All data service implementations should include this module to ensure proper implementation
@@ -29,6 +30,7 @@ module DataService
   include ExploitDataService
   include LootDataService
   include MsfDataService
+  include FileDataService
 
   def name
     raise 'DataService#name is not implemented';
