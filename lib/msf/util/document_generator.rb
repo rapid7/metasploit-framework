@@ -73,7 +73,7 @@ module Msf
           items[:mod_targets] = mod.targets
         end
 
-        n.get_md_content(items, kb)
+        n.get_md_content(items, kb).force_encoding('UTF-8')
       end
 
     end
