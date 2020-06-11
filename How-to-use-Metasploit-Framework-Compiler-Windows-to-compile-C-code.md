@@ -1,8 +1,15 @@
-# How to use Metasploit::Framework::Compiler::Windows to compile C code
+
+## On this page
+
+* [EXE Example](#exe-example)
+* [DLL Example](#dll-example)
+* [Printf()](#printf)
+* [Custom Headers](#custom-headers)
+* [Code Randomization](#code-randomization)
 
 ```Metasploit::Framework::Compiler::Windows``` is a wrapper of [Metasm](https://github.com/jjyg/metasm) specifically for compiling C code for the Windows platform. The purpose of the wrapper is to support default headers, such as `stdio.h`, `stdio.h`, `String.h`, `Windows.h`, or some other important headers that you might use while writing in C.
 
-# EXE Example
+## EXE example
 
 ```ruby
 c_template = %Q|#include <Windows.h>
@@ -16,14 +23,15 @@ int main(void) {
 
 require 'metasploit/framework/compiler/windows'
 
-# This will save the binary in variable exe
+
+## Save as an exe varibale
 exe = Metasploit::Framework::Compiler::Windows.compile_c(c_template)
 
-# This will save the binary as a file
+## Save the binary as a file
 Metasploit::Framework::Compiler::Windows.compile_c_to_file('/tmp/test.exe', c_template)
 ```
 
-# DLL Example
+## DLL example
 
 ```ruby
 c_template = %Q|#include <Windows.h>
@@ -77,17 +85,22 @@ Or call the function in export with rundll32:
 rundll32 hell_world.dll,Msg
 ```
 
-# Printf()
+## Printf()
 
-Note that methods like `printf()` won't actually print anything, because it's not hooked up to stdout. If you want to use `printf()` for debugging purposes, you can consider using `OutputDebugString`, or `MessageBox` instead.
+Methods like `printf()` won't actually print anything, because it's not connected up to stdout. If you want to use `printf()` for debugging purposes, consider using `OutputDebugString`, or `MessageBox`.
 
-# Custom Headers
+## Custom Headers
 
 Currently, the Metasm wrapper does not support custom headers from an arbitrary location. To work around this, you can place your headers in `data/headers/windows`, and then add that file name in `lib/metasploit/framework/compiler/headers/windows.h`.
 
-# Code Randomization
+## Code Randomization
 
-`Metasploit::Framework::Compiler` supports obfuscation that randomizes code at the source code level, and then compile. There are two methods we can use: `Metasploit::Framework::Compiler::Windows.compile_random_c`, or `Metasploit::Framework::Compiler::Windows.compile_random_c_to_file`. Using the last as an example:
+`Metasploit::Framework::Compiler` supports obfuscation that randomizes code at the source code level, and then compile. There are two methods we can use:
+ 
+* `Metasploit::Framework::Compiler::Windows.compile_random_c`
+* `Metasploit::Framework::Compiler::Windows.compile_random_c_to_file`
+
+Metasploit::Framework::Compiler::Windows.compile_random_c_to_file example:
 
 ```ruby
 require 'msf/core'
