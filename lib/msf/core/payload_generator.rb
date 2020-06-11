@@ -51,6 +51,9 @@ module Msf
     # @!attribute  servicename
     #   @return [String] The name of the service to be associated with the generated Windows binary
     attr_accessor :servicename
+    # @!attribute  sub_method
+    #   @return [Boolean] Whether or not this binary needs the x86 sub_method applied or not.
+    attr_accessor :sub_method
     # @!attribute  format
     #   @return [String] The format you want the payload returned in
     attr_accessor :format
@@ -137,6 +140,7 @@ module Msf
       @encoder    = opts.fetch(:encoder, '')
       @secname    = opts.fetch(:secname, '')
       @servicename = opts.fetch(:servicename, '')
+      @sub_method = opts.fetch(:sub_method, false)
       @format     = opts.fetch(:format, 'raw')
       @iterations = opts.fetch(:iterations, 1)
       @keep       = opts.fetch(:keep, false)
@@ -309,6 +313,11 @@ module Msf
       end
       unless servicename.blank?
         opts[:servicename] = servicename
+      end
+      if sub_method.nil?
+        opts[:sub_method] = false
+      else
+        opts[:sub_method] = sub_method
       end
       opts
     end
