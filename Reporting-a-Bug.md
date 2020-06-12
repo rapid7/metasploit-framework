@@ -1,145 +1,79 @@
 # Metasploit Bug Reporting
 
-As any open source software product grows in popularity, there is a tendency to see an **increase** in bug report volume coupled with a corresponding **decrease** in bug report quality. We are not against getting bug reports for Metasploit -- we need bug reports in order to know what's broken. So, rather than trying to stem the tide of bugs, this page will attempt to make sure that each bug report we get is written in a way that maximizes its chances of actually getting resolved.
+Metasploit gets hundreds of issue reports every year on our [issue tracker](https://github.com/rapid7/metasploit-framework/issues). Some issues aren't bug reports at all, but instead requests for new features or questions about Metasploit usage. We appreciate feature or enhancement requests, and you should feel free to keep submitting those to our issue tracker. Some questions, such as whether an odd error or behavior is intended, are okay to submit to the issue tracker as well. Other questions, such as basic support requests or questions on beginning Framework usage, are better to ask the community on [Slack](https://metasploit.com/slack). If you believe you have discovered a legitimate bug in Metasploit Framework, you should open a bug report on our [issue tracker](https://github.com/rapid7/metasploit-framework/issues). The rest of this page will discuss how to submit detailed, useful bug reports so we can understand and triage your issue as quickly as possible.
 
-By this point, the Metasploit development community has read thousands of bug reports, and it turns out, well-written bug reports tend to make fixing those bugs much faster and easier. It's really pretty remarkable that a speedy time-to-close seems to corellate so strongly with bug report quality and not the  complexity of the bug itself.
+The Metasploit development community has read thousands of bug reports over the past 15 years, and a well-written bug report makes fixing bugs much faster and easier. In fact, in our experience, how quickly we can understand and fix an issue has more to do with bug report quality than the complexity of the bug itself.
 
-That said, there are two situations where you generally oughtn't open a bug at all, and that's when you have a support contract, or when you've found a security issue with Metasploit itself.
+## When NOT to use Metasploit's issue tracker 
+**NOTE:** There are two situations where you should not open a bug report. 
+1. You should not open a bug report on Metasploit Framework's issue tracker if you are a Metasploit Pro or other Rapid7 customer.
+2. You should not open a bug report when you have found a security issue with Metasploit itself.
 
-## Support Contracts
+### Metasploit Pro Customers
+If you are a Metasploit Pro customer, or a customer of another Rapid7 product, you can log in to Rapid7's customer support portal [here](https://www.rapid7.com/for-customers/). You are also able to reach out to your CSM or support representative if you prefer. To provide a consistent customer experience, Metasploit Framework community members, committers, and open-source developers do not offer support for commercial Rapid7 products. Rapid7's support resources and team members are well-equipped to handle your Metasploit Pro support needs!
 
-If you have a support contract for a Metasploit product, you ought to get in touch with your Rapid7 support representative, or write to support@rapid7.com. The people who work Metasploit support full time are really pretty with-it are likely to have a fix or a workaround for you on the spot.
+### Security Issues
+If you have a security issue with Metasploit itself, you should email security@metasploit.com or let us know [here](https://www.rapid7.com/security/). Rapid7's disclosure policy is [here](https://www.rapid7.com/security/disclosure/). In general, if security issues are reported in a manner that lets our security teams understand them and work with you and others to fix them, we are happy to give you credit, inform you about progress, and explore related issues with you if you'd like. Our security teams are also happy to keep you anonymous if that's what you prefer. Clear communication and coordinated disclosure give us the best chance of fixing any security issues quickly and protecting users. 
 
-## Security Issues
+## Reporting Bugs: General Rules
+* Ensure the platform you're reporting the issue for is supported. We do not, for instance, support Termux currently. If your platform is not officially supported, the community may still have resources to help, but you should search for and ask about those outside Metasploit's issue tracker.
+* When possible, it helps if you are running the latest stable version of Metasploit Framework, or the latest release of Kali, BlackArch Linux, or your other favorite security distribution. Metasploit's [nightly installers are here](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers) and typically offer the latest Framework release.
+* Review our [code of conduct](https://github.com/rapid7/metasploit-framework/blob/master/CODE_OF_CONDUCT.md) before submitting issues.
+* Use a specific title so we can understand immediately which part of Metasploit is causing the unexpected behavior. "Error while running command exploit: undefined method `cached_size' for nil:NilClass" is a great title. "Problem with Metasploit target" is not.
+* Redact any private or sensitive data, such as target IPs or URLs, passwords, or personally identifying information.
+* Please don't comment on closed issues; instead, open a new issue and link to any previous relevant issues.
 
-If you have a security issue with Metasploit itself, then we'd really appreciate it if you let us know at security@metasploit.com. After all,  we'd like to [be treated as we treat other software projects](http://www.rapid7.com/disclosure.jsp). It's not because we'd like to bury your bug -- we'd just like to have a shot at fixing your bug before someone starts messing with our innocent users. We're happy to give you credit, keep you anonymous, inform you about progress, and explore related issues with you -- but if we see someone reporting security bugs out in public, then it gets a lot harder to keep all that attribution and communication straight as we try not to break our necks implementing a fix as fast as we can.
+## Reporting Bugs: Information to Include
+We ask for several different pieces of information when users report issues in Metasploit. As of June 2020, our core engineering team in Belfast is developing a `debug` command that will automatically give you all the information we require when you encounter an issue and then run the command in msfconsole. For now, the following information ensures that we can more effectively triage and address bugs. **If you do not provide this information, it is likely that response time will be significantly longer!**
 
-Also, if you could report your security bug in the form of a Metasploit module sent to security@metasploit.com, that would be both ideal and hilarious.
+### Steps to reproduce
+What did you do to get the results you got? Can you give us step-by-step instructions to get the same results you got? Are you able to consistently reproduce the issue in your own environment?
 
-That should cover the cases where you shouldn't open a bug at all, so let's move on to our main issue tracking system, Redmine.
+### Which OS are you using? What do we need to know about your environment and/or target? 
+Tell which operating system you're using and any relevant information about your setup. If the module or feature you're having trouble with requires any external dependencies, check whether that could solve your problem.
 
-# Introducing Redmine
+If you're having problems with a target (victim), tell us the target operating system and service versions.(Please ensure you've redacted any private or sensitive data!) If the module or feature you're having trouble with requires any external dependencies, check whether that could solve your problem.
 
-The final destination for bug reports in Metasploit is our Redmine [issue tracker](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1). This is where all issues that we want to track are born, grow old, and eventually die.
+If you're testing a module in a lab or virtual environment, we would appreciate as much data about the target as you can provide. This means exact versions of the target including patch levels, pcaps if you can capture them, and any kind of logging inside or outside of Framework. We will often ask for the `framework.log`.
 
-In order to file bug reports, you must first [create an account](https://dev.metasploit.com/redmine/account/register). It's easy and fun. Sadly, we can't take truly anonymous bug reports at this time due to spambots, but we are actively exploring ways to make this registration as painless and easy for humans as we can.
+### Expected behavior
+What should happen? If what you're trying to do used to work but no longer does, what was the behavior you encountered _before_ you ran into a problem?
 
-In conversation about Metasploit and someone asks, "is there a bug?" or refers to "the bug tracker" or "Redmine," we're nearly always talking about this system.
+### Current behavior
+What happens now? Please give us as many technical details as possible. We also strongly recommend that you send us any relevant logs and/or stack traces. We absolutely love logs and screen captures, so please do include them!
 
-## They're all Bugs
+### Metasploit version
+Get this with the `version` command in msfconsole (or `git log -1 --pretty=oneline` for a source install).
+Did you install Metasploit with...
+- [ ] Kali package via apt
+- [ ] Omnibus installer (nightly)
+- [ ] Commercial/Community installer (from http://www.rapid7.com/products/metasploit/download.jsp)
+- [ ] Source install (please specify Ruby version)
 
-Speaking of conversation, it's important to note that we will tend to refer to all issues as "bugs," regardless if it's actually a defect, a feature request, a or a support request. It's just fewer syllables and characters, and is not meant to disparage the content of the issue.
+This list isn't intended to be exhaustive—it's simply the bare minimum set of details we need to reproduce and diagnose your bug. You should feel free to include as much detailed information as you need to help us understand how you got the results you did. 
 
-## GitHub Issues
+## Reporting Bugs: Avoid Duplicates
+You may not be the first person to notice the problem you're seeing as a Framework user, and the more bug reports we get, the more difficult it is to sort through them all for easy fixes or high-priority issues. Here are some ways to help a previously-reported bug get noticed more quickly and prioritized (if necessary).
 
-We have an [Issue Tracker](https://github.com/rapid7/metasploit-framework/issues) enabled on the GitHub repo, but, as mentioned above, bugs should hit Redmine if they're going to be tracked. We had a fantasy of closing down Redmine for a while there and switching over to GitHub Issues completely, but Redmine is still just too useful to abandon.
+* Having a problem with a module? Try [searching that module's name](https://github.com/rapid7/metasploit-framework/issues?q=is%3Aissue+is%3Aopen+psexec) to see if anyone else has reported (or fixed!) your problem recently. 
+* Getting a strange error and not sure what it means? [Search for the error](https://github.com/rapid7/metasploit-framework/issues?q=is%3Aissue+URI.unescape) to see if others have had or addressed the same problem you are facing.
+* Pro tip: Search both [open and closed issues](https://github.com/rapid7/metasploit-framework/issues?q=is%3Aissue) to see if what you're reporting was resolved (in which case you might simply need to update to a later version of Metasploit) or if there's a workaround someone else has discovered that might help you while we get to your issue.
+* If you DO discover that someone else has already reported the issue you're experiencing, please do update that issue with any new information—for instance, that you're experiencing the issue on a different OS or in a different version of Metasploit than what the original issue reported described. 
+* If you find closed issues or resolved bugs that describe a problem you're having on a later version of Metasploit, that could indicate a regression (old bugs reintroduced). It helps us if you note this in your issue report. Fixes for regressions can be fast, so making note of possible regressions is useful.
+* Finally, you might find a bug that's been rejected or closed without resolution. In many of these cases, the problem is something external to Metasploit: user error, configuration issues, known incompatibilities, etc. If you think that the original resolution was in error or incomplete, open a **new** issue report and refer to any related issue reports. 
 
-So, in the interim, nobody is going to stop you from filing GitHub issues. Many GitHub projects have an "Issues" button, and we'd rather not surprise people and make them dig through the wiki to figure out how to report bugs. If you're reading this, you're now enlightened, so should avoid that Issues tab.
+## Reporting Bugs: Other Notes
+* Networking is hard, as we've often said even among ourselves! You might want to see if your network configuration is unusual in any way, or do a regular old internet search to check whether your config might be the problem.
+* Antivirus frequently causes strange behavior. Ensure antivirus is disabled on your system or in any VMs where you're using Metasploit.
+* GitHub pull requests frequently contain a LOT of conversation and context. If a bug already has a pull request associated with it, check the pull request conversation for other information that might be useful to you.
 
-## E-mail
+## Reporting Bugs: PRs Accepted!
+If you're a superhero and you figured out the root cause of a bug AND found a way to fix it, you can send your Metasploit fixes and improvements our way! The best way to get your fix into Metasploit quickly is to patch your own fork and submit a [pull request](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment#wiki-pull) to Metasploit. You get extra gratitude from all of us when you do this, and you'll also get a shout-out in the [weekly Metasploit wrap-up](https://blog.rapid7.com/tag/metasploit-weekly-wrapup/).
 
-We maintain a couple mailing lists -- the [Metasploit Framework](http://mail.metasploit.com/mailman/listinfo/framework) and the [Metasploit-Hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) lists. Sometimes people will run into problems and they'll mention them there. Sometimes, someone will put together bug reports based on traffic on these lists, but sometimes nobody will. The point is, if you're not sure if you have a bug or just a question on usage, start off with an e-mail to the Framework list. If you're pretty sure you have a bug, it's probably best to start off with a regular ol' bug report, and maybe mention it afterwards on one of these lists.
+You can find a guide on setting up your own [Metasploit Development Environment here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment).
 
-## Rapid7 Community
+## Reporting Bugs: Public Discussion
+Some projects and companies don't like discussing bugs in the bug report itself. Some even have policies of not doing this. Metasploit is not one of those projects. We greatly prefer public communication over private communication because it makes community knowledge accessible and searchable to everyone. That said, if you have specific privacy or security concerns, we're always happy to speak privately. You can get in touch with us at msfdev@metasploit.com. 
 
-Rapid7 runs a Metasploit user community over at (wait for it) [community.rapid7.com](https://community.rapid7.com/community/metasploit). Like e-mail, this is mostly a venue for discussion and help with using Metasploit, and not so much for bug reporting.
-
-# Getting Started 
-
-Enough talk, on to the mechanics of bug reporting!
-
-## Avoiding Duplicates
-
-You may not be the first person to notice the problem you're running into, so here are some strategies for ensuring that a previously reported bug gets attention.
-
-If you're having a problem with a particular module, you might try [searching that module's name](https://dev.metasploit.com/redmine/projects/framework/search?issues=1&q=ie_execcommand_uaf) to see if there's anything already reported. If your bug has a particular error message, [look for that](https://dev.metasploit.com/redmine/projects/framework/search?utf8=%E2%9C%93&q=%22nomethoderror+undefined+method%22+empty&scope=&all_words=&all_words=1&titles_only=&issues=1&submit=Submit).
-
-Another tactic is to simply glance at [the most recent](https://dev.metasploit.com/redmine/projects/framework/issues?set_filter=1&f%5B%5D=status_id&op%5Bstatus_id%5D=o&f%5B%5D=created_on&op%5Bcreated_on%5D=>t-&v%5Bcreated_on%5D%5B%5D=5&f%5B%5D=&c%5B%5D=tracker&c%5B%5D=parent&c%5B%5D=status&c%5B%5D=priority&c%5B%5D=subject&c%5B%5D=assigned_to&c%5B%5D=updated_on&c%5B%5D=category&group_by=) bugs, especially if you suspect this a new bug in a process you're sure used to work before.
-
-If you happen to find the bug you're experiencing, updating that report with any new information is hugely helpful in coming to a resolution. You might also find resolved bugs that describe your problem, which indicates a regression (old bugs reintroduced) -- the fixes for those are usually fast, so noting likely regressions is quite useful.
-
-Finally, you might find a bug that's been rejected or closed. In these cases, the problem is usually something external to Metasploit -- user error, configuration weirdness, known incompatibilities, etc. If you think that the original resolution was in error, though, open a new bug and point out what you think the problem is. After all, if people keep running into the same non-bug, then it's probably at least a documentation bug, and maybe something real.
-
-# Describing your bug
-
-## Make your bug searchable
-
-Since we talk a lot about the importance of finding dupes before submitting, make sure that your bug is findable. Use specific module names and error messages in the title, and include as much of the error as you can in the report. "The Windows login aux mod is broken" is a terrible title, while "NoMethodError raised on smb_login module" is much better.
-
-Most of the time, bugs you run into don't have nice, clean error messages. In these cases, try to pin down what you can in the title. For example, see [Bug #7215](https://dev.metasploit.com/redmine/issues/7215) -- this is a pretty typical complaint that some module is failing to open a shell, but notice that while the module name isn't in the title, it is in the opening description. Also, this bug has tons of logs and screen captures.
-
-## Logs and screen captures
-
-Check out [Bug #6905](https://dev.metasploit.com/redmine/issues/6905). If all our bug reports looked like this, I'd be delighted. It's pretty short, and has the all basics -- a short but descriptive title, a full backtrace of the error, a complete history of how he got there, and version information. This bug is very search-friendly, as well as easy to reproduce.
-
-If you're testing a module in a lab or virtual environment, we'd love to get as much data about the target as you can provide. This means exact versions of the target including patch levels, pcaps if you can capture them, and any kind of logging inside or outside of Framework.
-
-Often, we'll ask for the `framework.log` -- that's usually kept in `$HOME/.msf4/framework.log`.
-
-On the other hand, if you run into an issue on an engagement, we understand that you can't include a bunch of client data in your bug report. In those cases, we will still bug you for logs, but you'll need to santize them first, and we won't have our feelings hurt if you need to refuse. Such is the business of penetration testing.
-
-## Mention Your Environment
-
-It may be that the bug you're describing only comes up in your environment. If you're not on the normal [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) or the [Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp) you will want to mention this specifically in your bug report. The output of the commands `ruby -v` , and  `uname -a` (or `winver`) is usually very helpful.
-
-## Include steps to reproduce
-
-At a minimum, the steps you took to get to your predictament are probably found in `$HOME/.msf4/history`, so you can cut and paste from there. If there's more background than what's contained in the command history, like funny network configurations that might be in play, then mention that, too.
-
-We love resource scripts (rc scripts) that can be used to reliably trigger your bug. Those scripts can eventually find their way into repeatable test cases, so if you can put one together, great! For more on resource script writing, see [this blog post](https://community.rapid7.com/community/metasploit/blog/2010/03/22/automating-the-metasploit-console).
-
-# Patches
-
-## Providing Patches
-
-Maybe you've run into a bug, and you already know how to fix it. Or, you're just a kind stranger on the Internet who wants to help out. The most reliable way to get your patches into Metasploit is to patch your own fork, and sling a [pull request](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment#wiki-pull) our way. Since you're attacking a bug that already exists, you can use a special commit message string of either `[SeeRM #1234]` or `[FixRM #1234]` and that will update Redmine with a pointer to your commit automatically, once the fix is landed. Since it's human-readable, we can tell immediately that you're talking about a Redmine issue, as well, so you or someone can update Redmine with a link to your pull requestr.
-
-Of course, this all presumes you're hooked into GitHub. If this doesn't work for you, you can attach patches to a Redmine issue by simply creating a patch diff against a recent checkout of Metasploit -- this is going to be the case for most SVN users (and in that case, you'll want to use `svn diff`).
-
-Now, be forewarned: patches submitted directly to Redmine are more cumbersome to work with, especially if there are more questions. If you plan on patching more than once or twice, it would behoove you to take a little time to set up your [Metasploit Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Development-Environment) and start playing along at home.
-
-## Providing Test Cases
-
-We like -- no, love -- to have tests that show that a patch actually works. Again, [Resource Scripts](https://community.rapid7.com/community/metasploit/blog/2010/03/22/automating-the-metasploit-console) are a great way to get something quick put together, and you can combine this with the standard utility `screen` for some excellent resolutions:
-
-  * Fire up `screen` and hit `Ctrl-a H` (mind the caps)
-  * `msfconsole -L -q -r /path/to/your/test.rc`
-  * Exit msfconsole and `git checkout branch-containing-fix`
-  * `msfconsole -L -q -r /path/to/your/test.rc`
-  * `exit` to leave screen
-
-This will generate a screen log of your fix that includes all your output and all your keystrokes. Yes, it'll look horrible in a regular text editor due to the various escape codes, but `cat` and `less` are both more than adequate to resolve those.
-
-If you're on Windows, the msfconsole `spool` command should provide enough output to at least demo the problem and its solution.
-
-# Following bugs
-
-So, you go to all the effort of filing a bug, and you want to make sure it gets resolved. What next?
-
-## Notification settings
-
-If you opened a bug on Redmine, you should automatically be getting updates to it via e-mail, and the same goes for GitHub pull requests. If you're not for some reason, you should check your own spam filters as well as your [Notification Settings](https://dev.metasploit.com/redmine/my/account). If you want to follow some bug you're not already involved in, you can always tick the "Watch" star ath the top right of any issue, and you'll start getting updates every time it changes.
-
-*TODO: Hook up Redmine updates to [Metasploit-Notifications](https://lists.sourceforge.net/lists/listinfo/metasploit-notifications) which is already watching GitHub. It'll take ten minutes.*
-
-## Bug discussion
-
-Some projects are persnickety about talking about bugs in the bug itself. We're not. If you have a comment or question, ask about it in the bug. We far prefer this public communication over private communication because it makes things easily searchable, captures all the information regarding an issue, and can help future bug-squashers who are searching for similar issues.
-
-GitHub pull requests also are known to get chatty. If a bug already has a pull request associated with it, there's a very good chance there's discussion happening over there.
-
-Finally, there are often quick conversations about current events going on on Metasploit's Freenode IRC channel, #metasploit.
-
-Somewhat surprisingly, the [Metasploit Framework](http://mail.metasploit.com/mailman/listinfo/framework)  and the [Metasploit-Hackers](https://lists.sourceforge.net/lists/listinfo/metasploit-hackers) mailing lists don't get a lot of action in terms of issue discussion. Maybe that will change, especially if there's a move to get fascist about what kind of comments are appropriate for Redmine issues and pull requests.
-
-## Resolving Bugs
-
-Your bug should be considered "Resolved" once there's a fix landed in the [Metasploit-Framework master branch](https://github.com/rapid7/metasploit-framework). People who track that branch, of course, will have the fix instantly available. A few minutes after that, everyone who relies on `msfupdate` over SVN will have access to the fix. These are the bleeding-edge branches.
-
-Once a week, usually Wednesdays, we release an update to the [Metasploit Installation](http://www.rapid7.com/downloads/metasploit.jsp). Generally speaking, Metasploit framework fixes will hit that installation on a weekly basis after appropriate QA. So, while we may refer to a bug as "resolved," it may not be available quite yet.
-
-# EOF
-
-That's it, for now. This document will surely change and evolve as the Metasploit community does.
-
-***
+## Resolved Bugs
+Your bug should be considered "Resolved" once there's a fix landed in the [Metasploit-Framework master branch](https://github.com/rapid7/metasploit-framework). People who track that branch will have the fix available quickly. It may take other distributions that include Metasploit (e.g., Kali) a few days to pull in fixes, depending on their individual release cadences.
