@@ -26,13 +26,13 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 # Metasploit Development #
 
 - [[Style Tips]]
-- [[How to get started with writing an exploit]]
+- [[Get Started Writing an Exploit]]
 - [[How to get started with writing an auxiliary module]]
 - [[How to get started with writing a post module]]
 - [[How to get started with writing a Meterpreter script]]
 - [[Running Private Modules]]
 - [[Exploit Ranking]]
-- [[Metasploit module reference identifiers]]
+- [[Module Reference Identifiers]]
 - [[How to check Microsoft patch levels for your exploit]]
 - [[How to clean up files using FileDropper]]
 - [[How to deprecate a Metasploit module]]
