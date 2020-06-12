@@ -10,7 +10,6 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
-  include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
@@ -39,9 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RPORT')
-    deregister_options('SMBDIRECT')
-    deregister_options('SMB::ProtocolVersion')
+    deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
     @smb_port = 445
   end
 
@@ -100,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         # assume that if the server supports multiple versions, the preferred
         # dialect will correspond to the latest version
-        info[:preferred_dialect] = SMB2_DIALECT_STRINGS[preferred_dialect]
+        preferred_dialect = SMB2_DIALECT_STRINGS[preferred_dialect]
 
         if simple.client.server_start_time && simple.client.server_system_time
           uptime = simple.client.server_system_time - simple.client.server_start_time
@@ -109,6 +106,7 @@ class MetasploitModule < Msf::Auxiliary
         info[:server_guid] = simple.client.server_guid
       end
 
+      info[:preferred_dialect] = preferred_dialect
       info[:versions] << version unless protocol.nil?
     end
 
@@ -253,13 +251,13 @@ class MetasploitModule < Msf::Auxiliary
             :data  => nd_fingerprint_match
           )
         else
-          desc = ''
           if res['native_os'] || res['native_lm']
             desc = "#{res['native_os']} (#{res['native_lm']})"
             report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
-            desc = ': ' + desc
+            print_status("  Host could not be identified: #{desc}")
+          else
+            vprint_status('  Host could not be identified')
           end
-          print_status("  Host could not be identified#{desc}")
         end
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
