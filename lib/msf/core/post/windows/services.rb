@@ -250,6 +250,29 @@ module Services
   end
 
   #
+  # Check if the specified Windows service exists.
+  #
+  # @param name [String] The target service's name (not to be confused
+  #   with Display Name). Case sensitive.
+  #
+  # @return [Boolean]
+  #
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_error('Unable to enumerate Windows services')
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
+  end
+
+  #
   # Changes a given service startup mode, name must be provided and the mode.
   #
   # Mode is a string with either auto, manual or disable for the

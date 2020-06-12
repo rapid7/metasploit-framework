@@ -59,6 +59,108 @@ RSpec.describe RuboCop::Cop::Layout::ModuleDescriptionIndentation do
     RUBY
   end
 
+  it 'registers an offense when a multiline description requires a preceeding new line' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => %q(Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+            Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+            eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.),
+                                                                                                  ^ Module descriptions should be properly aligned to the 'Description' key, and within %q{ ... }
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => %q{
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+                Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+                eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.
+              },
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+  end
+
+  it 'registers an offense when a multiline description requires a preceeding new line' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+            Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+            eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.",
+                                                                                                  ^ Module descriptions should be properly aligned to the 'Description' key, and within %q{ ... }
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => %q{
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+                Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+                eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.
+              },
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+  end
+
   it 'registers an offense when descriptions are incorrectly indented' do
     expect_offense(<<~RUBY)
       class DummyModule
@@ -124,6 +226,65 @@ RSpec.describe RuboCop::Cop::Layout::ModuleDescriptionIndentation do
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
             Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
             eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.
+            ),
+            ^ Module descriptions should be properly aligned to the 'Description' key, and within %q{ ... }
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            merge_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => %q{
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+                Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+                eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.
+              },
+              'Author'        => [
+                'example1',
+                'example2'
+              ],
+              'License'       => MSF_LICENSE,
+              'Platform'      => 'win',
+              'Arch'          => ARCH_X86,
+            )
+          )
+        end
+      end
+    RUBY
+  end
+
+  it 'registers an offense when there is additional whitespace', focus: true do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            merge_info(
+              info,
+              'Name'           => 'Simple module name',
+              'Description'    => %q(
+
+
+
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque efficitur pulvinar arcu eget ultrices.
+            Vestibulum at risus at nisi convallis laoreet a sed libero. Nam vestibulum euismod dictum. Pellentesque
+            eu nunc vitae mi volutpat viverra in id ipsum. Maecenas fermentum condimentum dapibus.
+
+
+
             ),
             ^ Module descriptions should be properly aligned to the 'Description' key, and within %q{ ... }
               'Author'        => [

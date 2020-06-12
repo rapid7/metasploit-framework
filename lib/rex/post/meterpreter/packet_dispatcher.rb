@@ -290,7 +290,11 @@ module PacketDispatcher
 
     self.waiters = []
 
-    @pqueue = ::Queue.new
+    # This queue is where the new incoming packets end up
+    @new_packet_queue = ::Queue.new
+    # This is where we put packets that aren't new, but haven't
+    # yet been handled.
+    @incomplete_queue = ::Queue.new
     @ping_sent = false
 
     # Spawn a thread for receiving packets
@@ -300,8 +304,9 @@ module PacketDispatcher
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
           if rv
             packet = receive_packet
-            @pqueue << packet if packet
-          elsif self.send_keepalives && @pqueue.empty?
+            # Always enqueue the new packets onto the new packet queue
+            @new_packet_queue << decrypt_inbound_packet(packet) if packet
+          elsif self.send_keepalives && @new_packet_queue.empty?
             keepalive
           end
         rescue ::Exception => e
@@ -317,14 +322,34 @@ module PacketDispatcher
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
       begin
       while (self.alive)
+        # This is where we'll store incomplete packets on
+        # THIS iteration
         incomplete = []
+        # The backlog is the full list of packets that aims
+        # to be handled this iteration
         backlog    = []
 
-        # Note: this first call to pqueue.pop is important. If the Queue is empty, this
-        # calling thread is suspended until data is pushed onto the queue.
-        backlog << decrypt_inbound_packet(@pqueue.pop)
-        while(@pqueue.length > 0)
-          backlog << decrypt_inbound_packet(@pqueue.pop)
+        # If we have any left over packets from the previous
+        # iteration, we need to prioritise them over the new
+        # packets. If we don't do this, then we end up in
+        # situations where data on channels can be processed
+        # out of order. We don't do a blocking wait here via
+        # the .pop method because we don't want to block, we
+        # just want to dump the queue.
+        while @incomplete_queue.length > 0
+          backlog << @incomplete_queue.pop
+        end
+
+        # If the backlog is empty, we don't have old/stale
+        # packets hanging around, so perform a blocking wait
+        # for the next packet
+        backlog << @new_packet_queue.pop if backlog.length == 0
+        # At this point we either received a packet off the wire
+        # or we had a backlog to process. In either case, we
+        # perform a non-blocking queue dump to fill the backlog
+        # with every packet we have.
+        while @new_packet_queue.length > 0
+          backlog << @new_packet_queue.pop
         end
 
         #
@@ -356,7 +381,6 @@ module PacketDispatcher
         #
         # Process the message queue
         #
-
         backlog.each do |pkt|
 
           begin
@@ -381,7 +405,7 @@ module PacketDispatcher
         # If the backlog and incomplete arrays are the same, it means
         # dispatch_inbound_packet wasn't able to handle any of the
         # packets. When that's the case, we can get into a situation
-        # where @pqueue is not empty and, since nothing else bounds this
+        # where @new_packet_queue is not empty and, since nothing else bounds this
         # loop, we spin CPU trying to handle packets that can't be
         # handled. Sleep here to treat that situation as though the
         # queue is empty.
@@ -389,14 +413,20 @@ module PacketDispatcher
           ::IO.select(nil, nil, nil, 0.10)
         end
 
+        # If we have any packets that weren't handled, they go back
+        # on the incomplete queue so that they're prioritised over
+        # new packets that are coming in off the wire.
+        dlog("Requeuing #{incomplete.length} packet(s)", 'meterpreter', LEV_1) if incomplete.length > 0 
         while incomplete.length > 0
-          @pqueue << incomplete.shift
+          @incomplete_queue << incomplete.shift
         end
 
-        if(@pqueue.length > 100)
+        # If the old queue of packets gets too big...
+        if(@incomplete_queue.length > 100)
           removed = []
+          # Drop a bunch of them.
           (1..25).each {
-            removed << @pqueue.pop
+            removed << @incomplete_queue.pop
           }
           dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{removed.map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
         end

@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'		=>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run NBNS spoofing service' ]
         ],
       'PassiveActions' =>
         [

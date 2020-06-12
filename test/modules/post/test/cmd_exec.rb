@@ -93,4 +93,20 @@ class MetasploitModule < Msf::Post
       end
     end
   end
+
+  def test_cmd_exec_stderr
+    vprint_status("Starting cmd_exec stderr tests")
+
+    it "should return the stderr output" do
+      test_string = Rex::Text.rand_text_alpha(4)
+      if session.platform.eql? 'windows'
+        output = cmd_exec("cmd.exe", "/c echo #{test_string} 1>&2")
+        output.rstrip == test_string
+      else
+        output = cmd_exec("echo #{test_string} 1>&2")
+        output == test_string
+      end
+    end
+
+  end
 end

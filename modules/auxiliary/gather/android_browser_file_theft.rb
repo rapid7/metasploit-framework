@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # File redirect and msf module
       ],
       'License'     => MSF_LICENSE,
-      'Actions'     => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [

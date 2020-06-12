@@ -28,9 +28,9 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => 'hdm',
       'License' => MSF_LICENSE,
-      'Actions' => [ [ 'Sniffer' ] ],
-      'PassiveActions' => [ 'Sniffer' ],
-      'DefaultAction' => 'Sniffer'
+      'Actions' => [[ 'Capture', 'Description' => 'Run SMB capture server' ]],
+      'PassiveActions' => [ 'Capture' ],
+      'DefaultAction' => 'Capture'
     })
 
     register_options(

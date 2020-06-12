@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       'DisclosureDate' => 'Jan 1 2004',
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Host file via web server' ]
         ],
       'PassiveActions' =>
         [

@@ -2303,9 +2303,7 @@ class Core
         res << str+str[0, str.length - 1]
       else
         option_values_target_addrs().each do |addr|
-          res << addr+'/32'
-          res << addr+'/24'
-          res << addr+'/16'
+          res << addr
         end
       end
 

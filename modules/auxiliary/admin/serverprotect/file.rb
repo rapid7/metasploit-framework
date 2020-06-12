@@ -29,10 +29,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'        =>
         [
-          [ 'delete'   ],
-          [ 'download' ],
-          [ 'upload'   ],
-          [ 'list'     ]
+          [ 'delete', 'Description' => 'Delete a file' ],
+          [ 'download', 'Description' => 'Download a file' ],
+          [ 'upload', 'Description' => 'Upload a file' ],
+          [ 'list', 'Description' => 'List files (not recommended - will crash the driver)' ]
         ]
       ))
 

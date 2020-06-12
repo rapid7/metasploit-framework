@@ -24,7 +24,7 @@ class Evasion
   def cmd_run(*args)
     opts = {
       'Encoder'    => mod.datastore['ENCODER'],
-      'Payload'    => mod.datastore['PAYLOAD'] || Evasion.choose_payload(mod),
+      'Payload'    => mod.datastore['PAYLOAD'],
       'Nop'        => mod.datastore['NOP'],
       'LocalInput' => driver.input,
       'LocalOutput' => driver.output
@@ -86,51 +86,9 @@ class Evasion
     print_status "Payload Handler Started as Job #{job_id}"
   end
 
-  private
-
+  # This is the same functionality as Exploit::choose_payload, so call it
   def self.choose_payload(mod)
-
-    # Choose either the real target or an invalid address
-    # This is used to determine the LHOST value
-    rhost = mod.datastore['RHOST'] || '50.50.50.50'
-
-    # A list of preferred payloads in the best-first order
-    pref = [
-      'windows/meterpreter/reverse_https',
-      'windows/meterpreter/reverse_tcp_rc4',
-      'windows/meterpreter/reverse_tcp',
-      'windows/x64/meterpreter/reverse_https',
-      'windows/x64/meterpreter/reverse_tcp_rc4',
-      'windows/x64/meterpreter/reverse_tcp',
-      'linux/x86/meterpreter/reverse_tcp',
-      'java/meterpreter/reverse_tcp',
-      'php/meterpreter/reverse_tcp',
-      'php/meterpreter_reverse_tcp',
-      'ruby/shell_reverse_tcp',
-      'nodejs/shell_reverse_tcp',
-      'cmd/unix/interact',
-      'cmd/unix/reverse',
-      'cmd/unix/reverse_perl',
-      'cmd/unix/reverse_netcat_gaping',
-      'cmd/unix/reverse_stub',
-      'cmd/unix/bind_stub',
-      'windows/meterpreter/reverse_nonx_tcp',
-      'windows/meterpreter/reverse_ord_tcp',
-      'windows/shell/reverse_tcp',
-      'generic/shell_reverse_tcp'
-    ]
-    pset = mod.compatible_payloads.map{|x| x[0] }
-    pref.each do |n|
-      if(pset.include?(n))
-        mod.datastore['PAYLOAD'] = n
-        if n.index('reverse')
-          mod.datastore['LHOST'] = Rex::Socket.source_address(rhost)
-        end
-        return n
-      end
-    end
-
-    return
+    Msf::Ui::Console::CommandDispatcher::Exploit.choose_payload(mod)
   end
 
 end
