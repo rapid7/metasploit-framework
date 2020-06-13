@@ -5,12 +5,12 @@ Metasploit gets hundreds of issue reports every year on our [issue tracker](http
 The Metasploit development community has read thousands of bug reports over the past 15 years, and a well-written bug report makes fixing bugs much faster and easier. In fact, in our experience, how quickly we can understand and fix an issue has more to do with bug report quality than the complexity of the bug itself.
 
 ## When NOT to use Metasploit's issue tracker 
-**NOTE:** There are two situations where you should not open a bug report. 
-1. You should not open a bug report on Metasploit Framework's issue tracker if you are a Metasploit Pro or other Rapid7 customer.
+**NOTE:** There are two situations where, even if you have found what you know is a bug, you should not open a bug report on our public issue tracker.
+1. You should not open a bug report on Metasploit Framework's issue tracker if you are a Metasploit Pro customer.
 2. You should not open a bug report when you have found a security issue with Metasploit itself.
 
 ### Metasploit Pro Customers
-If you are a Metasploit Pro customer, or a customer of another Rapid7 product, you can log in to Rapid7's customer support portal [here](https://www.rapid7.com/for-customers/). You are also able to reach out to your CSM or support representative if you prefer. To provide a consistent customer experience, Metasploit Framework community members, committers, and open-source developers do not offer support for commercial Rapid7 products. Rapid7's support resources and team members are well-equipped to handle your Metasploit Pro support needs!
+If you are a Metasploit Pro customer, you can log in to Rapid7's customer support portal [here](https://www.rapid7.com/for-customers/). You are also able to reach out to your CSM or support representative if you prefer. To provide a consistent customer experience, Metasploit Framework community members, committers, and open-source developers do not offer support for commercial Rapid7 products. Rapid7's support resources and team members are well-equipped to handle your Metasploit Pro support needs!
 
 ### Security Issues
 If you have a security issue with Metasploit itself, you should email security@metasploit.com or let us know [here](https://www.rapid7.com/security/). Rapid7's disclosure policy is [here](https://www.rapid7.com/security/disclosure/). In general, if security issues are reported in a manner that lets our security teams understand them and work with you and others to fix them, we are happy to give you credit, inform you about progress, and explore related issues with you if you'd like. Our security teams are also happy to keep you anonymous if that's what you prefer. Clear communication and coordinated disclosure give us the best chance of fixing any security issues quickly and protecting users. 
