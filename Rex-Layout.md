@@ -25,10 +25,10 @@ These are things which are not needed anymore and should be killed with fire.
 | Final Home | Directory/File | Description |
 | ---------- | -------------- | ----------- |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [io](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/io/) | IO constructs such as streams and stream servers etc.|
-| [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [mime](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/mime/) | Library for handling mime messages. |
+| [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [mime](https://github.com/rapid7/rex-mime/tree/master/lib/rex/mime/) | Library for handling mime messages. |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [proto](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/proto) | Various Protocol libraries for communicating with different services |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [services](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/services) | defines different tcp services. Currently only defines a local tcp relay |
-| [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [socket](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/socket/) | Holds all the socket, comm, and siwtchboard classes for handling network communications |
+| [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [socket](https://github.com/rapid7/rex-socket) | Holds all the socket, comm, and switchboard classes for handling network communications |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [sslscan](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/sslscan/) | Classes for SSLScan functionality. Allows discovery of SSL support on any tcp service |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [service_manager](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/service_manager.rb) | Used to manage connection services such as HTTP Server |
 | [Raptor](https://github.com/rapid7/raptor/wiki/Rex-code-layout#raptor-description) | [text](https://github.com/rapid7/metasploit-framework/tree/master/lib/rex/text.rb) | Text Generation and manipulation routines. Core to almsot every aspect of Metasploit. |
