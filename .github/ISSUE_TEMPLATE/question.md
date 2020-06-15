@@ -1,6 +1,6 @@
 ---
 name: Question 🤔
-about: Usage question or discussion about Gatsby.
+about: Usage question or discussion about Metasploit.
 labels: "type: question or discussion"
 ---
 
@@ -10,7 +10,7 @@ labels: "type: question or discussion"
   Useful Links:
   - Wiki: https://github.com/rapid7/metasploit-framework/wiki
 
-  Before opening a new issue, please search existing issues https://github.com/gatsbyjs/gatsby/issues
+  Before opening a new issue, please search existing issues https://github.com/rapid7/metasploit-framework/issues
 -->
 
 ## Summary

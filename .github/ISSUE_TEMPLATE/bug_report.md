@@ -5,7 +5,7 @@ labels: "type: bug"
 ---
 
 <!--
-  Please fill out each section below, otherwise, your issue will be closed. This info allows Gatsby maintainers to diagnose (and fix!) your issue as quickly as possible.
+  Please fill out each section below, otherwise, your issue will be closed. This info allows Metasploit maintainers to diagnose (and fix!) your issue as quickly as possible.
 
   Useful Links:
   - Wiki: https://github.com/rapid7/metasploit-framework/wiki

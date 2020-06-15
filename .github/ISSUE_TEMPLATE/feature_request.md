@@ -10,7 +10,7 @@ labels: "type: feature or enhancement"
   Useful Links:
   - Wiki: https://github.com/rapid7/metasploit-framework/wiki
 
-  Before opening a new issue, please search existing issues https://github.com/gatsbyjs/gatsby/issues
+  Before opening a new issue, please search existing issues https://github.com/rapid7/metasploit-framework/issues
 -->
 
 ## Summary
