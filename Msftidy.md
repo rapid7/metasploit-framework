@@ -50,7 +50,7 @@ Date format needs to be `Month Day, YYYY`. Example: `Jan 01, 2014`
 This check ensures you used the correct case in your title.
 
 ## Bad Terms
-This checks for the correct use of the terms `Stack Buffer overflow` and `Stack Exhaustion`. See ["Stack overflow" vs "Stack buffer overflow"](http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx) for more information.
+This checks for the correct use of the terms `Stack Buffer overflow` and `Stack Exhaustion`. See ["Stack exhaustion" vs "Stack buffer overflow"](https://msrc-blog.microsoft.com/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow/) for more information.
 
 ## Function Arguments
 If you define a function which defines a lot of input arguments, the check ensures you use a hash instead.
