@@ -113,13 +113,13 @@ That function allocates memory in the process and loads up the dll.  There is a 
 
 Unfortunately, this is where my grasp of things gets tenuous because it departs from my experience of traditional DLL loading with LoadLibrary and GetProcAddress. We copied the DLL into the remote process memory, but we have not “loaded” it, so DLL_PROCESS_ATTACH is not executed.  That’s a good thing, as we have not yet provided the payload!
 
-I square this by basically treating it like process hollowing, but on a thread-level.  Watching OJ’s ReflectiveDll injection video might help: https://vimeo.com/108076345
+I square this by basically treating it like process hollowing, but on a thread-level.  Watching OJ’s ReflectiveDll injection video might help: https://www.youtube.com/watch?v=ZKznMBWUQ_c
 
 You may want to watch it daily for a month or so.
 
 Regardless, now we have a process with our exploit dll mapped into its memory, but not doing anything.  Now we need to get the payload into the process too, so we can get exploit and payload execution.  Getting the payload in there is honestly not much different that getting the DLL data in there.  
 
-(5) Just allocate some RWX memory and copy the shellcode over.  There’s a method for that:
+(5) Just allocate some RWX memory and copy the shellcode over. There’s a method for that:
 `payload_mem = inject_into_process(process, payload.encoded)`
 
 To be clear, That’s the first time you should have dealt with the payload, because while it is annoying how much goes on in the background in Framework, when you know it is happening, Framework is awesome!
