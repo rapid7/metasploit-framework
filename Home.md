@@ -57,7 +57,7 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[How to write a check() method]]
 - [[How to write a HTTP LoginScanner Module]]
 - [[How to write a module using HttpServer and HttpClient]]
-- [[How to zip files with Rex Zip Archive]]
+- [How to zip files with Msf::Util::EXE.to_zip](https://github.com/rapid7/metasploit-framework/wiki/How-to-zip-files-with-Msf-Util-EXE.to_zip)
 - [[How to use Metasploit Framework Compiler Windows to compile C code]]
 - [[How to use Metasploit Framework Obfuscation CRandomizer]]
 - [[How to decrypt RC4 with Metasploit Framework Compiler]]
