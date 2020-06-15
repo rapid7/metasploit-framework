@@ -2,7 +2,7 @@
 
 # Checks
 ## File modes
-This check ensures that modules are not marked executable. A module is only called by the framework and not directly. The correct file mode is `??`
+This check ensures that modules are not marked executable. A module is only called by the framework and not directly. The correct file mode is `0644`.
 ## Shebang
 A module should not have a [Shebang](http://en.wikipedia.org/wiki/Shebang_%28Unix%29) line.
 ## Nokogiri
