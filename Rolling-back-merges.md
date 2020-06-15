@@ -2,7 +2,7 @@ Since the Metasploit-framework repository's master branch is the bleeding edge o
 
 # What's a bad merge?
 
- * Anything that causes [Travis-CI](travis-ci.org/rapid7/metasploit-framework/builds) to fail rspec tests consistently.
+ * Anything that causes [Travis-CI](https://travis-ci.org/rapid7/metasploit-framework/builds) to fail rspec tests consistently.
  * Anything that hits untested code that otherwise causes problems with `msfconsole`, `msfcli`, `msfvenom`, and other console commands.
 
 Sometimes, Travis-CI does choke up, due to network weather. Every build is a fresh clone, and all gems have to be reinstalled every time. Also, some rspec tests require network connections to assets on the Internet. Sometimes, Travis-CI itself is under a lot of load, and builds time out.
@@ -41,7 +41,7 @@ bff7d0e Merge for retab
 4c9e6a8 Default to exe-small
 ````
 
-The syntax is a little wacky, but this is saying, "Show me all the commit hashes that occur from the `bad-merge` point to one back from `bad-merge` (iow, from right before `bad-merge` was merged). That's what the tilde (~) means. You could also use `bad-merge^` or `bad-merge^1`, they're all equivalent.
+The syntax is a little wacky, but this is saying, "Show me all the commit hashes that occur from the `bad-merge` point to one back from `bad-merge` (in other words, from right before `bad-merge` was merged). That's what the tilde (~) means. You could also use `bad-merge^` or `bad-merge^1`, they're all equivalent.
 
 You can see the diff with the following command. Note the reverse placement of the `bad-merge` and `bad-merge~` commit points!
 
@@ -55,7 +55,7 @@ Take a look at that, confirm that yes, this is exactly what you want to revert, 
 
 The `-m 1` bit is important, because that specifies that you want the branch to return to the point from before the merge -- I have never had reason to revert a merge and throw out the other side of the merge, but I imagine it comes up often enough for other people to not have it be the default behavior.
 
-Note that this does /not/ reach into the repo and change history; for that, you would need to git push --force, and you [never want to do that on the master branch](www.reddit.com/r/programming/comments/1qefox/jenkins_developers_accidentally_do_git_push_force/). Instead, you are generating a new commit that reverses the contents of the merge commit. As usual, you will want to edit the commit message to be meaningful -- mention the affected commit hash and the affected pull request.
+Note that this does /not/ reach into the repo and change history; for that, you would need to git push --force, and you [never want to do that on the master branch](https://www.reddit.com/r/programming/comments/1qefox/jenkins_developers_accidentally_do_git_push_force/). Instead, you are generating a new commit that reverses the contents of the merge commit. As usual, you will want to edit the commit message to be meaningful -- mention the affected commit hash and the affected pull request.
 
 You will also want to `git commit -S --amend` after this to sign the commit; `git revert` does not take a `-S` option. Bummer.
 
