@@ -55,7 +55,7 @@ HTTP/S communications in Windows is a hairy beast, and trying to cater for all c
 [OJ][] / [@TheColonial][]
 
 
-  [msdn_winhttp]: http://blogs.msdn.com/b/httpcontext/archive/2012/02/21/changes-in-winhttp-on-windows-7-and-onwards-wrto-http-1-0.aspx
+  [msdn_winhttp]: https://web.archive.org/web/20150701090733/http://blogs.msdn.com/b/httpcontext/archive/2012/02/21/changes-in-winhttp-on-windows-7-and-onwards-wrto-http-1-0.aspx
   [wininet_fallback]: https://github.com/rapid7/metasploit-payloads/pull/5
   [@TheColonial]: https://twitter.com/TheColonial
   [WinInet]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa383630%28v=vs.85%29.aspx
