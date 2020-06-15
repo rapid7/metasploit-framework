@@ -6,7 +6,7 @@ Having your editor take care of formatting for you can save headaches during the
 
 ### VIM and GVIM
 
-Adding the following settings to your .vimrc will make conforming to the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/msftidy.rb) guidelines considerably easier. 
+Adding the following settings to your .vimrc will make conforming to the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) and [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/msftidy.rb) guidelines considerably easier. 
 
 Incidentally, if you install the [Janus Distribution](https://github.com/carlhuda/janus) of vim plugins, this is all done for you, and more, automatically. But, if you are a special snowflake, here's how to limp your way to code formatting excellence.
 
