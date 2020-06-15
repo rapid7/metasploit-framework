@@ -102,7 +102,6 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 # GitHub Resources #
 
 - [[Git Cheatsheet]]
-- [[Git Gotchas]]
 - [[Git Reference Sites]]
 - [[Remote Branch Pruning]]
 
