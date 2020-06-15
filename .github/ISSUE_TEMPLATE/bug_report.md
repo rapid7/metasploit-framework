@@ -1,3 +1,18 @@
+---
+name: Bug Report 🐞
+about: Something isn't working as expected? Here is the right place to report.
+labels: "type: bug"
+---
+
+<!--
+  Please fill out each section below, otherwise, your issue will be closed. This info allows Gatsby maintainers to diagnose (and fix!) your issue as quickly as possible.
+
+  Useful Links:
+  - Wiki: https://github.com/rapid7/metasploit-framework/wiki
+
+  Before opening a new issue, please search existing issues: https://github.com/rapid7/metasploit-framework/issues
+-->
+
 ## Steps to reproduce
 
 How'd you do it?
@@ -37,5 +52,4 @@ Get this with the `version` command in msfconsole (or `git log -1 --pretty=oneli
 ### OS
 
 What OS are you running Metasploit on?
-
 
