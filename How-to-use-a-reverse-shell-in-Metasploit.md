@@ -16,7 +16,7 @@ There are two popular types of shells: bind and reverse.
 Bind shell - Opens up a new service on the target machine and requires the attacker to connect to it to get a session.
 Reverse shell - A reverse shell is also known as a connect-back. It requires the attacker to set up a listener first on his box, the target machine acts as a client connecting to that listener, and then finally, the attacker receives the shell. 
 
-You can learn more about the primary use of payloads in the  [Users Guide](https://github.com/rapid7/metasploit-framework/blob/master/documentation/users_guide_4.3.pdf).
+You can learn more about the primary use of payloads in the 5.2.4 Selecting the Payload section of the old [Metasploit Users Guide](http://cs.uccs.edu/~cs591/metasploit/users_guide3_1.pdf).
 
 This article goes over using a reverse shell to get a session.
 
