@@ -13,9 +13,9 @@ Unstable modules have their own special directory structure -- they should **not
 1. Git checkout the module(s) in question: `git checkout temp-pr1234 modules/exploits/path/to/module.rb`
 1. Move the files to the appropriate directory: `git mv modules/exploits/path/to/module.rb unstable-modules/exploits/incomplete`
 1. Commit the result: `git commit`
-1. Send a pull request targeting the unstable branch, **not** the master branch: https://github.com/YOU/metasploit-framework/compare/rapid7:unstable...unstable-pr1234-modulename?expand=1 . Be sure to mention the original pull request number in the description so the PR will be updated accordingly.
+1. Send a pull request targeting the unstable branch, **not** the master branch: https://github.com/*YOUR GITHUB USERNAME*/metasploit-framework/compare/rapid7:unstable...unstable-pr1234-modulename?expand=1 . Be sure to mention the original pull request number in the description so the PR will be updated accordingly.
 
-This assumes you're set up for development a la http://r-7.co/MSF-DEV with Rapid7's branch being the "upstream" repo. 
+This assumes you're set up for development using the instructions mentioned at http://r-7.co/MSF-DEV and have configured Rapid7's branch as the "upstream" repo. 
 
 ## Example
 
