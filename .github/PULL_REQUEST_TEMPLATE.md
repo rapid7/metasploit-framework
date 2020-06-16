@@ -15,7 +15,8 @@ List the steps needed to make sure this thing works
 - [ ] **Verify** the thing does not do what it should not
 - [ ] **Document** the thing and how it works ([Example](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/post/multi/gather/aws_keys.md))
 
-If you are opening a PR for a new Module that exploits a **specific** piece of hardware, or requires a **very** complex testing environment, we will need a demonstration of your module executing correctly in order to land your Module in a reasonable time.
+If you are opening a PR for a new module that exploits a **specific** piece of hardware or requires a **complex or hard-to-find** testing environment, we recommend that you send us a demo of your module executing correctly. Seeing your module in action will help us review your use case faster!
+
 
 Specific Hardware Examples:
 * https://github.com/rapid7/metasploit-framework/pull/13303
@@ -26,7 +27,7 @@ Complex Testing Enviroment Examples:
 * https://github.com/rapid7/metasploit-framework/pull/12096
 
 
-We will also accept demonstrations of successful Module execution if your Module doesn't match any of the above conditions and you think it will still help land your Module, but it is not a neccessity. 
+We will also accept demonstrations of successful module execution even if your module doesn't meet the above conditions. It's not a necessity, but it may help us land your module faster! 
 
-Demonstration of successful Module execution can take the form of a Packet Capture, a Screen Recording, or a Video Conference with a member of the Metasploit team via your conferencing tool of choice. PCAPs, Screen Recordings, or times you are available for a Video Conference should be sent to [msfdev@metaspolit.com](mailto:msfdev@metaspolit.com).
+Demonstration of successful module execution can take the form of a packet capture (pcap) or a screen recording. You can send pcaps and recordings to [msfdev@metaspolit.com](mailto:msfdev@metaspolit.com).
 
