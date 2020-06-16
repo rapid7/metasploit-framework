@@ -235,7 +235,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
     end
   end
 
-  def create_pipe(path, perm = 'c')
+  def create_pipe(path, perm = 'o')
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
 
