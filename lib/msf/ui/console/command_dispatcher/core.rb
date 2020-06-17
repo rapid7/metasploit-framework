@@ -134,7 +134,10 @@ class Core
       "unset"      => "Unsets one or more context-specific variables",
       "unsetg"     => "Unsets one or more global variables",
       "version"    => "Show the framework and console library version numbers",
-      "spool"      => "Write console output into a file as well the screen"
+      "spool"      => "Write console output into a file as well the screen",
+      "set_macro"  => "sets multiple options yay",
+      "setg_macro"  => "sets multiple options yay"
+
     }
   end
 
@@ -1720,15 +1723,38 @@ class Core
     print_line
   end
 
-  #
-  # Sets a name to a value in a context aware environment.
-  #
-  def cmd_set(*args)
+  def cmd_setg_macro(key, value)
+    cmd_set_macro(key, value, global: true)
+  end
 
+  def cmd_set_macro(key, value, global: false)
+    case key.upcase
+    when "RHOST_URL"
+      set_rhost_url(value, global: global)
+    else
+      # type code here
+    end
+  end
+
+  def set_rhost_url(value, global: false)
+    rhost_url = URI(value)
+    set_option('RHOSTS', rhost_url.hostname, global: global)
+    set_option('RPORT', rhost_url.port, global: global)
+    set_option('SSL', %w{ssl https}.include?(rhost_url.scheme), global: global)
+    set_option('TARGETURI', rhost_url.path, global: global)
+    if %{http https}.include?(rhost_url.scheme)
+      set_option('VHOST', rhost_url.hostname, global: global) unless Rex::Socket.is_ip_addr?(rhost_url.hostname)
+      set_option('HttpUsername', rhost_url.user.to_s, global: global)
+      set_option('HttpPassword', rhost_url.password.to_s, global: global)
+    end
+  end
+
+
+  def cmd_set(*args)
     # Figure out if these are global variables
     global = false
 
-    if (args[0] == '-g')
+    if args[0] == '-g'
       args.shift
       global = true
     end
@@ -1736,37 +1762,29 @@ class Core
     # Decide if this is an append operation
     append = false
 
-    if (args[0] == '-a')
+    if args[0] == '-a'
       args.shift
       append = true
     end
 
-    # Determine which data store we're operating on
-    if (active_module and global == false)
-      datastore = active_module.datastore
-    else
-      global = true
-      datastore = self.framework.datastore
-    end
-
     # Dump the contents of the active datastore if no args were supplied
-    if (args.length == 0)
+    if args.length == 0
       # If we aren't dumping the global data store, then go ahead and
       # dump it first
-      if (!global)
+      unless global
         print("\n" +
-          Msf::Serializer::ReadableText.dump_datastore(
-            "Global", framework.datastore))
+                  Msf::Serializer::ReadableText.dump_datastore(
+                      "Global", framework.datastore))
       end
 
       # Dump the active datastore
       print("\n" +
-        Msf::Serializer::ReadableText.dump_datastore(
-          (global) ? "Global" : "Module: #{active_module.refname}",
-          datastore) + "\n")
+                Msf::Serializer::ReadableText.dump_datastore(
+                    (global) ? "Global" : "Module: #{active_module.refname}",
+                    datastore) + "\n")
       return true
-    elsif (args.length == 1)
-      if (not datastore[args[0]].nil?)
+    elsif args.length == 1
+      if not datastore[args[0]].nil?
         print_line("#{args[0]} => #{datastore[args[0]]}")
         return true
       else
@@ -1779,6 +1797,22 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
+
+    set_option(name, value, global: global, append: append)
+  end
+
+  #
+  # Sets a name to a value in a context aware environment.
+  #
+  def set_option(name, value, global: false, append: false)
+
+    # Determine which data store we're operating on
+    if active_module and !global
+      datastore = active_module.datastore
+    else
+      global = true
+      datastore = self.framework.datastore
+    end
 
     # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
@@ -1794,7 +1828,7 @@ class Core
     end
 
     # If the driver indicates that the value is not valid, bust out.
-    if (driver.on_variable_set(global, name, value) == false)
+    if driver.on_variable_set(global, name, value) == false
       print_error("The value specified for #{name} is not valid.")
       return false
     end
