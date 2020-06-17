@@ -1,5 +1,5 @@
 ---
-name: Module Request 💡
+name: Module Request 📦
 about: Suggest a new module idea to include in framework.
 labels: "request-module"
 ---
