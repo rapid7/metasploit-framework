@@ -1,7 +1,7 @@
 ---
 name: Question 🤔
 about: Usage question or discussion about Metasploit.
-labels: "type: question or discussion"
+labels: "question"
 ---
 
 <!--

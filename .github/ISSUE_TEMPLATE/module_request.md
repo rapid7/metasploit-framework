@@ -1,7 +1,7 @@
 ---
-name: Feature Request 💡
-about: Suggest a new idea for the project.
-labels: "request-feature"
+name: Module Request 💡
+about: Suggest a new module idea to include in framework.
+labels: "request-module"
 ---
 
 <!--
@@ -15,11 +15,11 @@ labels: "request-feature"
 
 ## Summary
 
-Brief explanation of the feature.
+Brief explanation of the module.
 
 ### Basic example
 
-If the proposal involves a new or changed API, include a basic code example. Omit this section if it's not applicable.
+If you have a POC, blog post or any other useful references please let us know in this section.
 
 ### Motivation
 
