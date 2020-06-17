@@ -19,15 +19,15 @@ If you are opening a PR for a new module that exploits a **specific** piece of h
 
 
 Specific Hardware Examples:
-* https://github.com/rapid7/metasploit-framework/pull/13303
-* https://github.com/rapid7/metasploit-framework/pull/13170
+* Enterprise Switches (PR 13303)
+* IP Cameras (PR 13170)
 
 
 Complex Testing Enviroment Examples:
-* https://github.com/rapid7/metasploit-framework/pull/12096
+* Multiple testing scenarios (PR 12096)
 
 
 We will also accept demonstrations of successful module execution even if your module doesn't meet the above conditions. It's not a necessity, but it may help us land your module faster! 
 
-Demonstration of successful module execution can take the form of a packet capture (pcap) or a screen recording. You can send pcaps and recordings to [msfdev@metaspolit.com](mailto:msfdev@metaspolit.com). Please include a CVE number in the subject header (if apllicable), and a link to your PR in the email body. 
+Demonstration of successful module execution can take the form of a packet capture (pcap) or a screen recording. You can send pcaps and recordings to [msfdev@metaspolit.com](mailto:msfdev@metaspolit.com). Please include a CVE number in the subject header (if applicable), and a link to your PR in the email body. 
 
