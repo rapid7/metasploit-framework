@@ -39,7 +39,7 @@ module Msf
           'set_session_mobile_carrier'     => 'Set the mobile carrier of the phone',
           'set_session_minimum_ip'         => 'Set the minimum session IP range you want to be notified for',
           'set_session_maximum_ip'         => 'Set the maximum session IP range you want to be notified for',
-          'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier',
+          'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier (keyword: session).',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
           'start_session_notifier'         => 'Start notifying sessions',
           'stop_session_notifier'          => 'Stop notifying sessions',
