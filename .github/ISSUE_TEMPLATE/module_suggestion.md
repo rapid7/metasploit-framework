@@ -1,7 +1,7 @@
 ---
 name: Module Suggestion 📦
 about: Suggest a new module idea to include in framework.
-labels: "suggest-module"
+labels: "suggestion-module"
 ---
 
 <!--
