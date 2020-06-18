@@ -1,7 +1,7 @@
 ---
-name: Module Request 📦
+name: Module Suggestion 📦
 about: Suggest a new module idea to include in framework.
-labels: "request-module"
+labels: "suggest-module"
 ---
 
 <!--

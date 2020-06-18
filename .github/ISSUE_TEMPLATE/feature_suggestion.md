@@ -1,7 +1,7 @@
 ---
-name: Feature Request 💡
+name: Feature Suggestion 💡
 about: Suggest a new idea for the project.
-labels: "request-feature"
+labels: "suggest-feature"
 ---
 
 <!--
