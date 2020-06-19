@@ -191,7 +191,6 @@ class UI < Rex::Post::UI
         end
 
         request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
-        request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
       end
 
       # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
@@ -206,7 +205,6 @@ class UI < Rex::Post::UI
       end
 
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
-      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
     end
 
     # send the request and return the jpeg image if successfull.
