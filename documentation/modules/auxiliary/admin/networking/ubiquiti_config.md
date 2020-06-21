@@ -18,7 +18,7 @@
 
 1. Have a Ubiquiti Unifi configuration file (db or unf)
 2. Start `msfconsole`
-3. `use auxiliary/admin/ubiquiti/ubiquiti_config`
+3. `use auxiliary/admin/networking/ubiquiti_config`
 4. `set RHOST x.x.x.x`
 5. `set CONFIG /tmp/file.unf`
 6. `run`
@@ -37,7 +37,7 @@
 
 ### Unf File
 ```
-resource (unifi_config.rb)> use auxiliary/admin/ubiquiti/ubiquiti_config
+resource (unifi_config.rb)> use auxiliary/admin/networking/ubiquiti_config
 resource (unifi_config.rb)> set rhosts 127.0.0.1
 rhosts => 127.0.0.1
 resource (unifi_config.rb)> set config /root/.msf4/loot/20190825172544_default_1.1.1.1_ubiquiti.unifi.b_740136.unf
@@ -59,12 +59,12 @@ resource (unifi_config.rb)> run
 ### db File
 
 ```
-resource (unifi_config.rb)> use auxiliary/admin/ubiquiti/ubiquiti_config
+resource (unifi_config.rb)> use auxiliary/admin/networking/ubiquiti_config
 resource (unifi_config.rb)> set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(admin/ubiquiti/ubiquiti_config) > set config /root/.msf4/loot/db
+msf5 auxiliary(admin/networking/ubiquiti_config) > set config /root/.msf4/loot/db
 config => /root/.msf4/loot/db
-msf5 auxiliary(admin/ubiquiti/ubiquiti_config) > run
+msf5 auxiliary(admin/networking/ubiquiti_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Converting config BSON to JSON
