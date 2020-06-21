@@ -7,18 +7,24 @@ require 'msf/core/auxiliary/brocade'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Brocade
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Brocade Gather Device General Information',
-      'Description'   => %q{
-        This module collects Brocade device information and configuration.
-        This module has been tested against an icx6430 running 08.0.20T311.
+  include Msf::Exploit::Deprecated
+  moved_from 'post/brocade/gather/enum_brocade'
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Brocade Gather Device General Information',
+        'Description' => %q{
+          This module collects Brocade device information and configuration.
+          This module has been tested against an icx6430 running 08.0.20T311.
         },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'h00die'],
-      'Platform'      => [ 'brocade'],
-      'SessionTypes'  => [ 'shell' ]
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'h00die'],
+        'Platform' => [ 'brocade'],
+        'SessionTypes' => [ 'shell' ]
+      )
+    )
   end
 
   def run
@@ -49,11 +55,11 @@ class MetasploitModule < Msf::Post
     end
 
     ver_loc = store_loot('brocade.version',
-      'text/plain',
-      session,
-      version_out.strip,
-      'version.txt',
-      'Brocade Version')
+                         'text/plain',
+                         session,
+                         version_out.strip,
+                         'version.txt',
+                         'Brocade Version')
 
     # Print the version of VERBOSE set to true.
     vprint_good("Version information stored in to loot #{ver_loc}")
@@ -64,34 +70,34 @@ class MetasploitModule < Msf::Post
 
   # run commands found in exec mode under privilege 1
   def enum_configs(prompt)
-    host,port = session.session_host, session.session_port
+    host = session.session_host
+    port = session.session_port
     exec_commands = [
       {
-        'cmd'  => 'show configuration',
-        'fn'   => 'get_config',
+        'cmd' => 'show configuration',
+        'fn' => 'get_config',
         'desc' => 'Get Device Config on Brocade Device'
       },
     ]
     exec_commands.each do |ec|
       command = ec['cmd']
-      cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/,"")
+      cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/, '')
       print_status("Gathering info from #{command}")
       # detect if we're in pagination and get as much data as possible
       if cmd_out.include?('--More--')
-        cmd_out += session.shell_command(" \n"*20) #20 pages *should* be enough
+        cmd_out += session.shell_command(" \n" * 20) # 20 pages *should* be enough
       end
       if ec['fn'] == 'get_config'
-        brocade_config_eater(host,port,cmd_out.strip)
+        brocade_config_eater(host, port, cmd_out.strip)
       else
         cmd_loc = store_loot("brocade.#{ec['fn']}",
-          "text/plain",
-          session,
-          cmd_out.strip,
-          "#{ec['fn']}.txt",
-          ec['desc'])
+                             'text/plain',
+                             session,
+                             cmd_out.strip,
+                             "#{ec['fn']}.txt",
+                             ec['desc'])
         vprint_good("Saving to #{cmd_loc}")
       end
     end
   end
 end
-
