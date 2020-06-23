@@ -160,7 +160,11 @@ def elog(msg, src = 'core', log_level = 0, error: nil)
   else
     error_details = "#{error.class} #{error.message}"
     if get_log_level(src) >= BACKTRACE_LOG_LEVEL
-      error_details << "\nCall stack:\n#{error.backtrace.join("\n")}"
+      if error.backtrace
+        error_details << "\nCall stack:\n#{error.backtrace.join("\n")}"
+      else
+        error_details << "\nCall stack:\nNone"
+      end
     end
 
     if msg.is_a?(Exception)
