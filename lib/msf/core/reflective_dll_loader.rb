@@ -58,7 +58,7 @@ module Msf::ReflectiveDLLLoader
 
     unless loader_name.nil?
       pe.exports.entries.each do |e|
-        if e.name =~ /^\S*${loader_name}\S*/
+        if e.name =~ /^\S#${loader_name}\S*/
           offset = pe.rva_to_file_offset(e.rva)
           break
         end
@@ -66,7 +66,7 @@ module Msf::ReflectiveDLLLoader
     end
 
     # If we aren't able to find the ReflectiveLoader, we need to
-    # fallback to the knownn ordinal export for RDI DLLs?
+    # fallback to the known ordinal export for RDI DLLs?
     if offset.nil? && !loader_ordinal.nil?
       e = pe.exports.entries.find {|e| e.ordinal == loader_ordinal}
       offset = pe.rva_to_file_offset(e.rva)
