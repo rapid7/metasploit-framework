@@ -126,7 +126,7 @@ class Response < Packet
     begin
       json = JSON.parse(self.body)
     rescue JSON::ParserError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
 
     json

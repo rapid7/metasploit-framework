@@ -307,8 +307,8 @@ module Msf::DBManager::ModuleCache
           next if not obj
           begin
             update_module_details(obj)
-          rescue ::Exception
-            elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+          rescue ::Exception => e
+            elog("Error updating module details for #{obj.fullname}", error: e)
           end
         end
       end

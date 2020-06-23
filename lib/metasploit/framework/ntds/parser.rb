@@ -56,7 +56,7 @@ module Metasploit
           begin
             raw_batch_data = channel.read(BATCH_SIZE)
           rescue EOFError => e
-            elog("NTDS Parser: Error pulling batch - #{e}")
+            elog('NTDS Parser: Error pulling batch', error: e)
             raw_batch_data = nil
           end
           raw_batch_data

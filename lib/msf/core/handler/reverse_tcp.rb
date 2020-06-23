@@ -159,8 +159,8 @@ module ReverseTcp
           else
             handle_connection(wrap_aes_socket(client), opts)
           end
-        rescue StandardError
-          elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
+        rescue StandardError => e
+          elog('Exception raised from handle_connection', error: e)
         end
       end
     }

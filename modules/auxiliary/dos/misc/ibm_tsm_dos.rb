@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Packet sent!")
   rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => ex
     print_error("Exploit failed: #{ex.class} #{ex.message}")
-    elog("#{ex.class} #{ex.message}\n#{ex.backtrace * "\n"}")
+    elog(ex)
   ensure
     disconnect
   end

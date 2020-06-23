@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         # If there's no exception raised at this point, we assume the file has been removed.
         print_good("Deleted: #{remote_path}")
       rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog("Cannot delete #{remote_path}:", error: e)
         print_error("Cannot delete #{remote_path}: #{e.message}")
       end
     end
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       smb_delete_files
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog('Unable to login', error: e)
       print_error("Unable to login: #{e.message}")
     end
   end

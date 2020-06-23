@@ -304,7 +304,7 @@ class Msf::Modules::Loader::Base
           reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
         end
       else
-        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.", 'core')
+        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.")
 
         # Return the old module instance to avoid an strace trace
         return original_metasploit_class_or_instance

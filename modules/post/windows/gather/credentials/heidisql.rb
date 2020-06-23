@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
           end
         end
       rescue ::Rex::Post::Meterpreter::RequestError => e
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog(e)
         print_error("Cannot Access User SID: #{hive['HKU']} : #{e.message}")
       end
     end

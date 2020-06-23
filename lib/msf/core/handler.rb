@@ -210,7 +210,7 @@ protected
       rescue ::Exception => e
         # We just wanna show and log the error, not trying to swallow it.
         print_error("#{e.class} #{e.message}")
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog('Could not allocate a new Session.', error: e)
         raise e
       end
 

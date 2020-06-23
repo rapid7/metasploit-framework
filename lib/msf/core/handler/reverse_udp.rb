@@ -222,8 +222,8 @@ module ReverseUdp
           else
             handle_connection(client, opts)
           end
-        rescue ::Exception
-          elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
+        rescue ::Exception => e
+          elog('Exception raised from handle_connection', error: e)
         end
       end
     }
