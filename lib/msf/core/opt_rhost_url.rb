@@ -42,16 +42,18 @@ module Msf
     end
 
     def calculate_value(datastore)
-      begin
-        uri = URI::Generic.build(host: datastore['RHOSTS'])
-        uri.port=datastore['RPORT']
-        # The datastore uses both `TARGETURI` and `URI` to denote the path of a URL, we try both here and fall back to `/`
-        uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
-        uri.user=datastore['HttpUsername']
-        uri.password=datastore['HttpPassword'] if uri.user
-        uri
-      rescue URI::InvalidComponentError
-        return nil
+      if datastore['RHOSTS']
+        begin
+          uri = URI::Generic.build(host: datastore['RHOSTS'])
+          uri.port=datastore['RPORT']
+          # The datastore uses both `TARGETURI` and `URI` to denote the path of a URL, we try both here and fall back to `/`
+          uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
+          uri.user=datastore['HttpUsername']
+          uri.password=datastore['HttpPassword'] if uri.user
+          uri
+        rescue URI::InvalidComponentError
+          nil
+        end
       end
     end
 
