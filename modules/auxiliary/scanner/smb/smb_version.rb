@@ -22,11 +22,11 @@ class MetasploitModule < Msf::Auxiliary
     '0x0302' => 'SMB 3.0.2',
     '0x0311' => 'SMB 3.1.1',
     '0x02ff' => 'SMB 2.???'
-  }
+  }.freeze
 
   def initialize
     super(
-      'Name'        => 'SMB Version Detection',
+      'Name' => 'SMB Version Detection',
       'Description' => %q{
         Fingerprint and display version information about SMB servers. Protocol
         information and host operating system (if available) will be reported.
@@ -34,8 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         version 1 of the SMB protocol. Compression and encryption capability
         negotiation is only present in version 3.1.1.
       },
-      'Author'      => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
-      'License'     => MSF_LICENSE
+      'Author' => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
+      'License' => MSF_LICENSE
     )
 
     deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
@@ -53,12 +53,12 @@ class MetasploitModule < Msf::Auxiliary
   def seconds_to_timespan(seconds)
     timespan = []
     [
-      ['w', 60 * 60 * 24 * 7],
-      ['d', 60 * 60 * 24    ],
-      ['h', 60 * 60         ],
-      ['m', 60              ]
+      ['w', 60 * 60 * 24 * 7], # weeks
+      ['d', 60 * 60 * 24], # days
+      ['h', 60 * 60], # hours
+      ['m', 60] # minutes
     ].each do |spec, span|
-      if seconds > span || timespan.length > 0
+      if seconds > span || !timespan.empty?
         timespan << "#{(seconds / span).floor}#{spec}"
         seconds %= span
       end
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       rescue Errno::ECONNRESET
         next
-      rescue ::Exception => e
+      rescue ::Exception => e # rubocop:disable Lint/RescueException
         vprint_error("#{rhost}: #{e.class} #{e}")
         next
       end
@@ -117,32 +117,32 @@ class MetasploitModule < Msf::Auxiliary
     #
     # Create the note hash for fingerprint.match
     #
-    nd_fingerprint_match = { }
+    nd_fingerprint_match = {}
 
     #
     # Create a descriptive string for service.info
     #
     desc = res['os'].dup
 
-    if res['edition'].to_s.length > 0
+    if !res['edition'].to_s.empty?
       desc << " #{res['edition']}"
       nd_smb_fingerprint[:os_edition] = res['edition']
       nd_fingerprint_match['os.edition'] = res['edition']
     end
 
-    if res['sp'].to_s.length > 0
+    if !res['sp'].to_s.empty?
       desc << " #{res['sp'].downcase.gsub('service pack ', 'SP')}"
       nd_smb_fingerprint[:os_sp] = res['sp']
       nd_fingerprint_match['os.version'] = res['sp']
     end
 
-    if res['build'].to_s.length > 0
+    if !res['build'].to_s.empty?
       desc << " (build:#{res['build']})"
       nd_smb_fingerprint[:os_build] = res['build']
       nd_fingerprint_match['os.build'] = res['build']
     end
 
-    if res['lang'].to_s.length > 0 and res['lang'] != 'Unknown'
+    if !res['lang'].to_s.empty? && res['lang'] != 'Unknown'
       desc << " (language:#{res['lang']})"
       nd_smb_fingerprint[:os_lang] = res['lang']
       nd_fingerprint_match['os.language'] = nd_smb_fingerprint[:os_lang]
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
       nd_fingerprint_match['host.name'] = nd_smb_fingerprint[:SMBName]
     end
 
-    {text: desc, fingerprint_match: nd_fingerprint_match, smb_fingerprint: nd_smb_fingerprint}
+    { text: desc, fingerprint_match: nd_fingerprint_match, smb_fingerprint: nd_smb_fingerprint }
   end
 
   #
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def run_host(ip)
     smb_ports = [445, 139]
-    lines = []  # defer status output to the very end to group lines together by host
+    lines = [] # defer status output to the very end to group lines together by host
     smb_ports.each do |pnum|
       @smb_port = pnum
       self.simple = nil
@@ -177,15 +177,15 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if simple.client.peer_require_signing
-          desc << " (signatures:required)"
+          desc << ' (signatures:required)'
         else
-          desc << " (signatures:optional)"
+          desc << ' (signatures:optional)'
           report_vuln({
-            :host  => ip,
-            :port  => rport,
-            :proto => 'tcp',
-            :name  => 'SMB Signing Is Not Required',
-            :refs  => [
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            name: 'SMB Signing Is Not Required',
+            refs: [
               SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'),
               SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'),
             ]
@@ -199,8 +199,8 @@ class MetasploitModule < Msf::Auxiliary
         # Create the note hash for smb.fingerprint
         #
         nd_smb_fingerprint = {
-           :native_os => res['native_os'],
-           :native_lm => res['native_lm']
+          native_os: res['native_os'],
+          native_lm: res['native_lm']
         }
 
         if res['os'] && res['os'] != 'Unknown'
@@ -210,22 +210,22 @@ class MetasploitModule < Msf::Auxiliary
           nd_smb_fingerprint = description[:smb_fingerprint]
 
           if simple.client.default_domain
-            if simple.client.default_domain.encoding.name == "UTF-8"
+            if simple.client.default_domain.encoding.name == 'UTF-8'
               desc << " (domain:#{simple.client.default_domain})"
             else
               # Workgroup names are in ANSI, but may contain invalid characters
               # Go through each char and convert/check
               temp_workgroup = simple.client.default_domain.dup
-              desc << " (workgroup:"
+              desc << ' (workgroup:'
               temp_workgroup.each_char do |i|
                 begin
-                  desc << i.encode("UTF-8")
-                rescue Encoding::UndefinedConversionError => e
+                  desc << i.encode('UTF-8')
+                rescue Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
                   desc << '?'
                   vprint_error("Found incompatible (non-ANSI) character in Workgroup name. Replaced with '?'")
                 end
               end
-              desc << ")"
+              desc << ')'
             end
             nd_smb_fingerprint[:SMBDomain] = simple.client.default_domain
             nd_fingerprint_match['host.domain'] = nd_smb_fingerprint[:SMBDomain]
@@ -235,64 +235,62 @@ class MetasploitModule < Msf::Auxiliary
 
           # Report the service with a friendly banner
           report_service(
-            :host  => ip,
-            :port  => rport,
-            :proto => 'tcp',
-            :name  => 'smb',
-            :info  => desc
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            name: 'smb',
+            info: desc
           )
 
           # Report a fingerprint.match hash for name, domain, and language
           # Ignore OS fields, as those are handled via smb.fingerprint
           report_note(
-            :host  => ip,
-            :port  => rport,
-            :proto => 'tcp',
-            :ntype => 'fingerprint.match',
-            :data  => nd_fingerprint_match
+            host: ip,
+            port: rport,
+            proto: 'tcp',
+            ntype: 'fingerprint.match',
+            data: nd_fingerprint_match
           )
+        elsif res['native_os'] || res['native_lm']
+          desc = "#{res['native_os']} (#{res['native_lm']})"
+          report_service(host: ip, port: rport, name: 'smb', info: desc)
+          print_status("  Host could not be identified: #{desc}")
         else
-          if res['native_os'] || res['native_lm']
-            desc = "#{res['native_os']} (#{res['native_lm']})"
-            report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
-            print_status("  Host could not be identified: #{desc}")
-          else
-            vprint_status('  Host could not be identified')
-          end
+          vprint_status('  Host could not be identified')
         end
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
         report_note(
-          :host  => ip,
-          :port  => rport,
-          :proto => 'tcp',
-          :ntype => 'smb.fingerprint',
-          :data  => nd_smb_fingerprint
+          host: ip,
+          port: rport,
+          proto: 'tcp',
+          ntype: 'smb.fingerprint',
+          data: nd_smb_fingerprint
         )
 
         disconnect
 
         break
-
-      rescue ::Rex::Proto::SMB::Exceptions::NoReply => e
+      rescue ::Rex::Proto::SMB::Exceptions::NoReply
         next
-      rescue ::Rex::Proto::SMB::Exceptions::ErrorCode  => e
+      rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
         next
       rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
         # Vista has 139 open but doesnt like *SMBSERVER
         next if e.to_s =~ /server refused our NetBIOS/
-        return
+
+        break
       rescue ::Timeout::Error
+        next
       rescue ::Rex::ConnectionError
         next
-
-      rescue ::Exception => e
+      rescue ::Exception => e # rubocop:disable Lint/RescueException
         print_error("#{rhost}: #{e.class} #{e}")
       ensure
         disconnect
 
         lines.each do |line|
-          self.send "print_#{line[:type]}", line[:message]
+          send "print_#{line[:type]}", line[:message]
         end
         lines = []
       end
