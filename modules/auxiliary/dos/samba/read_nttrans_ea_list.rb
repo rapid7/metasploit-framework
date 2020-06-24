@@ -57,6 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('Tries', [true, 'Number of DOS tries', 40]),
       ])
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def get_fid
@@ -102,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Trying a max of #{datastore['Tries']} times...")
     datastore['Tries'].times do
-      connect()
+      connect(versions: [1])
       smb_login()
       self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 

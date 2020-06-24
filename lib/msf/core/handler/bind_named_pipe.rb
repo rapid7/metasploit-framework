@@ -161,7 +161,7 @@ end
 class SimpleClientPipe < Rex::Proto::SMB::SimpleClient
   attr_accessor :pipe
 
-  def initialize(socket, direct, versions = [1, 2])
+  def initialize(socket, direct, versions = [1, 2, 3])
     super(socket, direct, versions)
     self.pipe = nil
   end

@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_smb_setup_tree(ipc_share)
-    connect
+    connect(versions: [1])
 
     # logon as user \
     simple.login(datastore['SMBName'], datastore['SMBUser'], datastore['SMBPass'], datastore['SMBDomain'])

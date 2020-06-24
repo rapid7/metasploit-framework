@@ -64,6 +64,8 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run_host(ip)

@@ -99,7 +99,7 @@ module Rex::Proto::SMB
 
       # Read data from the file
       def read(length = nil, offset = 0)
-        if versions.include?(2)
+        if self.client.is_a?(RubySMB::Client)
           read_ruby_smb(length, offset)
         else
           read_rex_smb(length, offset)
@@ -124,7 +124,7 @@ module Rex::Proto::SMB
         # Keep writing data until we run out
         until chunk.empty?
           ok = client.write(file_id, fptr, chunk)
-          if versions.include?(2)
+          if self.client.is_a?(RubySMB::Client)
             cl = ok
           else
             cl = ok['Payload'].v['CountLow']
