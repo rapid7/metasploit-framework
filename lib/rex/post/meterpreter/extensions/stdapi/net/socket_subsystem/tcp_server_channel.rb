@@ -36,8 +36,8 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   def self.request_handler(client, packet)
     return false unless packet.method == COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN
 
-    cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
-    pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
+    cid = packet.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+    pid = packet.get_tlv_value(TLV_TYPE_CHANNEL_PARENTID)
 
     return false if cid.nil? || pid.nil?
 
