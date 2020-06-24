@@ -134,10 +134,7 @@ class Core
       "unset"      => "Unsets one or more context-specific variables",
       "unsetg"     => "Unsets one or more global variables",
       "version"    => "Show the framework and console library version numbers",
-      "spool"      => "Write console output into a file as well the screen",
-      "set_macro"  => "sets multiple options yay",
-      "setg_macro"  => "sets multiple options yay"
-
+      "spool"      => "Write console output into a file as well the screen"
     }
   end
 
@@ -1722,33 +1719,6 @@ class Core
     print_line "If setting a PAYLOAD, this command can take an index from `show payloads'."
     print_line
   end
-
-  def cmd_setg_macro(key, value)
-    cmd_set_macro(key, value, global: true)
-  end
-
-  def cmd_set_macro(key, value, global: false)
-    case key.upcase
-    when "RHOST_URL"
-      set_rhost_url(value, global: global)
-    else
-      # type code here
-    end
-  end
-
-  def set_rhost_url(value, global: false)
-    rhost_url = URI(value)
-    set_option('RHOSTS', rhost_url.hostname, global: global)
-    set_option('RPORT', rhost_url.port, global: global)
-    set_option('SSL', %w{ssl https}.include?(rhost_url.scheme), global: global)
-    set_option('TARGETURI', rhost_url.path, global: global)
-    if %{http https}.include?(rhost_url.scheme)
-      set_option('VHOST', rhost_url.hostname, global: global) unless Rex::Socket.is_ip_addr?(rhost_url.hostname)
-      set_option('HttpUsername', rhost_url.user.to_s, global: global)
-      set_option('HttpPassword', rhost_url.password.to_s, global: global)
-    end
-  end
-
 
   def cmd_set(*args)
     # Figure out if these are global variables

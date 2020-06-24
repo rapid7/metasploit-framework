@@ -18,6 +18,7 @@ module Msf
   autoload :OptRaw, 'msf/core/opt_raw'
   autoload :OptRegexp, 'msf/core/opt_regexp'
   autoload :OptString, 'msf/core/opt_string'
+  autoload :OptRhostUrl, 'msf/core/opt_rhost_url'
 
   #
   # The options purpose in life is to associate named options with arbitrary

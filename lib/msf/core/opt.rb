@@ -62,6 +62,10 @@ module Msf
       )
     end
 
+    def self.RHOST_URL(default=nil, required=false, desc="The target URL, only applicable if there is a single URL")
+      Msf::OptRhostUrl.new(__method__.to_s, [ required, desc, default ])
+    end
+
     def self.stager_retry_options
       [
         OptInt.new('StagerRetryCount',
@@ -114,6 +118,7 @@ module Msf
     Proxies = Proxies()
     RHOST = RHOST()
     RHOSTS = RHOSTS()
+    RHOST_URL = RHOST_URL()
     RPORT = RPORT()
     SSLVersion = SSLVersion()
   end
