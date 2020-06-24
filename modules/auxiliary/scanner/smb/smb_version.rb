@@ -162,6 +162,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def run_host(ip)
     smb_ports = [445, 139]
+    lines = []  # defer status output to the very end to group lines together by host
     smb_ports.each do |pnum|
       @smb_port = pnum
       self.simple = nil
@@ -192,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         desc << " (uptime:#{info[:uptime]})" if info[:uptime]
         desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
-        print_status(desc)
+        lines << { type: :status, message: desc }
 
         #
         # Create the note hash for smb.fingerprint
@@ -230,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
             nd_fingerprint_match['host.domain'] = nd_smb_fingerprint[:SMBDomain]
           end
 
-          print_good("  Host is running #{desc}")
+          lines << { type: :good, message: "  Host is running #{desc}" }
 
           # Report the service with a friendly banner
           report_service(
@@ -289,6 +290,11 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{rhost}: #{e.class} #{e}")
       ensure
         disconnect
+
+        lines.each do |line|
+          self.send "print_#{line[:type]}", line[:message]
+        end
+        lines = []
       end
     end
   end
