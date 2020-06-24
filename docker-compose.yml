@@ -9,7 +9,6 @@ services:
       DATABASE_URL: postgres://postgres:msfpassword@db:5432/msf
     links:
       - db
-    #stdin_open: true # docker run -i
     tty: true        # docker run -t
     ports:
       - 4444:4444
