@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       data_hash = JSON.parse(contents)
     rescue JSON::ParserError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
       return
     end
 

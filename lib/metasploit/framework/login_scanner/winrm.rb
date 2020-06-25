@@ -39,12 +39,26 @@ module Metasploit
           super
         end
 
+        # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
+        def send_request(opts)
+            opts['headers'] ||= { }
+            opts['ctype'] = 'application/soap+xml;charset=UTF-8'
+            opts['data'] = wsman_identity_request
+            opts['headers']['Content-Length'] = opts['data'].length
+            super
+        end
+
         # The method *must* be "POST", so don't let the user change it
         # @raise [RuntimeError] Unconditionally
         def method=(_)
           raise RuntimeError, "Method must be POST for WinRM"
         end
 
+        private
+
+        def wsman_identity_request
+          %Q{<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:wsmid="http://schemas.dmtf.org/wbem/wsman/identity/1/wsmanidentity.xsd"><s:Header/><s:Body><wsmid:Identify/></s:Body></s:Envelope>}
+        end
       end
     end
   end

@@ -76,7 +76,7 @@ class Cache
             refresh_metadata_instance_internal(module_instance)
             has_changes = true
           rescue Exception => e
-            elog("Error updating module details for #{module_instance.fullname}: #{$!.class} #{$!} : #{e.message}")
+            elog("Error updating module details for #{module_instance.fullname}", error: e)
           end
         end
       end

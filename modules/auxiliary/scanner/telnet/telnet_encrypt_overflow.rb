@@ -126,13 +126,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
       print_error("A network issue has occurred: #{e.message}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog('A network issue has occurred', error: e)
     rescue Timeout::Error => e
       print_error("#{target_host}:#{rport} Timed out after #{to} seconds")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("#{target_host}:#{rport} Timed out after #{to} seconds", error: e)
     rescue ::Exception => e
       print_error("#{target_host}:#{rport} Error: #{e} #{e.backtrace}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("#{target_host}:#{rport} Error: #{e} #{e.backtrace}", error: e)
     ensure
       disconnect
     end

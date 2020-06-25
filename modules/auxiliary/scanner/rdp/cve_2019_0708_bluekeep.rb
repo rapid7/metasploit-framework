@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       bt = e.backtrace.join("\n")
       vprint_error("Unexpected error: #{e.message}")
       vprint_line(bt)
-      elog("#{e.message}\n#{bt}")
+      elog(e)
     rescue RdpCommunicationError
       vprint_error('Error communicating RDP protocol.')
       status = Exploit::CheckCode::Unknown
@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       bt = e.backtrace.join("\n")
       vprint_error("Unexpected error: #{e.message}")
       vprint_line(bt)
-      elog("#{e.message}\n#{bt}")
+      elog(e)
     ensure
       rdp_disconnect
     end

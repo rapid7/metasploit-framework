@@ -78,7 +78,7 @@ module Msf::Post::Windows::Priv
     rescue Rex::Post::Meterpreter::RequestError => e
       # It could raise an exception even when the token is successfully stolen,
       # so we will just log the exception and move on.
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
 
     true

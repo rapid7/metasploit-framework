@@ -105,7 +105,7 @@ module ModuleCommandDispatcher
         if exception.kind_of?(::Interrupt)
           raise exception
         else
-          elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+          elog('Error encountered with first Thread', error: exception)
         end
       end
 
@@ -252,20 +252,20 @@ module ModuleCommandDispatcher
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Msf::Exploit::Failed => e
       # Handle fail_with and other designated exploit failures
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::NotImplementedError => e
       print_error(e.message)
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     end
   end
 

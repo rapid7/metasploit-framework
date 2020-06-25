@@ -304,7 +304,7 @@ class Msf::Modules::Loader::Base
           reloaded_module_instance.datastore.update(original_metasploit_instance.datastore)
         end
       else
-        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.", 'core')
+        elog("Failed to create instance of #{original_metasploit_class_or_instance.refname} after reload.")
 
         # Return the old module instance to avoid an strace trace
         return original_metasploit_class_or_instance
@@ -414,17 +414,7 @@ class Msf::Modules::Loader::Base
     # backtraces should not appear.
     module_manager.module_load_error_by_path[module_path] = "#{error.class} #{error}"
 
-    log_lines = []
-    log_lines << "#{module_path} failed to load due to the following error:"
-    log_lines << error.class.to_s
-    log_lines << error.to_s
-    if error.backtrace
-      log_lines << "Call stack:"
-      log_lines += error.backtrace
-    end
-
-    log_message = log_lines.join(' ')
-    elog(log_message)
+    elog("#{module_path} failed to load", error: error)
   end
 
   # Records the load warning to {Msf::ModuleManager::Loading#module_load_warnings} and the log.

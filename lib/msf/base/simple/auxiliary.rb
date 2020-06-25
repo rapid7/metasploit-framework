@@ -212,9 +212,7 @@ protected
         end
       end
 
-      elog("Auxiliary failed: #{e.class} #{e}", 'core', LEV_0)
-      dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
-
+      elog('Auxiliary failed', error: e)
       mod.cleanup
 
     end

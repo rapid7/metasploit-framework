@@ -1500,15 +1500,15 @@ class Db
           print_error("Please note that there were #{warnings} warnings") if warnings > 1
           print_error("Please note that there was one warning") if warnings == 1
 
-        rescue Msf::DBImportError
+        rescue Msf::DBImportError => e
           print_error("Failed to import #{filename}: #{$!}")
-          elog("Failed to import #{filename}: #{$!.class}: #{$!}")
+          elog("Failed to import #{filename}", error: e)
           dlog("Call stack: #{$@.join("\n")}", LEV_3)
           next
         rescue REXML::ParseException => e
           print_error("Failed to import #{filename} due to malformed XML:")
           print_error("#{e.class}: #{e}")
-          elog("Failed to import #{filename}: #{e.class}: #{e}")
+          elog("Failed to import #{filename}", error: e)
           dlog("Call stack: #{$@.join("\n")}", LEV_3)
           next
         end

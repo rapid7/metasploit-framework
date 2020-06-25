@@ -157,7 +157,7 @@ class Webcam
       write_file("#{tmp_dir}\\interface.html", interface)
       write_file("#{tmp_dir}\\api.js", api)
     rescue RuntimeError => e
-      elog("webcam_chat failed. #{e.class} #{e}")
+      elog('webcam_chat failed', error: e)
       raise "Unable to initialize the interface on the target machine"
     end
 
@@ -175,7 +175,7 @@ class Webcam
       begin
         write_file(profile_path, setting)
       rescue RuntimeError => e
-        elog("webcam_chat failed: #{e.class} #{e}")
+        elog('webcam_chat failed', error: e)
         raise "Unable to write the necessary setting for Firefox."
       end
       args = "-p #{profile_name}"
@@ -186,7 +186,7 @@ class Webcam
     begin
       session.sys.process.execute(remote_browser_path, "#{args} #{tmp_dir}\\interface.html", exec_opts)
     rescue RuntimeError => e
-      elog("webcam_chat failed. #{e.class} #{e}")
+      elog('webcam_chat failed', error: e)
       raise "Unable to start the remote browser: #{e.message}"
     end
   end

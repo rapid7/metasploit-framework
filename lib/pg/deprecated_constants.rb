@@ -16,21 +16,21 @@
 #
 # config.autoload_paths << Rails.root.join('lib')
 #
-if PG::VERSION != '0.21.0' || ActiveRecord.version.to_s != '4.2.11.1'
-  puts <<MSG
------------------------------------------------------------------------------------
-The pg and/or activerecord gem version has changed, meaning deprecated pg constants
-may no longer be in use, so try deleting this file to see if the
-'The PGconn, PGresult, and PGError constants are deprecated...' message has gone:
-#{__FILE__}
------------------------------------------------------------------------------------
-
-MSG
+if PG::VERSION != '0.21.0' || ActiveRecord.version.to_s != '4.2.11.3'
+  puts <<~MSG
+    -----------------------------------------------------------------------------------
+    The pg and/or activerecord gem version has changed, meaning deprecated pg constants
+    may no longer be in use, so try deleting this file to see if the
+    'The PGconn, PGresult, and PGError constants are deprecated...' message has gone:
+    #{__FILE__}
+    -----------------------------------------------------------------------------------
+    
+  MSG
 end
 
-# Declare the deprecated constants as is done in the original 
+# Declare the deprecated constants as is done in the original
 # pg/deprecated_constants.rb so they can still be used by older
 # versions of gems such as activerecord.
-PGconn   = PG::Connection
+PGconn = PG::Connection
 PGresult = PG::Result
-PGError  = PG::Error
+PGError = PG::Error

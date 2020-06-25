@@ -386,13 +386,16 @@ class FrameworkEventSubscriber
     address = session.session_host
 
     if not (address and address.length > 0)
-      elog("Session with no session_host/target_host/tunnel_peer")
-      dlog("#{session.inspect}", LEV_3)
+      elog("Session with no session_host/target_host/tunnel_peer. Session Info: #{session.inspect}")
       return
     end
 
     if framework.db.active
       ws = framework.db.find_workspace(session.workspace)
+      opts.each_key do |attr|
+        opts[attr].force_encoding('UTF-8') if opts[attr].is_a?(String)
+      end
+
       event = {
         :workspace => ws,
         :username  => session.username,

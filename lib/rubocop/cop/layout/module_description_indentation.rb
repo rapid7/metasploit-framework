@@ -51,8 +51,8 @@ module RuboCop
           content_whitespace = indentation(description_key)
           final_line_whitespace = offset(description_key)
 
-          description_content = description_value.source.lines[1...-1]
-          indented_description = description_content.map do |line|
+          description_lines = node_content(description_value).strip.lines
+          indented_description = description_lines.map do |line|
             cleaned_content = line.strip
             if cleaned_content.empty?
               "\n"
@@ -67,6 +67,16 @@ module RuboCop
           new_literal <<= '}'
 
           new_literal
+        end
+
+        def node_content(node)
+          if node.str_type?
+            node.value
+          elsif node.dstr_type?
+            node.children.map(&:value).join
+          else
+            raise "Module description should be a string, instead found '#{node.type}'"
+          end
         end
 
         def hash_arg?(node)
