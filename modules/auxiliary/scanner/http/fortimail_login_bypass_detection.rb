@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'References' =>
         [
           ['URL',   'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-9294'],
-          ['URL',   'https://fortiguard.com/psirt/FG-IR-20-045']
+          ['URL',   'https://fortiguard.com/psirt/FG-IR-20-045'],
+          ['URL',   'https://www.redguard.ch/blog/2020/07/02/fortimail-unauthenticated-login-bypass/']
         ],
       'License' => MSF_LICENSE
     )
