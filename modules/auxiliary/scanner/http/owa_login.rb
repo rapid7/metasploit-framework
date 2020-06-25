@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
-        OptFloat.new('BASELINE_AUTH_TIME', [ false, "Baseline HTTP authentication response time for invalid users", 1.0])
+        OptFloat.new('BaselineAuthTime', [ false, "Baseline HTTP authentication response time for invalid users", 1.0])
       ])
 
     deregister_options('BLANK_PASSWORDS', 'RHOSTS')
@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
       if datastore['AUTH_TIME']
         start_time = Time.now
       end
-      baseline = datastore['BASELINE_AUTH_TIME'] || 1.0
+      baseline = datastore['BaselineAuthTime'] || 1.0
 
       res = send_request_cgi({
         'encode'   => true,
