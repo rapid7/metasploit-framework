@@ -49,7 +49,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("Checking vulnerability at #{ip}")
+    if (datastore['VERBOSE'])
+      print_status("Checking vulnerability at #{ip}")
+    end
     uri = normalize_uri(target_uri.path)
     begin
       res = send_request_raw({
@@ -57,14 +59,22 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => uri
         })
 
-      if (res and res.code == 200 and res.body.include? "newpassword" and res.body.include? "fml-admin-login-0160.js")
-        print_good("#{ip} - Vulnerable version of FortiMail found")
+      if (res and res.code == 200 and res.body.include? "fml-admin-login")
+        version = res.body[/fml-admin-login-(\d+).js/, 1].to_i
+        if (res.body.include? "newpassword" and (version.between?(140, 160) or version.between?(730, 745) or version.between?(250, 263)))
+          print_good("#{ip} - Vulnerable version of FortiMail detected")
+        else
+          print_bad("#{ip} - Not vulnerable version of FortiMail detected")
+          return :abort
+        end
       elsif (res and res.code == 301)
         print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
         return :abort
       else
-        print_bad("#{ip} - Not vulnerable version of FortiMail found")
-        return :abort
+        if (datastore['VERBOSE'])
+          print_bad("#{ip} - No version of FortiMail detected")
+          return :abort
+        end
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
