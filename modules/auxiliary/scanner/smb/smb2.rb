@@ -13,7 +13,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   include Msf::Module::Deprecated
-  deprecated(Date.new(2020, 10, 6))
+  deprecated(
+    Date.new(2020, 10, 6),
+    reason = 'Use auxiliary/scanner/smb/smb_version for SMB version detection'
+  )
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
