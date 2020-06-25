@@ -402,10 +402,9 @@ class Console::CommandDispatcher::Core
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
       end
-    rescue
-      print_error("Error in script: #{$!.class} #{$!}")
-      elog("Error in script: #{$!.class} #{$!}")
-      dlog("Callstack: #{$@.join("\n")}")
+    rescue => e
+      print_error("Error in script: #{script_name}")
+      elog("Error in script: #{script_name}", error: e)
     end
   end
 
@@ -451,11 +450,11 @@ class Console::CommandDispatcher::Core
       ::Thread.current[:args] = xargs.dup
       begin
         # the rest of the arguments get passed in through the binding
-        client.execute_script(args.shift, args)
-      rescue ::Exception
-        print_error("Error in script: #{$!.class} #{$!}")
-        elog("Error in script: #{$!.class} #{$!}")
-        dlog("Callstack: #{$@.join("\n")}")
+        script_name = args.shift
+        client.execute_script(script_name, args)
+      rescue ::Exception => e
+        print_error("Error in script: #{script_name}")
+        elog("Error in script #{script_name}", error: e)
       end
       self.bgjobs[myjid] = nil
       print_status("Background script with Job ID #{myjid} has completed (#{::Thread.current[:args].inspect})")

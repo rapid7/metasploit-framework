@@ -138,8 +138,7 @@ class SessionManager < Hash
       #
       rescue ::Exception => e
         respawn_cnt += 1
-        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e}")
-        elog("Call stack: \n#{e.backtrace.join("\n")}")
+        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread", error: e)
         if respawn_cnt < respawn_max
           ::IO.select(nil, nil, nil, 10.0)
           retry

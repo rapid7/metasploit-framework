@@ -217,8 +217,7 @@ class MetasploitModule < Msf::Auxiliary
       raise $!
     rescue ::Exception => e
       print_error("Unknown error: #{e.class} #{e}")
-      elog("Unknown error: #{e.class} #{e}")
-      elog("Call stack:\n#{e.backtrace.join "\n"}")
+      elog(e)
     ensure
       disconnect_snmp
     end

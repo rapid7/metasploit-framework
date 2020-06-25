@@ -779,7 +779,7 @@ class Core
         print_status("Successfully loaded plugin: #{inst.name}")
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0)
+      elog("Error loading plugin #{path}", error: e)
       print_error("Failed to load plugin from #{path}: #{e}")
     end
   end
@@ -1005,7 +1005,7 @@ class Core
         cmd_route_help
       end
     rescue => error
-      elog("#{error}\n\n#{error.backtrace.join("\n")}")
+      elog(error)
       print_error(error.message)
     end
   end
@@ -1632,7 +1632,7 @@ class Core
       end
     rescue OptionValidateError => e
       print_error(e.message)
-      elog(e.message)
+      elog('Exception encountered in cmd_set', error: e)
     end
 
     # Set PAYLOAD from TARGET

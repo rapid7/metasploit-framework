@@ -559,7 +559,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     rescue ::Exception => e
       # Log the error but otherwise ignore it so we don't kill the
       # session if reporting failed for some reason
-      elog("Error loading sysinfo: #{e.class}: #{e}")
+      elog('Error loading sysinfo', error: e)
       dlog("Call stack:\n#{e.backtrace.join("\n")}")
     end
   end

@@ -118,15 +118,16 @@ module Msf
 
     # Returns a list of compatible payloads based on platform, architecture,
     # and size requirements.
-    def compatible_payloads
+    def compatible_payloads(excluded_platforms: [], excluded_archs: [])
       payloads = []
 
       c_platform, c_arch = normalize_platform_arch
 
+      # The "All" platform name represents generic payloads
       results = Msf::Modules::Metadata::Cache.instance.find(
         'type'     => [['payload'], []],
-        'platform' => [[*c_platform.names, 'All'], []], # "All" for generic
-        'arch'     => [c_arch, []]
+        'platform' => [[*c_platform.names, 'All'], excluded_platforms],
+        'arch'     => [c_arch, excluded_archs]
       )
 
       results.each do |res|
