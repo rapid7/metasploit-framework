@@ -4,8 +4,9 @@ IBM Data Risk Manager (IDRM) contains two vulnerabilities that can be chained by
 The first is an unauthenticated bypass, followed by a path traversal.
 This module exploits both vulnerabilities, giving an attacker the ability to download (non-root) files.
 A downloaded file is zipped, and this module also unzips it before storing it in the database.
-By default, this module downloads Tomcat's 1application.properties` files, which contains the database password, amongst other sensitive data.
-At the time of disclosure, this is a 0day. Versions 2.0.3 and 2.0.2 are confirmed to be affected, and the latest 2.0.6 is most likely affected too. Version 2.0.1 is not vulnerable.
+By default, this module downloads Tomcat's application.properties file, which contains the database password, amongst other sensitive data.
+At the time of disclosure, this is was a 0 day, but IBM later patched it and released their advisory. 
+Versions 2.0.2 to 2.0.4 are vulnerable, version 2.0.1 is not.
 
 ### Vulnerability information
 For more information about the vulnerability check the advisory at:
