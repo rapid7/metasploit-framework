@@ -23,8 +23,8 @@ module Msf
       option_hash['SSL'] = %w{ssl https}.include?(uri.scheme)
 
       # Both `TARGETURI` and `URI` are used as datastore options to denote the path on a uri
-      option_hash['TARGETURI'] = uri.path
-      option_hash['URI'] = uri.path
+      option_hash['TARGETURI'] = uri.path || '/'
+      option_hash['URI'] = uri.path || '/'
 
       if uri.scheme and %{http https}.include?(uri.scheme)
         option_hash['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
@@ -35,7 +35,8 @@ module Msf
       option_hash
     end
 
-    def valid?(value, check_empty: true)
+    def valid?(value, check_empty: false)
+      return true unless value
       uri = URI(value)
       return false unless uri.host != nil and uri.port != nil
       super
@@ -50,7 +51,7 @@ module Msf
           uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
           uri.user=datastore['HttpUsername']
           uri.password=datastore['HttpPassword'] if uri.user
-          uri.to_s.delete_prefix('//')
+          uri
         rescue URI::InvalidComponentError
           nil
         end
