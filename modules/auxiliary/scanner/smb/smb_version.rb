@@ -104,6 +104,11 @@ class MetasploitModule < Msf::Auxiliary
           info[:uptime] = seconds_to_timespan(uptime)
         end
         info[:server_guid] = simple.client.server_guid
+
+        if info[:auth_domain].nil?
+          simple.client.authenticate
+          info[:auth_domain] = simple.client.default_domain
+        end
       end
 
       info[:preferred_dialect] = preferred_dialect
@@ -193,6 +198,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         desc << " (uptime:#{info[:uptime]})" if info[:uptime]
         desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
+        desc << " (authentication domain:#{info[:auth_domain]})" if info[:auth_domain]
         lines << { type: :status, message: desc }
 
         #

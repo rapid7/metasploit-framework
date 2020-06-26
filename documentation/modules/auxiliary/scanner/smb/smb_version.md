@@ -16,6 +16,7 @@ identify the information about the host operating system.
     * Requires versions: 2+
 1. Capabilities: The supported encryption and compression algorithms that the server supports.
     * Requires versions: 3+
+1. Authentication Domain: The domain that the server prompts the user to authenticate to when attempting to login.
 
 ### Host Operating System Information
 
