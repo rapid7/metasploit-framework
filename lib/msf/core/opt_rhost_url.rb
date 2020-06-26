@@ -50,7 +50,7 @@ module Msf
           uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
           uri.user=datastore['HttpUsername']
           uri.password=datastore['HttpPassword'] if uri.user
-          uri
+          uri.to_s.delete_prefix('//')
         rescue URI::InvalidComponentError
           nil
         end
