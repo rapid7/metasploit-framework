@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           A downloaded file is zipped, and this module also unzips it before storing it in the database.
           By default this module downloads Tomcat's application.properties files, which contains the
           database password, amongst other sensitive data.
-          At the time of disclosure, this is was a 0 day, but IBM later patched it and released their advisory. 
+          At the time of disclosure, this is was a 0 day, but IBM later patched it and released their advisory.
           Versions 2.0.2 to 2.0.4 are vulnerable, version 2.0.1 is not.
         },
         'Author' =>
