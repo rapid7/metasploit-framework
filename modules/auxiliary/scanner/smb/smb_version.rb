@@ -39,11 +39,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
-    @smb_port = 445
   end
 
   def rport
-    @smb_port || datastore['RPORT']
+    @smb_port
   end
 
   def smb_direct
@@ -56,7 +55,8 @@ class MetasploitModule < Msf::Auxiliary
       ['w', 60 * 60 * 24 * 7], # weeks
       ['d', 60 * 60 * 24], # days
       ['h', 60 * 60], # hours
-      ['m', 60] # minutes
+      ['m', 60], # minutes
+      ['s', 1] # seconds
     ].each do |spec, span|
       if seconds > span || !timespan.empty?
         timespan << "#{(seconds / span).floor}#{spec}"
@@ -222,7 +222,6 @@ class MetasploitModule < Msf::Auxiliary
                   desc << i.encode('UTF-8')
                 rescue Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
                   desc << '?'
-                  vprint_error("Found incompatible (non-ANSI) character in Workgroup name. Replaced with '?'")
                 end
               end
               desc << ')'
@@ -254,9 +253,9 @@ class MetasploitModule < Msf::Auxiliary
         elsif res['native_os'] || res['native_lm']
           desc = "#{res['native_os']} (#{res['native_lm']})"
           report_service(host: ip, port: rport, name: 'smb', info: desc)
-          print_status("  Host could not be identified: #{desc}")
+          lines << { type: :status, message: "  Host could not be identified: #{desc}" }
         else
-          vprint_status('  Host could not be identified')
+          lines << { type: :status, message: '  Host could not be identified', verbose: true }
         end
 
         # Report a smb.fingerprint hash of attributes for OS fingerprinting
@@ -290,7 +289,7 @@ class MetasploitModule < Msf::Auxiliary
         disconnect
 
         lines.each do |line|
-          send "print_#{line[:type]}", line[:message]
+          send "#{ line[:verbose] ? 'v' : '' }print_#{line[:type]}", line[:message]
         end
         lines = []
       end
