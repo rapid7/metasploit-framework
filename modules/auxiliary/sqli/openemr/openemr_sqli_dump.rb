@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       encoder: :base64, # the web application messes up multibyte characters, better encode
       verbose: datastore['VERBOSE']
     }
-    sqli = get_sqli(dbms: MySQLi::Common, opts: sqli_opts) do |payload|
+    sqli = create_sqli(dbms: MySQLi::Common, opts: sqli_opts) do |payload|
       res = get_response(payload)
       if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}m, 1])
         response
