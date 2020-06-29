@@ -13,7 +13,9 @@ module Msf
 
 
     def normalize(value)
-      uri = URI(value)
+      return unless value
+
+      uri = get_uri(value)
       option_hash = {}
       # Blank this out since we don't know if this new value will have a `VHOST` to ensure we remove the old value
       option_hash['VHOST'] = nil
@@ -37,8 +39,8 @@ module Msf
 
     def valid?(value, check_empty: false)
       return true unless value
-      uri = URI(value)
-      return false unless uri.host != nil and uri.port != nil
+      uri = get_uri(value)
+      false unless uri.host != nil and uri.port != nil
       super
     end
 
@@ -51,11 +53,22 @@ module Msf
           uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
           uri.user=datastore['HttpUsername']
           uri.password=datastore['HttpPassword'] if uri.user
-          uri
+          uri.to_s.delete_prefix('//')
         rescue URI::InvalidComponentError
           nil
         end
       end
+    end
+
+    protected
+
+    def get_uri(value)
+      begin
+        uri = URI(value)
+      rescue URI::InvalidURIError
+        uri = URI('//' + value)
+      end
+      uri
     end
 
   end
