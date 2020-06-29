@@ -1131,7 +1131,7 @@ class Packet < GroupTlv
 
   ##
   #
-  # The Packet container itself has a custom header that is slightly different to the
+  # The Packet container itself has a custom header that is slightly different than the
   # typical TLV packets. The header contains the following:
   #
   # XOR KEY        - 4 bytes
@@ -1167,6 +1167,7 @@ class Packet < GroupTlv
 
   ENC_FLAG_NONE   = 0x0
   ENC_FLAG_AES256 = 0x1
+  ENC_FLAG_AES128 = 0x2
 
   ##
   #
@@ -1263,8 +1264,10 @@ class Packet < GroupTlv
   end
 
   def aes_encrypt(key, data)
+    size = key.length * 8
+    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless (size == 128 || size == 256)
     # Create the required cipher instance
-    aes = OpenSSL::Cipher.new('AES-256-CBC')
+    aes = OpenSSL::Cipher.new("AES-#{size}-CBC")
     # Generate a truly random IV
     iv = aes.random_iv
 
@@ -1278,8 +1281,10 @@ class Packet < GroupTlv
   end
 
   def aes_decrypt(key, iv, data)
+    size = key.length * 8
+    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless (size == 128 || size == 256)
     # Create the required cipher instance
-    aes = OpenSSL::Cipher.new('AES-256-CBC')
+    aes = OpenSSL::Cipher.new("AES-#{size}-CBC")
     # Generate a truly random IV
 
     # set up the encryption
@@ -1303,11 +1308,11 @@ class Packet < GroupTlv
     raw = (session_guid || NULL_GUID).dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
-    if key && key[:key] && key[:type] == ENC_FLAG_AES256
+    if key && key[:key] && (key[:type] == ENC_FLAG_AES128 || key[:type] == ENC_FLAG_AES256)
       # encrypt the data, but not include the length and type
       iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
       # now manually add the length/type/iv/ciphertext
-      raw << [ENC_FLAG_AES256, iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
+      raw << [key[:type], iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
     else
       raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
     end
@@ -1323,7 +1328,7 @@ class Packet < GroupTlv
     # TODO: throw an error if the expected encryption isn't the same as the given
     #       as this could be an indication of hijacking or side-channel packet addition
     #       as highlighted by Justin Steven on github.
-    if key && key[:key] && key[:type] && encrypt_flags == ENC_FLAG_AES256 && encrypt_flags == key[:type]
+    if key && key[:key] && key[:type] && encrypt_flags == key[:type] && (encrypt_flags == ENC_FLAG_AES128 || encrypt_flags == ENC_FLAG_AES256)
       iv = data[0, AES_IV_SIZE]
       aes_decrypt(key[:key], iv, data[iv.length..-1])
     else
