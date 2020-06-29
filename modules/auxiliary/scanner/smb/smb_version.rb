@@ -105,9 +105,14 @@ class MetasploitModule < Msf::Auxiliary
         end
         info[:server_guid] = simple.client.server_guid
 
-        if info[:auth_domain].nil?
-          simple.client.authenticate
-          info[:auth_domain] = simple.client.default_domain
+        unless info.key? :auth_domain
+          begin
+            simple.client.authenticate
+          rescue RubySMB::RubySMBError
+            info[:auth_domain] = nil
+          else
+            info[:auth_domain] = simple.client.default_domain
+          end
         end
       end
 
