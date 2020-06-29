@@ -72,6 +72,14 @@ class Core
   @@tip_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ])
 
+  @@debug_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-d" => [ false, "Display the Datastore Information."             ],
+    "-c" => [ false, "Display command history."                       ],
+    "-e" => [ false, "Display the most recent Error and Stack Trace." ],
+    "-l" => [ false, "Display the most recent logs."                  ],
+    "-v" => [ false, "Display versions and install info."             ])
+
   @@connect_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-p" => [ true,  "List of proxies to use."                        ],
@@ -103,6 +111,7 @@ class Core
       "cd"         => "Change the current working directory",
       "connect"    => "Communicate with a host",
       "color"      => "Toggle color",
+      "debug"      => "Display information useful for debugging",
       "exit"       => "Exit the console",
       "get"        => "Gets the value of a context-specific variable",
       "getg"       => "Gets the value of a global variable",
@@ -290,6 +299,54 @@ class Core
   end
 
   alias cmd_tip cmd_tips
+
+
+  def cmd_debug_help
+    print_line "Usage: debug [options]"
+    print_line
+    print_line("Print a set of information in a Markdown format to be included when opening an Issue on Github. " +
+                 "This information helps us fix problems you encounter and should be included when you open a new issue: " +
+                 Debug.issue_link)
+    print @@debug_opts.usage
+  end
+
+  #
+  # Display information useful for debugging errors.
+  #
+  def cmd_debug(*args)
+    if args.empty?
+      print_line Debug.all(framework, driver)
+      return
+    end
+
+    if args.include?("-h")
+      cmd_debug_help
+    else
+      output = ""
+      @@debug_opts.parse(args) do |opt|
+        case opt
+        when '-d'
+          output << Debug.datastore(framework, driver)
+        when '-c'
+          output << Debug.history(driver)
+        when '-e'
+          output << Debug.errors
+        when '-l'
+          output << Debug.logs
+        when '-v'
+          output << Debug.versions(framework)
+        end
+      end
+
+      if output.empty?
+        print_line("Valid argument was not given.")
+        cmd_debug_help
+      else
+        output = Debug.preamble + output
+        print_line output
+      end
+    end
+  end
 
   def cmd_connect_help
     print_line "Usage: connect [options] <host> <port>"
