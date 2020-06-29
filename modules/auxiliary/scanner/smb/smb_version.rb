@@ -72,22 +72,27 @@ class MetasploitModule < Msf::Auxiliary
       capabilities: {},
       versions: []
     }
-    (1..3).each do |version|
+    versions = [1, 2, 3]
+    while !versions.empty?
       begin
-        simple = connect(false, versions: [version])
+        simple = connect(false, versions: versions)
         protocol = simple.client.negotiate
       rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError
-        next
-      rescue Errno::ECONNRESET
-        next
+        break
+      rescue
+        break
       rescue ::Exception => e # rubocop:disable Lint/RescueException
         vprint_error("#{rhost}: #{e.class} #{e}")
-        next
+        break
       end
 
-      preferred_dialect = simple.client.dialect
+      break if protocol.nil?
+      version = { 'SMB2' => 2, 'SMB3' => 3 }.fetch(protocol, 1)
+      versions.filter! { |v| v < version }
+
+      dialect = simple.client.dialect
       if simple.client.is_a? RubySMB::Client
-        if preferred_dialect == '0x0311'
+        if dialect == '0x0311'
           info[:capabilities][:compression] = simple.client.server_encryption_algorithms.map do |algorithm|
             RubySMB::SMB2::CompressionCapabilities::COMPRESSION_ALGORITHM_MAP[algorithm]
           end
@@ -97,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         # assume that if the server supports multiple versions, the preferred
         # dialect will correspond to the latest version
-        preferred_dialect = SMB2_DIALECT_STRINGS[preferred_dialect]
+        dialect = SMB2_DIALECT_STRINGS[dialect]
 
         if simple.client.server_start_time && simple.client.server_system_time
           uptime = simple.client.server_system_time - simple.client.server_start_time
@@ -116,10 +121,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      info[:preferred_dialect] = preferred_dialect
-      info[:versions] << version unless protocol.nil?
+      info[:preferred_dialect] = dialect unless info.key? :preferred_dialect
+      info[:versions] << version
     end
 
+    info[:versions].reverse!
     info
   end
 
