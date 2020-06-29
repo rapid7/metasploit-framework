@@ -28,13 +28,12 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'Author'         =>
         [
-          'Pedro Ribeiro (@pedrib1337 | pedrib@gmail.com)',             # Vulnerability discovery and Metasploit module
-          'Radek Domanski (@RabbitPro | radek.domanski@gmail.com)'      # Vulnerability discovery and Metasploit module
+          'Pedro Ribeiro <pedrib[at]gmail.com>', # Twitter: @pedrib1337. Vulnerability discovery and Metasploit module
+          'Radek Domanski <radek.domanski[at]gmail.com>'      # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
         ],
         'References'     =>
           [
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
-            [ 'URL', 'https://github.com/rdomanski/Exploits_and_Advisories/blob/master/advisories/Pwn2Own/Tokyo2019/tokyo_drift.md'],
             [ 'CVE', 'YYYY-XXXXX'],
             [ 'ZDI', '20-703'],
             [ 'ZDI', '20-704']
@@ -144,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res
       # no response is received in case of success
-      fail_with(Failure::Unknown, 'Failed to send HTTP payload... try again?')
+      fail_with(Failure::UnexpectedReply, 'Failed to send HTTP payload... try again?')
     else
       print_good("#{peer} - HTTP payload sent! 'admin' password has been reset to 'password'")
       print_status("To achieve code execution, do the following steps manually:")
