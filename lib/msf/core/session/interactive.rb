@@ -127,6 +127,7 @@ protected
     rescue Interrupt
       # The user hit ctrl-c while we were handling a ctrl-c. Ignore
     end
+    true
   end
 
   def _usr1
