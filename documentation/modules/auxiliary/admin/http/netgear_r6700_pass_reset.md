@@ -10,7 +10,7 @@ This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the tea
 * Netgear R6700v3 firmware version V1.0.4.82_10.0.57
 * Netgear R6700v3 firmware version V1.0.4.84_10.0.58
 
-[Netgear R6700v3 Firmware V1.0.4.82_10.0.57](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
+[Netgear R6700v3 Firmware V1.0.4.84_10.0.5](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
 
 
 
