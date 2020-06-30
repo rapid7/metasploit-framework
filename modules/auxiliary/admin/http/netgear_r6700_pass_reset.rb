@@ -29,11 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Twitter: @pedrib1337. Vulnerability discovery and Metasploit module
-          'Radek Domanski <radek.domanski[at]gmail.com>'      # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
+          'Radek Domanski <radek.domanski[at]gmail.com>' # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
         ],
         'References'     =>
           [
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
+            [ 'URL', 'https://kb.netgear.com/000061982/Security-Advisory-for-Multiple-Vulnerabilities-on-Some-Routers-Mobile-Routers-Modems-Gateways-and-Extenders'],
             [ 'CVE', 'YYYY-XXXXX'],
             [ 'ZDI', '20-703'],
             [ 'ZDI', '20-704']
@@ -69,7 +70,11 @@ class MetasploitModule < Msf::Auxiliary
       'data'  => soap
     })
 
-    fail_with(Failure::Unknown, 'Failed to obtain DeviceInfo:1#GetInfo') unless res && res.code == 200
+    if (res == nil)
+      fail_with(Failure::Unreachable, "Failed to obtain device version: target didn't respond")
+    elsif (res.code != 200)
+      fail_with(Failure::UnexpectedReply, "Failed to obtain device version: unexpected response code")
+    end
 
     if res.body.to_s =~ /V1.0.4.84/
       print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.")
