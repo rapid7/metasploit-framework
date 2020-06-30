@@ -161,7 +161,9 @@ class MetasploitModule < Msf::Auxiliary
       print_status("\t2.3- set rhost #{rhost}")
       print_status("\t2.3- set username admin")
       print_status("\t2.4- set password <WHATEVER>")
-      print_status("\t2.5- run it and login with 'admin:<WHATEVER>'")
+      print_status("\t2.5- OPTIONAL: set timeout 1500")
+      print_status("\t2.6- OPTIONAL: set MAC <ROUTERS_MAC>")
+      print_status("\t2.7- run it and login with 'admin:<WHATEVER>'")
       print_status("3- Enjoy your root shell!")
     end
   end
