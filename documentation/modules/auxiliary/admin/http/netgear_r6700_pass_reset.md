@@ -1,11 +1,18 @@
 ## Description
 
-This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58. Previous versions or models might also be vulnerable but they were not tested and would require additional offset information to work properly. Refer to the advisory for details on how to identify offsets in new versions.
+This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the 
+router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58 to reset the password 
+of the "admin" user on affected systems back to its factory default of "password". Support for other versions has not
+been added due to time constraints; users are encouraged to refer to the advisory for details on how to update the
+offset to the admin password reset functionality to support other firmware versions.
 
-The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does not need any authentication to abuse it. It will reset admin password to a factory defaults "password". After using this module, to achieve code execution, do the following steps manually:
+The vulnerability can only be exploited by an attacker on the LAN side of the router, however it can be exploited
+by unauthenticated attackers. It will reset admin password to a factory defaults "password". Successful exploitation
+will crash the upnpd daemon and it will not restart, so attackers can only exploit this vulnerability once per reboot
+of the router. After using this module, to achieve code execution, do the following steps manually:
 
 1. Login to 192.168.1.1 with creds 'admin:password', then:
-  * go to Advanced -> Administration -> Set Password
+    * go to Advanced -> Administration -> Set Password
  	* Change the password from 'password' to <WHATEVER>
 2. Run metasploit as root, then:
  	* use exploit/linux/telnet/netgear_telnetenable
@@ -23,18 +30,21 @@ This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the tea
 * [Netgear R6700v3 firmware version V1.0.4.82_10.0.57](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.82_10.0.57.zip)
 * [Netgear R6700v3 firmware version V1.0.4.84_10.0.58](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
 
-
-
 ## Verification Steps
   Example steps in this format:
 
-  1. Connect to a target on the LAN interface
-  2. Start msfconsole
-  3. Do: ```use auxiliary/admin/http/netgear_r6700_pass_reset```
-  4. Set RHOST
-  5. Do ```check```
-  6. Do: ```run```
-  7. Admin password has been reset to default `password`
+  1. Connect the R6700v3 router to your local area network and ensure you can access it.
+  2. Browse to the admin portal for the router, which will be located by default at `http://192.168.1.1`.
+  3. Go to Advanced -> Administration -> Set Password
+  4. Change the password from `password` to another password of your choice.
+  5. Log out and browse again to `http://192.168.1.1`. Verify that you can log into the router with the new password.
+  6. Start msfconsole
+  7. Do: ```use auxiliary/admin/http/netgear_r6700_pass_reset```
+  8. Set RHOST
+  9. Run ```check``` and verify that the target is vulnerable.
+  10. Do: ```run```
+  11. Browse admin portal for the router, and 
+  verify you can successfully log in with the username `admin` and the password `password`.
 
 ## Options
 

@@ -18,9 +18,11 @@ class MetasploitModule < Msf::Auxiliary
 
         The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does
         not need any authentication to abuse it. After exploitation, an attacker can hijack execution of the upnpd binary,
-        and reset the router's administrative password to "password". Next, a special packet to port 23/udp is sent
-        which will enable a telnet server on port 23/tcp. The attacker can then login to this telnet server using the
-        new password, and obtain a root shell.
+        and reset the router's administrative password to the factory default of "password".
+
+        Once this is done, attackers can use the exploit/linux/telnet/netgear_telnetenable module to send a
+        special packet to port 23/udp of the router to enable a telnet server on port 23/tcp. The attacker can
+        then log into this telnet server using the new password, and obtain a shell as the "root" user.
 
         These last two steps have to be done manually, as the authors did not reverse the communication with the web interface.
         It should be noted that successful exploitation will result in the upnpd binary crashing on the target router.
