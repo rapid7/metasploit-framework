@@ -12,15 +12,15 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Netgear R6700v3 Unauthenticated LAN Admin Password Reset',
         'Description' => %q{
-          This module exploits a buffer overflow vulnerability in the UPNP daemon (/usr/sbin/upnpd), running on
-          the router Netgear R6700 Nighthawk, hardware version 3, ARM Architecture, firmware versions V1.0.0.4.82_10.0.57
-          and V1.0.0.4.84_10.0.58.
+          This module targets ZDI-20-704 (aka CVE-2020-10924), a buffer overflow vulnerability in the UPNP daemon (/usr/sbin/upnpd),
+          on Netgear R6700v3 routers running firmware versions from V1.0.2.62 up to but not including V1.0.4.94, to reset
+          the password for the 'admin' user back to its factory default of 'password'. Authentication is bypassed by
+          using ZDI-20-703 (aka CVE-2020-10923), an authentication bypass that occurs when network adjacent
+          computers send SOAPAction UPnP messages to a vulnerable Netgear R6700v3 router. Currently this module only
+          supports exploiting Netgear R6700v3 routers running either the V1.0.0.4.82_10.0.57 or V1.0.0.4.84_10.0.58
+          firmware, however support for other firmware versions may be added in the future.
 
-          The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does
-          not need any authentication to abuse it. After exploitation, an attacker can hijack execution of the upnpd binary,
-          and reset the router's administrative password to the factory default of "password".
-
-          Once this is done, attackers can use the exploit/linux/telnet/netgear_telnetenable module to send a
+          Once the password has been reset, attackers can use the exploit/linux/telnet/netgear_telnetenable module to send a
           special packet to port 23/udp of the router to enable a telnet server on port 23/tcp. The attacker can
           then log into this telnet server using the new password, and obtain a shell as the "root" user.
 
@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
             [ 'URL', 'https://kb.netgear.com/000061982/Security-Advisory-for-Multiple-Vulnerabilities-on-Some-Routers-Mobile-Routers-Modems-Gateways-and-Extenders'],
-            [ 'CVE', 'YYYY-XXXXX'],
+            [ 'CVE', '2020-10923'],
+            [ 'CVE', '2020-10924'],
             [ 'ZDI', '20-703'],
             [ 'ZDI', '20-704']
           ],
