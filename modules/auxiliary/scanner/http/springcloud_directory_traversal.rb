@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Spring Cloud Config Server Directory Traversal',
+      'Name'        => 'Directory Traversal in Spring Cloud Config Server',
       'Description' => %q{
         This module exploits an unauthenticated directory traversal vulnerability
         which exists in Spring Cloud Config versions 2.2.x prior to 2.2.3 and
