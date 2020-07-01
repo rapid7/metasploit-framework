@@ -49,7 +49,7 @@ module Msf
         # Delete all groups from the config ini that potentially have more up to date information
         ini.keys.each do |key|
           unless key =~ %r{^framework/database}
-            ini.delete(k)
+            ini.delete(key)
           end
         end
 
