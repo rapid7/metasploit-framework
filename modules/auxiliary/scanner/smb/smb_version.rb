@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
         protocol = simple.client.negotiate
       rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError
         break
-      rescue
+      rescue Errno::ECONNRESET
         break
       rescue ::Exception => e # rubocop:disable Lint/RescueException
         vprint_error("#{rhost}: #{e.class} #{e}")
