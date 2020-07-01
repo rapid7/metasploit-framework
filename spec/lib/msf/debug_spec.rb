@@ -354,7 +354,7 @@ RSpec.describe Msf::Ui::Debug do
     expect(subject.datastore(framework, driver)).to eql(expected_output)
   end
 
-  it 'correctly retrieves and parses active module variables ' do
+  it 'correctly retrieves and parses active module variables' do
     allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'empty.ini'))
 
     framework = instance_double(
@@ -392,6 +392,57 @@ RSpec.describe Msf::Ui::Debug do
       key7=val7
       key8=default_val8
       key9=val9
+      ```
+
+      </details>
+
+
+    OUTPUT
+
+    expect(subject.datastore(framework, driver)).to eql(expected_output)
+  end
+
+  it 'preferences the framework datastore values over config stored values' do
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'module.ini'))
+
+    framework = instance_double(
+      ::Msf::Framework,
+      datastore: {
+        'key1' => 'val1',
+        'key2' => 'val2',
+        'key3' => 'val3'
+      }
+    )
+
+    driver = instance_double(
+      ::Msf::Ui::Console::Driver,
+      get_config_core: 'group/name/1',
+      get_config: {
+        'key4' => 'val4',
+        'key5' => 'val5',
+        'key6' => 'val6'
+      },
+      get_config_group: 'group/name/2',
+      active_module: nil
+    )
+
+    expected_output = <<~OUTPUT
+      ##  %grnModule/Datastore%clr
+
+      The following global/module datastore, and database setup was configured before the issue occurred:
+      <details>
+      <summary>Collapse</summary>
+
+      ```
+      [group/name/1]
+      key1=val1
+      key2=val2
+      key3=val3
+
+      [group/name/2]
+      key4=val4
+      key5=val5
+      key6=val6
       ```
 
       </details>
