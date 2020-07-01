@@ -481,6 +481,7 @@ module Msf
                 print("Interact with a module by name or index, for example %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
               end
             end
+
             true
           end
 
