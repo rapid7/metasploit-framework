@@ -106,6 +106,12 @@ def parse_args(args)
     opts[:encoder] = e
   end
 
+  opt.on('--service-name    <value>', String, 'The service name to use when generating a service binary') do |s|
+    opts[:servicename] = s
+    opts[:sub_method] = true # Needed to ensure that to_win32pe_service() will call
+                             # exe_sub_method() for x86 binaries, not needed and ignored for x64 binaries.
+  end
+
   opt.on('--sec-name        <value>', String, 'The new section name to use when generating large Windows binaries. Default: random 4-character alpha string') do |s|
     opts[:secname] = s
   end
