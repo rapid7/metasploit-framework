@@ -62,6 +62,7 @@ class Framework
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
   require 'msf/core/cert_provider'
+  require 'msf/core/ws_manager'
 
   #
   # Creates an instance of the framework context.
@@ -219,6 +220,16 @@ class Framework
   def sessions
     synchronize {
       @sessions ||= Msf::SessionManager.new(self)
+    }
+  end
+
+  # Websocket manager that tracks websocket associated with this framework
+  # instance over the course of their lifetime.
+  #
+  # @return [Msf::WebSocketManager]
+  def websocket
+    synchronize {
+      @websocket ||= Msf::WebSocketManager.new(self)
     }
   end
 
