@@ -8,6 +8,12 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
+  include Msf::Module::Deprecated
+  deprecated(
+    Date.new(2020, 9, 16),
+    reason = "Use exploit/windows/smb/psexec and the 'Command' target with the cmd/windows/generic payload"
+  )
+
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
   XCEPT  = Rex::Proto::SMB::Exceptions
