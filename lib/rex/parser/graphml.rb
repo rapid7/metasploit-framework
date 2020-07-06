@@ -231,6 +231,16 @@ module GraphML
         self.new(id)
       end
 
+      def source_edges
+        # edges connected to this node
+        @edges.filter { |edge| edge.target == @id || !edge.directed }
+      end
+
+      def target_edges
+        # edges connecting this to other nodes
+        @edges.filter { |edge| edge.source == @id || !edge.directed }
+      end
+
       attr_reader :id
       attr_reader :edges
     end
@@ -358,7 +368,7 @@ module GraphML
           target_node = element.nodes[edge.target]
           raise InvalidAttributeError.new('edge', 'target', details: 'undefined target', missing: false) if target_node.nil?
           source_node.edges << edge
-          target_node.edges << edge if !edge.directed
+          target_node.edges << edge
         end
 
       when 'key'
