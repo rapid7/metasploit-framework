@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       'springcloud.traversal',
       'text/plain',
       ip,
-      res.body,
+      res.body
     )
     print_good("File saved in: #{path}")
   end
