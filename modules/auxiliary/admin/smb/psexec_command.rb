@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unable to authenticate with given credentials: #{autherror}")
         return
       end
-      output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
+      output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, retries: datastore['RETRY'], delay: datastore['DELAY'])
 
       unless output.nil?
         print_good("Command completed successfully!")
