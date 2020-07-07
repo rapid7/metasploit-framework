@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #=============================================================================#
 # Example: Simply print the correct hash value for the function kernel32.dll!WinExec
-#     >hash.py kernel32.dll WinExec
+#     >crc32_checksum.py kernel32.dll WinExec
 #
 # Author: Ege Balcı (ege.balci[at]pm[dot]me)
 #=============================================================================#
@@ -16,7 +16,7 @@ def unicode( string, uppercase=True ):
     result += c + "\x00"
   return result
 #=============================================================================#
-def hash( module, function, bits=13, print_hash=True ):
+def checksum( module, function):
   crc32_func = crcmod.mkCrcFun(0x11EDC6F41, initCrc=0, xorOut=0)
   h = crc32_func((unicode(module)+function+"\x00").encode('utf-8'))
   print("[+] 0x%08X = %s!%s" % ( h, module.lower(), function ))
@@ -28,7 +28,7 @@ def main( argv=None ):
     argv = sys.argv
   try:
     if len( argv ) == 1:
-      print("Usage: crc32_hash.py [<module.dll> <function>]")
+      print("Usage: crc32_checksum.py [<module.dll> <function>]")
     else:
       print("[+] Ran on %s\n" % (  time.asctime( time.localtime() ) ))
       hash( argv[1], argv[2] )
