@@ -62,17 +62,15 @@ class MetasploitModule < Msf::Auxiliary
         if (res.body.include? "newpassword" and (version.between?(140, 160) or version.between?(730, 745) or version.between?(250, 263)))
           print_good("#{ip} - Vulnerable version of FortiMail detected")
         else
-          print_bad("#{ip} - Not vulnerable version of FortiMail detected")
+          print_bad("#{ip} - No vulnerable version of FortiMail detected")
           return :abort
         end
       elsif (res and res.code == 301)
         print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
         return :abort
       else
-        if (datastore['VERBOSE'])
-          print_bad("#{ip} - No version of FortiMail detected")
-          return :abort
-        end
+        vprint_bad("#{ip} - No version of FortiMail detected")
+        return :abort
       end
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
