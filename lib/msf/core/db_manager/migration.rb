@@ -39,9 +39,7 @@ module Msf::DBManager::Migration
 
     ApplicationRecord.connection_pool.with_connection do
       begin
-        ran = ActiveRecord::Migrator.migrate(
-            ActiveRecord::Migrator.migrations_paths
-        )
+        ran = ActiveRecord::Migration.migrate(:up)
           # ActiveRecord::Migrator#migrate rescues all errors and re-raises them
           # as StandardError
       rescue StandardError => error

@@ -1,7 +1,7 @@
 RSpec.shared_examples_for 'Msf::DBManager::Migration' do
 
   if ENV['REMOTE_DB']
-    before {skip("Migration is not tested for a remoted DB")}
+    before {skip("Migration is not tested for a remote DB")}
   end
 
   it { is_expected.to be_a Msf::DBManager::Migration }
@@ -30,17 +30,15 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       db_manager.migrate
     end
 
-    it 'should call ActiveRecord::Migrator.migrate' do
-      expect(ActiveRecord::Migrator).to receive(:migrate).with(
-          ActiveRecord::Migrator.migrations_paths
-      )
+    it 'should call ActiveRecord::Migration.migrate' do
+      expect(ActiveRecord::Migration).to receive(:migrate).with(:up)
 
       migrate
     end
 
     it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
       migrations = [double('Migration 1')]
-      expect(ActiveRecord::Migrator).to receive(:migrate).and_return(migrations)
+      expect(ActiveRecord::Migration).to receive(:migrate).and_return(migrations)
 
       expect(migrate).to eq migrations
     end
@@ -61,7 +59,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        expect(ActiveRecord::Migrator).to receive(:migrate).and_raise(standard_error)
+        expect(ActiveRecord::Migration).to receive(:migrate).and_raise(standard_error)
       end
 
       it 'should set Msf::DBManager#error' do
