@@ -450,7 +450,7 @@ DEPENDENCIES
   redcarpet
   rspec-rails
   rspec-rerun
-  rubocop
+  rubocop (= 0.86.0)
   ruby-prof
   simplecov (= 0.18.2)
   sqlite3 (~> 1.3.0)
