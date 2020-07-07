@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 gemspec name: 'metasploit-framework'
 
 gem 'sqlite3', '~>1.3.0'
+# gem 'rex-text', path: '../rex-text'
+gem 'rex-text', git: 'https://github.com/adfoster-r7/rex-text', branch: 'add-word-wrapping-to-rex-tables'
 
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
