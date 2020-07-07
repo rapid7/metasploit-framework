@@ -81,6 +81,7 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
+    self.features = FeatureManager.new(self)
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -195,6 +196,11 @@ class Framework
   # framework objects to offer related objects/actions available.
   #
   attr_reader   :analyze
+  #
+  # The framework instance's feature manager. The feature manager is responsible
+  # for configuring feature flags that can change characteristics of framework.
+  #
+  attr_reader   :features
 
   #
   # The framework instance's dependency
@@ -277,6 +283,7 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
   attr_writer   :analyze # :nodoc:
+  attr_writer   :features # :nodoc:
 
   private
 
