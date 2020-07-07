@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 This module detects vulnerable versions of FortiMail exploitable with an unauthenticated login bypass vulnerability.
 
 Tested against the following versions of FortiMail:

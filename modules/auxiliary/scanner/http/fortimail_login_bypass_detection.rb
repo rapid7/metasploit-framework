@@ -13,12 +13,12 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'FortiMail Unauthenticated Login Bypass Scanner',
       'Description' => %q{
         This module attempts to detect instances of FortiMail vulnerable
-        against an unauthenicated login bypass (CVE-2020-9294).
+        against an unauthenticated login bypass (CVE-2020-9294).
       },
       'Author'         => [
         'Mike Connor', # Initial Vulnerability discovery
-        'Juerg Schweingruber <juerg.schweingruber@redguard.ch>', # Vulnerability Re-Discovery
-        'Patrick Schmid <patrick.schmid@redguard.ch>' # Exploit Development & MSF module
+        'Juerg Schweingruber <juerg.schweingruber[at]redguard.ch>', # Vulnerability Re-Discovery
+        'Patrick Schmid <patrick.schmid[at]redguard.ch>' # Exploit Development & MSF module
       ],
       'References' =>
         [
@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the FortiMail admin page', '/admin/AdminLogin.html']),
-      OptInt.new('RPORT', [true, "Default remote port", 443])
+      Opt::RPORT(443)
     ])
 
     register_advanced_options([
@@ -49,9 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if (datastore['VERBOSE'])
-      print_status("Checking vulnerability at #{ip}")
-    end
+    vprint_status("Checking vulnerability at #{ip}")
     uri = normalize_uri(target_uri.path)
     begin
       res = send_request_raw({
