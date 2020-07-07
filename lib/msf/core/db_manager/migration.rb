@@ -28,18 +28,30 @@ module Msf::DBManager::Migration
 
   # Migrate database to latest schema version.
   #
+  # @param config [Hash] see ActiveRecord::Base.establish_connection
   # @param verbose [Boolean] see ActiveRecord::Migration.verbose
   # @return [Array<ActiveRecord::MigrationProxy] List of migrations that
   #   ran.
   #
-  # @see ActiveRecord::Migrator.migrate
-  def migrate(verbose=false)
+  # @see ActiveRecord::MigrationContext.migrate
+  def migrate(config=nil, verbose=false)
     ran = []
+    # Rails 5 changes ActiveRecord parents means to migrate outside
+    # the `rake` task framework has to dig a little lower into ActiveRecord
+    # to set up the DB connection capable of interacting with migration.
+    previouslyConnected = ActiveRecord::Base.connected?
+    unless previouslyConnected
+      ApplicationRecord.remove_connection
+      ActiveRecord::Base.establish_connection(config)
+    end
     ActiveRecord::Migration.verbose = verbose
-
-    ApplicationRecord.connection_pool.with_connection do
+    ActiveRecord::Base.connection_pool.with_connection do
       begin
-        ran = ActiveRecord::Migration.migrate(:up)
+        # When framework reached Rails 6 the path set here may be better suited a simple Array[]
+        context = ActiveRecord::MigrationContext.new(ActiveRecord::Migrator.migrations_paths)
+        if context.needs_migration?
+          ran = context.migrate
+        end
           # ActiveRecord::Migrator#migrate rescues all errors and re-raises them
           # as StandardError
       rescue StandardError => error
@@ -48,6 +60,10 @@ module Msf::DBManager::Migration
       end
     end
 
+    unless previouslyConnected
+      ActiveRecord::Base.remove_connection
+      ApplicationRecord.establish_connection(config)
+    end
     # Since the connections that existed before the migrations ran could
     # have outdated column information, reset column information for all
     # ApplicationRecord descendents to prevent missing method errors for

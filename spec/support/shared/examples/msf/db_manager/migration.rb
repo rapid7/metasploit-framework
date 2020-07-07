@@ -30,18 +30,28 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       db_manager.migrate
     end
 
-    it 'should call ActiveRecord::Migration.migrate' do
-      expect(ActiveRecord::Migration).to receive(:migrate).with(:up)
+    it 'should create an ActiveRecord::MigrationContext' do
+      expect(ActiveRecord::MigrationContext).to receive(:new)
 
       migrate
     end
 
-    it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
-      migrations = [double('Migration 1')]
-      expect(ActiveRecord::Migration).to receive(:migrate).and_return(migrations)
 
-      expect(migrate).to eq migrations
+    it 'should return an ActiveRecord::MigrationContext with known migrations' do
+      migrations_paths = [File.expand_path("../../../../../file_fixtures/migrate", __dir__)]
+      expect(ActiveRecord::Migrator).to receive(:migrations_paths).and_return(migrations_paths).exactly(3).times
+      result = migrate
+      expect(result.size).to eq 1
+      expect(result[0].name).to eq "TestDbMigration"
     end
+
+
+    # it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
+    #   migrations = [double('Migration 1')]
+    #   expect(ActiveRecord::Migration).to receive(:migrate).and_return(migrations)
+    #
+    #   expect(migrate).to eq migrations
+    # end
 
     it 'should reset the column information' do
       expect(db_manager).to receive(:reset_column_information)
@@ -49,7 +59,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       migrate
     end
 
-    context 'with StandardError from ActiveRecord::Migration.migrate' do
+    context 'with StandardError from ActiveRecord::MigrationContext.migrate' do
       let(:standard_error) do
         StandardError.new(message)
       end
@@ -59,7 +69,10 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        expect(ActiveRecord::Migration).to receive(:migrate).and_raise(standard_error)
+        mockContext = ActiveRecord::MigrationContext.new(nil)
+        expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
+        expect(mockContext).to receive(:needs_migration?).and_return(true)
+        expect(mockContext).to receive(:migrate).and_raise(standard_error)
       end
 
       it 'should set Msf::DBManager#error' do
@@ -80,7 +93,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
 
     context 'with verbose' do
       def migrate
-        db_manager.migrate(verbose)
+        db_manager.migrate(nil, verbose)
       end
 
       context 'false' do

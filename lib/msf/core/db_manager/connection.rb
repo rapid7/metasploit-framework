@@ -10,12 +10,12 @@ module Msf::DBManager::Connection
   # and setting {#workspace}.
   #
   # @return [void]
-  def after_establish_connection
+  def after_establish_connection(opts={})
     self.migrated = false
 
     begin
       # Migrate the database, if needed
-      migrate
+      migrate(opts)
     rescue ::Exception => exception
       self.error = exception
       elog('DB.connect threw an exception', error: exception)
@@ -61,7 +61,7 @@ module Msf::DBManager::Connection
       elog('DB.connect threw an exception', error: e)
       return false
     ensure
-      after_establish_connection
+      after_establish_connection(nopts)
     end
 
     true
