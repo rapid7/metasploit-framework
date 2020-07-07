@@ -51,8 +51,12 @@ RSpec.configure do |config|
   # to individual examples or groups you care about by tagging them with
   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
   # get run.
-  config.filter_run :focus
-  config.run_all_when_everything_filtered = true
+  if ENV['CI']
+    config.before(:example, :focus) { raise "Should not commit focused specs" }
+  else
+    config.filter_run focus: true
+    config.run_all_when_everything_filtered = true
+  end
 
   # allow more verbose output when running an individual spec file.
   if config.files_to_run.one?
