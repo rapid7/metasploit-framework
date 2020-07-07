@@ -357,7 +357,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           allow(module_manager).to receive(:on_module_load)
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
-          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/)
+          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/, error: an_instance_of(NoMethodError))
           expect(subject.load_module(parent_path, type, module_reference_name, :reload => true)).to be_falsey
         end
 
