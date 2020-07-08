@@ -11,7 +11,7 @@ require 'msf/core/payload/windows/exitfunk'
 
 module MetasploitModule
 
-  CachedSize = 301
+  CachedSize = 314
 
   include Msf::Payload::Windows
   include Msf::Payload::Single

@@ -10,7 +10,8 @@ require 'msf/base/sessions/pingback'
 require 'msf/core/payload/windows/exitfunk'
 
 module MetasploitModule
-  CachedSize = 292
+
+  CachedSize = 309
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
