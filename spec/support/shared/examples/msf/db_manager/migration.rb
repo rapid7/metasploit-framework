@@ -12,16 +12,10 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       db_manager.add_rails_engine_migration_paths
     end
 
-    it 'should not add duplicate paths to ActiveRecord::Migrator.migrations_paths' do
-      add_rails_engine_migration_paths
+    it 'should not add duplicate paths to gather_engine_migration_paths' do
+      paths = add_rails_engine_migration_paths
 
-      expect {
-        add_rails_engine_migration_paths
-      }.to_not change {
-        ActiveRecord::Migrator.migrations_paths.length
-      }
-
-      expect(ActiveRecord::Migrator.migrations_paths.uniq).to eq ActiveRecord::Migrator.migrations_paths
+      expect(add_rails_engine_migration_paths.uniq).to eq paths
     end
   end
 
