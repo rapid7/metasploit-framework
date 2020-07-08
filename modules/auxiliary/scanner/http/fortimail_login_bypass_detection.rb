@@ -51,40 +51,38 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     vprint_status("Checking vulnerability at #{ip}")
     uri = normalize_uri(target_uri.path)
-    begin
-      res = send_request_raw({
-        'method' => 'GET',
-        'uri' => uri
-      })
 
-      return :abort unless res # prints default connection error messages
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri' => uri
+    })
 
-      case res.code
-      when 200
-        version = res.body[/fml-admin-login-(\d+).js/, 1].to_i
-        if (res.body.include? "newpassword" and (version.between?(140, 160) or version.between?(730, 745) or version.between?(250, 263)))
-          print_good("#{ip} - Vulnerable version of FortiMail detected")
+    return :abort unless res # prints default connection error messages
 
-          report_vuln(
-            :host => rhost,
-            :port => rport,
-            :name => 'FortiMail Login Bypass',
-           :refs => references
-          )
+    if res.code == 301
+      vprint_error("#{ip} - Page redirect to #{res.headers['Location']}")
+      return :abort
+    end
 
-        else
-          print_bad("#{ip} - Not vulnerable version of FortiMail detected")
-          return :abort
-        end
+    unless res.code == 200
+      vprint_bad("#{ip} - No version of FortiMail detected")
+      return :abort
+    end
 
-      when 301
-        vprint_error("#{ip} - Page redirect to #{res.headers['Location']}")
-        return :abort
+    version = res.body[/fml-admin-login-(\d+).js/, 1].to_i
+    unless (res.body.include?("newpassword") && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263)))
+      print_bad("#{ip} - Not vulnerable version of FortiMail detected")
+      return :abort
+    end
 
-      else
-        vprint_bad("#{ip} - No version of FortiMail detected")
-        return :abort
-      end
+    print_good("#{ip} - Vulnerable version of FortiMail detected")
+
+    report_vuln(
+      :host => rhost,
+      :port => rport,
+      :name => 'FortiMail Login Bypass',
+      :refs => references
+    )
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
@@ -92,4 +90,3 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-end
