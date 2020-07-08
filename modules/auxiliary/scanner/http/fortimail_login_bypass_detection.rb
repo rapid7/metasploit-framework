@@ -55,9 +55,12 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw({
         'method' => 'GET',
         'uri' => uri
-        })
+      })
 
-      if (res and res.code == 200 and res.body.include? "fml-admin-login")
+      return :abort unless res # prints default connection error messages
+
+      case res.code
+      when 200
         version = res.body[/fml-admin-login-(\d+).js/, 1].to_i
         if (res.body.include? "newpassword" and (version.between?(140, 160) or version.between?(730, 745) or version.between?(250, 263)))
           print_good("#{ip} - Vulnerable version of FortiMail detected")
@@ -66,16 +69,18 @@ class MetasploitModule < Msf::Auxiliary
             :host => rhost,
             :port => rport,
             :name => 'FortiMail Login Bypass',
-            :refs => references
+           :refs => references
           )
-
+          
         else
-          print_bad("#{ip} - No vulnerable version of FortiMail detected")
+          print_bad("#{ip} - Not vulnerable version of FortiMail detected")
           return :abort
         end
-      elsif (res and res.code == 301)
-        print_error("#{target_url} - Page redirect to #{res.headers['Location']}")
+
+      when 301
+        vprint_error("#{ip} - Page redirect to #{res.headers['Location']}")
         return :abort
+
       else
         vprint_bad("#{ip} - No version of FortiMail detected")
         return :abort
