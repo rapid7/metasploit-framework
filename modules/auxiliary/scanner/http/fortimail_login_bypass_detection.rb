@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
             :name => 'FortiMail Login Bypass',
            :refs => references
           )
-          
+
         else
           print_bad("#{ip} - Not vulnerable version of FortiMail detected")
           return :abort
