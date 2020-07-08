@@ -8,38 +8,67 @@ require 'rex/parser/graphml'
 ##
 module Rex
   module Payloads
-    module Shuffle
+    class Shuffle
+
+      FLOW_INSTRUCTIONS = {}
+      FLOW_INSTRUCTIONS[ARCH_X86] = %w{ call jae jb jbe jc jcxz je jecxz jg jge jl jle jmp jna jnae jnb jnbe jnc jne jng jnge jnl jnle jno jnp jns jnz jo jp jpe jpo js jz }.freeze
+      FLOW_INSTRUCTIONS[ARCH_X64] = (FLOW_INSTRUCTIONS[ARCH_X86] + %w{ jrcxz }).freeze
 
       #
-      # Shuffle instructions from a GraphML data file.
+      # Shuffle instructions from a GraphML data file and return the assembly source. If an architecture is specified
+      # and supported, labels will be added for control flow instructions such as jumps and calls. Labels are necessary
+      # if any post processing is performed on the source (such as for obfuscation).
       #
       # @param file_path [String] The file path to load the GraphML data from.
       # @param name [String] An optional symbol name to apply to the assembly source.
-      def self.from_graphml_file(file_path, name: nil)
+      def self.from_graphml_file(file_path, arch: nil, name: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        instructions = self.shuffle_instructions(graphml)
-        instructions = (["#{name}:"] + instructions.map { |instruction| '  ' + instruction}) unless name.nil?
-        instructions.join("\n") + "\n"
-      end
-
-      #
-      # Load constraint information from GraphML data and then use it to shuffle the instructions. Constraints are
-      # expected to be identified as edges between instruction nodes that define ordering precedence. Each instruction
-      # node must specify it's instruction source and binary representation (encoded in hex).
-      #
-      # @param graphml [Rex::Parser::GraphML::Element::GraphML] The graph to load the instruction data from.
-      # @return [Array] The array of assembly instructions.
-      def self.shuffle_instructions(graphml)
-        # build an array of all of the graphs representing basic blocks, sorted by their address
         blocks = graphml.graphs.filter { |graph| graph.attributes['type'] == 'block' }.sort_by { |graph| graph.attributes['address'] }
-        blocks.map { |block| self.process_block(block) }.flatten
+        blocks.map! { |block| { node: block, instructions: self.process_block(block) } }
+
+        label_prefix = Rex::Text.rand_text_alpha_lower(4)
+        labeler = lambda { |address| "loc_#{label_prefix}#{ address.to_s(16).rjust(4, '0') }" }
+
+        source_lines = []
+        labeled = []
+        label_refs = []
+        blocks.each do |block|
+          source_lines << labeler.call(block[:node].attributes['address']) + ':'
+          labeled << block[:node].attributes['address']
+          # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
+          instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+          unless arch.nil?
+            raise ArgumentError, 'Unsupported architecture' if FLOW_INSTRUCTIONS[arch].nil?
+
+            # if a supported architecture was specified, use the original source and apply the necessary labels
+            block[:instructions].each_with_index do |node, index|
+              next unless match = /^(?<mnemonic>\S+)\s+(?<address>0x[a-f0-9]+)$/.match(node.attributes['instruction.source'])
+              next unless FLOW_INSTRUCTIONS[arch].include? match[:mnemonic]
+
+              address = Integer(match[:address])
+              instructions[index] = "#{match[:mnemonic]} #{labeler.call(address)}"
+              label_refs << address
+            end
+          end
+
+          source_lines += instructions
+        end
+
+        unless label_refs.all? { |address| labeled.include? address  }
+          # raise this here so it's closer to the source of the problem :(
+          raise StandardError, 'Missing label reference'
+        end
+
+
+        source_lines = ([name + ':'] + source_lines.map { |source_line| '  ' + source_line}) unless name.nil?
+        source_lines.join("\n") + "\n"
       end
 
       private
 
       #
-      # Process the specified graph element which represents a single basic block in assembly. This graph element contains
-      # nodes representing each of its instructions.
+      # Process the specified graph element which represents a single basic block in assembly. This graph element
+      # contains nodes representing each of its instructions.
       #
       def self.process_block(block)
         path = []
@@ -63,8 +92,9 @@ module Rex
           end
         end
 
-        path.map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+        path
       end
+
     end
   end
 end
