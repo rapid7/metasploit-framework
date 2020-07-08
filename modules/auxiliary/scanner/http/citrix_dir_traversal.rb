@@ -19,8 +19,9 @@ class MetasploitModule < Msf::Auxiliary
         a "[global]" directive in smb.conf, which this file should always contain.
       },
       'Author'         => [
-        'Erik Wynter', # Module (@wyntererik)
-        'altonjx'      # Module (@altonjx)
+        'Mikhail Klyuchnikov', # Discovery
+        'Erik Wynter',         # Module (@wyntererik)
+        'altonjx'              # Module (@altonjx)
       ],
       'References'     => [
         ['CVE', '2019-19781'],
