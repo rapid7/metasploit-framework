@@ -9,6 +9,7 @@ module VulnAttemptServlet
   end
 
   def self.registered(app)
+    app.get VulnAttemptServlet.api_path, &get_vuln_attempt
     app.get VulnAttemptServlet.api_path_with_id, &get_vuln_attempt
     app.post VulnAttemptServlet.api_path, &report_vuln_attempt
   end

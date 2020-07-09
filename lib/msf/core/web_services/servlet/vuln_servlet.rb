@@ -11,6 +11,7 @@ module VulnServlet
   end
 
   def self.registered(app)
+    app.get VulnServlet.api_path, &get_vuln
     app.get VulnServlet.api_path_with_id, &get_vuln
     app.post VulnServlet.api_path, &report_vuln
     app.put VulnServlet.api_path_with_id, &update_vuln

@@ -9,6 +9,7 @@ module UserServlet
   end
 
   def self.registered(app)
+    app.get UserServlet.api_path, &get_user
     app.get UserServlet.api_path_with_id, &get_user
     app.post UserServlet.api_path, &report_user
     app.put UserServlet.api_path_with_id, &update_user
