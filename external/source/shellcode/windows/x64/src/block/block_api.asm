@@ -1,6 +1,6 @@
 ;-----------------------------------------------------------------------------;
 ; Author: Stephen Fewer (stephen_fewer[at]harmonysecurity[dot]com)
-; Compatible: Windows 7 and newer
+; Compatible: Windows 7 / Server 2003 and newer
 ; Architecture: x64
 ; Size: 200 bytes
 ;-----------------------------------------------------------------------------;
@@ -19,10 +19,10 @@
 ; Note: This function is unable to call forwarded exports.
 
 api_call:
-  push r9                     ; Save the 0x4th parameter
-  push r8                     ; Save the 0x3rd parameter
-  push rdx                    ; Save the 0x2nd parameter
-  push rcx                    ; Save the 0x1st parameter
+  push r9                     ; Save the 4th parameter
+  push r8                     ; Save the 3rd parameter
+  push rdx                    ; Save the 2nd parameter
+  push rcx                    ; Save the 1st parameter
   push rsi                    ; Save RSI
   xor rdx, rdx                ; Zero rdx
   mov rdx, [gs:rdx+0x60]      ; Get a pointer to the PEB
@@ -94,10 +94,10 @@ finish:
   pop r8                      ; Clear off the current modules hash
   pop r8                      ; Clear off the current position in the module list
   pop rsi                     ; Restore RSI
-  pop rcx                     ; Restore the 0x1st parameter
-  pop rdx                     ; Restore the 0x2nd parameter
-  pop r8                      ; Restore the 0x3rd parameter
-  pop r9                      ; Restore the 0x4th parameter
+  pop rcx                     ; Restore the 1st parameter
+  pop rdx                     ; Restore the 2nd parameter
+  pop r8                      ; Restore the 3rd parameter
+  pop r9                      ; Restore the 4th parameter
   pop r10                     ; pop off the return address
   sub rsp, 0x20               ; reserve space for the four register params (4 * sizeof(QWORD) = 0x20)
                               ; It is the callers responsibility to restore RSP if need be (or alloc more space or align RSP).
