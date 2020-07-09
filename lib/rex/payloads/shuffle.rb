@@ -23,7 +23,7 @@ module Rex
       # @param name [String] An optional symbol name to apply to the assembly source.
       def self.from_graphml_file(file_path, arch: nil, name: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        blocks = graphml.graphs.filter { |graph| graph.attributes['type'] == 'block' }.sort_by { |graph| graph.attributes['address'] }
+        blocks = graphml.graphs.select { |graph| graph.attributes['type'] == 'block' }.sort_by { |graph| graph.attributes['address'] }
         blocks.map! { |block| { node: block, instructions: self.process_block(block) } }
 
         label_prefix = Rex::Text.rand_text_alpha_lower(4)
@@ -76,7 +76,7 @@ module Rex
 
         # the initial choices are any node without a predecessor (dependency)
         targets = block.edges.map(&:target)
-        choices = instructions.values.filter { |node| !targets.include? node.id }
+        choices = instructions.values.select { |node| !targets.include? node.id }
         until choices.empty?
           selection = choices.sample
           choices.delete(selection)

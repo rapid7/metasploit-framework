@@ -375,13 +375,13 @@ module Rex
           # @return [Array] An array of all edges for which this node is the target.
           def source_edges
             # edges connected to this node
-            @edges.filter { |edge| edge.target == @id || !edge.directed }
+            @edges.select { |edge| edge.target == @id || !edge.directed }
           end
 
           # @return [Array] An array of all edges for which this node is the source.
           def target_edges
             # edges connecting this to other nodes
-            @edges.filter { |edge| edge.source == @id || !edge.directed }
+            @edges.select { |edge| edge.source == @id || !edge.directed }
           end
 
           # @!attribute id
