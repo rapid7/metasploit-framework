@@ -15,16 +15,16 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to detect instances of FortiMail vulnerable
         against an unauthenticated login bypass (CVE-2020-9294).
       },
-      'Author'         => [
+      'Author' => [
         'Mike Connor', # Initial Vulnerability discovery
         'Juerg Schweingruber <juerg.schweingruber[at]redguard.ch>', # Vulnerability Re-Discovery
         'Patrick Schmid <patrick.schmid[at]redguard.ch>' # Exploit Development & MSF module
       ],
       'References' =>
         [
-          ['CVE',   '2020-9294'],
-          ['URL',   'https://fortiguard.com/psirt/FG-IR-20-045'],
-          ['URL',   'https://www.redguard.ch/blog/2020/07/02/fortimail-unauthenticated-login-bypass/']
+          ['CVE', '2020-9294'],
+          ['URL', 'https://fortiguard.com/psirt/FG-IR-20-045'],
+          ['URL', 'https://www.redguard.ch/blog/2020/07/02/fortimail-unauthenticated-login-bypass/']
         ],
       'License' => MSF_LICENSE
     )
@@ -35,14 +35,14 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptBool.new('SSL', [true, "Negotiate SSL connection", true])
+      OptBool.new('SSL', [true, 'Negotiate SSL connection', true])
     ])
   end
 
   def target_url
-    proto = "http"
-    if rport == 443 or ssl
-      proto = "https"
+    proto = 'http'
+    if (rport == 443) || ssl
+      proto = 'https'
     end
     uri = normalize_uri(datastore['URI'])
     "#{proto}://#{vhost}:#{rport}#{uri}"
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
     version_raw = res.body[/fml-admin-login-(\d+).js/, 1]
     version = version_raw.to_i
-    unless (res.body.include?("newpassword") && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263)))
+    unless (res.body.include?('newpassword') && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263)))
       print_bad("#{ip} - Not vulnerable version (Build: #{version_raw}) of FortiMail detected")
       return :abort
     end
@@ -79,15 +79,14 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{ip} - Vulnerable version (Build: #{version_raw}) of FortiMail detected")
 
     report_vuln(
-      :host => rhost,
-      :port => rport,
-      :name => 'FortiMail Login Bypass',
-      :refs => references
+      host: rhost,
+      port: rport,
+      name: 'FortiMail Login Bypass',
+      refs: references
     )
-
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
-    rescue ::OpenSSL::SSL::SSLError => e
-      return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
-    end
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+  rescue ::Timeout::Error, ::Errno::EPIPE
+  rescue ::OpenSSL::SSL::SSLError => e
+    return if (e.to_s.match(/^SSL_connect /)) # strange errors / exception if SSL connection aborted
   end
+end
