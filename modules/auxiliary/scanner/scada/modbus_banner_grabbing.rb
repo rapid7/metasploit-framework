@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       when "\xab\x08"
         print_error("Memory Parity Error: Slave detected a parity error in memory.")
       when "\xab\x0a"
-        print_error(" Gateway Path Unavailable: Specialized for Modbus gateways. Indicates a misconfigured gateway.")
+        print_error("Gateway Path Unavailable: Specialized for Modbus gateways. Indicates a misconfigured gateway.")
       when "\xab\x0b"
         print_error("Gateway Target Device Failed to Respond: Specialized for Modbus gateways.")
       else
@@ -119,7 +119,14 @@ class MetasploitModule < Msf::Auxiliary
       if data
         # Read Device Identification (43)
         if data[mbtcp['func_code']['start'], 2] == "\x2b\x0e"
-          num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']].unpack("C")[0]
+          num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']]
+
+          unless num_objects != nil
+            print_error("MODBUS - received incorrect data.")
+            return
+          end
+
+          num_objects = num_objects.unpack("C")[0]
           print_status("Number of Objects: #{ num_objects }")
           object_start = mbtcp['object_id']['start']
 
