@@ -39,14 +39,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       expect(result[0].name).to eq "TestDbMigration"
     end
 
-
-    # it 'should return migrations that were ran from ActiveRecord::Migrator.migrate' do
-    #   migrations = [double('Migration 1')]
-    #   expect(ActiveRecord::Migration).to receive(:migrate).and_return(migrations)
-    #
-    #   expect(migrate).to eq migrations
-    # end
-
     it 'should reset the column information' do
       expect(db_manager).to receive(:reset_column_information)
 
