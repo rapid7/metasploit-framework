@@ -179,11 +179,9 @@ module Msf::DBManager::Vuln
 
     # Try to match based on vuln_details records
     if not vuln and opts[:details_match]
-      if service
-        vuln = find_vuln_by_details(opts[:details_match], host, service)
-        if vuln and not vuln.service
-          vuln.service = service
-        end
+      vuln = find_vuln_by_details(opts[:details_match], host, service)
+      if vuln && service && vuln.service.nil?
+        vuln.service = service
       end
     end
 
