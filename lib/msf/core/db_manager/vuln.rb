@@ -181,9 +181,9 @@ module Msf::DBManager::Vuln
     if not vuln and opts[:details_match]
       vuln = find_vuln_by_details(opts[:details_match], host, service)
       if vuln and service and not vuln.service
-        vuln.service = service
+          vuln.service = service
+        end
       end
-    end
 
     # No matches, so create a new vuln record
     unless vuln

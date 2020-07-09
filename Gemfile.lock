@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     metasploit-framework (5.0.102)
-      actionpack (~> 4.2.6)
-      activerecord (~> 4.2.6)
-      activesupport (~> 4.2.6)
+      actionpack (~> 5.2.2)
+      activerecord (~> 5.2.2)
+      activesupport (~> 5.2.2)
       aws-sdk-ec2
       aws-sdk-iam
       aws-sdk-s3
@@ -26,11 +26,11 @@ PATH
       jsobfu
       json
       metasm
-      metasploit-concern (~> 2.0.0)
-      metasploit-credential (~> 3.0.0)
-      metasploit-model (~> 2.0.4)
+      metasploit-concern
+      metasploit-credential
+      metasploit-model
       metasploit-payloads (= 1.4.4)
-      metasploit_data_models (~> 3.0.10)
+      metasploit_data_models
       metasploit_payloads-mettle (= 0.5.21)
       mqtt
       msgpack
@@ -47,7 +47,7 @@ PATH
       patch_finder
       pcaprub
       pdf-reader
-      pg (~> 0.20)
+      pg
       railties
       rb-readline
       recog
@@ -89,35 +89,34 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.0.3)
-    actionpack (4.2.11.3)
-      actionview (= 4.2.11.3)
-      activesupport (= 4.2.11.3)
-      rack (~> 1.6)
-      rack-test (~> 0.6.2)
-      rails-dom-testing (~> 1.0, >= 1.0.5)
+    actionpack (5.2.4.3)
+      actionview (= 5.2.4.3)
+      activesupport (= 5.2.4.3)
+      rack (~> 2.0, >= 2.0.8)
+      rack-test (>= 0.6.3)
+      rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (4.2.11.3)
-      activesupport (= 4.2.11.3)
+    actionview (5.2.4.3)
+      activesupport (= 5.2.4.3)
       builder (~> 3.1)
-      erubis (~> 2.7.0)
-      rails-dom-testing (~> 1.0, >= 1.0.5)
+      erubi (~> 1.4)
+      rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    activemodel (4.2.11.3)
-      activesupport (= 4.2.11.3)
-      builder (~> 3.1)
-    activerecord (4.2.11.3)
-      activemodel (= 4.2.11.3)
-      activesupport (= 4.2.11.3)
-      arel (~> 6.0)
-    activesupport (4.2.11.3)
-      i18n (~> 0.7)
+    activemodel (5.2.4.3)
+      activesupport (= 5.2.4.3)
+    activerecord (5.2.4.3)
+      activemodel (= 5.2.4.3)
+      activesupport (= 5.2.4.3)
+      arel (>= 9.0)
+    activesupport (5.2.4.3)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
       minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
     afm (0.2.2)
-    arel (6.0.4)
+    arel (9.0.0)
     arel-helpers (2.11.0)
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
@@ -168,15 +167,15 @@ GEM
       http_parser.rb (>= 0.6.0)
     em-socksify (0.3.2)
       eventmachine (>= 1.0.0.beta.4)
-    erubis (2.7.0)
+    erubi (1.9.0)
     eventmachine (1.2.7)
-    factory_bot (5.2.0)
-      activesupport (>= 4.2.0)
-    factory_bot_rails (5.2.0)
-      factory_bot (~> 5.2.0)
-      railties (>= 4.2.0)
-    faker (2.2.1)
-      i18n (>= 0.8)
+    factory_bot (6.0.2)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.0.0)
+      factory_bot (~> 6.0.0)
+      railties (>= 5.0.0)
+    faker (2.13.0)
+      i18n (>= 1.6, < 2)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
     faye-websocket (0.10.9)
@@ -188,7 +187,7 @@ GEM
     hrr_rb_ssh (0.3.0.pre2)
       ed25519 (~> 1.2)
     http_parser.rb (0.6.0)
-    i18n (0.9.5)
+    i18n (1.8.3)
       concurrent-ruby (~> 1.0)
     io-console (0.5.6)
     irb (1.2.4)
@@ -202,11 +201,11 @@ GEM
       nokogiri (>= 1.5.9)
     memory_profiler (0.9.14)
     metasm (1.0.4)
-    metasploit-concern (2.0.5)
-      activemodel (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      railties (~> 4.2.6)
-    metasploit-credential (3.0.4)
+    metasploit-concern (3.0.0)
+      activemodel (~> 5.2.2)
+      activesupport (~> 5.2.2)
+      railties (~> 5.2.2)
+    metasploit-credential (4.0.2)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 3.0.0)
@@ -216,20 +215,19 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (2.0.4)
-      activemodel (~> 4.2.6)
-      activesupport (~> 4.2.6)
-      railties (~> 4.2.6)
+    metasploit-model (3.0.0)
+      activemodel (~> 5.2.2)
+      activesupport (~> 5.2.2)
+      railties (~> 5.2.2)
     metasploit-payloads (1.4.4)
-    metasploit_data_models (3.0.10)
-      activerecord (~> 4.2.6)
-      activesupport (~> 4.2.6)
+    metasploit_data_models (4.0.2)
+      activerecord (~> 5.2.2)
+      activesupport (~> 5.2.2)
       arel-helpers
       metasploit-concern
       metasploit-model
       pg
-      postgres_ext
-      railties (~> 4.2.6)
+      railties (~> 5.2.2)
       recog (~> 2.0)
     metasploit_payloads-mettle (0.5.21)
     method_source (1.0.0)
@@ -238,6 +236,8 @@ GEM
     mqtt (0.5.0)
     msgpack (1.3.3)
     multipart-post (2.1.1)
+    mustermann (1.1.1)
+      ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
     net-ldap (0.16.2)
     net-ssh (6.1.0)
@@ -263,12 +263,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (0.21.0)
-    pg_array_parser (0.0.9)
-    postgres_ext (3.0.1)
-      activerecord (~> 4.0)
-      arel (>= 4.0.1)
-      pg_array_parser (~> 0.0.9)
+    pg (1.2.3)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -276,24 +271,22 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.5)
-    rack (1.6.13)
-    rack-protection (1.5.5)
+    rack (2.2.3)
+    rack-protection (2.0.8.1)
       rack
-    rack-test (0.6.3)
-      rack (>= 1.0)
-    rails-deprecated_sanitizer (1.0.3)
-      activesupport (>= 4.2.0.alpha)
-    rails-dom-testing (1.0.9)
-      activesupport (>= 4.2.0, < 5.0)
-      nokogiri (~> 1.6)
-      rails-deprecated_sanitizer (>= 1.0.1)
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
+    rails-dom-testing (2.0.3)
+      activesupport (>= 4.2.0)
+      nokogiri (>= 1.6)
     rails-html-sanitizer (1.3.0)
       loofah (~> 2.3)
-    railties (4.2.11.3)
-      actionpack (= 4.2.11.3)
-      activesupport (= 4.2.11.3)
+    railties (5.2.4.3)
+      actionpack (= 5.2.4.3)
+      activesupport (= 5.2.4.3)
+      method_source
       rake (>= 0.8.7)
-      thor (>= 0.18.1, < 2.0)
+      thor (>= 0.19.0, < 2.0)
     rainbow (3.0.0)
     rake (13.0.1)
     rb-readline (0.5.5)
@@ -390,6 +383,7 @@ GEM
     ruby-prof (1.4.1)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
+    ruby2_keywords (0.0.2)
     ruby_smb (1.1.0)
       bindata
       rubyntlm
@@ -403,10 +397,11 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
     simplecov-html (0.12.2)
-    sinatra (1.4.8)
-      rack (~> 1.5)
-      rack-protection (~> 1.4)
-      tilt (>= 1.3, < 3)
+    sinatra (2.0.8.1)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.8.1)
+      tilt (~> 2.0)
     sqlite3 (1.3.13)
     sshkey (2.0.0)
     swagger-blocks (3.0.0)
@@ -424,15 +419,15 @@ GEM
     tzinfo-data (1.2020.1)
       tzinfo (>= 1.0.0)
     unicode-display_width (1.7.0)
-    warden (1.2.7)
-      rack (>= 1.0)
+    warden (1.2.8)
+      rack (>= 2.0.6)
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     windows_error (0.1.2)
-    xdr (2.0.0)
-      activemodel (>= 4.2.7)
-      activesupport (>= 4.2.7)
+    xdr (3.0.1)
+      activemodel (>= 5.2.0)
+      activesupport (>= 5.2.0)
     xmlrpc (0.3.0)
     yard (0.9.25)
 
@@ -459,4 +454,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.17.3
+   1.17.2
