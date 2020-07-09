@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     begin
-      connect()
+      connect
 
       packet  = "\x44\x62" # Transaction Identifier
       packet << "\x00\x00" # Protocol Identifier
@@ -116,48 +116,49 @@ class MetasploitModule < Msf::Auxiliary
       sock.put(packet)
       data = sock.get_once(-1, datastore['TIMEOUT'])
 
-      if data
-        # Read Device Identification (43)
-        if data[mbtcp['func_code']['start'], 2] == "\x2b\x0e"
-          num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']]
-
-          unless num_objects != nil
-            print_error("MODBUS - received incorrect data.")
-            return
-          end
-
-          num_objects = num_objects.unpack("C")[0]
-          print_status("Number of Objects: #{ num_objects }")
-          object_start = mbtcp['object_id']['start']
-
-          for i in 1..num_objects.to_i
-            object = Hash.new
-            object['id']        = data[object_start, mbtcp['object_id']['bytes']].unpack("C")[0]
-            object['len']       = data[object_start + mbtcp['object_id']['bytes'], mbtcp['objects_len']['bytes']].unpack("C")[0]
-            object["str_value"] = data[object_start + mbtcp['object_id']['bytes'] + mbtcp['objects_len']['bytes'], object['len']].unpack("a*")[0]
-            begin
-              object['name'] = object_name[object['id']]
-            rescue
-              object['name'] = "Name X"
-            end
-
-            print_good("#{ object['name'] }: #{ object['str_value'] }")
-            object_start = object_start + mbtcp['object_id']['bytes'] + mbtcp['objects_len']['bytes'] + object['len']
-
-            report_note(
-              :host => ip,
-              :proto => 'tcp',
-              :port => rport,
-              :sname => 'modbus',
-              :type => "modbus.#{ object['name'].downcase }",
-              :data => object['str_value']
-            )
-          end
-        else
-          handle_exception_codes(data[mbtcp['func_code']['start'], 2])
-        end
-      else
+      unless data
         raise ::Rex::ConnectionTimeout
+      end
+
+      # Read Device Identification (43)
+      unless data[mbtcp['func_code']['start'], 2] == "\x2b\x0e"
+        handle_exception_codes(data[mbtcp['func_code']['start'], 2])
+        return
+      end
+
+      num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']]
+
+      if num_objects.nil?
+        print_error("MODBUS - received incorrect data.")
+        return
+      end
+
+      num_objects = num_objects.unpack("C")[0]
+      print_status("Number of Objects: #{ num_objects }")
+      object_start = mbtcp['object_id']['start']
+
+      for i in 1..num_objects.to_i
+        object = Hash.new
+        object['id']        = data[object_start, mbtcp['object_id']['bytes']].unpack("C")[0]
+        object['len']       = data[object_start + mbtcp['object_id']['bytes'], mbtcp['objects_len']['bytes']].unpack("C")[0]
+        object["str_value"] = data[object_start + mbtcp['object_id']['bytes'] + mbtcp['objects_len']['bytes'], object['len']].unpack("a*")[0]
+        begin
+          object['name'] = object_name[object['id']]
+        rescue
+          object['name'] = "Name X"
+        end
+
+        print_good("#{ object['name'] }: #{ object['str_value'] }")
+        object_start = object_start + mbtcp['object_id']['bytes'] + mbtcp['objects_len']['bytes'] + object['len']
+
+        report_note(
+          :host => ip,
+          :proto => 'tcp',
+          :port => rport,
+          :sname => 'modbus',
+          :type => "modbus.#{ object['name'].downcase }",
+          :data => object['str_value']
+        )
       end
     rescue ::Interrupt
       print_error("MODBUS - Interrupt during payload")
@@ -170,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def cleanup
-      disconnect() rescue nil
+      disconnect rescue nil
     end
   end
 end

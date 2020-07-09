@@ -25,7 +25,7 @@ You can expect receive as response which may contain some of the following objec
 
 If the ```UNIT_ID``` value is not the correct one or the response contains an error you will receive one Modbus exception code message.
 
-Successful results from the scan will be stored as a ```note``` in the project. You can access just typing ```note``` in the console.
+Successful results from the scan will be stored as a ```note``` in the project. You can access by typing ```note``` in the console.
 
 ```msf5 
 auxiliary(scanner/scada/modbus_banner_grabbing) > notes
@@ -37,7 +37,8 @@ Notes
  ----                     ----            -------  ----  --------  ----                ----
  2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.vendorname   "Schneider Electric"
  2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.productcode  "BMX NOE 0100"
- 2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.revision     "V3.10"```
+ 2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.revision     "V3.10"
+ ```
 
 ## Options
   1. ```UNIT_ID``` is the Unite Identifier and must be a number between 1 and 254. By default is set to ```0```.
@@ -57,7 +58,8 @@ Target responds with some object information like ```Vendor Name```, ```Product 
 [+] 192.168.1.1:502    - ProductCode: BMX NOE 0100
 [+] 192.168.1.1:502    - Revision: V3.10
 [*] 192.168.1.1:502    - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed```
+[*] Auxiliary module execution completed
+```
 
 ### Not Reply
 The target never reply the request.
@@ -66,7 +68,8 @@ The target never reply the request.
 
 [-] 192.168.1.2:502      - MODBUS - No reply
 [*] 192.168.1.2:502      - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed```
+[*] Auxiliary module execution completed
+```
 
 ### Network Error
 
@@ -76,7 +79,8 @@ Connection errors, network timeout, host unreachable or connection refused.
 
 [-] 192.168.1.3:502     - MODBUS - Network error during payload: The connection timed out (217.71.253.52:502).
 [*] 192.168.1.3:502     - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed```
+[*] Auxiliary module execution completed
+```
 
 Modbuss exception codes (I.e. Memory Parity Error)
 
@@ -84,4 +88,5 @@ Modbuss exception codes (I.e. Memory Parity Error)
 
 [-] 192.168.1.4:502      - Memory Parity Error: Slave detected a parity error in memory.
 [*] 192.168.1.4:502      - Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed```
+[*] Auxiliary module execution completed
+```
