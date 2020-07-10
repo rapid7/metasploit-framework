@@ -82,7 +82,7 @@ Connection errors, network timeout, host unreachable or connection refused.
 [*] Auxiliary module execution completed
 ```
 
-Modbuss exception codes (I.e. Memory Parity Error)
+### Modbuss exception codes (I.e. Memory Parity Error)
 
 ```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
