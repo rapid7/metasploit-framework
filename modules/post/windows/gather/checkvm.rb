@@ -41,6 +41,10 @@ class MetasploitModule < Msf::Post
     @processes
   end
 
+  def service_exists?(service)
+    get_services && get_services.include?(service)
+  end
+
   def hyperv?
     physical_host = registry_getvaldata('HKLM\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters', 'PhysicalHostNameFullyQualified')
     if physical_host
@@ -68,7 +72,7 @@ class MetasploitModule < Msf::Post
     srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
     return true if srvvals && srvvals.include?('VRTUAL')
 
-    return true if get_services && get_services.include?('vmicexchange')
+    return true if service_exists?('vmicexchange')
 
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System'
     system_bios_version = registry_getvaldata(key_path, 'SystemBiosVersion')
@@ -81,11 +85,8 @@ class MetasploitModule < Msf::Post
   end
 
   def vmware?
-    if get_services
-      return true if get_services.include?('vmdebug')
-      return true if get_services.include?('vmmouse')
-      return true if get_services.include?('VMTools')
-      return true if get_services.include?('VMMEMCTL')
+    %w[vmdebug vmmouse VMTools VMMEMCTL].each do |service|
+      return true if service_exists?(service)
     end
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS', 'SystemManufacturer') =~ /vmware/i
@@ -105,10 +106,8 @@ class MetasploitModule < Msf::Post
   end
 
   def virtualpc?
-    if get_services
-      return true if get_services.include?('vpc-s3')
-      return true if get_services.include?('vpcuhub')
-      return true if get_services.include?('msvmmouf')
+    %w[vpc-s3 vpcuhub msvmmouf].each do |service|
+      return true if service_exists?(service)
     end
 
     vpcprocs = [
@@ -149,11 +148,8 @@ class MetasploitModule < Msf::Post
 
     return true if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System', 'SystemBiosVersion') =~ /vbox/i
 
-    if get_services
-      return true if get_services.include?('VBoxMouse')
-      return true if get_services.include?('VBoxGuest')
-      return true if get_services.include?('VBoxService')
-      return true if get_services.include?('VBoxSF')
+    %w[VBoxMouse VBoxGuest VBoxService VBoxSF].each do |service|
+      return true if service_exists?(service)
     end
 
     false
@@ -178,12 +174,8 @@ class MetasploitModule < Msf::Post
     srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
     return true if srvvals && srvvals.include?('Xen')
 
-    if get_services
-      return true if get_services.include?('xenevtchn')
-      return true if get_services.include?('xennet')
-      return true if get_services.include?('xennet6')
-      return true if get_services.include?('xensvc')
-      return true if get_services.include?('xenvdb')
+    %w[xenevtchn xennet xennet6 xensvc xenvdb].each do |service|
+      return true if service_exists?(service)
     end
 
     false
