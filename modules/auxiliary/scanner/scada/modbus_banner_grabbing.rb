@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']]
 
       if num_objects.nil?
-        print_error("MODBUS - received incorrect data.")
+        print_error("MODBUS - No data was received, try changing the UNID_ID value.")
         return
       end
 
