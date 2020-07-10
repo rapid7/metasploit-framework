@@ -1,14 +1,13 @@
 ## Vulnerable Application
 
-This module will perform Banner grabbing in devices that uses the Modbus protocol.
-The module will send a payload with the function code 43 which is used to read device identification.
+This module will perform banner grabbing on devices that use the Modbus protocol by sending 
+a payload with the function code 43 to read the target device's identification information.
 For more technical information, you can refer to this link: https://en.wikipedia.org/wiki/Modbus#Available_function/command_codes.
 
-Any device with the 502 port exposed could be a potential target.
-A search in Shodan with the Dork `port:502` it's an easier way to find targets.
-Also you can filter the results by 'product'.
+By default the service is running on port 502, so any device with this port open could be a potential target.
 
 ## Verification Steps
+<<<<<<< HEAD
   1. Do: ```use auxiliary/scanner/scada/modbus_banner_grabbing```
 <<<<<<< HEAD
   2. Do: ```set RHOST <IP>```
@@ -18,17 +17,24 @@ Also you can filter the results by 'product'.
   3. Do: ```set UNIT_ID <ID>``` where ID is a number between 1 and 254. This is optional, default Unite Identifier is set to ```0```.
 >>>>>>> Update documentation/modules/auxiliary/scanner/scada/modbus_banner_grabbing.md
   4. Do: ```run```
+=======
+  1. Do: `use auxiliary/scanner/scada/modbus_banner_grabbing`
+  2. Do: `set RHOST <IP>`
+  3. Do: `set UNIT_ID <ID>`
+  4. Do: `run`
+>>>>>>> Update documentation to fix spelling mistakes and grammar
 
-You can expect receive as response which may contain some of the following objects:
+The response from the target device may contain several objects. Some of these objects can be seen below:
 
-```vendor name, product code, min. max. revision, vendor url, product name, model name, etc.```
+`vendor name, product code, min. max. revision, vendor url, product name, model name`
 
-If the ```UNIT_ID``` value is not the correct one or the response contains an error you will receive one Modbus exception code message.
+If the `UNIT_ID` value set by the attacker is incorrect, or if the target was unable to process the Modbus message,
+a Modbus exception message will be returned from the target, which will then be output to the screen.
 
-Successful results from the scan will be stored as a ```note``` in the project. You can access by typing ```note``` in the console.
+Successful results from the scan will be stored as a `note` in the framework. You can access these notes by typing `note` in the console.
 
-```msf5 
-auxiliary(scanner/scada/modbus_banner_grabbing) > notes
+```
+msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > notes
 
 Notes
 =====
@@ -38,20 +44,20 @@ Notes
  2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.vendorname   "Schneider Electric"
  2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.productcode  "BMX NOE 0100"
  2020-07-06 13:25:50 UTC  192.168.1.1     modbus   502   tcp       modbus.revision     "V3.10"
- ```
+```
 
 ## Options
-  1. ```UNIT_ID``` is the Unite Identifier and must be a number between 1 and 254. By default is set to ```0```.
-  2. ```RHOST``` is the IP address of the target.
+  1. `UNIT_ID` is the Unit Identifier and must be a number between 1 and 254. By default this value is set to `0`.
+  2. `RHOST` is the IP address of the target.
 
 ## Scenarios
-Here are some of the possible responses that you may receive from the target.
+The following scenarios describe some of the responses you may receive from the target:
 
-### Execution Successfull
+### Execution Successful
+The target responded with some object information such as `Vendor Name`, `Product Code` and `Revision`.
 
-Target responds with some object information like ```Vendor Name```, ```Product Code``` and ```Revision```.
-
-```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+```
+msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [*] 192.168.1.1:502    - Number of Objects: 3
 [+] 192.168.1.1:502    - VendorName: Schneider Electric
@@ -61,10 +67,11 @@ Target responds with some object information like ```Vendor Name```, ```Product 
 [*] Auxiliary module execution completed
 ```
 
-### Not Reply
-The target never reply the request.
+### No Reply
+The target never replied to the attacker's request.
 
-```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+```
+msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.2:502      - MODBUS - No reply
 [*] 192.168.1.2:502      - Scanned 1 of 1 hosts (100% complete)
@@ -72,8 +79,7 @@ The target never reply the request.
 ```
 
 ### Network Error
-
-Connection errors, network timeout, host unreachable or connection refused.
+Some network error occurred, such as a connection error, a network timeout, or the connection was refused. Alternatively, the host may be unreachable.
 
 ```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
@@ -82,9 +88,10 @@ Connection errors, network timeout, host unreachable or connection refused.
 [*] Auxiliary module execution completed
 ```
 
-### Modbuss exception codes (I.e. Memory Parity Error)
+### Modbus Exception Codes (i.e. Memory Parity Error)
 
-```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+```
+msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.4:502      - Memory Parity Error: Slave detected a parity error in memory.
 [*] 192.168.1.4:502      - Scanned 1 of 1 hosts (100% complete)
