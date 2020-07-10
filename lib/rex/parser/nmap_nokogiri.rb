@@ -58,7 +58,19 @@ module Rex
       when "script" # Not actually used in import?
         record_port_script(attrs)
         record_host_script(attrs)
+        if attrs[0][0] == 'id' && attrs[0][1] == 'vulners'
+          @state[:vulners] = {}
+        end
         # Ignoring post scripts completely
+      when "table"
+        if attrs.dig(0,0) == 'key' && @state[:vulners] == {}
+          @state[:vulners][:cpe] = attrs[0][1]
+          @state[:vulners][:refs] = []
+        end
+      when "elem"
+        if attrs.dig(0,0) == 'key' && attrs.dig(0,1) == 'id' && @state[:vulners]
+          @state[:add_characters] = @state[:vulners][:refs]
+        end
       when "trace"
         record_host_trace(attrs)
       when "hop"
@@ -88,8 +100,30 @@ module Rex
         end
         @state.delete_if {|k| k != :current_tag}
         @report_data = {:workspace => @args[:workspace]}
+      when "script"
+        if @state[:vulners]
+          vuln_info = {
+              :workspace => @args[:workspace],
+              #:task => args[:task],
+              :host =>  @state[:addresses]["ipv4"],
+              :port => @state[:port]["portid"],
+              :proto => @state[:port]["protocol"],
+              :name => @state[:vulners][:cpe],
+              #:info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
+              # Add more refs based on nessus/nexpose .. results
+              :refs => @state[:vulners][:refs]
+          }
+          db_report(:vuln, vuln_info)
+
+          @state.delete :vulners
+        end
       end
       @state[:current_tag].delete name
+    end
+
+    def characters(text)
+      @state[:add_characters] << text if @state[:add_characters]
+      @state.delete(:add_characters)
     end
 
     # We can certainly get fancier with self.send() magic, but

@@ -110,6 +110,8 @@ module Msf::DBManager::Vuln
           str = "#{r.ctx_id}-#{r.ctx_val}"
         elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
           str = "#{r[:ctx_id]}-#{r[:ctx_val]}"
+        elsif r.is_a?(String)
+          str = r
         end
         rids << find_or_create_ref(:name => str) unless str.nil?
       end
