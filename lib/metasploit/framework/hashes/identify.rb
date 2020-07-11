@@ -86,6 +86,9 @@ def identify_hash(hash)
       return 'android-sha1'
     when hash  =~/^[A-F0-9]{32}:[a-f0-9]{16}$/
       return 'android-md5'
+    # other
+    when hash =~ /^<\d+@.+?>#[\w]{32}$/
+      return 'hmac-md5'
   end
   ''
 end
