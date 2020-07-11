@@ -53,7 +53,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def auth_plain_parser(data)
     # this data is \00 delimited, and has 3 fields: un\00un\00\pass.  Not sure why a double username, but we drop the first one
-    Rex::Text.decode_base64(data).split("\00").drop(1)
+    data = Rex::Text.decode_base64(data).split("\00")
+    data = data.drop(1)
+
+    # if only a username is submitted, it will appear as \00un\00
+    # we already cut off the empty username, so nowe we want to add on the empty password
+    if data.length == 1
+      data << ""
+    end
+    data
   end
 
   def on_client_connect(client)

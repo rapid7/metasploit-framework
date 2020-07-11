@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module creates a mock SMTP server which accepts credentials or unautheneticated email
+This module creates a mock SMTP server which accepts credentials or unauthenticated email
 before throwing a `503` error.
 
 ## Verification Steps
