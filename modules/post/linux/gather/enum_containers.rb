@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         Supports Docker, LXC and RKT.
       },
       'License' => MSF_LICENSE,
-      'Author' => ['Mat Rollings'],
+      'Author' => ['Mat Rollings [stealthcopter]'],
       'Platform' => ['linux'],
       'SessionTypes' => ['shell', 'meterpreter']
     ))
