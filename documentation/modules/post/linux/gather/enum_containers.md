@@ -10,8 +10,10 @@
 
   1. Start msfconsole
   2. Get a session via exploit of your choice
-  3. Load and run the module `run post/linux/gather/enum_containers`
-  4. You should get feedback if any container platforms are runnable by the current user and if there are any active containers running on them
+  3. Load the module `use post/linux/gather/enum_containers`
+  4. Set the session `set session 1`
+  5. run the module `run`
+  6. You should get feedback if any container platforms are runnable by the current user and if there are any active containers running on them
 
 ## Options
 
