@@ -62,6 +62,7 @@ resource (brocade.rb)> set session 1
 session => 1
 resource (brocade.rb)> set verbose true
 verbose => true
+resource (brocade.rb)> run
 [*] In an enabled cli
 [*] Getting version information
 [*] OS: 08.0.30hT311
