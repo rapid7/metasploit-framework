@@ -132,6 +132,12 @@ class Driver < Msf::Ui::Driver
 
     load_db_config(opts['Config'])
 
+    begin
+      FeatureManager.instance.load_config
+    rescue StandardException => e
+      elog(e)
+    end
+
     if !framework.db || !framework.db.active
       if framework.db.error == "disabled"
         print_warning("Database support has been disabled")
