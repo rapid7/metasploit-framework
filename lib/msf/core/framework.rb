@@ -81,7 +81,7 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
-    self.features = FeatureManager.new(self)
+    self.features = FeatureManager.instance
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)

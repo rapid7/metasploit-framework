@@ -48,7 +48,7 @@ module Msf
 
         # Delete all groups from the config ini that potentially have more up to date information
         ini.keys.each do |key|
-          unless key =~ %r{^framework/database}
+          unless key.start_with?("framework/database") || key.start_with?("framework/features")
             ini.delete(key)
           end
         end

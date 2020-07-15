@@ -601,7 +601,7 @@ class Core
       feature_name, value = rest
 
       unless framework.features.exists?(feature_name)
-        print_warning("Feature name '#{feature_name}' is not available. Either it has been removed, integrated by default, or does not exist.")
+        print_warning("Feature name '#{feature_name}' is not available. Either it has been removed, integrated by default, or does not exist in this version of Metasploit.")
         print_warning("Currently supported features: #{framework.features.names.join(', ')}") if framework.features.all.any?
         print_warning('There are currently no features to toggle.') if framework.features.all.empty?
         return
@@ -1241,6 +1241,12 @@ class Core
   def cmd_save(*args)
     # Save the console config
     driver.save_config
+
+    begin
+      FeatureManager.instance.save_config
+    rescue StandardException => e
+      elog(e)
+    end
 
     # Save the framework's datastore
     begin
