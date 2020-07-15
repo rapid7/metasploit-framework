@@ -6,11 +6,10 @@ module Msf
   # RHOST URL option.
   #
   ###
-  class OptRhostUrl < OptBase
+  class OptRhostURL < OptBase
     def type
       'rhost url'
     end
-
 
     def normalize(value)
       return unless value
@@ -22,13 +21,13 @@ module Msf
 
       option_hash['RHOSTS'] = uri.hostname
       option_hash['RPORT'] = uri.port
-      option_hash['SSL'] = %w{ssl https}.include?(uri.scheme)
+      option_hash['SSL'] = %w[ssl https].include?(uri.scheme)
 
       # Both `TARGETURI` and `URI` are used as datastore options to denote the path on a uri
       option_hash['TARGETURI'] = uri.path || '/'
       option_hash['URI'] = uri.path || '/'
 
-      if uri.scheme and %{http https}.include?(uri.scheme)
+      if uri.scheme && %(http https).include?(uri.scheme)
         option_hash['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
         option_hash['HttpUsername'] = uri.user.to_s
         option_hash['HttpPassword'] = uri.password.to_s
@@ -39,8 +38,9 @@ module Msf
 
     def valid?(value, check_empty: false)
       return true unless value
+
       uri = get_uri(value)
-      false unless uri.host != nil and uri.port != nil
+      false unless !uri.host.nil? && !uri.port.nil?
       super
     end
 
@@ -48,11 +48,11 @@ module Msf
       if datastore['RHOSTS']
         begin
           uri = URI::Generic.build(host: datastore['RHOSTS'])
-          uri.port=datastore['RPORT']
+          uri.port = datastore['RPORT']
           # The datastore uses both `TARGETURI` and `URI` to denote the path of a URL, we try both here and fall back to `/`
-          uri.path=(datastore['TARGETURI'] || datastore['URI'] || '/')
-          uri.user=datastore['HttpUsername']
-          uri.password=datastore['HttpPassword'] if uri.user
+          uri.path = (datastore['TARGETURI'] || datastore['URI'] || '/')
+          uri.user = datastore['HttpUsername']
+          uri.password = datastore['HttpPassword'] if uri.user
           uri.to_s.delete_prefix('//')
         rescue URI::InvalidComponentError
           nil
