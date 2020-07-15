@@ -473,6 +473,13 @@ module Msf
             else
               print_line(tbl.to_s)
               print_status("Using #{used_module}") if used_module
+
+              if @module_search_results.length > 1
+                index_usage = "use #{@module_search_results.length - 1}"
+                name_usage = "use #{@module_search_results.last.fullname}"
+
+                print("Interact with a module by name or index, for example %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+              end
             end
 
             true
@@ -766,6 +773,14 @@ module Msf
             # If a datastore cache exists for this module, then load it up
             if @dscache[active_module.fullname]
               active_module.datastore.update(@dscache[active_module.fullname])
+            end
+
+            # Choose a default payload when the module is used, not run
+            if mod.datastore['PAYLOAD']
+              print_status("Using configured payload #{mod.datastore['PAYLOAD']}")
+            elsif dispatcher.respond_to?(:choose_payload)
+              chosen_payload = dispatcher.choose_payload(mod)
+              print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
             mod.init_ui(driver.input, driver.output)

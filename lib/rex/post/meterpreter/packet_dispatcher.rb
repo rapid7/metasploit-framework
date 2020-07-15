@@ -96,7 +96,7 @@ module PacketDispatcher
       cli.send_response(resp)
     rescue => e
       send_queue.unshift(resp) if resp
-      elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+      elog("Exception sending a reply to the reader request #{cli.inspect}", error: e)
     end
   end
 
@@ -419,7 +419,7 @@ module PacketDispatcher
         # If we have any packets that weren't handled, they go back
         # on the incomplete queue so that they're prioritised over
         # new packets that are coming in off the wire.
-        dlog("Requeuing #{incomplete.length} packet(s)", 'meterpreter', LEV_1) if incomplete.length > 0 
+        dlog("Requeuing #{incomplete.length} packet(s)", 'meterpreter', LEV_1) if incomplete.length > 0
         while incomplete.length > 0
           @incomplete_queue << incomplete.shift
         end
@@ -669,7 +669,7 @@ module HttpPacketDispatcher
         cli.send_response(resp)
       rescue ::Exception => e
         send_queue.unshift(rpkt) if rpkt
-        elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+        elog("Exception sending a reply to the reader request #{cli.inspect}", error: e)
       end
     else
       resp.body = ""
@@ -684,7 +684,7 @@ module HttpPacketDispatcher
     end
 
     rescue ::Exception => e
-      elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
+      elog("Exception handling request: #{cli.inspect} #{req.inspect}", error: e)
     end
   end
 

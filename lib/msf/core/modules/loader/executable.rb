@@ -93,7 +93,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
         return ''
       end
     rescue ::Exception => e
-      elog "Unable to load module #{full_path} #{e.class} #{e} #{e.backtrace.join "\n"}"
+      elog("Unable to load module #{full_path}", error: e)
       # XXX migrate this to a full load_error when we can tell the user why the
       # module did not load and/or how to resolve it.
       # load_error(full_path, e)

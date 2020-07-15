@@ -259,6 +259,13 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_hmac_md5' do
+    it 'returns hmac-md5' do
+      hash = identify_hash('<771138767145@127.0.0.1>#332b463fcf3baac718c63860a7093df4')
+      expect(hash).to match ('hmac-md5')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = identify_hash('')

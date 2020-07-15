@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Termux Issues?
+    url: https://github.com/rapid7/metasploit-framework/issues/11023
+    about: Termux is not officially supported, check here for more info

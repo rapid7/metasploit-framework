@@ -124,7 +124,7 @@ def run
             raise $!
           rescue ::Exception => e
             print_status("Error: #{targ}: #{e.class} #{e.message}")
-            elog("Error running against host #{targ}: #{e.message}\n#{e.backtrace.join("\n")}")
+            elog("Error running against host #{targ}", error: e)
           ensure
             nmod.cleanup
           end

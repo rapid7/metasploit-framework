@@ -169,7 +169,7 @@ class Msf::DBManager
 
     rescue ::Exception => e
       self.error = e
-      elog("DB is not enabled due to load error: #{e}")
+      elog('DB is not enabled due to load error', error: e)
       return false
     end
 
@@ -221,20 +221,24 @@ class Msf::DBManager
     # already true or if framework.db.connect called after_establish_connection.
     if !! error
       if error.to_s =~ /RubyGem version.*pg.*0\.11/i
-        elog("***")
-        elog("*")
-        elog("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-        elog("* There a three ways to accomplish this upgrade:")
-        elog("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-        elog("*    $ rvmsudo gem install pg ")
-        elog("* 2. Use the Community Edition web interface to apply a Software Update")
-        elog("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-        elog("*")
-        elog("***")
-        elog("")
-        elog("")
+        err_msg = <<~ERROR
+        ***
+        *
+        * Metasploit now requires version 0.11 or higher of the 'pg' gem for database support
+        * There are three ways to accomplish this upgrade:
+        * 1. If you run Metasploit with your system ruby, simply upgrade the gem:
+        *    $ rvmsudo gem install pg
+        * 2. Use the Community Edition web interface to apply a Software Update
+        * 3. Uninstall, download the latest version, and reinstall Metasploit
+        *
+        ***
+        
+
+        ERROR
+        elog(err_msg)
       end
 
+      # +error+ is not an instance of +Exception+, it is, in fact, a +String+
       elog("Failed to connect to the database: #{error}")
     end
 

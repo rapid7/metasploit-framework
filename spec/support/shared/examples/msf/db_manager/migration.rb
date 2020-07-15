@@ -52,35 +52,28 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
     end
 
     context 'with StandardError from ActiveRecord::Migration.migrate' do
-      let(:error) do
+      let(:standard_error) do
         StandardError.new(message)
       end
 
       let(:message) do
-        "Error during migration"
+        "DB.migrate threw an exception"
       end
 
       before(:example) do
-        expect(ActiveRecord::Migrator).to receive(:migrate).and_raise(error)
+        expect(ActiveRecord::Migrator).to receive(:migrate).and_raise(standard_error)
       end
 
       it 'should set Msf::DBManager#error' do
         migrate
 
-        expect(db_manager.error).to eq error
+        expect(db_manager.error).to eq standard_error
       end
 
       it 'should log error message at error level' do
-        expect(db_manager).to receive(:elog) do |error_message|
-          expect(error_message).to include(error.to_s)
-        end
-
-        migrate
-      end
-
-      it 'should log error backtrace at debug level' do
-        expect(db_manager).to receive(:dlog) do |debug_message|
-          expect(debug_message).to include('Call stack')
+        expect(db_manager).to receive(:elog) do |error_message, error:|
+          expect(error_message).to include(standard_error.to_s)
+          expect(error).to eql(standard_error)
         end
 
         migrate

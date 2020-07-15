@@ -64,12 +64,12 @@ class MetasploitModule < Msf::Auxiliary
 
           print_good("#{local_path} uploaded to #{remote_path}")
         rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          elog("Unable to upload #{local_path} to #{remote_path}", error: e)
           print_error("Unable to upload #{local_path} to #{remote_path} : #{e.message}")
         end
       end
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("Unable to login:", error: e)
       print_error("Unable to login: #{e.message}")
     end
   end

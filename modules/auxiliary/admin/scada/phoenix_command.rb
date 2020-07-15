@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       sock.put(data)
       buf = sock.get_once || ''
     rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
 
     bin_to_hex(buf)

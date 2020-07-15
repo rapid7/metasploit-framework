@@ -106,7 +106,7 @@ class Console::CommandDispatcher::Priv::Elevate
       translate_technique_index(technique).each do |desc|
         print_error(desc)
       end
-      elog("#{e.class} #{e.message} (Technique: #{technique})\n#{e.backtrace * "\n"}")
+      elog("Technique: #{technique})", error: e)
       return
     end
 

@@ -85,7 +85,7 @@ private
     begin
       JSON.parse(data)
     rescue JSON::ParserError => e
-      # elog("JSONHashFile @ #{path} was corrupt: #{e.class} #{e}"
+      elog("JSONHashFile at #{path} was corrupt", error: e)
       {}
     end
   end

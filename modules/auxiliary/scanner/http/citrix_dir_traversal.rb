@@ -19,12 +19,14 @@ class MetasploitModule < Msf::Auxiliary
         a "[global]" directive in smb.conf, which this file should always contain.
       },
       'Author'         => [
-        'Erik Wynter', # Module (@wyntererik)
-        'altonjx'      # Module (@altonjx)
+        'Mikhail Klyuchnikov', # Discovery
+        'Erik Wynter',         # Module (@wyntererik)
+        'altonjx'              # Module (@altonjx)
       ],
       'References'     => [
         ['CVE', '2019-19781'],
-        ['URL', 'https://support.citrix.com/article/CTX267027/']
+        ['URL', 'https://support.citrix.com/article/CTX267027/'],
+        ['URL', 'https://swarm.ptsecurity.com/remote-code-execution-in-citrix-adc/']
       ],
       'DisclosureDate' => '2019-12-17',
       'License'        => MSF_LICENSE,

@@ -84,7 +84,7 @@ class ThreadManager < Array
       end
 
       rescue ::Exception => e
-        elog("thread monitor: #{e} #{e.backtrace} source:#{self[:tm_call].inspect}")
+        elog("Thread Monitor Exception | Source: #{self[:tm_call].inspect}", error: e)
       end
     end
   end
@@ -106,12 +106,11 @@ class ThreadManager < Array
           argv.shift.call(*argv)
         rescue ::Exception => e
           elog(
-              "thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  " \
-              "error: #{e.class} #{e}\n" \
+              "Thread Exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  " \
               "  source:\n" \
-              "    #{::Thread.current[:tm_call].join "\n    "}"
+              "    #{::Thread.current[:tm_call].join "\n    "}",
+              error: e
           )
-          elog("Call Stack\n#{e.backtrace.join("\n")}")
           raise e
         ensure
           if framework.db && framework.db.active && framework.db.is_local?

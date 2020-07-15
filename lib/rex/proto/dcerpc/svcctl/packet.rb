@@ -56,7 +56,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error getting scm handle: #{e}")
+      elog('Error getting scm handle', error: e)
     end
 
     [scm_handle, scm_status]
@@ -120,7 +120,7 @@ class Client
     begin
       response = dcerpc_client.call(CREATE_SERVICE_W, stubdata)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error creating service: #{e}")
+      elog('Error creating service', error: e)
     end
 
     if response
@@ -152,7 +152,7 @@ class Client
       response = dcerpc_client.call(CHANGE_SERVICE_CONFIG2_W, stubdata) # ChangeServiceConfig2
       svc_status = error_code(response)
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error changing service description : #{e}")
+      elog('Error changing service description', error: e)
     end
 
     svc_status
@@ -172,7 +172,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error closing service handle: #{e}")
+      elog('Error closing service handle', error: e)
     end
 
     svc_status
@@ -198,7 +198,7 @@ class Client
         end
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error opening service handle: #{e}")
+      elog('Error opening service handle', error: e)
     end
 
     svc_handle
@@ -250,7 +250,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error starting service: #{e}")
+      elog('Error starting service', error: e)
     end
 
     svc_status
@@ -280,7 +280,7 @@ class Client
        svc_status =  error_code(response[28,4])
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error controlling service: #{e}")
+      elog('Error controlling service', error: e)
     end
 
     svc_status
@@ -299,7 +299,7 @@ class Client
         svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error deleting service: #{e}")
+      elog('Error deleting service', error: e)
     end
 
     svc_status
@@ -323,7 +323,7 @@ class Client
         ret = 2
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
-      elog("Error deleting service: #{e}")
+      elog('Error deleting service', error: e)
     end
 
     ret

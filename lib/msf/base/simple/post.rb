@@ -137,9 +137,7 @@ protected
         end
       end
 
-      elog("Post failed: #{e.class} #{e}", 'core', LEV_0)
-      dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
-
+      elog('Post failed', error: e)
       mod.cleanup
 
       return
@@ -162,4 +160,3 @@ end
 
 end
 end
-

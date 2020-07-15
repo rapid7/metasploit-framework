@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
         session_setup(result, scanner) if datastore['CreateSession']
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
           msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
-          msg << " 'set gatherproof off'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+          msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
           msg << " device details so it can be handled in the future."
           print_brute :level => :error, :ip => ip, :msg => msg
         end
