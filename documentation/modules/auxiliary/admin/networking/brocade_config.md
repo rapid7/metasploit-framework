@@ -1,10 +1,13 @@
-## General Notes
+## Vulnerable Application
+
+### General Notes
 
 This module imports a Brocade configuration file into the database.
 This is similar to `post/networking/gather/enum_brocade` only access isn't required,
 and assumes you already have the file.
 
-Example files for import can be found on git, like [this](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/brocade_08.0.30hT311_ic_icx6430.conf).
+Example files for import can be found on git, like
+[this](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/brocade_08.0.30hT311_ic_icx6430.conf).
 
 ## Verification Steps
 
@@ -17,13 +20,13 @@ Example files for import can be found on git, like [this](https://raw.githubuser
 
 ## Options
 
-  **RHOST**
+### RHOST
 
-  Needed for setting services and items to.  This is relatively arbitrary.
+Needed for setting services and items to.  This is relatively arbitrary.
 
-  **CONFIG**
+### CONFIG
 
-  File path to the configuration file.
+File path to the configuration file.
 
 ## Scenarios
 

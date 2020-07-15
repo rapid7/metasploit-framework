@@ -1,11 +1,15 @@
-## General Notes
+## Vulnerable Application
+
+### General Notes
 
 This module imports a Juniper configuration file into the database.
 This is similar to `post/networking/gather/enum_juniper` only access isn't required,
 and assumes you already have the file.
 
-Example files for import can be found on git, like [this (junos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/juniper_ex2200.config)
-or [this (screenos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/juniper_ssg5_screenos.conf).
+Example files for import can be found on git, like
+[this (junos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/juniper_ex2200.config)
+or
+[this (screenos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/juniper_ssg5_screenos.conf).
 
 ## Verification Steps
 
@@ -19,17 +23,17 @@ or [this (screenos)](https://raw.githubusercontent.com/h00die/MSF-Testing-Script
 
 ## Options
 
-  **RHOST**
+### RHOST
 
-  Needed for setting services and items to.  This is relatively arbitrary.
+Needed for setting services and items to.  This is relatively arbitrary.
 
-  **CONFIG**
+### CONFIG
 
-  File path to the configuration file.
+File path to the configuration file.
 
-  **Action**
+### Action
 
-  `JUNOS` for JunOS config file, and `SCREENOS` for ScreenOS config file.
+`JUNOS` for JunOS config file, and `SCREENOS` for ScreenOS config file.
 
 ## Scenarios
 
@@ -88,4 +92,3 @@ msf5 auxiliary(admin/networking/gather/juniper_config) > run
 [+] Config import successful
 [*] Auxiliary module execution completed
 ```
-

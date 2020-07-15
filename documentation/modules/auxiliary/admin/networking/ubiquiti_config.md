@@ -1,18 +1,20 @@
-## General Notes
+## Vulnerable Application
 
-  This module imports an Ubiquiti Unifi configuration file into the database.
-  This is similar to `post/multi/gather/ubiquiti_unifi_backup` only access isn't required,
-  and assumes you already have the file.
+### General Notes
 
-  This module is able to take a unf file, from the controller and perform the following actions:
+This module imports an Ubiquiti Unifi configuration file into the database.
+This is similar to `post/multi/gather/ubiquiti_unifi_backup` only access isn't required,
+and assumes you already have the file.
 
-  1. Decrypt the file
-  2. Fix the zip file if a `zip` utility is on the system
-  3. Extract db.gz
-  4. Unzip the db file
-  5. Import the db file
+This module is able to take a unf file, from the controller and perform the following actions:
 
-  Or simply pass the db file for import directly.
+1. Decrypt the file
+2. Fix the zip file if a `zip` utility is on the system
+3. Extract db.gz
+4. Unzip the db file
+5. Import the db file
+
+Or simply pass the db file for import directly.
 
 ## Verification Steps
 
@@ -25,13 +27,13 @@
 
 ## Options
 
-  **RHOST**
+### RHOST
 
-  Needed for setting services and items to.  This is relatively arbitrary.
+Needed for setting services and items to.  This is relatively arbitrary.
 
-  **CONFIG**
+### CONFIG
 
-  File path to the configuration unf or db file..
+File path to the configuration unf or db file..
 
 ## Scenarios
 

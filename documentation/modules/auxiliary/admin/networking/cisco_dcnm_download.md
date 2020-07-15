@@ -1,12 +1,20 @@
 ## Vulnerable Application
 
-Cisco Data Center Network Manager exposes a servlet to download files on /fm/downloadServlet.
+Cisco Data Center Network Manager exposes a servlet to download files on `/fm/downloadServlet`.
 An authenticated user can abuse this servlet to download arbitrary files as root by specifying
 the full path of the file (aka CVE-2019-1621).
 
 This module was tested on the DCNM Linux virtual appliance 10.4(2), 11.0(1) and 11.1(1), and should
 work on a few versions below 10.4(2). Only version 11.0(1) requires authentication to exploit
 (see References to understand why), on the other versions it abuses CVE-2019-1619 to bypass authentication.
+
+## Verification Steps
+
+1. Do: ```use auxiliary/admin/networking/cisco_dcnm_download```
+2. Do: ```set rhosts [ip]```
+3. Do: ```run```
+
+## Options
 
 ## Scenarios
 

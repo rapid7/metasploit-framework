@@ -1,33 +1,36 @@
 ## Vulnerable Application
 
-  This module has been tested on the following hardware/OS combinations.
+This module has been tested on the following hardware/OS combinations.
 
-  * Brocade ICX 6430-24
-    * Firmware: 08.0.20T311
+* Brocade ICX 6430-24
+  * Firmware: 08.0.20T311
 
-  The ICX config can be found [no passwords](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_nopass.conf), 
-  [hashes](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_pass.conf)
+The ICX config can be found [no passwords](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_nopass.conf),
+[hashes](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_pass.conf)
 
-  This module will look for the follow parameters which contain credentials:
+This module will look for the follow parameters which contain credentials:
 
-  * FastIron
-    * `show configuration`
+* FastIron
+  * `show configuration`
 
-!!! keep in mind 'password-display' http://wwwaem.brocade.com/content/html/en/command-reference-guide/fastiron-08040-commandref/GUID-169889CD-1A74-4A23-AC78-38796692374F.html
+!!! keep in mind 'password-display'
+http://wwwaem.brocade.com/content/html/en/command-reference-guide/fastiron-08040-commandref/GUID-169889CD-1A74-4A23-AC78-38796692374F.html
 !!! need to be able to give a password to enable
 
-    * super-user-password
-    * username
-    * SNMP
+  * super-user-password
+  * username
+  * SNMP
 
 ## Verification Steps
 
-  1. Start msfconsole
-  2. Get a shell
-  3. Do: ```use post/networking/gather/enum_brocade```
-  4. Do: ```set session [id]```
-  5. Do: ```set verbose true```
-  6. Do: ```run```
+1. Start msfconsole
+2. Get a shell
+3. Do: ```use post/networking/gather/enum_brocade```
+4. Do: ```set session [id]```
+5. Do: ```set verbose true```
+6. Do: ```run```
+
+## Options
 
 ## Scenarios
 
@@ -51,7 +54,7 @@ resource (brocade.rb)> run
 [*] Post module execution completed
 ```
 
-#### SSH Session with Enable run 
+#### SSH Session with Enable run
 
 ```
 resource (brocade.rb)> use post/networking/gather/enum_brocade

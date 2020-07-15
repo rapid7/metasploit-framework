@@ -1,10 +1,13 @@
-## General Notes
+## Vulnerable Application
+
+### General Notes
 
 This module imports a Cisco configuration file into the database.
 This is similar to `post/networking/gather/enum_cisco` only access isn't required,
 and assumes you already have the file.
 
-Example files for import can be found on git, like [this](https://raw.githubusercontent.com/GaetanLongree/MASI-ProjetAvanceReseau/3cf1d9a93828d5f44ee1bc4e4c01411e416892c5/Los%20Angeles/LA_EDGE_D.txt)
+Example files for import can be found on git, like
+[this](https://raw.githubusercontent.com/GaetanLongree/MASI-ProjetAvanceReseau/3cf1d9a93828d5f44ee1bc4e4c01411e416892c5/Los%20Angeles/LA_EDGE_D.txt)
 or from [Cisco](https://www.cisco.com/en/US/docs/routers/access/800/850/software/configuration/guide/sampconf.html).
 
 ## Verification Steps
@@ -18,13 +21,13 @@ or from [Cisco](https://www.cisco.com/en/US/docs/routers/access/800/850/software
 
 ## Options
 
-  **RHOST**
+### RHOST
 
-  Needed for setting services and items to.  This is relatively arbitrary.
+Needed for setting services and items to.  This is relatively arbitrary.
 
-  **CONFIG**
+### CONFIG
 
-  File path to the configuration file.
+File path to the configuration file.
 
 ## Scenarios
 
