@@ -4,16 +4,16 @@ First, let’s be clear.  I have used this exactly once, but there exists little
 
 This documentation assumes that you have some familiarity with DLLs already.
 
-### Step 1- make your dll
-Use Visual studio 2013 and make a standard, empty dll.  Do not attempt to add the reflective dll stuff yet.
-When you make the dll, make sure that you have at least three files: A header file with the function declarations, a c(pp) file with the functions that ‘do’ the exploit, and a dllMain file with the `DllMain` function.  I find that testing the dll outside the reflective loader helps tremendously, so in the header file, I declare my working function as an `extern`, C-style function:
+### Step 1 - Make your DLL
+Use Visual studio 2013 and make a standard, empty DLL.  Do not attempt to add the reflective DLL stuff yet.
+When you make the DLL, make sure that you have at least three files: A header file with the function declarations, a c(pp) file with the functions that ‘do’ the exploit, and a DllMain file with the `DllMain` function.  I find that testing the DLL outside the reflective loader helps tremendously, so in the header file, I declare my working function as an `extern`, C-style function:
 `extern "C" __declspec (dllexport) void PrivEsc(void);`
 
 I think using C as the language over cpp would make life marginally easier, as you can combine the source code into one project.  Using cpp meant I needed to have separate projects, or at least using my limited compiler knowledge that’s how I got it to work.  I noticed OJ was able to extend his c project (https://github.com/rapid7/metasploit-framework/tree/master/external/source/exploits/capcom_sys_exec) to include the reflectiveloader, but I could not seem to do the same for my cpp project.
 
-Store your project in `external/source/exploits/<identifier>/<projectname>`. That’s not written in stone.  The project I just finished had both dll and exe, so I have `external/source/exploits/<identifier>/dll` and `external/source/exploits/<identifier>/exe`.  Just don't be a jerk and do something hard to follow.  Your requirements may differ, and we're not super particular as long as it makes sense.  I suggest the identifier to make life easier, then a project name because you’ll be bringing the reflective loader project into the identifier folder, and at least I like to have some separation between the two.
+Store your project in `external/source/exploits/<identifier>/<projectname>`. That’s not written in stone.  The project I just finished had both DLL and EXE, so I have `external/source/exploits/<identifier>/dll` and `external/source/exploits/<identifier>/exe`.  Just don't be a jerk and do something hard to follow.  Your requirements may differ, and we're not super particular as long as it makes sense.  I suggest the identifier to make life easier, then a project name because you’ll be bringing the reflective loader project into the identifier folder, and at least I like to have some separation between the two.
 
-### Step 2  Write the dll using an extern, C-linkage entry point to make testing easier
+### Step 2  Write the DLL using an extern, C-linkage entry point to make testing easier
 
 In this case, I was writing a privesc, so I called it `PrivEsc` because I am super-imaginative and I have done enough code maintenance that I try to be nice to the next dev.  By declaring it an external function and using C-style linkages, you can test the function independently using the `rundll32.exe` binary.
 
@@ -22,10 +22,10 @@ For example, if the dll were named mydll.dll, you can run the privEsc alone with
 
 That way, you can isolate the behavior of the exploit before adding a payload.  Because I was using a privesc, I just made the last line of the privesc `system(“cmd.exe”);` so I could verify that on the target machine.  If I got a system-level cmd prompt, I won!
 
-### Step 3 Add ReflectiveDll Injection to it.
-This is actually pretty simple.  Once your code is doing what it is supposed to do, add the ReflectiveDll injection to it.  Move the rdi (ReflectiveDll injection) code into your existing project and add the inject project into your solution.  Again, this worked for me and appears to be a popular choice.
+### Step 3 Add ReflectiveDLL Injection to it.
+This is actually pretty simple.  Once your code is doing what it is supposed to do, add the ReflectiveDLL injection to it.  Move the rdi (ReflectiveDLL injection) code into your existing project and add the inject project into your solution.  Again, this worked for me and appears to be a popular choice.
 
-When you copy the RefelctiveDll code into your project, you are going to replace your `DllMain` file with the `ReflectiveDll.c` file.  Include the header file containing your desired entry point so that when `DllMain` gets launched, it can find your desired entry point.
+When you copy the RefelctiveDLL code into your project, you are going to replace your `DllMain` file with the `ReflectiveDll.c` file.  Include the header file containing your desired entry point so that when `DllMain` gets launched, it can find your desired entry point.
 
 I also noticed and appreciated that others structured the code into two parts: Exploit and Exploiter.  Exploiter does the heavy lifting with functions, and Exploit calls the functions and runs the shellcode after the exploit completes.  For example, I made a privesc and the code required to accomplish the elevation was bundled in a function called `PrivEsc` contained within my `Exploiter.cpp` file.  The Exploit file was very simple in comparison:
 
@@ -106,10 +106,10 @@ Replace the directory and file names with the ones to your binary.
 (3.5) OJ went ahead and expanded the path; likely this is because he’s used filepath hijacking in the past:
 `library_path = ::File.expand_path(library_path)`
 
-(4) Now, here’s where things get fun- inject your dll directly into the memory of notepad:
+(4) Now, here’s where things get fun- inject your DLL directly into the memory of notepad:
 `exploit_mem, offset = inject_dll_into_process(process, library_path)`
 
-That function allocates memory in the process and loads up the dll.  There is a second method that allows you to upload dll data, so you could create a payload using a template and load that without the dll touching the local or remote disk, but I have not had cause to use it.
+That function allocates memory in the process and loads up the DLL. There is a second method that allows you to upload DLL data, so you could create a payload using a template and load that without the dll touching the local or remote disk, but I have not had cause to use it.
 
 Unfortunately, this is where my grasp of things gets tenuous because it departs from my experience of traditional DLL loading with LoadLibrary and GetProcAddress. We copied the DLL into the remote process memory, but we have not “loaded” it, so DLL_PROCESS_ATTACH is not executed.  That’s a good thing, as we have not yet provided the payload!
 
@@ -117,14 +117,14 @@ I square this by basically treating it like process hollowing, but on a thread-l
 
 You may want to watch it daily for a month or so.
 
-Regardless, now we have a process with our exploit dll mapped into its memory, but not doing anything.  Now we need to get the payload into the process too, so we can get exploit and payload execution.  Getting the payload in there is honestly not much different that getting the DLL data in there.  
+Regardless, now we have a process with our exploit DLL mapped into its memory, but not doing anything.  Now we need to get the payload into the process too, so we can get exploit and payload execution.  Getting the payload in there is honestly not much different that getting the DLL data in there.  
 
 (5) Just allocate some RWX memory and copy the shellcode over. There’s a method for that:
 `payload_mem = inject_into_process(process, payload.encoded)`
 
 To be clear, That’s the first time you should have dealt with the payload, because while it is annoying how much goes on in the background in Framework, when you know it is happening, Framework is awesome!
 
-Now, if you’ve been paying attention to the return values from the above methods, we have three important values: (1) `exploit_mem` that has the address of the dll loaded into memory, (2) `offset` that (I think) contains the offset to the `DllMain` function inside the DLL loaded into memory, and (3) `payload_mem`, that contains the address of your payload.
+Now, if you’ve been paying attention to the return values from the above methods, we have three important values: (1) `exploit_mem` that has the address of the DLL loaded into memory, (2) `offset` that (I think) contains the offset to the `DllMain` function inside the DLL loaded into memory, and (3) `payload_mem`, that contains the address of your payload.
 
 (6) Now, With those three values, and our code stored in the process's memory, things make a lot more sense.  We just need to create a thread in the process and point it to the `DllMain` function with the address of our payload as the `lpReserve` parameter.
 `process.thread.create(exploit_mem + offset, payload_mem)`
