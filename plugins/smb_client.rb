@@ -18,7 +18,8 @@ module Msf
         {
           'smb_init'          => 'Initialize the SMB Client',
           'smb_read'          => 'Read a file',
-          'smb_write'         => 'Write a file'
+          'smb_write'         => 'Write a file',
+          'smb_list'         => 'List a Directory'
         }
       end
 
@@ -51,7 +52,7 @@ module Msf
         end
 
         if !@status.nil? && @status.name == 'STATUS_SUCCESS'
-          print_good('Initialization succeeded.')
+          print_good("Connected to #{@path} successfully.")
         else
           print_bad('Initialization failed.')
           @client = nil
@@ -61,6 +62,7 @@ module Msf
       def cmd_smb_write(*args)
         if @client.nil?
           print_error('SMB Connection must be initialized with smb_init.')
+          return
         end
 
         write_config = {
@@ -91,7 +93,7 @@ module Msf
 
         begin
           tree = @client.tree_connect(@path)
-          print_good("Connected to #{@path} successfully.")
+          raise "Client could not to #{@path}" if tree.nil?
         rescue StandardError => e
           reset_broken_smb_connection("Failed to connect to #{@path}: #{e.message}")
           return
@@ -114,6 +116,7 @@ module Msf
       def cmd_smb_read(*args)
         if @client.nil?
           print_error('SMB Connection must be initialized with smb_init.')
+          return
         end
 
         read_config = {
@@ -129,7 +132,7 @@ module Msf
 
         begin
           tree = @client.tree_connect(@path)
-          print_good("Connected to #{@path} successfully!")
+          raise "Client could not to #{@path}" if tree.nil?
         rescue StandardError => e
           reset_broken_smb_connection("Failed to connect to #{@path}: #{e.message}")
         end
@@ -146,6 +149,96 @@ module Msf
 
         print_good("Remote file #{remote_file_path} has been successfully written to local file #{local_file_path}")
         remote_file.close
+      end
+
+      def cmd_smb_list(*args)
+        if @client.nil?
+          print_error('SMB Connection must be initialized with smb_init.')
+          return
+        end
+
+        list_config = {
+          remote_dir_path: nil,
+        }
+
+        return unless parse_config(*args, list_config)
+        remote_dir_path = list_config[:remote_dir_path]
+
+        tree = nil
+        begin
+          tree = @client.tree_connect(@path)
+          raise "Client could not to #{@path}" if tree.nil?
+        rescue StandardError => e
+          reset_broken_smb_connection("Failed to connect to #{@path}: #{e.message}")
+        end
+
+        if remote_dir_path == '/'
+          dirs = []
+          files = []
+
+          tree.list.each { |tree_object|
+            if tree_object[:file_attributes][:directory] == 1
+              dirs << tree_object
+            else
+              files << tree_object
+            end
+          }
+
+          # Display the commands
+          tbl = Rex::Text::Table.new(
+            'Header'  => "Contents of #{@smb_config[:share]} ",
+            'Indent'  => 4,
+            'Columns' =>
+              [
+                'Type',
+                'Name',
+                'Create Time',
+                'Last Edit',
+                'Size in Bytes',
+              ],
+            'ColProps' =>
+              {
+                'Type' =>
+                  {
+                    'MaxWidth' => 9
+                  }
+              })
+
+          dirs.each do |d|
+            tbl << [
+              'Directory',
+              "#{d.file_name.encode('utf-8')}",
+              "#{ldap_to_ruby_time(d.create_time)}",
+              "#{ldap_to_ruby_time(d.last_change)}",
+              "#{d.end_of_file}"
+            ]
+          end
+
+          files.each do |f|
+            tbl << [
+              'File',
+              "#{f.file_name.encode('utf-8')}",
+              "#{ldap_to_ruby_time(f.create_time)}",
+              "#{ldap_to_ruby_time(f.last_change)}",
+              "#{f.end_of_file}"
+            ]
+          end
+
+          print(tbl.to_s)
+        else
+          # TODO: Implement dir traversal, at the moment only the Top Level Dir of the share can be listed
+          remote_dir = tree.open_directory(remote_dir_path)
+
+          # Check if remote_dir opened correctly
+
+          remote_dir.each { |file|
+            require 'pry'
+            binding.pry
+
+            print("File Name: #{file.file_name} | Create Time: #{file.create_time} | Last Edit: #{file.last_change} |
+              Size in Bytes: #{file.byte_length}")
+          }
+        end
       end
 
       private
@@ -170,7 +263,7 @@ module Msf
             next
           end
 
-          if c.length == 1
+          if c[1].empty?
             print_error("No value has been assigned to the configuration option #{c.first}")
             valid_args = false
             next
@@ -225,6 +318,28 @@ module Msf
           print_bad("File could not be found at either #{unaltered_path} or #{absolute_path}.")
           nil
         end
+      end
+
+      # https://www.ruby-forum.com/t/re-microsoft-timestamp-active-directory/65368
+      # Converts a 18-digit LDAP/FILETIME to human-readable date
+      # Requires a flag to indicate if the epoch time is Windows or Unix
+      def ldap_to_ruby_time(ldap, windows_epoch=true)
+        # TODO: Figure out a way to determine of timestamp is unix or windows
+        # TODO: Rather annoyingly, you can't start a DateTime before 1970/1/1, only a Date. This means there needs to be a way to add the minutes and seconds to a Date and convert it to DateTime
+        #
+        if windows_epoch
+          # The NT time epoch on Windows NT and later refers to the Windows NT system time in (10^-7)s intervals from 0h 1 January 1601.
+          base = DateTime.new(1601, 1, 1)
+        else
+          # Unix and POSIX measure time as the number of seconds that have passed since 1 January 1970 00:00:00
+          base = DateTime.new(1970, 1, 1)
+        end
+
+        base += ldap / (60 * 10000000 * 1440)
+
+
+
+        base.strftime("%d/%m/%Y %H:%M")
       end
     end
 
