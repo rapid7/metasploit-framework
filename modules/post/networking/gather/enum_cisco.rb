@@ -56,10 +56,8 @@ class MetasploitModule < Msf::Post
     when /Nexus/
       os_type = 'Nexus'
       mode = 'EXEC'
-      os_loot = 'nxos'
     when /IOS/
       os_type = 'IOS'
-      os_loot = 'ios'
     end
     if os_type == 'IOS'
       case prompt
@@ -110,7 +108,7 @@ class MetasploitModule < Msf::Post
   def get_enable(enable_pass, pass_file)
     if enable_pass
       found = false
-      en_out = session.shell_command('enable').to_s.strip
+      session.shell_command('enable').to_s.strip
       en_out = session.shell_command(enable_pass)
       if en_out =~ /Password:/
         print_error('Failed to change privilege level using provided Enable password.')

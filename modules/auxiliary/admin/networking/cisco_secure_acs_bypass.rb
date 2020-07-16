@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     soapenvenc = 'http://schemas.xmlsoap.org/soap/encoding/'
     xsi = 'http://www.w3.org/1999/XMLSchema-instance'
     xsd = 'http://www.w3.org/1999/XMLSchema'
-    ns1 = 'ns1:changeUserPass'
+    # ns1 = 'ns1:changeUserPass'
 
     data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
     data << '<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="' + soapenvenc + '" '

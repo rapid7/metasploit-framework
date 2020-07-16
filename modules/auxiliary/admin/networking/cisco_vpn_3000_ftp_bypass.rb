@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
           if (res =~ /250 RMD command successful\./)
             print_status("\tDirectory #{test} reportedly deleted. Verifying with SIZE #{test}")
             sock.put("SIZE #{test}\r\n")
-            res = sock.get_once(-1, 5)
+            sock.get_once(-1, 5)
             print_status("\tDirectory #{test} no longer exists!")
             print_status('Target is confirmed as vulnerable!')
           end

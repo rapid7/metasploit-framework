@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
       os_type = 'junos'
     elsif /^version (?<ver>[\.\dR]+);/i =~ system_out
       vprint_status("Original OS Guess #{os_type}, is now JunOS #{ver}")
-      os_tye = 'junos'
+      os_type = 'junos'
     end
 
     print_status("The device OS is #{os_type}")
@@ -124,8 +124,8 @@ class MetasploitModule < Msf::Post
       vprint_good("Saving to #{cmd_loc}")
       if os_type == 'screenos'
         juniper_screenos_config_eater(host, port, cmd_out.strip)
-      else os_type == 'junos'
-           juniper_junos_config_eater(host, port, cmd_out.strip)
+      elsif os_type == 'junos'
+        juniper_junos_config_eater(host, port, cmd_out.strip)
       end
     end
   end
