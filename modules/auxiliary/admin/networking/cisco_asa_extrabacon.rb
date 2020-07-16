@@ -109,8 +109,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     begin
-      vers_string = get_asa_version
-    rescue ::Exception => e
+      vers_string = retrieve_asa_version
+    rescue ::Exception
       print_error('Error: Unable to retrieve version information')
       return Exploit::CheckCode::Unknown
     end
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       session = rand(1..255)
 
-      vers_string = get_asa_version
+      vers_string = retrieve_asa_version
 
       print_status("Building #{action.name} payload for version #{vers_string}...")
       overflow = build_payload(vers_string, action.name)
@@ -206,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def get_asa_version
+  def retrieve_asa_version
     return datastore['ASAVER'] unless (datastore['ASAVER'] == 'auto')
 
     vprint_status('Fingerprinting via SNMP...')
