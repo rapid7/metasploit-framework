@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.99)
+    metasploit-framework (5.0.100)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -122,8 +122,8 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.340.0)
-    aws-sdk-core (3.103.0)
+    aws-partitions (1.342.0)
+    aws-sdk-core (3.104.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -297,7 +297,7 @@ GEM
     rainbow (3.0.0)
     rake (13.0.1)
     rb-readline (0.5.5)
-    recog (2.3.8)
+    recog (2.3.11)
       nokogiri
     redcarpet (3.5.0)
     regexp_parser (1.7.1)
@@ -347,7 +347,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.2)
-    rex-text (0.2.26)
+    rex-text (0.2.27)
     rex-zip (0.1.3)
       rex-text
     rexml (3.2.4)
@@ -426,7 +426,7 @@ GEM
     unicode-display_width (1.7.0)
     warden (1.2.7)
       rack (>= 1.0)
-    websocket-driver (0.7.2)
+    websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     windows_error (0.1.2)
