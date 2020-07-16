@@ -41,12 +41,9 @@ class MetasploitModule < Msf::Post
     elsif prompt.end_with?('# ') # we're in a cli>configure
       vprint_status('In a cli>configure shell')
       session.shell_command('quit') # gets us back to the cli non-config
-    else
-      # we weren't able to detect. try a command to see if it will confirm an ssh shell
-      if session.shell_command('?') =~ /\?: No match\./ # confirmed ssh shell
-        vprint_status('In an SSH shell')
-        command_prefix = 'cli '
-      end
+    elsif session.shell_command('?') =~ /\?: No match\./ # confirmed ssh shell
+      vprint_status('In an SSH shell')
+      command_prefix = 'cli '
     end
 
     if os_type == 'screenos'
