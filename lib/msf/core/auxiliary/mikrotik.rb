@@ -14,8 +14,9 @@ module Msf
     # followed by commands: `set thing value`
     def export_to_hash(config)
       return {} unless config.is_a? String
+
       puts 'it was a string'
-      config = config.gsub(/\\\s*\n/,'') # replace verbose multiline items as single lines, similar to terse
+      config = config.gsub(/\\\s*\n/, '') # replace verbose multiline items as single lines, similar to terse
       output = {}
       header = ''
       puts config.lines.count.to_s
@@ -28,17 +29,17 @@ module Msf
 
         # terse format format is more 'cisco'-ish where header and setting is on one line
         # /interface ovpn-client add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out1 password=password user=user
-        #/interface ovpn-client add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out2 password=password user=user
-        elsif %r{^(?<section>/[\w -]+)} =~ line && ( line.include?(' add ') || line.include?(' set '))
+        # /interface ovpn-client add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out2 password=password user=user
+        elsif %r{^(?<section>/[\w -]+)} =~ line && (line.include?(' add ') || line.include?(' set '))
           [' add ', ' set '].each do |div|
-            if line.include?(div)
-              line = line.split(div)
-              if output[line[0].strip]
-                output[line[0].strip] << "#{div}#{line[1]}".strip
-                next
-              end
-              output[line[0].strip] = ["#{div}#{line[1]}".strip]
+            next unless line.include?(div)
+
+            line = line.split(div)
+            if output[line[0].strip]
+              output[line[0].strip] << "#{div}#{line[1]}".strip
+              next
             end
+            output[line[0].strip] = ["#{div}#{line[1]}".strip]
           end
 
         # /interface ovpn-client
@@ -59,6 +60,7 @@ module Msf
     # and converts it to a hash of keys and values for easier processing
     def values_to_hash(line)
       return {} unless line.is_a? String
+
       hash = {}
       array = line.split(' ')
       array.each do |setting|
@@ -92,14 +94,12 @@ module Msf
 
       store_loot('mikrotik.config', 'text/plain', thost, config.strip, 'config.txt', 'MikroTik Configuration')
 
-      tuniface = nil
-
       host_info = {
         host: thost,
         os_name: 'Mikrotik'
       }
       report_host(host_info)
-      
+
       if config.is_a? String
         config = export_to_hash(config)
       end
@@ -184,7 +184,7 @@ module Msf
             next unless value.starts_with?('add ')
 
             value = values_to_hash(value)
-            print_good("#{thost}:#{tport} #{value['disabled'] ? '':'disabled'} PPTP Client to #{value['connect-to']} named #{value['name']} with username #{value['user']} and password #{value['password']}")
+            print_good("#{thost}:#{tport} #{value['disabled'] ? '' : 'disabled'} PPTP Client to #{value['connect-to']} named #{value['name']} with username #{value['user']} and password #{value['password']}")
             cred = credential_data.dup
             cred[:service_name] = 'pptp'
             cred[:port] = 1723
