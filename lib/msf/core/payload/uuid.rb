@@ -77,6 +77,7 @@ class Msf::Payload::UUID
     26 => 'juniper',
     27 => 'unifi',
     28 => 'brocade',
+    29 => 'mikrotik'
   }
 
   # The raw length of the UUID structure
