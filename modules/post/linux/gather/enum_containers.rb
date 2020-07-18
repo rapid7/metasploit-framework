@@ -8,87 +8,145 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Linux Container Enumeration',
-      'Description' => %q{
-        This module attempts to enumerate containers running on the target machine.
+                      'Name' => 'Linux Container Enumeration',
+                      'Description' => %q{
+        This module attempts to enumeratec containers on the target machine and optionally run a command on each active container found..
         Supports Docker, LXC and RKT.
       },
-      'License' => MSF_LICENSE,
-      'Author' => ['Mat Rollings [stealthcopter]'],
-      'Platform' => ['linux'],
-      'SessionTypes' => ['shell', 'meterpreter']
-    ))
+                      'License' => MSF_LICENSE,
+                      'Author' => ['stealthcopter'],
+                      'Platform' => ['linux'],
+                      'SessionTypes' => ['shell', 'meterpreter']
+          ))
+    register_options(
+        [
+            OptString.new('CMD', [false, 'Optional command to run on each running container', ''])
+        ])
+  end
+
+  def cmd
+    datastore['CMD']
   end
 
   # Check if a container program is installed and usable by current user
   def runnable(container_type)
     case container_type
     when 'docker'
-      result = cmd_exec('docker ps >/dev/null 2>&1 && echo true')
+      command = 'docker container ls -a >/dev/null 2>&1 && echo true'
     when 'lxc'
-      result = cmd_exec('lxc list >/dev/null 2>&1 && echo true')
+      command = 'lxc list >/dev/null 2>&1 && echo true'
     when 'rkt'
-      result = cmd_exec('rkt list >/dev/null 2>&1 && echo true')
+      command = 'rkt list >/dev/null 2>&1 && echo true'
     else
       print_error("Invalid container type #{container_type}")
       return false
     end
-    result =~ /true$/
+    cmd_exec(command) =~ /true$/
   end
 
   # Count the number of currently running containers
-  def count_containers(container_type)
+  def count_containers(container_type, count_inactive = true)
     case container_type
     when 'docker'
-      result = cmd_exec('docker ps --format "{{.Names}}" 2>/dev/null | wc -l')
+      command = if count_inactive
+                  'docker container ls --format "{{.Names}}" 2>/dev/null | wc -l'
+                else
+                  'docker container ls -a --format "{{.Names}}" 2>/dev/null | wc -l'
+                end
     when 'lxc'
-      result = cmd_exec('lxc list -c n --format csv 2>/dev/null | wc -l')
+      command = if count_inactive
+                  'lxc list -c n --format csv 2>/dev/null | wc -l'
+                else
+                  'lxc list -c n,s --format csv 2>/dev/null | grep ,RUNNING | wc -l'
+                end
     when 'rkt'
-      result = cmd_exec('rkt list 2>/dev/null | tail -n +2  | wc -l')
+      command = if count_inactive
+                  'rkt list 2>/dev/null | tail -n +2 | wc -l'
+                else
+                  'rkt list 2>/dev/null | grep running | tail -n +2 | wc -l'
+                end
     else
       print_error("Invalid container type '#{container_type}'")
       return 0
     end
-    result.to_i
+    cmd_exec(command).to_i
   end
 
-  # List the currently running containers
+  # List containers
   def list_containers(container_type)
     case container_type
     when 'docker'
-      result = cmd_exec('docker ps')
+      command = 'docker container ls -a'
     when 'lxc'
-      result = cmd_exec('lxc list')
+      command = 'lxc list'
     when 'rkt'
-      result = cmd_exec('rkt list')
+      command = 'rkt list'
     else
       print_error("Invalid container type '#{container_type}'")
       return false
     end
-    result
+    cmd_exec(command)
+  end
+
+  # List running containers identifiers
+  def list_running_containers_id(container_type)
+    case container_type
+    when 'docker'
+      command = 'docker container ls --format "{{.Names}}"'
+    when 'lxc'
+      command = 'lxc list -c n,s --format csv 2>/dev/null | grep ,RUNNING|cut -d, -f1'
+    when 'rkt'
+      command = 'rkt list| tail -n +2| cut -f1'
+    else
+      print_error("Invalid container type '#{container_type}'")
+      return false
+    end
+    cmd_exec(command).each_line.map(&:strip)
+  end
+
+  # Execute a command on a container
+  def container_execute(container_type, container_identifier, command = 'env')
+    case container_type
+    when 'docker'
+      command = "docker exec '#{container_identifier}' #{command}"
+    when 'lxc'
+      command = "lxc exec '#{container_identifier}' -- #{command}"
+    when 'rkt'
+      print_error("RKT containers do not support command execution\nUse rkt enter '#{container_identifier}' to manually enumerate this container")
+    else
+      print_error("Invalid container type '#{container_type}'")
+      return false
+    end
+    vprint_status("Running #{command}")
+    cmd_exec(command)
   end
 
   # Run Method for when run command is issued
   def run
-    platforms = %w[docker lxc rkt]
-    platforms_found = false
+    platforms = %w[docker lxc rkt].select { |p| runnable(p) }
 
-    platforms.each do |platform|
-      if runnable(platform)
-        platforms_found = true
-        no_active = count_containers(platform)
-        print_good("#{platform}: #{no_active} Active Containers")
-        if noActive > 0
-          containers = list_containers(platform)
-          print("#{containers}\n")
-        end
-      else
-        vprint_status("#{platform} is either not installed or not runnable by current user")
-      end
+    if platforms.empty?
+      print_error('No container software appears to be installed or runnable by the current user')
+      return
     end
 
-    unless platforms_found
-      print_error('No container software appears to be installed')
+    platforms.each do |platform|
+      num_containers = count_containers(platform)
+      num_running_containers = count_containers(platform, false)
+      print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
+
+      next unless num_containers
+
+      containers = list_containers(platform)
+      print_good("\n#{containers}\n")
+
+      next if cmd.blank?
+
+      running_container_ids = list_running_containers_id(platform)
+      running_container_ids.each do |container_id|
+        print_status("Executing command on #{platform} container #{container_id}")
+        print_good(container_execute(platform, container_id, cmd))
+      end
     end
   end
 end
