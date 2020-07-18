@@ -507,6 +507,100 @@ RSpec.describe Msf::Auxiliary::Mikrotik do
     end
   end
 
+  context 'deals with SMB user details' do
+    before(:example) do
+      expect(aux_mikrotik).to receive(:myworkspace).at_least(:once).and_return(workspace)
+    end
+    it 'saves non-disabled correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161  SMB Username mtuser and password mtpasswd')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/ip smb users\nadd name=mtuser password=mtpasswd read-only=no",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: 'smb',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          username: 'mtuser',
+          private_data: "mtpasswd",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/ip smb users\nadd name=mtuser password=mtpasswd read-only=no",
+      )
+    end
+
+    it 'saves disabled correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 disabled SMB Username disableduser and password disabledpasswd with RO only access')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/ip smb users\nadd disabled=yes name=disableduser password=disabledpasswd",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          access_level: 'RO',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: 'smb',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          username: 'disableduser',
+          private_data: "disabledpasswd",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/ip smb users\nadd disabled=yes name=disableduser password=disabledpasswd",
+      )
+    end
+  end
+
+  context 'deals with SMTP User details' do
+    before(:example) do
+      expect(aux_mikrotik).to receive(:myworkspace).at_least(:once).and_return(workspace)
+    end
+    it 'saves non-disabled correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 SMTP Username smtpuser and password smtppassword for 1.1.1.1:25')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/tool e-mail\nset address=1.1.1.1 from=router@router.com password=smtppassword user=smtpuser",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "1.1.1.1",
+          port: 25,
+          protocol: "tcp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: 'smtp',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          username: 'smtpuser',
+          private_data: "smtppassword",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/tool e-mail\nset address=1.1.1.1 from=router@router.com password=smtppassword user=smtpuser",
+      )
+    end
+  end
 
   context 'deals with PPP tunnel bridging details' do
     before(:example) do
@@ -537,6 +631,159 @@ RSpec.describe Msf::Auxiliary::Mikrotik do
       )
       aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
         "/ppp secret\nadd name=ppp1 password=password profile=ppp_bridge",
+      )
+    end
+  end
+
+  context 'deals with Wireless details' do
+    before(:example) do
+      expect(aux_mikrotik).to receive(:myworkspace).at_least(:once).and_return(workspace)
+    end
+    it 'saves WEP correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 Wireless AP wepwifi with WEP password 0123456789 with WEP password 0987654321 with WEP password 1234509876 with WEP password 0192837645')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/interface wireless security-profiles\nadd mode=static-keys-required name=wepwifi static-key-0=0123456789 static-key-1=0987654321 static-key-2=1234509876 static-key-3=0192837645 supplicant-identity=MikroTik",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "0123456789",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "0987654321",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "1234509876",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "0192837645",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/interface wireless security-profiles\nadd mode=static-keys-required name=wepwifi static-key-0=0123456789 static-key-1=0987654321 static-key-2=1234509876 static-key-3=0192837645 supplicant-identity=MikroTik",
+      )
+    end
+    it 'saves WPA correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 Wireless AP wpawifi with WPA password presharedkey')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/interface wireless security-profiles\nadd authentication-types=wpa-psk mode=dynamic-keys name=wpawifi supplicant-identity=MikroTik wpa-pre-shared-key=presharedkey",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "presharedkey",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/interface wireless security-profiles\nadd authentication-types=wpa-psk mode=dynamic-keys name=wpawifi supplicant-identity=MikroTik wpa-pre-shared-key=presharedkey",
+      )
+    end
+    it 'saves WPA2 correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 Wireless AP wpa2wifi with WPA2 password presharedkey')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/interface wireless security-profiles\nadd authentication-types=wpa2-psk mode=dynamic-keys name=wpa2wifi supplicant-identity=MikroTik wpa2-pre-shared-key=presharedkey",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          private_data: "presharedkey",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/interface wireless security-profiles\nadd authentication-types=wpa2-psk mode=dynamic-keys name=wpa2wifi supplicant-identity=MikroTik wpa2-pre-shared-key=presharedkey",
+      )
+    end
+    it 'saves WPA-EAP correct' do
+      expect(aux_mikrotik).to receive(:print_good).with('127.0.0.1:161 Wireless AP wpaeapwifi with WPA2-EAP username username password password')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/interface wireless security-profiles\nadd authentication-types=wpa2-eap mode=dynamic-keys mschapv2-password=password mschapv2-username=username name=wpaeapwifi supplicant-identity=MikroTik",
+        "config.txt", "MikroTik Configuration"
+      )
+      expect(aux_mikrotik).to receive(:create_credential_and_login).with(
+        {
+          address: "127.0.0.1",
+          port: 161,
+          protocol: "udp",
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: "auxiliary/scanner/snmp/mikrotik_dummy",
+          username: 'username',
+          private_data: "password",
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+        }
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/interface wireless security-profiles\nadd authentication-types=wpa2-eap mode=dynamic-keys mschapv2-password=password mschapv2-username=username name=wpaeapwifi supplicant-identity=MikroTik",
       )
     end
   end
