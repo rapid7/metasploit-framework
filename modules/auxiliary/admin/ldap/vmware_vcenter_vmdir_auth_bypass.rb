@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           prior to the 6.7U3f update is vulnerable.
         },
         'Author' => [
-          # Discovered by unknown researcher(s)
+          'Hynek Petrak', # Discovered by
           'JJ Lehmann', # Analysis and PoC
           'Ofri Ziv', # Analysis and PoC
           'wvu' # Module
