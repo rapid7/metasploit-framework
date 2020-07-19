@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           6.7U3f update.
         },
         'Author' => [
-          # Discovered by unknown researcher(s)
+          'Hynek Petrak', # Discovered by
           'wvu' # Module
         ],
         'References' => [
