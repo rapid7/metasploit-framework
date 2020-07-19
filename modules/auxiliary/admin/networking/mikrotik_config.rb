@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Mikrotik device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die']
+        'Author' => ['h00die']
       )
     )
 
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Mikrotik config file #{datastore['CONFIG']} does not exists!"
+      fail_with(Failure::BadConfig, "Mikrotik config file #{datastore['CONFIG']} does not exists!")
     end
     mikrotik_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')

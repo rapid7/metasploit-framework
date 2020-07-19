@@ -6,7 +6,10 @@ This module imports a Mikrotik configuration file into the database.
 This is similar to `post/networking/gather/enum_mikrotik` only access isn't required,
 and assumes you already have the file.
 
-RouterOS images can be downloaded for VMs from [MikroTik](https://mikrotik.com/download)
+RouterOS images can be downloaded for VMs from the MikroTik website.
+
+* https://mikrotik.com/download
+* https://mikrotik.com/download/archive
 
 Example files for import from a RouterOS:
 

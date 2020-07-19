@@ -18,9 +18,9 @@ class MetasploitModule < Msf::Post
           This module has been tested against RouterOS 6.45.9.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die'],
-        'Platform' => [ 'mikrotik'],
-        'SessionTypes' => [ 'shell' ]
+        'Author' => ['h00die'],
+        'Platform' => ['mikrotik'],
+        'SessionTypes' => ['shell']
       )
     )
   end
