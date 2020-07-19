@@ -67,7 +67,10 @@ module Msf
         unless key_value.length == 2
           next # skip things like 'add'
         end
-        next if key_value[1].strip == '""' || key_value[1].strip == '\\"\\"'# verbose gives empty fields
+        # verbose mode gives empty fields, however our processing makes them "" instead of empty
+        # so we check if its empty and skip it to prevent a double quote or escaped double quote
+        # field from being loaded
+        next if key_value[1].strip == '""' || key_value[1].strip == '\\"\\"'
         hash[key_value[0].strip] = key_value[1].strip
       end
       hash
@@ -291,19 +294,31 @@ module Msf
             value = values_to_hash(value)
             output = "#{thost}:#{tport} Wireless AP #{value['name']}"
 
-            cred = credential_data.dup
             if !value['authentication-types'] && (!value['mode'] || value['mode'] == 'none') # open wifi
+              output << " with no encryption (open wifi)"
+              vprint_good(output)
               next
-            elsif value['wpa-pre-shared-key'] && !value['wpa-pre-shared-key'].empty?
+            end
+
+            cred = credential_data.dup
+
+            # The following section is a little complicated due to the way mikrotik exports values
+            # in compact/terse/default mode, it will skip printing default values, so we have to check
+            # that keys are present.
+            # In verbose mode, they will print but be empty
+            if value['wpa-pre-shared-key'] && !value['wpa-pre-shared-key'].empty?
               output << " with WPA password #{value['wpa-pre-shared-key']}"
               cred[:private_data] = value['wpa-pre-shared-key']
+              create_credential_and_login(cred)
             elsif value['wpa2-pre-shared-key'] && !value['wpa2-pre-shared-key'].empty?
               output << " with WPA2 password #{value['wpa2-pre-shared-key']}"
               cred[:private_data] = value['wpa2-pre-shared-key']
+              create_credential_and_login(cred)
             elsif value['authentication-types'] == 'wpa2-eap'
               output << " with WPA2-EAP username #{value['mschapv2-username']} password #{value['mschapv2-password']}"
               cred[:username] = value['mschapv2-username']
               cred[:private_data] = value['mschapv2-password']
+              create_credential_and_login(cred)
             elsif value['static-key-0'] || value['static-key-1'] || value['static-key-2'] || value['static-key-3']
               (0..3).each do |i|
                 key = "static-key-#{i}"
@@ -315,9 +330,6 @@ module Msf
             end
 
             print_good(output)
-            unless value['static-key-0'] || value['static-key-1'] || value['static-key-2'] || value['static-key-3']
-              create_credential_and_login(cred)
-            end
           end
 
           #

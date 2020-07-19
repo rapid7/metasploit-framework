@@ -19,6 +19,9 @@ RSpec.describe Msf::Auxiliary::Mikrotik do
     def print_good(str=nil)
       raise StandardError.new("This method needs to be stubbed.")
     end
+    def vprint_good(str=nil)
+      raise StandardError.new("This method needs to be stubbed.")
+    end
     def print_status(str=nil)
       raise StandardError.new("This method needs to be stubbed.")
     end
@@ -705,6 +708,18 @@ RSpec.describe Msf::Auxiliary::Mikrotik do
       )
       aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
         "/interface wireless security-profiles\nadd mode=static-keys-required name=wepwifi static-key-0=0123456789 static-key-1=0987654321 static-key-2=1234509876 static-key-3=0192837645 supplicant-identity=MikroTik",
+      )
+    end
+    it 'handles open wifi correct' do
+      expect(aux_mikrotik).to receive(:vprint_good).with('127.0.0.1:161 Wireless AP openwifi with no encryption (open wifi)')
+      expect(aux_mikrotik).to receive(:report_host).with({:host => '127.0.0.1', :os_name=>"Mikrotik"})
+      expect(aux_mikrotik).to receive(:store_loot).with(
+        "mikrotik.config", "text/plain", "127.0.0.1",
+        "/interface wireless security-profiles\nadd name=openwifi supplicant-identity=MikroTik",
+        "config.txt", "MikroTik Configuration"
+      )
+      aux_mikrotik.mikrotik_export_config_eater('127.0.0.1',161,
+        "/interface wireless security-profiles\nadd name=openwifi supplicant-identity=MikroTik",
       )
     end
     it 'saves WPA correct' do
