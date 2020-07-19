@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
       dn = entry.dn
       userpass = entry.userpassword.first.to_s
       type = userpass[0].ord
-  
+
       # https://github.com/vmware/lightwave/blob/d50d41edd1d9cb59e7b7cc1ad284b9e46bfa703d/lwraft/server/middle-layer/password.c#L36
       unless type == 1
         print_status("DN: #{dn}")
