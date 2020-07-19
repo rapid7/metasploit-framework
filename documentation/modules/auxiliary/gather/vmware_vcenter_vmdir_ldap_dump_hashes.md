@@ -1,4 +1,4 @@
-## Vulnerable Application
+## Module vmware_vcenter_vmdir_ldap_dump_hashes
 
 ### Description
 
