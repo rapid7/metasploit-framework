@@ -116,7 +116,10 @@ module Auxiliary
       mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
     end
 
-    return Msf::Exploit::CheckCode::Unsupported unless mod.has_check?
+    unless mod.has_check?
+      # Bail out early if the module doesn't have check
+      raise Msf::ValidationError, Msf::Exploit::CheckCode::Unsupported.message
+    end
 
     # Validate the option container state so that options will
     # be normalized
