@@ -57,29 +57,30 @@ This section will cover the differences between the two crackers.  This is not a
 
 ### Hash Setting
 
-| Hash              | JtR                     |  [hashcat](https://hashcat.net/wiki/doku.php?id=example_hashes) |
-|-------------------|-------------------------|--------------------|
-| List formats      | `john --list=formats` `john --list=format-all-details` | `hashcat -h` |
+| Hash                        | JtR                     |  [hashcat](https://hashcat.net/wiki/doku.php?id=example_hashes) |
+|-----------------------------|-------------------------|--------------------|
+| List formats                | `john --list=formats` `john --list=format-all-details` | `hashcat -h` |
 | | | |
-| cram-md5          | hmac-md5                | 10200              |
-| des               | descrypt                | 1500               |
-| md5 (crypt is $1$)| md5crypt                | 500                |
-| sha1              |                         | 100                |
-| bsdi              | bsdicrypt               | 12400              |
-| sha256            | sha256crypt             | 7400               |
-| sha512            | sha512crypt             | 1800               |
-| blowfish          | bcrypt                  | 3200               |
-| lanman            | lm                      | 3000               |
-| NTLM              | nt                      | 1000               |
-| mssql (05)        | mssql                   | 131                |
-| mssql12           | mssql12                 | 1731               |
-| mssql (2012/2014) | mssql05                 | 132                |
-| oracle (10)       | oracle                  | 3100               |
-| oracle 11         | oracle11                | 112                |
-| oracle 12         | oracle12c               | 12300              |
-| postgres          | dynamic_1034            | 12                 |
-| mysql             | mysql                   | 200                |
-| mysql-sha1        | mysql-sha1              | 300                |
+| cram-md5                    | hmac-md5                | 10200              |
+| des                         | descrypt                | 1500               |
+| md5 (crypt is $1$)          | md5crypt                | 500                |
+| sha1                        |                         | 100                |
+| bsdi                        | bsdicrypt               | 12400              |
+| sha256                      | sha256crypt             | 7400               |
+| sha512                      | sha512crypt             | 1800               |
+| blowfish                    | bcrypt                  | 3200               |
+| lanman                      | lm                      | 3000               |
+| NTLM                        | nt                      | 1000               |
+| mssql (05)                  | mssql                   | 131                |
+| mssql12                     | mssql12                 | 1731               |
+| mssql (2012/2014)           | mssql05                 | 132                |
+| oracle (10)                 | oracle                  | 3100               |
+| oracle 11                   | oracle11                | 112                |
+| oracle 12                   | oracle12c               | 12300              |
+| postgres                    | dynamic_1034            | 12                 |
+| mysql                       | mysql                   | 200                |
+| mysql-sha1                  | mysql-sha1              | 300                |
+| sha512($p.$s) - vmware ldap | dynamic_82              | 1710               |
 
 While Metasploit standardizes with the JtR format, the hashcat [library](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb) includes the `jtr_format_to_hashcat_format` function to translate from jtr to hashcat.
 
@@ -134,6 +135,7 @@ creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E324
 creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
 ## other
 creds add user:hmac_password hash:'<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9' jtr:hmac-md5
+creds add user:vmware_ldap hash:'09486b2065eb6cb1e50fd9ee37c232d7a8654880172a7c348de5cf81f80c5929915f26cef17ce6e40fe474f53d595cf968eee7bbc1275248d2c5172642d1da7d$HEX$26037596705305554266639308182171' jtr:dynamic_82
 ```
 
 This data breaks down to the following table:
@@ -160,3 +162,4 @@ This data breaks down to the following table:
 | Oracle 12 | oracle12_epsilon | `H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B` | epsilon | pbkdf2,oracle12c | auxiliary/scanner/oracle/oracle_hashdump | auxiliary/analyze/jtr_oracle_fast |
 | Postgres | example | `md5be86a79bf2043622d58d5453c47d4860` | password | raw-md5,postgres | auxiliary/scanner/postgres/postgres_hashdump | auxiliary/analyze/jtr_postgres_fast |
 | HMAC-MD5 | hmac_password | `<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9` | password | hmac-md5 | auxiliary/server/capture/smtp | None |
+| SHA512($p.$s) | vmware_ldap | `09486b2065eb6cb1e50fd9ee37c232d7a8654880172a7c348de5cf81f80c5929915f26cef17ce6e40fe474f53d595cf968eee7bbc1275248d2c5172642d1da7d$HEX$26037596705305554266639308182171` | testpass | dynamic_82 |  | None |
