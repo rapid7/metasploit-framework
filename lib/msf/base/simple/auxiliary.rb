@@ -116,10 +116,11 @@ module Auxiliary
       mod.init_ui(opts['LocalInput'], opts['LocalOutput'])
     end
 
+    return Msf::Exploit::CheckCode::Unsupported unless mod.has_check?
+
     # Validate the option container state so that options will
     # be normalized
     mod.validate
-
 
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
     job_listener.waiting run_uuid
@@ -131,7 +132,7 @@ module Auxiliary
         ctx,
         Proc.new do |ctx_|
           self.job_run_proc(ctx_) do |m|
-            m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
+            m.check
           end
         end,
         Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
@@ -141,7 +142,7 @@ module Auxiliary
     else
       # Run check if it exists
       result = self.job_run_proc(ctx) do |m|
-        m.has_check? ? m.check : Msf::Exploit::CheckCode::Unsupported
+        m.check
       end
       self.job_cleanup_proc(ctx)
 
