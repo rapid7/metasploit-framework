@@ -146,6 +146,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def process_hashes(entries)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'ldap',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
     entries.each do |entry|
       dn = entry.dn
       userpass = entry.userpassword.first.to_s
@@ -156,7 +164,20 @@ class MetasploitModule < Msf::Auxiliary
         hexhash = userpass.unpack("H*").first
         hash = hexhash[2, 128]
         salt = hexhash[2+128, 32]
-        print_good("#{rhost} #{dn}:$dynamic_82$#{hash}$HEX$#{salt}")
+        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
+        print_good("#{peer} Credentials found: #{dn}:#{john_hash}")
+
+        credential_data = {
+          jtr_format: 'dynamic_82',
+          origin_type: :service,
+          module_fullname: fullname,
+          private_type: :nonreplayable_hash,
+          private_data: john_hash,
+          username: dn,
+          workspace_id: myworkspace_id
+        }.merge(service_data)
+
+        create_credential(credential_data)
       else
         print_error("#{peer} FIXME: hash type #{type} not yet supported")
         next
