@@ -151,7 +151,17 @@ class MetasploitModule < Msf::Auxiliary
       type, hash, salt = entry[:userpassword].first.unpack('CH128H32')
 
       unless type == 1
-        vprint_error("Hash type #{type} not supported yet (#{dn})")
+        vprint_error("Hash type #{type} is not supported yet (#{dn})")
+        next
+      end
+
+      unless hash.length == 128
+        vprint_error("Hash length is #{hash.length} digits, not 128 (#{dn})")
+        next
+      end
+
+      unless salt.length == 32
+        vprint_error("Salt length is #{salt.length} digits, not 32 (#{dn})")
         next
       end
 
