@@ -111,6 +111,10 @@ module Msf::RPC::JSON
         end
 
         response
+      rescue Msf::OptionValidateError => e
+        raise InvalidParams.new(data: { options: e.options, message: e.message })
+      rescue ::NoMethodError => e
+        raise MethodNotFound.new(e.name, data: { method: e.name, message: e.message })
       rescue ArgumentError
         raise InvalidParams.new
       rescue Msf::RPC::Exception => e
