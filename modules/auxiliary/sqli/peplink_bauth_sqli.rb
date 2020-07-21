@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' =>
           [
-            'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>'
+            'X41 D-Sec GmbH <info@x41-dsec.de>', # Original Advisory
+            'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>' # Metasploit module
           ],
         'License' => MSF_LICENSE,
         'Platform' => %w[linux],
