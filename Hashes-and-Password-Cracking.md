@@ -135,7 +135,7 @@ creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E324
 creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
 ## other
 creds add user:hmac_password hash:'<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9' jtr:hmac-md5
-creds add user:vmware_ldap hash:'09486b2065eb6cb1e50fd9ee37c232d7a8654880172a7c348de5cf81f80c5929915f26cef17ce6e40fe474f53d595cf968eee7bbc1275248d2c5172642d1da7d$HEX$26037596705305554266639308182171' jtr:dynamic_82
+creds add user:vmware_ldap hash:'$dynamic_82$a702505b8a67b45065a6a7ff81ec6685f08d06568e478e1a7695484a934b19a28b94f58595d4de68b27771362bc2b52444a0ed03e980e11ad5e5ffa6daa9e7e1$HEX$171ada255464a439569352c60258e7c6' jtr:dynamic_82
 ```
 
 This data breaks down to the following table:
@@ -162,4 +162,4 @@ This data breaks down to the following table:
 | Oracle 12 | oracle12_epsilon | `H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B30BA62E0E83B6CA2FC7C55177C3A7F82602E3BDD17CEB9B9091CF9DAD672B8BE961A9EAC4D344BDBA878EDC5DCB5899F689EBD8DD1BE3F67BFF9813A464382381AB36B` | epsilon | pbkdf2,oracle12c | auxiliary/scanner/oracle/oracle_hashdump | auxiliary/analyze/jtr_oracle_fast |
 | Postgres | example | `md5be86a79bf2043622d58d5453c47d4860` | password | raw-md5,postgres | auxiliary/scanner/postgres/postgres_hashdump | auxiliary/analyze/jtr_postgres_fast |
 | HMAC-MD5 | hmac_password | `<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9` | password | hmac-md5 | auxiliary/server/capture/smtp | None |
-| SHA512($p.$s) | vmware_ldap | `09486b2065eb6cb1e50fd9ee37c232d7a8654880172a7c348de5cf81f80c5929915f26cef17ce6e40fe474f53d595cf968eee7bbc1275248d2c5172642d1da7d$HEX$26037596705305554266639308182171` | testpass | dynamic_82 |  | None |
+| SHA512($p.$s)/dynamic_82/vmware ldap | vmware_ldap | `$dynamic_82$a702505b8a67b45065a6a7ff81ec6685f08d06568e478e1a7695484a934b19a28b94f58595d4de68b27771362bc2b52444a0ed03e980e11ad5e5ffa6daa9e7e1$HEX$171ada255464a439569352c60258e7c6` | TestPass123# | dynamic_82 |  | None |
