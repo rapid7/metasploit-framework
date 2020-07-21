@@ -93,14 +93,18 @@ module Msf
           # https://www.arista.com/en/um-eos/eos-section-4-7-aaa-commands#ww1349963
           # username admin privilege 15 role network-admin secret sha512 $6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61
           # username bob privilege 15 secret 5 $1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/
-        when /^\s*username ([^\s]+) privilege (\d+) (?:role (.+) )?secret (.+) ([^\s]+)/i
+          # username rlaney role network-admin secret 0 ralrox
+        when /^\s*username ([^\s]+) (?:privilege (\d+) )?(?:role (.+) )?secret (.+) ([^\s]+)/i
           name = Regexp.last_match(1).to_s
           privilege = Regexp.last_match(2).to_s
           role = Regexp.last_match(3).to_s
           # for secret, 0=plaintext, 5=md5sum, sha512=sha512
           secret = Regexp.last_match(4).to_s
           hash = Regexp.last_match(5).to_s
-          output = "#{thost}:#{tport} Username '#{name}' with privilege #{privilege},"
+          output = "#{thost}:#{tport} Username '#{name}'"
+          unless privilege.empty?
+            output << " with privilege #{privilege},"
+          end
           unless role.empty?
             output << " Role #{role},"
           end
