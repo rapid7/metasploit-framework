@@ -118,7 +118,7 @@ module Auxiliary
 
     unless mod.has_check?
       # Bail out early if the module doesn't have check
-      raise Msf::ValidationError, Msf::Exploit::CheckCode::Unsupported.message
+      raise ::NoMethodError.new(Msf::Exploit::CheckCode::Unsupported.message, 'check')
     end
 
     # Validate the option container state so that options will
