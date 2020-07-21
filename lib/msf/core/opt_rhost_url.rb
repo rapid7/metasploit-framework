@@ -63,12 +63,9 @@ module Msf
     protected
 
     def get_uri(value)
-      begin
-        uri = URI(value)
+        URI(value)
       rescue URI::InvalidURIError
-        uri = URI('//' + value)
-      end
-      uri
+        URI('//' + value)
     end
 
   end
