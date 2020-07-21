@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         # https://github.com/magnumripper/JohnTheRipper/blob/2778d2e9df4aa852d0bc4bfbb7b7f3dde2935b0c/doc/DYNAMIC#L197
-        john_hash = "$#{jtr_format}$#{hash}$HEX$#{salt}"
+        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
       else
         vprint_error("Hash type #{type.inspect} is not supported yet (#{dn})")
         next
