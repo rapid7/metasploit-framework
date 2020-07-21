@@ -87,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Dumping LDAP data from vmdir service at #{peer}")
 
       # A "-" meta-attribute will dump userPassword (hat tip Hynek)
+      # https://github.com/vmware/lightwave/blob/637a1935fdd3cae4df6aa8925c69fd5744ab1a88/vmdir/server/ldap-head/result.c#L647-L654
       entries = ldap.search(base: base_dn, attributes: %w[* + -])
     end
 
