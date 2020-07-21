@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
-        OptBool.new('EnumUsernames', [true, 'Retrieve the username associated with the session', false]),
+        OptBool.new('EnumUsernames', [true, 'Retrieve the username associated with each session', false]),
         OptBool.new('EnumPrivs', [true, 'Retrieve the privilege associated with each session', false]),
         OptInt.new('LimitTries', [false, 'The max number of sessions to try (from most recent), set to avoid checking expired ones needlessly', nil]),
         OptBool.new('AdminOnly', [true, 'Only attempt to retrieve cookies of privilegied users (admins)', false])
