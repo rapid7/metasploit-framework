@@ -120,7 +120,7 @@ RSpec.describe Msf::Auxiliary::Arista do
           service_name: '',
           module_fullname: 'auxiliary/scanner/snmp/arista_dummy',
           username: 'enable',
-          jtr_format: 'sha512crypt',
+          jtr_format: 'sha512,crypt',
           private_data: '$6$jemN09cUdoLRim6i$Mvl2Fog/VZ7ktxyLSVDR1KnTTTPSMHU3WD.G/kxwgODdsc3d7S1aSNJX/DJmQI3nyrYnEw4lsmoKPGClFJ9hH1',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
@@ -144,7 +144,7 @@ RSpec.describe Msf::Auxiliary::Arista do
           service_name: '',
           module_fullname: 'auxiliary/scanner/snmp/arista_dummy',
           username: 'root',
-          jtr_format: 'sha512crypt',
+          jtr_format: 'sha512,crypt',
           private_data: '$6$Rnanb2dQsVy2H3QL$DEYDZMy6j6KK4XK62Uh.3U3WXxK5XJvn8Zd5sm36T7BVKHS5EmIcQV.EN1X1P1ZO099S0lkxpvEGzA9yK5PQF.',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
@@ -152,8 +152,13 @@ RSpec.describe Msf::Auxiliary::Arista do
       )
       aux_arista.arista_eos_config_eater('127.0.0.1', 161, 'aaa root secret sha512 $6$Rnanb2dQsVy2H3QL$DEYDZMy6j6KK4XK62Uh.3U3WXxK5XJvn8Zd5sm36T7BVKHS5EmIcQV.EN1X1P1ZO099S0lkxpvEGzA9yK5PQF.')
     end
+  end
 
-    it 'deals with user passwords' do
+  context 'deals with user details' do
+    before(:example) do
+      expect(aux_arista).to receive(:myworkspace).at_least(:once).and_return(workspace)
+    end
+    it 'deals with roles and sha512 passwords' do
       expect(aux_arista).to receive(:print_good).with("127.0.0.1:161 Username 'admin' with privilege 15, Role network-admin, and Hash: $6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61")
       expect(aux_arista).to receive(:store_loot).with(
         'arista.eos.config', 'text/plain', '127.0.0.1', 'username admin privilege 15 role network-admin secret sha512 $6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61', 'config.txt', 'Arista EOS Configuration'
@@ -168,13 +173,61 @@ RSpec.describe Msf::Auxiliary::Arista do
           service_name: '',
           module_fullname: 'auxiliary/scanner/snmp/arista_dummy',
           username: 'admin',
-          jtr_format: 'sha512crypt',
+          jtr_format: 'sha512,crypt',
           private_data: '$6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
       aux_arista.arista_eos_config_eater('127.0.0.1', 161, 'username admin privilege 15 role network-admin secret sha512 $6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61')
+    end
+
+    it 'deals with no roles and md5 passwords' do
+      expect(aux_arista).to receive(:print_good).with("127.0.0.1:161 Username 'bob' with privilege 15, and Hash: $1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/")
+      expect(aux_arista).to receive(:store_loot).with(
+        'arista.eos.config', 'text/plain', '127.0.0.1', 'username bob privilege 15 secret 5 $1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/', 'config.txt', 'Arista EOS Configuration'
+      )
+      expect(aux_arista).to receive(:create_credential_and_login).with(
+        {
+          address: '127.0.0.1',
+          port: 161,
+          protocol: 'udp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: 'auxiliary/scanner/snmp/arista_dummy',
+          username: 'bob',
+          jtr_format: 'md5',
+          private_data: '$1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/',
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      )
+      aux_arista.arista_eos_config_eater('127.0.0.1', 161, 'username bob privilege 15 secret 5 $1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/')
+    end
+
+    it 'deals with no roles and plaintext passwords' do
+      expect(aux_arista).to receive(:print_good).with("127.0.0.1:161 Username 'un' with privilege 15, and Password: test")
+      expect(aux_arista).to receive(:store_loot).with(
+        'arista.eos.config', 'text/plain', '127.0.0.1', 'username un privilege 15 secret 0 test', 'config.txt', 'Arista EOS Configuration'
+      )
+      expect(aux_arista).to receive(:create_credential_and_login).with(
+        {
+          address: '127.0.0.1',
+          port: 161,
+          protocol: 'udp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          module_fullname: 'auxiliary/scanner/snmp/arista_dummy',
+          username: 'un',
+          jtr_format: '',
+          private_data: 'test',
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      )
+      aux_arista.arista_eos_config_eater('127.0.0.1', 161, 'username un privilege 15 secret 0 test')
     end
   end
 

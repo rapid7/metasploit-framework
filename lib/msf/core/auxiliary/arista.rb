@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'metasploit/framework/hashes/identify'
+
 module Msf
   ###
   #
@@ -18,7 +20,7 @@ module Msf
         workspace_id: myworkspace.id,
         origin_type: :service,
         private_type: :nonreplayable_hash,
-        jtr_format: 'sha512crypt', # default on the devices
+        jtr_format: 'sha512,crypt', # default on the devices
         service_name: '',
         module_fullname: fullname,
         status: Metasploit::Model::Login::Status::UNTRIED
@@ -90,27 +92,51 @@ module Msf
           create_credential_and_login(cred)
           # https://www.arista.com/en/um-eos/eos-section-4-7-aaa-commands#ww1349963
           # username admin privilege 15 role network-admin secret sha512 $6$Ei2bjrcTCGPOjSkk$7S.XSTZqdRVXILbUUDcRPCxzyfqEFYzg6HfL0BHXvriETX330MT.KObHLkGx7n9XZRVWBr68ZsKfvzvxYCvj61
-        when /^\s*username ([^\s]+) privilege (\d+) role (.+) secret (.+) ([^\s]+)/i
+          # username bob privilege 15 secret 5 $1$EGQJlod0$CdkMmW1FoiRgMfbLFD/kB/
+        when /^\s*username ([^\s]+) privilege (\d+) (?:role (.+) )?secret (.+) ([^\s]+)/i
           name = Regexp.last_match(1).to_s
           privilege = Regexp.last_match(2).to_s
           role = Regexp.last_match(3).to_s
-          # secret = $4.to_s
+          # for secret, 0=plaintext, 5=md5sum, sha512=sha512
+          secret = Regexp.last_match(4).to_s
           hash = Regexp.last_match(5).to_s
-          print_good("#{thost}:#{tport} Username '#{name}' with privilege #{privilege}, Role #{role}, and Hash: #{hash}")
+          output = "#{thost}:#{tport} Username '#{name}' with privilege #{privilege},"
+          unless role.empty?
+            output << " Role #{role},"
+          end
           cred = credential_data.dup
+          if secret == '0'
+            output << " and Password: #{hash}"
+            cred[:private_type] = :password
+            cred[:jtr_format] = ''
+          else
+            output << " and Hash: #{hash}"
+            cred[:jtr_format] = identify_hash(hash)
+          end
           cred[:username] = name
           cred[:private_data] = hash
           create_credential_and_login(cred)
+          print_good(output)
           # aaa root secret sha512 $6$Rnanb2dQsVy2H3QL$DEYDZMy6j6KK4XK62Uh.3U3WXxK5XJvn8Zd5sm36T7BVKHS5EmIcQV.EN1X1P1ZO099S0lkxpvEGzA9yK5PQF.
         when /^\s*aaa (root) secret (.+) ([^\s]+)/i
           name = Regexp.last_match(1).to_s
-          # algorithm = $2.to_s
+          # for secret, 0=plaintext, 5=md5sum, sha512=sha512
+          secret = Regexp.last_match(2).to_s
           hash = Regexp.last_match(3).to_s
-          print_good("#{thost}:#{tport} AAA Username '#{name}' with Hash: #{hash}")
+          output = "#{thost}:#{tport} AAA Username '#{name}'"
           cred = credential_data.dup
           cred[:username] = name.to_s
+          if secret == '0'
+            output << " and Password: #{hash}"
+            cred[:private_type] = :password
+            cred[:jtr_format] = ''
+          else
+            output << " with Hash: #{hash}"
+            cred[:jtr_format] = identify_hash(hash)
+          end
           cred[:private_data] = hash.to_s
           create_credential_and_login(cred)
+          print_good(output)
         end
       end
     end
