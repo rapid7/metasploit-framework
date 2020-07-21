@@ -184,6 +184,8 @@ module Metasploit
             '10'
           when 'hmac-md5'
             '10200'
+          when 'dynamic_82'
+            '1710'
           else
             nil
           end
