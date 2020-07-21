@@ -148,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
       dn = entry.dn
 
       # https://github.com/vmware/lightwave/blob/637a1935fdd3cae4df6aa8925c69fd5744ab1a88/lwraft/server/middle-layer/password.c#L36-L45
-      type, hash, salt = entry[:userpassword].unpack('CH128H32')
+      type, hash, salt = entry[:userpassword].first.unpack('CH128H32')
 
       unless type == 1
         vprint_error("Hash type #{type} not supported yet (#{dn})")
