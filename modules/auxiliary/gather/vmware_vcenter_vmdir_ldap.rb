@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/hashes/identify'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
@@ -174,8 +176,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         # https://github.com/magnumripper/JohnTheRipper/blob/2778d2e9df4aa852d0bc4bfbb7b7f3dde2935b0c/doc/DYNAMIC#L197
-        jtr_format = 'dynamic_82'
-        john_hash = "$#{jtr_format}$#{hash}$HEX$#{salt}"
+        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
       else
         vprint_error("Hash type #{type.inspect} is not supported yet (#{dn})")
         next
@@ -187,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
         username: dn,
         private_data: john_hash,
         private_type: :nonreplayable_hash,
-        jtr_format: jtr_format
+        jtr_format: identify_hash(john_hash)
       ))
     end
   end
