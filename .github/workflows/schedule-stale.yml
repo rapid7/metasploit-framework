@@ -33,3 +33,4 @@ jobs:
             As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
           exempt-issue-labels: |
             not stale
+          debug-only: true
