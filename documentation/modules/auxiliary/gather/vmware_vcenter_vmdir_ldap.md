@@ -57,6 +57,7 @@ msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > set rhosts [redacted]
 rhosts => [redacted]
 msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > run
 [*] Running module against [redacted]
+not verifying SSL hostname of LDAPS server '[redacted]:636'
 
 [*] Discovering base DN automatically
 [*] Searching root DSE for base DN
