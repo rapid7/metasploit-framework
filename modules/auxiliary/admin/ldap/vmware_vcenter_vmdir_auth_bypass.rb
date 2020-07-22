@@ -51,10 +51,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERNAME', [false, 'Username of admin user to add']),
       OptString.new('PASSWORD', [false, 'Password of admin user to add'])
     ])
-
-    register_advanced_options([
-      OptFloat.new('ConnectTimeout', [true, 'Timeout for LDAP connect', 10.0])
-    ])
   end
 
   def username
@@ -95,13 +91,7 @@ class MetasploitModule < Msf::Auxiliary
       @base_dn = checkcode.reason
     end
 
-    opts = {
-      host: rhost,
-      port: rport,
-      connect_timeout: datastore['ConnectTimeout']
-    }
-
-    Net::LDAP.open(opts) do |ldap|
+    ldap_connect do |ldap|
       print_status("Bypassing LDAP auth in vmdir service at #{peer}")
       auth_bypass(ldap)
 

@@ -36,11 +36,6 @@ Set this to the username for the new admin user.
 
 Set this to the password for the new admin user.
 
-### ConnectTimeout
-
-You may configure the timeout for LDAP connects if necessary. The
-default is 10.0 seconds and should be more than sufficient.
-
 ## Scenarios
 
 ### VMware vCenter Server 6.7 virtual appliance on ESXi
@@ -57,6 +52,7 @@ Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
    PASSWORD                   no        Password of admin user to add
    RHOSTS                     yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT     389              yes       The target port
+   SSL       false            no        Enable SSL on the LDAP connection
    USERNAME                   no        Username of admin user to add
 
 

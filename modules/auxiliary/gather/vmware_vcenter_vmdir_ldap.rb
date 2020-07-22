@@ -45,10 +45,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it'])
     ])
-
-    register_advanced_options([
-      OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
-    ])
   end
 
   def base_dn
@@ -67,15 +63,9 @@ class MetasploitModule < Msf::Auxiliary
   # Dump data using discovered base DN:
   #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted] \* + -
   def run
-    opts = {
-      host: rhost,
-      port: rport,
-      connect_timeout: datastore['ConnectTimeout']
-    }
-
     entries = nil
 
-    Net::LDAP.open(opts) do |ldap|
+    ldap_connect do |ldap|
       if (@base_dn = datastore['BASE_DN'])
         print_status("User-specified base DN: #{base_dn}")
       else

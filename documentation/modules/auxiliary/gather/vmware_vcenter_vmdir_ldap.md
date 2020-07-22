@@ -28,11 +28,6 @@ Dump all LDAP data from the vCenter Server.
 
 If you already have the LDAP base DN, you may set it in this option.
 
-### ConnectTimeout
-
-You may configure the timeout for LDAP connects if necessary. The
-default is 10.0 seconds and should be more than sufficient.
-
 ## Scenarios
 
 ### VMware vCenter Server 6.7 virtual appliance on ESXi
@@ -48,6 +43,7 @@ Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
    BASE_DN                   no        LDAP base DN if you already have it
    RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT    389              yes       The target port
+   SSL      false            no        Enable SSL on the LDAP connection
 
 
 Auxiliary action:
