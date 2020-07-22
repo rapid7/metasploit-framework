@@ -35,6 +35,9 @@ class MetasploitModule < Msf::Auxiliary
           ['Dump', 'Description' => 'Dump all LDAP data']
         ],
         'DefaultAction' => 'Dump',
+        'DefaultOptions' => {
+          'SSL' => true
+        },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
@@ -43,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      Opt::RPORT(636), # SSL/TLS
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it'])
     ])
   end

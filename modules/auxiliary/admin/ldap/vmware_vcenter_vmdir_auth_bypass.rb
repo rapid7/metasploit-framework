@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Add',
         'DefaultOptions' => {
+          'SSL' => true,
           'CheckModule' => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
         },
         'Notes' => {
@@ -47,6 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      Opt::RPORT(636), # SSL/TLS
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptString.new('USERNAME', [false, 'Username of admin user to add']),
       OptString.new('PASSWORD', [false, 'Password of admin user to add'])
