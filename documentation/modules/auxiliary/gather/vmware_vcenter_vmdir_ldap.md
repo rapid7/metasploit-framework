@@ -4,7 +4,8 @@
 
 This module uses an anonymous-bind LDAP connection to dump data from
 the vmdir service in VMware vCenter Server version 6.7 prior to the
-6.7U3f update.
+6.7U3f update, only if upgraded from a previous release line, such as
+6.0 or 6.5.
 
 ### Setup
 
@@ -79,14 +80,6 @@ supportedsaslmechanisms: GSSAPI
 [*] Storing LDAP data in loot
 [+] Saved LDAP data to /Users/wvu/.msf4/loot/20200417002613_default_[redacted]_VMwarevCenterS_939568.txt
 [*] Password and lockout policy:
-dn: cn=password and lockout policy,dc=vsphere,dc=local
-cn: password and lockout policy
-enabled: TRUE
-ntsecuritydescriptor:: [redacted]
-objectclass: top
-objectclass: vmwLockoutPolicy
-objectclass: vmwPasswordPolicy
-objectclass: vmwPolicy
 vmwpasswordchangeautounlockintervalsec: [redacted]
 vmwpasswordchangefailedattemptintervalsec: [redacted]
 vmwpasswordchangemaxfailedattempts: [redacted]
@@ -101,6 +94,8 @@ vmwpasswordminspecialcharcount: [redacted]
 vmwpasswordminuppercasecount: [redacted]
 vmwpasswordprohibitedpreviouscount: [redacted]
 
+[+] Credentials found: [redacted]
+[snip]
 [*] Auxiliary module execution completed
 msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) >
 ```

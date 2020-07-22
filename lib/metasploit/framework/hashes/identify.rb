@@ -40,6 +40,8 @@ def identify_hash(hash)
       return 'des,bsdi,crypt'
     when hash =~ /^[\.\/\dA-Za-z]{13}$/ # hash.length == 13
       return 'des,crypt'
+    when hash =~ /^\$dynamic_82\$[\da-f]{128}\$HEX\$[\da-f]{32}$/ # jtr vmware ldap https://github.com/rapid7/metasploit-framework/pull/13865#issuecomment-660718108
+      return 'dynamic_82'
     # windows
     when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/ && hash.split(':').first.upcase == 'AAD3B435B51404EEAAD3B435B51404EE'
       return 'nt'
