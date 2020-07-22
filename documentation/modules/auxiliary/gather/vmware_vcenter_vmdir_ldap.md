@@ -42,8 +42,8 @@ Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
    ----     ---------------  --------  -----------
    BASE_DN                   no        LDAP base DN if you already have it
    RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT    389              yes       The target port
-   SSL      false            no        Enable SSL on the LDAP connection
+   RPORT    636              yes       The target port
+   SSL      true             no        Enable SSL on the LDAP connection
 
 
 Auxiliary action:
@@ -71,8 +71,8 @@ supportedldapversion: 3
 supportedsaslmechanisms: GSSAPI
 
 [+] Discovered base DN: dc=vsphere,dc=local
-[*] Dumping LDAP data from vmdir service at [redacted]:389
-[+] [redacted]:389 is vulnerable to CVE-2020-3952
+[*] Dumping LDAP data from vmdir service at [redacted]:636
+[+] [redacted]:636 is vulnerable to CVE-2020-3952
 [*] Storing LDAP data in loot
 [+] Saved LDAP data to /Users/wvu/.msf4/loot/20200417002613_default_[redacted]_VMwarevCenterS_939568.txt
 [*] Password and lockout policy:

