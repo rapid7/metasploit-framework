@@ -23,7 +23,7 @@ class WebServiceSession
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to cancel execution') if res.nil?
 
-    return res.get_xml_document.xpath('//return/text()') != 'false'
+    return res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
   def get_event
@@ -57,7 +57,7 @@ class WebServiceSession
     res = send_request_soap(envelope)
     fail_with(Failure::UnexpectedReply, 'Failed to check if events are available') if res.nil?
 
-    return res.get_xml_document.xpath('//return/text()') != 'false'
+    return res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
   attr_reader :session_id
@@ -117,6 +117,17 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Starting the PCK Upgrade job...')
     job = invoke_pckupgrade
     print_good("Job running with session id: #{job.session_id}")
+
+    report_vuln(
+      host: rhost,
+      port: rport,
+      name: self.name,
+      sname: ssl ? 'https' : 'http',
+      proto: 'tcp',
+      :refs => self.references,
+      info: "Module #{self.fullname} successfully submitted a job via the CTCWebService"
+    )
+
 
     loop do
       # it's a slow process, wait between status checks
