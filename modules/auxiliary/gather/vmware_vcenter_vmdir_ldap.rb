@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if (policy = entries.find { |entry| entry.dn == policy_dn })
       print_status('Password and lockout policy:')
-      print_line(policy.to_ldif)
+      print_line(policy.to_ldif[/^vmwpassword.*/m])
     end
 
     # Process entries with a non-empty userPassword attribute
