@@ -80,14 +80,6 @@ supportedsaslmechanisms: GSSAPI
 [*] Storing LDAP data in loot
 [+] Saved LDAP data to /Users/wvu/.msf4/loot/20200417002613_default_[redacted]_VMwarevCenterS_939568.txt
 [*] Password and lockout policy:
-dn: cn=password and lockout policy,dc=vsphere,dc=local
-cn: password and lockout policy
-enabled: TRUE
-ntsecuritydescriptor:: [redacted]
-objectclass: top
-objectclass: vmwLockoutPolicy
-objectclass: vmwPasswordPolicy
-objectclass: vmwPolicy
 vmwpasswordchangeautounlockintervalsec: [redacted]
 vmwpasswordchangefailedattemptintervalsec: [redacted]
 vmwpasswordchangemaxfailedattempts: [redacted]
