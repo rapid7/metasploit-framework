@@ -40,7 +40,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
-  gem 'rubocop', "0.86.0"
+  gem 'rubocop'
   gem 'swagger-blocks'
 end
 
