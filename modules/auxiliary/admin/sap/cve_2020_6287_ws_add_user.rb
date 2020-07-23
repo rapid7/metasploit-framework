@@ -3,72 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class WebServiceSession
-  def initialize(mod, session_id)
-    @mod = mod
-    @session_id = session_id
-  end
-
-  def cancel_execution
-    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
-      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
-         <soapenv:Header/>
-         <soapenv:Body>
-            <urn:cancelExecution>
-               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
-            </urn:cancelExecution>
-         </soapenv:Body>
-      </soapenv:Envelope>
-    ENVELOPE
-    res = send_request_soap(envelope)
-    fail_with(Failure::UnexpectedReply, 'Failed to cancel execution') if res.nil?
-
-    res.get_xml_document.xpath('//return/text()').to_s != 'false'
-  end
-
-  def get_event # rubocop:disable Naming/AccessorMethodName
-    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
-      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
-         <soapenv:Header/>
-         <soapenv:Body>
-            <urn:getNextEvent>
-               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
-            </urn:getNextEvent>
-         </soapenv:Body>
-      </soapenv:Envelope>
-    ENVELOPE
-    res = send_request_soap(envelope)
-    fail_with(Failure::UnexpectedReply, 'Failed to retrieve the event information') if res.nil?
-
-    Nokogiri::XML(Rex::Text.decode_base64(res.get_xml_document.xpath('//return/text()')))
-  end
-
-  def has_events_available? # rubocop:disable Naming/PredicateName
-    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
-      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
-         <soapenv:Header/>
-         <soapenv:Body>
-            <urn:eventsAvailable>
-               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
-            </urn:eventsAvailable>
-         </soapenv:Body>
-      </soapenv:Envelope>
-    ENVELOPE
-    res = send_request_soap(envelope)
-    fail_with(Failure::UnexpectedReply, 'Failed to check if events are available') if res.nil?
-
-    res.get_xml_document.xpath('//return/text()').to_s != 'false'
-  end
-
-  attr_reader :session_id
-
-  private
-
-  def send_request_soap(*args, **kwargs)
-    @mod.send_request_soap(*args, **kwargs)
-  end
-end
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
@@ -243,6 +177,72 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, 'Failed to start the PCK Upgrade process') unless res&.code == 200
 
     session_id = res.get_xml_document.xpath('//return/text()').to_s
-    WebServiceSession.new(self, session_id)
+    WebServiceJob.new(self, session_id)
+  end
+end
+
+class WebServiceJob
+  def initialize(mod, session_id)
+    @mod = mod
+    @session_id = session_id
+  end
+
+  def cancel_execution
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
+         <soapenv:Header/>
+         <soapenv:Body>
+            <urn:cancelExecution>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
+            </urn:cancelExecution>
+         </soapenv:Body>
+      </soapenv:Envelope>
+    ENVELOPE
+    res = send_request_soap(envelope)
+    fail_with(Failure::UnexpectedReply, 'Failed to cancel execution') if res.nil?
+
+    res.get_xml_document.xpath('//return/text()').to_s != 'false'
+  end
+
+  def get_event # rubocop:disable Naming/AccessorMethodName
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
+         <soapenv:Header/>
+         <soapenv:Body>
+            <urn:getNextEvent>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
+            </urn:getNextEvent>
+         </soapenv:Body>
+      </soapenv:Envelope>
+    ENVELOPE
+    res = send_request_soap(envelope)
+    fail_with(Failure::UnexpectedReply, 'Failed to retrieve the event information') if res.nil?
+
+    Nokogiri::XML(Rex::Text.decode_base64(res.get_xml_document.xpath('//return/text()')))
+  end
+
+  def has_events_available? # rubocop:disable Naming/PredicateName
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
+         <soapenv:Header/>
+         <soapenv:Body>
+            <urn:eventsAvailable>
+               <sessionId>#{@session_id.encode(xml: :text)}</sessionId>
+            </urn:eventsAvailable>
+         </soapenv:Body>
+      </soapenv:Envelope>
+    ENVELOPE
+    res = send_request_soap(envelope)
+    fail_with(Failure::UnexpectedReply, 'Failed to check if events are available') if res.nil?
+
+    res.get_xml_document.xpath('//return/text()').to_s != 'false'
+  end
+
+  attr_reader :session_id
+
+  private
+
+  def send_request_soap(*args, **kwargs)
+    @mod.send_request_soap(*args, **kwargs)
   end
 end
