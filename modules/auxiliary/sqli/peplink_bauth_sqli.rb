@@ -67,6 +67,12 @@ class MetasploitModule < Msf::Auxiliary
     end.compact
 
     print_status("After filtering out non-admin sessions: #{session_ids.count} sessions remain") if datastore['AdminOnly']
+
+    if session_ids.count == 0
+      print_error('No active authenticated sessions found, try again after a user has authenticated')
+      return
+    end
+
     print_status('Trying the ids from the most recent login')
 
     session_ids.each_with_index do |id, idx|

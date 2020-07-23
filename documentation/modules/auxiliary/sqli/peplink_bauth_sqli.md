@@ -2,10 +2,10 @@
 
 ### Introduction
 
-This module exploits an SQLi vulnerability in the web interface of Peplink 
+This module exploits an SQLi vulnerability in the web interface of Peplink
 routers running outdated firmware (confirmed on version 7.0.0-build1904 and below).
 
-The vulnerability is due to the lack of sanitization applied to the bauth cookie, 
+The vulnerability is due to the lack of sanitization applied to the bauth cookie,
 Successful exploitation of the vulnerability allows unauthenticated attackers to get
 into sessions of legitimate users (bypassing authentication).
 
@@ -36,7 +36,8 @@ The max number of sessions to try (from most recent), set to avoid checking expi
 ## Scenarios
 
 Vulnerable firmware downloadable from [here](https://www.peplink.com/support/downloads/archive/).
-It's possible to reproduce the vulnerability without owning a peplink router, using [FusionHub](https://www.peplink.com/products/fusionhub/).
+It's possible to reproduce the vulnerability without owning a peplink router, using
+[FusionHub](https://www.peplink.com/products/fusionhub/).
 Refer to its installation guide, use a free Solo license.
 
 ### Firmware version 6.3.2
