@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       {
         'uri' => normalize_uri(target_uri.path),
         'method' => 'GET',
-          'vars_get' => { 'wsdl' => '' }
+        'vars_get' => { 'wsdl' => '' }
       }
     )
 
@@ -72,10 +72,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     case action.name
-      when 'ADD'
-        action_add
-      when 'REMOVE'
-        action_remove
+    when 'ADD'
+      action_add
+    when 'REMOVE'
+      action_remove
     end
   end
 
@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Received event description: #{description}")
       end
 
-      unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank?
+      unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank? # rubocop:disable Style/Next
         if description.to_s =~ /Create User PCKUser/i
           print_good('Successfully created the user account')
         end
