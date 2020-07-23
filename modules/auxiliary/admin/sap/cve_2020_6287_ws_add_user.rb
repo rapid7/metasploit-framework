@@ -46,6 +46,25 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def check
+    res = send_request_cgi(
+      {
+        'uri' => normalize_uri(target_uri.path),
+        'method' => 'GET',
+          'vars_get' => { 'wsdl' => '' }
+      }
+    )
+
+    return Exploit::CheckCode::Safe unless res&.code == 200
+    return Exploit::CheckCode::Safe unless res.headers['Content-Type'].strip.start_with?('text/xml')
+
+    xml = res.get_xml_document
+    return Exploit::CheckCode::Safe unless xml.namespaces['xmlns:wsdl'] == 'http://schemas.xmlsoap.org/wsdl/'
+    return Exploit::CheckCode::Safe if xml.xpath("//wsdl:definitions/wsdl:service[@name='CTCWebService']").empty?
+
+    Exploit::CheckCode::Vulnerable
+  end
+
   def run
     job = nil
     print_status('Starting the PCK Upgrade job...')
@@ -82,7 +101,14 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank?
-        break if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+        if description.to_s =~ /Create User PCKUser/i
+          print_good('Successfully created the user account')
+        end
+
+        if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+          print_good('Successfully added the role to the new user')
+          break
+        end
       end
     end
   ensure
