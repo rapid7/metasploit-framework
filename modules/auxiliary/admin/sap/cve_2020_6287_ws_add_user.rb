@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Pablo Artuso', # The Onapsis Security Researcher who originally found the vulnerability
           'Dmitry Chastuhin', # Author of one of the early PoCs utilizing CTCWebService
-          'Spencer McIntyre' # This metasploit module
+          'Spencer McIntyre' # This Metasploit module
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -40,8 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(50000),
         OptString.new('USERNAME', [ true, 'The username to create' ]),
         OptString.new('PASSWORD', [ true, 'The password for the new user' ]),
-        OptString.new('ROLE', [ true, 'The role to assign the new user', 'Administrator']),
-        OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/CTCWebService/CTCWebServiceBean'])
+        OptString.new('ROLE', [ true, 'The role to assign the new user', 'Administrator' ]),
+        OptString.new('TARGETURI', [ true, 'Path to ConfigServlet', '/CTCWebService/CTCWebServiceBean' ])
       ]
     )
   end

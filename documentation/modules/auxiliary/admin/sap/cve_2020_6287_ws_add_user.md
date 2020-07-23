@@ -1,4 +1,5 @@
 ## Vulnerable Application
+
 This module leverages an unauthenticated web service to submit a job which will create a user with a specified role. The
 job involves running a wizard. After the necessary action is taken, the job is canceled to avoid unnecessary system
 changes.
@@ -7,7 +8,7 @@ SAP NetWeaver NetWeaver versions 7.30 through 7.50 are affected by this vulnerab
 Amazon Web Services (AWS) can be used as a testing environment. One such image is provided by Linke IT America LLC and
 is available on the [AWS Marketplace][1] with installation instructions posted to their [blog][2].
 
-Once setup and configured, the instances will be vulnerable on the default HTTP port 50000.
+Once set up and configured, the instances will be vulnerable on the default HTTP port 50000.
 
 If the password does not meet the requirements (e.g. the value is too short), the server will respond with an error
 message and the Metasploit module will need to be rerun.
@@ -24,6 +25,7 @@ message and the Metasploit module will need to be rerun.
 ## Options
 
 ### ROLE
+
 The role to assign to the user in the system. This value is "Administrator" by default. If the role does not exist, then
 execution will fail. For more information on users and roles, see the [SAP documentation][3].
 
