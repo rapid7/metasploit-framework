@@ -217,6 +217,7 @@ module Msf
           return nil unless handle
 
           delete_reparse_point(handle, buffer.to_binary_s)
+          session.railgun.kernel32.CloseHandle(handle)
         end
 
         def write_to_memory(process, str)
@@ -327,6 +328,7 @@ module Msf
           return nil unless handle
 
           set_reparse_point(handle, reparse_data.to_binary_s)
+          return handle
         end
       end # FileSystem
     end # Windows
