@@ -217,6 +217,7 @@ module Msf
           return nil unless handle
 
           delete_reparse_point(handle, buffer.to_binary_s)
+          session.fs.dir.rmdir(path)
           session.railgun.kernel32.CloseHandle(handle)
         end
 
