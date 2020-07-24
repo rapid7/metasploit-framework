@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
           # Create the shell script that will pass the password to sudo
           vprint_status "Writing the SUDO_ASKPASS script: #{askpass_sh}"
           write_file(askpass_sh, "#!/bin/sh\necho '#{password}'\n")
-          register_files_for_cleanup([askpass_sh])
+          register_file_for_cleanup(askpass_sh)
           vprint_status "Setting executable bit."
           cmd_exec("chmod +x #{askpass_sh}")
           vprint_status "Setting environment variable."
