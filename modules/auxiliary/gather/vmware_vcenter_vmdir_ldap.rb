@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def pillage(entries)
     # TODO: Make this more efficient?
-    ldif = entries.map(&:to_ldif).join("\n")
+    ldif = entries.map(&:to_ldif).map { |s| s.force_encoding('utf-8') }.join("\n")
 
     print_status('Storing LDAP data in loot')
 
