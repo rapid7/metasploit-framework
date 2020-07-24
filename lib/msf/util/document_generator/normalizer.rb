@@ -248,15 +248,6 @@ module Msf
         end
 
 
-        # Returns the markdown format for module rank.
-        #
-        # @param rank [String] Module rank.
-        # @return [String]
-        def normalize_rank(rank)
-          "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
-        end
-
-
         # Returns the markdown format for module side effects.
         #
         # @param side_effects [Array<String>] Module effects.

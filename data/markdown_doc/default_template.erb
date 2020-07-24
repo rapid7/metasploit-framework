@@ -16,7 +16,13 @@
 
 ## Module Ranking
 
-<%= normalize_rank(items[:mod_rank]) %>
+**<%= items[:mod_rank_name] %>**
+
+<% if items[:mod_rank_name] == "Excellent" %>
+> The exploit will never crash the service. This is the case for SQL Injection, CMD execution, RFI, LFI, etc. No typical
+> memory corruption exploits should be given this ranking unless there are extraordinary circumstances
+> ([WMF Escape()](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/browser/ms06_001_wmf_setabortproc.rb)).
+<% end %>
 
 ## Side Effects
 

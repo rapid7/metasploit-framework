@@ -61,6 +61,7 @@ module Msf
             mod_pull_requests: pr,
             mod_refs:          mod.references,
             mod_rank:          mod.rank,
+            mod_rank_name:     Msf::RankingName[mod.rank].capitalize,
             mod_platforms:     mod.send(:module_info)['Platform'],
             mod_options:       mod.options,
             mod_side_effects:  mod.side_effects,
