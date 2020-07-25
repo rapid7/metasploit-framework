@@ -7,21 +7,25 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'Linux Container Enumeration',
-                      'Description' => %q{
-        This module attempts to enumeratec containers on the target machine and optionally run a command on each active container found..
-        Supports Docker, LXC and RKT.
-      },
-                      'License' => MSF_LICENSE,
-                      'Author' => ['stealthcopter'],
-                      'Platform' => ['linux'],
-                      'SessionTypes' => ['shell', 'meterpreter']
-          ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Linux Container Enumeration',
+        'Description' => %q{
+          This module attempts to enumeratec containers on the target machine and optionally run a command on each active container found..
+          Supports Docker, LXC and RKT.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['stealthcopter'],
+        'Platform' => ['linux'],
+        'SessionTypes' => ['shell', 'meterpreter']
+      )
+    )
     register_options(
-        [
-            OptString.new('CMD', [false, 'Optional command to run on each running container', ''])
-        ])
+      [
+        OptString.new('CMD', [false, 'Optional command to run on each running container', ''])
+      ]
+    )
   end
 
   def cmd
@@ -133,7 +137,12 @@ class MetasploitModule < Msf::Post
     platforms.each do |platform|
       num_containers = count_containers(platform)
       num_running_containers = count_containers(platform, false)
-      print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
+
+      if num_containers == 0
+        print_good("#{platform} found but no active or inactive containers were found")
+      else
+        print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
+      end
 
       next unless num_containers
 
