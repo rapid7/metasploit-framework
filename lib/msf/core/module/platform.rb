@@ -425,6 +425,13 @@ class Msf::Module::Platform
   class Mikrotik < Msf::Module::Platform
     Rank = 100
     Alias = "mikrotik"
+
+  #
+  # Arista
+  #
+  class Arista < Msf::Module::Platform
+    Rank = 100
+    Alias = "arista"
   end
 
   #

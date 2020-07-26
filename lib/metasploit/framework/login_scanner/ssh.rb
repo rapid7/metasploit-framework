@@ -152,6 +152,11 @@ module Metasploit
                   if proof =~ /Version:(?<os_version>.+).+HW: (?<hardware>)/mi
                     proof = "Model: #{hardware}, OS: #{os_version}"
                   end
+                # Arista
+                elsif proof =~ /% Invalid input at line 1/
+                  proof = ssh_socket.exec!("show version\n").split("\n")[0..1]
+                  proof = proof.map {|item| item.strip}
+                  proof = proof.join(", ").to_s
                 # Windows
                 elsif proof =~ /is not recognized as an internal or external command/
                   proof = ssh_socket.exec!("systeminfo\n").to_s
@@ -213,6 +218,8 @@ module Metasploit
             'juniper'
           when /MikroTik/
             'mikrotik'
+          when /Arista/
+            'arista'
           else
             'unknown'
           end
