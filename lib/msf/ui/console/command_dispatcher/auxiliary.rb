@@ -25,6 +25,13 @@ class Auxiliary
   #
   # Returns the hash of commands specific to auxiliary modules.
   #
+  def action_commands
+      mod.actions.map { |action| [action.name, action.description] }.to_h
+  end
+
+  #
+  # Returns the hash of commands specific to auxiliary modules.
+  #
   def commands
     super.update({
       "run"      => "Launches the auxiliary module",
@@ -34,7 +41,7 @@ class Auxiliary
       "recheck"  => "This is an alias for the rcheck command",
       "rexploit" => "This is an alias for the rerun command",
       "reload"   => "Reloads the auxiliary module"
-    }).merge( (mod ? mod.auxiliary_commands : {}) )
+    }).merge( (mod ? mod.auxiliary_commands : {}) ).merge(action_commands)
   end
 
   #
@@ -48,7 +55,23 @@ class Auxiliary
 
       return mod.send(meth.to_s, *args)
     end
+
+    method = meth.to_s.split(/_/)
+    mod_actions = Serializer::ReadableText.dump_module_actions(mod, '   ')
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod_actions.include?(method[1])
+       do_action(method[1], *args)
+    end
+
     return
+  end
+
+  #
+  #
+  # Execute the module with a set action
+  #
+  def do_action(meth, *args)
+    mod.datastore['ACTION'] = meth
+    cmd_run(*args)
   end
 
   #
