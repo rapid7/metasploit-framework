@@ -41,6 +41,6 @@ module MetasploitModule
       scheme: 'https',
       stageless: true
     }
-    MetasploitPayloads::Mettle.new('arm-iphone-darwin', generate_config(opts)).to_binary :sha1
+    MetasploitPayloads::Mettle.new('arm-iphone-darwin', generate_config(opts)).to_binary :exec
   end
 end
