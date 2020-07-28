@@ -22,6 +22,7 @@ set CHAT_ID 123456789
 **MSG**
 
 The message content.
+
 ```
 set MSG "New meterpreter session has opened !"
 ```
@@ -42,8 +43,8 @@ And you're good to go.
 msf5 > use auxiliary/client/telegram/send_message
 msf5 post(client/telegram/send_message) > set BOT_TOKEN 851676320:AAFAkVtZP5Hd8cmfFIUg6j4eWJndDtdksl4
 BOT_TOKEN => 851676320:AAFAkVtZP5Hd8cmfFIUg6j4eWJndDtdksl4
-msf5 post(client/telegram/send_message) > set ChaT_ID 123456789
-ChaT_ID => 123456789
+msf5 post(client/telegram/send_message) > set CHAT_ID 123456789
+CHAT_ID => 123456789
 msf5 auxiliary(client/telegram/send_message) > run
 
 [+] Message sent
