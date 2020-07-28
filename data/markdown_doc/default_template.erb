@@ -15,8 +15,8 @@
 <% end %>
 
 ## Module Ranking
-
 <%# https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking %>
+
 **<%= items[:mod_rank_name] %>**
 
 <% if items[:mod_rank_name] == "Excellent" %>
@@ -47,6 +47,7 @@
 <% end %>
 
 ## Module Traits
+<%# https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability %>
 
 <% unless items[:mod_side_effects].empty? %>
 ### Side Effects
@@ -68,7 +69,7 @@
 <% description = "Module may produce physical effects (Examples: the device makes movement or flashes LEDs)." %>
 <% end %>
 
-* **<%= side_effect %>** &mdash; <%= description %>
+* **<%= side_effect %>:** <%= description %>
 <% end %>
 <% end %>
 
@@ -84,7 +85,7 @@
 <% description = "The module isn't expected to get a shell reliably (such as only once)." %>
 <% end %>
 
-* **<%= reliability %>** &mdash; <%= description %>
+* **<%= reliability %>:** <%= description %>
 <% end %>
 <% end %>
 
@@ -108,7 +109,7 @@
 <% description = "Modules may cause a resource (such as a file) to be unavailable for the OS." %>
 <% end %>
 
-* **<%= stability %>** &mdash; <%= description %>
+* **<%= stability %>:** <%= description %>
 <% end %>
 <% end %>
 
@@ -136,7 +137,7 @@ No options are required.
 <% else %>
 <% items[:mod_options].each_pair do |name, props| %>
 <% if props.required && props.default.nil? %>
-* **<%= name %>** &mdash; <%= props.desc %>
+* **<%= name %>:** <%= props.desc %>
 <% end %>
 <% end %>
 <% end %>
