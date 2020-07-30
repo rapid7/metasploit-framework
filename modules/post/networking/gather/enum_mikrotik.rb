@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
       print_status("Gathering info from #{command}")
       # detect if we're in pagination and get as much data as possible
       if ec['fn'] == 'get_config'
-        mikrotik_export_config_eater(host, port, cmd_out.strip)
+        mikrotik_routeros_config_eater(host, port, cmd_out.strip)
       else
         cmd_loc = store_loot("mikrotik.#{ec['fn']}",
                              'text/plain',

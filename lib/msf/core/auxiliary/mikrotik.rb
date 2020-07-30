@@ -71,12 +71,102 @@ module Msf
         # so we check if its empty and skip it to prevent a double quote or escaped double quote
         # field from being loaded
         next if key_value[1].strip == '""' || key_value[1].strip == '\\"\\"'
+
         hash[key_value[0].strip] = key_value[1].strip
       end
       hash
     end
 
-    def mikrotik_export_config_eater(thost, tport, config)
+    def mikrotik_swos_config_eater(thost, tport, config)
+      credential_data = {
+        address: thost,
+        port: tport,
+        protocol: 'tcp',
+        workspace_id: myworkspace.id,
+        origin_type: :service,
+        private_type: :password,
+        service_name: '',
+        module_fullname: fullname,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      # Default SNMP to UDP
+      if tport == 161
+        credential_data[:protocol] = 'udp'
+      end
+
+      store_loot('mikrotik.config', 'text/plain', thost, config.strip, 'config.txt', 'MikroTik Configuration')
+
+      host_info = {
+        host: thost,
+        os_name: 'SwOS'
+      }
+      report_host(host_info)
+
+      # Unfortunately SWoS doesn't have a very easily parsable format.  Config is exported in one big string
+      # they follow a key:value format followed by a comma, but since values can be arrays,
+      # or hashes the actual parsing of such would be pretty difficult.  Since there isn't a ton of value
+      # in this file, we simply run some regexes against it
+
+      # ,sys.b:{id:'4d696b726f54696b2d637373333236',wdt:0x01,dsc:0x01,ivl:0x00,alla:0x00,allm:0x00,allp:0x03ffffff,avln:0x00,prio:0x8000,cost:0x00,igmp:0x00,ip:0x0158a8c0,iptp:0x02,dtrp:0x03ffffff,ainf:0x01}
+      # part we care about: ,ip:0x0158a8c0
+      if /,ip:0x(?<ip>[\da-f]+)/ =~ config
+        ip = ip.scan(/../).map { |x| x.hex.to_i }.reverse.join('.')
+        print_status("#{thost}:#{tport} IP Address: #{ip}")
+      end
+
+      # ,sys.b:{id:'4d696b726f54696b2d637373333236'
+      if /,sys.b:{id:'(?<host>[a-f\d]*)'/ =~ config
+        host = Array(host).pack('H*')
+        host_info[:name] = host
+        report_host(host_info)
+        print_good("#{thost}:#{tport} Hostname: #{host}")
+      end
+
+      # pull the switch password .pwd.b:{pwd:'61646d696e'} -> admin
+      # pull the switch password .pwd.b:{pwd:''} -> (blank, which is default)
+      if /,\.pwd\.b:{pwd:'(?<password>[a-f\d]*)'}/ =~ config
+        password = Array(password).pack('H*')
+        print_good("#{thost}:#{tport} Admin login password: #{password}")
+        cred = credential_data.dup
+        cred[:port] = 80
+        cred[:protocol] = 'tcp'
+        cred[:service_name] = 'www'
+        cred[:username] = 'admin' # hardcoded
+        cred[:private_data] = password.to_s
+        create_credential_and_login(cred)
+      end
+
+      # ,snmp.b:{en:0x01,com:'7075626c6963',ci:'636f6e74616374696e666f',loc:'6c6f636174696f6e'}
+      # ,snmp.b:{en:0x01,com:'7075626c6963',ci:'',loc:''}
+      if /,snmp\.b:{en:0x01,com:'(?<community>[a-f\d]*)',ci:'(?<contact>[a-f\d]*)',loc:'(?<location>[a-f\d]*)'}/ =~ config
+        community = Array(community).pack('H*')
+        contact = Array(contact).pack('H*')
+        location = Array(location).pack('H*')
+        print_good("#{thost}:#{tport} SNMP Community: #{community}, contact: #{contact}, location: #{location}")
+        cred = credential_data.dup
+        cred[:port] = 161
+        cred[:protocol] = 'udp'
+        cred[:service_name] = 'snmp'
+        cred[:private_data] = community.to_s
+        create_credential_and_login(cred)
+      end
+
+      # ,nm:['506f727431','506f727432','506f727433','506f727434','506f727435','506f727436','506f727437','506f727438','506f727439','506f72743130','506f72743131','506f72743132','506f72743133','506f72743134','506f72743135','506f72743136','506f72743137','506f72743138','506f72743139','506f72743230','506f72743231','506f72743232','506f72743233','75706c696e6b','53465031','53465032']}
+      if /,nm:\[(?<interfaces>[a-f\d',]*)\]/ =~ config
+        interfaces = interfaces.split(',')
+        interfaces.each_with_index do |iface, i|
+          iface = iface.gsub("'", '')
+          iface = Array(iface).pack('H*')
+          next if iface == "Port#{i + 1}" || /SFP\d/ =~ iface # skip defaults
+
+          print_status("#{thost}:#{tport} Port #{i + 1} Named: #{iface}")
+        end
+      end
+
+    end
+
+    def mikrotik_routeros_config_eater(thost, tport, config)
       credential_data = {
         address: thost,
         port: tport,
@@ -249,7 +339,7 @@ module Msf
             next unless value.starts_with?('add ')
 
             value = values_to_hash(value)
-            print_good("#{thost}:#{tport} #{value['disabled']=='yes' ? 'disabled' : ''} SMB Username #{value['name']} and password #{value['password']}#{' with RO only access' if value['read-only']=='yes' || !value['read-only']}")
+            print_good("#{thost}:#{tport} #{value['disabled'] == 'yes' ? 'disabled' : ''} SMB Username #{value['name']} and password #{value['password']}#{' with RO only access' if value['read-only'] == 'yes' || !value['read-only']}")
             cred = credential_data.dup
             if value['read-only'] == 'yes' || !value['read-only']
               cred[:access_level] = 'RO'
@@ -291,11 +381,12 @@ module Msf
           # add mode=static-keys-required name=wepwifi static-key-0=0123456789 static-key-1=0987654321 static-key-2=1234509876 static-key-3=0192837645 supplicant-identity=MikroTik
           values.each do |value|
             next unless value.starts_with?('add ')
+
             value = values_to_hash(value)
             output = "#{thost}:#{tport} Wireless AP #{value['name']}"
 
             if !value['authentication-types'] && (!value['mode'] || value['mode'] == 'none') # open wifi
-              output << " with no encryption (open wifi)"
+              output << ' with no encryption (open wifi)'
               vprint_good(output)
               next
             end
@@ -323,6 +414,7 @@ module Msf
               (0..3).each do |i|
                 key = "static-key-#{i}"
                 next unless value[key]
+
                 output << " with WEP password #{value[key]}"
                 cred[:private_data] = value[key]
                 create_credential_and_login(cred) # run for each key we find

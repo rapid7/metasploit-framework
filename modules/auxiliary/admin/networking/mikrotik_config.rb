@@ -17,7 +17,13 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Mikrotik device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die']
+        'Author' => ['h00die'],
+        'Actions' =>
+          [
+            ['ROUTEROS', 'Description' => 'Import RouterOS Config File'],
+            ['SWOS', 'Description' => 'Import SwOS Config File'],
+          ],
+        'DefaultAction' => 'ROUTEROS'
       )
     )
 
@@ -37,7 +43,12 @@ class MetasploitModule < Msf::Auxiliary
     end
     mikrotik_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')
-    mikrotik_export_config_eater(datastore['RHOSTS'], datastore['RPORT'], mikrotik_config.read)
+    if action.name == 'ROUTEROS'
+      print_bad('SWB files are typically SWOS, check action') if datastore['CONFIG'].ends_with?('.swb')
+      mikrotik_routeros_config_eater(datastore['RHOSTS'], datastore['RPORT'], mikrotik_config.read)
+    elsif action.name == 'SWOS'
+      mikrotik_swos_config_eater(datastore['RHOSTS'], datastore['RPORT'], mikrotik_config.read)
+    end
     print_good('Config import successful')
   end
 end
