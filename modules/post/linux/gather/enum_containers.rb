@@ -80,16 +80,23 @@ class MetasploitModule < Msf::Post
   def list_containers(container_type)
     case container_type
     when 'docker'
-      command = 'docker container ls -a'
+      result = cmd_exec('docker container ls -a')
     when 'lxc'
-      command = 'lxc list'
+      # LXC does some awful table formatting, lets try and fix it to be more uniform
+      result = cmd_exec('lxc list').each_line.reject { |st| st =~ /^\+--/ }.map.with_index.map do |s, i|
+        if i == 0
+          s.split('| ').map { |t| t.strip.ljust(t.size, ' ').gsub(/\|/, '') }.join + "\n"
+        else
+          s.gsub(/\| /, '').gsub(/\|/, '')
+        end
+      end.join.strip
     when 'rkt'
-      command = 'rkt list'
+      result = cmd_exec('rkt list')
     else
       print_error("Invalid container type '#{container_type}'")
       return false
     end
-    cmd_exec(command)
+    result
   end
 
   # List running containers identifiers
@@ -147,7 +154,11 @@ class MetasploitModule < Msf::Post
       next unless num_containers
 
       containers = list_containers(platform)
-      print_good("\n#{containers}\n")
+      # Using print so not to mess up table formatting
+      print_line("#{containers}\n")
+
+      p = store_loot("host.#{platform}_containers", 'text/plain', session, containers, "#{platform}_containers.txt", "#{platform} Containers")
+      print_good("Results stored in: #{p}\n")
 
       next if cmd.blank?
 
