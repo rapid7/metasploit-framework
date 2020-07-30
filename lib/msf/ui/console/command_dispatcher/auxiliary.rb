@@ -56,10 +56,10 @@ class Auxiliary
       return mod.send(meth.to_s, *args)
     end
 
-    method = meth.to_s.split(/_/)
-    mod_actions = Serializer::ReadableText.dump_module_actions(mod, '   ')
-    if mod && mod.kind_of?(Msf::Module::HasActions) && mod_actions.include?(method[1])
-       do_action(method[1], *args)
+    action = meth.to_s.delete_prefix('cmd_')
+    mod_actions = mod.actions.map(&:name)
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod_actions.include?(action)
+       do_action(action, *args)
     end
 
     return
