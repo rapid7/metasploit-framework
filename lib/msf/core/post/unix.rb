@@ -4,6 +4,12 @@ require 'msf/core/post/linux/system'
 
 module Msf::Post::Unix
 
+  #
+  # @return [Boolean] true if session is running as uid=0
+  #
+  def is_root?
+    (cmd_exec('id -u').to_s.gsub(/[^\d]/, '') == '0')
+  end
 
   #
   # Returns an array of hashes each representing a user

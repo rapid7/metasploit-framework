@@ -9,13 +9,13 @@ files, as well as instructions on installing/configuring the environment if it i
 standard install. Much of this will come from the PR, and can be copy/pasted.
 
 ## Verification Steps
-  Example steps in this format (is also in the PR):
+Example steps in this format (is also in the PR):
 
-  1. Install the application
-  2. Start msfconsole
-  3. Do: ```use [module path]```
-  4. Do: ```run```
-  5. You should get a shell.
+1. Install the application
+1. Start msfconsole
+1. Do: `use [module path]`
+1. Do: `run`
+1. You should get a shell.
 
 ## Options
 List each option and how to use it.
@@ -27,19 +27,18 @@ Talk about what it does, and how to use it appropriately. If the default value i
 ## Scenarios
 Specific demo of using the module that might be useful in a real world scenario.
 
-
 ### Version and OS
 
-  ```
-  code or console output
-  ```
+```
+code or console output
+```
 
-  For example:
+For example:
 
-  To do this specific thing, here's how you do it:
+To do this specific thing, here's how you do it:
 
-  ```
-  msf > use module_name
-  msf auxiliary(module_name) > set POWERLEVEL >9000
-  msf auxiliary(module_name) > exploit
-  ```
+```
+msf > use module_name
+msf auxiliary(module_name) > set POWERLEVEL >9000
+msf auxiliary(module_name) > exploit
+```

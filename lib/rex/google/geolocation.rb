@@ -40,6 +40,7 @@ module Rex
           self.longitude = results["location"]["lng"]
           self.accuracy = results["accuracy"]
         elsif response && response.body && response.code != '404' # we can json load and get a good error message
+          results = JSON.parse(response.body)
           msg += " Code #{results['error']['code']} for query #{@uri} with error #{results['error']['message']}"
           fail msg
         else

@@ -11,6 +11,7 @@ require File.expand_path('../../config/rails_bigdecimal_fix', __FILE__)
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
+require 'rubocop'
 require 'rubocop/rspec/support'
 require 'metasploit/framework/database'
 # check if database.yml is present
@@ -51,8 +52,12 @@ RSpec.configure do |config|
   # to individual examples or groups you care about by tagging them with
   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
   # get run.
-  config.filter_run :focus
-  config.run_all_when_everything_filtered = true
+  if ENV['CI']
+    config.before(:example, :focus) { raise "Should not commit focused specs" }
+  else
+    config.filter_run focus: true
+    config.run_all_when_everything_filtered = true
+  end
 
   # allow more verbose output when running an individual spec file.
   if config.files_to_run.one?

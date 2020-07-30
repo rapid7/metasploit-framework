@@ -267,7 +267,7 @@ RSpec.describe RuboCop::Cop::Layout::ModuleDescriptionIndentation do
     RUBY
   end
 
-  it 'registers an offense when there is additional whitespace', focus: true do
+  it 'registers an offense when there is additional whitespace' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})

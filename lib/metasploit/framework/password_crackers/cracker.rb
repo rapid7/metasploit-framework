@@ -182,6 +182,10 @@ module Metasploit
             '110'
           when 'android-md5'
             '10'
+          when 'hmac-md5'
+            '10200'
+          when 'dynamic_82'
+            '1710'
           else
             nil
           end
