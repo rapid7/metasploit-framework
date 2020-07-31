@@ -557,9 +557,9 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
 
-      next unless Msf::Serializer::OptConditions.show_option(mod, opt)
       val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
 
+      next unless Msf::Serializer::OptConditions.show_option(mod, opt)
       next if (opt.advanced?)
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
