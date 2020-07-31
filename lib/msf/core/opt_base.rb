@@ -26,12 +26,13 @@ module Msf
     # also be a string as standin for the required description field.
     #
     def initialize(in_name, attrs = [],
-                   required: false, desc: nil, default: nil, enums: [], regex: nil, aliases: [], max_length: nil)
+                   required: false, desc: nil, default: nil, conditions: [], enums: [], regex: nil, aliases: [], max_length: nil)
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
       self.aliases  = aliases
       self.max_length = max_length
+      self.conditions = conditions
 
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
@@ -189,6 +190,10 @@ module Msf
     # The module or entity that owns this option.
     #
     attr_accessor :owner
+    #
+    # The list of potencial conditions
+    #
+    attr_accessor :conditions
     #
     # The list of potential valid values
     #

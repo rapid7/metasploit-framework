@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'msf/base/serializer/opt_conditions'
+
 module Msf
 module Serializer
 
@@ -553,6 +556,8 @@ class ReadableText
         ])
 
     mod.options.sorted.each do |name, opt|
+
+      next unless Msf::Serializer::OptConditions.show_option(mod, opt)
       val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
 
       next if (opt.advanced?)
@@ -599,6 +604,7 @@ class ReadableText
 
     mod.options.sorted.each do |name, opt|
       next unless opt.advanced?
+      next unless Msf::Serializer::OptConditions.show_option(mod, opt)
       val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
       tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
     end
