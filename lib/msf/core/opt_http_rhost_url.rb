@@ -8,7 +8,7 @@ module Msf
   ###
   class OptHTTPRhostURL < OptBase
     def type
-      'rhost url'
+      'rhost http url'
     end
 
     def normalize(value)
@@ -49,13 +49,13 @@ module Msf
     def calculate_value(datastore)
       if datastore['RHOSTS']
         begin
-          uri = URI::Generic.build(host: datastore['RHOSTS'])
+          uri_type = datastore['SSL'] ? URI::HTTPS : URI::HTTP
+          uri = uri_type.build(host: datastore['RHOSTS'])
           uri.port = datastore['RPORT']
           # The datastore uses both `TARGETURI` and `URI` to denote the path of a URL, we try both here and fall back to `/`
           uri.path = (datastore['TARGETURI'] || datastore['URI'] || '/')
           uri.user = datastore['HttpUsername']
           uri.password = datastore['HttpPassword'] if uri.user
-          uri.scheme = datastore['SSL'] ? "https" : "http"
           uri
         rescue URI::InvalidComponentError
           nil
@@ -66,10 +66,10 @@ module Msf
     protected
 
     def get_uri(value)
-        value = 'http://' + value unless value.start_with?(/https?:\/\//)
-        URI(value)
-      rescue URI::InvalidURIError
-        nil
+      value = 'http://' + value unless value.start_with?(%r{https?://})
+      URI(value)
+    rescue URI::InvalidURIError
+      nil
     end
   end
 end
