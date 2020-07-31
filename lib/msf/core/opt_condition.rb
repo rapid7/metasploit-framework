@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 module Msf
-  module OptConditions
+  module OptCondition
 
       # Check a condition's result
       def self.eval_condition(left_value, operator, right_value)
