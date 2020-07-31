@@ -63,7 +63,7 @@ module Msf
     end
 
     def self.RHOST_URL(default=nil, required=false, desc="The target URL, only applicable if there is a single URL")
-      Msf::OptRhostURL.new(__method__.to_s, [required, desc, default ])
+      Msf::OptHTTPRhostURL.new(__method__.to_s, [required, desc, default ])
     end
 
     def self.stager_retry_options

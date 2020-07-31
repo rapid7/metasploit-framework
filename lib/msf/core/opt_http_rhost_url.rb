@@ -6,7 +6,7 @@ module Msf
   # RHOST URL option.
   #
   ###
-  class OptRhostURL < OptBase
+  class OptHTTPRhostURL < OptBase
     def type
       'rhost url'
     end
@@ -15,6 +15,8 @@ module Msf
       return unless value
 
       uri = get_uri(value)
+      return unless uri
+
       option_hash = {}
       # Blank this out since we don't know if this new value will have a `VHOST` to ensure we remove the old value
       option_hash['VHOST'] = nil
@@ -53,7 +55,8 @@ module Msf
           uri.path = (datastore['TARGETURI'] || datastore['URI'] || '/')
           uri.user = datastore['HttpUsername']
           uri.password = datastore['HttpPassword'] if uri.user
-          uri.to_s.delete_prefix('//')
+          uri.scheme = datastore['SSL'] ? "https" : "http"
+          uri
         rescue URI::InvalidComponentError
           nil
         end
@@ -63,10 +66,10 @@ module Msf
     protected
 
     def get_uri(value)
+        value = 'http://' + value unless value.start_with?(/https?:\/\//)
         URI(value)
       rescue URI::InvalidURIError
-        URI('//' + value)
+        nil
     end
-
   end
 end
