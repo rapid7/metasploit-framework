@@ -26,7 +26,7 @@ class Auxiliary
   # Returns the hash of commands specific to auxiliary modules.
   #
   def action_commands
-      mod.actions.map { |action| [action.name, action.description] }.to_h
+      mod.actions.map { |action| [action.name.downcase, action.description] }.to_h
   end
 
   #
@@ -57,8 +57,7 @@ class Auxiliary
     end
 
     action = meth.to_s.delete_prefix('cmd_')
-    mod_actions = mod.actions.map(&:name)
-    if mod && mod.kind_of?(Msf::Module::HasActions) && mod_actions.include?(action)
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).map(&:downcase).include?(action)
        do_action(action, *args)
     end
 
@@ -70,7 +69,10 @@ class Auxiliary
   # Execute the module with a set action
   #
   def do_action(meth, *args)
-    mod.datastore['ACTION'] = meth
+    action = mod.actions.select { |action| action.name.downcase == meth.downcase }.first
+    raise Exception('no action') if action.nil?
+    mod.datastore['ACTION'] = action.name
+
     cmd_run(*args)
   end
 
