@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://insecure.org/sploits/ms.ie.mk.url.html' ],
           [ 'URL', 'http://web.archive.org/web/20000421180102/http://www.microsoft.com/windows/Ie/security/mk.asp' ],
           [ 'URL', 'http://web.archive.org/web/19990427120547/http://l0pht.com/advisories/mkbug401.html' ],
+          [ 'CVE', '1999-0331' ]
         ],
       'Platform'       => 'win',
       'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
