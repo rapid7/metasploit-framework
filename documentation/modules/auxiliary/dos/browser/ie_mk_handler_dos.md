@@ -35,3 +35,6 @@ msf5 auxiliary(dos/browser/ie_mk_handler_dos) >
 [+] Vulnerable IE detected: Mozilla/4.0 (compatible; MSIE 4.01; Windows 95)
 [*] Sending HTML...
 ```
+
+![image (2)](https://user-images.githubusercontent.com/752491/89100925-5a97b380-d3c9-11ea-84db-cb72e9eb658c.png)
+![image (3)](https://user-images.githubusercontent.com/752491/89100926-5cfa0d80-d3c9-11ea-86fe-371a518fce19.png)
