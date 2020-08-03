@@ -59,6 +59,8 @@ def hash_to_hashcat(cred)
       if cred.private.jtr_format.start_with?('des') # 'des,oracle', not oracle11/12c, hash-mode: 3100
         return "#{cred.private.data}"
       end
+    when /dynamic_82/
+      return cred.private.data.sub('$HEX$', ':').sub('$dynamic_82$','')
     when /mysql-sha1/
       # lowercase, and remove the first character if its a *
       return cred.private.data.downcase.sub('*','')

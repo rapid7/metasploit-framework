@@ -15,20 +15,103 @@
 <% end %>
 
 ## Module Ranking
+<%# https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking %>
 
-<%= normalize_rank(items[:mod_rank]) %>
+**<%= items[:mod_rank_name] %>**
 
-## Side Effects
+<% if items[:mod_rank_name] == "Excellent" %>
+> The exploit will never crash the service. This is the case for SQL Injection, CMD execution, RFI, LFI, etc. No typical
+> memory corruption exploits should be given this ranking unless there are extraordinary circumstances.
 
-<%= normalize_side_effects(items[:mod_side_effects]) %>
+<% elsif items[:mod_rank_name] == "Great" %>
+> The exploit has a default target AND either auto-detects the appropriate target or uses an application-specific return
+> address AFTER a version check.
 
-## Reliability
+<% elsif items[:mod_rank_name] == "Good" %>
+> The exploit has a default target and it is the "common case" for this type of software (English, Windows 7 for a
+> desktop app, 2012 for server, etc).
 
-<%= normalize_reliability(items[:mod_reliability]) %>
+<% elsif items[:mod_rank_name] == "Normal" %>
+> The exploit is otherwise reliable, but depends on a specific version and can't (or doesn't) reliably autodetect.
 
-## Stability
+<% elsif items[:mod_rank_name] == "Average" %>
+> The exploit is generally unreliable or difficult to exploit.
 
-<%= normalize_stability(items[:mod_stability]) %>
+<% elsif items[:mod_rank_name] == "Low" %>
+> The exploit is nearly impossible to exploit (or under 50% success rate) for common platforms.
+
+<% elsif items[:mod_rank_name] == "Manual" %>
+> The exploit is unstable or difficult to exploit and is basically a DoS. This ranking is also used when the module has
+> no use unless specifically configured by the user (e.g.: [exploit/windows/smb/psexec][1]).
+
+<% end %>
+
+## Module Traits
+<%# https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability %>
+
+<% unless items[:mod_side_effects].empty? %>
+### Side Effects
+
+<% items[:mod_side_effects].each do |side_effect| %>
+<% if side_effect == "artifacts-on-disk" %>
+<% description = "Modules leaves a payload or a dropper on the target machine." %>
+<% elsif side_effect == "config-changes" %>
+<% description = "Module modifies some configuration setting on the target machine." %>
+<% elsif side_effect == "ioc-in-logs" %>
+<% description = "Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)." %>
+<% elsif side_effect == "account-lockouts" %>
+<% description = "Module may cause account lockouts (likely due to brute-forcing)." %>
+<% elsif side_effect == "screen-effects" %>
+<% description = "Module may show something on the screen (Example: a window pops up)." %>
+<% elsif side_effect == "audio-effects" %>
+<% description = "Module may cause a noise (Examples: audio output from the speakers or hardware beeps)." %>
+<% elsif side_effect == "physical-effects" %>
+<% description = "Module may produce physical effects (Examples: the device makes movement or flashes LEDs)." %>
+<% end %>
+
+* **<%= side_effect %>:** <%= description %>
+<% end %>
+<% end %>
+
+<% unless items[:mod_reliability].empty? %>
+### Reliability
+
+<% items[:mod_reliability].each do |reliability| %>
+<% if reliability == "first-attempt-fail" %>
+<% description = "The module tends to fail to get a session on the first attempt." %>
+<% elsif reliability == "repeatable-session" %>
+<% description = "The module is expected to get a shell every time it runs." %>
+<% elsif reliability == "unreliable-session" %>
+<% description = "The module isn't expected to get a shell reliably (such as only once)." %>
+<% end %>
+
+* **<%= reliability %>:** <%= description %>
+<% end %>
+<% end %>
+
+<% unless items[:mod_stability].empty? %>
+### Stability
+
+<% items[:mod_stability].each do |stability| %>
+<% if stability == "crash-safe" %>
+<% description = "Module should not crash the service." %>
+<% elsif stability == "crash-service-restarts" %>
+<% description = "Module may crash the service, but the service restarts." %>
+<% elsif stability == "crash-service-down" %>
+<% description = "Module may crash the service, and the service remains down." %>
+<% elsif stability == "crash-os-restarts" %>
+<% description = "Module may crash the OS, but the OS restarts." %>
+<% elsif stability == "crash-os-down" %>
+<% description = "Module may crash the OS, and the OS remains down." %>
+<% elsif stability == "service-resource-loss" %>
+<% description = "Module may cause a resource (such as a file or data in a database) to be unavailable for the service." %>
+<% elsif stability == "os-resource-loss" %>
+<% description = "Modules may cause a resource (such as a file) to be unavailable for the OS." %>
+<% end %>
+
+* **<%= stability %>:** <%= description %>
+<% end %>
+<% end %>
 
 ## Related Pull Requests
 
@@ -49,12 +132,18 @@
 
 ## Required Options
 
-<% if normalize_options(items[:mod_options]).empty? %>
-No options required.
+<% if items[:mod_options].empty? %>
+No options are required.
 <% else %>
-<%= normalize_options(items[:mod_options]) %>
+<% items[:mod_options].each_pair do |name, props| %>
+<% if props.required && props.default.nil? %>
+* **<%= name %>:** <%= props.desc %>
+<% end %>
+<% end %>
 <% end %>
 
 ## Basic Usage
 
 <%= normalize_demo_output(items[:mod_demo]) %>
+
+[1]: https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/smb/psexec.rb

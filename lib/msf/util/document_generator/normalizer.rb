@@ -155,23 +155,6 @@ module Msf
         end
 
 
-        # Returns the markdown format for module datastore options.
-        #
-        # @param mod_options [Hash] Datastore options
-        # @return [String]
-        def normalize_options(mod_options)
-          required_options = []
-
-          mod_options.each_pair do |name, props|
-            if props.required && props.default.nil?
-              required_options << "* #{name} - #{props.desc}"
-            end
-          end
-
-          required_options * "\n"
-        end
-
-
         # Returns the markdown format for module description.
         #
         # @param description [String] Module description.
@@ -245,41 +228,6 @@ module Msf
           else
             platforms
           end
-        end
-
-
-        # Returns the markdown format for module rank.
-        #
-        # @param rank [String] Module rank.
-        # @return [String]
-        def normalize_rank(rank)
-          "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
-        end
-
-
-        # Returns the markdown format for module side effects.
-        #
-        # @param side_effects [Array<String>] Module effects.
-        # @return [String]
-        def normalize_side_effects(side_effects)
-          md_side_effects = side_effects.collect { |s| "* #{s}\n" }.join
-          md_side_effects.empty? ? 'N/A' : md_side_effects
-        end
-
-
-        # Returns the markdown format for module reliability.
-        #
-        # @param reliability [Array<String>] Module reliability.
-        # @return [String]
-        def normalize_reliability(reliability)
-          md_reliability = reliability.collect { |r| "* #{r}\n" }.join
-          md_reliability.empty? ? 'N/A' : md_reliability
-        end
-
-
-        def normalize_stability(stability)
-          md_stability = stability.collect { |s| "* #{s}\n" }.join
-          md_stability.empty? ? 'N/A' : md_stability
         end
 
 

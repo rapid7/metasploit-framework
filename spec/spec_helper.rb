@@ -11,6 +11,7 @@ require File.expand_path('../../config/rails_bigdecimal_fix', __FILE__)
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
+require 'rubocop'
 require 'rubocop/rspec/support'
 require 'metasploit/framework/database'
 # check if database.yml is present
