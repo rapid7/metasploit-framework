@@ -413,13 +413,10 @@ module Rex
       if @state[:vulners]
         vuln_info = {
             :workspace => @args[:workspace],
-            #:task => args[:task],
             :host => @state[:addresses]["ipv4"],
             :port => @state[:port]["portid"],
             :proto => @state[:port]["protocol"],
             :name => @state[:vulners][:cpe],
-            #:info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
-            # Add more refs based on nessus/nexpose .. results
             :refs => @state[:vulners][:refs]
         }
         db_report(:vuln, vuln_info)
