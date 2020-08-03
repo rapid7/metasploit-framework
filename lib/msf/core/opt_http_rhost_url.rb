@@ -39,10 +39,11 @@ module Msf
     end
 
     def valid?(value, check_empty: false)
-      return true unless value
+      return true unless value || required
 
       uri = get_uri(value)
-      false unless !uri.host.nil? && !uri.port.nil?
+      return false unless uri && !uri.host.nil? && !uri.port.nil?
+
       super
     end
 
@@ -66,10 +67,26 @@ module Msf
     protected
 
     def get_uri(value)
+      return unless value
+      return if check_for_range(value)
+
       value = 'http://' + value unless value.start_with?(%r{https?://})
       URI(value)
     rescue URI::InvalidURIError
       nil
     end
+
+    def check_for_range(value)
+      return false if value =~ /[^-0-9,.*\/]/
+      walker = Rex::Socket::RangeWalker.new(value)
+      if walker&.valid?
+        # if there is only a single ip then it's not a range
+        return walker.length != 1
+      end
+    rescue ::Exception
+      # couldn't create a range therefore it isn't one
+      return false
+    end
+
   end
 end
