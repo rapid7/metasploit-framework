@@ -95,7 +95,6 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[How to use a reverse shell in Metasploit]]
 - [[Information About Unmet Browser Exploit Requirements]]
 - [[How to use msfvenom]]
-- [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
 - [[What my Rex Proto SMB Error means]]
 - [[Why CVE Is Not Available]]
 
