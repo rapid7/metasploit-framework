@@ -49,7 +49,6 @@ end
 # Display an error message, given some text
 #
 def error(txt)
-  line_msg = ''
   puts "[#{'ERROR'.red}] #{cleanup_text(txt)}"
 end
 
@@ -57,7 +56,6 @@ end
 # Display a warning message, given some text
 #
 def warning(txt)
-  line_msg = ''
   puts "[#{'WARNING'.yellow}] #{cleanup_text(txt)}"
 end
 
@@ -65,7 +63,6 @@ end
 # Display a info message, given some text
 #
 def info(txt)
-  line_msg = ''
   puts "[#{'INFO'.cyan}] #{cleanup_text(txt)}"
 end
 
@@ -91,14 +88,24 @@ end
 #
 #
 
+###
+# Bloodhound/Sharphound files
+###
 scripts = []
 scripts << {
-  name: 'Sharphound (Bloodhound)',
+  name: 'Sharphound (Bloodhound) ps1',
   addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.ps1',
   dest: '/data/post/powershell/SharpHound.ps1',
   subs: [
     ["\t", '    '], # tabs to spaces
     [/\s+$/, ''] # trailing whitespace
+  ]
+}
+scripts << {
+  name: 'Sharphound (Bloodhound) exe',
+  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.exe',
+  dest: '/data/post/SharpHound.exe',
+  subs: [
   ]
 }
 ###
