@@ -152,8 +152,8 @@ end
 module ExploitError
   include Exception
 
-  def to_s
-    "An exploitation error occurred."
+  def initialize(msg="An exploitation error occurred.")
+    super(msg)
   end
 end
 
