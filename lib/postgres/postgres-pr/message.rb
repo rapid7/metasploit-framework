@@ -48,6 +48,13 @@ class Message
 
     raise ParseError unless (!length.nil? && length >= 4)
 
+    # If we didn't read any bytes and startup was not set, then type will be nil, so don't continue.
+    unless startup
+      if type.nil?
+        return ParseError
+      end
+    end
+
     # initialize buffer
     buffer = Buffer.of_size(startup ? length : 1+length)
     buffer.write(type) unless startup
