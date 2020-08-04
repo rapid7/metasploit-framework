@@ -4,9 +4,12 @@ require 'metasploit/framework/aws/client'
 RSpec.describe Metasploit::Framework::Aws::Client do
 
   subject do
-    s = Class.new(Msf::Auxiliary) do
+    mod_klass = Class.new(Msf::Auxiliary) do
       include Metasploit::Framework::Aws::Client
-    end.new
+    end
+    features = instance_double(Msf::FeatureManager, enabled?: false)
+    mod_klass.framework = instance_double(Msf::Framework, features: features, datastore: {})
+    s = mod_klass.new
     s.datastore['Region'] = 'us-east-1'
     s.datastore['RHOST'] = '127.0.0.1'
     s
