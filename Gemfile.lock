@@ -8,7 +8,7 @@ PATH
       aws-sdk-ec2
       aws-sdk-iam
       aws-sdk-s3
-      bcrypt (= 3.1.12)
+      bcrypt
       bcrypt_pbkdf
       bit-struct
       bson
@@ -143,7 +143,7 @@ GEM
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.1)
       aws-eventstream (~> 1, >= 1.0.2)
-    bcrypt (3.1.12)
+    bcrypt (3.1.15)
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.8)
     bit-struct (0.16)

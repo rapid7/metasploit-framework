@@ -53,7 +53,7 @@ Gem::Specification.new do |spec|
   # Needed for config.action_view for view plugin compatibility for Pro
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
-  spec.add_runtime_dependency 'bcrypt', '3.1.12'
+  spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
