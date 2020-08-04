@@ -1,0 +1,52 @@
+## Vulnerable Application
+
+This module checks if authentication is required on a Jupyter Lab or Notebook server. If it is, this module will
+bruteforce the password. Jupyter only requires a password to authenticate, usernames are not used. This module is
+compatible with versions 4.3.0 (released 2016-12-08) and newer. [Version 4.3.0][1] is the first version in which
+authentication is required by default.
+
+A note on names, "Jupyter Lab" is the next-generation interface for "Jupyter Notebooks" which was the successor of the
+original IPython Notebook system. This module is compatible with both standard Jupyter Notebook and Jupyter Lab servers.
+
+### Installation
+
+1. Install the latest version of Jupyter from PyPi using pip: `pip install notebook`. The "notebook" package is the core
+  application and is the one whose version number is referenced.
+1. Start Jupyter using `jupyter notebook`, new installs will randomly generate an authentication token and open the
+  browser with it
+1. As of [version 5.3][2], the user will be prompted to set a password the first time they open the UI
+1. With the password set, the module can be tested
+
+## Verification Steps
+
+1. Install the application
+1. Start msfconsole
+1. Do: `use auxiliary/scanner/http/jupyter_login`
+1. Set the `RHOSTS` option
+    * With no other options set, this will only check if authentication is required
+1. Do: `run`
+1. You should see login attempts
+
+## Options
+
+## Scenarios
+
+### Jupyte Notebook 4.3.0
+
+```
+msf5 > use auxiliary/scanner/http/jupyter_login 
+msf5 auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
+RHOSTS => 192.168.159.128
+msf5 auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
+PASS_FILE => /tmp/passwords.txt
+msf5 auxiliary(scanner/http/jupyter_login) > run
+
+[*] 192.168.159.128:8888 - The server responded that it is running Jupyter version: 4.3.0
+[+] 192.168.159.128:8888 - No password is required.
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/http/jupyter_login) >
+```
+
+[1]: https://jupyter-notebook.readthedocs.io/en/stable/changelog.html#release-4-3
+[2]: https://jupyter-notebook.readthedocs.io/en/stable/public_server.html#automatic-password-setup
