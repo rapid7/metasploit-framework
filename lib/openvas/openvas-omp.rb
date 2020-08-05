@@ -3,11 +3,11 @@
 # This plugin provides integration with OpenVAS. Written by kost and
 # averagesecurityguy.
 #
-# Distributed under MIT license: 
+# Distributed under MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 #
 
-require 'socket' 
+require 'socket'
 require 'timeout'
 require 'openssl'
 require 'rexml/document'
@@ -15,7 +15,7 @@ require 'rexml/text'
 require 'base64'
 
 # OpenVASOMP module
-# 
+#
 # Usage: require 'openvas-omp'
 
 module OpenVASOMP
@@ -80,7 +80,7 @@ module OpenVASOMP
       @socket.sync_close = true
       @socket.connect
     end
-      
+
     def disconnect
       if @debug then
         puts "Closing connection to server #{@host} on port #{@port}" end
@@ -97,9 +97,9 @@ module OpenVASOMP
       # Receive the response
       resp = ''
       size = 0
-      begin	
+      begin
         begin
-          timeout(@read_timeout) {
+          Timeout.timeout(@read_timeout) {
               a = @socket.sysread(@bufsize)
               size = a.length
               resp << a
@@ -110,12 +110,12 @@ module OpenVASOMP
           raise OMPResponseError
         end
       end while size >= @bufsize
-      
+
       if @debug then puts "RECEIVED: " + resp end
       return resp
     end
   end
-    
+
 
 #------------------------------
 # OpenVASOMP class
@@ -191,7 +191,7 @@ module OpenVASOMP
       return status, status_text
     end
 
-    # Send string request wrapped with authentication XML and return 
+    # Send string request wrapped with authentication XML and return
     # an XML object
     def omp_request_xml(request)
       if @debug
@@ -203,7 +203,7 @@ module OpenVASOMP
         docxml = REXML::Document.new("<response>" + resp + "</response>")
         resp = docxml.root.elements['authenticate_response'].next_element
         status = resp.attributes['status'].to_i
-        status_text = resp.attributes['status_text']	
+        status_text = resp.attributes['status_text']
         if @debug
           puts "Status: #{status}"
           puts "Status Text: #{status_text}"
@@ -238,11 +238,11 @@ module OpenVASOMP
         version = resp.elements['version'].text
         return version
       rescue
-        raise XMLParsingError 
+        raise XMLParsingError
       end
     end
 
-    # login to OpenVAS server. 
+    # login to OpenVAS server.
     # if successful returns authentication XML for further usage
     # if unsuccessful returns empty string
     def login(user, pass)
@@ -253,7 +253,7 @@ module OpenVASOMP
       if status == 200
         @token = req
       else
-        raise OMPAuthError	
+        raise OMPAuthError
       end
     end
 
@@ -274,7 +274,7 @@ module OpenVASOMP
     #
     # Usage:
     # array_of_hashes = target_get_all()
-    # 
+    #
     def target_get_all()
       begin
         status, status_text, resp = omp_request_xml("<get_targets/>")
@@ -292,7 +292,7 @@ module OpenVASOMP
         end
         @targets = list
         return list
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -303,7 +303,7 @@ module OpenVASOMP
     #
     # target_id = ov.target_create("name"=>"localhost",
     # 	"hosts"=>"127.0.0.1","comment"=>"yes")
-    # 
+    #
     def target_create(name, hosts, comment)
       req = xml_elems("create_target", {"name"=>name, "hosts"=>hosts, "comment"=>comment})
 
@@ -311,18 +311,18 @@ module OpenVASOMP
         status, status_text, resp = omp_request_xml(req)
         target_get_all
         return "#{status_text}: #{resp.attributes['id']}"
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
 
-    # OMP - Delete target 
+    # OMP - Delete target
     #
     # Usage:
     #
     # ov.target_delete(target_id)
-    # 
-    def target_delete(id) 
+    #
+    def target_delete(id)
       target = @targets[id.to_i]
       if not target
         raise OMPError.new("Invalid target id.")
@@ -332,7 +332,7 @@ module OpenVASOMP
         status, status_text, resp = omp_request_xml(req)
         target_get_all
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -342,8 +342,8 @@ module OpenVASOMP
   #--------------------------
     # In short: Create a task.
     #
-    # The client uses the create_task command to create a new task. 
-    # 
+    # The client uses the create_task command to create a new task.
+    #
     def task_create(name, comment, config_id, target_id)
       config = @configs[config_id.to_i]
       target = @targets[target_id.to_i]
@@ -351,14 +351,14 @@ module OpenVASOMP
       target = xml_attrs("target", {"id"=>target["id"]})
       namestr = xml_str("name", name)
       commstr = xml_str("comment", comment)
-      
+
       req = xml_str("create_task", namestr + commstr + config + target)
 
       begin
         status, status_text, resp = omp_request_xml(req)
         task_get_all
         return "#{status_text}: #{resp.attributes['id']}"
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -366,9 +366,9 @@ module OpenVASOMP
     # In short: Delete a task.
     #
     # The client uses the delete_task command to delete an existing task,
-    # including all reports associated with the task. 
-    # 
-    def task_delete(task_id) 
+    # including all reports associated with the task.
+    #
+    def task_delete(task_id)
       task = @tasks[task_id.to_i]
       if not task
         raise OMPError.new("Invalid task id.")
@@ -378,19 +378,19 @@ module OpenVASOMP
         status, status_text, resp = omp_request_xml(req)
         task_get_all
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
 
     # In short: Get all tasks.
     #
-    # The client uses the get_tasks command to get task information. 
-    # 
+    # The client uses the get_tasks command to get task information.
+    #
     def task_get_all()
       begin
         status, status_text, resp = omp_request_xml("<get_tasks/>")
-        
+
         list = Array.new
         resp.elements.each('//get_tasks_response/task') do |task|
           td = Hash.new
@@ -399,7 +399,7 @@ module OpenVASOMP
           td["comment"] = task.elements["comment"].text
           td["status"] = task.elements["status"].text
           td["progress"] = task.elements["progress"].text
-          list.push td	
+          list.push td
         end
         @tasks = list
         return list
@@ -422,7 +422,7 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml(req)
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -432,7 +432,7 @@ module OpenVASOMP
     # The client uses the stop_task command to manually stop a running
     # task.
     #
-    def task_stop(task_id) 
+    def task_stop(task_id)
       task = @tasks[task_id.to_i]
       if not task
         raise OMPError.new("Invalid task id.")
@@ -441,17 +441,17 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml(req)
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
-    end 
+    end
 
     # In short: Pause a running task.
     #
     # The client uses the pause_task command to manually pause a running
     # task.
     #
-    def task_pause(task_id) 
+    def task_pause(task_id)
       task = @tasks[task_id.to_i]
       if not task
         raise OMPError.new("Invalid task id.")
@@ -460,7 +460,7 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml(req)
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -470,8 +470,8 @@ module OpenVASOMP
     # The client uses the resume_or_start_task command to manually start
     # an existing task, ensuring that the task will resume from its
     # previous position if the task is in the Stopped state.
-    # 
-    def task_resume_or_start(task_id) 
+    #
+    def task_resume_or_start(task_id)
       task = @tasks[task_id.to_i]
       if not task
         raise OMPError.new("Invalid task id.")
@@ -480,7 +480,7 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml(req)
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -489,8 +489,8 @@ module OpenVASOMP
     #
     # The client uses the resume_paused_task command to manually resume
     # a paused task.
-    # 
-    def task_resume_paused(task_id) 
+    #
+    def task_resume_paused(task_id)
       task = @tasks[task_id.to_i]
       if not task
         raise OMPError.new("Invalid task id.")
@@ -499,7 +499,7 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml(req)
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
@@ -513,7 +513,7 @@ module OpenVASOMP
     # Usage:
     #
     # array_of_hashes=ov.config_get_all()
-    # 
+    #
     def config_get_all()
       begin
         status, status_text, resp = omp_request_xml("<get_configs/>")
@@ -527,10 +527,10 @@ module OpenVASOMP
         end
         @configs = list
         return list
-      rescue 
+      rescue
         raise OMPResponseError
       end
-    end	
+    end
 
 
   #--------------------------
@@ -541,7 +541,7 @@ module OpenVASOMP
       begin
         status, status_text, resp = omp_request_xml("<get_report_formats/>")
         if @debug then print resp end
-        
+
         list = Array.new
         resp.elements.each('//get_report_formats_response/report_format') do |report|
           td = Hash.new
@@ -549,7 +549,7 @@ module OpenVASOMP
           td["name"] = report.elements["name"].text
           td["extension"] = report.elements["extension"].text
           td["summary"] = report.elements["summary"].text
-          list.push td	
+          list.push td
         end
         @formats = list
         return list
@@ -566,7 +566,7 @@ module OpenVASOMP
     def report_get_all()
       begin
         status, status_text, resp = omp_request_xml("<get_reports/>")
-        
+
         list = Array.new
         resp.elements.each('//get_reports_response/report') do |report|
           td = Hash.new
@@ -574,7 +574,7 @@ module OpenVASOMP
           td["task"] = report.elements["report/task/name"].text
           td["start_time"] = report.elements["report/scan_start"].text
           td["stop_time"] = report.elements["report/scan_end"].text
-          list.push td	
+          list.push td
         end
         @reports = list
         return list
@@ -583,7 +583,7 @@ module OpenVASOMP
       end
     end
 
-    def report_delete(report_id) 
+    def report_delete(report_id)
       report = @reports[report_id.to_i]
       if not report
         raise OMPError.new("Invalid report id.")
@@ -593,7 +593,7 @@ module OpenVASOMP
         status, status_text, resp = omp_request_xml(req)
         report_get_all
         return status_text
-      rescue 
+      rescue
         raise OMPResponseError
       end
     end
