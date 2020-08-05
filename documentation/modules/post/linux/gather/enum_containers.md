@@ -27,7 +27,7 @@
 
 ## Scenarios
 
-Scenario 1: Docker is installed and there  are 4 running containers
+Scenario 1: Docker is installed with 4 running containers
 ```
 msf5 post(linux/gather/enum_containers) > set session 4
 session => 4
@@ -43,7 +43,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 [*] Post module execution completed
 ```
 
-Scenario 2: Docker, LXC and RKT are installed
+Scenario 2: Docker, LXC and RKT are installed, and each of them are running their own containers
 ```
 msf5 post(linux/gather/enum_containers) > set session 5
 session => 5
@@ -105,4 +105,26 @@ HOME=/root
 HOSTNAME=1a339ef0d38e
 HOME=/root
 [*] Post module execution completed
+```
+
+Scenario 5: Docker, LXC, and RKT are all installed on the target but the user cannot enumerate all containers due to a lack of permissions
+```
+msf5 post(linux/gather/enum_containers) > exploit
+
+[+] docker was found on the system!
+[-] Was unable to enumerate the number of docker containers due to a lack of permissions!
+[-] No active or inactive containers were found for docker
+
+[+] lxc was found on the system!
+[+] lxc: 1 Running Containers / 1 Total
+NAME    STATE   IPV4                 IPV6                                         TYPE      SNAPSHOTS
+one-fox RUNNING 10.166.198.97 (eth0) fd42:a29:a47e:79c6:216:3eff:fe1f:1dca (eth0) CONTAINER 0
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805175357_default_172.27.129.4_host.lxc_contain_675096.txt
+
+[+] rkt was found on the system!
+[-] Was unable to enumerate the number of rkt containers due to a lack of permissions!
+[-] No active or inactive containers were found for rkt
+
+[*] Post module execution completed
+msf5 post(linux/gather/enum_containers) >
 ```
