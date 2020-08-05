@@ -9,7 +9,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
-require 'openvas-omp'
+require 'openvas/openvas-omp'
 
 module Msf
 class Plugin::OpenVAS < Msf::Plugin
@@ -148,7 +148,7 @@ class Plugin::OpenVAS < Msf::Plugin
       return unless openvas?
 
       begin
-        ver = @ov.version_get
+        ver = @ov.get_version
         print_good("Using OMP version #{ver}")
       rescue OpenVASOMP::OMPError => e
         print_error(e.to_s)
@@ -188,7 +188,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
         begin
           print_status("Connecting to OpenVAS instance at #{host}:#{port} with username #{user}...")
-          ov = OpenVASOMP::OpenVASOMP.new('user' => user, 'password' => pass, 'host' => host, 'port' => port)
+          ov = OpenVASOMP::OpenVASOMP.new(user, pass, host, port)
         rescue OpenVASOMP::OMPAuthError => e
           print_error("Authentication failed: #{e.reason}")
           return
@@ -221,7 +221,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 3)
         begin
-          resp = @ov.target_create('name' => args[0], 'hosts' => args[1], 'comment' => args[2])
+          resp = @ov.target_create(args[0], args[1], args[2])
           print_status(resp)
           cmd_openvas_target_list
         rescue OpenVASOMP::OMPError => e
@@ -276,7 +276,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          resp = @ov.task_create('name' => args[0], 'comment' => args[1], 'config' => args[2], 'target'=> args[3])
+          resp = @ov.task_create(args[0], args[1], args[2], args[3])
           print_status(resp)
           cmd_openvas_task_list
         rescue OpenVASOMP::OMPError => e
@@ -416,7 +416,7 @@ class Plugin::OpenVAS < Msf::Plugin
         tbl = Rex::Text::Table.new(
           'Columns' => [ "ID", "Name" ])
 
-        @ov.config_get_all.each do |config|
+        @ov.configs.each do |config|
           tbl << [ config["id"], config["name"] ]
         end
         print_good("OpenVAS list of configs")
@@ -437,7 +437,7 @@ class Plugin::OpenVAS < Msf::Plugin
       begin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Name", "Extension", "Summary"])
-        format_get_all.each do |format|
+        @ov.formats.each do |format|
           tbl << [ format["id"], format["name"], format["extension"], format["summary"] ]
         end
         print_good("OpenVAS list of report formats")
@@ -459,9 +459,7 @@ class Plugin::OpenVAS < Msf::Plugin
         tbl = Rex::Text::Table.new(
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
 
-        resp = @ov.report_get_raw
-
-        resp.elements.each("//get_reports_response/report") do |report|
+        @ov.report_get_all.each do |report|
           report_id = report.elements["report"].attributes["id"]
           report_task = report.elements["task/name"].get_text
           report_start_time = report.elements["creation_time"].get_text
@@ -499,14 +497,12 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 4)
         begin
-          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
+          report = @ov.report_get_by_id(args[0], args[1])
           ::FileUtils.mkdir_p(args[2])
           name = ::File.join(args[2], args[3])
           print_status("Saving report to #{name}")
           output = ::File.new(name, "w")
-          data = nil
-          report.elements.each("//get_reports_response"){|r| data = r.to_s}
-          output.puts(data)
+          output.puts(report)
           output.close
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
@@ -521,44 +517,15 @@ class Plugin::OpenVAS < Msf::Plugin
 
       if args?(args, 2)
         begin
-          report = @ov.report_get_raw("report_id"=>args[0],"format"=>args[1])
-          data = nil
-          report.elements.each("//get_reports_response"){|r| data = r.to_s}
+          report = @ov.report_get_by_id(args[0], args[1])
           print_status("Importing report to database.")
-          framework.db.import({:data => data})
+          framework.db.import({:data => report})
         rescue OpenVASOMP::OMPError => e
           print_error(e.to_s)
         end
       else
         print_status("Usage: openvas_report_import <report_id> <format_id>")
         print_status("Only the NBE and XML formats are supported for importing.")
-      end
-    end
-
-
-
-    #--------------------------
-    # Format Functions
-    #--------------------------
-    # Get a list of report formats
-    def format_get_all
-      begin
-        resp = @ov.omp_request_xml("<get_report_formats/>")
-        if @debug then print resp end
-
-        list = Array.new
-        resp.elements.each('//get_report_formats_response/report_format') do |report|
-          td = Hash.new
-          td["id"] = report.attributes["id"]
-          td["name"] = report.elements["name"].text
-          td["extension"] = report.elements["extension"].text
-          td["summary"] = report.elements["summary"].text
-          list.push td
-        end
-        @formats = list
-        return list
-      rescue
-        raise OMPResponseError
       end
     end
 
@@ -579,7 +546,6 @@ class Plugin::OpenVAS < Msf::Plugin
     print_status
     @ov = nil
     @formats = nil
-    @debug = nil
   end
 
   def cleanup
