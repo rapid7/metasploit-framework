@@ -14,7 +14,7 @@ require 'tempfile'
 
 options = {}
 optparse = OptionParser.new do |opts|
-  opts.banner = 'Usage: chececk_external_scripts.rb [options]'
+  opts.banner = 'Usage: check_external_scripts.rb [options]'
   opts.on('-u', '--update', 'Overwrite old scripts with newer ones.') do
     options[:update] = true
   end
@@ -73,16 +73,15 @@ def cleanup_text(txt)
   txt.gsub(/\s{2,}/, ' ')
 end
 
-
-def cleanup_sqlmap_decloak_dir()
+def cleanup_sqlmap_decloak_dir
   unless system('rm -rf /tmp/sqlmap_decloak')
-    error "Could not remove existing /tmp/sqlmap_decloak directory"
+    error 'Could not remove existing /tmp/sqlmap_decloak directory'
   end
 end
 
-def clone_sqlmap_decloak()
+def clone_sqlmap_decloak
   cleanup_sqlmap_decloak_dir
-  unless (system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak'))
+  unless system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak')
     error "Either 'git' is not installed, your internet is not connected, or /tmp/sqlmap_decloak could not be removed."
   end
 end
@@ -275,6 +274,7 @@ scripts << {
   dest: '/data/jtr/korelogic.conf',
   subs: []
 }
+
 ###
 # SQLMap UDF files
 ###
