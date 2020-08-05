@@ -20,7 +20,7 @@ module Msf::DBManager::Event
   #   All fields are converted to strings and results are returned if the pattern is matched.
   # @return [Array<Mdm::Event>|Mdm::Event::ActiveRecord_AssociationRelation] events that are matched.
   def events(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     # If we have the ID, there is no point in creating a complex query.
     if opts[:id] && !opts[:id].to_s.empty?
       return Array.wrap(Mdm::Event.find(opts[:id]))
@@ -51,7 +51,7 @@ module Msf::DBManager::Event
 
   def report_event(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     return if not wspace # Temp fix?
 

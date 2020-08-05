@@ -1016,7 +1016,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
   context '#import_msf_xml' do
     let(:workspace) do
-      double(':workspace')
+      FactoryBot.create(:mdm_workspace)
     end
 
     let(:data) do
@@ -1024,7 +1024,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     subject(:import_msf_xml) do
-      expect(workspace).to receive(:name) { 'default' }
       db_manager.import_msf_xml({:data => data, :workspace => workspace})
     end
 

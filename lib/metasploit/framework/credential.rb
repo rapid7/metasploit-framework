@@ -46,18 +46,18 @@ module Metasploit
       # If we have no public we MUST have a private (e.g. SNMP Community String)
       validates :private,
         exclusion: { in: [nil] },
-        if: "public.nil? or paired"
+        if: -> { public.nil? or paired }
 
       # These values should be #demodularized from subclasses of
       # `Metasploit::Credential::Private`
       validates :private_type,
         inclusion: { in: [ :password, :ntlm_hash, :postgres_md5, :ssh_key ] },
-        if: "private_type.present?"
+        if: -> { private_type.present? }
 
       # If we have no private we MUST have a public
       validates :public,
         presence: true,
-        if: "private.nil? or paired"
+        if: -> { private.nil? or paired }
 
       # @param attributes [Hash{Symbol => String,nil}]
       def initialize(attributes={})

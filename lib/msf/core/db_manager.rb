@@ -153,7 +153,7 @@ class Msf::DBManager
   # Determines if the database is functional
   #
   def check
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     res = ::Mdm::Host.first
   }
   end

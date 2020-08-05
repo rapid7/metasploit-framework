@@ -2,7 +2,7 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If :id exists we're looking for a specific record, skip the other stuff
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Metasploit::Credential::Core.find(opts[:id]))
@@ -16,7 +16,7 @@ module Msf::DBManager::Cred
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if opts[:type].present?
-        query = query.where(metasploit_credential_privates: { type: opts[:type] })
+        query = query.where('"metasploit_credential_privates"."type" = ?', opts[:type] )
       end
 
       if opts[:svcs].present?
@@ -56,7 +56,7 @@ module Msf::DBManager::Cred
   # This method iterates the creds table calling the supplied block with the
   # cred instance of each entry.
   def each_cred(wspace=framework.db.workspace,&block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.creds.each do |cred|
       block.call(cred)
     end
@@ -107,7 +107,7 @@ module Msf::DBManager::Cred
       raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     host = opts[:host]
     ptype = opts[:type] || "password"
     token = [opts[:user], opts[:pass]]
@@ -223,7 +223,7 @@ module Msf::DBManager::Cred
   end
 
   def update_credential(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts = opts.clone()
@@ -271,7 +271,7 @@ module Msf::DBManager::Cred
   def delete_credentials(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |cred_id|
         cred = Metasploit::Credential::Core.find(cred_id)

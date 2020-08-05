@@ -24,6 +24,10 @@ RSpec.describe "Metasploit's json-rpc" do
     ::Msf::WebServices::JsonRpcApp.new
   end
 
+  before(:example) do
+    allow(framework.db).to receive(:active).and_return(false)
+  end
+
   def create_job
     post api_url, {
       'jsonrpc': '2.0',

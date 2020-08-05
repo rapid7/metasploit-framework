@@ -6,7 +6,7 @@ module Metasploit
     class FilePathValidator < ActiveModel::EachValidator
 
       def validate_each(record, attribute, value)
-        unless ::File.file? value
+        unless value && ::File.file?(value)
           record.errors[attribute] << (options[:message] || "is not a valid path to a regular file")
         end
       end

@@ -10,7 +10,7 @@ module Msf::DBManager::Route
       raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
 
     subnet, netmask = route.split("/")
     s.routes.create(:subnet => subnet, :netmask => netmask)
@@ -28,7 +28,7 @@ module Msf::DBManager::Route
       raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     subnet, netmask = route.split("/")
     r = s.routes.find_by_subnet_and_netmask(subnet, netmask)
     r.destroy if r

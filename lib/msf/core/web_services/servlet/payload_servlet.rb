@@ -9,6 +9,7 @@ module PayloadServlet
   end
 
   def self.registered(app)
+    app.get PayloadServlet.api_path, &get_payload
     app.get PayloadServlet.api_path_with_id, &get_payload
     app.post PayloadServlet.api_path, &create_payload
     app.put PayloadServlet.api_path_with_id, &update_payload

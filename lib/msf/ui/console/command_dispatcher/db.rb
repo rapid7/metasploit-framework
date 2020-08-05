@@ -980,7 +980,7 @@ class Db
 
   def cmd_notes(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     mode = :search
     data = nil
     types = nil
@@ -1443,7 +1443,7 @@ class Db
   #
   def cmd_db_import(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     if args.include?("-h") || ! (args && args.length > 0)
       cmd_db_import_help
       return
@@ -1528,7 +1528,7 @@ class Db
   #
   def cmd_db_export(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
 
     export_formats = %W{xml pwdump}
     format = 'xml'
@@ -1573,7 +1573,7 @@ class Db
   #
   def cmd_db_nmap(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     if (args.length == 0)
       print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
@@ -2140,7 +2140,7 @@ class Db
     if framework.db.driver == 'http'
       cdb = framework.db.name
     else
-      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+      ::ApplicationRecord.connection_pool.with_connection do |conn|
         if conn.respond_to?(:current_database)
           cdb = conn.current_database
         end
@@ -2209,7 +2209,7 @@ class Db
   end
 
   def build_postgres_url
-    conn_params = ActiveRecord::Base.connection_config
+    conn_params = ApplicationRecord.connection_config
     url = ""
     url += "#{conn_params[:username]}" if conn_params[:username]
     url += ":#{conn_params[:password]}" if conn_params[:password]

@@ -974,7 +974,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
       it { is_expected.to be_nil }
 
       it 'should not create a connection' do
-        expect(ActiveRecord::Base.connection_pool).not_to receive(:with_connection)
+        expect(ApplicationRecord.connection_pool).not_to receive(:with_connection)
 
         report_session
       end

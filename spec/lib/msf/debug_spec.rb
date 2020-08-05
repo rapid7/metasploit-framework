@@ -700,7 +700,7 @@ RSpec.describe Msf::Ui::Debug do
     )
     allow(connection_pool).to receive(:with_connection).and_yield(connection)
 
-    allow(::ActiveRecord::Base).to receive(:connection_pool).and_return(connection_pool)
+    allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
     allow(::Msf::Config).to receive(:install_root).and_return('bad/path')
 
     expected_output = <<~OUTPUT

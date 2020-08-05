@@ -1,4 +1,3 @@
-require File.expand_path('../rails_bigdecimal_fix', __FILE__)
 require 'rails'
 require File.expand_path('../boot', __FILE__)
 

@@ -5,7 +5,7 @@ module Msf::DBManager::Ref
   def find_or_create_ref(opts)
     ret = {}
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     if opts[:id] && !opts[:id].to_s.empty?
       return Mdm::Ref.find(opts[:id])
     end
@@ -31,7 +31,7 @@ module Msf::DBManager::Ref
   end
 
   def get_ref(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     ::Mdm::Ref.find_by_name(name)
   }
   end
@@ -40,7 +40,7 @@ module Msf::DBManager::Ref
   # Find a reference matching this name
   #
   def has_ref?(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     Mdm::Ref.find_by_name(name)
   }
   end
