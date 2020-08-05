@@ -12,8 +12,8 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Linux Container Enumeration',
         'Description' => %q{
-          This module attempts to enumeratec containers on the target machine and optionally run a command on each active container found..
-          Supports Docker, LXC and RKT.
+          This module attempts to enumerate containers on the target machine and optionally run a command on each active container found.
+          Currently it supports Docker, LXC and RKT.
         },
         'License' => MSF_LICENSE,
         'Author' => ['stealthcopter'],
@@ -40,9 +40,9 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       command = 'lxc >/dev/null 2>&1 && echo true'
     when 'rkt'
-      command = 'rkt help >/dev/null 2>&1 && echo true' # Apparently rkt doesn't play nice with 2>&1 in most cases so just a heads up.
-    # `rkt help` does seem to not raise errors though so thats why we use it
-    # here over just `rkt`
+      # Apparently rkt doesn't play nice with 2>&1 for most commands, though `rkt help` 
+      # seems to be fine so this is why its used here vs just 'rkt'
+      command = 'rkt help >/dev/null 2>&1 && echo true'
     else
       print_error("Invalid container type #{container_type}")
       return false
@@ -152,12 +152,12 @@ class MetasploitModule < Msf::Post
 
     platforms.each do |platform|
       print_good("#{platform} was found on the system!")
-      num_containers = count_containers(platform)
+      num_containers = count_containers(platform, false)
 
       if num_containers == 0
         print_error("No active or inactive containers were found for #{platform}\n")
       else
-        num_running_containers = count_containers(platform, false)
+        num_running_containers = count_containers(platform, true)
         print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
       end
 
