@@ -55,27 +55,34 @@ class MetasploitModule < Msf::Post
     case container_type
     when 'docker'
       command = if count_inactive
-                  'docker container ls --format "{{.Names}}" 2>/dev/null | wc -l'
+                  'docker container ls --format "{{.Names}}" | wc -l'
                 else
-                  'docker container ls -a --format "{{.Names}}" 2>/dev/null | wc -l'
+                  'docker container ls -a --format "{{.Names}}" | wc -l'
                 end
     when 'lxc'
       command = if count_inactive
-                  'lxc list -c n --format csv 2>/dev/null | wc -l'
+                  'lxc list -c n --format csv | wc -l'
                 else
-                  'lxc list -c n,s --format csv 2>/dev/null | grep ,RUNNING | wc -l'
+                  'lxc list -c n,s --format csv | grep ,RUNNING | wc -l'
                 end
     when 'rkt'
       command = if count_inactive
-                  'rkt list 2>/dev/null | tail -n +2 | wc -l'
+                  'rkt list | tail -n +2 | wc -l'
                 else
-                  'rkt list 2>/dev/null | grep running | tail -n +2 | wc -l'
+                  'rkt list | grep running | tail -n +2 | wc -l'
                 end
     else
       print_error("Invalid container type '#{container_type}'")
       return 0
     end
-    cmd_exec(command).to_i
+
+    result = cmd_exec(command)
+    if result =~ /denied/
+      print_error("Was unable to enumerate the number of #{container_type} containers due to a lack of permissions!")
+      return 0
+    else
+      result.to_i
+    end
   end
 
   # List containers
@@ -144,20 +151,21 @@ class MetasploitModule < Msf::Post
     end
 
     platforms.each do |platform|
+      print_good("#{platform} was found on the system!")
       num_containers = count_containers(platform)
-      num_running_containers = count_containers(platform, false)
 
       if num_containers == 0
-        print_good("#{platform} found but no active or inactive containers were found")
+        print_error("No active or inactive containers were found for #{platform}\n")
       else
+        num_running_containers = count_containers(platform, false)
         print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
       end
 
-      next unless num_containers
+      next unless num_containers > 0
 
       containers = list_containers(platform)
       # Using print so not to mess up table formatting
-      print_line("#{containers}\n")
+      print_line("#{containers}")
 
       p = store_loot("host.#{platform}_containers", 'text/plain', session, containers, "#{platform}_containers.txt", "#{platform} Containers")
       print_good("Results stored in: #{p}\n")
