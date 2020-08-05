@@ -73,22 +73,28 @@ def cleanup_text(txt)
   txt.gsub(/\s{2,}/, ' ')
 end
 
-# https://github.com/rapid7/metasploit-framework/pull/13191#issuecomment-626584689
-def decloak(file)
+
+def cleanup_sqlmap_decloak_dir()
   unless system('rm -rf /tmp/sqlmap_decloak')
-    error "Could not remove already existing /tmp/sqlmap_decloak directory"
+    error "Could not remove existing /tmp/sqlmap_decloak directory"
   end
+end
+
+def clone_sqlmap_decloak()
+  cleanup_sqlmap_decloak_dir
   unless (system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak'))
     error "Either 'git' is not installed, your internet is not connected, or /tmp/sqlmap_decloak could not be removed."
   end
+end
+
+# https://github.com/rapid7/metasploit-framework/pull/13191#issuecomment-626584689
+def decloak(file)
   unless system("python /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
     unless system("python3 /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
       error "Either python is not installed, or the file at #{file.path} could not be found! Please double check your computer's setup and check that the #{file.path} file exists!"
     end
   end
-  f = File.binread("#{file.path}_decloak")
-  system('rm -rf /tmp/sqlmap_decloak')
-  f
+  File.binread("#{file.path}_decloak")
 end
 
 #
@@ -299,6 +305,8 @@ scripts << {
 
 path = File.expand_path('../../', File.dirname(__FILE__))
 
+clone_sqlmap_decloak
+
 scripts.each do |script|
   puts "Downloading: #{script[:name]}"
   begin
@@ -337,3 +345,5 @@ scripts.each do |script|
     error "Destination not found, check path: #{path + script[:dest]}"
   end
 end
+
+cleanup_sqlmap_decloak_dir
