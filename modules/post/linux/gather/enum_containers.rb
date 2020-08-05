@@ -36,11 +36,13 @@ class MetasploitModule < Msf::Post
   def runnable(container_type)
     case container_type
     when 'docker'
-      command = 'docker container ls -a >/dev/null 2>&1 && echo true'
+      command = 'docker >/dev/null 2>&1 && echo true'
     when 'lxc'
-      command = 'lxc list >/dev/null 2>&1 && echo true'
+      command = 'lxc >/dev/null 2>&1 && echo true'
     when 'rkt'
-      command = 'rkt list >/dev/null 2>&1 && echo true'
+      command = 'rkt help >/dev/null 2>&1 && echo true' # Apparently rkt doesn't play nice with 2>&1 in most cases so just a heads up. 
+                                                        # `rkt help` does seem to not raise errors though so thats why we use it 
+                                                        # here over just `rkt`
     else
       print_error("Invalid container type #{container_type}")
       return false
