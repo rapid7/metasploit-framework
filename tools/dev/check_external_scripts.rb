@@ -75,8 +75,17 @@ end
 
 # https://github.com/rapid7/metasploit-framework/pull/13191#issuecomment-626584689
 def decloak(file)
-  system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak')
-  system("python /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
+  unless system('rm -rf /tmp/sqlmap_decloak')
+    error "Could not remove already existing /tmp/sqlmap_decloak directory"
+  end
+  unless (system('git clone -q --depth=1 https://github.com/sqlmapproject/sqlmap.git /tmp/sqlmap_decloak'))
+    error "Either 'git' is not installed, your internet is not connected, or /tmp/sqlmap_decloak could not be removed."
+  end
+  unless system("python /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
+    unless system("python3 /tmp/sqlmap_decloak/extra/cloak/cloak.py -d -i #{file.path} -o #{file.path}_decloak")
+      error "Either python is not installed, or the file at #{file.path} could not be found! Please double check your computer's setup and check that the #{file.path} file exists!"
+    end
+  end
   f = File.binread("#{file.path}_decloak")
   system('rm -rf /tmp/sqlmap_decloak')
   f
@@ -105,8 +114,7 @@ scripts << {
   name: 'Sharphound (Bloodhound) exe',
   addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.exe',
   dest: '/data/post/SharpHound.exe',
-  subs: [
-  ]
+  subs: []
 }
 ###
 # JTR files
@@ -306,7 +314,7 @@ scripts.each do |script|
     end
 
     if script[:name].start_with?('SQLMap UDF')
-      info(' Performing decloaking')
+      info('Performing decloaking')
       f = Tempfile.new('sqlmap_udf')
       f.write(new_content)
       f.close
