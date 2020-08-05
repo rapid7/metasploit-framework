@@ -106,7 +106,7 @@ module Windows
 
       bit16  :magic, initial_value: LF_MAGIC
       uint16 :num_keys
-      array :hash_records, type: :reg_hash, read_until: -> { index == (self.num_keys - 1) }
+      array  :hash_records, type: :reg_hash, read_until: -> { index == (self.num_keys - 1) }
     end
 
     class RegLh < BinData::Record
@@ -302,7 +302,7 @@ module Windows
       # We should receive a VK record
       return '' if record.data.data_len == 0
       # if DataLen < 5 the value itself is stored in the Offset field
-      return record.data.offset_data.chr if record.data.data_len < 0
+      return record.data.offset_data.to_binary_s if record.data.data_len < 0
       return self.get_data(record.data.offset_data, record.data.data_len + 4)
     end
 
