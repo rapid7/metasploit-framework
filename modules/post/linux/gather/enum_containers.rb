@@ -40,9 +40,9 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       command = 'lxc >/dev/null 2>&1 && echo true'
     when 'rkt'
-      command = 'rkt help >/dev/null 2>&1 && echo true' # Apparently rkt doesn't play nice with 2>&1 in most cases so just a heads up. 
-                                                        # `rkt help` does seem to not raise errors though so thats why we use it 
-                                                        # here over just `rkt`
+      command = 'rkt help >/dev/null 2>&1 && echo true' # Apparently rkt doesn't play nice with 2>&1 in most cases so just a heads up.
+    # `rkt help` does seem to not raise errors though so thats why we use it
+    # here over just `rkt`
     else
       print_error("Invalid container type #{container_type}")
       return false
@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Post
 
       containers = list_containers(platform)
       # Using print so not to mess up table formatting
-      print_line("#{containers}")
+      print_line(containers.to_s)
 
       p = store_loot("host.#{platform}_containers", 'text/plain', session, containers, "#{platform}_containers.txt", "#{platform} Containers")
       print_good("Results stored in: #{p}\n")
