@@ -185,7 +185,10 @@ module Msf
 
           unless result['return']
             print_error("Error deleting the reparse point. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            return -1
           end
+           
+          session.railgun.kernel32.CloseHandle(handle)          
           result['return']
         end
 
@@ -209,14 +212,10 @@ module Msf
           handle
         end
 
-        def delete_mount_point(path)
-          buffer = ReparseGuidDataBuffer.new
-          buffer.reparse_tag = IO_REPARSE_TAG_MOUNT_POINT
-
-          handle = open_reparse_point(path, true)
+        def delete_mount_point(path, handle)
           return nil unless handle
-
-          delete_reparse_point(handle, buffer.to_binary_s)
+          session.fs.dir.rmdir(path) # Might need some more logic here.
+          session.railgun.kernel32.CloseHandle(handle)
         end
 
         def write_to_memory(process, str)
@@ -327,6 +326,7 @@ module Msf
           return nil unless handle
 
           set_reparse_point(handle, reparse_data.to_binary_s)
+          handle
         end
       end # FileSystem
     end # Windows
