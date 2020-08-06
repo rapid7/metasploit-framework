@@ -147,7 +147,7 @@ module Msf::DBManager::Note
     conditions[:service_id] = service[:id] if service
     conditions[:vuln_id] = opts[:vuln_id]
 
-    case mode
+    case mode.to_sym
     when :unique
       note      = wspace.notes.where(conditions).first_or_initialize
       note.data = data
