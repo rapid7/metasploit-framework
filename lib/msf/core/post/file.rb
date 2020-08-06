@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+#
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Msf::Post::File
 
@@ -426,7 +428,7 @@ module Msf::Post::File
       raise "`chmod' method does not support Windows systems"
     end
 
-    if session.type == 'meterpreter' && session.commands.include?('stdapi_fs_chmod')
+    if session.type == 'meterpreter' && session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_CHMOD)
       session.fs.file.chmod(path, mode)
     else
       cmd_exec("chmod #{mode.to_s(8)} '#{path}'")

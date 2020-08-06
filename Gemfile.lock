@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (5.0.102)
+    metasploit-framework (6.0.0)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -29,9 +29,9 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.4.4)
+      metasploit-payloads (= 2.0.10)
       metasploit_data_models
-      metasploit_payloads-mettle (= 0.5.21)
+      metasploit_payloads-mettle (= 1.0.2)
       mqtt
       msgpack
       nessus_rest
@@ -71,7 +71,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb (~> 1.1)
+      ruby_smb (~> 2.0)
       rubyntlm
       rubyzip
       sinatra
@@ -121,13 +121,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.347.0)
+    aws-partitions (1.351.0)
     aws-sdk-core (3.104.3)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.181.0)
+    aws-sdk-ec2 (1.182.0)
       aws-sdk-core (~> 3, >= 3.99.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.43.0)
@@ -155,8 +155,8 @@ GEM
     crass (1.0.6)
     daemons (1.3.1)
     diff-lcs (1.4.4)
-    dnsruby (1.61.3)
-      addressable (~> 2.5)
+    dnsruby (1.61.4)
+      simpleidn (~> 0.1)
     docile (1.3.2)
     ed25519 (1.2.4)
     em-http-request (1.1.6)
@@ -178,7 +178,7 @@ GEM
       i18n (>= 1.6, < 2)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
-    faye-websocket (0.10.9)
+    faye-websocket (0.11.0)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
     filesize (0.2.0)
@@ -219,7 +219,7 @@ GEM
       activemodel (~> 5.2.2)
       activesupport (~> 5.2.2)
       railties (~> 5.2.2)
-    metasploit-payloads (1.4.4)
+    metasploit-payloads (2.0.10)
     metasploit_data_models (4.0.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -229,7 +229,7 @@ GEM
       pg
       railties (~> 5.2.2)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.5.21)
+    metasploit_payloads-mettle (1.0.2)
     method_source (1.0.0)
     mini_portile2 (2.4.0)
     minitest (5.14.1)
@@ -249,6 +249,7 @@ GEM
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.2)
+    openssl-cmac (2.0.1)
     openvas-omp (0.0.4)
     packetfu (1.1.13)
       pcaprub
@@ -290,7 +291,7 @@ GEM
     rainbow (3.0.0)
     rake (13.0.1)
     rb-readline (0.5.5)
-    recog (2.3.12)
+    recog (2.3.13)
       nokogiri
     redcarpet (3.5.0)
     regexp_parser (1.7.1)
@@ -384,8 +385,10 @@ GEM
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.2)
-    ruby_smb (1.1.0)
+    ruby_smb (2.0.2)
       bindata
+      openssl-ccm
+      openssl-cmac
       rubyntlm
       windows_error
     rubyntlm (0.6.2)
@@ -397,6 +400,8 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
     simplecov-html (0.12.2)
+    simpleidn (0.1.1)
+      unf (~> 0.1.4)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -418,6 +423,9 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2020.1)
       tzinfo (>= 1.0.0)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     warden (1.2.8)
       rack (>= 2.0.6)

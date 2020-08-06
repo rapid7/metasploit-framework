@@ -53,7 +53,7 @@ class Dir < Rex::Post::Dir
   # Enumerates all of the files/folders in a given directory.
   #
   def Dir.entries(name = getwd, glob = nil)
-    request = Packet.create_request('stdapi_fs_ls')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_LS)
     files   = []
     name = name + ::File::SEPARATOR + glob if glob
 
@@ -72,7 +72,7 @@ class Dir < Rex::Post::Dir
   # Enumerates files with a bit more information than the default entries.
   #
   def Dir.entries_with_info(name = getwd)
-    request = Packet.create_request('stdapi_fs_ls')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_LS)
     files = []
     sbuf = nil
     new_stat_buf = true
@@ -130,7 +130,7 @@ class Dir < Rex::Post::Dir
     sbuf = nil
     new_stat_buf = true
 
-    request = Packet.create_request('stdapi_fs_ls')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_LS)
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(path))
     response = client.send_request(request)
 
@@ -176,11 +176,11 @@ class Dir < Rex::Post::Dir
   # Changes the working directory of the remote process.
   #
   def Dir.chdir(path)
-    request = Packet.create_request('stdapi_fs_chdir')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_CHDIR)
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     getwd(refresh: true)
     return 0
@@ -190,11 +190,11 @@ class Dir < Rex::Post::Dir
   # Creates a directory.
   #
   def Dir.mkdir(path)
-    request = Packet.create_request('stdapi_fs_mkdir')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_MKDIR)
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return 0
   end
@@ -204,7 +204,7 @@ class Dir < Rex::Post::Dir
   #
   def Dir.pwd(refresh: true)
     if @working_directory.nil? || refresh
-      request = Packet.create_request('stdapi_fs_getwd')
+      request = Packet.create_request(COMMAND_ID_STDAPI_FS_GETWD)
 
       response = client.send_request(request)
 
@@ -224,11 +224,11 @@ class Dir < Rex::Post::Dir
   # Removes the supplied directory if it's empty.
   #
   def Dir.delete(path)
-    request = Packet.create_request('stdapi_fs_delete_dir')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_DELETE_DIR)
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return 0
   end

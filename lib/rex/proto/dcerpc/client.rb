@@ -188,7 +188,7 @@ require 'rex/proto/smb/exceptions'
     if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
       while(idx < data.length)
         bsize = (rand(max_write-min_write)+min_write).to_i
-        len = self.socket.write(data[idx, bsize], rand(1024)+1)
+        len = self.socket.write(data[idx, bsize])
         idx += bsize
       end
     else

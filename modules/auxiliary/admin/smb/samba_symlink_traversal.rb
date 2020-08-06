@@ -42,12 +42,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('SMBTARGET', [true, 'The name of the directory that should point to the root filesystem', 'rootfs'])
     ])
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
 
   def run
     print_status("Connecting to the server...")
-    connect()
+    connect(versions: [1])
     smb_login()
 
     print_status("Trying to mount writeable share '#{datastore['SMBSHARE']}'...")

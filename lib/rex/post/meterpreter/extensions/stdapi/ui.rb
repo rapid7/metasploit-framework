@@ -53,11 +53,11 @@ class UI < Rex::Post::UI
   # Enable keyboard input on the remote machine.
   #
   def enable_keyboard(enable = true)
-    request = Packet.create_request('stdapi_ui_enable_keyboard')
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD)
 
     request.add_tlv(TLV_TYPE_BOOL, enable)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
@@ -73,11 +73,11 @@ class UI < Rex::Post::UI
   # Enable mouse input on the remote machine.
   #
   def enable_mouse(enable = true)
-    request = Packet.create_request('stdapi_ui_enable_mouse')
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_ENABLE_MOUSE)
 
     request.add_tlv(TLV_TYPE_BOOL, enable)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
@@ -87,7 +87,7 @@ class UI < Rex::Post::UI
   # from user input.
   #
   def idle_time
-    request = Packet.create_request('stdapi_ui_get_idle_time')
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_GET_IDLE_TIME)
 
     response = client.send_request(request)
 
@@ -98,7 +98,7 @@ class UI < Rex::Post::UI
   # Enumerate desktops.
   #
   def enum_desktops
-    request  = Packet.create_request('stdapi_ui_desktop_enum')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_DESKTOP_ENUM)
     response = client.send_request(request)
     desktopz = []
     if( response.result == 0 )
@@ -117,7 +117,7 @@ class UI < Rex::Post::UI
   # Get the current desktop meterpreter is using.
   #
   def get_desktop
-    request  = Packet.create_request( 'stdapi_ui_desktop_get' )
+    request  = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_GET )
     response = client.send_request( request )
     desktop  = {}
     if( response.result == 0 )
@@ -136,7 +136,7 @@ class UI < Rex::Post::UI
   # with screen/keyboard/mouse control).
   #
   def set_desktop( session=-1, station='WinSta0', name='Default', switch=false )
-    request  = Packet.create_request( 'stdapi_ui_desktop_set' )
+    request  = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_SET )
     request.add_tlv( TLV_TYPE_DESKTOP_SESSION, session )
     request.add_tlv( TLV_TYPE_DESKTOP_STATION, station )
     request.add_tlv( TLV_TYPE_DESKTOP_NAME, name )
@@ -152,7 +152,7 @@ class UI < Rex::Post::UI
   # Grab a screenshot of the interactive desktop
   #
   def screenshot( quality=50 )
-    request = Packet.create_request( 'stdapi_ui_desktop_screenshot' )
+    request = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT )
     request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 
     if client.platform == 'windows'
@@ -191,7 +191,6 @@ class UI < Rex::Post::UI
         end
 
         request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
-        request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_LENGTH, screenshot_dll.length )
       end
 
       # but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
@@ -206,7 +205,6 @@ class UI < Rex::Post::UI
       end
 
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
-      request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_LENGTH, screenshot_dll.length )
     end
 
     # send the request and return the jpeg image if successfull.
@@ -222,9 +220,9 @@ class UI < Rex::Post::UI
   # Unlock or lock the desktop
   #
   def unlock_desktop(unlock=true)
-    request  = Packet.create_request('stdapi_ui_unlock_desktop')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP)
     request.add_tlv(TLV_TYPE_BOOL, unlock)
-    response = client.send_request(request)
+    client.send_request(request)
     return true
   end
 
@@ -232,9 +230,9 @@ class UI < Rex::Post::UI
   # Start the keyboard sniffer
   #
   def keyscan_start(trackwindow=false)
-    request  = Packet.create_request('stdapi_ui_start_keyscan')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_START_KEYSCAN)
     request.add_tlv( TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW, trackwindow )
-    response = client.send_request(request)
+    client.send_request(request)
     return true
   end
 
@@ -242,8 +240,8 @@ class UI < Rex::Post::UI
   # Stop the keyboard sniffer
   #
   def keyscan_stop
-    request  = Packet.create_request('stdapi_ui_stop_keyscan')
-    response = client.send_request(request)
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_STOP_KEYSCAN)
+    client.send_request(request)
     return true
   end
 
@@ -251,7 +249,7 @@ class UI < Rex::Post::UI
   # Dump the keystroke buffer
   #
   def keyscan_dump
-    request  = Packet.create_request('stdapi_ui_get_keys_utf8')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8)
     response = client.send_request(request)
     return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
   end
@@ -260,9 +258,9 @@ class UI < Rex::Post::UI
   # Send keystrokes
   #
   def keyboard_send(keys)
-    request  = Packet.create_request('stdapi_ui_send_keys')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_KEYS)
     request.add_tlv( TLV_TYPE_KEYS_SEND, keys )
-    response = client.send_request(request)
+    client.send_request(request)
     return true
   end
 
@@ -271,9 +269,9 @@ class UI < Rex::Post::UI
   #
   def keyevent_send(key_code, action = 0)
     key_data = [ action, key_code ].pack("VV")
-    request = Packet.create_request('stdapi_ui_send_keyevent')
+    request = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_KEYEVENT)
     request.add_tlv( TLV_TYPE_KEYEVENT_SEND, key_data )
-    response = client.send_request(request)
+    client.send_request(request)
     return true
   end
 
@@ -281,7 +279,7 @@ class UI < Rex::Post::UI
   # Mouse input
   #
   def mouse(mouseaction, x=-1, y=-1)
-    request  = Packet.create_request('stdapi_ui_send_mouse')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_UI_SEND_MOUSE)
     action = 0
     case mouseaction
     when "move"
@@ -306,7 +304,7 @@ class UI < Rex::Post::UI
     request.add_tlv( TLV_TYPE_MOUSE_ACTION, action )
     request.add_tlv( TLV_TYPE_MOUSE_X, x.to_i )
     request.add_tlv( TLV_TYPE_MOUSE_Y, y.to_i )
-    response = client.send_request(request)
+    client.send_request(request)
     return true
   end
 
