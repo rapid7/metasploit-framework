@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Post
       running_container_ids.each do |container_id|
         print_status("Executing command on #{platform} container #{container_id}")
         command_result = container_execute(platform, container_id, cmd)
-        print_good(command_result) if !container.nil?
+        print_good(command_result) if !command_result.nil?
       end
     end
   end
