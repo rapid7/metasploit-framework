@@ -177,14 +177,15 @@ class MetasploitModule < Msf::Post
 
       running_container_ids = list_running_containers_id(platform)
       next if running_container_ids.nil?
+
       running_container_ids.each do |container_id|
         print_status("Executing command on #{platform} container #{container_id}")
         command_result = container_execute(platform, container_id, cmd)
-        if !command_result.nil?
-          print_good(command_result)
-          p = store_loot("host.#{platform}_command_results", 'text/plain', session, command_result, "#{platform}_containers_command_results.txt", "#{platform} Containers Command Results")
-          print_good("Command execution results stored in: #{p}\n")
-        end
+        next if command_result.nil?
+
+        print_good(command_result)
+        p = store_loot("host.#{platform}_command_results", 'text/plain', session, command_result, "#{platform}_containers_command_results.txt", "#{platform} Containers Command Results")
+        print_good("Command execution results stored in: #{p}\n")
       end
     end
   end
