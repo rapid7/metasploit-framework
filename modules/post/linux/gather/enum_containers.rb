@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Post
   end
 
   # Execute a command on a container
-  def container_execute(container_type, container_identifier, command = 'env')
+  def container_execute(container_type, container_identifier, command)
     case container_type
     when 'docker'
       command = "docker exec '#{container_identifier}' #{command}"
