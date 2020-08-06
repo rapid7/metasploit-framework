@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
       command = if count_inactive
                   'rkt list | tail -n +2 | wc -l'
                 else
-                  'rkt list | grep running | tail -n +2 | wc -l'
+                  'rkt list | tail -n +2 | grep running | wc -l'
                 end
     else
       print_error("Invalid container type '#{container_type}'")
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
       result = cmd_exec('rkt list')
     else
       print_error("Invalid container type '#{container_type}'")
-      return false
+      return nil
     end
     result
   end
@@ -116,10 +116,10 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       command = 'lxc list -c n,s --format csv 2>/dev/null | grep ,RUNNING|cut -d, -f1'
     when 'rkt'
-      command = 'rkt list| tail -n +2| cut -f1'
+      command = 'rkt list | tail -n +2 | cut -f1'
     else
       print_error("Invalid container type '#{container_type}'")
-      return false
+      return nil
     end
     cmd_exec(command).each_line.map(&:strip)
   end
@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Post
       print_error("RKT containers do not support command execution\nUse rkt enter '#{container_identifier}' to manually enumerate this container")
     else
       print_error("Invalid container type '#{container_type}'")
-      return false
+      return nil
     end
     vprint_status("Running #{command}")
     cmd_exec(command)
@@ -164,6 +164,8 @@ class MetasploitModule < Msf::Post
       next unless num_containers > 0
 
       containers = list_containers(platform)
+      next if containers.nil?
+
       # Using print so not to mess up table formatting
       print_line(containers.to_s)
 
@@ -173,9 +175,11 @@ class MetasploitModule < Msf::Post
       next if cmd.blank?
 
       running_container_ids = list_running_containers_id(platform)
+      next if running_container_ids.nil?
       running_container_ids.each do |container_id|
         print_status("Executing command on #{platform} container #{container_id}")
-        print_good(container_execute(platform, container_id, cmd))
+        command_result = container_execute(platform, container_id, cmd)
+        print_good(command_result) if !container.nil?
       end
     end
   end
