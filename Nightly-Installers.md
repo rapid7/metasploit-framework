@@ -10,9 +10,9 @@ curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/t
   ./msfinstall
 ```
 
-These packages integrate into your package manager and can be updated with ```msfupdate``` or with your package manager. On first start, these packages will automatically setup the database or use your existing database.
+Once installed, you can launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole``` from a terminal window, or depending on your environment, it may already be in your path and you can just run it directly. On first run, a series of prompts will help you setup a database and add Metasploit to your local PATH if it is not already.
 
-<details><summary>Expand manual installation instructions</summary>
+These packages integrate into your package manager and can be updated with the ```msfupdate``` command, or with your package manager. On first start, these packages will automatically setup the database or use your existing database.
 
 ### Linux manual installation
 
@@ -20,9 +20,7 @@ Linux packages are built nightly for .deb (i386, amd64, armhf, arm64) and .rpm (
 
 ### macOS manual installation
 
-The latest OS X installer package can also be downloaded directly here: https://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at https://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole``` from a terminal console. A series of prompts will help you setup a database and add Metasploit to your local PATH. You can also follow the quick-installation instructions above to install in a single step.
-
-</details>
+The latest OS X installer package can also be downloaded directly here: https://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at https://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.
 
 ## Installing Metasploit on Windows
 
