@@ -1,6 +1,6 @@
 ## Container Platforms
 
-  This module looks for container platforms running on the target and then lists any currently running containers for each platform found. The currently supported container platforms are:
+This module looks for container platforms running on the target and then lists any currently running containers for each platform found. The currently supported container platforms are:
   
   1. Docker
   2. LXC
@@ -33,50 +33,56 @@ msf5 post(linux/gather/enum_containers) > set session 4
 session => 4
 msf5 post(linux/gather/enum_containers) > run
 
-[+] docker: 4 Running Containers / 4 Total
-[+] 
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-6e406d13fde7        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test4
-3d137beafb08        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test3
-8cb7e2aff68a        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test2
-1a339ef0d38e        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test1
+[+] docker was found on the system!
+[+] docker: 1 Running Containers / 5 Total
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                         PORTS               NAMES
+853913ae1e17        nginx               "/docker-entrypoint.…"   About an hour ago   Up About an hour               80/tcp              lucid_tu
+0422ad0a1d6e        nginx               "/docker-entrypoint.…"   About an hour ago   Exited (0) About an hour ago                       gifted_thompson
+35930fd284e1        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 5 hours ago                             unruffled_gates
+a7149a9a858e        nginx               "/docker-entrypoint.…"   2 days ago          Exited (127) 2 days ago                            pedantic_tesla
+cfa40ec4d85c        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 2 days ago                              fervent_gates
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805143522_default_172.27.129.4_host.docker_cont_134332.txt
 [*] Post module execution completed
 ```
 
 Scenario 2: Docker, LXC and RKT are installed, and each of them are running their own containers
 ```
-msf5 post(linux/gather/enum_containers) > set session 5
-session => 5
-msf5 post(linux/gather/enum_containers) > run
+msf5 post(linux/gather/enum_containers) > set session 2
+session => 2
+msf5 post(linux/gather/enum_containers) > exploit
 
-[+] docker: 4 Active Containers
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-6e406d13fde7        ubuntu              "/bin/bash"         5 days ago          Up 45 hours                             test4
-3d137beafb08        ubuntu              "/bin/bash"         5 days ago          Up 45 hours                             test3
-8cb7e2aff68a        ubuntu              "/bin/bash"         5 days ago          Up 45 hours                             test2
-1a339ef0d38e        ubuntu              "/bin/bash"         5 days ago          Up 45 hours                             test1
-[+] lxc: 2 Running Containers / 3 Total
-[+] 
-+---------------+---------+-----------------------+-----------------------------------------------+-----------+-----------+
-|     NAME      |  STATE  |         IPV4          |                     IPV6                      |   TYPE    | SNAPSHOTS |
-+---------------+---------+-----------------------+-----------------------------------------------+-----------+-----------+
-| privesc       | STOPPED |                       |                                               | CONTAINER | 0         |
-+---------------+---------+-----------------------+-----------------------------------------------+-----------+-----------+
-| t4testingName | RUNNING | 10.132.199.244 (eth0) | fd42:53d9:b4c9:609e:216:3eff:fece:f6df (eth0) | CONTAINER | 0         |
-+---------------+---------+-----------------------+-----------------------------------------------+-----------+-----------+
-| ubuntu        | RUNNING | 10.132.199.192 (eth0) | fd42:53d9:b4c9:609e:216:3eff:fe9a:fa5f (eth0) | CONTAINER | 0         |
-+---------------+---------+-----------------------+-----------------------------------------------+-----------+-----------+
+[+] docker was found on the system!
+[+] docker: 1 Running Containers / 5 Total
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                         PORTS               NAMES
+853913ae1e17        nginx               "/docker-entrypoint.…"   About an hour ago   Up About an hour               80/tcp              lucid_tu
+0422ad0a1d6e        nginx               "/docker-entrypoint.…"   About an hour ago   Exited (0) About an hour ago                       gifted_thompson
+35930fd284e1        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 5 hours ago                             unruffled_gates
+a7149a9a858e        nginx               "/docker-entrypoint.…"   2 days ago          Exited (127) 2 days ago                            pedantic_tesla
+cfa40ec4d85c        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 2 days ago                              fervent_gates
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805193841_default_172.27.129.4_host.docker_cont_169517.txt
 
-[+] rkt: 0 Active Containers / 0 Total
+[+] lxc was found on the system!
+[+] lxc: 1 Running Containers / 1 Total
+NAME    STATE   IPV4                 IPV6                                         TYPE      SNAPSHOTS
+one-fox RUNNING 10.166.198.97 (eth0) fd42:a29:a47e:79c6:216:3eff:fe1f:1dca (eth0) CONTAINER 0
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805193842_default_172.27.129.4_host.lxc_contain_448673.txt
+
+[+] rkt was found on the system!
+[+] rkt: 2 Running Containers / 1 Total
+UUID            APP     IMAGE NAME              STATE           CREATED         STARTED         NETWORKS
+1f5f73a2        etcd    coreos.com/etcd:v3.1.7  running         32 minutes ago  32 minutes ago  default:ip4=172.16.28.3
+384c8a25        etcd    coreos.com/etcd:v3.1.7  exited garbage  4 hours ago     4 hours ago     default:ip4=172.16.28.2
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805193842_default_172.27.129.4_host.rkt_contain_801968.txt
+
 [*] Post module execution completed
-```
+msf5 post(linux/gather/enum_containers) >
 
 Scenario 3: No container software is runnable
 ```
 msf5 post(linux/gather/enum_containers) > set session 6
 session => 6
 msf5 post(linux/gather/enum_containers) > run
-[-] No container software appears to be installed
+[-] No container software appears to be installed or runnable by the current user
 [*] Post module execution completed
 ```
 
@@ -84,47 +90,62 @@ Scenario 4: List all containers and execute the `env` command on all running con
 ```
 msf5 post(linux/gather/enum_containers) > set session 6
 session => 6
-msf5 post(linux/gather/enum_containers) > set cmd env
-cmd => env
+msf5 post(linux/gather/enum_containers) > set CMD "env"
+CMD => env
 msf5 post(linux/gather/enum_containers) > run
 
-[+] docker: 2 Running Containers / 2 Total
-[+] 
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-8cb7e2aff68a        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test2
-1a339ef0d38e        ubuntu              "/bin/bash"         10 days ago         Up 3 hours                              test1
-
-[*] Executing command on docker container test2
-[*] Running docker exec 'test2' env
-[+] PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-HOSTNAME=8cb7e2aff68a
-HOME=/root
-[*] Executing command on docker container test1
-[*] Running docker exec 'test1' env
-[+] PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-HOSTNAME=1a339ef0d38e
-HOME=/root
-[*] Post module execution completed
-```
-
-Scenario 5: Docker, LXC, and RKT are all installed on the target but the user cannot enumerate all containers due to a lack of permissions
-```
-msf5 post(linux/gather/enum_containers) > exploit
-
 [+] docker was found on the system!
-[-] Was unable to enumerate the number of docker containers due to a lack of permissions!
-[-] No active or inactive containers were found for docker
+[+] docker: 1 Running Containers / 5 Total
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                    PORTS               NAMES
+853913ae1e17        nginx               "/docker-entrypoint.…"   2 hours ago         Up 2 hours                80/tcp              lucid_tu
+0422ad0a1d6e        nginx               "/docker-entrypoint.…"   2 hours ago         Exited (0) 2 hours ago                        gifted_thompson
+35930fd284e1        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 6 hours ago                        unruffled_gates
+a7149a9a858e        nginx               "/docker-entrypoint.…"   2 days ago          Exited (127) 2 days ago                       pedantic_tesla
+cfa40ec4d85c        nginx               "/docker-entrypoint.…"   2 days ago          Exited (0) 2 days ago                         fervent_gates
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805202620_default_172.27.129.4_host.docker_cont_406553.txt
 
+[*] Executing command on docker container lucid_tu
+[+] PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=853913ae1e17
+NGINX_VERSION=1.19.1
+NJS_VERSION=0.4.2
+PKG_RELEASE=1~buster
+HOME=/root
 [+] lxc was found on the system!
 [+] lxc: 1 Running Containers / 1 Total
 NAME    STATE   IPV4                 IPV6                                         TYPE      SNAPSHOTS
 one-fox RUNNING 10.166.198.97 (eth0) fd42:a29:a47e:79c6:216:3eff:fe1f:1dca (eth0) CONTAINER 0
-[+] Results stored in: /home/gwillcox/.msf4/loot/20200805175357_default_172.27.129.4_host.lxc_contain_675096.txt
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805202623_default_172.27.129.4_host.lxc_contain_977736.txt
 
+[*] Executing command on lxc container one-fox
+[+] PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+container=lxc
+HOME=/root
+USER=root
+LANG=C.UTF-8
 [+] rkt was found on the system!
-[-] Was unable to enumerate the number of rkt containers due to a lack of permissions!
-[-] No active or inactive containers were found for rkt
+[+] rkt: 2 Running Containers / 1 Total
+UUID            APP     IMAGE NAME              STATE           CREATED         STARTED         NETWORKS
+1f5f73a2        etcd    coreos.com/etcd:v3.1.7  running         1 hour ago      1 hour ago      default:ip4=172.16.28.3
+384c8a25        etcd    coreos.com/etcd:v3.1.7  exited garbage  5 hours ago     5 hours ago     default:ip4=172.16.28.2
+[+] Results stored in: /home/gwillcox/.msf4/loot/20200805202625_default_172.27.129.4_host.rkt_contain_522670.txt
 
+[*] Executing command on rkt container 1f5f73a2
+[-] RKT containers do not support command execution
+Use rkt enter '1f5f73a2' to manually enumerate this container
+[+] USER=root
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/system/bin:/system/sbin:/system/xbin
+LANG=C
+PWD=/home/gwillcox/git/metasploit-framework
+[*] Executing command on rkt container 384c8a25
+[-] RKT containers do not support command execution
+Use rkt enter '384c8a25' to manually enumerate this container
+[+] USER=root
+HOME=/root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/system/bin:/system/sbin:/system/xbin
+LANG=C
+PWD=/home/gwillcox/git/metasploit-framework
 [*] Post module execution completed
 msf5 post(linux/gather/enum_containers) >
 ```
