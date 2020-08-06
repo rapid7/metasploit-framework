@@ -132,7 +132,8 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       command = "lxc exec '#{container_identifier}' -- #{command}"
     when 'rkt'
-      print_error("RKT containers do not support command execution\nUse rkt enter '#{container_identifier}' to manually enumerate this container")
+      print_error("RKT containers do not support command execution\nUse the command \"rkt enter '#{container_identifier}'\" to manually enumerate this container")
+      return nil
     else
       print_error("Invalid container type '#{container_type}'")
       return nil
@@ -179,7 +180,11 @@ class MetasploitModule < Msf::Post
       running_container_ids.each do |container_id|
         print_status("Executing command on #{platform} container #{container_id}")
         command_result = container_execute(platform, container_id, cmd)
-        print_good(command_result) if !command_result.nil?
+        if !command_result.nil?
+          print_good(command_result) 
+          p = store_loot("host.#{platform}_command_results", 'text/plain', session, command_result, "#{platform}_containers_command_results.txt", "#{platform} Containers Command Results")
+          print_good("Command execution results stored in: #{p}\n")
+        end
       end
     end
   end
