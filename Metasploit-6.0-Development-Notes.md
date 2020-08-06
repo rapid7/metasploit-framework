@@ -2,7 +2,7 @@ Metasploit Framework 6.0 is in progress!
 
 Metasploit 6.0 adds a number of features and promotes a theme of being "secure by default".
 
-See the release initial announcement [here](https://blog.rapid7.com/2020/08/06/xyz).
+See the release initial announcement [here](https://blog.rapid7.com/2020/08/06/metasploit-6-now-under-active-development/).
 
 ## Payload Improvements
 
