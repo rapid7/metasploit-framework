@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       command = 'lxc >/dev/null 2>&1 && echo true'
     when 'rkt'
-      # Apparently rkt doesn't play nice with 2>&1 for most commands, though `rkt help` 
+      # Apparently rkt doesn't play nice with 2>&1 for most commands, though `rkt help`
       # seems to be fine so this is why its used here vs just 'rkt'
       command = 'rkt help >/dev/null 2>&1 && echo true'
     else
@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Post
         print_status("Executing command on #{platform} container #{container_id}")
         command_result = container_execute(platform, container_id, cmd)
         if !command_result.nil?
-          print_good(command_result) 
+          print_good(command_result)
           p = store_loot("host.#{platform}_command_results", 'text/plain', session, command_result, "#{platform}_containers_command_results.txt", "#{platform} Containers Command Results")
           print_good("Command execution results stored in: #{p}\n")
         end
