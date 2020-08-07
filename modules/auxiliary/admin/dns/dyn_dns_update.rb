@@ -36,7 +36,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('DOMAIN', [true, 'The domain name']),
       OptAddress.new('RHOST', [true, 'The vulnerable DNS server IP address']),
-      OptPort.new('RPORT', [true, "DNS server port", 53]),
       OptString.new('HOSTNAME', [true, 'The name record you want to add']),
       OptAddress.new('IP', [false, 'The IP you want to assign to the record']),
       OptString.new('VALUE', [false, 'The string to be added with TXT or CNAME record']),
@@ -59,7 +58,6 @@ class MetasploitModule < Msf::Auxiliary
         opts[:src_address6] = datastore['CHOST']
       end
     end
-    opts[:port] = datastore['RPORT']
     resolver = Dnsruby::Resolver.new(opts)
     update   = Dnsruby::Update.new(domain)
     updated  = false
