@@ -27,7 +27,7 @@ class Mount
   end
 
   def show_mount
-    request = Packet.create_request('stdapi_fs_mount_show')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_MOUNT_SHOW)
 
     response = client.send_request(request)
 

@@ -43,6 +43,8 @@ class MetasploitModule < Msf::Auxiliary
       OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
     ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def check_path(ip, path)
@@ -165,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status('Connecting to the server...')
     begin
-      connect
+      connect(versions: [1])
       smb_login
       print_status("Mounting the remote share \\\\#{ip}\\#{datastore['SMBSHARE']}'...")
       simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")

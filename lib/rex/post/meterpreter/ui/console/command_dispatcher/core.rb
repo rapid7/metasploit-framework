@@ -1289,6 +1289,14 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+
+      # Temporary hack to pivot mimikatz over to kiwi until
+      # everone remembers to do it themselves
+      if md == 'mimikatz'
+        print_warning('The "mimikatz" extension has been replaced by "kiwi". Please use this in future.')
+        md = 'kiwi'
+      end
+
       modulenameprovided = md
 
       if client.binary_suffix and client.binary_suffix.size > 1
@@ -1299,6 +1307,7 @@ class Console::CommandDispatcher::Core
           end
         }
       end
+
       if (extensions.include?(md))
         print_error("The '#{md}' extension has already been loaded.")
         next

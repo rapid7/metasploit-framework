@@ -1,7 +1,9 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/packet'
+require 'rex/post/meterpreter/core_ids'
 require 'rex/post/meterpreter/extension'
+require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client'
 require 'msf/core/payload/transport_config'
 
@@ -47,6 +49,10 @@ class ClientCore < Extension
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
+  def self.extension_id
+    EXTENSION_ID_CORE
+  end
+
   #
   # Initializes the 'core' portion of the meterpreter client commands.
   #
@@ -64,7 +70,7 @@ class ClientCore < Extension
   # create a named pipe pivot
   #
   def create_named_pipe_pivot(opts)
-    request = Packet.create_request('core_pivot_add')
+    request = Packet.create_request(COMMAND_ID_CORE_PIVOT_ADD)
     request.add_tlv(TLV_TYPE_PIVOT_NAMED_PIPE_NAME, opts[:pipe_name])
 
 
@@ -95,15 +101,18 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
 
-    response = self.client.send_request(request)
+    self.client.send_request(request)
   end
 
   #
   # Get a list of loaded commands for the given extension.
   #
   def get_loaded_extension_commands(extension_name)
-    request = Packet.create_request('core_enumextcmd')
-    request.add_tlv(TLV_TYPE_STRING, extension_name)
+    request = Packet.create_request(COMMAND_ID_CORE_ENUMEXTCMD)
+
+    start = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension_name)
+    request.add_tlv(TLV_TYPE_UINT, start)
+    request.add_tlv(TLV_TYPE_LENGTH, COMMAND_ID_RANGE)
 
     begin
       response = self.client.send_packet_wait_response(request, self.client.response_timeout)
@@ -125,7 +134,7 @@ class ClientCore < Extension
     end
 
     commands = []
-    response.each(TLV_TYPE_STRING) { |c|
+    response.each(TLV_TYPE_UINT) { |c|
       commands << c.value
     }
 
@@ -133,7 +142,7 @@ class ClientCore < Extension
   end
 
   def transport_list
-    request = Packet.create_request('core_transport_list')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_LIST)
     response = client.send_request(request)
 
     result = {
@@ -163,7 +172,7 @@ class ClientCore < Extension
   # Set associated transport timeouts for the currently active transport.
   #
   def set_transport_timeouts(opts={})
-    request = Packet.create_request('core_transport_set_timeouts')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS)
 
     if opts[:session_exp]
       request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
@@ -239,7 +248,7 @@ class ClientCore < Extension
     end
 
     # Create a request packet
-    request = Packet.create_request('core_loadlib')
+    request = Packet.create_request(COMMAND_ID_CORE_LOADLIB)
 
     # If we must upload the library, do so now
     if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
@@ -263,7 +272,7 @@ class ClientCore < Extension
       # name
       if opts['Extension']
         if client.binary_suffix and client.binary_suffix.size > 1
-          m = /(.*)\.(.*)/.match(library_path)
+          /(.*)\.(.*)/.match(library_path)
           suffix = $2
         elsif client.binary_suffix.size == 1
           suffix = client.binary_suffix[0]
@@ -295,11 +304,11 @@ class ClientCore < Extension
     end
 
     commands = []
-    response.each(TLV_TYPE_METHOD) { |c|
+    response.each(TLV_TYPE_UINT) { |c|
       commands << c.value
     }
 
-    return commands
+    commands
   end
 
   #
@@ -381,7 +390,7 @@ class ClientCore < Extension
   # Set the UUID on the target session.
   #
   def set_uuid(uuid)
-    request = Packet.create_request('core_set_uuid')
+    request = Packet.create_request(COMMAND_ID_CORE_SET_UUID)
     request.add_tlv(TLV_TYPE_UUID, uuid.to_raw)
 
     client.send_request(request)
@@ -393,7 +402,7 @@ class ClientCore < Extension
   # Set the session GUID on the target session.
   #
   def set_session_guid(guid)
-    request = Packet.create_request('core_set_session_guid')
+    request = Packet.create_request(COMMAND_ID_CORE_SET_SESSION_GUID)
     request.add_tlv(TLV_TYPE_SESSION_GUID, guid)
 
     client.send_request(request)
@@ -405,7 +414,7 @@ class ClientCore < Extension
   # Get the session GUID from the target session.
   #
   def get_session_guid(timeout=nil)
-    request = Packet.create_request('core_get_session_guid')
+    request = Packet.create_request(COMMAND_ID_CORE_GET_SESSION_GUID)
 
     args = [request]
     args << timeout if timeout
@@ -419,7 +428,7 @@ class ClientCore < Extension
   # Get the machine ID from the target session.
   #
   def machine_id(timeout=nil)
-    request = Packet.create_request('core_machine_id')
+    request = Packet.create_request(COMMAND_ID_CORE_MACHINE_ID)
 
     args = [request]
     args << timeout if timeout
@@ -441,7 +450,7 @@ class ClientCore < Extension
   #
   def native_arch(timeout=nil)
     # Not all meterpreter implementations support this
-    request = Packet.create_request('core_native_arch')
+    request = Packet.create_request(COMMAND_ID_CORE_NATIVE_ARCH)
 
     args = [ request ]
     args << timeout if timeout
@@ -455,7 +464,7 @@ class ClientCore < Extension
   # Remove a transport from the session based on the provided options.
   #
   def transport_remove(opts={})
-    request = transport_prepare_request('core_transport_remove', opts)
+    request = transport_prepare_request(COMMAND_ID_CORE_TRANSPORT_REMOVE, opts)
 
     return false unless request
 
@@ -468,7 +477,7 @@ class ClientCore < Extension
   # Add a transport to the session based on the provided options.
   #
   def transport_add(opts={})
-    request = transport_prepare_request('core_transport_add', opts)
+    request = transport_prepare_request(COMMAND_ID_CORE_TRANSPORT_ADD, opts)
 
     return false unless request
 
@@ -481,7 +490,7 @@ class ClientCore < Extension
   # Change the currently active transport on the session.
   #
   def transport_change(opts={})
-    request = transport_prepare_request('core_transport_change', opts)
+    request = transport_prepare_request(COMMAND_ID_CORE_TRANSPORT_CHANGE, opts)
 
     return false unless request
 
@@ -496,7 +505,7 @@ class ClientCore < Extension
   def transport_sleep(seconds)
     return false if seconds == 0
 
-    request = Packet.create_request('core_transport_sleep')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SLEEP)
 
     # we're reusing the comms timeout setting here instead of
     # creating a whole new TLV value
@@ -509,7 +518,7 @@ class ClientCore < Extension
   # Change the active transport to the next one in the transport list.
   #
   def transport_next
-    request = Packet.create_request('core_transport_next')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_NEXT)
     client.send_request(request)
     return true
   end
@@ -518,7 +527,7 @@ class ClientCore < Extension
   # Change the active transport to the previous one in the transport list.
   #
   def transport_prev
-    request = Packet.create_request('core_transport_prev')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_PREV)
     client.send_request(request)
     return true
   end
@@ -530,7 +539,7 @@ class ClientCore < Extension
     # Not supported unless we have a socket with SSL enabled
     return nil unless self.client.sock.type? == 'tcp-ssl'
 
-    request = Packet.create_request('core_transport_setcerthash')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SETCERTHASH)
 
     hash = Rex::Text.sha1_raw(self.client.sock.sslctx.cert.to_der)
     request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
@@ -547,7 +556,7 @@ class ClientCore < Extension
     # Not supported unless we have a socket with SSL enabled
     return nil unless self.client.sock.type? == 'tcp-ssl'
 
-    request = Packet.create_request('core_transport_setcerthash')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SETCERTHASH)
 
     # send an empty request to disable it
     client.send_request(request)
@@ -564,7 +573,7 @@ class ClientCore < Extension
     # Not supported unless we have a socket with SSL enabled
     return nil unless self.client.sock.type? == 'tcp-ssl'
 
-    request = Packet.create_request('core_transport_getcerthash')
+    request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_GETCERTHASH)
     response = client.send_request(request)
 
     return response.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
@@ -617,12 +626,10 @@ class ClientCore < Extension
     migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
-    request = Packet.create_request('core_migrate')
+    request = Packet.create_request(COMMAND_ID_CORE_MIGRATE)
 
     request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
-    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
     request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv(TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length)
     request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
@@ -641,7 +648,7 @@ class ClientCore < Extension
     # Send the migration request. Timeout can be specified by the caller, or set to a min
     # of 60 seconds.
     timeout = [(opts[:timeout] || 0), 60].max
-    response = client.send_request(request, timeout)
+    client.send_request(request, timeout)
 
     # Post-migration the session doesn't have encryption any more.
     # Set the TLV key to nil to make sure that the old key isn't used
@@ -709,7 +716,7 @@ class ClientCore < Extension
   # Shuts the session down
   #
   def shutdown
-    request  = Packet.create_request('core_shutdown')
+    request  = Packet.create_request(COMMAND_ID_CORE_SHUTDOWN)
 
     if client.passive_service
       # If this is a HTTP/HTTPS session we need to wait a few seconds
@@ -740,8 +747,8 @@ class ClientCore < Extension
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
-    request  = Packet.create_request('core_negotiate_tlv_encryption')
-    request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_pem)
+    request  = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
+    request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
       response = client.send_request(request)

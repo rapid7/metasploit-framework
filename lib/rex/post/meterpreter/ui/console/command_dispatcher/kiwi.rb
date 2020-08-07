@@ -50,10 +50,6 @@ class Console::CommandDispatcher::Kiwi
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
     end
-
-    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
-      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
-    end
   end
 
   #
@@ -67,6 +63,7 @@ class Console::CommandDispatcher::Kiwi
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       'creds_ssp'             => 'Retrieve SSP creds',
+      'creds_livessp'         => 'Retrieve Live SSP creds',
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
@@ -489,6 +486,14 @@ class Console::CommandDispatcher::Kiwi
   def cmd_creds_ssp(*args)
     method = Proc.new { client.kiwi.creds_ssp }
     scrape_passwords('ssp', method, args)
+  end
+
+  #
+  # Dump all LiveSSP credentials to screen.
+  #
+  def cmd_creds_livessp(*args)
+    method = Proc.new { client.kiwi.creds_livessp }
+    scrape_passwords('livessp', method, args)
   end
 
   #

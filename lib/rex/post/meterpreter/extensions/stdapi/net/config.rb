@@ -53,7 +53,7 @@ class Config
   #
   # @return [Array<Interface>]
   def get_interfaces
-    request = Packet.create_request('stdapi_net_config_get_interfaces')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
     ifaces  = []
 
     response = client.send_request(request)
@@ -112,7 +112,7 @@ class Config
   #
 
   def get_netstat
-    request = Packet.create_request('stdapi_net_config_get_netstat')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT)
                 netstat  = []
 
     response = client.send_request(request)
@@ -148,7 +148,7 @@ class Config
   #
 
   def get_arp_table
-    request = Packet.create_request('stdapi_net_config_get_arp_table')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE)
                 arps  = []
 
     response = client.send_request(request)
@@ -178,7 +178,7 @@ class Config
   # Returns an array of routes with each element being a Route.
   #
   def get_routes
-    request = Packet.create_request('stdapi_net_config_get_routes')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES)
     routes  = []
 
     response = client.send_request(request)
@@ -203,13 +203,13 @@ class Config
   # Adds a route to the target machine.
   #
   def add_route(subnet, netmask, gateway)
-    request = Packet.create_request('stdapi_net_config_add_route')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE)
 
     request.add_tlv(TLV_TYPE_SUBNET_STRING, subnet)
     request.add_tlv(TLV_TYPE_NETMASK_STRING, netmask)
     request.add_tlv(TLV_TYPE_GATEWAY_STRING, gateway)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
@@ -218,13 +218,13 @@ class Config
   # Removes a route from the target machine.
   #
   def remove_route(subnet, netmask, gateway)
-    request = Packet.create_request('stdapi_net_config_remove_route')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE)
 
     request.add_tlv(TLV_TYPE_SUBNET_STRING, subnet)
     request.add_tlv(TLV_TYPE_NETMASK_STRING, netmask)
     request.add_tlv(TLV_TYPE_GATEWAY_STRING, gateway)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
@@ -233,7 +233,7 @@ class Config
   # Get's the current proxy configuration
   #
   def get_proxy_config()
-    request = Packet.create_request('stdapi_net_config_get_proxy')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY)
 
     response = client.send_request(request)
 

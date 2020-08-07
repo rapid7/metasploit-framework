@@ -9,6 +9,7 @@ module NoteServlet
   end
 
   def self.registered(app)
+    app.get NoteServlet.api_path, &get_note
     app.get NoteServlet.api_path_with_id, &get_note
     app.post NoteServlet.api_path, &report_note
     app.put NoteServlet.api_path_with_id, &update_note

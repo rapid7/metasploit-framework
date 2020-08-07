@@ -497,7 +497,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # there
         return if !(framework.db && framework.db.active)
 
-        ::ActiveRecord::Base.connection_pool.with_connection {
+        ::ApplicationRecord.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host

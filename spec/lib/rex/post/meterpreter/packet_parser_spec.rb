@@ -8,7 +8,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
     Rex::Post::Meterpreter::PacketParser.new
   }
   before(:example) do
-    @request_packet = Rex::Post::Meterpreter::Packet.create_request("test_method")
+    @request_packet = Rex::Post::Meterpreter::Packet.create_request(31337)
     @sock = StringIO.new(@request_packet.to_r)
   end
 
@@ -19,7 +19,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
     parsed_packet.from_r
     expect(parsed_packet).to be_a Rex::Post::Meterpreter::Packet
     expect(parsed_packet.type).to eq Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
-    expect(parsed_packet.method?("test_method")).to eq true
+    expect(parsed_packet.method?(31337)).to eq true
   end
 
 end

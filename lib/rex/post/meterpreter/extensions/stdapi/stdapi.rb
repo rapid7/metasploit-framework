@@ -4,6 +4,7 @@ require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extensions/stdapi/constants'
 require 'rex/post/meterpreter/extensions/stdapi/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
@@ -36,6 +37,10 @@ module Stdapi
 #
 ###
 class Stdapi < Extension
+
+  def self.extension_id
+    EXTENSION_ID_STDAPI
+  end
 
   #
   # Initializes an instance of the standard API extension.

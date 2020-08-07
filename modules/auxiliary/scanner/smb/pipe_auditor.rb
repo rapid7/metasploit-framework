@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       datastore['SMBDirect'] = info[1]
 
       begin
-        connect(versions: [1, 2])
+        connect
         smb_login()
         check_named_pipes.each do |pipe_name, _|
           pipes.push(pipe_name)
@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         disconnect()
 
         break
-      rescue Rex::Proto::SMB::Exceptions::SimpleClientError => e
+      rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
         vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
       end
     end

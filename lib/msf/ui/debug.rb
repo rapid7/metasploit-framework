@@ -227,7 +227,7 @@ module Msf
           if framework.db.driver == 'http'
             cdb = framework.db.name
           else
-            ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+            ::ApplicationRecord.connection_pool.with_connection do |conn|
               if conn.respond_to?(:current_database)
                 cdb = conn.current_database
               end

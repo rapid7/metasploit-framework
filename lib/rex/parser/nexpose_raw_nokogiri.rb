@@ -186,7 +186,7 @@ module Rex
       return unless @report_data[:vuln]
       return unless @report_data[:vuln][:matches].kind_of? Array
 
-      ::ActiveRecord::Base.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection {
 
       refs = normalize_references(@report_data[:vuln][:refs])
       refs << "NEXPOSE-#{report_data[:vuln]["id"]}"
@@ -426,7 +426,7 @@ module Rex
       # that may have been renamed (re-import nexpose vulns)
       vuln_info[:details_match] = vkey
 
-      ::ActiveRecord::Base.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection {
 
       # Report the vulnerability
       vuln = db.report_vuln(vuln_info)

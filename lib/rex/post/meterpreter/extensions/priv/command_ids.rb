@@ -1,0 +1,24 @@
+# -*- coding: binary -*-
+module Rex
+module Post
+module Meterpreter
+module Extensions
+module Priv
+
+# ID for the extension (needs to be a multiple of 1000)
+EXTENSION_ID_PRIV = 2000
+
+# Associated command ids
+COMMAND_ID_PRIV_ELEVATE_GETSYSTEM          = EXTENSION_ID_PRIV + 1
+COMMAND_ID_PRIV_FS_BLANK_DIRECTORY_MACE    = EXTENSION_ID_PRIV + 2
+COMMAND_ID_PRIV_FS_BLANK_FILE_MACE         = EXTENSION_ID_PRIV + 3
+COMMAND_ID_PRIV_FS_GET_FILE_MACE           = EXTENSION_ID_PRIV + 4
+COMMAND_ID_PRIV_FS_SET_FILE_MACE           = EXTENSION_ID_PRIV + 5
+COMMAND_ID_PRIV_FS_SET_FILE_MACE_FROM_FILE = EXTENSION_ID_PRIV + 6
+COMMAND_ID_PRIV_PASSWD_GET_SAM_HASHES      = EXTENSION_ID_PRIV + 7
+
+end
+end
+end
+end
+end

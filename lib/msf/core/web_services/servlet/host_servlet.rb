@@ -17,6 +17,7 @@ module HostServlet
   end
 
   def self.registered(app)
+    app.get HostServlet.api_path, &get_host
     app.get HostServlet.api_path_with_id, &get_host
     app.post HostServlet.api_path, &report_host
     app.put HostServlet.api_path_with_id, &update_host

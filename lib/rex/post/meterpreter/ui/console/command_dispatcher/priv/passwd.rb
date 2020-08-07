@@ -22,7 +22,7 @@ class Console::CommandDispatcher::Priv::Passwd
   #
   def commands
     {
-      "hashdump" => "Dumps the contents of the SAM database"
+      'hashdump' => 'Dumps the contents of the SAM database'
     }
   end
 
@@ -30,7 +30,7 @@ class Console::CommandDispatcher::Priv::Passwd
   # Name for this dispatcher.
   #
   def name
-    "Priv: Password database"
+    'Priv: Password database'
   end
 
   #

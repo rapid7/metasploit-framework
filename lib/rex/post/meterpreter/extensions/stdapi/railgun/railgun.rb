@@ -165,7 +165,7 @@ class Railgun
 
     raise "Invalid parameters." if(not address or not length)
 
-    request = Packet.create_request('stdapi_railgun_memread')
+    request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_MEMREAD)
 
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
@@ -187,7 +187,7 @@ class Railgun
     length = data.length if length.nil?
     raise "Invalid parameters." if(not address or not data or not length)
 
-    request = Packet.create_request('stdapi_railgun_memwrite')
+    request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_MEMWRITE)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_DATA, data)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)

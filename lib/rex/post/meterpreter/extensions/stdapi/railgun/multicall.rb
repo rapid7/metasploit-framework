@@ -56,7 +56,7 @@ class MultiCaller
     end
 
     def call(functions)
-      request = Packet.create_request('stdapi_railgun_api_multi')
+      request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_API_MULTI)
       function_results = []
       layouts          = []
       functions.each do |f|

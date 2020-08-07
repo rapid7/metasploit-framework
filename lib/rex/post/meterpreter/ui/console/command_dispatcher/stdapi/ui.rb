@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -17,45 +18,46 @@ class Console::CommandDispatcher::Stdapi::Ui
 
   include Console::CommandDispatcher
   include Console::CommandDispatcher::Stdapi::Stream
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # List of supported commands.
   #
   def commands
     all = {
-      "enumdesktops"  => "List all accessible desktops and window stations",
-      "getdesktop"    => "Get the current meterpreter desktop",
-      "idletime"      => "Returns the number of seconds the remote user has been idle",
-      "keyscan_dump"  => "Dump the keystroke buffer",
-      "keyscan_start" => "Start capturing keystrokes",
-      "keyscan_stop"  => "Stop capturing keystrokes",
-      "keyboard_send" => "Send keystrokes",
-      "keyevent"      => "Send key events",
-      "mouse"         => "Send mouse events",
-      "screenshot"    => "Grab a screenshot of the interactive desktop",
-      "screenshare"   => "Watch the remote user's desktop in real time",
-      "setdesktop"    => "Change the meterpreters current desktop",
-      "uictl"         => "Control some of the user interface components"
+      'enumdesktops'  => 'List all accessible desktops and window stations',
+      'getdesktop'    => 'Get the current meterpreter desktop',
+      'idletime'      => 'Returns the number of seconds the remote user has been idle',
+      'keyscan_dump'  => 'Dump the keystroke buffer',
+      'keyscan_start' => 'Start capturing keystrokes',
+      'keyscan_stop'  => 'Stop capturing keystrokes',
+      'keyboard_send' => 'Send keystrokes',
+      'keyevent'      => 'Send key events',
+      'mouse'         => 'Send mouse events',
+      'screenshot'    => 'Grab a screenshot of the interactive desktop',
+      'screenshare'   => 'Watch the remote user desktop in real time',
+      'setdesktop'    => 'Change the meterpreters current desktop',
+      'uictl'         => 'Control some of the user interface components'
       #  not working yet
-      # "unlockdesktop" => "Unlock or lock the workstation (must be inside winlogon.exe)",
+      # 'unlockdesktop' => 'Unlock or lock the workstation (must be inside winlogon.exe)',
     }
 
     reqs = {
-      "enumdesktops"  => [ "stdapi_ui_desktop_enum" ],
-      "getdesktop"    => [ "stdapi_ui_desktop_get" ],
-      "idletime"      => [ "stdapi_ui_get_idle_time" ],
-      "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
-      "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
-      "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
-      "keyevent"      => [ "stdapi_ui_send_keyevent" ],
-      "keyboard_send" => [ "stdapi_ui_send_keys" ],
-      "mouse"         => [ "stdapi_ui_send_mouse" ],
-      "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
-      "screenshare"   => [ "stdapi_ui_desktop_screenshot" ],
-      "setdesktop"    => [ "stdapi_ui_desktop_set" ],
-      "uictl"         => [
-        "stdapi_ui_enable_mouse",
-        "stdapi_ui_enable_keyboard"
+      'enumdesktops'  => [COMMAND_ID_STDAPI_UI_DESKTOP_ENUM],
+      'getdesktop'    => [COMMAND_ID_STDAPI_UI_DESKTOP_GET],
+      'idletime'      => [COMMAND_ID_STDAPI_UI_GET_IDLE_TIME],
+      'keyscan_dump'  => [COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8],
+      'keyscan_start' => [COMMAND_ID_STDAPI_UI_START_KEYSCAN],
+      'keyscan_stop'  => [COMMAND_ID_STDAPI_UI_STOP_KEYSCAN],
+      'keyevent'      => [COMMAND_ID_STDAPI_UI_SEND_KEYEVENT],
+      'keyboard_send' => [COMMAND_ID_STDAPI_UI_SEND_KEYS],
+      'mouse'         => [COMMAND_ID_STDAPI_UI_SEND_MOUSE],
+      'screenshot'    => [COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT],
+      'screenshare'   => [COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT],
+      'setdesktop'    => [COMMAND_ID_STDAPI_UI_DESKTOP_SET],
+      'uictl'         => [
+        COMMAND_ID_STDAPI_UI_ENABLE_MOUSE,
+        COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD
       ]
     }
     filter_commands(all, reqs)
@@ -65,7 +67,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Name for this dispatcher.
   #
   def name
-    "Stdapi: User interface"
+    'Stdapi: User interface'
   end
 
   #
@@ -393,15 +395,15 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     keyscan_opts.parse(args) { | opt |
       case opt
-       when "-h"
+      when "-h"
         print_line("Usage: keyscan_start <options>")
         print_line("Starts the key logger")
         print_line(keyscan_opts.usage)
         return
-       when "-v"
+      when "-v"
         print_line("Verbose logging selected ...")
         trackwin = true
-       end
+      end
     }
 
     print_line("Starting the keystroke sniffer ...")

@@ -64,6 +64,8 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run_host(ip)
@@ -98,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
 
     # Try and authenticate with given credentials
-    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
+    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, delay: datastore['DELAY'], retries: datastore['RETRY'])
 
     # Report output
     print_good("Command completed successfully!")
