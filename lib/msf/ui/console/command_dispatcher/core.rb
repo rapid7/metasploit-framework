@@ -113,6 +113,7 @@ class Core
       "color"      => "Toggle color",
       "debug"      => "Display information useful for debugging",
       "exit"       => "Exit the console",
+      "features"   => "Display the list of not yet released features that can be opted in to",
       "get"        => "Gets the value of a context-specific variable",
       "getg"       => "Gets the value of a global variable",
       "grep"       => "Grep the output of another command",
@@ -562,6 +563,120 @@ class Core
   end
 
   alias cmd_quit cmd_exit
+
+  def cmd_features_help
+    print_line <<~CMD_FEATURE_HELP
+      Enable or disable unreleased features that Metasploit supports
+
+      Usage:
+        features set feature_name [true/false]
+        features print
+
+      Subcommands:
+        set - Enable or disable a given feature
+        print - show all available features and their current configuration
+
+      Examples:
+        View available features:
+          features print
+
+        Enable a feature:
+          features set new_feature true
+
+        Disable a feature:
+          features set new_feature false
+    CMD_FEATURE_HELP
+  end
+
+  #
+  # This method handles the features command which allows a user to opt into enabling
+  # features that are not yet released to everyone by default.
+  #
+  def cmd_features(*args)
+    args << 'print' if args.empty?
+
+    action, *rest = args
+    case action
+    when 'set'
+      feature_name, value = rest
+
+      unless framework.features.exists?(feature_name)
+        print_warning("Feature name '#{feature_name}' is not available. Either it has been removed, integrated by default, or does not exist in this version of Metasploit.")
+        print_warning("Currently supported features: #{framework.features.names.join(', ')}") if framework.features.all.any?
+        print_warning('There are currently no features to toggle.') if framework.features.all.empty?
+        return
+      end
+
+      unless %w[true false].include?(value)
+        print_warning('Please specify true or false to configure this feature.')
+        return
+      end
+
+      framework.features.set(feature_name, value == 'true')
+      print_line("#{feature_name} => #{value}")
+    when 'print'
+      if framework.features.all.empty?
+        print_line 'There are no features to enable at this time. Either the features have been removed, or integrated by default.'
+        return
+      end
+
+      features_table = Table.new(
+        Table::Style::Default,
+        'Header' => 'Features table',
+        'Prefix' => "\n",
+        'Postfix' => "\n",
+        'Columns' => [
+          '#',
+          'Name',
+          'Enabled',
+          'Description',
+        ]
+      )
+
+      framework.features.all.each.with_index do |feature, index|
+        features_table << [
+          index,
+          feature[:name],
+          feature[:enabled].to_s,
+          feature[:description]
+        ]
+      end
+
+      print_line features_table.to_s
+    else
+      cmd_help
+    end
+  rescue StandardError => e
+    elog(e)
+    print_error(e.message)
+  end
+
+  #
+  # Tab completion for the features command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_features_tabs(_str, words)
+    if words.length == 1
+      return %w[set print]
+    end
+
+    _command_name, action, *rest = words
+    ret = []
+    case action
+    when 'set'
+      feature_name, _value = rest
+
+      if framework.features.exists?(feature_name)
+        ret += %w[true false]
+      else
+        ret += framework.features.names
+      end
+    end
+
+    ret
+  end
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
@@ -1126,6 +1241,12 @@ class Core
   def cmd_save(*args)
     # Save the console config
     driver.save_config
+
+    begin
+      FeatureManager.instance.save_config
+    rescue StandardException => e
+      elog(e)
+    end
 
     # Save the framework's datastore
     begin

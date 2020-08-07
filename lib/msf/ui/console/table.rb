@@ -18,13 +18,10 @@ class Table < Rex::Text::Table
     Default = 0
   end
 
-  #
-  # Initializes a wrappered table with the supplied style and options.
-  #
-  def initialize(style, opts = {})
-    self.style = style
+  def self.new(*args, &block)
+    style, opts = args
 
-    if (self.style == Style::Default)
+    if style == Style::Default
       opts['Indent']  = 3
       if (!opts['Prefix'])
         opts['Prefix']  = "\n"
@@ -32,28 +29,26 @@ class Table < Rex::Text::Table
       if (!opts['Postfix'])
         opts['Postfix'] = "\n"
       end
-
-      super(opts)
     end
+
+    instance = super(opts, &block)
+    if style == Style::Default
+      instance.extend(DefaultStyle)
+    end
+    instance
   end
 
-  #
-  # Print nothing if there are no rows if the style is default.
-  #
-  def to_s
-    if (style == Style::Default)
+  module DefaultStyle
+    #
+    # Print nothing if there are no rows if the style is default.
+    #
+    def to_s
       return '' if (rows.length == 0)
+
+      super
     end
-
-    super
   end
-
-protected
-
-  attr_accessor :style # :nodoc:
-
 end
-
 end
 end
 end
