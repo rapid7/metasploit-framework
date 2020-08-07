@@ -65,8 +65,11 @@ class MetasploitModule < Msf::Auxiliary
       when action == :resolve
         begin
           answer = resolver.query(fqdn, type)
-          print_good "Found existing #{type} record for #{fqdn}"
-          return true
+          if (answer.answer.count > 0) then
+            print_good "Found existing #{type} record for #{fqdn}"
+            return true
+          end
+          return false
         rescue Dnsruby::ResolvError, IOError => e
           print_good "Did not find an existing #{type} record for #{fqdn}"
           vprint_error "Query failed: #{e.message}"
