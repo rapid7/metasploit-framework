@@ -160,6 +160,15 @@ module Metasploit
                   if os_name && os_num
                     proof = "#{os_name.chomp} #{os_num.chomp}"
                   end
+                # mikrotik
+                elsif proof =~ /bad command name id \(line 1 column 1\)/
+                  proof = ssh_socket.exec!("/ system resource print\n").to_s
+                  /platform:\s+(?<platform>.+)$/ =~ proof
+                  /board-name:\s+(?<board>.+)$/ =~ proof
+                  /version:\s+(?<version>.+)$/ =~ proof
+                  if version && platform && board
+                    proof = "#{platform.strip} #{board.strip} #{version.strip}"
+                  end
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
                 end
@@ -200,8 +209,10 @@ module Metasploit
             'cisco-ios'
           when /unknown keyword/ # ScreenOS
             'juniper'
-          when /JUNOS Base OS/ #JunOS
+          when /JUNOS Base OS/ # JunOS
             'juniper'
+          when /MikroTik/
+            'mikrotik'
           else
             'unknown'
           end

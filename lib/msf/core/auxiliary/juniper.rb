@@ -108,7 +108,7 @@ module Auxiliary::Juniper
       cred = credential_data.dup
       cred[:username] = ppp_username
       cred[:private_data] = ppp_hash
-      cred[:service_name] = 'PPTP'
+      cred[:service_name] = 'pptp'
       cred[:port] = 1723
       create_credential_and_login(cred)
     end
@@ -125,7 +125,7 @@ module Auxiliary::Juniper
       cred = credential_data.dup
       cred[:private_data] = ike_password
       cred[:private_type] = :password
-      cred[:service_name] = 'IKE'
+      cred[:service_name] = 'ike'
       cred[:port] = 500
       cred[:address] = ike_address
       cred[:protocol] = 'udp'
