@@ -43,7 +43,6 @@ class MetasploitModule < Msf::Auxiliary
       OptAddress.new('CHOST', [false, 'The source address to use for queries and updates'])
     ])
 
-    deregister_options('RPORT')
   end
 
   def record_action(type, type_enum, value, action)
