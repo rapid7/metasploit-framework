@@ -144,13 +144,11 @@ def run
         break
       end
 
-      # Assume that the oldest thread will be one of the
-      # first to finish and wait for it.  After that's
-      # done, remove any finished threads from the list
-      # and continue on.  This will open up at least one
-      # spot for a new thread
+      # Attempt to wait for the oldest thread for a second,
+      # remove any finished threads from the list
+      # and continue on.
       tla = @tl.length
-      @tl.first.join
+      @tl.first.join(1)
       @tl.delete_if { |t| not t.alive? }
       tlb = @tl.length
 
@@ -231,14 +229,12 @@ def run
         break
       end
 
-      # Assume that the oldest thread will be one of the
-      # first to finish and wait for it.  After that's
-      # done, remove any finished threads from the list
-      # and continue on.  This will open up at least one
-      # spot for a new thread
+      # Attempt to wait for the oldest thread for a second,
+      # remove any finished threads from the list
+      # and continue on.
       tla = 0
       @tl.map {|t| tla += t[:batch_size] }
-      @tl.first.join
+      @tl.first.join(1)
       @tl.delete_if { |t| not t.alive? }
       tlb = 0
       @tl.map {|t| tlb += t[:batch_size] }
