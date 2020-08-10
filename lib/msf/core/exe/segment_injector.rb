@@ -72,10 +72,9 @@ module Exe
         xor ecx, ecx
         mov qword ptr [rsp+28h], rcx
         mov qword ptr [rsp+20h], rcx
-        mov r9, 0
+        mov r9, rcx
         mov r8, thread_hook
-        mov rdx, 0
-        mov rcx, 0
+        mov rdx, rcx
         call rax
 
         add rsp, 38h
