@@ -15,6 +15,7 @@ module Payload::Python::ReverseHttp
       Msf::Opt::http_header_options +
       Msf::Opt::http_proxy_options
     )
+    deregister_options('HttpProxyType')
   end
 
   #
