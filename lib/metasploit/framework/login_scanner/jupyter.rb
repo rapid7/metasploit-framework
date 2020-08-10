@@ -32,8 +32,9 @@ module Metasploit
           begin
             res = send_request({'method'=> 'GET', 'uri' => uri})
             vars_post = {'password' => credential.private }
+
+            # versions < 4.3.1 do not use this field
             unless (node = res.get_html_document.xpath('//form//input[@name="_xsrf"]')).empty?
-              # versions < 4.3.1 do not use this field
               vars_post['_xsrf'] = node.first['value']
             end
 
@@ -49,7 +50,7 @@ module Metasploit
             else
               result_opts.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: res)
             end
-          rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           end
           Result.new(result_opts)

@@ -11,10 +11,10 @@ original IPython Notebook system. This module is compatible with both standard J
 ### Installation
 
 1. Install the latest version of Jupyter from PyPi using pip: `pip install notebook`. The "notebook" package is the core
-  application and is the one whose version number is referenced.
-1. Start Jupyter using `jupyter notebook`, new installs will randomly generate an authentication token and open the
-  browser with it
-1. As of [version 5.3][2], the user will be prompted to set a password the first time they open the UI
+  application and is the one whose version number is used as the Jupyter version number referred to in this document.
+1. Start Jupyter using `jupyter notebook`
+    * New installs will randomly generate an authentication token and open the browser with it
+    * As of [version 5.3][2], the user will be prompted to set a password the first time they open the UI
 1. With the password set, the module can be tested
 
 ## Verification Steps
@@ -25,13 +25,15 @@ original IPython Notebook system. This module is compatible with both standard J
 1. Set the `RHOSTS` option
     * With no other options set, this will only check if authentication is required
 1. Do: `run`
-1. You should see login attempts
+1. You should the server version
+1. If password options (such as `PASS_FILE`) where specified, and the server requires authentication then you should see
+   login attempts
 
 ## Options
 
 ## Scenarios
 
-### Jupyte Notebook 4.3.0
+### Jupyter Notebook 4.3.0 With No Authentication Requirement
 
 ```
 msf5 > use auxiliary/scanner/http/jupyter_login 
@@ -43,6 +45,22 @@ msf5 auxiliary(scanner/http/jupyter_login) > run
 
 [*] 192.168.159.128:8888 - The server responded that it is running Jupyter version: 4.3.0
 [+] 192.168.159.128:8888 - No password is required.
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/http/jupyter_login) >
+```
+
+### Jupyter Notebook 6.0.2 With A Password Set
+
+```
+msf5 > use auxiliary/scanner/http/jupyter_login 
+msf5 auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
+PASS_FILE => /tmp/passwords.txt
+msf5 auxiliary(scanner/http/jupyter_login) > run
+
+[*] 192.168.159.128:8888 - The server responded that it is running Jupyter version: 6.0.2
+[-] 192.168.159.128:8888 - LOGIN FAILED: :Password (Incorrect)
+[+] 192.168.159.128:8888 - Login Successful: :Password1
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf5 auxiliary(scanner/http/jupyter_login) >

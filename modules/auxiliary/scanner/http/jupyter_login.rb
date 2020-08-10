@@ -14,21 +14,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Jupyter Login Utility',
-      'Description'    => %q{
+      'Name' => 'Jupyter Login Utility',
+      'Description' => %q{
         This module checks if authentication is required on a Jupyter Lab or Notebook server. If it is, this module will
         bruteforce the password. Jupyter only requires a password to authenticate, usernames are not used. This module
         is compatible with versions 4.3.0 (released 2016-12-08) and newer.
       },
-      'Author'         => [ 'Spencer McIntyre' ],
-      'License'        => MSF_LICENSE
+      'Author' => [ 'Spencer McIntyre' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
-        OptString.new('TARGETURI', [ true,  'The path to the Jupyter application', '/' ]),
+        OptString.new('TARGETURI', [ true, 'The path to the Jupyter application', '/' ]),
         Opt::RPORT(8888)
-      ])
+      ]
+    )
 
     deregister_options('PASSWORD_SPRAY')
     deregister_options('DB_ALL_CREDS', 'DB_ALL_USERS', 'HttpUsername', 'STOP_ON_SUCCESS', 'USERNAME', 'USERPASS_FILE', 'USER_AS_PASS', 'USER_FILE')
@@ -36,15 +37,17 @@ class MetasploitModule < Msf::Auxiliary
     register_autofilter_ports([ 80, 443, 8888 ])
   end
 
-  def requires_password?(ip)
+  def requires_password?(_ip)
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'tree')
     })
 
     return false if res&.code == 200
+
     destination = res.headers['Location'].split('?', 2)[0]
-    return true if destination.ends_with?(normalize_uri(target_uri.path, 'login'))
+    return true if destination.end_with?(normalize_uri(target_uri.path, 'login'))
+
     fail_with(Failure::UnexpectedReply, "#{peer} - The server responded with a redirect that did not match a known fingerprint")
   end
 
@@ -63,12 +66,12 @@ class MetasploitModule < Msf::Auxiliary
     unless requires_password?(ip)
       print_good "#{peer} - No password is required."
       report_vuln(
-        :host        => ip,
-        :port        => rport,
-        :proto       => 'tcp',
-        :sname       => (ssl ? 'https' : 'http'),
-        :name        => "Unauthenticated Jupyter Access",
-        :info        => "Module #{self.fullname} confirmed access to the Jupyter application with no authentication"
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        sname: (ssl ? 'https' : 'http'),
+        name: 'Unauthenticated Jupyter Access',
+        info: "Module #{fullname} confirmed unauthenticated access to the Jupyter application"
       )
       return
     end
@@ -94,8 +97,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: fullname,
-          workspace_id: myworkspace_id
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
