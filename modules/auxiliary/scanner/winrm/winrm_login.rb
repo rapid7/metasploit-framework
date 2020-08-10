@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options([Msf::OptEnum.new('PREFERRED_AUTH', 'Preferred authentication method', enums: ['Negotiate', 'Kerberos', 'Basic'], default: 'Negotiate')])
+    register_options([Msf::OptEnum.new('PREFERRED_AUTH', 'Preferred authentication method', enums: %w[Negotiate Basic], default: 'Negotiate')])
     deregister_options('PASSWORD_SPRAY')
   end
 

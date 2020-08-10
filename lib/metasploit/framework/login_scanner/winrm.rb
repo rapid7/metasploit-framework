@@ -42,11 +42,13 @@ module Metasploit
         # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
         def send_request(opts)
           opts['preferred_auth'] = self.framework_module.datastore['PREFERRED_AUTH']
-
           # Straight up hack since if Basic auth is used winrm complains about the content size being 0
           # The error message actually complains about the Content-Size header not being set even though it is
           # but it doesn't like it being 0 and other auth methods fail with the supplied data to get around it
           # So only if "Basic" is selected as the preferred option do we add this extra stuff as a workaround
+          #
+          # NOTE: if 'Basic' is selected as a preferred option then is not available these extra options are still set
+          # Since we don't know what auth method the client will finally use at this point it's difficult to get around
           if opts['preferred_auth'] == 'Basic'
             opts['headers'] ||= { }
             opts['ctype'] = 'application/soap+xml;charset=UTF-8'
