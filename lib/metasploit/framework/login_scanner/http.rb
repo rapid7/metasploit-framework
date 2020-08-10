@@ -246,7 +246,7 @@ module Metasploit
           begin
             cli.connect
             req = cli.request_cgi(opts)
-            res = cli.send_recv(req)
+            res = opts['authenticate'] ? cli.send_recv(req) : cli._send_recv(req)
           rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure

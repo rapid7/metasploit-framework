@@ -272,15 +272,6 @@ class Client
 
     # if several providers are available, the client may want one in particular
     preferred_auth = opts['preferred_auth']
-    if supported_auths.include?(preferred_auth)
-      # Really would like to give some feedback to the user here
-      # But I can't figure out how we're supposed to get `print_status` or similar in here
-      puts("#{preferred_auth} is supported")
-    elsif preferred_auth != nil
-      puts("#{preferred_auth} is not supported, falling back to one of #{supported_auths}")
-      preferred_auth = nil
-    end
-
     if supported_auths.include?('Basic') && (preferred_auth.nil? || preferred_auth == 'Basic')
       opts['headers'] ||= {}
       opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )
