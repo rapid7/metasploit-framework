@@ -54,6 +54,8 @@ msf5 auxiliary(scanner/http/jupyter_login) >
 
 ```
 msf5 > use auxiliary/scanner/http/jupyter_login 
+msf5 auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
+RHOSTS => 192.168.159.128
 msf5 auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
 PASS_FILE => /tmp/passwords.txt
 msf5 auxiliary(scanner/http/jupyter_login) > run
