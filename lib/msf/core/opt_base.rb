@@ -60,7 +60,7 @@ module Msf
       unless max_length.nil?
         self.desc += " Max parameter length: #{max_length} characters"
       end
-      
+
       if regex_temp
         # convert to string
         regex_temp = regex_temp.to_s if regex_temp.is_a? Regexp
@@ -191,7 +191,7 @@ module Msf
     #
     attr_accessor :owner
     #
-    # The list of potencial conditions
+    # The list of potential conditions
     #
     attr_accessor :conditions
     #
@@ -206,11 +206,11 @@ module Msf
     # Aliases for this option for backward compatibility
     #
     attr_accessor :aliases
-    # 
+    #
     # The max length of the input value
     #
     attr_accessor :max_length
-    
+
     protected
 
     attr_writer   :required, :desc, :default # :nodoc:

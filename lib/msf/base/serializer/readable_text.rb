@@ -556,7 +556,6 @@ class ReadableText
         ])
 
     mod.options.sorted.each do |name, opt|
-
       val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
 
       next unless Msf::OptCondition.show_option(mod, opt)
