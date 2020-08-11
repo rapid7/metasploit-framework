@@ -4,8 +4,7 @@ module Metasploit::Framework
 
   class PrivateCredentialCollection
     # @!attribute additional_privates
-    #   Additional privates to be combined
-    #
+    #   Additional private values that should be tried
     #   @return [Array<String>]
     attr_accessor :additional_privates
 
@@ -20,6 +19,7 @@ module Metasploit::Framework
     attr_accessor :pass_file
 
     # @!attribute password
+    #   The password that should be tried
     #   @return [String]
     attr_accessor :password
 
@@ -31,6 +31,7 @@ module Metasploit::Framework
     attr_accessor :prepended_creds
 
     # @!attribute realm
+    #   The authentication realm associated with this password
     #   @return [String]
     attr_accessor :realm
 
@@ -50,10 +51,10 @@ module Metasploit::Framework
       self.additional_privates ||= []
     end
 
-    # Adds a string as an addition private credential
+    # Adds a string as an additional private credential
     # to be combined in the collection.
     #
-    # @param [String] private_str the string to use as a private
+    # @param [String] private_str The string to use as a private credential
     # @return [void]
     def add_private(private_str='')
       additional_privates << private_str
@@ -62,7 +63,7 @@ module Metasploit::Framework
     # Add {Credential credentials} that will be yielded by {#each}
     #
     # @see prepended_creds
-    # @param cred [Credential]
+    # @param [Credential] cred
     # @return [self]
     def prepend_cred(cred)
       prepended_creds.unshift cred
@@ -92,7 +93,6 @@ module Metasploit::Framework
           pass_from_file.chomp!
           yield Metasploit::Framework::Credential.new(private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
         end
-        pass_fd.seek(0)
       end
       additional_privates.each do |add_private|
         yield Metasploit::Framework::Credential.new(private: add_private, realm: realm, private_type: private_type(add_private))
@@ -103,16 +103,25 @@ module Metasploit::Framework
     end
 
     # Returns true when #each will have no results to iterate
+    #
+    # @return [Boolean]
     def empty?
       prepended_creds.empty? && !has_privates?
     end
 
+    # Returns true when there are any private values set
+    #
+    # @return [Boolean]
     def has_privates?
       password.present? || pass_file.present? || !additional_privates.empty? || blank_passwords
     end
 
     protected
 
+    # Analyze a private value to determine its type by checking it against a known list of regular expressions
+    #
+    # @param [String] private The string to analyze
+    # @return [Symbol]
     def private_type(private)
       if private =~ /[0-9a-f]{32}:[0-9a-f]{32}/
         :ntlm_hash
@@ -127,7 +136,7 @@ module Metasploit::Framework
   class CredentialCollection < PrivateCredentialCollection
 
     # @!attribute additional_publics
-    #   Additional public to be combined
+    #   Additional public values that should be tried
     #
     #   @return [Array<String>]
     attr_accessor :additional_publics
@@ -143,6 +152,7 @@ module Metasploit::Framework
     attr_accessor :user_file
 
     # @!attribute username
+    #   The username that should be tried
     #   @return [String]
     attr_accessor :username
 
@@ -165,10 +175,10 @@ module Metasploit::Framework
       self.additional_publics  ||= []
     end
 
-    # Adds a string as an addition public credential
+    # Adds a string as an additional public credential
     # to be combined in the collection.
     #
-    # @param [String] public_str the string to use as a public
+    # @param [String] public_str The string to use as a public credential
     # @return [void]
     def add_public(public_str='')
       additional_publics << public_str
@@ -201,7 +211,6 @@ module Metasploit::Framework
             pass_from_file.chomp!
             yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
           end
-          pass_fd.seek(0)
         end
         additional_privates.each do |add_private|
           yield Metasploit::Framework::Credential.new(public: username, private: add_private, realm: realm, private_type: private_type(add_private))
@@ -276,14 +285,22 @@ module Metasploit::Framework
     end
 
     # Returns true when #each will have no results to iterate
+    #
+    # @return [Boolean]
     def empty?
       prepended_creds.empty? && !has_users? || (has_users? && !has_privates?)
     end
 
+    # Returns true when there are any user values set
+    #
+    # @return [Boolean]
     def has_users?
       username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
     end
 
+    # Returns true when there are any private values set
+    #
+    # @return [Boolean]
     def has_privates?
       super || userpass_file.present? || user_as_pass
     end
