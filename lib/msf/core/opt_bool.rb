@@ -8,7 +8,7 @@ module Msf
 
     # This overrides default from 'nil' to 'false'
     def initialize(in_name, attrs = [],
-                   required: true, desc: nil, default: false, aliases: [])
+                   default: false, **kwargs)
       super
     end
 
