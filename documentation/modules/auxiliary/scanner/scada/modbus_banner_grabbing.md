@@ -7,22 +7,10 @@ For more technical information, you can refer to this link: https://en.wikipedia
 By default the service is running on port 502, so any device with this port open could be a potential target.
 
 ## Verification Steps
-<<<<<<< HEAD
-  1. Do: ```use auxiliary/scanner/scada/modbus_banner_grabbing```
-<<<<<<< HEAD
-  2. Do: ```set RHOST <IP>```
-  3. Do: ```set UNIT_ID <ID>```
-=======
-  2. Do: ```set RHOST <IP>``` where IP is the IP address of the target.
-  3. Do: ```set UNIT_ID <ID>``` where ID is a number between 1 and 254. This is optional, default Unite Identifier is set to ```0```.
->>>>>>> Update documentation/modules/auxiliary/scanner/scada/modbus_banner_grabbing.md
-  4. Do: ```run```
-=======
   1. Do: `use auxiliary/scanner/scada/modbus_banner_grabbing`
-  2. Do: `set RHOST <IP>`
-  3. Do: `set UNIT_ID <ID>`
+  2. Do: `set RHOST <IP>` where IP is the IP address of the target.
+  3. Do: `set UNIT_ID <ID>` where ID is a number from 0 to 254 inclusive. This is optional, the default Unit Identifier on most devices is `0`.
   4. Do: `run`
->>>>>>> Update documentation to fix spelling mistakes and grammar
 
 The response from the target device may contain several objects. Some of these objects can be seen below:
 
@@ -47,17 +35,19 @@ Notes
 ```
 
 ## Options
-  1. `UNIT_ID` is the Unit Identifier and must be a number between 1 and 254. By default this value is set to `0`.
+  1. `UNIT_ID` is the Unit Identifier and must be a number from 0 to 254 inclusive. By default this value is set to `0`.
   2. `RHOST` is the IP address of the target.
 
 ## Scenarios
 The following scenarios describe some of the responses you may receive from the target:
 
-### Execution Successful
-The target responded with some object information such as `Vendor Name`, `Product Code` and `Revision`.
+### Schneider Electric BMX NOE 0100 - Successful Response
 
 ```
-msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.1
+RHOSTS => 192.168.1.1
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [*] 192.168.1.1:502    - Number of Objects: 3
 [+] 192.168.1.1:502    - VendorName: Schneider Electric
@@ -67,31 +57,41 @@ msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 [*] Auxiliary module execution completed
 ```
 
-### No Reply
+### Schneider Electric BMX NOE 0100 - No Reply
 The target never replied to the attacker's request.
 
 ```
-msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.2
+RHOSTS => 192.168.1.2
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.2:502      - MODBUS - No reply
 [*] 192.168.1.2:502      - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 
-### Network Error
+### Schneider Electric BMX NOE 0100 - Network Error
 Some network error occurred, such as a connection error, a network timeout, or the connection was refused. Alternatively, the host may be unreachable.
 
-```msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+```
+msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.3
+RHOSTS => 192.168.1.3
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.3:502     - MODBUS - Network error during payload: The connection timed out (217.71.253.52:502).
 [*] 192.168.1.3:502     - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
 
-### Modbus Exception Codes (i.e. Memory Parity Error)
+### Schneider Electric BMX NOE 0100 - Modbus Exception Code (i.e. Memory Parity Error)
 
 ```
-msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > run
+msf6 > use auxiliary/scanner/scada/modbus_banner_grabbing
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > set RHOSTS 192.168.1.4
+RHOSTS => 192.168.1.4
+msf6 auxiliary(scanner/scada/modbus_banner_grabbing) > run
 
 [-] 192.168.1.4:502      - Memory Parity Error: Slave detected a parity error in memory.
 [*] 192.168.1.4:502      - Scanned 1 of 1 hosts (100% complete)

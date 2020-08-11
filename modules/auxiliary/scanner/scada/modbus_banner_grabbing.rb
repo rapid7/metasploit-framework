@@ -12,14 +12,15 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Modbus Banner Grabbing',
       'Description' => %q{
-        Banner grabbing for Modbus using Function Code 43 (Read Device
+        This module grabs the banner of any device running the Modbus protocol
+        by sending a request with Modbus Function Code 43 (Read Device
         Identification). Modbus is a data communications protocol originally
         published by Modicon (now Schneider Electric) in 1979 for use with its
         programmable logic controllers (PLCs).
       },
       'Author'      =>
       [
-        'Juan Escobar <juan[at]]null-life.com>', # @itsecurityco
+        'Juan Escobar <juan[at]null-life.com>', # @itsecurityco
         'Ezequiel Fernandez' # @capitan_alfa
       ],
       'References'  =>
@@ -33,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(502),
-        OptInt.new('UNIT_ID', [true, "Tells the Slave Address of the device behind the gateway [1..254]", 0]),
+        OptInt.new('UNIT_ID', [true, "A number from 0 to 254 inclusive indicating the Slave Address of the device behind the gateway", 0]),
         OptInt.new('TIMEOUT', [true, 'Timeout for the network probe', 2])
       ])
   end
@@ -102,6 +103,11 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     begin
+      if (datastore['UNIT_ID'] > 254 || datastore['UNIT_ID'] < 0)
+        print_error('The value of UNIT_ID must be between 0 and 254 inclusive. Please supply a valid value.')
+        return
+      end
+
       connect
 
       packet  = "\x44\x62" # Transaction Identifier
@@ -129,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
       num_objects = data[mbtcp['num_objects']['start'], mbtcp['num_objects']['bytes']]
 
       if num_objects.nil?
-        print_error("MODBUS - No data was received, try changing the UNID_ID value.")
+        print_error("MODBUS - No data was received, try changing the UNIT_ID value.")
         return
       end
 
@@ -145,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           object['name'] = object_name[object['id']]
         rescue
-          object['name'] = "Name X"
+          object['name'] = 'Missing_Name'
         end
 
         print_good("#{ object['name'] }: #{ object['str_value'] }")
@@ -165,9 +171,10 @@ class MetasploitModule < Msf::Auxiliary
       raise $!
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionError, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused => e
       print_error("MODBUS - Network error during payload: #{e}")
-      return nil
+      return
     rescue ::EOFError
       print_error("MODBUS - No reply")
+      return
     end
 
     def cleanup
