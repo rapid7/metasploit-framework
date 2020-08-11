@@ -286,7 +286,8 @@ module Msf
 
           if not sock
             print_error("Failed to connect socket #{rhost}:#{lport}")
-            exit
+            interrupt_wait_for_session
+            Thread.exit
           end
 
           # Perform SMB logon
@@ -297,7 +298,8 @@ module Msf
             vprint_status("SMB login Success #{smbdomain}\\#{smbuser}:#{smbpass} #{rhost}:#{lport}")
           rescue
             print_error("SMB login Failure #{smbdomain}\\#{smbuser}:#{smbpass} #{rhost}:#{lport}")
-            exit
+            interrupt_wait_for_session
+            Thread.exit
           end
 
           # Connect to the IPC$ share so we can use named pipes.
@@ -316,7 +318,8 @@ module Msf
               error_name = e.get_error(e.error_code)
               unless ['STATUS_OBJECT_NAME_NOT_FOUND', 'STATUS_PIPE_NOT_AVAILABLE'].include? error_name
                 print_error("Error connecting to #{pipe_name}: #{error_name}")
-                exit
+                interrupt_wait_for_session
+                Thread.exit
               else
                 # Stager pipe may not be ready
                 vprint_status("Error connecting to #{pipe_name}: #{error_name}")
@@ -331,7 +334,8 @@ module Msf
 
           if not pipe
             print_error("Failed to connect to pipe \\#{pipe_name} on #{rhost}")
-            exit
+            interrupt_wait_for_session
+            Thread.exit
           end
 
           vprint_status("Opened pipe \\#{pipe_name}")
