@@ -5,6 +5,10 @@ module RemoteDbImportDataService
 
   DB_IMPORT_API_PATH = '/api/v1/db-import'
 
+  def import(opts, &block)
+    self.post_data_async(DB_IMPORT_API_PATH, opts)
+  end
+
   def import_file(opts)
     filename = opts[:filename]
     data = ""
