@@ -460,12 +460,7 @@ class Plugin::OpenVAS < Msf::Plugin
               'Columns' => ["ID", "Task Name", "Start Time", "Stop Time"])
 
         @ov.report_get_all.each do |report|
-          report_id = report.elements["report"].attributes["id"]
-          report_task = report.elements["task/name"].get_text
-          report_start_time = report.elements["creation_time"].get_text
-          report_stop_time = report.elements["modification_time"].get_text
-
-          tbl << [ report_id, report_task, report_start_time, report_stop_time ]
+          tbl << [ report["id"], report["task"], report["start_time"], report["stop_time"] ]
         end
         print_good("OpenVAS list of reports")
         print_line
