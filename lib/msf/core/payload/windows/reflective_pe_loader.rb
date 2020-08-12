@@ -20,9 +20,9 @@ start:                    ;
 	mov eax,[esi+0x3C]      ; Get the offset of "PE" to eax
 	mov ebx,[eax+esi+0x34]  ; Get the image base address to ebx
 	mov eax,[eax+esi+0x28]  ; Get the address of entry point to eax
-	push eax                ; Save the adress of entry to stack
+	push eax                ; Save the address of entry to stack
 	push 0x40               ; PAGE_EXECUTE_READ_WRITE
-	push 0x103000           ; MEM_COMMI | MEM_TOP_DOWN | MEM_RESERVE
+	push 0x103000           ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
 	push dword [esp+12]     ; dwSize
 	push 0x00               ; lpAddress
 	push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}         ; ror13( "kernel32.dll", "VirtualAlloc" )
@@ -140,7 +140,7 @@ complete:
 	pop eax                 ; Clean out the stack
 	pop edi
 	mov edx,edi             ; Copy the address of new base to EDX
-	pop eax                 ; Pop the addess_of_entry to EAX
+	pop eax                 ; Pop the address_of_entry to EAX
 	add edi,eax             ; Add the address of entry to new image base
 	pop ecx                 ; Pop the image_size to ECX
 memcpy:

