@@ -81,11 +81,11 @@ module Parser
         if @text
           if /^(?<p_num>\d{1,5})\/(?<p_proto>.+)\s\((?<p_name>.+)\)/ =~ @text
             @state[:name] = p_name.gsub(/iana: /i, '')
-            @state[:port] = p_num
+            @state[:port] = p_num.strip
             @state[:proto] = p_proto
           elsif @text.index('(')
             @state[:proto] = @text.split('(')[1].split('/')[1].gsub(/\)/, '')
-            @state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '')
+            @state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '').strip
           elsif @text.index('/')
             @state[:proto] = @text.split('/')[1].strip
             @state[:port] = @text.split('/')[0].strip
@@ -103,16 +103,16 @@ module Parser
         if @text
           if /^(?<p_num>\d{1,5})\/(?<p_proto>.+)\s\((?<p_name>.+)\)/ =~ @text
             @state[:name] = p_name.gsub(/iana: /i, '')
-            @state[:port] = p_num
+            @state[:port] = p_num.strip
             @state[:proto] = p_proto
             record_service if p_num
           elsif @text.index('(')
             @state[:name] = @text.split(' ')[0]
-            @state[:port] = @text.split('(')[1].split('/')[0]
+            @state[:port] = @text.split('(')[1].split('/')[0].strip
             @state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
             record_service unless @state[:name].nil?
           elsif @text.index('/')
-            @state[:port] = @text.split('/')[0]
+            @state[:port] = @text.split('/')[0].strip
             @state[:proto] = @text.split('/')[1]
             record_service unless @state[:port] == 'general'
           end
