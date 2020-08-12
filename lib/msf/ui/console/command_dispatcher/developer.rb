@@ -76,8 +76,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     files = output.split("\n")
 
     files.each do |file|
+      next if file.end_with?('_spec.rb')
       f = File.join(Msf::Config.install_root, file)
-      reload_file(file, print_errors: false)
+      reload_file(f, print_errors: false)
     end
   end
 
