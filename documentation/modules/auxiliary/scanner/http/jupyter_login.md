@@ -12,9 +12,12 @@ original IPython Notebook system. This module is compatible with both standard J
 
 1. Install the latest version of Jupyter from PyPi using pip: `pip install notebook`. The "notebook" package is the core
   application and is the one whose version number is used as the Jupyter version number referred to in this document.
-1. Start Jupyter using `jupyter notebook`
+1. Start Jupyter using `jupyter notebook --ip='*'` to start Jupyter listening on all IP addresses.
     * New installs will randomly generate an authentication token and open the browser with it
     * As of [version 5.3][2], the user will be prompted to set a password the first time they open the UI
+    * Note that you may need to restart Jupyter after changing the password in order for Jupyter to start using the new password.
+    * If you can't reset the password, it may be because you need to create the directory `.jupyter` in the directory 
+    you are running the `jupyter notebook --ip='*'` command from.
 1. With the password set, the module can be tested
 
 ## Verification Steps
