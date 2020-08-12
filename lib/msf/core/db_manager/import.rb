@@ -342,7 +342,7 @@ module Msf::DBManager::Import
     elsif (firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/))
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
-    elsif (firstline.index(/<report id=['"]/))
+    elsif (firstline.match?('<report') && firstline.match?(' id=') && firstline.match?(' format_id='))
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
     elsif (firstline.index("<NessusClientData>"))
