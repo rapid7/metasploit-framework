@@ -513,6 +513,9 @@ class Plugin::OpenVAS < Msf::Plugin
       if args?(args, 2)
         begin
           report = @ov.report_get_by_id(args[0], args[1])
+          # OpenVAS sends the report with an invalid attribute in the middle of
+          # the XML document. Remove that before passing to the XML parser.
+          report.sub!('<?xml version="1.0" encoding="UTF-8"?>', '')
           print_status("Importing report to database.")
           framework.db.import({:data => report})
         rescue OpenVASOMP::OMPError => e
