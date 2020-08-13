@@ -1,10 +1,44 @@
 # -*- coding: binary -*-
 
 require 'msf/core/payload/windows'
-require 'msf/core/payload/windows/reflective_pe_loader'
-require 'msf/core/payload/windows/x64/reflective_pe_loader'
 
 module Msf
+
+  class OptInjectablePE < OptPath
+    def initialize(*args, arch:, **kwargs)
+      @arch = arch
+      super(*args, **kwargs)
+    end
+
+    def self.assert_compatible(pe, arch)
+      unless (arch == ARCH_X86 && pe.ptr_32?) || (arch == ARCH_X64 && pe.ptr_64?)
+        raise Msf::ValidationError, "Selected PE file is not #{arch.to_s}"
+      end
+
+      # TODO: Add reflective CLR loading support
+      unless pe.hdr.opt['DataDirectory'][14].v['Size'] == 0
+        raise Msf::ValidationError, 'PE files with CLR are not currently supported'
+      end
+
+      unless pe.hdr.opt['DataDirectory'][5].v['Size'] != 0
+        raise Msf::ValidationError, 'PE file is missing relocation data'
+      end
+    end
+
+    def valid?(value, check_empty: nil)
+      return false unless super
+      return false unless File.exist?(File.expand_path(value)) # no memory: locations
+
+      begin
+        self.class.assert_compatible(Rex::PeParsey::Pe.new_from_file(value, true), @arch)
+      rescue Msf::ValidationError
+        return false
+      end
+
+      true
+    end
+
+  end
 
   ###
   #
@@ -14,7 +48,9 @@ module Msf
   module Payload::Windows::PEInject
     def initialize(info = {})
       super
-      register_options([OptPath.new('PE', [ true, 'The local path to the PE file to upload' ]),], self.class)
+      register_options([
+        OptInjectablePE.new('PE', [ true, 'The local path to the PE file to upload' ], arch: arch.first)
+      ], self.class)
     end
 
     #
@@ -38,35 +74,32 @@ module Msf
         print_error("Failed to load PE: #{$ERROR_INFO}.")
         elog('Failed to load the PE file', error: e)
         # TODO: exception
-        conn.close
         return
       end
+
       print_status('Premapping PE file...')
       mapped_pe = create_pe_memory_map(data)
+
       print_status("Mapped PE size #{mapped_pe.length}")
       p = encapsulate_reflective_stub(mapped_pe)
+
       print_status("Uploading reflective PE (#{p.length} bytes)...")
       # Send the size of the thing we're transferring
       conn.put([ p.length ].pack('V'))
       # Send the image name + image
       conn.put(p)
-      print_status('Upload completed.')
+      print_status('Upload completed')
+    ensure
       conn.close
     end
 
     def create_pe_memory_map(file)
       pe = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(file))
-      unless (arch.first == ARCH_X86 && pe.ptr_32?) || (arch.first == ARCH_X64 && pe.ptr_64?)
-        raise ArgumentError, "Selected PE file is not #{arch_to_s}"
-      end
-
-      # TODO: Add reflective CLR loading support
-      unless pe.hdr.opt['DataDirectory'][14].v['Size'] == 0
-        raise 'PE files with CLR is not currently supported'
-      end
-
-      unless pe.hdr.opt['DataDirectory'][5].v['Size'] != 0
-        raise 'PE file is missing relocation data'
+      begin
+        OptInjectablePE.assert_compatible(pe, arch.first)
+      rescue Msf::ValidationError => error
+        print_error("PE validation error: #{error.message}")
+        raise
       end
 
       pe_map = ''

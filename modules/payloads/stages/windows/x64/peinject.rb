@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core/payload/windows/peinject'
+require 'msf/core/payload/windows/x64/reflective_pe_loader'
 
 ###
 #
