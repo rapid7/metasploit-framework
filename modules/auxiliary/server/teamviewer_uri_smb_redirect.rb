@@ -56,10 +56,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def firefox?(user_agent)
-    user_agent.include?('Firefox')
-  end
-
   def html_content
     # For some reason, tends to work best when double iframes.  Single will pop up the 'open app' message, but tends to not connect.
     %(
@@ -76,7 +72,9 @@ class MetasploitModule < Msf::Auxiliary
   def on_request_uri(cli, req)
     print_status("Request received for: #{req.uri}")
 
-    unless firefox?(req.headers['User-Agent'])
+    ua = req.headers['User-Agent'].to_s
+
+    unless ua.include?('Firefox')
       print_error('Target is not Firefox')
       return
     end
