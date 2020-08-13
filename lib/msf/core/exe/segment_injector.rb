@@ -58,6 +58,9 @@ module Exe
 
     def create_thread_stub_x64
       <<-EOS
+        push rbp
+        mov rbp, rsp
+        and rsp, FFFFFFFFFFFFFFF0h
         sub rsp, 38h
 
         mov rcx, hook_libname
@@ -77,8 +80,7 @@ module Exe
         mov rdx, rcx
         call rax
 
-        add rsp, 38h
-
+        leave
         jmp entrypoint
 
         hook_libname db 'kernel32', 0
