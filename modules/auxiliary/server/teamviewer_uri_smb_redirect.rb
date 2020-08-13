@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status("Sending TeamViewer Link to #{req.headers['User-Agent']}...")
+    print_status("Sending TeamViewer Link to #{ua}...")
     send_response_html(cli, html_content)
   end
 
