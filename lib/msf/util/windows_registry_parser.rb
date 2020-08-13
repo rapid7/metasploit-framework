@@ -1,8 +1,7 @@
 module Msf
-class Post
-module Windows
+module Util
 
-  class RegistryParser
+  class WindowsRegistryParser
     # Constants
     ROOT_KEY        = 0x2c
     REG_NONE        = 0x00
@@ -159,8 +158,6 @@ module Windows
           io.seekbytes(4)
           @record_type = io.readbytes(2)
         end
-        #pad = (4 - (io.offset % 4)) % 4
-        #io.seekbytes(pad)
         super(io)
       end
     end
@@ -172,7 +169,7 @@ module Windows
       uint32 :offset_first_hbin
       uint32 :hbin_size
       string :unknown, length: 16
-      uint32 :offset_next_hbin #hbin_size
+      uint32 :offset_next_hbin # hbin_size
       array  :reg_hbin_blocks, type: :reg_hbin_block, read_until: :eof
     end
 
@@ -189,7 +186,7 @@ module Windows
         next unless data[0,4] == 'hbin'
         reg_hbin = RegHbin.read(data)
         root_key = reg_hbin.reg_hbin_blocks.find do |block|
-          block.data.respond_to?(:magic) && block.data.magic == NK_MAGIC &&block.data.nk_type == ROOT_KEY
+          block.data.respond_to?(:magic) && block.data.magic == NK_MAGIC && block.data.nk_type == ROOT_KEY
         end
         return root_key if root_key
       rescue IOError
@@ -205,10 +202,9 @@ module Windows
       if reg_key.data.num_values > 0
         value_list = get_value_blocks(reg_key.data.offset_value_list, reg_key.data.num_values + 1)
         value_list.each do |value|
-          if value.data.name == reg_value
-            return value.data.value_type, get_value_data(value)
-          elsif reg_value == 'default' && value.data.flag <= 0
-            return value.data.value_type, get_value_data(value)
+          if value.data.name == reg_value ||
+             reg_value.downcase == 'default' && value.data.flag <= 0
+            return value.data.value_type, get_value_data(value.data)
           end
         end
       end
@@ -232,27 +228,36 @@ module Windows
     end
 
     def find_sub_key(parent_key, sub_key)
+      unless parent_key&.data&.magic == NK_MAGIC
+        raise ArgumentError, "find_sub_key: parent key must be a NK record"
+      end
       block = get_block(parent_key.data.offset_sub_key_lf)
-      # Let's search the hash records for the name
+      blocks = []
       if block.data.magic == RI_MAGIC
+        # ri points to lf/lh records, so we consolidate them in the main blocks array
         block.data.hash_records.each do |hash_record|
-          l = get_block(hash_record.offset_nk)
-          # TODO
+          blocks << get_block(hash_record.offset_nk)
+        end
+      else
+        blocks << block
+      end
 
+      # Let's search the hash records for the name
+      blocks.each do |block|
+        block.data.hash_records.each do |hash_record|
+          res = compare_hash(block.data.magic, hash_record, sub_key)
+          if res
+            nk = get_block(res)
+            return nk if nk.data.key_name == sub_key
+          end
         end
       end
-      #parent_key.data.num_sub_keys
-      block.data.hash_records.each do |hash_record|
-        res = compare_hash(block.data.magic, hash_record, sub_key)
-        if res
-          nk = get_block(res)
-          return nk if nk.data.key_name == sub_key
-        end
-      end
+
+      nil
     end
 
     def get_block(offset)
-      block = RegHbinBlock.read(@hive_data[4096+offset..-1])
+      RegHbinBlock.read(@hive_data[4096+offset..-1])
     end
 
     def compare_hash(magic, hash_rec, key)
@@ -266,11 +271,12 @@ module Windows
           return hash_rec.offset_nk
         end
       when RI_MAGIC
+        # Special case here, don't know exactly why, an RI pointing to a NK
         offset = hash_rec.offset_nk
         nk = get_block(offset)
         return offset if nk.key_name == key
       else
-        raise StandardError, "Unknow magic: #{magic}"
+        raise ArgumentError, "Unknow magic: #{magic}"
       end
     end
 
@@ -299,11 +305,13 @@ module Windows
     end
 
     def get_value_data(record)
-      # We should receive a VK record
-      return '' if record.data.data_len == 0
+      unless record&.magic == VK_MAGIC
+        raise ArgumentError, "get_value_data: record must be a VK record"
+      end
+      return '' if record.data_len == 0
       # if DataLen < 5 the value itself is stored in the Offset field
-      return record.data.offset_data.to_binary_s if record.data.data_len < 0
-      return self.get_data(record.data.offset_data, record.data.data_len + 4)
+      return record.offset_data.to_binary_s if record.data_len < 0
+      return self.get_data(record.offset_data, record.data_len + 4)
     end
 
     def get_data(offset, count)
@@ -311,35 +319,31 @@ module Windows
     end
 
     def enum_key(parent_key)
-      res = []
-      # If we're here.. we have a valid NK record for the key
-      # Now let's searcht the subkeys
-      if parent_key.data.num_sub_keys > 0
-        lf = get_block(parent_key.data.offset_sub_key_lf)
-        data = lf.data.hash_records
-
-        if lf.data.magic == RI_MAGIC
-          # ri points to lf/lh records, so we must parse them before
-          records = ''
-          # TODO
-          #for i in range(lf['NumKeys']):
-          #    offset = unpack('<L', data[:4])[0]
-          #    l = self.__getBlock(offset)
-          #    records = records + l['HashRecords'][:l['NumKeys']*8]
-          #    data = data[4:]
-          #data = records
+      unless parent_key&.data&.magic == NK_MAGIC
+        raise ArgumentError, "enum_key: parent key must be a NK record"
+      end
+      block = get_block(parent_key.data.offset_sub_key_lf)
+      records = []
+      if block.data.magic == RI_MAGIC
+        # ri points to lf/lh records, so we consolidate the hash records in the main records array
+        block.data.hash_records.each do |hash_record|
+          record = get_block(hash_record.offset_nk)
+          records.concat(record.data.hash_records)
         end
-
-        data.each do |reg_hash|
-          nk = get_block(reg_hash.offset_nk)
-          res << nk.data.key_name.to_s.b
-        end
+      else
+        records.concat(block.data.hash_records)
       end
 
-      return res
+      records.map do |reg_hash|
+        nk = get_block(reg_hash.offset_nk)
+        nk.data.key_name.to_s.b
+      end
     end
 
     def enum_values(key)
+      unless key&.data&.magic == NK_MAGIC
+        raise ArgumentError, "enum_values: key must be a NK record"
+      end
       res = []
       value_list = get_value_blocks(key.data.offset_value_list, key.data.num_values + 1)
       value_list.each do |value|
@@ -352,11 +356,7 @@ module Windows
       res
     end
 
-
   end
 
-
-
-end
 end
 end
