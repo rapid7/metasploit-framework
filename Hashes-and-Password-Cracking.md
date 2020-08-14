@@ -163,3 +163,17 @@ This data breaks down to the following table:
 | Postgres | example | `md5be86a79bf2043622d58d5453c47d4860` | password | raw-md5,postgres | auxiliary/scanner/postgres/postgres_hashdump | auxiliary/analyze/jtr_postgres_fast |
 | HMAC-MD5 | hmac_password | `<3263520797@127.0.0.1>#3f089332842764e71f8400ede97a84c9` | password | hmac-md5 | auxiliary/server/capture/smtp | None |
 | SHA512($p.$s)/dynamic_82/vmware ldap | vmware_ldap | `$dynamic_82$a702505b8a67b45065a6a7ff81ec6685f08d06568e478e1a7695484a934b19a28b94f58595d4de68b27771362bc2b52444a0ed03e980e11ad5e5ffa6daa9e7e1$HEX$171ada255464a439569352c60258e7c6` | TestPass123# | dynamic_82 |  | None |
+
+# Adding a New Hash
+
+Only hashes which were found in Metasploit were added to the hash id library, and the other functions.  New hashes are developed often, and new modules which find a new type of hash will most definitely be created.  So what are the steps to add a new hash type to Metasploit?
+
+1. Add a new identify algorithm to: https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/hashes/identify.rb .  You may want to consult external programs such as `hashid` or `hash-identifier` for suggestions.
+    1. Add the hash to the spec to ensure it works right now, and in future updates: https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/metasploit/framework/hashes/identify_spec.rb
+1. Make sure the hashes are saved in the DB in the JTR format.  A good source to identify what the hashes look like is available here: http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats
+1. If applicable, add it into the appropriate cracker module (or create a new one).  Example for Windows related hashes: https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/crack_windows.rb
+1. Find the hashcat hash mode, and add a JTR name to hashcat hash mode lookup: https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L129 
+1. If hashcat uses a different format for the hash string, add a JTR to hashcat hash format conversion to https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/hashcat/formatter.rb
+1. Update this Wiki
+    1. add the JTR to hashcat conversion https://github.com/rapid7/metasploit-framework/wiki/Hashes-and-Password-Cracking#hash-setting
+    1. add example hash(es) https://github.com/rapid7/metasploit-framework/wiki/Hashes-and-Password-Cracking#example-hashes
