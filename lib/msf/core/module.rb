@@ -34,7 +34,6 @@ module Msf
     autoload :Privileged, 'msf/core/module/privileged'
     autoload :Ranking, 'msf/core/module/ranking'
     autoload :Reference, 'msf/core/module/reference'
-    autoload :Search, 'msf/core/module/search'
     autoload :SiteReference, 'msf/core/module/reference'
     autoload :Target, 'msf/core/module/target'
     autoload :Type, 'msf/core/module/type'
@@ -57,7 +56,6 @@ module Msf
     include Msf::Module::Options
     include Msf::Module::Privileged
     include Msf::Module::Ranking
-    include Msf::Module::Search
     include Msf::Module::Type
     include Msf::Module::UI
     include Msf::Module::UUID
