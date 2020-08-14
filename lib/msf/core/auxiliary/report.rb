@@ -386,7 +386,8 @@ module Auxiliary::Report
   # ignored if there is no database
   #
   # +data_file+ in case the stolen data does not fit into memory, you may store them
-  # into a temporary file. Leave +data+=nil and provide the temp file path via +data_file+
+  # into a temporary file. Leave +data+=nil and provide the temp file path via +data_file+.
+  # The provided file must by synced to disk with IO#close or IO#fsync prior calling store_loot
   #
   def store_loot(ltype, ctype, host, data=nil, filename=nil, info=nil, service=nil, data_file=nil)
     if ! ::File.directory?(Msf::Config.loot_directory)
