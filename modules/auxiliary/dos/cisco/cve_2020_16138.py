@@ -21,7 +21,11 @@ except ImportError:
 metadata = {
     'name': 'Cisco 7937G Denial-of-Service Attack',
     'description': '''
-        This module exploits a bug in how the conference station handles incoming SSH connections that provide an incompatible key exchange. By connecting with an incompatible key exchange, the device becomes nonresponsive until it is manually power cycled.
+        This module exploits a bug in how the conference station 
+	handles incoming SSH connections that provide an incompatible 
+	key exchange. By connecting with an incompatible key exchange, 
+	the device becomes nonresponsive until it is manually power
+	cycled.
     ''',
     'authors': [
         'Cody Martin'
@@ -40,14 +44,12 @@ metadata = {
         'rhost': {'type': 'address', 
 		'description': 'Target address', 
 		'required': True, 
-		'default': 'None'
-	},
+		'default': 'None'},
         'timeout': {'type': 'int', 
 		'description': 
 		'Timeout in seconds', 
 		'required': True, 
-		'default': 15
-	}
+		'default': 15}
     }
 }
 
