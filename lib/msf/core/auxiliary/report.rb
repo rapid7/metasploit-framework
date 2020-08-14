@@ -420,6 +420,8 @@ module Auxiliary::Report
     full_path = ::File.expand_path(path)
     if data.nil? && data_file.is_a?(String)
       FileUtils.cp(data_file, full_path)
+    elsif data.nil?
+      raise ArgumentError.new("One of arguments data or data_file must be provided.")
     else
       File.open(full_path, "wb") do |fd|
         fd.write(data)
