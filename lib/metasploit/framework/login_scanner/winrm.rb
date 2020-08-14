@@ -51,9 +51,7 @@ module Metasploit
 
         # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
         def send_request(opts)
-          opts['authenticate'] = false
-          allowed_auth_methods = parse_auth_methods(super(opts))
-          opts['authenticate'] = true
+          allowed_auth_methods = parse_auth_methods(super(opts.merge({ 'authenticate' => true })))
 
           if allowed_auth_methods.include? 'Negotiate'
             opts['preferred_auth'] = 'Negotiate'
