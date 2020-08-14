@@ -76,6 +76,10 @@ def run(args):
         except requests.exceptions.ReadTimeout as e:
             logging.info('DoS reset attack completed!')
             return
+	except requests.exceptions.RequestException as e:
+	    logging.info('An unexpected exception occurred: ' + str(e))
+	    logging.info('The device may be DoS\'d already or not have web access enabled.')
+	    return
 
 
 if __name__ == '__main__':
