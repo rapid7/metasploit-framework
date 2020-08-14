@@ -385,7 +385,10 @@ module Auxiliary::Report
   # +filename+ and +info+ are only stored as metadata, and therefore both are
   # ignored if there is no database
   #
-  def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil)
+  # +data_file+ in case the stolen data does not fit into memory, you may store them
+  # into a temporary file. Leave +data+=nil and provide the temp file path via +data_file+
+  #
+  def store_loot(ltype, ctype, host, data=nil, filename=nil, info=nil, service=nil, data_file=nil)
     if ! ::File.directory?(Msf::Config.loot_directory)
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
@@ -415,8 +418,12 @@ module Auxiliary::Report
 
     path = File.join(Msf::Config.loot_directory, name)
     full_path = ::File.expand_path(path)
-    File.open(full_path, "wb") do |fd|
-      fd.write(data)
+    if data.nil? && data_file.is_a?(String)
+      FileUtils.cp(data_file, full_path)
+    else
+      File.open(full_path, "wb") do |fd|
+        fd.write(data)
+      end
     end
 
     if (db)
