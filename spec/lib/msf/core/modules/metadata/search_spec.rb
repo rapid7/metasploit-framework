@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'spec_helper'
 
 RSpec.describe Msf::Modules::Metadata::Search do
@@ -201,6 +203,49 @@ RSpec.describe Msf::Modules::Metadata::Search do
 
     context 'on nil and empty input' do
       it_should_behave_like 'search_filter', :accept => [nil, '', '  '], :test_inverse => false
+    end
+
+    context 'on a module with a #description of "metasploit pro console"' do
+      let(:opts) { ({ 'description' => 'metasploit pro console' }) }
+      it_should_behave_like(
+        'search_filter',
+        :accept => ["metasploit", "metasploit pro", "metasploit pro console", "console pro"],
+        :reject => ["metasploit framework", "pro framework", "pro console php"],
+        :test_inverse => false
+      )
+    end
+
+    context 'when invalid encodings are used, all results are returned' do
+      context 'and the search term is present' do
+        let(:opts) { ({ 'author' => ['István'.force_encoding("UTF-8")] }) }
+        it_should_behave_like(
+          'search_filter',
+          accept: [
+            "author:István",
+            "author:Istv\xE1n ",
+            "author:Istv\u00E1n ",
+          ],
+          :reject => [
+            'different_author'
+          ],
+          :test_inverse => false
+        )
+      end
+      context 'and the search term is not present' do
+        let(:opts) { ({ 'author' => ['different_author'] }) }
+        it_should_behave_like(
+          'search_filter',
+          accept: [
+            'different_author',
+            "author:Istv\xE1n",
+          ],
+          :reject => [
+            "author:István",
+            "author:Istv\u00E1n ",
+          ],
+          :test_inverse => false
+        )
+      end
     end
 
     context 'when filtering by module #type' do
