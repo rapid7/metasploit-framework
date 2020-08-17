@@ -362,6 +362,7 @@ module Msf
     # produce a JAR or WAR file for the java payload.
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
+      raise PayloadGeneratorError, "A payload module was not selected" if payload_module.nil?
       payload_module.datastore.import_options_from_hash(datastore)
       case format
       when "raw", "jar"
@@ -460,6 +461,7 @@ module Msf
         end
         stdin
       else
+        raise PayloadGeneratorError, "A payload module was not selected" if payload_module.nil?
         chosen_platform = choose_platform(payload_module)
         if chosen_platform.platforms.empty?
           raise IncompatiblePlatform, "The selected platform is incompatible with the payload"

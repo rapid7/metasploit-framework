@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res
-      fail_with(Failure::Unknown, 'No response from server')
+      fail_with(Failure::Unreachable, 'No response from server')
     end
 
     bootparams = begin

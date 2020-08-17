@@ -275,7 +275,8 @@ class EncodedPayload
     # If there are no bad characters, then the raw is the same as the
     # encoded
     else
-      unless reqs['BadChars'].blank?
+      # NOTE: BadChars can contain whitespace, so don't use String#blank?
+      unless reqs['BadChars'].nil? || reqs['BadChars'].empty?
         ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
       end
 
@@ -516,7 +517,10 @@ protected
   attr_accessor :reqs
 
   def has_chars?(chars)
-    return false if chars.blank? || self.raw.blank?
+    # NOTE: BadChars can contain whitespace, so don't use String#blank?
+    if chars.nil? || self.raw.nil? || chars.empty? || self.raw.empty?
+      return false
+    end
 
     chars.each_byte do |bad|
       return true if self.raw.index(bad.chr(Encoding::ASCII_8BIT))
