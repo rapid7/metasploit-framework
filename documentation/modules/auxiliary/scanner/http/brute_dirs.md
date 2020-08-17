@@ -1,10 +1,13 @@
 ## Vulnerable Application
 
-Web sites & other HTTP based applications may be vulnerable to directory brute forcing. This module executes a directory brute force on a web server, in order to discover locations on the web server for further analysis. This is not the same as using a word dictionary - this module uses string permutations instead.
+Web sites & other HTTP based applications may be vulnerable to directory brute forcing. This module executes a directory
+brute force on a web server, in order to discover locations on the web server for further analysis. This is not the same
+as using a word dictionary - this module uses string permutations instead.
 
 ### Install
 
-Any web server that serves directories can be used. This module can support different authentication methods, which will depend on the type of web server used.
+Any web server that serves directories can be used. This module can support different authentication methods, which will
+depend on the type of web server used.
 
 ## Verification Steps
 
@@ -14,13 +17,21 @@ Any web server that serves directories can be used. This module can support diff
 1. Do: `run`
 1. As the module executes you should see a list of directories that are being served up by the web server.
 
-## Required options
+## Options
 
 ### DELAY
-**Defaults to `0`.** The delay between connections, per thread, in milliseconds. Using this will reduce the speed of the module, which may be useful to prevent any rate limiting or web application firewalls from preventing further scanning.
+
+The delay between connections, per thread, in milliseconds. Using this will reduce the speed of the
+module, which may be useful to prevent any rate limiting or web application firewalls from preventing further scanning.
+Defaults to `0`.
 
 ### FORMAT
-**Defaults to `a,aa,aaa`.** The comma separated list of expected directory formats used to determine the order of brute force attempts. Use the following format specifiers:
+
+The comma separated list of expected directory formats used to determine the order of brute
+force attempts.
+Defaults to `a,aa,aaa`.
+
+Use the following format specifiers:
 
 |Format specifier|Character type|
 |---|---|
@@ -28,33 +39,40 @@ Any web server that serves directories can be used. This module can support diff
 |d  | digit|
 |A  | uppercase alpha|
 
-The default value will search `a,aa,aaa` will search for 1 character directories, then 2 character directories, then 3 character directories.
+The default value will search `a,aa,aaa` will search for 1 character directories, then 2 character directories, then 3
+character directories.
 
 ### JITTER
-**Defaults to `0`.** The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds. Using jitter ensures requests have a random amount of additional delay. This is also useful for evading brute force prevention.
+
+The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds. Using jitter ensures
+requests have a random amount of additional delay. This is also useful for evading brute force prevention.
+Defaults to `0`.
 
 ### PATH
-**Defaults to `/`.** The path to starting identification of directories from.
 
-### RHOSTS
-The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-
-### RPORT
-**Defaults to `80`.** The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+The path to starting identification of directories from.
+Defaults to `/`.
 
 ### THREADS
-**Defaults to `1`.** The number of concurrent threads (max one per host).
+
+The number of concurrent threads (max one per host).
+Defaults to `1`.
 
 ### TIMEOUT
-**Defaults to `20`.** The socket connect/read timeout in seconds.
+
+The socket connect/read timeout in seconds.
+Defaults to `20`.
 
 ### ErrorCode
-**Defaults to `404`.** The expected HTTP code for non existent directories.
 
-## Other options
+The expected HTTP code for non existent directories.
+Defaults to `404`.
 
 ### HTTP404Sigs
-**Defaults to `[MSF_DATA_DIR]/wmap/wmap_404s.txt`.** Path of 404 signatures to use to identify 'file not found' strings in website output, even if a successful HTTP Status Code is returned by the server.
+
+Path of 404 signatures to use to identify 'file not found' strings
+in website output, even if a successful HTTP Status Code is returned by the server.
+Defaults to `[Metasploit data directory]/wmap/wmap_404s.txt`.
 
 ## Scenarios
 
@@ -100,7 +118,8 @@ msf5 auxiliary(scanner/http/brute_dirs) > run
 
 ### Custom format to find specifically formatted directories
 
-A format string of `Aaaaad` will search for 6 character directories, starting with a capital letter and ending in a digit. E.g.
+A format string of `Aaaaad` will search for 6 character directories, starting with a capital letter and ending in a
+digit. E.g.
 
 ```
 msf5 > use auxiliary/scanner/http/brute_dirs 
