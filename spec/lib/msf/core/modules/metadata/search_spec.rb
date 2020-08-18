@@ -30,6 +30,17 @@ RSpec.describe Msf::Modules::Metadata::Search do
     allow(subject).to receive(:get_metadata).and_return([mock_module])
   end
 
+  describe '#parse_search_string' do
+    it { expect(described_class.parse_search_string(nil)).to eq({}) }
+    it { expect(described_class.parse_search_string(" ")).to eq({}) }
+    it { expect(described_class.parse_search_string("os:osx os:windows")).to eq({"os"=>[["osx", "windows"], []]}) }
+    it { expect(described_class.parse_search_string("postgres login")).to eq({"text"=>[["postgres", "login"], []]}) }
+    it { expect(described_class.parse_search_string("platform:android")).to eq({"platform"=>[["android"], []]}) }
+    it { expect(described_class.parse_search_string("platform:-android")).to eq({"platform"=>[[], ["android"]]}) }
+    it { expect(described_class.parse_search_string("author:egypt arch:x64")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
+    it { expect(described_class.parse_search_string("  author:egypt   arch:x64  ")).to eq({"author"=>[["egypt"], []], "arch"=>[["x64"], []]}) }
+  end
+
   describe '#find' do
     REF_TYPES = %w(CVE BID EDB)
 
@@ -186,6 +197,10 @@ RSpec.describe Msf::Modules::Metadata::Search do
     context 'on a module with a #description of "blah"' do
       let(:opts) { ({ 'description' => 'blah' }) }
       it_should_behave_like 'search_filter', :accept => %w(text:blah), :reject => %w(text:foo)
+    end
+
+    context 'on nil and empty input' do
+      it_should_behave_like 'search_filter', :accept => [nil, '', '  '], :test_inverse => false
     end
 
     context 'when filtering by module #type' do

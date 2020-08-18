@@ -25,6 +25,7 @@ module Msf::Modules::Metadata::Search
   # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
   #
   def self.parse_search_string(search_string)
+    search_string ||= ''
     search_string += ' '
 
     # Split search terms by space, but allow quoted strings
