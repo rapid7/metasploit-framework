@@ -80,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
 
         iplist.each do |target|
           next if manual and datastore['MANUAL_CHECK']
+          alive = nil
 
           portlist.each do |port|
             next if dead
@@ -104,22 +105,50 @@ class MetasploitModule < Msf::Auxiliary
             end
 
             if res and res.body
-
-              if res.code == 200 or res.body =~ /Zero/ or res.code == 404 or res.code == 401
-                print_good("[#{rhost}] #{target}:#{port} seems OPEN")
-                report_service(:host => target, :port => port, :name => "unknown", :info => res.body )
+              # Look at the HTTP headers back from Squid first, for some easy error detection.
+              if res.headers.key?('X-Squid-Error')
+                case res.headers['X-Squid-Error']
+                when /ERR_CONNECT_FAIL/
+                  # Usually a HTTP 503, page body can give some more information. Example:
+                  # <p id="sysmsg">The system returned: <i>(111) Connection refused</i></p>
+                  if res.body =~ /id="sysmsg".*Connection refused/
+                    if alive.nil?
+                      print_good("[#{rhost}] #{target} is alive.")
+                      alive = true
+                    end
+                    vprint_status("[#{rhost}] #{target} is alive but #{port} is closed.")
+                  elsif res.body =~ /id="sysmsg".*No route to host/
+                    dead = true
+                    print_error("[#{rhost}] No route to #{target}")
+                  end
+                when /ERR_ACCESS_DENIED/
+                  # Indicates that the Squid ACLs do not allow connecting to this port.
+                  # See: https://wiki.squid-cache.org/SquidFaq/SquidAcl
+                  vprint_status("[#{rhost}] #{target}:#{port} likely blocked by ACL.")
+                when /ERR_DNS_FAIL/
+                  # Squid could not resolve the destination hostname.
+                  dead = true
+                  print_error("[#{rhost}] Squid could not resolve '#{target}', try putting the IP in the RANGE parameter if known.")
+                else
+                  print_error("[#{rhost}] #{target}:#{port} unknown Squid proxy error: '#{res.headers['X-Squid-Error']}' (HTTP #{res.code})")
+                end
+                next # Skip to next port if the host is not marked as dead
               end
-              if res.body =~ /No route to host/
-                dead = true
-                print_error("[#{rhost}] #{target} is DEAD")
+
+              # By this stage, we've likely got a good connection. Parsing the body might no longer be reasonable if the
+              # destination port is not serving HTTP (eg: SSH), but we can derive information from the headers Squid
+              # returns.
+              if res.code == 301 or res.code == 302
+                # We can be more verbose if we have a known redirect.
+                print_good("[#{rhost}] #{target}:#{port} seems open (HTTP #{res.code} redirect to: '#{res.headers['Location']}', server header: '#{res.headers['Server']}')")
+                report_service(:host => target, :port => port, :name => res.headers['Server'], :info => "Redirect to: " + res.headers['Location'] )
+              else
+                # 200 OK, 404 Not Found etc - still indicates the port was open and responding.
+                server = res.headers['Server'] || "unknown"
+                print_good("[#{rhost}] #{target}:#{port} seems open (HTTP #{res.code}, server header: '#{server}').")
+                report_service(:host => target, :port => port, :name => server, :info => res.body )
               end
 
-              print_status("[#{rhost}] #{target}:#{port} blocked by ACL") if res.body =~ /Access control/
-
-              if res.body =~ /Connection refused/ or res.body =~ /service not listening/
-                report_host(:host => target)
-                print_good("[#{rhost}] #{target} is alive but #{port} is CLOSED")
-              end
             end
           end
           dead = false
