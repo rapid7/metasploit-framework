@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           Only Firefox can be exploited by this vulnerability, as all other
           browsers encode the space after 'play' and before the SMB location,
           preventing successful exploitation.
-          Teamviewer 15.4.4445 was succssfully tested against.
+          Teamviewer 15.4.4445, and 8.0.16642 were succssfully tested against.
         },
         'Author' =>
           [

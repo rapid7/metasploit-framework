@@ -12,7 +12,7 @@ Only Firefox can be exploited by this
 vulnerability, as all other browsers encode the space after 'play'
 and before the SMB location, preventing successful exploitation.
 
-Teamviewer 15.4.4445 was succssfully tested against.
+Teamviewer 15.4.4445, and 8.0.16642 were successfully tested against.
 
 ## Verification Steps
 
@@ -29,7 +29,7 @@ Teamviewer 15.4.4445 was succssfully tested against.
 
 ### FILE_NAME
 
-The SMB file to link to.  This is an arbitrary file name.  Default is `\\teamviewer\\config.tv`
+The SMB file to link to.  This is an arbitrary file name.  Default is `\\teamviewer\\config.tvs`
 
 ### SMB_SERVER
 
