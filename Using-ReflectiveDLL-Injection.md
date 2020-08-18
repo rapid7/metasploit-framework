@@ -1,4 +1,6 @@
-Update: This is kept here mostly for backup purposes. There is now a template available at https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template that should help you in your efforts a lot more.
+**Update:** This is kept here mostly for backup purposes. There is now a template available at 
+https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template 
+that should help you in your efforts a lot more.
 
 ## Using the ReflectiveDll loader in a metasploit module.
 
