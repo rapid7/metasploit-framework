@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
     macro = datastore['MACRO']
     entries = []
     if not ::File.exist?(macro)
-      print_error "Resource File does not exists!"
+      print_error "Resource File does not exist!"
       return
     else
       ::File.open(datastore['MACRO'], "rb").each_line do |line|
