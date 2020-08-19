@@ -272,6 +272,7 @@ class Client
 
     # if several providers are available, the client may want one in particular
     preferred_auth = opts['preferred_auth']
+
     if supported_auths.include?('Basic') && (preferred_auth.nil? || preferred_auth == 'Basic')
       opts['headers'] ||= {}
       opts['headers']['Authorization'] = basic_auth_header(opts['username'],opts['password'] )

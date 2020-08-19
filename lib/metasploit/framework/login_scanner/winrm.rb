@@ -9,7 +9,6 @@ module Metasploit
 
       # Windows Remote Management login scanner
       class WinRM < HTTP
-        # include Msf::Exploit::Remote::WinRM
 
         # The default port where WinRM listens. This is what you get on
         # v1.1+ with `winrm quickconfig`. Note that before v1.1, the
@@ -51,7 +50,7 @@ module Metasploit
 
         # send an HTTP request that WinRM would consider as valid  (SOAP XML in the message matching the XML schema definition)
         def send_request(opts)
-          allowed_auth_methods = parse_auth_methods(super(opts.merge({ 'authenticate' => true })))
+          allowed_auth_methods = parse_auth_methods(super(opts.merge({ 'authenticate' => false })))
 
           if allowed_auth_methods.include? 'Negotiate'
             opts['preferred_auth'] = 'Negotiate'
