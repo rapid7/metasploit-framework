@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Arista Configuration Importer',
         'Description' => %q{
-          This module imports a Arista device configuration.
+          This module imports an Arista device configuration.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'h00die']
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Arista config file #{datastore['CONFIG']} does not exists!"
+      fail_with Failure::BadConfig, "Arista config file #{datastore['CONFIG']} does not exist!"
     end
     arista_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')

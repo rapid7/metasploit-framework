@@ -127,21 +127,15 @@ module Msf
           scomm = Regexp.last_match(1).strip
           print_good("#{thost}:#{tport} SNMP Community (#{stype}): #{scomm}")
 
-          if framework.db.active
-            cred = credential_data.dup
-            if stype.downcase == 'ro'
-              cred[:access_level] = 'RO'
-            else
-              cred[:access_level] = 'RW'
-            end
-            cred[:protocol] = 'udp'
-            cred[:port] = 161
-            cred[:private_data] = scomm
-            create_credential_and_login(cred)
-          end
-          #
-          # VTY Passwords
-          #
+          cred = credential_data.dup
+          cred[:access_level] = stype.upcase
+          cred[:protocol] = "udp"
+          cred[:port] = 161
+          cred[:private_data] = scomm
+          create_credential_and_login(cred)
+#
+# VTY Passwords
+#
         when /^\s*password 7 ([^\s]+)/i
           spass = Regexp.last_match(1).strip
           spass = begin

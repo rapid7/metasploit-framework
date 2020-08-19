@@ -83,11 +83,7 @@ module Msf
 
           if framework.db.active
             cred = credential_data.dup
-            if stype.downcase == 'ro'
-              cred[:access_level] = 'RO'
-            else
-              cred[:access_level] = 'RW'
-            end
+            cred[:access_level] = stype.upcase
             cred[:protocol] = 'udp'
             cred[:service_name] = 'snmp'
             cred[:private_type] = :password
