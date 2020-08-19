@@ -10,10 +10,61 @@ module Msf::Modules::Metadata::Search
       name os platform path port rport rank ref ref_name reference references target targets text type]
 
   #
+  # Module Type Shorthands
+  #
+  MODULE_TYPE_SHORTHANDS = {
+    "aux" => Msf::MODULE_AUX
+  }
+
+  #
+  # Parses command line search string into a hash. A param prefixed with '-' indicates "not", and will omit results
+  # matching that keyword. This hash can be used with the find command.
+  #
+  # Resulting Hash Example:
+  # {"platform"=>[["android"], []]} will match modules targeting the android platform
+  # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
+  #
+  def self.parse_search_string(search_string)
+    search_string ||= ''
+    search_string += ' '
+
+    # Split search terms by space, but allow quoted strings
+    terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+    terms.delete('')
+
+    # All terms are either included or excluded
+    res = {}
+
+    terms.each do |term|
+      keyword, search_term = term.split(":", 2)
+      unless search_term
+        search_term = keyword
+        keyword = 'text'
+      end
+      next if search_term.length == 0
+      keyword.downcase!
+      search_term.downcase!
+
+      if keyword == "type"
+        search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
+      end
+
+      res[keyword] ||=[   [],    []   ]
+      if search_term[0,1] == "-"
+        next if search_term.length == 1
+        res[keyword][1] << search_term[1,search_term.length-1]
+      else
+        res[keyword][0] << search_term
+      end
+    end
+    res
+  end
+
+  #
   # Searches the module metadata using the passed hash of search params
   #
   def find(params, fields={})
-    raise ArgumentError if params.empty? || VALID_PARAMS.none? { |k| params.key?(k) }
+    raise ArgumentError if params.any? && VALID_PARAMS.none? { |k| params.key?(k) }
     search_results = []
 
     get_metadata.each { |module_metadata|
@@ -32,6 +83,8 @@ module Msf::Modules::Metadata::Search
   #######
 
   def is_match(params, module_metadata)
+    return true if params.empty?
+
     param_hash = params
 
     [0,1].each do |mode|

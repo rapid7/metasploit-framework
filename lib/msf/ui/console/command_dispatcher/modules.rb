@@ -12,13 +12,6 @@ module Msf
       module CommandDispatcher
 
         #
-        # Module Type Shorthands
-        #
-        MODULE_TYPE_SHORTHANDS = {
-          "aux" => Msf::MODULE_AUX
-        }
-
-        #
         # {CommandDispatcher} for commands related to background jobs in Metasploit Framework.
         #
         class Modules
@@ -421,7 +414,7 @@ module Msf
               if cached
                 print_status('Displaying cached results')
               else
-                search_params = parse_search_string(match)
+                search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
               end
 
@@ -484,48 +477,6 @@ module Msf
 
             true
           end
-
-
-          #
-          # Parses command line search string into a hash
-          #
-          # Resulting Hash Example:
-          # {"platform"=>[["android"], []]} will match modules targeting the android platform
-          # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
-          #
-          def parse_search_string(search_string)
-            # Split search terms by space, but allow quoted strings
-            terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
-            terms.delete('')
-
-            # All terms are either included or excluded
-            res = {}
-
-            terms.each do |term|
-              keyword, search_term = term.split(":", 2)
-              unless search_term
-                search_term = keyword
-                keyword = 'text'
-              end
-              next if search_term.length == 0
-              keyword.downcase!
-              search_term.downcase!
-
-              if keyword == "type"
-                search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
-              end
-
-              res[keyword] ||=[   [],    []   ]
-              if search_term[0,1] == "-"
-                next if search_term.length == 1
-                res[keyword][1] << search_term[1,search_term.length-1]
-              else
-                res[keyword][0] << search_term
-              end
-            end
-            res
-          end
-
 
           #
           # Tab completion for the search command
