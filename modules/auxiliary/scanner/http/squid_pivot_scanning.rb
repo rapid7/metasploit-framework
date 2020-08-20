@@ -17,19 +17,32 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'          => 'Squid Proxy Port Scanner',
       'Description'   => %q{
-        A misconfigured Squid proxy can allow an attacker to make requests on his behalf.
-          This may give the attacker information about devices that he cannot reach but the
-          Squid proxy can. For example, an attacker can make requests for internal IP addresses
-          against a misconfigured open Squid proxy exposed to the Internet, therefore performing
-          an internal port scan. The error messages returned by the proxy are used to determine
-          if the port is open or not.
+        A exposed Squid proxy will usually allow an attacker to make requests on
+        their behalf. If misconfigured, this may give the attacker information
+        about devices that they cannot normally reach. For example, an attacker
+        may be able to make requests for internal IP addresses against an open
+        Squid proxy exposed to the Internet, therefore performing a port scan
+        against the internal network.
 
-          Many Squid proxies use custom error codes so your mileage may vary. The open_proxy
-          module can be used to test for open proxies, though a Squid proxy does not have to be
-          open in order to allow for pivoting (e.g. an Intranet Squid proxy which allows
-          the attack to pivot to another part of the network).
+        The `auxiliary/scanner/http/open_proxy` module can be used to test for
+        open proxies, though a Squid proxy does not have to be on the open
+        Internet in order to allow for pivoting (e.g. an Intranet Squid proxy
+        which allows the attack to pivot to another part of the internal
+        network).
+
+        This module will not be able to scan network ranges or ports denied by
+        Squid ACLs. Fortunately it is possible to detect whether a host was up
+        and the port was closed, or if the request was blocked by an ACL, based
+        on the response Squid gives. This feedback is provided to the user in
+        meterpreter `VERBOSE` output, otherwise only open and permitted ports
+        are printed.
       },
-      'Author'	       => ['willis'],
+      'Author'	       => [''],
+      'Author' =>
+        [
+          'willis',     # Original meterpreter module
+          '0x44434241'  # Detection updates and documentation
+        ],
       'References'	 =>
         [
               'URL','http://wiki.squid-cache.org/SquidFaq/SecurityPitfalls'
