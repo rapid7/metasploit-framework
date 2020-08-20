@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 require 'spec_helper'
 
 require 'msf/core/auxiliary/f5'
@@ -8,28 +9,34 @@ RSpec.describe Msf::Auxiliary::F5 do
     include Msf::Auxiliary::F5
     def framework
       Msf::Simple::Framework.create(
-          'ConfigDirectory' => Rails.root.join('spec', 'dummy', 'framework', 'config').to_s,
-          # don't load any module paths so we can just load the module under test and save time
-          'DeferModuleLoads' => true
+        'ConfigDirectory' => Rails.root.join('spec', 'dummy', 'framework', 'config').to_s,
+        # don't load any module paths so we can just load the module under test and save time
+        'DeferModuleLoads' => true
       )
     end
+
     def active_db?
       true
     end
-    def print_good(str=nil)
-      raise StandardError.new("This method needs to be stubbed.")
+
+    def print_good(_str = nil)
+      raise StandardError, 'This method needs to be stubbed.'
     end
-    def print_bad(str=nil)
-      raise StandardError.new("This method needs to be stubbed.")
+
+    def print_bad(_str = nil)
+      raise StandardError, 'This method needs to be stubbed.'
     end
-    def store_cred(hsh=nil)
-      raise StandardError.new("This method needs to be stubbed.")
+
+    def store_cred(_hsh = nil)
+      raise StandardError, 'This method needs to be stubbed.'
     end
+
     def fullname
-      "auxiliary/scanner/snmp/f5_dummy"
+      'auxiliary/scanner/snmp/f5_dummy'
     end
+
     def myworkspace
-      raise StandardError.new("This method needs to be stubbed.")
+      raise StandardError, 'This method needs to be stubbed.'
     end
   end
 
@@ -38,12 +45,11 @@ RSpec.describe Msf::Auxiliary::F5 do
   let!(:workspace) { FactoryBot.create(:mdm_workspace) }
 
   context '#create_credential_and_login' do
-
     let(:session) { FactoryBot.create(:mdm_session) }
 
-    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace)}
+    let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
 
-    let(:user) { FactoryBot.create(:mdm_user)}
+    let(:user) { FactoryBot.create(:mdm_user) }
 
     subject(:test_object) { DummyF5Class.new }
 
@@ -51,7 +57,7 @@ RSpec.describe Msf::Auxiliary::F5 do
     let(:service) { FactoryBot.create(:mdm_service, host: FactoryBot.create(:mdm_host, workspace: workspace)) }
     let(:task) { FactoryBot.create(:mdm_task, workspace: workspace) }
 
-    let(:login_data) {
+    let(:login_data) do
       {
         address: service.host.address,
         port: service.port,
@@ -67,12 +73,12 @@ RSpec.describe Msf::Auxiliary::F5 do
         private_type: :password,
         status: Metasploit::Model::Login::Status::UNTRIED
       }
-    }
+    end
 
     it 'creates a Metasploit::Credential::Login' do
-      expect{test_object.create_credential_and_login(login_data)}.to change{Metasploit::Credential::Login.count}.by(1)
+      expect { test_object.create_credential_and_login(login_data) }.to change { Metasploit::Credential::Login.count }.by(1)
     end
-    it "associates the Metasploit::Credential::Core with a task if passed" do
+    it 'associates the Metasploit::Credential::Core with a task if passed' do
       login = test_object.create_credential_and_login(login_data.merge(task_id: task.id))
       expect(login.tasks).to include(task)
     end
@@ -94,50 +100,50 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "       }\n"
       data << "   }\n"
       data << "   shell none\n"
-      data << "}"
+      data << '}'
       expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 Username 'admin' and hash $6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/")
       expect(aux_f5).to receive(:store_loot).with(
-        "f5.config", "text/plain", "127.0.0.1", data, "config.txt", "F5 Configuration"
+        'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          jtr_format: "sha512,crypt",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          jtr_format: 'sha512,crypt',
           username: 'admin',
-          private_data: "$6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/",
+          private_data: '$6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_f5.f5_config_eater('127.0.0.1',161,data)
+      aux_f5.f5_config_eater('127.0.0.1', 161, data)
     end
 
     it 'deals with system keys' do
-      data =  "master-key hash  <EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==>\n"
-      data << " previous hash    <EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==>"
+      data = "master-key hash  <EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==>\n"
+      data << ' previous hash    <EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==>'
 
-      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 F5 master-key hash EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==")
-      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 F5 previous hash EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==")
+      expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 F5 master-key hash EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==')
+      expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 F5 previous hash EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==')
       expect(aux_f5).to receive(:store_loot).with(
-        "f5.config", "text/plain", "127.0.0.1", data, "config.txt", "F5 Configuration"
+        'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          private_data: "EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==",
-          jtr_format: "",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          private_data: 'EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==',
+          jtr_format: '',
           username: 'F5 master-key hash',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
@@ -145,21 +151,21 @@ RSpec.describe Msf::Auxiliary::F5 do
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          private_data: "EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==",
-          jtr_format: "",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          private_data: 'EFt+B7/aTWwPwLoMd8KLYW4JB3K5B6301k4pGsoWnZEb2yUbvEJgNU3FcLHo0S4QvdrwVcKrNtHLzebC7HizHQ==',
+          jtr_format: '',
           username: 'F5 previous hash',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_f5.f5_config_eater('127.0.0.1',161,data)
+      aux_f5.f5_config_eater('127.0.0.1', 161, data)
     end
 
     it 'deals with host information' do
@@ -180,7 +186,7 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "    self-device true\n"
       data << "    time-zone America/Los_Angeles\n"
       data << "    version 15.1.0.2\n"
-      data << "}"
+      data << '}'
 
       expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 Hostname: f5bigip.home.com')
       expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 MAC Address: 00:11:11:a1:a1:a1')
@@ -188,9 +194,9 @@ RSpec.describe Msf::Auxiliary::F5 do
       expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 Product BIG-IP')
       expect(aux_f5).to receive(:print_good).with('127.0.0.1:161 OS Version: 15.1.0.2')
       expect(aux_f5).to receive(:store_loot).with(
-        "f5.config", "text/plain", "127.0.0.1", data, "config.txt", "F5 Configuration"
+        'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
-      aux_f5.f5_config_eater('127.0.0.1',161,data)
+      aux_f5.f5_config_eater('127.0.0.1', 161, data)
     end
 
     it 'deals with SSL Keys' do
@@ -199,32 +205,32 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "    passphrase $M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=\n"
       data << "    revision 1\n"
       data << "    source-path file:///config/ssl/ssl.key/f5_api_com.key\n"
-      data << "}"
+      data << '}'
       expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 SSL Key '/Common/f5_api_com.key' and hash $M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvh...KIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc= for /config/ssl/ssl.key/f5_api_com.key")
       expect(aux_f5).to receive(:store_loot).with(
-        "f5.config", "text/plain", "127.0.0.1", data, "config.txt", "F5 Configuration"
+        'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: '',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          private_data: "$M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=",
-          jtr_format: "F5-Secure-Vault",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          private_data: '$M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=',
+          jtr_format: 'F5-Secure-Vault',
           username: '/Common/f5_api_com.key',
           private_type: :nonreplayable_hash,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_f5.f5_config_eater('127.0.0.1',161,data)
+      aux_f5.f5_config_eater('127.0.0.1', 161, data)
     end
 
     it 'deals with SNMP' do
-      data =  "sys snmp {\n"
+      data = "sys snmp {\n"
       data << "    communities {\n"
       data << "        comm-public {\n"
       data << "            community-name public\n"
@@ -235,47 +241,46 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "            community-name rwcommunity\n"
       data << "        }\n"
       data << "    }\n"
-      data << "}"
+      data << '}'
 
       expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 SNMP Community 'public' with RO access")
       expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 SNMP Community 'rwcommunity' with RW access")
       expect(aux_f5).to receive(:store_loot).with(
-        "f5.config", "text/plain", "127.0.0.1", data, "config.txt", "F5 Configuration"
+        'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: 'snmp',
           jtr_format: '',
           access_level: 'RO',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          private_data: "public",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          private_data: 'public',
           private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
       expect(aux_f5).to receive(:create_credential_and_login).with(
         {
-          address: "127.0.0.1",
+          address: '127.0.0.1',
           port: 161,
-          protocol: "udp",
+          protocol: 'udp',
           workspace_id: workspace.id,
           origin_type: :service,
           service_name: 'snmp',
           access_level: 'RW',
           jtr_format: '',
-          module_fullname: "auxiliary/scanner/snmp/f5_dummy",
-          private_data: "rwcommunity",
+          module_fullname: 'auxiliary/scanner/snmp/f5_dummy',
+          private_data: 'rwcommunity',
           private_type: :password,
           status: Metasploit::Model::Login::Status::UNTRIED
         }
       )
-      aux_f5.f5_config_eater('127.0.0.1',161,data)
+      aux_f5.f5_config_eater('127.0.0.1', 161, data)
     end
   end
-
 end

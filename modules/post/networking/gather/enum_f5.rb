@@ -30,16 +30,16 @@ class MetasploitModule < Msf::Post
       print_status('Moving to TMOS prompt')
       session.shell_command('tmsh')
     end
-    
+
     # Get version info
     system_out = session.shell_command('show /sys version')
     # https://support.f5.com/csp/article/K8759
     ver_loc = store_loot('f5.version',
-                           'text/plain',
-                           session,
-                           system_out.strip,
-                           'config.txt',
-                           'F5 Version')
+                         'text/plain',
+                         session,
+                         system_out.strip,
+                         'config.txt',
+                         'F5 Version')
     vprint_good("Config information stored in to loot #{ver_loc}")
     if /^Main Package(?<content>.+)\n\n/m =~ system_out # just capture the content to parse
       ver = []
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Post
         cmd_out += session.shell_command('y')
       end
       if cmd_out.include?('---(less')
-        cmd_out += session.shell_command(" \n"*20) # 20 pages should be enough
+        cmd_out += session.shell_command(" \n" * 20) # 20 pages should be enough
       end
       print_status("Gathering info from #{command}")
       cmd_loc = store_loot("F5.#{ec['fn']}",
