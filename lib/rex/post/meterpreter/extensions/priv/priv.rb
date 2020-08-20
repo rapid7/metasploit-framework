@@ -24,6 +24,15 @@ class Priv < Extension
     EXTENSION_ID_PRIV
   end
 
+  TECHNIQUE = {
+    Any: 0,
+    NamedPipe: 1,
+    NamedPipe2: 2,
+    TokenDup: 3,
+    NamedPipeRpcss: 4
+  }
+
+
   #
   # Initializes the privilege escalation extension.
   #
@@ -45,18 +54,18 @@ class Priv < Extension
   #
   # Attempt to elevate the meterpreter to Local SYSTEM
   #
-  def getsystem(technique=0)
+  def getsystem(technique=TECHNIQUE[:Any])
     request = Packet.create_request(COMMAND_ID_PRIV_ELEVATE_GETSYSTEM)
 
-    # All three (that's #1, #2, #3 and *all* / #0) of the service-based techniques need a service name parameter
-    if [0, 1, 2, 3].include?(technique)
+    # All three (that's #1, #2, #3 and *any* / #0) of the service-based techniques need a service name parameter
+    if [TECHNIQUE[:Any], TECHNIQUE[:NamedPipe], TECHNIQUE[:NamedPipe2], TECHNIQUE[:TokenDup]].include?(technique)
       request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_NAME, Rex::Text.rand_text_alpha_lower(6))
     end
 
-    # We only need the elevate DLL for when we're invoking the tokendup
-    # method, which we'll only use if required (ie. trying all or when
-    # that method is asked for explicitly)
-    if [0, 2, 3].include?(technique)
+    # We only need the elevate DLL for when we're invoking the TokenDup or
+    # NamedPipe2 method, which we'll only use if required (ie. trying all or
+    # when that method is asked for explicitly)
+    if [TECHNIQUE[:Any], TECHNIQUE[:NamedPipe2], TECHNIQUE[:TokenDup]].include?(technique)
       elevator_path = nil
       client.binary_suffix.each { |s|
         elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)

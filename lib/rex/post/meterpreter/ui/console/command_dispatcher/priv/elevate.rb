@@ -81,7 +81,7 @@ class Console::CommandDispatcher::Priv::Elevate
 
     getsystem_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
-      "-t" => [ true, "The technique to use. (Default to \'#{technique}\')." + desc ]
+      "-t" => [ true, "The technique to use. (Default to '#{technique}')." + desc ]
     )
 
     getsystem_opts.parse(args) { | opt, idx, val |
@@ -98,7 +98,7 @@ class Console::CommandDispatcher::Priv::Elevate
 
     if( technique < 0 or technique >= ELEVATE_TECHNIQUE_DESCRIPTION.length )
       print_error( "Technique '#{technique}' is out of range." )
-      return false;
+      return false
     end
 
     begin
