@@ -37,7 +37,6 @@ class MetasploitModule < Msf::Auxiliary
         meterpreter `VERBOSE` output, otherwise only open and permitted ports
         are printed.
       },
-      'Author'	       => [''],
       'Author' =>
         [
           'willis',     # Original meterpreter module
@@ -151,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
               # By this stage, we've likely got a good connection. Parsing the body might no longer be reasonable if the
               # destination port is not serving HTTP (eg: SSH), but we can derive information from the headers Squid
               # returns.
-              if res.code == 301 or res.code == 302
+              if res.code.between?(300, 399)
                 # We can be more verbose if we have a known redirect.
                 print_good("[#{rhost}] #{target}:#{port} seems open (HTTP #{res.code} redirect to: '#{res.headers['Location']}', server header: '#{res.headers['Server']}')")
                 report_service(:host => target, :port => port, :name => res.headers['Server'], :info => "Redirect to: " + res.headers['Location'] )

@@ -67,9 +67,9 @@ To test this module, you can try the following:
     1. `set RHOSTS squid.internal`
     1. `set RPORT 3128`
 1. Set the `RANGE` parameter to be the destination host addresses you wish to port scan.
-1.1. `set RANGE 192.168.0.1-192.168.0.2`
+    1. `set RANGE 192.168.0.1-192.168.0.2`
 1. (Optional) Set the specific `PORTS` parameter to any ports you wish to port scan on the hosts in `RANGE`.
-1.1. `set PORTS 21-23,80,443`
+    1. `set PORTS 21-23,80,443`
 1. Do: `run`
 1. You should see the module attempt to connect to the proxy, and then first port of the first host in `RANGE`. Ports will be tested sequentially until the end of `PORTS` is reached, at which point it will start from the first port on the next host in `RANGE`.
 
