@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
     else
       if pass_file
         if !::File.exist?(pass_file)
-          print_error("Wordlist File #{pass_file} does not exists!")
+          print_error("Wordlist File #{pass_file} does not exist!")
           return
         end
         creds = ::File.open(pass_file, 'rb')
