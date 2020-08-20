@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.0.2)
+    metasploit-framework (6.0.3)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -121,13 +121,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.354.0)
-    aws-sdk-core (3.104.3)
+    aws-partitions (1.358.0)
+    aws-sdk-core (3.104.4)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.186.0)
+    aws-sdk-ec2 (1.188.0)
       aws-sdk-core (~> 3, >= 3.99.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.43.0)
@@ -140,7 +140,7 @@ GEM
       aws-sdk-core (~> 3, >= 3.104.3)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
-    aws-sigv4 (1.2.1)
+    aws-sigv4 (1.2.2)
       aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.15)
     bcrypt_pbkdf (1.0.1)
@@ -239,7 +239,7 @@ GEM
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nessus_rest (0.1.6)
-    net-ldap (0.16.2)
+    net-ldap (0.16.3)
     net-ssh (6.1.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
@@ -385,7 +385,7 @@ GEM
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.2)
-    ruby_smb (2.0.2)
+    ruby_smb (2.0.3)
       bindata
       openssl-ccm
       openssl-cmac
