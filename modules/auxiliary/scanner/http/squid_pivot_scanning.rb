@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  def run_host
+  def run_host(target_host)
     begin
       iplist = Rex::Socket::RangeWalker.new(datastore['RANGE'])
       portlist = Rex::Socket.portspec_crack(datastore['PORTS'])
