@@ -17,18 +17,20 @@ class Console::CommandDispatcher::Priv::Elevate
 
   include Console::CommandDispatcher
 
-  ELEVATE_TECHNIQUE_NONE               = -1
-  ELEVATE_TECHNIQUE_ANY                = 0
-  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE  = 1
-  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2 = 2
-  ELEVATE_TECHNIQUE_SERVICE_TOKENDUP   = 3
+  ELEVATE_TECHNIQUE_NONE                    = -1
+  ELEVATE_TECHNIQUE_ANY                     = 0
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE       = 1
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2      = 2
+  ELEVATE_TECHNIQUE_SERVICE_TOKENDUP        = 3
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE_RPCSS = 4
 
   ELEVATE_TECHNIQUE_DESCRIPTION =
     [
       'All techniques available',
       'Named Pipe Impersonation (In Memory/Admin)',
       'Named Pipe Impersonation (Dropper/Admin)',
-      'Token Duplication (In Memory/Admin)'
+      'Token Duplication (In Memory/Admin)',
+      'Named Pipe Impersonation (RPCSS variant)'
     ]
 
   #

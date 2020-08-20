@@ -50,7 +50,7 @@ class Priv < Extension
 
     # We only need the elevate DLL for when we're invoking the tokendup
     # method, which we'll only use if required (ie. trying all or when
-    # that metdho is asked for explicitly)
+    # that method is asked for explicitly)
     if [0, 3].include?(technique)
       elevator_name = Rex::Text.rand_text_alpha_lower(6)
 
