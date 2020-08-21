@@ -206,7 +206,7 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "    revision 1\n"
       data << "    source-path file:///config/ssl/ssl.key/f5_api_com.key\n"
       data << '}'
-      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 SSL Key '/Common/f5_api_com.key' and hash $M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvh...KIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc= for /config/ssl/ssl.key/f5_api_com.key")
+      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 SSL Key '/Common/f5_api_com.key' and hash $M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc= for /config/ssl/ssl.key/f5_api_com.key")
       expect(aux_f5).to receive(:store_loot).with(
         'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )
