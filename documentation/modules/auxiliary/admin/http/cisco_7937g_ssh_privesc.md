@@ -5,7 +5,9 @@
 
 ### Description
 
-This module exploits a feature that should not be available via the web interface. An unauthenticated user may set the credentials for SSH access to any username and password combination desired, giving access to administrative functions through an SSH connection.
+  This module exploits a feature that should not be available via the web interface.
+  An unauthenticated user may set the credentials for SSH access to any username and
+  password combination desired, giving access to administrative functions through an SSH connection.
 
 ## Verification Steps
 

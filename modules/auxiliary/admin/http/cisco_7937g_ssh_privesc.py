@@ -61,7 +61,7 @@ def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if dependency_missing:
         logging.error('Python module dependency (requests) is missing, cannot continue')
-	logging.error('Please execute pip3 install requests.')
+        logging.error('Please execute pip3 install requests.')
         return
 
     url = "http://{}/localmenus.cgi".format(args['rhost'])
