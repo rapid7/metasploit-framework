@@ -60,8 +60,8 @@ module Exe
       <<-EOS
         push rbp
         mov rbp, rsp
-        and rsp, FFFFFFFFFFFFFFF0h
         sub rsp, 38h
+        and rsp, 0xfffffffffffffff0 ; Ensure RSP is 16 byte aligned
 
         mov rcx, hook_libname
         mov rax, iat_LoadLibraryA
