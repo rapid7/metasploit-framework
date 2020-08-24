@@ -56,9 +56,9 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api')
     })
-    version = res.get_json_document.dig('version')
+    version = res&.get_json_document&.dig('version')
     if version.nil?
-      print_error "#{peer} - The server does not appear to be running Jupyter (failed to fetch the API version)"
+      vprint_error "#{peer} - The server does not appear to be running Jupyter (failed to fetch the API version)"
       return
     end
     vprint_status "#{peer} - The server responded that it is running Jupyter version: #{version}"
