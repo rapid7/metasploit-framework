@@ -119,6 +119,8 @@ def run
             if datastore['CHOST']
               @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
             end
+          rescue Msf::Auxiliary::Failed => e
+            print_error("#{nmod.respond_to?(:peer) ? nmod.peer : tip} - #{e}")
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
           rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
             raise $!
@@ -198,10 +200,12 @@ def run
             mybatch = bat.dup
             begin
               nmod.run_batch(mybatch)
-          rescue ::Rex::BindFailed
-            if datastore['CHOST']
-              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
-            end
+            rescue ::Rex::BindFailed
+              if datastore['CHOST']
+                @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+              end
+            rescue Msf::Auxiliary::Failed => e
+              print_error("#{e}")
             rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
             rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
               raise $!
