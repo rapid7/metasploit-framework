@@ -120,7 +120,7 @@ def run
               @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
             end
           rescue Msf::Auxiliary::Failed => e
-            print_error("#{nmod.respond_to?(:peer) ? nmod.peer : tip} - #{e}")
+            nmod.vprint_error("#{e}")
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
           rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
             raise $!
