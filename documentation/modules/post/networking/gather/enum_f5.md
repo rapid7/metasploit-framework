@@ -4,7 +4,7 @@ This module has been tested on the following hardware/OS combinations.
 
 * F5 Big-IP 15.1.0.2
 
-This module will look for the follow parameters which contain credentials:
+This module will look for the following parameters which contain credentials:
 
 * Big-IP
   * user
