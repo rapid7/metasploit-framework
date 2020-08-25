@@ -22,6 +22,27 @@ module Msf
       unless pe.hdr.opt['DataDirectory'][5].v['Size'] != 0
         raise Msf::ValidationError, 'PE file is missing relocation data'
       end
+
+      unless pe.hdr.opt['DataDirectory'][11].v['Size'] == 0
+        raise Msf::ValidationError, 'PE file contains bounded imports'
+      end
+
+      unless pe.hdr.opt['DataDirectory'][9].v['Size'] == 0
+        tls_offset = pe.rva_to_file_offset(pe.hdr.opt['DataDirectory'][9].v['VirtualAddress'])
+        unless tls_offset.to_i == 0
+          tls_callback_table_offset = ''
+          if arch == ARCH_X86
+            tls_callback_table_offset = pe.read(tls_offset + 4, 4)
+          else
+            tls_callback_table_offset = pe.read(tls_offset + 12, 12)
+          end
+          unless tls_callback_table_offset.to_i == 0
+            unless pe.read(tls_callback_table_offset, 4).to_i == 0
+              raise Msf::ValidationError, 'PE file contains TLS callbacks'
+            end
+          end
+        end
+      end
     end
 
     def valid?(value, check_empty: nil)
@@ -72,7 +93,6 @@ module Msf
       rescue StandardError
         print_error("Failed to load PE: #{$ERROR_INFO}.")
         elog('Failed to load the PE file', error: e)
-        # TODO: exception
         return
       end
 
