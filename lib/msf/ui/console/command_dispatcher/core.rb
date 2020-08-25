@@ -644,7 +644,7 @@ class Core
 
       print_line features_table.to_s
     else
-      cmd_help
+      cmd_features_help
     end
   rescue StandardError => e
     elog(e)
