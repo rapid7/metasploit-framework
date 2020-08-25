@@ -2,7 +2,7 @@
 
 ### General Notes
 
-This module imports a F5 configuration file into the database.
+This module imports an F5 configuration file into the database.
 This is similar to `post/networking/gather/enum_f5` only access isn't required,
 and assumes you already have the file.
 

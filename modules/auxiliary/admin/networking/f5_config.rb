@@ -14,16 +14,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'F5 Configuration Importer',
         'Description' => %q{
-          This module imports a F5 device configuration.
+          This module imports an F5 device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die'],
-        'Actions' =>
-          [
-            ['JUNOS', 'Description' => 'Import JunOS Config File'],
-            ['SCREENOS', 'Description' => 'Import ScreenOS Config File'],
-          ],
-        'DefaultAction' => 'JUNOS'
+        'Author' => ['h00die'],
       )
     )
 
