@@ -13,13 +13,13 @@ module Msf
 ###
 class Auxiliary < Msf::Module
 
-  require 'msf/core/auxiliary/mixins'
-
   class Complete < RuntimeError
   end
 
   class Failed < RuntimeError
   end
+
+  require 'msf/core/auxiliary/mixins'
 
   include HasActions
 
