@@ -33,9 +33,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    vprint_status("Sending RMI Header...")
-    connect
+    begin
+      connect
+    rescue Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
 
+    vprint_status("Sending RMI Header...")
     send_header
     ack = recv_protocol_ack
     if ack.nil?
