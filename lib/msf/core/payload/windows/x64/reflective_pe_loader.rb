@@ -176,7 +176,7 @@ PE_start:
   #{prologue}
   call r9                         ; Call the AOE
   mov rcx,0x00                    ; dwExitCode
-  mov r10d,#{'0x%.8x' % Msf::Payload::Windows.exit_types[opts[:exitfunnrk]]}
+  mov r10d,#{'0x%.8x' % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
   call api_call                   ; Call exit funk based on exit_type
       ^
     end
