@@ -11,9 +11,9 @@ module Msf
       prologue = ''
       if opts[:is_dll] == true
         prologue = %(
-  mov rcx,0x00
-  mov rdx,0x01
-  mov r8,r13
+  mov rcx,r13                     ; hinstDLL
+  mov rdx,0x01                    ; fdwReason
+  xor r8,r8                       ; lpReserved
       )
       end
 

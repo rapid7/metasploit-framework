@@ -11,10 +11,10 @@ module Msf
       prologue = ''
       if opts[:is_dll] == true
         prologue = %(
-  push 0x00
-  push 0x01
-  push edi
-  sub [esp],eax
+  push edi                ; AOE
+  sub [esp],eax           ; hinstDLL
+  push 0x01               ; fdwReason
+  push 0x00               ; lpReserved
 )
       end
 

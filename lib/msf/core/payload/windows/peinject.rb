@@ -101,7 +101,7 @@ module Msf
       print_status("Mapped PE size #{pe_map[:bytes].length}")
       opts = {}
       opts[:is_dll] = pe_map[:is_dll]
-      opts[:exitfunk] = 'thread'
+      opts[:exitfunk] = datastore['EXITFUNC']
       p = encapsulate_reflective_stub(pe_map[:bytes], opts)
 
       print_status("Uploading reflective PE (#{p.length} bytes)...")

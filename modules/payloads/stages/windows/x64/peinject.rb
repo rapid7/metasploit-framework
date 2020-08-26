@@ -41,6 +41,10 @@ module MetasploitModule
         'PayloadCompat' =>
           {
             'Convention' => 'sockrdi handlerdi -http -https'
+          },
+        'DefaultOptions' =>
+          {
+            'EXITFUNC' => 'thread'
           }
       )
     )
