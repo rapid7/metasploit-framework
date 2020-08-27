@@ -669,7 +669,7 @@ module Msf
                   # Avoid trying to use the search result if it exactly matches
                   # the module we were trying to load. The module cannot be
                   # loaded and searching isn't going to change that.
-                  mods_found = cmd_search('-I', '-u', mod_name)
+                  mods_found = cmd_search('-I', '-u', *args)
                 end
 
                 unless mods_found
