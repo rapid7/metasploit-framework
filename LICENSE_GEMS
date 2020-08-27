@@ -11,12 +11,12 @@ arel, 9.0.0, MIT
 arel-helpers, 2.11.0, MIT
 ast, 2.4.1, MIT
 aws-eventstream, 1.1.0, "Apache 2.0"
-aws-partitions, 1.358.0, "Apache 2.0"
-aws-sdk-core, 3.104.4, "Apache 2.0"
-aws-sdk-ec2, 1.188.0, "Apache 2.0"
-aws-sdk-iam, 1.43.0, "Apache 2.0"
-aws-sdk-kms, 1.36.0, "Apache 2.0"
-aws-sdk-s3, 1.78.0, "Apache 2.0"
+aws-partitions, 1.360.0, "Apache 2.0"
+aws-sdk-core, 3.105.0, "Apache 2.0"
+aws-sdk-ec2, 1.190.0, "Apache 2.0"
+aws-sdk-iam, 1.44.0, "Apache 2.0"
+aws-sdk-kms, 1.37.0, "Apache 2.0"
+aws-sdk-s3, 1.79.1, "Apache 2.0"
 aws-sigv4, 1.2.2, "Apache 2.0"
 bcrypt, 3.1.15, MIT
 bcrypt_pbkdf, 1.0.1, MIT
@@ -55,12 +55,12 @@ irb, 1.2.4, "Simplified BSD"
 jmespath, 1.4.0, "Apache 2.0"
 jsobfu, 0.4.2, "New BSD"
 json, 2.3.1, ruby
-loofah, 2.6.0, MIT
+loofah, 2.7.0, MIT
 memory_profiler, 0.9.14, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 3.0.0, "New BSD"
 metasploit-credential, 4.0.2, "New BSD"
-metasploit-framework, 6.0.3, "New BSD"
+metasploit-framework, 6.0.4, "New BSD"
 metasploit-model, 3.0.0, "New BSD"
 metasploit-payloads, 2.0.10, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 4.0.2, "New BSD"
