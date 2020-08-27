@@ -157,6 +157,7 @@ complete:
 memcpy:
 	mov al,[esi]            ; Move 1 byte of PE image to AL register
 	mov [edx],al            ; Move 1 byte of PE image to image base
+  mov [esi],0x00          ; Overwrite copied byte (for less memory footprint)
 	inc esi                 ; Increase PE image index
 	inc edx                 ; Increase image base index
 	loop memcpy             ; Loop until ECX = 0

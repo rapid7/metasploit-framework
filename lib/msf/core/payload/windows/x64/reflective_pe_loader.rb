@@ -22,11 +22,11 @@ stub:
 	cld                             ; Clear direction flags
 	pop rsi                         ; Get the address of image to rsi
 	call $+5                        ; Push the current RIP value to stack
-	sub [rsp],rsi                   ; Subtract the address of pre mapped PE image and get the image_size to R11
+	sub [rsp],rsi                   ; Subtract the address of pre mapped PE image and get the image_size+8 to ST[0]
 	call start                      ; Call start
 	#{asm_block_api}
 start:                            ;
-	pop rbp                         ; Get the address of hook_api to rbp
+	pop rbp                         ; Get the address of block_api to rbp
 	mov eax,dword [rsi+0x3C]        ; Get the offset of "PE" to eax
 	mov rbx,qword [rax+rsi+0x30]    ; Get the image base address to rbx
 	mov r12d,dword [rax+rsi+0x28]   ; Get the address of entry point to r12
@@ -124,20 +124,17 @@ all_resolved:
 	mov qword [r14],0x00            ; Insert a NULL dword
 	ret                             ; <-
 LoadLibraryA:
-	push rcx                        ; Save ecx to stack
 	mov rcx,rax                     ; Move the address of library name string to RCX
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-	call rbp                        ; LoadLibraryA([esp+4])
+	call rbp                        ; LoadLibraryA(RCX)
 	add rsp,32                      ; Fix the stack
-	pop rcx                         ; Retrieve ecx
 	ret                             ; <-
 GetProcAddress:
 	mov rcx,r13                     ; Move the module handle to RCX as first parameter
 	mov rdx,rax                     ; Move the address of function name string to RDX as second parameter
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
 	call rbp                        ; GetProcAddress(ebx,[esp+4])
-	add rsp,24                      ; Fix the stack
-	pop rcx                         ; ...
+	add rsp,32                      ; Fix the stack
 	ret                             ; <-
 complete:
 	pop rax                         ; Clean out the stack
@@ -149,6 +146,7 @@ complete:
 memcpy:
 	mov al,[rsi]                    ; Move 1 byte of PE image to AL register
 	mov [rdi],al                    ; Move 1 byte of PE image to image base
+  mov byte [rsi],0x00             ; Overwrite copied byte (for less memory footprint)
 	inc rsi                         ; Increase PE image index
 	inc rdi                         ; Increase image base index
 	loop memcpy                     ; Loop until zero

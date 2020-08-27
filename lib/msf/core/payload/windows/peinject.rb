@@ -130,6 +130,7 @@ module Msf
       offset = 0
       virtual_offset = pe.image_base
       vprint_status("ImageBase: 0x#{pe.image_base.to_s(16)}")
+      vprint_status("SizeOfImage: 0x#{pe._optional_header.v['SizeOfImage'].to_s(16)}")
       vprint_status("#{pe.sections.first.name} VMA: 0x#{(pe.image_base + pe.sections.first.vma).to_s(16)}")
       vprint_status("#{pe.sections.first.name} Offset: 0x#{pe.sections.first.file_offset.to_s(16)}")
       until offset == pe.sections.first.file_offset
@@ -147,6 +148,13 @@ module Msf
         pe_map[:bytes] << "\x00" * ((sec.vma + pe.image_base + sec.size) - virtual_offset)
         virtual_offset = sec.vma + pe.image_base + sec.size
       end
+
+      vprint_status("offset: 0x#{virtual_offset.to_s(16)} -> #{(pe.image_base + pe._optional_header.v['SizeOfImage']).to_s(16)}")
+      until virtual_offset >= pe.image_base + pe._optional_header.v['SizeOfImage']
+        pe_map[:bytes] << "\x00"
+        virtual_offset += 1
+      end
+
       pe_map
     end
   end
