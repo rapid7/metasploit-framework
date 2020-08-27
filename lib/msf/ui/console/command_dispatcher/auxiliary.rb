@@ -1,4 +1,4 @@
-# -*- coding: binary -*-
+<# -*- coding: binary -*-
 module Msf
 module Ui
 module Console
@@ -57,8 +57,8 @@ class Auxiliary
     end
 
     action = meth.to_s.delete_prefix('cmd_')
-    if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).map(&:downcase).include?(action)
-       do_action(action, *args)
+    if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
+       return do_action(action, *args)
     end
 
     return
@@ -69,8 +69,8 @@ class Auxiliary
   # Execute the module with a set action
   #
   def do_action(meth, *args)
-    action = mod.actions.select { |action| action.name.downcase == meth.downcase }.first
-    raise Exception('no action') if action.nil?
+    action = mod.actions.find { |action| action.name.casecmp?(meth) }
+    raise Msf::MissingActionError.new(meth) if action.nil?
     mod.datastore['ACTION'] = action.name
 
     cmd_run(*args)
