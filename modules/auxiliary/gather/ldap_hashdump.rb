@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
 
     entries_returned = 0
 
-    print_status("#{peer} Connecting ...")
+    print_status("#{peer} Connecting...")
     ldap_new do |ldap|
       if ldap.get_operation_result.code == 0
         vprint_status("#{peer} LDAP connection established")
@@ -107,9 +107,7 @@ class MetasploitModule < Msf::Auxiliary
             naming_contexts = get_naming_contexts(ldap)
           end
         rescue Timeout::Error
-          print_error("#{peer} Host timeout reached")
-          # fail_with(Failure::TimeoutExpired, 'The timeout expired while reading naming contects')
-          return
+          fail_with(Failure::TimeoutExpired, 'The timeout expired while reading naming contexts')
         ensure
           unless ldap.get_operation_result.code == 0
             print_ldap_error(ldap)
@@ -151,15 +149,12 @@ class MetasploitModule < Msf::Auxiliary
 
     # Safe if server did not returned anything
     unless (entries_returned > 0)
-      print_error("#{peer} Server did not return any data, seems to be safe")
-      # fail_with(Failure::NotVulnerable, 'Server does not return any data.')
+      fail_with(Failure::NotVulnerable, 'Server did not return any data, seems to be safe')
     end
   rescue Timeout::Error
-    print_error("#{peer} Host timeout reached")
-    # fail_with(Failure::TimeoutExpired, 'The timeout expired while searching directory')
+    fail_with(Failure::TimeoutExpired, 'The timeout expired while searching directory')
   rescue Net::LDAP::PDU::Error, Net::BER::BerError, Net::LDAP::Error, NoMethodError => e
-    print_error("#{peer} #{e.class}: #{e.message}")
-    # fail_with(Failure::UnexpectedReply, "Exception occured: #{e.class}: #{e.message}")
+    fail_with(Failure::UnexpectedReply, "Exception occurred: #{e.class}: #{e.message}")
   end
 
   def ldap_search(ldap, base_dn, args)
