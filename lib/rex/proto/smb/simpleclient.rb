@@ -31,16 +31,16 @@ attr_accessor :last_error, :server_max_buffer_size
 attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true)
+  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil)
     self.socket = socket
     self.direct = direct
     self.versions = versions
     self.shares = {}
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
 
-    if self.versions == [1]
+    if (self.versions == [1] && backend.nil?) || backend == :rex
       self.client = Rex::Proto::SMB::Client.new(socket)
-    else
+    elsif (backend.nil? || backend == :ruby_smb)
       self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
                                         username: '',
                                         password: '',
