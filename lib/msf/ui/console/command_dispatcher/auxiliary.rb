@@ -13,21 +13,16 @@ class Auxiliary
 
   include Msf::Ui::Console::ModuleCommandDispatcher
 
-
-  @@auxiliary_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                                        ],
-    "-j" => [ false, "Run in the context of a job."                                       ],
-    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
-    "-a" => [ true,  "The action to use.  If none is specified, ACTION is used."           ],
-    "-q" => [ false, "Run the module in quiet mode with no output"                         ]
+  @@auxiliary_action_opts = Rex::Parser::Arguments.new(
+    '-h' => [ false, 'Help banner.'                                                        ],
+    '-j' => [ false, 'Run in the context of a job.'                                        ],
+    '-o' => [ true,  'A comma separated list of options in VAR=VAL format.'                ],
+    '-q' => [ false, 'Run the module in quiet mode with no output'                         ]
   )
 
-  @@auxiliary_actions_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                                        ],
-    "-j" => [ false, "Run in the context of a job."                                        ],
-    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
-    "-q" => [ false, "Run the module in quiet mode with no output"                         ]
-  )
+  @@auxiliary_opts = Rex::Parser::Arguments.new(@@auxiliary_action_opts.fmt.merge(
+    '-a' =>  [ true,  'The action to use.  If none is specified, ACTION is used.'],
+  ))
 
   #
   # Returns the hash of commands specific to auxiliary modules.
@@ -102,7 +97,7 @@ class Auxiliary
   #
   # Executes an auxiliary module
   #
-  def cmd_run(*args, cmd: "run")
+  def cmd_run(*args, cmd: 'run')
     opts    = []
     action  ||= mod.datastore['ACTION']
     jobify  = false
@@ -119,7 +114,7 @@ class Auxiliary
       when '-q'
         quiet  = true
       when '-h'
-        if cmd == "run"
+        if cmd == 'run'
           cmd_run_help
         else
           cmd_action_help(action)
@@ -219,7 +214,7 @@ class Auxiliary
     print_line "Usage: " + action.downcase + " [options]"
     print_line
     print_line "Launches an auxiliary module."
-    print @@auxiliary_actions_opts.usage
+    print @@auxiliary_action_opts.usage
   end
 
   alias cmd_exploit_help cmd_run_help
