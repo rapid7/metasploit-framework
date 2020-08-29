@@ -1873,7 +1873,7 @@ class Core
 
     mod.options.sorted.each { |e|
       name, _opt = e
-      next unless Msf::OptCondition.show_option(mod, mod_opt)
+      next unless Msf::OptCondition.show_option(mod, _opt)
       res << name
     }
 
