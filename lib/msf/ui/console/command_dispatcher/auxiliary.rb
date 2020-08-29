@@ -22,6 +22,13 @@ class Auxiliary
     "-q" => [ false, "Run the module in quiet mode with no output"                         ]
   )
 
+  @@auxiliary_actions_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                                        ],
+    "-j" => [ false, "Run in the context of a job."                                        ],
+    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."                ],
+    "-q" => [ false, "Run the module in quiet mode with no output"                         ]
+  )
+
   #
   # Returns the hash of commands specific to auxiliary modules.
   #
@@ -73,7 +80,7 @@ class Auxiliary
     raise Msf::MissingActionError.new(meth) if action.nil?
     mod.datastore['ACTION'] = action.name
 
-    cmd_run(*args)
+    cmd_run(*args, cmd: action.name)
   end
 
   #
@@ -95,9 +102,9 @@ class Auxiliary
   #
   # Executes an auxiliary module
   #
-  def cmd_run(*args)
+  def cmd_run(*args, cmd: "run")
     opts    = []
-    action  = mod.datastore['ACTION']
+    action  ||= mod.datastore['ACTION']
     jobify  = false
     quiet   = false
 
@@ -112,7 +119,11 @@ class Auxiliary
       when '-q'
         quiet  = true
       when '-h'
-        cmd_run_help
+        if cmd == "run"
+          cmd_run_help
+        else
+          cmd_action_help(action)
+        end
         return false
       else
         if val[0] != '-' && val.match?('=')
@@ -202,6 +213,13 @@ class Auxiliary
     print_line
     print_line "Launches an auxiliary module."
     print @@auxiliary_opts.usage
+  end
+
+  def cmd_action_help(action)
+    print_line "Usage: #{action} [options]"
+    print_line
+    print_line "Launches an auxiliary module."
+    print @@auxiliary_actions_opts.usage
   end
 
   alias cmd_exploit_help cmd_run_help
