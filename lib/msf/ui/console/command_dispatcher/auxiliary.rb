@@ -216,7 +216,7 @@ class Auxiliary
   end
 
   def cmd_action_help(action)
-    print_line "Usage: #{action} [options]"
+    print_line "Usage: " + action.downcase + " [options]"
     print_line
     print_line "Launches an auxiliary module."
     print @@auxiliary_actions_opts.usage
