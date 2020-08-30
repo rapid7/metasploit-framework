@@ -258,13 +258,14 @@ class CommandShell
   def cmd_shell_help()
     print_line('Usage: shell')
     print_line
-    print_line('Pop up an interactive shell via multi methods.')
+    print_line('Pop up an interactive shell via multiple methods.')
     print_line('An interactive shell means that you can use several useful commands like `passwd`, `su [username]`')
-    print_line('There are three implementation of it: ')
+    print_line('There are four implementations of it: ')
     print_line('\t1. using python `pty` module (default choice)')
-    print_line('\t2. using `socat` command')
-    print_line('\t3. using `script` command')
-    print_line('\t4. upload a pty program via reverse shell')
+    print_line('\t2. using python3 `pty` module')
+    print_line('\t3. using `socat` command')
+    print_line('\t4. using `script` command')
+    print_line('\t5. upload a pty program via reverse shell')
     print_line
   end
 
@@ -276,19 +277,40 @@ class CommandShell
 
     # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case.
     # 1. Using python
-    # 1.1 Check Python installed or not
-    # We do not need to care about the python version
-    # Beacuse python2 and python3 have the same payload of spawn a shell
     python_path = binary_exists("python")
     if python_path != nil
+      # Payload: import pty;pty.spawn('/bin/bash')
+      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp
       # Payload: import pty;pty.spawn('/bin/sh')
       # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
       print_status("Using `python` to pop up an interactive shell")
-      shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
+      bash_path = binary_exists("bash")
+      if bash_path != nil
+        shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\".decode(\"base64\"))'")
+      else
+        shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
+      end
+        return
+    end
+	
+    # 2. Using python3
+    python3_path = binary_exists("python3")
+    if python3_path != nil
+      # Payload: import pty;pty.spawn('/bin/bash')
+      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp
+      # Payload: import pty;pty.spawn('/bin/sh')
+      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
+      print_status("Using `python3` to pop up an interactive shell")
+	    bash_path = binary_exists("bash")
+      if bash_path != nil
+        shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\"))'")
+		  else
+		    shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
+	  end
       return
     end
 
-    # 2. Using script
+    # 3. Using script
     script_path = binary_exists("script")
     if script_path != nil
       print_status("Using `script` to pop up an interactive shell")
@@ -299,7 +321,7 @@ class CommandShell
       return
     end
 
-    # 3. Using socat
+    # 4. Using socat
     socat_path = binary_exists("socat")
     if socat_path != nil
       # Payload: socat - exec:'bash -li',pty,stderr,setsid,sigint,sane
@@ -308,12 +330,12 @@ class CommandShell
       return
     end
 
-    # 4. Using pty program
-    # 4.1 Detect arch and destribution
-    # 4.2 Real time compiling
-    # 4.3 Upload binary
-    # 4.4 Change mode of binary
-    # 4.5 Execute binary
+    # 5. Using pty program
+    # 5.1 Detect arch and destribution
+    # 5.2 Real time compiling
+    # 5.3 Upload binary
+    # 5.4 Change mode of binary
+    # 5.5 Execute binary
 
     print_error("Can not pop up an interactive shell")
   end
@@ -324,7 +346,7 @@ class CommandShell
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
     binary_path = shell_command_token("which #{binary}").to_s.strip
-    if binary_path.eql?("#{binary} not found")
+    if binary_path.eql?("#{binary} not found") || binary_path == ""
       print_error(binary_path)
       return nil
     else
