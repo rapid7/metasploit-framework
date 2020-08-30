@@ -290,7 +290,7 @@ class CommandShell
       else
         shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
       end
-        return
+      return
     end
 	
     # 2. Using python3
@@ -301,12 +301,12 @@ class CommandShell
       # Payload: import pty;pty.spawn('/bin/sh')
       # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
       print_status("Using `python3` to pop up an interactive shell")
-	    bash_path = binary_exists("bash")
+      bash_path = binary_exists("bash")
       if bash_path != nil
         shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\"))'")
-		  else
-		    shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
-	  end
+      else
+	shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
+      end
       return
     end
 
