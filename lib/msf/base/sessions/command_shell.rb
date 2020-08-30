@@ -305,7 +305,7 @@ class CommandShell
       if bash_path != nil
         shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\"))'")
       else
-	shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
+        shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
       end
       return
     end
