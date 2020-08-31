@@ -149,12 +149,7 @@ module Msf
         virtual_offset = sec.vma + pe.image_base + sec.size
       end
 
-      vprint_status("offset: 0x#{virtual_offset.to_s(16)} -> #{(pe.image_base + pe._optional_header.v['SizeOfImage']).to_s(16)}")
-      until virtual_offset >= pe.image_base + pe._optional_header.v['SizeOfImage']
-        pe_map[:bytes] << "\x00"
-        virtual_offset += 1
-      end
-
+      pe_map[:bytes] << "\x00" * ((pe.image_base + pe._optional_header.v['SizeOfImage']) - virtual_offset)
       pe_map
     end
   end
