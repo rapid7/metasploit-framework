@@ -262,10 +262,9 @@ class CommandShell
     print_line('An interactive shell means that you can use several useful commands like `passwd`, `su [username]`')
     print_line('There are four implementations of it: ')
     print_line('\t1. using python `pty` module (default choice)')
-    print_line('\t2. using python3 `pty` module')
-    print_line('\t3. using `socat` command')
-    print_line('\t4. using `script` command')
-    print_line('\t5. upload a pty program via reverse shell')
+    print_line('\t2. using `socat` command')
+    print_line('\t3. using `script` command')
+    print_line('\t4. upload a pty program via reverse shell')
     print_line
   end
 
@@ -275,42 +274,17 @@ class CommandShell
       return cmd_sessions_help
     end
 
-    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case.
     # 1. Using python
-    python_path = binary_exists("python")
+    python_path = binary_exists("python") || binary_exists("python3")
     if python_path != nil
-      # Payload: import pty;pty.spawn('/bin/bash')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp
-      # Payload: import pty;pty.spawn('/bin/sh')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
       print_status("Using `python` to pop up an interactive shell")
-      bash_path = binary_exists("bash")
-      if bash_path != nil
-        shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\".decode(\"base64\"))'")
-      else
-        shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
-      end
-      return
-    end
-	
-    # 2. Using python3
-    python3_path = binary_exists("python3")
-    if python3_path != nil
-      # Payload: import pty;pty.spawn('/bin/bash')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp
-      # Payload: import pty;pty.spawn('/bin/sh')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
-      print_status("Using `python3` to pop up an interactive shell")
-      bash_path = binary_exists("bash")
-      if bash_path != nil
-        shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vYmFzaCcp\"))'")
-      else
-        shell_command("#{python3_path} -c 'import base64;exec(base64.b64decode(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\"))'")
-      end
+      # Ideally use bash for a friendlier shell, but fall back to /bin/sh if it doesn't exist
+      shell_path = binary_exists("bash") || '/bin/sh'
+      shell_command("#{python_path} -c \"#{ Msf::Payload::Python.create_exec_stub("import pty; pty.spawn('#{shell_path}')") } \"")
       return
     end
 
-    # 3. Using script
+    # 2. Using script
     script_path = binary_exists("script")
     if script_path != nil
       print_status("Using `script` to pop up an interactive shell")
@@ -321,7 +295,7 @@ class CommandShell
       return
     end
 
-    # 4. Using socat
+    # 3. Using socat
     socat_path = binary_exists("socat")
     if socat_path != nil
       # Payload: socat - exec:'bash -li',pty,stderr,setsid,sigint,sane
@@ -330,12 +304,12 @@ class CommandShell
       return
     end
 
-    # 5. Using pty program
-    # 5.1 Detect arch and destribution
-    # 5.2 Real time compiling
-    # 5.3 Upload binary
-    # 5.4 Change mode of binary
-    # 5.5 Execute binary
+    # 4. Using pty program
+    # 4.1 Detect arch and destribution
+    # 4.2 Real time compiling
+    # 4.3 Upload binary
+    # 4.4 Change mode of binary
+    # 4.5 Execute binary
 
     print_error("Can not pop up an interactive shell")
   end
