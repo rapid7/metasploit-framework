@@ -34,32 +34,33 @@ class MetasploitModule < Msf::Post
 
   def run
     unless load_extapi
-      print_error 'ExtAPI failed to load'
+      print_error("ExtAPI failed to load")
       return
     end
 
     begin
-      objects = session.extapi.wmi.query("SELECT HotFixID FROM Win32_QuickFixEngineering")
+      objects = session.extapi.wmi.query("SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering")
     rescue RuntimeError
-      print_error "Known bug in WMI query, try migrating to another process"
+      print_error("Known bug in WMI query, try migrating to another process")
       return
     end
 
     if objects[:values].nil?
       kb_ids = []
     else
-      kb_ids = objects[:values].reject(&:nil?).map { |kb| kb[0] }
+      kb_ids = objects[:values].reject(&:nil?).map { |kb| kb }
     end
 
     if kb_ids.empty?
-      print_status 'Found no patches installed'
+      print_status("Found no patches installed")
       return
     end
 
     l = store_loot('enum_patches', 'text/plain', session, kb_ids.join("\n"))
     print_status("Patch list saved to #{l}")
+
     kb_ids.each do |kb|
-      print_status("#{kb} applied")
+      print_good("#{kb[0]} installed on #{kb[1]}")
     end
   end
 end
