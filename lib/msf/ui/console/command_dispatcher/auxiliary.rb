@@ -73,9 +73,8 @@ class Auxiliary
   def do_action(meth, *args)
     action = mod.actions.find { |action| action.name.casecmp?(meth) }
     raise Msf::MissingActionError.new(meth) if action.nil?
-    mod.datastore['ACTION'] = action.name
 
-    cmd_run(*args, cmd: action.name)
+    cmd_run(*args, action: action.name)
   end
 
   #
@@ -97,7 +96,7 @@ class Auxiliary
   #
   # Executes an auxiliary module
   #
-  def cmd_run(*args, cmd: 'run')
+  def cmd_run(*args, action: nil)
     opts    = []
     action  ||= mod.datastore['ACTION']
     jobify  = false
@@ -114,7 +113,7 @@ class Auxiliary
       when '-q'
         quiet  = true
       when '-h'
-        if cmd == 'run'
+        if action.nil?
           cmd_run_help
         else
           cmd_action_help(action)
