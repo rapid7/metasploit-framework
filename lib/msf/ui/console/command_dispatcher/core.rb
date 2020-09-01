@@ -2142,10 +2142,12 @@ class Core
     keys = datastore.keys
 
     mod = active_module
-    mod.options.each do |name, mod_opt|
-      next if Msf::OptCondition.show_option(mod, mod_opt)
-      i = keys.index(name)
-      keys.delete_at i if i
+    if mod
+      mod.options.each do |name, mod_opt|
+        next if Msf::OptCondition.show_option(mod, mod_opt)
+        i = keys.index(name)
+        keys.delete_at i if i
+      end
     end
     keys
   end
