@@ -22,10 +22,11 @@ module MetasploitModule
         info,
         'Name' => 'Windows Inject PE Files',
         'Description' => %q{
-          Inject a custom native PE file into the exploited process using a reflective PE loader. Reflective PE loader will
-          execute the pre-mapped PE image starting from the address of entry after perform image base relocation and API address resolution.
-          This module requires a PE file that contains relocation data and a valid(uncorrupted) import table. PE files with CLR(C#/.NET executables),
-          bounded imports, and TLS callbacks are not currently supported. Also, PE file witch uses resource loading might crash.
+          Inject a custom native PE file into the exploited process using a reflective PE loader. The reflective PE
+          loader will execute the pre-mapped PE image starting from the address of entry after performing image base
+          relocation and API address resolution. This module requires a PE file that contains relocation data and a
+          valid (uncorrupted) import table. PE files with CLR(C#/.NET executables), bounded imports, and TLS callbacks
+          are not currently supported. Also PE files which use resource loading might crash.
         },
         'Author' =>
           [
