@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
       'Name'            => "Windows Gather Applied Patches",
       'Description'     => %q{
           This module will attempt to enumerate which patches are applied to a windows system
-          based on the result of the WMI query: SELECT HotFixID FROM Win32_QuickFixEngineering.
+          based on the result of the WMI query: SELECT HotFixID, InstalledOn FROM Win32_QuickFixEngineering.
         },
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
