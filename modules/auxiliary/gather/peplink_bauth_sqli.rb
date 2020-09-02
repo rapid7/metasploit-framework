@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'EDB', '42130' ],
             [ 'CVE', '2017-8835' ],
+            [ 'URL', 'https://gist.github.com/red0xff/c4511d2f427efcb8b018534704e9607a' ]
           ],
         'Targets' => [['Wildcard Target', {}]],
         'DefaultTarget' => 0
