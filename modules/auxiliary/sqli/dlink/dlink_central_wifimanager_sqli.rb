@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         if res
           check_error = Exploit::CheckCode::Safe
         else
-          check_error = Exploit::CheckCode::Unknown('Failed to send HTTP request') 
+          check_error = Exploit::CheckCode::Unknown('Failed to send HTTP request')
         end
         '' # because a String is expected, this will make test_vulnerable to return false, but we will just get check_error
       end
