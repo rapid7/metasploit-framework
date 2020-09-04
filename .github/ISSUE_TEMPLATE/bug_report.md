@@ -37,24 +37,18 @@ What should happen?
 
 What happens instead?
 
-You might also want to check the last ~1k lines of
-`/opt/metasploit/apps/pro/engine/config/logs/framework.log` or
-`~/.msf4/logs/framework.log` for relevant stack traces
-
-
-## System stuff
-
 ### Metasploit version
 
 Get this with the `version` command in msfconsole (or `git log -1 --pretty=oneline` for a source install).
 
-### I installed Metasploit with:
-- [ ] Kali package via apt
-- [ ] Omnibus installer (nightly)
-- [ ] Commercial/Community installer (from http://www.rapid7.com/products/metasploit/download.jsp)
-- [ ] Source install (please specify ruby version)
+## Additional Information
+If your version is less than `5.0.96`, please update to the latest version and ensure your issue is still present.
 
-### OS
+If the issue is encountered within `msfconsole`, please run the `debug` command using the instructions below. If the issue is encountered outisde `msfconsole`, or the issue causes `msfconsole` to crash on startup, please delete this section.
 
-What OS are you running Metasploit on?
-
+1. Start `msfconsole`
+2. Run the command `set loglevel 3`
+3. Take the steps necessary recreate your issue
+4. Run the `debug` command
+5. Copy all the output below the `===8<=== CUT AND PASTE EVERYTHING BELOW THIS LINE ===8<===` line and make sure to **REMOVE ANY SENSITIVE INFORMATION.**
+6. Replace these instructions and the paragraph above with the output from step 5.
