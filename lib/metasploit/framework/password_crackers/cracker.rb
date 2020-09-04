@@ -2,7 +2,7 @@ module Metasploit
   module Framework
     module PasswordCracker
 
-      class PasswordCrackerNotFoundError < StandardError
+      class PasswordCrackerNotFoundError < ErrorDetected
       end
 
       class Cracker
