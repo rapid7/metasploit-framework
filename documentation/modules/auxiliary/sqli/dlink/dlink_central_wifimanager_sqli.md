@@ -6,10 +6,16 @@ v1.03R0100_BETA6, allowing unauthenticated users to
 execute arbitary SQL queries.
 
 This module has 3 actions:
-1) Data retrieval: saves each table as a `.csv` file in your
-loot directory, and saves credentials for future cracking.
-2) Creation of an admin user.
-3) Removal of an admin user.
+
+| Action        | Description                |
+| ------------- | -------------------------- |
+| SQLI_DUMP     | Data retrieval*            |
+| ADD_ADMIN     | Creation of an admin user  |
+| REMOVE_ADMIN  | Removal of an admin user   |
+
+\* : each table is saved in the loot directory in CSV format, credentials (password hashes) are saved as
+creds for future cracking.
+
 Has been tested with 1.03r098.
 
 ## Verification Steps

@@ -1,9 +1,11 @@
-require 'csv'
-require 'digest'
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
+require 'csv'
+require 'digest'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
