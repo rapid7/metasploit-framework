@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 15 * * *"
 name: Stale Bot workflow
 jobs:
   build:
@@ -32,5 +32,5 @@ jobs:
 
             As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
           exempt-issue-labels: |
-            not stale
-          debug-only: true
+            not-stale,confirmed,easy,newbie-friendly
+          debug-only: false
