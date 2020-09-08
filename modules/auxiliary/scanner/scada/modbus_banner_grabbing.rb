@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'  =>
       [
+        [ 'URL', 'https://modbus.org/docs/Modbus_Messaging_Implementation_Guide_V1_0b.pdf' ],
         [ 'URL', 'https://en.wikipedia.org/wiki/Modbus#Modbus_TCP_frame_format_(primarily_used_on_Ethernet_networks)' ],
         [ 'URL', 'https://github.com/industrialarmy/Hello_Proto' ],
       ],
@@ -34,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(502),
-        OptInt.new('UNIT_ID', [true, "A number from 0 to 254 inclusive indicating the Slave Address of the device behind the gateway", 0]),
         OptInt.new('TIMEOUT', [true, 'Timeout for the network probe', 2])
       ])
   end
@@ -103,17 +103,12 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     begin
-      if (datastore['UNIT_ID'] > 254 || datastore['UNIT_ID'] < 0)
-        print_error('The value of UNIT_ID must be between 0 and 254 inclusive. Please supply a valid value.')
-        return
-      end
-
       connect
 
       packet  = "\x44\x62" # Transaction Identifier
       packet << "\x00\x00" # Protocol Identifier
       packet << "\x00\x05" # Length
-      packet << [datastore['UNIT_ID']].pack("C") # Unit Identifier
+      packet << "\xFF"     # Unit Identifier
       packet << "\x2b"     # .010 1011 = Function Code: Encapsulated Interface Transport (43)
       packet << "\x0e"     # MEI type: Read Device Identification (14)
       packet << "\x03"     # Read Device ID: Extended Device Identification (3)
