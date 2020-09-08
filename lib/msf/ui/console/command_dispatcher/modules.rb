@@ -477,9 +477,10 @@ module Msf
 
               if @module_search_results.length > 1
                 index_usage = "use #{@module_search_results.length - 1}"
+                index_info = "info #{@module_search_results.length - 1}"
                 name_usage = "use #{@module_search_results.last.fullname}"
 
-                print("Interact with a module by name or index, for example %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+                print("Interact with a module by name or index, for example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
               end
             end
 
