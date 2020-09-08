@@ -13,7 +13,7 @@ By default the service is running on port 502, so any device with this port open
 
 The response from the target device may contain several objects. Some of these objects can be seen below:
 
-`vendor name, product code, min. max. revision, vendor url, product name, model name`
+`vendor name, product code, revision number (in *major version*.*minor version* format), vendor url, product name, model name`
 
 If the target was unable to process the Modbus message, a Modbus exception message will be returned from the target,
  which will then be output to the screen.
@@ -34,7 +34,7 @@ Notes
 ```
 
 ## Options
-  1. `RHOST` is the IP address of the target.
+There are no non-default options for this module.
 
 ## Scenarios
 The following scenarios describe some of the responses you may receive from the target:
