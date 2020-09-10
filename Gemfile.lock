@@ -29,7 +29,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.10)
+      metasploit-payloads (= 2.0.12)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.2)
       mqtt
@@ -142,7 +142,7 @@ GEM
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.2)
       aws-eventstream (~> 1, >= 1.0.2)
-    bcrypt (3.1.15)
+    bcrypt (3.1.16)
     bcrypt_pbkdf (1.0.1)
     bindata (2.4.8)
     bit-struct (0.16)
@@ -219,7 +219,7 @@ GEM
       activemodel (~> 5.2.2)
       activesupport (~> 5.2.2)
       railties (~> 5.2.2)
-    metasploit-payloads (2.0.10)
+    metasploit-payloads (2.0.12)
     metasploit_data_models (4.0.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
