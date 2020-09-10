@@ -315,6 +315,141 @@ module DispatcherShell
       tabs
     end
 
+
+    #
+    # Provide tab completion for name values
+    #
+    def tab_complete_option_names(str, words)
+      # Readline.completion_append_character = " "
+      res = cmd_unset_tabs(str, words) || [ ] #ME returning => ["WORKSPACE", "VERBOSE", "FILENAME", "PAYLOAD", "LHOST"]
+      # There needs to be a better way to register global options, but for
+      # now all we have is an ad-hoc list of opts that the shell treats
+      # specially.
+      res += %w{
+      ConsoleLogging
+      LogLevel
+      MinimumRank
+      SessionLogging
+      TimestampOutput
+      Prompt
+      PromptChar
+      PromptTimeFormat
+      MeterpreterPrompt
+    } # ME adds => ["WORKSPACE", "VERBOSE", "FILENAME", "PAYLOAD", "LHOST"] to array above ^
+      mod = active_module
+
+      if (not mod)
+        return res
+      end
+
+      mod.options.sorted.each { |e|
+        name, _opt = e
+        res << name
+      }
+
+      # Exploits provide these three default options
+      if (mod.exploit?)
+        res << 'PAYLOAD'
+        res << 'NOP'
+        res << 'TARGET'
+        res << 'ENCODER'
+      elsif (mod.evasion?) # ME as I'm using an evasion it will add "PAYLOAD", "TARGET", "ENCODER" to the array
+        res << 'PAYLOAD'
+        res << 'TARGET'
+        res << 'ENCODER'
+      elsif (mod.payload?)
+        res << 'ENCODER'
+      end
+
+      if mod.kind_of?(Msf::Module::HasActions) # ME didn't add "ACTION" to array
+        res << "ACTION"
+      end
+
+      if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD']) # ME added lots of stuff to array
+        p = framework.payloads.create(mod.datastore['PAYLOAD'])
+        if (p)
+          p.options.sorted.each { |e|
+            name, _opt = e
+            res << name
+          }
+        end
+      end
+
+      unless str.blank?
+        res = res.select { |term| term.upcase.start_with?(str.upcase) }
+        res = res.map { |term|
+          if str == str.upcase
+            str + term[str.length..-1].upcase
+          elsif str == str.downcase
+            str + term[str.length..-1].downcase
+          else
+            str + term[str.length..-1]
+          end
+        }
+      end
+
+      return res
+    end
+
+
+    #
+    # Provide tab completion for option values
+    #
+    def tab_complete_option_values(str, words, opt:)
+      # Readline.completion_append_character = " "
+      res = []
+      mod = active_module
+      # require "pry"; binding.pry
+      # With no active module, we have nothing to compare
+      if (not mod)
+        return res
+      end
+
+      # Well-known option names specific to exploits
+      if (mod.exploit?)
+        return option_values_payloads() if opt.upcase == 'PAYLOAD'
+        return option_values_targets()  if opt.upcase == 'TARGET'
+        return option_values_nops()     if opt.upcase == 'NOPS'
+        return option_values_encoders() if opt.upcase == 'STAGEENCODER'
+      elsif (mod.evasion?)
+        return option_values_payloads() if opt.upcase == 'PAYLOAD'
+        return option_values_targets()  if opt.upcase == 'TARGET'
+      end
+
+      # Well-known option names specific to modules with actions
+      if mod.kind_of?(Msf::Module::HasActions)
+        # require "pry"; binding.pry
+        return option_values_actions() if opt.upcase == 'ACTION'
+      end
+
+      # The ENCODER option works for evasions, payloads and exploits
+      if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
+        return option_values_encoders()
+      end
+
+      # Well-known option names specific to post-exploitation
+      if (mod.post? or mod.exploit?)
+        return option_values_sessions() if opt.upcase == 'SESSION'
+      end
+
+      # Is this option used by the active module?
+      mod.options.each_key do |key|
+        res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
+      end
+
+      # How about the selected payload?
+      if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
+        if p = framework.payloads.create(mod.datastore['PAYLOAD'])
+          p.options.each_key do |key|
+            res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
+          end
+        end
+      end
+
+      return res
+    end
+
+
     #
     # Return a list of possible source addresses for tab completion.
     #
@@ -436,6 +571,9 @@ module DispatcherShell
   def tab_complete_helper(dispatcher, str, words)
     items = []
 
+    require 'pry'; binding.pry
+    # ::Readline.completion_append_character = " "
+    require 'pry'; binding.pry
     tabs_meth = "cmd_#{words[0]}_tabs"
     # Is the user trying to tab complete one of our commands?
     if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
@@ -447,6 +585,7 @@ module DispatcherShell
       return []
     end
 
+    ::Readline.completion_append_character ||= ' '
     return items
   end
 

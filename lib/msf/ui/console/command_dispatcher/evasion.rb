@@ -50,7 +50,8 @@ class Evasion
 
   alias cmd_rexploit cmd_rerun
 
-  def cmd_exploit_tabs(str, words)
+  def cmd_exploit_tabs(str, words) #ME when 'exploit -'   str = "-" words = "exploit"
+    # require 'pry'; binding.pry
     fmt = {
       '-e' => [ framework.encoders.map { |refname, mod| refname } ],
       '-f' => [ nil                                               ],

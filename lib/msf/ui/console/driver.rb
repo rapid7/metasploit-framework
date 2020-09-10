@@ -634,37 +634,37 @@ protected
   # @return [void]
   def choose_readline(opts)
     # Choose a readline library before calling the parent
-    @rl_err = nil
-    if opts['RealReadline']
-      # Remove the gem version from load path to be sure we're getting the
-      # stdlib readline.
-      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
-      rb_readline_path = File.join(gem_dir, "lib")
-      index = $LOAD_PATH.index(rb_readline_path)
-      # Bundler guarantees that the gem will be there, so it should be safe to
-      # assume we found it in the load path, but check to be on the safe side.
-      if index
-        $LOAD_PATH.delete_at(index)
-      end
-    end
-
-    begin
-      require 'readline'
-    rescue ::LoadError => e
-      if @rl_err.nil? && index
-        # Then this is the first time the require failed and we have an index
-        # for the gem version as a fallback.
-        @rl_err = e
-        # Put the gem back and see if that works
-        $LOAD_PATH.insert(index, rb_readline_path)
-        index = rb_readline_path = nil
-        retry
-      else
-        # Either we didn't have the gem to fall back on, or we failed twice.
-        # Nothing more we can do here.
-        raise e
-      end
-    end
+    # @rl_err = nil
+    # if opts['RealReadline']
+    #   # Remove the gem version from load path to be sure we're getting the
+    #   # stdlib readline.
+    #   gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+    #   rb_readline_path = File.join(gem_dir, "lib")
+    #   index = $LOAD_PATH.index(rb_readline_path)
+    #   # Bundler guarantees that the gem will be there, so it should be safe to
+    #   # assume we found it in the load path, but check to be on the safe side.
+    #   if index
+    #     $LOAD_PATH.delete_at(index)
+    #   end
+    # end
+    #
+    # begin
+    #   require 'readline'
+    # rescue ::LoadError => e
+    #   if @rl_err.nil? && index
+    #     # Then this is the first time the require failed and we have an index
+    #     # for the gem version as a fallback.
+    #     @rl_err = e
+    #     # Put the gem back and see if that works
+    #     $LOAD_PATH.insert(index, rb_readline_path)
+    #     index = rb_readline_path = nil
+    #     retry
+    #   else
+    #     # Either we didn't have the gem to fall back on, or we failed twice.
+    #     # Nothing more we can do here.
+    #     raise e
+    #   end
+    # end
   end
 end
 

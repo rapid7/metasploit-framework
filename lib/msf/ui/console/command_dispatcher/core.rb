@@ -1838,84 +1838,18 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-  def cmd_set_tabs(str, words)
+  def cmd_set_tabs(str, words) #ME when 'set RH'    str = "RH" words = ["set"]
 
     # A value has already been specified
     return [] if words.length > 2
 
     # A value needs to be specified
     if words.length == 2
-      return tab_complete_option(str, words)
+      # Readline.completion_append_character = " "
+      return tab_complete_option_values(str, words, opt: words[1])
     end
-
-    res = cmd_unset_tabs(str, words) || [ ]
-    # There needs to be a better way to register global options, but for
-    # now all we have is an ad-hoc list of opts that the shell treats
-    # specially.
-    res += %w{
-      ConsoleLogging
-      LogLevel
-      MinimumRank
-      SessionLogging
-      TimestampOutput
-      Prompt
-      PromptChar
-      PromptTimeFormat
-      MeterpreterPrompt
-    }
-    mod = active_module
-
-    if (not mod)
-      return res
-    end
-
-    mod.options.sorted.each { |e|
-      name, _opt = e
-      res << name
-    }
-
-    # Exploits provide these three default options
-    if (mod.exploit?)
-      res << 'PAYLOAD'
-      res << 'NOP'
-      res << 'TARGET'
-      res << 'ENCODER'
-    elsif (mod.evasion?)
-      res << 'PAYLOAD'
-      res << 'TARGET'
-      res << 'ENCODER'
-    elsif (mod.payload?)
-      res << 'ENCODER'
-    end
-
-    if mod.kind_of?(Msf::Module::HasActions)
-      res << "ACTION"
-    end
-
-    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
-      p = framework.payloads.create(mod.datastore['PAYLOAD'])
-      if (p)
-        p.options.sorted.each { |e|
-          name, _opt = e
-          res << name
-        }
-      end
-    end
-
-    unless str.blank?
-      res = res.select { |term| term.upcase.start_with?(str.upcase) }
-      res = res.map { |term|
-        if str == str.upcase
-          str + term[str.length..-1].upcase
-        elsif str == str.downcase
-          str + term[str.length..-1].downcase
-        else
-          str + term[str.length..-1]
-        end
-      }
-    end
-
-    return res
+    Readline.completion_append_character = " "
+    return tab_complete_option_names(str, words)
   end
 
   def cmd_setg_help
@@ -2383,61 +2317,6 @@ class Core
     tabs
   end
 
-  #
-  # Provide tab completion for option values
-  #
-  def tab_complete_option(str, words)
-    opt = words[1]
-    res = []
-    mod = active_module
-
-    # With no active module, we have nothing to compare
-    if (not mod)
-      return res
-    end
-
-    # Well-known option names specific to exploits
-    if (mod.exploit?)
-      return option_values_payloads() if opt.upcase == 'PAYLOAD'
-      return option_values_targets()  if opt.upcase == 'TARGET'
-      return option_values_nops()     if opt.upcase == 'NOPS'
-      return option_values_encoders() if opt.upcase == 'STAGEENCODER'
-    elsif (mod.evasion?)
-      return option_values_payloads() if opt.upcase == 'PAYLOAD'
-      return option_values_targets()  if opt.upcase == 'TARGET'
-    end
-
-    # Well-known option names specific to modules with actions
-    if mod.kind_of?(Msf::Module::HasActions)
-      return option_values_actions() if opt.upcase == 'ACTION'
-    end
-
-    # The ENCODER option works for evasions, payloads and exploits
-    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
-      return option_values_encoders()
-    end
-
-    # Well-known option names specific to post-exploitation
-    if (mod.post? or mod.exploit?)
-      return option_values_sessions() if opt.upcase == 'SESSION'
-    end
-
-    # Is this option used by the active module?
-    mod.options.each_key do |key|
-      res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
-    end
-
-    # How about the selected payload?
-    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
-      if p = framework.payloads.create(mod.datastore['PAYLOAD'])
-        p.options.each_key do |key|
-          res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
-        end
-      end
-    end
-
-    return res
-  end
 
   # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
   def tab_complete_source_interface(o)

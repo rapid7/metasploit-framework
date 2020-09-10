@@ -89,9 +89,52 @@ class Auxiliary
   # Tab completion for the run command
   #
   def cmd_run_tabs(str, words)
-    return [] if words.length > 1
-    @@auxiliary_opts.fmt.keys
+    # For values, put in a breakpointer, then enter this:
+    # run meta_refresh=<tab>
+    # require 'pry'; binding.pry
+    # Binding pry supports 'next', but also 'step'
+    # delete a line of code: cmd + backspace
+    # text editor called vim
+
+    # TDD - Test driven development
+    #
+    # Scenarios:
+    # run <tab>                - names
+    # run meta_<tab>           - names
+    # run meta_refresh=<tab>   - values
+    # Once you have the above:
+    # run meta_refresh=10 <tab> - names
+    # ... additional more complex scenarios ...
+
+    # run <tab>
+    # A value needs to be specified
+    if words.length >= 1
+      ::Readline.completion_append_character = ''
+      return tab_complete_option_names(str, words).map { |name| "#{name}=" } # This needs to allow `run Lo<tab>` then after tab it should add an "=" final result : `run loglevel=`
+    end
+
+    if words.length % 2 == 0
+      ::Readline.completion_append_character = " "
+      return tab_complete_option_values(str, words, opt: words[0]) # This needs to remove the "=" final result: `run loglevel`
+    end
   end
+
+  # if `run loglevel=` words.length is == 2
+  # if `run loglevel=3` words.length is ==
+
+  # def cmd_run_tabs(str, words)
+  #   # return [] if words.length > 1
+  #   # @@auxiliary_opts.fmt.keys
+  #   # predicate
+  #   if needs_to_complete_option_names
+  #     Readline.completion_append_character = "="
+  #     return tab_complete_option_names(...)
+  #   end
+  #   if needs_to_complete_option_values
+  #     Readline.completion_append_character = " "
+  #     return tab_complete_name_values(...)
+  #   end
+  # end
 
   #
   # Executes an auxiliary module
