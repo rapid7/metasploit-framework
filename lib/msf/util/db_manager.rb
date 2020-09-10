@@ -18,7 +18,7 @@ module DBManager
       Arel::Nodes::Regexp.new(Arel::Nodes::NamedFunction.new("CAST", [model.arel_table[column.name].as("TEXT")]),
                               Arel::Nodes.build_quoted(search))
     }
-    condition_set.reduce { |conditions, condition| conditions.or(condition).expr }
+    Arel::Nodes::Grouping.new(condition_set.reduce { |conditions, condition| conditions.or(condition).expr })
   end
 
   # Processes the workspace value in the opts hash from a request. This method throws an exception if
