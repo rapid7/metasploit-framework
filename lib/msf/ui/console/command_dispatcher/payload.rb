@@ -11,6 +11,7 @@ module Msf
         ###
         class Payload
           include Msf::Ui::Console::ModuleCommandDispatcher
+          include Msf::Ui::Console::ModuleOptionTabCompletion
 
           # Load supported formats
           @@supported_formats = \
@@ -187,6 +188,9 @@ module Msf
             true
           end
 
+          #
+          # Tab completion for the generate command
+          #
           def cmd_generate_tabs(str, words)
             fmt = {
               '-b' => [ true                                              ],
@@ -204,7 +208,9 @@ module Msf
               '-i' => [ true                                              ],
               '-v' => [ nil                                               ]
             }
-            tab_complete_generic(fmt, str, words)
+            flags = tab_complete_generic(fmt, str, words)
+            options = tab_complete_option(str, words)
+            flags + options
           end
         end
       end

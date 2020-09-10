@@ -12,6 +12,7 @@ module CommandDispatcher
 class Auxiliary
 
   include Msf::Ui::Console::ModuleCommandDispatcher
+  include Msf::Ui::Console::ModuleOptionTabCompletion
 
   @@auxiliary_action_opts = Rex::Parser::Arguments.new(
     '-h' => [ false, 'Help banner.'                                                        ],
@@ -89,8 +90,9 @@ class Auxiliary
   # Tab completion for the run command
   #
   def cmd_run_tabs(str, words)
-    return [] if words.length > 1
-    @@auxiliary_opts.fmt.keys
+    flags = @@auxiliary_opts.fmt.keys
+    options = tab_complete_option(str, words)
+    flags + options
   end
 
   #
