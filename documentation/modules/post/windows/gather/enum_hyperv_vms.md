@@ -11,7 +11,7 @@
   3. Do: `use post/windows/gather/enum_hyperv_vms`
   4. Do: `set SESSION <session id>`
   5. Do: `run`
-  6. You should be able to see a list of Hyper-V VMs that currently exist on the target host if Hyper-V is installed, along with information about their attributes.
+  6. If the host has Hyper-V installed, a list of Hyper-V VMs which are on target host will be returned, along with their attributes.
 
 ## Options
 
@@ -29,7 +29,7 @@
 
 ## Scenarios
 
-### Meterpreter session as normal user on a Windows Server 2019 Standard Edition host running several VMs - fails as user lacks required permissions
+### Meterpreter session as a normal user on Windows Server 2019 Standard Edition - fails as user lacks required permissions
 
 ```
 msf6 exploit(multi/handler) > exploit
