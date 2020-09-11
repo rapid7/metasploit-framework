@@ -9,7 +9,7 @@ require 'msf/base/sessions/pingback'
 
 module MetasploitModule
 
-  CachedSize = 99
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Pingback

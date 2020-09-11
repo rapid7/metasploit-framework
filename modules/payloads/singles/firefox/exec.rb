@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 1019
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Firefox

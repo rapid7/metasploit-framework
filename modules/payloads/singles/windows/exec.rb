@@ -12,7 +12,7 @@ require 'msf/core/payload/windows/exec'
 ###
 module MetasploitModule
 
-  CachedSize = 192
+  CachedSize = :dynamic
 
   include Msf::Payload::Windows::Exec
 

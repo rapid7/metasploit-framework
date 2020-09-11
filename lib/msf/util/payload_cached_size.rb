@@ -23,7 +23,7 @@ class PayloadCachedSize
       'URL' => 'http://a.com',
       'PATH' => '/',
       'BUNDLE' => 'data/isight.bundle',
-      'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
+      'DLL' => 'data/vncdll.x64.dll',
       'RC4PASSWORD' => 'Metasploit',
       'DNSZONE' => 'corelan.eu',
       'PEXEC' => '/bin/sh',
@@ -53,6 +53,35 @@ class PayloadCachedSize
     'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
     'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
+  }.freeze
+
+  OPTS_LARGE = {
+    'Format'      => 'raw',
+    'Options'     => {
+      'CPORT' => 55555,
+      'LPORT' => 55555,
+      'CMD' => '/bin/bash',
+      'URL' => 'http://a_very_long_url.com',
+      'PATH' => '/a/very/long/path',
+      'BUNDLE' => 'data/../data/isight.bundle',
+      'DLL' => 'data/../data/../data/vncdll.x64.dll',
+      'RC4PASSWORD' => 'a_large_password',
+      'DNSZONE' => 'a_large_dns_zone.eu',
+      'PEXEC' => '/bin/bash',
+      'StagerURILength' => 5
+    },
+    'Encoder'     => nil,
+    'DisableNops' => true
+  }
+
+  OPTS_ARCH_X64_LARGE = {
+    'DLL' => 'data/../data/../data/vncdll.x64.dll',
+    'PE' => 'data/../data/../data/vncdll.x64.dll'
+  }.freeze
+
+  OPTS_ARCH_X86_LARGE = {
+    'DLL' => 'data/../data/../data/vncdll.x86.dll',
+    'PE' => 'data/../data/../data/vncdll.x86.dll'
   }.freeze
 
   # Insert a new CachedSize value into the text of a payload module
@@ -109,13 +138,15 @@ class PayloadCachedSize
   #
   # @param mod [Msf::Payload] The class of the payload module to update
   # @param generation_count [Integer] The number of iterations to use to
-  #   verify that the size is static.
+  # verify that the size is static.
   # @return [Integer]
   def self.is_dynamic?(mod, generation_count=5)
     opts = module_options(mod)
+    large_opts = module_options(mod, true)
+
     [*(1..generation_count)].map do |x|
       mod.generate_simple(opts).size
-    end.uniq.length != 1
+    end.uniq.length != 1 || (mod.generate_simple(opts).size != mod.generate_simple(large_opts).size)
   end
 
   # Determines whether a payload's CachedSize is up to date
@@ -133,15 +164,17 @@ class PayloadCachedSize
   # payload for size analysis.
   #
   # @param mod [Msf::Payload] The class of the payload module to get options for
+  # @param large_opts [Boolean] Indicates if a large version of the module options should be returned.
+  # Useful for testing changes in payload size with different sized modules.
   # @return [Hash]
-  def self.module_options(mod)
-    opts = OPTS.clone
+  def self.module_options(mod, large_opts=false)
+    opts = large_opts ? OPTS_LARGE.clone : OPTS.clone
     # Assign this way to overwrite the Options key of the newly cloned hash
     opts['Options'] = opts['Options'].merge(mod.shortname =~ /6/ ? OPTS_IPV6 : OPTS_IPV4)
     if mod.arch_to_s == ARCH_X64
-      opts['Options'].merge!(OPTS_ARCH_X64)
+      opts['Options'].merge!(large_opts ? OPTS_ARCH_X64_LARGE : OPTS_ARCH_X64)
     elsif mod.arch_to_s == ARCH_X86
-      opts['Options'].merge!(OPTS_ARCH_X86)
+      opts['Options'].merge!(large_opts ? OPTS_ARCH_X86_LARGE : OPTS_ARCH_X86)
     end
     opts
   end

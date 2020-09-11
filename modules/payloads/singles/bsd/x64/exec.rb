@@ -13,7 +13,7 @@
 ###
 module MetasploitModule
 
-  CachedSize = 31
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Bsd

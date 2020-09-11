@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/x64/reverse_winhttps'
 
 module MetasploitModule
 
-  CachedSize = 781
+  CachedSize = :dynamic
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows

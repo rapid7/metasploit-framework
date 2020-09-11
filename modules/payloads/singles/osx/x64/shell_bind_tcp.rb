@@ -7,7 +7,7 @@ require 'msf/core/handler/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 136
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
