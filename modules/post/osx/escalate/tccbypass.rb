@@ -15,8 +15,11 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Bypass the macOS TCC Framework',
         'Description' => %q{
-          This module uses the CVE-2020-9934 to bypass the TCC framework and grant all
-          permissions to the Terminal application.
+          This module exploits a vulnerability in the TCC daemon on macOS Catalina
+          (<= 10.15.5) in order to grant TCC entitlements. The TCC daemon can be
+          manipulated (by setting the HOME environment variable) to use a new user
+          controlled location as the TCC database. We can then grant ourselves
+          entitlements by inserting them into this new database.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -42,6 +45,7 @@ class MetasploitModule < Msf::Post
     unless system_version
       return Exploit::CheckCode::Unknown
     end
+
     version = Gem::Version.new(system_version)
     if version >= Gem::Version.new('10.15.6')
       return Exploit::CheckCode::Safe
