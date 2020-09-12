@@ -25,11 +25,14 @@ class MetasploitModule < Msf::Post
 
   def run
     # Get device prompt
-    prompt = session.shell_command('')
-    unless prompt.include? '(tmos)'
+    prompt = session.shell_command('?')
+    started_tmos = false
+    unless prompt.include? 'Commands:'
+      started_tmos = true
       print_status('Moving to TMOS prompt')
       session.shell_command('tmsh')
     end
+    prompt = session.shell_command('')
 
     # Get version info
     system_out = session.shell_command('show /sys version')
@@ -59,7 +62,11 @@ class MetasploitModule < Msf::Post
     # run additional information gathering
 
     enum_tmos_configs(prompt)
-    session.shell_command('quit') # exit tmos
+    if started_tmos
+      session.shell_command('quit') # exit tmos
+    else
+      session.shell_command('bash') # go to bash from tmos
+    end
     enum_configs(prompt)
   end
 
@@ -107,6 +114,13 @@ class MetasploitModule < Msf::Post
       if cmd_out.include?('---(less')
         cmd_out += session.shell_command(" \n" * 20) # 20 pages should be enough
       end
+
+      # loop to ensure we get all content within the 5 sec window
+      loop do
+        break unless out_tmp = session.shell_read
+        cmd_out << out_tmp
+      end
+
       print_status("Gathering info from #{command}")
       cmd_loc = store_loot("F5.#{ec['fn']}",
                            'text/plain',
@@ -115,7 +129,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip)
+      f5_config_eater(host, port, cmd_out.strip, store=false)
     end
   end
 
@@ -168,6 +182,10 @@ class MetasploitModule < Msf::Post
       command = ec['cmd']
       cmd_out = session.shell_command(command).gsub(/#{command}|#{prompt}/, '')
       print_status("Gathering info from #{command}")
+      if cmd_out.include?('No such file or directory') || cmd_out.strip == ''
+        print_error('File not found or empty')
+        next
+      end
       cmd_loc = store_loot("F5.#{ec['fn']}",
                            'text/plain',
                            session,
@@ -175,7 +193,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip)
+      f5_config_eater(host, port, cmd_out.strip, store=false)
     end
   end
 end

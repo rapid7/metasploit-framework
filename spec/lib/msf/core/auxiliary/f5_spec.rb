@@ -101,7 +101,7 @@ RSpec.describe Msf::Auxiliary::F5 do
       data << "   }\n"
       data << "   shell none\n"
       data << '}'
-      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 Username 'admin' and hash $6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/")
+      expect(aux_f5).to receive(:print_good).with("127.0.0.1:161 Username 'admin' with description 'Admin User' and shell none with hash $6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/")
       expect(aux_f5).to receive(:store_loot).with(
         'f5.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'F5 Configuration'
       )

