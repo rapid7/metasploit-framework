@@ -266,6 +266,13 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_f5_secure_value' do
+    it 'returns ' do
+      hash = identify_hash('$M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=')
+      expect(hash).to match ('F5-Secure-Vault')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = identify_hash('')

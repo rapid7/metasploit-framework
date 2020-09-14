@@ -3,23 +3,21 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/brocade'
+require 'msf/core/auxiliary/f5'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Brocade
-  include Msf::Exploit::Deprecated
-  moved_from 'auxiliary/admin/brocade/brocade_config'
+  include Msf::Auxiliary::F5
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Brocade Configuration Importer',
+        'Name' => 'F5 Configuration Importer',
         'Description' => %q{
-          This module imports a Brocade device configuration.
+          This module imports an F5 device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die']
+        'Author' => ['h00die'],
       )
     )
 
@@ -35,11 +33,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Brocade config file #{datastore['CONFIG']} does not exist!"
+      fail_with Failure::BadConfig, "F5 config file #{datastore['CONFIG']} does not exist!"
     end
-    brocade_config = ::File.open(datastore['CONFIG'], 'rb')
+    f5_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')
-    brocade_config_eater(datastore['RHOSTS'], datastore['RPORT'], brocade_config.read)
+    f5_config_eater(datastore['RHOSTS'], datastore['RPORT'], f5_config.read)
     print_good('Config import successful')
   end
 end

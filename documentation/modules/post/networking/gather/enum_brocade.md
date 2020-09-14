@@ -8,7 +8,7 @@ This module has been tested on the following hardware/OS combinations.
 The ICX config can be found [no passwords](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_nopass.conf),
 [hashes](https://github.com/h00die/MSF-Testing-Scripts/blob/master/brocade_icx6430_pass.conf)
 
-This module will look for the follow parameters which contain credentials:
+This module will look for the following parameters which contain credentials:
 
 * FastIron
   * `show configuration`
