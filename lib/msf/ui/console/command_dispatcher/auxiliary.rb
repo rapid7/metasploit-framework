@@ -105,36 +105,30 @@ class Auxiliary
     # Once you have the above:
     # run meta_refresh=10 <tab> - names
     # ... additional more complex scenarios ...
+    # working out the value run verbose=t<tab> - that should return  run verbose=true
 
     # run <tab>
-    # A value needs to be specified
-    if words.length >= 1
-      ::Readline.completion_append_character = ''
-      return tab_complete_option_names(str, words).map { |name| "#{name}=" } # This needs to allow `run Lo<tab>` then after tab it should add an "=" final result : `run loglevel=`
-    end
+    # require "pry"; binding.pry
+    # return [] if words.length > 2
 
-    if words.length % 2 == 0
+
+    if str.end_with?("=")
+      option_name = str.chop()
       ::Readline.completion_append_character = " "
-      return tab_complete_option_values(str, words, opt: words[0]) # This needs to remove the "=" final result: `run loglevel`
+      require "pry"; binding.pry
+      return tab_complete_option_values(option_name, words, opt: option_name).map { |value| "#{str}#{value}"}
+    else
+      if str.include?("=")
+        str_split = str.split("=")
+        option_value = str_split[1].strip
+        option_name = str_split[0].strip
+        ::Readline.completion_append_character = " "
+        return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}"}
+      end
     end
+    ::Readline.completion_append_character = ''
+    return tab_complete_option_names(str, words).map { |name| "#{name}=" }
   end
-
-  # if `run loglevel=` words.length is == 2
-  # if `run loglevel=3` words.length is ==
-
-  # def cmd_run_tabs(str, words)
-  #   # return [] if words.length > 1
-  #   # @@auxiliary_opts.fmt.keys
-  #   # predicate
-  #   if needs_to_complete_option_names
-  #     Readline.completion_append_character = "="
-  #     return tab_complete_option_names(...)
-  #   end
-  #   if needs_to_complete_option_values
-  #     Readline.completion_append_character = " "
-  #     return tab_complete_name_values(...)
-  #   end
-  # end
 
   #
   # Executes an auxiliary module
