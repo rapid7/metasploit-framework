@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/google/geolocation'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -123,6 +121,8 @@ class MetasploitModule < Msf::Post
         end
         file = store_loot("host.solaris.software.versions", "text/plain", session, listing, "installed_software.txt", "Installed Software and Versions")
         print_good("Stored information about the installed products to the loot file at #{file}")
+    when 'android'
+        listing = cmd_exec('pm list packages -f')
     end
 
   rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
