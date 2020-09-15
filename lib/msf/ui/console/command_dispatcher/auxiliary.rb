@@ -89,33 +89,10 @@ class Auxiliary
   # Tab completion for the run command
   #
   def cmd_run_tabs(str, words)
-    # For values, put in a breakpointer, then enter this:
-    # run meta_refresh=<tab>
-    # require 'pry'; binding.pry
-    # Binding pry supports 'next', but also 'step'
-    # delete a line of code: cmd + backspace
-    # text editor called vim
-
-    # TDD - Test driven development
-    #
-    # Scenarios:
-    # run <tab>                - names
-    # run meta_<tab>           - names
-    # run meta_refresh=<tab>   - values
-    # Once you have the above:
-    # run meta_refresh=10 <tab> - names
-    # ... additional more complex scenarios ...
-    # working out the value run verbose=t<tab> - that should return  run verbose=true
-
-    # run <tab>
-    # require "pry"; binding.pry
-    # return [] if words.length > 2
-
-
     if str.end_with?("=")
       option_name = str.chop()
       ::Readline.completion_append_character = " "
-      require "pry"; binding.pry
+      # require "pry"; binding.pry
       return tab_complete_option_values(option_name, words, opt: option_name).map { |value| "#{str}#{value}"}
     else
       if str.include?("=")

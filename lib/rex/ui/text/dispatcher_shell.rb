@@ -315,6 +315,17 @@ module DispatcherShell
       tabs
     end
 
+    #
+    # Tab completion for the unset command
+    #
+    # @param str [String] the string currently being typed before tab was hit
+    # @param words [Array<String>] the previously completed words on the command
+    #   line. `words` is always at least 1 when tab completion has reached this
+    #   stage since the command itself has been completed.
+    def cmd_unset_tabs(str, words)
+      datastore = active_module ? active_module.datastore : self.framework.datastore
+      datastore.keys
+    end
 
     #
     # Provide tab completion for name values
@@ -527,8 +538,14 @@ module DispatcherShell
           res += files.map { |f| "file:" + f } if files
         end
       end
-      require "pry"; binding.pry
+
       return res
+    end
+
+    # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+    def tab_complete_source_interface(o)
+      return [] unless o.is_a?(Msf::OptAddressLocal)
+      o.interfaces
     end
 
     #

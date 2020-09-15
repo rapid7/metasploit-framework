@@ -2059,18 +2059,6 @@ class Core
     end
   end
 
-  #
-  # Tab completion for the unset command
-  #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command
-  #   line. `words` is always at least 1 when tab completion has reached this
-  #   stage since the command itself has been completed.
-  def cmd_unset_tabs(str, words)
-    datastore = active_module ? active_module.datastore : self.framework.datastore
-    datastore.keys
-  end
-
   def cmd_unsetg_help
     print_line "Usage: unsetg var1 [var2 ...]"
     print_line
@@ -2314,13 +2302,6 @@ class Core
     # replace with new code that permits "nested" tab completion
     # tabs = driver.get_all_commands if (str and str =~ /\w/)
     tabs
-  end
-
-
-  # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
-  def tab_complete_source_interface(o)
-    return [] unless o.is_a?(Msf::OptAddressLocal)
-    o.interfaces
   end
 
   protected
