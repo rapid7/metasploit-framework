@@ -33,14 +33,6 @@ module Msf::DBManager::Service
     report_service(opts)
   end
 
-  def get_service(wspace, host, proto, port)
-  ::ApplicationRecord.connection_pool.with_connection {
-    host = get_host(:workspace => wspace, :address => host)
-    return if !host
-    return host.services.find_by_proto_and_port(proto, port)
-  }
-  end
-
   #
   # Record a service in the database.
   #

@@ -287,7 +287,10 @@ module Rex
     end
 
     def check_for_existing_service(address,port)
-      db.get_service(@args[:workspace],address,"tcp",port)
+      # only one result can be returned, as the +port+ field restricts potential results to a single service
+      db.services(:workspace => @args[:workspace],
+                  :hosts => {address: address},
+                  :port => port).first
     end
 
     def resolve_port(uri)
