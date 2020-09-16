@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
       elsif operating_system =~ /freebsd/i
         cmd = %w{ 'pkg info' }
       end
-      
+
       if (listing = cmd_exec(cmd)) =~ /not found/
         print_error("The command #{cmd[0]} was not found on the target.")
         return nil
