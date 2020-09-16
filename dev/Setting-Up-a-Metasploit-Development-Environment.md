@@ -146,7 +146,12 @@ Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
- - Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto].
+ - Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
+
+```
+cd *path to your cloned MSF repository on disk*
+git config commit.gpgsign true
+```
 
  - Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
