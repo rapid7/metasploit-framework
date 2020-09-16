@@ -43,19 +43,20 @@ class MetasploitModule < Msf::Post
       # All of the following options were taken from https://distrowatch.com/dwres.php?resource=package-management
       cmd = %w{ 'hostnamectl' }
       operating_system = cmd_exec("#{cmd[0]}")
-      if operating_system =~ /(?:[uU]buntu|[dD]ebian|[eE]lementary|[mM]int|MX|[zZ]orin|[kK]ali)/
+      case operating_system
+      when /(?:[uU]buntu|[dD]ebian|[eE]lementary|[mM]int|MX|[zZ]orin|[kK]ali)/
         cmd = %w{ 'apt list --installed' }
-      elsif operating_system =~ /(?: [aA]rch |[mM]anjaro)/
+      when /(?: [aA]rch |[mM]anjaro)/
         cmd = %w{ 'pacman -Q' }
-      elsif operating_system =~ /opensuse/i
+      when /opensuse/i
         cmd = %w{ 'zypper search -is' }
-      elsif operating_system =~ /(?:fedora|centos|red hat enterprise linux)/i
+      when /(?:fedora|centos|red hat enterprise linux)/i
         cmd = %w{ 'rpm -qa' }
-      elsif operating_system =~ /alpine/i
+      when /alpine/i
         cmd = %w{ 'apk info' }
-      elsif operating_system =~ /gentoo/i
+      when /gentoo/i
         cmd = %w{ 'qlist -i' }
-      elsif operating_system =~ /freebsd/i
+      when /freebsd/i
         cmd = %w{ 'pkg info' }
       end
 
