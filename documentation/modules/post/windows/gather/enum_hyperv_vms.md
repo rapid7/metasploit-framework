@@ -15,7 +15,7 @@
 
 ## Options
 
-  - **SESSION** - The session to run the module on.
+This module just uses the standard options available to any post module.
 
 ## Extracted data
 
@@ -38,8 +38,6 @@ msf6 exploit(multi/handler) > exploit
 [*] Sending stage (200262 bytes) to 172.20.150.24
 [*] Meterpreter session 1 opened (0.0.0.0:0 -> 172.20.150.24:4444) at 2020-09-10 18:33:16 -0500
 
-meterpreter > whoami
-[-] Unknown command: whoami.
 meterpreter > getuid
 Server username: RAPID7\normal
 meterpreter > getprivs

@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
       return
     end
     vprint_status(results)
-    filtered_result = results.match(/^Name(.+\r\n){1,2000}/) # If your running more than 2000 VMs on a single host, you have my sincerest sympathy.
+    filtered_result = results.match(/^Name(?:.+\r\n){1,2000}/) # If your running more than 2000 VMs on a single host, you have my sincerest sympathy.
     if filtered_result.nil?
       print_error("Sorry, no results were found! Perhaps the target has Hyper-V installed but doesn't have any VMs set up?")
       return
