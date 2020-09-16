@@ -219,11 +219,9 @@ class Response < Packet
   # @return [URI] the uri of the redirection location.
   # @return [nil] if the response hasn't a Location header or it isn't a valid uri.
   def redirection
-    begin
-      URI(headers['Location'])
-    rescue ::URI::InvalidURIError
-      nil
-    end
+    URI(headers['Location'])
+  rescue ArgumentError, ::URI::InvalidURIError
+    nil
   end
 
   #
