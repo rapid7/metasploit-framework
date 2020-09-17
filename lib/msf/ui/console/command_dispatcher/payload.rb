@@ -187,35 +187,10 @@ module Msf
             true
           end
 
-
-          # require "pry"; binding.pry
           #
-          # Tab completion for the run command
+          # Tab completion for the generate command
           #
-          # def cmd_run_tabs(str, words)
-          #   require "pry"; binding.pry
-          #   if str.end_with?("=")
-          #     option_name = str.chop()
-          #     ::Readline.completion_append_character = " "
-          #     # require "pry"; binding.pry
-          #     return tab_complete_option_values(option_name, words, opt: option_name).map { |value| "#{str}#{value}"}
-          #   else
-          #     if str.include?("=")
-          #       str_split = str.split("=")
-          #       option_value = str_split[1].strip
-          #       option_name = str_split[0].strip
-          #       ::Readline.completion_append_character = " "
-          #       return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}"}
-          #     end
-          #   end
-          #   ::Readline.completion_append_character = ''
-          #   return tab_complete_option_names(str, words).map { |name| "#{name}=" }
-          # end
-
           def cmd_generate_tabs(str, words)
-            # require "pry"; binding.pry
-
-            if str.start_with?("-")
               fmt = {
                   '-b' => [ true                                              ],
                   '-E' => [ nil                                               ],
@@ -232,26 +207,9 @@ module Msf
                   '-i' => [ true                                              ],
                   '-v' => [ nil                                               ]
               }
-              tab_complete_generic(fmt, str, words)
-
-            else
-              if str.end_with?("=")
-                option_name = str.chop()
-                ::Readline.completion_append_character = " "
-                # require "pry"; binding.pry
-                return tab_complete_option_values(option_name, words, opt: option_name).map { |value| "#{str}#{value}"}
-              else
-                if str.include?("=")
-                  str_split = str.split("=")
-                  option_value = str_split[1].strip
-                  option_name = str_split[0].strip
-                  ::Readline.completion_append_character = " "
-                  return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}"}
-                end
-              end
-            ::Readline.completion_append_character = ''
-            return tab_complete_option_names(str, words).map { |name| "#{name}=" }
-            end
+              flags = tab_complete_generic(fmt, str, words)
+              options = tab_complete_option(str, words)
+              return flags + options
           end
         end
       end

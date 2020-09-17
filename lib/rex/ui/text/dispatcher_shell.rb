@@ -328,11 +328,32 @@ module DispatcherShell
     end
 
     #
+    # Tab completion options values
+    #
+    def tab_complete_option(str, words)
+      if str.end_with?("=")
+        option_name = str.chop()
+        ::Readline.completion_append_character = " "
+        return tab_complete_option_values(option_name, words, opt: option_name).map { |value| "#{str}#{value}"}
+      else
+        if str.include?("=")
+          str_split = str.split("=")
+          option_value = str_split[1].strip
+          option_name = str_split[0].strip
+          ::Readline.completion_append_character = " "
+          return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}"}
+        end
+      end
+      ::Readline.completion_append_character = ''
+      return tab_complete_option_names(str, words).map { |name| "#{name}=" }
+    end
+
+    #
     # Provide tab completion for name values
     #
     def tab_complete_option_names(str, words)
       # Readline.completion_append_character = " "
-      res = cmd_unset_tabs(str, words) || [ ] #ME returning => ["WORKSPACE", "VERBOSE", "FILENAME", "PAYLOAD", "LHOST"]
+      res = cmd_unset_tabs(str, words) || [ ]
       # There needs to be a better way to register global options, but for
       # now all we have is an ad-hoc list of opts that the shell treats
       # specially.
@@ -346,7 +367,7 @@ module DispatcherShell
       PromptChar
       PromptTimeFormat
       MeterpreterPrompt
-    } # ME adds => ["WORKSPACE", "VERBOSE", "FILENAME", "PAYLOAD", "LHOST"] to array above ^
+    }
       mod = active_module
 
       if (not mod)
@@ -364,7 +385,7 @@ module DispatcherShell
         res << 'NOP'
         res << 'TARGET'
         res << 'ENCODER'
-      elsif (mod.evasion?) # ME as I'm using an evasion it will add "PAYLOAD", "TARGET", "ENCODER" to the array
+      elsif (mod.evasion?)
         res << 'PAYLOAD'
         res << 'TARGET'
         res << 'ENCODER'
@@ -372,11 +393,11 @@ module DispatcherShell
         res << 'ENCODER'
       end
 
-      if mod.kind_of?(Msf::Module::HasActions) # ME didn't add "ACTION" to array
+      if mod.kind_of?(Msf::Module::HasActions)
         res << "ACTION"
       end
 
-      if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD']) # ME added lots of stuff to array
+      if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
         p = framework.payloads.create(mod.datastore['PAYLOAD'])
         if (p)
           p.options.sorted.each { |e|
@@ -408,7 +429,6 @@ module DispatcherShell
     #
     def tab_complete_option_values(str, words, opt:)
       # Readline.completion_append_character = " "
-
       res = []
       mod = active_module
 
@@ -430,7 +450,6 @@ module DispatcherShell
 
       # Well-known option names specific to modules with actions
       if mod.kind_of?(Msf::Module::HasActions)
-        # require "pry"; binding.pry
         return option_values_actions() if opt.upcase == 'ACTION'
       end
 
@@ -444,11 +463,9 @@ module DispatcherShell
         return option_values_sessions() if opt.upcase == 'SESSION'
       end
 
-      # require "pry"; binding.pry
       # Is this option used by the active module?
       mod.options.each_key do |key|
         if key.downcase == opt.downcase
-          # require "pry"; binding.pry
           res.concat(option_values_dispatch(mod.options[key], str, words))
         end
       end
@@ -469,7 +486,6 @@ module DispatcherShell
     # Provide possible option values based on type
     #
     def option_values_dispatch(o, str, words)
-      # require "pry"; binding.pry
       res = []
       res << o.default.to_s if o.default
 
