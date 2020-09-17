@@ -65,9 +65,9 @@ class MetasploitModule < Msf::Post
       when /(?:fedora|centos|red hat enterprise linux)/i
         cmd = %w[rpm -qa]
       when /alpine/i
-        cmd = %w[apk info]
+        cmd = %w[apk info -v]
       when /gentoo/i
-        cmd = %w[qlist -i]
+        cmd = %w[qlist -Iv]
       when /freebsd/i
         cmd = %w[pkg info]
       end
