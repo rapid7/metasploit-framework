@@ -48,9 +48,11 @@ class MetasploitModule < Msf::Post
       # and further verified against VMs that were set up in testing labs.
       if command_exists?('apt') # Debian, Ubuntu, and Debian derived distros.
         cmd = %w[apt list --installed]
+      elsif command_exists?('dpkg') # Alternative for Debian based systems
+        cmd = %w[dpkg -l]
       elsif command_exists?('pacman') # Arch and Manjaro are two popular examples
         cmd = %w[pacman -Q]
-      elsif command_exists?('zypper')  # OpenSuse is a popular example
+      elsif command_exists?('zypper') # OpenSUSE is a popular example
         cmd = %w[zypper search -is]
       elsif command_exists?('rpm') # Fedora, Centos, RHEL
         cmd = %w[rpm -qa]
@@ -60,6 +62,10 @@ class MetasploitModule < Msf::Post
         cmd = %w[qlist -Iv]
       elsif command_exists?('pkg') # FreeBSD
         cmd = %w[pkg info]
+      elsif command_exists?('equo') # Sabayon
+        cmd = %w[equo q list installed -v]
+      elsif command_exists?('nix-env')
+        cmd = %w[nix-env -q]
       else
         print_error("The target system either doesn't have a package manager system, or does not use a known package manager system!")
         print_error('Unable to enumerate the softwaare on the target system. Exiting...')
