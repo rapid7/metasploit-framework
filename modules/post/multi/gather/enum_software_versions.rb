@@ -45,31 +45,25 @@ class MetasploitModule < Msf::Post
       print_good("Stored information about the installed products to the loot file at #{file}")
     when 'linux'
       # All of the following options were taken from https://distrowatch.com/dwres.php?resource=package-management
-      cmd = %w[hostnamectl]
-      if command_exists?('hostnamectl') == false
-        print_error("The 'hostnamectl' command doesn't exist on the host, so we can't enumerate what OS this Linux host is running!")
-        return
-      end
-      operating_system = cmd_exec(cmd[0]).to_s
-      if operating_system.empty?
-        print_error('No results were returned when trying to determine the OS. An error likely occured.')
-        return
-      end
-      case operating_system
-      when /(?:[uU]buntu|[dD]ebian|[eE]lementary|[mM]int|MX|[zZ]orin|[kK]ali)/
+      # and further verified against VMs that were set up in testing labs.
+      if command_exists?('apt') # Debian, Ubuntu, and Debian derived distros.
         cmd = %w[apt list --installed]
-      when /(?: [aA]rch |[mM]anjaro)/
+      elsif command_exists?('pacman') # Arch and Manjaro are two popular examples
         cmd = %w[pacman -Q]
-      when /opensuse/i
+      elsif command_exists?('zypper')  # OpenSuse is a popular example
         cmd = %w[zypper search -is]
-      when /(?:fedora|centos|red hat enterprise linux)/i
+      elsif command_exists?('rpm') # Fedora, Centos, RHEL
         cmd = %w[rpm -qa]
-      when /alpine/i
+      elsif command_exists?('apk') # Apline
         cmd = %w[apk info -v]
-      when /gentoo/i
+      elsif command_exists?('qlist') # Gentoo
         cmd = %w[qlist -Iv]
-      when /freebsd/i
+      elsif command_exists?('pkg') # FreeBSD
         cmd = %w[pkg info]
+      else
+        print_error("The target system either doesn't have a package manager system, or does not use a known package manager system!")
+        print_error('Unable to enumerate the softwaare on the target system. Exiting...')
+        return nil
       end
 
       if command_exists?((cmd[0]).to_s) == false
