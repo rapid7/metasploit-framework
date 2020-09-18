@@ -40,6 +40,14 @@ account password to it's original value.
 The NetBIOS name of the target domain controller. You can use the `auxiliary/scanner/netbios/nbname` module to obtain
 this value.
 
+### PASSWORD
+
+The hex value of the original machine account password. This value is typically recovered from the target system's
+registry (using a tool like secretsdump) after successfully setting the value to blank within Active Directory using
+this module and the default `REMOVE` action.
+
+This value is only used when running the module with the `RESTORE` action.
+
 ## Scenarios
 
 ### Windows Server 2019
