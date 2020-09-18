@@ -14,6 +14,10 @@ class MetasploitModule < Msf::Post
           This module, when run against a compromised machine, will gather details on all installed software,
           including their versions and if available, when they were installed, and will save it into a loot file for later use.
           Users can then use this loot file to determine what additional vulnerabilites may affect the target machine.
+
+          Note that for Linux systems, software enumeration is done via package managers. As a result the results may
+          not reflect all of the available software on the system simply because users may have installed additional
+          software from alternative sources such as source code that these package managers are not aware of.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'gwillcox-r7' ],

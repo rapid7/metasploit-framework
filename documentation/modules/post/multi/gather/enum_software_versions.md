@@ -3,7 +3,10 @@
   This module uses an existing session on any Windows, Linux, BSD, Solaris, OSX or Android machine
   to gather information about all software installed on the target machine and their versions.
 
-  This module therefore targets any machine running Windows, Linux, BSD, Solaris, OSX, or Android.
+  This module therefore targets any machine running Windows, Linux, BSD, Solaris, OSX, or Android. Note
+  that for Linux systems, software enumeration is done via package managers. As a result the results may
+  not reflect all of the available software on the system simply because users may have installed additional
+  software from alternative sources such as source code that these package managers are not aware of.
 
 ## Verification Steps
 
