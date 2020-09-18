@@ -38,7 +38,7 @@ account password to it's original value.
 ### NBNAME
 
 The NetBIOS name of the target domain controller. You can use the `auxiliary/scanner/netbios/nbname` module to obtain
-this value.
+this value. If this value is invalid the module will fail when making a Netlogon RPC request.
 
 ### PASSWORD
 

