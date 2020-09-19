@@ -81,8 +81,6 @@ class MetasploitModule < Msf::Post
       port = Regexp.compile('D:"Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil if !port
       username = Regexp.compile('S:"Username"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
 
-      next unless (hostname && port && protocol)
-
       tbl << {
         file_name: item['name'],
         protocol: protocol.downcase,
@@ -147,17 +145,10 @@ class MetasploitModule < Msf::Post
       post_reference_name: refname,
       private_type: :password,
       private_data: config[:password],
-      username: config[:username]
-    }.merge(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
+      username: config[:username],
       status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
-
-    create_credential_login(login_data)
+    create_credential_and_login(credential_data)
   end
 
   def run
@@ -191,7 +182,7 @@ class MetasploitModule < Msf::Post
           username: item[:username],
           password: item[:password]
         }
-        securecrt_store_config(config)
+        securecrt_store_config(config) if (config[:hostname] && config[:port] && config[:username] && config[:password])
       end
       print_line(tbl.to_s)
       if tbl.rows.count
