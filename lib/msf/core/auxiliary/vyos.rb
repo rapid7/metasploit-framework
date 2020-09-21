@@ -33,7 +33,7 @@ module Msf
 
       if store && !config.include?('such file or directory')
         l = store_loot('vyos.config', 'text/plain', thost, config.strip, 'config.txt', 'VyOS Configuration')
-        vprint_good("Config saved to: #{l}")
+        vprint_good("#{thost}:#{tport} Config saved to: #{l}")
       end
 
       host_info = {
@@ -296,6 +296,8 @@ module Msf
       # https://docs.vyos.io/en/crux/interfaces/l2tpv3.html#l2tpv3-over-ipsec-l2-vpn-bridge
 
       # https://docs.vyos.io/en/crux/interfaces/pppoe.html#pppoe
+
+      # /config/auth/ldap-auth.config
 
     end
   end
