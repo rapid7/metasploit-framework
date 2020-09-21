@@ -132,10 +132,11 @@ class MetasploitModule < Msf::Post
 
   def securecrt_store_config(config)
     if config[:hostname].to_s.empty? || config[:service_name].to_s.empty? || config[:port].to_s.empty? || config[:username].to_s.empty? || config[:password].nil?
-      return # If any of these fields are nil or are empty (with the exception of the password field which can be empty), 
-             # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
-             # use against a target.
+      return # If any of these fields are nil or are empty (with the exception of the password field which can be empty),
+      # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
+      # use against a target.
     end
+
     service_data = {
       address: config[:hostname],
       port: config[:port],
