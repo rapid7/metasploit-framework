@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Post
           username: item[:username],
           password: item[:password]
         }
-        securecrt_store_config(config) if (config[:hostname] && config[:port] && config[:username] && config[:password])
+        securecrt_store_config(config) if ((!config[:hostname].nil? && !config[:hostname].empty?) && (config[:port] != 0) && (!config[:username].nil? && !config[:username].empty?) && (!config[:password].nil?))
       end
       print_line(tbl.to_s)
       if tbl.rows.count
