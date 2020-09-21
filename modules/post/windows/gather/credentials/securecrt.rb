@@ -131,6 +131,11 @@ class MetasploitModule < Msf::Post
   end
 
   def securecrt_store_config(config)
+    if config[:hostname].to_s.empty? || config[:service_name].to_s.empty? || config[:port].to_s.empty? || config[:username].to_s.empty? || config[:password].nil?
+      return # If any of these fields are nil or are empty (with the exception of the password field which can be empty), 
+             # then we shouldn't proceed, as we don't have enough info to store a credential which someone could actually
+             # use against a target.
+    end
     service_data = {
       address: config[:hostname],
       port: config[:port],
@@ -178,11 +183,11 @@ class MetasploitModule < Msf::Post
           file_name: item[:file_name],
           hostname: item[:hostname],
           service_name: item[:protocol],
-          port: item[:port].to_i,
+          port: item[:port].nil? ? '' : item[:port].to_i,
           username: item[:username],
           password: item[:password]
         }
-        securecrt_store_config(config) if ((!config[:hostname].nil? && !config[:hostname].empty?) && (config[:port] != 0) && (!config[:username].nil? && !config[:username].empty?) && (!config[:password].nil?))
+        securecrt_store_config(config)
       end
       print_line(tbl.to_s)
       if tbl.rows.count
