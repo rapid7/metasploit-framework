@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Post
 
       tbl << {
         file_name: item['name'],
-        protocol: protocol.downcase,
+        protocol: protocol.nil? ? protocol : protocol.downcase,
         hostname: hostname,
         port: port,
         username: username,
