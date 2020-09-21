@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     response = netr_server_password_set2
-    status = response.error_status
+    status = response.error_status.to_i
     fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
 
     print_good("Successfully set the machine account (#{datastore['NBNAME']}$) password to: aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 (empty)")
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       ),
       clear_new_password: Netlogon.encrypt_credential(session_key, new_password_data)
     )
-    status = response.error_status
+    status = response.error_status.to_i
     fail_with(Failure::UnexpectedReply, "Password change failed with NT status: 0x#{status.to_s(16)}") unless status == 0
 
     print_good("Successfully set machine account (#{datastore['NBNAME']}$) password")
