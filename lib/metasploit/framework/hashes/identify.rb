@@ -105,6 +105,8 @@ def identify_hash(hash)
     # other
     when hash =~ /^<\d+@.+?>#[\w]{32}$/
       return 'hmac-md5'
+    when hash.length == 114 && hash.start_with?('$M$')
+      return 'F5-Secure-Vault'
   end
   ''
 end

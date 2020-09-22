@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Juniper ScreenOS or JunOS device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die'],
+        'Author' => ['h00die'],
         'Actions' =>
           [
             ['JUNOS', 'Description' => 'Import JunOS Config File'],

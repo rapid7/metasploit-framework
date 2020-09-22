@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Brocade device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die']
+        'Author' => ['h00die']
       )
     )
 

@@ -8,7 +8,7 @@ This module has been tested on the following hardware/OS combinations.
 
 The ex2200 config can be found [here](https://github.com/h00die/MSF-Testing-Scripts/blob/master/juniper_ex2200.config)
 
-This module will look for the follow parameters which contain credentials:
+This module will look for the following parameters which contain credentials:
 
 * ScreenOS
   * admin
