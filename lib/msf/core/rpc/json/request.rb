@@ -1,7 +1,6 @@
 require 'em-http-request'
 require 'json'
 
-require 'msf/core/rpc'
 
 module Msf::RPC::JSON
 

@@ -237,7 +237,7 @@ class MetasploitModule < Msf::Auxiliary
               temp_workgroup.each_char do |i|
                 begin
                   desc << i.encode('UTF-8')
-                rescue Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
+                rescue ::Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
                   desc << '?'
                 end
               end

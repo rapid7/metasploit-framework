@@ -6,7 +6,6 @@
 #
 
 require 'pathname'
-
 begin
 
   # Silences warnings as they only serve to confuse end users
@@ -16,9 +15,10 @@ begin
 
   # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
   require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
+  require 'msfenv'
   require 'metasploit/framework/profiler'
   require 'metasploit/framework/command/console'
-  require 'msf/core/payload_generator'
+
   Metasploit::Framework::Profiler.start
   Metasploit::Framework::Command::Console.start
 rescue Interrupt

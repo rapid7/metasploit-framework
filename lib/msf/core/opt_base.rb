@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'resolv'
-require 'msf/core'
 require 'rex/socket'
 
 module Msf

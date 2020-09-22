@@ -4,7 +4,6 @@
 ##
 
 require 'rex'
-require 'msf/core/post/hardware/automotive/uds'
 
 class MetasploitModule < Msf::Post
 

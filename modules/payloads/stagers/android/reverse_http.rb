@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_http'
-require 'msf/core/payload/android/reverse_http'
-require 'msf/core/payload/uuid/options'
-
 module MetasploitModule
 
   CachedSize = :dynamic

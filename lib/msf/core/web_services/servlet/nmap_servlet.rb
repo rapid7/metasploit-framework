@@ -1,11 +1,11 @@
-module NmapServlet
+module Msf::WebServices::NmapServlet
 
   def self.api_path
     '/api/v1/nmaps'
   end
 
   def self.registered(app)
-    app.post NmapServlet.api_path, &import_nmap_xml_file
+    app.post self.api_path, &import_nmap_xml_file
   end
 
   #######

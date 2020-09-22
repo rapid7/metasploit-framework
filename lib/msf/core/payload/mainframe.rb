@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 # This class is here to implement advanced features for mainframe based

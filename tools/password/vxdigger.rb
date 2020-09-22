@@ -14,8 +14,8 @@ def usage
 end
 
 # Force binary encoding for Ruby versions that support it
-if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
-  Encoding.default_external = Encoding.default_internal = "binary"
+if(Object.const_defined?('Encoding') and ::Encoding.respond_to?('default_external='))
+  ::Encoding.default_external = ::Encoding.default_internal = "binary"
 end
 
 dump = ARGV.shift || usage()

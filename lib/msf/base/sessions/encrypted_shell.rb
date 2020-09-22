@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/base'
 require 'securerandom'
-require 'msf/core/payload/windows/payload_db_conf'
 
 module Msf
 module Sessions

@@ -9,7 +9,6 @@ module Proto::DCERPC::SVCCTL
 
   require 'windows_error'
   require 'windows_error/win32'
-  require 'msf/core/exploit/windows_constants'
   NDR = Rex::Encoder::NDR
 
 

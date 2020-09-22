@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/module'
-
 #
 # A mixin used for providing Modules with post-exploitation options and helper methods
 #

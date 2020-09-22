@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rex/proto/tftp'
+
 class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report

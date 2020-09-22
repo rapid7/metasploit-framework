@@ -4,9 +4,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex'
-require 'msf/core/post/windows/railgun'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/user_profiles'
 
 class MetasploitModule < Msf::Post
 

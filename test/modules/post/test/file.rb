@@ -1,4 +1,3 @@
-require 'msf/core'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)

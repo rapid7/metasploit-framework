@@ -1813,7 +1813,7 @@ class Core
       else
         datastore[name] = value
       end
-    rescue OptionValidateError => e
+    rescue Msf::OptionValidateError => e
       print_error(e.message)
       elog('Exception encountered in cmd_set', error: e)
     end

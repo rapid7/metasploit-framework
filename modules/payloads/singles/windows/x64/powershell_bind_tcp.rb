@@ -3,10 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/exec_x64'
-require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
-require 'msf/core/handler/bind_tcp'
 
 ###
 #

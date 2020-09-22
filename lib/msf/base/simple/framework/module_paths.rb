@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rails'
 module Msf
   module Simple
     module Framework

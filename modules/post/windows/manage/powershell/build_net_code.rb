@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/powershell'
-require 'msf/core/exploit/powershell/dot_net'
-
 class MetasploitModule < Msf::Post
   Rank = ExcellentRanking
 

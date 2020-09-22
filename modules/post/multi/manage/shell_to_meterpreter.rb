@@ -2,9 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core/exploit/powershell'
-require 'msf/core/post/windows/powershell'
+require 'rex/exploitation/cmdstager'
 
 class MetasploitModule < Msf::Post
   include Exploit::Powershell

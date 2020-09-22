@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/auxiliary/ubiquiti'
 require 'bson'
 
 RSpec.describe Msf::Auxiliary::Ubiquiti do

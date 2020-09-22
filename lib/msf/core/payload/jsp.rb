@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'rex'
 
 # This module is chained within JSP payloads that target the Java platform.
