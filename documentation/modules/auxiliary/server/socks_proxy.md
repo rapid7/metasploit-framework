@@ -26,12 +26,32 @@ This module is great when pivoting across a network. Suppose we have two machine
    non-routable `10.0.0.0/24` subnet.
 
 We'll begin by starting the SOCKS proxy:
+
 ```
-msf > use auxiliary/server/socks_proxy
-msf auxiliary(socks_proxy) > run
+msf6 auxiliary(server/socks_proxy) > show options
+
+Module options (auxiliary/server/socks_proxy):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   PASSWORD                   no        Proxy password for SOCKS5 listener
+   SRVHOST   0.0.0.0          yes       The address to listen on
+   SRVPORT   1080             yes       The port to listen on
+   USERNAME                   no        Proxy username for SOCKS5 listener
+   VERSION   5                yes       The SOCKS version to use (Accepted: 4a, 5)
+
+
+Auxiliary action:
+
+   Name   Description
+   ----   -----------
+   Proxy  Run a SOCKS proxy server
+
+
+msf6 auxiliary(server/socks_proxy) > run
 [*] Auxiliary module execution completed
 [*] Starting the SOCKS proxy server
-msf auxiliary(socks_proxy) >
+msf6 auxiliary(socks_proxy) >
 ```
 
 Preparing to pivot across a network requires us to first establish a Meterpreter session on the victim machine. From
