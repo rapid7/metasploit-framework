@@ -4,26 +4,23 @@
 ##
 
 require 'thread'
+require 'rex/proto/proxy/socks4a'
 require 'rex/proto/proxy/socks5'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  include Msf::Module::Deprecated
-  deprecated(Date.new(2020, 12, 29), reason="Use auxiliary/server/socks_proxy and set VERSION to 5")
-
   def initialize
     super(
-      'Name'           => 'Socks5 Proxy Server',
+      'Name'           => 'SOCKS Proxy Server',
       'Description'    => %q{
-        This module provides a socks5 proxy server that uses the builtin
-        Metasploit routing to relay connections.
+        This module provides a SOCKS proxy server that uses the builtin Metasploit routing to relay connections.
       },
       'Author'         => [ 'sf', 'Spencer McIntyre', 'surefire' ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          [ 'Proxy', 'Description' => 'Run SOCKS5 proxy' ]
+          [ 'Proxy', 'Description' => 'Run a SOCKS proxy server' ]
         ],
       'PassiveActions' =>
         [
@@ -33,10 +30,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('USERNAME', [false, 'Proxy username for SOCKS5 listener']),
-      OptString.new('PASSWORD', [false, 'Proxy password for SOCKS5 listener']),
       OptString.new('SRVHOST',  [true,  'The address to listen on', '0.0.0.0']),
-      OptPort.new('SRVPORT',    [true,  'The port to listen on', 1080])
+      OptPort.new('SRVPORT',    [true,  'The port to listen on', 1080]),
+      OptEnum.new('VERSION',    [ true, 'The SOCKS version to use', '5', %w( 4a 5 ) ]),
+      OptString.new('USERNAME', [false, 'Proxy username for SOCKS5 listener'], conditions: %w( VERSION == 5 )),
+      OptString.new('PASSWORD', [false, 'Proxy password for SOCKS5 listener'], conditions: %w( VERSION == 5 )),
     ])
   end
 
@@ -49,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   def cleanup
     @mutex.synchronize do
       if @socks_proxy
-        print_status('Stopping the socks5 proxy server')
+        print_status('Stopping the SOCKS proxy server')
         @socks_proxy.stop
         @socks_proxy = nil
       end
@@ -61,13 +59,20 @@ class MetasploitModule < Msf::Auxiliary
     opts = {
       'ServerHost'     => datastore['SRVHOST'],
       'ServerPort'     => datastore['SRVPORT'],
-      'ServerUsername' => datastore['USERNAME'],
-      'ServerPassword' => datastore['PASSWORD'],
       'Context'        => {'Msf' => framework, 'MsfExploit' => self}
     }
-    @socks_proxy = Rex::Proto::Proxy::Socks5::Server.new(opts)
 
-    print_status('Starting the socks5 proxy server')
+    if datastore['VERSION'] == '5'
+      opts.merge!({
+        'ServerUsername' => datastore['USERNAME'],
+        'ServerPassword' => datastore['PASSWORD']
+      })
+      @socks_proxy = Rex::Proto::Proxy::Socks5::Server.new(opts)
+    elsif datastore['VERSION'] == '4a'
+      @socks_proxy = Rex::Proto::Proxy::Socks4a.new(opts)
+    end
+
+    print_status('Starting the SOCKS proxy server')
     @socks_proxy.start
     @socks_proxy.join
   end
