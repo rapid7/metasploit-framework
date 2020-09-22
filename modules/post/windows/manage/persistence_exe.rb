@@ -35,6 +35,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
+        OptBool.new('DisableExec', [false, 'Skip the execution of the payload.', false]),
         OptString.new('LocalExePath', [false, 'The local exe path to run. Use temp directory as default. ']),
         OptString.new('StartupName',   [false, 'The name of service or registry. Random string as default.' ]),
         OptString.new('ServiceDescription',   [false, 'The description of service. Random string as default.' ])
@@ -59,7 +60,11 @@ class MetasploitModule < Msf::Post
     script_on_target = write_exe_to_target(raw, rexename)
 
     # Initial execution of script
-    target_exec(script_on_target)
+    if datastore['DisableExec']
+      print_warning("Execution of payload disabled.")
+    else
+      target_exec(script_on_target)
+    end
 
     case datastore['STARTUP']
     when /USER/i
