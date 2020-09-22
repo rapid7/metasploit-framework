@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'thread'
 require 'rex/proto/proxy/socks4a'
 require 'rex/proto/proxy/socks5'
 
@@ -12,13 +11,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'SOCKS Proxy Server',
-      'Description'    => %q{
+      'Name' => 'SOCKS Proxy Server',
+      'Description' => %q{
         This module provides a SOCKS proxy server that uses the builtin Metasploit routing to relay connections.
       },
-      'Author'         => [ 'sf', 'Spencer McIntyre', 'surefire' ],
-      'License'        => MSF_LICENSE,
-      'Actions'        =>
+      'Author' => [ 'sf', 'Spencer McIntyre', 'surefire' ],
+      'License' => MSF_LICENSE,
+      'Actions' =>
         [
           [ 'Proxy', 'Description' => 'Run a SOCKS proxy server' ]
         ],
@@ -26,15 +25,15 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Proxy'
         ],
-      'DefaultAction'  => 'Proxy'
+      'DefaultAction' => 'Proxy'
     )
 
     register_options([
-      OptString.new('SRVHOST',  [true,  'The address to listen on', '0.0.0.0']),
-      OptPort.new('SRVPORT',    [true,  'The port to listen on', 1080]),
-      OptEnum.new('VERSION',    [ true, 'The SOCKS version to use', '5', %w( 4a 5 ) ]),
-      OptString.new('USERNAME', [false, 'Proxy username for SOCKS5 listener'], conditions: %w( VERSION == 5 )),
-      OptString.new('PASSWORD', [false, 'Proxy password for SOCKS5 listener'], conditions: %w( VERSION == 5 )),
+      OptString.new('SRVHOST', [true, 'The address to listen on', '0.0.0.0']),
+      OptPort.new('SRVPORT', [true, 'The port to listen on', 1080]),
+      OptEnum.new('VERSION', [ true, 'The SOCKS version to use', '5', %w[4a 5] ]),
+      OptString.new('USERNAME', [false, 'Proxy username for SOCKS5 listener'], conditions: %w[VERSION == 5]),
+      OptString.new('PASSWORD', [false, 'Proxy password for SOCKS5 listener'], conditions: %w[VERSION == 5]),
     ])
   end
 
@@ -57,9 +56,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     opts = {
-      'ServerHost'     => datastore['SRVHOST'],
-      'ServerPort'     => datastore['SRVPORT'],
-      'Context'        => {'Msf' => framework, 'MsfExploit' => self}
+      'ServerHost' => datastore['SRVHOST'],
+      'ServerPort' => datastore['SRVPORT'],
+      'Context' => { 'Msf' => framework, 'MsfExploit' => self }
     }
 
     if datastore['VERSION'] == '5'
