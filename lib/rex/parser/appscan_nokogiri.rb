@@ -290,6 +290,7 @@ module Rex
       # only one result can be returned, as the +port+ field restricts potential results to a single service
       db.services(:workspace => @args[:workspace],
                   :hosts => {address: address},
+                  :proto => 'tcp',
                   :port => port).first
     end
 
