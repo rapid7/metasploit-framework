@@ -52,8 +52,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(0),
-        OptString.new('NBNAME', [ true, 'The server\'s NetBIOS name', '' ]),
+        OptPort.new('RPORT', [ false, 'The netlogon RPC port' ]),
+        OptString.new('NBNAME', [ true, 'The server\'s NetBIOS name' ]),
         OptString.new('PASSWORD', [ false, 'The password to restore for the machine account (in hex)' ], conditions: %w[ACTION == RESTORE]),
       ]
     )
