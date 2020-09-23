@@ -63,6 +63,8 @@ def hash_to_jtr(cred)
       # /des(crypt)/
       # /mediawiki|phpass|atlassian/
       # /dynamic_82/
+      # /ssha/
+      # /raw-sha512/
       return "#{cred.public.username}:#{cred.private.data}:#{cred.id}:"
     end
   end

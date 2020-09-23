@@ -203,11 +203,15 @@ module Msf
               normalized << "* [#{ref.ctx_val}](#{ref.site})"
             when 'URL'
               normalized << "* [#{ref.site}](#{ref.site})"
+            when 'OSVDB'
+              normalized << "* #{ref.site.to_s}"
             when 'US-CERT-VU'
               normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
             when 'CVE', 'cve'
               if !cve_collection.empty? && ref.ctx_val.blank?
                 normalized << "* #{NO_CVE_MESSAGE}"
+              else
+                normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
               end
             else
               normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"

@@ -10,7 +10,7 @@ The Catalyst 2950 config can be found [here](https://github.com/h00die/MSF-Testi
 
 The UC520 config can be found [here](https://raw.githubusercontent.com/h00die/MSF-Testing-Scripts/master/cisco-uc520.config)
 
-This module will look for the follow parameters which contain credentials:
+This module will look for the following parameters which contain credentials:
 
 * IOS
   * enable

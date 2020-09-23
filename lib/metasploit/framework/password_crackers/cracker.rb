@@ -186,6 +186,20 @@ module Metasploit
             '10200'
           when 'dynamic_82'
             '1710'
+          when 'ssha'
+            '111'
+          when 'raw-sha512'
+            '1700'
+          when 'raw-sha1'
+            '100'
+          when 'raw-md5'
+            '0'
+          when 'smd5'
+            '6300'
+          when 'ssha256'
+            '1411'
+          when 'ssha512'
+            '1711'
           else
             nil
           end
