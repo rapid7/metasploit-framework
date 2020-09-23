@@ -63,10 +63,13 @@ class EncodedPayload
       # First, validate
       pinst.validate()
 
-      # Tell the payload how much space is available
-      pinst.available_space = self.space
-      # Reserve 10% of the available space if encoding is required
-      pinst.available_space -= (self.space * 0.1).ceil if needs_encoding
+      # Propagate space information when set
+      unless self.space.nil?
+        # Tell the payload how much space is available
+        pinst.available_space = self.space
+        # Reserve 10% of the available space if encoding is required
+        pinst.available_space -= (self.space * 0.1).ceil if needs_encoding
+      end
 
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
