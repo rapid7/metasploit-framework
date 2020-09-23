@@ -32,6 +32,19 @@ class MetasploitModule < Msf::Post
     print_good("Stored information about the installed products to the loot file at #{file}")
   end
 
+  def enumerate_android_packages
+    if command_exists?('pm') == false
+      print_error("The command 'pm' does not exist on the host")
+      return nil
+    end
+    listing = cmd_exec('pm list packages -f').to_s
+    if listing.empty?
+      print_error('No results were returned when trying to get software installed on the Linux host. An error likely occured.')
+      return nil
+    end
+    listing
+  end
+
   # Run Method for when run command is issued
   def run
     case session.platform
@@ -107,7 +120,7 @@ class MetasploitModule < Msf::Post
       end
       command_result = cmd_exec('system_profiler SPApplicationsDataType').to_s
       if command_result.empty?
-        print_error("No results were returned when trying to get software installed on the OSX host via system_profiler!")
+        print_error('No results were returned when trying to get software installed on the OSX host via system_profiler!')
         return
       end
       listing += command_result
@@ -127,14 +140,24 @@ class MetasploitModule < Msf::Post
       file = store_loot('host.osx.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
       print_good("Stored information about the installed products to the loot file at #{file}")
     when 'android'
-      if command_exists?('pm') == false
-        print_error("The command 'pm' does not exist on the host")
-        return
-      end
-      listing = cmd_exec('pm list packages -f').to_s
-      if listing.empty?
-        print_error('No results were returned when trying to get software installed on the Linux host. An error likely occured.')
-        return
+      if is_root?
+        if command_exists?('dumpsys') == false
+          print_error("Something is odd with this Android device. You are root but the dumpsys command doesn't exist. Perhaps the device is too old?")
+          return
+        end
+        listing = cmd_exec('dumpsys package packages').to_s
+        if listing.empty?
+          print_error('Something went wrong with the command and no output was returned!')
+          return
+        elsif listing =~ /android.permission.DUMP/
+          print_warning('You do not have the permissions needed to dump the versions of software installed. Reverting to just enumerating what software is installed.')
+          listing = enumerate_android_packages
+          return if listing.nil?
+        end
+      else
+        print_warning('You do not have the permissions needed to dump the versions of software installed. Reverting to just enumerating what software is installed.')
+        listing = enumerate_android_packages
+        return if listing.nil?
       end
       file = store_loot('host.android.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
       print_good("Stored information about the installed products to the loot file at #{file}")
