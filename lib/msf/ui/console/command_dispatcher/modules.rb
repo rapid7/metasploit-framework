@@ -1277,7 +1277,7 @@ module Msf
                       count += 1,
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
-                      o.rank_to_s,
+                      o.rank,
                       o.has_check? ? 'Yes' : 'No',
                       o.name
                     ]
