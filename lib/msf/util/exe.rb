@@ -1447,7 +1447,6 @@ require 'digest/sha1'
     read_replace_script_template("to_powershell.hta.template", hash_sub)
   end
 
-<<<<<<< HEAD
   def self.to_python_reflection(framework, arch, code, exeopts)
     unless [ ARCH_X86, ARCH_X64, ARCH_AARCH64, ARCH_ARMLE, ARCH_MIPSBE, ARCH_MIPSLE, ARCH_PPC ].include? arch
       raise RuntimeError, "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
@@ -1475,14 +1474,14 @@ require 'digest/sha1'
     PYTHON
 
     "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
-=======
+  end
+
   def self.to_win32pe_psh_msil(framework, code, opts = {})
     Rex::Powershell::Payload.to_win32pe_psh_msil(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
   def self.to_win32pe_psh_rc4(framework, code, opts = {})
     Rex::Powershell::Payload.to_win32pe_psh_rc4(Rex::Powershell::Templates::TEMPLATE_DIR, code)
->>>>>>> Add PSH generation methods to Util::Exe
   end
 
   def self.to_jsp(exe)
