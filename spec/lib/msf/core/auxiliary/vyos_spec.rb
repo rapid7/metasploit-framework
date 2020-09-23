@@ -129,12 +129,56 @@ RSpec.describe Msf::Auxiliary::VYOS do
       aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
     end
 
+    it 'deals with file not found' do
+      data = "No such file or directory"
+      aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
+    end
+
+    it 'deals with permission denied' do
+      data = "cat: /config/config.boot: Permission denied"
+      aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
+    end
+
     it 'deals with admin password' do
       data = "login {\n"
       data << "    user vyos {\n"
       data << "        authentication {\n"
       data << "            encrypted-password $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1\n"
       data << "            plaintext-password \"\"\n"
+      data << "        }\n"
+      data << "        level admin\n"
+      data << "    }\n"
+      data << "}"
+      expect(aux_vyos).to receive(:print_good).with("127.0.0.1:161 Username 'vyos' with level 'admin' with hash $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1")
+      expect(aux_vyos).to receive(:vprint_good).with("127.0.0.1:161 Config saved to: ")
+      expect(aux_vyos).to receive(:store_loot).with(
+        'vyos.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'VyOS Configuration'
+      )
+      expect(aux_vyos).to receive(:create_credential_and_login).with(
+        {
+          address: '127.0.0.1',
+          port: 161,
+          protocol: 'udp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          access_level: 'admin',
+          module_fullname: 'auxiliary/scanner/snmp/vyos_dummy',
+          jtr_format: 'md5',
+          username: 'vyos',
+          private_data: '$1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1',
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      )
+      aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
+    end
+
+    it 'deals with admin password with no plaintext field' do
+      data = "login {\n"
+      data << "    user vyos {\n"
+      data << "        authentication {\n"
+      data << "            encrypted-password $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1\n"
       data << "        }\n"
       data << "        level admin\n"
       data << "    }\n"

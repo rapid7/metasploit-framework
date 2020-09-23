@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    # Get device prompt, but also used to clear the screen
-    prompt = session.shell_command("\n")
+    # Clear the screen
+    session.shell_command("\n")
 
     # Get version info
     print_status('Getting version information')
@@ -71,7 +71,6 @@ class MetasploitModule < Msf::Post
       command = ec['cmd']
       cmd_out = session.shell_command(command).gsub(/#{command}/, '')
       print_status("Gathering info from #{command}")
-      # detect if we're in pagination and get as much data as possible
       vyos_config_eater(host, port, cmd_out.strip)
     end
   end

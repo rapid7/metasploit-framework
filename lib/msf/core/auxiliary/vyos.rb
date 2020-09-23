@@ -31,7 +31,7 @@ module Msf
         credential_data[:protocol] = 'udp'
       end
 
-      if store && !config.include?('such file or directory')
+      if store && !config.include?('such file or directory') && !config.include?('ermission denied')
         l = store_loot('vyos.config', 'text/plain', thost, config.strip, 'config.txt', 'VyOS Configuration')
         vprint_good("#{thost}:#{tport} Config saved to: #{l}")
       end
@@ -75,16 +75,17 @@ module Msf
       #    }
       # }
 
+      # plaintext-password can also be missing: https://github.com/rapid7/metasploit-framework/pull/14161#discussion_r492884039
+
       r =  'user ([^ ]+) {\s*authentication {\s*'
       r << 'encrypted-password (\$?[\w$\./\*]*)\s*' # leading $ is optional incase the password is all stars
-      r << 'plaintext-password "([^"]*)"\s*'
-      r << '}(?:\s*'
-      r << 'full-name "([^"]*)")?\s*'
-      r << 'level (operator|admin)'
+      r << '(?:plaintext-password "([^"]*)")?\s*' # optional
+      r << '}'
+      r << '(?:\s*full-name "([^"]*)")?\s*' # optional
+      r << 'level (operator|admin)' # 1.3+ seems to have removed operator
       config.scan(/#{Regexp.new(r)}/mi).each do |result|
         username = result[0].strip
         hash = result[1].strip
-        plaintext = result[2].strip
         # full-name is an optional field
         # we label it, but dont actually use it.  Maybe future expansion?
         unless result[3].nil?
@@ -100,7 +101,8 @@ module Msf
         end
         cred[:access_level] = level
         create_credential_and_login(cred) if framework.db.active
-        unless plaintext.empty?
+        unless result[2].to_s.strip.empty?
+          plaintext = result[2].strip
           cred[:jtr_format] = ''
           cred[:private_type] = :password
           cred[:private_data] = plaintext
