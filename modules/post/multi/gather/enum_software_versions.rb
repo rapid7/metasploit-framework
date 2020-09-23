@@ -100,15 +100,30 @@ class MetasploitModule < Msf::Post
       file = store_loot('host.bsd.solaris.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
       print_good("Stored information about the installed products to the loot file at #{file}")
     when 'osx'
+      listing = ""
       if command_exists?('system_profiler') == false
-        print_error("The command 'system_profiler' does not exist on the host")
+        print_error("The command 'system_profiler' does not exist on the host! Something is seriously wrong!")
         return
       end
-      listing = cmd_exec('system_profiler SPApplicationsDataType').to_s
-      if listing.empty?
-        print_error('No results were returned when trying to get software installed on the OSX host. An error likely occured.')
+      command_result = cmd_exec('system_profiler SPApplicationsDataType').to_s
+      if command_result.empty?
+        print_error("No results were returned when trying to get software installed on the OSX host via system_profiler!")
         return
       end
+      listing += command_result
+
+      # Start enumerating other potential MacOS package managers now that
+      # the main system app manager has been enumerated.
+      if command_exists?('brew') # HomeBrew
+        listing += "\n\n----------------Brew Packages----------------\n"
+        listing += cmd_exec('brew list --versions')
+      end
+
+      if command_exists?('port') # MacPorts
+        listing += "\n\n----------------MacPorts Packages----------------\n"
+        listing += cmd_exec('port installed')
+      end
+
       file = store_loot('host.osx.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
       print_good("Stored information about the installed products to the loot file at #{file}")
     when 'android'
