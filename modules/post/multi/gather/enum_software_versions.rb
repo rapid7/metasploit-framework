@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Android::Priv
 
   def initialize(info = {})
     super(
@@ -85,7 +86,7 @@ class MetasploitModule < Msf::Post
         cmd = %w[nix-env -q]
       else
         print_error("The target system either doesn't have a package manager system, or does not use a known package manager system!")
-        print_error('Unable to enumerate the softwaare on the target system. Exiting...')
+        print_error('Unable to enumerate the software on the target system. Exiting...')
         return nil
       end
 
