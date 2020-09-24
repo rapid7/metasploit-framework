@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.0.8)
+    metasploit-framework (6.0.9)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -121,7 +121,7 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.371.0)
+    aws-partitions (1.374.0)
     aws-sdk-core (3.107.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -190,7 +190,7 @@ GEM
     i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     io-console (0.5.6)
-    irb (1.2.6)
+    irb (1.2.7)
       reline (>= 0.1.5)
     jmespath (1.4.0)
     jsobfu (0.4.2)
@@ -254,11 +254,11 @@ GEM
     packetfu (1.1.13)
       pcaprub
     parallel (1.19.2)
-    parser (2.7.1.4)
+    parser (2.7.1.5)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.13.0)
-    pdf-reader (2.4.0)
+    pdf-reader (2.4.1)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -294,7 +294,7 @@ GEM
     recog (2.3.14)
       nokogiri
     redcarpet (3.5.0)
-    regexp_parser (1.7.1)
+    regexp_parser (1.8.0)
     reline (0.1.5)
       io-console (~> 0.5)
     rex-arch (0.1.13)
@@ -334,7 +334,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.23)
+    rex-socket (0.1.24)
       rex-core
     rex-sslscan (0.1.5)
       rex-core
@@ -369,7 +369,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.9.3)
-    rubocop (0.91.0)
+    rubocop (0.91.1)
       parallel (~> 1.10)
       parser (>= 2.7.1.1)
       rainbow (>= 2.2.2, < 4.0)
@@ -378,7 +378,7 @@ GEM
       rubocop-ast (>= 0.4.0, < 1.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (0.4.1)
+    rubocop-ast (0.4.2)
       parser (>= 2.7.1.4)
     ruby-macho (2.2.0)
     ruby-prof (1.4.1)
@@ -399,7 +399,7 @@ GEM
     simplecov (0.18.2)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
-    simplecov-html (0.12.2)
+    simplecov-html (0.12.3)
     simpleidn (0.1.1)
       unf (~> 0.1.4)
     sinatra (2.1.0)
