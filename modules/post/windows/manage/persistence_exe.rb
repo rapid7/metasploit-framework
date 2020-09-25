@@ -29,16 +29,14 @@ class MetasploitModule < Msf::Post
       [
         OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER', 'SYSTEM', 'SERVICE']]),
         OptPath.new('REXEPATH', [true, 'The remote executable to upload and execute.']),
-        OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe'])
+        OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe']),
+        OptBool.new('RUN_NOW', [false, 'Run the installed payload immediately.', true]),
       ], self.class
     )
 
     register_advanced_options(
       [
         OptString.new('LocalExePath', [false, 'The local exe path to run. Use temp directory as default. ']),
-        OptBool.new('RUN_NOW',
-          [false, 'Run the installed payload immediately.', true]
-        ),
         OptString.new('StartupName',   [false, 'The name of service or registry. Random string as default.' ]),
         OptString.new('ServiceDescription',   [false, 'The description of service. Random string as default.' ])
       ])
