@@ -11,7 +11,8 @@ module Msf
     module Debug
       COMMAND_HISTORY_TOTAL = 50
       ERROR_TOTAL = 10
-      LOG_LINE_TOTAL = 50
+      FRAMEWORK_LOG_LINE_TOTAL = 50
+      WEB_SERVICE_LOG_LINE_TOTAL = 300
       ISSUE_LINK = 'https://github.com/rapid7/metasploit-framework/issues/new/choose'
       PREAMBLE = <<~PREMABLE
         Please provide the below information in any Github issues you open. New issues can be opened here #{ISSUE_LINK.dup}
@@ -160,19 +161,17 @@ module Msf
       end
 
       def self.logs
+        framework_log_section = build_file_section(Pathname.new(Msf::Config.log_directory).join('framework.log'),
+                                                   FRAMEWORK_LOG_LINE_TOTAL,
+                                                  'Framework Logs',
+                                                  'The following framework logs were recorded before the issue occurred:')
 
-        log_lines = File.readlines(File.join(Msf::Config.log_directory, 'framework.log'))
+        web_service_log_section = build_file_section(Pathname.new(Msf::Config.log_directory).join('msf-ws.log'),
+                                                     WEB_SERVICE_LOG_LINE_TOTAL,
+                                                    'Web Service Logs',
+                                                    'The following web service logs were recorded before the issue occurred:')
 
-        logs_str = concat_str_array_from_last_idx(log_lines, LOG_LINE_TOTAL)
-
-        build_section(
-          'Logs',
-          'The following logs were recorded before the issue occurred:',
-          logs_str
-        )
-      rescue StandardError => e
-        section_build_error('Failed to extract Logs', e)
-
+        framework_log_section + web_service_log_section
       end
 
       def self.versions(framework)
@@ -193,6 +192,23 @@ module Msf
       class << self
 
         private
+
+        def build_file_section(path, line_total, header_name, blurb)
+          if File.file?(path)
+            log_lines = File.readlines(path)
+            str = concat_str_array_from_last_idx(log_lines, line_total)
+          else
+            str = "#{path.basename.to_s} does not exist."
+          end
+
+          build_section(
+            header_name,
+            blurb,
+            str
+          )
+        rescue StandardError => e
+          section_build_error("Failed to extract contents of #{path.basename.to_s}", e)
+        end
 
         def add_hash_to_ini_group(ini, hash, group_name)
           if hash.empty?
