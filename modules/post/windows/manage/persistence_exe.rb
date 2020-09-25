@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Post
       end
 
       # if service is stopped, then start it.
-      service_start(nam) if service_status(nam)[:state] == 1
+      service_start(nam) if datastore['RUN_NOW'] and service_status(nam)[:state] == 1
 
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
