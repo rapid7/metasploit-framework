@@ -93,7 +93,7 @@ RSpec.describe Msf::Auxiliary::VYOS do
       expect(aux_vyos).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
 
-    it 'deals with user passwords' do
+    it 'deals with v1.1.8 user passwords' do
       data = "login {\n"
       data << "user jsmith {\n"
       data << "        authentication {\n"
@@ -129,6 +129,41 @@ RSpec.describe Msf::Auxiliary::VYOS do
       aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
     end
 
+    it 'deals with v1.3 user passwords' do
+      data = "login {\n"
+      data << "user jsmith {\n"
+      data << "        authentication {\n"
+      data << "            encrypted-password $6$ELBrDuW7c/8$nN7MwUST8s8O0R6HMNu/iPoTQ1s..y8HTnXraJ7Hh4bHefRmjt/2U08ZckEw4FU034wbWaeCaB5hq7mC6fNXl/\n"
+      data << "            plaintext-password \"\"\n"
+      data << "        }\n"
+      data << "        full-name \"John Smith\"\n"
+      data << "    }\n"
+      data << "}"
+      expect(aux_vyos).to receive(:print_good).with("127.0.0.1:161 Username 'jsmith' with level 'admin' with hash $6$ELBrDuW7c/8$nN7MwUST8s8O0R6HMNu/iPoTQ1s..y8HTnXraJ7Hh4bHefRmjt/2U08ZckEw4FU034wbWaeCaB5hq7mC6fNXl/")
+      expect(aux_vyos).to receive(:vprint_good).with("127.0.0.1:161 Config saved to: ")
+      expect(aux_vyos).to receive(:store_loot).with(
+        'vyos.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'VyOS Configuration'
+      )
+      expect(aux_vyos).to receive(:create_credential_and_login).with(
+        {
+          address: '127.0.0.1',
+          port: 161,
+          protocol: 'udp',
+          workspace_id: workspace.id,
+          access_level: 'admin',
+          origin_type: :service,
+          service_name: '',
+          module_fullname: 'auxiliary/scanner/snmp/vyos_dummy',
+          jtr_format: 'sha512,crypt',
+          username: 'jsmith',
+          private_data: '$6$ELBrDuW7c/8$nN7MwUST8s8O0R6HMNu/iPoTQ1s..y8HTnXraJ7Hh4bHefRmjt/2U08ZckEw4FU034wbWaeCaB5hq7mC6fNXl/',
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      )
+      aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
+    end
+
     it 'deals with file not found' do
       data = "No such file or directory"
       aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
@@ -139,7 +174,7 @@ RSpec.describe Msf::Auxiliary::VYOS do
       aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
     end
 
-    it 'deals with admin password' do
+    it 'deals with v1.1.8 admin password' do
       data = "login {\n"
       data << "    user vyos {\n"
       data << "        authentication {\n"
@@ -147,6 +182,40 @@ RSpec.describe Msf::Auxiliary::VYOS do
       data << "            plaintext-password \"\"\n"
       data << "        }\n"
       data << "        level admin\n"
+      data << "    }\n"
+      data << "}"
+      expect(aux_vyos).to receive(:print_good).with("127.0.0.1:161 Username 'vyos' with level 'admin' with hash $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1")
+      expect(aux_vyos).to receive(:vprint_good).with("127.0.0.1:161 Config saved to: ")
+      expect(aux_vyos).to receive(:store_loot).with(
+        'vyos.config', 'text/plain', '127.0.0.1', data, 'config.txt', 'VyOS Configuration'
+      )
+      expect(aux_vyos).to receive(:create_credential_and_login).with(
+        {
+          address: '127.0.0.1',
+          port: 161,
+          protocol: 'udp',
+          workspace_id: workspace.id,
+          origin_type: :service,
+          service_name: '',
+          access_level: 'admin',
+          module_fullname: 'auxiliary/scanner/snmp/vyos_dummy',
+          jtr_format: 'md5',
+          username: 'vyos',
+          private_data: '$1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1',
+          private_type: :nonreplayable_hash,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+      )
+      aux_vyos.vyos_config_eater('127.0.0.1', 161, data)
+    end
+
+    it 'deals with v1.3 admin password' do
+      data = "login {\n"
+      data << "    user vyos {\n"
+      data << "        authentication {\n"
+      data << "            encrypted-password $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1\n"
+      data << "            plaintext-password \"\"\n"
+      data << "        }\n"
       data << "    }\n"
       data << "}"
       expect(aux_vyos).to receive(:print_good).with("127.0.0.1:161 Username 'vyos' with level 'admin' with hash $1$5HsQse2v$VQLh5eeEp4ZzGmCG/PRBA1")

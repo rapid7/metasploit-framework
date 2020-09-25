@@ -77,12 +77,14 @@ module Msf
 
       # plaintext-password can also be missing: https://github.com/rapid7/metasploit-framework/pull/14161#discussion_r492884039
 
+      # in >= 1.3 'level' is no longer included and defaults to admin.
+
       r =  'user ([^ ]+) {\s*authentication {\s*'
       r << 'encrypted-password (\$?[\w$\./\*]*)\s*' # leading $ is optional incase the password is all stars
       r << '(?:plaintext-password "([^"]*)")?\s*' # optional
       r << '}'
       r << '(?:\s*full-name "([^"]*)")?\s*' # optional
-      r << 'level (operator|admin)' # 1.3+ seems to have removed operator
+      r << '(?:level (operator|admin))?' # 1.3+ seems to have removed operator
       config.scan(/#{Regexp.new(r)}/mi).each do |result|
         username = result[0].strip
         hash = result[1].strip
@@ -91,7 +93,11 @@ module Msf
         unless result[3].nil?
           name = result[3].strip
         end
-        level = result[4].strip
+        if result[4].nil?
+          level = 'admin'
+        else
+          level = result[4].strip
+        end
         cred = credential_data.dup
         cred[:username] = username
         unless hash.start_with?('********') # if not in config mode these are masked
