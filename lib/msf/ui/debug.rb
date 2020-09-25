@@ -11,7 +11,7 @@ module Msf
     module Debug
       COMMAND_HISTORY_TOTAL = 50
       FRAMEWORK_LOG_LINE_TOTAL = 50
-      WEB_SERVICE_LOG_LINE_TOTAL = 300
+      WEB_SERVICE_LOG_LINE_TOTAL = 150
 
       # "[mm/dd/yyyy hh:mm:ss] [e([ANY_NUMBER])]" Indicates the start of an error message
       # The end of an error message is indicated by the start of the next log message [mm/dd/yyyy hh:mm:ss] [[ANY_LETTER]([ANY_NUMBER])]
