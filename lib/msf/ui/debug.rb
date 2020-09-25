@@ -180,6 +180,7 @@ module Msf
                                                               WEB_SERVICE_ERROR_REGEX,
                                                               'Web Service Errors',
                                                               'The following web service errors occurred before the issue occurred:')
+        errors
       end
 
       def self.logs
@@ -192,6 +193,7 @@ module Msf
                                                      WEB_SERVICE_LOG_LINE_TOTAL,
                                                     'Web Service Logs',
                                                     'The following web service logs were recorded before the issue occurred:')
+        logs
       end
 
       def self.versions(framework)
@@ -215,7 +217,7 @@ module Msf
 
         def build_regex_file_section(path, match_total, regex, header_name, blurb)
           unless File.file?(path)
-            build_section(
+            return build_section(
               header_name,
               blurb,
               "#{path.basename.to_s} does not exist."
