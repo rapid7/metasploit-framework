@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
     ]
     exec_commands.each do |ec|
       command = ec['cmd']
-      cmd_out = session.shell_command(command).gsub(/#{command}/, '')
+      cmd_out = session.shell_command(command).gsub(command, '')
       print_status("Gathering info from #{command}")
       vyos_config_eater(host, port, cmd_out.strip)
     end
