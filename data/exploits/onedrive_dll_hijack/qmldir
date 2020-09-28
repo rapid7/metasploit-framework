@@ -1,0 +1,5 @@
+module QtQuick
+plugin qtquick2plugin
+classname QtQuick2Plugin
+typeinfo plugins.qmltypes
+designersupported
