@@ -27,12 +27,12 @@ class MetasploitModule < Msf::Post
     env_vars = session.sys.config.getenvs('SystemDrive', 'USERNAME')
     sysdrv = env_vars['SystemDrive']
 
-    if os =~ /Windows 7|Vista|2008/
-      path4users = sysdrv + "\\Users\\"
-      profilepath = "\\Documents\\WindowsPowerShell\\"
-    else
+    if os =~ /XP|2003/
       path4users = sysdrv + "\\Documents and Settings\\"
       profilepath = "\\My Documents\\WindowsPowerShell\\"
+    else
+      path4users = sysdrv + "\\Users\\"
+      profilepath = "\\Documents\\WindowsPowerShell\\"
     end
 
     if is_system?

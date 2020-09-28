@@ -248,22 +248,9 @@ class Framework
     }
   end
 
-  # TODO: Anything still using this should be ported to use metadata::cache search
-  def search(match, logger: nil)
-    # Do an in-place search
-    matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
-      mset.each do |m|
-        begin
-          o = mset.create(m[0])
-          if o && !o.search_filter(match)
-            matches << o
-          end
-        rescue
-        end
-      end
-    end
-    matches
+  def search(search_string)
+    search_params = Msf::Modules::Metadata::Search.parse_search_string(search_string)
+    Msf::Modules::Metadata::Cache.instance.find(search_params)
   end
 
 protected

@@ -614,6 +614,8 @@ class Core
 
       framework.features.set(feature_name, value == 'true')
       print_line("#{feature_name} => #{value}")
+      # Reload the current module, as feature flags may impact the available module options etc
+      driver.run_single("reload") if driver.active_module
     when 'print'
       if framework.features.all.empty?
         print_line 'There are no features to enable at this time. Either the features have been removed, or integrated by default.'
@@ -644,7 +646,7 @@ class Core
 
       print_line features_table.to_s
     else
-      cmd_help
+      cmd_features_help
     end
   rescue StandardError => e
     elog(e)

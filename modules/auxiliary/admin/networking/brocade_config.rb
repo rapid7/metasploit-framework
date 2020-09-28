@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Brocade device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die']
+        'Author' => ['h00die']
       )
     )
 
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Brocade config file #{datastore['CONFIG']} does not exists!"
+      fail_with Failure::BadConfig, "Brocade config file #{datastore['CONFIG']} does not exist!"
     end
     brocade_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')

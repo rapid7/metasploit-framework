@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports a Juniper ScreenOS or JunOS device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'h00die'],
+        'Author' => ['h00die'],
         'Actions' =>
           [
             ['JUNOS', 'Description' => 'Import JunOS Config File'],
@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(datastore['CONFIG'])
-      fail_with Failure::BadConfig, "Juniper config file #{datastore['CONFIG']} does not exists!"
+      fail_with Failure::BadConfig, "Juniper config file #{datastore['CONFIG']} does not exist!"
     end
     juniper_config = ::File.open(datastore['CONFIG'], 'rb')
     print_status('Importing config')

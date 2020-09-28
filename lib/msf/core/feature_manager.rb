@@ -20,6 +20,11 @@ module Msf
         name: 'wrapped_tables',
         description: 'When enabled Metasploit will wordwrap all tables to fit into the available terminal width',
         default_value: false
+      }.freeze,
+      {
+        name: 'RHOST_HTTP_URL',
+        description: 'When enabled in supported modules you can specify a URL as a target',
+        default_value: false
       }.freeze
     ].freeze
 

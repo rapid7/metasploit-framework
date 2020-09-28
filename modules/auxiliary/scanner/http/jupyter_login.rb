@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     destination = res.headers['Location'].split('?', 2)[0]
     return true if destination.end_with?(normalize_uri(target_uri.path, 'login'))
 
-    fail_with(Failure::UnexpectedReply, "#{peer} - The server responded with a redirect that did not match a known fingerprint")
+    fail_with(Failure::UnexpectedReply, "The server responded with a redirect that did not match a known fingerprint")
   end
 
   def run_host(ip)
@@ -56,11 +56,11 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api')
     })
-    version = res.get_json_document.dig('version')
-    if version.nil?
-      print_error "#{peer} - The server does not appear to be running Jupyter (failed to fetch the API version)"
-      return
-    end
+    fail_with(Failure::Unreachable, 'Failed to fetch the Jupyter API version') if res.nil?
+
+    version = res&.get_json_document&.dig('version')
+    fail_with(Failure::UnexpectedReply, 'Failed to fetch the Jupyter API version') if version.nil?
+
     vprint_status "#{peer} - The server responded that it is running Jupyter version: #{version}"
 
     unless requires_password?(ip)

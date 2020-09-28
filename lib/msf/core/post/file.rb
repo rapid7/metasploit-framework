@@ -264,10 +264,11 @@ module Msf::Post::File
   # @param data [String]
   # @return [void]
   def file_local_write(local_file_name, data)
-    unless ::File.exist?(local_file_name)
-      ::FileUtils.touch(local_file_name)
+    fname = Rex::FileUtils.clean_path(local_file_name)
+    unless ::File.exist?(fname)
+      ::FileUtils.touch(fname)
     end
-    output = ::File.open(local_file_name, "a")
+    output = ::File.open(fname, "a")
     data.each_line do |d|
       output.puts(d)
     end

@@ -9,6 +9,9 @@ require 'rex/proto/proxy/socks5'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2020, 12, 29), reason="Use auxiliary/server/socks_proxy and set VERSION to 5")
+
   def initialize
     super(
       'Name'           => 'Socks5 Proxy Server',

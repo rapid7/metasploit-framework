@@ -36,11 +36,12 @@ require 'msf/core/auxiliary/mms'
 # Networking
 #
 
+require 'msf/core/auxiliary/arista'
+require 'msf/core/auxiliary/brocade'
 require 'msf/core/auxiliary/cisco'
 require 'msf/core/auxiliary/juniper'
-require 'msf/core/auxiliary/brocade'
-require 'msf/core/auxiliary/ubiquiti'
 require 'msf/core/auxiliary/mikrotik'
+require 'msf/core/auxiliary/ubiquiti'
 
 #
 # Custom HTTP modules

@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 15 * * *"
 name: Stale Bot workflow
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 30
           days-before-close: 30
-          operations-per-run: 10
+          operations-per-run: 25
           stale-issue-message: |
             Hi!
 
@@ -32,5 +32,5 @@ jobs:
 
             As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
           exempt-issue-labels: |
-            not stale
-          debug-only: true
+            not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs
+          debug-only: false
