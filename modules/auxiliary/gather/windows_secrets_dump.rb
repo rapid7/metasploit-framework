@@ -668,7 +668,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if hashes.empty?
-        print_line('No cached hashes on this system')
+      print_line('No cached hashes on this system')
     else
       print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{lsa_vista_style? ? 'mscash2' : 'mscash'}' format")
       print_line(hashes)
@@ -768,39 +768,20 @@ class MetasploitModule < Msf::Auxiliary
     ].include?(key)
   end
 
-  def aes256_cts_hmac_sha1_96_key(raw_secret, salt)
+  def aes_cts_hmac_sha1_96_key(algorithm, raw_secret, salt)
     iterations = 4096
-    key_len = 32
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
+    cipher = OpenSSL::Cipher::AES.new(algorithm)
+    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, cipher.key_len)
     plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
     rnd_seed = ''.b
     loop do
-      cipher = OpenSSL::Cipher.new('AES-256-CBC')
+      cipher.reset
       cipher.encrypt
       cipher.iv = "\x00".b * 16
       cipher.key = key
       ciphertext = cipher.update(plaintext)
       rnd_seed += ciphertext
-      break unless rnd_seed.size < 32
-      plaintext = ciphertext
-    end
-    rnd_seed.unpack('H*')[0]
-  end
-
-  def aes128_cts_hmac_sha1_96_key(raw_secret, salt)
-    iterations = 4096
-    key_len = 16
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
-    plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
-    rnd_seed = ''.b
-    loop do
-      cipher = OpenSSL::Cipher.new('AES-128-CBC')
-      cipher.encrypt
-      cipher.iv = "\x00".b * 16
-      cipher.key = key
-      ciphertext = cipher.update(plaintext)
-      rnd_seed += ciphertext
-      break unless rnd_seed.size < 16
+      break unless rnd_seed.size < cipher.key_len
       plaintext = ciphertext
     end
     rnd_seed.unpack('H*')[0]
@@ -851,8 +832,8 @@ class MetasploitModule < Msf::Auxiliary
 
     raw_secret = raw_secret.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace).b
 
-    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96_key(raw_secret, salt)}"
-    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96_key(raw_secret, salt)}"
+    secret << "aes256-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('256-CBC', raw_secret, salt)}"
+    secret << "aes128-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('128-CBC', raw_secret, salt)}"
     secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
 
     secret
