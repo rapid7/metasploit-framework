@@ -45,6 +45,7 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Interact with a module by name or search term/index",
+              "favorite"   => "Add current modules to the list of favorite modules",
             }
           end
 
@@ -58,6 +59,7 @@ module Msf
             @previous_module = nil
             @module_name_stack = []
             @module_search_results = []
+            @module_show_results = []
             @@payload_show_results = []
             @dangerzone_map = nil
           end
@@ -501,7 +503,7 @@ module Msf
           end
 
           def cmd_show_help
-            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options}
+            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options favorites}
             print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
             module_opts = %w{ missing advanced evasion targets actions }
@@ -545,6 +547,8 @@ module Msf
                   show_auxiliary
                 when 'post'
                   show_post
+                when 'favorites'
+                  show_favorites
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
@@ -611,7 +615,7 @@ module Msf
           def cmd_show_tabs(str, words)
             return [] if words.length > 1
 
-            res = %w{all encoders nops exploits payloads auxiliary post plugins options}
+            res = %w{all encoders nops exploits payloads auxiliary post plugins options favorites}
             if (active_module)
               res.concat %w{missing advanced evasion targets actions info}
               if (active_module.respond_to? :compatible_sessions)
@@ -971,6 +975,106 @@ module Msf
               driver.destack_dispatcher
             end
           end
+        
+          def cmd_favorite_help
+            print_line 'Usage: favorite [mod1 mod2 ...]'
+            print_line
+            print_line 'Add current module to the list of favorite modules'
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -d                Delete the provided module(s) from the fav_modules file"
+            print_line "  -D                Delete the fav_modules file"
+          end
+
+          #
+          # Helper method for cmd_favorite that writes modules to the fav_modules_file
+          #
+          def cmd_favorite_process(mod, del)
+            favs_file = Msf::Config.fav_modules_file
+            if File.exists?(favs_file)
+              unless File.readable?(favs_file)
+                print_error("Unable to read #{favs_file}")
+                return false
+              end
+              
+              contents = File.read(favs_file)
+              if contents.include?(mod.fullname)
+                unless del
+                  print_warning("Module #{mod.fullname} has already been favorited and will not be added to #{favs_file}")
+                  return
+                end
+
+                # remove module from contents (deletion happens below)
+                contents = contents.split("\n")
+                contents.delete(mod.fullname)
+
+              else
+                return if del #do nothing if fav_modules does not contain the module we need to delete
+              end
+            else
+              return if del
+            end
+
+            # finally, start adding/deleting stuff
+            begin 
+              if del
+                write_mode = 'w'
+                contents = contents.join("\n")
+                message = "Removed #{mod.fullname} from #{favs_file}"
+              else
+                write_mode = 'a+'
+                contents = mod.fullname
+                message = "Added #{mod.fullname} to #{favs_file}"
+              end
+              File.open(favs_file, write_mode) do |file|
+                file.puts(contents)
+              end
+            rescue Errno::EACCES => e
+              print_error("Unable to write to #{favs_file}")
+              return false
+            end
+            print_status("#{message}")
+            return true
+          end
+
+          #
+          # Add modules to the fav_modules file
+          #
+          def cmd_favorite(*args)
+            favs_file = Msf::Config.fav_modules_file
+            del = false
+
+            if args.include?('-D')
+              args.delete('-D')
+              print_status("Removing #{favs_file} if it exists")
+              File.delete(favs_file) if File.exist?(favs_file)
+              return
+            end
+
+            if args.include?('-d')
+              args.delete('-d')
+              del = true
+            end
+
+            if args.empty?
+              if (active_module)
+                cmd_favorite_process(active_module, del)
+              else
+                print_error('No module active')
+                return false
+              end
+            end
+
+            args.each { |name|
+              mod = framework.modules.create(name)
+
+              if (mod == nil)
+                print_error("Invalid module: #{name}")
+              else
+                cmd_favorite_process(mod, del)
+              end
+            }
+          end
 
           #
           # Tab complete module names
@@ -1104,6 +1208,28 @@ module Msf
 
           def show_post(regex = nil, minrank = nil, opts = nil) # :nodoc:
             show_module_set("Post", framework.post, regex, minrank, opts)
+          end
+
+          def show_favorites(regex = nil, minrank = nil, opts = nil) # :nodoc:
+            favs_file = Msf::Config.fav_modules_file
+            unless File.exists?(favs_file) && !File.zero?(favs_file)
+              print_error("#{favs_file} does not exist or is empty")
+              return
+            end
+
+            unless File.readable?(favs_file)
+              print_error("Unable to read from #{favs_file}")
+              return
+            end
+
+            # create module set using the saved modules
+            fav_modules = {}
+            saved_favs = File.readlines(favs_file)
+            saved_favs.each do |mod|
+              module_name = mod.strip
+              fav_modules[module_name] = framework.modules[module_name]
+            end
+            show_module_set("Favorites", fav_modules, regex, minrank, opts)
           end
 
           def show_missing(mod) # :nodoc:
