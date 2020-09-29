@@ -347,11 +347,7 @@ module Util
       res = []
       value_list = get_value_blocks(key.data.offset_value_list, key.data.num_values + 1)
       value_list.each do |value|
-        if value.data.flag > 0
-          res << value.data.name
-        else
-          res << 'default'.b
-        end
+        res << (value.data.flag > 0 ? value.data.name : nil)
       end
       res
     end
