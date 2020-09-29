@@ -896,15 +896,17 @@ class MetasploitModule < Msf::Auxiliary
         vprint_bad("Error when reporting #{print_name} NTLM hash")
       end
 
+
+      raw_passwd = secret_item.unpack('H*')[0]
+      credential_opts[:type] = :password
+      unless report_creds(print_name, raw_passwd, credential_opts)
+        vprint_bad("Error when reporting #{print_name} raw password hash")
+      end
+      secret = "#{print_name}:plain_password_hex:#{raw_passwd}\n"
+
       extra_secret = get_machine_kerberos_keys(secret_item, print_name)
       if extra_secret.empty?
         vprint_status('Could not calculate machine account Kerberos keys, printing plain password (hex encoded)')
-        raw_passwd = secret_item.unpack('H*')[0]
-        credential_opts[:type] = :password
-        unless report_creds(print_name, raw_passwd, credential_opts)
-          vprint_bad("Error when reporting #{print_name} raw password hash")
-        end
-        extra_secret = ["#{print_name}:plain_password_hex:#{raw_passwd}"]
       else
         credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
@@ -915,14 +917,14 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      secret = extra_secret.concat(secret_ary).join("\n")
+      secret << extra_secret.concat(secret_ary).join("\n")
     end
 
-    if secret != ''
-      print_line(secret)
-    else
+    if secret.empty?
       print_line(Rex::Text.to_hex_dump(secret_item).strip)
       print_line("Hex string: #{secret_item.unpack('H*')[0]}")
+    else
+      print_line(secret)
     end
     print_line
   end
