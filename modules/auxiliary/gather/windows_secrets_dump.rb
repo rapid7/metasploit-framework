@@ -4,6 +4,7 @@
 ##
 
 require 'msf/util/windows_registry_parser'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -654,16 +655,15 @@ class MetasploitModule < Msf::Auxiliary
           realm_value: logon_domain_name
         }
         if lsa_vista_style?
-          jtr_hash = "#{logon_domain_name}/#{username}:$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
-          credential_opts[:jtr_format] = 'mscash2'
+          jtr_hash = "$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
         else
-          jtr_hash = "#{logon_domain_name}/#{username}:M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
-          credential_opts[:jtr_format] = 'mscash'
+          jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
         end
+        credential_opts[:jtr_format] = identify_hash(jtr_hash)
         unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
           vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
         end
-        hashes << jtr_hash + "\n"
+        hashes << "#{logon_domain_name}\\#{username}:#{jtr_hash}\n"
       end
     end
 
@@ -851,9 +851,9 @@ class MetasploitModule < Msf::Auxiliary
 
     raw_secret = raw_secret.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace).b
 
-    secret << "#{machine_name}:aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96_key(raw_secret, salt)}"
-    secret << "#{machine_name}:aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96_key(raw_secret, salt)}"
-    secret << "#{machine_name}:des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
+    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96_key(raw_secret, salt)}"
+    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96_key(raw_secret, salt)}"
+    secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
 
     secret
   end
@@ -916,19 +916,21 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       extra_secret = get_machine_kerberos_keys(secret_item, print_name)
-      credential_opts[:type] = :password
       if extra_secret.empty?
         vprint_status('Could not calculate machine account Kerberos keys, printing plain password (hex encoded)')
-        raw_passwd = "#{print_name}:plain_password_hex:#{secret_item.unpack('H*')[0]}"
+        raw_passwd = secret_item.unpack('H*')[0]
+        credential_opts[:type] = :password
         unless report_creds(print_name, raw_passwd, credential_opts)
           vprint_bad("Error when reporting #{print_name} raw password hash")
         end
-        extra_secret = [raw_passwd]
+        extra_secret = ["#{print_name}:plain_password_hex:#{raw_passwd}"]
       else
+        credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
           unless report_creds(print_name, sec, credential_opts)
             vprint_bad("Error when reporting #{print_name} machine kerberos key #{sec}")
           end
+          sec.prepend("#{print_name}:")
         end
       end
 
