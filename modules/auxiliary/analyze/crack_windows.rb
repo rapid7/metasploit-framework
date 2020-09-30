@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MSCASH', [false, 'Crack M$ CASH hashes (1 and 2)', true]),
         OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
         OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true]),
-        OptBool.new('NORMAL', [false, 'Run in normal mode (John the Ripper only)', true])
+        OptBool.new('NORMAL', [false, 'Run in normal modei (John the Ripper only)', true])
       ]
     )
 
