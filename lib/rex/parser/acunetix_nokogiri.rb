@@ -509,7 +509,10 @@ module Rex
       address = resolve_address(host)
       return unless address
       # If we didn't create the service, we don't care about the site
-      service_object = db.get_service @args[:workspace], address, "tcp", port
+      service_object = db.services(:workspace => @args[:workspace],
+                                   :hosts => {address: address},
+                                   :proto => 'tcp',
+                                   :port => port).first
       return unless service_object
       web_site_info = {
         :workspace => @args[:workspace],
