@@ -668,7 +668,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if hashes.empty?
-        print_line('No cached hashes on this system')
+      print_line('No cached hashes on this system')
     else
       print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{lsa_vista_style? ? 'mscash2' : 'mscash'}' format")
       print_line(hashes)
@@ -768,39 +768,20 @@ class MetasploitModule < Msf::Auxiliary
     ].include?(key)
   end
 
-  def aes256_cts_hmac_sha1_96_key(raw_secret, salt)
+  def aes_cts_hmac_sha1_96_key(algorithm, raw_secret, salt)
     iterations = 4096
-    key_len = 32
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
+    cipher = OpenSSL::Cipher::AES.new(algorithm)
+    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, cipher.key_len)
     plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
     rnd_seed = ''.b
     loop do
-      cipher = OpenSSL::Cipher.new('AES-256-CBC')
+      cipher.reset
       cipher.encrypt
       cipher.iv = "\x00".b * 16
       cipher.key = key
       ciphertext = cipher.update(plaintext)
       rnd_seed += ciphertext
-      break unless rnd_seed.size < 32
-      plaintext = ciphertext
-    end
-    rnd_seed.unpack('H*')[0]
-  end
-
-  def aes128_cts_hmac_sha1_96_key(raw_secret, salt)
-    iterations = 4096
-    key_len = 16
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
-    plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
-    rnd_seed = ''.b
-    loop do
-      cipher = OpenSSL::Cipher.new('AES-128-CBC')
-      cipher.encrypt
-      cipher.iv = "\x00".b * 16
-      cipher.key = key
-      ciphertext = cipher.update(plaintext)
-      rnd_seed += ciphertext
-      break unless rnd_seed.size < 16
+      break unless rnd_seed.size < cipher.key_len
       plaintext = ciphertext
     end
     rnd_seed.unpack('H*')[0]
@@ -851,8 +832,8 @@ class MetasploitModule < Msf::Auxiliary
 
     raw_secret = raw_secret.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace).b
 
-    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96_key(raw_secret, salt)}"
-    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96_key(raw_secret, salt)}"
+    secret << "aes256-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('256-CBC', raw_secret, salt)}"
+    secret << "aes128-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('128-CBC', raw_secret, salt)}"
     secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
 
     secret
@@ -915,15 +896,17 @@ class MetasploitModule < Msf::Auxiliary
         vprint_bad("Error when reporting #{print_name} NTLM hash")
       end
 
+
+      raw_passwd = secret_item.unpack('H*')[0]
+      credential_opts[:type] = :password
+      unless report_creds(print_name, raw_passwd, credential_opts)
+        vprint_bad("Error when reporting #{print_name} raw password hash")
+      end
+      secret = "#{print_name}:plain_password_hex:#{raw_passwd}\n"
+
       extra_secret = get_machine_kerberos_keys(secret_item, print_name)
       if extra_secret.empty?
         vprint_status('Could not calculate machine account Kerberos keys, printing plain password (hex encoded)')
-        raw_passwd = secret_item.unpack('H*')[0]
-        credential_opts[:type] = :password
-        unless report_creds(print_name, raw_passwd, credential_opts)
-          vprint_bad("Error when reporting #{print_name} raw password hash")
-        end
-        extra_secret = ["#{print_name}:plain_password_hex:#{raw_passwd}"]
       else
         credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
@@ -934,14 +917,14 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      secret = extra_secret.concat(secret_ary).join("\n")
+      secret << extra_secret.concat(secret_ary).join("\n")
     end
 
-    if secret != ''
-      print_line(secret)
-    else
+    if secret.empty?
       print_line(Rex::Text.to_hex_dump(secret_item).strip)
       print_line("Hex string: #{secret_item.unpack('H*')[0]}")
+    else
+      print_line(secret)
     end
     print_line
   end
