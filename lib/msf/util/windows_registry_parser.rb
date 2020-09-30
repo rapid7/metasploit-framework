@@ -195,15 +195,15 @@ module Util
       raise StandardError, 'Cannot find the RootKey' unless reg_hbin
     end
 
-    def get_value(reg_key, reg_value)
+    def get_value(reg_key, reg_value = nil)
       reg_key = find_key(reg_key)
       return nil unless reg_key
 
       if reg_key.data.num_values > 0
         value_list = get_value_blocks(reg_key.data.offset_value_list, reg_key.data.num_values + 1)
         value_list.each do |value|
-          if value.data.name == reg_value ||
-             reg_value.downcase == 'default' && value.data.flag <= 0
+          if value.data.name == reg_value.to_s ||
+              reg_value.nil? && value.data.flag <= 0
             return value.data.value_type, get_value_data(value.data)
           end
         end
@@ -280,6 +280,7 @@ module Util
       end
     end
 
+    # 'lh' Subkey-List Hash Algorithm (from http://www.sentinelchicken.com/data/TheWindowsNTRegistryFileFormat.pdf (Appendix C))
     def get_lh_hash(key)
       res = 0
       key.upcase.bytes do |byte|
@@ -350,7 +351,7 @@ module Util
         if value.data.flag > 0
           res << value.data.name
         else
-          res << 'default'.b
+          res << nil
         end
       end
       res
