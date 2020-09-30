@@ -107,6 +107,10 @@ def identify_hash(hash)
       return 'hmac-md5'
     when hash.length == 114 && hash.start_with?('$M$')
       return 'F5-Secure-Vault'
+    when hash =~ /^M\$[[:print:]]+#[\da-fA-F]{32}(?:(?::[[:print:]]*$)|$)/
+      return 'mscash'
+    when hash =~ /^\$DCC2\$\d+#[[:print:]]+#[\da-fA-F]{32}(?:(?::[[:print:]]*$)|$)/
+      return 'mscash2'
   end
   ''
 end
