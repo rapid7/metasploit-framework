@@ -979,11 +979,12 @@ module Msf
           def cmd_favorite_help
             print_line 'Usage: favorite [mod1 mod2 ...]'
             print_line
-            print_line 'Add current module to the list of favorite modules'
+            print_line 'Add one or multiple modules to the list of favorite modules stored in the fav_modules file'
+            print_line 'If no module name is specified, the command will add the active module if there is one'
             print_line
-            print_line "OPTIONS:"
-            print_line "  -d                Delete the provided module(s) from the fav_modules file"
-            print_line "  -D                Delete the fav_modules file"
+            print_line 'OPTIONS:'
+            print_line '  -d                Delete the provided module(s) or the active module from the fav_modules file'
+            print_line '  -D                Delete the fav_modules file'
           end
 
           #
