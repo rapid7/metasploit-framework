@@ -60,6 +60,15 @@ The configuration password that was set when SecureCRT was installed, if one was
 Note that if this value is not supplied and SecureCRT was set up to use a configuration password,
 it will not be possible to decrypt the encrypted SecureCRT passwords that are retrieved.
 
+### SESSION_PATH
+The path to the SecureCRT session directory on the target's computer. By default this is normally
+stored at `C:\\Users\\*current user name*\\AppData\\Roaming\\VanDyke\\Config\\Sessions` if SecureCRT
+is installed on the system, however SecureCRT also has a portable version that stores the session information
+in a local folder along with the SecureCRT binary itself, allowing users to easily transfer their session
+information between machines. In this case, users can set the `SESSION_PATH` option to the location
+of the session directory within the portable folder to allow them to obtain SecureCRT session
+information even if a portable version of SecureCRT is utilized on the target.
+
 ## Scenarios
 
 ### Windows Server 2019 Standard Edition with SecureCRT v8.7.3 Build 2279 (Configuration Password Enabled)

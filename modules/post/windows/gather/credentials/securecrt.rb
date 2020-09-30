@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Post
       parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
       # get session file path
       root_path = registry_getvaldata(parent_key, 'Config Path')
-      securecrt_path = expand_path(root_path + session.fs.file.separator + 'Sessions') if !root_path.nil?
+      securecrt_path = expand_path(root_path + session.fs.file.separator + 'Sessions') if !root_path.to_s.empty?
     else
       securecrt_path = expand_path(datastore['SESSION_PATH'])
     end
