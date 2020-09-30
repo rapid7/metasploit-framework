@@ -501,7 +501,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_lsa_secret_key(reg_parser, boot_key)
     print_status('Decrypting LSA Key')
     vprint_status('Getting PolEKList...')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList', 'default')
+    _value_type, value_data = reg_parser.get_value('\\Policy\\PolEKList')
     if value_data
       vprint_status('Vista or above system')
 
@@ -509,7 +509,7 @@ class MetasploitModule < Msf::Auxiliary
       lsa_key = lsa_key[68,32] unless lsa_key.empty?
     else
       vprint_status('Getting PolSecretEncryptionKey...')
-      _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey', 'default')
+      _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey')
       # If that didn't work, then we're out of luck
       return nil if value_data.nil?
 
@@ -535,7 +535,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nlkm_secret_key(reg_parser, lsa_key)
     print_status('Decrypting NL$KM')
-    _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal', 'default')
+    _value_type, value_data = reg_parser.get_value('\\Policy\\Secrets\\NL$KM\\CurrVal')
     return nil unless value_data
 
     if lsa_vista_style?
@@ -896,7 +896,6 @@ class MetasploitModule < Msf::Auxiliary
         vprint_bad("Error when reporting #{print_name} NTLM hash")
       end
 
-
       raw_passwd = secret_item.unpack('H*')[0]
       credential_opts[:type] = :password
       unless report_creds(print_name, raw_passwd, credential_opts)
@@ -906,7 +905,7 @@ class MetasploitModule < Msf::Auxiliary
 
       extra_secret = get_machine_kerberos_keys(secret_item, print_name)
       if extra_secret.empty?
-        vprint_status('Could not calculate machine account Kerberos keys, printing plain password (hex encoded)')
+        vprint_status('Could not calculate machine account Kerberos keys')
       else
         credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
@@ -939,7 +938,7 @@ class MetasploitModule < Msf::Auxiliary
 
     keys.each do |key|
       vprint_status("Looking into #{key}")
-      _value_type, value_data = reg_parser.get_value("\\Policy\\Secrets\\#{key}\\CurrVal", 'default')
+      _value_type, value_data = reg_parser.get_value("\\Policy\\Secrets\\#{key}\\CurrVal")
       encrypted_secret = value_data
       next unless encrypted_secret
 
