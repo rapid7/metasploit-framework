@@ -1,15 +1,22 @@
 ## Vulnerable Application
+This module exploits two vulnerabilities, CVE-2018-2392 and CVE-2018-2393, within version 7.20, 7.20EXT, 7.45, 7.49,
+and 7.53 of SAP Internet Graphics Server (IGS). Both of these vulnerabilities occur due a lack of validation on XML
+External Entities when XML files are uploaded via the /XMLCHART page. Unauthenticated remote attackers can exploit
+this vulnerability to either read files from the server's file system as the XXX user, or conduct a denial of service
+attack against the vulnerable SAP IGS server.
 
-Original SAP Internet Graphics Server (IGS) [security research][1]
+### Application Background
+The Internet Graphics Service (IGS) provides infrastructure to enable developers to display graphics
+in an internet browser with minimal effort. It has been integrated in several different SAP UI technologies
+where is provides a say for data from another SAP system or data source to be utilized to generate
+dynamic graphical or non-graphical output.
 
-This module implements the SAP IGS XXE attack.
-An unauthenticated attacker can remotely read files in the server's file system, for example: /etc/passwd
-
-The Internet Graphics Service (IGS) constitutes the infrastructure to enable the application developers to display graphics
-in an Internet browser with a minimum of effort.
-The IGS has been integrated in the different SAP UI technologies from HTML GUI to Web Dynpro ABAP/Java and
-provides a server architecture where data from an SAP system or another source can be used to generate graphical or
-non-graphical output.
+### Install steps
+1. Register for an account at https://accounts.sap.com/ui/public/showRegisterForm?spName=profile.people.sap.com&targetUrl=&sourceUrl=
+2. Click on the link in the email that will be sent to activate your account.
+3. Browse to http://service.sap.com/swdc. Accept the legal reguirements.
+4. XXXX ??? At this point I couldn't download any software as none of the download pages are accessible.
+   I think you need a paid subscription to access them.
 
 SAP IGS versions: 7.20, 7.20EXT, 7.45, 7.49, 7.53 are affected by this vulnerability.
 Installing and Updating the IGS [instructions][2].
@@ -20,33 +27,30 @@ Once set up and configured, the instances will be vulnerable on the default HTTP
 
 ## Verification Steps
 
-  1. Install the module as usual
-  2. Start msfconsole
-  3. Do: `workspace [WORKSPACE]`
-  4. Do: `use auxiliary/admin/sap/sap_igs_xxe`
-  5. Do: `set RHOSTS [IP]`
-  6. Do: `set FILE [remote file name]`
-  7. Do: `set SHOW [true|false]`
-  8. Do: `set action READ`
-  9. Do: `check`
-  10. Do: `run`
+  1. Start msfconsole
+  1. Do: `workspace [WORKSPACE]`
+  1. Do: `use auxiliary/admin/sap/sap_igs_xxe`
+  1. Do: `set RHOSTS [IP]`
+  1. Do: `set FILE [remote file name]`
+  1. Do: `set SHOW [true|false]`
+  1. Do: `set action READ`
+  1. Do: `check`
+  1. Do: `run`
+  1. Verify that the contents of the file you specified were returned.
 
 ## Options
 
 ### FILE
 
-File to read from the remote server, example: `/etc/passwd`
-
-### SHOW
-
-`true` - show remote file content and save in workspace loot
-
-`false` - not show remote file content and save in workspace loot
+File to read from the remote server. Example: `/etc/passwd`
 
 ### URN
 
-XXE vulnerable SAP IGS URN: `/XMLCHART` - generates business graphics with XML-based customizing and
-XML- based data (BI 7.x Chart Item, BSP, WD)
+This is the URL of the XMLCHART page on the SAP IGS server that is vulnerable to XXE.
+By default it is set to `/XMLCHART`, however it can be changed if the SAP IGS server
+was installed under a different path than the web root. For example if the SAP IGS
+server was installed to the `/igs/` path under the web root, then this value would be
+set to `/igs/XMLCHART`.
 
 ## Actions
 ```
