@@ -55,10 +55,15 @@ module Rex
         record_port_state(attrs)
       when "service"
         record_port_service(attrs)
-      when "script" # Not actually used in import?
+      when "script"
         record_port_script(attrs)
         record_host_script(attrs)
+        record_vuln_script(attrs)
         # Ignoring post scripts completely
+      when "table"
+        record_vuln_table(attrs)
+      when "elem"
+        record_vuln_values(attrs)
       when "trace"
         record_host_trace(attrs)
       when "hop"
@@ -88,8 +93,15 @@ module Rex
         end
         @state.delete_if {|k| k != :current_tag}
         @report_data = {:workspace => @args[:workspace]}
+      when "script"
+        report_vulns
       end
       @state[:current_tag].delete name
+    end
+
+    def characters(text)
+      @state[:add_characters] << text if @state[:add_characters]
+      @state.delete(:add_characters)
     end
 
     # We can certainly get fancier with self.send() magic, but
@@ -395,6 +407,40 @@ module Rex
         reported << svc_obj
       end
       reported
+    end
+
+    def report_vulns
+      if @state[:vulners]
+        vuln_info = {
+            :workspace => @args[:workspace],
+            :host => @state[:addresses]["ipv4"],
+            :port => @state[:port]["portid"],
+            :proto => @state[:port]["protocol"],
+            :name => @state[:vulners][:cpe],
+            :refs => @state[:vulners][:refs]
+        }
+        db_report(:vuln, vuln_info)
+        @state.delete :vulners
+      end
+    end
+
+    def record_vuln_table(attrs)
+      if attrs.dig(0, 0) == 'key' && @state[:vulners] == {}
+        @state[:vulners][:cpe] = attrs[0][1]
+        @state[:vulners][:refs] = []
+      end
+    end
+
+    def record_vuln_values(attrs)
+      if attrs.dig(0, 0) == 'key' && attrs.dig(0, 1) == 'id' && @state[:vulners]
+        @state[:add_characters] = @state[:vulners][:refs]
+      end
+    end
+
+    def record_vuln_script(attrs)
+      if attrs[0][0] == 'id' && attrs[0][1] == 'vulners'
+        @state[:vulners] = {}
+      end
     end
 
   end

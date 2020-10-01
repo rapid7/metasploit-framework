@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     unless ::File.exist?(i_file)
-      fail_with Failure::BadConfig, "Unifi config file #{i_file} does not exists!"
+      fail_with Failure::BadConfig, "Unifi config file #{i_file} does not exist!"
     end
     # input_file could be a unf (encrypted zip), or the db file contained within.
     input_file = ::File.open(i_file, 'rb')

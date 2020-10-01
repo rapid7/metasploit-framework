@@ -133,7 +133,11 @@ module Msf::DBManager::Note
       host = get_host(:workspace => wspace, :host => addr)
     end
     if host and (opts[:port] and proto)
-      service = get_service(wspace, host, proto, opts[:port])
+      # only one result can be returned, as the +port+ field restricts potential results to a single service
+      service = services(:workspace => wspace,
+                         :hosts => {address: host.address},
+                         :proto => proto,
+                         :port => opts[:port]).first
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end

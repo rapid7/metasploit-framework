@@ -81,6 +81,7 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
+    self.features = FeatureManager.instance
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
@@ -195,6 +196,11 @@ class Framework
   # framework objects to offer related objects/actions available.
   #
   attr_reader   :analyze
+  #
+  # The framework instance's feature manager. The feature manager is responsible
+  # for configuring feature flags that can change characteristics of framework.
+  #
+  attr_reader   :features
 
   #
   # The framework instance's dependency
@@ -242,22 +248,9 @@ class Framework
     }
   end
 
-  # TODO: Anything still using this should be ported to use metadata::cache search
-  def search(match, logger: nil)
-    # Do an in-place search
-    matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
-      mset.each do |m|
-        begin
-          o = mset.create(m[0])
-          if o && !o.search_filter(match)
-            matches << o
-          end
-        rescue
-        end
-      end
-    end
-    matches
+  def search(search_string)
+    search_params = Msf::Modules::Metadata::Search.parse_search_string(search_string)
+    Msf::Modules::Metadata::Cache.instance.find(search_params)
   end
 
 protected
@@ -277,6 +270,7 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
   attr_writer   :analyze # :nodoc:
+  attr_writer   :features # :nodoc:
 
   private
 

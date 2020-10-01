@@ -42,6 +42,20 @@ def identify_hash(hash)
       return 'des,crypt'
     when hash =~ /^\$dynamic_82\$[\da-f]{128}\$HEX\$[\da-f]{32}$/ # jtr vmware ldap https://github.com/rapid7/metasploit-framework/pull/13865#issuecomment-660718108
       return 'dynamic_82'
+    when hash.start_with?(/{SSHA}/i)
+      return 'ssha'
+    when hash.start_with?(/{SHA512}/i)
+      return 'raw-sha512'
+    when hash.start_with?(/{SHA}/i)
+      return 'raw-sha1'
+    when hash.start_with?(/{MD5}/i)
+      return 'raw-md5'
+    when hash.start_with?(/{SMD5}/i)
+      return 'smd5'
+    when hash.start_with?(/{SSHA256}/i)
+      return 'ssha256'
+    when hash.start_with?(/{SSHA512}/i)
+      return 'ssha512'
     # windows
     when hash.length == 65 && hash =~ /^[\da-fA-F]{32}:[\da-fA-F]{32}$/ && hash.split(':').first.upcase == 'AAD3B435B51404EEAAD3B435B51404EE'
       return 'nt'
@@ -91,6 +105,12 @@ def identify_hash(hash)
     # other
     when hash =~ /^<\d+@.+?>#[\w]{32}$/
       return 'hmac-md5'
+    when hash.length == 114 && hash.start_with?('$M$')
+      return 'F5-Secure-Vault'
+    when hash =~ /^M\$[[:print:]]+#[\da-fA-F]{32}(?:(?::[[:print:]]*$)|$)/
+      return 'mscash'
+    when hash =~ /^\$DCC2\$\d+#[[:print:]]+#[\da-fA-F]{32}(?:(?::[[:print:]]*$)|$)/
+      return 'mscash2'
   end
   ''
 end

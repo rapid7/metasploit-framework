@@ -157,7 +157,7 @@ RSpec.shared_examples_for 'payload cached size is consistent' do |options|
       )
     end
 
-    next if reference_name =~ /generic/
+    next if reference_name =~ /generic|peinject/
 
     if dynamic_size
       it 'is dynamic_size?' do

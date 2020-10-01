@@ -65,7 +65,13 @@ class MetasploitModule < Msf::Auxiliary
     domain = datastore['DOMAIN']
     is_wildcard = dns_wildcard_enabled?(domain)
 
-    dns_axfr(domain) if datastore['ENUM_AXFR']
+    # All exceptions should be being handled by the library
+    # but catching here as well, just in case.
+    begin
+      dns_axfr(domain) if datastore['ENUM_AXFR']
+    rescue => e
+      print_error("AXFR failed: #{e}")
+    end
     dns_get_a(domain) if datastore['ENUM_A']
     dns_get_cname(domain) if datastore['ENUM_CNAME']
     dns_get_ns(domain) if datastore['ENUM_NS']

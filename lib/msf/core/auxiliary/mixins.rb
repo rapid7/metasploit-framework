@@ -19,10 +19,6 @@ require 'msf/core/auxiliary/crawler'
 require 'msf/core/auxiliary/commandshell'
 require 'msf/core/auxiliary/login'
 require 'msf/core/auxiliary/rservices'
-require 'msf/core/auxiliary/cisco'
-require 'msf/core/auxiliary/juniper'
-require 'msf/core/auxiliary/brocade'
-require 'msf/core/auxiliary/ubiquiti'
 require 'msf/core/auxiliary/kademlia'
 require 'msf/core/auxiliary/llmnr'
 require 'msf/core/auxiliary/mdns'
@@ -35,6 +31,17 @@ require 'msf/core/auxiliary/pii'
 require 'msf/core/auxiliary/redis'
 require 'msf/core/auxiliary/sms'
 require 'msf/core/auxiliary/mms'
+
+#
+# Networking
+#
+
+require 'msf/core/auxiliary/arista'
+require 'msf/core/auxiliary/brocade'
+require 'msf/core/auxiliary/cisco'
+require 'msf/core/auxiliary/juniper'
+require 'msf/core/auxiliary/mikrotik'
+require 'msf/core/auxiliary/ubiquiti'
 
 #
 # Custom HTTP modules

@@ -41,6 +41,7 @@ require 'msf/events'
 
 # Framework context and core classes
 require 'msf/core/framework'
+require 'msf/core/feature_manager'
 require 'msf/core/db_manager'
 require 'msf/core/event_dispatcher'
 require 'msf/core/module_manager'

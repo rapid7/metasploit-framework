@@ -112,8 +112,8 @@ module Parser
             @state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
             record_service unless @state[:name].nil?
           elsif @text.index('/')
-            @state[:port] = @text.split('/')[0]
-            @state[:proto] = @text.split('/')[1]
+            @state[:port] = @text.split('/')[0].strip
+            @state[:proto] = @text.split('/')[1].strip
             record_service unless @state[:port] == 'general'
           end
         end
