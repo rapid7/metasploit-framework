@@ -3,7 +3,7 @@ A vulnerability exists within the Netlogon authentication process where the secu
 due to an implementation flaw related to the use of a static initialization vector (IV). An attacker can leverage this
 flaw to target an Active Directory Domain Controller and make repeated authentication attempts using NULL data fields
 which will succeed every 1 in 256 tries (~0.4%). This module leverages the vulnerability to reset the machine account
-password to an empty value, which will then allow the attacker to authenticate as the machine account. After
+password to an empty string, which will then allow the attacker to authenticate as the machine account. After
 exploitation, it's important to restore this password to it's original value. Failure to do so can result in service
 instability.
 
@@ -12,16 +12,16 @@ can then be restored with this module by using the `RESTORE` action and setting 
 
 ## Verification Steps
 
-1. Exploit the vulnerability to set the machine account password to a blank value
+1. Exploit the vulnerability to remove the machine account password by replacing it with an empty string
     1. From msfconsole
     1. Do: `use auxiliary/admin/dcerpc/cve_2020_1472_zerologon`
     1. Set the `RHOSTS` and `NBNAME` values
-    1. Run the module and see that the password was set to a blank value
+    1. Run the module and see that the original machine account password was removed
 1. Recover the original machine account password
     1. Do: `use auxiliary/gather/windows_secrets_dump`
     1. Set the `RHOSTS` values
     1. Set the `SMBUser` option to the NetBIOS name with a trailing `$`, e.g. `NBNAME$`
-    1. Set the `SMBPass` option to the value of an empty password (`aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0`)
+    1. Set the `SMBPass` option to `aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0` (the hash of an empty password)
     1. Run the module and search for the password in the output (`NBNAME$:plain_password_hex:`)
 1. Restore the original machine account password
     1. From msfconsole
@@ -40,8 +40,8 @@ this value. If this value is invalid the module will fail when making a Netlogon
 ### PASSWORD
 
 The hex value of the original machine account password. This value is typically recovered from the target system's
-registry (such as with the `auxiliary/gather/windows_secrets_dump` module) after successfully setting the value to blank
-within Active Directory using this module and the default `REMOVE` action.
+registry (such as by using the `auxiliary/gather/windows_secrets_dump` Metasploit module) after successfully setting the
+value to an empty string within Active Directory using this module and the default `REMOVE` action.
 
 This value is only used when running the module with the `RESTORE` action.
 
@@ -49,7 +49,7 @@ This value is only used when running the module with the `RESTORE` action.
 
 ### Windows Server 2019
 
-First, set the machine account password to the empty value
+First, exploit the vulnerability to remove the machine account password by replacing it with an empty string.
 
 ```
 msf6 > use auxiliary/admin/dcerpc/cve_2020_1472_zerologon 

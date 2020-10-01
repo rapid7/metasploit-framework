@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           are lost due to an implementation flaw related to the use of a static initialization vector (IV). An attacker
           can leverage this flaw to target an Active Directory Domain Controller and make repeated authentication attempts
           using NULL data fields which will succeed every 1 in 256 tries (~0.4%). This module leverages the vulnerability
-          to reset the machine account password to an empty value, which will then allow the attacker to authenticate as
+          to reset the machine account password to an empty string, which will then allow the attacker to authenticate as
           the machine account. After exploitation, it's important to restore this password to it's original value. Failure
           to do so can result in service instability.
         },
