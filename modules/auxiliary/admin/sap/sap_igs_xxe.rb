@@ -51,9 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     @port = @datastore['RPORT']
     @urn = @datastore['URN']
     @file = @datastore['FILE']
-    @verbose = @datastore['SHOW']
-    @ssl = @datastore['SSL']
-    if @ssl
+    if datastore['SSL']
       @schema = 'https://'
     else
       @schema = 'http://'
@@ -161,9 +159,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       rescue StandardError => e
         print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@download_link}")
-        if @verbose
-          vprint_error("Error #{e.class}: #{e}")
-        end
+        vprint_error("Error #{e.class}: #{e}")
       end
       fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if second_response.nil?
       fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless second_response.code == 200
@@ -192,9 +188,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     rescue StandardError => e
       print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
-      if @verbose
-        vprint_error("Error #{e.class}: #{e}")
-      end
+      vprint_error("Error #{e.class}: #{e}")
     end
 
     # Check HTTP response
@@ -270,9 +264,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     rescue StandardError => e
       print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
-      if @verbose
-        vprint_error("Error #{e.class}: #{e}")
-      end
+      vprint_error("Error #{e.class}: #{e}")
     end
 
     # Check first HTTP response
@@ -292,9 +284,7 @@ class MetasploitModule < Msf::Auxiliary
     # Download remote file
     analyze_first_response(first_response.body)
     if @file_content
-      if @verbose
-        print_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
-      end
+      vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
       loot = store_loot('sap.igs.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XXE')
       print_good("File: #{@file} saved in: #{loot}")
     else
@@ -330,9 +320,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Successfully managed to DOS the SAP IGS server at #{@host}:#{@port}")
     rescue StandardError => e
       print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
-      if @verbose
-        vprint_error("Error #{e.class}: #{e}")
-      end
+      vprint_error("Error #{e.class}: #{e}")
     end
 
     # Check HTTP response
