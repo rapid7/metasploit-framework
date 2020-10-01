@@ -1006,7 +1006,7 @@ module Msf
                 end
 
                 # remove module from contents (deletion happens below)
-                contents = contents.split("\n")
+                contents = contents.split
                 contents.delete(mod.fullname)
 
               else
