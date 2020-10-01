@@ -13,6 +13,7 @@ RSpec.shared_context 'Msf::StringIO' do
     end
 
     s.msf_data = ''
+    s.binmode
 
     s
   end
