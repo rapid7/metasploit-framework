@@ -57,6 +57,7 @@ RUN chown -R root:metasploit /usr/local/bundle
 COPY . $APP_HOME/
 RUN chown -R root:metasploit $APP_HOME/
 RUN chmod 664 $APP_HOME/Gemfile.lock
+RUN gem update --system
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
 RUN pip install impacket
 
