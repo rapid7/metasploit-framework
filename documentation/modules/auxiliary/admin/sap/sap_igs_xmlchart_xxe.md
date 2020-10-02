@@ -45,7 +45,7 @@ Once set up and configured, the instances will be vulnerable on the default HTTP
 
 File to read from the remote server. Example: `/etc/passwd`
 
-### URN
+### PATH
 
 This is the URL of the XMLCHART page on the SAP IGS server that is vulnerable to XXE.
 By default it is set to `/XMLCHART`, however it can be changed if the SAP IGS server
@@ -90,7 +90,7 @@ Module options (auxiliary/admin/sap/sap_igs_xmlchart_xxe):
    RPORT    40080                yes       The target port (TCP)
    SHOW     true                 no        Show remote file content
    SSL      false                no        Negotiate SSL/TLS for outgoing connections
-   URN      /XMLCHART            no        SAP IGS XMLCHART URN
+   PATH     /XMLCHART            no        SAP IGS XMLCHART PATH
    VHOST                         no        HTTP server virtual host
 
 

