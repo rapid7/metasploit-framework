@@ -37,7 +37,7 @@ RUN apk add --no-cache \
     && chmod -R a+r /usr/local/bundle
 
 
-FROM ruby:2.6.5-alpine3.10
+FROM ruby:2.6.6-alpine3.10
 LABEL maintainer="Rapid7"
 
 ENV APP_HOME=/usr/src/metasploit-framework
