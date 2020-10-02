@@ -1,7 +1,7 @@
 FROM ruby:2.6.6-alpine3.10 AS builder
 LABEL maintainer="Rapid7"
 
-ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
+ARG BUNDLER_CONFIG_ARGS="set clean 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
 ENV APP_HOME=/usr/src/metasploit-framework
 ENV BUNDLE_IGNORE_MESSAGES="true"
 WORKDIR $APP_HOME
@@ -28,8 +28,9 @@ RUN apk add --no-cache \
       ncurses-dev \
       git \
     && echo "gem: --no-document" > /etc/gemrc \
-    && gem update --system 3.0.6 \
-    && bundle install --force --clean --no-cache --system $BUNDLER_ARGS \
+    && gem update --system \
+    && bundle config $BUNDLER_ARGS \
+    && bundle install --redownload --jobs=8 \
     # temp fix for https://github.com/bundler/bundler/issues/6680
     && rm -rf /usr/local/bundle/cache \
     # needed so non root users can read content of the bundle
