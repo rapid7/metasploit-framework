@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
         ],
       'Platform'       => ['win'],
-      'DisclosureDate'  => 'Oct 11 2018'))
+      'DisclosureDate'  => '2018-10-11'))
     deregister_options('SESSION', 'USERNAME', 'PASSWORD')
   end
 

@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://gitlab.isc.org/isc-projects/bind9/-/issues/1703'],
         ['URL', 'https://www.trapkit.de/advisories/TKADV2020-002.txt']
       ],
-      'DisclosureDate' => 'May 19 2020',
+      'DisclosureDate' => '2020-05-19',
       'License'        => MSF_LICENSE,
       'DefaultOptions' => {'ScannerRecvWindow' => 0}
     ))

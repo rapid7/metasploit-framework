@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-5810'],
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/7859#issuecomment-274305229']
         ],
-      'DisclosureDate' => "Jan 21 2017"
+      'DisclosureDate' => '2017-01-21'
     ))
 
     register_options(

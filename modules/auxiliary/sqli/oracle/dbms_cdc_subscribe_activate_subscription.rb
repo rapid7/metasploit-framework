@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2005-02.html'],
           [ 'URL', 'http://www.argeniss.com/research/OraDBMS_CDC_SUBSCRIBEExploit.txt']
         ],
-      'DisclosureDate' => 'Apr 18 2005'))
+      'DisclosureDate' => '2005-04-18'))
 
     register_options(
       [

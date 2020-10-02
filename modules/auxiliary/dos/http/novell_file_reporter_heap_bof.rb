@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '2012-4956' ],
         [ 'URL', 'https://blog.rapid7.com/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
       ],
-      'DisclosureDate' => 'Nov 16 2012'))
+      'DisclosureDate' => '2012-11-16'))
 
     register_options(
       [

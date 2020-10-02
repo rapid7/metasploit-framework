@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => ["Sil3nt_Dre4m"],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Jul 2 2011'))
+      'DisclosureDate' => '2011-07-02'))
 
     register_options([
       Opt::RPORT(27888)

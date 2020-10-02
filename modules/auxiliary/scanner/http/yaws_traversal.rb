@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '77581'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=757181']
         ],
-      'DisclosureDate' => "Nov 25 2011"
+      'DisclosureDate' => '2011-11-25'
     ))
 
     register_options(

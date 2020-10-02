@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
           [ 'URL', 'http://www.securityfocus.com/archive/1/539186']
         ],
-      'DisclosureDate' => 'Aug 11 2016'
+      'DisclosureDate' => '2016-08-11'
     ))
 
     register_options(

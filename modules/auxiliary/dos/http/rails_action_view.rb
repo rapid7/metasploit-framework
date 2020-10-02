@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/oss-sec/2013/q4/400' ],
           [ 'URL', 'https://github.com/rails/rails/commit/bee3b7f9371d1e2ddcfe6eaff5dcb26c0a248068' ]
         ],
-      'DisclosureDate' => 'Dec 04 2013'))
+      'DisclosureDate' => '2013-12-04'))
 
     register_options(
       [

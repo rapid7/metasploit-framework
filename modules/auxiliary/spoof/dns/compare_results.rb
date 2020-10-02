@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
         ],
-      'DisclosureDate' => 'Jul 21 2008'
+      'DisclosureDate' => '2008-07-21'
       ))
 
       register_options(

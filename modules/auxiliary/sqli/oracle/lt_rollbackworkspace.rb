@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '53734'],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2009.html' ],
         ],
-      'DisclosureDate' => 'May 4 2009'))
+      'DisclosureDate' => '2009-05-04'))
 
       register_options(
         [
