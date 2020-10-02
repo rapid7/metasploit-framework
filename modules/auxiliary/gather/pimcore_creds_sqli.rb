@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         {
           'SideEffects' => [ IOC_IN_LOGS ]
         },
-      'DisclosureDate' => 'Aug 13, 2018'
+      'DisclosureDate' => 'Aug 13 2018'
     ))
 
     register_options(
