@@ -13,7 +13,7 @@ language: ruby
 rvm:
   - '2.5.8'
   - '2.6.6'
-  - '2.7.2'
+  - '2.7.1'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
