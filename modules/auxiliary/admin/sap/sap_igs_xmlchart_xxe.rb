@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
           ],
           'DefaultAction' => 'READ',
           'DefaultOptions' => {
-            'VERBOSE' => true, # Enable verbose mode (show file content from remote server)
             'SSL' => false # Disable SSL (by default SAP IGS not use SSL/TLS)
           },
           'DisclosureDate' => '2018-03-14'
