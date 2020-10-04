@@ -92,7 +92,7 @@ module Msf
       # user account
       # Example lines:
       # username brocade password 8 $1$YBaHUWpr$PzeUrP0XmVOyVNM5rYy99/
-      config.scan(%r{username "?(?<user_name>[a-z0-9]+)"? password (?<user_type>\w+) (?<user_hash>[0-9a-z=\$/]{34})}i).each do |result|
+      config.scan(%r{username "?(?<user_name>[a-z0-9]+)"? password (?<user_type>\w+) (?<user_hash>[0-9a-z=\$/\.]{34})}i).each do |result|
         user_name = result[0].strip
         user_type = result[1].strip
         user_hash = result[2].strip
