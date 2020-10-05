@@ -1,9 +1,13 @@
 ## Vulnerable Application
-This module exploits these vulnerabilities, CVE-2018-2392 and CVE-2018-2393, within version 7.20, 7.20EXT, 7.45, 7.49,
-and 7.53 of SAP Internet Graphics Server (IGS). Both of these vulnerabilities occur due a lack of validation on XML
-External Entities when XML files are uploaded via the /XMLCHART page. Unauthenticated remote attackers can exploit
-these vulnerabilities to either read files from the server's file system as the XXX user, or conduct a denial of service
-attack against the vulnerable SAP IGS server.
+This module exploits CVE-2018-2392 and CVE-2018-2393, two XXE vulnerabilities within the XMLCHART page
+of SAP Internet Graphics Servers (IGS) running versions 7.20, 7.20EXT, 7.45, 7.49, or 7.53. These
+vulnerabilities occur due to a lack of appropriate validation on the Extension HTML tag when
+submitting a POST request to the XMLCHART page to generate a new chart.
+
+Successful exploitation will allow unauthenticated remote attackers to read files from the server as the user
+from which the IGS service is started, which will typically be the SAP admin user. Alternatively attackers
+can also abuse the XXE vulnerability to conduct a denial of service attack against the vulnerable
+SAP IGS server.
 
 ### Application Background
 The Internet Graphics Service (IGS) where it provides a way infrastructure to enable developers to display graphics
@@ -11,13 +15,10 @@ in an internet browser with minimal effort. It has been integrated in several di
 where it provides a way for data from another SAP system or data source to be utilized to generate
 dynamic graphical or non-graphical output.
 
-SAP IGS versions: 7.20, 7.20EXT, 7.45, 7.49, 7.53 are affected by this vulnerability.
-
-Installing and Updating the IGS [instructions][2].
-
-Configuring the IGS [instructions][3].
-
-Administering the IGS [instructions][4].
+### Installation Steps
+Steps to install and update the SAP IGS server can be found online on [this page][2].
+Additional information on configuring the IGS server can be found [here][3].
+Finally information on administering the IGS server can be found [here][4].
 
 Once set up and configured, the instances will be vulnerable on the default HTTP port 40080.
 
@@ -40,7 +41,7 @@ Once set up and configured, the instances will be vulnerable on the default HTTP
 
 File to read from the remote server. Example: `/etc/passwd`
 
-### PATH
+### URIPATH
 
 This is the path to the XMLCHART page of the SAP IGS server that is vulnerable to XXE.
 By default it is set to `/XMLCHART`, however it can be changed if the SAP IGS server
@@ -82,7 +83,7 @@ Module options (auxiliary/admin/sap/sap_igs_xmlchart_xxe):
    Name     Current Setting      Required  Description
    ----     ---------------      --------  -----------
    FILE     /etc/passwd          no        File to read from the remote server
-   PATH     /XMLCHART            yes       Path to the SAP IGS XMLCHART page from the web root
+   URIPATH  /XMLCHART            yes       Path to the SAP IGS XMLCHART page from the web root
    Proxies  http:127.0.0.1:8080  no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS   172.16.30.29         yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT    40080                yes       The target port (TCP)
