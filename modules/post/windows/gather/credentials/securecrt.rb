@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Post
       end
       print_line(tbl.to_s)
       if tbl.rows.count
-        path = store_loot('host.securecrt_sessions', 'text/plain', session, tbl, 'securecrt_sessions.txt', 'SecureCRT Sessions')
+        path = store_loot('host.securecrt_sessions', 'text/plain', session, tbl.to_s, 'securecrt_sessions.txt', 'SecureCRT Sessions')
         print_good("Session info stored in: #{path}")
       end
     end
