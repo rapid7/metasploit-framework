@@ -683,7 +683,12 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   def self.to_win32pe_dll(framework, code, opts = {})
     # Allow the user to specify their own DLL template
-    set_template_default(opts, "template_x86_windows.dll")
+    if opts.fetch(:mixed_mode, false)
+      default_exe_template = 'template_x86_windows_mixed_mode.dll'
+    else
+      default_exe_template = 'template_x86_windows.dll'
+    end
+    set_template_default(opts, default_exe_template)
     opts[:exe_type] = :dll
 
     if opts[:inject]
@@ -704,7 +709,12 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   def self.to_win64pe_dll(framework, code, opts = {})
     # Allow the user to specify their own DLL template
-    set_template_default(opts, "template_x64_windows.dll")
+    if opts.fetch(:mixed_mode, false)
+      default_exe_template = 'template_x64_windows_mixed_mode.dll'
+    else
+      default_exe_template = 'template_x64_windows.dll'
+    end
+    set_template_default(opts, default_exe_template)
     opts[:exe_type] = :dll
 
     if opts[:inject]
