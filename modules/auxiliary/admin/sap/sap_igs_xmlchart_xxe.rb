@@ -230,7 +230,7 @@ class MetasploitModule < Msf::Auxiliary
     if check_response == -1
       Exploit::CheckCode::Safe('The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
     elsif check_response == -2
-      Exploit::CheckCode::Safe('The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+      Exploit::CheckCode::Safe('The server sent a response but it was not in the expected format. The target is likely patched.')
     else
       if check_response == -3
         vprint_status("The SAP IGS server is vulnerable, but file: #{os_release_file} not found or not enough rights.")
@@ -304,7 +304,7 @@ class MetasploitModule < Msf::Auxiliary
     if first_response == -1
       fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
     elsif first_response == -2
-      fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+      fail_with(Failure::UnexpectedReply, 'The server sent a response but it was not in the expected format. The target is likely patched.')
     else
       # Report Service and Vulnerability
       report_service(
