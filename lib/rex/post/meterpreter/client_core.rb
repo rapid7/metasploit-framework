@@ -99,7 +99,6 @@ class ClientCore < Extension
     stage = stager.stage_payload(stage_opts)
 
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
-    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
 
     self.client.send_request(request)
   end
