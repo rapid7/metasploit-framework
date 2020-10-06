@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Post
     print_line(tbl.to_s)
     # Only save data to disk when there's something in the table
     if tbl.rows.count
-      path = store_loot('host.xshell_xftp_password', 'text/plain', session, tbl, 'xshell_xftp_password.txt', 'Xshell Xftp Passwords')
+      path = store_loot('host.xshell_xftp_password', 'text/plain', session, tbl.to_s, 'xshell_xftp_password.txt', 'Xshell Xftp Passwords')
       print_good("Passwords stored in: #{path}")
     end
   end
