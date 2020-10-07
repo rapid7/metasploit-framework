@@ -338,7 +338,7 @@ class MetasploitModule < Msf::Auxiliary
 
         if !@file_content.to_s.empty?
           vprint_good("File: #{@file} content from host: #{@host}\n#{@file_content}")
-          loot = store_loot('sap.igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
+          loot = store_loot('igs.xmlchart.xxe', 'text/plain', @host, @file_content, @file, 'SAP IGS XMLCHART XXE')
           print_good("File: #{@file} saved in: #{loot}")
         else
           print_error("Failed to get #{@file} content!")
