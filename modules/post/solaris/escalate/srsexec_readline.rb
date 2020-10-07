@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
     credential_data = {
       origin_type: :session,
       session_id: session_db_id,
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       post_reference_name: self.fullname,
       username: formatted_output.split(':')[0],
       private_data: formatted_output.split(':')[1],
