@@ -2143,10 +2143,8 @@ class Core
 
     mod = active_module
     if mod
-      mod.options.each do |name, mod_opt|
-        next if Msf::OptCondition.show_option(mod, mod_opt)
-        i = keys.index(name)
-        keys.delete_at i if i
+      keys = keys.delete_if do |name|
+        !(mod_opt = mod.options[name]).nil? && !Msf::OptCondition.show_option(mod, mod_opt)
       end
     end
     keys
