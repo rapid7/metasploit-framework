@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
         'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
         'Platform'       => [ 'windows' ],
         'SessionTypes'   => [ 'meterpreter' ],
-        'DisclosureDate' => 'Aug 14 2012'
+        'DisclosureDate' => '2012-08-14'
       )
     )
 

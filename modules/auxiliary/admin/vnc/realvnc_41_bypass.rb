@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://secunia.com/advisories/20107/'],
           ['CVE', '2006-2369'],
         ],
-      'DisclosureDate' => 'May 15 2006'))
+      'DisclosureDate' => '2006-05-15'))
 
     register_options(
       [

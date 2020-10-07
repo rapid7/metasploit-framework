@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'Privileged'      => true,
       'Platform'        => ['php'],
       'Arch'            => ARCH_PHP,
-      'DisclosureDate'  => 'Feb 03 2017',
+      'DisclosureDate'  => '2017-02-03',
     ))
 
     register_options(

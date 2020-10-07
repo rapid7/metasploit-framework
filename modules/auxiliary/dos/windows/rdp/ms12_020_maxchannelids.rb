@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           '#ms12-020' # Freenode IRC
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 16 2012"
+      'DisclosureDate' => '2012-03-16'
     ))
 
     register_options(

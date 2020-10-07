@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'  # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Jul 13 2012"
+      'DisclosureDate' => '2012-07-13'
     ))
 
     register_options(

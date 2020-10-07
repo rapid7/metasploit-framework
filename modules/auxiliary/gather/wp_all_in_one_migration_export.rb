@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '7857'],
           ['URL', 'http://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
         ],
-      'DisclosureDate'  => 'Mar 19 2015'
+      'DisclosureDate'  => '2015-03-19'
     ))
 
     register_options(

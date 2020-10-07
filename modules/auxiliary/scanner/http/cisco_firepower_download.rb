@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-6435'],
           ['URL', 'https://blog.korelogic.com/blog/2016/10/10/virtual_appliance_spelunking']
         ],
-      'DisclosureDate' => "Oct 10 2016",
+      'DisclosureDate' => '2016-10-10',
       'DefaultOptions' =>
         {
           'RPORT' => 443,

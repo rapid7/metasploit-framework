@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '17699' ],
           [ 'URL', 'http://www.red-database-security.com/exploits/oracle-sql-injection-oracle-dbms_export_extension.html' ],
         ],
-      'DisclosureDate' => 'Apr 26 2006'))
+      'DisclosureDate' => '2006-04-26'))
 
       register_options(
         [

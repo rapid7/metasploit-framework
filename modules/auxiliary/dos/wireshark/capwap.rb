@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '94091'],
           ['BID', '60500']
         ],
-      'DisclosureDate' => 'Apr 28 2014'))
+      'DisclosureDate' => '2014-04-28'))
 
     # Protocol capwap needs port 5247 to trigger the dissector in wireshark
     register_options([ Opt::RPORT(5247) ])

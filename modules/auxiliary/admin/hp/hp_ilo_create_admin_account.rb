@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Fabien Perigaud <fabien[dot]perigaud[at]synacktiv[dot]com>'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Aug 24 2017",
+      'DisclosureDate' => '2017-08-24',
       'DefaultOptions' => { 'SSL' => true }
     ))
 

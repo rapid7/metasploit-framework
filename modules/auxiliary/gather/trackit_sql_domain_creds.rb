@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
-      'DisclosureDate' => 'Oct 7 2014'
+      'DisclosureDate' => '2014-10-07'
     ))
     register_options(
       [

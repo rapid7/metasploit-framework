@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => ['URL', 'https://github.com/whoot/TelpOWN'],
       'Platform'       => 'linux',
       'Privileged'     => false,
-      'DisclosureDate' => 'Sep 2 2016'))
+      'DisclosureDate' => '2016-09-02'))
 
       register_options(
         [

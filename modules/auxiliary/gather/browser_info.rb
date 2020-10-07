@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'sinn3r' ],
-      'DisclosureDate' => "Mar 22 2016",
+      'DisclosureDate' => '2016-03-22',
       'Actions'     =>
         [
           [
