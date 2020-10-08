@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.0.10)
+    metasploit-framework (6.0.11)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -121,13 +121,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.378.0)
-    aws-sdk-core (3.109.0)
+    aws-partitions (1.380.0)
+    aws-sdk-core (3.109.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.198.0)
+    aws-sdk-ec2 (1.199.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.46.0)
@@ -136,7 +136,7 @@ GEM
     aws-sdk-kms (1.39.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.82.0)
+    aws-sdk-s3 (1.83.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -215,17 +215,17 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (3.0.0)
+    metasploit-model (3.1.2)
       activemodel (~> 5.2.2)
       activesupport (~> 5.2.2)
       railties (~> 5.2.2)
-    metasploit-payloads (2.0.14)
-    metasploit_data_models (4.0.2)
+    metasploit-payloads (2.0.16)
+    metasploit_data_models (4.1.0)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
       arel-helpers
       metasploit-concern
-      metasploit-model
+      metasploit-model (>= 3.1)
       pg
       railties (~> 5.2.2)
       recog (~> 2.0)
@@ -254,7 +254,7 @@ GEM
     packetfu (1.1.13)
       pcaprub
     parallel (1.19.2)
-    parser (2.7.1.5)
+    parser (2.7.2.0)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.13.0)
@@ -369,13 +369,13 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.9.3)
-    rubocop (0.92.0)
+    rubocop (0.93.0)
       parallel (~> 1.10)
       parser (>= 2.7.1.5)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.7)
+      regexp_parser (>= 1.8)
       rexml
-      rubocop-ast (>= 0.5.0)
+      rubocop-ast (>= 0.6.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
     rubocop-ast (0.7.1)
@@ -421,7 +421,7 @@ GEM
     ttfunk (1.6.2.1)
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2020.1)
+    tzinfo-data (1.2020.2)
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
