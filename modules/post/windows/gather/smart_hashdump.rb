@@ -239,8 +239,8 @@ class MetasploitModule < Msf::Post
 
       print_status("\tDumping password hashes...")
       users.keys.sort{|a,b| a<=>b}.each do |rid|
-        # next if guest account or support account
-        next if rid == 501 or rid == 1001
+        # next if guest account
+        next if rid == 501
         collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
 
         print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
@@ -315,7 +315,7 @@ class MetasploitModule < Msf::Post
       rid =  returned_hash[1].to_i
 
       # Skip the Guest Account
-      next if rid == 501 or rid == 1001
+      next if rid == 501
 
       # skip if it returns nil for an entry
       next if h == nil
