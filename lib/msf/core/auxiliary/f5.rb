@@ -17,7 +17,7 @@ module Msf
         address: thost,
         port: tport,
         protocol: 'tcp',
-        workspace_id: myworkspace.id,
+        workspace_id: myworkspace_id,
         origin_type: :service,
         private_type: :nonreplayable_hash,
         # https://support.f5.com/csp/article/K65081001
