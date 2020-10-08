@@ -216,7 +216,6 @@ class MetasploitModule < Msf::Post
 
   def read_hashdump
     host = session.session_host
-    port = session.session_port
     collected_hashes = ''
     tries = 1
 
@@ -283,7 +282,7 @@ class MetasploitModule < Msf::Post
 
         # Merge in the service data and create our Login
         login_data.merge!(service_data)
-        login = create_credential_login(login_data)
+        create_credential_login(login_data)
       end
     rescue ::Interrupt
       raise $ERROR_INFO
@@ -310,7 +309,6 @@ class MetasploitModule < Msf::Post
   def inject_hashdump
     collected_hashes = ''
     host = session.session_host
-    port = session.session_port
     # Load priv extension
     session.core.use('priv')
     # dump hashes
@@ -366,7 +364,7 @@ class MetasploitModule < Msf::Post
 
         # Merge in the service data and create our Login
         login_data.merge!(service_data)
-        login = create_credential_login(login_data)
+        create_credential_login(login_data)
       rescue StandardError
         next
       end
