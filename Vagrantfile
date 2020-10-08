@@ -6,17 +6,18 @@ display_name = "metasploit-framework"
 Vagrant.configure(2) do |config|
   config.ssh.forward_x11 = true
   config.vm.box = "hashicorp/bionic64" # https://app.vagrantup.com/hashicorp/boxes/bionic64
-  #config.gui = true # uncomment to show VM in your hypervisor's GUI
   config.vm.network :forwarded_port, guest: 4444, host: 4444
   config.vm.provider "vmware_desktop" do |v|
 	  v.memory = 2048
 	  v.cpus = 2
     v.vmx['displayname'] = display_name
+    #v.gui = true # uncomment to show VM in your hypervisor's GUI
   end
   config.vm.provider "virtualbox" do |v|
     v.name = display_name
 	  v.memory = 2048
 	  v.cpus = 2
+    #v.gui = true # uncomment to show VM in your hypervisor's GUI
   end
   %w(.vimrc .gitconfig).each do |f|
     local = File.expand_path "~/#{f}"
