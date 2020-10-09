@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2000-0945'],
           [ 'OSVDB', '444'],
         ],
-      'DisclosureDate' => 'Oct 26 2000'))
+      'DisclosureDate' => '2000-10-26'))
     register_options(
       [
         OptString.new('HttpUsername', [true, 'The HTTP username to specify for basic authentication', 'cisco']),

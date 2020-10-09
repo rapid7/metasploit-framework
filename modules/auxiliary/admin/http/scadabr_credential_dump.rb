@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'bcoles',
       'License'        => MSF_LICENSE,
       'References'     => ['URL', 'http://www.scadabr.com.br/?q=node/1375'],
-      'DisclosureDate' => 'May 28 2017'))
+      'DisclosureDate' => '2017-05-28'))
     register_options(
       [
         Opt::RPORT(8080),

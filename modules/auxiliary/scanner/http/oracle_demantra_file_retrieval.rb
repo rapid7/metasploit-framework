@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           'Oliver Gruskovnjak'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Feb 28 2014"
+      'DisclosureDate' => '2014-02-28'
     ))
 
     register_options(

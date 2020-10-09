@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '57607' ],
           [ 'URL', 'https://community.rapid7.com/servlet/JiveServlet/download/2150-1-16596/SecurityFlawsUPnP.pdf' ]
         ],
-      'DisclosureDate' => 'Mar 27 2013',
+      'DisclosureDate' => '2013-03-27',
     ))
 
     register_options(

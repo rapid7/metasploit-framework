@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
            ['URL', 'http://tomcat.apache.org/security-8.html'],
            ['URL', 'http://tomcat.apache.org/security-7.html']
          ],
-        'DisclosureDate' => 'Feb 6 2014'
+        'DisclosureDate' => '2014-02-06'
       ))
 
       register_options(

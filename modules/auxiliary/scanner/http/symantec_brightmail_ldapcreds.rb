@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           'RPORT' => 443
         },
        'License'        => MSF_LICENSE,
-       'DisclosureDate' => 'Dec 17 2015'
+       'DisclosureDate' => '2015-12-17'
     ))
 
     register_options(

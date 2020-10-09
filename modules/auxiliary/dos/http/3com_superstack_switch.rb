@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2004-2691' ],
           [ 'URL', 'http://support.3com.com/infodeli/tools/switches/dna1695-0aaa17.pdf' ],
         ],
-      'DisclosureDate' => 'Jun 24 2004'))
+      'DisclosureDate' => '2004-06-24'))
 
     register_options( [ Opt::RPORT(80) ])
   end

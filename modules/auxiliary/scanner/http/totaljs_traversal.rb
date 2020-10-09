@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://snyk.io/vuln/SNYK-JS-TOTALJS-173710']
         ],
       'Privileged' => false,
-      'DisclosureDate' => 'Feb 18 2019',
+      'DisclosureDate' => '2019-02-18',
       'Actions' =>
         [
           ['CHECK', { 'Description' => 'Check if the target is vulnerable' }],

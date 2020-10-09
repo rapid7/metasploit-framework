@@ -23,6 +23,8 @@ require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
 
+require 'msf/core/opt_condition'
+
 require 'optparse'
 
 module Msf
@@ -1871,6 +1873,7 @@ class Core
 
     mod.options.sorted.each { |e|
       name, _opt = e
+      next unless Msf::OptCondition.show_option(mod, _opt)
       res << name
     }
 
@@ -1897,6 +1900,7 @@ class Core
       if (p)
         p.options.sorted.each { |e|
           name, _opt = e
+          next unless Msf::OptCondition.show_option(mod, _opt)
           res << name
         }
       end
@@ -2135,7 +2139,15 @@ class Core
   #   stage since the command itself has been completed.
   def cmd_unset_tabs(str, words)
     datastore = active_module ? active_module.datastore : self.framework.datastore
-    datastore.keys
+    keys = datastore.keys
+
+    mod = active_module
+    if mod
+      keys = keys.delete_if do |name|
+        !(mod_opt = mod.options[name]).nil? && !Msf::OptCondition.show_option(mod, mod_opt)
+      end
+    end
+    keys
   end
 
   def cmd_unsetg_help

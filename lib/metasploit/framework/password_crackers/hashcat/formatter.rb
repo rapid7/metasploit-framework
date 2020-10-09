@@ -80,6 +80,15 @@ def hash_to_hashcat(cred)
       #            ssha, raw-sha512
       # hash-mode: 111,  1700
       return cred.private.data
+    when /^mscash$/
+      # hash-mode: 1100
+      data = cred.private.data.split(':').first
+      if /^M\$(?<salt>[[:print:]]+)#(?<hash>[\da-fA-F]{32})/ =~ data
+        return "#{hash}:#{salt}"
+      end
+    when /^mscash2$/
+      # hash-mode: 2100
+      return cred.private.data.split(':').first
     end
   end
   nil

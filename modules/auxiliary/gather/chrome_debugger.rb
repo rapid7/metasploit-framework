@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Adam Baldwin (Evilpacket)', # Original ideas, research, proof of concept, and msf module
         'Nicholas Starke (The King Pig Demon)' # msf module
       ],
-      'DisclosureDate' => 'Sep 24 2019',
+      'DisclosureDate' => '2019-09-24',
       'License' => MSF_LICENSE
     ))
 

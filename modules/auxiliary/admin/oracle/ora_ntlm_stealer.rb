@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://dsecrg.com/pages/pub/show.php?id=17' ],
         ],
-      'DisclosureDate' => 'Apr 7 2009'))
+      'DisclosureDate' => '2009-04-07'))
 
       register_options(
         [

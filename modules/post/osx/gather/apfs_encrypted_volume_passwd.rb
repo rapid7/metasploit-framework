@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
         'cbrnrd'          # Metasploit module
       ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
-      'DisclosureDate' => 'Mar 21 2018'
+      'DisclosureDate' => '2018-03-21'
     ))
     register_options([
       # The command doesn't give volume names, only mount paths (current or previous)

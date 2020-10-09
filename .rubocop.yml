@@ -14,12 +14,22 @@ AllCops:
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
 
 Layout/ModuleHashOnNewLine:
   Enabled: true
 
 Layout/ModuleDescriptionIndentation:
   Enabled: true
+
+Lint/ModuleDisclosureDateFormat:
+  Enabled: true
+
+Lint/ModuleDisclosureDatePresent:
+  Include:
+    # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
+    - 'modules/exploits/**/*'
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'

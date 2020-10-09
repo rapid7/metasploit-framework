@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['RETR',  { 'Description' => 'Retrieve remote file' }],
           ['STOR',  { 'Description' => 'Store remote file' }]
         ],
-      'DisclosureDate' => 'Aug 9 2014'))
+      'DisclosureDate' => '2014-08-09'))
 
     register_options(
       [

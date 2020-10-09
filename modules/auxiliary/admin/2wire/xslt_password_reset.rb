@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '36075' ],
           [ 'URL', 'https://seclists.org/bugtraq/2007/Aug/225' ],
         ],
-      'DisclosureDate' => "Aug 15 2007" ))
+      'DisclosureDate' => '2007-08-15' ))
 
       register_options(
         [

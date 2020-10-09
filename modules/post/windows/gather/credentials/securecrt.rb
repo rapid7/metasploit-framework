@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('PASSPHRASE', [ false, 'The configuration password that was set when SecureCRT was installed, if one was supplied']),
+        OptString.new('SESSION_PATH', [ false, 'Specifies the session directory path for SecureCRT']),
       ]
     )
   end
@@ -170,9 +171,16 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status("Gathering SecureCRT session information from #{sysinfo['Computer']}")
-    parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
-    # get session file path
-    securecrt_path = expand_path(registry_getvaldata(parent_key, 'Config Path') + session.fs.file.separator + 'Sessions')
+    securecrt_path = ''
+    if datastore['SESSION_PATH'].to_s.empty?
+      parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
+      # get session file path
+      root_path = registry_getvaldata(parent_key, 'Config Path')
+      securecrt_path = expand_path(root_path + session.fs.file.separator + 'Sessions') if !root_path.to_s.empty?
+    else
+      securecrt_path = expand_path(datastore['SESSION_PATH'])
+    end
+
     if securecrt_path.to_s.empty?
       print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
     else

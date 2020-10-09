@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
             [ 'CVE', '2017-9554' ],
             [ 'URL', 'https://www.synology.com/en-global/security/advisory/Synology_SA_17_29_DSM' ]
           ],
-        'DisclosureDate' => 'Jan 5 2011'
+        'DisclosureDate' => '2011-01-05'
       )
     )
 
