@@ -57,6 +57,10 @@ def hash_to_jtr(cred)
       # https://moar.so/blog/qnx-password-hash-formats.html
       hash = cred.private.data.end_with?(':0:0') ? cred.private.data : "#{cred.private.data}:0:0"
       return "#{cred.public.username}:#{hash}"
+    when /Raw-MD5/
+      # not md5-crypt, just an md5. Avira uses this with unicode
+      # the trailing : shows an empty salt, JTR and hashcat comptaible
+      return "#{cred.private.data}:"
     else
       # /mysql|mysql-sha1/
       # /mssql|mssql05|mssql12/
