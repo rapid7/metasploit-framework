@@ -61,26 +61,27 @@ This section will cover the differences between the two crackers.  This is not a
 |-----------------------------|-------------------------|--------------------|
 | List formats                | `john --list=formats` `john --list=format-all-details` | `hashcat -h` |
 | | | |
-| cram-md5                    | hmac-md5                | 10200              |
-| des                         | descrypt                | 1500               |
-| md5 (crypt is $1$)          | md5crypt                | 500                |
-| sha1                        |                         | 100                |
-| bsdi                        | bsdicrypt               | 12400              |
-| sha256                      | sha256crypt             | 7400               |
-| sha512                      | sha512crypt             | 1800               |
-| blowfish                    | bcrypt                  | 3200               |
-| lanman                      | lm                      | 3000               |
-| NTLM                        | nt                      | 1000               |
-| mssql (05)                  | mssql                   | 131                |
-| mssql12                     | mssql12                 | 1731               |
-| mssql (2012/2014)           | mssql05                 | 132                |
-| oracle (10)                 | oracle                  | 3100               |
-| oracle 11                   | oracle11                | 112                |
-| oracle 12                   | oracle12c               | 12300              |
-| postgres                    | dynamic_1034            | 12                 |
-| mysql                       | mysql                   | 200                |
-| mysql-sha1                  | mysql-sha1              | 300                |
-| sha512($p.$s) - vmware ldap | dynamic_82              | 1710               |
+| cram-md5                    | hmac-md5                | 10200                   |
+| des                         | descrypt                | 1500                    |
+| md5 (crypt is $1$)          | md5crypt                | 500                     |
+| sha1                        |                         | 100                     |
+| bsdi                        | bsdicrypt               | 12400                   |
+| sha256                      | sha256crypt             | 7400                    |
+| sha512                      | sha512crypt             | 1800                    |
+| blowfish                    | bcrypt                  | 3200                    |
+| lanman                      | lm                      | 3000                    |
+| NTLM                        | nt                      | 1000                    |
+| mssql (05)                  | mssql                   | 131                     |
+| mssql12                     | mssql12                 | 1731                    |
+| mssql (2012/2014)           | mssql05                 | 132                     |
+| oracle (10)                 | oracle                  | 3100                    |
+| oracle 11                   | oracle11                | 112                     |
+| oracle 12                   | oracle12c               | 12300                   |
+| postgres                    | dynamic_1034            | 12                      |
+| mysql                       | mysql                   | 200                     |
+| mysql-sha1                  | mysql-sha1              | 300                     |
+| sha512($p.$s) - vmware ldap | dynamic_82              | 1710                    |
+| md5 (raw, unicode)          | Raw-MD5u                | 30 (with an empty salt) |
 
 While Metasploit standardizes with the JtR format, the hashcat [library](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb) includes the `jtr_format_to_hashcat_format` function to translate from jtr to hashcat.
 
