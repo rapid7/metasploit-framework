@@ -614,7 +614,7 @@ class Msftidy
       end
 
       if ln =~ /^\s*fail_with\(/
-        unless ln =~ /^\s*fail_with\(.*Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
+        unless ln + @lines[idx] =~ /^\s*fail_with\(\s*Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
