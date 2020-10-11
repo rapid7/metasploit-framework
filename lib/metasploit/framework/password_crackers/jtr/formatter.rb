@@ -59,7 +59,7 @@ def hash_to_jtr(cred)
       return "#{cred.public.username}:#{hash}"
     when /Raw-MD5/
       # not md5-crypt, just an md5. Avira uses this with unicode
-      # the trailing : shows an empty salt, JTR and hashcat comptaible
+      # the trailing : shows an empty salt, JTR and hashcat compatible
       return "#{cred.private.data}:"
     else
       # /mysql|mysql-sha1/
