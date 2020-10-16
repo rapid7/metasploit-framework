@@ -3,6 +3,8 @@ Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.sv
 The Metasploit Framework is released under a BSD-style license. See
 [COPYING](COPYING) for more details.
 
+![Logo](https://github.com/rapid7/metasploit-framework/tree/master/logo.png)
+
 The latest version of this software is available from: https://metasploit.com
 
 Bug tracking and development information can be found at:
@@ -26,10 +28,13 @@ you'd like to deal with dependencies on your own.
 
 Using Metasploit
 --
-Metasploit can do all sorts of things. The first thing you'll want to do
-is start `msfconsole`, but after that, you'll probably be best served by
-reading [Metasploit Unleashed][unleashed], the [great community
-resources](https://metasploit.github.io), or the [wiki].
+Metasploit can do all sorts of things. The Metasploit framework is a very
+powerful tool which can be used by pentrester as well as ethical hackers to
+probe systematic vulnerabilities on networks and servers. Because it's an 
+open-source framework, it can be easily customized and used with most 
+operating systems.The first thing you'll want to do is start `msfconsole`,
+but after that, you'll probably be best served by reading [Metasploit Unleashed][unleashed],
+the [great community resources](https://metasploit.github.io), or the [wiki].
 
 Contributing
 --
