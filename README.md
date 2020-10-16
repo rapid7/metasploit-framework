@@ -3,7 +3,7 @@ Metasploit [![Build Status](https://travis-ci.org/rapid7/metasploit-framework.sv
 The Metasploit Framework is released under a BSD-style license. See
 [COPYING](COPYING) for more details.
 
-![Logo](https://github.com/rapid7/metasploit-framework/tree/master/logo.png)
+![Logo](https://github.com/Rishu20/metasploit-framework/blob/master/logo.png)
 
 The latest version of this software is available from: https://metasploit.com
 
