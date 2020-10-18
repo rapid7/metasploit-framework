@@ -9,6 +9,8 @@ Vulnerable versions of MikroTik RouterOS:
 * (current) 6.29-6.42
 * (RC) 6.29rc1-6.43rc3
 
+MikroTik images can be downloaded from [here](https://mikrotik.com/download/archive)
+
 ### Adding Users
 
 To add users to the MikroTik device, use the following commands:
