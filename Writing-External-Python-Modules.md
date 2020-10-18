@@ -183,7 +183,7 @@ Some coding choices to think about when writing your module:
 
 ### Why doesn't the module appear when I search for it in msfconsole?
 
-The module may have errors and fail to load inside of msfconsole. Check the framework log file, `~/.msf4/logs/framework.log`, for error messages. Also, if the module is not marked as executable, then it will not show up when you search for it in msfconsole.
+The module may have errors and fail to load inside of msfconsole. Check the framework log file, `~/.msf4/logs/framework.log`, for error messages. Also, **if the module is not marked as executable, then it will not show up when you search for it in msfconsole**.
 
 ### Why is the output from the Python module not showing up in msfconsole?
 
