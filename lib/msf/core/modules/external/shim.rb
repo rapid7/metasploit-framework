@@ -4,7 +4,11 @@ require 'msf/core/modules/external'
 class Msf::Modules::External::Shim
   def self.generate(module_path, framework)
     mod = Msf::Modules::External.new(module_path, framework: framework)
-    return nil unless mod.meta
+    # first check if meta exists and raise an issue if not, #14281
+    # raise instead of returning nil to avoid confusion
+    unless mod.meta
+      raise LoadError, " Try running file manually to check for errors or dependency issues."
+    end
     case mod.meta['type']
     when 'remote_exploit'
       remote_exploit(mod)
