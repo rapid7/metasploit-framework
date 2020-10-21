@@ -76,6 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     checkcode = Exploit::CheckCode::Unknown
+    details = {}
 
     begin
       ipc_share = "\\\\#{ip}\\IPC$"
@@ -93,14 +94,16 @@ class MetasploitModule < Msf::Auxiliary
           case dcerpc_getarch
           when ARCH_X86
             os << ' x86 (32-bit)'
+            details[:arch] = ARCH_X86
           when ARCH_X64
             os << ' x64 (64-bit)'
+            details[:arch] = ARCH_X64
           end
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
 
-        checkcode = Exploit::CheckCode::Vulnerable
+        checkcode = Exploit::CheckCode::Vulnerable(details: details)
 
         report_vuln(
           host: ip,
