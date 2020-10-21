@@ -477,7 +477,7 @@ class Msf::Modules::Loader::Base
     end
     unless File.extname(path) == '.rb'
       # prefer elog since load_error clutters the UI on potential false positives
-      elog("Unable to load module #{path} - LoadError Possible non-executable external module")
+      elog("Unable to load module #{path} - LoadError Possible non-executable external module.")
     end
     false
   end
