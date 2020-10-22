@@ -87,9 +87,8 @@ class MetasploitModule < Msf::Auxiliary
       status = do_smb_ms17_010_probe(tree_id)
       vprint_status("Received #{status} with FID = 0")
 
-      if status == "STATUS_INSUFF_SERVER_RESOURCES"
-        os = simple.client.peer_native_os
-
+      os = simple.client.peer_native_os.dup
+      if status == 'STATUS_INSUFF_SERVER_RESOURCES'
         if datastore['CHECK_ARCH']
           case dcerpc_getarch
           when ARCH_X86
@@ -132,25 +131,34 @@ class MetasploitModule < Msf::Auxiliary
 
         if datastore['CHECK_PIPE']
           pipe_name, _ = check_named_pipes(return_first: true)
+          if pipe_name
+            print_good("Named pipe found: #{pipe_name}")
 
-          return unless pipe_name
-
-          print_good("Named pipe found: #{pipe_name}")
-
-          report_note(
-            host:  ip,
-            port:  rport,
-            proto: 'tcp',
-            sname: 'smb',
-            type:  'MS17-010 Named Pipe',
-            data:  pipe_name
-          )
+            report_note(
+              host:  ip,
+              port:  rport,
+              proto: 'tcp',
+              sname: 'smb',
+              type:  'MS17-010 Named Pipe',
+              data:  pipe_name
+            )
+          end
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
         print_error("Host does NOT appear vulnerable.")
       else
         print_error("Unable to properly detect if host is vulnerable.")
+      end
+
+      unless (fp_match = Recog::Nizer.match('smb.native_os', simple.client.peer_native_os)).nil?
+        report_host(
+          host: rhost,
+          name: simple.client.default_name,
+          arch: details[:arch],
+          os_family: 'Windows',
+          os_flavor: fp_match['os.edition']
+        )
       end
 
     rescue ::Interrupt
