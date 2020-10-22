@@ -48,7 +48,7 @@ module Metasploit
               return "Unexpected HTTP response code #{res.code} (is this really Zabbix?)"
             end
 
-            if res.body.to_s !~ /Zabbix ([^\s]+) Copyright .* by Zabbix/m
+            if res.body.to_s !~ /Zabbix/
               return "Unexpected HTTP body (is this really Zabbix?)"
             end
 
@@ -115,14 +115,15 @@ module Metasploit
           res = try_credential(credential)
           if res && res.code == 302
             opts = {
-              'uri'     => normalize_uri('profile.php'),
+              #'uri'     => normalize_uri('profile.php'), --> works for versions 3 and 4 but not 5
+              'uri'     => normalize_uri('discoveryconf.php'),
               'method'  => 'GET',
               'headers' => {
                 'Cookie'  => "zbx_sessionid=#{self.zsession}"
               }
             }
             res = send_request(opts)
-            if (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: User profile<\/title>/)
+            if (res && res.code == 200 && res.body.to_s =~ /Zabbix/)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           end
