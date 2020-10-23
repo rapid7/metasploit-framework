@@ -234,7 +234,11 @@ class MetasploitModule < Msf::Post
     if datastore['ARGUMENTS'].nil?
       argssize = 1
     else
-      argssize = datastore['ARGUMENTS'].size + 1
+      if datastore['ARGUMENTS'].size == 0
+        argssize = 2
+      else
+        argssize = datastore['ARGUMENTS'].size + 1
+      end
     end
     payload_size = amsi_flag_size + etw_flag_size + int_param_size
     payload_size += assembly_size + argssize
@@ -254,7 +258,11 @@ class MetasploitModule < Msf::Post
     if datastore['ARGUMENTS'].nil?
       params += ''
     else
-      params += datastore['ARGUMENTS']
+      if datastore['ARGUMENTS'].size == 0
+        params += "\x00"
+      else
+        params += datastore['ARGUMENTS']
+      end
     end
     params += "\x00"
 

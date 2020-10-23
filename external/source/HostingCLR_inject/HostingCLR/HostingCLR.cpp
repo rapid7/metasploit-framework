@@ -266,7 +266,7 @@ int executeSharp(LPVOID lpPayload)
 	vtPsa.vt = (VT_ARRAY | VT_BSTR);
 
 	//Managing parameters
-	if(arg_s[0] != '\x00')
+	if(raw_args_length > 1)
 	{
 		//if we have at least 1 parameter set cEleemnt to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
