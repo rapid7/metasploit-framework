@@ -154,10 +154,10 @@ class MetasploitModule < Msf::Auxiliary
       unless (fp_match = Recog::Nizer.match('smb.native_os', simple.client.peer_native_os)).nil?
         report_host(
           host: rhost,
-          name: simple.client.default_name,
           arch: details[:arch],
           os_family: 'Windows',
-          os_flavor: fp_match['os.edition']
+          os_flavor: fp_match['os.edition'],
+          os_name: fp_match['os.product']
         )
       end
 
