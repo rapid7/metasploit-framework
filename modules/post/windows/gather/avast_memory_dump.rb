@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [ 'DLL_Cool_J' ],
         'Platform'      => [ 'win'],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+        'SessionTypes'  => [ 'meterpreter']
     ))
 
     register_options ( [
