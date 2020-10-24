@@ -429,11 +429,13 @@ def reinit_db
     if @options[:delete_existing_data]
       puts "Deleting all data at #{@localconf}"
       FileUtils.rm_rf(@localconf)
-      init_db
+    else
+      return
     end
   else
-    puts "No data at #{@localconf}, doing nothing"
+    puts "No data at #{@localconf}, let's init"
   end
+  init_db
 end
 
 class WebServicePIDStatus
