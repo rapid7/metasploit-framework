@@ -306,6 +306,9 @@ def write_db_config
   # Generate new database passwords if not already assigned
   @msf_pass ||= pw_gen
   @msftest_pass ||= pw_gen
+  
+  puts "[*] db(#{@options[:msf_db_name]}) user(#{@options[:msf_db_user]}) password(#{@msf_pass})"
+  puts "[*] db(#{@options[:msftest_db_name]}) user(#{@options[:msftest_db_user]}) password(#{@msftest_pass})"
 
   # Write a default database config file
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
@@ -422,8 +425,15 @@ def delete_db
 end
 
 def reinit_db
-  delete_db
-  init_db
+  if Dir.exist?(@localconf)
+    if @options[:delete_existing_data]
+      puts "Deleting all data at #{@localconf}"
+      FileUtils.rm_rf(@localconf)
+      init_db
+    end
+  else
+    puts "No data at #{@localconf}, doing nothing"
+  end
 end
 
 class WebServicePIDStatus
