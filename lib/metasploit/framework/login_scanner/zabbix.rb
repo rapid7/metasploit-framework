@@ -108,6 +108,18 @@ module Metasploit
         end
 
 
+        def perform_login_attempt(url)
+          opts = {
+            # profile.php exists in Zabbix versions up to Zabbix 5.x
+            'uri'     => normalize_uri(url),
+            'method'  => 'GET',
+            'headers' => {
+              'Cookie'  => "zbx_sessionid=#{self.zsession}"
+            }
+          }
+          send_request(opts)
+        end
+
         # Tries to login to Zabbix
         #
         # @param credential [Metasploit::Framework::Credential] The credential object
@@ -116,19 +128,16 @@ module Metasploit
         #   * :proof [String] the HTTP response body
         def try_login(credential)
           res = try_credential(credential)
+
           if res && res.code == 302
-            opts = {
-              # discoveryconf.php is login protected page on versions of Zabbix
-              # from 1.8.22 onwards, so it should only be accessible after logging in.
-              'uri'     => normalize_uri('discoveryconf.php'),
-              'method'  => 'GET',
-              'headers' => {
-                'Cookie'  => "zbx_sessionid=#{self.zsession}"
-              }
-            }
-            res = send_request(opts)
-            if (res && res.code == 200 && res.body.to_s =~ /Zabbix/)
+            res = perform_login_attempt('profile.php')
+            if (res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
+            else
+              res = perform_login_attempt('/zabbix.php?action=userprofile.edit') # On version 5.x and later of Zabbix, profile.php was replaced with /zabbix.php?action=userprofile.edit
+              if (res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/)
+                return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
+              end
             end
           end
 
