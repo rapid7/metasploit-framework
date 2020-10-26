@@ -11,7 +11,7 @@ arel, 9.0.0, MIT
 arel-helpers, 2.11.0, MIT
 ast, 2.4.1, MIT
 aws-eventstream, 1.1.0, "Apache 2.0"
-aws-partitions, 1.384.0, "Apache 2.0"
+aws-partitions, 1.385.0, "Apache 2.0"
 aws-sdk-core, 3.109.1, "Apache 2.0"
 aws-sdk-ec2, 1.202.0, "Apache 2.0"
 aws-sdk-iam, 1.46.0, "Apache 2.0"
@@ -60,7 +60,7 @@ memory_profiler, 0.9.14, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 3.0.0, "New BSD"
 metasploit-credential, 4.0.2, "New BSD"
-metasploit-framework, 6.0.13, "New BSD"
+metasploit-framework, 6.0.14, "New BSD"
 metasploit-model, 3.1.2, "New BSD"
 metasploit-payloads, 2.0.22, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 4.1.0, "New BSD"
@@ -101,7 +101,7 @@ railties, 5.2.4.4, MIT
 rainbow, 3.0.0, MIT
 rake, 13.0.1, MIT
 rb-readline, 0.5.5, BSD
-recog, 2.3.14, unknown
+recog, 2.3.15, unknown
 redcarpet, 3.5.0, MIT
 regexp_parser, 1.8.2, MIT
 reline, 0.1.6, ruby
@@ -127,13 +127,13 @@ rexml, 3.2.4, "Simplified BSD"
 rkelly-remix, 0.0.7, MIT
 rspec, 3.9.0, MIT
 rspec-core, 3.9.3, MIT
-rspec-expectations, 3.9.2, MIT
+rspec-expectations, 3.9.3, MIT
 rspec-mocks, 3.9.1, MIT
 rspec-rails, 4.0.1, MIT
 rspec-rerun, 1.1.0, MIT
-rspec-support, 3.9.3, MIT
+rspec-support, 3.9.4, MIT
 rubocop, 1.0.0, MIT
-rubocop-ast, 1.0.0, MIT
+rubocop-ast, 1.0.1, MIT
 ruby-macho, 2.3.0, MIT
 ruby-prof, 1.4.1, "Simplified BSD"
 ruby-progressbar, 1.10.1, MIT
