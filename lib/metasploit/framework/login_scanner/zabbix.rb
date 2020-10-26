@@ -6,7 +6,7 @@ module Metasploit
     module LoginScanner
 
       # The Zabbix HTTP LoginScanner class provides methods to do login routines
-      # for Zabbix 2.4 and 2.2
+      # for Zabbix 2.4 and 2.2 as well as versions 3, 4, and 5.
       class Zabbix < HTTP
 
         DEFAULT_PORT  = 80
@@ -48,8 +48,11 @@ module Metasploit
               return "Unexpected HTTP response code #{res.code} (is this really Zabbix?)"
             end
 
-            if res.body.to_s !~ /Zabbix/
-              return "Unexpected HTTP body (is this really Zabbix?)"
+            if res.body.to_s !~ /Zabbix ([^\s]+) Copyright .* by Zabbix/m # Regex check for older versions of Zabbix prior to version 3.
+              if res.body.to_s !~ /<a target="_blank" class="grey link-alt" href="http[sS]{0,1}:\/\/www\.zabbix\.com\/documentation\/(\d+\.\d+)\/">Help<\/a>/m
+	              return "Unexpected HTTP body (is this really Zabbix?)" # If both the regex for the old and new versions
+                                                                       # fail to match, the target likely isn't Zabbix.
+              end
             end
 
             self.version = $1
@@ -115,7 +118,8 @@ module Metasploit
           res = try_credential(credential)
           if res && res.code == 302
             opts = {
-              #'uri'     => normalize_uri('profile.php'), --> works for versions 3 and 4 but not 5
+              # discoveryconf.php is login protected page on versions of Zabbix
+              # from 1.8.22 onwards, so it should only be accessible after logging in.
               'uri'     => normalize_uri('discoveryconf.php'),
               'method'  => 'GET',
               'headers' => {

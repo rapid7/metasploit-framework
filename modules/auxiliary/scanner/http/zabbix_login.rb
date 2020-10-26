@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     if is_guest_mode_enabled?
       print_brute :level => :good, :ip => ip, :msg => "Note: This Zabbix instance has Guest mode enabled"
     else
-      print_brute :level=>:status, :ip=>rhost, :msg=>("Zabbix has disabled Guest mode")
+      print_brute :level=>:status, :ip=>rhost, :msg=>("This Zabbix instance has disabled Guest mode")
     end
 
     bruteforce(ip)
