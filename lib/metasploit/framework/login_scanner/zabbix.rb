@@ -110,7 +110,6 @@ module Metasploit
 
         def perform_login_attempt(url)
           opts = {
-            # profile.php exists in Zabbix versions up to Zabbix 5.x
             'uri'     => normalize_uri(url),
             'method'  => 'GET',
             'headers' => {
@@ -130,7 +129,7 @@ module Metasploit
           res = try_credential(credential)
 
           if res && res.code == 302
-            res = perform_login_attempt('profile.php')
+            res = perform_login_attempt('profile.php') # profile.php exists in Zabbix versions up to Zabbix 5.x
             if (res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/)
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             else
