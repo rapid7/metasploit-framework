@@ -1,9 +1,9 @@
 SQL Injection library support was added in 2020 by @red0xff during the Google Summer of Code.
 
 # Supported Databases
-* MySQL/MariaDB (#13596)
-* SQLite (#13847)
-* PostgreSQL (#14067)
+* MySQL/MariaDB ([#13596](https://github.com/rapid7/metasploit-framework/pull/13596))
+* SQLite ([#13847](https://github.com/rapid7/metasploit-framework/pull/13847))
+* PostgreSQL ([#14067](https://github.com/rapid7/metasploit-framework/pull/14067))
 
 # Supported Techniques
 * Boolean Based Blind
