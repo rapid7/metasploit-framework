@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Pulse Secure VPN Client for Windows < 9.0Rx
+Pulse Secure VPN Client for Windows <= 9.1R3.
 
 An end-to-end setup with working Juniper Pulse Secure VPN server, Pulse Secure client on Microsoft Windows, and valid credentials are required for Pulse Secure client to save credentials locally and therefore test this.
 
@@ -13,6 +13,7 @@ An end-to-end setup with working Juniper Pulse Secure VPN server, Pulse Secure c
 4. Run the module and enjoy the loot.
 
 ## Example Run
+
 **Normal mode**
 ```
 msf > use post/windows/gather/credentials/pulse_secure
@@ -57,4 +58,5 @@ end
 
 ## References
 
-TODO
+- https://qkaiser.github.io/reversing/2020/10/27/pule-secure-credentials
+- https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44601
