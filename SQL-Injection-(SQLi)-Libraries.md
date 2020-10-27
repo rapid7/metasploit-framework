@@ -33,3 +33,7 @@ end
 
 `dbms` can be set to either `Common` if the DB isn't know, or one of the other databases and methods if it is known ahead of time such as `SQLitei::BooleanBasedBlind`
 `sqli_opts` is a hash containing all of the options: https://github.com/red0xff/metasploit-framework/blob/master/lib/msf/core/exploit/sqli/common.rb#L10
+
+## Notes
+
+`run_sql` can only return 1 column.
