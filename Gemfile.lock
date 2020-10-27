@@ -19,7 +19,7 @@ PATH
       eventmachine
       faker
       faraday
-      faye-websocket
+      faye-websocket (>= 0.11.0)
       filesize
       hrr_rb_ssh (= 0.3.0.pre2)
       irb
