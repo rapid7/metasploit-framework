@@ -431,7 +431,7 @@ GEM
     warden (1.2.9)
       rack (>= 2.0.9)
     websocket-driver (0.7.3)
-      websocket-extensions (>= 0.1.0)
+      websocket-extensions (>= 0.1.5)
     websocket-extensions (0.1.5)
     windows_error (0.1.2)
     xdr (3.0.2)
