@@ -3,11 +3,11 @@
 #
 # Log severities
 #
-LOG_ERROR = 'error'
-LOG_DEBUG = 'debug'
-LOG_INFO  = 'info'
-LOG_WARN  = 'warn'
-LOG_RAW   = 'raw'
+LOG_ERROR = :error
+LOG_DEBUG = :debug
+LOG_INFO  = :info
+LOG_WARN  = :warn
+LOG_RAW   = :raw
 
 ##
 #

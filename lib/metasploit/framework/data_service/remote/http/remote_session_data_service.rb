@@ -8,7 +8,7 @@ module RemoteSessionDataService
 
   def sessions(opts)
     path = get_path_select(opts, SESSION_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), SESSION_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(path, nil, opts), SESSION_MDM_CLASS)
   end
 
   def report_session(opts)
@@ -20,7 +20,7 @@ module RemoteSessionDataService
     end
 
     opts[:time_stamp] = Time.now.utc
-    sess_db = json_to_mdm_object(self.post_data(SESSION_API_PATH, opts), SESSION_MDM_CLASS, []).first
+    sess_db = json_to_mdm_object(self.post_data(SESSION_API_PATH, opts), SESSION_MDM_CLASS).first
     session.db_record = sess_db
   end
 
@@ -31,7 +31,7 @@ module RemoteSessionDataService
       path = "#{SESSION_API_PATH}/#{id}"
     end
 
-    json_to_mdm_object(self.put_data(path, opts), SESSION_MDM_CLASS, []).first
+    json_to_mdm_object(self.put_data(path, opts), SESSION_MDM_CLASS).first
   end
 
 end

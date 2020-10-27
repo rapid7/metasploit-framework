@@ -27,6 +27,10 @@ class Msf::Post < Msf::Module
 
   include Msf::PostMixin
 
+  # file_dropper sets needs_cleanup to true to track exploits that upload files
+  # some post modules also use file_dropper, so let's define it here
+  attr_accessor :needs_cleanup
+
   def setup
     m = replicant
 

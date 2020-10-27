@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://seclists.org/fulldisclosure/2016/Dec/72'],
           ['URL', 'http://kb.netgear.com/000036549/Insecure-Remote-Access-and-Command-Execution-Security-Vulnerability']
         ],
-      'DisclosureDate'  => 'Dec 20 2016'))
+      'DisclosureDate'  => '2016-12-20'))
     register_options(
       [
         Opt::RPORT(80)

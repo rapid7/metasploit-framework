@@ -15,7 +15,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 ###
 module MetasploitModule
 
-  CachedSize = 1711
+  CachedSize = 1746
 
   include Msf::Payload::Windows::Exec
   include Msf::Payload::Windows::Powershell
@@ -44,7 +44,7 @@ module MetasploitModule
     # Register command execution options
     register_options(
       [
-        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
+        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules separated by a comma to download over the web", nil ]),
       ])
     # Hide the CMD option...this is kinda ugly
     deregister_options('CMD')

@@ -167,11 +167,10 @@ class DataProxy
   end
 
   def log_error(exception, ui_message)
-    elog "#{ui_message}: #{exception.message}"
-    exception.backtrace.each { |line| elog "#{line}" }
+    elog(ui_message, error: exception)
     # TODO: We should try to surface the original exception, instead of just a generic one.
     # This should not display the full backtrace, only the message.
-    raise "#{ui_message}: #{exception.message}. See log for more details."
+    raise exception
   end
 
   # Adds a valid workspace value to the opts hash before sending on to the data layer.
@@ -182,9 +181,6 @@ class DataProxy
   def add_opts_workspace(opts, wspace = nil)
     # If :id is present the user only wants a specific record, so workspace isn't needed
     return if opts.key?(:id)
-
-    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
-    opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
 
     # If the user passed in a specific workspace then use that in opts
     opts[:workspace] = wspace if wspace

@@ -1015,12 +1015,16 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   context '#import_msf_xml' do
+    let(:workspace) do
+      FactoryBot.create(:mdm_workspace)
+    end
+
     let(:data) do
       '<MetasploitV4/>'
     end
 
     subject(:import_msf_xml) do
-      db_manager.import_msf_xml(:data => data)
+      db_manager.import_msf_xml({:data => data, :workspace => workspace})
     end
 
     it 'should call #check_msf_xml_version!' do

@@ -96,6 +96,14 @@ class Packet::Header < Hash
   end
 
   #
+  # More advanced include? that does downcase comparison
+  #
+  def include?(key)
+    self.each_key.any? { |k|
+      k.casecmp?(key)
+    }
+  end
+  #
   # Converts the header to a string.
   #
   def to_s(prefix = '')

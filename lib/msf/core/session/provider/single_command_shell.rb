@@ -131,7 +131,10 @@ module SingleCommandShell
     # Send the command to the session's stdin.
     # NOTE: if the session echoes input we don't need to echo the token twice.
     shell_write(cmd + "&echo #{token}\n")
-    shell_read_until_token(token, 1, timeout)
+    res = shell_read_until_token(token, 1, timeout)
+    # I would like a better way to do this, but I don't know of one
+    res.reverse!.chomp!.reverse! # the presence of a leading newline is not consistent
+    res
   end
 
 

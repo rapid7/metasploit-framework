@@ -24,13 +24,13 @@ class Window
   # are enumerated. Otherwise, all child windows of the specified
   # parent window are enumerated.
   def enumerate(include_unknown = false, parent_window = nil)
-    request = Packet.create_request('extapi_window_enum')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_WINDOW_ENUM)
 
     if include_unknown
       request.add_tlv(TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN, true)
     end
 
-    if not parent_window.nil?
+    if !parent_window.nil?
       request.add_tlv(TLV_TYPE_EXT_WINDOW_ENUM_HANDLE, parent_window)
     end
 
@@ -38,13 +38,14 @@ class Window
 
     windows = []
 
-    response.each(TLV_TYPE_EXT_WINDOW_ENUM_GROUP) { |w|
+    response.each(TLV_TYPE_EXT_WINDOW_ENUM_GROUP) do |w|
       windows << {
-        :pid    => w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_PID),
-        :handle => w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_HANDLE),
-        :title  => w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_TITLE)
+        pid: w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_PID),
+        handle: w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_HANDLE),
+        title: w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_TITLE),
+        class_name: w.get_tlv_value(TLV_TYPE_EXT_WINDOW_ENUM_CLASSNAME)
       }
-    }
+    end
 
     windows.sort_by { |w| w[:pid] }
   end
@@ -52,5 +53,9 @@ class Window
   attr_accessor :client
 
 end
-
-end; end; end; end; end; end
+end
+end
+end
+end
+end
+end

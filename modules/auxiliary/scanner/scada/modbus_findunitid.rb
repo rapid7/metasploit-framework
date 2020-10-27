@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         => [ 'EsMnemon <esm[at]mnemonic.no>' ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Oct 28 2012'
+      'DisclosureDate' => '2012-10-28'
     ))
 
     register_options(

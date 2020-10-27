@@ -86,6 +86,22 @@ module Msf::ModuleManager::Loading
 
     # Notify the framework that a module was loaded
     framework.events.on_module_load(reference_name, class_or_module)
+
+    # Clear and add aliases, if any (payloads cannot)
+
+    if class_or_module.respond_to?(:realname) && aliased_as = self.inv_aliases[class_or_module.realname]
+      aliased_as.each do |a|
+        self.aliases.delete a
+      end
+      self.inv_aliases.delete class_or_module.realname
+    end
+
+    if class_or_module.respond_to? :aliases
+      class_or_module.aliases.each do |a|
+        self.aliases[a] = class_or_module.realname
+      end
+      self.inv_aliases[class_or_module.realname] = class_or_module.aliases unless class_or_module.aliases.empty?
+    end
   end
 
   protected

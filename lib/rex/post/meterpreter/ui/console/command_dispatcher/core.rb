@@ -48,31 +48,32 @@ class Console::CommandDispatcher::Core
   #
   def commands
     c = {
-      '?'            => 'Help menu',
-      'background'   => 'Backgrounds the current session',
-      'bg'           => 'Alias for background',
-      'close'        => 'Closes a channel',
-      'channel'      => 'Displays information or control active channels',
-      'exit'         => 'Terminate the meterpreter session',
-      'help'         => 'Help menu',
-      'irb'          => 'Open an interactive Ruby shell on the current session',
-      'pry'          => 'Open the Pry debugger on the current session',
-      'use'          => 'Deprecated alias for "load"',
-      'load'         => 'Load one or more meterpreter extensions',
-      'machine_id'   => 'Get the MSF ID of the machine attached to the session',
-      'guid'         => 'Get the session GUID',
-      'quit'         => 'Terminate the meterpreter session',
-      'resource'     => 'Run the commands stored in a file',
-      'uuid'         => 'Get the UUID for the current session',
-      'read'         => 'Reads data from a channel',
-      'run'          => 'Executes a meterpreter script or Post module',
-      'bgrun'        => 'Executes a meterpreter script as a background thread',
-      'bgkill'       => 'Kills a background meterpreter script',
-      'get_timeouts' => 'Get the current session timeout values',
-      'set_timeouts' => 'Set the current session timeout values',
-      'sessions'     => 'Quickly switch to another session',
-      'bglist'       => 'Lists running background scripts',
-      'write'        => 'Writes data to a channel',
+      '?'                        => 'Help menu',
+      'background'               => 'Backgrounds the current session',
+      'bg'                       => 'Alias for background',
+      'close'                    => 'Closes a channel',
+      'channel'                  => 'Displays information or control active channels',
+      'exit'                     => 'Terminate the meterpreter session',
+      'help'                     => 'Help menu',
+      'irb'                      => 'Open an interactive Ruby shell on the current session',
+      'pry'                      => 'Open the Pry debugger on the current session',
+      'use'                      => 'Deprecated alias for "load"',
+      'load'                     => 'Load one or more meterpreter extensions',
+      'machine_id'               => 'Get the MSF ID of the machine attached to the session',
+      'secure'                   => '(Re)Negotiate TLV packet encryption on the session',
+      'guid'                     => 'Get the session GUID',
+      'quit'                     => 'Terminate the meterpreter session',
+      'resource'                 => 'Run the commands stored in a file',
+      'uuid'                     => 'Get the UUID for the current session',
+      'read'                     => 'Reads data from a channel',
+      'run'                      => 'Executes a meterpreter script or Post module',
+      'bgrun'                    => 'Executes a meterpreter script as a background thread',
+      'bgkill'                   => 'Kills a background meterpreter script',
+      'get_timeouts'             => 'Get the current session timeout values',
+      'set_timeouts'             => 'Set the current session timeout values',
+      'sessions'                 => 'Quickly switch to another session',
+      'bglist'                   => 'Lists running background scripts',
+      'write'                    => 'Writes data to a channel',
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
       'disable_unicode_encoding' => 'Disables encoding of unicode strings'
     }
@@ -317,6 +318,12 @@ class Console::CommandDispatcher::Core
       client.next_session = args[0]
       client.interacting = false
     end
+  end
+
+  def cmd_secure
+    print_status('Negotiating new encryption key ...')
+    client.core.secure
+    print_good('Done.')
   end
 
   def cmd_background_help
@@ -1170,9 +1177,9 @@ class Console::CommandDispatcher::Core
     begin
       server = client.sys.process.open
     rescue TimeoutError => e
-      elog(e.to_s)
+      elog('Server Timeout', error: e)
     rescue RequestError => e
-      elog(e.to_s)
+      elog('Request Error', error: e)
     end
 
     service = client.pfservice
@@ -1282,6 +1289,14 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+
+      # Temporary hack to pivot mimikatz over to kiwi until
+      # everone remembers to do it themselves
+      if md == 'mimikatz'
+        print_warning('The "mimikatz" extension has been replaced by "kiwi". Please use this in future.')
+        md = 'kiwi'
+      end
+
       modulenameprovided = md
 
       if client.binary_suffix and client.binary_suffix.size > 1
@@ -1292,6 +1307,7 @@ class Console::CommandDispatcher::Core
           end
         }
       end
+
       if (extensions.include?(md))
         print_error("The '#{md}' extension has already been loaded.")
         next
@@ -1405,7 +1421,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       cmd_run_help
       return true
     end
@@ -1438,10 +1454,9 @@ class Console::CommandDispatcher::Core
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
       end
-    rescue
-      print_error("Error in script: #{$!.class} #{$!}")
-      elog("Error in script: #{$!.class} #{$!}")
-      dlog("Callstack: #{$@.join("\n")}")
+    rescue => e
+      print_error("Error in script: #{script_name}")
+      elog("Error in script: #{script_name}", error: e)
     end
   end
 
@@ -1475,7 +1490,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       print_line('Usage: bgrun <script> [arguments]')
       print_line
       print_line('Executes a ruby script in the context of the meterpreter session.')
@@ -1492,11 +1507,11 @@ class Console::CommandDispatcher::Core
       ::Thread.current[:args] = xargs.dup
       begin
         # the rest of the arguments get passed in through the binding
-        client.execute_script(args.shift, args)
-      rescue ::Exception
-        print_error("Error in script: #{$!.class} #{$!}")
-        elog("Error in script: #{$!.class} #{$!}")
-        dlog("Callstack: #{$@.join("\n")}")
+        script_name = args.shift
+        client.execute_script(script_name, args)
+      rescue ::Exception => e
+        print_error("Error in script: #{script_name}")
+        elog("Error in script: #{script_name}", error: e)
       end
       self.bgjobs[myjid] = nil
       print_status("Background script with Job ID #{myjid} has completed (#{::Thread.current[:args].inspect})")
@@ -1842,4 +1857,3 @@ end
 end
 end
 end
-

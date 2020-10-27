@@ -49,8 +49,12 @@ class WebConsole
     self.pipe.create_subscriber('msfweb')
 
     # Skip database initialization if it is already configured
-    if framework.db and framework.db.usable and framework.db.migrated
+    if framework.db && framework.db.active
       opts['SkipDatabaseInit'] = true
+      if opts['workspace']
+        wspace = framework.db.find_workspace(opts['workspace'])
+        framework.db.workspace = wspace
+      end
     end
 
     # Initialize the console with our pipe

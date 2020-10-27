@@ -102,7 +102,9 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif in_ctx_id == 'BID'
       self.site = "http://www.securityfocus.com/bid/#{in_ctx_val}"
     elsif in_ctx_id == 'MSB'
-      self.site = "https://technet.microsoft.com/en-us/library/security/#{in_ctx_val}"
+      year = in_ctx_val[2..3]
+      century = year[0] == '9' ? '19' : '20'
+      self.site = "https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/#{century}#{year}/#{in_ctx_val}"
     elsif in_ctx_id == 'EDB'
       self.site = "https://www.exploit-db.com/exploits/#{in_ctx_val}"
     elsif in_ctx_id == 'US-CERT-VU'

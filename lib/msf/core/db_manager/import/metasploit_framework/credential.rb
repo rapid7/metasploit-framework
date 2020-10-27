@@ -14,10 +14,10 @@ module Msf::DBManager::Import::MetasploitFramework::Credential
   # Import credentials given a path to a valid manifest file
   #
   # @option args [String] :filename
-  # @option args [Mdm::Workspace] :wspace Default: {#workspace}
+  # @option args [Mdm::Workspace] :workspace Default: {#workspace}
   # @return [void]
   def import_msf_cred_dump_zip(args = {})
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     origin = Metasploit::Credential::Origin::Import.create!(filename: File.basename(args[:filename]))
     importer = Metasploit::Credential::Importer::Zip.new(workspace: wspace, input: File.open(args[:filename]), origin: origin)
     importer.import!
@@ -27,7 +27,7 @@ module Msf::DBManager::Import::MetasploitFramework::Credential
   # Perform in an import of an msfpwdump file
   def import_msf_pwdump(args={}, &block)
     filename = File.basename(args[:data].path)
-    wspace   = args[:wspace] || workspace
+    wspace   = Msf::Util::DBManager.process_opts_workspace(args, framework)
     origin   = Metasploit::Credential::Origin::Import.create!(filename: filename)
     importer = Metasploit::Credential::Importer::Pwdump.new(input: args[:data], workspace: wspace, filename: filename, origin:origin)
     importer.import!

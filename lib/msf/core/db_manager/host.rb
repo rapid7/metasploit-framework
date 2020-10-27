@@ -2,7 +2,7 @@ module Msf::DBManager::Host
   # TODO: doesn't appear to have any callers. How is this used?
   # Deletes a host and associated data matching this address/comm
   def del_host(wspace, address, comm='')
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     address, scope = address.split('%', 2)
     host = wspace.hosts.find_by_address_and_comm(address, comm)
     host.destroy if host
@@ -16,7 +16,7 @@ module Msf::DBManager::Host
   def delete_host(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |host_id|
         host = Mdm::Host.find(host_id)
@@ -37,7 +37,7 @@ module Msf::DBManager::Host
   # instance of each entry.
   #
   def each_host(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.hosts.each do |host|
       block.call(host)
     end
@@ -55,45 +55,55 @@ module Msf::DBManager::Host
   def add_host_tag(opts)
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
-    ip = opts[:ip]
+    host_id = opts[:id]
     tag_name = opts[:tag_name]
 
-    host = get_host(workspace: wspace, address: ip)
+    host = wspace.hosts.find(host_id)
     if host
-      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host_id, tag_name).order("tags.id DESC").limit(1)
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
       tag.name = tag_name
       tag.hosts = [host]
       tag.save! if tag.changed?
+      tag
     end
   end
 
+  #@todo This will have to be pulled out if tags are used for more than just hosts
+  # ATM it will delete the tag from the tag table, not the host<->tag link
   def delete_host_tag(opts)
-    workspace = opts[:workspace]
-    if workspace.kind_of? String
-      workspace = framework.db.find_workspace(workspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
-    ip = opts[:rws]
+    host_id = opts[:id]
     tag_name = opts[:tag_name]
-
     tag_ids = []
-    if ip.nil?
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", workspace.id, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
-    else
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
-    end
 
-    tag_ids.each do |id|
-      tag = Mdm::Tag.find_by_id(id)
-      tag.hosts.delete
-      tag.destroy
+    host = wspace.hosts.find(host_id)
+    if host
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.id = ? and tags.name = ?", wspace.id, host.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+
+      deleted_tags = []
+
+      tag_ids.each do |id|
+        tag = Mdm::Tag.find_by_id(id)
+        deleted_tags << tag
+        tag.destroy
+      end
+
+      deleted_tags
+    end
+  end
+
+  def get_host_tags(opts)
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    host_id = opts[:id]
+
+    host = wspace.hosts.find(host_id)
+    if host
+      host.tags
     end
   end
 
@@ -104,12 +114,12 @@ module Msf::DBManager::Host
     if opts.kind_of? ::Mdm::Host
       return opts
     elsif opts.kind_of? String
-      raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
+      raise RuntimeError, "This invocation of get_host is no longer supported: #{caller}"
     else
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host
     end
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     address = Msf::Util::Host.normalize_host(address)
@@ -119,7 +129,7 @@ module Msf::DBManager::Host
 
   # Look for an address across all comms
   def has_host?(wspace,addr)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     address, scope = addr.split('%', 2)
     wspace.hosts.find_by_address(addr)
   }
@@ -127,7 +137,7 @@ module Msf::DBManager::Host
 
   # Returns a list of all hosts in the database
   def hosts(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Host.find(opts[:id]))
@@ -186,8 +196,10 @@ module Msf::DBManager::Host
       return
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone
+    opts.delete(:workspace)
 
     begin
       retry_attempts ||= 0
@@ -277,9 +289,10 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

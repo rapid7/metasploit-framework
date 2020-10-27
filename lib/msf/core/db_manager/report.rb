@@ -59,7 +59,7 @@ module Msf::DBManager::Report
     updated = opts.delete(:updated_at)
     state   = opts.delete(:state)
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     report = Report.new(opts)
     report.created_at = created
     report.updated_at = updated
@@ -79,7 +79,7 @@ module Msf::DBManager::Report
   # This methods returns a list of all reports in the database
   #
   def reports(wspace=framework.db.workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.reports
   }
   end

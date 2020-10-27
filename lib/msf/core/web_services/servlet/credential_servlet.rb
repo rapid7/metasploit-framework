@@ -9,6 +9,7 @@ module CredentialServlet
   end
 
   def self.registered(app)
+    app.get CredentialServlet.api_path, &get_credentials
     app.get CredentialServlet.api_path_with_id, &get_credentials
     app.post CredentialServlet.api_path, &create_credential
     app.put CredentialServlet.api_path_with_id, &update_credential

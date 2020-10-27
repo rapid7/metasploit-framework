@@ -10,7 +10,7 @@ module Msf::DBManager::IPAddress
       Rex::Socket.is_ipv4?(addr)
     else
       false
-    end    
+    end
   end
 
   def ipv6_validator(addr)
@@ -20,7 +20,7 @@ module Msf::DBManager::IPAddress
       Rex::Socket.is_ipv6?(addr)
     else
       false
-    end    
+    end
   end
 
   def rfc3330_reserved(ip)

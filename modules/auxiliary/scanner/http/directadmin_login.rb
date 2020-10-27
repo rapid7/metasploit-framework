@@ -32,6 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'The username to specify for authentication', '']),
         OptString.new('PASSWORD', [false, 'The password to specify for authentication', '']),
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
 

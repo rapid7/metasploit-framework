@@ -41,7 +41,7 @@ class RPC_Plugin < RPC_Base
         return { "result" => "success" }
       end
     rescue ::Exception => e
-      elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
+      elog("Error loading plugin #{path}:", error: e)
       return { "result" => "failure" }
     end
 

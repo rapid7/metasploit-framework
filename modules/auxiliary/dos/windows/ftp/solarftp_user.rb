@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         [ 'EDB', '16204' ],
       ],
-      'DisclosureDate' => 'Feb 22 2011'))
+      'DisclosureDate' => '2011-02-22'))
 
       register_options(
       [

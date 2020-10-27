@@ -58,6 +58,10 @@ module Buffer
         buf = Rex::Text.to_vbscript(buf, var_name)
       when 'vbapplication'
         buf = Rex::Text.to_vbapplication(buf, var_name)
+      when 'base32'
+        buf = Rex::Text.encode_base32(buf)
+      when 'base64'
+        buf = Rex::Text.encode_base64(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -88,6 +92,8 @@ module Buffer
         buf = Rex::Text.to_js_comment(buf)
       when 'java'
         buf = Rex::Text.to_c_comment(buf)
+      when 'powershell','ps1'
+        buf = Rex::Text.to_psh_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -100,6 +106,8 @@ module Buffer
   #
   def self.transform_formats
     [
+      'base32',
+      'base64',
       'bash',
       'c',
       'csharp',

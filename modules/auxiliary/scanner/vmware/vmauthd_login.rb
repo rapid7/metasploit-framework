@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([Opt::RPORT(902)])
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

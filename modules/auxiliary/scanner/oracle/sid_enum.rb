@@ -18,15 +18,13 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [ 'CG', 'MC' ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Jan 7 2009'
+      'DisclosureDate' => '2009-01-07'
     ))
 
     register_options(
       [
         Opt::RPORT(1521)
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

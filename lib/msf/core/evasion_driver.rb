@@ -50,7 +50,7 @@ class EvasionDriver
 
     # Make sure the payload is compatible after all
     if (compatible_payload?(payload) == false)
-      raise IncompatiblePayloadError.new(payload.refname), "Incompatible payload", caller
+      raise IncompatiblePayloadError.new(payload.refname), "#{payload.refname} is not a compatible payload.", caller
     end
 
     # Associate the payload instance with the evasion

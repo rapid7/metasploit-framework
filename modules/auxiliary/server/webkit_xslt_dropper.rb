@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Serve exploit via web server' ]
         ],
       'PassiveActions' =>
         [

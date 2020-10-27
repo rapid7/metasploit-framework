@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.metasploit.com/users/mc' ],
           [ 'URL' , 'http://www.red-database-security.com/scripts/sid.txt' ],
         ],
-      'DisclosureDate' => 'Jan 7 2009'))
+      'DisclosureDate' => '2009-01-07'))
 
     register_options(
       [

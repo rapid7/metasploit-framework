@@ -42,10 +42,10 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          ['CHECK',    {'Description' => 'Check for basic directory traversal'}],
-          ['WRITABLE', {'Description' => 'Check if a traversal bug allows us to write anywhere'}],
-          ['DOWNLOAD', {'Description' => 'Attempt to download files after brute forcing a trigger'}],
-          ['PHPSOURCE', {'Description' => 'Attempt to retrieve php source code files'}]
+          ['CHECK',    'Description' => 'Check for basic directory traversal'],
+          ['WRITABLE', 'Description' => 'Check if a traversal bug allows us to write anywhere'],
+          ['DOWNLOAD', 'Description' => 'Attempt to download files after brute forcing a trigger'],
+          ['PHPSOURCE', 'Description' => 'Attempt to retrieve php source code files']
         ],
       'DefaultAction'  => 'CHECK'
     ))
@@ -73,8 +73,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
         OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
       ])
-
-    deregister_options('RHOST')
   end
 
 

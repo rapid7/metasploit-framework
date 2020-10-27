@@ -85,10 +85,16 @@ module System
       system_data[:distro] = "mandrake"
       system_data[:version] = version
 
-    #SuSE
+    # SuSE
     elsif etc_files.include?("SuSE-release")
       version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
       system_data[:distro] = "suse"
+      system_data[:version] = version
+
+    # OpenSUSE
+    elsif etc_files.include?("SUSE-brand")
+      version = read_file("/etc/SUSE-brand").scan(/^VERSION\s*=\s*([\d\.]+)/).flatten.first
+      system_data[:distro] = 'suse'
       system_data[:version] = version
 
     # Gentoo
@@ -223,16 +229,6 @@ module System
     command_exists? 'gcc'
   rescue
     raise 'Unable to check for gcc'
-  end
-
-  #
-  # Checks if the `cmd` is installed on the system
-  # @return [Boolean]
-  #
-  def command_exists?(cmd)
-    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
-  rescue
-    raise "Unable to check if command `#{cmd}` exists"
   end
 
   #

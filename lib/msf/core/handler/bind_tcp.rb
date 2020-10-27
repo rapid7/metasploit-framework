@@ -163,8 +163,8 @@ module BindTcp
         conn_threads << framework.threads.spawn("BindTcpHandlerSession", false, client) { |client_copy|
           begin
             handle_connection(wrap_aes_socket(client_copy), opts)
-          rescue
-            elog("Exception raised from BindTcp.handle_connection: #{$!}")
+          rescue => e
+            elog('Exception raised from BindTcp.handle_connection', error: e)
           end
         }
       else

@@ -188,7 +188,7 @@ module Kernel
   # @return [Boolean]
   #
   def unprivileged_bpf_disabled?
-    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.unprivileged_bpf_disabled status'
   end
@@ -199,7 +199,7 @@ module Kernel
   # @return [Boolean]
   #
   def kptr_restrict?
-    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.kptr_restrict status'
   end
@@ -210,7 +210,7 @@ module Kernel
   # @return [Boolean]
   #
   def dmesg_restrict?
-    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.dmesg_restrict status'
   end
@@ -250,7 +250,7 @@ module Kernel
   # Returns true if PaX is installed
   #
   def pax_installed?
-    cmd_exec('test -x /sbin/paxctl && echo true').to_s.strip.include? 'true'
+    cmd_exec('/bin/grep -q "PaX:" /proc/self/status && echo true').to_s.strip.include? 'true'
   rescue
     raise 'Could not determine PaX status'
   end

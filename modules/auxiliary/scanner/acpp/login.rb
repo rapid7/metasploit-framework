@@ -40,6 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       # there is no username, so remove all of these options
       'DB_ALL_USERS',
       'DB_ALL_CREDS',
+      'PASSWORD_SPRAY',
       'USERNAME',
       'USERPASS_FILE',
       'USER_FILE',

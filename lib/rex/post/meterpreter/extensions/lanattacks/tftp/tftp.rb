@@ -21,17 +21,17 @@ class Tftp
   end
 
   def start
-    client.send_request(Packet.create_request('lanattacks_start_tftp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_START_TFTP))
     true
   end
 
   def reset
-    client.send_request(Packet.create_request('lanattacks_reset_tftp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_RESET_TFTP))
     true
   end
 
   def add_file(filename, data)
-    request = Packet.create_request('lanattacks_add_tftp_file')
+    request = Packet.create_request(COMMAND_ID_LANATTACKS_ADD_TFTP_FILE)
     request.add_tlv(TLV_TYPE_LANATTACKS_OPTION_NAME, filename)
     request.add_tlv(TLV_TYPE_LANATTACKS_RAW, data, false, true) #compress it
     client.send_request(request)
@@ -39,7 +39,7 @@ class Tftp
   end
 
   def stop
-    client.send_request(Packet.create_request('lanattacks_stop_tftp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_STOP_TFTP))
     true
   end
 

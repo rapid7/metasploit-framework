@@ -48,7 +48,6 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_autofilter_ports([ 80 ])
-    deregister_options('RHOST')
   end
 
   def get_first_session

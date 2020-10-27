@@ -30,12 +30,14 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE
     )
-    deregister_options('RHOST')
+
     register_advanced_options(
       [
         OptInt.new('TIMEOUT', [ true, 'Default timeout for telnet connections.', 25])
       ], self.class
     )
+
+    deregister_options('USERNAME','PASSWORD', 'PASSWORD_SPRAY')
 
     @no_pass_prompt = []
   end

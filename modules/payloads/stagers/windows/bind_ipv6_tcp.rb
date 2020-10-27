@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 285
+  CachedSize = 298
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindTcp

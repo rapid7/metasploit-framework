@@ -10,9 +10,6 @@
 #
 ###
 
-# Include backported features for older versions of Ruby
-require 'backports'
-
 # The framework-core depends on Rex
 require 'rex'
 require 'rex/ui'
@@ -44,6 +41,7 @@ require 'msf/events'
 
 # Framework context and core classes
 require 'msf/core/framework'
+require 'msf/core/feature_manager'
 require 'msf/core/db_manager'
 require 'msf/core/event_dispatcher'
 require 'msf/core/module_manager'
@@ -51,6 +49,7 @@ require 'msf/core/module_set'
 require 'msf/core/plugin_manager'
 require 'msf/core/session'
 require 'msf/core/session_manager'
+require 'msf/core/analyze'
 
 
 

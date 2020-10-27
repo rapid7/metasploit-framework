@@ -25,12 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2006-5702'],
           ['URL', 'http://secunia.com/advisories/22678/'],
         ],
-      'DisclosureDate' => 'Nov 1 2006',
+      'DisclosureDate' => '2006-11-01',
       'Actions'        =>
         [
-          ['Download']
+          ['Dump', 'Description' => 'Dump user and password']
         ],
-      'DefaultAction'  => 'Download'
+      'DefaultAction'  => 'Dump'
       ))
 
     register_options(

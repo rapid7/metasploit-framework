@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 14 2012"
+      'DisclosureDate' => '2012-03-14'
     ))
 
     register_options(
@@ -34,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(4444),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

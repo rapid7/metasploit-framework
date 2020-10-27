@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         },
       'Platform'       => ['linux'],
       'Privileged'     => false,
-      'DisclosureDate' => "Mar 30 2014"))
+      'DisclosureDate' => '2014-03-30'))
 
       register_options(
       [

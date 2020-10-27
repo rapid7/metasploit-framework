@@ -244,7 +244,7 @@ def nmap_hosts(&block)
   if Rex::Parser.nokogiri_loaded && framework.db.active
     wspace = framework.db.find_workspace(datastore['WORKSPACE'])
     wspace ||= framework.db.workspace
-    import_args = { :data => nmap_data, :wspace => wspace }
+    import_args = { :data => nmap_data, :workspace => wspace }
     framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }
   else
     nmap_parser = Rex::Parser::NmapXMLStreamParser.new

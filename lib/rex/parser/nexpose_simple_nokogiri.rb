@@ -54,7 +54,7 @@ module Rex
         report_vulns(host_object)
         # Reset the state once we close a host
         @state.delete_if {|k| k != :current_tag}
-        @report_data = {:wspace => @args[:wspace]}
+        @report_data = {:workspace => @args[:workspace]}
       when "description"
         @state[:has_text] = false
         collect_service_fingerprint_description
@@ -235,7 +235,7 @@ module Rex
       if host_is_okay
         db.emit(:address,@report_data[:host],&block) if block
         host_object = db_report(:host, @report_data.merge(
-          :workspace => @args[:wspace] ) )
+          :workspace => @args[:workspace] ) )
         if host_object
           db.report_import_note(host_object.workspace, host_object)
         end

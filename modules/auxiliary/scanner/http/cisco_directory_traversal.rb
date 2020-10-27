@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
                            [ 'CVE', '2018-0296' ],
                            [ 'EDB', '44956' ]
                           ],
-      'DisclosureDate' => 'Jun 6 2018'
+      'DisclosureDate' => '2018-06-06'
     ))
 
     register_options(
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'     =>  uri
     )
 
-    return (res && res.body.include?("SSL VPN Service"))
+    return (res && (res.body.include?("SSL VPN Service") || res.body.include?("+CSCOE+") || res.body.include?("+webvpn+") || res.body.include?("webvpnlogin")))
   end
 
   def list_files(path)

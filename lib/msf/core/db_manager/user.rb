@@ -7,7 +7,7 @@ module Msf::DBManager::User
 
   # Returns a list of all users in the database
   def users(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
@@ -41,7 +41,7 @@ module Msf::DBManager::User
     raise ArgumentError.new("Missing required option :username") if opts[:username].nil?
     raise ArgumentError.new("Missing required option :password") if opts[:password].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
 
       conditions = {username: opts[:username]}
       user = Mdm::User.where(conditions).first_or_initialize
@@ -73,7 +73,7 @@ module Msf::DBManager::User
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::User] The updated Mdm::User object.
   def update_user(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       id = opts.delete(:id)
       user = Mdm::User.find(id)
       user.update!(opts)
@@ -88,7 +88,7 @@ module Msf::DBManager::User
   def delete_user(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |user_id|
         user = Mdm::User.find(user_id)

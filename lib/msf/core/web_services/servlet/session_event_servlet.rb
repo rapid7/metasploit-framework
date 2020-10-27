@@ -9,6 +9,7 @@ module SessionEventServlet
   end
 
   def self.registered(app)
+    app.get SessionEventServlet.api_path, &get_session_event
     app.get SessionEventServlet.api_path_with_id, &get_session_event
     app.post SessionEventServlet.api_path, &report_session_event
   end

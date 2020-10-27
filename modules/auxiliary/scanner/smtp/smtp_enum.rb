@@ -8,6 +8,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
+  Aliases = [
+    'auxiliary/scanner/smtp/enum'
+  ]
+
   def initialize
     super(
       'Name'        => 'SMTP User Enumeration Utility',

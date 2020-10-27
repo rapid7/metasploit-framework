@@ -27,8 +27,8 @@ module MetasploitModule
     # Register MessageBox options
     register_options(
       [
-        OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ]),
-        OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ]),
+        OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ], max_length: 255),
+        OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ], max_length: 255),
         OptString.new('ICON', [ true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO" ])
       ])
   end
@@ -42,16 +42,10 @@ module MetasploitModule
     if (strTitle.length < 1)
       raise ArgumentError, "You must specify a title"
     end
-    if (strTitle.length >= 256)
-      raise ArgumentError, "The title must be less than 256 characters long."
-    end
 
     strText = datastore['TEXT'] + "X"
     if (strText.length < 1)
       raise ArgumentError, "You must specify the text of the MessageBox"
-    end
-    if (strText.length >= 256)
-      raise ArgumentError, "The text must be less than 256 characters long."
     end
 
     # exitfunc process or thread ?

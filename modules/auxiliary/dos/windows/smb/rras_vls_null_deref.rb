@@ -29,10 +29,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Attack'],
+          ['Attack', 'Description' => 'Run Denial of Service'],
         ],
       'DefaultAction' => 'Attack',
-      'DisclosureDate' => 'Jun 14 2006'
+      'DisclosureDate' => '2006-06-14'
     ))
 
     register_options(

@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Start web server waiting for incoming authenticated connections' ]
         ],
       'PassiveActions' =>
         [
@@ -328,7 +328,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not connect to target host (#{target_host})")
       return
     end
-    ser_sock = Rex::Proto::SMB::SimpleClient.new(rsock, rport == 445 ? true : false)
+    ser_sock = Rex::Proto::SMB::SimpleClient.new(rsock, rport == 445 ? true : false, [1])
 
     if (datastore['RPORT'] == '139')
       ser_sock.client.session_request()

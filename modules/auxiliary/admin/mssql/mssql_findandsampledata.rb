@@ -27,8 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'todb'                                               # Help on GitHub
       ],
       'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
-      'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]
+      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]]
     ))
 
     register_options(

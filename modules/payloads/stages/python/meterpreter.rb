@@ -16,7 +16,7 @@ module MetasploitModule
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Python Meterpreter',
-      'Description'   => 'Run a meterpreter server in Python (2.5-2.7 & 3.1-3.6)',
+      'Description'   => 'Run a meterpreter server in Python (compatible with 2.5-2.7 & 3.1+)',
       'Author'        => 'Spencer McIntyre',
       'Platform'      => 'python',
       'Arch'          => ARCH_PYTHON,

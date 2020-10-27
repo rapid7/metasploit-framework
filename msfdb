@@ -58,7 +58,7 @@ require 'msf/util/helper'
     db_port: 5433,
     db_pool: 200,
     address: 'localhost',
-    port: 8080,
+    port: 5443,
     ssl: true,
     ssl_cert: @ws_ssl_cert_default,
     ssl_key: @ws_ssl_key_default,
@@ -577,8 +577,10 @@ def delete_web_service
   stop_web_service
 
   File.delete(@ws_pid) if web_service_pid_status == WebServicePIDStatus::INACTIVE
-  File.delete(@options[:ssl_key]) if File.file?(@options[:ssl_key])
-  File.delete(@options[:ssl_cert]) if File.file?(@options[:ssl_cert])
+  if @options[:delete_existing_data]
+    File.delete(@options[:ssl_key]) if File.file?(@options[:ssl_key])
+    File.delete(@options[:ssl_cert]) if File.file?(@options[:ssl_cert])
+  end
 end
 
 def reinit_web_service

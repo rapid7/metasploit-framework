@@ -25,6 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
+    deregister_http_client_options
+
     register_options(
       [
         OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
@@ -32,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
         OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
       ])
-
-    deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
   end
 
   def rhost_corpwatch

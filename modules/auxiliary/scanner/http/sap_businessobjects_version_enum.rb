@@ -27,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
       ])
     register_autofilter_ports([ 8080 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

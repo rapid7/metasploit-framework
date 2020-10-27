@@ -34,7 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('PASS_FILE', [ false, 'The file that contains a list of probable passwords.',
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt') ])
       ])
-    deregister_options 'RHOST'
   end
 
   def run_host(ip)

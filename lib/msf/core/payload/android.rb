@@ -9,6 +9,10 @@ module Msf::Payload::Android
   include Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
 
+  def signing_key
+    @@signing_key ||= OpenSSL::PKey::RSA.new(2048)
+  end
+
   #
   # Fix the dex header checksum and signature
   # http://source.android.com/tech/dalvik/dex-format.html
@@ -69,7 +73,9 @@ module Msf::Payload::Android
     x509_name = OpenSSL::X509::Name.parse(
       "C=US/O=Android/CN=Android Debug"
     )
-    key  = OpenSSL::PKey::RSA.new(2048)
+
+    key = signing_key
+
     cert = OpenSSL::X509::Certificate.new
     cert.version = 2
     cert.serial = 1
@@ -133,7 +139,6 @@ module Msf::Payload::Android
 
     jar
   end
-
 
 end
 

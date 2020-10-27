@@ -10,7 +10,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 
 module MetasploitModule
 
-  CachedSize = 1526
+  CachedSize = 1561
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
@@ -43,7 +43,7 @@ module MetasploitModule
       ))
       register_options(
       [
-        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
+        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules separated by a comma to download over the web", nil ]),
       ])
   end
 

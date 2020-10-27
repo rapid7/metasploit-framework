@@ -11,7 +11,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'          => 'F5 Networks Devices Management Interface Scanner',
       'Description'   => %q{
-        This module scans for web management interfaces of the following F5 Networks devices:
+        This module attempts to identify the web management interfaces of the following
+        F5 Networks devices:
         BigIP, BigIQ, Enterprise Manager, ARX, and FirePass.
       },
       'License'       => MSF_LICENSE,

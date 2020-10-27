@@ -31,12 +31,9 @@ class MetasploitModule < Msf::Post
           'Sanjay Gondaliya', # Modified PoC
           'Pratik Shah <pratik@notsosecure.com>' # Metasploit module
         ],
-      'DisclosureDate' => 'Aug 05 2018',
+      'DisclosureDate' => '2018-08-05',
       'Platform'       => ['win'],
-      'Targets'        =>
-        [
-          ['Windows x64', { 'Arch' => ARCH_X64 }]
-        ],
+      'Arch'           => ARCH_X64,
       'License'        => MSF_LICENSE,
     ))
 
@@ -79,7 +76,7 @@ class MetasploitModule < Msf::Post
     begin
       print_status("Attempting to Run on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
     rescue Rex::Post::Meterpreter::RequestError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
       raise Msf::Exploit::Failed, 'Could not connect to session'
     end
   end
@@ -106,7 +103,7 @@ class MetasploitModule < Msf::Post
         file_rm(path)
         print_status("Deleted #{path}")
       rescue Rex::Post::Meterpreter::RequestError => e
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog(e)
         print_error("Unable to delete #{path}")
       end
     end
@@ -160,7 +157,7 @@ class MetasploitModule < Msf::Post
       ensure_clean_destination(exploit_path)
       ensure_clean_destination(script_path)
     rescue Rex::Post::Meterpreter::RequestError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog('Command failed, cleaning up', error: e)
       print_good('Command failed, cleaning up')
       print_error(e.message)
       ensure_clean_destination(exploit_path)

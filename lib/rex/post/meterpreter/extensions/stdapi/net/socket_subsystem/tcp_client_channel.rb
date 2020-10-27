@@ -33,7 +33,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   # Opens a TCP client channel using the supplied parameters.
   #
   def TcpClientChannel.open(client, params)
-    c = Channel.create(client, 'stdapi_net_tcp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_tcp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
       [
         {
           'type'  => TLV_TYPE_PEER_HOST,
@@ -55,11 +55,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
           'type'  => TLV_TYPE_CONNECT_RETRIES,
           'value' => params.retries
         }
-      ])
-    if c
-      c.params = params
-    end
-    c
+      ],
+      sock_params: params
+    )
   end
 
   ##
@@ -71,8 +69,8 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   #
   # Passes the channel initialization information up to the base class.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
 
     lsock.extend(SocketInterface)
     lsock.extend(DirectChannelWrite)
@@ -81,6 +79,9 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
     rsock.extend(SocketInterface)
     rsock.channel = self
 
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+    end
   end
 
   #
@@ -100,7 +101,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   def shutdown(how = 1)
     return false if self.cid.nil?
 
-    request = Packet.create_request('stdapi_net_socket_tcp_shutdown')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_SOCKET_TCP_SHUTDOWN)
 
     request.add_tlv(TLV_TYPE_SHUTDOWN_HOW, how)
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)

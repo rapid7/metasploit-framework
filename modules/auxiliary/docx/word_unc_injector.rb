@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://jedicorp.com/?p=534' ]
+          [ 'URL', 'https://web.archive.org/web/20140527232608/http://jedicorp.com/?p=534' ]
         ],
       'Author'         =>
         [

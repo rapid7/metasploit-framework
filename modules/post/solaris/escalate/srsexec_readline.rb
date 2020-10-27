@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
           ['EDB', '30021'],
           ['BID', '23915']
         ],
-        'DisclosureDate' => 'May 07 2007',
+        'DisclosureDate' => '2007-05-07',
       ))
     register_options([
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
     credential_data = {
       origin_type: :session,
       session_id: session_db_id,
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       post_reference_name: self.fullname,
       username: formatted_output.split(':')[0],
       private_data: formatted_output.split(':')[1],

@@ -26,7 +26,7 @@ class Driver < Msf::Ui::Driver
   ConfigGroup = "framework/ui/console"
   DbConfigGroup = "framework/database"
 
-  DefaultPrompt     = "%undmsf5%clr"
+  DefaultPrompt     = "%undmsf#{Metasploit::Framework::Version::MAJOR}%clr"
   DefaultPromptChar = "%clr>"
 
   #
@@ -120,7 +120,7 @@ class Driver < Msf::Ui::Driver
     # Report readline error if there was one..
     if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{@rl_err}")
+      print_error("* Unable to load readline: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end
@@ -132,15 +132,19 @@ class Driver < Msf::Ui::Driver
 
     load_db_config(opts['Config'])
 
+    begin
+      FeatureManager.instance.load_config
+    rescue StandardException => e
+      elog(e)
+    end
+
     if !framework.db || !framework.db.active
-      print_error("***")
       if framework.db.error == "disabled"
-        print_error("* WARNING: Database support has been disabled")
+        print_warning("Database support has been disabled")
       else
         error_msg = "#{framework.db.error.class.is_a?(String) ? "#{framework.db.error.class} " : nil}#{framework.db.error}"
-        print_error("* WARNING: No database support: #{error_msg}")
+        print_warning("No database support: #{error_msg}")
       end
-      print_error("***")
     end
 
     # Register event handlers
@@ -287,9 +291,9 @@ class Driver < Msf::Ui::Driver
   end
 
   #
-  # Saves configuration for the console.
+  # Generate configuration for the console.
   #
-  def save_config
+  def get_config
     # Build out the console config group
     group = {}
 
@@ -303,9 +307,23 @@ class Driver < Msf::Ui::Driver
       end
     end
 
-    # Save it
+    group
+  end
+
+  def get_config_core
+    ConfigCore
+  end
+
+  def get_config_group
+    ConfigGroup
+  end
+
+  #
+  # Saves configuration for the console.
+  #
+  def save_config
     begin
-      Msf::Config.save(ConfigGroup => group)
+      Msf::Config.save(ConfigGroup => get_config)
     rescue ::Exception
       print_error("Failed to save console config: #{$!}")
     end
@@ -353,20 +371,27 @@ class Driver < Msf::Ui::Driver
   # displayed, scripts can be processed, and other fun can be had.
   #
   def on_startup(opts = {})
+    log_msg = "Please see #{File.join(Msf::Config.log_directory, 'framework.log')} for details."
+
     # Check for modules that failed to load
     if framework.modules.module_load_error_by_path.length > 0
-      print_error("WARNING! The following modules could not be loaded!")
+      print_warning("The following modules could not be loaded!")
 
-      framework.modules.module_load_error_by_path.each do |path, error|
-        print_error("\t#{path}: #{error}")
+      framework.modules.module_load_error_by_path.each do |path, _error|
+        print_warning("\t#{path}")
       end
+
+      print_warning(log_msg)
     end
 
     if framework.modules.module_load_warnings.length > 0
       print_warning("The following modules were loaded with warnings:")
-      framework.modules.module_load_warnings.each do |path, error|
-        print_warning("\t#{path}: #{error}")
+
+      framework.modules.module_load_warnings.each do |path, _error|
+        print_warning("\t#{path}")
       end
+
+      print_warning(log_msg)
     end
 
     if framework.db && framework.db.active
@@ -397,23 +422,16 @@ class Driver < Msf::Ui::Driver
   #
   def on_variable_set(glob, var, val)
     case var.downcase
-      when "payload"
-
-        if (framework and framework.payloads.valid?(val) == false)
-          return false
-        elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
-          return false
-        elsif (active_module)
-          active_module.datastore.clear_non_user_defined
-        elsif (framework)
-          framework.datastore.clear_non_user_defined
-        end
-      when "sessionlogging"
-        handle_session_logging(val) if (glob)
-      when "consolelogging"
-        handle_console_logging(val) if (glob)
-      when "loglevel"
-        handle_loglevel(val) if (glob)
+    when 'sessionlogging'
+      handle_session_logging(val) if glob
+    when 'consolelogging'
+      handle_console_logging(val) if glob
+    when 'loglevel'
+      handle_loglevel(val) if glob
+    when 'payload'
+      handle_payload(val)
+    when 'ssh_ident'
+      handle_ssh_ident(val)
     end
   end
 
@@ -423,12 +441,12 @@ class Driver < Msf::Ui::Driver
   #
   def on_variable_unset(glob, var)
     case var.downcase
-      when "sessionlogging"
-        handle_session_logging('0') if (glob)
-      when "consolelogging"
-        handle_console_logging('0') if (glob)
-      when "loglevel"
-        handle_loglevel(nil) if (glob)
+    when 'sessionlogging'
+      handle_session_logging('0') if glob
+    when 'consolelogging'
+      handle_console_logging('0') if glob
+    when 'loglevel'
+      handle_loglevel(nil) if glob
     end
   end
 
@@ -497,24 +515,22 @@ protected
 
         self.busy = true
         begin
-          io = ::IO.popen(line, "r")
-          io.each_line do |data|
-            print(data)
-          end
-          io.close
+          system(line)
         rescue ::Errno::EACCES, ::Errno::ENOENT
           print_error("Permission denied exec: #{line}")
         end
         self.busy = false
         return
-      elsif framework.modules.create(method)
-        super
-        if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
-          run_single "use #{method}"
-        end
-
-        return
       end
+    end
+
+    if framework.modules.create(method)
+      super
+      if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
+        run_single "use #{method}"
+      end
+
+      return
     end
 
     super
@@ -566,6 +582,51 @@ protected
   def handle_loglevel(val)
     set_log_level(Rex::LogSource, val)
     set_log_level(Msf::LogSource, val)
+  end
+
+  #
+  # This method handles setting a desired payload
+  #
+  # TODO: Move this out of the console driver!
+  #
+  def handle_payload(val)
+    if framework && !framework.payloads.valid?(val)
+      return false
+    elsif active_module && (active_module.exploit? || active_module.evasion?)
+      return false unless active_module.is_payload_compatible?(val)
+    elsif active_module
+      active_module.datastore.clear_non_user_defined
+    elsif framework
+      framework.datastore.clear_non_user_defined
+    end
+  end
+
+  #
+  # This method monkeypatches Net::SSH's client identification string
+  #
+  # TODO: Move this out of the console driver!
+  #
+  def handle_ssh_ident(val)
+    # HACK: Suppress already initialized constant warning
+    verbose, $VERBOSE = $VERBOSE, nil
+
+    return false unless val.is_a?(String) && !val.empty?
+
+    require 'net/ssh'
+
+    # HACK: Bypass dynamic constant assignment error
+    ::Net::SSH::Transport::ServerVersion.const_set(:PROTO_VERSION, val)
+
+    true
+  rescue LoadError
+    print_error('Net::SSH could not be loaded')
+    false
+  rescue NameError
+    print_error('Invalid constant Net::SSH::Transport::ServerVersion::PROTO_VERSION')
+    false
+  ensure
+    # Restore warning
+    $VERBOSE = verbose
   end
 
   # Require the appropriate readline library based on the user's preference.

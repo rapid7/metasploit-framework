@@ -12,6 +12,7 @@ module CommandDispatcher
 class Post
 
   include Msf::Ui::Console::ModuleCommandDispatcher
+  include Msf::Ui::Console::ModuleOptionTabCompletion
 
 
   @@post_opts = Rex::Parser::Arguments.new(
@@ -160,8 +161,9 @@ class Post
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   #
   def cmd_run_tabs(str, words)
-    return [] if words.length > 1
-    @@post_opts.fmt.keys
+    flags = @@post_opts.fmt.keys
+    options = tab_complete_option(str, words)
+    flags + options
   end
 
   alias cmd_exploit_tabs cmd_run_tabs

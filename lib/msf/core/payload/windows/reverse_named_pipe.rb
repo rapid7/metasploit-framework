@@ -73,7 +73,7 @@ module Payload::Windows::ReverseNamedPipe
         pop ebp
       #{asm_reverse_named_pipe(opts)}
     ^
-    
+
     #"\xCC" + Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end

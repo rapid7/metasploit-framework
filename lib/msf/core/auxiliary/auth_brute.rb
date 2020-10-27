@@ -82,6 +82,17 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
+  # a private type of 'nil'
+  #
+  # @yieldparam [Metasploit::Credential::Core]
+  def each_username_cred
+    creds = framework.db.creds(type: nil, workspace: myworkspace.name)
+    creds.each do |cred|
+      yield cred
+    end
+  end
+
   # Checks whether we should be adding creds from the DB to a CredCollection
   #
   # @return [TrueClass] if any of the datastore options for db creds are selected and the db is active
@@ -129,6 +140,21 @@ module Auxiliary::AuthBrute
   def prepend_db_passwords(cred_collection)
     if prepend_db_creds?
       each_password_cred do |cred|
+        process_cred_for_collection(cred_collection,cred)
+      end
+    end
+    cred_collection
+  end
+
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing Usernames
+  # from the database. This allows the users to use the DB_ALL_USERS option.
+  #
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_usernames(cred_collection)
+    if prepend_db_creds?
+      each_username_cred do |cred|
         process_cred_for_collection(cred_collection,cred)
       end
     end

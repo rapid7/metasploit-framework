@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://www.madirish.net/node/465'],
         ],
-      'DisclosureDate' => 'Jul 2 2010'
+      'DisclosureDate' => '2010-07-02'
     ))
 
     register_options(
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           user_list = JSON.parse(res.body)
         rescue JSON::ParserError => e
-          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          elog('Exception encountered parsing JSON response', error: e)
           return []
         end
         if user_list.empty?

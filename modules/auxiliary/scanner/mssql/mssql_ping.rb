@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def run_host(ip)

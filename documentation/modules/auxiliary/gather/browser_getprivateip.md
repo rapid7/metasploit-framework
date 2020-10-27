@@ -4,7 +4,7 @@ This module retrieves a browser's network interface IP addresses using WebRTC. H
 
 Related links : https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html
 
-## Verification
+## Verification Steps
 
     Start msfconsole
     use auxiliary/gather/browser_lanipleak

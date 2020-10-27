@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r' ],
-      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android', 'unix' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Notes'         =>
         {
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('EMBED', [true, 'Use the embed version of the YouTube URL', true]),
-        OptString.new('VID', [true, 'The video ID to the YouTube video'])
+        OptString.new('VID', [true, 'The video ID to the YouTube video', 'kxopViU98Xo'])
       ])
   end
 
@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
   #
   # The OSX version uses an apple script to do this
   #
-  def osx_start_video(id)
+  def osx_start_video(_id)
     script = ''
     script << %Q|osascript -e 'tell application "Safari" to open location "#{youtube_url}"' |
     script << %Q|-e 'activate application "Safari"' |
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
   #
   # The Windows version uses the "embed" player to make sure IE won't download the SWF as an object
   #
-  def win_start_video(id)
+  def win_start_video(_id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
       session.sys.process.execute(iexplore_path, "-k #{youtube_url}")
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
   # The Linux version uses Firefox
   # TODO: Try xdg-open?
   #
-  def linux_start_video(id)
+  def linux_start_video(_id)
     begin
       # Create a profile
       profile_name = Rex::Text.rand_text_alpha(8)
@@ -121,6 +121,14 @@ class MetasploitModule < Msf::Post
     true
   end
 
+  # The generic Unix version calls xdg-open(1) or open(1)
+  def unix_start_video(_id)
+    cmd_exec("xdg-open '#{youtube_url}' || open '#{youtube_url}'")
+    true
+  rescue EOFError
+    false
+  end
+
   def start_video(id)
     case session.platform
     when 'osx'
@@ -131,6 +139,8 @@ class MetasploitModule < Msf::Post
       linux_start_video(id)
     when 'android'
       android_start_video(id)
+    when 'unix'
+      unix_start_video(id)
     end
   end
 

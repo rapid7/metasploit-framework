@@ -26,10 +26,10 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '2015-1126' ],
         [ 'URL', 'https://seclists.org/fulldisclosure/2015/Apr/30' ]
       ],
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => 'Apr 8 2015'
+      'DisclosureDate' => '2015-04-08'
     ))
 
     register_options([

@@ -14,6 +14,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
@@ -115,7 +116,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
   end
@@ -167,7 +168,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         end
 
         # only load priv on native windows
-        # TODO: abastrct this too, to remove windows stuff
+        # TODO: abstract this too, to remove windows stuff
         if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
           session.load_priv rescue nil
         end
@@ -428,6 +429,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   def update_session_info
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    fs.dir.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
@@ -494,7 +497,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # there
         return if !(framework.db && framework.db.active)
 
-        ::ActiveRecord::Base.connection_pool.with_connection {
+        ::ApplicationRecord.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host
@@ -556,7 +559,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     rescue ::Exception => e
       # Log the error but otherwise ignore it so we don't kill the
       # session if reporting failed for some reason
-      elog("Error loading sysinfo: #{e.class}: #{e}")
+      elog('Error loading sysinfo', error: e)
       dlog("Call stack:\n#{e.backtrace.join("\n")}")
     end
   end
@@ -568,11 +571,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    if framework.datastore['MeterpreterPrompt']
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.

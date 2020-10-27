@@ -163,7 +163,7 @@ class Metasploit::Framework::ParsedOptions::Base
 
       option_parser.on(
           '--defer-module-loads',
-          'Defer module loading unless explicitly asked.'
+          'Defer module loading unless explicitly asked'
       ) do
         options.modules.defer_loads = true
       end

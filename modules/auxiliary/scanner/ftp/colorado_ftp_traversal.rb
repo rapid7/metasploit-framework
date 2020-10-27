@@ -31,13 +31,13 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
           [ 'URL', 'http://www.securityfocus.com/archive/1/539186']
         ],
-      'DisclosureDate' => 'Aug 11 2016'
+      'DisclosureDate' => '2016-08-11'
     ))
 
     register_options(
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 2 ]),
-        OptString.new('PATH', [ true, 'Path to the file to disclose, releative to the root dir.', 'conf\\xml-users.xml']),
+        OptString.new('PATH', [ true, 'Path to the file to disclose, relative to the root dir.', 'conf\\xml-users.xml']),
         OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser']), #override default
         OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123']) #override default
       ])
@@ -87,10 +87,10 @@ class MetasploitModule < Msf::Auxiliary
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
       vprint_error(e.message)
-      elog("#{e.class} #{e.message} #{e.backtrace * "\n"}")
+      elog(e)
     rescue ::Timeout::Error, ::Errno::EPIPE => e
       vprint_error(e.message)
-      elog("#{e.class} #{e.message} #{e.backtrace * "\n"}")
+      elog(e)
     ensure
       data_disconnect
       disconnect

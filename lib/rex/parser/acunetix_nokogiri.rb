@@ -72,7 +72,7 @@ module Rex
         @host_object = report_host &block
         if @host_object
           report_starturl_service(&block)
-          db.report_import_note(@args[:wspace],@host_object)
+          db.report_import_note(@args[:workspace],@host_object)
         end
       when "StartTime"
         @state[:has_text] = false
@@ -109,7 +109,7 @@ module Rex
           @state[:page_request] = @state[:page_response] = nil
           return
         end
-        handle_parse_warnings &block 
+        handle_parse_warnings &block
         if @state[:vuln_info][:refs].nil?
           report_web_vuln(&block)
         else
@@ -362,7 +362,7 @@ module Rex
       return unless @state[:web_page]
       return unless @state[:web_site]
       return unless @state[:vuln_info]
-      
+
       web_vuln_info = {}
       web_vuln_info[:web_site] = @state[:web_site]
       web_vuln_info[:path] = @state[:web_page][:path]
@@ -454,7 +454,7 @@ module Rex
       return unless in_tag("Scan")
       if host_is_okay
         db.emit(:address,@report_data[:host],&block) if block
-        host_info = @report_data.merge(:workspace => @args[:wspace])
+        host_info = @report_data.merge(:workspace => @args[:workspace])
         db_report(:host,host_info)
       end
     end
@@ -509,10 +509,13 @@ module Rex
       address = resolve_address(host)
       return unless address
       # If we didn't create the service, we don't care about the site
-      service_object = db.get_service @args[:wspace], address, "tcp", port
+      service_object = db.services(:workspace => @args[:workspace],
+                                   :hosts => {address: address},
+                                   :proto => 'tcp',
+                                   :port => port).first
       return unless service_object
       web_site_info = {
-        :workspace => @args[:wspace],
+        :workspace => @args[:workspace],
         :service => service_object,
         :vhost => host,
         :ssl => (scheme == "https")

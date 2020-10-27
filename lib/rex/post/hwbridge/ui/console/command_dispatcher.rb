@@ -73,9 +73,7 @@ module Console::CommandDispatcher
   def log_error(msg)
     print_error(msg)
 
-    elog(msg, 'hwbridge')
-
-    dlog("Call stack:\n#{$@.join("\n")}", 'hwbridge')
+    elog(msg, 'hwbridge', error: $!)
   end
 
 end

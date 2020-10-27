@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2009/Oct/261' ],
         ],
-      'DisclosureDate' => 'Nov 20 2008'))
+      'DisclosureDate' => '2008-11-20'))
 
       register_options(
         [
@@ -78,6 +78,8 @@ class MetasploitModule < Msf::Auxiliary
         if e.to_s =~ /^ORA-12170:\s/
           print_error("#{datastore['RHOST']}:#{datastore['RPORT']} Connection timed out")
           break
+        else
+          vprint_error("#{datastore['RHOST']}:#{datastore['RPORT']} - LOGIN FAILED: #{datastore['DBUSER']}: #{e.to_s})")
         end
       else
         report_cred(

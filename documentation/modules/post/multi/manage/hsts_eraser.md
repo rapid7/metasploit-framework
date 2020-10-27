@@ -1,10 +1,12 @@
-This module allows you to erase the [HTTP Strict-Transport-Security](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) cache of a target machine.  When combined with a sniffer or a man-in-the-middle tool, this module will assist with the capture/modification of TLS-encrypted traffic.
+## Vulnerable Application
 
-**WARNING:** This module _erases_ the HSTS cache, leaving the target in a vulnerable state.  All browser traffic from all users on the target will be subject to man-in-the-middle attacks.  There is no undo built-into this module.  If you intend to revert, you must first backup the HSTS file before running the module.
+This module allows you to erase the [HTTP Strict-Transport-Security](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) cache of a target machine.
+When combined with a sniffer or a man-in-the-middle tool, this module will assist with the capture/modification of TLS-encrypted traffic.
+
+**WARNING:** This module _erases_ the HSTS cache, leaving the target in a vulnerable state.  All browser traffic from all users on the target will be subject
+to man-in-the-middle attacks.  There is no undo built-into this module.  If you intend to revert, you must first backup the HSTS file before running the module.
 
 Note: This module searches for all non-root users on the system.  It will not erase HSTS data for the root user.
-
-## Vulnerable Application
 
 The following platforms are supported:
 * Windows
@@ -24,7 +26,7 @@ Alternatively:
 1. Obtain a session from the target machine.
 2. From the `meterpreter>` prompt, do ```run post/multi/manage/hsts_eraser DISCLAIMER=True```
 
-## Demo
+## Scenarios
 
 Set up a Kali VM with some HSTS data:
 

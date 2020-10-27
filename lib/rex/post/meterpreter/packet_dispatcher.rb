@@ -96,7 +96,7 @@ module PacketDispatcher
       cli.send_response(resp)
     rescue => e
       send_queue.unshift(resp) if resp
-      elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+      elog("Exception sending a reply to the reader request #{cli.inspect}", error: e)
     end
   end
 
@@ -128,6 +128,9 @@ module PacketDispatcher
       session_guid = opts[:session_guid]
       tlv_enc_key = opts[:tlv_enc_key]
     end
+
+    # Uncomment this line if you want to see outbound packets in the console.
+    #STDERR.puts("SEND: #{packet.inspect}\n")
 
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
@@ -243,7 +246,7 @@ module PacketDispatcher
         self.alive = false
       end
     else
-      pkt = Packet.create_request('core_channel_eof')
+      pkt = Packet.create_request(COMMAND_ID_CORE_CHANNEL_EOF)
       pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
       add_response_waiter(pkt, Proc.new { @ping_sent = false })
       send_packet(pkt)
@@ -290,7 +293,11 @@ module PacketDispatcher
 
     self.waiters = []
 
-    @pqueue = ::Queue.new
+    # This queue is where the new incoming packets end up
+    @new_packet_queue = ::Queue.new
+    # This is where we put packets that aren't new, but haven't
+    # yet been handled.
+    @incomplete_queue = ::Queue.new
     @ping_sent = false
 
     # Spawn a thread for receiving packets
@@ -300,8 +307,9 @@ module PacketDispatcher
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
           if rv
             packet = receive_packet
-            @pqueue << packet if packet
-          elsif self.send_keepalives && @pqueue.empty?
+            # Always enqueue the new packets onto the new packet queue
+            @new_packet_queue << decrypt_inbound_packet(packet) if packet
+          elsif self.send_keepalives && @new_packet_queue.empty?
             keepalive
           end
         rescue ::Exception => e
@@ -317,12 +325,34 @@ module PacketDispatcher
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
       begin
       while (self.alive)
+        # This is where we'll store incomplete packets on
+        # THIS iteration
         incomplete = []
+        # The backlog is the full list of packets that aims
+        # to be handled this iteration
         backlog    = []
 
-        backlog << @pqueue.pop
-        while(@pqueue.length > 0)
-          backlog << @pqueue.pop
+        # If we have any left over packets from the previous
+        # iteration, we need to prioritise them over the new
+        # packets. If we don't do this, then we end up in
+        # situations where data on channels can be processed
+        # out of order. We don't do a blocking wait here via
+        # the .pop method because we don't want to block, we
+        # just want to dump the queue.
+        while @incomplete_queue.length > 0
+          backlog << @incomplete_queue.pop
+        end
+
+        # If the backlog is empty, we don't have old/stale
+        # packets hanging around, so perform a blocking wait
+        # for the next packet
+        backlog << @new_packet_queue.pop if backlog.length == 0
+        # At this point we either received a packet off the wire
+        # or we had a backlog to process. In either case, we
+        # perform a non-blocking queue dump to fill the backlog
+        # with every packet we have.
+        while @new_packet_queue.length > 0
+          backlog << @new_packet_queue.pop
         end
 
         #
@@ -339,7 +369,7 @@ module PacketDispatcher
             tmp_command << pkt
             next
           end
-          if(pkt.method == "core_channel_close")
+          if(pkt.method == COMMAND_ID_CORE_CHANNEL_CLOSE)
             tmp_close << pkt
             next
           end
@@ -354,7 +384,6 @@ module PacketDispatcher
         #
         # Process the message queue
         #
-
         backlog.each do |pkt|
 
           begin
@@ -379,7 +408,7 @@ module PacketDispatcher
         # If the backlog and incomplete arrays are the same, it means
         # dispatch_inbound_packet wasn't able to handle any of the
         # packets. When that's the case, we can get into a situation
-        # where @pqueue is not empty and, since nothing else bounds this
+        # where @new_packet_queue is not empty and, since nothing else bounds this
         # loop, we spin CPU trying to handle packets that can't be
         # handled. Sleep here to treat that situation as though the
         # queue is empty.
@@ -387,14 +416,20 @@ module PacketDispatcher
           ::IO.select(nil, nil, nil, 0.10)
         end
 
+        # If we have any packets that weren't handled, they go back
+        # on the incomplete queue so that they're prioritised over
+        # new packets that are coming in off the wire.
+        dlog("Requeuing #{incomplete.length} packet(s)", 'meterpreter', LEV_1) if incomplete.length > 0
         while incomplete.length > 0
-          @pqueue << incomplete.shift
+          @incomplete_queue << incomplete.shift
         end
 
-        if(@pqueue.length > 100)
+        # If the old queue of packets gets too big...
+        if(@incomplete_queue.length > 100)
           removed = []
+          # Drop a bunch of them.
           (1..25).each {
-            removed << @pqueue.pop
+            removed << @incomplete_queue.pop
           }
           dlog("Backlog has grown to over 100 in monitor_socket, dropping older packets: #{removed.map{|x| x.inspect}.join(" - ")}", 'meterpreter', LEV_1)
         end
@@ -429,11 +464,13 @@ module PacketDispatcher
   def monitor_stop
     if self.receiver_thread
       self.receiver_thread.kill
+      self.receiver_thread.join
       self.receiver_thread = nil
     end
 
     if self.dispatcher_thread
       self.dispatcher_thread.kill
+      self.dispatcher_thread.join
       self.dispatcher_thread = nil
     end
   end
@@ -505,6 +542,18 @@ module PacketDispatcher
   end
 
   #
+  # Decrypt the given packet with the appropriate key depending on
+  # if this session is a pivot session or not.
+  #
+  def decrypt_inbound_packet(packet)
+    pivot_session = self.find_pivot_session(packet.session_guid)
+    tlv_enc_key = self.tlv_enc_key
+    tlv_enc_key = pivot_session.pivoted_session.tlv_enc_key if pivot_session
+    packet.from_r(tlv_enc_key)
+    packet
+  end
+
+  #
   # Dispatches and processes an inbound packet.  If the packet is a
   # response that has an associated waiter, the waiter is notified.
   # Otherwise, the packet is passed onto any registered dispatch
@@ -513,15 +562,13 @@ module PacketDispatcher
   def dispatch_inbound_packet(packet)
     handled = false
 
-    pivot_session = self.find_pivot_session(packet.session_guid)
-
-    tlv_enc_key = self.tlv_enc_key
-    tlv_enc_key = pivot_session.pivoted_session.tlv_enc_key if pivot_session
-
-    packet.from_r(tlv_enc_key)
+    # Uncomment this line if you want to see inbound packets in the console
+    #STDERR.puts("RECV: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = Time.now
+
+    pivot_session = self.find_pivot_session(packet.session_guid)
     pivot_session.pivoted_session.last_checkin = self.last_checkin if pivot_session
 
     # If the packet is a response, try to notify any potential
@@ -622,7 +669,7 @@ module HttpPacketDispatcher
         cli.send_response(resp)
       rescue ::Exception => e
         send_queue.unshift(rpkt) if rpkt
-        elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+        elog("Exception sending a reply to the reader request #{cli.inspect}", error: e)
       end
     else
       resp.body = ""
@@ -630,13 +677,14 @@ module HttpPacketDispatcher
         packet = Packet.new(0)
         packet.add_raw(req.body)
         packet.parse_header!
+        packet = decrypt_inbound_packet(packet)
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
     end
 
     rescue ::Exception => e
-      elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
+      elog("Exception handling request: #{cli.inspect} #{req.inspect}", error: e)
     end
   end
 

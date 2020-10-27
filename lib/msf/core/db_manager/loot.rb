@@ -10,7 +10,7 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Loot.find(opts[:id]))
@@ -23,6 +23,8 @@ module Msf::DBManager::Loot
       data = opts.delete(:data)
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace_id] = wspace.id
 
       if search_term && !search_term.empty?
@@ -44,8 +46,10 @@ module Msf::DBManager::Loot
 
   def report_loot(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
     host = nil
@@ -97,10 +101,12 @@ module Msf::DBManager::Loot
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Loot] The updated Mdm::Loot object.
   def update_loot(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       # Prevent changing the data field to ensure the file contents remain the same as what was originally looted.
       raise ArgumentError, "Updating the data attribute is not permitted." if opts[:data]
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
@@ -124,7 +130,7 @@ module Msf::DBManager::Loot
   def delete_loot(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |loot_id|
         loot = Mdm::Loot.find(loot_id)

@@ -8,7 +8,7 @@ module RemoteEventDataService
 
   def events(opts)
     path = get_path_select(opts, EVENT_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), EVENT_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(path, nil, opts), EVENT_MDM_CLASS)
   end
 
   def report_event(opts)

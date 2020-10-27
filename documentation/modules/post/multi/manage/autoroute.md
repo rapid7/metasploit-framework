@@ -41,7 +41,7 @@ Metasploit can launch a Socks 4a Proxy server using the module: auxiliary/server
 ```
 use auxiliary/server/socks4a
 set SRVHOST 127.0.0.1
-set LPORT 1080
+set SRVPORT 1080
 exploit -j
 ```
 
