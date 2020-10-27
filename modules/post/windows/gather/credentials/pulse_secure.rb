@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
       'License'         => MSF_LICENSE,
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Quentin Kaiser <quentin@gremwell.com>']
+      'Author'          => ['Quentin Kaiser <kaiserquentin@gmail.com>']
     ))
 
   end
