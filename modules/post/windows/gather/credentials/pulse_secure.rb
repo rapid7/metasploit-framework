@@ -23,6 +23,12 @@ class MetasploitModule < Msf::Post
         username.
       },
       'License'         => MSF_LICENSE,
+      'References' => [
+           ['CVE', '2020-8956'],
+           [ 'URL', 'https://qkaiser.github.io/reversing/2020/10/27/pule-secure-credentials'],
+           [ 'URL', 'https://www.gremwell.com/blog/reversing_pulse_secure_client_credentials_store'],
+           [ 'URL', 'https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44601' ]
+      ],
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
       'Author'          => ['Quentin Kaiser <kaiserquentin@gmail.com>']
