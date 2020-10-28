@@ -294,39 +294,6 @@ class MetasploitModule < Msf::Auxiliary
     return if srv_records_data.empty?
   end
 
-  def axfr(domain)
-    nameservers = get_ns(domain)
-    return if nameservers.blank?
-    records = []
-    nameservers.each do |nameserver|
-      next if nameserver.blank?
-      print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
-      dns = Net::DNS::Resolver.new
-      dns.use_tcp = datastore['TCP_DNS']
-      dns.udp_timeout = datastore['TIMEOUT']
-      dns.retry_number = datastore['RETRY']
-      dns.retry_interval = datastore['RETRY_INTERVAL']
-
-      ns_a_records = []
-      # try to get A record for nameserver from target NS, which may fail
-      target_ns_a = get_a(nameserver, 'DNS AXFR records')
-      ns_a_records |= target_ns_a if target_ns_a
-      ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
-      begin
-        dns.nameservers -= dns.nameservers
-        dns.nameservers = ns_a_records
-        zone = dns.axfr(domain)
-      rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-        print_error("Query #{domain} DNS AXFR - exception: #{e}")
-      end
-      next if zone.blank?
-      records << zone
-      print_good("#{domain} Zone Transfer: #{zone}")
-    end
-    return if records.blank?
-    records
-  end
-
   def save_note(target, type, records)
     data = { 'target' => target, 'records' => records }
     report_note(host: target, sname: 'dns', type: type, data: data, update: :unique_data)
