@@ -1297,8 +1297,7 @@ RSpec.describe Msf::Ui::Debug do
       'Metasploit::Framework::DataService::DataProxy',
       name: 'db_name',
       driver: 'http',
-      connection_established?: true,
-      get_data_service: 'db_data_service'
+      connection_established?: true
     )
 
     framework = instance_double(
@@ -1320,7 +1319,7 @@ RSpec.describe Msf::Ui::Debug do
       Framework: VERSION
       Ruby: #{RUBY_DESCRIPTION}
       Install Root: bad/path
-      Session Type: Connected to db_name. Connection type: http. Connection name: db_data_service.
+      Session Type: Connected to db_name. Connection type: http.
       Install Method: Other - Please specify
       ```
 
@@ -1336,8 +1335,7 @@ RSpec.describe Msf::Ui::Debug do
     db = double(
       'Metasploit::Framework::DataService::DataProxy',
       connection_established?: true,
-      driver: 'local',
-      get_data_service: 'db_data_service'
+      driver: 'local'
     )
 
     framework = instance_double(
@@ -1368,7 +1366,7 @@ RSpec.describe Msf::Ui::Debug do
       Framework: VERSION
       Ruby: #{RUBY_DESCRIPTION}
       Install Root: bad/path
-      Session Type: Connected to current_db_connection. Connection type: local. Connection name: db_data_service.
+      Session Type: Connected to current_db_connection. Connection type: local.
       Install Method: Other - Please specify
       ```
 

@@ -321,8 +321,6 @@ module Msf
             output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
           end
 
-          output += " Connection name: #{framework.db.get_data_service}." if framework.db.get_data_service
-
           output
         end
 
