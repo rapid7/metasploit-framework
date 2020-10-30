@@ -170,6 +170,19 @@ class MetasploitModule < Msf::Auxiliary
   def is_guest_mode_enabled?
     dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'dashboard.php')
     res = send_request_cgi({'uri'=>dashboard_uri})
-    !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
+    if (res && res.code == 200 && res.body.to_s =~ /<title>.*: Dashboard<\/title>/)
+      return true
+    else # Otherwise target is most likely a newer version of Zabbix, so lets try the updated URL.
+      dashboard_uri = normalize_uri(datastore['TARGETURI'] + '/' + 'zabbix.php')
+      res = send_request_cgi({
+        'uri' => dashboard_uri,
+        'vars_get' => { 'action' => 'dashboard.view' }
+      })
+      if (res && res.code == 200 && res.body.to_s =~ /<title>.*: Dashboard<\/title>/)
+        return true
+      else
+        return false
+      end
+    end
   end
 end
