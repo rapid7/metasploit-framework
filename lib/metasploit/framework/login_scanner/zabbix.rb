@@ -76,8 +76,8 @@ module Metasploit
           res = cli.send_recv(req)
 
           # Found a cookie? Set it. We're going to need it.
-          if res && res.get_cookies =~ /(?:zbx_session(?:id)?)=([a-zA-Z0-9]*)((?:%3D){0,2});/i
-            self.zsession = $1 + $2
+          if res && res.get_cookies =~ /(zbx_session(?:id)?=\w+(?:%3D){0,2};)/i
+            self.zsession = $1
           end
 
           res
@@ -113,7 +113,7 @@ module Metasploit
             'uri'     => normalize_uri(url),
             'method'  => 'GET',
             'headers' => {
-              'Cookie'  => "zbx_sessionid=#{self.zsession}; zbx_session=#{self.zsession}"
+              'Cookie'  => "#{self.zsession}"
             }
           }
           send_request(opts)
