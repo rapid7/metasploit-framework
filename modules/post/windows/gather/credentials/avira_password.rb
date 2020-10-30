@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
       workspace_id: myworkspace_id,
       origin_type: :session,
       session_id: session_db_id,
-      post_reference_name: refname,
+      post_reference_name: self.refname,
       private_type: :nonreplayable_hash,
       jtr_format: 'Raw-MD5u', # hard coded since hash identifier wont know its unicode
       private_data: passwd,
