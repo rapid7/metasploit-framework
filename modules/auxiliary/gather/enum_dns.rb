@@ -62,6 +62,12 @@ class MetasploitModule < Msf::Auxiliary
     datastore['DnsClientRetryInterval'] = datastore['RETRY_INTERVAL']
     datastore['DnsClientTcpDns'] = datastore['TCP_DNS']
 
+    begin
+      setup_resolver
+    rescue RuntimeError => e
+      fail_with(Failure::BadConfig, "Resolver setup failed - exception: #{e}")
+    end
+
     domain = datastore['DOMAIN']
     is_wildcard = dns_wildcard_enabled?(domain)
 
