@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
         unless info.key? :auth_domain
           begin
             simple.client.authenticate
-          rescue RubySMB::RubySMBError
+          rescue RubySMB::Error::RubySMBError
             info[:auth_domain] = nil
           else
             info[:auth_domain] = simple.client.default_domain
