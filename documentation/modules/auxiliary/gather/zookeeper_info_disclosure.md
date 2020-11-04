@@ -30,7 +30,7 @@ Basic options:
   TIMEOUT  30               yes       Timeout for the probe
 
 Description:
-  Apache Zookeeper server service runs on TCP 2181 and by default, it 
+  Apache ZooKeeper server service runs on TCP 2181 and by default, it 
   is accessible without any authentication. This module targets Apache 
   ZooKeeper service instances to extract information about the system 
   environment, and service statistics.
@@ -42,8 +42,8 @@ References:
 msf5 auxiliary(gather/zookeeper_info_disclosure) > run
 
 [*] 1.3.3.7:2181     - Using a timeout of 30...
-[*] 1.3.3.7:2181     - Verifying if server is responding...
-[+] 1.3.3.7:2181     - Server says: imok. Going ahead with extraction..
+[*] 1.3.3.7:2181     - Verifying if service is responsive...
+[+] 1.3.3.7:2181     - Service looks fine. Going ahead with extraction..
 
 [*] 1.3.3.7:2181     - Dumping environment info...
 [+] 1.3.3.7:2181     - Environment:
@@ -98,8 +98,8 @@ Loot
 
 host           service  	type         	name             content     	info       path
 ----           -------  	----         	----             -------    	----       ----
-1.3.3.7        environ-log  	Zookeeper 	Environment Log  text/plain  	Zookeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_environlog_604018.txt 
-1.3.3.7        stat-log     	Zookeeper 	Stat Log         text/plain  	Zookeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_statlog_417795.txt
+1.3.3.7        environ-log  	ZooKeeper 	Environment Log  text/plain  	ZooKeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_environlog_604018.txt 
+1.3.3.7        stat-log     	ZooKeeper 	Stat Log         text/plain  	ZooKeeper  /root/.msf4/loot/20201013203537_default_1.3.3.7_statlog_417795.txt
 
 
 msf5 auxiliary(gather/zookeeper_info_disclosure) > services 
