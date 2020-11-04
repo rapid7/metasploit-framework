@@ -3,6 +3,13 @@
 Loginizer wordpress plugin contains an unauthenticated timebased SQL injection in
 versions before 1.6.4.  The vulnerable parameter is in the `log` parameter.
 
+Exploitation requires Wordpress after [a87271af60113d46ab3866b1e525a1817bce742d](https://github.com/WordPress/WordPress/commit/a87271af60113d46ab3866b1e525a1817bce742d#diff-05003928101dd60650a6864173792d6fbaaccbd26820d99dbcfff47c5f61322e)
+
+* 5.4 or newer
+* 5.5 or newer
+
+Attempts to exploit non-vulnerable versions will likely cause loginizer's blacklist to ban the metasploit IP.
+
 Wordpress has forced updates of the plugin to all servers.  To test this exploit, the server
 must not have a connection to the internet.
 

