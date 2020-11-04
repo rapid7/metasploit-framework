@@ -252,6 +252,10 @@ module Msf
         @iterations = 1 if iterations < 1
 
         encoder_mod = framework.encoders.create(encoder_opt[0])
+        unless encoder_mod
+          cli_print "#{encoder_opt[0]} not found continuing..."
+          next
+        end
         encoder_mod.datastore.import_options_from_hash(datastore)
         shellcode = run_encoder(encoder_mod, shellcode)
       end
