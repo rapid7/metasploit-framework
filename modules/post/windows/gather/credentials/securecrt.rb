@@ -83,9 +83,9 @@ class MetasploitModule < Msf::Post
       hostname = Regexp.compile('S:"Hostname"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
       decrypted_script = Regexp.compile('S:"Login Script V3"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
       if !decrypted_script.nil?
-        username = decrypted_script.match(/login(?: name)?:\x1F(\S+)\x1F(?:[\d])\x1Fpass/u) ? Regexp.last_match(1) : nil
-        password = decrypted_script.match(/password:\x1F([\S]+)\x1F/u) ? Regexp.last_match(1) : nil
-        domain = decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u) ? Regexp.last_match(1) : nil
+        username = decrypted_script[/login(?: name)?:\x1F(?<login>\S+)\x1F(?:[\d])\x1Fpass/u, 'login']
+        password = decrypted_script[/password:\x1F(?<password>[\S]+)\x1F/u, 'password']
+        domain = decrypted_script[/Windows Domain:\x1F(?<domain>[\S]+)\x1F/u, 'domain']
         if !domain.nil? && !username.nil?
           username = domain + '\\' + username
         end
