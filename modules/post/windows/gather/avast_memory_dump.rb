@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::NotVulnerable, 'AvDump.exe does not exist on target.') unless avdump_exists?
     print_status('AvDump.exe exists!')
 
-    dump_path = datastore['DUMP_PATH'] 
+    dump_path = datastore['DUMP_PATH']
     pid = datastore['PID'].to_s
 
     print_status("Executing Avast mem dump utility against #{pid} to #{dump_path}")
