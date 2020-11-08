@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://blog.rapid7.com/2014/03/10/yokogawa-centum-cs3000-vulnerabilities' ],
           [ 'CVE', '2014-0781']
         ],
-      'DisclosureDate' => 'Mar 10 2014',
+      'DisclosureDate' => '2014-03-10',
     ))
 
     register_options(

@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://cablehaunt.com/'],
         ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
       ],
-      'DisclosureDate' => 'Jan 07 2020',
+      'DisclosureDate' => '2020-01-07',
       'License' => MSF_LICENSE
     ))
 

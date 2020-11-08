@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '8641' ],
           [ 'EDB', '24' ]
         ],
-      'DisclosureDate' => 'Sep 17 2003'))
+      'DisclosureDate' => '2003-09-17'))
   end
 
   def run

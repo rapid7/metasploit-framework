@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://blog.rapid7.com/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => 'Nov 06 2013'))
+      'DisclosureDate' => '2013-11-06'))
 
     register_options(
       [

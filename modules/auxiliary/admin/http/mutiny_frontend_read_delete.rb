@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['Delete', 'Description' => 'Delete arbitrary file']
         ],
       'DefaultAction' => 'Read',
-      'DisclosureDate' => 'May 15 2013'))
+      'DisclosureDate' => '2013-05-15'))
 
     register_options(
       [

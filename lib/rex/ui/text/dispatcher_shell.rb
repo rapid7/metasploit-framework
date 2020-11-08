@@ -358,6 +358,8 @@ module DispatcherShell
   # Readline.basic_word_break_characters variable being set to \x00
   #
   def tab_complete(str)
+    ::Readline.completion_append_character = ' '
+
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]

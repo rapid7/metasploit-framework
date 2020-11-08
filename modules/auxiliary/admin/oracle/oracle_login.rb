@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2009/Oct/261' ],
         ],
-      'DisclosureDate' => 'Nov 20 2008'))
+      'DisclosureDate' => '2008-11-20'))
 
       register_options(
         [

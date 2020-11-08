@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'flakey_biscuit <nicholas@shorebreaksecurity.com>'  # Discovery, PoC
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 8 2017"
+      'DisclosureDate' => '2017-03-08'
     ))
 
     register_options(

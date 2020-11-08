@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['EDB', '43777'],
           ['EDB', '44044']
         ],
-      'DisclosureDate' => 'Jan 15 2018',
+      'DisclosureDate' => '2018-01-15',
       'Actions'       =>
         [
           [

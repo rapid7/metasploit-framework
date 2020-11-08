@@ -190,8 +190,8 @@ module Metasploit
             # Use _send_recv instead of send_recv to skip automatic
             # authentication
             response = http_client._send_recv(request)
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-            error_message = "Unable to connect to target"
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
+            return "Unable to connect to target"
           end
 
           if !(response && response.code == 401 && response.headers['WWW-Authenticate'])

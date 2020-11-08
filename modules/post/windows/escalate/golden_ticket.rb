@@ -186,7 +186,7 @@ class MetasploitModule < Msf::Post
     krbtgt_creds = Metasploit::Credential::Core.joins(:public, :private).where(
         metasploit_credential_publics: { username: 'krbtgt' },
         metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' },
-        workspace_id: myworkspace.id)
+        workspace_id: myworkspace_id)
 
     if krbtgt_creds
 

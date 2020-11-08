@@ -320,7 +320,7 @@ class ReadableText
     output << dump_traits(mod)
 
     # Actions
-    if mod.action
+    if mod.actions.any?
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
@@ -385,7 +385,7 @@ class ReadableText
     end
 
     # Actions
-    if mod.action
+    if mod.actions.any?
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end

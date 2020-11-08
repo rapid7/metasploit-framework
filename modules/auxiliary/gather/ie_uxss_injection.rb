@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
       'Platform'       => 'win',
-      'DisclosureDate' => "Feb 1 2015"
+      'DisclosureDate' => '2015-02-01'
     ))
 
     register_options(

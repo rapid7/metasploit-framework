@@ -80,7 +80,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Zabbix do
       allow_any_instance_of(Rex::Proto::Http::Client).to receive(:send_recv).and_return(Rex::Proto::Http::Response.new(res_code))
       allow_any_instance_of(Rex::Proto::Http::Response).to receive(:get_cookies).and_return("zbx_sessionid=ZBXSESSIONID_MAGIC_VALUE;")
       http_scanner.send_request(req_opts)
-      expect(http_scanner.zsession).to eq("ZBXSESSIONID_MAGIC_VALUE")
+      expect(http_scanner.zsession).to match(/zbx_session(?:id)?=ZBXSESSIONID_MAGIC_VALUE/)
     end
   end
 

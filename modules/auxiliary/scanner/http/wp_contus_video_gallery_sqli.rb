@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2015-2065'],
           [ 'WPVDB', '7793' ]
         ],
-      'DisclosureDate' => 'Feb 24 2015'))
+      'DisclosureDate' => '2015-02-24'))
   end
 
   def run_host(ip)

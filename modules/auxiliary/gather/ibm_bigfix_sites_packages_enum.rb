@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           'SSL'   => true
         },
       'License' => MSF_LICENSE,
-      'DisclosureDate' => 'Mar 18 2019' # Blog post date
+      'DisclosureDate' => '2019-03-18' # Blog post date
     ))
 
     register_options [

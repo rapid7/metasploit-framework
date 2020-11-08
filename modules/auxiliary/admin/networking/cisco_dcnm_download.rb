@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
             [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/exploits/metasploit/cisco_dcnm_download.rb' ],
             [ 'URL', 'https://seclists.org/fulldisclosure/2019/Jul/7' ]
           ],
-        'DisclosureDate' => 'Jun 26 2019'
+        'DisclosureDate' => '2019-06-26'
       )
     )
 

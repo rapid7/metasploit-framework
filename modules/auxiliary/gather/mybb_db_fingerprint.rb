@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           'Arthur Karmanovskii <fnsnic[at]gmail.com>' # Discovery and Metasploit Module
         ],
       'License'     => MSF_LICENSE,
-      'DisclosureDate' => 'Feb 13 2014'))
+      'DisclosureDate' => '2014-02-13'))
 
     register_options(
       [

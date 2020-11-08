@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
       ],
-      'DisclosureDate' => 'Mar 14 2017',
+      'DisclosureDate' => '2017-03-14',
       'Notes' =>
           {
               'AKA' => [

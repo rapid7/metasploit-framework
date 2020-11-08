@@ -125,7 +125,6 @@ class Pivot
     pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, url, stage_config)
 
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
-    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
     request.add_tlv(TLV_TYPE_PIVOT_ID, pivot_listener.id)
 
     client.send_request(request)

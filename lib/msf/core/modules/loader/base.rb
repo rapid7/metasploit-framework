@@ -466,9 +466,17 @@ class Msf::Modules::Loader::Base
 
   # Tries to determine if a file might be executable,
   def script_path?(path)
-    File.executable?(path) &&
-      !File.directory?(path) &&
-      ['#!', '//'].include?(File.read(path, 2))
+    # warn users if their external modules aren't marked executable
+    # per #14281
+    if File.directory?(path) || !['#!', '//'].include?(File.read(path, 2))
+      false
+    elsif File.executable?(path)
+      true
+    else
+      # prefer elog since load_error clutters the UI on potential false positives
+      elog("Unable to load module #{path} - LoadError Possible non-executable external module.")
+      false
+    end
   end
 
   # Changes a file name path to a canonical module reference name.
