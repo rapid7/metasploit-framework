@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
   # @param [String] data Encrypted data, pDataIn per crypt32.dll.
   # @param [String] entropy Optional entropy value, pOptionalEntropy per crypt32.dll
   #
-  # @return [String] Decrypted value or empty string in case of failure. 
+  # @return [String] Decrypted value or empty string in case of failure.
   #
   def decrypt_reg(data, entropy)
     rg = session.railgun
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
   # for each IVE the user connected with. We use these details to extract
   # the actual username used to establish the VPN connection if the module
   # runs with elevated privileges.
-  # 
+  #
   # @return [String] the username used by user linked to `sid` when establishing
   # a connection with IVE `ive_index`
   #
