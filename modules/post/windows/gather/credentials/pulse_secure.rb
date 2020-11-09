@@ -37,8 +37,8 @@ class MetasploitModule < Msf::Post
 
   end
 
-  # Decrypts data encrypted with Windows DPAPI by calling CryptUnprotectData
-  # with entropy as pOptionalEntropy value.
+  # Decrypts `data` encrypted with Windows DPAPI by calling CryptUnprotectData
+  # with `entropy` as pOptionalEntropy value.
   #
   # @param [String] data Encrypted data, pDataIn per crypt32.dll.
   # @param [String] entropy Optional entropy value, pOptionalEntropy per crypt32.dll
@@ -142,8 +142,8 @@ class MetasploitModule < Msf::Post
   # the actual username used to establish the VPN connection if the module
   # runs with elevated privileges.
   #
-  # @return [String] the username used by user linked to `sid` when establishing
-  # a connection with IVE `ive_index`
+  # @return [String, nil] the username used by user linked to `sid` when establishing
+  # a connection with IVE `ive_index`, nil if none.
   #
   def get_username(sid, ive_index)
     if not is_system?
