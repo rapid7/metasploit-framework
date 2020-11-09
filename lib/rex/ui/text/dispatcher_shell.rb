@@ -312,7 +312,7 @@ module DispatcherShell
       elsif arg.kind_of?(Array)
         tabs = arg.map {|a| a.to_s}
       end
-      tabs
+      tabs.nil? ? [] : tabs
     end
 
     #
