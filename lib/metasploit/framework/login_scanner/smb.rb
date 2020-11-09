@@ -37,15 +37,15 @@ module Metasploit
 
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [
-            "STATUS_ACCOUNT_DISABLED",
-            "STATUS_ACCOUNT_EXPIRED",
-            "STATUS_ACCOUNT_RESTRICTION",
-            "STATUS_INVALID_LOGON_HOURS",
-            "STATUS_INVALID_WORKSTATION",
-            "STATUS_LOGON_TYPE_NOT_GRANTED",
-            "STATUS_PASSWORD_EXPIRED",
-            "STATUS_PASSWORD_MUST_CHANGE",
-          ].freeze.map(&:freeze)
+            WindowsError::NTStatus::STATUS_ACCOUNT_DISABLED,
+            WindowsError::NTStatus::STATUS_ACCOUNT_EXPIRED,
+            WindowsError::NTStatus::STATUS_ACCOUNT_RESTRICTION,
+            WindowsError::NTStatus::STATUS_INVALID_LOGON_HOURS,
+            WindowsError::NTStatus::STATUS_INVALID_WORKSTATION,
+            WindowsError::NTStatus::STATUS_LOGON_TYPE_NOT_GRANTED,
+            WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED,
+            WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE,
+          ].freeze
         end
 
         # @!attribute dispatcher
@@ -116,12 +116,12 @@ module Metasploit
               end
             end
 
-            case status_code.name
-              when 'STATUS_SUCCESS', 'STATUS_PASSWORD_MUST_CHANGE', 'STATUS_PASSWORD_EXPIRED'
+            case status_code
+              when WindowsError::NTStatus::STATUS_SUCCESS, WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE, WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED
                 status = Metasploit::Model::Login::Status::SUCCESSFUL
-              when 'STATUS_ACCOUNT_LOCKED_OUT'
+              when WindowsError::NTStatus::STATUS_ACCOUNT_LOCKED_OUT
                 status = Metasploit::Model::Login::Status::LOCKED_OUT
-              when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
+              when WindowsError::NTStatus::STATUS_LOGON_FAILURE, WindowsError::NTStatus::STATUS_ACCESS_DENIED
                 status = Metasploit::Model::Login::Status::INCORRECT
               when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                 status = Metasploit::Model::Login::Status::DENIED_ACCESS
