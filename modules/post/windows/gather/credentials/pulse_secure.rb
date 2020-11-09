@@ -215,7 +215,6 @@ class MetasploitModule < Msf::Post
   end
 
   def get_creds
-    print_status "Checking for Pulse Secure IVE profiles in the registry"
     # we get local user profiles
     profiles = grab_user_profiles()
     creds = []
@@ -297,6 +296,7 @@ class MetasploitModule < Msf::Post
   end
 
   def gather_creds
+    print_status("Running credentials acquisition.")
     ives = get_creds
     if ives.any?
       ives.each do |ive|
@@ -351,18 +351,15 @@ class MetasploitModule < Msf::Post
 
   def run
     build = get_build
+    print_status("Target is running Pulse Secure Connect build #{build}.")
     if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
-      print_status("Target is running Pulse Secure Connect build #{build}.")
-      print_status("This version is considered vulnerable. Running credentials acquisition.")
-      gather_creds
+      print_good("This version is considered vulnerable.")
     else
-      print_status("Target is running Pulse Secure Connect build #{build}.")
-      print_status("This version is considered safe, but there might be leftovers from connections defined by previous versions of Pulse Secure Connect in the registry.")
-      print_status("Running credentials acquisition.")
-      gather_creds
+      print_warning("This version is considered safe, but there might be leftovers from previous versions in the registry.")
       if not is_system?
         print_status("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
       end
     end
+    gather_creds
   end
 end
