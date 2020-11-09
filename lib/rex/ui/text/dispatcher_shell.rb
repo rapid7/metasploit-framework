@@ -268,7 +268,7 @@ module DispatcherShell
         dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
         matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir)
       end
-      matches
+      matches.nil? ? [] : matches
     end
 
     #
@@ -312,7 +312,7 @@ module DispatcherShell
       elsif arg.kind_of?(Array)
         tabs = arg.map {|a| a.to_s}
       end
-      tabs.nil? ? [] : tabs
+      tabs
     end
 
     #
