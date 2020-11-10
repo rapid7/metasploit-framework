@@ -17,6 +17,7 @@ module Msf::WebServices
   # MSF_WS_DATA_SERVICE_CERT - Certificate file matching the remote data server's certificate.
   #                            Needed when using self-signed SSL certificates.
   # MSF_WS_DATA_SERVICE_SKIP_VERIFY - (Boolean) Skip validating authenticity of server's certificate.
+  # MSF_WS_DATA_SERVICE_LOG_TO_STDOUT - (Boolean) Log to stdout.
   module FrameworkExtension
     FALSE_VALUES = [nil, false, 0, '0', 'f', 'false', 'off', 'no'].to_set
 
@@ -36,7 +37,15 @@ module Msf::WebServices
       app.set :data_service_skip_verify, to_bool(ENV.fetch('MSF_WS_DATA_SERVICE_SKIP_VERIFY', false))
 
       # Create simplified instance of the framework
-      app.set :framework, Msf::Simple::Framework.create
+      has_stdout_logger = to_bool(ENV.fetch('MSF_WS_DATA_SERVICE_LOG_TO_STDOUT', false))
+      init_framework_opts = {
+        # Conditionally disable the default logging functionality
+        'DisableLogging' => has_stdout_logger
+      }
+      app.set :framework, Msf::Simple::Framework.create(init_framework_opts)
+      if has_stdout_logger
+        Msf::Logging.init(Rex::Logging::Sinks::Stdout.new)
+      end
 
       if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
         framework_db_connect_http_data_service(framework: app.settings.framework,

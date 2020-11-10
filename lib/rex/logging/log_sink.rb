@@ -38,6 +38,8 @@ end
 end
 end
 
+require 'rex/logging/sinks/stream'
 require 'rex/logging/sinks/flatfile'
+require 'rex/logging/sinks/flatfile_without_colors'
 require 'rex/logging/sinks/stderr'
-require 'rex/logging/sinks/timestamp_flatfile'
+require 'rex/logging/sinks/stdout'

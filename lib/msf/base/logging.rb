@@ -16,12 +16,13 @@ class Logging
 
   # Initialize logging.
   #
+  # @param log_sink [Rex::Logging::LogSink] Log sink.
   # @return [void]
-  def self.init
+  def self.init(log_sink = nil)
     if (! @@initialized)
       @@initialized = true
 
-      f = Rex::Logging::Sinks::Flatfile.new(
+      log_sink ||= Rex::Logging::Sinks::Flatfile.new(
         Msf::Config.log_directory + File::SEPARATOR + "framework.log")
 
       # Register each known log source
@@ -30,7 +31,7 @@ class Logging
         Msf::LogSource,
         'base',
       ].each { |src|
-        register_log_source(src, f)
+        register_log_source(src, log_sink)
       }
     end
   end
@@ -80,7 +81,7 @@ class Logging
   # @return [void]
   def self.start_session_log(session)
     if (log_source_registered?(session.log_source) == false)
-      f = Rex::Logging::Sinks::TimestampFlatfile.new(
+      f = Rex::Logging::Sinks::FlatfileWithoutColors.new(
       Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
 
       register_log_source(session.log_source, f)
