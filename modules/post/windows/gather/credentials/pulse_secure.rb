@@ -88,8 +88,11 @@ class MetasploitModule < Msf::Post
   # @return [String] build version
   #
   def get_build
+    version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
     begin
-      version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
+      if not session.fs.file.exist?(version_path)
+        raise Msf::Exploit::Failed, 'Pulse Secure Connect client is not installed on this system'
+      end
       version_data = session.fs.file.open(version_path).read.to_s
       matches = version_data.scan(/DisplayVersion=([0-9\.]*)/m)
       return Gem::Version.new(matches[0][0])
@@ -350,16 +353,20 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    build = get_build
-    print_status("Target is running Pulse Secure Connect build #{build}.")
-    if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
-      print_good("This version is considered vulnerable.")
-    else
-      print_warning("This version is considered safe, but there might be leftovers from previous versions in the registry.")
-      if not is_system?
-        print_status("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
+    begin
+      build = get_build
+      print_status("Target is running Pulse Secure Connect build #{build}.")
+      if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
+        print_good("This version is considered vulnerable.")
+      else
+        print_warning("This version is considered safe, but there might be leftovers from previous versions in the registry.")
+        if not is_system?
+          print_status("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
+        end
       end
+      gather_creds
+    rescue Msf::Exploit::Failed => e
+      print_error(e.to_s)
     end
-    gather_creds
   end
 end
