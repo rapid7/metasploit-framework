@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
     cracker = new_password_cracker
     cracker.cracker = action.name
     cracker_version = cracker.cracker_version
-    if action.name == 'john' and not cracker_version.include?'jumbo'
+    if action.name == 'john' and !cracker_version.include? 'jumbo'
       fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
     end
     print_good("#{action.name} Version Detected: #{cracker_version}")
