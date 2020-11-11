@@ -67,6 +67,7 @@ module Msf
 
     def get_uri(value)
       return unless value
+      value = calculate_value(value) if value.is_a? Hash
       return unless single_rhost?(value)
 
       value = 'http://' + value unless value.start_with?(%r{https?://})
