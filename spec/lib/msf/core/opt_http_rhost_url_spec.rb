@@ -35,4 +35,24 @@ RSpec.describe Msf::OptHTTPRhostURL do
       end
     end
   end
+
+  describe '#valid?' do
+    [
+      { expected: true, value: { 'VHOST' => nil, 'RHOSTS' => '127.0.0.1', 'RPORT' => 80, 'SSL' => false, 'TARGETURI' => '/', 'URI' => '/', 'HttpUsername' => '', 'HttpPassword' => '' } },
+      { expected: true, value: 'google.com' },
+      { expected: true, value: 'https://google.com' },
+      { expected: true, value: '127.0.0.1' },
+      { expected: true, value: 'http://127.0.0.1/' },
+      { expected: true, value: nil }, # RHOST_HTTP_URL does not have to be set, so nil should return true.
+      { expected: false, value: { 'VHOST' => nil, 'RHOSTS' => '', 'RPORT' => 80, 'SSL' => false, 'TARGETURI' => '/', 'URI' => '/', 'HttpUsername' => '', 'HttpPassword' => '' } },
+      { expected: false, value: {} },
+      { expected: false, value: '' }
+    ].each do |test|
+      context test[:value].to_s do
+        it "should return #{test[:expected]}" do
+          expect(subject.valid?(test[:value])).to eq(test[:expected])
+        end
+      end
+    end
+  end
 end
