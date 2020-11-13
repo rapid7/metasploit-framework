@@ -1031,13 +1031,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     print @@reg_opts.usage
     print_line("COMMANDS:")
     print_line
-    print_line("    enumkey  Enumerate the supplied registry key [-k <key>]")
-    print_line("    createkey  Create the supplied registry key  [-k <key>]")
-    print_line("    deletekey  Delete the supplied registry key  [-k <key>]")
-    print_line("    queryclass Queries the class of the supplied key [-k <key>]")
-    print_line("    setval Set a registry value [-k <key> -v <val> -d <data>]")
-    print_line("    deleteval  Delete the supplied registry value [-k <key> -v <val>]")
-    print_line("    queryval Queries the data contents of a value [-k <key> -v <val>]")
+    print_line("    enumkey     Enumerate the supplied registry key [-k <key>]")
+    print_line("    createkey   Create the supplied registry key  [-k <key>]")
+    print_line("    deletekey   Delete the supplied registry key  [-k <key>]")
+    print_line("    queryclass  Queries the class of the supplied key [-k <key>]")
+    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]")
+    print_line("    deleteval   Delete the supplied registry value [-k <key> -v <val>]")
+    print_line("    queryval    Queries the data contents of a value [-k <key> -v <val>]")
     print_line
   end
 
