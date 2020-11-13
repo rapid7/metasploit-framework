@@ -23,13 +23,16 @@ module Msf::Module::DataStore
     if (module_info['DefaultOptions'])
       self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
     end
+
+    # Preference the defaults for the currently set target
+    import_target_defaults
   end
 
   #
   # Import the target's DefaultOptions hash into the datastore.
   #
   def import_target_defaults
-    return unless target && target.default_options
+    return unless defined?(targets) && targets && target && target.default_options
 
     datastore.import_options_from_hash(target.default_options, true, 'self')
   end
