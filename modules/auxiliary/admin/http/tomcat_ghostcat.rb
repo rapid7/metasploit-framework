@@ -1,6 +1,4 @@
 class MetasploitModule < Msf::Auxiliary
-    Rank = ExcellentRanking
-
     include Msf::Exploit::Remote::Tcp
 
     def initialize(info = {})
@@ -227,6 +225,7 @@ class MetasploitModule < Msf::Auxiliary
             print "Status Code: "
             idx += 2
             idx = read_buf_string(buf, idx)
+            print("\n")
             header_num = buf[idx..(idx+2)].unpack('n')[0]
             idx += 2
             for i in 1..header_num
@@ -240,8 +239,12 @@ class MetasploitModule < Msf::Auxiliary
                     print(": ")
                     idx = read_buf_string(buf, idx)
                 end
+                print("\n")
             end
         elsif buf[idx] == "\x05"
+            return 0
+        elsif buf[idx] == "\x03"
+            idx += 1
             idx = read_buf_string(buf, idx)
         else
             return 1
@@ -264,4 +267,6 @@ class MetasploitModule < Msf::Auxiliary
         parse_response(buf, 0)
     end
 end
+
+
 
