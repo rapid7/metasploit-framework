@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
             "Author" =>
             [
                 "A Security Researcher of Chaitin Tech", #POC
-                "ThienNV - SunCSR" #Metasploit Module
+                "SunCSR Team" #Metasploit Module
             ],
             "License" => MSF_LICENSE,
             "References" =>
@@ -19,28 +19,7 @@ class MetasploitModule < Msf::Auxiliary
                 ],
             "Privileged" => false,
             "Platform" => %w{ java linux win},
-            "Targets" =>
-            [
-                ["Automatic",
-                    {
-                        "Arch" => ARCH_JAVA,
-                        "Platform" => "win"
-                    }
-                ],
-                [ "Java Windows",
-                    {
-                    "Arch" => ARCH_JAVA,
-                    "Platform" => "win"
-                    }
-                ],
-                [ "Java Linux",
-                    {
-                    "Arch" => ARCH_JAVA,
-                    "Platform" => "linux"
-                    }
-                ]
-            ],
-            "DefaultTarget" => 0))
+            ))
         register_options(
             [
                 OptString.new("FILENAME",[true,"File name","/WEB-INF/web.xml"]),
@@ -267,6 +246,5 @@ class MetasploitModule < Msf::Auxiliary
         parse_response(buf, 0)
     end
 end
-
 
 
