@@ -9,7 +9,7 @@ It also allows the attacker to process any file in the web application as JSP.
 
   1. Install the application and start it
   2. Start msfconsole
-  3. Do: ```exploit/windows/http/tomcat_ghostcat```
+  3. Do: ```auxiliary/admin/http/tomcat_ghostcat```
   4. Do: ```set rhosts [ip]```
   5. Do: ```set rport```
   6. Do: ```set FILENAME```
@@ -23,7 +23,7 @@ It also allows the attacker to process any file in the web application as JSP.
 
   ```
   [*] Processing tomcat_ghostcat.rb for ERB directives.
-  resource (tomcat_ghostcat.rb)> use exploit/windows/http/tomcat_ghostcat
+  resource (tomcat_ghostcat.rb)> use auxiliary/admin/http/tomcat_ghostcat
   resource (tomcat_ghostcat.rb)> set rport 8009
   rport => 8009
   resource (tomcat_ghostcat.rb)> set rhosts 127.0.0.1
