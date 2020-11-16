@@ -545,7 +545,7 @@ require 'msf/core/exe/segment_appender'
       end
       pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
     when :dll
-      max_length = 2048
+      max_length = 4096
     when :exe_sub
       max_length = 4096
     end
