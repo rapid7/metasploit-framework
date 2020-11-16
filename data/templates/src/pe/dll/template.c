@@ -40,6 +40,13 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
+// Use a combination semaphore / event to check if the payload is already running and when it is, don't start a new
+// instance. This is to fix situations where the DLL is loaded multiple times into a host process and prevents the
+// payload from being executed multiple times. An event object is used to determine if the payload is currently running
+// in a child process. The event handle is created by this process (the parent) and configured to be inherited by the
+// child. While the child process is running, the event handle can be successfully opened. When the child process exits,
+// the event handle that was inherited from the parent will be automatically closed and subsequent calls to open it will
+// fail. This indicates that the payload is no longer running and a new instance can be created.
 BOOL Synchronize(void) {
 	BOOL bResult = TRUE;
 	BOOL bRelease = FALSE;
@@ -47,40 +54,47 @@ BOOL Synchronize(void) {
 	HANDLE hEvent = NULL;
 	SECURITY_ATTRIBUTES SecurityAttributes;
 
+	// step 1: define security attributes that permit handle inheritance
 	SecurityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
 	SecurityAttributes.lpSecurityDescriptor = NULL;
 	SecurityAttributes.bInheritHandle = TRUE;
 
 	do {
+		// step 2: create a semaphore to synchronize this routine
 		if ((hSemaphore = CreateSemaphoreA(&SecurityAttributes, 1, 1, szSyncNameS)) == NULL) {
+			// if the semaphore creation fails, break out using the default TRUE result, this shouldn't happen
 			break;
 		}
 
 		bResult = FALSE;
+		// step 3: acquire the semaphore, if the operation timesout another instance is already running so exit
 		if (WaitForSingleObject(hSemaphore, 0) == WAIT_TIMEOUT) {
 			break;
 		}
 		bRelease = TRUE;
 
+		// step 4: check if the event already exists
 		if (hEvent = OpenEventA(READ_CONTROL | SYNCHRONIZE, TRUE, szSyncNameE)) {
 			// if the event already exists, do not continue
 			CloseHandle(hEvent);
 			break;
 		}
 
+		// step 5: if the event does not already exist, create a new one that will be inherited by the child process
 		if (hEvent = CreateEventA(&SecurityAttributes, TRUE, TRUE, szSyncNameE)) {
 			bResult = TRUE;
 		}
 	} while (FALSE);
 
 
+	// step 6: release and close the semaphore as necessary
 	if (hSemaphore) {
 		if (bRelease) {
 			ReleaseSemaphore(hSemaphore, 1, NULL);
 		}
 		CloseHandle(hSemaphore);
 	}
-	// do not close the event handle (hEvent), it needs to be inherited
+	// *do not* close the event handle (hEvent), it needs to be inherited by the child process
 	return bResult;
 }
 
