@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
     begin
       print_status("Searching for session files in #{path}")
       config_ini += session.fs.file.search(path, '*.ini')
-      fail_with(Failure::BadConfig, "Couldn't find any session files at #{path}") if config_ini.to_s.empty?
+      fail_with(Failure::BadConfig, "Couldn't find any session files at #{path}") if config_ini.empty?
     rescue Rex::Post::Meterpreter::RequestError
       fail_with(Failure::BadConfig, "The SecureCRT registry key on the target is likely misconfigured. The directory at #{path} is inaccessable or doesn't exist")
     end
