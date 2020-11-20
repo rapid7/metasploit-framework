@@ -18,7 +18,7 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Command Shell, Reverse UDP (via python)',
-      'Description'   => 'Creates an interactive shell via python, encodes with base64 by design. Compatible with Python 2.3.3',
+      'Description'   => 'Creates an interactive shell via Python, encodes with base64 by design. Compatible with Python 2.6-2.7 and 3.4+.',
       'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'python',

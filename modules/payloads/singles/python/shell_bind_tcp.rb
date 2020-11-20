@@ -14,7 +14,7 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name' => 'Command Shell, Bind TCP (via python)',
-      'Description' => 'Creates an interactive shell via python, encodes with base64 by design. Compatible with Python 2.4-2.7 and 3.4+',
+      'Description' => 'Creates an interactive shell via Python, encodes with base64 by design. Compatible with Python 2.4-2.7 and 3.4+.',
       'Author' => 'mumbai',
       'License' => MSF_LICENSE,
       'Platform' => 'python',
