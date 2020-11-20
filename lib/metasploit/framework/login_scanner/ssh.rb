@@ -165,7 +165,7 @@ module Metasploit
                   if os_num.present? && os_name.present?
                     proof = "#{os_name.strip} #{os_num.strip}"
                   else
-                    proof = ssh_socket.exec!("ver\n").strip
+                    proof = ssh_socket.exec!("ver\n").to_s.strip
                   end
                 # mikrotik
                 elsif proof =~ /bad command name id \(line 1 column 1\)/
