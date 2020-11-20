@@ -163,7 +163,7 @@ module Metasploit
                   /OS Name:\s+(?<os_name>.+)$/ =~ proof
                   /OS Version:\s+(?<os_num>.+)$/ =~ proof
                   if os_num.nil? || os_name.nil?
-                    proof = ssh_socket.exec!("ver\n").to_s
+                    proof = ssh_socket.exec!("ver\n").to_s.strip
                   end
                   if os_name && os_num
                     proof = "#{os_name.chomp} #{os_num.chomp}"
