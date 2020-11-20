@@ -115,7 +115,7 @@ module Metasploit
         def gather_proof
           proof = ''
           begin
-            Timeout.timeout(5) do
+            Timeout.timeout(10) do
               proof = ssh_socket.exec!("id\n").to_s
               if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
@@ -162,6 +162,9 @@ module Metasploit
                   proof = ssh_socket.exec!("systeminfo\n").to_s
                   /OS Name:\s+(?<os_name>.+)$/ =~ proof
                   /OS Version:\s+(?<os_num>.+)$/ =~ proof
+                  if os_num.nil? || os_name.nil?
+                    proof = ssh_socket.exec!("ver\n").to_s
+                  end
                   if os_name && os_num
                     proof = "#{os_name.chomp} #{os_num.chomp}"
                   end
