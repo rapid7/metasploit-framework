@@ -102,13 +102,16 @@ end
 #
 #
 
+scripts = []
+
 ###
 # Bloodhound/Sharphound files
 ###
-scripts = []
+
+# https://github.com/BloodHoundAD/BloodHound/commit/b6ab5cd369c70219c6376d9f5c4fcd63f34fb4a0
 scripts << {
   name: 'Sharphound (Bloodhound) ps1',
-  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.ps1',
+  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Collectors/SharpHound.ps1',
   dest: '/data/post/powershell/SharpHound.ps1',
   subs: [
     ["\t", '    '], # tabs to spaces
@@ -117,7 +120,7 @@ scripts << {
 }
 scripts << {
   name: 'Sharphound (Bloodhound) exe',
-  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.exe',
+  addr: 'https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Collectors/SharpHound.exe',
   dest: '/data/post/SharpHound.exe',
   subs: []
 }
@@ -302,6 +305,36 @@ scripts << {
   dest: '/data/exploits/mysql/lib_mysqludf_sys_64.dll',
   subs: []
 }
+
+###
+# CMS Files
+###
+
+# https://github.com/rapid7/metasploit-framework/pull/11862#issuecomment-496578367
+scripts << {
+  name: 'WordPress - Plugins List',
+  addr: 'https://plugins.svn.wordpress.org',
+  dest: '/data/wordlists/wp-plugins.txt',
+  subs: [
+    [/^((?!  <li>).)*/, ''], # remove all non-plugin lines
+    [/  <li><a href="[^"]+">/, ''], # remove beginning
+    [/\/<\/a><\/li>/,''], # remove end
+    [/^\s*/,''] # remove empty lines
+  ]
+}
+
+scripts << {
+  name: 'WordPress - Themes List',
+  addr: 'https://themes.svn.wordpress.org',
+  dest: '/data/wordlists/wp-themes.txt',
+  subs: [
+    [/^((?!  <li>).)*/, ''], # remove all non-plugin lines
+    [/  <li><a href="[^"]+">/, ''], # remove beginning
+    [/\/<\/a><\/li>/,''], # remove end
+    [/^\s*/,''] # remove empty lines
+  ]
+}
+
 
 path = File.expand_path('../../', File.dirname(__FILE__))
 
