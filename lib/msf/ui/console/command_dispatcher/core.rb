@@ -253,7 +253,7 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     banner << "\n"
-    banner << "Metasploit tip: #{Tip.sample}\n"
+    banner << Msf::Serializer::ReadableText.word_wrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
