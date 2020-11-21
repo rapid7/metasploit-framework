@@ -335,6 +335,10 @@ scripts << {
   ]
 }
 
+# Joomla's is more complicated. It looks for more than
+# just components.  Because of that, if you want the
+# file updated, see:
+# https://github.com/rapid7/metasploit-framework/pull/11199#issue-242415518
 
 path = File.expand_path('../../', File.dirname(__FILE__))
 
