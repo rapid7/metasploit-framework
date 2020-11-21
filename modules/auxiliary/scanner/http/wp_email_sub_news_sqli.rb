@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'WordPress Email Subscribers and Newsletter Hash SQLi Scanner',
         'Description' => %q{
+          Email Subscribers & Newsletters plugin contains an unauthenticated timebased SQL injection in
+          versions before 4.3.1.  The vulnerable parameter is in the `hash` parameter.
         },
         'Author' =>
           [
@@ -47,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    checkcode = check_plugin_version_from_readme('email-subscribers', '4.2.4')
+    checkcode = check_plugin_version_from_readme('email-subscribers', '4.3.1')
     if checkcode == Msf::Exploit::CheckCode::Safe
       vprint_error('Loginizer version not vulnerable')
       return
