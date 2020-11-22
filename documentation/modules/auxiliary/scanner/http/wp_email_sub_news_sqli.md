@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 Email Subscribers & Newsletters plugin contains an unauthenticated timebased SQL injection in
-versions before 4.3.1.  The vulnerable parameter is in the `hash` parameter.
+versions before 4.3.1.  The `hash` parameter is vulnerable to injection.
 
 All versions can be downloaded from [wordress.org](https://wordpress.org/plugins/email-subscribers/advanced/)
 or [4.2.2](https://downloads.wordpress.org/plugin/email-subscribers.4.2.2.zip)
