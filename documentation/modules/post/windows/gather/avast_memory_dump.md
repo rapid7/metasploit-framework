@@ -5,6 +5,9 @@ leveraged to dump process memory of user defined processes to user defined
 locations.
 
 
+A detailed write up can be found at https://archcloudlabs.com/projects/dumping-memory-with-av/
+
+
 ## Verification Steps
 
 Verify that the path ```C:\\Program Files\\Avast Software Avast\\AvDump.exe```
