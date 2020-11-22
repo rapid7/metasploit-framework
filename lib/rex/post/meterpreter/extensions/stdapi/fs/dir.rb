@@ -246,6 +246,7 @@ class Dir < Rex::Post::Dir
   def Dir.exist?(path)
     begin
       entries(path)
+      return true
     rescue ::Rex::Post::Meterpreter::RequestError => e
       if e.message =~ /The system cannot find the path specified/
         return false
