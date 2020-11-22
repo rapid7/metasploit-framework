@@ -21,18 +21,20 @@ class MetasploitModule < Msf::Auxiliary
     register_options [
       OptBool.new('THEMES', [false, 'Detect themes', true]),
       OptBool.new('PLUGINS', [false, 'Detect plugins', true]),
-      OptPath.new('THEMES_FILE', [true, 'File containing themes to enumerate',
+      OptPath.new('THEMES_FILE', [
+        true, 'File containing themes to enumerate',
         File.join(Msf::Config.data_directory, 'wordlists', 'wp-themes.txt')
       ]),
-      OptPath.new('PLUGINS_FILE', [true, 'File containing plugins to enumerate',
+      OptPath.new('PLUGINS_FILE', [
+        true, 'File containing plugins to enumerate',
         File.join(Msf::Config.data_directory, 'wordlists', 'wp-plugins.txt')
       ]),
       OptInt.new('PROGRESS', [true, 'how often to print progress', 1000])
     ]
   end
 
-  def print_progress(i,total)
-    print_status("Progress #{i}/#{total} (#{((i.to_f/total) * 100).truncate(2)}%)")
+  def print_progress(i, total)
+    print_status("Progress #{i}/#{total} (#{((i.to_f / total) * 100).truncate(2)}%)")
   end
 
   def run_host(target_host)
@@ -53,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       if datastore['THEMES']
         print_status('Enumerating Themes')
-    
+
         f = File.open(datastore['THEMES_FILE'], 'rb')
         total = f.lines.count
         f.rewind
@@ -64,6 +66,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_status("Checking theme: #{theme}")
           version = check_theme_version_from_readme(theme)
           next if version == Msf::Exploit::CheckCode::Unknown # aka not found
+
           print_good("Detected Theme: #{theme} version #{version.details} ")
         end
       end
@@ -80,6 +83,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_status("Checking plugin: #{plugin}")
           version = check_plugin_version_from_readme(plugin)
           next if version == Msf::Exploit::CheckCode::Unknown # aka not found
+
           print_good("Detected Plugin: #{plugin} version #{version.details} ")
         end
       end
