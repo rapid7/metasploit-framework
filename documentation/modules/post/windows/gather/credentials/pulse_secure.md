@@ -1,20 +1,21 @@
 ## Vulnerable Application
 
-Pulse Secure VPN Client for Windows <= 9.1R3.
+Pulse Secure VPN Client for versions 9.1 prior to 9.1R4 and 9.0 prior to 9.0R5.
 
-An end-to-end setup with working Juniper Pulse Secure VPN server, Pulse Secure client on Microsoft Windows, and valid credentials are required for Pulse Secure client to save credentials locally and therefore test this.
-
+An end-to-end setup with working Juniper Pulse Secure VPN server, Pulse Secure client on
+Microsoft Windows, and valid credentials are required for Pulse Secure client to save
+credentials locally and therefore test this.
 
 ## Verification Steps
 
-1. Get a meterpreter on a windows machine that has Pulse Secure client installed.
+1. Get a Meterpreter shell on a Windows machine that has Pulse Secure client installed.
 2. Load the module: `use post/windows/gather/credentials/pulse_secure`
-3. Set the correct session on the module.
-4. Run the module and enjoy the loot.
+3. Set the correct session on the module: `set SESSION *session id*`
+4. Run the module with `run` and enjoy the loot.
 
-## Example Run
+## Scenarios
 
-**Normal mode**
+### Normal mode
 ```
 msf > use post/windows/gather/credentials/pulse_secure
 msf > set SESSION 1
@@ -40,9 +41,7 @@ Output:
 [*] Post module execution completed
 ```
 
-## Scenarios
-
-**Run on all sessions**
+### Run on all sessions
 If you wish to run the post against all sessions from framework, here is how:
 
 1. Create the following resource script:
