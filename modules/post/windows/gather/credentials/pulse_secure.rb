@@ -225,8 +225,17 @@ class MetasploitModule < Msf::Post
   end
 
   def find_creds
-    # we get local user profiles
-    profiles = grab_user_profiles
+
+    # If we execute with elevated privileges, we can go through all registry values
+    # so we load all profiles. If we run without privileges, we just load our current
+    # user profile. We have to do that otherwise we try to access registry values that
+    # we are not allwoed to, triggering a 'Profile doesn't exist or cannot be accessed'
+    # error.
+    if is_system?
+      profiles = grab_user_profiles
+    else
+      profiles = [{ 'SID' => session.sys.config.getsid }]
+    end
     creds = []
     # we get connection ives
     ives = find_ives
