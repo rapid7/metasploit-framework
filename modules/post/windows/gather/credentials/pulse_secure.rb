@@ -174,20 +174,6 @@ class MetasploitModule < Msf::Post
     return "IVE:#{ive_index.upcase}"
   end
 
-  # Convert pOptionalEntropy value to UTF-16
-  #
-  # @param [String] entropy value
-  # @return [String] `entropy` value converted to UTF-16
-  #
-  def cast_entropy(entropy)
-    entropy_utf16 = []
-    entropy.each_char do |c|
-      entropy_utf16 << c.ord
-      entropy_utf16 << 0
-    end
-    return entropy_utf16.pack('c*')
-  end
-
   # In affected versions, the data is saved as hex bytes in the registry and
   # can be used as is when calling CryptUnprotectData.
   #
@@ -251,7 +237,7 @@ class MetasploitModule < Msf::Post
             end
           else
             # convert IVE index to DPAPI pOptionalEntropy value like PSC does
-            entropy = cast_entropy(get_entropy_from_ive_index(ive_index))
+            entropy = get_entropy_from_ive_index(ive_index).encode('UTF-16LE').bytes.pack("c*")
           end
 
           # it's not DPAPI data
