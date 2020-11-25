@@ -90,11 +90,11 @@ class MetasploitModule < Msf::Post
   end
 
   # Parse IVEs definitions from Pulse Secure Connect client connection store
-  # files. Each definition is converted into a hash holding a connection source,
-  # a friendly name, a URI, and an array of credentials. These hashes are stored
-  # into a hash, indexed by IVE identifiers.
+  # files. Each definition is converted into a Ruby hash holding a connection source,
+  # a friendly name, a URI, and an array of credentials. These Ruby hashes are stored
+  # into another Ruby hash, indexed by IVE identifiers.
   #
-  # @return [hash] A hash indexed by IVE identifier
+  # @return [hash] A Ruby hash indexed by IVE identifier
   #
   def find_ives
     connstore_paths = [
