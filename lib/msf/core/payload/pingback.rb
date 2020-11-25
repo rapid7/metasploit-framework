@@ -26,6 +26,8 @@ module Msf::Payload::Pingback
                            description: 'pingback',
                            platform: platform.platforms.first.realname.downcase)
     else
+      uuid_info = { name: datastore['PayloadUUIDName'], uuid: datastore['PingbackUUID'], description: 'pingback', platform: platform.platforms.first.realname.downcase}
+      framework.uuid_db[datastore['PingbackUUID']] = uuid_info
       print_warning("Unable to save UUID #{datastore['PingbackUUID']} to database -- database support not active")
     end
     self.pingback_uuid

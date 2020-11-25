@@ -104,6 +104,7 @@ module Msf::Payload::UUID::Options
       uuid_info[:name] = datastore['PayloadUUIDName']
     end
 
+    framework.uuid_db[uuid.puid_hex] = uuid_info
     framework.db.create_payload(uuid_info)
   end
 
@@ -111,17 +112,26 @@ module Msf::Payload::UUID::Options
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
     # skip if there is no active database
-    return if !(framework.db && framework.db.active)
-
-    payload_info = {
-        uuid: uuid.puid_hex,
-    }
-    payload = framework.db.get_payload(payload_info)
-    unless payload.nil?
-      urls = payload.urls.nil? ? [] : payload.urls
-      urls << url
-      urls.uniq!
-      framework.db.update_payload({id: payload.id, urls: urls})
+    if (framework.db && framework.db.active)
+      payload_info = {
+          uuid: uuid.puid_hex,
+      }
+      payload = framework.db.payloads(payload_info).first
+      unless payload.nil?
+        urls = payload.urls.nil? ? [] : payload.urls
+        urls << url
+        urls.uniq!
+        framework.db.update_payload({id: payload.id, urls: urls})
+      end
+    else
+      uuid_info = framework.uuid_db[uuid.puid_hex] || {}
+      unless uuid_info.nil?
+        uuid_info = { uuid: uuid.puid_hex, arch: uuid.arch, platform: uuid.platform, timestamp: uuid.timestamp }
+        uuid_info['urls'] ||= []
+        uuid_info['urls'] << url
+        uuid_info['urls'].uniq!
+        framework.uuid_db[uuid.puid_hex] = uuid_info
+      end
     end
   end
 
