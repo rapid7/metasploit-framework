@@ -108,8 +108,10 @@ class MetasploitModule < Msf::Post
         if !session.fs.file.exist?(path)
           next
         end
+        connstore_file = session.fs.file.open(path) rescue nil
+        next if connstore_file.nil?
 
-        connstore_data = session.fs.file.open(path).read.to_s
+        connstore_data = connstore_file.read.to_s
         matches = connstore_data.scan(/ive "([a-z0-9]*)" {.*?connection-source: "([^"]*)".*?friendly-name: "([^"]*)".*?uri: "([^"]*)".*?}/m)
         matches.each do |m|
           ives[m[0]] = {}
