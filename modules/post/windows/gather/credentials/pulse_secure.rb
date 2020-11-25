@@ -143,9 +143,7 @@ class MetasploitModule < Msf::Post
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.bak",
     ]
     begin
-      if !is_system?
-        return nil
-      end
+      return unless is_system?
       paths.each do |path|
         next unless session.fs.file.exist?(path)
 
