@@ -338,17 +338,17 @@ class MetasploitModule < Msf::Post
       if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
         print_good("This version is considered vulnerable.")
         return Msf::Exploit::CheckCode::Vulnerable
-      else
-        if is_system?
-          print_good("You're executing from a privileged process so this version is considered vulnerable.")
-          return Msf::Exploit::CheckCode::Vulnerable
-        else
-          print_warning("You're executing from an unprivileged process so this version is considered safe.")
-          print_warning("However, there might be leftovers from previous versions in the registry.")
-          print_warning("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
-          return Msf::Exploit::CheckCode::Appears
-        end
       end
+
+      if is_system?
+        print_good("You're executing from a privileged process so this version is considered vulnerable.")
+        return Msf::Exploit::CheckCode::Vulnerable
+      end
+
+      print_warning("You're executing from an unprivileged process so this version is considered safe.")
+      print_warning("However, there might be leftovers from previous versions in the registry.")
+      print_warning("We recommend running this script in elevated mode to obtain credentials saved by recent versions.")
+      return Msf::Exploit::CheckCode::Appears
     rescue Rex::Post::Meterpreter::RequestError => e
       vprint_error(e.message)
     end
