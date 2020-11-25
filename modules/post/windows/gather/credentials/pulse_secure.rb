@@ -297,7 +297,9 @@ class MetasploitModule < Msf::Post
           begin
             address = Rex::Socket.getaddress(uri.host)
           rescue SocketError
-            address = nil
+            # if we can't resolve the host, we don't save it to service data
+            # in order not to fill it with blank entries
+            next
           end
           service_data = {
             address: address,
