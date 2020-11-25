@@ -105,9 +105,7 @@ class MetasploitModule < Msf::Post
     begin
       ives = {}
       connstore_paths.each do |path|
-        if !session.fs.file.exist?(path)
-          next
-        end
+        next unless session.fs.file.exist?(path)
         connstore_file = session.fs.file.open(path) rescue nil
         next if connstore_file.nil?
 
