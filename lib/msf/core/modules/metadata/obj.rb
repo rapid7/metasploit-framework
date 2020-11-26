@@ -206,8 +206,8 @@ class Obj
     @name = @name.dup.force_encoding(encoding)
     @fullname = @fullname.dup.force_encoding(encoding)
     @description = @description.dup.force_encoding(encoding)
-    @author = @author.each {|a| a.dup.force_encoding(encoding)}
-    @references = @references.each {|r| r.dup.force_encoding(encoding)}
+    @author = @author.map {|a| a.dup.force_encoding(encoding)}
+    @references = @references.map {|r| r.dup.force_encoding(encoding)}
   end
 
 end
