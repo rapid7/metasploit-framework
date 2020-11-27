@@ -277,7 +277,7 @@ class MetasploitModule < Msf::Post
           port: uri.port,
           protocol: 'tcp',
           realm_key: Metasploit::Model::Realm::Key::WILDCARD,
-          realm_value: uri.path,
+          realm_value: uri.path.blank? ? "/" : uri.path,
           service_name: 'Pulse Secure SSL VPN',
           workspace_id: myworkspace_id
         }
