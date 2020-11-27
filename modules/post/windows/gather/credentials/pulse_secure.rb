@@ -322,7 +322,7 @@ class MetasploitModule < Msf::Post
     begin
       if !session.fs.file.exist?(version_path)
         print_error("Pulse Secure Connect client is not installed on this system")
-        return Msf::Exploit::CheckCode::NotVulnerable
+        return Msf::Exploit::CheckCode::Safe
       end
       version_file = session.fs.file.open(version_path) rescue nil
       if version_file.nil?
