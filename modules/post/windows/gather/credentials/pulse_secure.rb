@@ -141,6 +141,7 @@ class MetasploitModule < Msf::Post
     paths = [
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.dat",
       "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.bak",
+      "C:\\ProgramData\\Pulse Secure\\ConnectionStore\\#{sid}.tmp",
     ]
     begin
       return unless is_system?
