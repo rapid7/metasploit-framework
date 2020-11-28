@@ -241,22 +241,6 @@ class Dir < Rex::Post::Dir
   end
 
   #
-  # Returns true if the remote directory exists, false otherwise.
-  #
-  def Dir.exist?(path)
-    begin
-      entries(path)
-      return true
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      if e.message =~ /The system cannot find the path specified/
-        return false
-      else
-        raise e
-      end
-    end
-  end
-
-  #
   # Synonyms for delete.
   #
   def Dir.unlink(path)
