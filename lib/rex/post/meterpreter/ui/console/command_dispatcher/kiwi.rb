@@ -616,7 +616,7 @@ module Rex
                     values << ''
                   end
                 end
-                report_creds(k, values)
+                report_creds(k, values) if !shell.framework.nil?
                 table << values
               end
 

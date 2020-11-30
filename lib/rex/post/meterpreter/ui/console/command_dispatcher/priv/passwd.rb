@@ -39,7 +39,7 @@ module Rex
           def cmd_hashdump(*_args)
             client.priv.sam_hashes.each do |user|
               print_line(user.to_s)
-              if shell.client.platform == 'windows'
+              if shell.client.platform == 'windows' && !shell.framework.nil?
                 report_creds(user)
               end
             end
