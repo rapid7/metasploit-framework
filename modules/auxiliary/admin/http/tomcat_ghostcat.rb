@@ -2,7 +2,6 @@ class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::Tcp
     include Msf::Auxiliary::Report
 
-
     def initialize(info = {})
         super(update_info(info,
             "Name" => "Ghostcat",
@@ -183,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
         content = ""
         len = buf[idx..(idx+2)].unpack('n')[0]
         idx += 2
-        content += "#{buf[idx..(idx+len)]}"
+        content += "#{buf[idx..(idx+len-1)]}"
         idx += len + 1
         return idx, content
     end
