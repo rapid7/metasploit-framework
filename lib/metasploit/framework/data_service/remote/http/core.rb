@@ -314,11 +314,11 @@ class RemoteHTTPDataService
     if !data_hash.nil? && !data_hash.empty?
       data_hash.each do |k,v|
         if v.is_a?(Msf::Session)
-          dlog('Dropping Msf::Session object before converting to JSON.')
+          dlog('Replacing Msf::Session object with session sid before converting to JSON.')
           dlog("data_hash is #{data_hash}")
           dlog('Callstack:')
           caller.each { |line| dlog("#{line}\n")}
-          data_hash.delete(k)
+          data_hash[k] = v.sid
         end
       end
       json_body = data_hash.to_json

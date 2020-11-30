@@ -492,13 +492,13 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route(session, route)
-    framework.db.report_session_route(session, route)
+    framework.db.report_session_route({session: session, route: route})
   end
 
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route_remove(session, route)
-    framework.db.report_session_route_remove(session, route)
+    framework.db.report_session_route_remove({session: session, route: route})
   end
 
   ##
