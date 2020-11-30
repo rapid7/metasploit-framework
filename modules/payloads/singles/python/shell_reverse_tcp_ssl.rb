@@ -6,6 +6,7 @@
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
+require 'msf/core/payload/python'
 
 module MetasploitModule
 
