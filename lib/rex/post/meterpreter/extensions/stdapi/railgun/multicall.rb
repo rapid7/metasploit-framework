@@ -90,7 +90,7 @@ class MultiCaller
           # Special case:
           # The user can choose to supply a Null pointer instead of a buffer
           # in this case we don't need space in any heap buffer
-          if param_desc[0][0,1] == 'P' # type is a pointer
+          if param_desc[0][0,1] == 'P' # type is a pointer (except LPVOID where the L negates this)
             if args[param_idx] == nil
               next
             end
@@ -98,23 +98,25 @@ class MultiCaller
 
           # we care only about out-only buffers
           if param_desc[2] == 'out'
-            if !args[param_idx].class.kind_of? Integer
-              raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes "
+            if !args[param_idx].kind_of? Integer
+              raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes"
             end
             buffer_size = args[param_idx]
-            # bump up the size for an x64 pointer
-            if @native == 'Q<' && buffer_size == 4
-              args[param_idx] = 8
-              buffer_size = args[param_idx]
-            end
-
-            if @native == 'Q<'
-              if buffer_size != 8
-                raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8"
+            if param_desc[0] == 'PULONG_PTR'
+              # bump up the size for an x64 pointer
+              if @native == 'Q<' && buffer_size == 4
+                args[param_idx] = 8
+                buffer_size = args[param_idx]
               end
-            elsif( @native == 'V' )
-              if buffer_size != 4
-                raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4"
+
+              if @native == 'Q<'
+                if buffer_size != 8
+                  raise "Please pass 8 for 'out' PULONG_PTR, since they require a buffer of size 8"
+                end
+              elsif @native == 'V'
+                if buffer_size != 4
+                  raise "Please pass 4 for 'out' PULONG_PTR, since they require a buffer of size 4"
+                end
               end
             end
 
@@ -147,7 +149,7 @@ class MultiCaller
           #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
           buffer = nil
           # is it a pointer to a buffer on our stack
-          if ['PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
+          if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
             #puts '   pointer'
             if args[param_idx] == nil # null pointer?
               buffer = [0].pack(@native) # type: DWORD  (so the library does not rebase it)
@@ -169,24 +171,24 @@ class MultiCaller
             # it's not a pointer
             buffer = [0].pack(@native)
             case param_desc[0]
-              when 'LPVOID', 'HANDLE', 'SIZE_T'
+              when 'LPVOID', 'ULONG_PTR'
                 num     = param_to_number(args[param_idx])
                 buffer += [num].pack(@native)
               when 'DWORD'
                 num     = param_to_number(args[param_idx])
-                buffer += [num % 4294967296].pack(@native)
+                buffer += [num & 0xffffffff].pack(@native)
               when 'WORD'
                 num     = param_to_number(args[param_idx])
-                buffer += [num % 65536].pack(@native)
+                buffer += [num & 0xffff].pack(@native)
               when 'BYTE'
                 num     = param_to_number(args[param_idx])
-                buffer += [num % 256].pack(@native)
+                buffer += [num & 0xff].pack(@native)
               when 'BOOL'
                 case args[param_idx]
                   when true
-                    buffer += [1].pack('V')
+                    buffer += [1].pack(@native)
                   when false
-                    buffer += [0].pack('V')
+                    buffer += [0].pack(@native)
                   else
                     raise "param #{param_desc[1]}: true or false expected"
                 end
@@ -246,7 +248,7 @@ class MultiCaller
 
         #process return value
         case function.return_type
-          when 'LPVOID', 'HANDLE'
+          when 'LPVOID', 'ULONG_PTR'
             if( @native == 'Q<' )
               return_hash['return'] = rec_return_value
             else
@@ -276,8 +278,10 @@ class MultiCaller
           #puts "   #{param_name}"
           buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
           case buffer_item.datatype
+            when 'PULONG_PTR'
+              return_hash[param_name] = buffer.unpack(@native).first
             when 'PDWORD'
-              return_hash[param_name] = buffer.unpack('V')[0]
+              return_hash[param_name] = buffer.unpack('V').first
             when 'PCHAR'
               return_hash[param_name] = asciiz_to_str(buffer)
             when 'PWCHAR'
@@ -296,8 +300,10 @@ class MultiCaller
           #puts '   #{param_name}'
           buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
           case buffer_item.datatype
+            when 'PULONG_PTR'
+              return_hash[param_name] = buffer.unpack(native).first
             when 'PDWORD'
-              return_hash[param_name] = buffer.unpack('V')[0]
+              return_hash[param_name] = buffer.unpack('V').first
             when 'PCHAR'
               return_hash[param_name] = asciiz_to_str(buffer)
             when 'PWCHAR'

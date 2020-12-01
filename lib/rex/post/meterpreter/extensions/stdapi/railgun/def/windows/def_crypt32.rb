@@ -16,7 +16,7 @@ class Def_windows_crypt32
         ['PBLOB','pDataIn', 'in'],
         ['PWCHAR', 'szDataDescr', 'out'],
         ['PBLOB', 'pOptionalEntropy', 'in'],
-        ['PDWORD', 'pvReserved', 'in'],
+        ['PVOID', 'pvReserved', 'in'],
         ['PBLOB', 'pPromptStruct', 'in'],
         ['DWORD', 'dwFlags', 'in'],
         ['PBLOB', 'pDataOut', 'out']

@@ -141,7 +141,7 @@ class Library
       # Special case:
       # The user can choose to supply a Null pointer instead of a buffer
       # in this case we don't need space in any heap buffer
-      if param_desc[0][0,1] == 'P' # type is a pointer
+      if param_desc[0][0,1] == 'P' # type is a pointer (except LPVOID where the L negates this)
         if args[param_idx] == nil
           next
         end
@@ -153,7 +153,7 @@ class Library
           raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes"
         end
         buffer_size = args[param_idx]
-        if param_desc[0] == 'PDWORD'
+        if param_desc[0] == 'PULONG_PTR'
           # bump up the size for an x64 pointer
           if native == 'Q<' && buffer_size == 4
             args[param_idx] = 8
@@ -162,11 +162,11 @@ class Library
 
           if native == 'Q<'
             if buffer_size != 8
-              raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8"
+              raise "Please pass 8 for 'out' PULONG_PTR, since they require a buffer of size 8"
             end
           elsif native == 'V'
             if buffer_size != 4
-              raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4"
+              raise "Please pass 4 for 'out' PULONG_PTR, since they require a buffer of size 4"
             end
           end
         end
@@ -199,7 +199,7 @@ class Library
       #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
       buffer = nil
       # is it a pointer to a buffer on our stack
-      if ['PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
+      if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
         #puts '   pointer'
         if args[param_idx] == nil # null pointer?
           buffer  = [0].pack(native) # type: DWORD  (so the library does not rebase it)
@@ -221,18 +221,18 @@ class Library
         # it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
         buffer = [0].pack(native)
         case param_desc[0]
-          when 'LPVOID', 'HANDLE', 'SIZE_T'
+          when 'LPVOID', 'ULONG_PTR'
             num     = param_to_number(args[param_idx])
             buffer += [num].pack(native)
           when 'DWORD'
             num     = param_to_number(args[param_idx])
-            buffer += [num % 4294967296].pack(native)
+            buffer += [num & 0xffffffff].pack(native)
           when 'WORD'
             num     = param_to_number(args[param_idx])
-            buffer += [num % 65536].pack(native)
+            buffer += [num & 0xffff].pack(native)
           when 'BYTE'
             num     = param_to_number(args[param_idx])
-            buffer += [num % 256].pack(native)
+            buffer += [num & 0xff].pack(native)
           when 'BOOL'
             case args[param_idx]
               when true
@@ -253,7 +253,6 @@ class Library
       #puts "   blob size so far: %X" % literal_pairs_blob.length
     end
 
-    #puts "\n\nsending Stuff to meterpreter"
     request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_API)
     request.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
 
@@ -266,10 +265,6 @@ class Library
     request.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
 
     response = client.send_request(request)
-
-    #puts "receiving Stuff from meterpreter"
-    #puts "out_only_layout:"
-    #puts out_only_layout
 
     rec_inout_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)
     rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
@@ -293,18 +288,18 @@ class Library
 
     #process return value
     case function.return_type
-      when 'LPVOID', 'HANDLE'
+      when 'LPVOID', 'ULONG_PTR'
         if( native == 'Q<' )
           return_hash['return'] = rec_return_value
         else
-          return_hash['return'] = rec_return_value % 4294967296
+          return_hash['return'] = rec_return_value & 0xffffffff
         end
       when 'DWORD'
-        return_hash['return'] = rec_return_value % 4294967296
+        return_hash['return'] = rec_return_value & 0xffffffff
       when 'WORD'
-        return_hash['return'] = rec_return_value % 65536
+        return_hash['return'] = rec_return_value & 0xffff
       when 'BYTE'
-        return_hash['return'] = rec_return_value % 256
+        return_hash['return'] = rec_return_value & 0xff
       when 'BOOL'
         return_hash['return'] = (rec_return_value != 0)
       when 'VOID'
@@ -323,11 +318,10 @@ class Library
       #puts "   #{param_name}"
       buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
-        when 'PDWORD'
-          # PDWORD is treated as a POINTER
+        when 'PULONG_PTR'
           return_hash[param_name] = buffer.unpack(native).first
-          # If PDWORD is treated correctly as a DWORD
-          return_hash[param_name] = buffer.unpack('V').first if return_hash[param_name].nil?
+        when 'PDWORD'
+          return_hash[param_name] = buffer.unpack('V').first
         when 'PCHAR'
           return_hash[param_name] = asciiz_to_str(buffer)
         when 'PWCHAR'
@@ -346,11 +340,10 @@ class Library
       #puts "   #{param_name}"
       buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
-        when 'PDWORD'
-          # PDWORD is treated as a POINTER
+        when 'PULONG_PTR'
           return_hash[param_name] = buffer.unpack(native).first
-          # If PDWORD is treated correctly as a DWORD
-          return_hash[param_name] = buffer.unpack('V').first if return_hash[param_name].nil?
+        when 'PDWORD'
+          return_hash[param_name] = buffer.unpack('V').first
         when 'PCHAR'
           return_hash[param_name] = asciiz_to_str(buffer)
         when 'PWCHAR'
@@ -364,34 +357,6 @@ class Library
     #puts return_hash
 
     #puts "finished"
-#		puts("
-#=== START of proccess_function_call snapshot ===
-#		{
-#			:platform => '#{native == 'Q' ? 'x64/windows' : 'x86/windows'}',
-#			:name => '#{function.remote_name}',
-#			:params => #{function.params},
-#			:return_type => '#{function.return_type}',
-#			:library_name => '#{@library_path}',
-#			:ruby_args => #{args.inspect},
-#			:request_to_client => {
-#				TLV_TYPE_RAILGUN_SIZE_OUT => #{out_only_size_bytes},
-#				TLV_TYPE_RAILGUN_STACKBLOB => #{literal_pairs_blob.inspect},
-#				TLV_TYPE_RAILGUN_BUFFERBLOB_IN => #{in_only_buffer.inspect},
-#				TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT => #{inout_buffer.inspect},
-#				TLV_TYPE_RAILGUN_LIBNAME => '#{@library_path}',
-#				TLV_TYPE_RAILGUN_FUNCNAME => '#{function.remote_name}',
-#			},
-#			:response_from_client => {
-#				TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT => #{rec_inout_buffers.inspect},
-#				TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT => #{rec_out_only_buffers.inspect},
-#				TLV_TYPE_RAILGUN_BACK_RET => #{rec_return_value.inspect},
-#				TLV_TYPE_RAILGUN_BACK_ERR => #{rec_last_error},
-#			},
-#			:returned_hash => #{return_hash.inspect},
-#		},
-#=== END of proccess_function_call snapshot ===
-#		")
-#
     return return_hash
   end
 
