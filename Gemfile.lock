@@ -48,6 +48,7 @@ PATH
       pcaprub
       pdf-reader
       pg
+      puma
       railties
       rb-readline
       recog
@@ -122,7 +123,7 @@ GEM
     ast (2.4.1)
     aws-eventstream (1.1.0)
     aws-partitions (1.402.0)
-    aws-sdk-core (3.109.3)
+    aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -244,6 +245,7 @@ GEM
     net-ssh (6.1.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
+    nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     octokit (4.19.0)
@@ -273,6 +275,8 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
+    puma (5.1.0)
+      nio4r (~> 2.0)
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
