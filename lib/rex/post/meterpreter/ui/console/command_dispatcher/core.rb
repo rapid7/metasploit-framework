@@ -1443,7 +1443,13 @@ class Console::CommandDispatcher::Core
           return
         end
 
-        opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
+        opts = ''
+        if reloaded_mod.is_a?(Msf::Exploit)
+          # set the payload as one of the first options, allowing it to be overridden by the user
+          opts << "PAYLOAD=#{client.via_payload.delete_prefix('payload/')}," if client.via_payload
+        end
+
+        opts  << (args + [ "SESSION=#{client.sid}" ]).join(',')
         result = reloaded_mod.run_simple(
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
