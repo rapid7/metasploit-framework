@@ -1467,7 +1467,7 @@ class Console::CommandDispatcher::Core
     unless words[1] && words[1].match(/^\//)
       begin
         if msf_loaded?
-          tabs += tab_complete_postmods
+          tabs += tab_complete_modules
         end
 
         [
@@ -1597,7 +1597,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_info_tabs(*args)
     return unless msf_loaded?
-    tab_complete_postmods
+    tab_complete_modules
   end
 
   #
@@ -1835,15 +1835,21 @@ protected
     self.extensions << mod
   end
 
-  def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name,klass|
+  def tab_complete_modules
+    tabs = []
+    client.framework.modules.post.map do |name,klass|
       mod = client.framework.modules.post.create(name)
-      if mod and mod.session_compatible?(client)
-        mod.fullname.dup
-      else
-        nil
-      end
-    }
+      next unless mod && mod.session_compatible?(client)
+
+      tabs << mod.fullname.dup
+    end
+    client.framework.modules.exploits.each do |name,klass|
+      next unless klass && klass.ancestors.include?(Msf::Exploit::Local)
+      mod = client.framework.modules.exploits.create(name)
+      next unless mod && mod.session_compatible?(client)
+
+      tabs << mod.fullname.dup
+    end
 
     # nils confuse readline
     tabs.compact
