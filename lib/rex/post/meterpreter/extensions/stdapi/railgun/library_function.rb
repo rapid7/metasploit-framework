@@ -34,13 +34,6 @@ module Railgun
 # represents one function, e.g. MessageBoxW
 #
 class LibraryFunction
-  @@datatype_map = {
-    'HANDLE'  => 'LPVOID',
-    'PHANDLE' => 'PULONG_PTR', # really should be PVOID* but LPVOID is handled specially with the 'L' prefix to *not* treat it as a pointer
-    'SIZE_T'  => 'ULONG_PTR',
-    'PSIZE_T' => 'PULONG_PTR',
-  }.freeze
-
   @@allowed_datatypes = {
     'VOID'       => ['return'],
     'BOOL'       => ['in', 'return'],
@@ -64,7 +57,6 @@ class LibraryFunction
 
   def initialize(return_type, params, remote_name, calling_conv='stdcall')
     check_return_type(return_type) # we do error checking as early as possible so the library is easier to use
-    params = reduce_params(params)
     check_params(params)
     check_calling_conv(calling_conv)
     @return_type = return_type
@@ -112,18 +104,6 @@ class LibraryFunction
       if direction == "return"
         raise "direction 'return' is only for the return value of the function."
       end
-    end
-  end
-
-  def reduce_params(params)
-    params.each_with_index do |param, idx|
-      type, name, direction = param
-
-      while @@datatype_map.key?(type)
-        type = @@datatype_map[type]
-      end
-
-      params[idx] = [type, name, direction]
     end
   end
 end

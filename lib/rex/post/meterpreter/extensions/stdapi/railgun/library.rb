@@ -43,6 +43,15 @@ class Library
 
   include LibraryHelper
 
+  @@datatype_map = {
+    'HANDLE'  => 'LPVOID',
+    # really should be PVOID* but LPVOID is handled specially with the 'L' prefix to *not* treat it as a pointer, and
+    # for railgun's purposes LPVOID == ULONG_PTR
+    'PHANDLE' => 'PULONG_PTR',
+    'SIZE_T'  => 'ULONG_PTR',
+    'PSIZE_T' => 'PULONG_PTR',
+  }.freeze
+
   attr_accessor :functions
   attr_reader   :library_path
 
@@ -110,21 +119,21 @@ class Library
   # return value and all inout params.  See #call_function.
   #
   def add_function(name, return_type, params, remote_name=nil, calling_conv='stdcall')
+    params = reduce_params(params)
     if remote_name == nil
       remote_name = name
     end
     @functions[name] = LibraryFunction.new(return_type, params, remote_name, calling_conv)
   end
 
-  private
-
-  def process_function_call(function, args, client)
-    raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
-
-    if client.native_arch == ARCH_X64
+  def build_packet_and_layouts(packet, function, args, arch)
+    case arch
+    when ARCH_X64
       native = 'Q<'
-    else
+    when ARCH_X86
       native = 'V'
+    else
+      raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
     end
 
     # We transmit the immediate stack and three heap-buffers:
@@ -155,16 +164,15 @@ class Library
         buffer_size = args[param_idx]
         if param_desc[0] == 'PULONG_PTR'
           # bump up the size for an x64 pointer
-          if native == 'Q<' && buffer_size == 4
-            args[param_idx] = 8
-            buffer_size = args[param_idx]
+          if arch == ARCH_X64 && buffer_size == 4
+            buffer_size = args[param_idx] = 8
           end
 
-          if native == 'Q<'
+          if arch == ARCH_X64
             if buffer_size != 8
               raise "Please pass 8 for 'out' PULONG_PTR, since they require a buffer of size 8"
             end
-          elsif native == 'V'
+          elsif arch == ARCH_X86
             if buffer_size != 4
               raise "Please pass 4 for 'out' PULONG_PTR, since they require a buffer of size 4"
             end
@@ -176,13 +184,8 @@ class Library
       end
     end
 
-    tmp = assemble_buffer('in', function, args)
-    in_only_layout = tmp[0]
-    in_only_buffer = tmp[1]
-
-    tmp = assemble_buffer('inout', function, args)
-    inout_layout = tmp[0]
-    inout_buffer = tmp[1]
+    in_only_layout, in_only_buffer = assemble_buffer('in', function, args, arch)
+    inout_layout, inout_buffer = assemble_buffer('inout', function, args, arch)
 
     # now we build the stack
     # every stack dword will be described by two dwords:
@@ -253,43 +256,48 @@ class Library
       #puts "   blob size so far: %X" % literal_pairs_blob.length
     end
 
-    request = Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_API)
-    request.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
+    layouts = {in: in_only_layout, inout: inout_layout, out: out_only_layout}
 
-    request.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
-    request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
-    request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
+    packet.add_tlv(TLV_TYPE_RAILGUN_SIZE_OUT, out_only_size_bytes)
+    packet.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
+    packet.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
+    packet.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
 
-    request.add_tlv(TLV_TYPE_RAILGUN_LIBNAME, @library_path)
-    request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
-    request.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
+    packet.add_tlv(TLV_TYPE_RAILGUN_LIBNAME, @library_path)
+    packet.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
+    packet.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
+    [packet, layouts]
+  end
 
-    response = client.send_request(request)
+  def build_response(packet, function, layouts, arch)
+    case arch
+    when ARCH_X64
+      native = 'Q<'
+    when ARCH_X86
+      native = 'V'
+    else
+      raise NotImplementedError, 'Unsupported architecture (must be ARCH_X86 or ARCH_X64)'
+    end
 
-    rec_inout_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)
-    rec_out_only_buffers = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
-    rec_return_value = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_RET)
-    rec_last_error = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_ERR)
-    rec_err_msg = response.get_tlv_value(TLV_TYPE_RAILGUN_BACK_MSG)
+    rec_inout_buffers = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT)
+    rec_out_only_buffers = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT)
+    rec_return_value = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_RET)
+    rec_last_error = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_ERR)
+    rec_err_msg = packet.get_tlv_value(TLV_TYPE_RAILGUN_BACK_MSG)
 
-    # Error messages come back with trailing CRLF, so strip it out
-    # if we do get a message.
-    rec_err_msg.strip! if not rec_err_msg.nil?
+    # Error messages come back with trailing CRLF, so strip it out if we do get a message.
+    rec_err_msg.strip! unless rec_err_msg.nil?
 
-    #puts "received stuff"
-    #puts "out_only_layout:"
-    #puts out_only_layout
-
-    # The hash the function returns
+    # the hash the function returns
     return_hash = {
       'GetLastError' => rec_last_error,
       'ErrorMessage' => rec_err_msg
     }
 
-    #process return value
+    # process return value
     case function.return_type
       when 'LPVOID', 'ULONG_PTR'
-        if( native == 'Q<' )
+        if arch == ARCH_X64
           return_hash['return'] = rec_return_value
         else
           return_hash['return'] = rec_return_value & 0xffffffff
@@ -307,15 +315,9 @@ class Library
       else
         raise "unexpected return type: #{function.return_type}"
     end
-    #puts return_hash
-    #puts "out_only_layout:"
-    #puts out_only_layout
-
 
     # process out-only buffers
-    #puts "processing out-only buffers:"
-    out_only_layout.each_pair do |param_name, buffer_item|
-      #puts "   #{param_name}"
+    layouts[:out].each_pair do |param_name, buffer_item|
       buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
         when 'PULONG_PTR'
@@ -332,12 +334,9 @@ class Library
           raise "unexpected type in out-only buffer of #{param_name}: #{buffer_item.datatype}"
       end
     end
-    #puts return_hash
 
     # process in-out buffers
-    #puts "processing in-out buffers:"
-    inout_layout.each_pair do |param_name, buffer_item|
-      #puts "   #{param_name}"
+    layouts[:inout].each_pair do |param_name, buffer_item|
       buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
         when 'PULONG_PTR'
@@ -354,12 +353,41 @@ class Library
           raise "unexpected type in in-out-buffer of #{param_name}: #{buffer_item.datatype}"
       end
     end
-    #puts return_hash
 
-    #puts "finished"
-    return return_hash
+    return_hash
   end
 
+  private
+
+  def process_function_call(function, args, client)
+    raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
+
+    request, layouts = build_packet_and_layouts(
+      Packet.create_request(COMMAND_ID_STDAPI_RAILGUN_API),
+      function,
+      args,
+      client.native_arch
+    )
+
+    response = client.send_request(request)
+
+    build_response(response, function, layouts, client.native_arch)
+  end
+
+  # perform type conversions as necessary to reduce the datatypes to their primitives
+  def reduce_params(params)
+    params.each_with_index do |param, idx|
+      type, name, direction = param
+
+      while @@datatype_map.key?(type)
+        type = @@datatype_map[type]
+      end
+
+      params[idx] = [type, name, direction]
+    end
+
+    params
+  end
 end
 
 end; end; end; end; end; end;
