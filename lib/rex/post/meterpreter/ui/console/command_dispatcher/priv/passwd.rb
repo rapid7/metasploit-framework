@@ -39,7 +39,7 @@ module Rex
           def cmd_hashdump(*_args)
             client.priv.sam_hashes.each do |user|
               print_line(user.to_s)
-              if shell.client.platform == 'windows' && !shell.framework.nil?
+              if shell.client.platform == 'windows' && !shell.framework.nil? && shell.framework.db.active
                 report_creds(user)
               end
             end
@@ -49,7 +49,7 @@ module Rex
 
           def report_creds(user_data)
             user = user_data.user_name
-            pass = "#{user_data.lanman}:#{user_data.ntlm}"
+            pass = "#{user_data.lanman}:#{user_data.ntlm}".downcase
             return if (user.empty? || pass.include?('aad3b435b51404eeaad3b435b51404ee'))
 
             # Assemble data about the credential objects we will be creating

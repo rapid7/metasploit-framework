@@ -616,7 +616,7 @@ module Rex
                     values << ''
                   end
                 end
-                report_creds(k, values) if !shell.framework.nil?
+                report_creds(k, values) if !shell.framework.nil? && shell.framework.db.active
                 table << values
               end
 
@@ -650,7 +650,7 @@ module Rex
             when :msv
               user = rows[0]
               domain = rows[1]
-              pass = "#{rows[2]}:#{rows[3]}"
+              pass = "#{rows[2]}:#{rows[3]}".downcase
             when :wdigest, :kerberos
               user = rows[0]
               domain = rows[1]
