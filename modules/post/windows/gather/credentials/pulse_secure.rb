@@ -328,7 +328,7 @@ class MetasploitModule < Msf::Post
         return Msf::Exploit::CheckCode::Unknown
       end
       version_data = version_file.read.to_s
-      matches = version_data.scan(/DisplayVersion=([0-9.]*)/m)
+      matches = version_data.scan(/DisplayVersion=([0-9.]+)/m)
       build = Gem::Version.new(matches[0][0])
       print_status("Target is running Pulse Secure Connect build #{build}.")
       if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
