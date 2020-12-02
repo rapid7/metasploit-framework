@@ -61,6 +61,9 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(128)
     process.memory.write(mem, data)
 
+    #  enumerate all processes to find the one that we're are currently executing as,
+    #  and then fetch the architecture attribute of that process by doing ["arch"]
+    #  to check if it is an 32bits process or not.
     if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
       addr = [mem].pack('V')
       len = [data.length].pack('V')
