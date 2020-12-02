@@ -9,7 +9,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
-  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
