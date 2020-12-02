@@ -1472,10 +1472,7 @@ class Console::CommandDispatcher::Core
     tabs = []
     unless words[1] && words[1].match(/^\//)
       begin
-        if msf_loaded?
-          tabs += tab_complete_modules
-        end
-
+        tabs += tab_complete_modules(str, words) if msf_loaded?
         [
           ::Msf::Sessions::Meterpreter.script_base,
           ::Msf::Sessions::Meterpreter.user_script_base
@@ -1601,9 +1598,8 @@ class Console::CommandDispatcher::Core
     end
   end
 
-  def cmd_info_tabs(*args)
-    return unless msf_loaded?
-    tab_complete_modules
+  def cmd_info_tabs(str, words)
+    tab_complete_modules(str, words) if msf_loaded?
   end
 
   #
@@ -1841,24 +1837,16 @@ protected
     self.extensions << mod
   end
 
-  def tab_complete_modules
+  def tab_complete_modules(str, words)
     tabs = []
     client.framework.modules.post.map do |name,klass|
-      mod = client.framework.modules.post.create(name)
-      next unless mod && mod.session_compatible?(client)
-
-      tabs << mod.fullname.dup
+      tabs << 'post/' + name
     end
-    client.framework.modules.exploits.each do |name,klass|
-      next unless klass && klass.ancestors.include?(Msf::Exploit::Local)
-      mod = client.framework.modules.exploits.create(name)
-      next unless mod && mod.session_compatible?(client)
-
-      tabs << mod.fullname.dup
+    client.framework.modules.module_names('exploit').
+      grep(/(multi|#{Regexp.escape(client.platform)})\/local\//).each do |name|
+      tabs << 'exploit/' + name
     end
-
-    # nils confuse readline
-    tabs.compact
+    return tabs.sort
   end
 
   def tab_complete_channels
