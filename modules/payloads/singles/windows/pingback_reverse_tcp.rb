@@ -11,7 +11,7 @@ require 'msf/core/payload/windows/exitfunk'
 
 module MetasploitModule
 
-  CachedSize = 309
+  CachedSize = 307
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
@@ -149,8 +149,6 @@ module MetasploitModule
       end
       asm << %(
           ; restore the stack back to the connection retry count
-          pop esi
-          pop esi
           dec [esi+8]               ; decrement the retry counter
           jmp exitfunk
           ; try again
