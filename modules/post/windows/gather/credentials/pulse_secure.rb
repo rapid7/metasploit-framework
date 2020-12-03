@@ -261,7 +261,7 @@ class MetasploitModule < Msf::Post
     rescue Rex::Post::Meterpreter::RequestError => e
       vprint_error(e.message)
     end
-    return nil
+    return []
   end
 
   def gather_creds
