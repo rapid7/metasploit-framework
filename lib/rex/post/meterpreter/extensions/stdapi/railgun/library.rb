@@ -119,7 +119,8 @@ class Library
   # return value and all inout params.  See #call_function.
   #
   def add_function(name, return_type, params, remote_name=nil, calling_conv='stdcall')
-    params = reduce_params(params)
+    return_type = reduce_type(return_type)
+    params = reduce_parameter_types(params)
     if remote_name == nil
       remote_name = name
     end
@@ -375,18 +376,21 @@ class Library
   end
 
   # perform type conversions as necessary to reduce the datatypes to their primitives
-  def reduce_params(params)
+  def reduce_parameter_types(params)
     params.each_with_index do |param, idx|
       type, name, direction = param
-
-      while @@datatype_map.key?(type)
-        type = @@datatype_map[type]
-      end
-
-      params[idx] = [type, name, direction]
+      params[idx] = [reduce_type(type), name, direction]
     end
 
     params
+  end
+
+  def reduce_type(datatype)
+    while @@datatype_map.key?(datatype)
+      datatype = @@datatype_map[datatype]
+    end
+
+    datatype
   end
 end
 

@@ -47,12 +47,6 @@ class MultiCaller
 
     # needed by LibraryHelper
     @consts_mgr = consts_mgr
-
-    if @client.native_arch == ARCH_X64
-      @native = 'Q<'
-    else
-      @native = 'V'
-    end
   end
 
   def call(functions)
@@ -80,7 +74,7 @@ class MultiCaller
         Rex::Post::Meterpreter::GroupTlv.new(TLV_TYPE_RAILGUN_MULTI_GROUP),
         function,
         args,
-        client.native_arch
+        @client.native_arch
       )
       request.tlvs << group
       call_layouts << layouts
@@ -96,7 +90,7 @@ class MultiCaller
       lib_name, function, args = f
       library = @parent.get_library(lib_name)
       function = library.functions[function] unless function.instance_of? LibraryFunction
-      function_results << library.build_response(call_results.shift, function, call_layouts.shift, client.native_arch)
+      function_results << library.build_response(call_results.shift, function, call_layouts.shift, @client.native_arch)
     end
 
     function_results
