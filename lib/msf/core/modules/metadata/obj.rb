@@ -203,11 +203,11 @@ class Obj
   end
 
   def force_encoding(encoding)
-    @name.force_encoding(encoding)
-    @fullname.force_encoding(encoding)
-    @description.force_encoding(encoding)
-    @author.each {|a| a.force_encoding(encoding)}
-    @references.each {|r| r.force_encoding(encoding)}
+    @name = @name.dup.force_encoding(encoding)
+    @fullname = @fullname.dup.force_encoding(encoding)
+    @description = @description.dup.force_encoding(encoding)
+    @author = @author.map {|a| a.dup.force_encoding(encoding)}
+    @references = @references.map {|r| r.dup.force_encoding(encoding)}
   end
 
 end
