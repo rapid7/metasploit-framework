@@ -49,14 +49,16 @@ module Rex
 
           def report_creds(user_data)
             user = user_data.user_name
-            pass = "#{user_data.lanman}:#{user_data.ntlm}".downcase
-            return if (user.empty? || pass.include?('aad3b435b51404eeaad3b435b51404ee'))
+            lm_hash = user_data.lanman.downcase
+            nt_hash = user_data.ntlm.downcase
+            invalid_password = lm_hash.eql?('aad3b435b51404eeaad3b435b51404ee') && nt_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0')
+            return if (user.empty? || invalid_password)
 
             # Assemble data about the credential objects we will be creating
             credential_data = {
               origin_type: :session,
               post_reference_name: 'hashdump',
-              private_data: pass,
+              private_data: "#{lm_hash}:#{nt_hash}",
               private_type: :ntlm_hash,
               session_id: client.db_record.id,
               username: user,

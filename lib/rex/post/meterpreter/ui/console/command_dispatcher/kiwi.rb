@@ -650,13 +650,17 @@ module Rex
             when :msv
               user = rows[0]
               domain = rows[1]
-              pass = "#{rows[2]}:#{rows[3]}".downcase
+              lm_hash = rows[2].downcase
+              nt_hash = rows[3].downcase
+              return if (lm_hash.eql?('aad3b435b51404eeaad3b435b51404ee') && nt_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0'))
+
+              pass = "#{lm_hash}:#{nt_hash}"
             when :wdigest, :kerberos
               user = rows[0]
               domain = rows[1]
               pass = rows[2]
             end
-            return if (user.empty? || pass.eql?('(null)') || pass.include?('aad3b435b51404eeaad3b435b51404ee'))
+            return if (user.empty? || pass.eql?('(null)'))
 
             # Assemble data about the credential objects we will be creating
             credential_data = {
