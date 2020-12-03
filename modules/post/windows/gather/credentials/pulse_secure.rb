@@ -267,6 +267,9 @@ class MetasploitModule < Msf::Post
   def gather_creds
     print_status('Running credentials acquisition.')
     ives = find_creds
+    if ives.empty?
+      print_status('No credentials were found.')
+    end
     return unless ives.any?
     ives.each do |ive|
       ive['creds'].each do |creds|
