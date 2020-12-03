@@ -169,7 +169,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       unserialized_body = unserialize_object(element.at('body'), options[:allow_yaml])
       unless unserialized_body.blank?
         begin
-          unserialized_body = Base64.urlsafe_decode64(unserialized_body)
+          unserialized_body = Base64.urlsafe_decode64(unserialized_body).b
         rescue ArgumentError => e
           print_error("File format suggests body can not be decoded#{e}")
         end
