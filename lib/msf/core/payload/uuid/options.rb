@@ -104,7 +104,6 @@ module Msf::Payload::UUID::Options
       uuid_info[:name] = datastore['PayloadUUIDName']
     end
 
-    framework.uuid_db[uuid.puid_hex] = uuid_info
     framework.db.create_payload(uuid_info)
   end
 
@@ -124,14 +123,7 @@ module Msf::Payload::UUID::Options
         framework.db.update_payload({id: payload.id, urls: urls})
       end
     else
-      uuid_info = framework.uuid_db[uuid.puid_hex] || {}
-      unless uuid_info.nil?
-        uuid_info = { uuid: uuid.puid_hex, arch: uuid.arch, platform: uuid.platform, timestamp: uuid.timestamp }
-        uuid_info['urls'] ||= []
-        uuid_info['urls'] << url
-        uuid_info['urls'].uniq!
-        framework.uuid_db[uuid.puid_hex] = uuid_info
-      end
+      print_warning('Without a database connected that payload UUID tracking will not work!')
     end
   end
 

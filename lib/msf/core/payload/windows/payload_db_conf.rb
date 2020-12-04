@@ -28,7 +28,6 @@ module Msf::Payload::Windows::PayloadDBConf
       print_status('Payload does not exist in database. Attempting to save it now.')
       framework.db.create_payload(uuid: payload_uuid, build_opts: conf)
     end
-    framework.uuid_db[payload_uuid] = conf
   rescue
     print_error('Failed to save payload info to database')
   end

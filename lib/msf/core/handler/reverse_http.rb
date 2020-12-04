@@ -327,9 +327,10 @@ protected
       request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-      db_uuid = framework.uuid_db[uuid.puid_hex]
-      if framework.db.active 
+      if framework.db.active
         db_uuid = framework.db.payloads({ uuid: uuid.puid_hex }).first
+      else
+        print_warning('Without a database connected that payload UUID tracking will not work!')
       end
       if datastore['IgnoreUnknownPayloads'] && !db_uuid
         print_status("Ignoring unknown UUID: #{request_summary}")
