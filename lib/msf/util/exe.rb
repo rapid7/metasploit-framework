@@ -545,7 +545,7 @@ require 'msf/core/exe/segment_appender'
       end
       pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
     when :dll
-      max_length = 2048
+      max_length = 4096
     when :exe_sub
       max_length = 4096
     end
@@ -562,6 +562,10 @@ require 'msf/core/exe/segment_appender'
     if opts[:exe_type] == :dll
       mt = pe.index('MUTEX!!!')
       pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+      %w{ Local\Semaphore:Default Local\Event:Default }.each do |name|
+        offset = pe.index(name)
+        pe[offset,26] = "Local\\#{Rex::Text.rand_text_alphanumeric(20)}" if offset
+      end
 
       if opts[:dll_exitprocess]
         exit_thread = "\x45\x78\x69\x74\x54\x68\x72\x65\x61\x64\x00"
