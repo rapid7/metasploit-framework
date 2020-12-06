@@ -27,6 +27,7 @@ class Plugin::BeSECURE < Msf::Plugin
         'besecure_apikey' => "Set the beSECURE API Key",
         'besecure_hostname' => "Set the beSECURE Hostname",
         'besecure_debug' => "Enable/Disable debugging",
+        'besecure_ssl_verify' => "Enable/Disable SSL verification",
 
         'besecure_report_list' => "Display list of reports",
 
@@ -40,6 +41,7 @@ class Plugin::BeSECURE < Msf::Plugin
       print_status("besecure_debug                 Enable/Disable debugging")
       print_status("besecure_version               Display the version of the beSECURE server")
       print_status("besecure_apikey                Set the beSECURE API Key")
+      print_status("besecure_ssl_verify            Set whether to verify or not SSL")
       print_status("besecure_hostname              Set the beSECURE Hostname")
 
       print_status
@@ -93,6 +95,19 @@ class Plugin::BeSECURE < Msf::Plugin
     end
   end
 
+  def cmd_besecure_ssl_verify(*args)
+    if args?(args)
+      @ssl_verify = args[0]
+      if @ssl_verify != 'yes' and @ssl_verify != 'no'
+        @ssl_verify = 'yes'
+      end
+      print_good(@ssl_verify)
+    else
+      print_status("Usage:")
+      print_status("besecure_ssl_verify 'yes'/'no' (default is yes)")
+    end
+  end
+
   def cmd_besecure_debug(*args)
     if args?(args)
       @debug = args[0].to_i
@@ -112,16 +127,20 @@ class Plugin::BeSECURE < Msf::Plugin
     end
       
     http = Net::HTTP::new(@hostname, 443)
+    if @debug
+      http.set_debug_output($stdout) # Logger.new("foo.log") works too
+    end
+
     http.use_ssl = true
+    if @ssl_verify == 'no'
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
+    
     res = http.start {|http| http.request(req)}
 
     unless res
       print_error("#{@hostname} - Connection timed out")
       return ''
-    end
-
-    if @debug
-      print_status(res)
     end
 
     body = ''
@@ -162,7 +181,15 @@ class Plugin::BeSECURE < Msf::Plugin
       end
 
       http = Net::HTTP::new(@hostname, 443)
+      if @debug
+        http.set_debug_output($stdout) # Logger.new("foo.log") works too
+      end
+
       http.use_ssl = true
+      if @ssl_verify == 'no'
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
+
       res = http.start {|http| http.request(req)}
 
       unless res
@@ -170,10 +197,6 @@ class Plugin::BeSECURE < Msf::Plugin
         return ''
       end
       
-      if @debug
-        print_status(res)
-      end
-
       body = ''
       begin
         body = JSON.parse(res.body)
@@ -207,21 +230,21 @@ class Plugin::BeSECURE < Msf::Plugin
         format_file = args[1]
         req.set_form_data({'apikey' => @apikey, 'primary' => 'vulnerabilities', 'secondary' => 'report', 'action' => 'getreport', 'network' => args[0], 'format' => format_file})
 
+        http = Net::HTTP::new(@hostname, 443)
         if @debug
-          print_status(req.body)
+          http.set_debug_output($stdout) # Logger.new("foo.log") works too
         end
 
-        http = Net::HTTP::new(@hostname, 443)
         http.use_ssl = true
+        if @ssl_verify == 'no'
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
+
         res = http.start {|http| http.request(req)}
 
         unless res
           print_error("#{@hostname} - Connection timed out")
           return ''
-        end
-        
-        if @debug
-          print_status(res)
         end
 
         body = ''
@@ -237,10 +260,6 @@ class Plugin::BeSECURE < Msf::Plugin
           print_error(body)
           return ''
         end
-
-        # if @debug
-        #   print_status(body)
-        # end
 
         decompressed = ''
         if format_file != 'json'
