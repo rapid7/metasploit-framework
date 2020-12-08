@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 require 'rex/parser/group_policy_preferences'
 
 class MetasploitModule < Msf::Post

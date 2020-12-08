@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/module'
 
 module Msf
 
@@ -19,7 +18,6 @@ class Auxiliary < Msf::Module
   class Failed < RuntimeError
   end
 
-  require 'msf/core/auxiliary/mixins'
 
   include HasActions
 

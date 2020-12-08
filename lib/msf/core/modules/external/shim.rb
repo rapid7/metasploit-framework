@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/modules/external'
 
 class Msf::Modules::External::Shim
   def self.generate(module_path, framework)

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/tcp'
 
 class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::Tcp

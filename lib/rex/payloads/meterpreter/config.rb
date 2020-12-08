@@ -1,11 +1,8 @@
 # -*- coding: binary -*-
-require 'msf/core/payload/uuid'
-require 'msf/core/payload/windows'
-require 'msf/core/reflective_dll_loader'
 require 'rex/socket/x509_certificate'
 require 'rex/post/meterpreter/extension_mapper'
 require 'securerandom'
-
+require 'rex/payloads/meterpreter'
 class Rex::Payloads::Meterpreter::Config
 
   include Msf::ReflectiveDLLLoader

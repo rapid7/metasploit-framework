@@ -1,5 +1,3 @@
-module Authentication
-  autoload :Strategies, 'msf/core/web_services/authentication/strategies'
-
-  include Strategies
+module Msf::WebServices::Authentication
+  include Msf::WebServices::Authentication::Strategies
 end

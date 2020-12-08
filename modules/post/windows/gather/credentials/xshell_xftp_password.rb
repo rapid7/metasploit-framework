@@ -4,7 +4,6 @@
 ##
 
 require 'rex/parser/netsarang'
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles

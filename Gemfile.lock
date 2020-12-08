@@ -84,6 +84,7 @@ PATH
       windows_error
       xdr
       xmlrpc
+      zeitwerk
 
 GEM
   remote: https://rubygems.org/
@@ -439,6 +440,7 @@ GEM
       activesupport (>= 4.2, < 7.0)
     xmlrpc (0.3.1)
     yard (0.9.25)
+    zeitwerk (2.4.0)
 
 PLATFORMS
   ruby

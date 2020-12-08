@@ -137,7 +137,7 @@ class Console::CommandDispatcher::Core
     '-h' => [false, 'View help']
   )
 
-  @@pivot_supported_archs = [ARCH_X64, ARCH_X86]
+  @@pivot_supported_archs = [Rex::Arch::ARCH_X64, Rex::Arch::ARCH_X86]
   @@pivot_supported_platforms = ['windows']
 
   def cmd_pivot_help

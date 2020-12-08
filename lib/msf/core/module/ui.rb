@@ -1,3 +1,5 @@
+require 'rex/ui/subscriber'
+
 module Msf::Module::UI
   autoload :Line, 'msf/core/module/ui/line'
   autoload :Message, 'msf/core/module/ui/message'

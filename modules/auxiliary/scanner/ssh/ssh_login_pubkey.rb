@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       # Ghetto abuse of the way OptionValidateError expects an array of
       # option names instead of a string message like every sane
       # subclass of Exception.
-      raise OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
+      raise Msf::OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
     end
 
     keys = KeyCollection.new(

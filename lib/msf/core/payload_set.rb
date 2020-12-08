@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/module_manager'
-
 module Msf
 
 ###

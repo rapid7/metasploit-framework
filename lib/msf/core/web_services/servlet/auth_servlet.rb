@@ -1,38 +1,38 @@
-module AuthServlet
+module Msf::WebServices::AuthServlet
 
   def self.api_path
     '/api/v1/auth'
   end
 
   def self.api_account_path
-    "#{AuthServlet.api_path}/account"
+    "#{self.api_path}/account"
   end
 
   def self.api_login_path
-    "#{AuthServlet.api_path}/login"
+    "#{self.api_path}/login"
   end
 
   def self.api_logout_path
-    "#{AuthServlet.api_path}/logout"
+    "#{self.api_path}/logout"
   end
 
   def self.api_generate_token_path
-    "#{AuthServlet.api_path}/generate-token"
+    "#{self.api_path}/generate-token"
   end
 
   def self.api_unauthenticated_path
-    "#{AuthServlet.api_path}/unauthenticated"
+    "#{self.api_path}/unauthenticated"
   end
 
   def self.registered(app)
-    app.get AuthServlet.api_account_path, &get_api_account
+    app.get self.api_account_path, &get_api_account
 
-    app.get AuthServlet.api_login_path, &get_login
-    app.post AuthServlet.api_login_path, &post_login
+    app.get self.api_login_path, &get_login
+    app.post self.api_login_path, &post_login
 
-    app.get AuthServlet.api_logout_path, &get_logout
-    app.post AuthServlet.api_generate_token_path, &post_generate_token
-    app.post "#{AuthServlet.api_unauthenticated_path}/?:scope?", &post_unauthenticated
+    app.get self.api_logout_path, &get_logout
+    app.post self.api_generate_token_path, &post_generate_token
+    app.post "#{self.api_unauthenticated_path}/?:scope?", &post_unauthenticated
   end
 
   #######
@@ -58,8 +58,8 @@ module AuthServlet
     lambda {
       warden.authenticate!(scope: :user)
 
-      if session[:return_to].nil? || session[:return_to] == AuthServlet.api_login_path
-        redirect AuthServlet.api_account_path
+      if session[:return_to].nil? || session[:return_to] == self.api_login_path
+        redirect self.api_account_path
       else
         redirect session[:return_to]
       end
@@ -70,7 +70,7 @@ module AuthServlet
   def self.get_logout
     lambda {
       warden.logout
-      redirect AuthServlet.api_account_path
+      redirect self.api_account_path
     }
   end
 
@@ -79,7 +79,7 @@ module AuthServlet
     lambda {
       # change action to drop the scope param since this is used
       # by XMLHttpRequest (XHR) and we don't want a redirect
-      warden.authenticate!(scope: :user, action: AuthServlet.api_unauthenticated_path)
+      warden.authenticate!(scope: :user, action: self.api_unauthenticated_path)
       token = get_db.create_new_user_token(id: warden.user(:user).id, token_length: 40)
       set_json_data_response(response: {message: "Generated new API token.", token: token})
     }
@@ -90,7 +90,7 @@ module AuthServlet
     lambda {
       if !params['scope'].nil? && params['scope'] == 'user'
         session[:return_to] = warden_options[:attempted_path] if session[:return_to].nil?
-        redirect AuthServlet.api_login_path
+        redirect self.api_login_path
       end
 
       msg = warden_options[:message]

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/parser/graphml'
-
+require 'rex/arch'
 ##
 # This module contains a helper function for generating payloads from a shuffled
 # set of instructions loaded from a special file.
@@ -11,8 +11,8 @@ module Rex
     class Shuffle
 
       FLOW_INSTRUCTIONS = {}
-      FLOW_INSTRUCTIONS[ARCH_X86] = %w{ call jae jb jbe jc jcxz je jecxz jg jge jl jle jmp jna jnae jnb jnbe jnc jne jng jnge jnl jnle jno jnp jns jnz jo jp jpe jpo js jz }.freeze
-      FLOW_INSTRUCTIONS[ARCH_X64] = (FLOW_INSTRUCTIONS[ARCH_X86] + %w{ jrcxz }).freeze
+      FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X86] = %w{ call jae jb jbe jc jcxz je jecxz jg jge jl jle jmp jna jnae jnb jnbe jnc jne jng jnge jnl jnle jno jnp jns jnz jo jp jpe jpo js jz }.freeze
+      FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X64] = (FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X86] + %w{ jrcxz }).freeze
 
       #
       # Shuffle instructions from a GraphML data file and return the assembly source. If an architecture is specified

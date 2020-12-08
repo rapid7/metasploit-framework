@@ -3,11 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/php'
-require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
-require 'msf/core/handler/find_shell'
 
 module MetasploitModule
 

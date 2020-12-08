@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/reflective_dll_loader'
 
 ###
 #

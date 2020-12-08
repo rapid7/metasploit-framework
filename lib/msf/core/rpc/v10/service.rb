@@ -4,18 +4,6 @@ require 'msgpack'
 require 'rex'
 require 'rex/service_manager'
 
-require 'msf/core/rpc/v10/constants'
-require 'msf/core/rpc/v10/rpc_base'
-require 'msf/core/rpc/v10/rpc_auth'
-require 'msf/core/rpc/v10/rpc_core'
-require 'msf/core/rpc/v10/rpc_console'
-require 'msf/core/rpc/v10/rpc_module'
-require 'msf/core/rpc/v10/rpc_session'
-require 'msf/core/rpc/v10/rpc_plugin'
-require 'msf/core/rpc/v10/rpc_job'
-require 'msf/core/rpc/v10/rpc_db'
-require 'msf/core/rpc/v10/rpc_job_status_tracker'
-
 module Msf
 module RPC
 

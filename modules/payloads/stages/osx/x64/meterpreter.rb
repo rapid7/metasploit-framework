@@ -6,7 +6,6 @@
 require 'msf/base/sessions/meterpreter_x64_osx'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'msf/core/payload/macho'
 
 module MetasploitModule
   include Msf::Sessions::MeterpreterOptions

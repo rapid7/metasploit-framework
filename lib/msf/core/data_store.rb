@@ -37,7 +37,7 @@ class DataStore < Hash
     unless opt.nil?
       if opt.validate_on_assignment?
         unless opt.valid?(v, check_empty: false)
-          raise OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+          raise Msf::OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
         end
         v = opt.normalize(v)
       end

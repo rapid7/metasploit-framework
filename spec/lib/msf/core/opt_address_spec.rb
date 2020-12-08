@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
-require 'msf/core/option_container'
 
 RSpec.describe Msf::OptAddress do
   valid_values = [
