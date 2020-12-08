@@ -160,7 +160,7 @@ module Auxiliary::EPMP
           sysauth_dirty = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
           sysauth_value = sysauth_dirty.match(/((.*)[$ ])/)
 
-          final_cookie = "#{sysauth_value}" + 'usernameType_80=admin; stok_80=' + stok_value
+          final_cookie = "#{sysauth_value}usernameType_#{rport}=admin; stok_#{rport}=#{stok_value}"
 
           # create config_uri for different modules
           config_uri_dump_config = '/cgi-bin/luci/;stok=' + stok_value + '/admin/config_export?opts=json'
