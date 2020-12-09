@@ -238,8 +238,6 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    avdwarn = nil
-
     stats       = framework.stats
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
@@ -255,21 +253,8 @@ class Core
     banner << "\n"
     banner << Msf::Serializer::ReadableText.word_wrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
 
-    if ::Msf::Framework::EICARCorrupted
-      avdwarn = []
-      avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
-      avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
-      avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
-      avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
-      avdwarn << ""
-    end
-
     # Display the banner
     print_line(banner)
-
-    if(avdwarn)
-      avdwarn.map{|line| print_error(line) }
-    end
 
   end
 

@@ -393,7 +393,7 @@ class Driver < Msf::Ui::Driver
       print_warning(log_msg)
     end
 
-    if framework.db && framework.db.active
+    if framework.db&.active
       framework.db.workspace = framework.db.default_workspace unless framework.db.workspace
     end
 
@@ -406,11 +406,24 @@ class Driver < Msf::Ui::Driver
 
     run_single("banner") unless opts['DisableBanner']
 
+    av_warning_message if framework.eicar_corrupted?
+
     opts["Plugins"].each do |plug|
       run_single("load '#{plug}'")
     end if opts["Plugins"]
 
     self.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
+  end
+
+  def av_warning_message
+      avdwarn = []
+      avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
+      avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
+      avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
+      avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
+      avdwarn << ""
+
+      avdwarn.map{|line| print_error(line) }
   end
 
   #

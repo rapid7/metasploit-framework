@@ -39,9 +39,6 @@ class Framework
 
   Revision = "$Revision$"
 
-  # EICAR canary
-  EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
-
   #
   # Mixin meant to be included into all classes that can have instances that
   # should be tied to the framework, such as modules.
@@ -247,6 +244,25 @@ class Framework
   def search(search_string)
     search_params = Msf::Modules::Metadata::Search.parse_search_string(search_string)
     Msf::Modules::Metadata::Cache.instance.find(search_params)
+  end
+
+  #
+  # EICAR Canary
+  # @return [Boolean] Should return true if the EICAR file has been corrupted
+  def eicar_corrupted?
+    path = ::File.expand_path(::File.join(
+      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
+    )
+    return true unless ::File.exist?(path)
+
+    data = ::File.read(path)
+    return true unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
+
+    false
+
+    # If anything goes wrong assume AV got us
+    rescue ::Exception
+      true
   end
 
 protected
