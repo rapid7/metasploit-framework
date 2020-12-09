@@ -46,7 +46,7 @@ The username to reset the password of
 ### Easy WP SMTP 1.4.1 on Wordpress 5.4.4 running on Ubuntu 20.04
 
 ```
-esource (wp_easy_wp_smtp.rb)> use auxiliary/scanner/http/wp_easy_wp_smtp
+resource (wp_easy_wp_smtp.rb)> use auxiliary/scanner/http/wp_easy_wp_smtp
 resource (wp_easy_wp_smtp.rb)> set verbose true
 verbose => true
 resource (wp_easy_wp_smtp.rb)> set rhosts 1.1.1.1
