@@ -1,16 +1,16 @@
-module RouteServlet
+module Msf::WebServices::RouteServlet
 
   def self.api_path
     '/api/v1/routes'
   end
 
   def self.api_path_remove
-    "#{RouteServlet.api_path}/remove"
+    "#{self.api_path}/remove"
   end
 
   def self.registered(app)
-    app.post RouteServlet.api_path, &report_session_route
-    app.post RouteServlet.api_path_remove, &report_session_route_remove
+    app.post self.api_path, &report_session_route
+    app.post self.api_path_remove, &report_session_route_remove
   end
 
   #######
