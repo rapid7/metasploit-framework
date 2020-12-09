@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/windows/reflective_dll_injection'
 
 module Msf
 class Post

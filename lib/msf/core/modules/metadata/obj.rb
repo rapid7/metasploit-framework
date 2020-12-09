@@ -1,4 +1,3 @@
-require 'msf/core/modules/metadata'
 require 'json'
 
 #
@@ -106,7 +105,7 @@ class Obj
     @notes = module_instance.notes
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
-    force_encoding(Encoding::UTF_8)
+    force_encoding(::Encoding::UTF_8)
   end
 
   #

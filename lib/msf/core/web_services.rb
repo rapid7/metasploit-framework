@@ -1,5 +1,3 @@
-class Msf::WebServices
-  autoload :ModuleSearch, 'msf/core/web_services/module_search'
+module Msf::WebServices
 
-  extend Msf::WebServices::ModuleSearch
 end

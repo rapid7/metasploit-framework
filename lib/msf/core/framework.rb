@@ -12,9 +12,10 @@ require 'monitor'
 
 require 'metasploit/framework/version'
 require 'msf/base/config'
-require 'msf/core'
 require 'msf/util'
-
+require 'msf/events'
+require 'rex/socket/ssl'
+require 'metasploit/framework/thread_factory_provider'
 module Msf
 
 ###
@@ -54,14 +55,8 @@ class Framework
     attr_accessor :framework
   end
 
-  require 'msf/core/thread_manager'
-  require 'msf/core/module_manager'
-  require 'msf/core/session_manager'
-  require 'msf/core/plugin_manager'
   require 'metasploit/framework/data_service/proxy/core'
-  require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
-  require 'msf/core/cert_provider'
 
   #
   # Creates an instance of the framework context.
@@ -87,6 +82,7 @@ class Framework
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
     # Configure the SSL certificate generator
+    require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
     subscriber = FrameworkEventSubscriber.new(self)
@@ -300,7 +296,7 @@ class FrameworkEventSubscriber
     end
   end
 
-  include GeneralEventSubscriber
+  include Msf::GeneralEventSubscriber
 
   #
   # Generic handler for module events
@@ -369,7 +365,6 @@ class FrameworkEventSubscriber
     report_event(:name => "ui_start", :info => info)
   end
 
-  require 'msf/core/session'
 
   include ::Msf::SessionEvent
 
@@ -529,7 +524,6 @@ class FrameworkEventSubscriber
   #
   # This is covered by on_module_run and on_session_open, so don't bother
   #
-  #require 'msf/core/exploit'
   #include ExploitEvent
   #def on_exploit_success(exploit, session)
   #end

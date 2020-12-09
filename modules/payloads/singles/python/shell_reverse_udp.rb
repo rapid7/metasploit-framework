@@ -3,10 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_udp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
-require 'msf/core/payload/python'
 
 module MetasploitModule
 

@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/php'
-require 'msf/core/payload/uuid'
-
 module Msf
 
 ###

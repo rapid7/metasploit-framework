@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/exploit'
 
 module Msf
   module Auxiliary::Etcd

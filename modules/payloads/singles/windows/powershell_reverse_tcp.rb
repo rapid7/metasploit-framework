@@ -3,10 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/exec'
-require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
-require 'msf/core/handler/reverse_tcp_ssl'
 
 ###
 #

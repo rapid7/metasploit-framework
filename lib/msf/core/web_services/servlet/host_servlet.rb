@@ -1,31 +1,31 @@
-module HostServlet
+module Msf::WebServices::HostServlet
 
   def self.api_path
     '/api/v1/hosts'
   end
 
   def self.api_path_with_id
-    "#{HostServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.api_path_with_id_and_tags
-    "#{HostServlet.api_path_with_id}/tags"
+    "#{self.api_path_with_id}/tags"
   end
 
   def self.api_search_path
-    "#{HostServlet.api_path}/search"
+    "#{self.api_path}/search"
   end
 
   def self.registered(app)
-    app.get HostServlet.api_path, &get_host
-    app.get HostServlet.api_path_with_id, &get_host
-    app.post HostServlet.api_path, &report_host
-    app.put HostServlet.api_path_with_id, &update_host
-    app.delete HostServlet.api_path, &delete_host
-    app.post HostServlet.api_search_path, &search
-    app.get HostServlet.api_path_with_id_and_tags, &get_host_tags
-    app.post HostServlet.api_path_with_id_and_tags, &add_host_tag
-    app.delete HostServlet.api_path_with_id_and_tags, &delete_host_tag
+    app.get self.api_path, &get_host
+    app.get self.api_path_with_id, &get_host
+    app.post self.api_path, &report_host
+    app.put self.api_path_with_id, &update_host
+    app.delete self.api_path, &delete_host
+    app.post self.api_search_path, &search
+    app.get self.api_path_with_id_and_tags, &get_host_tags
+    app.post self.api_path_with_id_and_tags, &add_host_tag
+    app.delete self.api_path_with_id_and_tags, &delete_host_tag
   end
 
   #######

@@ -91,7 +91,7 @@ module LibraryHelper
   end
 
   # assembles the buffers "in" and "inout"
-  def assemble_buffer(direction, function, args)
+  def assemble_buffer(direction, function, args, arch)
     layout = {} # paramName => BufferItem
     blob = ""
     #puts " building buffer: #{direction}"
@@ -110,28 +110,31 @@ module LibraryHelper
         end
 
         case param_desc[0] # required argument type
-          when "PDWORD"
-            dw = param_to_number(args[param_idx])
-            buffer = [dw].pack('V')
-          when "PWCHAR"
-            raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
-            buffer = str_to_uni_z(args[param_idx])
-          when "PCHAR"
-            raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
-            buffer = str_to_ascii_z(args[param_idx])
-          when "PBLOB"
-            raise "param #{param_desc[1]}: please supply your BLOB as string!" unless args[param_idx].class == String
-            buffer = args[param_idx]
+        when 'PULONG_PTR'
+          val = param_to_number(args[param_idx])
+          buffer = [val].pack(arch == ARCH_X64 ? 'Q<' : 'V')
+        when "PDWORD"
+          val = param_to_number(args[param_idx])
+          buffer = [val].pack('V')
+        when "PWCHAR"
+          raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
+          buffer = str_to_uni_z(args[param_idx])
+        when "PCHAR"
+          raise "param #{param_desc[1]}: string expected" unless args[param_idx].class == String
+          buffer = str_to_ascii_z(args[param_idx])
+        when "PBLOB"
+          raise "param #{param_desc[1]}: please supply your BLOB as string!" unless args[param_idx].class == String
+          buffer = args[param_idx]
           # other types (non-pointers) don't reference buffers
           # and don't need any treatment here
         end
 
-        if buffer != nil
+        unless buffer.nil?
           #puts "   adding #{buffer.length} bytes to heap blob"
           layout[param_desc[1]] = BufferItem.new(param_idx, blob.length, buffer.length, param_desc[0])
           blob += buffer
           # sf: force 8 byte alignment to satisfy x64, wont matter on x86.
-          while( blob.length % 8 != 0 )
+          while blob.length % 8 != 0
             blob += "\x00"
           end
           #puts "   heap blob size now #{blob.length}"
@@ -141,6 +144,8 @@ module LibraryHelper
     #puts "  built buffer: #{direction}"
     return [layout, blob]
   end
+
+
 
 end
 

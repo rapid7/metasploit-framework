@@ -11,12 +11,6 @@ module Msf
     module Analysis
     end
 
-    require 'msf/core/auxiliary/web/http'
-    require 'msf/core/auxiliary/web/fuzzable'
-    require 'msf/core/auxiliary/web/form'
-    require 'msf/core/auxiliary/web/path'
-    require 'msf/core/auxiliary/web/target'
-
     include Auxiliary::Report
 
     attr_reader :target

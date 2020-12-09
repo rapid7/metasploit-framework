@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/dns'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Enumeration
@@ -313,7 +312,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           # Searches for the chain to compare in the defined tag.
           found = true if html.at(datastore['TAG']).to_s.include? fingerprint.to_s.encode('utf-8')
-        rescue NoMethodError, Encoding::CompatibilityError
+        rescue NoMethodError, ::Encoding::CompatibilityError
           return false
         end
 
@@ -333,7 +332,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_line("      --> responded with HTTP status code: #{response.code} to #{response.headers['location']}")
         begin
           found = true if response.headers['location'].include?(datastore['hostname'])
-        rescue NoMethodError, Encoding::CompatibilityError
+        rescue NoMethodError, ::Encoding::CompatibilityError
           return false
         end
 

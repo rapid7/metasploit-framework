@@ -3,7 +3,6 @@
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/logging'
 require 'rex/exceptions'
-require 'msf/core/payload/uuid'
 
 module Rex
 module Post
