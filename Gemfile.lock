@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.0.21)
+    metasploit-framework (6.0.22)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -123,13 +123,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.402.0)
+    aws-partitions (1.405.0)
     aws-sdk-core (3.110.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.213.0)
+    aws-sdk-ec2 (1.215.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.46.0)
@@ -276,7 +276,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (5.1.0)
+    puma (5.1.1)
       nio4r (~> 2.0)
     rack (2.2.3)
     rack-protection (2.1.0)
@@ -297,7 +297,7 @@ GEM
     rainbow (3.0.0)
     rake (13.0.1)
     rb-readline (0.5.5)
-    recog (2.3.16)
+    recog (2.3.17)
       nokogiri
     redcarpet (3.5.0)
     regexp_parser (2.0.0)
@@ -375,7 +375,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.10.0)
-    rubocop (1.5.2)
+    rubocop (1.6.1)
       parallel (~> 1.10)
       parser (>= 2.7.1.5)
       rainbow (>= 2.2.2, < 4.0)
@@ -444,7 +444,7 @@ GEM
       activesupport (>= 4.2, < 7.0)
     xmlrpc (0.3.1)
     yard (0.9.25)
-    zeitwerk (2.4.0)
+    zeitwerk (2.4.2)
 
 PLATFORMS
   ruby
