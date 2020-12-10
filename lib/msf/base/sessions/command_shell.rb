@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
+require 'msf/base/sessions/command_shell_options'
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
