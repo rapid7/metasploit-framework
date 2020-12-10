@@ -416,14 +416,13 @@ class Driver < Msf::Ui::Driver
   end
 
   def av_warning_message
-      avdwarn = []
-      avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
-      avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
-      avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
-      avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
-      avdwarn << ""
+      avdwarn = "\e[31m"\
+                "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."\
+                " We recommend that you disable your anti-virus or exclude your Metasploit installation path, "\
+                "then restore the removed files from quarantine or reinstall the framework.\e[0m"\
+                "\n\nFor more info: https://community.rapid7.com/docs/DOC-1273\n\n"
 
-      avdwarn.map{|line| print_error(line) }
+      $stderr.puts(Msf::Serializer::ReadableText.word_wrap(avdwarn, 0, 80))
   end
 
   #

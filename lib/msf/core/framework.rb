@@ -260,9 +260,9 @@ class Framework
 
     false
 
-    # If anything goes wrong assume AV got us
-    rescue ::Exception
-      true
+  # If anything goes wrong assume AV got us
+  rescue ::Exception
+    true
   end
 
 protected
