@@ -11,9 +11,9 @@ arel, 9.0.0, MIT
 arel-helpers, 2.11.0, MIT
 ast, 2.4.1, MIT
 aws-eventstream, 1.1.0, "Apache 2.0"
-aws-partitions, 1.402.0, "Apache 2.0"
+aws-partitions, 1.405.0, "Apache 2.0"
 aws-sdk-core, 3.110.0, "Apache 2.0"
-aws-sdk-ec2, 1.213.0, "Apache 2.0"
+aws-sdk-ec2, 1.215.0, "Apache 2.0"
 aws-sdk-iam, 1.46.0, "Apache 2.0"
 aws-sdk-kms, 1.39.0, "Apache 2.0"
 aws-sdk-s3, 1.86.0, "Apache 2.0"
@@ -60,9 +60,9 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 3.0.1, "New BSD"
 metasploit-credential, 4.0.3, "New BSD"
-metasploit-framework, 6.0.21, "New BSD"
+metasploit-framework, 6.0.22, "New BSD"
 metasploit-model, 3.1.3, "New BSD"
-metasploit-payloads, 2.0.23, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.24, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 4.1.1, "New BSD"
 metasploit_payloads-mettle, 1.0.2, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
@@ -77,6 +77,7 @@ net-ldap, 0.17.0, MIT
 net-ssh, 6.1.0, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.2.1, "New BSD"
+nio4r, 2.5.4, MIT
 nokogiri, 1.10.10, MIT
 octokit, 4.19.0, MIT
 openssl-ccm, 1.2.2, MIT
@@ -92,6 +93,7 @@ pg, 1.2.3, "Simplified BSD"
 pry, 0.13.1, MIT
 pry-byebug, 3.9.0, MIT
 public_suffix, 4.0.6, MIT
+puma, 5.1.1, "New BSD"
 rack, 2.2.3, MIT
 rack-protection, 2.1.0, MIT
 rack-test, 1.1.0, MIT
@@ -101,7 +103,7 @@ railties, 5.2.4.4, MIT
 rainbow, 3.0.0, MIT
 rake, 13.0.1, MIT
 rb-readline, 0.5.5, BSD
-recog, 2.3.16, unknown
+recog, 2.3.17, unknown
 redcarpet, 3.5.0, MIT
 regexp_parser, 2.0.0, MIT
 reline, 0.1.9, ruby
@@ -132,7 +134,7 @@ rspec-mocks, 3.10.0, MIT
 rspec-rails, 4.0.1, MIT
 rspec-rerun, 1.1.0, MIT
 rspec-support, 3.10.0, MIT
-rubocop, 1.5.2, MIT
+rubocop, 1.6.1, MIT
 rubocop-ast, 1.3.0, MIT
 ruby-macho, 2.5.0, MIT
 ruby-prof, 1.4.2, "Simplified BSD"
@@ -168,3 +170,4 @@ windows_error, 0.1.2, BSD
 xdr, 3.0.2, "Apache 2.0"
 xmlrpc, 0.3.1, "ruby, Simplified BSD"
 yard, 0.9.25, MIT
+zeitwerk, 2.4.2, MIT

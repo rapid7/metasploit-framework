@@ -17,6 +17,8 @@ module Msf::WebServices
   # MSF_WS_DATA_SERVICE_CERT - Certificate file matching the remote data server's certificate.
   #                            Needed when using self-signed SSL certificates.
   # MSF_WS_DATA_SERVICE_SKIP_VERIFY - (Boolean) Skip validating authenticity of server's certificate.
+  # MSF_WS_DATA_SERVICE_LOGGER - (String) The logger that framework will use. By default logs will be
+  #                             placed in ``~/.msf4/logs`
   module FrameworkExtension
     FALSE_VALUES = [nil, false, 0, '0', 'f', 'false', 'off', 'no'].to_set
 
@@ -37,21 +39,22 @@ module Msf::WebServices
       @@framework = nil
       # Create simplified instance of the framework
       app.set :framework, Proc.new {
-        @@framework ||=
-            begin
-              framework = Msf::Simple::Framework.create
+        @@framework ||= begin
+          init_framework_opts = {
+            'Logger' => ENV.fetch('MSF_WS_DATA_SERVICE_LOGGER', nil)
+          }
+          framework = Msf::Simple::Framework.create(init_framework_opts)
 
-              if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
-                framework_db_connect_http_data_service(framework: framework,
-                                                       data_service_url: app.settings.data_service_url,
-                                                       api_token: app.settings.data_service_api_token,
-                                                       cert: app.settings.data_service_cert,
-                                                       skip_verify: app.settings.data_service_skip_verify)
-              end
+          if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
+            framework_db_connect_http_data_service(framework: framework,
+                                                   data_service_url: app.settings.data_service_url,
+                                                   api_token: app.settings.data_service_api_token,
+                                                   cert: app.settings.data_service_cert,
+                                                   skip_verify: app.settings.data_service_skip_verify)
+          end
 
-              framework
-            end
-
+          framework
+        end
       }
     end
 
