@@ -158,7 +158,7 @@ module Metasploit
                   proof = proof.map {|item| item.strip}
                   proof = proof.join(", ").to_s
                 # Windows
-                elsif proof =~ /is not recognized as an internal or external command/
+                elsif proof =~ /command not found|is not recognized as an internal or external command/
                   proof = ssh_socket.exec!("systeminfo\n").to_s
                   /OS Name:\s+(?<os_name>.+)$/ =~ proof
                   /OS Version:\s+(?<os_num>.+)$/ =~ proof
@@ -210,7 +210,7 @@ module Metasploit
             'hpux'
           when /AIX/
             'aix'
-          when /Win32|Windows|Microsoft/
+          when /cygwin|Win32|Windows|Microsoft/
             'windows'
           when /Unknown command or computer name|Line has invalid autocommand/
             'cisco-ios'
