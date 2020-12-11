@@ -29,8 +29,7 @@ class Def_windows_version
     dll.add_function('VerQueryValueA', 'BOOL',[
       ["LPVOID","pBlock","in"],
       ["PCHAR","lpSubBlock","in"],
-      # On MSDN this is LPVOID, but must be PHANDLE
-      ["PHANDLE","lplpBuffer","out"],
+      ["PULONG_PTR","lplpBuffer","out"],
       ["PDWORD","puLen","out"]
     ])
 
