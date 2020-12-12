@@ -10,15 +10,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'WordPress Duplicator File Download Vulnerability',
+      'Name'           => 'WordPress Duplicator File Read Vulnerability',
       'Description'    => %q{
-        The issue is being actively exploited, and allows attackers to download arbitrary files, such as the wp-config.php file.
-        According to the vendor, the vulnerability was only in two versions v1.3.24 and v1.3.26, the vulnerability wasn't present in versions 1.3.22 and before.
+        This module exploits an unauthenticated directory traversal vulnerability in WordPress plugin "Duplicator" plugin version 1.3.24-1.3.26, allowing arbitrary file read with the web server privileges.
+        This vulnerability was being actively exploited when it was discovered.
       },
       'References'     =>
         [
           ['CVE', '2020-11738'],
-          ['WPVDB', '10078']
+          ['WPVDB', '10078'],
+          ['URL','https://snapcreek.com/duplicator/docs/changelog']
         ],
       'Author'         =>
         [
