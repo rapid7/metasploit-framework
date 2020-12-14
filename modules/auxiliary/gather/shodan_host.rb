@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     if json["ports"] != nil
       json["ports"].each do |post|
         print_good("#{rhost}:#{post}")
-        report_service(:host => rhost, :port => post, :name => "shodan") 
+        report_service(:host => rhost, :port => post, :name => "shodan")
       end
     end
   end
