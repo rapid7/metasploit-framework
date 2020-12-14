@@ -7,8 +7,8 @@ module Msf::DBManager::Route
     route = opts[:route]
     if session.respond_to? :db_record
       s = session.db_record
-    elsif session.is_a? Integer
-      s = Mdm::Session.find(session)
+    elsif session.is_a?(Hash) && session.key?(:id)
+      s = Mdm::Session.find(session[:id])
     else
       s = session
     end
@@ -29,8 +29,8 @@ module Msf::DBManager::Route
     route = opts[:route]
     if session.respond_to? :db_record
       s = session.db_record
-    elsif session.is_a? Integer
-      s = Mdm::Session.find(session)
+    elsif session.is_a?(Hash) && session.key?(:id)
+      s = Mdm::Session.find(session[:id])
     else
       s = session
     end
