@@ -420,7 +420,7 @@ class Driver < Msf::Ui::Driver
                 "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."\
                 " We recommend that you disable your anti-virus or exclude your Metasploit installation path, "\
                 "then restore the removed files from quarantine or reinstall the framework.\e[0m"\
-                "\n\nFor more info: https://community.rapid7.com/docs/DOC-1273\n\n"
+                "\n\n"
 
       $stderr.puts(Msf::Serializer::ReadableText.word_wrap(avdwarn, 0, 80))
   end
