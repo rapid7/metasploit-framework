@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
         This module uses the shodan API to return all port information found on a given host IP.
       },
       'Author' =>
-        [ 'natto97' ], 
+        [ 'natto97' ],
       'License' => MSF_LICENSE,
       'References' =>
         [
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     json = res.get_json_document
     if json["ports"] != nil
       json["ports"].each do |post|
-        print_good("#{rhost}:#{post}") 
+        print_good("#{rhost}:#{post}")
       end
     end
   end
