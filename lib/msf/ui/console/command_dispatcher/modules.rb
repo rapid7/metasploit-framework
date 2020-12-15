@@ -990,52 +990,71 @@ module Msf
           #
           # Helper method for cmd_favorite that writes modules to the fav_modules_file
           #
-          def cmd_favorite_process(mod, del)
-            favs_file = Msf::Config.fav_modules_file
-            if File.exists?(favs_file)
-              unless File.readable?(favs_file)
-                print_error("Unable to read #{favs_file}")
-                return false
+          def cmd_favorite_add(modules, favs_file, contents)
+            modules = modules.uniq # prevent modules from being added more than once
+            modules.each do |name|
+              mod = framework.modules.create(name)
+              if (mod == nil)
+                print_error("Invalid module: #{name}")
+                next
               end
-              
-              contents = File.read(favs_file)
-              if contents.include?(mod.fullname)
-                unless del
-                  print_warning("Module #{mod.fullname} has already been favorited and will not be added to #{favs_file}")
-                  return
-                end
 
-                # remove module from contents (deletion happens below)
-                contents = contents.split
-                contents.delete(mod.fullname)
-
-              else
-                return if del #do nothing if fav_modules does not contain the module we need to delete
+              if contents && contents.include?(mod.fullname)
+                print_warning("Module #{mod.fullname} has already been favorited and will not be added to #{favs_file}")
+                next
               end
-            else
-              return if del
+
+              begin
+                File.open(favs_file, 'a+') { |file| file.puts(mod.fullname) }
+              rescue Errno::EACCES => e
+                print_error("Unable to write to #{favs_file}").
+                return
+              end
+              print_status("Added #{mod.fullname} to #{favs_file}")
+            end
+          end
+
+          #
+          # Helper method for cmd_favorite that deletes modules from the fav_modules_file, or deletes the file altogether
+          #
+          def cmd_favorite_del(modules, delete_all, favs_file, contents)
+            if delete_all
+              print_status("Removing #{favs_file} if it exists")
+              File.delete(favs_file) if File.exist?(favs_file)
+              return
             end
 
-            # finally, start adding/deleting stuff
-            begin 
-              if del
-                write_mode = 'w'
-                contents = contents.join("\n")
-                message = "Removed #{mod.fullname} from #{favs_file}"
-              else
-                write_mode = 'a+'
-                contents = mod.fullname
-                message = "Added #{mod.fullname} to #{favs_file}"
+            modules = modules.uniq # prevent modules from being deleted more than once
+            contents = contents.split
+            modules.each do |name|
+              mod = framework.modules.create(name)
+              if (mod == nil)
+                print_error("Invalid module: #{name}")
+                next
               end
-              File.open(favs_file, write_mode) do |file|
-                file.puts(contents)
+
+              unless contents.include?(mod.fullname)
+                print_warning("Module #{mod.fullname} cannot be deleted because it is not in #{favs_file}")
+                next
               end
+
+              # remove module from contents
+              contents.delete(mod.fullname)
+              print_status("Removing #{mod.fullname} from #{favs_file}")
+            end
+
+            begin
+              # delete fav_modules file if removing the module(s) makes it empty
+              if contents.length == 0
+                File.delete(favs_file)
+                print_status("Removing #{favs_file} since it is empty now")
+                return
+              end
+              File.open(favs_file, 'w') { |file| file.puts(contents.join("\n")) }
             rescue Errno::EACCES => e
-              print_error("Unable to write to #{favs_file}")
-              return false
+              print_error("Unable to write to #{favs_file}").
+              return
             end
-            print_status("#{message}")
-            return true
           end
 
           #
@@ -1043,38 +1062,54 @@ module Msf
           #
           def cmd_favorite(*args)
             favs_file = Msf::Config.fav_modules_file
-            del = false
-
+            contents = nil
             if args.include?('-D')
               args.delete('-D')
-              print_status("Removing #{favs_file} if it exists")
-              File.delete(favs_file) if File.exist?(favs_file)
+              unless args.empty?
+                print_error('The -D flag cannot be used with additional arguments')
+                return
+              end
+              cmd_favorite_del(args, true, favs_file, contents)
+              return
+            end
+
+            # if we want to add or delete individual modules, we need to read the contents of the fav_modules file if it exists
+            if File.exists?(favs_file)
+              unless File.readable?(favs_file)
+                print_error("Unable to read #{favs_file}")
+                return
+              end
+              contents = File.read(favs_file)  
+            else
+              if args.include?('-d')
+                print_error("Unable to delete modules from #{favs_file} because the file does not exist")
+                return
+              end
+            end
+
+            if args.empty?
+              unless active_module
+                print_error('No module has been provided to favorite')
+                return
+              end
+              args = [active_module.fullname]
+              cmd_favorite_add(args, favs_file, contents)
               return
             end
 
             if args.include?('-d')
               args.delete('-d')
-              del = true
-            end
-
-            if args.empty?
-              if (active_module)
-                cmd_favorite_process(active_module, del)
-              else
-                print_error('No module active')
-                return false
+              if args.empty?
+                unless active_module
+                  print_error('No module has been provided to delete')
+                  return
+                end
+                args = [active_module.fullname]                
               end
+              cmd_favorite_del(args, false, favs_file, contents)
+              return
             end
-
-            args.each { |name|
-              mod = framework.modules.create(name)
-
-              if (mod == nil)
-                print_error("Invalid module: #{name}")
-              else
-                cmd_favorite_process(mod, del)
-              end
-            }
+            cmd_favorite_add(args, favs_file, contents)
           end
 
           #
