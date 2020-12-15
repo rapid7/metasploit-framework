@@ -1,9 +1,11 @@
 # -*- coding: binary -*-
-require 'rex/proto/ssh/connection'
 
 module Rex
 module Proto
 module Ssh
+
+  autoload :Connection, 'rex/proto/ssh/connection'
+
 ###
 #
 # Runtime extension of the SSH clients that connect to the server.
