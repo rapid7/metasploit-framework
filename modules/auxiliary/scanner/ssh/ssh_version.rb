@@ -40,57 +40,60 @@ class MetasploitModule < Msf::Auxiliary
     datastore['TIMEOUT'] <= 0 ? DEFAULT_TIMEOUT : datastore['TIMEOUT']
   end
 
-
   def run_host(target_host)
-    begin
-      ::Timeout.timeout(timeout) do
-        connect
+    ::Timeout.timeout(timeout) do
+      connect
 
-        resp = sock.get_once(-1, timeout)
+      resp = sock.get_once(-1, timeout)
 
-        if ! resp
-          vprint_warning("No response")
-          return
-        end
-
-        ident, first_message = resp.split(/[\r\n]+/)
-        info = ""
-
-        if /^SSH-\d+\.\d+-(.*)$/ !~ ident
-          vprint_warning("Was not SSH -- #{resp.size} bytes beginning with #{resp[0, 12]}")
-          return
-        end
-
-        banner = $1
-
-        # Try to match with Recog and show the relevant fields to the user
-        recog_match = Recog::Nizer.match('ssh.banner', banner)
-        if recog_match
-          info << " ( "
-          recog_match.each_pair do |k,v|
-            next if k == 'matched'
-            info << "#{k}=#{v} "
-          end
-          info << ")"
-        end
-
-        # Check to see if this is Kippo, which sends a premature
-        # key init exchange right on top of the SSH version without
-        # waiting for the required client identification string.
-        if first_message && first_message.size >= 5
-          extra = first_message.unpack("NCCA*") # sz, pad_sz, code, data
-          if (extra.last.size + 2 == extra[0]) && extra[2] == 20
-            info << " (Kippo Honeypot)"
-          end
-        end
-
-        print_good("SSH server version: #{ident}#{info}")
-        report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: ident)
+      if ! resp
+        vprint_warning("No response")
+        return Exploit::CheckCode::Unknown
       end
-    rescue Timeout::Error
-      vprint_warning("Timed out after #{timeout} seconds. Skipping.")
-    ensure
-      disconnect
+
+      ident, first_message = resp.split(/[\r\n]+/)
+      info = ""
+
+      if /^SSH-\d+\.\d+-(.*)$/ !~ ident
+        vprint_warning("Was not SSH -- #{resp.size} bytes beginning with #{resp[0, 12]}")
+        return Exploit::CheckCode::Safe(details: { ident: ident })
+      end
+
+      banner = $1
+
+      # Try to match with Recog and show the relevant fields to the user
+      recog_match = Recog::Nizer.match('ssh.banner', banner)
+      if recog_match
+        info << " ( "
+        recog_match.each_pair do |k,v|
+          next if k == 'matched'
+          info << "#{k}=#{v} "
+        end
+        info << ")"
+      end
+
+      # Check to see if this is Kippo, which sends a premature
+      # key init exchange right on top of the SSH version without
+      # waiting for the required client identification string.
+      if first_message && first_message.size >= 5
+        extra = first_message.unpack("NCCA*") # sz, pad_sz, code, data
+        if (extra.last.size + 2 == extra[0]) && extra[2] == 20
+          info << " (Kippo Honeypot)"
+        end
+      end
+
+      print_good("SSH server version: #{ident}#{info}")
+      report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: ident)
+
+      Exploit::CheckCode::Detected(details: { ident: ident, info: info })
     end
+  rescue EOFError, Rex::ConnectionError => e
+    vprint_error(e.message) # This may be a little noisy, but it is consistent
+    Exploit::CheckCode::Unknown
+  rescue Timeout::Error
+    vprint_warning("Timed out after #{timeout} seconds. Skipping.")
+    Exploit::CheckCode::Unknown
+  ensure
+    disconnect
   end
 end
