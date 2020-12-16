@@ -24,6 +24,10 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key'])
       ])
+    deregister_options("SSL")
+    deregister_options("RPORT")
+    deregister_options("VHOST")
+    deregister_options("Proxies")
   end
   def run
     # check our API key is somewhat sane
