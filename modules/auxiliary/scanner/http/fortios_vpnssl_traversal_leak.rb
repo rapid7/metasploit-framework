@@ -16,13 +16,12 @@ class MetasploitModule < Msf::Auxiliary
         FortiOS system file leak through SSL VPN via specially crafted HTTP resource requests.
         A path traversal vulnerability in the FortiOS SSL VPN web portal may allow an unauthenticated
         attacker to download FortiOS system files through specially crafted HTTP resource requests.
-        This exploit read `/dev/cmdb/sslvpn_websession` file, this file contains login and passwords in (clear/text).
-        This vulnerability affect (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0 to 6.0.4).
+        This module reads logins and passwords in clear text from the `/dev/cmdb/sslvpn_websession` file.
+        This vulnerability affects (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0 to 6.0.4).
       },
       'References' => [
         ['CVE', '2018-13379'],
         ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
-        ['URL', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-13379'],
         ['EDB', '47287'],
         ['EDB', '47288']
       ],
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptEnum.new('DUMP_FORMAT', [true,  'Dump format.', 'raw', ['raw', 'ascii']]),
       OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
-      OptBool.new('STORE_LOOT', [false, 'Store dump in loot.', false]),
+      OptBool.new('STORE_LOOT', [false, 'Store dump in loot.', true]),
       OptString.new('TARGETURI', [true, 'Base path', '/remote'])
     ])
   end

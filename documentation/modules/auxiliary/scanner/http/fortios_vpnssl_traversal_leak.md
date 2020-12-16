@@ -5,8 +5,8 @@ attacker to download FortiOS system files through specially crafted HTTP resourc
 
 ## Vulnerable Application
 
-This exploit read `/dev/cmdb/sslvpn_websession` file, this file contains login and passwords in (clear/text).
-This vulnerability affect (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0 to 6.0.4).
+This module reads logins and passwords in clear text from the `/dev/cmdb/sslvpn_websession` file.
+This vulnerability affects (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0 to 6.0.4).
 
 ## Verification Steps
 
@@ -34,7 +34,7 @@ Store dump in loot directory.
 
 ### Usages
 
-You can scan and get all credentials on the remote target when you run the followind command:
+You can scan and get all credentials on the remote target when you run the following command:
 
 ```
 msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > options
