@@ -21,7 +21,7 @@ module MetasploitModule
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline (IPv6) (x64)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
+      'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',

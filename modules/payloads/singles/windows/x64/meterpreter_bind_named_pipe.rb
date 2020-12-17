@@ -21,7 +21,7 @@ module MetasploitModule
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Bind Named Pipe Inline (x64)',
-      'Description' => 'Connect to victim and spawn a Meterpreter shell',
+      'Description' => 'Connect to victim and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'UserExistsError' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
