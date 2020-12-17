@@ -1,9 +1,9 @@
 ## Vulnerable Application
 The issue is being actively exploited, and allows attackers to download arbitrary files, such as the `wp-config.php` file.
-This module exploits an unauthenticated directory traversal vulnerability in WordPress plugin "Duplicator" plugin version 1.3.24-1.3.26,
+This module exploits an unauthenticated directory traversal vulnerability in WordPress plugin "Duplicator" version 1.3.24-1.3.26,
 allowing arbitrary file read with the web server privileges.
 
-Changelog : https://snapcreek.com/duplicator/docs/changelog/
+Duplicator [Changelog](https://snapcreek.com/duplicator/docs/changelog/)
 
 Vulnerable version: [duplicator.1.3.24.zip](https://downloads.wordpress.org/plugin/duplicator.1.3.24.zip),
 [duplicator.1.3.26.zip](https://downloads.wordpress.org/plugin/duplicator.1.3.26.zip)
@@ -21,8 +21,7 @@ Vulnerable version: [duplicator.1.3.24.zip](https://downloads.wordpress.org/plug
 
 ## Scenarios
 
-
-Ubuntu 20.04 running WordPress 5.6, Duplicator 1.2.6
+### Ubuntu 20.04 running WordPress 5.6, Duplicator 1.3.26
 
 ```
 msf5 > use auxiliary/scanner/http/wp_duplicator_file_read
