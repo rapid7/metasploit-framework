@@ -31,7 +31,8 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://wordpress.org/support/topic/security-issue-with-debug-log/'],
             ['URL', 'https://blog.nintechnet.com/wordpress-easy-wp-smtp-plugin-fixed-zero-day-vulnerability/'],
             ['URL', 'https://plugins.trac.wordpress.org/changeset/2432768/easy-wp-smtp'],
-            ['WPVDB', '10494']
+            ['WPVDB', '10494'],
+            ['CVE', '2020-35234']
           ],
         'DisclosureDate' => '2020-12-06'
       )
