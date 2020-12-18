@@ -86,7 +86,7 @@ resource (easy-wp-smtp.rb)> run
 [*] Found version 1.4.1 in the plugin
 [+] Vulnerable version detected
 [*] Checking for debug_log file
-[-] not-vulnerable: Either debug log not turned on, or directory listings disabled.  Try Aggressive mode if false possitive
+[-] not-vulnerable: Either debug log not turned on, or directory listings disabled.  Try AGGRESSIVE mode if this is a false positive
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```

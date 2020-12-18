@@ -52,11 +52,10 @@ class MetasploitModule < Msf::Auxiliary
     fail_with Failure::Unreachable, 'Connection failed' unless res
     # find the debug file name, prefix during my testing was 14 alpha-numeric
     unless />\s*(?<debug_log>\w{5,15}_debug_log\.txt)/ =~ res.body
-      if aggressive == false
-        fail_with Failure::NotVulnerable, 'Either debug log not turned on, or directory listings disabled.  Try Aggressive mode if false possitive'
+      unless aggressive
+        fail_with Failure::NotVulnerable, 'Either debug log not turned on, or directory listings disabled.  Try AGGRESSIVE mode if this is a false positive'
       end
       print_error('Debug file not found, bypassing check due to AGGRESSIVE mode')
-      nil
     end
     debug_log
   end
@@ -68,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('easy-wp-smtp', '1.4.2')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, 'A vulnerable ersion of the "Easy WP SMTP" was not found'
+      fail_with Failure::NotVulnerable, 'A vulnerable version of the "Easy WP SMTP" was not found'
     end
     print_good('Vulnerable version detected')
 
