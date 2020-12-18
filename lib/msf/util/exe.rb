@@ -2173,28 +2173,6 @@ require 'digest/sha1'
     ]
   end
 
-  #
-  # EICAR Canary
-  # @return [Boolean] Should return true
-  def self.is_eicar_corrupted?
-    path = ::File.expand_path(::File.join(
-      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
-    )
-    return true unless ::File.exist?(path)
-    ret = false
-    if ::File.exist?(path)
-      begin
-        data = ::File.read(path)
-        unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
-          ret = true
-        end
-      rescue ::Exception
-        ret = true
-      end
-    end
-    ret
-  end
-
   # self.get_file_contents
   #
   # @param perms  [String]
