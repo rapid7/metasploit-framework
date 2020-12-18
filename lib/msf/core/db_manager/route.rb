@@ -1,8 +1,14 @@
+require 'msf/core/db_manager/session'
+
 module Msf::DBManager::Route
-  def report_session_route(session, route)
+  def report_session_route(opts)
     return if not active
+    session = opts[:session]
+    route = opts[:route]
     if session.respond_to? :db_record
       s = session.db_record
+    elsif session.is_a?(Hash) && session.key?(:id)
+      s = Mdm::Session.find(session[:id])
     else
       s = session
     end
@@ -17,10 +23,14 @@ module Msf::DBManager::Route
   }
   end
 
-  def report_session_route_remove(session, route)
+  def report_session_route_remove(opts)
     return if not active
+    session = opts[:session]
+    route = opts[:route]
     if session.respond_to? :db_record
       s = session.db_record
+    elsif session.is_a?(Hash) && session.key?(:id)
+      s = Mdm::Session.find(session[:id])
     else
       s = session
     end
