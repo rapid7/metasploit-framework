@@ -19,8 +19,11 @@ RSpec.describe Msf::OptAddressLocal do
     { :value => "127.0.0.1",    :normalized => "127.0.0.1" },
     { :value => "2001:db8::",   :normalized => "2001:db8::" },
     { :value => "::1",          :normalized => "::1" },
-    { :value => iface[:name],   :normalized => iface[:addr]}
   ]
+
+  unless RUBY_PLATFORM.match('darwin')
+    valid_values << { :value => iface[:name],   :normalized => iface[:addr]}
+  end
   
   invalid_values = [
     # Too many dots
