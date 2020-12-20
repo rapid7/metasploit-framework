@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Common
   include Msf::Post::File
 
   def initialize(info={})
