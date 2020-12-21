@@ -4,6 +4,7 @@
 ##
 
 require 'uri'
+require 'msf/core/handler/reverse_hop_http'
 
 module MetasploitModule
 

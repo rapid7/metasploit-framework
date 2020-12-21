@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core/post/android/priv'
 
 RSpec.describe Msf::Post::Android::Priv do
 

@@ -1,18 +1,18 @@
-module Msf::WebServices::SessionServlet
+module SessionServlet
 
   def self.api_path
     '/api/v1/sessions'
   end
 
   def self.api_path_with_id
-    "#{self.api_path}/?:id?"
+    "#{SessionServlet.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get self.api_path, &get_session
-    app.get self.api_path_with_id, &get_session
-    app.post self.api_path, &report_session
-    app.put self.api_path_with_id, &update_session
+    app.get SessionServlet.api_path, &get_session
+    app.get SessionServlet.api_path_with_id, &get_session
+    app.post SessionServlet.api_path, &report_session
+    app.put SessionServlet.api_path_with_id, &update_session
   end
 
   #######

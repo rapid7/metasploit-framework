@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/payload/uuid'
 
 module Rex
   module Payloads

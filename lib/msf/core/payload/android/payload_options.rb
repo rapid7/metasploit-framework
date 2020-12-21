@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core'
 
 module Msf::Payload::Android::PayloadOptions
 

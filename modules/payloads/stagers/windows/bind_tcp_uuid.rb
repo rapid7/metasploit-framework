@@ -3,6 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/handler/bind_tcp'
+require 'msf/core/payload/windows/bind_tcp'
+
 module MetasploitModule
 
   CachedSize = 331

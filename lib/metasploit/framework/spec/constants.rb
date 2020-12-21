@@ -1,3 +1,4 @@
+require 'msf/core/modules'
 
 # Monitor constants created by module loading to ensure that the loads in one example don't interfere with the
 # assertions in another example.

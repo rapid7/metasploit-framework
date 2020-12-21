@@ -1,17 +1,17 @@
-module Msf::WebServices::EventServlet
+module EventServlet
 
   def self.api_path
     '/api/v1/events'
   end
 
   def self.api_path_with_id
-    "#{self.api_path}/?:id?"
+    "#{EventServlet.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get self.api_path, &get_event
-    app.get self.api_path_with_id, &get_event
-    app.post self.api_path, &report_event
+    app.get EventServlet.api_path, &get_event
+    app.get EventServlet.api_path_with_id, &get_event
+    app.post EventServlet.api_path, &report_event
   end
 
   #######

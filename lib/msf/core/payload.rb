@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core'
 require 'metasm'
 
 module Msf
@@ -14,10 +15,27 @@ class Payload < Msf::Module
 
   require 'rex/payloads'
 
+  require 'msf/core/payload/single'
+  require 'msf/core/payload/generic'
+  require 'msf/core/payload/stager'
+
   # Platform specific includes
+  require 'msf/core/payload/aix'
+  require 'msf/core/payload/bsd'
+  require 'msf/core/payload/linux'
+  require 'msf/core/payload/osx'
+  require 'msf/core/payload/solaris'
+  require 'msf/core/payload/windows'
+  require 'msf/core/payload/netware'
+  require 'msf/core/payload/java'
+  require 'msf/core/payload/android'
+  require 'msf/core/payload/firefox'
+  require 'msf/core/payload/mainframe'
+  require 'msf/core/payload/hardware'
   require 'metasploit/framework/compiler/mingw'
 
   # Universal payload includes
+  require 'msf/core/payload/multi'
 
   ##
   #

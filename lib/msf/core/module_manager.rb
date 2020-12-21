@@ -7,6 +7,9 @@ require 'pathname'
 #
 # Project
 #
+require 'msf/core'
+require 'msf/core/module_set'
+
 module Msf
   # Upper management decided to throw in some middle management
   # because the modules were getting out of hand.  This bad boy takes
@@ -17,8 +20,15 @@ module Msf
   class ModuleManager
     include Msf::Framework::Offspring
 
+    require 'msf/core/payload_set'
 
     # require here so that Msf::ModuleManager is already defined
+    require 'msf/core/module_manager/cache'
+    require 'msf/core/module_manager/loading'
+    require 'msf/core/module_manager/module_paths'
+    require 'msf/core/module_manager/module_sets'
+    require 'msf/core/module_manager/reloading'
+
     include Msf::ModuleManager::Cache
     include Msf::ModuleManager::Loading
     include Msf::ModuleManager::ModulePaths

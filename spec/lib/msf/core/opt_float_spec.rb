@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
+require 'msf/core/option_container'
 
 RSpec.describe Msf::OptFloat do
   valid_values = [

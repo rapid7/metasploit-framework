@@ -13,4 +13,8 @@ if ENV['MSF_LOCAL_LIB']
   $LOAD_PATH << ENV['MSF_LOCAL_LIB'] unless $LOAD_PATH.include?(ENV['MSF_LOCAL_LIB'])
 end
 
-run Msf::WebServices::MetasploitApiApp
+# Note: setup Rails environment before calling require
+require 'msf/core/web_services/metasploit_api_app'
+
+# run Msf::WebServices::JsonRpcApp
+run MetasploitApiApp

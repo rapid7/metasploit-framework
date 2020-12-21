@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+require 'msf/core'
+require 'msf/core/exploit/tcp'
+
 module Metasploit
   module Framework
     module AFP

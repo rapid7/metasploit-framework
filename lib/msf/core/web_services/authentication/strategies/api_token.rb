@@ -1,4 +1,4 @@
-module Msf::WebServices::Authentication
+module Authentication
   module Strategies
     class ApiToken < Warden::Strategies::Base
       AUTHORIZATION = 'HTTP_AUTHORIZATION'

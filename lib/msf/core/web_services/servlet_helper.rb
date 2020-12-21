@@ -1,8 +1,10 @@
 require 'json'
+require 'msf/core/web_services/db_manager_proxy'
+require 'msf/core/web_services/job_processor'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
 require 'rex/ui/text/output/stdio'
 
-module Msf::WebServices::ServletHelper
+module ServletHelper
   include ResponseDataHelper
 
   @@console_printer = Rex::Ui::Text::Output::Stdio.new
@@ -70,7 +72,7 @@ module Msf::WebServices::ServletHelper
 
       exec_async = opts.delete(:exec_async)
       if (exec_async)
-        Msf::WebServices::JobProcessor.instance.submit_job(opts, &job)
+        JobProcessor.instance.submit_job(opts, &job)
         return set_empty_response
       else
         data = job.call(opts)
@@ -83,7 +85,7 @@ module Msf::WebServices::ServletHelper
   end
 
   def get_db
-    Msf::WebServices::DBManagerProxy.instance.db
+    DBManagerProxy.instance.db
   end
 
   # Sinatra injects extra parameters for some reason: https://github.com/sinatra/sinatra/issues/453

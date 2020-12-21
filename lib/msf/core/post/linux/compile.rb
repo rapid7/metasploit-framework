@@ -1,4 +1,8 @@
 # -*- coding: binary -*-
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+require 'msf/core/post/unix'
+
 module Msf
 class Post
 module Linux

@@ -14,6 +14,7 @@
 # such as exploitation, into easier to manage functions.
 
 # framework-base depends on framework-core
+require 'msf/core'
 
 # Configuration
 require 'msf/base/config'

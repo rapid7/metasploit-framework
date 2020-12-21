@@ -1,5 +1,8 @@
 # -*- coding => binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/pingback'
+
 #
 # This module provides datastore option definitions and helper methods for payload modules that support UUIDs
 #

@@ -1,3 +1,4 @@
+require 'msf/core/rpc'
 
 module Msf::RPC::JSON
   module DispatcherHelper

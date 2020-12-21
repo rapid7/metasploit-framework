@@ -1,3 +1,4 @@
+require 'msf/core/opt'
 
 RSpec.describe Msf::Opt do
   subject(:opt) { described_class }

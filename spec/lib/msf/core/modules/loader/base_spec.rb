@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
+require 'msf/core'
 
 RSpec.describe Msf::Modules::Loader::Base do
   include_context 'Msf::Modules::Loader::Base'

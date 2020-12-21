@@ -1,6 +1,9 @@
 
 # -*- coding: binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/uuid/options'
+
 module Msf
 
 ###

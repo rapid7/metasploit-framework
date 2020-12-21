@@ -1,4 +1,5 @@
 require 'rex'
+require 'msf/core/module/reference'
 require 'msf/util/document_generator'
 require 'msf/util/document_generator/pull_request_finder'
 

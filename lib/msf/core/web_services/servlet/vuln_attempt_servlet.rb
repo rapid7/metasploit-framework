@@ -1,17 +1,17 @@
-module Msf::WebServices::VulnAttemptServlet
+module VulnAttemptServlet
 
   def self.api_path
     '/api/v1/vuln-attempts'
   end
 
   def self.api_path_with_id
-    "#{self.api_path}/?:id?"
+    "#{VulnAttemptServlet.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get self.api_path, &get_vuln_attempt
-    app.get self.api_path_with_id, &get_vuln_attempt
-    app.post self.api_path, &report_vuln_attempt
+    app.get VulnAttemptServlet.api_path, &get_vuln_attempt
+    app.get VulnAttemptServlet.api_path_with_id, &get_vuln_attempt
+    app.post VulnAttemptServlet.api_path, &report_vuln_attempt
   end
 
   #######

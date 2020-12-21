@@ -1,11 +1,11 @@
-module Msf::WebServices::DbImportServlet
+module DbImportServlet
 
   def self.api_path
     '/api/v1/db-import'
   end
 
   def self.registered(app)
-    app.post self.api_path, &db_import
+    app.post DbImportServlet.api_path, &db_import
   end
 
   #######

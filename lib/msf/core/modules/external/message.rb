@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/modules/external'
 require 'base64'
 require 'json'
 require 'securerandom'

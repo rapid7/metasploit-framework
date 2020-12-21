@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/hwbridge'
+require 'msf/core/auxiliary/report'
 require 'rex/parser/arguments'
 
 module Rex

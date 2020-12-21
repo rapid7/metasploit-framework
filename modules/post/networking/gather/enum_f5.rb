@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/auxiliary/f5'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::F5

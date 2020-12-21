@@ -1,3 +1,4 @@
+#
 # Use bundler to load dependencies
 #
 
@@ -16,4 +17,3 @@ require config.join('boot')
 unless defined?(Rails) && !Rails.application.nil?
   require config.join('environment')
 end
-require 'msf_autoload'

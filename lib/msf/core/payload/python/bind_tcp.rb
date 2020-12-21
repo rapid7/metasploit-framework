@@ -1,5 +1,8 @@
 # -*- coding: binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/python/send_uuid'
+
 module Msf
 
 ###

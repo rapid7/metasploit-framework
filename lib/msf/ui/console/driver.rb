@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
 require 'msf/ui/console/framework_event_manager'

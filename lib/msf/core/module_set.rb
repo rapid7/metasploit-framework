@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core'
 require 'pathname'
 
 #

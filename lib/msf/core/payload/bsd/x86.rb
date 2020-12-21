@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core'
 
 ###
 # Contains common x86 BSD code

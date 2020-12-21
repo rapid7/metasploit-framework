@@ -219,5 +219,4 @@ Gem::Specification.new do |spec|
   # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
   spec.add_runtime_dependency 'faraday'
 
-  spec.add_runtime_dependency 'zeitwerk'
 end

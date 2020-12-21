@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+require 'msf/core/exploit/powershell'
+require 'msf/core/post/common'
+
 module Msf
   class Post
     module Windows

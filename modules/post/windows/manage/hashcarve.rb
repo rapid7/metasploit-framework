@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
     include Msf::Auxiliary::Report
@@ -151,7 +152,7 @@ class MetasploitModule < Msf::Post
     end
 
     def encode_utf16(str)
-        str.to_s.encode(::Encoding::UTF_16LE).force_encoding(::Encoding::ASCII_8BIT)
+        str.to_s.encode(Encoding::UTF_16LE).force_encoding(Encoding::ASCII_8BIT)
     end
 
     def encrypt_user_hash(rid, hbootkey, hash, pass)

@@ -34,6 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =end
 
+require 'msf/core/payload/windows/exec'
+
 
 module MetasploitModule
 

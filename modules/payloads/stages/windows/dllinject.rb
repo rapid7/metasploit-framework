@@ -5,6 +5,7 @@
 
 # Copyright (c) 2008 Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 
+require 'msf/core/payload/windows/reflectivedllinject'
 
 ###
 #

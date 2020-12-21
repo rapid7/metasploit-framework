@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
+require 'msf/core/auxiliary/drdos'
 
 RSpec.describe Msf::Auxiliary::DRDoS do
   subject do

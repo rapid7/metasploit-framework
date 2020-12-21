@@ -1,6 +1,6 @@
 require 'json'
 
-module Msf::WebServices::Authentication
+module Authentication
   module Strategies
     class UserPassword < Warden::Strategies::Base
 

@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/auxiliary/vyos'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::VYOS
 

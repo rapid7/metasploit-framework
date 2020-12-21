@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/post/windows/priv'
 require 'set'
 
 class MetasploitModule < Msf::Post

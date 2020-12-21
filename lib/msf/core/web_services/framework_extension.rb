@@ -45,13 +45,13 @@ module Msf::WebServices
           }
           framework = Msf::Simple::Framework.create(init_framework_opts)
 
-          if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
+      if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
             framework_db_connect_http_data_service(framework: framework,
-                                                   data_service_url: app.settings.data_service_url,
-                                                   api_token: app.settings.data_service_api_token,
-                                                   cert: app.settings.data_service_cert,
-                                                   skip_verify: app.settings.data_service_skip_verify)
-          end
+                                               data_service_url: app.settings.data_service_url,
+                                               api_token: app.settings.data_service_api_token,
+                                               cert: app.settings.data_service_cert,
+                                               skip_verify: app.settings.data_service_skip_verify)
+      end
 
           framework
         end

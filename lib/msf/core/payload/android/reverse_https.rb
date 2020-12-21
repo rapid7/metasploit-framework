@@ -1,5 +1,8 @@
 # -*- coding: binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/android/reverse_http'
+
 module Msf
 
 ###

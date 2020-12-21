@@ -3,7 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/handler/find_tty'
 require 'msf/base/sessions/command_shell'
+
 
 module MetasploitModule
 

@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+require 'msf/core'
+require 'msf/core/payload/bsd/x86'
+
 ###
 #
 # This class is here to implement advanced features for bsd-based

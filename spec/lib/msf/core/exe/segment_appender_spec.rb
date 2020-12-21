@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'msf/core/exe/segment_appender'
 
 RSpec.describe Msf::Exe::SegmentAppender do
 

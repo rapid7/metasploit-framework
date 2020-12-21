@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
+require 'msf/core/post/linux/busy_box'
 
 RSpec.describe Msf::Post::Linux::BusyBox do
   subject do

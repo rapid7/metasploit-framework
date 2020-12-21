@@ -1,5 +1,8 @@
 # -*- coding: binary -*-
 
+require 'msf/core/exploit/powershell'
+require 'msf/core/exploit/exe'
+
 module Msf::Post::Windows::Runas
 
   include Msf::Post::File

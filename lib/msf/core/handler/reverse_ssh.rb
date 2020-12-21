@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/proto/ssh'
+require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/ssh_command_shell'
 
 module Msf

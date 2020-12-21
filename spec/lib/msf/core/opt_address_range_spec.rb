@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
+require 'msf/core/option_container'
 
 RSpec.describe Msf::OptAddressRange do
   # Normalized values are just the original value for OptAddressRange

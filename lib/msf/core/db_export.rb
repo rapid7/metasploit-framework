@@ -6,7 +6,8 @@ module Msf
 # This class provides export capabilities
 #
 ##
-class DBExport
+class DBManager
+class Export
 
   attr_accessor :workspace
 
@@ -192,7 +193,7 @@ class DBExport
     if value
       unless skip_encoding
         data = marshalize(value)
-        data.force_encoding(::Encoding::BINARY) if data.respond_to?('force_encoding')
+        data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
         data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0] }
         el << REXML::Text.new(data)
       else
@@ -544,5 +545,6 @@ class DBExport
     extract_web_info(report_file, "web_vuln", @web_vulns)
   end
 
+end
 end
 end

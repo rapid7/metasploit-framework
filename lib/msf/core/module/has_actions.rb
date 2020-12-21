@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/module/auxiliary_action'
 
 module Msf::Module::HasActions
   def initialize(info={})

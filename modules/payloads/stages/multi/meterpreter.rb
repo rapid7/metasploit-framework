@@ -43,15 +43,20 @@ module MetasploitModule
 
     case opts[:uuid].platform
     when 'python'
-c.include(::Msf::Payload::Python::MeterpreterLoader)
+      require 'msf/core/payload/python/meterpreter_loader'
+      c.include(::Msf::Payload::Python::MeterpreterLoader)
     when 'java'
-c.include(::Msf::Payload::Java::MeterpreterLoader)
+        require 'msf/core/payload/java/meterpreter_loader'
+        c.include(::Msf::Payload::Java::MeterpreterLoader)
     when 'android'
-c.include(::Msf::Payload::Android::MeterpreterLoader)
+      require 'msf/core/payload/android/meterpreter_loader'
+      c.include(::Msf::Payload::Android::MeterpreterLoader)
     when 'php'
-c.include(::Msf::Payload::Php::MeterpreterLoader)
+      require 'msf/core/payload/php/meterpreter_loader'
+      c.include(::Msf::Payload::Php::MeterpreterLoader)
     when 'windows'
-if opts[:uuid].arch == ARCH_X86
+      require 'msf/core/payload/windows/meterpreter_loader'
+      if opts[:uuid].arch == ARCH_X86
         c.include(::Msf::Payload::Windows::MeterpreterLoader)
       else
         c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)

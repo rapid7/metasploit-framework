@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'msf/core/auxiliary/mdns'
 
 module Msf
   # This module provides methods for working with LLMNR

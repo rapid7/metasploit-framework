@@ -5,6 +5,7 @@ require 'msgpack'
 require 'rex'
 require 'rex/proto/http'
 
+require 'msf/core/rpc/v10/constants'
 
 module Msf
 module RPC

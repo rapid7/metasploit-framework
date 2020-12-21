@@ -1,3 +1,7 @@
+require 'msf/core/rpc'
+require 'msf/core/rpc/json/v1_0/rpc_command'
+require 'msf/core/rpc/json/v2_0/rpc_test'
+
 module Msf::RPC::JSON
   class RpcCommandFactory
     # Create an RpcCommand for the provided version.

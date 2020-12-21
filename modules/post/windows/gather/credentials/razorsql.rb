@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/auxiliary/report'
 require 'openssl'
 
 class MetasploitModule < Msf::Post

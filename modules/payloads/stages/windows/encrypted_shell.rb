@@ -5,6 +5,7 @@
 
 require 'msf/base/sessions/encrypted_shell'
 require 'msf/base/sessions/command_shell_options'
+require 'msf/core/payload/windows/encrypted_payload_opts'
 
 module MetasploitModule
 

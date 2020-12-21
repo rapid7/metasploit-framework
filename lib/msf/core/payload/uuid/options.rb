@@ -1,5 +1,7 @@
 # -*- coding => binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/uuid'
 require 'rex/payloads/meterpreter/uri_checksum'
 
 #

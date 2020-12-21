@@ -2,7 +2,9 @@
 #
 # Project
 #
-require 'msf/core/constants'
+require 'msf/core/modules/loader'
+require 'msf/core/modules/error'
+
 # Responsible for loading modules for {Msf::ModuleManager}.
 #
 # @abstract Subclass and override {#each_module_reference_name}, {#loadable?}, {#module_path}, and

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core/opt_condition'
 
 module Msf
 module Serializer

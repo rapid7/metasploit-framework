@@ -3,6 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/handler/reverse_named_pipe'
+require 'msf/core/payload/windows/reverse_named_pipe'
+
 module MetasploitModule
 
   CachedSize = 289

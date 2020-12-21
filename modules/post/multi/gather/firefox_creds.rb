@@ -16,6 +16,7 @@ require 'zip'
 #
 # Project
 #
+require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File

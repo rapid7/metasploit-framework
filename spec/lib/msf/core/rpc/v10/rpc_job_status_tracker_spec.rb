@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+require 'msf/core/rpc/v10/rpc_job_status_tracker'
 
 RSpec.describe Msf::RPC::RpcJobStatusTracker do
   context 'With default options' do

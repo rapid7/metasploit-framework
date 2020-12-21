@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core/modules/metadata'
 
 #
 # Provides search operations on the module metadata cache.

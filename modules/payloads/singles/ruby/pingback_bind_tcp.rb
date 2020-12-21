@@ -1,4 +1,8 @@
+require 'msf/core/handler/bind_tcp'
+require 'msf/core/payload/ruby'
+
 require 'msf/base/sessions/pingback'
+require 'msf/core/payload/pingback'
 
 module MetasploitModule
 

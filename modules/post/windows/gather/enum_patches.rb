@@ -3,6 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/post/common'
+require 'msf/core/post/windows/extapi'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::ExtAPI

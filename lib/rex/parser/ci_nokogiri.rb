@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
+require 'msf/core'
 
 module Rex
   module Parser

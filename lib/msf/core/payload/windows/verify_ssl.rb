@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'msf/core'
 require 'rex/socket/x509_certificate'
 
 module Msf

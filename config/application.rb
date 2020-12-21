@@ -29,6 +29,7 @@ require 'action_view/railtie'
 
 require 'metasploit/framework/common_engine'
 require 'metasploit/framework/database'
+
 module Metasploit
   module Framework
     class Application < Rails::Application
@@ -51,4 +52,3 @@ end
 
 # Silence warnings about this defaulting to true
 I18n.enforce_available_locales = true
-require 'msfenv'

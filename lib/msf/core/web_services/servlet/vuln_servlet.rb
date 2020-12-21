@@ -1,4 +1,4 @@
-module Msf::WebServices::VulnServlet
+module VulnServlet
 
   JSON_INCLUDES = [:host, :refs, :module_refs]
 
@@ -7,15 +7,15 @@ module Msf::WebServices::VulnServlet
   end
 
   def self.api_path_with_id
-    "#{self.api_path}/?:id?"
+    "#{VulnServlet.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get self.api_path, &get_vuln
-    app.get self.api_path_with_id, &get_vuln
-    app.post self.api_path, &report_vuln
-    app.put self.api_path_with_id, &update_vuln
-    app.delete self.api_path, &delete_vuln
+    app.get VulnServlet.api_path, &get_vuln
+    app.get VulnServlet.api_path_with_id, &get_vuln
+    app.post VulnServlet.api_path, &report_vuln
+    app.put VulnServlet.api_path_with_id, &update_vuln
+    app.delete VulnServlet.api_path, &delete_vuln
   end
 
   #######

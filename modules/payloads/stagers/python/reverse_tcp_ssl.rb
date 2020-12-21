@@ -3,6 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/handler/reverse_tcp_ssl'
+require 'msf/core/payload/python/reverse_tcp_ssl'
+
 module MetasploitModule
 
   CachedSize = 517

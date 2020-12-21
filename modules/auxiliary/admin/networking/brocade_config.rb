@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'msf/core/auxiliary/brocade'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Brocade

@@ -3,6 +3,7 @@
 require 'json'
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
+require 'msf/core/db_export'
 require 'msf/ui/console/command_dispatcher/db/analyze'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'

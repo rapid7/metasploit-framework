@@ -16,8 +16,7 @@ end
 def require_deps
   require 'pathname'
   require Pathname.new(__FILE__).realpath.expand_path.parent.parent.parent.join('config', 'boot')
-  require 'msfenv'
-  # require 'msf/core/web_services/http_db_manager_service'
+  require 'msf/core/web_services/http_db_manager_service'
 end
 
 def parse_args(args)
@@ -75,7 +74,7 @@ begin
   opts = parse_args(ARGV)
   raise SwitchError.new("certificate file must be specified when using -s") if opts[:ssl] && (opts[:ssl_cert].nil?)
   require_deps
-  Msf::WebServices::HttpDBManagerService.new.start(:Port => opts[:port],
+  HttpDBManagerService.new.start(:Port => opts[:port],
                                  :Host => opts[:interface],
                                  :ssl => opts[:ssl],
                                  :ssl_cert => opts[:ssl_cert],

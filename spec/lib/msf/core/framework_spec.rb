@@ -1,6 +1,7 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
+require 'msf/core/framework'
 
 RSpec.describe Msf::Framework do
   context '#initialize' do

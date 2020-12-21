@@ -1,5 +1,9 @@
 # -*- coding: binary -*-
 
+require 'msf/core'
+require 'msf/core/payload/python'
+require 'msf/core/payload/uuid'
+
 module Msf
 
 ###
