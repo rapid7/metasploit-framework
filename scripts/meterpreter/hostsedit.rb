@@ -85,7 +85,7 @@ if client.platform == 'windows'
     when "-l"
       checkuac(session)
       if not ::File.exist?(val)
-        raise "File #{val} does not exists!"
+        raise "File #{val} does not exist!"
       else
         backuphosts(session,hosts)
         ::File.open(val, "r").each_line do |line|

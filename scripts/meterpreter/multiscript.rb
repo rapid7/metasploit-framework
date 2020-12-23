@@ -58,7 +58,7 @@ end
   when "-r"
     script = val
     if not ::File.exist?(script)
-      raise "Script List File does not exists!"
+      raise "Script List File does not exist!"
     else
       ::File.open(script, "rb").each_line do |line|
         commands << line

@@ -82,7 +82,7 @@ end
   when "-r"
     script = val
     if not ::File.exist?(script)
-      raise "Command List File does not exists!"
+      raise "Command List File does not exist!"
     else
       ::File.open(script, "r").each_line do |line|
         commands << line.chomp

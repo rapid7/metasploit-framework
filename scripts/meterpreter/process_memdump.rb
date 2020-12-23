@@ -53,7 +53,7 @@ end
     list = val
     resource = ""
     if not ::File.exist?(list)
-      raise "Command List File does not exists!"
+      raise "Command List File does not exist!"
     else
       ::File.open(list, "r").each_line do |line|
         resource << line
