@@ -30,8 +30,6 @@ Either a specific username to verify or a file with one username per line to ver
 ## Scenarios
 If an RDWeb login page is discovered, you can use this module to gather valid usernames for a brute force attack.
 
-### Version and OS
-
 Specific target output replaced with Ys so as not to disclose information
 ```msf6 > use auxiliary/scanner/http/rdp_web_login
 msf6 auxiliary(scanner/http/rdp_web_login) > set username /home/kali/users.txt
@@ -47,3 +45,6 @@ msf6 auxiliary(scanner/http/rdp_web_login) > run
 [-] Username YYYYYYYYYYYY\k0pak4 is invalid! No response received in 1250 milliseconds
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed```
+
+## Version and OS
+Tested against Microsoft IIS 10.0 and RDWeb 2019
