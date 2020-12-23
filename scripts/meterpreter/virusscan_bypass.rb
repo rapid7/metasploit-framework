@@ -37,7 +37,7 @@ end
 
 def upload(session,file,trgloc)
   if not ::File.exist?(file)
-    raise "File to Upload does not exists!"
+    raise "File to Upload does not exist!"
   else
     @location = session.sys.config.getenv('TEMP')
     begin

@@ -370,7 +370,7 @@ class CommandShell
 
     # Check if src exists
     if !file_exists(src)
-      print_error("The target file does not exists")
+      print_error("The target file does not exist")
       return
     end
 
