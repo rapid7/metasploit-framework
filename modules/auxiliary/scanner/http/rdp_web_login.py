@@ -32,7 +32,6 @@ metadata = {
     'options': {
         'targeturi': {'type': 'string', 'description': 'The base path to the RDP Web Client install',
                       'required': True, 'default': '/RDWeb/Pages/en-US/login.aspx'},
-        'rhost': {'type': 'address', 'description': 'Host to target', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': 443},
         'domain': {'type': 'string', 'description': 'The target AD domain', 'required': False, 'default': None},
         'username': {'type': 'string', 'description': 'The username to verify or path to a file of usernames',
@@ -121,10 +120,10 @@ def run(args):
 
     # Check the provided username or file of usernames
     if os.path.isfile(args['username']):
-        check_usernames(args['rhost'], args['rport'], args['targeturi'],
+        check_usernames(args['RHOSTS'], args['rport'], args['targeturi'],
                    domain, args['username'], int(args['timeout']))
     else:
-        check_username(args['rhost'], args['rport'], args['targeturi'],
+        check_username(args['RHOSTS'], args['rport'], args['targeturi'],
                        domain, args['username'], int(args['timeout']))
 
 
