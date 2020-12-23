@@ -1,6 +1,9 @@
 ## Vulnerable Application
 
-The Microsoft RD Web login is vulnerable to the same type of authentication username enumeration vulnerability that is present for OWA (see owa scanner modules). By analyzing the time it takes for a failed response, the RDWeb interface can be used to quickly test the validity of a set of usernames. Additionally, this module can attempt to discover the target NTLM domain if you don't already know it.
+The Microsoft RD Web login is vulnerable to the same type of authentication username enumeration vulnerability
+that is present for OWA. By analyzing the time it takes for a failed response,
+the RDWeb interface can be used to quickly test the validity of a set of usernames. Additionally,
+this module can attempt to discover the target NTLM domain if you don't already know it.
 
 ## Verification Steps
 
