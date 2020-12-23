@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     cli = Rex::Proto::Http::Client.new('api.shodan.io', 443, {}, true)
     cli.connect
     req = cli.request_cgi({
-      'uri' => "/shodan/host/#{rhost}?key=#{key}&minify=true",
+      'uri' => "/shodan/host/#{rhost}?key=#{key}",
       'method' => 'GET'
     })
     res = cli.send_recv(req)
@@ -60,10 +60,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Shodan did not respond in an expected way. Check your api key')
     end
     json = res.get_json_document
-    if !json.nil? && !json['ports'].nil? && !json['ports'].empty?
-      json['ports'].each do |post|
-        print_good("#{rhost}:#{post}")
-        report_service(host: rhost, port: post, name: 'shodan')
+    if !json.nil? && !json['data'].nil? && !json['data'].empty?
+      json['data'].each do |post|
+        print_good("#{rhost}:#{post['port']}:#{post['_shodan']['module']}")
+        report_service(host: rhost,post: ['port'],name: post['_shodan']['module'])
       end
     else
       print_error("Shodan did not return any open ports for #{rhost}!")
