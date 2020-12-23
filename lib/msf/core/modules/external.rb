@@ -47,5 +47,6 @@ class Msf::Modules::External
     exec method: :describe do |msg|
       return msg.params if msg.method == :reply
     end
+    return nil
   end
 end

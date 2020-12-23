@@ -52,7 +52,12 @@ class MetasploitModule < Msf::Auxiliary
         fd.close
       end
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      case e.get_error(e.error_code)
+      error_name = e.get_error(e.error_code)
+    rescue ::RubySMB::Error::UnexpectedStatusCode => e
+      error_name = e.status_code.name
+    end
+    if error_name
+      case error_name
       when "STATUS_FILE_IS_A_DIRECTORY"
         print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{path}")
       when "STATUS_OBJECT_NAME_NOT_FOUND"
@@ -66,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       when "STATUS_INSUFF_SERVER_RESOURCES"
         vprint_error("Host rejected with insufficient resources!")
       when "STATUS_OBJECT_NAME_INVALID"
-        vprint_error("opeining \\#{path} bad filename")
+        vprint_error("opening \\#{path} bad filename")
       else
         raise e
       end

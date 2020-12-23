@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/services'
 
 module Msf
 module Scripts

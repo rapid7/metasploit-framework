@@ -105,7 +105,7 @@ module ModuleCommandDispatcher
         if exception.kind_of?(::Interrupt)
           raise exception
         else
-          elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+          elog('Error encountered with first Thread', error: exception)
         end
       end
 
@@ -126,7 +126,8 @@ module ModuleCommandDispatcher
       return
     end
 
-    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
+    ip_range_arg = args.join(' ') unless args.empty?
+    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
     begin
@@ -221,6 +222,7 @@ module ModuleCommandDispatcher
       rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
+    peer_msg = peer ? "#{peer} - " : ''
 
     begin
       if instance.respond_to?(:check_simple)
@@ -233,37 +235,37 @@ module ModuleCommandDispatcher
         raise NotImplementedError, msg
       end
 
-      if (code and code.kind_of?(Array) and code.length > 1)
+      if (code && code.kind_of?(Msf::Exploit::CheckCode))
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} #{code[1]}")
+          print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
           instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
-          print_status("#{peer} #{code[1]}")
+          print_status("#{peer_msg}#{code[1]}")
         end
       else
-        msg = "#{peer} Check failed: The state could not be determined."
+        msg = "#{peer_msg}Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Msf::Exploit::Failed => e
       # Handle fail_with and other designated exploit failures
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::NotImplementedError => e
       print_error(e.message)
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     end
   end
 

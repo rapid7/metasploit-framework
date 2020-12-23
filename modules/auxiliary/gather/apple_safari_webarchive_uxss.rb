@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/format/webarchive'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
@@ -29,10 +28,10 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'joev',
       'References'     =>
         [
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2013/04/25/abusing-safaris-webarchive-file-format']
+          ['URL', 'https://blog.rapid7.com/2013/04/25/abusing-safaris-webarchive-file-format']
         ],
-      'DisclosureDate' => 'Feb 22 2013',
-      'Actions'        => [ [ 'WebServer' ] ],
+      'DisclosureDate' => '2013-02-22',
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer'))
   end

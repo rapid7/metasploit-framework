@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -24,7 +23,7 @@ class MetasploitModule < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        => [
         'Joe Giron',                           # Discovery and PoC (@theonlyevil1)
-        'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
+        'bcoles', # Metasploit
         'sinn3r'                               # shell session support
       ],
       'References'    =>
@@ -55,7 +54,7 @@ class MetasploitModule < Msf::Post
     begin
       port = JSON.parse(data)['BoundPort']
     rescue JSON::ParserError => e
-      elog("#{e.class} - Unable to parse BoundPort (#{e.message}) #{e.backtrace * "\n"}")
+      elog('Unable to parse BoundPort', error: e)
       return nil
     end
 

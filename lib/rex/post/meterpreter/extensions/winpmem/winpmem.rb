@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/winpmem/tlv'
+require 'rex/post/meterpreter/extensions/winpmem/command_ids'
 
 module Rex
 module Post
@@ -20,6 +21,10 @@ class Winpmem < Extension
   WINPMEM_ERROR_FAILED_METERPRETER_CHANNEL = 4
   WINPMEM_ERROR_UNKNOWN = 255
 
+  def self.extension_id
+    EXTENSION_ID_WINPMEM
+  end
+
   def initialize(client)
     super(client, 'winpmem')
 
@@ -33,7 +38,7 @@ class Winpmem < Extension
   end
 
   def dump_ram
-    request = Packet.create_request('dump_ram')
+    request = Packet.create_request(COMMAND_ID_WINPMEM_DUMP_RAM)
     response = client.send_request(request)
     response_code = response.get_tlv_value(TLV_TYPE_WINPMEM_ERROR_CODE)
 
@@ -42,11 +47,11 @@ class Winpmem < Extension
     memory_size = response.get_tlv_value(TLV_TYPE_WINPMEM_MEMORY_SIZE)
     channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
 
-    raise Exception, "We did not get a channel back!" if channel_id.nil?
+    raise Exception, 'We did not get a channel back!' if channel_id.nil?
 
     # Open the compressed Channel
-    channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "winpmem",
-      CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS)
+    channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, 'winpmem',
+      CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS, response)
     return memory_size, response_code, channel
   end
 end

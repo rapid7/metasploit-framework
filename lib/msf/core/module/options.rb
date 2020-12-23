@@ -29,8 +29,12 @@ module Msf::Module::Options
   #
   def deregister_options(*names)
     names.each { |name|
-      self.options.remove_option(name)
+      real_name = self.datastore.find_key_case(name)
       self.datastore.delete(name)
+      self.options.remove_option(name)
+      if real_name != name
+        self.options.remove_option(real_name)
+      end
     }
   end
 
@@ -41,7 +45,6 @@ module Msf::Module::Options
   #
   def register_advanced_options(options, owner = self.class)
     self.options.add_advanced_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
     import_defaults(false)
   end
 
@@ -50,7 +53,6 @@ module Msf::Module::Options
   #
   def register_evasion_options(options, owner = self.class)
     self.options.add_evasion_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
     import_defaults(false)
   end
 
@@ -59,7 +61,6 @@ module Msf::Module::Options
   #
   def register_options(options, owner = self.class)
     self.options.add_options(options, owner)
-    self.datastore.import_options(self.options, 'self', true)
     import_defaults(false)
   end
 end

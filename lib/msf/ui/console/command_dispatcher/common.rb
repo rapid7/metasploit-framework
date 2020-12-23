@@ -2,7 +2,6 @@
 
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
-require 'msf/core/db_export'
 
 module Msf
 module Ui
@@ -106,7 +105,7 @@ module Common
 
     # If it's an exploit and a payload is defined, create it and
     # display the payload's options
-    if (mod.exploit? and mod.datastore['PAYLOAD'])
+    if ((mod.exploit? or mod.evasion? ) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
       if (!p)
@@ -119,7 +118,7 @@ module Common
       if (p)
         p_opt = Serializer::ReadableText.dump_options(p, '   ')
         print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
-        print("   **DisablePayloadHandler: True   (RHOST and RPORT settings will be ignored!)**\n\n") if mod.datastore['DisablePayloadHandler']
+        print("   **DisablePayloadHandler: True   (no handler will be created!)**\n\n") if mod.datastore['DisablePayloadHandler'].to_s == 'true'
       end
     end
 
@@ -127,6 +126,9 @@ module Common
     if (mod.exploit? and mod.target)
       mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
       print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
+    elsif mod.evasion? and mod.target
+      mod_targ = Serializer::ReadableText.dump_evasion_target(mod, '   ')
+      print("\nEvasion target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
     end
 
     # Print the selected action
@@ -139,6 +141,59 @@ module Common
     #print("\nTarget: #{mod.target.name}\n\n")
   end
 
+  # This is for the "use" and "set" commands
+  def index_from_list(list, index, &block)
+    return unless list.kind_of?(Array) && index
+
+    begin
+      idx = Integer(index)
+    rescue ArgumentError
+      return
+    end
+
+    # Don't support negative indices
+    return if idx < 0
+
+    yield list[idx]
+  end
+
+  # Trims starting `.`, `./` `/`, `+path_head+/`, & `/+path_head+/` from +path+. Also trims trailing `.+extension+`
+  # from +path+, and any possible combination of misspellings of +extension+.
+  #
+  # @param path [String] The path to be trimmed
+  # @param path_head [String] The top-level directory that should be removed from the path
+  # @param extensions [Array] File extensions to be trimmed from +path+. `.` is automatically included. Defaults to ['rb', 'py', 'go'].
+  # @return [String] Altered +path+. Will return unaltered +path+ if regex constructed with +path_head+ & +path+ is not detected
+  def trim_path(path, path_head, extensions: ['rb', 'py', 'go'])
+    #Builds capture groups for all supported file extensions
+    regex_extension = ''
+    extensions.each do |ext|
+      regex_extension << "([#{ext}])+|"
+    end
+    regex_extension.delete_suffix!('|')
+
+    regexp = %r{
+        (
+          ^\.?                      # Dot at beginning of path
+          /?                        # Slash at beginning of path
+          (#{path_head}/)?          # top level directory (slash prepending directory name is optional)
+        )
+
+        |                           # OR
+
+        (
+          \.(#{regex_extension})$   # any possible file extension at end of path
+        )
+
+        |                           # OR
+
+        (
+          \.$                       # trailing dot
+        )
+    }ix
+
+    path.gsub(regexp, '')
+  end
 
 end
 

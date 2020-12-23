@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa'],
           ['URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt']
         ],
-      'DisclosureDate' => 'Apr 09 2014',
+      'DisclosureDate' => '2014-04-09',
       'DefaultOptions' => { 'SSL' => true }
     ))
 

@@ -273,13 +273,13 @@ class Def_windows_ws2_32
     dll.add_function('WSALookupServiceBeginA', 'DWORD',[
       ["PBLOB","lpqsRestrictions","in"],
       ["DWORD","dwControlFlags","in"],
-      ["PDWORD","lphLookup","inout"],
+      ["PHANDLE","lphLookup","inout"],
       ])
 
     dll.add_function('WSALookupServiceBeginW', 'DWORD',[
       ["PBLOB","lpqsRestrictions","in"],
       ["DWORD","dwControlFlags","in"],
-      ["PDWORD","lphLookup","inout"],
+      ["PHANDLE","lphLookup","inout"],
       ])
 
     dll.add_function('WSALookupServiceEnd', 'DWORD',[
@@ -324,7 +324,7 @@ class Def_windows_ws2_32
       ])
 
     dll.add_function('WSAProviderConfigChange', 'DWORD',[
-      ["PDWORD","lpNotificationHandle","inout"],
+      ["PHANDLE","lpNotificationHandle","inout"],
       ["PBLOB","lpOverlapped","in"],
       ["PBLOB","lpCompletionRoutine","in"],
       ])
@@ -455,7 +455,7 @@ class Def_windows_ws2_32
 
     dll.add_function('WSAWaitForMultipleEvents', 'DWORD',[
       ["DWORD","cEvents","in"],
-      ["PDWORD","lphEvents","in"],
+      ["PHANDLE","lphEvents","in"],
       ["BOOL","fWaitAll","in"],
       ["DWORD","dwTimeout","in"],
       ["BOOL","fAlertable","in"],

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'EDB', '36563']
         ],
-      'DisclosureDate' => 'Mar 30 2015'))
+      'DisclosureDate' => '2015-03-30'))
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Joomla! instance', '/'])

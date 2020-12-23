@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
-require 'msf/core/post/windows/registry'
-
 module Msf::Post::Windows::Dotnet
   include ::Msf::Post::Common
   include ::Msf::Post::Windows::Registry
@@ -14,14 +11,14 @@ module Msf::Post::Windows::Dotnet
   # actual version, rather than the over-arching release
   # An alternative would be to query for it, and catch the exception.
   #
-  
+
   def search_for_version(dotnet_subkey)
     dotnet_version = nil
     begin
       subkeys = registry_enumvals(dotnet_subkey)
     rescue Rex::Post::Meterpreter::RequestError => e
       print_status("Encountered exception in search_for_version: #{e.class} #{e}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
     unless subkeys.nil?
       subkeys.each do |subkey|
@@ -44,7 +41,7 @@ module Msf::Post::Windows::Dotnet
       subkeys = registry_enumkeys(dotnet_vkey)
     rescue Rex::Post::Meterpreter::RequestError => e
       print_status("Encountered exception in get_versionception: #{e.class} #{e}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
     unless subkeys.nil?
       subkeys.each do |subkey|
@@ -57,7 +54,7 @@ module Msf::Post::Windows::Dotnet
     end
     return exact_version
   end
-  
+
   #
   # 'Public' function that returns a list of all .NET versions on
   # a windows host
@@ -69,14 +66,14 @@ module Msf::Post::Windows::Dotnet
       dotnet_keys = registry_enumkeys(key)
     rescue Rex::Post::Meterpreter::RequestError => e
       print_status("Encountered exception in get_dotnet_version: #{e.class} #{e}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
     unless dotnet_keys.nil?
       dotnet_keys.each do |temp_key|
         if temp_key[0] == 'v'
           key = 'HKLM\\SOFTWARE\\Microsoft\NET Framework Setup\\NDP\\' + temp_key
           dotnet_version = get_versionception(key)
-          unless dotnet_version.nil? 
+          unless dotnet_version.nil?
             ret_val << dotnet_version
           end
         end

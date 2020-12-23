@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Carlos Avila', # Vulnerability discovery
           'h00die' # Metasploit module
         ],
-      'DisclosureDate' => 'Jul 11 2018',
+      'DisclosureDate' => '2018-07-11',
       'License'     => MSF_LICENSE
     ))
 

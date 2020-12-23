@@ -10,7 +10,7 @@ module EventApiDoc
   SEEN_DESC = 'true if a user has acknowledged the event.'
   USERNAME_DESC = 'Name of the user that triggered the event.'
   INFO_DESC = 'Information about the event specific to the event name.'
-  INFO_EXAMPLE = '{:command=>"irb"}'
+  INFO_EXAMPLE = {command: 'irb'}
 
 # Swagger documentation for Event model
   swagger_schema :Event do
@@ -27,6 +27,69 @@ module EventApiDoc
   end
 
   swagger_path '/api/v1/events' do
+    # Swagger documentation for /api/v1/events GET
+    operation :get do
+      key :description, 'Return events that are stored in the database.'
+      key :tags, [ 'event' ]
+
+      parameter :workspace
+
+      parameter do
+        key :name, :limit
+        key :in, :query
+        key :description, RootApiDoc::LIMIT_DESC
+        key :example, RootApiDoc::LIMIT_DEFAULT
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :offset
+        key :in, :query
+        key :description, RootApiDoc::OFFSET_DESC
+        key :example, RootApiDoc::OFFSET_DEFAULT
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :order
+        key :in, :query
+        key :description, RootApiDoc::ORDER_DESC
+        key :type, :string
+        key :required, false
+        key :enum, RootApiDoc::ORDER_ENUM
+      end
+
+      response 200 do
+        key :description, 'Returns event data.'
+        schema do
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Event
+            end
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+    end
+
     # Swagger documentation for /api/v1/events POST
     operation :post do
       key :description, 'Create an event.'
@@ -49,6 +112,46 @@ module EventApiDoc
 
       response 200 do
         key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        schema do
+          property :data do
+            key :'$ref', :Event
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+    end
+  end
+
+  swagger_path '/api/v1/events/{id}' do
+    # Swagger documentation for /api/v1/events/:id GET
+    operation :get do
+      key :description, 'Return a specific event that is stored in the database.'
+      key :tags, [ 'event' ]
+
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of event to retrieve.'
+        key :required, true
+        key :type, :integer
+        key :format, :int32
+      end
+
+      response 200 do
+        key :description, 'Returns event data.'
         schema do
           property :data do
             key :'$ref', :Event

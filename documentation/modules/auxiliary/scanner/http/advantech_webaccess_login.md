@@ -1,8 +1,6 @@
-## Description
+## Vulnerable Application
 
 This module allows you to authenticate to Advantech WebAccess.
-
-## Vulnerable Application
 
 This module was specifically tested on versions 8.0, 8.1, and 8.2:
 
@@ -23,7 +21,6 @@ Note:
 By default, Advantech WebAccess comes with a built-in account named ```admin```, with a blank
 password.
 
-
 ## Verification Steps
 
 1. Make sure Advantech WebAccess is up and running
@@ -34,6 +31,6 @@ password.
 6. ```run```
 7. You should see that the module is attempting to log in.
 
-## Demo
+## Scenarios
 
 ![webaccess_login_demo](https://cloud.githubusercontent.com/assets/1170914/22352301/26549236-e3e1-11e6-9710-506166a8bee3.gif)

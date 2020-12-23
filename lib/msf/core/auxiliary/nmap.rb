@@ -224,7 +224,7 @@ def nmap_validate_arg(str)
   end
   # Check for commas outside of quoted arguments
   quoted_22 = /\x22[^\x22]*\x22/n
-  requoted_str = str.gsub(/'/,"\"")
+  requoted_str = str.tr('\'','"')
   if requoted_str.split(quoted_22).join[/,/]
     print_error "Malformed nmap arguments (unquoted comma): #{str}"
     return false
@@ -244,7 +244,7 @@ def nmap_hosts(&block)
   if Rex::Parser.nokogiri_loaded && framework.db.active
     wspace = framework.db.find_workspace(datastore['WORKSPACE'])
     wspace ||= framework.db.workspace
-    import_args = { :data => nmap_data, :wspace => wspace }
+    import_args = { :data => nmap_data, :workspace => wspace }
     framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }
   else
     nmap_parser = Rex::Parser::NmapXMLStreamParser.new

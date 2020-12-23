@@ -21,9 +21,9 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
           [ 'CVE', '2004-1550' ],
           [ 'OSVDB', '10232' ],
-          [ 'URL', 'http://seclists.org/bugtraq/2004/Sep/0339.html'],
+          [ 'URL', 'https://seclists.org/bugtraq/2004/Sep/0339.html'],
       ],
-      'DisclosureDate' => 'Sep 24 2004'))
+      'DisclosureDate' => '2004-09-24'))
 
     register_options([
       Opt::RPORT(80)

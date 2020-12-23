@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2010-2426' ],
           [ 'OSVDB', '65533'],
-          [ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
+          [ 'URL', 'https://seclists.org/bugtraq/2010/Jun/160' ]
         ],
       'DisclosureDate' => 'Jun 15 2010'
     )
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(21),
         OptString.new('TRAVERSAL', [ true, "String to traverse to the drive's root directory", "..\\..\\" ]),
-        OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'windows\\win.ini'])
+        OptString.new('PATH', [ true, "Path to the file to disclose, relative to the root dir.", 'windows\\win.ini'])
       ])
   end
 

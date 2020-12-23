@@ -35,16 +35,16 @@ class MetasploitModule < Msf::Auxiliary
 
       },
       'Author'         => [ 'joev' ],
-      'DisclosureDate' => 'Apr 08 2015',
+      'DisclosureDate' => '2015-04-08',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'WebServer' ] ],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
       'References' => [
         [ 'CVE', '2015-0964' ], # XSS vulnerability
         [ 'CVE', '2015-0965' ], # CSRF vulnerability
         [ 'CVE', '2015-0966' ], # "techician/yZgO8Bvj" web interface backdoor
-        [ 'URL', 'https://community.rapid7.com/community/infosec/blog/2015/06/05/r7-2015-01-csrf-backdoor-and-persistent-xss-on-arris-motorola-cable-modems' ],
+        [ 'URL', 'https://blog.rapid7.com/2015/06/05/r7-2015-01-csrf-backdoor-and-persistent-xss-on-arris-motorola-cable-modems' ],
       ]
     ))
 

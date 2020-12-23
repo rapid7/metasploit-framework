@@ -31,9 +31,9 @@ Windows and Linux.
           [
             [ 'CVE', '2016-6601'],
             [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
-            [ 'URL', 'http://seclists.org/fulldisclosure/2016/Aug/54' ]
+            [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
           ],
-        'DisclosureDate' => 'Jul 4 2016'
+        'DisclosureDate' => '2016-07-04'
       )
     )
     register_options(

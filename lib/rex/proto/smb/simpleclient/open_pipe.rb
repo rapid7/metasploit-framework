@@ -33,9 +33,13 @@ class OpenPipe < OpenFile
   end
 
   def write(data, offset = 0)
+
     case self.mode
 
     when 'trans'
+      if self.client.is_a?(RubySMB::Client)
+        raise NotImplementedError, '\'trans\' mode is not supported by RubySMB'
+      end
       write_trans(data, offset)
     when 'rw'
       super(data, offset)
@@ -78,7 +82,7 @@ class OpenPipe < OpenFile
   end
 
   def peek
-    if versions.include?(2)
+    if self.client.is_a?(RubySMB::Client)
       avail = peek_ruby_smb
     else
       avail = peek_rex_smb

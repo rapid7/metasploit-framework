@@ -86,7 +86,7 @@ module Rex
         report_fingerprint(host_object)
         # Reset the state once we close a host
         @state.delete_if {|k| k.to_s !~ /^(current_tag|in_nodes)$/}
-        @report_data = {:wspace => @args[:wspace]}
+        @report_data = {:workspace => @args[:workspace]}
       when "name"
         collect_hostname
         @state[:has_text] = false
@@ -186,7 +186,7 @@ module Rex
       return unless @report_data[:vuln]
       return unless @report_data[:vuln][:matches].kind_of? Array
 
-      ::ActiveRecord::Base.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection {
 
       refs = normalize_references(@report_data[:vuln][:refs])
       refs << "NEXPOSE-#{report_data[:vuln]["id"]}"
@@ -368,7 +368,7 @@ module Rex
       return unless @state[:test]
 
       vuln_info = {
-        :workspace => @args[:wspace],
+        :workspace => @args[:workspace],
         # This name will be overwritten during the vuln definition
         # parsing via mass-update.
         :name => "NEXPOSE-" + @state[:test][:id].downcase,
@@ -426,7 +426,7 @@ module Rex
       # that may have been renamed (re-import nexpose vulns)
       vuln_info[:details_match] = vkey
 
-      ::ActiveRecord::Base.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection {
 
       # Report the vulnerability
       vuln = db.report_vuln(vuln_info)
@@ -655,7 +655,7 @@ module Rex
         db.emit(:address,@report_data[:host],&block) if block
         device_id   = @report_data[:nx_device_id]
 
-        host_object = db_report(:host, @report_data.merge(:workspace => @args[:wspace] ) )
+        host_object = db_report(:host, @report_data.merge(:workspace => @args[:workspace] ) )
         if host_object
           db.report_import_note(host_object.workspace, host_object)
           if device_id

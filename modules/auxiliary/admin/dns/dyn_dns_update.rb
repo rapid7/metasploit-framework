@@ -26,9 +26,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License'        => MSF_LICENSE,
         'Actions'        => [
-          ['UPDATE',  {'Description' => 'Add or update a record. (default)'}],
-          ['ADD',     {'Description' => 'Add a new record. Fail if it already exists.'}],
-          ['DELETE',  {'Description' => 'Delete an existing record.'}]
+          ['UPDATE', 'Description' => 'Add or update a record. (default)'],
+          ['ADD',    'Description' => 'Add a new record. Fail if it already exists.'],
+          ['DELETE', 'Description' => 'Delete an existing record.']
         ],
         'DefaultAction' => 'UPDATE'
     )
@@ -43,7 +43,6 @@ class MetasploitModule < Msf::Auxiliary
       OptAddress.new('CHOST', [false, 'The source address to use for queries and updates'])
     ])
 
-    deregister_options('RPORT')
   end
 
   def record_action(type, type_enum, value, action)
@@ -65,8 +64,11 @@ class MetasploitModule < Msf::Auxiliary
       when action == :resolve
         begin
           answer = resolver.query(fqdn, type)
-          print_good "Found existing #{type} record for #{fqdn}"
-          return true
+          if (answer.answer.count > 0) then
+            print_good "Found existing #{type} record for #{fqdn}"
+            return true
+          end
+          return false
         rescue Dnsruby::ResolvError, IOError => e
           print_good "Did not find an existing #{type} record for #{fqdn}"
           vprint_error "Query failed: #{e.message}"

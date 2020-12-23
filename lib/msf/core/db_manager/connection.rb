@@ -6,20 +6,22 @@ module Msf::DBManager::Connection
     usable && migrated && connection_established?
   end
 
-  # Finishes {#connect} after `ActiveRecord::Base.establish_connection` has succeeded by {#migrate migrating database}
+  # Finishes {#connect} after `ApplicationRecord.establish_connection` has succeeded by {#migrate migrating database}
   # and setting {#workspace}.
   #
   # @return [void]
-  def after_establish_connection
+  def after_establish_connection(opts={})
     self.migrated = false
 
     begin
       # Migrate the database, if needed
-      migrate
+      migrate(opts)
     rescue ::Exception => exception
       self.error = exception
-      elog("DB.connect threw an exception: #{exception}")
-      dlog("Call stack: #{exception.backtrace.join("\n")}", LEV_1)
+      elog('DB.connect threw an exception', error: exception)
+
+      # remove connection to prevent issues when re-establishing connection
+      ApplicationRecord.remove_connection
     else
       # Flag that migration has completed
       self.migrated = true
@@ -47,20 +49,19 @@ module Msf::DBManager::Connection
     begin
       self.migrated = false
 
-      # Check ActiveRecord::Base was already connected by Rails::Application.initialize! or some other API.
+      # Check ApplicationRecord was already connected by Rails::Application.initialize! or some other API.
       unless connection_established?
         create_db(nopts)
 
         # Configure the database adapter
-        ActiveRecord::Base.establish_connection(nopts)
+        ApplicationRecord.establish_connection(nopts)
       end
     rescue ::Exception => e
       self.error = e
-      elog("DB.connect threw an exception: #{e}")
-      dlog("Call stack: #{$@.join"\n"}", LEV_1)
+      elog('DB.connect threw an exception', error: e)
       return false
     ensure
-      after_establish_connection
+      after_establish_connection(nopts)
     end
 
     true
@@ -82,40 +83,40 @@ module Msf::DBManager::Connection
       when 'postgresql'
         # Try to force a connection to be made to the database, if it succeeds
         # then we know we don't need to create it :)
-        ActiveRecord::Base.establish_connection(opts)
+        ApplicationRecord.establish_connection(opts)
         # Do the checkout, checkin dance here to make sure this thread doesn't
         # hold on to a connection we don't need
-        conn = ActiveRecord::Base.connection_pool.checkout
-        ActiveRecord::Base.connection_pool.checkin(conn)
+        conn = ApplicationRecord.connection_pool.checkout
+        ApplicationRecord.connection_pool.checkin(conn)
       end
     rescue ::Exception => e
       errstr = e.to_s
       if errstr =~ /does not exist/i or errstr =~ /Unknown database/
         ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-        ActiveRecord::Base.establish_connection(
+        ApplicationRecord.establish_connection(
             opts.merge(
                 'database' => 'postgres',
                 'schema_search_path' => 'public'
             )
         )
 
-        ActiveRecord::Base.connection.create_database(opts['database'])
+        ApplicationRecord.connection.create_database(opts['database'])
       else
         ilog("Trying to continue despite failed database creation: #{e}")
       end
     end
-    ActiveRecord::Base.remove_connection
+    ApplicationRecord.remove_connection
   end
 
-  # Checks if the spec passed to `ActiveRecord::Base.establish_connection` can connect to the database.
+  # Checks if the spec passed to `ApplicationRecord.establish_connection` can connect to the database.
   #
   # @return [true] if an active connection can be made to the database using the current config.
   # @return [false] if an active connection cannot be made to the database.
   def connection_established?
     begin
       # use with_connection so the connection doesn't stay pinned to the thread.
-      ActiveRecord::Base.connection_pool.with_connection {
-        ActiveRecord::Base.connection.active?
+      ApplicationRecord.connection_pool.with_connection {
+        ApplicationRecord.connection.active?
       }
     rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
       false
@@ -127,12 +128,12 @@ module Msf::DBManager::Connection
   #
   def disconnect
     begin
-      ActiveRecord::Base.remove_connection
+      ApplicationRecord.remove_connection
       self.migrated = false
       self.modules_cached = false
     rescue ::Exception => e
       self.error = e
-      elog("DB.disconnect threw an exception: #{e}")
+      elog('DB.disconnect threw an exception:', error: e)
     end
   end
 end

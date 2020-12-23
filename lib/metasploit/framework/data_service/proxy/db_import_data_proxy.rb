@@ -1,21 +1,23 @@
 module DbImportDataProxy
   def import(opts, &block)
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.import(opts, &block)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.import(opts, &block)
+      end
     rescue Exception => e
-      self.log_error(e, "Problem generating DB Export")
+      self.log_error(e, "Problem generating DB Import")
     end
   end
 
   def import_file(opts, &block)
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.import_file(opts, &block)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.import_file(opts, &block)
+      end
     rescue Exception => e
-      self.log_error(e, "Problem generating DB Export")
+      self.log_error(e, "Problem generating DB Import")
     end
   end
 end

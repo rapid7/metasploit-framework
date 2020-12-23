@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Path Traversal in Oracle GlassFish Server Open Source Edition',
       'Description' => %q{
         This module exploits an unauthenticated directory traversal vulnerability
-        which exits in administration console of Oracle GlassFish Server 4.1, which is
+        which exists in administration console of Oracle GlassFish Server 4.1, which is
         listening by default on port 4848/TCP.
       },
       'References'  =>
@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Trustwave SpiderLabs', # Vulnerability discovery
           'Dhiraj Mishra' # Metasploit module
         ],
-      'DisclosureDate' => 'Aug 08 2015',
+      'DisclosureDate' => '2015-08-08',
       'License'     => MSF_LICENSE
     ))
 

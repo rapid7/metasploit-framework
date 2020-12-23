@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/core/payload_generator'
 
 RSpec.describe Msf::PayloadGenerator do
   include_context 'Msf::Simple::Framework#modules loading'
@@ -85,7 +84,7 @@ RSpec.describe Msf::PayloadGenerator do
 
 
   context 'when creating a new generator' do
-    subject(:new_payload_generator) { -> { described_class.new(generator_opts) } }
+    subject(:new_payload_generator) { described_class.new(generator_opts) }
 
     context 'when not given a framework instance' do
       let(:generator_opts) {
@@ -107,7 +106,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(KeyError, 'key not found: :framework') }
+      it { expect { new_payload_generator }.to raise_error(KeyError, 'key not found: :framework') }
     end
 
     context 'when not given a payload' do
@@ -131,7 +130,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { expect { new_payload_generator }.to raise_error(ArgumentError, "invalid payload: ") }
     end
 
     context 'when given an invalid payload' do
@@ -155,7 +154,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(ArgumentError, "Invalid Payload Selected") }
+      it { expect { new_payload_generator }.to raise_error(ArgumentError, "invalid payload: beos/meterpreter/reverse_gopher") }
     end
 
     context 'when given a payload through stdin' do
@@ -179,7 +178,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
 
     context 'when given an invalid format' do
@@ -203,7 +202,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.to raise_error(ArgumentError, "Invalid Format Selected") }
+      it { expect { new_payload_generator }.to raise_error(Msf::InvalidFormat, "invalid format: foobar") }
     end
 
     context 'when given any valid transform format' do
@@ -227,7 +226,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
 
     context 'when given any valid executable format' do
@@ -252,7 +251,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
       }
 
-      it { is_expected.not_to raise_error }
+      it { expect { new_payload_generator }.not_to raise_error }
     end
   end
 
@@ -832,17 +831,18 @@ RSpec.describe Msf::PayloadGenerator do
           template: File.join(Msf::Config.data_directory, 'templates', 'template_x86_windows.exe')
       }
     }
+    let(:shellcode) { "a test payload" }
     context 'when an encoder is selected' do
       it 'returns an array' do
-        expect(payload_generator.get_encoders).to be_kind_of Array
+        expect(payload_generator.get_encoders(shellcode)).to be_kind_of Array
       end
 
       it 'returns an array with only one element' do
-        expect(payload_generator.get_encoders.count).to eq 1
+        expect(payload_generator.get_encoders(shellcode).count).to eq 1
       end
 
       it 'returns the correct encoder in the array' do
-        expect(payload_generator.get_encoders.first.name).to eq encoder_names[0]
+        expect(payload_generator.get_encoders(shellcode).first.name).to eq encoder_names[0]
       end
     end
 
@@ -890,17 +890,17 @@ RSpec.describe Msf::PayloadGenerator do
       end
 
       it 'returns an array of the right size' do
-        expect(payload_generator.get_encoders.count).to eq 2
+        expect(payload_generator.get_encoders(shellcode).count).to eq 2
       end
 
       it 'returns each of the selected encoders in the array' do
-        payload_generator.get_encoders.each do |msf_encoder|
+        payload_generator.get_encoders(shellcode).each do |msf_encoder|
           expect(encoder_names).to include msf_encoder.name
         end
       end
 
       it 'returns the encoders in order of rank high to low' do
-        expect(payload_generator.get_encoders[0].rank).to be > payload_generator.get_encoders[1].rank
+        expect(payload_generator.get_encoders(shellcode)[0].rank).to be > payload_generator.get_encoders(shellcode)[1].rank
       end
     end
 
@@ -927,8 +927,14 @@ RSpec.describe Msf::PayloadGenerator do
       }
 
       it 'returns an array of all encoders with a compatible arch' do
-        payload_generator.get_encoders.each do |my_encoder|
+        payload_generator.get_encoders(shellcode).each do |my_encoder|
           expect(my_encoder.arch).to include 'x86'
+        end
+      end
+      context 'when badchars are specified but are not present in the payload' do
+        let(:shellcode) { "nobadchars" }
+        it 'returns an empty array' do
+          expect(payload_generator.get_encoders(shellcode)).to be_empty
         end
       end
     end
@@ -961,7 +967,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
       it 'returns an empty array' do
-        expect(payload_generator.get_encoders).to be_empty
+        expect(payload_generator.get_encoders(shellcode)).to be_empty
       end
     end
   end

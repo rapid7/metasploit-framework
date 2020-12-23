@@ -3,12 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/reverse_tcp_dns'
-
 module MetasploitModule
 
-  CachedSize = 308
+  CachedSize = 321
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcpDns

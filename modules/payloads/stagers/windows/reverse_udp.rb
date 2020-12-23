@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
-require 'msf/core/handler/reverse_udp'
-require 'msf/core/payload/windows/reverse_udp'
-
 module MetasploitModule
 
-  CachedSize = 299
+  CachedSize = 312
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseUdp
@@ -27,7 +24,7 @@ module MetasploitModule
       'Platform'    => 'win',
       'Arch'        => ARCH_X86,
       'Handler'     => Msf::Handler::ReverseUdp,
-      'Convention'  => 'sockedi',
+      'Convention'  => 'udpsockedi',
       'Stager'      => { 'RequiresMidstager' => false }
     ))
   end

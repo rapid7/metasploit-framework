@@ -34,8 +34,7 @@ metadata = {
     'date': '2018-03-19',
     'license': 'CORE_LICENSE',
     'references': [
-        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/wmiexec.py'},
-        {'type': 'aka', 'ref': 'wmiexec.py'},
+        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/wmiexec.py'}
      ],
     'type': 'single_scanner',
     'options': {
@@ -44,6 +43,9 @@ metadata = {
         'SMBDomain':  {'type': 'string', 'description': 'The Windows domain to use for authentication', 'required': False, 'default': '.'},
         'SMBPass':    {'type': 'string', 'description': 'The password for the specified username', 'required': True, 'default': None},
         'SMBUser':    {'type': 'string', 'description': 'The username to authenticate as', 'required': True, 'default': None},
+    },
+    'notes': {
+        'AKA': ['wmiexec.py']
     }
 }
 
@@ -88,19 +90,19 @@ class WMIEXEC:
         dcom = DCOMConnection(addr, self.__username, self.__password, self.__domain, self.__lmhash, self.__nthash,
                               self.__aesKey, oxidResolver=True, doKerberos=self.__doKerberos, kdcHost=self.__kdcHost)
         try:
-            iInterface = dcom.CoCreateInstanceEx(wmi.CLSID_WbemLevel1Login,wmi.IID_IWbemLevel1Login)
+            iInterface = dcom.CoCreateInstanceEx(wmi.CLSID_WbemLevel1Login, wmi.IID_IWbemLevel1Login)
             iWbemLevel1Login = wmi.IWbemLevel1Login(iInterface)
             iWbemServices= iWbemLevel1Login.NTLMLogin('//./root/cimv2', NULL, NULL)
             iWbemLevel1Login.RemRelease()
 
-            win32Process,_ = iWbemServices.GetObject('Win32_Process')
+            win32Process, _ = iWbemServices.GetObject('Win32_Process')
 
             self.shell = RemoteShell(self.__share, win32Process, smbConnection)
             if self.__command != ' ':
                 self.shell.onecmd(self.__command)
             else:
                 self.shell.cmdloop()
-        except (Exception, KeyboardInterrupt), e:
+        except (Exception, KeyboardInterrupt) as e:
             logging.error(str(e))
 
         if smbConnection is not None:

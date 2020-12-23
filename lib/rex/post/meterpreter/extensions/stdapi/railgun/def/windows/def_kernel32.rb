@@ -3756,7 +3756,7 @@ class Def_windows_kernel32
       ["PBLOB","lpBaseAddress","inout"],
       ["PBLOB","lpBuffer","inout"],
       ["DWORD","cbRead","in"],
-      ["PDWORD","lpNumberOfBytesRead","in"],
+      ["PSIZE_T","lpNumberOfBytesRead","in"],
       ])
 
     dll.add_function('CreateToolhelp32Snapshot', 'DWORD',[
@@ -3839,7 +3839,7 @@ class Def_windows_kernel32
       ["PBLOB","lpBaseAddress","inout"],
       ["PBLOB","lpBuffer","inout"],
       ["DWORD","cbRead","in"],
-      ["PDWORD","lpNumberOfBytesRead","in"],
+      ["PSIZE_T","lpNumberOfBytesRead","in"],
       ])
 
     return dll

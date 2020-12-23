@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/exploit/tcp'
-
 module Metasploit
   module Framework
     module AFP
@@ -86,7 +83,7 @@ module Metasploit
           when -5001 #kFPAuthContinue
             return parse_login_response_add_send_login_count(response, {:p => p, :g => g, :ra => ra, :ma => ma,
                                                                         :password => pass, :user => user})
-          when -5023 #kFPUserNotAuth (User dosen't exists)      
+          when -5023 #kFPUserNotAuth (User dosen't exists)
             return :skip_user
           else
             return :connection_error

@@ -12,7 +12,6 @@ module Msf::DBManager::Import::Nessus::XML
   #
   def import_nessus_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

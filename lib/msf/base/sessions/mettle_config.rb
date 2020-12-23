@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/uuid/options'
 require 'base64'
 require 'securerandom'
 
@@ -71,6 +69,14 @@ module Msf
           opts[:name] ||= ds['PayloadProcessCommandLine']
         end
 
+        if ds['RemoteMeterpreterDebugFile'] != ''
+          opts[:log_file] ||= ds['RemoteMeterpreterDebugFile']
+        end
+
+        log_level = ds['MeterpreterDebugLevel'].to_i
+        log_level = 0 if log_level < 0
+        log_level = 3 if log_level > 3
+        opts[:debug] = log_level
         opts[:uuid] ||= generate_payload_uuid
 
         case opts[:scheme]

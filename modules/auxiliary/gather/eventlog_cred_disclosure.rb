@@ -32,9 +32,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2014-6039' ],
           [ 'OSVDB', '114342' ],
           [ 'OSVDB', '114344' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/12' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
-      'DisclosureDate' => 'Nov 5 2014'))
+      'DisclosureDate' => '2014-11-05'))
 
     register_options(
       [

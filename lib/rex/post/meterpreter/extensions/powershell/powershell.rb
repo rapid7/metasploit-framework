@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/powershell/tlv'
+require 'rex/post/meterpreter/extensions/powershell/command_ids'
 
 module Rex
 module Post
@@ -17,6 +18,9 @@ module Powershell
 ###
 class Powershell < Extension
 
+  def self.extension_id
+    EXTENSION_ID_POWERSHELL
+  end
 
   def initialize(client)
     super(client, 'powershell')
@@ -45,7 +49,7 @@ class Powershell < Extension
       # TODO: perhaps do some kind of check to see if the DLL is a .NET assembly?
       binary = ::File.read(opts[:file])
 
-      request = Packet.create_request('powershell_assembly_load')
+      request = Packet.create_request(COMMAND_ID_POWERSHELL_ASSEMBLY_LOAD)
       request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY_SIZE, binary.length)
       request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY, binary)
       client.send_request(request)
@@ -55,10 +59,18 @@ class Powershell < Extension
     return false
   end
 
+  def session_remove(opts={})
+    return false unless opts[:session_id]
+    request = Packet.create_request(COMMAND_ID_POWERSHELL_SESSION_REMOVE)
+    request.add_tlv(TLV_TYPE_POWERSHELL_SESSIONID, opts[:session_id]) if opts[:session_id]
+    client.send_request(request)
+    return true
+  end
+
   def execute_string(opts={})
     return nil unless opts[:code]
 
-    request = Packet.create_request('powershell_execute')
+    request = Packet.create_request(COMMAND_ID_POWERSHELL_EXECUTE)
     request.add_tlv(TLV_TYPE_POWERSHELL_CODE, opts[:code])
     request.add_tlv(TLV_TYPE_POWERSHELL_SESSIONID, opts[:session_id]) if opts[:session_id]
 
@@ -67,7 +79,7 @@ class Powershell < Extension
   end
 
   def shell(opts={})
-    request = Packet.create_request('powershell_shell')
+    request = Packet.create_request(COMMAND_ID_POWERSHELL_SHELL)
     request.add_tlv(TLV_TYPE_POWERSHELL_SESSIONID, opts[:session_id]) if opts[:session_id]
 
     response = client.send_request(request)
@@ -75,7 +87,7 @@ class Powershell < Extension
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS)
+    Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS, response)
   end
 
 end

@@ -3,10 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/exec_x64'
-require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
-require 'msf/core/handler/reverse_tcp_ssl'
 
 ###
 #
@@ -15,7 +12,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 ###
 module MetasploitModule
 
-  CachedSize = 1794
+  CachedSize = 1829
 
   include Msf::Payload::Windows::Exec_x64
   include Msf::Payload::Windows::Powershell
@@ -44,7 +41,7 @@ module MetasploitModule
     # Register command execution options
     register_options(
       [
-        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
+        OptString.new('LOAD_MODULES', [ false, "A list of powershell modules separated by a comma to download over the web", nil ]),
       ])
     # Hide the CMD option...this is kinda ugly
     deregister_options('CMD')

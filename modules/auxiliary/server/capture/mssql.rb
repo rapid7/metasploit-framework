@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run MSSQL capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )
@@ -76,8 +76,6 @@ class MetasploitModule < Msf::Auxiliary
     # those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
     @previous_lm_hash="none"
     @previous_ntlm_hash="none"
-
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
 
     exploit()
   end

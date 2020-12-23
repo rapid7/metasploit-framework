@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
-require 'msf/core/option_container'
 
 RSpec.describe Msf::OptAddressRange do
   # Normalized values are just the original value for OptAddressRange
@@ -11,7 +10,8 @@ RSpec.describe Msf::OptAddressRange do
     { :value => "192.0.2.0,1-255", :normalized => "192.0.2.0,1-255" },
     { :value => "192.0.2.*",       :normalized => "192.0.2.*" },
     { :value => "192.0.2.0-192.0.2.255", :normalized => "192.0.2.0-192.0.2.255" },
-    { :value => "file:#{File.expand_path('short_address_list.txt',FILE_FIXTURES_PATH)}", :normalized => '192.168.1.1 192.168.1.2 192.168.1.3 192.168.1.4 192.168.1.5'}
+    { :value => "file:#{File.expand_path('short_address_list.txt',FILE_FIXTURES_PATH)}", :normalized => '192.168.1.1 192.168.1.2 192.168.1.3 192.168.1.4 192.168.1.5'},
+    { :value => "file://#{File.expand_path('short_address_list.txt',FILE_FIXTURES_PATH)}", :normalized => '192.168.1.1 192.168.1.2 192.168.1.3 192.168.1.4 192.168.1.5'}
   ]
   invalid_values = [
     # Too many dots

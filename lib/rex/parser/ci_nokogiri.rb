@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require "rex/parser/nokogiri_doc_mixin"
 
-require 'msf/core'
 
 module Rex
   module Parser
@@ -54,7 +53,7 @@ module Rex
           report_vulns(host_object)
         end
         # Reset the state once we close a host
-        @report_data = {:wspace => @args[:wspace]}
+        @report_data = {:workspace => @args[:workspace]}
         @state[:root] = {}
       when "property"
         if @state[:props]
@@ -112,7 +111,7 @@ module Rex
 
         db.emit(:address, @report_data[:host],&block) if block
         host_object = db_report(:host, @report_data.merge(
-          :workspace => @args[:wspace] ) )
+          :workspace => @args[:workspace] ) )
         if host_object
           db.report_import_note(host_object.workspace, host_object)
         end

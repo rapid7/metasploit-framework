@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Log In - Metasploit API</title>
+  <link rel="stylesheet" type="text/css" href="/msf-ws.css">
+</head>
+<body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script>
+    function ConvertFormToJSON(form){
+        var array = jQuery(form).serializeArray();
+        var json = {};
+
+        jQuery.each(array, function() {
+            json[this.name] = this.value || '';
+        });
+
+        return JSON.stringify(json);
+    }
+
+    $(document).ready(function(){
+        $("#submit").on('click', function(){
+            $.ajax({
+                url: '<%= AuthServlet.api_login_path %>',
+                type : "POST",
+                data : ConvertFormToJSON($("#login_form")),
+                contentType: "application/json; charset=utf-8",
+                processData: false,
+                success : function(data) {
+                    // TODO: This currently always redirects the user to the /auth/account page.
+                    // This is because the POST /login endpoint always returns a redirect, which
+                    // is not easily handled by Javascript AJAX requests. When the /login endpoint
+                    // is more fully fleshed out we should add proper handling for valid and
+                    // invalid login attempts.
+                    window.location.replace('<%= AuthServlet.api_account_path %>');
+                },
+                error: function(xhr, resp, text) {
+                    console.log(xhr, resp, text);
+                }
+            })
+        });
+    });
+
+</script>
+
+<div style="padding:20px;">
+  <form id="login_form" action="" method="post">
+    <div class="credential-container">
+      <h2>Log In - Metasploit API</h2>
+      <label for="username"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" required>
+
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+      <input id="submit" type="button" name="submit" value="submit">
+    </div>
+  </form>
+</div>
+
+</body>
+</html>

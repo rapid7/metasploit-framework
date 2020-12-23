@@ -31,7 +31,7 @@ Stack: 90909090990909090990909090
        ffffffff..................
 %clr
 
-%yelCode: 00 00 00 00 M3 T4 SP L0 1T FR 4M 3W OR K! V3 R5 I0 N4 00 00 00 00%clr
+%yelCode: 00 00 00 00 M3 T4 SP L0 1T FR 4M 3W OR K! V3 R5 I0 N5 00 00 00 00%clr
 Aiee, Killing Interrupt handler
 %redKernel panic: Attempted to kill the idle task!
 In swapper task - not syncing%clr

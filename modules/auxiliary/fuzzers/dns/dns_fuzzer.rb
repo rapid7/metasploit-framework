@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new("ITERATIONS", [true, "Number of iterations to run by test case", 5]),
       OptString.new('DOMAIN', [ false, "Force DNS zone domain name."]),
       OptString.new('IMPORTENUM', [ false, "Import dns_enum database output and automatically use existing RR."]),
-      OptEnum.new('METHOD', [false, 'Underlayer protocole to use', 'UDP', ['UDP', 'TCP', 'AUTO']]),
+      OptEnum.new('METHOD', [false, 'Underlayer protocol to use', 'UDP', ['UDP', 'TCP', 'AUTO']]),
       OptBool.new('DNSSEC', [ false, "Add DNSsec to each question (UDP payload size, EDNS0, ...)",false]),
       OptBool.new('TRAILINGNUL', [ false, "NUL byte terminate DNS names",true]),
       OptBool.new('RAWPADDING', [ false, "Generate totally random data from STARTSIZE to ENDSIZE",false]),

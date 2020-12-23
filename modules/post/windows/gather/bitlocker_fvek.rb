@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'         => 'Bitlocker Master Key (FVEK) Extraction',
       'Description'  => %q{
-        This module enumerates ways to decrypt bitlocker volume and if a recovery key is stored locally
+        This module enumerates ways to decrypt Bitlocker volume and if a recovery key is stored locally
         or can be generated, dump the Bitlocker master key (FVEK)
       },
       'License'      => 'MSF_LICENSE',
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
     end
 
     @handle = r['return']
-    print_good("Successfuly opened Disk #{drive_number}")
+    print_good("Successfully opened Disk #{drive_number}")
     seek(0)
 
     if !datastore['RECOVERY_KEY'].nil?
@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
         if !recovery_key.nil?
           recovery_key = recovery_key[1]
           id_key_tmp = id_key_tmp[1]
-          print_good("Recovery key generated successfuly : #{recovery_key}")
+          print_good("Recovery key generated successfully : #{recovery_key}")
         else
           print_error('Recovery Key generation failed')
           print_status('No recovery key can be used')

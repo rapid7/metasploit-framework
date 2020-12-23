@@ -21,11 +21,12 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(445),
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test'])
     ])
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def do_smb_login(pkt,opts={})
     @connected = false
-    connect
+    connect(versions: [1])
     simple.client.negotiate(false)
 
     @connected = true

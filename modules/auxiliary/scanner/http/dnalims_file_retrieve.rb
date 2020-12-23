@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'flakey_biscuit <nicholas@shorebreaksecurity.com>'  # Discovery, PoC
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 8 2017"
+      'DisclosureDate' => '2017-03-08'
     ))
 
     register_options(
@@ -37,10 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE', [ true,  "The path to the file to view", '/home/dna/spool/.pfile']), # password db for app
         OptInt.new('DEPTH', [true, 'The traversal depth', 4])
       ])
-
-    deregister_options('RHOST')
   end
-
 
   def run_host(ip)
     file     = (datastore['FILE'][0,1] == '/') ? datastore['FILE'] : "#{datastore['FILE']}"

@@ -23,14 +23,14 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Hooker',                    # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Hooker', # Disclosure
+          'rastating'     # Metasploit module
         ],
       'References'      =>
         [
           ['WPVDB', '7778']
         ],
-      'DisclosureDate'  => 'Feb 02 2015'
+      'DisclosureDate'  => '2015-02-02'
     ))
   end
 

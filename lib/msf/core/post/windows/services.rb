@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/registry'
 
 module Msf
 class Post
@@ -247,6 +246,29 @@ module Services
     service[:interactive] = nil
 
     return service
+  end
+
+  #
+  # Check if the specified Windows service exists.
+  #
+  # @param name [String] The target service's name (not to be confused
+  #   with Display Name). Case sensitive.
+  #
+  # @return [Boolean]
+  #
+  def service_exists?(service)
+    srv_info = service_info(service)
+
+    if srv_info.nil?
+      vprint_error('Unable to enumerate Windows services')
+      return false
+    end
+
+    if srv_info && srv_info[:display].empty?
+      return false
+    end
+
+    true
   end
 
   #

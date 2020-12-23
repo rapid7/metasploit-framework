@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/format/webarchive'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
@@ -30,12 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://support.apple.com/en-us/HT204826']
       ],
       'Platform'    => 'osx',
-      'Targets'     =>
-        [
-          [ 'Mac OS X', {} ]
-        ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Jan 16 2014'
+      'DisclosureDate' => '2014-01-16'
     ))
 
 

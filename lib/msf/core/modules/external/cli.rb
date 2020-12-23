@@ -104,7 +104,7 @@ module Msf::Modules::External::CLI
 
   def self.make_options(parser, out, args)
     args.each do |n, opt|
-      name = n.gsub '_', '-'
+      name = n.tr('_', '-')
       desc = if opt['default']
         "#{opt['description']}, (default: #{opt['default']})"
       else

@@ -39,10 +39,10 @@ class MetasploitModule < Msf::Auxiliary
       },
       'License'        => MSF_LICENSE,
       'Author'         => [ 'sinn3r' ],
-      'DisclosureDate' => "Jul 5 2015",
+      'DisclosureDate' => '2015-07-05',
       'References'     =>
         [
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2015/07/16/the-new-metasploit-browser-autopwn-strikes-faster-and-smarter--part-2' ]
+          [ 'URL', 'https://blog.rapid7.com/2015/07/16/the-new-metasploit-browser-autopwn-strikes-faster-and-smarter--part-2' ]
         ],
       'Actions'     =>
         [

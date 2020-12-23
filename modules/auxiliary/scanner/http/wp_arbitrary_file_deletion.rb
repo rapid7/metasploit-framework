@@ -32,9 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'Privileged'     => false,
       'Platform'       => 'php',
       'Arch'           => ARCH_PHP,
-      'Targets'        => [['WordPress <= 4.9.6', {}]],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Jun 26 2018'
+      'DisclosureDate' => '2018-06-26'
     ))
 
     register_options(

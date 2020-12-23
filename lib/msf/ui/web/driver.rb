@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/proto/http'
-require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
 

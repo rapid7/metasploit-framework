@@ -78,31 +78,44 @@ module Parser
     when 'port'
       if in_tag('result')
         @state[:has_text] = true
-        if @text && @text.index('(')
-          @state[:proto] = @text.split('(')[1].split('/')[1].gsub(/\)/, '')
-          @state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '')
-        elsif @text && @text.index('/')
-          @state[:proto] = @text.split('/')[1].strip
-          @state[:port] = @text.split('/')[0].strip
-        else
-          @state[:proto] = nil
-          @state[:port] = nil
-        end
+        if @text
+          if /^(?<p_num>\d{1,5})\/(?<p_proto>.+)\s\((?<p_name>.+)\)/ =~ @text
+            @state[:name] = p_name.gsub(/iana: /i, '')
+            @state[:port] = p_num
+            @state[:proto] = p_proto
+          elsif @text.index('(')
+            @state[:proto] = @text.split('(')[1].split('/')[1].gsub(/\)/, '')
+            @state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '')
+          elsif @text.index('/')
+            @state[:proto] = @text.split('/')[1].strip
+            @state[:port] = @text.split('/')[0].strip
+          else
+            @state[:proto] = nil
+            @state[:port] = nil
+          end
 
-        if @state[:port] && @state[:port] == 'general'
-          @state[:proto] = nil
-          @state[:port] = nil
+          if @state[:port] && @state[:port] == 'general'
+            @state[:proto] = nil
+            @state[:port] = nil
+          end
         end
       elsif in_tag('ports')
-        if @text && @text.index('(')
-          @state[:name] = @text.split(' ')[0]
-          @state[:port] = @text.split('(')[1].split('/')[0]
-          @state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
-          record_service unless @state[:name].nil?
-        elsif @text && @text.index('/')
-          @state[:port] = @text.split('/')[0]
-          @state[:proto] = @text.split('/')[1]
-          record_service unless @state[:port] == 'general'
+        if @text
+          if /^(?<p_num>\d{1,5})\/(?<p_proto>.+)\s\((?<p_name>.+)\)/ =~ @text
+            @state[:name] = p_name.gsub(/iana: /i, '')
+            @state[:port] = p_num
+            @state[:proto] = p_proto
+            record_service if p_num
+          elsif @text.index('(')
+            @state[:name] = @text.split(' ')[0]
+            @state[:port] = @text.split('(')[1].split('/')[0]
+            @state[:proto] = @text.split('(')[1].split('/')[1].split(')')[0]
+            record_service unless @state[:name].nil?
+          elsif @text.index('/')
+            @state[:port] = @text.split('/')[0].strip
+            @state[:proto] = @text.split('/')[1].strip
+            record_service unless @state[:port] == 'general'
+          end
         end
       end
     when 'name'
@@ -125,34 +138,27 @@ module Parser
       return
     end
 
+    references = []
     if @state[:cves] and @state[:cves] != "NOCVE" and !@state[:cves].empty?
       @state[:cves].split(',').each do |cve|
-        vuln_info = {}
-        vuln_info[:host] = @state[:host]
-        vuln_info[:refs] = normalize_references([{ :source => "CVE", :value => cve}])
-        vuln_info[:name] = @state[:vuln_name]
-        vuln_info[:info] = @state[:vuln_desc]
-        vuln_info[:port] = @state[:port]
-        vuln_info[:proto] = @state[:proto]
-        vuln_info[:workspace] = @args[:wspace]
-
-        db_report(:vuln, vuln_info)
+        references.append({ :source => "CVE", :value => cve})
       end
     end
     if @state[:bid] and @state[:bid] != "NOBID" and !@state[:bid].empty?
       @state[:bid].split(',').each do |bid|
-        vuln_info = {}
-        vuln_info[:host] = @state[:host]
-        vuln_info[:refs] = normalize_references([{ :source => "BID", :value => bid}])
-        vuln_info[:name] = @state[:vuln_name]
-        vuln_info[:info] = @state[:vuln_desc]
-        vuln_info[:port] = @state[:port]
-        vuln_info[:proto] = @state[:proto]
-        vuln_info[:workspace] = @args[:wspace]
-
-        db_report(:vuln, vuln_info)
+        references.append({ :source => "BID", :value => bid})
       end
     end
+
+    vuln_info = {}
+    vuln_info[:host] = @state[:host]
+    vuln_info[:refs] = normalize_references(references)
+    vuln_info[:name] = @state[:vuln_name]
+    vuln_info[:info] = @state[:vuln_desc]
+    vuln_info[:port] = @state[:port]
+    vuln_info[:proto] = @state[:proto]
+    vuln_info[:workspace] = @args[:workspace]
+    db_report(:vuln, vuln_info)
   end
 
   def record_service
@@ -161,13 +167,13 @@ module Parser
     service_info[:name] = @state[:name]
     service_info[:port] = @state[:port]
     service_info[:proto] = @state[:proto]
-    service_info[:workspace] = @args[:wspace]
+    service_info[:workspace] = @args[:workspace]
 
     db_report(:service, service_info)
 
     host_info = {}
     host_info[:host] = @state[:host]
-    host_info[:workspace] = @args[:wspace]
+    host_info[:workspace] = @args[:workspace]
 
     db_report(:host, host_info)
   end

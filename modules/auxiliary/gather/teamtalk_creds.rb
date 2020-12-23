@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         This module has been tested successfully on TeamTalk versions
         5.2.2.4885 and 5.2.3.4893.
       },
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'      => 'bcoles',
       'References'  =>
         [
           # Protocol documentation

@@ -29,8 +29,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :cmd_db_nmap }
   it { is_expected.to respond_to :cmd_db_notes }
   it { is_expected.to respond_to :cmd_db_notes_help }
-  it { is_expected.to respond_to :cmd_db_rebuild_cache }
-  it { is_expected.to respond_to :cmd_db_rebuild_cache_help }
   it { is_expected.to respond_to :cmd_db_services }
   it { is_expected.to respond_to :cmd_db_services_help }
   it { is_expected.to respond_to :cmd_db_status }
@@ -147,7 +145,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should show a help message" do
         db.cmd_loot "-h"
         expect(@output).to match_array [
-          "Usage: loot <options>",
+          "Usage: loot [options]",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
           "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",

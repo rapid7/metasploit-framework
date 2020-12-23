@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         and SNMP read and read/write community strings to be retrieved without
         authentication.
 
-        This module is the work of Patrick DeSantis of Cisco Talos K. Reid
+        This module is the work of Patrick DeSantis of Cisco Talos and K. Reid
         Wightman.
 
         Tested on: Moxa NPort 6250 firmware v1.13, MGate MB3170 firmware 2.5,
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/reidmefirst/MoxaPass/blob/master/moxa_getpass.py' ],
           [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-336-02']
         ],
-      'DisclosureDate' => 'Jul 28 2015'))
+      'DisclosureDate' => '2015-07-28'))
 
     register_options([
       # Moxa protocol listens on 4800/UDP by default

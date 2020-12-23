@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'msf/core'
 
 RSpec.describe Msf::Modules::Loader::Base do
   include_context 'Msf::Modules::Loader::Base'
@@ -103,7 +102,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
         let(:namespace_module_names) do
-          ['Msf', 'Modules', 'Mod617578696c696172792f72737065632f6d6f636b']
+          ['Msf', 'Modules', 'Auxiliary__Rspec__Mock']
         end
 
         let(:namespace_module) do
@@ -291,7 +290,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         end
 
         let(:relative_name) do
-          'Mod617578696c696172792f72737065632f6d6f636b'
+          'Auxiliary__Rspec__Mock'
         end
 
         before(:example) do
@@ -308,7 +307,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           # create an namespace module that can be restored
           module Msf
             module Modules
-              module Mod617578696c696172792f72737065632f6d6f636b
+              module Auxiliary__Rspec__Mock
                 class MetasploitModule < Msf::Auxiliary
 
                 end
@@ -316,7 +315,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
           end
 
-          @original_namespace_module = Msf::Modules::Mod617578696c696172792f72737065632f6d6f636b
+          @original_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
 
           module_set = double('Module Set')
           allow(module_set).to receive(:delete).with(module_reference_name)
@@ -357,7 +356,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           allow(module_manager).to receive(:on_module_load)
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
-          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/)
+          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/, error: an_instance_of(NoMethodError))
           expect(subject.load_module(parent_path, type, module_reference_name, :reload => true)).to be_falsey
         end
 
@@ -549,7 +548,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       let(:relative_name) do
-        'Mod0'
+        'Auxiliary__Rspec__Mock'
       end
 
       before(:example) do
@@ -640,7 +639,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       let(:relative_name) do
-        'Mod0'
+        'Auxiliary__Rspec__Mock'
       end
 
       before(:example) do
@@ -662,12 +661,12 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should return the module if it is defined' do
         module Msf
           module Modules
-            module Mod0
+            module Auxiliary__Rspec__Mock
             end
           end
         end
 
-        expect(subject.send(:current_module, module_names)).to eq Msf::Modules::Mod0
+        expect(subject.send(:current_module, module_names)).to eq Msf::Modules::Auxiliary__Rspec__Mock
       end
     end
 
@@ -735,18 +734,12 @@ RSpec.describe Msf::Modules::Loader::Base do
         expect(subject.send(:namespace_module_name, module_full_name)).to start_with('Msf::Modules::')
       end
 
-      it 'should prefix the relative name with Mod' do
-        namespace_module_name = subject.send(:namespace_module_name, module_full_name)
-        relative_name = namespace_module_name.gsub(/^.*::/, '')
-
-        expect(relative_name).to start_with('Mod')
-      end
-
       it 'should be reversible' do
         namespace_module_name = subject.send(:namespace_module_name, module_full_name)
-        unpacked_name = namespace_module_name.gsub(/^.*::Mod/, '')
+        relative_name = namespace_module_name.gsub(/^.*::/, '')
+        reversed_name = described_class.reverse_relative_name(relative_name)
 
-        expect([unpacked_name].pack('H*')).to eq module_full_name
+        expect(reversed_name).to eq module_full_name
       end
     end
 
@@ -755,18 +748,12 @@ RSpec.describe Msf::Modules::Loader::Base do
         expect(subject.send(:namespace_module_names, module_full_name)).to start_with(['Msf', 'Modules'])
       end
 
-      it 'should prefix the relative name with Mod' do
-        namespace_module_names = subject.send(:namespace_module_names, module_full_name)
-
-        expect(namespace_module_names.last).to start_with('Mod')
-      end
-
       it 'should be reversible' do
         namespace_module_names = subject.send(:namespace_module_names, module_full_name)
         relative_name = namespace_module_names.last
-        unpacked_name = relative_name.gsub(/^Mod/, '')
+        reversed_name = described_class.reverse_relative_name(relative_name)
 
-        expect([unpacked_name].pack('H*')).to eq module_full_name
+        expect(reversed_name).to eq module_full_name
       end
     end
 
@@ -774,14 +761,14 @@ RSpec.describe Msf::Modules::Loader::Base do
       include_context 'Metasploit::Framework::Spec::Constants cleaner'
 
       let(:relative_name) do
-        'Mod617578696c696172792f72737065632f6d6f636b'
+        'Auxiliary__Rspec__Mock'
       end
 
       context 'with pre-existing namespace module' do
         before(:example) do
           module Msf
             module Modules
-              module Mod617578696c696172792f72737065632f6d6f636b
+              module Auxiliary__Rspec__Mock
                 class Metasploit
 
                 end
@@ -789,7 +776,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
           end
 
-          @existent_namespace_module = Msf::Modules::Mod617578696c696172792f72737065632f6d6f636b
+          @existent_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
         end
 
         context 'with :reload => false' do
@@ -1027,7 +1014,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       end
 
       let(:relative_name) do
-        'Mod0'
+        'Auxiliary__Rspec__Mock'
       end
 
       it 'should do nothing if parent_module is nil' do
@@ -1076,7 +1063,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         before(:example) do
           module Msf
             module Modules
-              module Mod0
+              module Auxiliary__Rspec__Mock
                 class Metasploit
 
                 end
@@ -1084,7 +1071,7 @@ RSpec.describe Msf::Modules::Loader::Base do
             end
           end
 
-          @original_namespace_module = Msf::Modules::Mod0
+          @original_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
 
           Msf::Modules.send(:remove_const, relative_name)
         end
@@ -1093,7 +1080,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           before(:example) do
             module Msf
               module Modules
-                module Mod0
+                module Auxiliary__Rspec__Mock
                   class Metasploit2
 
                   end
@@ -1101,7 +1088,7 @@ RSpec.describe Msf::Modules::Loader::Base do
               end
             end
 
-            @current_namespace_module = Msf::Modules::Mod0
+            @current_namespace_module = Msf::Modules::Auxiliary__Rspec__Mock
           end
 
           context 'with the current constant being the namespace_module' do

@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           'juan vazquez' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Apr 08 2014"
+      'DisclosureDate' => '2014-04-08'
     ))
 
     register_options(
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         @plain_passwords[i].encode("ISO-8859-1").to_s
-      rescue Encoding::UndefinedConversionError
+      rescue ::Encoding::UndefinedConversionError
         chars = @plain_passwords[i].unpack("C*")
         @plain_passwords[i] = "0x#{chars.collect {|c| c.to_s(16)}.join(", 0x")}"
         @plain_passwords[i] << " (ISO-8859-1 hex chars)"

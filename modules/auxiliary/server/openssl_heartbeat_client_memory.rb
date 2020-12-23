@@ -24,18 +24,22 @@ class MetasploitModule < Msf::Auxiliary
           'hdm' # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'Actions'        => [['Capture']],
+      'Actions'        => [['Capture', 'Description' => 'Run server to disclose memory from incoming clients']],
       'PassiveActions' => ['Capture'],
       'DefaultAction'  => 'Capture',
       'References'     =>
         [
-          [ 'AKA', 'Heartbleed' ],
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
           [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
           [ 'URL', 'http://heartbleed.com/' ]
         ],
-      'DisclosureDate' => 'Apr 07 2014'
+      'DisclosureDate' => 'Apr 07 2014',
+      'Notes' =>
+          {
+              'AKA' => ['Heartbleed']
+          }
+
     )
 
     register_options(

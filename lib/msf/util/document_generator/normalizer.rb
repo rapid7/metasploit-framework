@@ -64,9 +64,10 @@ module Msf
         POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
         AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
         PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
+        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
-        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-CVE-is-not-available)|
 
 
         # Returns the module document in HTML form.
@@ -154,23 +155,6 @@ module Msf
         end
 
 
-        # Returns the markdown format for module datastore options.
-        #
-        # @param mod_options [Hash] Datastore options
-        # @return [String]
-        def normalize_options(mod_options)
-          required_options = []
-
-          mod_options.each_pair do |name, props|
-            if props.required && props.default.nil?
-              required_options << "* #{name} - #{props.desc}"
-            end
-          end
-
-          required_options * "\n"
-        end
-
-
         # Returns the markdown format for module description.
         #
         # @param description [String] Module description.
@@ -215,17 +199,19 @@ module Msf
 
           refs.each do |ref|
             case ref.ctx_id
-            when 'AKA'
-              normalized << "* *Also known as:* #{ref.ctx_val}"
             when 'MSB'
               normalized << "* [#{ref.ctx_val}](#{ref.site})"
             when 'URL'
               normalized << "* [#{ref.site}](#{ref.site})"
+            when 'OSVDB'
+              normalized << "* #{ref.site.to_s}"
             when 'US-CERT-VU'
               normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
             when 'CVE', 'cve'
               if !cve_collection.empty? && ref.ctx_val.blank?
                 normalized << "* #{NO_CVE_MESSAGE}"
+              else
+                normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
               end
             else
               normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
@@ -246,15 +232,6 @@ module Msf
           else
             platforms
           end
-        end
-
-
-        # Returns the markdown format for module rank.
-        #
-        # @param rank [String] Module rank.
-        # @return [String]
-        def normalize_rank(rank)
-          "[#{Msf::RankingName[rank].capitalize}](https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking)"
         end
 
 
@@ -309,6 +286,8 @@ module Msf
             load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Evasion)
+            load_demo_template(mod, EVASION_DEMO_TEMPLATE)
           else
             load_demo_template(mod, GENERIC_DEMO_TEMPLATE)
           end

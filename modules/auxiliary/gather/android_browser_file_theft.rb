@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -22,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # File redirect and msf module
       ],
       'License'     => MSF_LICENSE,
-      'Actions'     => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [

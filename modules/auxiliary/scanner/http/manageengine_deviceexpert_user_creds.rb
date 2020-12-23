@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         =>
         [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'Brendan Coles <bcoles[at]gmail.com>'  # metasploit module
+          'bcoles'  # metasploit module
         ],
       'References'     =>
         [
@@ -31,13 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '110522'],
           ['CVE', '2014-5377']
         ],
-      'DisclosureDate' => 'Aug 28 2014'))
+      'DisclosureDate' => '2014-08-28'))
     register_options(
       [
         Opt::RPORT(6060),
         OptBool.new('SSL', [true, 'Use SSL', true])
       ])
-    deregister_options('RHOST')
   end
 
   def check

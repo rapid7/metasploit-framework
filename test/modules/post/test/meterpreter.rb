@@ -1,5 +1,5 @@
 
-require 'msf/core'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
     if (stat and stat.directory?)
       tmp = "/tmp"
     else
-      tmp = session.fs.file.expand_path("%TEMP%")
+      tmp = session.sys.config.getenv('TEMP')
     end
     vprint_status("Setup: changing working directory to #{tmp}")
     session.fs.dir.chdir(tmp)
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
     vprint_status("Starting process tests")
     pid = nil
 
-    if session.commands.include? "stdapi_sys_process_getpid"
+    if session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_GETPID
       it "should return its own process id" do
         pid = session.sys.process.getpid
         vprint_status("Pid: #{pid}")
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
       ret = true
       list = session.sys.process.get_processes
       ret &&= (list && list.length > 0)
-      if session.commands.include? "stdapi_sys_process_getpid"
+      if session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_GETPID
         pid ||= session.sys.process.getpid
         process = list.find{ |p| p['pid'] == pid }
         vprint_status("PID info: #{process.inspect}")
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Post
   end
 
   def test_net_config
-    unless (session.commands.include? "stdapi_net_config_get_interfaces")
+    unless (session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
       vprint_status("This meterpreter does not implement get_interfaces, skipping tests")
       return
     end
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Post
       res
     end
 
-    if session.commands.include?("stdapi_net_config_get_routes")
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
       it "should return network routes" do
         routes = session.net.config.get_routes
 
@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Post
     else
       entropy_value = ""
     end
-    
+
     it "should return the proper directory separator" do
       sysinfo = session.sys.config.sysinfo
       if sysinfo["OS"] =~ /windows/i
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Post
     end
 
     it "should create and remove a dir" do
-      dir_name = "#{datastore["BaseFileName"]}-dir#{entropy_value}" 
+      dir_name = "#{datastore["BaseFileName"]}-dir#{entropy_value}"
       vprint_status("Directory Name: #{dir_name}")
       session.fs.dir.rmdir(dir_name) rescue nil
       res = create_directory(dir_name)

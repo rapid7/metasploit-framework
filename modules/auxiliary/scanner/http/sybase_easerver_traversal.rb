@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "May 25 2011"
+      'DisclosureDate' => '2011-05-25'
     ))
 
     register_options(
@@ -37,8 +37,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

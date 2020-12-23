@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 #
@@ -24,7 +23,7 @@ class Msf::Module::Reference
   end
 
   #
-  # Compares references to see if their equal.
+  # Compares references to see if they're equal.
   #
   def ==(tgt)
     return (tgt.to_s == to_s)
@@ -102,7 +101,9 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif in_ctx_id == 'BID'
       self.site = "http://www.securityfocus.com/bid/#{in_ctx_val}"
     elsif in_ctx_id == 'MSB'
-      self.site = "https://technet.microsoft.com/en-us/library/security/#{in_ctx_val}"
+      year = in_ctx_val[2..3]
+      century = year[0] == '9' ? '19' : '20'
+      self.site = "https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/#{century}#{year}/#{in_ctx_val}"
     elsif in_ctx_id == 'EDB'
       self.site = "https://www.exploit-db.com/exploits/#{in_ctx_val}"
     elsif in_ctx_id == 'US-CERT-VU'
@@ -115,8 +116,6 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
-    elsif in_ctx_id == 'AKA'
-      self.site = "Also known as: #{in_ctx_val}"
     elsif in_ctx_id == 'LOGO'
       self.site = "Logo: #{in_ctx_val}"
     elsif in_ctx_id == 'SOUNDTRACK'

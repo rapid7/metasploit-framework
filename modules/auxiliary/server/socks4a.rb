@@ -9,6 +9,9 @@ require 'rex/proto/proxy/socks4a'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2020, 12, 29), reason="Use auxiliary/server/socks_proxy and set VERSION to 4a")
+
   def initialize
     super(
       'Name'        => 'Socks4a Proxy Server',
@@ -17,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Proxy' ]
+          [ 'Proxy', 'Description' => 'Run SOCKS4a proxy' ]
         ],
       'PassiveActions' =>
         [

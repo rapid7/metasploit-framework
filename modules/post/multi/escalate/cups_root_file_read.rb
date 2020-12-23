@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
           "Jann Horn", # discovery
           "joev" # metasploit module
         ],
-      'DisclosureDate' => 'Nov 20 2012',
+      'DisclosureDate' => '2012-11-20',
       'Platform'       => %w{ linux osx }
     }))
     register_options([
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Post
   def get_request(uri)
     output = perform_request(uri, 'nc -j localhost 631')
 
-    if output =~ /^usage: nc/
+    if output =~ /^(?:usage: nc|nc: invalid option -- 'j')/
       output = perform_request(uri, 'nc localhost 631')
     end
 

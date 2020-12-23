@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '51182'],
           ['CVE', '2011-4862'],
           ['EDB', '18280'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
+          ['URL', 'https://blog.rapid7.com/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
         ]
     )
     register_options(
@@ -126,13 +126,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
       print_error("A network issue has occurred: #{e.message}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog('A network issue has occurred', error: e)
     rescue Timeout::Error => e
       print_error("#{target_host}:#{rport} Timed out after #{to} seconds")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("#{target_host}:#{rport} Timed out after #{to} seconds", error: e)
     rescue ::Exception => e
       print_error("#{target_host}:#{rport} Error: #{e} #{e.backtrace}")
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("#{target_host}:#{rport} Error: #{e} #{e.backtrace}", error: e)
     ensure
       disconnect
     end

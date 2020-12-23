@@ -3,14 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_http'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
 require 'msf/base/sessions/meterpreter_mipsle_linux'
 
 module MetasploitModule
 
-  CachedSize = 1291672
+  CachedSize = 1463172
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions

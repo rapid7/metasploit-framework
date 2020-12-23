@@ -27,8 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'Privileged'      => true,
       'Platform'        => ['php'],
       'Arch'            => ARCH_PHP,
-      'Targets'         => [[ 'Postfixadmin v2.91 - v3.0.1', {}]],
-      'DisclosureDate'  => 'Feb 03 2017',
+      'DisclosureDate'  => '2017-02-03',
     ))
 
     register_options(

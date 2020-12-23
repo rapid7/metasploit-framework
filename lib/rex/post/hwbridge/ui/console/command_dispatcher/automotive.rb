@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/post/hwbridge'
-require 'msf/core/auxiliary/report'
 
 module Rex
 module Post
@@ -49,7 +48,7 @@ class Console::CommandDispatcher::Automotive
   #
   def cmd_supported_buses
     buses = client.automotive.get_supported_buses
-    unless !buses.empty?
+    if buses.empty?
       print_line("none")
       return
     end
@@ -310,10 +309,9 @@ class Console::CommandDispatcher::Automotive
             client.automotive.cansend(bus, id, "023E00")
             sleep(2)
           end
-        rescue ::Exception
-          print_error("Error in TesterPResent: #{$!.class} #{$!}")
-          elog("Error in TesterPreset: #{$!.class} #{$!}")
-          dlog("Callstack: #{$@.join("\n")}")
+        rescue ::Exception => e
+          print_error('Error in TesterPresent')
+          elog('Error in TesterPreset', error: e)
         end
         self.tpjobs[myjid] = nil
         print_status("TesterPreset #{myjid} has stopped (#{::Thread.current[:args].inspect})")

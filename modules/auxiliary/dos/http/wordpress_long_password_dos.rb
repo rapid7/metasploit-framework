@@ -18,9 +18,9 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'Javier Nieto Arevalo',           # Vulnerability disclosure
-          'Andres Rojas Guerrero',          # Vulnerability disclosure
-          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+          'Javier Nieto Arevalo',  # Vulnerability disclosure
+          'Andres Rojas Guerrero', # Vulnerability disclosure
+          'rastating'              # Metasploit module
         ],
       'References'      =>
         [
@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '114857'],
           ['WPVDB', '7681']
         ],
-      'DisclosureDate'  => 'Nov 20 2014'
+      'DisclosureDate'  => '2014-11-20'
     ))
 
     register_options(

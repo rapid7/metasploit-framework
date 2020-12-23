@@ -31,17 +31,24 @@ attr_accessor :last_error, :server_max_buffer_size
 attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false, versions = [1])
+  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil)
     self.socket = socket
     self.direct = direct
     self.versions = versions
     self.shares = {}
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
 
-    if self.versions.include?(2)
+    if (self.versions == [1] && backend.nil?) || backend == :rex
+      self.client = Rex::Proto::SMB::Client.new(socket)
+    elsif (backend.nil? || backend == :ruby_smb)
       self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
                                         username: '',
-                                        password: '')#Rex::Proto::SMB::Client.new(socket)
+                                        password: '',
+                                        smb1: self.versions.include?(1),
+                                        smb2: self.versions.include?(2),
+                                        smb3: self.versions.include?(3),
+                                        always_encrypt: always_encrypt
+                    )
       self.client.evasion_opts = {
         # Padding is performed between packet headers and data
         'pad_data' => EVADE::EVASION_NONE,
@@ -50,8 +57,6 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
         # Modify the \PIPE\ string in trans_named_pipe calls
         'obscure_trans_pipe' => EVADE::EVASION_NONE,
       }
-    else
-      self.client = Rex::Proto::SMB::Client.new(socket)
     end
   end
 
@@ -74,8 +79,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       self.client.use_lanman_key =  use_lanman_key
       self.client.send_ntlm = send_ntlm
 
+      dlog("SMB version(s) to negotiate: #{self.versions}")
       ok = self.client.negotiate
-      if self.versions.include?(2)
+      dlog("Negotiated SMB version: SMB#{negotiated_smb_version}")
+
+      if self.client.is_a?(RubySMB::Client)
         self.server_max_buffer_size = self.client.server_max_buffer_size
       else
         self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
@@ -94,11 +102,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
       # always a string
       pass ||= ''
 
-      if self.versions.include?(2)
-        ok = self.client.session_setup(user, pass, domain, true)
-      else
-        ok = self.client.session_setup(user, pass, domain)
-      end
+      res = self.client.session_setup(user, pass, domain)
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -108,6 +112,15 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
         n.error_code   = e.error_code
         n.error_reason = e.get_error(e.error_code)
       end
+      raise n
+    end
+
+    # RubySMB does not raise any exception if the Session Setup fails
+    if self.client.is_a?(RubySMB::Client) && res != WindowsError::NTStatus::STATUS_SUCCESS
+      n = XCEPT::LoginError.new
+      n.source       = res
+      n.error_code   = res.value
+      n.error_reason = res.name
       raise n
     end
 
@@ -162,7 +175,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   def connect(share)
     ok = self.client.tree_connect(share)
 
-    if self.versions.include?(2)
+    if self.client.is_a?(RubySMB::Client)
       tree_id = ok.id
     else
       tree_id = ok['Payload']['SMB'].v['TreeID']
@@ -182,24 +195,25 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   end
 
   def open(path, perm, chunk_size = 48000, read: true, write: false)
-    if self.versions.include?(2)
+    if self.client.is_a?(RubySMB::Client)
       mode = 0
-      perm.each_byte { |c|
-        case [c].pack('C').downcase
-          when 'x', 'c'
-            mode |= RubySMB::Dispositions::FILE_CREATE
-          when 'o'
-            mode |= RubySMB::Dispositions::FILE_OPEN
-          when 's'
-            mode |= RubySMB::Dispositions::FILE_SUPERSEDE
+      if perm.include?('c')
+        if perm.include?('o')
+          mode = RubySMB::Dispositions::FILE_OPEN_IF
+        elsif perm.include?('t')
+          mode = RubySMB::Dispositions::FILE_OVERWRITE_IF
+        else
+          mode = RubySMB::Dispositions::FILE_CREATE
         end
-      }
-
-      if write
-        file_id = self.client.open(path, mode, read: true, write: true)
       else
-        file_id = self.client.open(path, mode, read: true)
+        if perm.include?('o')
+          mode = RubySMB::Dispositions::FILE_OPEN
+        elsif perm.include?('t')
+          mode = RubySMB::Dispositions::FILE_OVERWRITE
+        end
       end
+
+      file_id = self.client.open(path, mode, read: true, write: write || perm.include?('w'))
     else
       mode = UTILS.open_mode_to_mode(perm)
       access = UTILS.open_mode_to_access(perm)
@@ -214,18 +228,18 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   end
 
   def delete(*args)
-    if self.versions.include?(2)
+    if self.client.is_a?(RubySMB::Client)
       self.client.delete(args[0])
     else
       self.client.delete(*args)
     end
   end
 
-  def create_pipe(path, perm = 'c')
+  def create_pipe(path, perm = 'o')
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
 
-    if self.versions.include?(2)
+    if self.client.is_a?(RubySMB::Client)
       file_id = ok
     else
       file_id = ok['Payload'].v['FileID']
@@ -236,6 +250,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   def trans_pipe(fid, data, no_response = nil)
     client.trans_named_pipe(fid, data, no_response)
+  end
+
+  def negotiated_smb_version
+    return 1 if self.client.is_a?(Rex::Proto::SMB::Client)
+    self.client.negotiated_smb_version || -1
   end
 
 end

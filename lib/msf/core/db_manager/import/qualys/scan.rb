@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::Qualys::Scan
   def import_qualys_scan_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 
@@ -87,7 +87,6 @@ module Msf::DBManager::Import::Qualys::Scan
   #
   def import_qualys_scan_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|

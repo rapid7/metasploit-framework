@@ -7,7 +7,7 @@ module Handler
 
 ###
 #
-# This module implements the reverse TCP handler.  This means
+# This module implements the reverse UDP handler.  This means
 # that it listens on a port waiting for a connection until
 # either one is established or it is told to abort.
 #
@@ -21,7 +21,7 @@ module ReverseUdp
 
   #
   # Returns the string representation of the handler type, in this case
-  # 'reverse_tcp'.
+  # 'reverse_udp'.
   #
   def self.handler_type
     return "reverse_udp"
@@ -35,9 +35,33 @@ module ReverseUdp
     "reverse"
   end
 
+  # A string suitable for displaying to the user
   #
-  # Initializes the reverse TCP handler and ads the options that are required
-  # for all reverse TCP payloads, like local host and local port.
+  # @return [String]
+  def human_name
+    "reverse UDP"
+  end
+
+  # A URI describing what the payload is configured to use for transport
+  def payload_uri
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "udp://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  # A URI describing where we are listening
+  #
+  # @param addr [String] the address that
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri(addr = datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "udp://#{uri_host}:#{bind_port}"
+  end
+
+  #
+  # Initializes the reverse UDP handler and ads the options that are required
+  # for all reverse UDP payloads, like local host and local port.
   #
   def initialize(info = {})
     super
@@ -107,7 +131,7 @@ module ReverseUdp
           via = ""
         end
 
-        print_status("Started reverse handler on #{ip}:#{local_port} #{via}")
+        print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
         break
       rescue
         ex = $!
@@ -198,8 +222,8 @@ module ReverseUdp
           else
             handle_connection(client, opts)
           end
-        rescue ::Exception
-          elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
+        rescue ::Exception => e
+          elog('Exception raised from handle_connection', error: e)
         end
       end
     }

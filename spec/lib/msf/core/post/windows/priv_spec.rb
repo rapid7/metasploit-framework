@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/post/windows/priv'
 
 RSpec.describe Msf::Post::Windows::Priv do
 
@@ -70,6 +69,39 @@ RSpec.describe Msf::Post::Windows::Priv do
 
     it "should produce expected plaintext" do
       expect(subject.decrypt_secret_data(ciphertext, boot_key)).to eq plaintext
+    end
+
+    context 'with a large secret' do
+      let(:ciphertext) do
+        ['d3c5991ffd49b7b072f00f3f8f1cae9d64c9300938f80ef9c0d01e1e3ec126c2127c5b27fe'\
+         '2f2191a6da1b4bf0dd6aef3f04484df22babd994b18428069979de669b935b85c8d7cdb470'\
+         '4e998752aedfd8a34c34ef38b8cf38f9a436d309e4c9100c46c2661652635e8cbb68990f9f'\
+         'd878ae201f56979cd298b1fd0ebfe893f6f9a3e174ba3daf07e97967d5561ce3041815d523'\
+         '2889ae6a17a600b2660aea0371e0e5bd6495772acec7b3954652a0172f72a0e5c8e2d5899b'\
+         '12132ade0a2f5ac47c0ffd957d51769247673943200ac9652c2f68e7b71c4a5b338cd62462'\
+         'd6384a502b15cb5e02dbbbf53b18f3ddc2bb7317c65422b067f27073d2fbb6ae98c8d75d44'\
+         'dda34cd2b9e429fe58a75771c7fe8b9c73c3a88a1b00d80af28d644e8e1a760280b9a5cd71'\
+         '319c1bfbf5ad04e9869d17ec392b0f00e7fac04affbf0825080df833d533f75e126af7c073'\
+         '893ad1c3fe09af99b935b7ac8500b10f2c8383cfc30201aed4b721d71b080816739b42a0ae'\
+         '0a167caf6f67ac8500b10f2c8383cfc30201aed4b721'].pack('H*')
+      end
+      let(:lsa_key) { ['5cd51b7d70c1814f0b37ada38babcd06'].pack('H*') }
+      let(:plaintext) do
+        ['5253413248000000000200003f00000001000100e7bbffa5f31998062c6cbab92863d2b9cf'\
+         '0dd3a323d0dd2506ecf46febf44b517ba7475f8e470bfee47343c5eda72b039318ff76fede'\
+         '3b593d758f09d96d53c900000000000000007f0c0af6c84c675435170e3ba03122610ae55c'\
+         'd5f0d11dc19ca025af5680bef80000000099bcaf52b6aaa97bca0d1aa295011ce5bb372a8c'\
+         '31fd4adcf93758a8e6d432cf0000000097521ad69479c5cf129b8ee43c5b98f85a1b47b40e'\
+         'a06415026af9843067d18d00000000999201ae1bdbfd187d924430e9d8e7cbd306b65c49fd'\
+         '805609244ae33de2785c00000000a5139bbb9733b1a6395bdf4c233e0d653a9c0526d4007b'\
+         '4f54330b50ca41f861000000003160edfc16a22a6a0201f30f9a850db2272f6688bb849763'\
+         'cbc61ec39cf4566b77da7989000ff520a7a4bb94f88edf52a9d3b32f8edc5fd3ea238cacef'\
+         '60d21200000000000000000000000000000000000000000000000000000000000000000000'\
+         '00000000000000000000'].pack('H*')
+      end
+      it "should produce expected plaintext" do
+        expect(subject.decrypt_secret_data(ciphertext, lsa_key)).to eq plaintext
+      end
     end
   end
 

@@ -27,10 +27,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-2996'],
           ['CVE', '2015-2998'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8'],
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jun/8'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt']
         ],
-      'DisclosureDate' => 'Jun 3 2015'))
+      'DisclosureDate' => '2015-06-03'))
 
     register_options(
       [

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/netapi'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI

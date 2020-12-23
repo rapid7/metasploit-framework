@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/modules/loader'
-require 'msf/core/modules/loader/base'
-require 'msf/core/modules/external/shim'
-
 # Concerns loading executables from a directory as modules
 class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
   # Returns true if the path is a directory
@@ -93,7 +89,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
         return ''
       end
     rescue ::Exception => e
-      elog "Unable to load module #{full_path} #{e.class} #{e} #{e.backtrace.join "\n"}"
+      elog("Unable to load module #{full_path}", error: e)
       # XXX migrate this to a full load_error when we can tell the user why the
       # module did not load and/or how to resolve it.
       # load_error(full_path, e)

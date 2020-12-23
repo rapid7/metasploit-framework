@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Capture' ]
+          [ 'Capture', 'Description' => 'Run capture web server' ]
         ],
       'PassiveActions' =>
         [
@@ -70,7 +70,6 @@ class MetasploitModule < Msf::Auxiliary
       @myautopwn = true
     end
 
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 

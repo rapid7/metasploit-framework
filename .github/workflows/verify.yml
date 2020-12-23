@@ -1,0 +1,113 @@
+name: Verify
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    timeout-minutes: 40
+    name: Docker Build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: docker-compose build
+        run: |
+          curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+          chmod +x docker-compose
+          sudo mv docker-compose /usr/bin
+
+          /usr/bin/docker-compose build
+
+  test:
+    runs-on: ubuntu-16.04
+    timeout-minutes: 40
+
+    services:
+      postgres:
+        image: postgres:9.6
+        ports: ["5432:5432"]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - 2.5
+          - 2.6
+          - 2.7
+        test_cmd:
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"
+          # Used for testing the remote data service
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1
+          - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content" REMOTE_DB=1
+
+    env:
+      RAILS_ENV: test
+
+    name: Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup bundler
+        run: |
+          gem install bundler
+
+      - uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Bundle install
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+        env:
+          BUNDLER_WITHOUT: coverage development pcap
+
+      - name: Setup mstidy
+        run: |
+          ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+          ls -la ./.git/hooks
+          ./.git/hooks/post-merge
+
+      - name: Create database
+        run: |
+          cp config/database.yml.github_actions config/database.yml
+          bundle exec rake --version
+          bundle exec rake db:create
+          bundle exec rake db:migrate
+          # fail build if db/schema.rb update is not committed
+          git diff --exit-code db/schema.rb
+
+      - name: ${{ matrix.test_cmd }}
+        run: |
+          echo "${CMD}"
+          bash -c "${CMD}"
+        env:
+          CMD: ${{ matrix.test_cmd }}

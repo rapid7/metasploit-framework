@@ -140,6 +140,7 @@ class Msftidy
   def check_ref_identifiers
     in_super     = false
     in_refs      = false
+    in_notes     = false
     cve_assigned = false
 
     @lines.each do |line|
@@ -153,6 +154,10 @@ class Msftidy
       if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
+        in_refs = false
+      elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
+        in_notes = true
+      elsif in_super and in_notes and line =~ /^[[:space:]]+\},*/m
         break
       elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
         identifier = $1.strip.upcase
@@ -173,12 +178,12 @@ class Msftidy
         when 'US-CERT-VU'
           warn("Invalid US-CERT-VU reference") if value !~ /^\d+$/
         when 'ZDI'
-          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3}$/
+          warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3,4}$/
         when 'WPVDB'
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
-        when 'URL' || 'AKA'
+        when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
@@ -194,12 +199,21 @@ class Msftidy
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
+        when 'AKA'
+          warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
         end
+      end
+
+      # If a NOCVE reason was provided in notes, ignore the fact that the references might lack a CVE
+      if in_super and in_notes and line =~ /^[[:space:]]+["']NOCVE["'][[:space:]]+=>[[:space:]]+\[*["'](.+)["']\]*/
+        cve_assigned = true
       end
     end
 
     # This helps us track when CVEs aren't assigned
-    info('No CVE references found. Please check before you land!') unless cve_assigned
+    unless cve_assigned
+      info('No CVE references found. Please check before you land!')
+    end
   end
 
   def check_self_class
@@ -240,17 +254,20 @@ class Msftidy
     line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
+  # This check also enforces namespace module name reversibility
   def check_snake_case_filename
-    sep = File::SEPARATOR
-    good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
-    unless @name =~ good_name
-      warn "Filenames should be alphanum and snake case."
+    if @name !~ /^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/
+      warn('Filenames must be lowercase alphanumeric snake case.')
     end
   end
 
   def check_comment_splat
     if @source =~ /^# This file is part of the Metasploit Framework and may be subject to/
       warn("Module contains old license comment.")
+    end
+    if @source =~ /^# This module requires Metasploit: http:/
+      warn("Module license comment link does not use https:// URL scheme.")
+      fixed('# This module requires Metasploit: https://metasploit.com/download', 1)
     end
   end
 
@@ -363,6 +380,12 @@ class Msftidy
     end
   end
 
+  def check_executable
+    if File.executable?(@full_filepath)
+      error("Module should not be executable (+x)")
+    end
+  end
+
   def check_old_rubies
     return true unless CHECK_OLD_RUBIES
     return true unless Object.const_defined? :RVM
@@ -418,6 +441,8 @@ class Msftidy
       if not available_ranks.include?($1)
         error("Invalid ranking. You have '#{$1}'")
       end
+    elsif @source =~ /['"](SideEffects|Stability|Reliability)['"]\s*=/
+      info('No Rank, however SideEffects, Stability, or Reliability are provided')
     else
       warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
@@ -427,10 +452,10 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
-    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+?)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
-      if d =~ /^... \d{1,2}\,* \d{4}/
+      if d =~ /^... (?:\d{1,2},? )?\d{4}$/
         # Flag if month format is wrong
         m = d.split[0]
         months = [
@@ -439,6 +464,13 @@ class Msftidy
         ]
 
         error('Incorrect disclosure month format') if months.index(m).nil?
+      # XXX: yyyy-mm is interpreted as yyyy-01-mm by Date::iso8601
+      elsif d =~ /^\d{4}-\d{2}-\d{2}$/
+        begin
+          Date.iso8601(d)
+        rescue ArgumentError
+          error('Incorrect ISO 8601 disclosure date format')
+        end
       else
         error('Incorrect disclosure date format')
       end
@@ -468,6 +500,7 @@ class Msftidy
     end
 
     prefix_super_map = {
+      'evasion' => /^Msf::Evasion$/,
       'auxiliary' => /^Msf::Auxiliary$/,
       'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
       'encoders' => /^(?:Msf|Rex)::Encoder/,
@@ -505,6 +538,7 @@ class Msftidy
     no_stdio   = true
     in_comment = false
     in_literal = false
+    in_heredoc = false
     src_ended  = false
     idx        = 0
 
@@ -523,6 +557,15 @@ class Msftidy
       in_literal = false if ln =~ /^EOS$/
       next if in_literal
       in_literal = true if ln =~ /\<\<-EOS$/
+
+      # heredoc string awareness (ignore indentation in these)
+      if in_heredoc
+        in_heredoc = false if ln =~ /\s#{in_heredoc}$/
+        next
+      end
+      if ln =~ /\<\<\~([A-Z]+)$/
+        in_heredoc = $1
+      end
 
       # ignore stuff after an __END__ line
       src_ended = true if ln =~ /^__END__$/
@@ -581,15 +624,21 @@ class Msftidy
       end
 
       if ln =~ /^\s*fail_with\(/
-        unless ln =~ /^\s*fail_with\(Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
+        unless ln =~ /^\s*fail_with\(.*Failure\:\:(?:None|Unknown|Unreachable|BadConfig|Disconnected|NotFound|UnexpectedReply|TimeoutExpired|UserInterrupt|NoAccess|NoTarget|NotVulnerable|PayloadFailed),/
           error("fail_with requires a valid Failure:: reason as first parameter: #{ln}", idx)
         end
       end
 
       if ln =~ /['"]ExitFunction['"]\s*=>/
         warn("Please use EXITFUNC instead of ExitFunction #{ln}", idx)
+        fixed(line.gsub('ExitFunction', 'EXITFUNC'), idx)
       end
 
+      # Output from Base64.encode64 method contains '\n' new lines
+      # for line wrapping and string termination
+      if ln =~ /Base64\.encode64/
+        info("Please use Base64.strict_encode64 instead of Base64.encode64")
+      end
     end
   end
 
@@ -626,7 +675,7 @@ class Msftidy
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme
-    test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
+    test = @source.scan(/^#.+https?\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
         warn("Invalid URL: #{item}")
@@ -670,6 +719,17 @@ class Msftidy
     end
   end
 
+  # Check for modules having an Author section to ensure attribution
+  #
+  def check_author
+    # Only the three common module types have a consistently defined info hash
+    return unless %w[exploit auxiliary post].include?(@module_type)
+
+    unless @source =~ /["']Author["'][[:space:]]*=>/
+      error('Missing "Author" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -684,6 +744,7 @@ class Msftidy
     check_verbose_option
     check_badchars
     check_extname
+    check_executable
     check_old_rubies
     check_ranking
     check_disclosure_date
@@ -703,6 +764,7 @@ class Msftidy
     check_register_datastore_debug
     check_use_datastore_debug
     check_arch
+    check_author
   end
 
   private

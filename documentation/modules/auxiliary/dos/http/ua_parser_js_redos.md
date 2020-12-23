@@ -6,7 +6,7 @@ Any application that uses a vulnerable version of this module and calls the `get
 or `getResult` functions will be vulnerable to this module.  An example server is provided
 below.
 
-## How to Install
+### How to Install
 
 To install a vulnerable version of `ua-parser-js`, run:
 ```
@@ -14,8 +14,6 @@ npm i ua-parser-js@0.7.15
 ```
 
 ## Verification Steps
-
-Example steps in this format (is also in the PR):
 
 1. Create a new directory for test application.
 2. Copy below example server into test application directory as `server.js`.

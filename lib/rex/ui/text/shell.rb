@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/text/color'
 require 'rex/ui'
 
 module Rex
@@ -12,6 +13,8 @@ module Text
 #
 ###
 module Shell
+
+  include Rex::Text::Color
 
   ###
   #
@@ -45,13 +48,17 @@ module Shell
     self.stop_count     = 0
 
     # Initialize the prompt
-    self.init_prompt = prompt
     self.cont_prompt = ' > '
     self.cont_flag = false
+    self.prompt = prompt
     self.prompt_char = prompt_char
 
     self.histfile = histfile
     self.hist_last_saved = 0
+
+    # Static prompt variables
+    self.local_hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] || ENV['COMPUTERNAME']
+    self.local_username = ENV['USER'] || `whoami` || ENV['USERNAME']
 
     self.framework = framework
   end
@@ -67,7 +74,6 @@ module Shell
         self.hist_last_saved = Readline::HISTORY.length
       end
       self.input.output = self.output
-      update_prompt(input.prompt)
     end
   end
 
@@ -88,7 +94,6 @@ module Shell
 
       self.input.output = self.output
     end
-    update_prompt('')
   end
 
   #
@@ -131,62 +136,7 @@ module Shell
         break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
-
-        if framework
-          if input.prompt.include?("%T")
-            t = Time.now
-            # This %T is the strftime shorthand for %H:%M:%S
-            format = framework.datastore['PromptTimeFormat'] || "%T"
-            t = t.strftime(format)
-            # This %T is the marker in the prompt where we need to place the time
-            input.prompt.gsub!(/%T/, t.to_s)
-          end
-
-          if input.prompt.include?("%H")
-            hostname = ENV['HOSTNAME']
-            if hostname.nil?
-              hostname = `hostname`.split('.')[0]
-            end
-
-            # check if hostname is still nil
-            if hostname.nil?
-              hostname = ENV['COMPUTERNAME']
-            end
-
-            if hostname.nil?
-              hostname = 'unknown'
-            end
-
-            input.prompt.gsub!(/%H/, hostname.chomp)
-          end
-
-          if input.prompt.include?("%U")
-            user = ENV['USER']
-            if user.nil?
-              user = `whoami`
-            end
-
-            # check if username is still nil
-            if user.nil?
-              user = ENV['USERNAME']
-            end
-
-            if user.nil?
-              user = 'unknown'
-            end
-
-            input.prompt.gsub!(/%U/, user.chomp)
-          end
-
-          input.prompt.gsub!(/%S/, framework.sessions.length.to_s)
-          input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
-          input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-          input.prompt.gsub!(/%D/, ::Dir.getwd)
-          if framework.db.active
-            input.prompt.gsub!(/%W/, framework.db.workspace.name)
-          end
-          self.init_prompt = input.prompt
-        end
+        update_prompt
 
         line = get_input_line
 
@@ -242,26 +192,17 @@ module Shell
   #
   # prompt - the actual prompt
   # new_prompt_char the char to append to the prompt
-  # mode - append or not to append - false = append true = make a new prompt
-  def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
+  def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
     if (self.input)
-      if prompt
-        new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
-      else
-        new_prompt = self.prompt || ''
-      end
-
-      if mode
-        new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
-      end
+      p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
       # Save the prompt before any substitutions
       self.prompt = new_prompt
+      self.prompt_char  = new_prompt_char
 
       # Set the actual prompt to the saved prompt with any substitutions
       # or updates from our output driver, be they color or whatever
-      self.input.prompt = self.output.update_prompt(new_prompt)
-      self.prompt_char  = new_prompt_char if (new_prompt_char)
+      self.input.prompt = self.output.update_prompt(format_prompt(p))
     end
   end
 
@@ -345,11 +286,17 @@ module Shell
   #
   attr_reader   :output
 
+  attr_reader   :prompt, :prompt_char
   attr_accessor :on_command_proc
   attr_accessor :on_print_proc
   attr_accessor :framework
+  attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 
-protected
+  protected
+
+  def supports_color?
+    true
+  end
 
   #
   # Get a single line of input, following continuation directives as necessary.
@@ -434,20 +381,109 @@ protected
   #
   def prompt_yesno(query)
     p = "#{query} [y/N]"
-    old_p = [self.prompt.sub(/#{Regexp.escape(self.prompt_char)} $/, ''), self.prompt_char]
-    update_prompt p, ' ', true
+    old_p = [self.prompt, self.prompt_char]
+    update_prompt p, ' '
     /^y/i === get_input_line
   ensure
-    update_prompt *old_p, true
+    update_prompt *old_p
+  end
+
+  #
+  # Handle prompt substitutions
+  #
+  def format_prompt(str)
+    return str unless framework
+
+    # find the active session
+    session = framework.sessions.values.find { |session| session.interacting }
+    default = 'unknown'
+
+    formatted = ''
+    skip_next = false
+    for prefix, spec in str.split('').each_cons(2) do
+      if skip_next
+        skip_next = false
+        next
+      end
+
+      unless prefix == '%'
+        formatted << prefix
+        skip_next = false
+        next
+      end
+
+      skip_next = true
+      if spec == 'T'
+        # This %T is the strftime shorthand for %H:%M:%S
+        strftime_format = framework.datastore['PromptTimeFormat'] || '%T'
+        formatted << Time.now.strftime(strftime_format).to_s
+      elsif spec == 'W' && framework.db.active
+        formatted << framework.db.workspace.name
+      elsif session
+        sysinfo = session.respond_to?(:sys) ? session.sys.config.sysinfo : nil
+
+        case spec
+        when 'A'
+          formatted << (sysinfo.nil? ? default : sysinfo['Architecture'])
+        when 'D'
+          formatted << (session.respond_to?(:fs) ? session.fs.dir.getwd(refresh: false) : default)
+        when 'd'
+          formatted << ::Dir.getwd
+        when 'H'
+          formatted << (sysinfo.nil? ? default : sysinfo['Computer'])
+        when 'h'
+          formatted << (self.local_hostname || default).chomp
+        when 'I'
+          formatted << session.tunnel_peer
+        when 'i'
+          formatted << session.tunnel_local
+        when 'M'
+          formatted << session.session_type
+        when 'S'
+          formatted << session.sid.to_s
+        when 'U'
+          formatted << (session.respond_to?(:sys) ? session.sys.config.getuid(refresh: false) : default)
+        when 'u'
+          formatted << (self.local_username || default).chomp
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      else
+        case spec
+        when 'H'
+          formatted << (self.local_hostname || default).chomp
+        when 'J'
+          formatted << framework.jobs.length.to_s
+        when 'U'
+          formatted << (self.local_username || default).chomp
+        when 'S'
+          formatted << framework.sessions.length.to_s
+        when 'L'
+          formatted << Rex::Socket.source_address
+        when 'D'
+          formatted << ::Dir.getwd
+        else
+          formatted << prefix
+          skip_next = false
+        end
+      end
+    end
+
+    if str.length > 0 && !skip_next
+      formatted << str[-1]
+    end
+
+    formatted
   end
 
   attr_writer   :input, :output # :nodoc:
-  attr_accessor :stop_flag, :init_prompt, :cont_prompt # :nodoc:
-  attr_accessor :prompt # :nodoc:
-  attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
+  attr_writer   :prompt, :prompt_char # :nodoc:
+  attr_accessor :stop_flag, :cont_prompt # :nodoc:
+  attr_accessor :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
-  attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
+  attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
 
 private

@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
-
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::SSH::Options
 
   attr_accessor :ssh_socket, :good_key
 
@@ -47,13 +47,14 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         Opt::Proxies,
-        OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptBool.new('SSH_DEBUG', [false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
         OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
-        OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+        OptInt.new('SSH_TIMEOUT', [false, 'Specify the maximum time to negotiate a SSH session', 30]),
+        OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
 
-    deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE')
+    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY')
 
     @good_key = ''
     @strip_passwords = true
@@ -92,6 +93,15 @@ class MetasploitModule < Msf::Auxiliary
     # Set the session platform
     s.platform = scanner.get_platform(result.proof)
 
+    # Create database host information
+    host_info = {host: scanner.host}
+
+    unless s.platform == 'unknown'
+      host_info[:os_name] = s.platform
+    end
+
+    report_host(host_info)
+
     s
   end
 
@@ -102,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       # Ghetto abuse of the way OptionValidateError expects an array of
       # option names instead of a string message like every sane
       # subclass of Exception.
-      raise OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
+      raise Msf::OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
     end
 
     keys = KeyCollection.new(
@@ -125,6 +135,7 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: datastore['SSH_TIMEOUT'],
       framework: framework,
       framework_module: self,
+      skip_gather_proof: !datastore['GatherProof']
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']
@@ -143,7 +154,13 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner, ssh_key.fingerprint)
+          session_setup(result, scanner, ssh_key.fingerprint) if datastore['CreateSession']
+          if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+            msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+            msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+            msg << " device details so it can be handled in the future."
+            print_brute :level => :error, :ip => ip, :msg => msg
+          end
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
@@ -236,6 +253,5 @@ class MetasploitModule < Msf::Auxiliary
       @cache[filename] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(key_path), password, false, key_path).to_s
       @cache[filename]
     end
-
   end
 end

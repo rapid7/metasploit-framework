@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(5040),
       ])
 
-    deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
+    deregister_options('CHOST', 'CPORT', 'SSL', 'SSLVersion')
 
     register_advanced_options(
       [

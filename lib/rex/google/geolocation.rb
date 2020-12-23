@@ -25,7 +25,7 @@ module Rex
 
       # Ask Google's Maps API for the location of a given set of BSSIDs (MAC
       # addresses of access points), ESSIDs (AP names), and signal strengths.
-      def fetch!        
+      def fetch!
         request = Net::HTTP::Post.new(@uri.request_uri)
         request.body = {'wifiAccessPoints' => @wlan_list}.to_json
         request['Content-Type'] = 'application/json'
@@ -40,6 +40,7 @@ module Rex
           self.longitude = results["location"]["lng"]
           self.accuracy = results["accuracy"]
         elsif response && response.body && response.code != '404' # we can json load and get a good error message
+          results = JSON.parse(response.body)
           msg += " Code #{results['error']['code']} for query #{@uri} with error #{results['error']['message']}"
           fail msg
         else

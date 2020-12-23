@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'kris katterjohn',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run telnet capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )
@@ -42,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 

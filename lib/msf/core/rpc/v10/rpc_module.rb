@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'json'
 require 'msf/util/document_generator'
 
 module Msf
@@ -17,6 +18,17 @@ class RPC_Module < RPC_Base
   end
 
 
+  # Returns a list of evasion module names. The 'evasion/' prefix will not be included.
+  #
+  # @return [Hash] A list of evasion module names. It contains the following key:
+  #  * 'modules' [Array<string>] Evasion names, for example: ['windows/windows_defender_exe']
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.evasion')
+  def rpc_evasion
+    { "modules" => self.framework.evasion.keys }
+  end
+
+
   # Returns a list of auxiliary module names. The 'auxiliary/' prefix will not be included.
   #
   # @return [Hash] A list of auxiliary module names. It contains the following key:
@@ -28,38 +40,144 @@ class RPC_Module < RPC_Base
   end
 
 
-  # Returns a list of payload module names. The 'payload/' prefix will not be included.
+  # Returns a list of payload module names or a hash with payload module names as keys to hashes
+  # that contain the module information fields requested. The 'payload/' prefix will not be included.
   #
-  # @return [Hash] A list of payload module names. It contains the following key:
-  #  * 'modules' [Array<string>] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
+  # @param module_info [String] Comma-separated list of module information field names.
+  # If this is nil, then only module names are returned. Default: nil
+  # @param arch [String] Comma-separated list of one or more architectures that
+  # the module must support. The module need only support one of the architectures
+  # to be included, not all architectures. Default: nil
+  #
+  # @return [Hash] If module_info is nil, a list of payload module names. It contains the following key:
+  #  * 'modules' [Array<String>] Payload module names, for example: ['windows/x64/shell_reverse_tcp']
+  # If module_info is not nil, payload module names as keys to hashes that contain the requested module
+  # information fields. It contains the following key:
+  #  * 'modules' [Hash] for example:
+  #    {"windows/x64/shell_reverse_tcp"=>{"name"=>"Windows x64 Command Shell, Reverse TCP Inline"}
   # @example Here's how you would use this from the client:
   #  rpc.call('module.payloads')
-  def rpc_payloads
-    { "modules" => self.framework.payloads.keys }
+  def rpc_payloads(module_info = nil, arch = nil)
+    module_info_contains_size = false
+
+    unless module_info.nil?
+      module_info = module_info.strip.split(',').map(&:strip)
+      module_info.map!(&:to_sym)
+      module_info_contains_size = module_info.include?(:size)
+    end
+
+    unless arch.nil?
+      arch = arch.strip.split(',').map(&:strip)
+    end
+
+    data = module_info.nil? ? [] : {}
+    arch_filter = !arch.nil? && !arch.empty? ? arch : nil
+    self.framework.payloads.each_module('Arch' => arch_filter) do |name, mod|
+      if module_info.nil?
+        data << name
+      else
+        module_instance = mod.new
+        if !module_info_contains_size && mod.method_defined?(:generate)
+          # Unless the size field is specified in module_info, modify the generate
+          # method for the module instance in order to skip payload generation when
+          # the size method is called by Msf::Serializer::Json.dump_module, thus
+          # reducing the processing time.
+          class << module_instance
+            def generate
+              ''
+            end
+          end
+        end
+
+        tmp_mod_info = ::JSON.parse(Msf::Serializer::Json.dump_module(module_instance), symbolize_names: true)
+        data[name] = tmp_mod_info.select { |k,v| module_info.include?(k) }
+      end
+    end
+
+    { "modules" => data }
   end
 
-
-  # Returns a list of encoder module names. The 'encoder/' prefix will not be included.
+  # Returns a list of encoder module names or a hash with encoder module names as keys to hashes
+  # that contain the module information fields requested. The 'encoder/' prefix will not be included.
   #
-  # @return [Hash] A list of encoder module names. It contains the following key:
-  #  * 'modules' [Array<string>] Encoder module names, for example: ['x86/unicode_upper']
+  # @param module_info [String] Comma-separated list of module information field names.
+  # If this is nil, then only module names are returned. Default: nil
+  # @param arch [String] Comma-separated list of one or more architectures that
+  # the module must support. The module need only support one of the architectures
+  # to be included, not all architectures. Default: nil
+  #
+  # @return [Hash] If module_info is nil, a list of encoder module names. It contains the following key:
+  #  * 'modules' [Array<String>] Encoder module names, for example: ['x86/unicode_upper']
+  # If module_info is not nil, encoder module names as keys to hashes that contain the requested module
+  # information fields. It contains the following key:
+  #  * 'modules' [Hash] for example:
+  #    {"x86/unicode_upper"=>{"name"=>"Alpha2 Alphanumeric Unicode Uppercase Encoder", "rank"=>"Manual"}}
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encoders')
-  def rpc_encoders
-    { "modules" => self.framework.encoders.keys }
+  def rpc_encoders(module_info = nil, arch = nil)
+    unless module_info.nil?
+      module_info = module_info.strip.split(',').map(&:strip)
+      module_info.map!(&:to_sym)
+    end
+
+    unless arch.nil?
+      arch = arch.strip.split(',').map(&:strip)
+    end
+
+    data = module_info.nil? ? [] : {}
+    arch_filter = !arch.nil? && !arch.empty? ? arch : nil
+    self.framework.encoders.each_module('Arch' => arch_filter) do |name, mod|
+      if module_info.nil?
+        data << name
+      else
+        tmp_mod_info = ::JSON.parse(Msf::Serializer::Json.dump_module(mod.new), symbolize_names: true)
+        data[name] = tmp_mod_info.select { |k,v| module_info.include?(k) }
+      end
+    end
+
+    { "modules" => data }
   end
 
-
-  # Returns a list of NOP module names. The 'nop/' prefix will not be included.
+  # Returns a list of NOP module names or a hash with NOP module names as keys to hashes
+  # that contain the module information fields requested. The 'nop/' prefix will not be included.
   #
-  # @return [Hash] A list of NOP module names. It contains the following key:
-  #  * 'modules' [Array<string>] NOP module names, for example: ['x86/single_byte']
+  # @param module_info [String] Comma-separated list of module information field names.
+  # If this is nil, then only module names are returned. Default: nil
+  # @param arch [String] Comma-separated list of one or more architectures that
+  # the module must support. The module need only support one of the architectures
+  # to be included, not all architectures. Default: nil
+  #
+  # @return [Hash] If module_info is nil, a list of NOP module names. It contains the following key:
+  #  * 'modules' [Array<String>] NOP module names, for example: ['x86/single_byte']
+  # If module_info is not nil, NOP module names as keys to hashes that contain the requested module
+  # information fields. It contains the following key:
+  #  * 'modules' [Hash] for example:
+  #    {"x86/single_byte"=>{"name"=>"Single Byte", "rank"=>"Normal"}}
   # @example Here's how you would use this from the client:
   #  rpc.call('module.nops')
-  def rpc_nops
-    { "modules" => self.framework.nops.keys }
-  end
+  def rpc_nops(module_info = nil, arch = nil)
+    unless module_info.nil?
+      module_info = module_info.strip.split(',').map(&:strip)
+      module_info.map!(&:to_sym)
+    end
 
+    unless arch.nil?
+      arch = arch.strip.split(',').map(&:strip)
+    end
+
+    data = module_info.nil? ? [] : {}
+    arch_filter = !arch.nil? && !arch.empty? ? arch : nil
+    self.framework.nops.each_module('Arch' => arch_filter) do |name, mod|
+      if module_info.nil?
+        data << name
+      else
+        tmp_mod_info = ::JSON.parse(Msf::Serializer::Json.dump_module(mod.new), symbolize_names: true)
+        data[name] = tmp_mod_info.select { |k,v| module_info.include?(k) }
+      end
+    end
+
+    { "modules" => data }
+  end
 
   # Returns a list of post module names. The 'post/' prefix will not be included.
   #
@@ -113,7 +231,7 @@ class RPC_Module < RPC_Base
       res['references'] << [r.ctx_id, r.ctx_val]
     end
 
-    if m.type == 'exploit'
+    if m.type == 'exploit' || m.type == 'evasion'
       res['targets'] = {}
       m.targets.each_index do |i|
         res['targets'][i] = m.targets[i].name
@@ -197,6 +315,29 @@ class RPC_Module < RPC_Base
     res
   end
 
+  alias :rpc_compatible_exploit_payloads :rpc_compatible_payloads
+
+
+  # Returns the compatible payloads for a specific evasion module.
+  #
+  # @param [String] mname Evasion module name. For example: 'windows/windows_defender_exe'
+  # @raise [Msf::RPC::Exception] Module not found (wrong name).
+  # @return [Hash] The evasion module's compatible payloads. It contains the following key:
+  #  * 'payloads' [Array<String>] A list of payloads.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.compatible_evasion_payloads', 'windows/windows_defender_exe')
+  def rpc_compatible_evasion_payloads(mname)
+    m = _find_module('evasion', mname)
+    res = {}
+    res['payloads'] = []
+
+    m.compatible_payloads.each do |k|
+      res['payloads'] << k[0]
+    end
+
+    res
+  end
+
 
   # Returns the compatible sessions for a specific post module.
   #
@@ -207,7 +348,16 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.compatible_sessions', 'windows/wlan/wlan_profile')
   def rpc_compatible_sessions(mname)
-    m   = _find_module('post',mname)
+    if mname.start_with? 'exploit/'
+      m = _find_module('exploit',mname)
+    else
+      m = _find_module('post',mname)
+    end
+
+    unless m.respond_to? :compatible_sessions
+      error(500, "Cannot determine compatible sessions for non-local module: #{mname}")
+    end
+
     res = {}
     res['sessions'] = m.compatible_sessions
 
@@ -235,6 +385,46 @@ class RPC_Module < RPC_Base
     end
 
     res
+  end
+
+  alias :rpc_target_compatible_exploit_payloads :rpc_target_compatible_payloads
+
+
+  # Returns the compatible target-specific payloads for an evasion module.
+  #
+  # @param [String] mname Evasion module name. For example: windows/windows_defender_exe
+  # @param [Integer] target A specific target the evasion module provides.
+  # @raise [Msf::RPC::Exception] Module not found (wrong name)
+  # @return [Hash] The evasion module's target-specific payloads. It contains the following key:
+  #  * 'payloads' [Array<String>] A list of payloads.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.target_compatible_evasion_payloads', 'windows/windows_defender_exe')
+  def rpc_target_compatible_evasion_payloads(mname, target)
+    m   = _find_module('evasion',mname)
+    res = {}
+    res['payloads'] = []
+    m.datastore['TARGET'] = target.to_i
+    m.compatible_payloads.each do |k|
+      res['payloads'] << k[0]
+    end
+
+    res
+  end
+
+  # Returns the currently running module stats in each state.
+  #
+  # @return [Hash] Running module stats that contain the following keys:
+  #  * 'waiting' [Array<string>] The uuids of modules waiting to be kicked off.
+  #  * 'running' [Array<string>] The uuids of modules currently in progress.
+  #  * 'results' [Array<string>] The uuids of module run/check results.
+  # @exampleHere's how you would use this from the client:
+  #  rpc.call('module.running_stats')
+  def rpc_running_stats
+    {
+        "waiting" => self.job_status_tracker.waiting_ids,
+        "running" => self.job_status_tracker.running_ids,
+        "results" => self.job_status_tracker.result_ids
+    }
   end
 
 
@@ -286,6 +476,7 @@ class RPC_Module < RPC_Base
   #                       * auxiliary
   #                       * post
   #                       * payload
+  #                       * evasion
   # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
   # @param [Hash] opts Options for the module (such as datastore options).
   # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
@@ -302,6 +493,7 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.execute', 'exploit', 'multi/handler', opts)
   def rpc_execute(mtype, mname, opts)
     mod = _find_module(mtype,mname)
+
     case mtype
       when 'exploit'
         _run_exploit(mod, opts)
@@ -311,14 +503,114 @@ class RPC_Module < RPC_Base
         _run_payload(mod, opts)
       when 'post'
         _run_post(mod, opts)
+      when 'evasion'
+        _run_evasion(mod, opts)
     end
 
   end
 
+  # Runs the check method of a module.
+  #
+  # @param [String] mtype Module type. Supported types include (case-sensitive):
+  #                       * exploit
+  #                       * auxiliary
+  # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
+  # @param [Hash] opts Options for the module (such as datastore options).
+  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @return
+  def rpc_check(mtype, mname, opts)
+    mod = _find_module(mtype,mname)
+    case mtype
+    when 'exploit'
+      _check_exploit(mod, opts)
+    when 'auxiliary'
+      _check_auxiliary(mod, opts)
+    else
+      error(500, "Invalid Module Type: #{mtype}")
+    end
+  end
+
+  # TODO: expand these to take a list of UUIDs or stream with event data if
+  # required for performance
+  def rpc_results(uuid)
+    if (r = self.job_status_tracker.result(uuid))
+      if r[:error]
+        {"status" => "errored", "error" => r[:error]}
+      else
+        if r[:result].length == 1
+          # A hash of one IP => result
+          # TODO: make hashes of IP => result the normal case
+          {"status" => "completed", "result" => r[:result].values.first}
+        else
+          # Either singular check code or multiple hosts
+          # TODO: combine underlying code so that nothing returns a bare CheckCode anymore
+          {"status" => "completed", "result" => r[:result]}
+        end
+      end
+    elsif self.job_status_tracker.running? uuid
+      {"status" => "running"}
+    elsif self.job_status_tracker.waiting? uuid
+      {"status" => "ready"}
+    else
+      error(404, "Results not found for module instance #{uuid}")
+    end
+  end
+
+  def rpc_ack(uuid)
+    {"success" => !!self.job_status_tracker.ack(uuid)}
+  end
+
+  # Returns a list of executable format names.
+  #
+  # @return [Array<String>] A list of executable format names, for example: ["exe"]
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.executable_formats')
+  def rpc_executable_formats
+    ::Msf::Util::EXE.to_executable_fmt_formats
+  end
+
+  # Returns a list of transform format names.
+  #
+  # @return [Array<String>] A list of transform format names, for example: ["powershell"]
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.transform_formats')
+  def rpc_transform_formats
+    ::Msf::Simple::Buffer.transform_formats
+  end
+
+  # Returns a list of encryption format names.
+  #
+  # @return [Array<String>] A list of encryption format names, for example: ["aes256"]
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.encryption_formats')
+  def rpc_encryption_formats
+    ::Msf::Simple::Buffer.encryption_formats
+  end
+
+  # Returns a list of platform names.
+  #
+  # @return [Array<String>] A list of platform names, for example: ["linux"]
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.platforms')
+  def rpc_platforms
+    supported_platforms = []
+    Msf::Module::Platform.subclasses.each { |c| supported_platforms << c.realname.downcase }
+    supported_platforms.sort
+  end
+
+  # Returns a list of architecture names.
+  #
+  # @return [Array<String>] A list of architecture names, for example: ["x64"]
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.architectures')
+  def rpc_architectures
+    supported_archs = ARCH_ALL.dup
+    supported_archs.sort
+  end
 
   # Returns a list of encoding formats.
   #
-  # @return [Array<String>] Encoding foramts.
+  # @return [Array<String>] Encoding formats.
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encode_formats')
   def rpc_encode_formats
@@ -434,13 +726,15 @@ private
 
   def _find_module(mtype,mname)
 
-    if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post)\//
+    if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post|evasion)\//
       mname = mtype + "/" + mname
+    elsif !mname.start_with?(mtype)
+      error(400, "Client provided module type '#{mtype}' did not match expected type for '#{mname}'")
     end
 
     mod = self.framework.modules.create(mname)
 
-    error(500, "Invalid Module") if not mod
+    error(500, "Invalid Module") unless mod
     mod
   end
 
@@ -458,14 +752,37 @@ private
   end
 
   def _run_auxiliary(mod, opts)
-    Msf::Simple::Auxiliary.run_simple(mod, {
+    uuid, job = Msf::Simple::Auxiliary.run_simple(mod,{
       'Action'   => opts['ACTION'],
       'RunAsJob' => true,
       'Options'  => opts
-    })
+    }, job_listener: self.job_status_tracker)
     {
-      "job_id" => mod.job_id,
-      "uuid" => mod.uuid
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_exploit(mod, opts)
+    uuid, job = Msf::Simple::Exploit.check_simple(mod,{
+        'RunAsJob' => true,
+        'Options'  => opts
+    }, job_listener: self.job_status_tracker)
+    {
+      "job_id" => job,
+      "uuid" => uuid
+    }
+  end
+
+  def _check_auxiliary(mod, opts)
+    uuid, job = Msf::Simple::Auxiliary.check_simple(mod,{
+        'Action'   => opts['ACTION'],
+        'RunAsJob' => true,
+        'Options'  => opts
+    }, job_listener: self.job_status_tracker)
+    {
+      "job_id" => job,
+      "uuid" => uuid
     }
   end
 
@@ -477,6 +794,20 @@ private
     {
       "job_id" => mod.job_id,
       "uuid" => mod.uuid
+    }
+  end
+
+  def _run_evasion(mod, opts)
+    Msf::Simple::Evasion.run_simple(mod, {
+      'Payload'  => opts['PAYLOAD'],
+      'Target'   => opts['TARGET'],
+      'RunAsJob' => true,
+      'Options'  => opts
+    })
+
+    {
+      'job_id' => mod.job_id,
+      'uuid'   => mod.uuid
     }
   end
 

@@ -191,10 +191,22 @@ class Msf::Module::Platform
   ##
 
   #
+  # Unknown
+  #
+  # This is a special case for when we're completely unsure of the
+  # platform, such as a crash or default case in code.  Only
+  # utilize this as a catch-all.
+  #
+  class Unknown < Msf::Module::Platform
+    Rank = 0 # safeguard with 0 since the platform is completely unknown
+    Alias = "unknown"
+  end
+
+  #
   # Windows
   #
   class Windows < Msf::Module::Platform
-    Rank  = 100
+    Rank = 100
     # Windows 95
     class W95 < Windows
       Rank = 100
@@ -389,6 +401,38 @@ class Msf::Module::Platform
   class Juniper < Msf::Module::Platform
     Rank = 100
     Alias = "juniper"
+  end
+
+  #
+  # Ubiquiti Unifi
+  #
+  class Unifi < Msf::Module::Platform
+    Rank = 100
+    Alias = "unifi"
+  end
+
+  #
+  # Brocade
+  #
+  class Brocade < Msf::Module::Platform
+    Rank = 100
+    Alias = "brocade"
+  end
+
+  #
+  # MikroTik
+  #
+  class Mikrotik < Msf::Module::Platform
+    Rank = 100
+    Alias = "mikrotik"
+  end
+
+  #
+  # Arista
+  #
+  class Arista < Msf::Module::Platform
+    Rank = 100
+    Alias = "arista"
   end
 
   #

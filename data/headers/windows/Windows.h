@@ -252,6 +252,16 @@ typedef struct _OVERLAPPED {
 } OVERLAPPED, *LPOVERLAPPED;
 
 typedef DWORD SERVICE_STATUS_HANDLE;
+typedef VOID(WINAPI *LPHANDLER_FUNCTION)(DWORD);
+
+typedef void (WINAPI *LPSERVICE_MAIN_FUNCTION)(DWORD,LPSTR*);
+
+typedef struct _SERVICE_TABLE_ENTRY {
+	LPSTR lpServiceName;
+	LPSERVICE_MAIN_FUNCTION lpServiceProc;
+} SERVICE_TABLE_ENTRY,*LPSERVICE_TABLE_ENTRY;
+
+typedef SERVICE_TABLE_ENTRY SERVICE_TABLE_ENTRY,*LPSERVICE_TABLE_ENTRY;
 
 typedef enum _SC_ENUM_TYPE {
         SC_ENUM_PROCESS_INFO = 0
@@ -540,3 +550,6 @@ WINAPI BOOL IsDebuggerPresent __attribute__((dllimport))(void);
 WINAPI BOOL CheckRemoteDebuggerPresent __attribute__((dllimport))(HANDLE, PBOOL);
 WINAPI NTSTATUS NtQueryInformationProcess __attribute__((dllimport))(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 WINAPI void SetLastError __attribute__((dllimport))(DWORD);
+WINAPI SERVICE_STATUS_HANDLE RegisterServiceCtrlHandler __attribute__((dllimport))(LPCSTR, LPHANDLER_FUNCTION);
+BOOL WINAPI StartServiceCtrlDispatcher __attribute__((dllimport))(LPSERVICE_TABLE_ENTRY);
+LPTSTR WINAPI GetCommandLine __attribute__((dllimport))(void);

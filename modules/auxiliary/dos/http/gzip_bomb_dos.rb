@@ -34,10 +34,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://www.aerasec.de/security/advisories/decompression-bomb-vulnerability.html' ]
         ],
-      'DisclosureDate' => 'Jan 1 2004',
+      'DisclosureDate' => '2004-01-01',
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Host file via web server' ]
         ],
       'PassiveActions' =>
         [

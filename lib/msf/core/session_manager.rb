@@ -113,14 +113,13 @@ class SessionManager < Hash
 
           last_seen_timer = Time.now.utc
 
-          ::ActiveRecord::Base.connection_pool.with_connection do
+          ::ApplicationRecord.connection_pool.with_connection do
             values.each do |s|
               # Update the database entry on a regular basis, marking alive threads
               # as recently seen.  This notifies other framework instances that this
               # session is being maintained.
               if s.db_record
-                s.db_record.last_seen = Time.now.utc
-                s.db_record.save
+                s.db_record = framework.db.update_session(id: s.db_record.id, last_seen: Time.now.utc)
               end
             end
           end
@@ -139,8 +138,7 @@ class SessionManager < Hash
       #
       rescue ::Exception => e
         respawn_cnt += 1
-        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e}")
-        elog("Call stack: \n#{e.backtrace.join("\n")}")
+        elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread", error: e)
         if respawn_cnt < respawn_max
           ::IO.select(nil, nil, nil, 10.0)
           retry
@@ -276,7 +274,7 @@ class SessionManager < Hash
     if sid > 0
       session = self[sid]
     elsif sid == -1
-      sid = self.keys.sort[-1]
+      sid = self.keys.max
       session = self[sid]
     end
 

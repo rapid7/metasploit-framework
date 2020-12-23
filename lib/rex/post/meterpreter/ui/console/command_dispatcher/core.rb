@@ -34,41 +34,46 @@ class Console::CommandDispatcher::Core
   end
 
   @@irb_opts = Rex::Parser::Arguments.new(
-    '-h' => [false, 'Help banner.'],
-    '-e' => [true,  'Expression to evaluate.'])
+    '-h' => [false, 'Help menu.'             ],
+    '-e' => [true,  'Expression to evaluate.']
+  )
 
   @@load_opts = Rex::Parser::Arguments.new(
-    '-l' => [false, 'List all available extensions'],
-    '-h' => [false, 'Help menu.'])
+    '-h' => [false, 'Help menu.'                    ],
+    '-l' => [false, 'List all available extensions.']
+  )
 
   #
   # List of supported commands.
   #
   def commands
     c = {
-      '?'            => 'Help menu',
-      'background'   => 'Backgrounds the current session',
-      'close'        => 'Closes a channel',
-      'channel'      => 'Displays information or control active channels',
-      'exit'         => 'Terminate the meterpreter session',
-      'help'         => 'Help menu',
-      'irb'          => 'Drop into irb scripting mode',
-      'use'          => 'Deprecated alias for "load"',
-      'load'         => 'Load one or more meterpreter extensions',
-      'machine_id'   => 'Get the MSF ID of the machine attached to the session',
-      'guid'         => 'Get the session GUID',
-      'quit'         => 'Terminate the meterpreter session',
-      'resource'     => 'Run the commands stored in a file',
-      'uuid'         => 'Get the UUID for the current session',
-      'read'         => 'Reads data from a channel',
-      'run'          => 'Executes a meterpreter script or Post module',
-      'bgrun'        => 'Executes a meterpreter script as a background thread',
-      'bgkill'       => 'Kills a background meterpreter script',
-      'get_timeouts' => 'Get the current session timeout values',
-      'set_timeouts' => 'Set the current session timeout values',
-      'sessions'     => 'Quickly switch to another session',
-      'bglist'       => 'Lists running background scripts',
-      'write'        => 'Writes data to a channel',
+      '?'                        => 'Help menu',
+      'background'               => 'Backgrounds the current session',
+      'bg'                       => 'Alias for background',
+      'close'                    => 'Closes a channel',
+      'channel'                  => 'Displays information or control active channels',
+      'exit'                     => 'Terminate the meterpreter session',
+      'help'                     => 'Help menu',
+      'irb'                      => 'Open an interactive Ruby shell on the current session',
+      'pry'                      => 'Open the Pry debugger on the current session',
+      'use'                      => 'Deprecated alias for "load"',
+      'load'                     => 'Load one or more meterpreter extensions',
+      'machine_id'               => 'Get the MSF ID of the machine attached to the session',
+      'secure'                   => '(Re)Negotiate TLV packet encryption on the session',
+      'guid'                     => 'Get the session GUID',
+      'quit'                     => 'Terminate the meterpreter session',
+      'resource'                 => 'Run the commands stored in a file',
+      'uuid'                     => 'Get the UUID for the current session',
+      'read'                     => 'Reads data from a channel',
+      'run'                      => 'Executes a meterpreter script or Post module',
+      'bgrun'                    => 'Executes a meterpreter script as a background thread',
+      'bgkill'                   => 'Kills a background meterpreter script',
+      'get_timeouts'             => 'Get the current session timeout values',
+      'set_timeouts'             => 'Set the current session timeout values',
+      'sessions'                 => 'Quickly switch to another session',
+      'bglist'                   => 'Lists running background scripts',
+      'write'                    => 'Writes data to a channel',
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
       'disable_unicode_encoding' => 'Disables encoding of unicode strings'
     }
@@ -132,7 +137,7 @@ class Console::CommandDispatcher::Core
     '-h' => [false, 'View help']
   )
 
-  @@pivot_supported_archs = [ARCH_X64, ARCH_X86]
+  @@pivot_supported_archs = [Rex::Arch::ARCH_X64, Rex::Arch::ARCH_X86]
   @@pivot_supported_platforms = ['windows']
 
   def cmd_pivot_help
@@ -144,7 +149,7 @@ class Console::CommandDispatcher::Core
     print_line
     print_line('Supported pivot types:')
     print_line('     - pipe (using named pipes over SMB)')
-    print_line('Supported arhiectures:')
+    print_line('Supported architectures:')
     @@pivot_supported_archs.each do |a|
       print_line('     - ' + a)
     end
@@ -315,6 +320,12 @@ class Console::CommandDispatcher::Core
     end
   end
 
+  def cmd_secure
+    print_status('Negotiating new encryption key ...')
+    client.core.secure
+    print_good('Done.')
+  end
+
   def cmd_background_help
     print_line('Usage: background')
     print_line
@@ -326,6 +337,9 @@ class Console::CommandDispatcher::Core
     print_status("Backgrounding session #{client.name}...")
     client.interacting = false
   end
+
+  alias cmd_bg cmd_background
+  alias cmd_bg_help cmd_background_help
 
   #
   # Displays information about active channels
@@ -531,7 +545,7 @@ class Console::CommandDispatcher::Core
   def cmd_irb_help
     print_line('Usage: irb')
     print_line
-    print_line('Execute commands in a Ruby environment')
+    print_line('Open an interactive Ruby shell on the current session.')
     print @@irb_opts.usage
   end
 
@@ -541,7 +555,7 @@ class Console::CommandDispatcher::Core
   end
 
   #
-  # Runs the IRB scripting shell
+  # Open an interactive Ruby shell on the current session
   #
   def cmd_irb(*args)
     expressions = []
@@ -560,14 +574,47 @@ class Console::CommandDispatcher::Core
     framework = client.framework
 
     if expressions.empty?
-      print_status('Starting IRB shell')
-      print_status('The "client" variable holds the meterpreter client')
-      print_line
+      print_status('Starting IRB shell...')
+      print_status("You are in the \"client\" (session) object\n")
 
-      Rex::Ui::Text::IrbShell.new(binding).run
+      Rex::Ui::Text::IrbShell.new(client).run
     else
+      # XXX: No vprint_status here
+      if framework.datastore['VERBOSE'].to_s == 'true'
+        print_status("You are executing expressions in #{binding.receiver}")
+      end
+
       expressions.each { |expression| eval(expression, binding) }
     end
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open the Pry debugger on the current session.'
+    print_line
+  end
+
+  #
+  # Open the Pry debugger on the current session
+  #
+  def cmd_pry(*args)
+    if args.include?('-h')
+      cmd_pry_help
+      return
+    end
+
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error('Failed to load Pry, try "gem install pry"')
+      return
+    end
+
+    print_status('Starting Pry shell...')
+    print_status("You are in the \"client\" (session) object\n")
+
+    client.pry
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
@@ -1130,9 +1177,9 @@ class Console::CommandDispatcher::Core
     begin
       server = client.sys.process.open
     rescue TimeoutError => e
-      elog(e.to_s)
+      elog('Server Timeout', error: e)
     rescue RequestError => e
-      elog(e.to_s)
+      elog('Request Error', error: e)
     end
 
     service = client.pfservice
@@ -1242,6 +1289,14 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+
+      # Temporary hack to pivot mimikatz over to kiwi until
+      # everone remembers to do it themselves
+      if md == 'mimikatz'
+        print_warning('The "mimikatz" extension has been replaced by "kiwi". Please use this in future.')
+        md = 'kiwi'
+      end
+
       modulenameprovided = md
 
       if client.binary_suffix and client.binary_suffix.size > 1
@@ -1252,6 +1307,7 @@ class Console::CommandDispatcher::Core
           end
         }
       end
+
       if (extensions.include?(md))
         print_error("The '#{md}' extension has already been loaded.")
         next
@@ -1365,7 +1421,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       cmd_run_help
       return true
     end
@@ -1387,21 +1443,28 @@ class Console::CommandDispatcher::Core
           return
         end
 
-        opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-        reloaded_mod.run_simple(
+        opts = ''
+        if reloaded_mod.is_a?(Msf::Exploit)
+          # set the payload as one of the first options, allowing it to be overridden by the user
+          opts << "PAYLOAD=#{client.via_payload.delete_prefix('payload/')}," if client.via_payload
+        end
+
+        opts  << (args + [ "SESSION=#{client.sid}" ]).join(',')
+        result = reloaded_mod.run_simple(
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
           'OptionStr'   => opts
         )
+
+        print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
       end
-    rescue
-      print_error("Error in script: #{$!.class} #{$!}")
-      elog("Error in script: #{$!.class} #{$!}")
-      dlog("Callstack: #{$@.join("\n")}")
+    rescue => e
+      print_error("Error in script: #{script_name}")
+      elog("Error in script: #{script_name}", error: e)
     end
   end
 
@@ -1409,10 +1472,7 @@ class Console::CommandDispatcher::Core
     tabs = []
     unless words[1] && words[1].match(/^\//)
       begin
-        if msf_loaded?
-          tabs += tab_complete_postmods
-        end
-
+        tabs += tab_complete_modules(str, words) if msf_loaded?
         [
           ::Msf::Sessions::Meterpreter.script_base,
           ::Msf::Sessions::Meterpreter.user_script_base
@@ -1435,7 +1495,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.empty? || args.include?('-h')
+    if args.empty? || args.first == '-h'
       print_line('Usage: bgrun <script> [arguments]')
       print_line
       print_line('Executes a ruby script in the context of the meterpreter session.')
@@ -1452,11 +1512,11 @@ class Console::CommandDispatcher::Core
       ::Thread.current[:args] = xargs.dup
       begin
         # the rest of the arguments get passed in through the binding
-        client.execute_script(args.shift, args)
-      rescue ::Exception
-        print_error("Error in script: #{$!.class} #{$!}")
-        elog("Error in script: #{$!.class} #{$!}")
-        dlog("Callstack: #{$@.join("\n")}")
+        script_name = args.shift
+        client.execute_script(script_name, args)
+      rescue ::Exception => e
+        print_error("Error in script: #{script_name}")
+        elog("Error in script: #{script_name}", error: e)
       end
       self.bgjobs[myjid] = nil
       print_status("Background script with Job ID #{myjid} has completed (#{::Thread.current[:args].inspect})")
@@ -1538,9 +1598,8 @@ class Console::CommandDispatcher::Core
     end
   end
 
-  def cmd_info_tabs(*args)
-    return unless msf_loaded?
-    tab_complete_postmods
+  def cmd_info_tabs(str, words)
+    tab_complete_modules(str, words) if msf_loaded?
   end
 
   #
@@ -1778,18 +1837,16 @@ protected
     self.extensions << mod
   end
 
-  def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name,klass|
-      mod = client.framework.modules.post.create(name)
-      if mod and mod.session_compatible?(client)
-        mod.fullname.dup
-      else
-        nil
-      end
-    }
-
-    # nils confuse readline
-    tabs.compact
+  def tab_complete_modules(str, words)
+    tabs = []
+    client.framework.modules.post.map do |name,klass|
+      tabs << 'post/' + name
+    end
+    client.framework.modules.module_names('exploit').
+      grep(/(multi|#{Regexp.escape(client.platform)})\/local\//).each do |name|
+      tabs << 'exploit/' + name
+    end
+    return tabs.sort
   end
 
   def tab_complete_channels
@@ -1802,4 +1859,3 @@ end
 end
 end
 end
-

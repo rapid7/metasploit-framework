@@ -3,7 +3,6 @@
 # Gems
 #
 require 'active_support/concern'
-require 'msf/core/modules/metadata/cache'
 
 # Concerns the module cache maintained by the {Msf::ModuleManager}.
 module Msf::ModuleManager::Cache
@@ -118,7 +117,8 @@ module Msf::ModuleManager::Cache
               ['post', @framework.post],
               ['payload', @framework.payloads],
               ['encoder', @framework.encoders],
-              ['nop', @framework.nops]
+              ['nop', @framework.nops],
+              ['evasion', @framework.evasion]
           ]
       Msf::Modules::Metadata::Cache.instance.refresh_metadata(module_sets)
     end
@@ -169,6 +169,10 @@ module Msf::ModuleManager::Cache
           :parent_path => parent_path,
           :modification_time => module_metadata.mod_time
       }
+      module_metadata.aliases.each do |a|
+        self.aliases[a] = module_metadata.fullname
+      end
+      self.inv_aliases[module_metadata.fullname] = module_metadata.aliases unless module_metadata.aliases.empty?
 
       typed_module_set = module_set(type)
 

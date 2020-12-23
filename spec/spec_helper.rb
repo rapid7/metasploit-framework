@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'stringio'
+require 'factory_bot'
 
 ENV['RAILS_ENV'] = 'test'
 
@@ -8,7 +9,8 @@ ENV['RAILS_ENV'] = 'test'
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
-
+require 'rubocop'
+require 'rubocop/rspec/support'
 require 'metasploit/framework/database'
 # check if database.yml is present
 unless Metasploit::Framework::Database.configurations_pathname.try(:to_path)
@@ -41,15 +43,19 @@ end
 
 RSpec.configure do |config|
   config.raise_errors_for_deprecations!
-
+  config.include RuboCop::RSpec::ExpectOffense
   config.expose_dsl_globally = false
 
   # These two settings work together to allow you to limit a spec run
   # to individual examples or groups you care about by tagging them with
   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
   # get run.
-  config.filter_run :focus
-  config.run_all_when_everything_filtered = true
+  if ENV['CI']
+    config.before(:example, :focus) { raise "Should not commit focused specs" }
+  else
+    config.filter_run focus: true
+    config.run_all_when_everything_filtered = true
+  end
 
   # allow more verbose output when running an individual spec file.
   if config.files_to_run.one?
@@ -112,7 +118,7 @@ RSpec.configure do |config|
   if ENV['REMOTE_DB']
     require 'metasploit/framework/data_service/remote/managed_remote_data_service'
     opts = {}
-    opts[:process_name] = 'msfdb_ws'
+    opts[:process_name] = File.join('tools', 'dev', 'msfdb_ws')
     opts[:host] = 'localhost'
     opts[:port] = '8080'
 

@@ -7,37 +7,14 @@ module Sinks
 #
 # This class implements the LogSink interface and backs it against stderr
 ###
-class Stderr
-
-  include Rex::Logging::LogSink
+class Stderr < Rex::Logging::Sinks::Stream
 
   #
-  # Writes log data to stderr
+  # Creates a log sink instance that will be configured to log to stderr
   #
-
-  def log(sev, src, level, msg, from) # :nodoc:
-    if (sev == LOG_RAW)
-      $stderr.write(msg)
-    else
-      code = 'i'
-
-      case sev
-        when LOG_DEBUG
-          code = 'd'
-        when LOG_ERROR
-          code = 'e'
-        when LOG_INFO
-          code = 'i'
-        when LOG_WARN
-          code = 'w'
-      end
-      $stderr.write("[#{get_current_timestamp}] [#{code}(#{level})] #{src}: #{msg}\n")
-    end
-
-    $stderr.flush
+  def initialize(*_attrs)
+    super($stderr)
   end
-
-protected
 
 end
 

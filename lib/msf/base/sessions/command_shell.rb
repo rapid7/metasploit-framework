@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
+require 'msf/base/sessions/command_shell_options'
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
@@ -31,16 +32,22 @@ class CommandShell
 
   include Rex::Ui::Text::Resource
 
+  @@irb_opts = Rex::Parser::Arguments.new(
+    '-h' => [false, 'Help menu.'             ],
+    '-e' => [true,  'Expression to evaluate.']
+  )
+
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Executes the supplied script, must be specified as full path.
-  #
-  # Msf::Session::Scriptable implementor
+  # Runs the shell session script or resource file.
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Shell.new(self, full_path)
-    o.run(args)
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Shell.new(self, full_path).run(args)
+    else
+      load_resource(full_path)
+    end
   end
 
   #
@@ -69,6 +76,13 @@ class CommandShell
     "Command shell"
   end
 
+  #
+  # Calls the class method
+  #
+  def type
+    self.class.type
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
@@ -79,22 +93,52 @@ class CommandShell
   end
 
   #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'shell_session')
+  end
+
+  #
   # List of supported commands.
   #
   def commands
     {
-        'help'         =>  'Help menu',
-        'background'   => 'Backgrounds the current shell session',
-        'sessions'     => 'Quickly switch to another session',
-        'resource'     => 'Run the commands stored in a file',
-        'shell'        => 'Spawn an interactive shell (*NIX Only)',
-        'download'     => 'Download files (*NIX Only)',
-        'upload'       => 'Upload files (*NIX Only)',
+      'help'       => 'Help menu',
+      'background' => 'Backgrounds the current shell session',
+      'sessions'   => 'Quickly switch to another session',
+      'resource'   => 'Run a meta commands script stored in a local file',
+      'shell'      => 'Spawn an interactive shell (*NIX Only)',
+      'download'   => 'Download files (*NIX Only)',
+      'upload'     => 'Upload files (*NIX Only)',
+      'source'     => 'Run a shell script on remote machine (*NIX Only)',
+      'irb'        => 'Open an interactive Ruby shell on the current session',
+      'pry'        => 'Open the Pry debugger on the current session'
     }
   end
 
+  def cmd_help_help
+    print_line "There's only so much I can do"
+  end
+
   def cmd_help(*args)
+    cmd = args.shift
+
+    if cmd
+      unless commands.key?(cmd)
+        return print_error('No such command')
+      end
+
+      unless respond_to?("cmd_#{cmd}_help")
+        return print_error("No help for #{cmd}, try -h")
+      end
+
+      return send("cmd_#{cmd}_help")
+    end
+
     columns = ['Command', 'Description']
+
     tbl = Rex::Text::Table.new(
       'Header'  => 'Meta shell commands',
       'Prefix'  => "\n",
@@ -103,9 +147,11 @@ class CommandShell
       'Columns' => columns,
       'SortIndex' => -1
     )
+
     commands.each do |key, value|
       tbl << [key, value]
     end
+
     print(tbl.to_s)
   end
 
@@ -192,7 +238,9 @@ class CommandShell
       end
       end
       if good_res
+        print_status("Executing resource script #{good_res}")
         load_resource(good_res)
+        print_status("Resource script #{good_res} complete")
       else
         print_error("#{res} is not a valid resource file")
         next
@@ -211,9 +259,9 @@ class CommandShell
   def cmd_shell_help()
     print_line('Usage: shell')
     print_line
-    print_line('Pop up an interactive shell via multi methods.')
+    print_line('Pop up an interactive shell via multiple methods.')
     print_line('An interactive shell means that you can use several useful commands like `passwd`, `su [username]`')
-    print_line('There are three implementation of it: ')
+    print_line('There are four implementations of it: ')
     print_line('\t1. using python `pty` module (default choice)')
     print_line('\t2. using `socat` command')
     print_line('\t3. using `script` command')
@@ -227,17 +275,13 @@ class CommandShell
       return cmd_sessions_help
     end
 
-    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
     # 1. Using python
-    # 1.1 Check Python installed or not
-    # We do not need to care about the python version
-    # Beacuse python2 and python3 have the same payload of spawn a shell
-    python_path = binary_exists("python")
+    python_path = binary_exists("python") || binary_exists("python3")
     if python_path != nil
-      # Payload: import pty;pty.spawn('/bin/sh')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
       print_status("Using `python` to pop up an interactive shell")
-      shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
+      # Ideally use bash for a friendlier shell, but fall back to /bin/sh if it doesn't exist
+      shell_path = binary_exists("bash") || '/bin/sh'
+      shell_command("#{python_path} -c \"#{ Msf::Payload::Python.create_exec_stub("import pty; pty.spawn('#{shell_path}')") } \"")
       return
     end
 
@@ -270,14 +314,14 @@ class CommandShell
 
     print_error("Can not pop up an interactive shell")
   end
-  
+
   #
   # Check if there is a binary in PATH env
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-    binary_path = shell_command_token("which #{binary}").strip
-    if binary_path.eql?("#{binary} not found")
+    binary_path = shell_command_token("which #{binary}").to_s.strip
+    if binary_path.eql?("#{binary} not found") || binary_path == ""
       print_error(binary_path)
       return nil
     else
@@ -300,7 +344,7 @@ class CommandShell
     # /etc/passwd
     # $ ls /etc/nosuchfile
     # ls: cannot access '/etc/nosuchfile': No such file or directory
-    result = shell_command_token("ls #{path}").strip
+    result = shell_command_token("ls #{path}").to_s.strip
     if result.eql?(path)
       return true
     end
@@ -402,7 +446,7 @@ class CommandShell
           print_error("Appending content to the target file <#{dst}> failed. (#{result})")
           # Do some cleanup
           # Delete the target file
-          shell_command_token("rm -rf #{dst}")
+          shell_command_token("rm -rf '#{dst}'")
           print_status("Target file <#{dst}> deleted")
           return
         end
@@ -423,6 +467,113 @@ class CommandShell
     return data_repr
   end
 
+  def cmd_source_help
+    print_line("Usage: source [file] [background]")
+    print_line
+    print_line("Execute a local shell script file on remote machine")
+    print_line("This meta command will upload the script then execute it on the remote machine")
+    print_line
+    print_line("background")
+    print_line("`y` represent execute the script in background, `n` represent on foreground")
+  end
+
+  def cmd_source(*args)
+    if args.length != 2
+      # no argumnets, just print help message
+      return cmd_source_help
+    end
+
+    background = args[1].downcase == 'y'
+
+    local_file = args[0]
+    remote_file = "/tmp/." + ::Rex::Text.rand_text_alpha(32) + ".sh"
+
+    cmd_upload(local_file, remote_file)
+
+    # Change file permission in case of TOCTOU
+    shell_command("chmod 0600 #{remote_file}")
+
+    if background
+      print_status("Executing on remote machine background")
+      print_line(shell_command("nohup sh -x #{remote_file} &"))
+    else
+      print_status("Executing on remote machine foreground")
+      print_line(shell_command("sh -x #{remote_file}"))
+    end
+    print_status("Cleaning temp file on remote machine")
+    shell_command("rm -rf '#{remote_file}'")
+  end
+
+  def cmd_irb_help
+    print_line('Usage: irb')
+    print_line
+    print_line('Open an interactive Ruby shell on the current session.')
+    print @@irb_opts.usage
+  end
+
+  #
+  # Open an interactive Ruby shell on the current session
+  #
+  def cmd_irb(*args)
+    expressions = []
+
+    # Parse the command options
+    @@irb_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-e'
+        expressions << val
+      when '-h'
+        return cmd_irb_help
+      end
+    end
+
+    session = self
+    framework = self.framework
+
+    if expressions.empty?
+      print_status('Starting IRB shell...')
+      print_status("You are in the \"self\" (session) object\n")
+
+      Rex::Ui::Text::IrbShell.new(self).run
+    else
+      # XXX: No vprint_status here
+      if framework.datastore['VERBOSE'].to_s == 'true'
+        print_status("You are executing expressions in #{binding.receiver}")
+      end
+
+      expressions.each { |expression| eval(expression, binding) }
+    end
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open the Pry debugger on the current session.'
+    print_line
+  end
+
+  #
+  # Open the Pry debugger on the current session
+  #
+  def cmd_pry(*args)
+    if args.include?('-h')
+      cmd_pry_help
+      return
+    end
+
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error('Failed to load Pry, try "gem install pry"')
+      return
+    end
+
+    print_status('Starting Pry shell...')
+    print_status("You are in the \"self\" (session) object\n")
+
+    self.pry
+  end
+
   #
   # Explicitly runs a single line command.
   #
@@ -430,7 +581,7 @@ class CommandShell
     # Do nil check for cmd (CTRL+D will cause nil error)
     return unless cmd
 
-    arguments = cmd.split(' ')
+    arguments = Shellwords.shellwords(cmd)
     method    = arguments.shift
 
     # Built-in command
@@ -439,7 +590,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd)
+    shell_write(cmd + "\n")
   end
 
   #
@@ -604,7 +755,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        run_single(user_input.gets)
+        run_single((user_input.gets || '').chomp("\n"))
       end
       Thread.pass
     end

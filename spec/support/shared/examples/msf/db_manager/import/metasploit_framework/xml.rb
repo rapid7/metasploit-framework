@@ -95,7 +95,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
   context 'CONSTANTS' do
     it 'should define MSF_WEB_PAGE_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES =~ [
+      expected_keys = [
           'auth',
           'body',
           'code',
@@ -104,14 +104,15 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           'location',
           'mtime'
       ]
+      expect(described_class::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES).to match_array(expected_keys)
     end
 
     it 'should define MSF_WEB_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_TEXT_ELEMENT_NAMES =~ msf_web_text_element_names
+      expect(described_class::MSF_WEB_TEXT_ELEMENT_NAMES).to match_array(msf_web_text_element_names)
     end
 
     it 'should define MSF_WEB_VULN_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_VULN_TEXT_ELEMENT_NAMES =~ [
+      expected_keys = [
           'blame',
           'category',
           'confidence',
@@ -122,6 +123,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           'proof',
           'risk'
       ]
+      expect(described_class::MSF_WEB_VULN_TEXT_ELEMENT_NAMES).to match_array(expected_keys)
     end
   end
 
@@ -1015,12 +1017,16 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   context '#import_msf_xml' do
+    let(:workspace) do
+      FactoryBot.create(:mdm_workspace)
+    end
+
     let(:data) do
       '<MetasploitV4/>'
     end
 
     subject(:import_msf_xml) do
-      db_manager.import_msf_xml(:data => data)
+      db_manager.import_msf_xml({:data => data, :workspace => workspace})
     end
 
     it 'should call #check_msf_xml_version!' do

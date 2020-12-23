@@ -78,6 +78,19 @@ class DataProxy
     end
   end
 
+  def delete_current_data_service
+    @data_services.each do |id, ds|
+      if ds == @current_data_service
+        if id == 1
+          raise "Unable to delete the local data service. Please use db_disconnect."
+        else
+          @data_services.delete(id)
+          @current_data_service = @data_services[1]
+        end
+      end
+    end
+  end
+
   #
   # Set the data service to be used
   #
@@ -137,12 +150,27 @@ class DataProxy
     return @current_data_service
   end
 
+  # Performs a set of data service operations declared within the block.
+  # This passes the @current_data_service as a parameter to the block.
+  # If there is no current data service registered or the data service
+  # is not active, the block is not executed and the method simply returns.
+  def data_service_operation(&block)
+    return unless block_given?
+
+    begin
+      data_service = self.get_data_service
+    rescue
+      return
+    end
+
+    block.call(data_service) if !data_service.nil? && self.active
+  end
+
   def log_error(exception, ui_message)
-    elog "#{ui_message}: #{exception.message}"
-    exception.backtrace.each { |line| elog "#{line}" }
+    elog(ui_message, error: exception)
     # TODO: We should try to surface the original exception, instead of just a generic one.
     # This should not display the full backtrace, only the message.
-    raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
+    raise exception
   end
 
   # Adds a valid workspace value to the opts hash before sending on to the data layer.
@@ -153,9 +181,6 @@ class DataProxy
   def add_opts_workspace(opts, wspace = nil)
     # If :id is present the user only wants a specific record, so workspace isn't needed
     return if opts.key?(:id)
-
-    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
-    opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
 
     # If the user passed in a specific workspace then use that in opts
     opts[:workspace] = wspace if wspace
@@ -185,6 +210,7 @@ class DataProxy
         @error = 'disabled'
       end
     rescue => e
+      @error = e
       raise "Unable to initialize data service: #{e.message}"
     end
   end
@@ -193,6 +219,13 @@ class DataProxy
     raise "Invalid data_service: #{data_service.class}, not of type Metasploit::Framework::DataService" unless data_service.is_a? (Metasploit::Framework::DataService)
     raise 'Cannot register null data service data_service' unless data_service
     raise 'Data Service already exists' if data_service_exist?(data_service)
+    # Raising an error for local DB causes startup to fail if there is a DB configured but we are unable to connect
+    # TODO: The check here shouldn't be dependent on if the data_service is local or not. We shouldn't
+    # connect to any data service if it is not online/active. This can likely be fixed by making a true
+    # LocalDataService instead of using DBManager.
+    unless data_service.is_local?
+      raise 'Data Service does not appear to be responding' unless data_service.active
+    end
   end
 
   def data_service_exist?(data_service)

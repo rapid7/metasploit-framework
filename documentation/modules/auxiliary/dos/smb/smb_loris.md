@@ -10,17 +10,13 @@
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Start msfconsole
-  1. Do: `use auxiliary/dos/smb/smb_loris`
-  1. Do: `set rhost [IP]`
-  1. Do: `run`
-  1. Target should allocate increasing amounts of memory.
+  2. Do: `use auxiliary/dos/smb/smb_loris`
+  3. Do: `set rhost [IP]`
+  4. Do: `run`
+  5. Target should allocate increasing amounts of memory.
 
 ## Scenarios
-
-### 
 
 ```
 msf auxiliary(smb_loris) > use auxiliary/dos/smb/smb_loris

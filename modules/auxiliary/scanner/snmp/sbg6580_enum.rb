@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         The default community used is "public".',
       'References'  =>
         [
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/May/79' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/May/79' ],
           [ 'URL', 'http://www.arrisi.com/modems/datasheet/SBG6580/SBG6580_UserGuide.pdf' ],
           [ 'OSVDB', '110555' ]
         ],
@@ -217,8 +217,7 @@ class MetasploitModule < Msf::Auxiliary
       raise $!
     rescue ::Exception => e
       print_error("Unknown error: #{e.class} #{e}")
-      elog("Unknown error: #{e.class} #{e}")
-      elog("Call stack:\n#{e.backtrace.join "\n"}")
+      elog(e)
     ensure
       disconnect_snmp
     end

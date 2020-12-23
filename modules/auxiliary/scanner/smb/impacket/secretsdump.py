@@ -51,8 +51,7 @@ metadata = {
         {'type': 'url', 'ref': 'http://www.beginningtoseethelight.org/ntsecurity/index.htm'},
         {'type': 'url', 'ref': 'http://www.ntdsxtract.com/downloads/ActiveDirectoryOfflineHashDumpAndForensics.pdf'},
         {'type': 'url', 'ref': 'http://www.passcape.com/index.php?section=blog&cmd=details&id=15'},
-        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/secretsdump.py'},
-        {'type': 'aka', 'ref': 'secretsdump.py'},
+        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/secretsdump.py'}
      ],
     'type': 'single_scanner',
     'options': {
@@ -61,6 +60,9 @@ metadata = {
         'SMBDomain':  {'type': 'string', 'description': 'The Windows domain to use for authentication', 'required': False, 'default': '.'},
         'SMBPass':    {'type': 'string', 'description': 'The password for the specified username', 'required': True, 'default': None},
         'SMBUser':    {'type': 'string', 'description': 'The username to authenticate as', 'required': True, 'default': None},
+    },
+    'notes': {
+        'AKA': ['secretsdump.py']
     }
 }
 
@@ -142,7 +144,7 @@ class DumpSecrets:
                         bootKey             = self.__remoteOps.getBootKey()
                         # Let's check whether target system stores LM Hashes
                         self.__noLMHash = self.__remoteOps.checkNoLMHashPolicy()
-                except Exception, e:
+                except Exception as e:
                     self.__canProcessSAMLSA = False
                     if str(e).find('STATUS_USER_SESSION_DELETED') and os.getenv('KRB5CCNAME') is not None \
                         and self.__doKerberos is True:
@@ -164,7 +166,7 @@ class DumpSecrets:
                     self.__SAMHashes.dump()
                     if self.__outputFileName is not None:
                         self.__SAMHashes.export(self.__outputFileName)
-                except Exception, e:
+                except Exception as e:
                     logging.error('SAM hashes extraction failed: %s' % str(e))
 
                 try:
@@ -182,7 +184,7 @@ class DumpSecrets:
                     self.__LSASecrets.dumpSecrets()
                     if self.__outputFileName is not None:
                         self.__LSASecrets.exportSecrets(self.__outputFileName)
-                except Exception, e:
+                except Exception as e:
                     logging.error('LSA hashes extraction failed: %s' % str(e), exc_info=True)
 
             # NTDS Extraction we can try regardless of RemoteOperations failing. It might still work
@@ -202,7 +204,7 @@ class DumpSecrets:
                                            printUserStatus=self.__printUserStatus, perSecretCallback=self.perSecretCallback2)
             try:
                 self.__NTDSHashes.dump()
-            except Exception, e:
+            except Exception as e:
                 if str(e).find('ERROR_DS_DRA_BAD_DN') >= 0:
                     # We don't store the resume file if this error happened, since this error is related to lack
                     # of enough privileges to access DRSUAPI.
@@ -217,7 +219,7 @@ class DumpSecrets:
                 elif self.__useVSSMethod is False:
                     logging.info('Something wen\'t wrong with the DRSUAPI approach. Try again with -use-vss parameter')
             self.cleanup()
-        except (Exception, KeyboardInterrupt), e:
+        except (Exception, KeyboardInterrupt) as e:
             logging.error(e, exc_info=True)
             try:
                 self.cleanup()
@@ -251,7 +253,7 @@ def run(args):
     dumper = DumpSecrets(args['rhost'], args['SMBUser'], args['SMBPass'], args['SMBDomain'], args['OutputFile'], args['ExecMethod'])
     try:
         dumper.dump()
-    except Exception, e:
+    except Exception as e:
         logging.error(e, exc_info=True)
 
 if __name__ == "__main__":

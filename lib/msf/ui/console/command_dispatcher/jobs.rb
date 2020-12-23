@@ -209,10 +209,14 @@ module Msf
                 persist_list = []
               end
 
+              # Remove persistence by job id.
               job_list.map(&:to_s).each do |job|
-                next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
-                payload_option = framework.jobs[job.to_s].ctx[1].datastore
-                persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
+                if framework.jobs.key?(job)
+                  ctx_1 = framework.jobs[job.to_s].ctx[1]
+                  next if ctx_1.nil? || !ctx_1.respond_to?(:datastore)  # next if no payload context in the job
+                  payload_option = ctx_1.datastore
+                  persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
+                end
               end
               # Write persist job back to config file.
               File.open(Msf::Config.persist_file,"w") do |file|
@@ -238,7 +242,8 @@ module Msf
 
           def add_persist_job(job_id)
             if job_id && framework.jobs.has_key?(job_id.to_s)
-              unless framework.jobs[job_id.to_s].ctx[1]
+              handler_ctx = framework.jobs[job_id.to_s].ctx[1]
+              unless handler_ctx and handler_ctx.respond_to?(:replicant)
                 print_error("Add persistent job failed: job #{job_id} is not payload handler.")
                 return
               end
@@ -293,7 +298,6 @@ module Msf
             print_line "Usage: kill <job1> [job2 ...]"
             print_line
             print_line "Equivalent to 'jobs -k job1 -k job2 ...'"
-            print @@jobs_opts.usage
           end
 
           def cmd_kill(*args)

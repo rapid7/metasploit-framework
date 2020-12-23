@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#require 'msf/core'
-#require 'msf/core/post/file'
 require 'sshkey'
 
 class MetasploitModule < Msf::Post
@@ -28,12 +26,7 @@ class MetasploitModule < Msf::Post
             'h00die <mike@shorebreaksecurity.com>'
           ],
         'Platform'       => [ 'linux' ],
-        'SessionTypes'   => [ 'meterpreter', 'shell' ],
-        'Targets'        =>
-          [
-            [ 'Automatic', {} ]
-          ],
-        'DefaultTarget'  => 0
+        'SessionTypes'   => [ 'meterpreter', 'shell' ]
       )
     )
 

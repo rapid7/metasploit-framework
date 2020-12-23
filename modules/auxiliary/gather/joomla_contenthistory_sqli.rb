@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           'Nixawk'       # module review
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Oct 22 2015'
+      'DisclosureDate' => '2015-10-22'
     ))
 
     register_options(

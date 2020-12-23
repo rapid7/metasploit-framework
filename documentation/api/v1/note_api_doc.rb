@@ -184,7 +184,7 @@ module NoteApiDoc
 
     # Swagger documentation for /api/v1/notes/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing note.'
+      key :description, 'Update the attributes on an existing note.'
       key :tags, [ 'note' ]
 
       parameter :update_id
