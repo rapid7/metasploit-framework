@@ -61,9 +61,9 @@ class MetasploitModule < Msf::Auxiliary
     end
     json = res.get_json_document
     if !json.nil? && !json['data'].nil? && !json['data'].empty?
-      json['data'].each do |post|
-        print_good("#{rhost}:#{post['port']}:#{post['_shodan']['module']}")
-        report_service(host: rhost,post: ['port'],name: post['_shodan']['module'])
+      json['data'].each do |data|
+        print_good("#{rhost}:#{data['port']}:#{data['_shodan']['module']}")
+        report_service(host: rhost, post: data['port'], name: data['_shodan']['module'])
       end
     else
       print_error("Shodan did not return any open ports for #{rhost}!")
