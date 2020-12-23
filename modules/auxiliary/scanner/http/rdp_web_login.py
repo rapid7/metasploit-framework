@@ -103,7 +103,7 @@ def check_usernames(rhost, rport, targeturi, domain, username_file, timeout):
 def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if dependencies_missing:
-        module.log('Module dependency (requests) is missing, cannot continue', level='error')
+        module.log('Module dependencies are missing, cannot continue', level='error')
         return
 
     # Gather AD Domain either from args or enumeration
