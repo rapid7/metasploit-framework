@@ -24,7 +24,7 @@ class ExtensionMapper
     self.get_extension_names.each do |name|
       begin
         klass = self.get_extension_klass(name)
-      rescue LoadError
+      rescue RuntimeError
         next
       end
       return name if klass.extension_id == id
