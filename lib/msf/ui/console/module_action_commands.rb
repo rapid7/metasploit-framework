@@ -118,8 +118,8 @@ module ModuleActionCommands
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   #
   def cmd_run_tabs(str, words)
-    flags = @@run_action_opts.fmt.keys
-    options = tab_complete_option(str, words)
+    flags = @@module_opts.fmt.keys
+    options = tab_complete_option(active_module, str, words)
     flags + options
   end
 
