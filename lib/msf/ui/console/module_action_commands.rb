@@ -47,10 +47,50 @@ module ModuleActionCommands
 
     action = meth.to_s.delete_prefix('cmd_')
     if mod && mod.kind_of?(Msf::Module::HasActions) && mod.actions.map(&:name).any? { |a| a.casecmp?(action) }
-       return do_action(action, *args)
+      return do_action(action, *args)
     end
 
     return
+  end
+
+  #
+  # Parse the arguments to the run command, accounting for an optional module action.
+  #
+  def parse_run_opts(args, action: nil)
+    ds_opts = {}
+    action  ||= mod.datastore['ACTION']
+    jobify  = false
+    quiet   = false
+
+    @@module_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-j'
+        jobify = true
+      when '-o'
+        val << '=' unless val.include?('=')
+        ds_opts.store(*val.split('=', 2))
+      when '-a'
+        action = val
+      when '-q'
+        quiet  = true
+      when '-h'
+        if action.nil?
+          cmd_run_help
+        else
+          cmd_action_help(action)
+        end
+        return
+      else
+        if val[0] != '-' && val.match?('=')
+          ds_opts.push(val)
+        else
+          cmd_run_help
+          return
+        end
+      end
+    end
+
+    { action: action, jobify: jobify, quiet: quiet, datastore_options: ds_opts }
   end
 
   #
@@ -66,7 +106,7 @@ module ModuleActionCommands
   def cmd_action_help(action)
     print_line "Usage: " + action.downcase + " [options]"
     print_line
-    print_line "Launches a specfic module action."
+    print_line "Launches a specific module action."
     print @@module_action_opts.usage
   end
 

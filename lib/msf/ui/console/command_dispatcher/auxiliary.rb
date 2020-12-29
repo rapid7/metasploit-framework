@@ -42,41 +42,12 @@ class Auxiliary
   # Executes an auxiliary module
   #
   def cmd_run(*args, action: nil)
-    opts    = []
-    action  ||= mod.datastore['ACTION']
-    jobify  = false
-    quiet   = false
-
-    @@module_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-j'
-        jobify = true
-      when '-o'
-        opts.push(val)
-      when '-a'
-        action = val
-      when '-q'
-        quiet  = true
-      when '-h'
-        if action.nil?
-          cmd_run_help
-        else
-          cmd_action_help(action)
-        end
-        return false
-      else
-        if val[0] != '-' && val.match?('=')
-          opts.push(val)
-        else
-          cmd_run_help
-          return false
-        end
-      end
-    end
+    return false unless (args = parse_run_opts(args, action: action))
+    jobify = args[:jobify]
 
     # Always run passive modules in the background
     if mod.is_a?(Msf::Module::HasActions) &&
-        (mod.passive || mod.passive_action?(action || mod.default_action))
+        (mod.passive || mod.passive_action?(args[:action] || mod.default_action))
       jobify = true
     end
 
@@ -85,12 +56,12 @@ class Auxiliary
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
         mod.run_simple(
-          'Action'         => action,
-          'OptionStr'      => opts.join(','),
+          'Action'         => args[:action],
+          'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
           'LocalInput'     => driver.input,
           'LocalOutput'    => driver.output,
           'RunAsJob'       => jobify,
-          'Quiet'          => quiet
+          'Quiet'          => args[:quiet]
         )
       # For multi target attempts with non-scanner modules.
       else
@@ -106,12 +77,12 @@ class Auxiliary
           nmod.datastore['RHOST'] = rhost
           print_status("Running module against #{rhost}")
           nmod.run_simple(
-            'Action'         => action,
-            'OptionStr'      => opts.join(','),
+            'Action'         => args[:action],
+            'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
             'LocalInput'     => driver.input,
             'LocalOutput'    => driver.output,
             'RunAsJob'       => false,
-            'Quiet'          => quiet
+            'Quiet'          => args[:quiet]
           )
         end
       end
