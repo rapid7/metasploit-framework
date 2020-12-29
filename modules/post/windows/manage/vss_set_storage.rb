@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
       return
     end
     if vss_set_storage(datastore['SIZE'])
-      print_good("Size upated successfully")
+      print_good("Size updated successfully")
     else
       print_error("There was a problem updating the storage size")
     end
