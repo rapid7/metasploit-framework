@@ -20,7 +20,7 @@ interface.
 
 1. Install the plugin and create a backup
 1. Start msfconsole
-1. Do: `use auxiliary/scanner/http/wp_tota_upkeep_downloader`
+1. Do: `use auxiliary/scanner/http/wp_total_upkeep_downloader`
 1. Do: `set rhosts [ip]`
 1. Do: `run`
 1. You should get an archive backup.

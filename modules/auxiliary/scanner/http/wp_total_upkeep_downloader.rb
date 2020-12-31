@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
 
     checkcode = check_plugin_version_from_readme('boldgrid-backup', '1.14.10')
     unless [Msf::Exploit::CheckCode::Vulnerable, Msf::Exploit::CheckCode::Appears, Msf::Exploit::CheckCode::Detected].include?(checkcode)
-      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable ersion of the 'Boldgrid Backup' was not found"
+      fail_with Failure::NotVulnerable, "#{ip} - A vulnerable version of the 'Boldgrid Backup' was not found"
     end
     print_good("#{ip} - Vulnerable version detected")
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       'boldgrid-backup.server.info',
       'text/json',
       ip,
-      res.body,
+      data,
       'env-info.json'
     )
     print_good("#{ip} - File saved in: #{path}")
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       'boldgrid-backup.backup.info',
       'text/json',
       ip,
-      res.body,
+      data,
       'restore-info.json'
     )
     print_good("#{ip} - File saved in: #{path}")
