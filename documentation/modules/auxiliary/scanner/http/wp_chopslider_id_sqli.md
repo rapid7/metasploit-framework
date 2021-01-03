@@ -25,10 +25,14 @@ sqlmap -u 'http://local.target/wp-content/plugins/chopslider/get_script/index.ph
 
 ## Options
 
-### Count
+### ACTION: List Users
 
-How many rows in the database you'd like to retrieve. Greater takes more time, `1` will typically yield the admin account.
-Defaults to `1`
+This action lists `COUNT` users and password hashes.
+
+### COUNT
+
+If Action `List Users` is selected (default), this is the number of users to enumerate.
+The larger this list, the more time it will take.  Defaults to `1`.
 
 ## Scenarios
 
