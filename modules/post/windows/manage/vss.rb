@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Post
         [ 'VSS_CREATE', { 'Description' => 'Create a new VSS copy'} ],
         [ 'VSS_LIST_COPIES', { 'Description' => 'List VSS copies' } ],
         [ 'VSS_MOUNT', { 'Description' => 'Mount a VSS copy' } ],
+        [ 'VSS_UNMOUNT', { 'Description' => 'Unmount a VSS copy' } ],
         [ 'VSS_GET_INFO', { 'Description' => 'Get VSS information' } ],
         [ 'VSS_SET_MAX_STORAGE_SIZE', { 'Description' => 'Set the VSS maximum storage size' } ]
       ],
@@ -36,13 +37,12 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage'], conditions: %w{ ACTION == VSS_SET_MAX_STORAGE_SIZE }),
-        OptString.new('VOLUME', [ false, 'Volume to make a copy of.', 'C:\\'], conditions: %w{ ACTION == VSS_CREATE }),
-        OptString.new('DEVICE', [ false, 'DeviceObject of shadow copy to mount.' ], conditions: %w{ ACTION == VSS_MOUNT }),
-        OptString.new('PATH', [ false, 'Path to mount the shadow copy to.' ], conditions: %w{ ACTION == VSS_MOUNT })
+        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage' ], conditions: %w{ ACTION == VSS_SET_MAX_STORAGE_SIZE }),
+        OptString.new('VOLUME', [ false, 'Volume to make a copy of.', 'C:\\' ], conditions: %w{ ACTION == VSS_CREATE }),
+        OptString.new('DEVICE', [ false, 'DeviceObject of shadow copy to mount.' ], conditions: ['ACTION', 'in', %w{ VSS_MOUNT VSS_UNMOUNT } ]),
+        OptString.new('PATH', [ false, 'Path to use for mounting the shadow copy.' 'ShadowCopy' ], conditions: %w{ ACTION == VSS_MOUNT })
       ])
   end
-
 
   def run
     # all conditional options are required when active, make sure none of them are blank
@@ -80,8 +80,17 @@ class MetasploitModule < Msf::Post
 
   def action_vss_mount
     print_status('Creating the symlink...')
-    # todo: check if this can be replaced with create_symlink create_symlink(nil, datastore['PATH'], datastore['DEVICE'])
-    session.sys.process.execute("cmd.exe /C mklink /D #{datastore['PATH']} #{datastore['DEVICE']}", nil, {'Hidden' => true})
+    result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], datastore['DEVICE'], 'SYMBOLIC_LINK_FLAG_DIRECTORY')
+    if result['return']
+      print_good('Mounted successfully')
+    else
+      print_error("Mount failed with error #{result['GetLastError']} (#{result['ErrorMessage']})")
+    end
+  end
+
+  def action_vss_unmount
+    print_status('Deleting the symlink...')
+    session.fs.dir.rmdir(datastore['PATH'])
   end
 
   def action_vss_list_copies
