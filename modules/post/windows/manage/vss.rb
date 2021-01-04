@@ -37,10 +37,10 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage' ], conditions: %w{ ACTION == VSS_SET_MAX_STORAGE_SIZE }),
+        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage.' ], conditions: %w{ ACTION == VSS_SET_MAX_STORAGE_SIZE }),
         OptString.new('VOLUME', [ false, 'Volume to make a copy of.', 'C:\\' ], conditions: %w{ ACTION == VSS_CREATE }),
-        OptString.new('DEVICE', [ false, 'DeviceObject of shadow copy to mount.' ], conditions: ['ACTION', 'in', %w{ VSS_MOUNT VSS_UNMOUNT } ]),
-        OptString.new('PATH', [ false, 'Path to use for mounting the shadow copy.' 'ShadowCopy' ], conditions: %w{ ACTION == VSS_MOUNT })
+        OptString.new('DEVICE', [ false, 'DeviceObject of the shadow copy to mount.' ], conditions: %w{ ACTION == VSS_MOUNT }),
+        OptString.new('PATH', [ false, 'Path to use for mounting the shadow copy.' 'ShadowCopy' ], conditions: ['ACTION', 'in', %w{ VSS_MOUNT VSS_UNMOUNT } ])
       ])
   end
 
@@ -80,7 +80,9 @@ class MetasploitModule < Msf::Post
 
   def action_vss_mount
     print_status('Creating the symlink...')
-    result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], datastore['DEVICE'], 'SYMBOLIC_LINK_FLAG_DIRECTORY')
+    device = datastore['DEVICE']
+    device << '/' unless device.end_with?('/')  # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
+    result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], device, 'SYMBOLIC_LINK_FLAG_DIRECTORY')
     if result['return']
       print_good('Mounted successfully')
     else
