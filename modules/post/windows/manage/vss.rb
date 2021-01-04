@@ -8,40 +8,44 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'                 => "Windows Manage Volume Shadow Copies",
-      'Description'          => %q{
-        This module will perform management actions for Volume Shadow Copies on the system. This is based on the VSSOwn
-        Script originally posted by Tim Tomes and Mark Baggett.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Volume Shadow Copies',
+        'Description' => %q{
+          This module will perform management actions for Volume Shadow Copies on the system. This is based on the VSSOwn
+          Script originally posted by Tim Tomes and Mark Baggett.
 
-        Works on win2k3 and later.
+          Works on win2k3 and later.
         },
-      'License'              => MSF_LICENSE,
-      'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['theLightCosine'],
-      'References'    => [
-        [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
-      ],
-      'Actions' => [
-        [ 'VSS_CREATE', { 'Description' => 'Create a new VSS copy'} ],
-        [ 'VSS_LIST_COPIES', { 'Description' => 'List VSS copies' } ],
-        [ 'VSS_MOUNT', { 'Description' => 'Mount a VSS copy' } ],
-        [ 'VSS_UNMOUNT', { 'Description' => 'Unmount a VSS copy' } ],
-        [ 'VSS_GET_INFO', { 'Description' => 'Get VSS information' } ],
-        [ 'VSS_SET_MAX_STORAGE_SIZE', { 'Description' => 'Set the VSS maximum storage size' } ]
-      ],
-      'DefaultAction' => 'VSS_GET_INFO',
-    ))
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['theLightCosine'],
+        'References' => [
+          [ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
+        ],
+        'Actions' => [
+          [ 'VSS_CREATE', { 'Description' => 'Create a new VSS copy' } ],
+          [ 'VSS_LIST_COPIES', { 'Description' => 'List VSS copies' } ],
+          [ 'VSS_MOUNT', { 'Description' => 'Mount a VSS copy' } ],
+          [ 'VSS_UNMOUNT', { 'Description' => 'Unmount a VSS copy' } ],
+          [ 'VSS_GET_INFO', { 'Description' => 'Get VSS information' } ],
+          [ 'VSS_SET_MAX_STORAGE_SIZE', { 'Description' => 'Set the VSS maximum storage size' } ]
+        ],
+        'DefaultAction' => 'VSS_GET_INFO'
+      )
+    )
 
     register_options(
       [
-        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage.' ], conditions: %w{ ACTION == VSS_SET_MAX_STORAGE_SIZE }),
-        OptString.new('VOLUME', [ false, 'Volume to make a copy of.', 'C:\\' ], conditions: %w{ ACTION == VSS_CREATE }),
-        OptString.new('DEVICE', [ false, 'DeviceObject of the shadow copy to mount.' ], conditions: %w{ ACTION == VSS_MOUNT }),
-        OptString.new('PATH', [ false, 'Path to use for mounting the shadow copy.' 'ShadowCopy' ], conditions: ['ACTION', 'in', %w{ VSS_MOUNT VSS_UNMOUNT } ])
-      ])
+        OptInt.new('SIZE', [ false, 'Size in bytes to set for max storage.' ], conditions: %w[ACTION == VSS_SET_MAX_STORAGE_SIZE]),
+        OptString.new('VOLUME', [ false, 'Volume to make a copy of.', 'C:\\' ], conditions: %w[ACTION == VSS_CREATE]),
+        OptString.new('DEVICE', [ false, 'DeviceObject of the shadow copy to mount.' ], conditions: %w[ACTION == VSS_MOUNT]),
+        OptString.new('PATH', [ false, 'Path to use for mounting the shadow copy.', 'ShadowCopy' ], conditions: ['ACTION', 'in', %w[VSS_MOUNT VSS_UNMOUNT] ])
+      ]
+    )
   end
 
   def run
@@ -49,6 +53,7 @@ class MetasploitModule < Msf::Post
     options.each_pair do |name, option|
       next if option.conditions.empty?
       next unless Msf::OptCondition.show_option(self, option)
+
       fail_with(Failure::BadConfig, "The #{name} option is required by the #{action.name} action.") if datastore[name].blank?
     end
 
@@ -69,11 +74,11 @@ class MetasploitModule < Msf::Post
     return unless (storage_data = vss_get_storage)
 
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Shadow Copy Storage Data',
-      'Indent'  => 2,
+      'Header' => 'Shadow Copy Storage Data',
+      'Indent' => 2,
       'Columns' => ['Field', 'Value']
     )
-    storage_data.each_pair{|k,v| tbl << [k,v]}
+    storage_data.each_pair { |k, v| tbl << [k, v] }
     print_good(tbl.to_s)
     store_loot('host.shadowstorage', 'text/plain', session, tbl.to_s, 'shadowstorage.txt', 'Shadow Copy Storage Info')
   end
@@ -81,7 +86,7 @@ class MetasploitModule < Msf::Post
   def action_vss_mount
     print_status('Creating the symlink...')
     device = datastore['DEVICE']
-    device << '/' unless device.end_with?('/')  # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
+    device << '/' unless device.end_with?('/') # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
     result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], device, 'SYMBOLIC_LINK_FLAG_DIRECTORY')
     if result['return']
       print_good('Mounted successfully')
@@ -102,12 +107,12 @@ class MetasploitModule < Msf::Post
     list = ''
     shadow_copies.each do |copy|
       tbl = Rex::Text::Table.new(
-        'Header'  => 'Shadow Copy Data',
-        'Indent'  => 2,
+        'Header' => 'Shadow Copy Data',
+        'Indent' => 2,
         'Columns' => ['Field', 'Value']
       )
-      copy.each_pair{|k,v| tbl << [k,v]}
-      list << " #{tbl.to_s} \n\n"
+      copy.each_pair { |k, v| tbl << [k, v] }
+      list << " #{tbl} \n\n"
       print_good tbl.to_s
     end
     store_loot('host.shadowcopies', 'text/plain', session, list, 'shadowcopies.txt', 'Shadow Copy Info')
