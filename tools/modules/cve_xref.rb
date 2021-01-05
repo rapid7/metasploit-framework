@@ -179,7 +179,6 @@ class Utility
 end
 
 require 'msfenv'
-require 'msf/base'
 
 def main
   filter  = 'All'

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base'
 require 'securerandom'
 
 module Msf

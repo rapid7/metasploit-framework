@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base/simple'
-require 'msf/base/simple/framework/module_paths'
-require 'msf/base/simple/noop_job_listener'
 require 'msf/core/constants'
 module Msf
 module Simple

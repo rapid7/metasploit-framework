@@ -11,7 +11,6 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'msf/base/config'
 require 'msf/util'
 require 'msf/events'
 require 'rex/socket/ssl'

@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex'
-require 'msf/base'
 require 'msf/core'
 module Msf
 

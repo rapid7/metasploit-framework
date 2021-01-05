@@ -12,7 +12,6 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 
 require 'msfenv'
-require 'msf/base'
 
 $msf = Msf::Simple::Framework.create
 

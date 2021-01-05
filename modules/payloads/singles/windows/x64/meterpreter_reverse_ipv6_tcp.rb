@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/meterpreter_x64_win'
-require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule

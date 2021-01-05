@@ -23,7 +23,6 @@ gem 'rex-text'
 
 require 'rex'
 require 'msf/ui'
-require 'msf/base'
 require 'msf/util/payload_cached_size'
 
 # Initialize the simplified framework instance.
