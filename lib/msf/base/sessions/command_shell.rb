@@ -28,7 +28,7 @@ class CommandShell
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   include Rex::Ui::Text::Resource
 

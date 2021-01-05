@@ -24,7 +24,7 @@ class HWBridge  < Rex::Post::HWBridge::Client
   # This interface supports interactive commands.
   #
   include Msf::Session::Interactive
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   #
   # Initialize the HWBridge console
