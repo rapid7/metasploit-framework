@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
   include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
