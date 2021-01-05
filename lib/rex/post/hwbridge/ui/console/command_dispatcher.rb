@@ -61,7 +61,7 @@ module Console::CommandDispatcher
     if client.framework
       # We have a framework instance so the msf libraries should be
       # available.  Load up the ones we're going to use
-          end
+    end
     @msf_loaded = !!(client.framework)
     @msf_loaded
   end
