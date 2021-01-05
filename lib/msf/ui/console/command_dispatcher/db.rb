@@ -1610,27 +1610,7 @@ class Db
         arguments.push('-oX', fd.path)
       end
 
-      begin
-        nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
-        temp_nmap_threads = []
-        temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-          np_1.each_line do |nmap_out|
-            next if nmap_out.strip.empty?
-            print_status("Nmap: #{nmap_out.strip}")
-          end
-        end
-
-        temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-          np_2.each_line do |nmap_err|
-            next if nmap_err.strip.empty?
-            print_status("Nmap: '#{nmap_err.strip}'")
-          end
-        end
-
-        temp_nmap_threads.map {|t| t.join rescue nil}
-        nmap_pipe.each {|p| p.close rescue nil}
-      rescue ::IOError
-      end
+      run_nmap(arguments, nmap)
 
       framework.db.import_nmap_xml_file(:filename => fd.path)
 
@@ -2132,6 +2112,35 @@ class Db
 
   #######
   private
+
+  def run_nmap(arguments, nmap, use_sudo=false)
+    begin
+      nmap_pipe = use_sudo ? ::Open3::popen3('sudo', nmap, *arguments) : ::Open3::popen3([nmap, 'nmap'], *arguments)
+      temp_nmap_threads = []
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+        np_1.each_line do |nmap_out|
+          next if nmap_out.strip.empty?
+          print_status("Nmap: #{nmap_out.strip}")
+        end
+      end
+
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+
+        np_2.each_line do |nmap_err|
+          next if nmap_err.strip.empty?
+          print_status("Nmap: '#{nmap_err.strip}'")
+          if nmap_err.strip == 'You requested a scan type which requires root privileges.'
+            return run_nmap(arguments, nmap, true)
+          end
+        end
+      end
+
+      temp_nmap_threads.map { |t| t.join rescue nil }
+      nmap_pipe.each { |p| p.close rescue nil }
+    rescue ::IOError
+    end
+  end
+
   #######
 
   def print_connection_info
