@@ -190,7 +190,8 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
             parent_path,
             type,
             reference_name,
-            :force => true
+            :force => true,
+            :throw_exception => true
         ).and_call_original
 
         load_cached_module

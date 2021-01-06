@@ -135,7 +135,7 @@ class Msf::Modules::Loader::Base
       ) if throw_exception
       # otherwise, do the legacy error reporting
       load_error(module_path, error)
-      module_content = ""
+      module_content = ''
     end
 
     if module_content.empty?
@@ -155,7 +155,12 @@ class Msf::Modules::Loader::Base
         raise
       rescue ::Exception => error
         # raise exception when required
-        raise Msf::ModuleLoadError.new(module_path) if throw_exception
+        if throw_exception
+          raise Msf::Modules::Error.new(
+            module_path:           module_path,
+            module_reference_name: module_reference_name
+          )
+        end
         # otherwise, do the legacy error reporting
         load_error(module_path, error)
         return false
@@ -171,11 +176,13 @@ class Msf::Modules::Loader::Base
         klass = namespace_module.const_get('MetasploitModule', false)
       else
         # raise exception when required
-        raise Msf::Modules::Error.new(
-          module_path: module_path,
-          module_reference_name: module_reference_name,
-          causal_message: 'invalid module class name (must be MetasploitModule)'
-        ) if throw_exception
+        if throw_exception
+          raise Msf::Modules::Error.new(
+            module_path:           module_path,
+            module_reference_name: module_reference_name,
+            causal_message:        'invalid module class name (must be MetasploitModule)'
+          )
+        end
         # otherwise, use the old error handler load_error
         load_error(module_path, Msf::Modules::Error.new(
           module_path:           module_path,
@@ -201,11 +208,13 @@ class Msf::Modules::Loader::Base
       return false unless loaded
     rescue NameError
       # raise exception when required
-      raise Msf::Modules::Error.new(
-        module_path: module_path,
-        module_reference_name: module_reference_name,
-        causal_message: 'invalid module class name (must be MetasploitModule)'
-      ) if throw_exception
+      if throw_exception
+        raise Msf::Modules::Error.new(
+          module_path:           module_path,
+          module_reference_name: module_reference_name,
+          causal_message:        'invalid module filename (must be lowercase alphanumeric snake case)'
+        )
+      end
       # otherwise, use the old error handler load_error
       load_error(module_path, Msf::Modules::Error.new(
         module_path:           module_path,
@@ -471,7 +480,7 @@ class Msf::Modules::Loader::Base
   #
   # @abstract Override to return the path to the module on the file system so that errors can be reported correctly.
   #
-  # @param path (see #load_module)
+  # @param parent_path (see #load_module)
   # @param type (see #load_module)
   # @param module_reference_name (see #load_module)
   # @return [String] The path to module.

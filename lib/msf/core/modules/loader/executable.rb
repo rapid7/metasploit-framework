@@ -100,7 +100,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
     rescue ::Exception => error
       raise if throw_exception
       load_error(full_path, error)
-      return ''
+      ''
     end
   end
 end

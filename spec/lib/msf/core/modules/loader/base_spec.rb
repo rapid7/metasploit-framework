@@ -43,6 +43,10 @@ RSpec.describe Msf::Modules::Loader::Base do
     Msf::MODULE_AUX
   end
 
+  let(:throw_exception) do
+    false
+  end
+
   context 'CONSTANTS' do
 
     context 'DIRECTORY_BY_TYPE' do
@@ -346,7 +350,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         it 'should call #read_module_content to get the module content so that #read_module_content can be overridden to change loading behavior' do
           allow(module_manager).to receive(:on_module_load)
 
-          expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
+          expect(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name, throw_exception).and_return(module_content)
 
           expect(subject.load_module(parent_path, type, module_reference_name)).to be_truthy
         end
@@ -362,7 +366,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
         context 'with empty module content' do
           before(:example) do
-            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return('')
+            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name, throw_exception).and_return('')
           end
 
           it 'should return false' do
@@ -449,7 +453,7 @@ RSpec.describe Msf::Modules::Loader::Base do
 
             allow(subject).to receive(:namespace_module_transaction).and_yield(@namespace_module)
 
-            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name).and_return(module_content)
+            allow(subject).to receive(:read_module_content).with(parent_path, type, module_reference_name, throw_exception).and_return(module_content)
 
             @module_load_error_by_path = {}
             allow(module_manager).to receive(:module_load_error_by_path).and_return(@module_load_error_by_path)
@@ -1003,7 +1007,7 @@ RSpec.describe Msf::Modules::Loader::Base do
         type = Msf::MODULE_AUX
 
         expect {
-          subject.send(:read_module_content, parent_pathname.to_s, type, module_reference_name)
+          subject.send(:read_module_content, parent_pathname.to_s, type, module_reference_name, throw_exception)
         }.to raise_error(NotImplementedError)
       end
     end
