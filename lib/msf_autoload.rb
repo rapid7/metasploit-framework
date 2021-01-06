@@ -47,7 +47,7 @@ loader.collapse(
   "#{__dir__}/msf/core/payload/windows/x64",
   "#{__dir__}/msf/core/payload/linux/x64",
   "#{__dir__}/msf/core/web_services/servlet",
-  # "#{__dir__}/msf/base",
+  "#{__dir__}/msf/base",
 )
 
 loader.inflector = TempInflector.new
