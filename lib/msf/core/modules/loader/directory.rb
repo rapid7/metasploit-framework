@@ -78,8 +78,8 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
         # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
         module_content = f.read(f.stat.size)
       end
-    rescue Errno::ENOENT => error
-      load_error(full_path, error)
+    rescue Errno::ENOENT
+      raise
     end
 
     module_content

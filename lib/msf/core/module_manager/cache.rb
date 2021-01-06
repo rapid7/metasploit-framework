@@ -80,16 +80,27 @@ module Msf::ModuleManager::Cache
 
     if module_info
       parent_path = module_info[:parent_path]
+      type = module_info[:type]
+      reference_name = module_info[:reference_name]
+      failed_loaders = {}
 
       # XXX borked
       loaders.each do |loader|
         if loader.loadable?(parent_path)
-          type = module_info[:type]
-          reference_name = module_info[:reference_name]
 
-          loaded = loader.load_module(parent_path, type, reference_name, :force => true)
+          begin
+            loaded = loader.load_module(parent_path, type, reference_name, :force => true, :throw_exception => true)
+          rescue Msf::Modules::Error => error
+            failed_loaders[loader] = error
+          end
 
           break if loaded
+        end
+      end
+
+      unless loaded
+        failed_loaders.keys do |loader|
+          loader.report_load_error(parent_path, type, reference_name, failed_loaders[loader])
         end
       end
     end

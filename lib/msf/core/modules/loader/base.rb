@@ -95,6 +95,7 @@ class Msf::Modules::Loader::Base
   #   type to whether its {Msf::ModuleManager::ModuleSets#module_set}
   #   needs to be recalculated.
   # @option options [Boolean] :reload (false) whether this is a reload.
+  # @option options [Boolean] :throw_exception whether to throw exceptions when fails to load
   #
   # @return [false] if :force is false and parent_path has not changed.
   # @return [false] if exception encountered while parsing module content
@@ -107,9 +108,10 @@ class Msf::Modules::Loader::Base
   # @see #read_module_content
   # @see Msf::ModuleManager::Loading#file_changed?
   def load_module(parent_path, type, module_reference_name, options={})
-    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type, :reload)
+    options.assert_valid_keys(:count_by_type, :force, :recalculate_by_type, :reload, :throw_exception)
     force = options[:force] || false
     reload = options[:reload] || false
+    throw_exception = options[:throw_exception] || false
 
     module_path = self.module_path(parent_path, type, module_reference_name)
     file_changed = module_manager.file_changed?(module_path)
@@ -122,10 +124,22 @@ class Msf::Modules::Loader::Base
 
     reload ||= force || file_changed
 
-    module_content = read_module_content(parent_path, type, module_reference_name)
+    begin
+      # read_module_content() will raise exceptions when fails
+      module_content = read_module_content(parent_path, type, module_reference_name)
+    rescue ::Exception => error
+      # raise exception when required
+      raise Msf::Modules::Error.new(
+        module_path: module_path,
+        module_reference_name: module_reference_name
+      ) if throw_exception
+      # otherwise, do the legacy error reporting
+      load_error(module_path, error)
+      module_content = ""
+    end
 
     if module_content.empty?
-      # read_module_content is responsible for calling {#load_error}, so just return here.
+      # exceptions has already been handled above if the module content fails to load
       return false
     end
 
@@ -140,6 +154,9 @@ class Msf::Modules::Loader::Base
       rescue ::Interrupt
         raise
       rescue ::Exception => error
+        # raise exception when required
+        raise Msf::ModuleLoadError.new(module_path) if throw_exception
+        # otherwise, do the legacy error reporting
         load_error(module_path, error)
         return false
       end
@@ -153,6 +170,13 @@ class Msf::Modules::Loader::Base
       elsif namespace_module.const_defined?('MetasploitModule', false)
         klass = namespace_module.const_get('MetasploitModule', false)
       else
+        # raise exception when required
+        raise Msf::Modules::Error.new(
+          module_path: module_path,
+          module_reference_name: module_reference_name,
+          causal_message: 'invalid module class name (must be MetasploitModule)'
+        ) if throw_exception
+        # otherwise, use the old error handler load_error
         load_error(module_path, Msf::Modules::Error.new(
           module_path:           module_path,
           module_reference_name: module_reference_name,
@@ -176,6 +200,13 @@ class Msf::Modules::Loader::Base
       loaded = namespace_module_transaction("#{type}/#{module_reference_name}", reload: reload, &try_eval_module)
       return false unless loaded
     rescue NameError
+      # raise exception when required
+      raise Msf::Modules::Error.new(
+        module_path: module_path,
+        module_reference_name: module_reference_name,
+        causal_message: 'invalid module class name (must be MetasploitModule)'
+      ) if throw_exception
+      # otherwise, use the old error handler load_error
       load_error(module_path, Msf::Modules::Error.new(
         module_path:           module_path,
         module_reference_name: module_reference_name,
@@ -608,6 +639,17 @@ class Msf::Modules::Loader::Base
         end
       end
     end
+  end
+
+  # Reports an error of a loading procedure with #load_error
+  #
+  # @param parent_path (see #load_module)
+  # @param type (see #load_module)
+  # @param module_reference_name (see #load_module)
+  # @return [void]
+  def report_load_error(parent_path, type, module_reference_name, error)
+    full_path = self.module_path(parent_path, type, module_reference_name)
+    load_error(full_path, error)
   end
 
   # The path to the module qualified by the type directory.

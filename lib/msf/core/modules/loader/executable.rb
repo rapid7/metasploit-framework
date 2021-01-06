@@ -85,15 +85,14 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       if content
         return content
       else
-        elog "Unable to load module #{full_path}, unknown module type"
-        return ''
+        raise Msf::Modules::Error.new(
+          module_path: full_path,
+          module_reference_name: module_reference_name,
+          causal_message: 'unknown module type'
+        )
       end
-    rescue ::Exception => e
-      elog("Unable to load module #{full_path}", error: e)
-      # XXX migrate this to a full load_error when we can tell the user why the
-      # module did not load and/or how to resolve it.
-      # load_error(full_path, e)
-      ''
+    rescue ::Exception
+      raise
     end
   end
 end
