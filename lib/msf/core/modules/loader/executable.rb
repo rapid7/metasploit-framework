@@ -74,7 +74,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
   #
   # @param (see Msf::Modules::Loader::Base#read_module_content)
   # @return (see Msf::Modules::Loader::Base#read_module_content)
-  def read_module_content(parent_path, type, module_reference_name)
+  def read_module_content(parent_path, type, module_reference_name, throw_exception = false)
     full_path = module_path(parent_path, type, module_reference_name)
     unless File.executable?(full_path)
       load_error(full_path, Errno::ENOENT.new)
@@ -89,10 +89,18 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
           module_path: full_path,
           module_reference_name: module_reference_name,
           causal_message: 'unknown module type'
-        )
+        ) if throw_exception
+        load_error(full_path, Msf::Modules::Error.new(
+          module_path: full_path,
+          module_reference_name: module_reference_name,
+          causal_message: 'unknown module type'
+        ))
+        return ''
       end
-    rescue ::Exception
-      raise
+    rescue ::Exception => error
+      raise if throw_exception
+      load_error(full_path, error)
+      return ''
     end
   end
 end

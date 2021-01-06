@@ -64,7 +64,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   #
   # @param (see Msf::Modules::Loader::Base#read_module_content)
   # @return (see Msf::Modules::Loader::Base#read_module_content)
-  def read_module_content(parent_path, type, module_reference_name)
+  def read_module_content(parent_path, type, module_reference_name, throw_exception = false)
     full_path = module_path(parent_path, type, module_reference_name)
 
     module_content = ''
@@ -78,8 +78,9 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
         # @see https://github.com/ruby/ruby/blob/ruby_1_9_3/io.c#L2038
         module_content = f.read(f.stat.size)
       end
-    rescue Errno::ENOENT
-      raise
+    rescue Errno::ENOENT => error
+      raise if throw_exception
+      load_error(full_path, error)
     end
 
     module_content

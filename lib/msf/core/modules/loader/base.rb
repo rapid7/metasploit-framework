@@ -126,7 +126,7 @@ class Msf::Modules::Loader::Base
 
     begin
       # read_module_content() will raise exceptions when fails
-      module_content = read_module_content(parent_path, type, module_reference_name)
+      module_content = read_module_content(parent_path, type, module_reference_name, throw_exception)
     rescue ::Exception => error
       # raise exception when required
       raise Msf::Modules::Error.new(
@@ -605,8 +605,9 @@ class Msf::Modules::Loader::Base
   # @param parent_path (see #load_module)
   # @param type (see #load_module)
   # @param module_reference_name (see #load_module)
+  # @param throw_exception (see #load_module)
   # @return [String] module content that can be module_evaled into the {#create_namespace_module}
-  def read_module_content(parent_path, type, module_reference_name)
+  def read_module_content(parent_path, type, module_reference_name, throw_exception = false)
     raise ::NotImplementedError
   end
 
