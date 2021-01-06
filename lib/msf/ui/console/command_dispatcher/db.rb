@@ -1610,7 +1610,7 @@ class Db
         arguments.push('-oX', fd.path)
       end
 
-      run_nmap(arguments, nmap)
+      run_nmap(nmap, arguments)
 
       framework.db.import_nmap_xml_file(:filename => fd.path)
 
@@ -2113,9 +2113,10 @@ class Db
   #######
   private
 
-  def run_nmap(arguments, nmap, use_sudo=false)
+  def run_nmap(nmap, arguments, use_sudo: false)
+    print_warning('Running Nmap with sudo') if use_sudo
     begin
-      nmap_pipe = use_sudo ? ::Open3::popen3('sudo', nmap, *arguments) : ::Open3::popen3([nmap, 'nmap'], *arguments)
+      nmap_pipe = use_sudo ? ::Open3::popen3('sudo', nmap, *arguments) : ::Open3::popen3(nmap, *arguments)
       temp_nmap_threads = []
       temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
         np_1.each_line do |nmap_out|
@@ -2129,8 +2130,9 @@ class Db
         np_2.each_line do |nmap_err|
           next if nmap_err.strip.empty?
           print_status("Nmap: '#{nmap_err.strip}'")
-          if nmap_err.strip == 'You requested a scan type which requires root privileges.'
-            return run_nmap(arguments, nmap, true)
+          # Check if the stderr text includes 'root', this only happens if the scan requires root privileges
+          if nmap_err.include? 'root'
+            return run_nmap(nmap, arguments, use_sudo: true) unless use_sudo
           end
         end
       end
