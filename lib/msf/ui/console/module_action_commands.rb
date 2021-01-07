@@ -30,7 +30,7 @@ module ModuleActionCommands
   end
 
   def commands
-    super.merge(action_commands)
+    super.merge(action_commands) { |k, old_val, new_val| old_val}
   end
 
   #
@@ -81,8 +81,8 @@ module ModuleActionCommands
         end
         return
       else
-        if val[0] != '-' && val.match?('=')
-          ds_opts.push(val)
+        if val[0] != '-' && val.include?('=')
+          ds_opts.store(*val.split('=', 2))
         else
           cmd_run_help
           return

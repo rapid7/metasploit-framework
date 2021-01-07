@@ -27,7 +27,7 @@ class Post
   # Returns the hash of commands specific to post modules.
   #
   def commands
-    super.update({
+    super.merge({
       "run"   => "Launches the post exploitation module",
       "rerun" => "Reloads and launches the module",
       "exploit"  => "This is an alias for the run command",

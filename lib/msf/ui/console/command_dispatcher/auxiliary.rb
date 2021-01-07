@@ -19,7 +19,7 @@ class Auxiliary
   # Returns the hash of commands specific to auxiliary modules.
   #
   def commands
-    super.update({
+    super.merge({
       "run"      => "Launches the auxiliary module",
       "rcheck"   => "Reloads the module and checks if the target is vulnerable",
       "rerun"    => "Reloads and launches the auxiliary module",
