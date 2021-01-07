@@ -31,27 +31,39 @@ class MetasploitModule < Msf::Post
                      ))
   end
 
-  def display_report(info)
+  def display_report(sid,info)
+    results_table = Rex::Text::Table.new(
+      'Header'     => "OneDrive Sync Information",
+      'Indent'     => 1,
+      'SortIndex'  => -1,
+      'Columns'    => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
+    )
     info.each do |key, result|
       row = []
       print_line "  #{key}"
       print_line "  " + "=" * key.length
       print_line
+      row << sid
+      row << key
       ONEDRIVE_ACCOUNT_KEYS.each do |col|
+        row << result[col].to_s
         if result["Business"] == "1" || PERSONAL_ONEDRIVE_KEYS.include?(col) 
           print_line "    #{col}: #{result[col].to_s}"
         end
       end
       result["ScopeIdToMountPointPathCache"].each do |scopes|
+        subrow = row.clone
         print_line
         SYNC_ENGINES_KEYS.each do |sync|
+          subrow << scopes[sync].to_s
           print_line "    | #{sync}: #{scopes[sync].to_s}"
         end
-      print_line
+        results_table << subrow
+        print_line
       end
     end
-    #stored_path = store_loot('putty.storedfingerprints.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Stored SSH Host Keys List")
-    #print_good("PuTTY stored host keys list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.storedfingerprint' to view).")
+    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, "onedrive_syncinformation.csv", "OneDrive sync endpoints")
+    print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
   end
 
   def get_syncengine_data(master,syncengines)
@@ -110,7 +122,7 @@ class MetasploitModule < Msf::Post
       if not (all_odaccounts.nil? || all_odaccounts.empty?)
         print_good "OneDrive sync information for #{hive['SID']}"
         print_line
-        display_report(all_odaccounts)
+        display_report(hive['SID'],all_odaccounts)
       end
     end
 
