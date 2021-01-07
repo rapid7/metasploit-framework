@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'pp'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
@@ -39,7 +38,9 @@ class MetasploitModule < Msf::Post
       'Columns'    => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
     )
     info.each do |key, result|
+      next if result["ScopeIdToMountPointPathCache"].nil? || result["ScopeIdToMountPointPathCache"].empty?
       row = []
+      print_line
       print_line "  #{key}"
       print_line "  " + "=" * key.length
       print_line
@@ -59,9 +60,9 @@ class MetasploitModule < Msf::Post
           print_line "    | #{sync}: #{scopes[sync].to_s}"
         end
         results_table << subrow
-        print_line
       end
     end
+    print_line
     stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, "onedrive_syncinformation.csv", "OneDrive sync endpoints")
     print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
   end
@@ -84,16 +85,16 @@ class MetasploitModule < Msf::Post
       newses = {}
       ONEDRIVE_ACCOUNT_KEYS.each do |key|
         newses[key] = registry_getvaldata("#{accounts}\\#{ses}", key).to_s
-
-        scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
-        scopeids.each do |sid|
-          newses["ScopeIdToMountPointPathCache"] = []
-          target = syncdata[sid]
-          if newses['Business'] != "1"
-            target = syncdata["Personal"]
-          end
-          newses["ScopeIdToMountPointPathCache"].push(target)
+      end
+      scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
+      next if scopeids.nil? || scopeids.empty?
+      newses["ScopeIdToMountPointPathCache"] = []
+      scopeids.each do |sid|
+        target = syncdata[sid]
+        if newses['Business'] != "1"
+          target = syncdata["Personal"]
         end
+        newses["ScopeIdToMountPointPathCache"].push(target)
       end
       all_oda[ses] = newses
     end
@@ -124,6 +125,7 @@ class MetasploitModule < Msf::Post
         print_line
         display_report(hive['SID'],all_odaccounts)
       end
+
     end
 
     # Clean up
