@@ -50,7 +50,7 @@ module ModuleActionCommands
       return do_action(action, *args)
     end
 
-    return
+    super
   end
 
   #
