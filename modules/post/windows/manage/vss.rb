@@ -86,7 +86,11 @@ class MetasploitModule < Msf::Post
   def action_vss_mount
     print_status('Creating the symlink...')
     device = datastore['DEVICE']
-    device << '/' unless device.end_with?('/') # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
+    unless device =~ /^([\/\\])\1\?\1GLOBALROOT\1Device\1([\w\- ]+)\1?$/
+      fail_with(Failure::BadConfig, 'The DEVICE parameter is incorrect, it should begin with \\\\?\\GLOBALROOT\\Device\\')
+    end
+    device << $1 unless device.end_with?($1) # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
+
     result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], device, 'SYMBOLIC_LINK_FLAG_DIRECTORY')
     if result['return']
       print_good('Mounted successfully')
