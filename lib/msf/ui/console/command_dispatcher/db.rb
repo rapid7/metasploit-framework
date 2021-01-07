@@ -2131,7 +2131,8 @@ class Db
           next if nmap_err.strip.empty?
           print_status("Nmap: '#{nmap_err.strip}'")
           # Check if the stderr text includes 'root', this only happens if the scan requires root privileges
-          if nmap_err.include? 'root'
+          if nmap_err =~ /requires? raw socket access/ or
+            nmap_err.include? 'only works if you are root' or nmap_err =~ /requires? raw socket access/
             return run_nmap(nmap, arguments, use_sudo: true) unless use_sudo
           end
         end
