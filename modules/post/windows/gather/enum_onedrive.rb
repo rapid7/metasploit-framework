@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
                       'Name'            => "OneDrive Sync Provider Enumeration Module",
                       'Description'     => %q{
                         This module will identify the Office 365 OneDrive endpoints for both business and personal accounts
-                        across all users (providing access is permitted). It is useful for identifying document libraries 
+                        across all users (providing access is permitted). It is useful for identifying document libraries
                         that may otherwise not be obvious which could contain sensitive or useful information.
                        },
                       'License'         => MSF_LICENSE,
