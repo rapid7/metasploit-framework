@@ -209,22 +209,54 @@ class MetasploitModule < Msf::Post
     all_syncengines
   end
 
+  def get_onedrive_accounts(reg,accounts,syncdata)
+    all_oda = {}
+    reg.each do |ses|
+      newses = {}
+      ONEDRIVE_ACCOUNT_KEYS.each do |key|
+        newses[key] = registry_getvaldata("#{accounts}\\#{ses}", key).to_s
+
+        scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
+        scopeids.each do |sid|
+          newses["ScopeIdToMountPointPathCache"] = []
+          target = syncdata[sid]
+          if newses['Business'] != "1"
+            target = syncdata["Personal"]
+          end
+          newses["ScopeIdToMountPointPathCache"].push(target)
+        end
+      end
+      all_oda[ses] = newses
+    end
+    all_oda
+  end
+
   # Entry point
   def run
 
-  userhives=load_missing_hives()
-  userhives.each do |hive|
-    next if hive['HKU'] == nil
-    master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
-    saved_syncengines = registry_enumkeys(master_key)
-    if saved_syncengines.nil? || saved_syncengines.empty?
-      print_error('No OneDrive synchronised endpoints found.')
-      next
+    # Obtain all user hives
+    userhives=load_missing_hives()
+
+    # Loop through each of the hives
+    userhives.each do |hive|
+      next if hive['HKU'] == nil
+      master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
+      saved_syncengines = registry_enumkeys(master_key)
+      next if saved_syncengines.nil? || saved_syncengines.empty?
+      # Obtain the sync endpoints from the above subkey
+      all_syncengines = get_syncengine_data(master_key, saved_syncengines)
+
+      str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
+      reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
+      all_odaccounts = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
+
+      # Now enumerate each of the accounts
+      pp all_syncengines
+      pp all_odaccounts
     end
-    all_syncengines = get_syncengine_data(master_key, saved_syncengines)
-    pp all_syncengines
-  end
-  unload_our_hives(userhives)
+
+    # Clean up
+    unload_our_hives(userhives)
 
 #    # Look for saved sessions, break out if not.
 #    print_status("Looking for saved PuTTY sessions")
