@@ -33,15 +33,14 @@ class MetasploitModule < Msf::Post
 
   def display_report(info)
     info.each do |key, result|
+      row = []
       print_line "  #{key}"
       print_line "  " + "=" * key.length
       print_line
-      key_list = ONEDRIVE_ACCOUNT_KEYS
-      if result["Business"] != "1"
-        key_list = PERSONAL_ONEDRIVE_KEYS
-      end
-      key_list.each do |col|
-        print_line "    #{col}: #{result[col].to_s}"
+      ONEDRIVE_ACCOUNT_KEYS.each do |col|
+        if result["Business"] == "1" || PERSONAL_ONEDRIVE_KEYS.include?(col) 
+          print_line "    #{col}: #{result[col].to_s}"
+        end
       end
       result["ScopeIdToMountPointPathCache"].each do |scopes|
         print_line
