@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
       row << key
       ONEDRIVE_ACCOUNT_KEYS.each do |col|
         row << result[col].to_s
-        if result["Business"] == "1" || PERSONAL_ONEDRIVE_KEYS.include?(col) 
+        if result["Business"] == "1" || PERSONAL_ONEDRIVE_KEYS.include?(col)
           print_line "    #{col}: #{result[col].to_s}"
         end
       end
