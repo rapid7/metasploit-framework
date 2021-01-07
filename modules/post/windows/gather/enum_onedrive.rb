@@ -10,64 +10,67 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::UserProfiles
 
-
-  SYNC_ENGINES_KEYS = ["LibraryType","LastModifiedTime","MountPoint","UrlNamespace"]
-  ONEDRIVE_ACCOUNT_KEYS = ["Business", "ServiceEndpointUri", "SPOResourceId", "UserEmail", "UserFolder", "UserName"]
-  PERSONAL_ONEDRIVE_KEYS = ["UserEmail", "UserFolder"]
+  SYNC_ENGINES_KEYS = ['LibraryType', 'LastModifiedTime', 'MountPoint', 'UrlNamespace'].freeze
+  ONEDRIVE_ACCOUNT_KEYS = ['Business', 'ServiceEndpointUri', 'SPOResourceId', 'UserEmail', 'UserFolder', 'UserName'].freeze
+  PERSONAL_ONEDRIVE_KEYS = ['UserEmail', 'UserFolder'].freeze
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'            => "OneDrive Sync Provider Enumeration Module",
-                      'Description'     => %q{
-                        This module will identify the Office 365 OneDrive endpoints for both business and personal accounts
-                        across all users (providing access is permitted). It is useful for identifying document libraries
-                        that may otherwise not be obvious which could contain sensitive or useful information.
-                       },
-                      'License'         => MSF_LICENSE,
-                      'Platform'        => ['win'],
-                      'SessionTypes'    => ['meterpreter'],
-                      'Author'          => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>']
-                     ))
+    super(
+      update_info(
+        info,
+        'Name' => 'OneDrive Sync Provider Enumeration Module',
+        'Description' => %q{
+          This module will identify the Office 365 OneDrive endpoints for both business and personal accounts
+          across all users (providing access is permitted). It is useful for identifying document libraries
+          that may otherwise not be obvious which could contain sensitive or useful information.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>']
+      )
+    )
   end
 
-  def display_report(sid,info)
+  def display_report(sid, info)
     results_table = Rex::Text::Table.new(
-      'Header'     => "OneDrive Sync Information",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
+      'Header' => 'OneDrive Sync Information',
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
     )
     info.each do |key, result|
-      next if result["ScopeIdToMountPointPathCache"].nil? || result["ScopeIdToMountPointPathCache"].empty?
+      next if result['ScopeIdToMountPointPathCache'].nil? || result['ScopeIdToMountPointPathCache'].empty?
+
       row = []
       print_line
       print_line "  #{key}"
-      print_line "  " + "=" * key.length
+      print_line "  #{'=' * key.length}"
       print_line
       row << sid
       row << key
       ONEDRIVE_ACCOUNT_KEYS.each do |col|
         row << result[col].to_s
-        if result["Business"] == "1" || PERSONAL_ONEDRIVE_KEYS.include?(col)
-          print_line "    #{col}: #{result[col].to_s}"
+        if result['Business'] == '1' || PERSONAL_ONEDRIVE_KEYS.include?(col)
+          print_line "    #{col}: #{result[col]}"
         end
       end
-      result["ScopeIdToMountPointPathCache"].each do |scopes|
+      result['ScopeIdToMountPointPathCache'].each do |scopes|
         subrow = row.clone
         print_line
         SYNC_ENGINES_KEYS.each do |sync|
           subrow << scopes[sync].to_s
-          print_line "    | #{sync}: #{scopes[sync].to_s}"
+          print_line "    | #{sync}: #{scopes[sync]}"
         end
         results_table << subrow
       end
     end
     print_line
-    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, "onedrive_syncinformation.csv", "OneDrive sync endpoints")
+    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
     print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
   end
 
-  def get_syncengine_data(master,syncengines)
+  def get_syncengine_data(master, syncengines)
     all_syncengines = {}
     syncengines.each do |ses|
       newses = {}
@@ -79,7 +82,7 @@ class MetasploitModule < Msf::Post
     all_syncengines
   end
 
-  def get_onedrive_accounts(reg,accounts,syncdata)
+  def get_onedrive_accounts(reg, accounts, syncdata)
     all_oda = {}
     reg.each do |ses|
       newses = {}
@@ -88,13 +91,14 @@ class MetasploitModule < Msf::Post
       end
       scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
       next if scopeids.nil? || scopeids.empty?
-      newses["ScopeIdToMountPointPathCache"] = []
+
+      newses['ScopeIdToMountPointPathCache'] = []
       scopeids.each do |sid|
         target = syncdata[sid]
-        if newses['Business'] != "1"
-          target = syncdata["Personal"]
+        if newses['Business'] != '1'
+          target = syncdata['Personal']
         end
-        newses["ScopeIdToMountPointPathCache"].push(target)
+        newses['ScopeIdToMountPointPathCache'].push(target)
       end
       all_oda[ses] = newses
     end
@@ -103,16 +107,17 @@ class MetasploitModule < Msf::Post
 
   def run
     # Obtain all user hives
-    userhives=load_missing_hives()
+    userhives = load_missing_hives
 
     # Loop through each of the hives
     userhives.each do |hive|
-      next if hive['HKU'] == nil
+      next if hive['HKU'].nil?
 
       print_status("Looking for OneDrive sync information for #{hive['SID']}")
       master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
       saved_syncengines = registry_enumkeys(master_key)
       next if saved_syncengines.nil? || saved_syncengines.empty?
+
       # Obtain the sync endpoints from the above subkey
       all_syncengines = get_syncengine_data(master_key, saved_syncengines)
 
@@ -120,12 +125,11 @@ class MetasploitModule < Msf::Post
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
       all_odaccounts = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
-      if not (all_odaccounts.nil? || all_odaccounts.empty?)
-        print_good "OneDrive sync information for #{hive['SID']}"
-        print_line
-        display_report(hive['SID'],all_odaccounts)
-      end
+      next if (all_odaccounts.nil? || all_odaccounts.empty?)
 
+      print_good "OneDrive sync information for #{hive['SID']}"
+      print_line
+      display_report(hive['SID'], all_odaccounts)
     end
 
     # Clean up
