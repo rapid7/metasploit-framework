@@ -61,23 +61,23 @@ class MetasploitModule < Msf::Post
     end
 
     sync_all_list = []
-    sync_all.each do |key,result|
-        sync_all_list.push(key)
+    sync_all.each do |key, _result|
+      sync_all_list.push(key)
     end
 
     diff = sync_all_list - sync_used
-    if not (diff.nil? || diff.empty?)
+    if !(diff.nil? || diff.empty?)
       print_line
-      print_line "  ORPHANED"
-      print_line "  ========"
+      print_line '  ORPHANED'
+      print_line '  ========'
       diff.each do |scopeid|
         csvrow = []
         print_line
         # Augment the CSV
         csvrow << sid
-        csvrow << ""
-        ONEDRIVE_ACCOUNT_KEYS.each do |od|
-            csvrow << ""
+        csvrow << ''
+        ONEDRIVE_ACCOUNT_KEYS.each do |_od|
+          csvrow << ''
         end
         SYNC_ENGINES_KEYS.each do |sync|
           csvrow << sync_all[scopeid][sync]
