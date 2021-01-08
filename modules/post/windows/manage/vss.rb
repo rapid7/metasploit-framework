@@ -91,11 +91,8 @@ class MetasploitModule < Msf::Post
     end
     device << $1 unless device.end_with?($1) # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
 
-    result = session.railgun.kernel32.CreateSymbolicLinkA(datastore['PATH'], device, 'SYMBOLIC_LINK_FLAG_DIRECTORY')
-    if result['return']
+    if create_symlink(datastore['PATH'], device, directory: true)
       print_good('Mounted successfully')
-    else
-      print_error("Mount failed with error #{result['GetLastError']} (#{result['ErrorMessage']})")
     end
   end
 
