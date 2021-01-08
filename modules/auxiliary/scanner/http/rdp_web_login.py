@@ -82,12 +82,14 @@ def check_username(rhost, rport, targeturi, domain, username, timeout):
                'Content-Length': '53',
                'Origin': 'https://{rhost}'}
     session = requests.Session()
+    report_data = {'domain':domain, 'address': rhost, 'port': rport, 'protocol': 'tcp', 'service_name':'RDWeb'} 
     try:
         request = session.post(url, data=body, headers=headers,
                                timeout=(timeout / 1000), verify=False)
         if request.status_code == 200:
             module.log(f'Username {domain}\\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
                        level='good')
+            module.report_valid_username(username, **report_data)
     except requests.exceptions.Timeout:
         module.log(f'Username {domain}\\{username} is invalid! No response received in {timeout} milliseconds',
                    level='error')

@@ -152,6 +152,11 @@ def handle_credential_login(data, mod)
     credential_data[:private_type] = :password
   end
 
+  if data.has_key?(:domain)
+    credential_data[:public_data] = data['domain']
+    credential_data[:public_type] = :realm
+  end
+
   login_data = {
       core: create_credential(credential_data),
       last_attempted_at: DateTime.now,
