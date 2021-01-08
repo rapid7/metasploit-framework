@@ -32,13 +32,7 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def display_report(sid, info)
-    results_table = Rex::Text::Table.new(
-      'Header' => 'OneDrive Sync Information',
-      'Indent' => 1,
-      'SortIndex' => -1,
-      'Columns' => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
-    )
+  def display_report(sid, info, sync_used, sync_all, results_table)
     info.each do |key, result|
       next if result['ScopeIdToMountPointPathCache'].nil? || result['ScopeIdToMountPointPathCache'].empty?
 
@@ -65,9 +59,33 @@ class MetasploitModule < Msf::Post
         results_table << subrow
       end
     end
-    print_line
-    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
-    print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
+
+    sync_all_list = []
+    sync_all.each do |key,result|
+        sync_all_list.push(key)
+    end
+
+    diff = sync_all_list - sync_used
+    if not (diff.nil? || diff.empty?)
+      print_line
+      print_line "  ORPHANED"
+      print_line "  ========"
+      diff.each do |scopeid|
+        csvrow = []
+        print_line
+        # Augment the CSV
+        csvrow << sid
+        csvrow << ""
+        ONEDRIVE_ACCOUNT_KEYS.each do |od|
+            csvrow << ""
+        end
+        SYNC_ENGINES_KEYS.each do |sync|
+          csvrow << sync_all[scopeid][sync]
+          print_line "  #{sync}: #{sync_all[scopeid][sync]}"
+        end
+        results_table << csvrow
+      end
+    end
   end
 
   def get_syncengine_data(master, syncengines)
@@ -84,6 +102,8 @@ class MetasploitModule < Msf::Post
 
   def get_onedrive_accounts(reg, accounts, syncdata)
     all_oda = {}
+    synctargets_used = []
+    ret = {}
     reg.each do |ses|
       newses = {}
       ONEDRIVE_ACCOUNT_KEYS.each do |key|
@@ -97,17 +117,30 @@ class MetasploitModule < Msf::Post
         target = syncdata[sid]
         if newses['Business'] != '1'
           target = syncdata['Personal']
+          synctargets_used.push('Personal')
+        else
+          synctargets_used.push(sid)
         end
         newses['ScopeIdToMountPointPathCache'].push(target)
       end
       all_oda[ses] = newses
     end
-    all_oda
+    ret['oda'] = all_oda
+    ret['synctargets_used'] = synctargets_used
+    ret
   end
 
   def run
     # Obtain all user hives
     userhives = load_missing_hives
+
+    # Prepare the results table
+    results_table = Rex::Text::Table.new(
+      'Header' => 'OneDrive Sync Information',
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
+    )
 
     # Loop through each of the hives
     userhives.each do |hive|
@@ -123,14 +156,18 @@ class MetasploitModule < Msf::Post
 
       str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
-      all_odaccounts = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
+      result = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
-      next if (all_odaccounts.nil? || all_odaccounts.empty?)
+      next if (result['oda'].nil? || result['oda'].empty?)
 
       print_good "OneDrive sync information for #{hive['SID']}"
       print_line
-      display_report(hive['SID'], all_odaccounts)
+      display_report(hive['SID'], result['oda'], result['synctargets_used'], all_syncengines, results_table)
     end
+
+    print_line
+    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
+    print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
 
     # Clean up
     unload_our_hives(userhives)
