@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'	=>
         [
           [ 'URL', 'http://ifconfig.me/ip' ],
-        ]
+        ],
+      'DefaultOptions' => { 'VHOST' => 'ifconfig.me' }
     )
 
     register_options(
