@@ -221,6 +221,8 @@ module Msf
           nil
         end
 
+        alias delete_junction delete_mount_point
+
         # Create a symbolic link in the object manager to a resource in a specific namespace, typically `\Driver`,
         # `\Global\` or `\RPC Control`. The namespace is determined by the prefix of the name parameters.
         #
@@ -287,9 +289,9 @@ module Msf
           true
         end
 
-        # Create a "Volume Mount Point" or a "Directory Junction". The different between the two is that a Directory
-        # Junction targets a subdirectory of another volume. This function is a suitable replacement for the `mklink /J`
-        # shell command.
+        # Create a "Volume Mount Point" or a "Directory Junction". The difference between the two is that a Directory
+        # Junction targets a subdirectory of another volume where as a Volume Mount Point targets the root of a volume.
+        # This function is a suitable replacement for the `mklink /J` shell command.
         #
         # @see https://en.wikipedia.org/wiki/NTFS_reparse_point#Volume_mount_points
         # @see https://nixhacker.com/understanding-and-exploiting-symbolic-link-in-windows/
@@ -312,6 +314,8 @@ module Msf
           set_reparse_point(handle, reparse_data.to_binary_s)
           handle
         end
+
+        alias create_junction create_mount_point
 
         private
 
