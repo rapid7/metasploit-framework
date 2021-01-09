@@ -25,7 +25,7 @@ module Msf
       operator = opt.conditions[1]
       right_value = opt.conditions[2]
       if left_source == 'ACTION'
-        left_value = mod.action.name.to_s
+        left_value = mod.action ? mod.action.name.to_s : nil
       elsif left_source == 'TARGET'
         left_value = mod.target.name.to_s
       else

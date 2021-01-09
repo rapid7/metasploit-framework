@@ -7,6 +7,9 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2021, 4, 11), reason="Use post/windows/manage/vss and the VSS_SET_MAX_STORAGE_SIZE action")
+
   def initialize(info={})
     super(update_info(info,
       'Name'                 => "Windows Manage Set Shadow Copy Storage Space",
@@ -47,7 +50,7 @@ class MetasploitModule < Msf::Post
       return
     end
     if vss_set_storage(datastore['SIZE'])
-      print_good("Size upated successfully")
+      print_good("Size updated successfully")
     else
       print_error("There was a problem updating the storage size")
     end

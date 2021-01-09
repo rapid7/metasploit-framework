@@ -26,7 +26,7 @@ class Def_windows_ntdll
       ])
 
     dll.add_function('NtCreateFile', 'DWORD',[
-      ["PDWORD","FileHandle","inout"],
+      ["PHANDLE","FileHandle","inout"],
       ["DWORD","DesiredAccess","in"],
       ["PBLOB","ObjectAttributes","in"],
       ["PBLOB","IoStatusBlock","inout"],
@@ -53,7 +53,7 @@ class Def_windows_ntdll
       ])
 
     dll.add_function('NtOpenFile', 'DWORD',[
-      ["PDWORD","FileHandle","inout"],
+      ["PHANDLE","FileHandle","inout"],
       ["DWORD","DesiredAccess","in"],
       ["PBLOB","ObjectAttributes","in"],
       ["PBLOB","IoStatusBlock","inout"],

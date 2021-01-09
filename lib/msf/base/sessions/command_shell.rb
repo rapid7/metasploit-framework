@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
+require 'msf/base/sessions/command_shell_options'
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
@@ -369,7 +370,7 @@ class CommandShell
 
     # Check if src exists
     if !file_exists(src)
-      print_error("The target file does not exists")
+      print_error("The target file does not exist")
       return
     end
 

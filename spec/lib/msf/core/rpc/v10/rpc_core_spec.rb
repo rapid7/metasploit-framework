@@ -1,10 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'msf/core/rpc/v10/rpc_base'
-require 'msf/core/rpc/v10/rpc_core'
-require 'msf/core/rpc/v10/service'
-
 RSpec.describe Msf::RPC::RPC_Core do
   include_context 'Msf::Simple::Framework'
 

@@ -35,18 +35,18 @@ module Railgun
 #
 class LibraryFunction
   @@allowed_datatypes = {
-    'VOID'   => ['return'],
-    'BOOL'   => ['in', 'return'],
-    'DWORD'  => ['in', 'return'],
-    'WORD'   => ['in', 'return'],
-    'BYTE'   => ['in', 'return'],
-    'LPVOID' => ['in', 'return'], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
-    'HANDLE' => ['in', 'return'],
-    'SIZE_T' => ['in', 'return'],
-    'PDWORD' => ['in', 'out', 'inout'], # todo: support for functions that return pointers to strings
-    'PWCHAR' => ['in', 'out', 'inout'],
-    'PCHAR'  => ['in', 'out', 'inout'],
-    'PBLOB'  => ['in', 'out', 'inout'],
+    'VOID'       => ['return'],
+    'BOOL'       => ['in', 'return'],
+    'BYTE'       => ['in', 'return'],
+    'WORD'       => ['in', 'return'],
+    'DWORD'      => ['in', 'return'],
+    'LPVOID'     => ['in', 'return'], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
+    'ULONG_PTR'  => ['in', 'return'],
+    'PDWORD'     => ['in', 'out', 'inout'], # todo: support for functions that return pointers to strings
+    'PULONG_PTR' => ['in', 'out', 'inout'],
+    'PWCHAR'     => ['in', 'out', 'inout'],
+    'PCHAR'      => ['in', 'out', 'inout'],
+    'PBLOB'      => ['in', 'out', 'inout'],
   }.freeze
 
   @@allowed_convs = ['stdcall', 'cdecl']
@@ -73,22 +73,22 @@ class LibraryFunction
     end
   end
 
-  def check_type_exists (type)
+  def check_type_exists(type)
     if not @@allowed_datatypes.has_key?(type)
       raise ArgumentError, "Type unknown: #{type}. Allowed types: #{PP.pp(@@allowed_datatypes.keys, "")}"
     end
   end
 
-  def check_return_type (type)
+  def check_return_type(type)
     check_type_exists(type)
     if not @@allowed_datatypes[type].include?("return")
       raise ArgumentError, "#{type} is not allowed as a return type"
     end
   end
 
-  def check_params (params)
+  def check_params(params)
     params.each do |param|
-      raise ArgumentError, "each param must be descriped by a three-tuple [type,name,direction]" unless param.length == 3
+      raise ArgumentError, "each param must be described by a three-tuple [type,name,direction]" unless param.length == 3
       type = param[0]
       direction = param[2]
 
@@ -101,12 +101,11 @@ class LibraryFunction
       end
 
       # 'return' is not a valid direction in this context
-      unless direction != "return"
+      if direction == "return"
         raise "direction 'return' is only for the return value of the function."
       end
     end
   end
-
 end
 
 end; end; end; end; end; end

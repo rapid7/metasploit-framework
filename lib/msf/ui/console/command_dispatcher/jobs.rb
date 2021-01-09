@@ -242,7 +242,8 @@ module Msf
 
           def add_persist_job(job_id)
             if job_id && framework.jobs.has_key?(job_id.to_s)
-              unless framework.jobs[job_id.to_s].ctx[1]
+              handler_ctx = framework.jobs[job_id.to_s].ctx[1]
+              unless handler_ctx and handler_ctx.respond_to?(:replicant)
                 print_error("Add persistent job failed: job #{job_id} is not payload handler.")
                 return
               end

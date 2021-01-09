@@ -137,7 +137,7 @@ class Console::CommandDispatcher::Core
     '-h' => [false, 'View help']
   )
 
-  @@pivot_supported_archs = [ARCH_X64, ARCH_X86]
+  @@pivot_supported_archs = [Rex::Arch::ARCH_X64, Rex::Arch::ARCH_X86]
   @@pivot_supported_platforms = ['windows']
 
   def cmd_pivot_help
@@ -1443,13 +1443,21 @@ class Console::CommandDispatcher::Core
           return
         end
 
-        opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-        reloaded_mod.run_simple(
+        opts = ''
+        if reloaded_mod.is_a?(Msf::Exploit)
+          # set the payload as one of the first options, allowing it to be overridden by the user
+          opts << "PAYLOAD=#{client.via_payload.delete_prefix('payload/')}," if client.via_payload
+        end
+
+        opts  << (args + [ "SESSION=#{client.sid}" ]).join(',')
+        result = reloaded_mod.run_simple(
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
           'OptionStr'   => opts
         )
+
+        print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
@@ -1464,10 +1472,7 @@ class Console::CommandDispatcher::Core
     tabs = []
     unless words[1] && words[1].match(/^\//)
       begin
-        if msf_loaded?
-          tabs += tab_complete_postmods
-        end
-
+        tabs += tab_complete_modules(str, words) if msf_loaded?
         [
           ::Msf::Sessions::Meterpreter.script_base,
           ::Msf::Sessions::Meterpreter.user_script_base
@@ -1593,9 +1598,8 @@ class Console::CommandDispatcher::Core
     end
   end
 
-  def cmd_info_tabs(*args)
-    return unless msf_loaded?
-    tab_complete_postmods
+  def cmd_info_tabs(str, words)
+    tab_complete_modules(str, words) if msf_loaded?
   end
 
   #
@@ -1833,18 +1837,16 @@ protected
     self.extensions << mod
   end
 
-  def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name,klass|
-      mod = client.framework.modules.post.create(name)
-      if mod and mod.session_compatible?(client)
-        mod.fullname.dup
-      else
-        nil
-      end
-    }
-
-    # nils confuse readline
-    tabs.compact
+  def tab_complete_modules(str, words)
+    tabs = []
+    client.framework.modules.post.map do |name,klass|
+      tabs << 'post/' + name
+    end
+    client.framework.modules.module_names('exploit').
+      grep(/(multi|#{Regexp.escape(client.platform)})\/local\//).each do |name|
+      tabs << 'exploit/' + name
+    end
+    return tabs.sort
   end
 
   def tab_complete_channels

@@ -1,5 +1,5 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: http://www.metasploit.com/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://www.metasploit.com/
 
 Files: *
 Copyright: 2006-2020, Rapid7, Inc.
@@ -121,6 +121,10 @@ License: Apache 2.0
 
 Files: data/jtr/*
 Copyright: Copyright 1996-2013 by Solar Designer
+License: GNU GPL 2.0
+
+Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
+Copyright: 2011 Jon Bringhurst
 License: GNU GPL 2.0
 
 License: BSD-2-clause

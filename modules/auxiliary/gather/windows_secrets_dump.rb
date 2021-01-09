@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Retrieving class info for #{sub_key}")
       subkey_handle = @winreg.open_key(root_key_handle, sub_key)
       query_info_key_response = @winreg.query_info_key(subkey_handle)
-      boot_key << query_info_key_response.lp_class.to_s.encode(Encoding::ASCII_8BIT)
+      boot_key << query_info_key_response.lp_class.to_s.encode(::Encoding::ASCII_8BIT)
       @winreg.close_key(subkey_handle)
       subkey_handle = nil
     rescue RubySMB::Dcerpc::Error::WinregError => e
@@ -307,7 +307,7 @@ class MetasploitModule < Msf::Auxiliary
         _value_type, value_data = reg_parser.get_value("#{users_key}\\#{rid}", 'UserPasswordHint')
         next unless value_data
         users[rid.to_i(16)][:UserPasswordHint] =
-          value_data.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8).strip
+          value_data.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8).strip
       end
     end
 
@@ -319,7 +319,7 @@ class MetasploitModule < Msf::Auxiliary
         value_type, _value_data = reg_parser.get_value("#{users_key}\\Names\\#{name}", '')
         users[value_type] ||= {}
         # Apparently, key names are ISO-8859-1 encoded
-        users[value_type][:Name] = name.dup.force_encoding(Encoding::ISO_8859_1).encode(Encoding::UTF_8)
+        users[value_type][:Name] = name.dup.force_encoding(::Encoding::ISO_8859_1).encode(::Encoding::UTF_8)
       end
     end
 
@@ -617,7 +617,7 @@ class MetasploitModule < Msf::Auxiliary
         params = cache.snapshot.to_h.select { |key, _v| key.to_s.end_with?('_length') }
         params[:group_count] = cache.group_count
         cache_data = CacheData.new(params).read(dec_data)
-        username = cache_data.username.encode(Encoding::UTF_8)
+        username = cache_data.username.encode(::Encoding::UTF_8)
         if iteration_count.nil? && lsa_vista_style?
           if (cache.iteration_count > 10240)
             iteration_count = cache.iteration_count & 0xfffffc00
@@ -631,19 +631,19 @@ class MetasploitModule < Msf::Auxiliary
           info << ("Iteration count: #{cache.iteration_count} -> real #{iteration_count}")
         end
         info << ("Last login: #{cache.last_access.to_time}")
-        dns_domain_name = cache_data.dns_domain_name.encode(Encoding::UTF_8)
+        dns_domain_name = cache_data.dns_domain_name.encode(::Encoding::UTF_8)
         info << ("DNS Domain Name: #{dns_domain_name}")
-        info << ("UPN: #{cache_data.upn.encode(Encoding::UTF_8)}")
-        info << ("Effective Name: #{cache_data.effective_name.encode(Encoding::UTF_8)}")
-        info << ("Full Name: #{cache_data.full_name.encode(Encoding::UTF_8)}")
-        info << ("Logon Script: #{cache_data.logon_script.encode(Encoding::UTF_8)}")
-        info << ("Profile Path: #{cache_data.profile_path.encode(Encoding::UTF_8)}")
-        info << ("Home Directory: #{cache_data.home_directory.encode(Encoding::UTF_8)}")
-        info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(Encoding::UTF_8)}")
+        info << ("UPN: #{cache_data.upn.encode(::Encoding::UTF_8)}")
+        info << ("Effective Name: #{cache_data.effective_name.encode(::Encoding::UTF_8)}")
+        info << ("Full Name: #{cache_data.full_name.encode(::Encoding::UTF_8)}")
+        info << ("Logon Script: #{cache_data.logon_script.encode(::Encoding::UTF_8)}")
+        info << ("Profile Path: #{cache_data.profile_path.encode(::Encoding::UTF_8)}")
+        info << ("Home Directory: #{cache_data.home_directory.encode(::Encoding::UTF_8)}")
+        info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(::Encoding::UTF_8)}")
         info << ("User ID: #{cache.user_id}")
         info << ("Primary Group ID: #{cache.primary_group_id}")
         info << ("Additional groups: #{cache_data.groups.map {|g| g.relative_id}.join(' ')}")
-        logon_domain_name = cache_data.logon_domain_name.encode(Encoding::UTF_8)
+        logon_domain_name = cache_data.logon_domain_name.encode(::Encoding::UTF_8)
         info << ("Logon domain name: #{logon_domain_name}")
 
         report_info(info.join("; "), 'user.cache_info')
@@ -702,7 +702,7 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
     return nil if username.nil? || username.empty?
-    username = username.encode(Encoding::UTF_8)
+    username = username.encode(::Encoding::UTF_8)
 
     begin
       domain = @winreg.read_registry_key_value(
@@ -714,7 +714,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_warning("An error occured when getting the default domain name: #{e}")
       domain = ''
     end
-    username = "#{domain.encode(Encoding::UTF_8)}\\#{username}" unless domain.nil? || domain.empty?
+    username = "#{domain.encode(::Encoding::UTF_8)}\\#{username}" unless domain.nil? || domain.empty?
     username
   end
 
@@ -830,7 +830,7 @@ class MetasploitModule < Msf::Auxiliary
       return ''
     end
 
-    raw_secret = raw_secret.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace).b
+    raw_secret = raw_secret.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8, invalid: :replace).b
 
     secret << "aes256-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('256-CBC', raw_secret, salt)}"
     secret << "aes128-cts-hmac-sha1-96:#{aes_cts_hmac_sha1_96_key('128-CBC', raw_secret, salt)}"
@@ -859,7 +859,7 @@ class MetasploitModule < Msf::Auxiliary
       # We have to get the account the service runs under
       account = get_service_account(name[4..-1])
       if account
-        secret = "#{account.encode(Encoding::UTF_8)}:"
+        secret = "#{account.encode(::Encoding::UTF_8)}:"
       else
         secret = '(Unknown User): '
       end
@@ -867,7 +867,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif upper_name.start_with?('DEFAULTPASSWORD')
       # We have to get the account this password is for
       account = get_default_login_account || '(Unknown User)'
-      password = secret_item.dup.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8)
+      password = secret_item.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8)
       unless report_creds(account, password, type: :password)
         vprint_bad("Error when reporting #{account} default password")
       end

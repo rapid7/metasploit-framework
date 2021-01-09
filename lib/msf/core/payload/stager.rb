@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/option_container'
-require 'msf/core/payload/transport_config'
-
 ###
 #
 # Base mixin interface for use by stagers.

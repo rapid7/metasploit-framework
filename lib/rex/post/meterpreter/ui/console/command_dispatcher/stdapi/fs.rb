@@ -487,6 +487,9 @@ class Console::CommandDispatcher::Stdapi::Fs
       dest = ::File.dirname(dest)
     end
 
+    # Expand the destination file path
+    dest = ::File.expand_path(dest)
+
     # Go through each source item and download them
     src_items.each { |src|
       glob = nil
@@ -976,6 +979,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     # Go through each source item and upload them
     src_items.each { |src|
+      src = ::File.expand_path(src)
       stat = ::File.stat(src)
 
       if (stat.directory?)

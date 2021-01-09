@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/password_cracker'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
@@ -17,7 +16,13 @@ class MetasploitModule < Msf::Auxiliary
         help combine all the passwords into an easy to use format.
       },
       'Author'          => ['h00die'],
-      'License'         => MSF_LICENSE
+      'License'         => MSF_LICENSE,
+      'Actions'         =>
+        [
+          ['john', 'Description' => 'Use John the Ripper'],
+          # ['hashcat', 'Description' => 'Use Hashcat'], # removed for simplicity
+        ],
+      'DefaultAction' => 'john',
     )
     deregister_options('ITERATION_TIMEOUT')
     deregister_options('CUSTOM_WORDLIST')
@@ -49,8 +54,20 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def show_run_command(cracker_instance)
+    return unless datastore['ShowCommand']
+    cmd = cracker_instance.show_command
+    print_status("   Cracking Command: #{cmd.join(' ')}")
+  end
+
   def run
-    cracker = new_john_cracker
+    cracker = new_password_cracker
+    cracker.cracker = action.name
+    cracker_version = cracker.cracker_version
+    if action.name == 'john' and !cracker_version.include? 'jumbo'
+      fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
+    end
+    print_good("#{action.name} Version Detected: #{cracker_version}")
 
     lookups = []
 
@@ -79,7 +96,8 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Checking #{format} hashes against pot file")
       cracker.format = format
-      cracker.each_cracked_password do |password_line|
+      show_run_command(cracker)
+      cracker.each_cracked_password.each do |password_line|
         password_line.chomp!
         next if password_line.blank? || password_line.nil?
         fields = password_line.split(":")

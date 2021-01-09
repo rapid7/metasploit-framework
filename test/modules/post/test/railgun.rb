@@ -1,5 +1,4 @@
 
-require 'msf/core'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 require 'module_test'
@@ -7,6 +6,8 @@ require 'module_test'
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
+  include Msf::Post::File
+  include Msf::Post::Windows::FileInfo
   include Msf::Post::Windows::Railgun
 
   def initialize(info={})
@@ -85,6 +86,15 @@ class MetasploitModule < Msf::Post
     end
 
     session.railgun.libc.free(buffer)
+  end
+
+  def test_api_function_file_info_windows
+    return unless session.platform == 'windows'
+    it "Should retrieve the win32k file version" do
+      path = expand_path('%WINDIR%\\system32\\win32k.sys')
+      major, minor, build, revision, brand = file_version(path)
+      true
+    end
   end
 
   def test_api_function_calls_windows

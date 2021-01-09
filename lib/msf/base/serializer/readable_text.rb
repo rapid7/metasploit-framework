@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/opt_condition'
 
 module Msf
 module Serializer
@@ -1018,8 +1017,9 @@ class ReadableText
         end
 
         persist_list.each do |e|
-          if framework.jobs[job_id.to_s].ctx[1]
-             row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+          handler_ctx = framework.jobs[job_id.to_s].ctx[1]
+          if handler_ctx && handler_ctx.respond_to?(:datastore)
+             row[7] = 'true' if e['mod_options']['Options'] == handler_ctx.datastore
           end
         end
 

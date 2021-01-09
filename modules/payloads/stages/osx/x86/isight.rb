@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/osx/bundleinject'
 require 'msf/base/sessions/vncinject'
 require 'fileutils'
 require 'rex/compat'

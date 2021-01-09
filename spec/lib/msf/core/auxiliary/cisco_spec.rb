@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/auxiliary/cisco'
 
 RSpec.describe Msf::Auxiliary::Cisco do
   class DummyCiscoClass

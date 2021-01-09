@@ -414,33 +414,33 @@ class Def_windows_advapi32
     dll.add_function('RegConnectRegistryA', 'DWORD',[
       ["PCHAR","lpMachineName","in"],
       ["DWORD","hKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegConnectRegistryExA', 'DWORD',[
       ["PCHAR","lpMachineName","in"],
       ["DWORD","hKey","in"],
       ["DWORD","Flags","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegConnectRegistryExW', 'DWORD',[
       ["PWCHAR","lpMachineName","in"],
       ["DWORD","hKey","in"],
       ["DWORD","Flags","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegConnectRegistryW', 'DWORD',[
       ["PWCHAR","lpMachineName","in"],
       ["DWORD","hKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegCreateKeyA', 'DWORD',[
       ["DWORD","hKey","in"],
       ["PCHAR","lpSubKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegCreateKeyExA', 'DWORD',[
@@ -451,7 +451,7 @@ class Def_windows_advapi32
       ["DWORD","dwOptions","in"],
       ["DWORD","samDesired","in"],
       ["PBLOB","lpSecurityAttributes","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ["PDWORD","lpdwDisposition","out"],
       ])
 
@@ -463,14 +463,14 @@ class Def_windows_advapi32
       ["DWORD","dwOptions","in"],
       ["DWORD","samDesired","in"],
       ["PBLOB","lpSecurityAttributes","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ["PDWORD","lpdwDisposition","out"],
       ])
 
     dll.add_function('RegCreateKeyW', 'DWORD',[
       ["DWORD","hKey","in"],
       ["PWCHAR","lpSubKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegDeleteKeyA', 'DWORD',[
@@ -629,13 +629,13 @@ class Def_windows_advapi32
 
     dll.add_function('RegOpenCurrentUser', 'DWORD',[
       ["DWORD","samDesired","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOpenKeyA', 'DWORD',[
       ["DWORD","hKey","in"],
       ["PCHAR","lpSubKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOpenKeyExA', 'DWORD',[
@@ -643,7 +643,7 @@ class Def_windows_advapi32
       ["PCHAR","lpSubKey","in"],
       ["DWORD","ulOptions","inout"],
       ["DWORD","samDesired","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOpenKeyExW', 'DWORD',[
@@ -651,20 +651,20 @@ class Def_windows_advapi32
       ["PWCHAR","lpSubKey","in"],
       ["DWORD","ulOptions","inout"],
       ["DWORD","samDesired","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOpenKeyW', 'DWORD',[
       ["DWORD","hKey","in"],
       ["PWCHAR","lpSubKey","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOpenUserClassesRoot', 'DWORD',[
       ["DWORD","hToken","in"],
       ["DWORD","dwOptions","inout"],
       ["DWORD","samDesired","in"],
-      ["PDWORD","phkResult","out"],
+      ["PHANDLE","phkResult","out"],
       ])
 
     dll.add_function('RegOverridePredefKey', 'DWORD',[
@@ -1335,7 +1335,7 @@ class Def_windows_advapi32
       ["PBLOB","PrivilegesToDelete","in"],
       ["DWORD","RestrictedSidCount","in"],
       ["PBLOB","SidsToRestrict","in"],
-      ["PDWORD","NewTokenHandle","out"],
+      ["PHANDLE","NewTokenHandle","out"],
       ])
 
     dll.add_function('CreateWellKnownSid', 'BOOL',[
@@ -1371,7 +1371,7 @@ class Def_windows_advapi32
     dll.add_function('DuplicateToken', 'BOOL',[
       ["DWORD","ExistingTokenHandle","in"],
       ["DWORD","ImpersonationLevel","in"],
-      ["PDWORD","DuplicateTokenHandle","out"],
+      ["PHANDLE","DuplicateTokenHandle","out"],
       ])
 
     dll.add_function('DuplicateTokenEx', 'BOOL',[
@@ -1380,7 +1380,7 @@ class Def_windows_advapi32
       ["PBLOB","lpTokenAttributes","in"],
       ["DWORD","ImpersonationLevel","in"],
       ["DWORD","TokenType","in"],
-      ["PDWORD","phNewToken","out"],
+      ["PHANDLE","phNewToken","out"],
       ])
 
     dll.add_function('EncryptFileA', 'BOOL',[
@@ -1639,7 +1639,7 @@ class Def_windows_advapi32
       ["PCHAR","lpszPassword","in"],
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
-      ["PDWORD","phToken","out"],
+      ["PHANDLE","phToken","out"],
       ])
 
     dll.add_function('LogonUserExA', 'BOOL',[
@@ -1648,7 +1648,7 @@ class Def_windows_advapi32
       ["PCHAR","lpszPassword","in"],
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
-      ["PDWORD","phToken","out"],
+      ["PHANDLE","phToken","out"],
       ["PDWORD","ppLogonSid","out"],
       ["PBLOB","ppProfileBuffer","out"],
       ["PDWORD","pdwProfileLength","out"],
@@ -1661,7 +1661,7 @@ class Def_windows_advapi32
       ["PWCHAR","lpszPassword","in"],
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
-      ["PDWORD","phToken","out"],
+      ["PHANDLE","phToken","out"],
       ["PDWORD","ppLogonSid","out"],
       ["PBLOB","ppProfileBuffer","out"],
       ["PDWORD","pdwProfileLength","out"],
@@ -1674,7 +1674,7 @@ class Def_windows_advapi32
       ["PWCHAR","lpszPassword","in"],
       ["DWORD","dwLogonType","in"],
       ["DWORD","dwLogonProvider","in"],
-      ["PDWORD","phToken","out"],
+      ["PHANDLE","phToken","out"],
       ])
 
     dll.add_function('LookupAccountNameA', 'BOOL',[
@@ -1901,14 +1901,14 @@ class Def_windows_advapi32
     dll.add_function('OpenProcessToken', 'BOOL',[
       ["DWORD","ProcessHandle","in"],
       ["DWORD","DesiredAccess","in"],
-      ["PDWORD","TokenHandle","out"],
+      ["PHANDLE","TokenHandle","out"],
       ])
 
     dll.add_function('OpenThreadToken', 'BOOL',[
       ["DWORD","ThreadHandle","in"],
       ["DWORD","DesiredAccess","in"],
       ["BOOL","OpenAsSelf","in"],
-      ["PDWORD","TokenHandle","out"],
+      ["PHANDLE","TokenHandle","out"],
       ])
 
     dll.add_function('PrivilegeCheck', 'BOOL',[
@@ -2076,7 +2076,7 @@ class Def_windows_advapi32
       ])
 
     dll.add_function('SetThreadToken', 'BOOL',[
-      ["PDWORD","Thread","in"],
+      ["PHANDLE","Thread","in"],
       ["DWORD","Token","in"],
       ])
 

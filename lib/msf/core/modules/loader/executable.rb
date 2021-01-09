@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/modules/loader'
-require 'msf/core/modules/loader/base'
-require 'msf/core/modules/external/shim'
-
 # Concerns loading executables from a directory as modules
 class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
   # Returns true if the path is a directory

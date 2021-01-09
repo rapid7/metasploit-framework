@@ -8,7 +8,6 @@
 # ranks...
 #
 
-require 'msf/core/module/platform'
 
 class Msf::Module::PlatformList
   attr_accessor :platforms

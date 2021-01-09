@@ -4,6 +4,7 @@
 # methods to be overridden in Pro without using alias_method_chain as
 # methods defined in a class cannot be overridden by including a module
 # (unless you're running Ruby 2.0 and can use prepend)
+require 'base64'
 module Msf::DBManager::Import::MetasploitFramework::XML
   #
   # CONSTANTS
@@ -128,7 +129,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # @param element [Nokogiri::XML::Element] web_page element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
-  #   deserializing headers.
+  #   deserializing headers and body.
   # @option options [Mdm::Workspace, nil] :workspace
   #   (Msf::DBManager#workspace) workspace under which to report the
   #   Mdm::WebPage.
@@ -164,8 +165,18 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           element.at('headers'),
           options[:allow_yaml]
       )
-      info[:headers] = nils_for_nulls(unserialized_headers)
 
+      unserialized_body = unserialize_object(element.at('body'), options[:allow_yaml])
+      unless unserialized_body.blank?
+        begin
+          unserialized_body = Base64.urlsafe_decode64(unserialized_body).b
+        rescue ArgumentError => e
+          print_error("Data format suggests response body is not encoded: #{e}")
+        end
+      end
+
+      info[:headers] = nils_for_nulls(unserialized_headers)
+      info[:body] = nils_for_nulls(unserialized_body)
       info
     end
   end
@@ -239,20 +250,22 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     btag = metadata[:root_tag]
 
     doc.each do |node|
-      unless node.inner_xml.empty?
-        case node.name
-        when 'host'
-          parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-        when 'web_site'
-          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, allow_yaml, &block)
-        when 'web_page', 'web_form', 'web_vuln'
-          send(
-              "import_msf_#{node.name}_element",
-              Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
-              :allow_yaml => allow_yaml,
-              :workspace => wspace,
-              &block
-          )
+      unless node.inner_xml.nil?
+        unless node.inner_xml.empty?
+          case node.name
+          when 'host'
+            parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+          when 'web_site'
+            parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, allow_yaml, &block)
+          when 'web_page', 'web_form', 'web_vuln'
+            send(
+                "import_msf_#{node.name}_element",
+                Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
+                :allow_yaml => allow_yaml,
+                :workspace => wspace,
+                &block
+            )
+          end
         end
       end
     end

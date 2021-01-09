@@ -1,4 +1,4 @@
-RSpec.shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_detail child' do |child_node_name|
+RSpec.shared_examples_for 'Msf::DBExport#extract_module_detail_info module_detail child' do |child_node_name|
   attribute_name = child_node_name.underscore
 
   subject(:child_node) do
