@@ -14,6 +14,7 @@ rvm:
   - '2.5.8'
   - '2.6.6'
   - '2.7.1'
+  - '3.0.0'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
