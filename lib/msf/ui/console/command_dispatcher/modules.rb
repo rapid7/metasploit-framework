@@ -29,6 +29,12 @@ module Msf
             '-u' => [false, 'Use module if there is one result']
           )
 
+          @@favorite_opts = Rex::Parser::Arguments.new(
+            '-h' => [false, 'Help banner'],
+            '-c' => [false, "Clear the contents of #{Msf::Config.fav_modules_file}"],
+            '-d' => [false, "Delete module(s) or the current active module from #{Msf::Config.fav_modules_file}"]
+            )
+
           def commands
             {
               "back"       => "Move back from the current context",
@@ -979,18 +985,15 @@ module Msf
           def cmd_favorite_help
             print_line 'Usage: favorite [mod1 mod2 ...]'
             print_line
-            print_line 'Add one or multiple modules to the list of favorite modules stored in the fav_modules file'
+            print_line "Add one or multiple modules to the list of favorite modules stored in #{Msf::Config.fav_modules_file}"
             print_line 'If no module name is specified, the command will add the active module if there is one'
-            print_line
-            print_line 'OPTIONS:'
-            print_line '  -d                Delete the provided module(s) or the active module from the fav_modules file'
-            print_line '  -D                Delete the fav_modules file'
+            print @@favorite_opts.usage
           end
 
           #
           # Helper method for cmd_favorite that writes modules to the fav_modules_file
           #
-          def cmd_favorite_add(modules, favs_file, contents)
+          def favorite_add(modules, favs_file, contents)
             modules = modules.uniq # prevent modules from being added more than once
             modules.each do |name|
               mod = framework.modules.create(name)
@@ -1004,23 +1007,19 @@ module Msf
                 next
               end
 
-              begin
-                File.open(favs_file, 'a+') { |file| file.puts(mod.fullname) }
-              rescue Errno::EACCES => e
-                print_error("Unable to write to #{favs_file}").
-                return
-              end
+              File.open(favs_file, 'a+') { |file| file.puts(mod.fullname) }
               print_status("Added #{mod.fullname} to #{favs_file}")
             end
+            return
           end
 
           #
           # Helper method for cmd_favorite that deletes modules from the fav_modules_file, or deletes the file altogether
           #
-          def cmd_favorite_del(modules, delete_all, favs_file, contents)
+          def favorite_del(modules, delete_all, favs_file, contents)
             if delete_all
-              print_status("Removing #{favs_file} if it exists")
-              File.delete(favs_file) if File.exist?(favs_file)
+              print_status("Clearing the contents of #{favs_file}")
+              File.write(favs_file, '')
               return
             end
 
@@ -1043,73 +1042,134 @@ module Msf
               print_status("Removing #{mod.fullname} from #{favs_file}")
             end
 
-            begin
-              # delete fav_modules file if removing the module(s) makes it empty
-              if contents.length == 0
-                File.delete(favs_file)
-                print_status("Removing #{favs_file} since it is empty now")
-                return
-              end
-              File.open(favs_file, 'w') { |file| file.puts(contents.join("\n")) }
-            rescue Errno::EACCES => e
-              print_error("Unable to write to #{favs_file}").
+            # clear the contents of the fav_modules file if removing the module(s) makes it empty
+            if contents.length == 0
+              print_status("Clearing the contents of #{favs_file} because there are no modules left")
+              File.write(favs_file, '')
               return
             end
+            File.open(favs_file, 'w') { |file| file.puts(contents.join("\n")) }
           end
 
           #
-          # Add modules to the fav_modules file
+          # Helper method for cmd_favorite that checks if the fav_modules file exists and is readable / writable
+          #
+          def favorite_check_fav_modules(favs_file)
+            exists = false
+            writable = false
+            readable = false
+            contents = ''
+            return_array = [exists, writable, readable, contents]
+            
+            return return_array unless File.exists?(favs_file)
+
+            exists = true
+
+            if File.writable?(favs_file)
+              writable = true
+            end
+
+            if File.readable?(favs_file)
+              readable = true
+              contents = File.read(favs_file)
+            end
+
+            return_array = [exists, writable, readable, contents]
+            return return_array
+          end
+
+          #
+          # Add modules to or delete modules from the fav_modules file
           #
           def cmd_favorite(*args)
             favs_file = Msf::Config.fav_modules_file
-            contents = nil
-            if args.include?('-D')
-              args.delete('-D')
-              unless args.empty?
-                print_error('The -D flag cannot be used with additional arguments')
-                return
-              end
-              cmd_favorite_del(args, true, favs_file, contents)
+
+            # always display the help banner if -h is provided or if multiple options are provided
+            if args.include?('-h') || (args.include?('-c') && args.include?('-d'))
+              cmd_favorite_help
               return
             end
 
-            # if we want to add or delete individual modules, we need to read the contents of the fav_modules file if it exists
-            if File.exists?(favs_file)
-              unless File.readable?(favs_file)
-                print_error("Unable to read #{favs_file}")
+            # obtain useful info about the fav_modules file
+            exists, writable, readable, contents = favorite_check_fav_modules(favs_file)
+
+            # parse options if any were provided
+            @@favorite_opts.parse(args) do |opt, i, val|
+              case opt
+              when '-c'
+                args.delete('-c')
+                unless args.empty?
+                  print_error('Option `-c` does not support arguments.  Run `favorite` with `-h` for usage information')
+                  return
+                end
+
+                case # check file permissions
+                when !exists
+                  print_warning("#{favs_file} does not exist")
+                  return
+                when !writable
+                  print_error("Unable to clear #{favs_file} because it is not writable")
+                  return
+                when contents.empty?
+                  print_warning("#{favs_file} is already empty")
+                  return
+                end
+
+                favorite_del(args, true, favs_file, contents)
                 return
-              end
-              contents = File.read(favs_file)  
-            else
-              if args.include?('-d')
-                print_error("Unable to delete modules from #{favs_file} because the file does not exist")
+
+              when '-d'
+                args.delete('-d')
+                if args.empty?
+                  unless active_module
+                    print_error('No module has been provided to delete')
+                    return
+                  end
+                  args = [active_module.fullname]
+                end
+
+                case # check file permissions
+                when !exists
+                  print_warning("#{favs_file} does not exist")
+                  return
+                when !writable
+                  print_error("Unable to delete module(s) from #{favs_file} because it is not writable")
+                  return
+                when !readable
+                  print_error("Unable to delete module(s) from #{favs_file} because it is not readable")
+                  return
+                when contents.empty?
+                  print_warning("#{favs_file} is empty")
+                  return
+                end
+
+                favorite_del(args, false, favs_file, contents)
                 return
               end
             end
 
+            # if we are here, no options were provided and we need to save the active module or the provided module(s)
             if args.empty?
               unless active_module
-                print_error('No module has been provided to favorite')
+                print_error('No module has been provided to favorite. Run `favorite` with `-h` for usage information')
                 return
               end
               args = [active_module.fullname]
-              cmd_favorite_add(args, favs_file, contents)
-              return
             end
 
-            if args.include?('-d')
-              args.delete('-d')
-              if args.empty?
-                unless active_module
-                  print_error('No module has been provided to delete')
-                  return
-                end
-                args = [active_module.fullname]                
+            # if the fav_modules file exists, check the file permissions
+            if exists
+              case
+              when !writable
+                print_error("Unable to save module(s) to #{favs_file} because it is not writable")
+                return
+              when !readable
+                print_error("Unable to save module(s) to #{favs_file} because it is not readable")
+                return
               end
-              cmd_favorite_del(args, false, favs_file, contents)
-              return
             end
-            cmd_favorite_add(args, favs_file, contents)
+
+            favorite_add(args, favs_file, contents)
           end
 
           #
