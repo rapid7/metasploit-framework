@@ -19,8 +19,9 @@ except ImportError:
 metadata = {
     'name': 'Microsoft RDP Web Client Login Enumeration',
     'description': '''
-        Enumerate valid usernames against a Microsoft RDP Web Client
-        by performing a timing based check against the provided username.
+        Enumerate valid usernames and passwords against a Microsoft RDP Web Client
+        by attempting authentication and performing a timing based check
+        against the provided username.
     ''',
     'authors': [
         'Matthew Dunn'
@@ -113,12 +114,12 @@ def check_login(rhost, rport, targeturi, domain, username, password, timeout):
 
 
 def check_logins(rhost, rport, targeturi, domain, usernames, passwords, timeout):
-    """Check each login combination"""
+    """Check each username and password combination"""
     for (username, password) in list(itertools.product(usernames, passwords)):
         check_login(rhost, rport, targeturi, domain, username.strip(), password.strip(), timeout)
 
 def run(args):
-    """Run the module, gathering the domain if desired and verifying usernames"""
+    """Run the module, gathering the domain if desired and verifying usernames and passwords"""
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if DEPENDENCIES_MISSING:
         module.log('Module dependencies are missing, cannot continue', level='error')
@@ -141,12 +142,13 @@ def run(args):
             usernames = file_contents.readlines()
     else:
         usernames = [args['username']]
-    if os.path.isfile(args['password']):
+    if 'password' in args and os.path.isfile(args['password']):
         with open(args['password'], 'r') as file_contents:
             passwords = file_contents.readlines()
-    else:
+    elif 'password' in args:
         passwords = [args['password']]
-
+    else:
+        passwords =['wrong']
     # Check each valid login combination
     check_logins(args['RHOSTS'], args['rport'], args['targeturi'],
                    domain, usernames, passwords, int(args['timeout']))
