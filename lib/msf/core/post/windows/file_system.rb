@@ -277,13 +277,13 @@ module Msf
         # @param [String] target_name The path that the new symbolic link targets.
         # @param [Boolean] directory Whether or not the link target is a directory.
         #
-        # @return [true, nil] Returns true on success or nil on failure.
+        # @return [Boolean] Returns true on success or false   on failure.
         def create_symlink(link_name, target_name, directory: true)
           flags = directory ? 'SYMBOLIC_LINK_FLAG_DIRECTORY' : ''
           result = session.railgun.kernel32.CreateSymbolicLinkW(link_name, target_name, flags)
           unless result['GetLastError'] == SUCCESS
             print_error("Error creating the symlink. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-            return nil
+            return false
           end
 
           true
@@ -322,11 +322,11 @@ module Msf
         def write_to_memory(process, str)
           p_buffer = process.memory.allocate(str.size)
           unless p_buffer
-            print_error("Error allocating memory for \"#{str}\": Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            print_error("Error allocating memory for \"#{str}\"")
             return nil
           end
           unless process.memory.write(p_buffer, str) == str.size
-            print_error("Error writing \"#{str}\" to memory buffer: Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            print_error("Error writing \"#{str}\" to memory buffer")
             return nil
           end
           p_buffer
