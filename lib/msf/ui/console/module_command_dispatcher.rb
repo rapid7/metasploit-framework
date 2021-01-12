@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/ui/console/command_dispatcher'
 require 'rex/parser/arguments'
 
 module Msf
