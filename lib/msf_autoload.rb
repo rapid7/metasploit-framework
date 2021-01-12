@@ -19,6 +19,8 @@ class TempInflector < Zeitwerk::Inflector
       'Json'
     elsif basename == 'powershell' && abspath.end_with?('lib/msf/base/sessions/powershell.rb')
       'PowerShell'
+    elsif basename == 'ui' && abspath.end_with?('lib/msf/core/module/ui', 'lib/msf/core/module/ui.rb')
+      'UI'
     else
       super
     end
@@ -26,7 +28,7 @@ class TempInflector < Zeitwerk::Inflector
 end
 
 loader = Zeitwerk::Loader.new
-loader.push_dir("#{__dir__}/msf/core/", namespace: Msf)
+loader.push_dir("#{__dir__}/msf/", namespace: Msf)
 loader.push_dir("#{__dir__}/../app/validators/")
 loader.push_dir("#{__dir__}/msf/base/", namespace: Msf)
 
@@ -48,12 +50,12 @@ loader.collapse(
   "#{__dir__}/msf/core/payload/linux/x64",
   "#{__dir__}/msf/core/web_services/servlet",
   "#{__dir__}/msf/base",
+  "#{__dir__}/msf/ui/console/command_dispatcher/db"
 )
 
 loader.inflector = TempInflector.new
 loader.inflector.inflect(
   'opt_http_rhost_url' => 'OptHTTPRhostURL',
-  'ui' => 'UI',
   'uuid' => 'UUID',
   'db_manager' => 'DBManager',
   'ci' => 'CI',
