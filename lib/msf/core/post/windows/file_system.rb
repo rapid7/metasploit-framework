@@ -223,8 +223,10 @@ module Msf
 
         alias delete_junction delete_mount_point
 
-        # Create a symbolic link in the object manager to a resource in a specific namespace, typically `\Driver`,
-        # `\Global\` or `\RPC Control`. The namespace is determined by the prefix of the name parameters.
+        # Create a symbolic link within Object Manager to a resource in a specific Object Manager namespace,
+        # which typically tends to be `\RPC Control`. The `\Driver` and `\Global??` namespaces can also be
+        # utilized if the current user has the appropriate privileges. The namespace is determined by the
+        # prefix of the name parameters.
         #
         # @see https://nixhacker.com/understanding-and-exploiting-symbolic-link-in-windows/
         #
@@ -271,7 +273,7 @@ module Msf
         end
 
         # Create a symbolic link on the file system. This function is a suitable replacement for the `mklink /D` shell
-        # command when *directory* is set to true.
+        # command when the *directory* parameter is set to true.
         #
         # @param [String] link_name The path at which to create the symbolic link.
         # @param [String] target_name The path that the new symbolic link targets.
@@ -298,7 +300,8 @@ module Msf
         #
         # @param [String] path The path of where to place the mount point. This path must be an existing, empty directory.
         # @param [String] target The target of what to mount at the specified path.
-        # @param [String] print_name The optional print name string.
+        # @param [String] print_name The optional print name string. This string provides a way to display a more user
+        #   friendly path name identifying the target.
         #
         # @return [Integer, nil] The handle to the reparse point which should be kept for use with {#delete_mount_point}
         #   or nil on failure.
