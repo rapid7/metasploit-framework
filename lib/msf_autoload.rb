@@ -7,6 +7,11 @@ require 'zeitwerk'
 # Correct namespacing to remove the custom inflector (or reduce it's complexity)
 # Correct namespacing to cut down on inflector overrides
 # Make the necessary changes to reduce/remove the ignored/collapsed files and folders
+#
+# I don't know why these are needed in `lib/msf/util/dot_net_deserialization/types.rb`
+#   require 'msf/util/dot_net_deserialization/types/primitives'
+#   require 'msf/util/dot_net_deserialization/types/general'
+#   require 'msf/util/dot_net_deserialization/types/record_values'
 ###
 
 class TempInflector < Zeitwerk::Inflector

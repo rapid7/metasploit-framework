@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'rex/ui'
+
 module Msf
 module Ui
 module Console
