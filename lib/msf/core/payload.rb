@@ -12,7 +12,7 @@ module Msf
 ###
 class Payload < Msf::Module
 
-  require 'rex/payloads'
+  require 'rex/payloads/win32'
 
   # Platform specific includes
   require 'metasploit/framework/compiler/mingw'
