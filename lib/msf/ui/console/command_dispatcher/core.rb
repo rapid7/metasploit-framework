@@ -10,7 +10,6 @@ require 'rex/ui/text/output/buffer/stdout'
 # Project
 #
 
-require 'msf/util/document_generator'
 
 require 'msf/core/opt_condition'
 

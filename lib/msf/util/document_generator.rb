@@ -4,7 +4,6 @@
 #
 ###
 
-require 'msf/util/document_generator/pull_request_finder'
 
 module Msf
   module Util

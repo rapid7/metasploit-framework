@@ -2,7 +2,7 @@
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
-
+require 'rex/parser/arguments'
 module Msf
 module Sessions
 
