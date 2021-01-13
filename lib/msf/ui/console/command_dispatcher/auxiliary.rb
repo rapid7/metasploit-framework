@@ -75,6 +75,7 @@ class Auxiliary
         rhosts_range.each do |rhost|
           nmod = mod.replicant
           nmod.datastore['RHOST'] = rhost
+          nmod.datastore['VHOST'] = rhosts if (!Rex::Socket.is_ip_addr?(rhosts) && nmod.is_a?(Msf::Exploit::Remote::HttpClient) && nmod.datastore['VHOST'].nil?)
           print_status("Running module against #{rhost}")
           nmod.run_simple(
             'Action'         => args[:action],
