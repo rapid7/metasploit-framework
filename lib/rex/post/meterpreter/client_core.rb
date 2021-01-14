@@ -104,6 +104,7 @@ class ClientCore < Extension
   def get_loaded_extension_commands(extension)
     request = Packet.create_request(COMMAND_ID_CORE_ENUMEXTCMD)
 
+    # handle 'core' as a special case since it's not a typical extension
     extension = EXTENSION_ID_CORE if extension == 'core'
     extension = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension) unless extension.is_a? Integer
     request.add_tlv(TLV_TYPE_UINT,   extension)
