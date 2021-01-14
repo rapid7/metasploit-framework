@@ -98,11 +98,15 @@ class ClientCore < Extension
   #
   # Get a list of loaded commands for the given extension.
   #
-  def get_loaded_extension_commands(extension_name)
+  # @param [String, Integer] extension Either the extension name or the extension ID to load the commands for.
+  #
+  # @return [Array<Integer>] An array of command IDs that are supported by the specified extension.
+  def get_loaded_extension_commands(extension)
     request = Packet.create_request(COMMAND_ID_CORE_ENUMEXTCMD)
 
-    start = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension_name)
-    request.add_tlv(TLV_TYPE_UINT, start)
+    extension = EXTENSION_ID_CORE if extension == 'core'
+    extension = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension) unless extension.is_a? Integer
+    request.add_tlv(TLV_TYPE_UINT,   extension)
     request.add_tlv(TLV_TYPE_LENGTH, COMMAND_ID_RANGE)
 
     begin
