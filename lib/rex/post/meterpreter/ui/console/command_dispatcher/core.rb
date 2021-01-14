@@ -1262,23 +1262,7 @@ class Console::CommandDispatcher::Core
           # Use API to get list of extensions from the gem
           exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
         else
-          msf_path = MetasploitPayloads.msf_meterpreter_dir
-          gem_path = MetasploitPayloads.local_meterpreter_dir
-          [msf_path, gem_path].each do |path|
-            ::Dir.entries(path).each { |f|
-              if (::File.file?(::File.join(path, f)))
-                client.binary_suffix.each { |s|
-                  if (f =~ /ext_server_(.*)\.#{s}/ )
-                    if (client.binary_suffix.size > 1)
-                      exts.add($1 + ".#{s}")
-                    else
-                      exts.add($1)
-                    end
-                  end
-                }
-              end
-            }
-          end
+          exts.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
         end
         print(exts.to_a.join("\n") + "\n")
 
@@ -1294,7 +1278,7 @@ class Console::CommandDispatcher::Core
       md = m.downcase
 
       # Temporary hack to pivot mimikatz over to kiwi until
-      # everone remembers to do it themselves
+      # everyone remembers to do it themselves
       if md == 'mimikatz'
         print_warning('The "mimikatz" extension has been replaced by "kiwi". Please use this in future.')
         md = 'kiwi'
@@ -1312,7 +1296,7 @@ class Console::CommandDispatcher::Core
       end
 
       if (extensions.include?(md))
-        print_error("The '#{md}' extension has already been loaded.")
+        print_error("The \"#{md}\" extension has already been loaded.")
         next
       end
 
@@ -1326,6 +1310,7 @@ class Console::CommandDispatcher::Core
       rescue
         print_line
         log_error("Failed to load extension: #{$!}")
+
         next
       end
 
@@ -1338,30 +1323,9 @@ class Console::CommandDispatcher::Core
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
     if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
-      # Use API to get list of extensions from the gem
-      MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']).each { |f|
-        if !extensions.include?(f.split('.').first)
-          tabs.add(f)
-        end
-      }
+      tabs.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
     else
-      msf_path = MetasploitPayloads.msf_meterpreter_dir
-      gem_path = MetasploitPayloads.local_meterpreter_dir
-      [msf_path, gem_path].each do |path|
-      ::Dir.entries(path).each { |f|
-        if (::File.file?(::File.join(path, f)))
-          client.binary_suffix.each { |s|
-            if (f =~ /ext_server_(.*)\.#{s}/ )
-              if (client.binary_suffix.size > 1 && !extensions.include?($1 + ".#{s}"))
-                tabs.add($1 + ".#{s}")
-              elsif (!extensions.include?($1))
-                tabs.add($1)
-              end
-            end
-          }
-        end
-      }
-      end
+      tabs.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
     end
     return tabs.to_a
   end

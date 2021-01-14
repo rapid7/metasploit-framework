@@ -364,16 +364,20 @@ class ClientCore < Extension
       end
 
       if path.nil? and image.nil?
-        raise RuntimeError, "No module of the name #{modnameprovided} found", caller
+        if Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.include?(mod.downcase)
+          raise RuntimeError, "The \"#{mod.downcase}\" extension is not supported by this Meterpreter type (#{client.session_type})", caller
+        else
+          raise RuntimeError, "No module of the name #{modnameprovided} found", caller
+        end
       end
 
       # Load the extension DLL
       commands = load_library(
-          'LibraryFilePath' => path,
+          'LibraryFilePath'  => path,
           'LibraryFileImage' => image,
-          'UploadLibrary'   => true,
-          'Extension'       => true,
-          'SaveToDisk'      => opts['LoadFromDisk'])
+          'UploadLibrary'    => true,
+          'Extension'        => true,
+          'SaveToDisk'       => opts['LoadFromDisk'])
     end
 
     # wire the commands into the client
