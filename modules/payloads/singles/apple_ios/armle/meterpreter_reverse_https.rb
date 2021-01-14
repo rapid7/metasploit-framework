@@ -9,7 +9,7 @@ require 'msf/base/sessions/meterpreter_armle_apple_ios'
 
 module MetasploitModule
 
-  CachedSize = 621224
+  CachedSize = 624704
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions

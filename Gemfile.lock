@@ -29,9 +29,9 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.26)
+      metasploit-payloads (= 2.0.27)
       metasploit_data_models
-      metasploit_payloads-mettle (= 1.0.2)
+      metasploit_payloads-mettle (= 1.0.5)
       mqtt
       msgpack
       nessus_rest
@@ -224,7 +224,7 @@ GEM
       activemodel (~> 5.2.2)
       activesupport (~> 5.2.2)
       railties (~> 5.2.2)
-    metasploit-payloads (2.0.26)
+    metasploit-payloads (2.0.27)
     metasploit_data_models (4.1.1)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -234,7 +234,7 @@ GEM
       pg
       railties (~> 5.2.2)
       recog (~> 2.0)
-    metasploit_payloads-mettle (1.0.2)
+    metasploit_payloads-mettle (1.0.5)
     method_source (1.0.0)
     mini_portile2 (2.5.0)
     minitest (5.14.3)
