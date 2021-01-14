@@ -14,7 +14,14 @@
 require 'rex'
 require 'rex/ui'
 require 'rex/arch'
+
 include Rex::Arch
+
+NTLM_CONST   ||= ::Rex::Proto::NTLM::Constants
+NTLM_CRYPT   ||= ::Rex::Proto::NTLM::Crypt
+NTLM_UTILS   ||= ::Rex::Proto::NTLM::Utils
+NTLM_BASE    ||= ::Rex::Proto::NTLM::Base
+NTLM_MESSAGE ||= ::Rex::Proto::NTLM::Message
 
 module Msf
   autoload :Author, 'msf/core/author'
