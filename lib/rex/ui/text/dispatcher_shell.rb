@@ -328,6 +328,15 @@ module DispatcherShell
       end
       addresses
     end
+
+    #
+    # A callback that can be used to handle unknown commands. This can for example, allow a dispatcher to mark a command
+    # as being disabled.
+    #
+    # @return [Boolean] Returns true when the dispatcher has handled the command.
+    def unknown_command(method, line)
+      false
+    end
   end
 
   #
@@ -473,6 +482,8 @@ module DispatcherShell
           if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
             self.on_command_proc.call(line.strip) if self.on_command_proc
             run_command(dispatcher, method, arguments)
+            found = true
+          elsif dispatcher.unknown_command(method, line)
             found = true
           end
         rescue ::Interrupt
