@@ -53,7 +53,7 @@ module Console::CommandDispatcher
   #
   def filter_commands(all, reqs)
     all.delete_if do |cmd, _desc|
-      reqs[cmd].any? { |req| !client.commands.include?(req) }
+      reqs[cmd]&.any? { |req| !client.commands.include?(req) }
     end
   end
 

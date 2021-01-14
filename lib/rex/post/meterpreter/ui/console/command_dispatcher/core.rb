@@ -47,7 +47,7 @@ class Console::CommandDispatcher::Core
   # List of supported commands.
   #
   def commands
-    c = {
+    cmds = {
       '?'                        => 'Help menu',
       'background'               => 'Backgrounds the current session',
       'bg'                       => 'Alias for background',
@@ -69,55 +69,58 @@ class Console::CommandDispatcher::Core
       'run'                      => 'Executes a meterpreter script or Post module',
       'bgrun'                    => 'Executes a meterpreter script as a background thread',
       'bgkill'                   => 'Kills a background meterpreter script',
-      'get_timeouts'             => 'Get the current session timeout values',
-      'set_timeouts'             => 'Set the current session timeout values',
       'sessions'                 => 'Quickly switch to another session',
       'bglist'                   => 'Lists running background scripts',
       'write'                    => 'Writes data to a channel',
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
-      'disable_unicode_encoding' => 'Disables encoding of unicode strings'
+      'disable_unicode_encoding' => 'Disables encoding of unicode strings',
+      'migrate'                  => 'Migrate the server to another process',
+      'pivot'                    => 'Manage pivot listeners',
+      # transport related commands
+      'sleep'                    => 'Force Meterpreter to go quiet, then re-establish session',
+      'transport'                => 'Manage the transport mechanisms',
+      'get_timeouts'             => 'Get the current session timeout values',
+      'set_timeouts'             => 'Set the current session timeout values',
     }
 
     if client.passive_service
-      c['detach'] = 'Detach the meterpreter session (for http/https)'
+      cmds['detach'] = 'Detach the meterpreter session (for http/https)'
     end
 
-    # Currently we have some windows-specific core commands`
-    if client.platform == 'windows'
-      # only support the SSL switching for HTTPS
-      if client.passive_service && client.sock.type? == 'tcp-ssl'
-        c['ssl_verify'] = 'Modify the SSL certificate verification setting'
-      end
-
-      c['pivot'] = 'Manage pivot listeners'
-    end
-
-    if client.platform == 'windows' || client.platform == 'linux'
-      # Migration only supported on windows and linux
-      c['migrate'] = 'Migrate the server to another process'
-    end
-
-    # TODO: This code currently checks both platform and architecture for the python
-    # and java types because technically the platform should be updated to indicate
-    # the OS platform rather than the meterpreter arch. When we've properly implemented
-    # the platform update feature we can remove some of these conditions
-    if client.platform == 'windows' || client.platform == 'linux' ||
-        client.platform == 'python' || client.arch == ARCH_PYTHON ||
-        client.platform == 'java' || client.arch == ARCH_JAVA ||
-        client.platform == 'android' || client.arch == ARCH_DALVIK
-      # Yet to implement transport hopping for other meterpreters.
-      c['transport'] = 'Change the current transport mechanism'
-
-      # sleep functionality relies on the transport features, so only
-      # wire that in with the transport stuff.
-      c['sleep'] = 'Force Meterpreter to go quiet, then re-establish session.'
+    if client.passive_service && client.sock.type? == 'tcp-ssl'
+      cmds['ssl_verify'] = 'Modify the SSL certificate verification setting'
     end
 
     if msf_loaded?
-      c['info'] = 'Displays information about a Post module'
+      cmds['info'] = 'Displays information about a Post module'
     end
 
-    c
+    reqs = {
+      'load'         => [COMMAND_ID_CORE_LOADLIB],
+      'machine_id'   => [COMMAND_ID_CORE_MACHINE_ID],
+      'migrate'      => [COMMAND_ID_CORE_MIGRATE],
+      'pivot'        => [COMMAND_ID_CORE_PIVOT_ADD, COMMAND_ID_CORE_PIVOT_REMOVE],
+      'secure'       => [COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION],
+      # channel related commands
+      'read'         => [COMMAND_ID_CORE_CHANNEL_READ],
+      'write'        => [COMMAND_ID_CORE_CHANNEL_WRITE],
+      'close'        => [COMMAND_ID_CORE_CHANNEL_CLOSE],
+      # transport related commands
+      'sleep'        => [COMMAND_ID_CORE_TRANSPORT_SLEEP],
+      'ssl_verify'   => [COMMAND_ID_CORE_TRANSPORT_GETCERTHASH, COMMAND_ID_CORE_TRANSPORT_SETCERTHASH],
+      'transport'    => [
+        COMMAND_ID_CORE_TRANSPORT_ADD,
+        COMMAND_ID_CORE_TRANSPORT_CHANGE,
+        COMMAND_ID_CORE_TRANSPORT_LIST,
+        COMMAND_ID_CORE_TRANSPORT_NEXT,
+        COMMAND_ID_CORE_TRANSPORT_PREV,
+        COMMAND_ID_CORE_TRANSPORT_REMOVE
+      ],
+      'get_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+      'set_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+    }
+
+    filter_commands(cmds, reqs)
   end
 
   #
