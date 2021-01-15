@@ -16,18 +16,24 @@ class ExtensionMapper
   end
 
   def self.get_extension_id(name)
-    k = self.get_extension_klass(name)
+    begin
+      k = self.get_extension_klass(name)
+    rescue RuntimeError
+      return nil
+    end
+
     k.extension_id
   end
 
   def self.get_extension_name(id)
-    self.get_extension_names.each do |name|
+    self.get_extension_names.find do |name|
       begin
         klass = self.get_extension_klass(name)
       rescue RuntimeError
         next
       end
-      return name if klass.extension_id == id
+
+      klass.extension_id == id
     end
   end
 
