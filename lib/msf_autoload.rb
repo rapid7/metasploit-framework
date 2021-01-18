@@ -35,8 +35,6 @@ end
 loader = Zeitwerk::Loader.new
 loader.push_dir("#{__dir__}/msf/", namespace: Msf)
 loader.push_dir("#{__dir__}/../app/validators/")
-loader.push_dir("#{__dir__}/msf/base/", namespace: Msf)
-
 
 loader.ignore(
   "#{__dir__}/msf/core/constants.rb",
