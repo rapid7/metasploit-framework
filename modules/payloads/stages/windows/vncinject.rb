@@ -5,8 +5,6 @@
 
 # Copyright (c) 2008 Stephen Fewer of Harmony Security (www.harmonysecurity.com)
 
-require 'msf/base/sessions/vncinject'
-require 'msf/base/sessions/vncinject_options'
 
 ###
 #

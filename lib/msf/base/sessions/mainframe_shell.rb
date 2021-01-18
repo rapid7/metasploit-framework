@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/command_shell'
 
 module Msf::Sessions
 

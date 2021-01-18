@@ -1,5 +1,3 @@
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 

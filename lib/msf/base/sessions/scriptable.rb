@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-module Msf::Session
+module Msf::Sessions
 
 module Scriptable
 

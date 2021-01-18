@@ -1,4 +1,3 @@
-require 'msf/base/sessions/pingback'
 
 module MetasploitModule
 

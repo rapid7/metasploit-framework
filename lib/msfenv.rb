@@ -16,4 +16,5 @@ require config.join('boot')
 unless defined?(Rails) && !Rails.application.nil?
   require config.join('environment')
 end
+require 'msf/core'
 require 'msf_autoload'

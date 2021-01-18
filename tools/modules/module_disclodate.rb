@@ -21,7 +21,6 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
 require 'msf/ui'
-require 'msf/base'
 
 nilc = false
 sort = 0

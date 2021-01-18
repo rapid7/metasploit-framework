@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/base/sessions/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/net/interface'
 require 'rex/post/meterpreter/extensions/stdapi/net/route'
 

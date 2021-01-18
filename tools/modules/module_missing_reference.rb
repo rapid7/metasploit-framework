@@ -8,7 +8,6 @@ $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'msfenv'
-require 'msf/base'
 require 'rex'
 
 # See lib/msf/core/module/reference.rb

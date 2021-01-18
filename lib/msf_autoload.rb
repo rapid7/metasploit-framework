@@ -15,6 +15,10 @@ class TempInflector < Zeitwerk::Inflector
       'Osx'
     elsif basename == 'exe' && abspath.end_with?('lib/msf/core/exe', 'lib/msf/core/exe.rb')
       'Exe'
+    elsif basename == 'json' && abspath.end_with?('lib/msf/base/serializer/json.rb')
+      'Json'
+    elsif basename == 'powershell' && abspath.end_with?('lib/msf/base/sessions/powershell.rb')
+      'PowerShell'
     else
       super
     end
@@ -24,6 +28,8 @@ end
 loader = Zeitwerk::Loader.new
 loader.push_dir("#{__dir__}/msf/core/", namespace: Msf)
 loader.push_dir("#{__dir__}/../app/validators/")
+loader.push_dir("#{__dir__}/msf/base/", namespace: Msf)
+
 
 loader.ignore(
   "#{__dir__}/msf/core/constants.rb",
@@ -40,7 +46,8 @@ loader.collapse(
   "#{__dir__}/msf/core/payload/osx/x64",
   "#{__dir__}/msf/core/payload/windows/x64",
   "#{__dir__}/msf/core/payload/linux/x64",
-  "#{__dir__}/msf/core/web_services/servlet"
+  "#{__dir__}/msf/core/web_services/servlet",
+  "#{__dir__}/msf/base",
 )
 
 loader.inflector = TempInflector.new
@@ -187,7 +194,35 @@ loader.inflector.inflect(
   'wmap_scan_ssl' => 'WmapScanSSL',
   'http_db_manager_service' => 'HttpDBManagerService',
   'vyos' => 'VYOS',
-  'windows_constants' => 'Windows_Constants'
-)
+  'windows_constants' => 'Windows_Constants',
+  'tty' => 'TTY',
+  'meterpreter_java' => 'Meterpreter_Java_Java',
+  'meterpreter_android' => 'Meterpreter_Java_Android',
+  'meterpreter_zarch_linux' => 'Meterpreter_zarch_Linux',
+  'meterpreter_python' => 'Meterpreter_Python_Python',
+  'meterpreter_ppce500v2_linux' => 'Meterpreter_ppce500v2_Linux',
+  'meterpreter_x86_osx' => 'Meterpreter_x86_OSX',
+  'meterpreter_armbe_linux' => 'Meterpreter_armbe_Linux',
+  'meterpreter_ppc64le_linux' => 'Meterpreter_ppc64le_Linux',
+  'meterpreter_x64_linux' => 'Meterpreter_x64_Linux',
+  'meterpreter_armle_linux' => 'Meterpreter_armle_Linux',
+  'meterpreter_aarch64_linux' => 'Meterpreter_aarch64_Linux',
+  'meterpreter_x86_win' => 'Meterpreter_x86_Win',
+  'meterpreter_armle_apple_ios' => 'Meterpreter_armle_Apple_iOS',
+  'meterpreter_mipsle_linux' => 'Meterpreter_mipsle_Linux',
+  'meterpreter_x86_bsd' => 'Meterpreter_x86_BSD',
+  'meterpreter_mips64_linux' => 'Meterpreter_mips64_Linux',
+  'meterpreter_x86_linux' => 'Meterpreter_x86_Linux',
+  'meterpreter_mipsbe_linux' => 'Meterpreter_mipsbe_Linux',
+  'meterpreter_aarch64_apple_ios' => 'Meterpreter_aarch64_Apple_iOS',
+  'meterpreter_x64_osx' => 'Meterpreter_x64_OSX',
+  'meterpreter_ppc_linux' => 'Meterpreter_ppc_Linux',
+  'meterpreter_x64_win' => 'Meterpreter_x64_Win',
+  'meterpreter_php' => 'Meterpreter_Php_Php',
+  'meterpreter_multi' => 'Meterpreter_Multi',
+  'hwbridge' => 'HWBridge',
+  'vncinject_options' => 'VncInjectOptions',
+  'vncinject' => 'VncInject',
+  )
 
 loader.setup # ready!

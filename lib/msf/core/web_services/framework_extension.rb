@@ -2,7 +2,6 @@ require 'sinatra/base'
 require 'uri'
 
 require 'metasploit/framework/data_service/remote/http/core'
-require 'msf/base/simple/framework'
 
 module Msf::WebServices
   # Extension provides a Metasploit Framework instance to a Sinatra application.
