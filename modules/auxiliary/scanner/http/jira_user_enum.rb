@@ -47,41 +47,6 @@ class MetasploitModule < Msf::Auxiliary
     @base_uri ||= normalize_uri("#{target_uri.path}/secure/ViewUserHover.jspa?username=")
   end
 
-  # I could not figure out how to add the usernames to the creds db so I copeid and pasted the following function from another program
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    # Test if password was passed, if so, add private_data. If not, assuming only username was found
-    if opts.key?(:password)
-      credential_data = {
-        origin_type: :service,
-        module_fullname: fullname,
-        username: opts[:user],
-        private_data: opts[:password],
-        private_type: :password
-      }.merge(service_data)
-    else
-      credential_data = {
-        origin_type: :service,
-        module_fullname: fullname,
-        username: opts[:user]
-      }.merge(service_data)
-    end
-
-    login_data = {
-      core: create_credential(credential_data),
-      last_attempted_at: DateTime.now,
-      status: Metasploit::Model::Login::Status::SUCCESSFUL
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
 
   # I was having issues with handling the username vs user_file so I copied and pasted this function from another module to fix it
   def user_list
