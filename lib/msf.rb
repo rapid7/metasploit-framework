@@ -1,4 +1,4 @@
-
+require 'rex/proto/ntlm'
 require 'rex/arch'
 include Rex::Arch
 
