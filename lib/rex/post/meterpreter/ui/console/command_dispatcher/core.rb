@@ -120,6 +120,11 @@ class Console::CommandDispatcher::Core
       'set_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
     }
 
+    # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
+    # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+    # filtering for Windows which supports all the filtered commands anyways.
+    reqs.clear if client.base_platform == 'windows'
+
     filter_commands(cmds, reqs)
   end
 
