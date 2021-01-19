@@ -90,12 +90,13 @@ class MetasploitModule < Msf::Auxiliary
       elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
         print_good("'User exists: #{user}'")
         # use the report_creds function to add the username to the creds db
-        report_cred(
-          ip: res.peerinfo['addr'],
-          port: datastore['RPORT'],
-          service_name: 'jira',
-          user: user
-        )
+      connection_details = {
+          module_fullname: self.fullname,
+          username: user,
+          workspace_id: myworkspace_id,
+          status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
       else
         print_error('No response')
       end
