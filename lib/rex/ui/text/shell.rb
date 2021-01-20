@@ -2,8 +2,6 @@
 require 'rex/text/color'
 require 'rex/ui'
 
-gem 'pry-byebug'
-
 module Rex
 module Ui
 module Text
