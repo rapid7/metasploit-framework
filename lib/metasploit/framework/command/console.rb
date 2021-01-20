@@ -56,7 +56,6 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
   # @return [Msf::Ui::Console::Driver]
   def driver
     unless @driver
-      # require here so minimum loading is done before {start} is called.
 
       @driver = Msf::Ui::Console::Driver.new(
           Msf::Ui::Console::Driver::DefaultPrompt,
