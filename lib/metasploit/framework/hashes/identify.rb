@@ -46,7 +46,7 @@ def identify_hash(hash)
       return 'ssha'
     when hash.start_with?(/{SHA512}/i)
       return 'raw-sha512'
-    when hash.start_with?(/{SHA}/i)
+    when hash.start_with?(/{SHA}/i) || hash =~ /^[\da-fA-F]{40}$/
       return 'raw-sha1'
     when hash.start_with?(/{MD5}/i)
       return 'raw-md5'
