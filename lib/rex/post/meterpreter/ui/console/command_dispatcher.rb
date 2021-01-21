@@ -64,7 +64,7 @@ module Console::CommandDispatcher
   def unknown_command(cmd, line)
     if @filtered_commands.include?(cmd)
       print_error("The \"#{cmd}\" command is not supported by this Meterpreter type (#{client.session_type})")
-      return true
+      return :handled
     end
 
     super
