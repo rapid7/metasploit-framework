@@ -676,7 +676,6 @@ protected
       user = rows[0]
       domain = rows[1]
       ntlm_hash = rows[2].strip.downcase
-      sha1_hash = rows[3].strip.downcase
       return if (user.empty? || pass.eql?('(null)'))
 
       if !ntlm_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0')
@@ -694,21 +693,6 @@ protected
         credential_core = create_cred(domain, credential_data)
         report_smb_cred(credential_core)
       end
-
-      if !sha1_hash.eql?('da39a3ee5e6b4b0d3255bfef95601890afd80709')
-        # Assemble data about the credential objects we will be creating
-        credential_data = {
-          origin_type: :session,
-          post_reference_name: 'kiwi',
-          private_data: sha1_hash,
-          private_type: :nonreplayable_hash,
-          session_id: client.db_record.id,
-          username: user,
-          workspace_id: shell.framework.db.workspace.id
-        }
-        credential_core = create_cred(domain, credential_data)
-      end
-
     when :wdigest, :kerberos, :tspkg, :livessp, :ssp
       user = rows[0]
       domain = rows[1]
