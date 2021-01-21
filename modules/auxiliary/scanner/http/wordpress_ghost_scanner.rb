@@ -30,8 +30,8 @@ class MetasploitModule < Msf::Auxiliary
     'References'  =>
     [
       [ 'CVE', '2015-0235' ],
-      [ 'URL', 'http://blog.spiderlabs.com/2015/01/ghost-gethostbyname-heap-overflow-in-glibc-cve-2015-0235.html'],
-      [ 'URL', 'http://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
+      [ 'URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/ghost-gethostbyname-heap-overflow-in-glibc-cve-2015-0235/'],
+      [ 'URL', 'https://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
     ]
     ))
 
