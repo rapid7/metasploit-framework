@@ -655,7 +655,7 @@ protected
       return if (lm_hash.eql?('aad3b435b51404eeaad3b435b51404ee') && nt_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0'))
 
       pass = "#{lm_hash}:#{nt_hash}"
-    when :wdigest, :kerberos
+    when :wdigest, :kerberos, :tspkg
       user = rows[0]
       domain = rows[1]
       pass = rows[2]
