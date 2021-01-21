@@ -644,41 +644,7 @@ protected
     return true
   end
 
-  def report_creds(type, rows)
-    user, domain, pass = rows
-    case type
-    when :msv
-      user = rows[0]
-      domain = rows[1]
-      lm_hash = rows[2].downcase
-      nt_hash = rows[3].downcase
-      return if (lm_hash.eql?('aad3b435b51404eeaad3b435b51404ee') && nt_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0'))
-
-      pass = "#{lm_hash}:#{nt_hash}"
-    when :wdigest, :kerberos
-      user = rows[0]
-      domain = rows[1]
-      pass = rows[2]
-    end
-    return if (user.empty? || pass.eql?('(null)'))
-
-    # Assemble data about the credential objects we will be creating
-    credential_data = {
-      origin_type: :session,
-      post_reference_name: 'kiwi',
-      private_data: pass,
-      private_type: type == :msv ? :ntlm_hash : :password,
-      session_id: client.db_record.id,
-      username: user,
-      workspace_id: shell.framework.db.workspace.id
-    }
-
-    unless domain.blank?
-      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
-      credential_data[:realm_value] = domain
-    end
-    credential_core = shell.framework.db.create_credential(credential_data)
-
+  def report_smb_cred(credential_core)
     # Assemble the options hash for creating the Metasploit::Credential::Login object
     login_data = {
       core: credential_core,
@@ -691,6 +657,78 @@ protected
     }
 
     shell.framework.db.create_credential_login(login_data)
+  end
+
+  def create_cred(domain, credential_data)
+    unless domain.blank?
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = domain
+    end
+    credential_core = shell.framework.db.create_credential(credential_data)
+
+    credential_core
+  end
+
+  def report_creds(type, rows)
+    user, domain, pass = rows
+    case type
+    when :msv
+      user = rows[0]
+      domain = rows[1]
+      ntlm_hash = rows[2].strip.downcase
+      sha1_hash = rows[3].strip.downcase
+      return if (user.empty? || pass.eql?('(null)'))
+
+      if !ntlm_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0')
+        pass = "aad3b435b51404eeaad3b435b51404ee:#{ntlm_hash}"
+        # Assemble data about the credential objects we will be creating
+        credential_data = {
+          origin_type: :session,
+          post_reference_name: 'kiwi',
+          private_data: pass,
+          private_type: :ntlm_hash,
+          session_id: client.db_record.id,
+          username: user,
+          workspace_id: shell.framework.db.workspace.id
+        }
+        credential_core = create_cred(domain, credential_data)
+        report_smb_cred(credential_core)
+      end
+
+      if !sha1_hash.eql?('da39a3ee5e6b4b0d3255bfef95601890afd80709')
+        # Assemble data about the credential objects we will be creating
+        credential_data = {
+          origin_type: :session,
+          post_reference_name: 'kiwi',
+          private_data: sha1_hash,
+          private_type: :nonreplayable_hash,
+          session_id: client.db_record.id,
+          username: user,
+          workspace_id: shell.framework.db.workspace.id
+        }
+        credential_core = create_cred(domain, credential_data)
+      end
+
+    when :wdigest, :kerberos, :tspkg, :livessp, :ssp
+      user = rows[0]
+      domain = rows[1]
+      pass = rows[2]
+      return if (user.empty? || pass.eql?('(null)'))
+
+      # Assemble data about the credential objects we will be creating
+      credential_data = {
+        origin_type: :session,
+        post_reference_name: 'kiwi',
+        private_data: pass,
+        private_type: :password,
+        session_id: client.db_record.id,
+        username: user,
+        workspace_id: shell.framework.db.workspace.id
+      }
+
+      credential_core = create_cred(domain, credential_data)
+      report_smb_cred(credential_core)
+    end
   end
   #
   # Helper function to convert a potentially blank value to hex and have
