@@ -28,6 +28,7 @@ class Logging
       # Register each known log source
       [
         Rex::LogSource,
+        Rex::Socket::LogSource,
         Msf::LogSource,
         'base',
       ].each { |src|
