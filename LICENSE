@@ -127,6 +127,10 @@ Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/
 Copyright: 2011 Jon Bringhurst
 License: GNU GPL 2.0
 
+Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/*
+Copyright: 2020 Johnny Shaw
+License: MIT
+
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
