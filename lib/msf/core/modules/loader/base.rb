@@ -468,7 +468,7 @@ class Msf::Modules::Loader::Base
   def script_path?(path)
     # warn users if their external modules aren't marked executable
     # per #14281
-    if File.directory?(path) || !['#!', '//'].include?(File.read(path, 2)) || File::basename(path).start_with?('example')
+    if File.directory?(path) || !['#!', '//'].include?(File.read(path, 2))
       false
     elsif File.executable?(path)
       true
