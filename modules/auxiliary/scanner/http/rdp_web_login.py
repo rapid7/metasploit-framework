@@ -47,13 +47,33 @@ metadata = {
                      'description': 'The password to try or path to a file of passwords',
                      'required': False, 'default': None},
         'timeout': {'type': 'int',
-                    'description': 'Timeout in milliseconds for response to consider username invalid',
+                    'description': 'Response timeout in milliseconds to consider username invalid',
                     'required': True, 'default': 1250},
         'enum_domain': {'type': 'bool',
                         'description': 'Automatically enumerate AD domain using NTLM',
-                        'required': False, 'default': True}
+                        'required': False, 'default': True},
+        'verify_service': {'type': 'bool',
+                           'description': 'Verify the service is up before performing login scan',
+                           'required': False, 'default': True}
     }
 }
+
+
+def verify_service(rhost, rport, targeturi, timeout):
+    """Verify the service is up at the target URI within the specified timeout"""
+    url = f'https://{rhost}:{rport}/{targeturi}'
+    headers = {'Host':rhost,
+               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
+               'Content-Type': 'application/x-www-form-urlencoded',
+               'Content-Length': '0',
+               'Origin': f'https://{rhost}'}
+    session = requests.Session()
+    try:
+        request = session.get(url, headers=headers, timeout=(timeout / 1000),
+                              verify=False, allow_redirects=False)
+        return request.status_code == 200 and 'RD Web' in request.text
+    except requests.exceptions.Timeout:
+        return False
 
 
 def get_ad_domain(rhost, rport):
@@ -71,10 +91,12 @@ def get_ad_domain(rhost, rport):
         if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
           'NTLM' in request.headers['WWW-Authenticate']:
             domain_hash = request.headers['WWW-Authenticate'].split('NTLM ')[1].split(',')[0]
-            domain = base64.b64decode(bytes(domain_hash, 'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
+            domain = base64.b64decode(bytes(domain_hash,
+                                            'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
             domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
             module.log(f'Found Domain: {domain}', level='good')
             return domain
+    module.log('Failed to find Domain', level='error')
     return None
 
 
@@ -125,6 +147,17 @@ def run(args):
         module.log('Module dependencies are missing, cannot continue', level='error')
         return
 
+    # Verify the service is up if requested
+    if args['verify_service']:
+        service_verified = verify_service(args['rhost'], args['rport'],
+                                          args['targeturi'], int(args['timeout']))
+        if service_verified:
+            module.log('Service is up, beginning scan...', level='good')
+        else:
+            module.log(f'Service appears to be down, no response in {args["timeout"]} milliseconds',
+                       level='error')
+            return
+
     # Gather AD Domain either from args or enumeration
     domain = args['domain'] if 'domain' in args else None
     if not domain and args['enum_domain']:
@@ -148,7 +181,7 @@ def run(args):
     elif 'password' in args:
         passwords = [args['password']]
     else:
-        passwords =['wrong']
+        passwords = ['wrong']
     # Check each valid login combination
     check_logins(args['RHOSTS'], args['rport'], args['targeturi'],
                    domain, usernames, passwords, int(args['timeout']))
