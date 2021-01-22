@@ -10,18 +10,6 @@ require 'rex/ui/text/output/buffer/stdout'
 # Project
 #
 
-require 'msf/ui/console/command_dispatcher/encoder'
-require 'msf/ui/console/command_dispatcher/exploit'
-require 'msf/ui/console/command_dispatcher/nop'
-require 'msf/ui/console/command_dispatcher/payload'
-require 'msf/ui/console/command_dispatcher/auxiliary'
-require 'msf/ui/console/command_dispatcher/post'
-require 'msf/ui/console/command_dispatcher/evasion'
-require 'msf/ui/console/command_dispatcher/jobs'
-require 'msf/ui/console/command_dispatcher/resource'
-require 'msf/ui/console/command_dispatcher/modules'
-require 'msf/ui/console/command_dispatcher/developer'
-require 'msf/util/document_generator'
 
 require 'msf/core/opt_condition'
 

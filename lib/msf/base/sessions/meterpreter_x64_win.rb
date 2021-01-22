@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/windows_error'
 
 module Msf
 module Sessions

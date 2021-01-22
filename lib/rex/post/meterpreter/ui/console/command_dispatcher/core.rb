@@ -2,6 +2,7 @@
 require 'set'
 require 'rex/post/meterpreter'
 require 'rex/parser/arguments'
+require 'rex'
 
 module Rex
 module Post

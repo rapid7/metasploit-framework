@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rex/parser/arguments'
-require 'msf/util/exe'
 
 module Msf
   module Ui

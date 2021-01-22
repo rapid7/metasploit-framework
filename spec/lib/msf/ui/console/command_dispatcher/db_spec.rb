@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/command_dispatcher/db'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   include_context 'Msf::DBManager'

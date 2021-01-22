@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'pp'
 require 'rex'
-require 'msf/ui/web/driver'
 
 module Msf
 module RPC

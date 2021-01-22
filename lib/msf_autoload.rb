@@ -7,6 +7,11 @@ require 'zeitwerk'
 # Correct namespacing to remove the custom inflector (or reduce it's complexity)
 # Correct namespacing to cut down on inflector overrides
 # Make the necessary changes to reduce/remove the ignored/collapsed files and folders
+#
+# I don't know why these are needed in `lib/msf/util/dot_net_deserialization/types.rb`
+#   require 'msf/util/dot_net_deserialization/types/primitives'
+#   require 'msf/util/dot_net_deserialization/types/general'
+#   require 'msf/util/dot_net_deserialization/types/record_values'
 ###
 
 class TempInflector < Zeitwerk::Inflector
@@ -19,6 +24,8 @@ class TempInflector < Zeitwerk::Inflector
       'Json'
     elsif basename == 'powershell' && abspath.end_with?('lib/msf/base/sessions/powershell.rb')
       'PowerShell'
+    elsif basename == 'ui' && abspath.end_with?('lib/msf/core/module/ui', 'lib/msf/core/module/ui.rb')
+      'UI'
     else
       super
     end
@@ -26,10 +33,8 @@ class TempInflector < Zeitwerk::Inflector
 end
 
 loader = Zeitwerk::Loader.new
-loader.push_dir("#{__dir__}/msf/core/", namespace: Msf)
+loader.push_dir("#{__dir__}/msf/", namespace: Msf)
 loader.push_dir("#{__dir__}/../app/validators/")
-loader.push_dir("#{__dir__}/msf/base/", namespace: Msf)
-
 
 loader.ignore(
   "#{__dir__}/msf/core/constants.rb",
@@ -37,8 +42,10 @@ loader.ignore(
   "#{__dir__}/msf/core/rpc/json/error.rb",
   "#{__dir__}/msf/core/rpc/json/v2_0/",
   "#{__dir__}/msf/core/modules/external/ruby/metasploit.rb",
-  "#{__dir__}/msf/core/rpc/v10/constants.rb"
-)
+  "#{__dir__}/msf/core/rpc/v10/constants.rb",
+  "#{__dir__}/msf/core.rb",
+  "#{__dir__}/msf/base.rb",
+  )
 
 loader.collapse(
   "#{__dir__}/msf/core",
@@ -48,12 +55,12 @@ loader.collapse(
   "#{__dir__}/msf/core/payload/linux/x64",
   "#{__dir__}/msf/core/web_services/servlet",
   "#{__dir__}/msf/base",
+  "#{__dir__}/msf/ui/console/command_dispatcher/db"
 )
 
 loader.inflector = TempInflector.new
 loader.inflector.inflect(
   'opt_http_rhost_url' => 'OptHTTPRhostURL',
-  'ui' => 'UI',
   'uuid' => 'UUID',
   'db_manager' => 'DBManager',
   'ci' => 'CI',

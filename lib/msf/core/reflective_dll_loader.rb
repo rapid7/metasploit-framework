@@ -8,6 +8,8 @@
 #
 ###
 
+require 'rex/peparsey'
+
 module Msf::ReflectiveDLLLoader
 
   # This is the ordinal of the reflective loader by default
