@@ -669,8 +669,7 @@ protected
     credential_core
   end
 
-  def report_creds(type, rows)
-    user, domain, pass = rows
+    def report_creds(type, user, domain, secret)
     case type
     when :msv
       user = rows[0]
