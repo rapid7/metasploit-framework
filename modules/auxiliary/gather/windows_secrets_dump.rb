@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/util/windows_registry_parser'
 require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary

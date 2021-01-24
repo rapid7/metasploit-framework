@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
 require 'rex/post/meterpreter'
 
 module Msf
@@ -29,7 +27,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   # Override for server implementations that can't do SSL
   def supports_ssl?

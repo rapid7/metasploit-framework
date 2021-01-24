@@ -1,7 +1,4 @@
 require 'spec_helper'
-require 'msf/ui/debug'
-require 'msf/base/config'
-require 'msf/ui/console/driver'
 
 RSpec.describe Msf::Ui::Debug do
   let(:file_fixtures_path) { File.join(Msf::Config.install_root, 'spec', 'file_fixtures') }

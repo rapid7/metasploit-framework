@@ -1,11 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base'
-require 'msf/ui'
-require 'msf/ui/console/framework_event_manager'
-require 'msf/ui/console/command_dispatcher'
-require 'msf/ui/console/command_dispatcher/db'
-require 'msf/ui/console/command_dispatcher/creds'
-require 'msf/ui/console/table'
 require 'find'
 require 'erb'
 require 'rexml/document'

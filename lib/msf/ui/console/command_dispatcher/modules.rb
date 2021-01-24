@@ -1,10 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/ui/text/output/buffer/stdout'
-require 'msf/ui/console/table_print/rank_styler'
-require 'msf/ui/console/table_print/rank_formatter'
-require 'msf/ui/console/table_print/highlight_substring_styler'
-
+require 'rex/parser/arguments'
 
 module Msf
   module Ui

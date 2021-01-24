@@ -120,11 +120,7 @@ if $PROGRAM_NAME == __FILE__
 
   $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-  require 'msf/base'
-  require 'msf/ui'
-  require 'msf/util/service_helper'
-  require 'msf/base/config'
-  require 'rex/parser/arguments'
+    require 'rex/parser/arguments'
 
   ws_ssl_key_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-key.pem")
   ws_ssl_cert_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-cert.pem")

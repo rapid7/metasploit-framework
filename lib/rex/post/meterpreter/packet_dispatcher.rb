@@ -14,8 +14,21 @@ module Meterpreter
 #
 ###
 class RequestError < ArgumentError
-  def initialize(method, einfo, ecode=nil)
-    @method = method
+  def initialize(command_id, einfo, ecode=nil)
+    extension_id = command_id - (command_id % 1000)
+    if extension_id == 0  # this is the meterpreter core
+      mod = Rex::Post::Meterpreter
+    else
+      mod_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(extension_id)
+      mod = Rex::Post::Meterpreter::ExtensionMapper.get_extension_module(mod_name)
+    end
+
+    if mod
+      command_name = mod.constants.select { |c| c.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
+      command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
+    end
+
+    @method = command_name || "##{command_id}"
     @result = einfo
     @code   = ecode || einfo
   end

@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui/console/table_print/highlight_substring_styler'
 
 RSpec.describe Msf::Ui::Console::TablePrint::HighlightSubstringStyler do
   describe 'style' do

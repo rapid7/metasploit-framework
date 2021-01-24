@@ -11,11 +11,10 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'msf/base/config'
-require 'msf/util'
-require 'msf/events'
 require 'rex/socket/ssl'
 require 'metasploit/framework/thread_factory_provider'
+require 'rex/job_container'
+require 'rex/thread_factory'
 module Msf
 
 ###
