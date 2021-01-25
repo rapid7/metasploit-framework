@@ -616,7 +616,10 @@ protected
             values << ''
           end
         end
-        report_creds(k, values) if !shell.framework.nil? && shell.framework.db.active
+        if !shell.framework.nil? && shell.framework.db.active
+          user, domain, secret = values
+          report_creds(k, user, domain, secret)
+        end
         table << values
       end
 
@@ -649,7 +652,7 @@ protected
     login_data = {
       core: credential_core,
       status: Metasploit::Model::Login::Status::UNTRIED,
-      address: ::Rex::Socket.getaddress(client.sock.peerhost, true),
+      address: client.sock.peerhost,
       port: 445,
       service_name: 'smb',
       protocol: 'tcp',
@@ -659,7 +662,7 @@ protected
     shell.framework.db.create_credential_login(login_data)
   end
 
-  def create_cred(domain, credential_data)
+  def create_cred(credential_data, domain = '')
     unless domain.blank?
       credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
       credential_data[:realm_value] = domain
@@ -669,50 +672,40 @@ protected
     credential_core
   end
 
-    def report_creds(type, user, domain, secret)
-    case type
-    when :msv
-      user = rows[0]
-      domain = rows[1]
-      ntlm_hash = rows[2].strip.downcase
-      return if (user.empty? || pass.eql?('(null)'))
-
-      if !ntlm_hash.eql?('31d6cfe0d16ae931b73c59d7e0c089c0')
-        pass = "aad3b435b51404eeaad3b435b51404ee:#{ntlm_hash}"
-        # Assemble data about the credential objects we will be creating
-        credential_data = {
-          origin_type: :session,
-          post_reference_name: 'kiwi',
-          private_data: pass,
-          private_type: :ntlm_hash,
-          session_id: client.db_record.id,
-          username: user,
-          workspace_id: shell.framework.db.workspace.id
-        }
-        credential_core = create_cred(domain, credential_data)
-        report_smb_cred(credential_core)
-      end
-    when :wdigest, :kerberos, :tspkg, :livessp, :ssp
-      user = rows[0]
-      domain = rows[1]
-      pass = rows[2]
-      return if (user.empty? || pass.eql?('(null)'))
-
-      # Assemble data about the credential objects we will be creating
-      credential_data = {
+  def report_creds(type, user, domain, secret)
+    credential_data = {
         origin_type: :session,
         post_reference_name: 'kiwi',
-        private_data: pass,
-        private_type: :password,
+        private_data: nil,
+        private_type: nil,
         session_id: client.db_record.id,
         username: user,
         workspace_id: shell.framework.db.workspace.id
-      }
+    }
 
-      credential_core = create_cred(domain, credential_data)
+    return if (user.empty? || secret.eql?('(null)'))
+
+    case type
+    when :msv
+      ntlm_hash = secret.strip.downcase
+      if ntlm_hash != Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+        ntlm_hash = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{ntlm_hash}"
+        # Assemble data about the credential objects we will be creating
+        credential_data[:private_type] = :ntlm_hash
+        credential_data[:private_data] = ntlm_hash
+        credential_core = create_cred(credential_data, domain)
+        report_smb_cred(credential_core)
+      end
+    when :wdigest, :kerberos, :tspkg, :livessp, :ssp
+      # Assemble data about the credential objects we will be creating
+      credential_data[:private_type] = :password
+      credential_data[:private_data] = secret
+
+      credential_core = create_cred(credential_data, domain)
       report_smb_cred(credential_core)
     end
   end
+
   #
   # Helper function to convert a potentially blank value to hex and have
   # the outer spaces stripped
