@@ -1820,9 +1820,9 @@ class Core
 
     # A value needs to be specified
     if words.length == 2
-      return tab_complete_option_values(str, words, opt: words[1])
+      return tab_complete_option_values(active_module, str, words, opt: words[1])
     end
-    tab_complete_option_names(str, words)
+    tab_complete_option_names(active_module, str, words)
   end
 
   def cmd_setg_help
@@ -1840,7 +1840,7 @@ class Core
   #   line. `words` is always at least 1 when tab completion has reached this
   #   stage since the command itself has been completed.
   def cmd_unset_tabs(str, words)
-    tab_complete_datastore_names(str, words)
+    tab_complete_datastore_names(active_module, str, words)
   end
 
   #
