@@ -192,7 +192,7 @@ Layout/ExtraSpacing:
   # When true, allows things like 'obj.meth(arg)  # comment',
   # rather than insisting on 'obj.meth(arg) # comment'.
   # If done for alignment, either this OR AllowForAlignment will allow it.
-  AllowBeforeTrailingComments: false
+  AllowBeforeTrailingComments: true
   # When true, forces the alignment of `=` in assignments on consecutive lines.
   ForceEqualSignAlignment: false
 
