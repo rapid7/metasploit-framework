@@ -90,12 +90,13 @@ class MetasploitModule < Msf::Post
 
   def get_syncengine_data(master, syncengines)
     all_syncengines = {}
-    syncengines.each do |ses|
-      newses = {}
+    syncengines.each do |sync_provider| # Sync provider names are normally Personal for personal accounts
+                                        # or a hash value that is unique to each business account.
+      tmp_sync_provider_info = {}
       SYNC_ENGINES_KEYS.each do |key|
-        newses[key] = registry_getvaldata("#{master}\\#{ses}", key).to_s
+        tmp_sync_provider_info[key] = registry_getvaldata("#{master}\\#{sync_provider}", key).to_s
       end
-      all_syncengines[ses] = newses
+      all_syncengines[sync_provider] = tmp_sync_provider_info
     end
     all_syncengines
   end
@@ -106,11 +107,12 @@ class MetasploitModule < Msf::Post
     ret = {}
     reg.each do |ses|
       newses = {}
+      scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
+      next if scopeids.nil? || scopeids.empty?
+
       ONEDRIVE_ACCOUNT_KEYS.each do |key|
         newses[key] = registry_getvaldata("#{accounts}\\#{ses}", key).to_s
       end
-      scopeids = registry_enumvals("#{accounts}\\#{ses}\\ScopeIdToMountPointPathCache")
-      next if scopeids.nil? || scopeids.empty?
 
       newses['ScopeIdToMountPointPathCache'] = []
       scopeids.each do |sid|
@@ -142,6 +144,9 @@ class MetasploitModule < Msf::Post
       'Columns' => ['SID', 'Name'] + ONEDRIVE_ACCOUNT_KEYS + SYNC_ENGINES_KEYS
     )
 
+    if userhives.nil? || userhives.empty?
+      fail_with(Failure::UnexpectedReply, "Unable to load the missing hives needed to enumerate the target!")
+    end
     # Loop through each of the hives
     userhives.each do |hive|
       next if hive['HKU'].nil?
@@ -156,12 +161,13 @@ class MetasploitModule < Msf::Post
 
       str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
+      next if reg_onedrive_accounts.nil? || reg_onedrive_accounts.empty?
+
       result = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
-      next if (result['oda'].nil? || result['oda'].empty?)
+      next if result['oda'].nil? || result['oda'].empty?
 
-      print_good "OneDrive sync information for #{hive['SID']}"
-      print_line
+      print_good("OneDrive sync information for #{hive['SID']}")
       display_report(hive['SID'], result['oda'], result['synctargets_used'], all_syncengines, results_table)
     end
 
@@ -171,6 +177,5 @@ class MetasploitModule < Msf::Post
 
     # Clean up
     unload_our_hives(userhives)
-
   end
 end
