@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{peer(ip)} User '#{user}' found")
       do_report(ip, user, rport)
     when :connection_error
-      vprint_error("#{peer(ip)} User '#{user}' on could not connect")
+      vprint_error("#{peer(ip)} User '#{user}' could not connect")
     when :fail
       vprint_error("#{peer(ip)} User '#{user}' not found")
     end
