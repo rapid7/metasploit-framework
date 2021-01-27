@@ -54,34 +54,37 @@ metadata = {
                         'required': False, 'default': True},
         'verify_service': {'type': 'bool',
                            'description': 'Verify the service is up before performing login scan',
-                           'required': False, 'default': True}
+                           'required': False, 'default': True},
+        'user_agent': {'type': 'string',
+                       'description': 'User Agent string to use, defaults to Firefox',
+                       'required': False,
+                       'default': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'}
     }
 }
 
 
-def verify_service(rhost, rport, targeturi, timeout):
+def verify_service(rhost, rport, targeturi, timeout, user_agent):
     """Verify the service is up at the target URI within the specified timeout"""
     url = f'https://{rhost}:{rport}/{targeturi}'
     headers = {'Host':rhost,
-               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
-               'Content-Type': 'application/x-www-form-urlencoded',
-               'Content-Length': '0',
-               'Origin': f'https://{rhost}'}
+               'User-Agent': user_agent}
     session = requests.Session()
     try:
-        request = session.get(url, headers=headers, timeout=(timeout / 1000),
-                              verify=False, allow_redirects=False)
-        return request.status_code == 200 and 'RD Web' in request.text
+        request = requests.get(url, headers=headers, timeout=(timeout / 1000))
+        return request.status_code == 200 and 'RDWeb' in request.text
     except requests.exceptions.Timeout:
+        return False
+    except Exception as e:
+        module.log(str(e), level='error')
         return False
 
 
-def get_ad_domain(rhost, rport):
+def get_ad_domain(rhost, rport, user_agent):
     """Retrieve the NTLM domain out of a specific challenge/response"""
     domain_urls = ['aspnet_client', 'Autodiscover', 'ecp', 'EWS', 'OAB',
                    'Microsoft-Server-ActiveSync', 'PowerShell', 'rpc']
     headers = {'Authorization': 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==',
-               'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+               'User-Agent': user_agent,
                'Host': rhost}
     session = requests.Session()
     for url in domain_urls:
@@ -100,7 +103,7 @@ def get_ad_domain(rhost, rport):
     return None
 
 
-def check_login(rhost, rport, targeturi, domain, username, password, timeout):
+def check_login(rhost, rport, targeturi, domain, username, password, timeout, user_agent):
     """Check a single login against the RDWeb Client
     The timeout is used to specify the amount of milliseconds where a
     response should consider the username invalid."""
@@ -108,7 +111,7 @@ def check_login(rhost, rport, targeturi, domain, username, password, timeout):
     url = f'https://{rhost}:{rport}/{targeturi}'
     body = f'DomainUserName={domain}%5C{username}&UserPass={password}'
     headers = {'Host':rhost,
-               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0',
+               'User-Agent': user_agent,
                'Content-Type': 'application/x-www-form-urlencoded',
                'Content-Length': f'{len(body)}',
                'Origin': f'https://{rhost}'}
@@ -135,22 +138,24 @@ def check_login(rhost, rport, targeturi, domain, username, password, timeout):
         return
 
 
-def check_logins(rhost, rport, targeturi, domain, usernames, passwords, timeout):
+def check_logins(rhost, rport, targeturi, domain, usernames, passwords, timeout, user_agent):
     """Check each username and password combination"""
     for (username, password) in list(itertools.product(usernames, passwords)):
-        check_login(rhost, rport, targeturi, domain, username.strip(), password.strip(), timeout)
+        check_login(rhost, rport, targeturi, domain,
+                    username.strip(), password.strip(), timeout, user_agent)
 
 def run(args):
     """Run the module, gathering the domain if desired and verifying usernames and passwords"""
-    module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
+    module.LogHandler.setup(msg_prefix='{} - '.format(args['RHOSTS']))
     if DEPENDENCIES_MISSING:
         module.log('Module dependencies are missing, cannot continue', level='error')
         return
 
+    user_agent = args['user_agent']
     # Verify the service is up if requested
     if args['verify_service']:
-        service_verified = verify_service(args['rhost'], args['rport'],
-                                          args['targeturi'], int(args['timeout']))
+        service_verified = verify_service(args['RHOSTS'], args['rport'],
+                                          args['targeturi'], int(args['timeout']), user_agent)
         if service_verified:
             module.log('Service is up, beginning scan...', level='good')
         else:
@@ -161,7 +166,7 @@ def run(args):
     # Gather AD Domain either from args or enumeration
     domain = args['domain'] if 'domain' in args else None
     if not domain and args['enum_domain']:
-        domain = get_ad_domain(args['rhost'], args['rport'])
+        domain = get_ad_domain(args['RHOSTS'], args['rport'], user_agent)
 
     # Verify we have a proper domain
     if not domain:
@@ -178,13 +183,13 @@ def run(args):
     if 'password' in args and os.path.isfile(args['password']):
         with open(args['password'], 'r') as file_contents:
             passwords = file_contents.readlines()
-    elif 'password' in args:
+    elif 'password' in args and args['password']:
         passwords = [args['password']]
     else:
         passwords = ['wrong']
     # Check each valid login combination
     check_logins(args['RHOSTS'], args['rport'], args['targeturi'],
-                   domain, usernames, passwords, int(args['timeout']))
+                   domain, usernames, passwords, int(args['timeout']), user_agent)
 
 if __name__ == '__main__':
     module.run(metadata, run)
