@@ -37,9 +37,6 @@ class MetasploitModule < Msf::Auxiliary
         # Opt::RPORT(8080),
         # Opt::SSL(true),
         OptString.new('TARGETURI', [true, 'Jira Path', '/']),
-        OptString.new('USERNAME', [ false, 'Single username to test']),
-        OptPath.new('USER_FILE',
-                    [false, 'File containing usernames, one per line'])
       ]
     )
     deregister_options('PASS_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'STOP_ON_SUCCESS', 'BLANK_PASSWORDS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'PASSWORD')
@@ -91,4 +88,3 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 end
-
