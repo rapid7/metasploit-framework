@@ -34,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        # Opt::RPORT(8080),
-        # Opt::SSL(true),
         OptString.new('TARGETURI', [true, 'Jira Path', '/']),
       ]
     )
