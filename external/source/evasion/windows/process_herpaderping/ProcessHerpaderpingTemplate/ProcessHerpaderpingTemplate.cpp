@@ -1,5 +1,6 @@
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <stdio.h>
+#include <memory.h>
 
 #define N 256   // 2^8
 
@@ -45,6 +46,16 @@ int RC4(char* key, char* plaintext, unsigned char* ciphertext, int plainTextSize
     KSA(key, S);
     PRGA(S, plaintext, ciphertext, plainTextSize);
     return 0;
+}
+
+#pragma function(memset)
+void* __cdecl  memset(_Out_writes_bytes_all_(count) void* dest, _In_ int c, _In_ size_t count) {
+    unsigned char* p = (unsigned char*)dest;
+    unsigned char x = c & 0xff;
+
+    while (count--)
+        *p++ = x;
+    return dest;
 }
 
 // The future embedded payload will have the following format:
