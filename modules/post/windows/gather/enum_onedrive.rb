@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Post
   def get_syncengine_data(master, syncengines)
     all_syncengines = {}
     syncengines.each do |sync_provider| # Sync provider names are normally Personal for personal accounts
-                                        # or a hash value that is unique to each business account.
+      # or a hash value that is unique to each business account.
       tmp_sync_provider_info = {}
       SYNC_ENGINES_KEYS.each do |key|
         tmp_sync_provider_info[key] = registry_getvaldata("#{master}\\#{sync_provider}", key).to_s
@@ -146,7 +146,7 @@ class MetasploitModule < Msf::Post
     )
 
     if userhives.nil? || userhives.empty?
-      fail_with(Failure::UnexpectedReply, "Unable to load the missing hives needed to enumerate the target!")
+      fail_with(Failure::UnexpectedReply, 'Unable to load the missing hives needed to enumerate the target!')
     end
     # Loop through each of the hives
     userhives.each do |hive|
@@ -156,24 +156,25 @@ class MetasploitModule < Msf::Post
       master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
       saved_syncengines = registry_enumkeys(master_key)
       if saved_syncengines.nil? || saved_syncengines.empty?
-         print_status("OneDrive does not appear to be installed.")
-         next
+        print_status("(#{hive['HKU']}) OneDrive not installed.")
+        next
       end
+
       # Obtain the sync endpoints from the above subkey
       all_syncengines = get_syncengine_data(master_key, saved_syncengines)
 
       str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
       if reg_onedrive_accounts.nil? || reg_onedrive_accounts.empty?
-         print_status("No OneDrive accounts found.")
-         next
+        print_status("(#{hive['HKU']}) No OneDrive accounts found.")
+        next
       end
 
       result = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
       if result['oda'].nil? || result['oda'].empty?
-         print_status("No OneDrive accounts found.")
-         next
+        print_status("(#{hive['HKU']}) No OneDrive accounts found.")
+        next
       end
 
       results = 1
