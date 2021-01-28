@@ -57,10 +57,13 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
       print_good("'User exists: #{user}'")
       @users_found[user] = :reported
+      #create
     else
       print_error('No Response From Server')
       return :abort
     end
+    
+
   end
 
   def run_host(_ip)
@@ -73,16 +76,9 @@ class MetasploitModule < Msf::Auxiliary
     if @users_found.empty?
       print_status("#{full_uri} - No users found.")
     else
-      print_good("#{full_uri} - Users found: #{@users_found.keys.sort.join(', ')}")
+      print_good("#{@users_found.length} Users found: #{@users_found.keys.sort.join(', ')}")
 
     end
-    connection_details = {
-      module_fullname: fullname,
-      username: @users_found.keys.sort.join(', '),
-      workspace_id: myworkspace_id,
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }.merge(service_details)
-    create_credential_and_login(connection_details)
-
+    
   end
 end
