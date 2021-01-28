@@ -57,12 +57,11 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
       print_good("'User exists: #{user}'")
       @users_found[user] = :reported
-      #create
+      # create
     else
       print_error('No Response From Server')
       return :abort
     end
-    
 
   end
 
@@ -79,6 +78,6 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{@users_found.length} Users found: #{@users_found.keys.sort.join(', ')}")
 
     end
-    
+
   end
 end
