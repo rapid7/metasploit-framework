@@ -730,6 +730,17 @@ class Msftidy
     end
   end
 
+  # Check for modules specifying a description
+  #
+  def check_description
+    # Payloads do not require a description
+    return if @module_type == 'payloads'
+
+    unless @source =~ /["']Description["'][[:space:]]*=>/
+      error('Missing "Description" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -765,6 +776,7 @@ class Msftidy
     check_use_datastore_debug
     check_arch
     check_author
+    check_description
   end
 
   private
