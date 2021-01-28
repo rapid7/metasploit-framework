@@ -29,19 +29,18 @@ class MetasploitModule < Msf::Evasion
           this executable is launched on the target, the loader PE is dropped on disk and
           executed, following the Process Herpaderping technique. Note that the name of
           the file that is being dropped is randomly generated. However, it is possible
-          to configure the destination path from Metasploit (see `WRITEABLE_DIR` option
+          to configure the destination path from Metasploit (see WRITEABLE_DIR option
           description).
 
           Here is the main workflow:
           1. Retrieve the target name (where the PE loader will be dropped).
-          1. Retrieve the PE loader from the binary and write it on disk.
-          1. Create a section object and create a process from the mapped image.
-          1. Modify the file content on disk by copying another (inoffensive) executable
-          or by using random bytes (see `REPLACED_WITH_FILE` option description).
-          1. Create the main Thread.
+          2. Retrieve the PE loader from the binary and write it on disk.
+          3. Create a section object and create a process from the mapped image.
+          4. Modify the file content on disk by copying another (inoffensive) executable
+          or by using random bytes (see REPLACED_WITH_FILE option description).
+          5. Create the main Thread.
 
-          The source code is based on [Johnny Shaw](https://twitter.com/jxy__s)'s
-          [PoC](https://github.com/jxy-s/herpaderping).
+          The source code is based on Johnny Shaw's PoC (https://github.com/jxy-s/herpaderping).
         },
         'Author' =>
         [
