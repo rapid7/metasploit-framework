@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/ui/text/output/buffer/stdout'
-require 'rex/parser/arguments'
 
 module Msf
   module Ui

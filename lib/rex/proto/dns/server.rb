@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 
-require 'rex/io/gram_server'
 require 'rex/socket'
-require 'rex/proto/dns'
 
 module Rex
 module Proto

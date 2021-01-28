@@ -12,6 +12,3 @@ end
 end
 end
 
-require 'rex/proto/dns/packet'
-require 'rex/proto/dns/resolver'
-require 'rex/proto/dns/server'

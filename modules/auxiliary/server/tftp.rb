@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/tftp'
 require 'tmpdir'
 
 class MetasploitModule < Msf::Auxiliary

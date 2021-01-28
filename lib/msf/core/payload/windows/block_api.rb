@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/payloads/shuffle'
 
 module Msf
 

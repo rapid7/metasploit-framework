@@ -70,10 +70,10 @@ require 'rex/arch'
 require 'rex/exploitation'
 
 # Generic classes
-require 'rex/exceptions'
+
 require 'rex/transformer'
 require 'rex/random_identifier'
-require 'rex/time'
+require 'rex/ext_time'
 require 'rex/job_container'
 require 'rex/file'
 
@@ -99,26 +99,14 @@ require 'rex/io/stream_server'
 require 'rex/socket'
 
 # Protocols
-require 'rex/proto'
-require 'rex/mac_oui'
-
-# Parsers
-require 'rex/parser/arguments'
-require 'rex/parser/ini'
-
+require 'rex/oui'
 
 # Compatibility
 require 'rex/compat'
 
-# SSLScan 
+# SSLScan
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
-
-# Cryptography
-require 'rex/crypto/aes256'
-require 'rex/crypto/rc4'
-require 'rex/crypto/chacha20'
-
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("

@@ -1,6 +1,4 @@
 require 'open3'
-require 'rex/ui'
-require 'rex/logging'
 require 'metasploit/framework/data_service/proxy/data_proxy_auto_loader'
 
 #

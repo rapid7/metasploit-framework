@@ -1,7 +1,7 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/mac_oui'
+require 'rex/oui'
 
 RSpec.describe Rex::Oui do
   describe ".lookup_oui_fullname" do

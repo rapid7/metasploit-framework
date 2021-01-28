@@ -2,7 +2,6 @@
 require 'rex/socket/x509_certificate'
 require 'rex/post/meterpreter/extension_mapper'
 require 'securerandom'
-require 'rex/payloads/meterpreter'
 class Rex::Payloads::Meterpreter::Config
 
   include Msf::ReflectiveDLLLoader

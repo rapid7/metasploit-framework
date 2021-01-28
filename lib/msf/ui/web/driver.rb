@@ -1,11 +1,10 @@
 # -*- coding: binary -*-
-require 'rex/proto/http'
+
 
 module Msf
 module Ui
 module Web
 
-require 'rex/ui/text/bidirectional_pipe'
 
 
 ###

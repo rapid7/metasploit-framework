@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/packet_response_waiter'
-require 'rex/logging'
 require 'rex/exceptions'
 
 module Rex

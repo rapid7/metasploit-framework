@@ -9,7 +9,6 @@ require 'rex/post/meterpreter/client'
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
 # URI uuid and checksum stuff
-require 'rex/payloads/meterpreter/uri_checksum'
 
 # certificate hash checking
 require 'rex/socket/x509_certificate'

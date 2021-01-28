@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'pp'
 require 'rex/text/table'
 require 'erb'

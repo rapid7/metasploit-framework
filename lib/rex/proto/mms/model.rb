@@ -19,6 +19,3 @@ module Rex
 end
 
 require 'net/smtp'
-require 'rex/proto/mms/model/smtp'
-require 'rex/proto/mms/model/message'
-require 'rex/proto/mms/client'

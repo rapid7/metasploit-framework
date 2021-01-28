@@ -1,10 +1,9 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/http'
+
 require 'rex/text'
 require 'digest'
 
-require 'rex/proto/http/client_request'
 
 module Rex
 module Proto

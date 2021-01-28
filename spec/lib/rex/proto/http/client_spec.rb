@@ -1,5 +1,4 @@
 # -*- coding:binary -*-
-require 'rex/proto/http/client'
 
 # Note: Some of these tests require a failed
 # connection to 127.0.0.1:1. If you have some crazy local

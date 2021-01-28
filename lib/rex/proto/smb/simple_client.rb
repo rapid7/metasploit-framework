@@ -7,14 +7,6 @@ class SimpleClient
 
 require 'rex/text'
 require 'rex/struct2'
-require 'rex/proto/smb/constants'
-require 'rex/proto/smb/exceptions'
-require 'rex/proto/smb/evasions'
-require 'rex/proto/smb/crypt'
-require 'rex/proto/smb/utils'
-require 'rex/proto/smb/client'
-require 'rex/proto/smb/simpleclient/open_file'
-require 'rex/proto/smb/simpleclient/open_pipe'
 require 'ruby_smb'
 
 # Some short-hand class aliases

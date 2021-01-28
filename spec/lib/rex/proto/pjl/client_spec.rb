@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'msfenv'
-require 'rex/proto/pjl'
 
 RSpec.describe Rex::Proto::PJL::Client do
   context "methods" do

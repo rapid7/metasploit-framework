@@ -14,7 +14,7 @@
 
 module Rex
 module Proto
-module RFB
+module RFB::Constants
 
 DefaultPort = 5900
 

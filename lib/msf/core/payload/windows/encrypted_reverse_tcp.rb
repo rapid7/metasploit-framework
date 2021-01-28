@@ -2,7 +2,6 @@
 
 require 'rex/peparsey'
 require 'metasploit/framework/compiler/mingw'
-require 'rex/crypto/chacha20'
 
 module Msf
 

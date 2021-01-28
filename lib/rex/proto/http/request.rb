@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'uri'
-require 'rex/proto/http'
+
 
 module Rex
 module Proto

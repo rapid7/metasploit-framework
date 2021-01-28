@@ -1,5 +1,3 @@
-require 'rex/parser/nmap_nokogiri'
-require 'rex/parser/nmap_xml'
 
 module Msf::DBManager::Import::Nmap
   def import_nmap_noko_stream(args, &block)

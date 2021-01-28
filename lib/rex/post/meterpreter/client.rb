@@ -3,7 +3,6 @@
 require 'socket'
 require 'openssl'
 
-require 'rex/script'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client_core'
 require 'rex/post/meterpreter/channel'

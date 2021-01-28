@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/file'
 
 # Concerns loading Ruby modules from a directory
 class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base

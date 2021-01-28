@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/text/color'
-require 'rex/ui'
 
 module Rex
 module Ui
