@@ -135,6 +135,7 @@ class MetasploitModule < Msf::Post
   def run
     # Obtain all user hives
     userhives = load_missing_hives
+    results = 0
 
     # Prepare the results table
     results_table = Rex::Text::Table.new(
@@ -154,26 +155,38 @@ class MetasploitModule < Msf::Post
       print_status("Looking for OneDrive sync information for #{hive['SID']}")
       master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
       saved_syncengines = registry_enumkeys(master_key)
-      next if saved_syncengines.nil? || saved_syncengines.empty?
-
+      if saved_syncengines.nil? || saved_syncengines.empty?
+         print_status("OneDrive does not appear to be installed.")
+         next
+      end
       # Obtain the sync endpoints from the above subkey
       all_syncengines = get_syncengine_data(master_key, saved_syncengines)
 
       str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
-      next if reg_onedrive_accounts.nil? || reg_onedrive_accounts.empty?
+      if reg_onedrive_accounts.nil? || reg_onedrive_accounts.empty?
+         print_status("No OneDrive accounts found.")
+         next
+      end
 
       result = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
-      next if result['oda'].nil? || result['oda'].empty?
+      if result['oda'].nil? || result['oda'].empty?
+         print_status("No OneDrive accounts found.")
+         next
+      end
 
+      results = 1
       print_good("OneDrive sync information for #{hive['SID']}")
       display_report(hive['SID'], result['oda'], result['synctargets_used'], all_syncengines, results_table)
     end
 
     print_line
-    stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
-    print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
+
+    if results > 0
+      stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
+      print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
+    end
 
     # Clean up
     unload_our_hives(userhives)
