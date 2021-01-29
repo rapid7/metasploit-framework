@@ -55,6 +55,13 @@ class MetasploitModule < Msf::Auxiliary
     if res.body.include?('User does not exist')
       print_bad("'User #{user} does not exist'")
     elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
+      connection_details = {
+        module_fullname: fullname,
+        username: user,
+        workspace_id: myworkspace_id,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
       print_good("'User exists: #{user}'")
       @users_found[user] = :reported
       # create
