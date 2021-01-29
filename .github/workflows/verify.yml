@@ -67,6 +67,10 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
+        # Required to checkout HEAD^ for the msftidy script
+        # https://github.com/actions/checkout/tree/5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f#checkout-head
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-ruby@v1
         with:
@@ -90,7 +94,7 @@ jobs:
         env:
           BUNDLER_WITHOUT: coverage development pcap
 
-      - name: Setup mstidy
+      - name: Setup msftidy
         run: |
           ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
           ls -la ./.git/hooks
