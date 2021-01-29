@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Accounts
   include Msf::Exploit::Deprecated
-  
+
   moved_from 'post/windows/manage/add_user_domain'
 
   def initialize(info = {})
