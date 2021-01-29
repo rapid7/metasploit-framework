@@ -9,13 +9,109 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
+  SuggestExtensions: false
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
+
+Layout/SpaceBeforeBrackets:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9499
+  Enabled: false
+
+Lint/AmbiguousAssignment:
+  Enabled: true
+
+Lint/DeprecatedConstants:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Description: >-
+    Disabled as it causes a lot of noise around our current exception/error handling
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: false
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/LambdaWithoutLiteralBlock:
+  Enabled: true
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
+Lint/NumberedParameterAssignment:
+  Enabled: true
+
+Lint/OrAssignmentToConstant:
+  Enabled: true
+
+Lint/RedundantDirGlobSort:
+  Enabled: true
+
+Lint/SymbolConversion:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/TripleQuotes:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: true
+
+Lint/UnmodifiedReduceAccumulator:
+  Enabled: true
+
+Style/ArgumentsForwarding:
+  Enabled: true
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+Style/EndlessMethod:
+  Enabled: true
+
+Style/HashExcept:
+  Enabled: true
+
+Style/IfWithBooleanLiteralBranches:
+  Description: >-
+    Most of the time this is a valid replacement. Although it can generate subtly different
+    rewrites that might break code:
+      2.7.2 :001 > foo = nil
+      => nil
+      2.7.2 :002 > (foo && foo['key'] == 'foo') ? true : false
+      => false
+      2.7.2 :003 > foo && foo['key'] == 'foo'
+      => nil
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/SwapValues:
+  Enabled: false
 
 Layout/ModuleHashOnNewLine:
   Enabled: true
@@ -130,12 +226,11 @@ Style/TrailingCommaInArrayLiteral:
   Enabled: false
   Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
 
-Metrics/LineLength:
+Layout/LineLength:
   Description: >-
     Metasploit modules often pattern match against very
     long strings when identifying targets.
-  Enabled: true
-  Max: 180
+  Enabled: false
 
 Metrics/BlockLength:
   Enabled: true
@@ -247,7 +342,3 @@ Style/SafeNavigation:
     This has been disabled as in some scenarios it produced invalid code, and disobeyed the 'AllowedMethods'
     configuration.
   Enabled: false
-
-Documentation:
-  Exclude:
-    - 'modules/**/*'

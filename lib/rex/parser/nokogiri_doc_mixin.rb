@@ -137,7 +137,7 @@ module Parser
     # seem to be there just for debugging anyway.
     def db_report(table, data)
       raise "Data should be a hash" unless data.kind_of? Hash
-      nonempty_data = data.reject {|k,v| v.nil?}
+      nonempty_data = data.compact
       valid_attrs = db_valid_attributes(table)
       raise "Unknown table `#{table}'" if valid_attrs.empty?
       case table
