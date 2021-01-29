@@ -70,7 +70,8 @@ def verify_service(rhost, rport, targeturi, timeout, user_agent):
                'User-Agent': user_agent}
     session = requests.Session()
     try:
-        request = requests.get(url, headers=headers, timeout=(timeout / 1000))
+        request = requests.get(url, headers=headers, timeout=(timeout / 1000),
+                               verify=False, allow_redirects=False)
         return request.status_code == 200 and 'RDWeb' in request.text
     except requests.exceptions.Timeout:
         return False
