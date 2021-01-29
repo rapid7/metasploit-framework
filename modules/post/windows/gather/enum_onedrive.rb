@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Post
   def run
     # Obtain all user hives
     userhives = load_missing_hives
-    results = 0
+    got_results = false
 
     # Prepare the results table
     results_table = Rex::Text::Table.new(
@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Post
       master_key = "#{hive['HKU']}\\Software\\SyncEngines\\Providers\\OneDrive"
       saved_syncengines = registry_enumkeys(master_key)
       if saved_syncengines.nil? || saved_syncengines.empty?
-        print_status("(#{hive['HKU']}) OneDrive not installed.")
+        print_error("(#{hive['HKU']}) No OneDrive accounts found.")
         next
       end
 
@@ -166,25 +166,25 @@ class MetasploitModule < Msf::Post
       str_onedrive_accounts = "#{hive['HKU']}\\Software\\Microsoft\\OneDrive\\Accounts"
       reg_onedrive_accounts = registry_enumkeys(str_onedrive_accounts)
       if reg_onedrive_accounts.nil? || reg_onedrive_accounts.empty?
-        print_status("(#{hive['HKU']}) No OneDrive accounts found.")
+        print_error("(#{hive['HKU']}) No OneDrive accounts found.")
         next
       end
 
       result = get_onedrive_accounts(reg_onedrive_accounts, str_onedrive_accounts, all_syncengines)
 
       if result['oda'].nil? || result['oda'].empty?
-        print_status("(#{hive['HKU']}) No OneDrive accounts found.")
+        print_error("(#{hive['HKU']}) No OneDrive accounts found.")
         next
       end
 
-      results = 1
+      got_results = true
       print_good("OneDrive sync information for #{hive['SID']}")
       display_report(hive['SID'], result['oda'], result['synctargets_used'], all_syncengines, results_table)
     end
 
     print_line
 
-    if results > 0
+    if got_results
       stored_path = store_loot('onedrive.syncinformation', 'text/csv', session, results_table.to_csv, 'onedrive_syncinformation.csv', 'OneDrive sync endpoints')
       print_good("OneDrive sync information saved to #{stored_path} in CSV format.")
     end
