@@ -239,7 +239,7 @@ GEM
     mini_portile2 (2.5.0)
     minitest (5.14.3)
     mqtt (0.5.0)
-    msgpack (1.4.1)
+    msgpack (1.4.2)
     multipart-post (2.1.1)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
