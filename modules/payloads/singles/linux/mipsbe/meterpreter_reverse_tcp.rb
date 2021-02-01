@@ -6,7 +6,7 @@
 
 module MetasploitModule
 
-  CachedSize = 1461340
+  CachedSize = 1461452
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
