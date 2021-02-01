@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE,
       'DefaultOptions' => {
-        'RPORT' => 443,
+        'RPORT' => 10443,
         'SSL' => true
       }
     ))
