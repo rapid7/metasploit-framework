@@ -68,7 +68,8 @@ void* __cdecl  memset(_Out_writes_bytes_all_(count) void* dest, _In_ int c, _In_
 static unsigned char payload[sizeof(unsigned int) + MAX_PAYLOAD_SIZE + MAX_JUNK_SIZE] = "PAYLOAD";
 static unsigned char key[MAX_KEY_SIZE + 1] = "ENCKEY"; // reserve one byte for the terminating NULL character
 
-int main() {
+int WINAPI WinMainCRTStartup(void)
+{
     unsigned int* lpBufSize = (unsigned int*)payload;
     char* payloadValue = (char*)(payload + sizeof(unsigned int));
     LPVOID lpBuf = VirtualAlloc(NULL, *lpBufSize, MEM_COMMIT, 0x00000040);

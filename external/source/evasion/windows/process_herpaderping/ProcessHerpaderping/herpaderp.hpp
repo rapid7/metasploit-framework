@@ -8,9 +8,9 @@ namespace Herpaderp
 // If the Herpaderping loader file is changed, update the following sizes accordingly
 // It should match the loader sizes (ProcessHerpaderpingTemplate_x64.exe and ProcessHerpaderpingTemplate_x86.exe)
 #ifdef _WIN64
-#define PAYLOAD_PE_SIZE 0x3E00
+#define PAYLOAD_PE_SIZE 0x3400
 #else
-#define PAYLOAD_PE_SIZE 0x3600
+#define PAYLOAD_PE_SIZE 0x3200
 #endif
 
     static unsigned char payload[PAYLOAD_PE_SIZE] = "PAYLOAD";
