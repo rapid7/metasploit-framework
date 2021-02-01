@@ -209,7 +209,6 @@ class MetasploitModule < Msf::Auxiliary
     results = []
 
     cracker = new_password_cracker(action.name)
-    cracker.cracker = action.name
 
     # create the hash file first, so if there aren't any hashes we can quit early
     # hashes is a reference list used by hashcat only
