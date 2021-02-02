@@ -24,6 +24,14 @@ mkdir -p $HOME/.msf4/modules/exploits/windows/fileformat
 
 Once you have a directory to place it in, feel free to download or start writing your module.
 
+## Using Python/Go modules
+
+External modules, most commonly written in Python/Go, need to additionally be marked as executable in order to be loaded by Metasploit.
+
+For full details:
+- https://github.com/rapid7/metasploit-framework/wiki/Writing-External-Python-Modules
+- https://github.com/rapid7/metasploit-framework/wiki/Writing-External-GoLang-Modules
+
 ## Test it all out
 
 If you already have msfconsole running, use a `reload_all` command to pick up your new modules. If not, just start msfconsole and they'll be picked up automatically. If you'd like to test with something generic, I have a module posted up as a gist, here: https://gist.github.com/todb-r7/5935519 , so let's give it a shot:
@@ -104,9 +112,9 @@ That's really all there is to it. The most common problems that people (includin
 * Attempting to create a module in `$HOME/.msf4/modules/auxiliary/`. This won't work because you need at least one level of categorization. It can be new, like `auxiliary/0day/`, or existing, like `auxiliary/scanner/scada/`.
 * Attempting to create a module in `$HOME/.msf4/exploit/` or `$HOME/.msf4/posts/`. Note the pluralization of the directory names; they're different for different things. Exploits, payloads, encoders, and nops are plural, while auxiliary and post are singular.
 
-### Metasploit Community and Pro editions
+### Metasploit Pro
 
-Note that the `$HOME` directory for Metasploit Community Edition is going to be `root` and not your own user directory, so if you are expecting modules to show up in the Metasploit CE (or Express, or Pro) web UIs, you will want to stash your external modules in `/root/.msf4/modules`. Of course, this means you need root access to the machine in question, but hey, you're a l33t Metasploit user, so that shouldn't be too hard.
+Note that the `$HOME` directory for Metasploit Community Edition is going to be `root` and not your own user directory, so if you are expecting modules to show up in the Metasploit Pro web UIs, you will want to stash your external modules in `/root/.msf4/modules`. Of course, this means you need root access to the machine in question, but hey, you're a l33t Metasploit user, so that shouldn't be too hard.
 
 Also note that if your modules are not displaying in the web UI, you should restart Pro service.  
 
