@@ -2,6 +2,11 @@
 
 This is an example of how to write a Python module for Metasploit Framework that uses a Python metasploit library to communicate with framework via JSON-RPC over stdin/stdout.
 
+#### Execution
+
+* Include this line at the top of your module: `#!/usr/bin/env python3`
+* Ensure your file is marked as executable
+
 ## Python Library
 
 The library currently supports a few function calls that can be used to report information to Metasploit Framework. The `metasploit` library can be loaded into your Python module by including the following line:
