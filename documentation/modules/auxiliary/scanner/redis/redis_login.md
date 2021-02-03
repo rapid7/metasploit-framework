@@ -1,20 +1,20 @@
-# Description
+## Description
 Redis is an in-memory data structure project implementing a distributed, in-memory key-value database with optional durability. Redis supports different kinds of abstract data structures, such as strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps, streams, and spatial indexes.
 
 This module is login utility to find the password of the redis server by using bruteforce method.
 
-# Vulnerable Application
+## Vulnerable Application
 This module is tested on redis server 6.0.10.
 
 Complete Installation guide ( https://redis.io/topics/quickstart )
 
-# Verification Steps
+## Verification Steps
 1. Do: `use auxiliary/scanner/redis/redis_login`
 2. Do: `set RHOSTS [ips]`
-3. Do: `set PASS_FILE /home/kali/passwords.txt` 
+3. Do: `set PASS_FILE /home/kali/passwords.txt`
 4. Do: `run`
 
-# Scenarios
+## Scenarios
 ```
 msf6 > use scanner/redis/redis_login
 msf6 auxiliary(scanner/redis/redis_login) > set RHOSTS 192.168.1.7
