@@ -13,13 +13,19 @@ To use the ```Msf::Module::Deprecated```, here's how:
 include Msf::Module::Deprecated
 ```
 
-2a - Use the ```deprecated``` method to assign a deprecation date and replacement module:
+2a - When moving a module, use the ```moved_from``` method in the new module to add an alias to the old module name:
+
+```ruby
+moved_from 'auxiliary/analyze/jtr_windows_fast'
+```
+
+2b - Use the ```deprecated``` method to assign a deprecation date and replacement module:
 
 ```ruby
 deprecated(Date.new(2014, 9, 21), 'exploit/linux/http/dlink_upnp_exec_noauth')
 ```
 
-2b - Alternatively, define the ```DEPRECATION_DATE``` and ```DEPRECATION_REPLACEMENT``` constants:
+2c - Alternatively, define the ```DEPRECATION_DATE``` and ```DEPRECATION_REPLACEMENT``` constants:
 
 ```ruby
 DEPRECATION_DATE = Date.new(2014, 9, 21) # Sep 21
