@@ -1,13 +1,13 @@
 ## Vulnerable Application
 
 Abandoned Cart, a plugin for WordPress which extends the WooCommerce plugin,
-prior to 5.8.4 is affected by an unauthenticated SQL injection via the
+prior to 5.8.2 is affected by an unauthenticated SQL injection via the
 billing_first_name parameter of the save_data AJAX call.  A valid
 wp_woocommerce_session cookie is required, which has at least one item in the
 cart.
 
 The plugin can be downloaded from
-[here](https://downloads.wordpress.org/plugin/woocommerce-abandoned-cart.5.8.3.zip)
+[here](https://downloads.wordpress.org/plugin/woocommerce-abandoned-cart.5.8.1.zip)
 
 You'll need to first install WooCommerce and set up a shop with at least one item.
 Next, install and activate Abandoned Cart.

