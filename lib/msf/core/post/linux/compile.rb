@@ -15,14 +15,14 @@ module Compile
   end
 
   def live_compile?
-    return false unless datastore['COMPILE'].eql?('Auto') || datastore['COMPILE'].eql?('True')
+    return false unless %w{ Auto True }.include?(datastore['COMPILE'])
 
     if has_gcc?
       vprint_good 'gcc is installed'
       return true
     end
 
-    unless datastore['COMPILE'].eql? 'Auto'
+    unless datastore['COMPILE'] == 'Auto'
       fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
     end
   end
@@ -44,7 +44,10 @@ module Compile
 
     unless output.blank?
       print_error output
-      fail_with Module::Failure::BadConfig, "#{path}.c failed to compile. Set COMPILE False to upload a pre-compiled executable."
+      message = "#{path}.c failed to compile."
+      # don't mention the COMPILE option if it was deregistered
+      message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
+      fail_with Module::Failure::BadConfig, message
     end
 
     chmod path
