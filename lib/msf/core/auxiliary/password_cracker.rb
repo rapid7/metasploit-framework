@@ -76,7 +76,7 @@ module Auxiliary::PasswordCracker
   # @return [nilClass] if there is no active framework db connection
   # @return [Metasploit::Framework::PasswordCracker::Cracker] if it successfully creates a Password Cracker object
   def new_password_cracker(cracking_application)
-    fail_with(Msf::Module::Failure::BadConfig, "Password cracking is not available without an active data database connection.") unless framework.db.active
+    fail_with(Msf::Module::Failure::BadConfig, "Password cracking is not available without an active database connection.") unless framework.db.active
     cracker = Metasploit::Framework::PasswordCracker::Cracker.new(
         config: datastore['CONFIG'],
         cracker_path: datastore['CRACKER_PATH'],
