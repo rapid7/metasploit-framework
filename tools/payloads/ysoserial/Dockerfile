@@ -22,11 +22,11 @@ RUN apt install -y wget openjdk-8-jre-headless ruby-dev make gcc
 RUN wget -q https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar -O ysoserial-original.jar
 RUN wget -q https://github.com/pimps/ysoserial-modified/raw/master/target/ysoserial-modified.jar
 
-# Install gems: diff-lcs (to diff the ysoserial output)
+# Install gems: diff-lcs v1.3 (to diff the ysoserial output, v1.4 breaks the script)
 #               json (to print the scripts results in JSON)
 #               pry (to debug issues)
-RUN gem install --silent diff-lcs json pry
+RUN gem install --silent diff-lcs:1.3 json pry
 
 COPY find_ysoserial_offsets.rb /
 
-CMD ruby /find_ysoserial_offsets.rb
+CMD ruby /find_ysoserial_offsets.rb -a

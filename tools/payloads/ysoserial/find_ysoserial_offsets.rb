@@ -120,7 +120,8 @@ def get_payload_list
 
   # Make sure the headers are intact, then skip over them
   abort unless payloads[0] == 'Y SO SERIAL?'
-  payloads = payloads.drop(5)
+  payloads = payloads.drop_while { |line| !line.strip.start_with?('Payload') }
+  payloads = payloads.drop(2)
 
   payload_list = []
   payloads.each do |line|
