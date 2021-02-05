@@ -22,6 +22,7 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_POST => 'post',
     Msf::MODULE_EVASION => 'evasion'
   }
+  TYPE_BY_DIRECTORY = DIRECTORY_BY_TYPE.invert
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
   # By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in
@@ -457,24 +458,18 @@ class Msf::Modules::Loader::Base
   #                   the path is not hidden (starts with '.')
   # @return [false] otherwise
   def module_path?(path)
-    !(path.starts_with?(".") ||
-      !path.ends_with?(MODULE_EXTENSION) ||
-      path.match?(UNIT_TEST_REGEX))
+    path.ends_with?(MODULE_EXTENSION) &&
+      File.file?(path) &&
+      !path.starts_with?(".") &&
+      !path.match?(UNIT_TEST_REGEX) &&
+      !script_path?(path)
   end
 
   # Tries to determine if a file might be executable,
   def script_path?(path)
-    # warn users if their external modules aren't marked executable
-    # per #14281
-    if File.directory?(path) || !['#!', '//'].include?(File.read(path, 2))
-      false
-    elsif File.executable?(path)
-      true
-    else
-      # prefer elog since load_error clutters the UI on potential false positives
-      elog("Unable to load module #{path} - LoadError Possible non-executable external module.")
-      false
-    end
+    File.file?(path) &&
+      File.executable?(path) &&
+      ['#!', '//'].include?(File.read(path, 2))
   end
 
   # Changes a file name path to a canonical module reference name.

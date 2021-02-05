@@ -11,6 +11,11 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
     File.directory?(path)
   end
 
+  def loadable_module?(parent_path, type, module_reference_name)
+    full_path = module_path(parent_path, type, module_reference_name)
+    script_path?(full_path)
+  end
+
   protected
 
   # Yields the module_reference_name for each module file found under the directory path.
@@ -88,6 +93,9 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
         elog "Unable to load module #{full_path}, unknown module type"
         return ''
       end
+    rescue LoadError => e
+      load_error(full_path, e)
+      return ''
     rescue ::Exception => e
       elog("Unable to load module #{full_path}", error: e)
       # XXX migrate this to a full load_error when we can tell the user why the
