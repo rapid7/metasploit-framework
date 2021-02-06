@@ -9,7 +9,7 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
@@ -30,6 +30,54 @@ Lint/ModuleDisclosureDatePresent:
   Include:
     # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
     - 'modules/exploits/**/*'
+
+Lint/AmbiguousAssignment:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/DeprecatedConstants:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/DuplicateBranch:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/EmptyBlock:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/EmptyClass:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/LambdaWithoutLiteralBlock:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/RedundantDirGlobSort:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/ToEnumArguments:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/UnexpectedBlockArity:
+  Description: 'TODO: review'
+  Enabled: false
+
+Lint/UnmodifiedReduceAccumulator:
+  Description: 'TODO: review'
+  Enabled: false
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
@@ -79,6 +127,10 @@ Style/Documentation:
   Exclude:
     - 'modules/**/*'
 
+Layout/SpaceBeforeBrackets:
+  Description: 'TODO: review'
+  Enabled: false
+
 Layout/FirstArgumentIndentation:
   Enabled: true
   EnforcedStyle: consistent
@@ -97,6 +149,13 @@ Layout/FirstHashElementIndentation:
 Layout/FirstHashElementLineBreak:
   Enabled: true
   Description: 'Enforce consistency by breaking hash elements on to new lines'
+
+Layout/LineLength:
+  Description: >-
+    Metasploit modules often pattern match against very
+    long strings when identifying targets.
+  Enabled: true
+  Max: 180
 
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
@@ -130,12 +189,45 @@ Style/TrailingCommaInArrayLiteral:
   Enabled: false
   Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
 
-Metrics/LineLength:
-  Description: >-
-    Metasploit modules often pattern match against very
-    long strings when identifying targets.
-  Enabled: true
-  Max: 180
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+  Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
+
+Style/ArgumentsForwarding:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/CollectionCompact:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/DocumentDynamicEvalDefinition:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/EndlessMethod:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/HashExcept:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/NilLambda:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/RedundantArgument:
+  Description: 'TODO: review'
+  Enabled: false
+
+Style/SwapValues:
+  Description: 'TODO: review'
+  Enabled: false
 
 Metrics/BlockLength:
   Enabled: true
