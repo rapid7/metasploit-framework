@@ -4,9 +4,7 @@ require 'rex/sync/ref'
 
 require 'rex/post/meterpreter/core_ids'
 require 'rex/socket/x509_certificate'
-require 'rex/user_agent'
 require 'uri'
-require 'rex/service_manager'
 
 module Msf
 module Handler

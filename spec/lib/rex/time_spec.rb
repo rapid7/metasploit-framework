@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/ext_time'
 
 RSpec.describe Rex::ExtTime do
 

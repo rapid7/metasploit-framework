@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex'
-require 'rex/logging'
 module Msf
 
 # This module provides an initialization interface for logging.

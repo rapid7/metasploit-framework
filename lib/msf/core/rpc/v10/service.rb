@@ -2,7 +2,6 @@
 require 'msgpack'
 
 require 'rex'
-require 'rex/service_manager'
 
 module Msf
 module RPC
