@@ -180,7 +180,7 @@ class Msftidy
         when 'ZDI'
           warn("Invalid ZDI reference") if value !~ /^\d{2}-\d{3,4}$/
         when 'WPVDB'
-          warn("Invalid WPVDB reference") if value !~ /^\d+$/
+          warn("Invalid WPVDB reference") if value !~ /^\d+$/ and value !~ /^[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}?$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL'
@@ -195,6 +195,8 @@ class Msftidy
           elsif value =~ /^https?:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
           elsif value =~ /^https?:\/\/wpvulndb\.com\/vulnerabilities\//
+            warn("Please use 'WPVDB' for '#{value}'")
+          elsif value =~ /^https?:\/\/wpscan\.com\/vulnerability\//
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
