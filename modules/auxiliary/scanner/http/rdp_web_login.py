@@ -29,7 +29,7 @@ metadata = {
     'date': '2020-12-23',
     'license': 'MSF_LICENSE',
     'references': [
-        {'type': 'url', 'ref': 'REPLACE ME'},
+        {'type': 'url', 'ref': 'https://raxis.com/blog/rd-web-access-vulnerability'},
     ],
     'type': 'single_scanner',
     'options': {
