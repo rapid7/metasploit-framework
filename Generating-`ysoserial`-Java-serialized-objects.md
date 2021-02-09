@@ -1,34 +1,37 @@
 Instead of embedding static Java serialized objects, Metasploit offers ysoserial-generated binaries with built-in randomization.  The benefits of using the Metasploit library include quicker module development, easier-to-read code, and future-proof Java serialized objects.
 
-To use the ysoserial libraries, let's look at an example from the [`hp_imc_java_deserialization`](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/http/hp_imc_java_deserialize.rb) module:
+To use the ysoserial libraries, let's look at an example from the [`shiro_rememberme_v124_deserialize`][2] module:
 
 ### Example code
 
-In this example, the module calls `cmd_psh_payload` to generate a PowerShell payload, then uses the `ysoserial` library to generate a `JSON1`-based serialized object, before sending it through an HTTP POST request:
+In this example:
+1. (L78) The module calls `payload.encode` to generate the command payload.
+1. (L80) Then it sets the modified type to either `bash` or `cmd` based on the target.
+1. (L81) Finally, the `ysoserial` library is used to generate a `CommonsCollections2`-based serialized object.
 
 ```
-1   def exploit
-2     cmd = cmd_psh_payload(payload.encoded, payload_instance.arch.first, {remove_comspec: true, encode_final_payload: true})
-3     data = ::Msf::Util::JavaDeserialization.ysoserial_payload("JSON1",cmd)
-4
-5     print_status "Sending serialized Java object (#{data.length} bytes)..."
-6     res = send_request_cgi({
-7       'method'   => 'POST',
-8       'uri'      => normalize_uri(target_uri.path, 'topo', 'WebDMDebugServlet'),
-9       'data'     => data
-10    })
-11  end
+78    cmd = payload.encoded
+79    vprint_status("Execute CMD: #{cmd}")
+80    type = (target.name == 'Unix Command payload' ? 'bash' : 'cmd')
+81    java_payload = ::Msf::Util::JavaDeserialization.ysoserial_payload('CommonsCollections2', cmd, modified_type: type)
 ```
 
-In line 3, the module uses the `ysoserial_payload` function, passing the name of the template and the command to be embedded within the template.  The function returns a Java serialized object, which can then be passed to the vulnerable application.
+Once the serialized object is generated and stored as `java_payload`, it's then sent to the target in an exploit-specific manner.
 
 ### Calling `ysoserial_payload`
 
-The function takes two parameters, a template name and a command:
+`#ysoserial_payload(payload_name, command=nil, modified_type: 'original')`
  
- - The name parameter must be one of the support payloads stored in the `ysoserial` cache.  As of this writing, the list includes: `BeanShelll1`, `Clogure`, `CommonBeanutils1`, `CommonsCollections2`, `CommonsCollections3`, `CommonsCollections4`, `CommonsCollections5`, `CommonsCollections6`, `Groovy1`, `Hibernate1`, `JBossInterceptors1`, `JRMPClient`, `JSON1`, `JavassistWeld1`, `Jdk7u21`, `MozillaRhino1`, `Myfaces1`, `ROME`, `Spring1`, `Spring2`, and `Vaadin1`.  While `ysoserial` includes 8 other templates that are not listed above, these 8 payloads are unsupported by the library due to the need for complex inputs.  Should there be use cases for those 8 templates, please consider opening an issue and submitting a pull request to add support.
+- **payload_name** - The payload name parameter must be one of the supported payloads stored in the `ysoserial` cache.  As of this writing, the list includes: `BeanShelll1`, `Clogure`, `CommonBeanutils1`, `CommonsCollections2`, `CommonsCollections3`, `CommonsCollections4`, `CommonsCollections5`, `CommonsCollections6`, `Groovy1`, `Hibernate1`, `JBossInterceptors1`, `JRMPClient`, `JSON1`, `JavassistWeld1`, `Jdk7u21`, `MozillaRhino1`, `Myfaces1`, `ROME`, `Spring1`, `Spring2`, and `Vaadin1`.  While `ysoserial` includes additional payloads that are not listed above, they are unsupported by the library due to the need for complex inputs.  Should there be use cases for additional payloads, please consider opening an issue and submitting a pull request to add support.
  
- - The command parameter will be executed by the remote system.  The parameter is OS-agnostic, meaning that the module must determine the OS and architecture, if necessary, before generating a payload.
+- **command** - The command parameter will be executed by the remote system.  The parameter is OS-agnostic, meaning that the module must determine the OS and architecture, if necessary, before generating a payload.
+
+- **modified_type** - Use a modified version that invokes the specified shell (except in the case of `original`). For more information regarding the invocation, see [`CmdExecuteHelper.java`][1]. The value must be one of the following:
+
+    - **bash** - A modified version that will invoke the command using the `bash` executable
+    - **cmd** - A modified version that will invoke the command using the Windows `cmd.exe` executable.
+    - **original** - The original ysoserial invocation without an OS-specific shell. **Be careful when using this option** as some ysoserial payloads (as specified using the *payload_name* parameter are incompatible with commands that contain the `"` character. For this reason, it is recommended that an OS-specific version be used when available. Some ysoserial payloads pass the OS command to execute to `Runtime.getRuntime().exec` as a string instead of an array of strings, leading to execution errors.
+    - **powershell** - A modified version that will invoke the command using the Windows `powershell.exe` executable.
 
 ### Regenerating the ysoserial_payload JSON file (MAINTAINERS ONLY)
 
@@ -155,3 +158,6 @@ DONE!  Successfully generated 0 static payloads and 22 dynamic payloads.  Skippe
 
 At completion, the `data/ysoserial_payloads.json` file is overwritten and the 22 dynamic payloads are ready for use within the framework.  Afterward, the developer should follow the standard `git` procedures to `add` and `commit` the new JSON file  before generating a pull request and landing the updated JSON into the framework's `master` branch.
 </details>
+
+[1]: https://github.com/pimps/ysoserial-modified/blob/e71f70dbc5e8c27d72873014ac5cb7766f4b5b94/src/main/java/ysoserial/payloads/util/CmdExecuteHelper.java#L11-L30
+[2]: https://github.com/rapid7/metasploit-framework/blob/7d0cb771a5265375eb4484a986e732d8f94c2441/modules/exploits/multi/http/shiro_rememberme_v124_deserialize.rb#L78-L81
