@@ -15,6 +15,7 @@ to configure the destination path from Metasploit (see `WRITEABLE_DIR` option
 description).
 
 Here is the main workflow:
+
 1. Retrieve the target name (where the PE loader will be dropped).
 1. Retrieve the PE loader from the binary and write it on disk.
 1. Create a [section object](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views)
@@ -25,6 +26,12 @@ Here is the main workflow:
 
 The source code is based on [Johnny Shaw](https://twitter.com/jxy__s)'s
 [PoC](https://github.com/jxy-s/herpaderping).
+
+**This payload won't work on 32-bit Windows 10 versions from 1511 (build
+10586) to 1703 (build 15063), including Windows 10 2016 LTSB (build 14393).**
+These versions have a bug in the kernel that crashes/BugCheck the OS
+when executing this payload. So, to avoid this, the payload won't run if
+it detects the OS is one of these versions. More details [here](https://bugs.chromium.org/p/project-zero/issues/detail?id=852).
 
 ## Verification Steps
 Here are the steps using a Meterpreter payload on a 64-bits target:
@@ -141,6 +148,12 @@ Evasion target:
 msf6 evasion(windows/process_herpaderping) > run
 
 [+] raU.exe stored at /home/msfuser/.msf4/local/raU.exe
+[!] #### WARNING ####
+This payload won't work on 32-bit Windows 10 versions from 1511 (build
+10586) to 1703 (build 15063), including Windows 10 2016 LTSB (build 14393).
+These versions have a bug in the kernel that crashes/BugCheck the OS
+when executing this payload. So, to avoid this, the payload won't run if
+it detects the OS is one of these versions.
 msf6 evasion(windows/process_herpaderping) > cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x86.exe
 [*] exec: cp /home/msfuser/.msf4/local/raU.exe /remote_share/tmp/test_x86.exe
 

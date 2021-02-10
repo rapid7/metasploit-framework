@@ -180,5 +180,15 @@ class MetasploitModule < Msf::Evasion
     patch_binary(pe, 'REPLACEFILENAME', replace_path.b)
 
     file_create(pe)
+    if arch_suffix == 'x86'
+      print_warning(
+        "#### WARNING ####\n"\
+        "This payload won't work on 32-bit Windows 10 versions from 1511 (build\n"\
+        "10586) to 1703 (build 15063), including Windows 10 2016 LTSB (build 14393).\n"\
+        "These versions have a bug in the kernel that crashes/BugCheck the OS\n"\
+        "when executing this payload. So, to avoid this, the payload won't run if\n"\
+        "it detects the OS is one of these versions."
+      )
+    end
   end
 end

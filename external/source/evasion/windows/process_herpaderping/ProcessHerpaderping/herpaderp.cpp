@@ -317,13 +317,32 @@ HRESULT Herpaderp::ExecuteProcess()
 
 int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int)
 {
-    HRESULT hr = Herpaderp::ExecuteProcess();
+    HRESULT hr;
+
+#ifndef _WIN64
+    //
+    // Only 32-bit version of Windows 10 is affected
+    // see https://bugs.chromium.org/p/project-zero/issues/detail?id=852
+    //
+    hr = Utils::IsBuggyKernel();
     if (FAILED(hr))
     {
-        dprintf("Process Herpaderp Failed (%S)", Utils::FormatError(hr).c_str());
-        return EXIT_FAILURE;
+        REPORT_AND_RETURN_HR("Checking kernel failed", hr);
+    }
+    if (hr == S_OK)
+    {
+        hr = E_ABORT;
+        REPORT_AND_RETURN_HR("Kernel version on this OS is buggy and will BSOD... aborting", hr);
+    }
+    dprintf("Kernel is not one of the buggy one");
+#endif
+
+    hr = Herpaderp::ExecuteProcess();
+    if (FAILED(hr))
+    {
+        REPORT_AND_RETURN_HR("Process Herpaderp failed", hr);
     }
 
-    dprintf("Process Herpaderp Succeeded");
+    dprintf("Process Herpaderp succeeded");
     return EXIT_SUCCESS;
 }

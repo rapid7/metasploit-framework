@@ -747,3 +747,88 @@ HRESULT Utils::GetFileName(
 
     return S_OK;
 }
+
+#ifndef _WIN64
+//
+// Only needed for 32-bit Windows
+//
+_Use_decl_annotations_
+HRESULT Utils::GetFileVersion(LPCWSTR lptstrFilename, PFILE_VERSION ver)
+{
+    DWORD dwHandle;
+    DWORD dwLen = GetFileVersionInfoSizeW(lptstrFilename, &dwHandle);
+    if (dwLen == 0)
+    {
+        REPORT_AND_RETURN_WIN32("GetFileVersion: Error getting file version info size", GetLastError());
+    }
+    LPVOID lpData = new LPVOID[dwLen];
+    if (!GetFileVersionInfoW(lptstrFilename, 0, dwLen, lpData))
+    {
+        delete[] lpData;
+        REPORT_AND_RETURN_WIN32("GetFileVersion: Error getting file version info", GetLastError());
+    }
+    VS_FIXEDFILEINFO* versionInfo;
+    UINT uLen;
+    if (!VerQueryValueW(lpData, L"\\", (LPVOID*)&versionInfo, &uLen))
+    {
+        delete[] lpData;
+        REPORT_AND_RETURN_WIN32("GetFileVersion: Error getting version info", GetLastError());
+    }
+
+    ver->MajorVersion = (versionInfo->dwProductVersionMS >> 16) & 0xFFFF;
+    ver->MinorVersion = versionInfo->dwProductVersionMS & 0xFFFF;
+    ver->BuildVersion = (versionInfo->dwProductVersionLS >> 16) & 0xFFFF;
+    ver->RevisionVersion = versionInfo->dwProductVersionLS & 0xFFFF;
+
+    delete[] lpData;
+
+    return S_OK;
+}
+
+_Use_decl_annotations_
+HRESULT Utils::IsBuggyKernel()
+{
+    std::wstring kernelFile;
+    HRESULT hr = Utils::GetFileName("%SystemRoot%\\System32\\ntoskrnl.exe", kernelFile);
+    if (FAILED(hr))
+    {
+        REPORT_AND_RETURN_HR("Failed to retrieve the target filename", hr);
+    }
+
+    FileHandle kernelHandle(kernelFile);
+    kernelHandle.get() = CreateFileW(kernelFile.c_str(),
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        nullptr,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
+    if (!kernelHandle.valid())
+    {
+        REPORT_AND_RETURN_WIN32("BuggyKernel: Failed to open Kernel file", GetLastError());
+    }
+
+    FILE_VERSION ver;
+    hr = GetFileVersion(kernelFile.c_str(), &ver);
+    if (FAILED(hr))
+    {
+        REPORT_AND_RETURN_HR("BuggyKernel: Failed getting file version", hr);
+    }
+    dprintf("Version of %S is %hu.%hu.%hu.%hu",
+        kernelFile.c_str(),
+        ver.MajorVersion,
+        ver.MinorVersion,
+        ver.BuildVersion,
+        ver.RevisionVersion
+    );
+    if (ver.MajorVersion == 10 &&
+        ver.MinorVersion == 0 &&
+        ver.BuildVersion > 10240 &&
+        ver.BuildVersion < 16299)
+    {
+        return S_OK;
+    }
+
+    return S_FALSE;
+}
+#endif

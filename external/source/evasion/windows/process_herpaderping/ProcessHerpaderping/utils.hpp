@@ -246,4 +246,22 @@ namespace Utils
         _In_  const char* sourceFileName,
         _Out_ std::wstring& finalFileName);
 
+#ifndef _WIN64
+    //
+    // Only needed for 32-bit Windows
+    //
+    typedef struct _FILE_VERSION
+    {
+        WORD MajorVersion;
+        WORD MinorVersion;
+        WORD BuildVersion;
+        WORD RevisionVersion;
+    } FILE_VERSION, * PFILE_VERSION;
+
+    _Must_inspect_result_ HRESULT GetFileVersion(
+        _In_ LPCWSTR lptstrFilename,
+        _Out_ PFILE_VERSION ver);
+
+    _Must_inspect_result_ HRESULT IsBuggyKernel();
+#endif
 }
