@@ -30,7 +30,7 @@ module Compile
   def upload_and_compile(path, data, gcc_args='')
     write_file "#{path}.c", strip_comments(data)
 
-    gcc_cmd = "gcc -o #{path} #{path}.c"
+    gcc_cmd = "gcc -o #{path.gsub(/ /, '\ ')} #{path.gsub(/ /, '\ ')}.c"
     if session.type.eql? 'shell'
       gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
     end
