@@ -83,7 +83,7 @@ module Msf::ModuleManager::Cache
 
       # XXX borked
       loaders.each do |loader|
-        if loader.loadable?(parent_path)
+        if loader.loadable_module?(parent_path, type, reference_name)
           type = module_info[:type]
           reference_name = module_info[:reference_name]
 

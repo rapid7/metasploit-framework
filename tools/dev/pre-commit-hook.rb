@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require "open3"
+
 #
 # Check that modules actually pass msftidy checks before committing
 # or after merging.
@@ -17,6 +19,16 @@
 # (rarely). If you'd prefer to copy it directly, that's okay, too (mark
 # it +x and don't name it filename.rb, just filename).
 #
+
+def run(command, exception: true)
+  puts command
+  stdout, status = ::Open3.capture2(command)
+  if !status.success? && exception
+    raise "Command failed with status (#{status.exitstatus}): #{command}"
+  end
+
+  stdout
+end
 
 def merge_error_message
   msg = []
@@ -45,9 +57,9 @@ else
 end
 
 if base_caller == :post_merge
-  changed_files = %x[git diff --name-only HEAD^ HEAD]
+  changed_files = run('git diff --name-only HEAD^ HEAD')
 else
-  changed_files = %x[git diff --cached --name-only]
+  changed_files = run('git diff --cached --name-only')
 end
 
 changed_files.each_line do |fname|

@@ -14,7 +14,7 @@ class LogFormatter(logging.Formatter):
         self.prefix = prefix
 
     def format(self, record):
-        return self.prefix + record.msg
+        return self.prefix + super().format(record)
 
 
 class LogHandler(logging.Handler):

@@ -616,6 +616,10 @@ protected
             values << ''
           end
         end
+        if !shell.framework.nil? && shell.framework.db.active
+          user, domain, secret = values
+          report_creds(k, user, domain, secret)
+        end
         table << values
       end
 
@@ -641,6 +645,65 @@ protected
     end
 
     return true
+  end
+
+  def report_smb_cred(credential_core)
+    # Assemble the options hash for creating the Metasploit::Credential::Login object
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      address: client.sock.peerhost,
+      port: 445,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: shell.framework.db.workspace.id
+    }
+
+    shell.framework.db.create_credential_login(login_data)
+  end
+
+  def create_cred(credential_data, domain = '')
+    unless domain.blank?
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = domain
+    end
+    credential_core = shell.framework.db.create_credential(credential_data)
+
+    credential_core
+  end
+
+  def report_creds(type, user, domain, secret)
+    credential_data = {
+        origin_type: :session,
+        post_reference_name: 'kiwi',
+        private_data: nil,
+        private_type: nil,
+        session_id: client.db_record.id,
+        username: user,
+        workspace_id: shell.framework.db.workspace.id
+    }
+
+    return if (user.empty? || secret.eql?('(null)'))
+
+    case type
+    when :msv
+      ntlm_hash = secret.strip.downcase
+      if ntlm_hash != Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+        ntlm_hash = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{ntlm_hash}"
+        # Assemble data about the credential objects we will be creating
+        credential_data[:private_type] = :ntlm_hash
+        credential_data[:private_data] = ntlm_hash
+        credential_core = create_cred(credential_data, domain)
+        report_smb_cred(credential_core)
+      end
+    when :wdigest, :kerberos, :tspkg, :livessp, :ssp
+      # Assemble data about the credential objects we will be creating
+      credential_data[:private_type] = :password
+      credential_data[:private_data] = secret
+
+      credential_core = create_cred(credential_data, domain)
+      report_smb_cred(credential_core)
+    end
   end
 
   #
