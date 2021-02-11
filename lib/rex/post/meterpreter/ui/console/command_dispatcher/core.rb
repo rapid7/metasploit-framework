@@ -77,19 +77,13 @@ class Console::CommandDispatcher::Core
       'migrate'                  => 'Migrate the server to another process',
       'pivot'                    => 'Manage pivot listeners',
       # transport related commands
+      'detach'                   => 'Detach the meterpreter session (for http/https)',
       'sleep'                    => 'Force Meterpreter to go quiet, then re-establish session',
       'transport'                => 'Manage the transport mechanisms',
       'get_timeouts'             => 'Get the current session timeout values',
       'set_timeouts'             => 'Set the current session timeout values',
+      'ssl_verify'               => 'Modify the SSL certificate verification setting'
     }
-
-    if client.passive_service
-      cmds['detach'] = 'Detach the meterpreter session (for http/https)'
-    end
-
-    if client.passive_service && client.sock.type? == 'tcp-ssl'
-      cmds['ssl_verify'] = 'Modify the SSL certificate verification setting'
-    end
 
     if msf_loaded?
       cmds['info'] = 'Displays information about a Post module'
@@ -516,6 +510,10 @@ class Console::CommandDispatcher::Core
   # Disconnects the session
   #
   def cmd_detach(*args)
+    unless client.passive_service
+      print_error('The detach command is not applicable with the current transport')
+      return
+    end
     client.shutdown_passive_dispatcher
     shell.stop
   end
@@ -726,7 +724,7 @@ class Console::CommandDispatcher::Core
   @@ssl_verify_opts = Rex::Parser::Arguments.new(
     '-e' => [ false, 'Enable SSL certificate verification' ],
     '-d' => [ false, 'Disable SSL certificate verification' ],
-    '-q' => [ false, 'Query the statis of SSL certificate verification' ],
+    '-q' => [ false, 'Query the status of SSL certificate verification' ],
     '-h' => [ false, 'Help menu' ])
 
   #
@@ -746,6 +744,11 @@ class Console::CommandDispatcher::Core
   def cmd_ssl_verify(*args)
     if ( args.length == 0 or args.include?("-h") )
       cmd_ssl_verify_help
+      return
+    end
+
+    unless client.passive_service && client.sock.type? == 'tcp-ssl'
+      print_error('The ssl_verify command is not applicable with the current transport')
       return
     end
 
