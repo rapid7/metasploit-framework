@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
 
   def run
 
-  '''
+  '
   Hash format
     :name,
     :check_file,
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
     :viewonly_variable,
     :viewonly_hash,
     :viewonly_pass
-  '''
+  '
 
     locations = []
 

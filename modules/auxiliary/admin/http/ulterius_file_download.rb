@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def inflate_parse(data)
-    zi = Zlib::Inflate.new(window_bits =-15)
+    zi = Zlib::Inflate.new(-15)
     data_inflated = zi.inflate(data)
 
     parse_data = data_inflated[8...-1]
