@@ -484,7 +484,7 @@ class Msftidy
   def check_bad_terms
     # "Stack overflow" vs "Stack buffer overflow" - See explanation:
     # http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
-    if @module_type == 'exploit' && @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+    if @module_type == 'exploits' && @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
       warn('Contains "stack overflow" You mean "stack buffer overflow"?')
     elsif @module_type == 'auxiliary' && @source.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
       warn('Contains "stack overflow" You mean "stack exhaustion"?')
@@ -725,7 +725,7 @@ class Msftidy
   #
   def check_author
     # Only the three common module types have a consistently defined info hash
-    return unless %w[exploit auxiliary post].include?(@module_type)
+    return unless %w[exploits auxiliary post].include?(@module_type)
 
     unless @source =~ /["']Author["'][[:space:]]*=>/
       error('Missing "Author" info, please add')
