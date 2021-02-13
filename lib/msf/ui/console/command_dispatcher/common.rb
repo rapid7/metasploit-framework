@@ -162,9 +162,9 @@ module Common
   #
   # @param path [String] The path to be trimmed
   # @param path_head [String] The top-level directory that should be removed from the path
-  # @param extensions [Array] File extensions to be trimmed from +path+. `.` is automatically included. Defaults to ['rb', 'py', 'go'].
+  # @param extensions [Array] File extensions to be trimmed from +path+. `.` is automatically included. Defaults to ['rb', 'py', 'go', 'jar'].
   # @return [String] Altered +path+. Will return unaltered +path+ if regex constructed with +path_head+ & +path+ is not detected
-  def trim_path(path, path_head, extensions: ['rb', 'py', 'go'])
+  def trim_path(path, path_head, extensions: ['rb', 'py', 'go', 'jar'])
     #Builds capture groups for all supported file extensions
     regex_extension = ''
     extensions.each do |ext|
