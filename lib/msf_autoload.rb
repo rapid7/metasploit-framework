@@ -164,6 +164,7 @@ loader.inflector.inflect(
   'cli' => 'CLI',
   'sqlitei' => 'SQLitei',
   'mysqli' => 'MySQLi',
+  'postgresqli' => 'PostgreSQLi',
   'ssh' => 'SSH',
   'winrm' => 'WinRM',
   'smb' => 'SMB',
