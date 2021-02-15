@@ -15,6 +15,7 @@ AllCops:
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
+  - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
 
@@ -277,7 +278,7 @@ Layout/EmptyLinesAroundMethodBody:
   Enabled: false
   Description: 'these are used to increase readability'
 
-Layout/ExtraSpacing:
+Layout/ExtraSpacingWithBinDataIgnored:
   Description: 'Do not use unnecessary spacing.'
   Enabled: true
   # When true, allows most uses of extra spacing if the intent is to align
