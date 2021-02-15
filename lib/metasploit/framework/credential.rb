@@ -36,7 +36,7 @@ module Metasploit
       # @!attribute realm
       #   @return [String,nil] The realm credential component (e.g domain name)
       attr_accessor :realm
-      # @!attribute realm
+      # @!attribute realm_key
       #   @return [String,nil] The type of {#realm}
       attr_accessor :realm_key
 
