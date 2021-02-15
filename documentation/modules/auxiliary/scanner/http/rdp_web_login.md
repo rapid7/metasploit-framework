@@ -4,6 +4,7 @@ The Microsoft RD Web login is vulnerable to the same type of authentication user
 that is present for OWA. By analyzing the time it takes for a failed response, the RDWeb interface can be used
 to quickly test the validity of a set of usernames. The module additionally supports testing username password
 combinations. Additionally, this module can attempt to discover the target NTLM domain if you don't already know it.
+This module also reports credentials to the credentials database when they are discovered.
 
 ## Verification Steps
 
@@ -35,6 +36,14 @@ Either a specific username to verify or a file with one username per line to ver
 
 Either a specific password to attempt or a file with one password per line to verify.
 If not provided, uses the same None password for all requests
+
+### verify_service
+
+Whether or not to verify that RDWeb is installed prior to scanning. Defaults to true.
+
+### user_agent
+
+An alternate User Agent string to use in HTTP requests. Defaults to Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0.
 
 ## Scenarios
 If an RDWeb login page is discovered, you can use this module to gather valid usernames for a brute force attack.
@@ -79,4 +88,7 @@ msf6 auxiliary(scanner/http/rdp_web_login) > run
 [*] Auxiliary module execution completed```
 
 ## Version and OS
-Tested against Microsoft IIS 10.0 and RDWeb on Windows Server 2019
+Tested against Microsoft IIS 10.0 and RDWeb on Windows Server 2019 and Windows Server 2016
+
+## References
+- https://raxis.com/blog/rd-web-access-vulnerability
