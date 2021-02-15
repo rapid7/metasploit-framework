@@ -47,6 +47,8 @@ require 'msfenv'
 @components = %w(database webservice)
 @environments = %w(production development)
 
+ENV['PATH'] = "/usr/lib/postgresql/12/bin:#{ENV['PATH']}"
+
 @options = {
     component: :all,
     debug: false,
