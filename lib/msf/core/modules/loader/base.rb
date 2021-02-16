@@ -467,9 +467,8 @@ class Msf::Modules::Loader::Base
 
   # Tries to determine if a file might be executable,
   def script_path?(path)
-    if path.to_s().end_with?("jar")
-      return true;
-    end
+    return true if path.to_s.end_with?('jar')
+
     File.file?(path) &&
       File.executable?(path) &&
       ['#!', '//'].include?(File.read(path, 2))
