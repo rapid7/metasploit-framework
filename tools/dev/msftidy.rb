@@ -743,6 +743,18 @@ class Msftidy
     end
   end
 
+  # Check for exploit modules specifying notes
+  #
+  def check_notes
+    # Only exploits require notes
+    return unless @module_type == 'exploits'
+
+    unless @source =~ /["']Notes["'][[:space:]]*=>/
+      # This should be updated to warning eventually
+      info('Missing "Notes" info, please add')
+    end
+  end
+
   #
   # Run all the msftidy checks.
   #
@@ -779,6 +791,7 @@ class Msftidy
     check_arch
     check_author
     check_description
+    check_notes
   end
 
   private
