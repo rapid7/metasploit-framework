@@ -37,13 +37,13 @@ class MetasploitModule < Msf::Auxiliary
           ],
         'Actions' =>
           [
-            [ 'SQLI_DUMP', 'Description' => 'Retrieve all the data from the database' ],
-            [ 'ADD_ADMIN', 'Description' => 'Add an administrator user' ],
-            [ 'REMOVE_ADMIN', 'Description' => 'Remove an administrator user' ]
+            [ 'SQLI_DUMP', { 'Description' => 'Retrieve all the data from the database' } ],
+            [ 'ADD_ADMIN', { 'Description' => 'Add an administrator user' } ],
+            [ 'REMOVE_ADMIN', { 'Description' => 'Remove an administrator user' } ]
           ],
         'DefaultOptions' => { 'SSL' => true },
         'DefaultAction' => 'SQLI_DUMP',
-        'DisclosureDate' => 'Jul 06 2019'
+        'DisclosureDate' => '2019-07-06'
       )
     )
 

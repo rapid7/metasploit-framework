@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-07-23',
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Dump', 'Description' => 'Dump all LDAP data']
+          ['Dump', { 'Description' => 'Dump all LDAP data' }]
         ],
         'DefaultAction' => 'Dump',
         'DefaultOptions' => {
@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
     ltype.gsub!(/ /, '_')
     ltype.gsub!(/,/, '.')
     ltype.gsub!(/(ou=|fn=|cn=|o=|dc=|c=)/i, '')
-    ltype.gsub!(/[^a-z0-9\.\_\-]+/i, '')
+    ltype.gsub!(/[^a-z0-9._\-]+/i, '')
     ltype = ltype.last(16)
 
     ldif_filename = store_loot(

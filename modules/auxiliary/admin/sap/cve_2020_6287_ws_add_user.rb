@@ -103,11 +103,9 @@ class MetasploitModule < Msf::Auxiliary
 
       event = job.get_event
 
-      unless (action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank?
-        if action_id.to_s == 'genErrorNotification'
-          report_error_details(job)
-          fail_with(Failure::Unknown, 'General error')
-        end
+      if !(action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank? && (action_id.to_s == 'genErrorNotification')
+        report_error_details(job)
+        fail_with(Failure::Unknown, 'General error')
       end
 
       unless (description = event.xpath('//ctc:StartAction/ctc:Action/ctc:Description/text()')).blank?

@@ -78,6 +78,12 @@ Lint/UnmodifiedReduceAccumulator:
 Style/ArgumentsForwarding:
   Enabled: true
 
+Style/BlockComments:
+  Description: >-
+    Disabled as multiline comments are great for embedded code snippets/payloads that can
+    be copy/pasted directly into a terminal etc.
+  Enabled: false
+
 Style/CollectionCompact:
   Enabled: true
 
@@ -105,10 +111,25 @@ Style/IfWithBooleanLiteralBranches:
 Style/NegatedIfElseCondition:
   Enabled: false
 
+Style/MultipleComparison:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9520
+    It may also introduce subtle semantic issues if automatically applied to the
+    entire codebase without rigorous testing.
+  Enabled: false
+
 Style/NilLambda:
   Enabled: true
 
 Style/RedundantArgument:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having an explicitly named
+    response object, it also makes it easier to put a breakpoint between the assignment
+    and return expression
   Enabled: false
 
 Style/SwapValues:
@@ -342,4 +363,10 @@ Style/SafeNavigation:
 
     This has been disabled as in some scenarios it produced invalid code, and disobeyed the 'AllowedMethods'
     configuration.
+  Enabled: false
+
+Style/UnpackFirst:
+  Description: >-
+    Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
+    into a debugging REPL.
   Enabled: false

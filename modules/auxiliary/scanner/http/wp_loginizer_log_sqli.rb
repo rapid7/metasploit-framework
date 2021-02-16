@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://twitter.com/mslavco/status/1318877097184604161']
           ],
         'Actions' => [
-          ['List Users', 'Description' => 'Queries username, password hash for COUNT users'],
+          ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-10-21'

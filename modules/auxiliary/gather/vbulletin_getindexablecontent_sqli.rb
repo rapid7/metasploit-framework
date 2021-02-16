@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2020-12720']
         ],
         'Actions' => [
-          ['DumpUser', 'Description' => 'Dump only user table used by vbulletin.'],
-          ['DumpAll', 'Description' => 'Dump all tables used by vbulletin.']
+          ['DumpUser', { 'Description' => 'Dump only user table used by vbulletin.' }],
+          ['DumpAll', { 'Description' => 'Dump all tables used by vbulletin.' }]
         ],
         'DefaultAction' => 'DumpUser',
         'DisclosureDate' => '2020-03-12'
