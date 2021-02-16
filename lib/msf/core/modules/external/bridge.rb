@@ -240,7 +240,7 @@ end
 
 class Msf::Modules::External::JavaBridge < Msf::Modules::External::Bridge
   def self.applies?(module_name)
-    module_name.match? /\.jar$/
+    module_name.end_with?('.jar')
   end
 
   def initialize(module_path, framework: nil)
