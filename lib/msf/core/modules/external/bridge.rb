@@ -238,7 +238,7 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
   end
 end
 
-class Msf::Modules::External::JavaBridge < Msf::Modules::External::Bridge
+class Msf::Modules::External::JarBridge < Msf::Modules::External::Bridge
   def self.applies?(module_name)
     module_name.end_with?('.jar')
   end
@@ -246,6 +246,28 @@ class Msf::Modules::External::JavaBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     self.cmd = ['java', '-Dfile.encoding=UTF-8', '-jar', self.path]
+  end
+
+  def handle_exception(error)
+    case error
+    when Errno::ENOENT
+      LoadError.new('Failed to execute external Jar module. Please ensure you have Java installed on your environment.')
+    else
+      super
+    end
+  end
+end
+
+class Msf::Modules::External::JavaBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.end_with?('.java')
+  end
+
+  def initialize(module_path, framework: nil)
+    super
+    java_path = File.expand_path('../java', __FILE__)
+    loader_path = java_path + "/binary/java_external_module_loader.jar"
+    self.cmd = ['java', '-Dfile.encoding=UTF-8', '-jar', loader_path, self.path]
   end
 
   def handle_exception(error)
@@ -264,6 +286,7 @@ class Msf::Modules::External::Bridge
     Msf::Modules::External::PyBridge,
     Msf::Modules::External::RbBridge,
     Msf::Modules::External::GoBridge,
+    Msf::Modules::External::JarBridge,
     Msf::Modules::External::JavaBridge,
     Msf::Modules::External::Bridge
   ]

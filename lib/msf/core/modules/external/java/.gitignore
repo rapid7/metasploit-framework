@@ -1,0 +1,56 @@
+﻿/jre/
+/bin/
+/out/
+/target/
+
+**/target
+**/out
+*.iml
+**/.idea
+*.class
+target/
+.project
+.settings/
+.classpath
+
+**/.scannerwork
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+**/logs
+/log.txt
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
+
+
+# project settings
+
+#/resources
+
+/run_build.lnk
+/test*
+*.MF
+
+*.versionsBackup
+
+!java_external_module_loader.jar
