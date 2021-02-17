@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if Gem::Version.new(wp_ver) < Gem::Version.new('5.4')
+    if Rex::Version.new(wp_ver) < Rex::Version.new('5.4')
       vprint_error("Wordpress (core) #{wp_ver} is unexploitable.  Version 5.4+ required.")
       return
     end

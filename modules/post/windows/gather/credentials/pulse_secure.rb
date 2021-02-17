@@ -337,8 +337,8 @@ class MetasploitModule < Msf::Post
   # Array of vulnerable builds branches.
   def vuln_builds
     [
-      [Gem::Version.new('0.0.0'), Gem::Version.new('9.0.5')],
-      [Gem::Version.new('9.1.0'), Gem::Version.new('9.1.4')],
+      [Rex::Version.new('0.0.0'), Rex::Version.new('9.0.5')],
+      [Rex::Version.new('9.1.0'), Rex::Version.new('9.1.4')],
     ]
   end
 
@@ -366,9 +366,9 @@ class MetasploitModule < Msf::Post
       version_data = version_file.read.to_s
       version_file.close
       matches = version_data.scan(/DisplayVersion=([0-9.]+)/m)
-      build = Gem::Version.new(matches[0][0])
+      build = Rex::Version.new(matches[0][0])
       print_status("Target is running Pulse Secure Connect build #{build}.")
-      if vuln_builds.any? { |build_range| Gem::Version.new(build).between?(*build_range) }
+      if vuln_builds.any? { |build_range| Rex::Version.new(build).between?(*build_range) }
         print_good('This version is considered vulnerable.')
         return Msf::Exploit::CheckCode::Vulnerable
       end

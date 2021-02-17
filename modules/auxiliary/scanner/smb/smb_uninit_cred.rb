@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Converts a version string into an object so we can eval it
   def version(v)
-    Gem::Version.new(v)
+    Rex::Version.new(v)
   end
 
 

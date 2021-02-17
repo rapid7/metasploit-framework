@@ -10,7 +10,7 @@ module Metasploit
       end
 
       VERSION = "#{Version::MAJOR}.#{Version::MINOR}.#{Version::PATCH}"
-      GEM_VERSION = Gem::Version.new(VERSION)
+      GEM_VERSION = Rex::Version.new(VERSION)
     end
   end
 end

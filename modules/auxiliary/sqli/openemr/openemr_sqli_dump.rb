@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     version.sub! ')', ''
     version.strip!
 
-    return Exploit::CheckCode::Safe unless Gem::Version.new(version) < Gem::Version.new('5.0.1.7')
+    return Exploit::CheckCode::Safe unless Rex::Version.new(version) < Rex::Version.new('5.0.1.7')
 
     Exploit::CheckCode::Appears
   end
