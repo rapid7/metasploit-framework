@@ -172,7 +172,7 @@ def generated_ysoserial_payloads
 
         # Compare this byte and the following byte to identify length and buffer offsets
         length_offsets.push(current_byte.position) if length_offset?(current_byte, next_byte)
-        buffer_offsets.push(current_byte.position - i) if buffer_offset?(current_byte, next_byte)
+        buffer_offsets.push(current_byte.position) if buffer_offset?(current_byte, next_byte)
       end
     end
 
