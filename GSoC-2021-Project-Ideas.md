@@ -4,6 +4,10 @@ Mentors: @zerosteiner, @jmartin-r7
 
 ## Enhance Metasploit Framework
 
+### Retain active status of authentication tokens
+
+Many testing techniques interacting with web servers such as `XSS` rely on ensuring authenicatin obtained on a target be kept active. A mechanism for regstering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for web service. This project would lay the groundwork for registering gathered or generated authenticaion against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
+
 ### Improving post-exploit API to be more consistent, work smoothly across session types
 
 The Metasploit post-exploitation API is intended to provide a unified interface between different Meterpreter, shell, powershell, mainframe, and other session types. However, there are areas where the implementation is not consistent, and could use improvements:
