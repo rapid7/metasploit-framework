@@ -10,7 +10,7 @@
 #       We attempt to use the ysoserial-modified fork, then fail back to the original ysoserial project.
 #       You will see warnings, but we're doing our best.  :-)
 
-FROM ubuntu
+FROM ubuntu:20.04
 
 RUN apt update && apt -y upgrade
 # Dependencies: wget (to download ysoserial)
@@ -18,7 +18,7 @@ RUN apt update && apt -y upgrade
 #               make, gcc (to install the 'json' ruby gem)
 RUN apt install -y wget openjdk-8-jre-headless ruby-dev make gcc
 
-# Download the latest ysoserial-modified
+# Download the latest ysoserial-modified, last tested on 2021-02-18 using commit d367e379d961c18bff28fd2c888a2c8fe0dc6e63
 RUN wget -q https://jitpack.io/com/github/frohoff/ysoserial/master-SNAPSHOT/ysoserial-master-SNAPSHOT.jar -O ysoserial-original.jar
 RUN wget -q https://github.com/pimps/ysoserial-modified/raw/master/target/ysoserial-modified.jar
 

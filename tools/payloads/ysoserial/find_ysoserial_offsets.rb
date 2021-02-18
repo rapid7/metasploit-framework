@@ -6,10 +6,11 @@ require 'base64'
 require 'open3'
 
 YSOSERIAL_RANDOMIZED_HEADER = 'ysoserial/Pwner'
-PAYLOAD_TEST_MIN_LENGTH = 4
-PAYLOAD_TEST_MAX_LENGTH = 5
-YSOSERIAL_MODIFIED_TYPES = ['cmd', 'bash', 'powershell', 'none']
-YSOSERIAL_ALL_TYPES = ['original'] + YSOSERIAL_MODIFIED_TYPES
+PAYLOAD_TEST_MIN_LENGTH = 0x0101
+PAYLOAD_TEST_MAX_LENGTH = 0x0102
+YSOSERIAL_MODIFIED_TYPES = %w{ bash cmd powershell }
+YSOSERIAL_UNMODIFIED_TYPE = 'none'
+YSOSERIAL_ALL_TYPES = [YSOSERIAL_UNMODIFIED_TYPE] + YSOSERIAL_MODIFIED_TYPES
 
 # ARGV parsing
 if ARGV.include?("-h")
@@ -133,7 +134,7 @@ def get_payload_list
   payload_list - ['JRMPClient', 'JRMPListener']
 end
 
-#YSOSERIAL_MODIFIED_TYPES.unshift('original')
+#YSOSERIAL_MODIFIED_TYPES.unshift(YSOSERIAL_ORIGINAL_TYPE)
 def generated_ysoserial_payloads
   results = {}
   @payload_list.each do |payload|
@@ -221,13 +222,13 @@ results = {}
 if @generate_all
   YSOSERIAL_ALL_TYPES.each do |type|
     STDERR.puts "Generating payload type for #{type}..."
-    @ysoserial_modified = (type != 'original')
+    @ysoserial_modified = (type != YSOSERIAL_UNMODIFIED_TYPE)
     @payload_type = type
     results[type] = generated_ysoserial_payloads
     STDERR.puts
   end
 else
-  @payload_type ||= 'original'
+  @payload_type ||= YSOSERIAL_UNMODIFIED_TYPE
   results[@payload_type] = generated_ysoserial_payloads
 end
 
