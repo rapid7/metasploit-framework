@@ -156,8 +156,8 @@ class MetasploitModule < Msf::Post
   def decrypt46(encoded)
     encrypted_data = Rex::Text.decode_base64(encoded)
     aes = OpenSSL::Cipher.new('AES-128-ECB')
-    aes.padding = 0
     aes.decrypt
+    aes.padding = 0
     # Private key extracted from ePO 4.6.0 Build 1029
     # If other keys are required for other versions of 4.6 - will have to add version
     # identification routines in to the main part of the module
