@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
   #
   def decrypt_des(encrypted)
     return nil if encrypted.nil?
-    decipher = OpenSSL::Cipher::DES.new
+    decipher = OpenSSL::Cipher.new('DES')
     decipher.decrypt
     decipher.key = "\xb9\x9a\x52\xd4\x58\x77\xe9\x18"
     decipher.iv  = "\x52\xe9\xc3\x9f\x13\xb4\x1d\x0f"

@@ -17,7 +17,7 @@ module Metasploit
             print_error "Unexpected value format"
             return nil
           end
-          digest = OpenSSL::Digest::SHA256.new
+          digest = OpenSSL::Digest.new('SHA256')
           if value.respond_to?(:read)
             chunk = nil
             chunk_size = 1024 * 1024 # 1 megabyte

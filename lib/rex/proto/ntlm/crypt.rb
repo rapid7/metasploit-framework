@@ -82,10 +82,11 @@ BASE = Rex::Proto::NTLM::Base
 
   def self.apply_des(plain, keys)
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-    dec = OpenSSL::Cipher::DES.new
+    dec = OpenSSL::Cipher.new('DES')
     keys.map do |k|
+      dec.decrypt
       dec.key = k
-      dec.encrypt.update(plain)
+      dec.update(plain)
     end
   end
 
@@ -118,7 +119,7 @@ BASE = Rex::Proto::NTLM::Base
     unless opt[:unicode]
       userdomain = Rex::Text.to_unicode(userdomain)
     end
-    OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmhash, userdomain)
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), ntlmhash, userdomain)
   end
 
   # Create the LANMAN response
@@ -198,7 +199,7 @@ BASE = Rex::Proto::NTLM::Base
       bb = blob.serialize
     end
 
-    OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), key, chal + bb) + bb
   end
 
   def self.lmv2_response(arg, opt = {})
@@ -210,7 +211,7 @@ BASE = Rex::Proto::NTLM::Base
     cc   = opt[:client_challenge] || rand(CONST::MAX64)
     cc   = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
 
-    OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + cc) + cc
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), key, chal + cc) + cc
   end
 
   def self.ntlm2_session(arg, opt = {})
@@ -338,7 +339,7 @@ BASE = Rex::Proto::NTLM::Base
 
     ntlm_key = self.ntlmv1_user_session_key(pass, opt )
     session_chal = srv_chall + cli_chall
-    OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlm_key, session_chal)
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), ntlm_key, session_chal)
   end
 
   # Used when the LMv2 response is sent
@@ -346,8 +347,8 @@ BASE = Rex::Proto::NTLM::Base
     raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 
     ntlmv2_key = self.ntlmv2_hash(user, pass, domain, opt)
-    hash1 = OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmv2_key, srv_chall + cli_chall)
-    OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmv2_key, hash1)
+    hash1 = OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), ntlmv2_key, srv_chall + cli_chall)
+    OpenSSL::HMAC.digest(OpenSSL::Digest.new('MD5'), ntlmv2_key, hash1)
   end
 
   # Used when the NTLMv2 response is sent
