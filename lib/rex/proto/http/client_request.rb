@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'uri'
-#require 'rex/proto/http'
+
 require 'rex/socket'
 require 'rex/text'
 

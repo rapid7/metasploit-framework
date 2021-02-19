@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/netsarang'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/post'
 require 'rex/post/meterpreter/client'
 require 'rex/post/meterpreter/extensions/stdapi/constants'
 

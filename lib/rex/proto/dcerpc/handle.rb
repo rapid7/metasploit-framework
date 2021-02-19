@@ -4,7 +4,6 @@ module Proto
 module DCERPC
 class Handle
 
-  require 'rex/proto/dcerpc/uuid'
 
   @@protocols = ['ncacn_ip_tcp', 'ncacn_ip_udp', 'ncacn_np', 'ncacn_http']
   attr_accessor :uuid, :protocol, :address, :options

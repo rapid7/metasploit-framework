@@ -8,8 +8,6 @@
 # parses the usernames and passwords from it.
 ##
 
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text

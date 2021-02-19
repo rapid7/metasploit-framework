@@ -4,7 +4,6 @@
 ##
 
 require 'rex/struct2'
-require 'rex/proto/smb'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC

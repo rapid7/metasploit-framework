@@ -13,8 +13,6 @@ require 'monitor'
 require 'metasploit/framework/version'
 require 'rex/socket/ssl'
 require 'metasploit/framework/thread_factory_provider'
-require 'rex/job_container'
-require 'rex/thread_factory'
 module Msf
 
 ###
@@ -52,7 +50,6 @@ class Framework
   end
 
   require 'metasploit/framework/data_service/proxy/core'
-  require 'rex/json_hash_file'
 
   #
   # Creates an instance of the framework context.

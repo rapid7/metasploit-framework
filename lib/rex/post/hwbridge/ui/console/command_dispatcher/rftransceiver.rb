@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/post/hwbridge'
 
 module Rex
 module Post

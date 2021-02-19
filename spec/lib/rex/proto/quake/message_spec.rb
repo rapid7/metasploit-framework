@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'spec_helper'
-require 'rex/proto/quake/message'
 
 RSpec.describe Rex::Proto::Quake do
   subject do

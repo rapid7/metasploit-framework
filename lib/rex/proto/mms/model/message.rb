@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'rex/mime/message'
 
 module Rex
   module Proto

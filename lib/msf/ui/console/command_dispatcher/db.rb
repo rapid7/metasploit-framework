@@ -2,7 +2,6 @@
 
 require 'json'
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
 

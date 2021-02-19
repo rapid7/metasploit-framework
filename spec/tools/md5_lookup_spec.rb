@@ -1,7 +1,6 @@
 load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
 require 'spec_helper'
 
-require 'rex/proto/http/response'
 require 'stringio'
 
 RSpec.describe Md5LookupUtility do

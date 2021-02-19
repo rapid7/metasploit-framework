@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'cgi'
 require 'uri'
-require 'rex/proto/http'
+
 require 'nokogiri'
 require 'rkelly'
 

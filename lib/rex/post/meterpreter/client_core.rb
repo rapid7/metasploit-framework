@@ -6,10 +6,6 @@ require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client'
 
-# Used to generate a reflective DLL when migrating. This is yet another
-# argument for moving the meterpreter client into the Msf namespace.
-# URI uuid and checksum stuff
-require 'rex/payloads/meterpreter/uri_checksum'
 
 # certificate hash checking
 require 'rex/socket/x509_certificate'
@@ -73,6 +69,8 @@ class ClientCore < Extension
     c.include(::Msf::Payload::TransportConfig)
 
     # Include the appropriate reflective dll injection module for the target process architecture...
+    # Used to generate a reflective DLL when migrating. This is yet another
+    # argument for moving the meterpreter client into the Msf namespace.
     if opts[:arch] == ARCH_X86
       c.include(::Msf::Payload::Windows::MeterpreterLoader)
     elsif opts[:arch] == ARCH_X64
@@ -918,6 +916,8 @@ private
     c.include( ::Msf::Payload::Stager )
 
     # Include the appropriate reflective dll injection module for the target process architecture...
+    # Used to generate a reflective DLL when migrating. This is yet another
+    # argument for moving the meterpreter client into the Msf namespace.
     if target_process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::MeterpreterLoader )
     elsif target_process['arch'] == ARCH_X64

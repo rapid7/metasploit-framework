@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/mqtt'
 
 module Msf
   module Auxiliary::MQTT

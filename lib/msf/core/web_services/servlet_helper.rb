@@ -1,6 +1,5 @@
 require 'json'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
-require 'rex/ui/text/output/stdio'
 
 module Msf::WebServices::ServletHelper
   include ResponseDataHelper

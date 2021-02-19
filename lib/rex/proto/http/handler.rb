@@ -10,8 +10,6 @@ module Http
 ###
 class Handler
 
-  require 'rex/proto/http/handler/erb'
-  require 'rex/proto/http/handler/proc'
 
   #
   # Initializes the handler instance as being associated with the supplied

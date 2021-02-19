@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/proto/ntp'
 module Msf
 
 ###

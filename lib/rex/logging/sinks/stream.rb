@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/logging'
 
 module Rex
 module Logging

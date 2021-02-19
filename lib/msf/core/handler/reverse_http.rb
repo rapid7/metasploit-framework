@@ -1,13 +1,10 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'rex/payloads/meterpreter/uri_checksum'
-require 'rex/post/meterpreter'
+
 require 'rex/post/meterpreter/core_ids'
 require 'rex/socket/x509_certificate'
-require 'rex/user_agent'
 require 'uri'
-require 'rex/service_manager'
 
 module Msf
 module Handler

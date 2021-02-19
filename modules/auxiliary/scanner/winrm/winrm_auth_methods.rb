@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/message'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WinRM

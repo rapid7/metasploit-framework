@@ -16,7 +16,6 @@ require 'rex/pescan'
 require 'rex/random_identifier'
 require 'rex/zip'
 require 'rex/powershell'
-require 'rex/payloads/shuffle'
 require 'metasm'
 require 'digest/sha1'
 # Generates a default template

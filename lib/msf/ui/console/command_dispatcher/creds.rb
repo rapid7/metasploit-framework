@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
 require 'metasploit/framework/password_crackers/hashcat/formatter'
 require 'metasploit/framework/password_crackers/jtr/formatter'
 

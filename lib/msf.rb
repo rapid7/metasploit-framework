@@ -1,12 +1,8 @@
-require 'rex/proto/ntlm'
 require 'rex/arch'
-include Rex::Arch
+require 'rex/logging'
 
-NTLM_CONST   ||= ::Rex::Proto::NTLM::Constants
-NTLM_CRYPT   ||= ::Rex::Proto::NTLM::Crypt
-NTLM_UTILS   ||= ::Rex::Proto::NTLM::Utils
-NTLM_BASE    ||= ::Rex::Proto::NTLM::Base
-NTLM_MESSAGE ||= ::Rex::Proto::NTLM::Message
+include Rex::Arch
+include Rex::Logging
 
 module Msf
 
@@ -14,4 +10,11 @@ module Msf
 end
 
 require 'msf/core/exception' # TODO: temporary require until we can split up the exceptions file and namespace properly
+require 'msf/core/constants'
 require 'msf_autoload'
+
+NTLM_CONST   ||= ::Rex::Proto::NTLM::Constants
+NTLM_CRYPT   ||= ::Rex::Proto::NTLM::Crypt
+NTLM_UTILS   ||= ::Rex::Proto::NTLM::Utils
+NTLM_BASE    ||= ::Rex::Proto::NTLM::Base
+NTLM_MESSAGE ||= ::Rex::Proto::NTLM::Message
