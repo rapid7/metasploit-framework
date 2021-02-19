@@ -177,7 +177,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def cleanup
-      disconnect rescue nil
+      begin
+        disconnect
+      rescue StandardError
+        nil
+      end
     end
   end
 end

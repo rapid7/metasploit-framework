@@ -9,22 +9,25 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'Apache ZooKeeper Information Disclosure',
-                      'Description' => '
-        Apache ZooKeeper server service runs on TCP 2181 and by default, it is accessible without any authentication. This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
-      ',
-                      'References' =>
-                        [
-                          ['URL', 'https://zooKeeper.apache.org/doc/current/zookeeperAdmin.html']
-                        ],
-                      'Author' =>
-                        [
-                          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
-                        ],
-                      'DisclosureDate' => '2020-10-14',
-                      'License' => MSF_LICENSE,
-                      'DefaultOptions' => { 'VERBOSE' => true })
+    super(
+      update_info(
+        info,
+        'Name' => 'Apache ZooKeeper Information Disclosure',
+        'Description' => %q{
+          Apache ZooKeeper server service runs on TCP 2181 and by default, it is accessible without any authentication. This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
+        },
+        'References' =>
+          [
+            ['URL', 'https://zooKeeper.apache.org/doc/current/zookeeperAdmin.html']
+          ],
+        'Author' =>
+          [
+            'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+          ],
+        'DisclosureDate' => '2020-10-14',
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'VERBOSE' => true }
+      )
       )
 
     register_options(
@@ -72,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
             os_type = data.match(/os.name=\s*\S*/).to_s.split('=')[1]
             os_arch = data.match(/os.arch=\s*\S*/).to_s.split('=')[1]
             os_ver = data.match(/os.version=\s*\S*/).to_s.split('=')[1]
-            os = os_type.to_s + " " + os_arch.to_s + " " + os_ver.to_s
+            os = os_type.to_s + ' ' + os_arch.to_s + ' ' + os_ver.to_s
 
             host_info = {
               host: rhost,

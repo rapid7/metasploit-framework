@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::F5
 
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           This module imports an F5 device configuration.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['h00die'],
+        'Author' => ['h00die']
       )
     )
 

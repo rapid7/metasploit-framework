@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2019-11-25', # Vendor advisory
         'Actions' => [
-          ['Download', 'Description' => 'Download the file at FILEPATH']
+          ['Download', { 'Description' => 'Download the file at FILEPATH' }]
         ],
         'DefaultAction' => 'Download',
         'Notes' => {

@@ -36,8 +36,8 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'Actions' =>
         [
-          ['PASS_DISABLE', 'Description' => 'Disable password authentication.' ],
-          ['PASS_ENABLE', 'Description' => 'Enable password authentication.' ]
+          ['PASS_DISABLE', { 'Description' => 'Disable password authentication.' } ],
+          ['PASS_ENABLE', { 'Description' => 'Enable password authentication.' } ]
         ],
       'DefaultAction' => 'PASS_DISABLE',
       'Notes' => {

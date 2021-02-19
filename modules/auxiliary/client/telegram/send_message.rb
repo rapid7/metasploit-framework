@@ -9,11 +9,11 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
     'Name' => 'Telegram Message Client',
-    'Description' => %q(
+    'Description' => %q{
             This module will send a Telegram message to given chat ID with the
             given bot token. Please refer to the module documentation for info
             on how to retrieve the bot token and corresponding chat ID values.
-        ),
+        },
     'Author' => 'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
     'License' => MSF_LICENSE,
     )

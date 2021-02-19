@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Add', 'Description' => 'Add an admin user']
+          ['Add', { 'Description' => 'Add an admin user' }]
         ],
         'DefaultAction' => 'Add',
         'DefaultOptions' => {

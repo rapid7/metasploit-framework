@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::F5
 
@@ -48,10 +47,10 @@ class MetasploitModule < Msf::Post
       if /^\s+Product\s+(?<product>[\w-]+)$/ =~ content
         ver << product
       end
-      if /^\s+Version\s+(?<version>[\d\.]+)$/ =~ content
+      if /^\s+Version\s+(?<version>[\d.]+)$/ =~ content
         ver << version
       end
-      if /^\s+Build\s+(?<build>[\d\.]+)$/ =~ content
+      if /^\s+Build\s+(?<build>[\d.]+)$/ =~ content
         ver << build
       end
       print_good("Version: #{ver.join(' ')}") unless ver.empty?
@@ -117,6 +116,7 @@ class MetasploitModule < Msf::Post
       # loop to ensure we get all content within the 5 sec window
       loop do
         break unless out_tmp = session.shell_read
+
         cmd_out << out_tmp
       end
 
@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip, store=false)
+      f5_config_eater(host, port, cmd_out.strip, store = false)
     end
   end
 
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip, store=false)
+      f5_config_eater(host, port, cmd_out.strip, store = false)
     end
   end
 end
