@@ -33,7 +33,9 @@ module Msf::Modules::Metadata::Search
   def self.parse_search_string(search_string)
     search_string ||= ''
     search_string += ' '
-
+    
+    search_string = search_string.gsub(/((\s*?\:+)+$)|((\:*\s)+$)/,'')
+      
     # Split search terms by space, but allow quoted strings
     terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
     terms.delete('')
