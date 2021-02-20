@@ -328,6 +328,17 @@ module DispatcherShell
       end
       addresses
     end
+
+    #
+    # A callback that can be used to handle unknown commands. This can for example, allow a dispatcher to mark a command
+    # as being disabled.
+    #
+    # @return [Symbol, nil] Returns a symbol specifying the action that was taken by the handler or `nil` if no action
+    #   was taken. The only supported action at this time is `:handled`, signifying that the unknown command was handled
+    #   by this dispatcher and no additional dispatchers should receive it.
+    def unknown_command(method, line)
+      nil
+    end
   end
 
   #
@@ -454,11 +465,16 @@ module DispatcherShell
   #
   # Run a single command line.
   #
+  # @param [String] line The command string that should be executed.
+  # @param [Boolean] propagate_errors Whether or not to raise exceptions that are caught while executing the command.
+  #
+  # @return [Boolean] A boolean value signifying whether or not the command was handled. Value is `true` when the
+  #   command line was handled.
   def run_single(line, propagate_errors: false)
-    arguments = parse_line(line)
-    method    = arguments.shift
-    found     = false
-    error     = false
+    arguments  = parse_line(line)
+    method     = arguments.shift
+    cmd_status = nil  # currently either nil or :handled, more statuses can be added in the future
+    error      = false
 
     # If output is disabled output will be nil
     output.reset_color if (output)
@@ -473,10 +489,12 @@ module DispatcherShell
           if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
             self.on_command_proc.call(line.strip) if self.on_command_proc
             run_command(dispatcher, method, arguments)
-            found = true
+            cmd_status = :handled
+          elsif cmd_status.nil?
+            cmd_status = dispatcher.unknown_command(method, line)
           end
         rescue ::Interrupt
-          found = true
+          cmd_status = :handled
           print_error("#{method}: Interrupted")
           raise if propagate_errors
         rescue OptionParser::ParseError => e
@@ -504,12 +522,12 @@ module DispatcherShell
         break if (dispatcher_stack.length != entries)
       }
 
-      if (found == false and error == false)
+      if (cmd_status.nil? && error == false)
         unknown_command(method, line)
       end
     end
 
-    return found
+    return cmd_status == :handled
   end
 
   #

@@ -151,6 +151,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
 
+      session.commands.concat(session.core.get_loaded_extension_commands('core'))
+
       # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
       if datastore['AutoUnhookProcess'] == true
         console.run_single('load unhook')

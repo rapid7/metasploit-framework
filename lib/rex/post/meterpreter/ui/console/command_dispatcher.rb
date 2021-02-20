@@ -38,6 +38,7 @@ module Console::CommandDispatcher
 
   def initialize(shell)
     @msf_loaded = nil
+    @filtered_commands = []
     super
   end
 
@@ -53,8 +54,20 @@ module Console::CommandDispatcher
   #
   def filter_commands(all, reqs)
     all.delete_if do |cmd, _desc|
-      reqs[cmd].any? { |req| !client.commands.include?(req) }
+      if reqs[cmd]&.any? { |req| !client.commands.include?(req) }
+        @filtered_commands << cmd
+        true
+      end
     end
+  end
+
+  def unknown_command(cmd, line)
+    if @filtered_commands.include?(cmd)
+      print_error("The \"#{cmd}\" command is not supported by this Meterpreter type (#{client.session_type})")
+      return :handled
+    end
+
+    super
   end
 
   #

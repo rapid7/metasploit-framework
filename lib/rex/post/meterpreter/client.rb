@@ -316,7 +316,6 @@ class Client
   # registered extension that can be reached through client.ext.[extension].
   #
   def add_extension(name, commands=[])
-    self.commands |= []
     self.commands.concat(commands)
 
     # Check to see if this extension has already been loaded.
