@@ -742,7 +742,7 @@ class ClientCore < Extension
   #
   # Negotiates the use of encryption at the TLV level
   #
-  def negotiate_tlv_encryption
+  def negotiate_tlv_encryption(timeout: client.comm_timeout)
     sym_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
@@ -751,7 +751,7 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
-      response = client.send_request(request)
+      response = client.send_request(request, timeout)
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
 
