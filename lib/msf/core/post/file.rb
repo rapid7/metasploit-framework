@@ -79,10 +79,11 @@ module Msf::Post::File
 
   # create and mark directory for cleanup
   def mkdir(path)
+    result = nil
     vprint_status("Creating directory #{path}")
     if session.type == 'meterpreter'
-      vprint_status("Meterpreter Session")
-      result = session.fs.dir.mkdir(path)
+      # behave like mkdir -p and don't throw an error if the directory exists
+      result = session.fs.dir.mkdir(path) unless directory?(path)
     else
       if session.platform == 'windows'
         result = cmd_exec("mkdir \"#{path}\"")
