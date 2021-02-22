@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Config saved in: #{path}")
 
     begin
-      json = JSON.parse(config.gsub(/\\r/, '').gsub(/\\n/, '').gsub(/\\"/, '"').gsub(/\\'/, "'").gsub(/\\\\/, '\\').gsub(/\\\r?\n/, ""))
+      json = JSON.parse(config.gsub(/\\r/, '').gsub(/\\n/, '').gsub(/\\"/, '"').gsub(/\\'/, "'").gsub(/\\\\/, '\\').gsub(/\\\r?\n/, ''))
     rescue StandardError
       fail_with(Failure::UnexpectedReply, "#{peer} Could not parse exported settings as JSON.")
     end
@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         creds.merge!({
           private_type: :nonreplayable_hash,
-          private_data: "{SHA}#{hash}"
+          private_data: "{SHA}#{user['password']}"
         })
       end
 
