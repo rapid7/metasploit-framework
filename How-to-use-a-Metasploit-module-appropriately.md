@@ -62,7 +62,7 @@ msf exploit(ms08_067_netapi) > set
 
 ## Find the module's pull request
 
-The Metasploit repository is hosted on Github (duh... you're on it right now), and the developers/contributors rely on it heavily for development. Before a module is made public, it is submitted as a [pull request](https://help.github.com/articles/using-pull-requests/) for final testing and review. In there, you will find pretty much everything you need to know about the module, and probably things you won't learn from reading the module's description or some random blog post. The information is like gold, really.
+The Metasploit repository is hosted on GitHub, and the developers/contributors rely on it heavily for development. Before a module is made public, it is submitted as a [pull request](https://help.github.com/articles/using-pull-requests/) for final testing and review. In there, you will find pretty much everything you need to know about the module, and probably things you won't learn from reading the module's description or some random blog post. The information is like gold, really.
 
 Things you might learn from reading a pull request:
 
@@ -74,7 +74,9 @@ Things you might learn from reading a pull request:
 * Demonstrations.
 * Other surprises.
 
-There are mainly two ways to find the pull request of the module you're using:
+There are a few ways to find the pull request of the module you're using:
+
+* **Via `info -d` in msfconsole**: If you generate a [personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) and set it in your shell environment with `export GITHUB_OAUTH_TOKEN your_token`, the builtin documentation will show relevant pull requests for the current module.
 
 * **Via the pull request number**: If you actually know the pull request number, this is the easiest. Simply go:
 
