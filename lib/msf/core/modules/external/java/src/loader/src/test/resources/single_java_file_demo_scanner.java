@@ -1,9 +1,9 @@
-import com.xenoamess.metasploit.java_external_module.core.contexts.MsfContext;
-import com.xenoamess.metasploit.java_external_module.core.entities.MsfRequest;
-import com.xenoamess.metasploit.java_external_module.core.enums.MsfLogLevelEnum;
-import com.xenoamess.metasploit.java_external_module.core.handle.impl.MsfDescribeHandler;
-import com.xenoamess.metasploit.java_external_module.core.handle.impl.MsfRunHandler;
-import com.xenoamess.metasploit.java_external_module.core.utils.MsfCommandLineUtil;
+import com.metasploit.java_external_module.core.contexts.MsfContext;
+import com.metasploit.java_external_module.core.entities.MsfRequest;
+import com.metasploit.java_external_module.core.enums.MsfLogLevelEnum;
+import com.metasploit.java_external_module.core.handle.impl.MsfDescribeHandler;
+import com.metasploit.java_external_module.core.handle.impl.MsfRunHandler;
+import com.metasploit.java_external_module.core.utils.MsfCommandLineUtil;
 
 public class single_java_file_demo_scanner {
 

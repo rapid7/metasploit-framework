@@ -49,7 +49,7 @@
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <!--important config-->
         <mainClass>
-            com.xenoamess.metasploit.java_external_module.core.MsfPluginEntrance
+            com.metasploit.java_external_module.core.MsfPluginEntrance
         </mainClass>
     </properties>
 

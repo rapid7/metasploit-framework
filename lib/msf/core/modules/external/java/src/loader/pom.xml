@@ -21,7 +21,7 @@
         <dubbo.version>2.7.9</dubbo.version>
         <!--important config-->
         <mainClass>
-            com.xenoamess.metasploit.java_external_module.loader.MsfPluginLoader
+            com.metasploit.java_external_module.loader.MsfPluginLoader
         </mainClass>
     </properties>
 
