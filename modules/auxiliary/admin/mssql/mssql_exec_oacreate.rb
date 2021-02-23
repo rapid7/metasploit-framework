@@ -10,9 +10,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Microsoft SQL Server sp_oacreate Command Execution',
       'Description'    => %q{
-      This module will execute a Windows command on a MSSQL/MSDE instance
-      via the sp_oacreate procedure (ole) instead of the xp_cmdshell. A valid username and password is required
-      to use this module
+        This module will execute a Windows command on a MSSQL/MSDE instance
+        via the sp_oacreate procedure (ole) instead of the xp_cmdshell.
+        A valid username and password is required to use this module.
       },
       'Author'         => [ 'arcc <pw[at]evait.de>' ],
       'License'        => MSF_LICENSE,
