@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>single_java_file_demo</artifactId>
     <parent>
-        <groupId>com.xenoamess.metasploit.java-external-module</groupId>
+        <groupId>com.metasploit.java-external-module</groupId>
         <artifactId>parent</artifactId>
         <version>0.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
