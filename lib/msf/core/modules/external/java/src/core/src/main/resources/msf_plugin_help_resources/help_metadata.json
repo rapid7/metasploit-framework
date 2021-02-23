@@ -2,17 +2,16 @@
   "name": "YOU FORGOT TO SET PROPERTY mainClass IN pom.xml's properties!!!",
   "description": "\n        YOU FORGOT TO SET PROPERTY mainClass IN pom.xml's properties!!!\n     ",
   "authors": [
-    "XenoAmess <xenoamess@gmail.com>"
+    "Metasploit Hackers <msfdev@metasploit.com>"
   ],
   "date": "2021-02-16",
   "references": [
     {
       "type": "url",
-      "ref": "https://github.com/XenoAmess/"
+      "ref": "https://github.com/rapid7/metasploit-framework"
     }
   ],
   "type": "dos",
   "options": {
   }
 }
-
