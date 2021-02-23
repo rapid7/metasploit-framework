@@ -50,7 +50,6 @@
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <mvnw.version>0.7.7</mvnw.version>
     </properties>
 
     <profiles>
@@ -106,19 +105,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.takari</groupId>
-                <artifactId>maven</artifactId>
-                <version>${mvnw.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wrapper</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
