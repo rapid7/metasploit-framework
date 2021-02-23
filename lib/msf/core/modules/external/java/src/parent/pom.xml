@@ -12,26 +12,6 @@
         framework.
     </description>
     <url>null</url>
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>${project.url}/blob/master/LICENSE</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Jin Xu</name>
-            <email>xenoamess@gmail.com</email>
-            <organization>XenoAmess</organization>
-            <url>https://github.com/xenoamess</url>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:${project.url}.git</connection>
-        <developerConnection>${project.scm.connection}</developerConnection>
-        <url>${project.url}</url>
-        <tag>${project.version}</tag>
-    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
