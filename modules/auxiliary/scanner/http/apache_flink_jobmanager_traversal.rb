@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     unless res
-      return Exploit::CheckCode::Safe('No reply.')
+      return Exploit::CheckCode::Unknown('No reply.')
     end
 
     unless res.body.include?('flink')
