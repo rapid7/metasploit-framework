@@ -60,7 +60,8 @@ class RuboCopRunner
 
     rubocop = RuboCop::CLI.new
     args = %w[--format simple]
-    args << '-a' if options[:autocorrect]
+    args << '-a' if options[:auto_correct]
+    args << '-A' if options[:auto_correct_all]
     args << full_filepath
     rubocop_result = rubocop.run(args)
 
@@ -946,8 +947,12 @@ if __FILE__ == $PROGRAM_NAME
       return print(opts.help)
     end
 
-    opts.on('-a', '--auto-correct', 'Auto-correct offenses (only when safe).') do |autocorrect|
-      options[:autocorrect] = autocorrect
+    opts.on('-a', '--auto-correct', 'Auto-correct offenses (only when safe).') do |auto_correct|
+      options[:auto_correct] = auto_correct
+    end
+
+    opts.on('-A', '--auto-correct-all', 'Auto-correct offenses (safe and unsafe).') do |auto_correct_all|
+      options[:auto_correct_all] = auto_correct_all
     end
   end
   options_parser.parse!

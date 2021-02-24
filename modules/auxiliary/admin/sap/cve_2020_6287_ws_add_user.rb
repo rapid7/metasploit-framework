@@ -274,7 +274,7 @@ class WebServiceJob
     res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
-  def get_event # rubocop:disable Naming/AccessorMethodName
+  def get_event
     envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>

@@ -85,6 +85,13 @@ Style/BlockComments:
     be copy/pasted directly into a terminal etc.
   Enabled: false
 
+Style/CaseLikeIf:
+  Description: >-
+    This would cause a lot of noise, and potentially introduce subtly different code when
+    being auto fixed. Could potentially be enabled in isolation, but would require more
+    consideration.
+  Enabled: false
+
 Style/CollectionCompact:
   Enabled: true
 
@@ -172,6 +179,17 @@ Metrics/PerceivedComplexity:
   Enabled: false
   Description: 'This is often a red-herring'
 
+Metrics/BlockNesting:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+  Enabled: false
+
+Metrics/ParameterLists:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+    Increasing the max count for now
+  Max: 8
+
 Style/TernaryParentheses:
   Enabled: false
   Description: 'This outright produces bugs'
@@ -182,6 +200,30 @@ Style/FrozenStringLiteralComment:
 
 Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Description: >-
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Description: >-
+    Disabled for now, as this naming convention is used in a lot of core library files.
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/ConstantName:
+  Description: >-
+    Disabled for now, Metasploit is unfortunately too inconsistent with its naming to introduce
+    this. Definitely possible to enforce this in the future if need be.
+
+    Examples:
+        ManualRanking, LowRanking, etc.
+        NERR_ClientNameNotFound
+        HttpFingerprint
+        CachedSize
+        ErrUnknownTransferId
   Enabled: false
 
 Naming/VariableNumber:

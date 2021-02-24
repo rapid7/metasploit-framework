@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     begin
       vers_string = retrieve_asa_version
-    rescue ::Exception
+    rescue ::StandardError
       print_error('Error: Unable to retrieve version information')
       return Exploit::CheckCode::Unknown
     end
@@ -171,8 +171,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     begin
-      session = rand(1..255)
-
       vers_string = retrieve_asa_version
 
       print_status("Building #{action.name} payload for version #{vers_string}...")
@@ -199,7 +197,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Error: No payload available for version #{vers_string}")
     rescue ::Interrupt
       raise $ERROR_INFO
-    rescue ::Exception => e
+    rescue ::StandardError => e
       print_error("Error: #{e.class} #{e} #{e.backtrace}")
     ensure
       disconnect_snmp

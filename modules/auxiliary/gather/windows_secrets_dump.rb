@@ -481,7 +481,7 @@ class MetasploitModule < Msf::Auxiliary
     hint_count = 0
     users.keys.sort { |a, b| a <=> b }.each do |rid|
       # If we have a hint then print it
-      next unless !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
+      next unless !users[rid][:UserPasswordHint].nil? && !users[rid][:UserPasswordHint].empty?
 
       hint = "#{users[rid][:Name]}: \"#{users[rid][:UserPasswordHint]}\""
       report_info(hint, 'user.password_hint')
@@ -608,7 +608,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Encrypted data: #{cache.enc_data.to_hex}")
       vprint_status("IV:  #{cache.iv.to_hex}")
 
-      enc_data = cache.enc_data.map { |e| e.chr }.join
+      enc_data = cache.enc_data.map(&:chr).join
       if lsa_vista_style?
         dec_data = decrypt_hash_vista(enc_data, nlkm_key, cache.iv)
       else
@@ -645,7 +645,7 @@ class MetasploitModule < Msf::Auxiliary
       info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(::Encoding::UTF_8)}")
       info << ("User ID: #{cache.user_id}")
       info << ("Primary Group ID: #{cache.primary_group_id}")
-      info << ("Additional groups: #{cache_data.groups.map { |g| g.relative_id }.join(' ')}")
+      info << ("Additional groups: #{cache_data.groups.map(&:relative_id).join(' ')}")
       logon_domain_name = cache_data.logon_domain_name.encode(::Encoding::UTF_8)
       info << ("Logon domain name: #{logon_domain_name}")
 
@@ -746,14 +746,14 @@ class MetasploitModule < Msf::Auxiliary
     byte_str.map do |byte|
       t = byte.to_s(2).rjust(8, '0')
       if t[0, 7].count('1').odd?
-        (t[0, 7] + '0').to_i(2).chr
+        ("#{t[0, 7]}0").to_i(2).chr
       else
-        (t[0, 7] + '1').to_i(2).chr
+        ("#{t[0, 7]}1").to_i(2).chr
       end
     end
   end
 
-  def is_weak_des_key?(key)
+  def weak_des_key?(key)
     [
       "\x01\x01\x01\x01\x01\x01\x01\x01",
       "\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
@@ -802,7 +802,9 @@ class MetasploitModule < Msf::Auxiliary
     plaintext.bytes.each_slice(8) do |block|
       tmp_56 = block.map { |byte| byte & 0b01111111 }
       if !odd
+        # rubocop:disable Style/FormatString
         tmp_56_str = tmp_56.map { |byte| '%07b' % byte }.join
+        # rubocop:enable Style/FormatString
         tmp_56_str.reverse!
         tmp_56 = tmp_56_str.bytes.each_slice(7).map do |bits7|
           bits7.map(&:chr).join.to_i(2)
@@ -812,7 +814,7 @@ class MetasploitModule < Msf::Auxiliary
       tmp_byte_str = tmp_byte_str.zip(tmp_56).map { |a, b| a ^ b }
     end
     tempkey = add_parity(tmp_byte_str).map(&:chr).join
-    if is_weak_des_key?(tempkey)
+    if weak_des_key?(tempkey)
       tempkey[7] = (tempkey[7].ord ^ 0xF0).chr
     end
     cipher = OpenSSL::Cipher.new('DES-CBC')
@@ -821,7 +823,7 @@ class MetasploitModule < Msf::Auxiliary
     cipher.key = tempkey
     chekcsumkey = cipher.update(plaintext)[-8..-1]
     chekcsumkey = fix_parity(chekcsumkey.bytes).map(&:chr).join
-    if is_weak_des_key?(chekcsumkey)
+    if weak_des_key?(chekcsumkey)
       chekcsumkey[7] = (chekcsumkey[7].ord ^ 0xF0).chr
     end
     chekcsumkey.unpack('H*')[0]
@@ -1005,7 +1007,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Module::Failure::NoAccess,
                 "Unable to authenticate ([#{e.class}] #{e}).")
     end
-    mdm_service = report_service(
+    report_service(
       host: rhost,
       port: rport,
       host_name: simple.client.default_name,
@@ -1100,7 +1102,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
   rescue Rex::ConnectionError => e
     fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
-  rescue ::Exception => e
+  rescue ::StandardError => e
     do_cleanup
     raise e
   ensure
@@ -1110,7 +1112,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     @winreg.close if @winreg
     @tree.disconnect! if @tree
-    simple.client.disconnect! if simple&.client&.is_a?(RubySMB::Client)
+    simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
     disconnect
   end
 end

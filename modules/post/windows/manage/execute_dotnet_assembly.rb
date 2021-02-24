@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Post
     if process_name.split(//).last(4).join.eql? '.exe'
       out_process_name = process_name
     else
-      process_name + '.exe'
+      "#{process_name}.exe"
     end
     out_process_name
   end
@@ -276,7 +276,7 @@ class MetasploitModule < Msf::Post
         end
         break if output.nil? || output.empty?
       end
-    rescue Rex::TimeoutError => e
+    rescue Rex::TimeoutError => _e
       vprint_warning('Time out exception: wait limit exceeded (5 sec)')
     rescue ::StandardError => e
       print_error("Exception: #{e.inspect}")

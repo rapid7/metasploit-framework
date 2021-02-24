@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
       if payload.include?('<')
         payload.gsub!(/<>/, '=')
-        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { '0,' + Regexp.last_match(1) }
+        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { "0,#{Regexp.last_match(1)}" }
       end
       res = send_request_cgi({
         'method' => 'POST',
