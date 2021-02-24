@@ -3,14 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp_ssl'
-require 'msf/core/payload/python'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = :dynamic
+  CachedSize = 629
 
   include Msf::Payload::Single
   include Msf::Payload::Python

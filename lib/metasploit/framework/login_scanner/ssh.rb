@@ -115,7 +115,7 @@ module Metasploit
         def gather_proof
           proof = ''
           begin
-            Timeout.timeout(5) do
+            Timeout.timeout(10) do
               proof = ssh_socket.exec!("id\n").to_s
               if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
@@ -152,13 +152,29 @@ module Metasploit
                   if proof =~ /Version:(?<os_version>.+).+HW: (?<hardware>)/mi
                     proof = "Model: #{hardware}, OS: #{os_version}"
                   end
+                # Arista
+                elsif proof =~ /% Invalid input at line 1/
+                  proof = ssh_socket.exec!("show version\n").split("\n")[0..1]
+                  proof = proof.map {|item| item.strip}
+                  proof = proof.join(", ").to_s
                 # Windows
-                elsif proof =~ /is not recognized as an internal or external command/
+                elsif proof =~ /command not found|is not recognized as an internal or external command/
                   proof = ssh_socket.exec!("systeminfo\n").to_s
                   /OS Name:\s+(?<os_name>.+)$/ =~ proof
                   /OS Version:\s+(?<os_num>.+)$/ =~ proof
-                  if os_name && os_num
-                    proof = "#{os_name.chomp} #{os_num.chomp}"
+                  if os_num.present? && os_name.present?
+                    proof = "#{os_name.strip} #{os_num.strip}"
+                  else
+                    proof = ssh_socket.exec!("ver\n").to_s.strip
+                  end
+                # mikrotik
+                elsif proof =~ /bad command name id \(line 1 column 1\)/
+                  proof = ssh_socket.exec!("/ system resource print\n").to_s
+                  /platform:\s+(?<platform>.+)$/ =~ proof
+                  /board-name:\s+(?<board>.+)$/ =~ proof
+                  /version:\s+(?<version>.+)$/ =~ proof
+                  if version && platform && board
+                    proof = "#{platform.strip} #{board.strip} #{version.strip}"
                   end
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
@@ -194,14 +210,18 @@ module Metasploit
             'hpux'
           when /AIX/
             'aix'
-          when /Win32|Windows|Microsoft/
+          when /cygwin|Win32|Windows|Microsoft/
             'windows'
           when /Unknown command or computer name|Line has invalid autocommand/
             'cisco-ios'
           when /unknown keyword/ # ScreenOS
             'juniper'
-          when /JUNOS Base OS/ #JunOS
+          when /JUNOS Base OS/ # JunOS
             'juniper'
+          when /MikroTik/
+            'mikrotik'
+          when /Arista/
+            'arista'
           else
             'unknown'
           end

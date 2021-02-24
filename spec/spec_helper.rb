@@ -4,13 +4,12 @@ require 'factory_bot'
 
 ENV['RAILS_ENV'] = 'test'
 
-require File.expand_path('../../config/rails_bigdecimal_fix', __FILE__)
-
 # @note must be before loading config/environment because railtie needs to be loaded before
 #   `Metasploit::Framework::Application.initialize!` is called.
 #
 # Must be explicit as activerecord is optional dependency
 require 'active_record/railtie'
+require 'rubocop'
 require 'rubocop/rspec/support'
 require 'metasploit/framework/database'
 # check if database.yml is present

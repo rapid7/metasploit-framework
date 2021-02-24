@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/x64/reflectivedllinject'
-require 'msf/base/sessions/vncinject'
-require 'msf/base/sessions/vncinject_options'
 
 ###
 #

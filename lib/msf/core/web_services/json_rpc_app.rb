@@ -2,14 +2,7 @@ require 'securerandom'
 require 'sinatra/base'
 require 'swagger/blocks'
 require 'warden'
-require 'msf/core/rpc'
 require 'msf/core/web_services/authentication'
-require 'msf/core/web_services/framework_extension'
-require 'msf/core/web_services/servlet_helper'
-require 'msf/core/web_services/servlet/auth_servlet'
-require 'msf/core/web_services/servlet/json_rpc_servlet'
-require 'msf/core/web_services/json_rpc_exception_handling'
-
 module Msf::WebServices
   class JsonRpcApp < Sinatra::Base
 

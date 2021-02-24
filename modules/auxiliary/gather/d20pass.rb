@@ -8,8 +8,6 @@
 # parses the usernames and passwords from it.
 ##
 
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2012-6663'],
         ],
-      'DisclosureDate' => 'Jan 19 2012'
+      'DisclosureDate' => '2012-01-19'
       ))
 
     register_options(

@@ -1,8 +1,3 @@
-require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/python'
-
-require 'msf/base/sessions/pingback'
-require 'msf/core/payload/pingback'
 
 module MetasploitModule
 

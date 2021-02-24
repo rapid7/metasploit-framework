@@ -1,6 +1,5 @@
 # -*- coding:binary -*-
 require 'spec_helper'
-require 'msf/core/module'
 
 RSpec.describe Msf::Module do
   subject(:msf_module) {
@@ -30,7 +29,6 @@ RSpec.describe Msf::Module do
   it_should_behave_like 'Msf::Module::Options'
   it_should_behave_like 'Msf::Module::Privileged'
   it_should_behave_like 'Msf::Module::Ranking'
-  it_should_behave_like 'Msf::Module::Search'
   it_should_behave_like 'Msf::Module::Type'
   it_should_behave_like 'Msf::Module::UI'
   it_should_behave_like 'Msf::Module::UUID'

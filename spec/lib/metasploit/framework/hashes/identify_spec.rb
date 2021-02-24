@@ -266,6 +266,27 @@ RSpec.describe 'hashes/identify' do
     end
   end
 
+  describe 'identify_f5_secure_value' do
+    it 'returns F5-Secure-Vault' do
+      hash = identify_hash('$M$iE$cIdy72xi7Xbk3kazSrpdfscd+oD1pdsXJbwhvhMPiss4Iw0RKIJQS/CuSReZl/+kseKpPCNpBWNWOOaBCwlQ0v4sl7ZUkxCymh5pfFNAjhc=')
+      expect(hash).to match ('F5-Secure-Vault')
+    end
+  end
+
+  describe 'identify_mscash' do
+    it 'returns mscash' do
+      hash = identify_hash('M$3060147285011#4dd8965d1d476fa0d026722989a6b772:::')
+      expect(hash).to match ('mscash')
+    end
+  end
+
+  describe 'identify_mscash2' do
+    it 'returns mscash2' do
+      hash = identify_hash('$DCC2$10240#username#5f9d79a71fa6d92c31cf16d6eaa23435:::')
+      expect(hash).to match ('mscash2')
+    end
+  end
+
   describe 'identify_empty_string' do
     it 'returns empty string' do
       hash = identify_hash('')
@@ -300,5 +321,4 @@ RSpec.describe 'hashes/identify' do
       expect(hash).to match('')
     end
   end
-
 end

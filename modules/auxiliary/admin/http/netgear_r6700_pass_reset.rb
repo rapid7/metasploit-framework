@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
               'Stability' => [ CRASH_SERVICE_DOWN ] # This module will crash the target service after it is run.
             },
         'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
-        'DisclosureDate' => 'Jun 15 2020',
+        'DisclosureDate' => '2020-06-15',
         'DefaultTarget' => 0
       )
     )

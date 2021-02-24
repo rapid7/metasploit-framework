@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/command_dispatcher/creds'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
@@ -36,7 +34,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         let(:nonblank_password)   { 'nonblank_pass' }
 
         let!(:origin) { FactoryBot.create(:metasploit_credential_origin_import) }
-        
+
         let!(:priv) { FactoryBot.create(:metasploit_credential_password, data: password) }
         let!(:pub) { FactoryBot.create(:metasploit_credential_username, username: username) }
         let!(:blank_pub) { blank_pub = FactoryBot.create(:metasploit_credential_blank_username) }
@@ -50,14 +48,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             public: pub,
             realm: nil,
             workspace: framework.db.workspace)
-          
+
           FactoryBot.create(:metasploit_credential_core,
             origin: origin,
             private: nonblank_priv,
             public: blank_pub,
             realm: nil,
             workspace: framework.db.workspace)
-            
+
           FactoryBot.create(:metasploit_credential_core,
             origin: origin,
             private: blank_priv,
@@ -75,7 +73,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               '',
               'host  origin  service  public    private   realm  private_type  JtR Format',
               '----  ------  -------  ------    -------   -----  ------------  ----------',
-              '                       thisuser  thispass         Password      '
+              '                       thisuser  thispass         Password'
             ])
           end
 
@@ -87,7 +85,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               '',
               'host  origin  service  public    private   realm  private_type  JtR Format',
               '----  ------  -------  ------    -------   -----  ------------  ----------',
-              '                       thisuser  thispass         Password      '
+              '                       thisuser  thispass         Password'
             ])
           end
 
@@ -100,7 +98,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 '',
                 'host  origin  service  public  private        realm  private_type  JtR Format',
                 '----  ------  -------  ------  -------        -----  ------------  ----------',
-                '                               nonblank_pass         Password      '
+                '                               nonblank_pass         Password'
               ])
             end
           end
@@ -113,7 +111,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 '',
                 'host  origin  service  public         private  realm  private_type  JtR Format',
                 '----  ------  -------  ------         -------  -----  ------------  ----------',
-                '                       nonblank_user                  Password      '
+                '                       nonblank_user                  Password'
               ])
             end
           end
@@ -210,7 +208,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 '',
                 'host  origin  service  public    private   realm  private_type  JtR Format',
                 '----  ------  -------  ------    -------   -----  ------------  ----------',
-                '                       thisuser  thispass         Password      '
+                '                       thisuser  thispass         Password'
               ])
             end
           end

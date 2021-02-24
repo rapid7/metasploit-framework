@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'rex/proto/sms/model'
 
 RSpec.describe Rex::Proto::Sms::Model::Message do
 

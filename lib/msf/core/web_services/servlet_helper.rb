@@ -1,10 +1,7 @@
 require 'json'
-require 'msf/core/web_services/db_manager_proxy'
-require 'msf/core/web_services/job_processor'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
-require 'rex/ui/text/output/stdio'
 
-module ServletHelper
+module Msf::WebServices::ServletHelper
   include ResponseDataHelper
 
   @@console_printer = Rex::Ui::Text::Output::Stdio.new
@@ -72,7 +69,7 @@ module ServletHelper
 
       exec_async = opts.delete(:exec_async)
       if (exec_async)
-        JobProcessor.instance.submit_job(opts, &job)
+        Msf::WebServices::JobProcessor.instance.submit_job(opts, &job)
         return set_empty_response
       else
         data = job.call(opts)
@@ -85,7 +82,7 @@ module ServletHelper
   end
 
   def get_db
-    DBManagerProxy.instance.db
+    Msf::WebServices::DBManagerProxy.instance.db
   end
 
   # Sinatra injects extra parameters for some reason: https://github.com/sinatra/sinatra/issues/453
@@ -200,7 +197,7 @@ module ServletHelper
   #   # => { "id" => 1, "name" => "Konata Izumi", "age" => 16,
   #   #     "created_at" => "2006/08/01", "awesome" => true}
   #
-  #   ActiveRecord::Base.include_root_in_json = true
+  #   ApplicationRecord.include_root_in_json = true
   #
   #   user.as_json
   #   # => { "user" => { "id" => 1, "name" => "Konata Izumi", "age" => 16,

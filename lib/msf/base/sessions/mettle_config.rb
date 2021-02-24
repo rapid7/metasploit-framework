@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/uuid/options'
 require 'base64'
 require 'securerandom'
 

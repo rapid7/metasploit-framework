@@ -43,7 +43,8 @@ module Assemblies
   VERSIONS = {
     '4.0.0.0' => {
       'mscorlib' => StrongName.new('mscorlib', '4.0.0.0', 'b77a5c561934e089'),
-      'System' => StrongName.new('System', '4.0.0.0', 'b77a5c561934e089')
+      'System' => StrongName.new('System', '4.0.0.0', 'b77a5c561934e089'),
+      'System.Configuration.Install' => StrongName.new('System.Configuration.Install', '4.0.0.0', 'b03f5f7f11d50a3a')
     }
   }
 

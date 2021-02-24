@@ -1,0 +1,141 @@
+# -*- coding: binary -*-
+
+#
+# This mixin is a simplistic implementation of ZeroMQ as used by SaltStack Salt
+#
+# ZMTP 3.0 RFC: https://rfc.zeromq.org/spec/23/
+# Wireshark dissector: https://github.com/whitequark/zmtp-wireshark
+#
+# TODO: Please iterate on this! I spent little time going over the protocol :(
+#
+
+module Msf::Exploit::Remote::ZeroMQ
+
+  ZEROMQ_SIGNATURE = "\xff\x00\x00\x00\x00\x00\x00\x00\x01\x7f".freeze
+  ZEROMQ_VERSION = "\x03".freeze
+
+  include Msf::Exploit::Remote::Tcp
+
+  def zmq_connect
+    print_status("Connecting to ZeroMQ service at #{peer}")
+    connect
+  end
+
+  def zmq_disconnect
+    vprint_status("Disconnecting from #{peer}")
+    disconnect
+  end
+
+  # Replay the ZeroMQ elbow bump
+  def zmq_negotiate(mechanism: 'NULL', client: 'REQ', server: 'ROUTER')
+    zmq_negotiate_signature
+    zmq_negotiate_version
+    zmq_negotiate_security_mechanism(mechanism)
+    zmq_negotiate_ready_command(client, server)
+  end
+
+  def zmq_negotiate_signature
+    print_status('Negotiating signature')
+
+    unless (res = sock.get_once)
+      fail_with(Msf::Exploit::Failure::Unknown, 'Did not receive signature')
+    end
+
+    unless res == ZEROMQ_SIGNATURE
+      fail_with(Msf::Exploit::Failure::UnexpectedReply,
+                "Received invalid signature: #{res.inspect}")
+    end
+
+    vprint_good("Received valid signature: #{res.inspect}")
+
+    vprint_status('Sending identical signature')
+    sock.put(res)
+  end
+
+  def zmq_negotiate_version
+    print_status('Negotiating version')
+
+    unless (res = sock.get_once)
+      fail_with(Msf::Exploit::Failure::Unknown, 'Did not receive version')
+    end
+
+    unless res == ZEROMQ_VERSION
+      fail_with(Msf::Exploit::Failure::UnexpectedReply,
+                "Received incompatible version: #{res.inspect}")
+    end
+
+    vprint_good("Received compatible version: #{res.inspect}")
+
+    vprint_status('Sending identical version')
+    sock.put(res)
+  end
+
+  def zmq_negotiate_security_mechanism(mechanism = 'NULL')
+    print_status("Negotiating #{mechanism} security mechanism")
+
+    unless (res = sock.get_once)
+      fail_with(Msf::Exploit::Failure::Unknown, 'Did not receive security mechanism')
+    end
+
+    unless res.include?(mechanism)
+      fail_with(
+        Msf::Exploit::Failure::UnexpectedReply,
+        "Did not receive #{mechanism} security mechanism: #{res.inspect}"
+      )
+    end
+
+    vprint_good("Received #{mechanism} security mechanism")
+
+    vprint_status("Sending #{mechanism} security mechanism")
+    sock.put(res)
+  end
+
+  def zmq_negotiate_ready_command(client = 'REQ', server = 'ROUTER')
+    print_status("Sending READY command of type #{client}")
+
+    # 0x04 indicates an 8-bit command length
+    sock.put(
+      "\x04\x26" \
+      "\x05READY" \
+      "\x0bSocket-Type" \
+      "\x00\x00\x00#{[client.length].pack('C')}#{client}" \
+      "\x08Identity" \
+      "\x00\x00\x00\x00"
+    )
+
+    unless (res = sock.get_once)
+      fail_with(Msf::Exploit::Failure::Unknown, 'Did not receive READY reply')
+    end
+
+    unless res.match(/READY.+Socket-Type.+#{server}.+Identity/m)
+      fail_with(
+        Msf::Exploit::Failure::UnexpectedReply,
+        "Did not receive READY reply of type #{server}: #{res.inspect}"
+      )
+    end
+
+    vprint_good("Received READY reply of type #{server}")
+  end
+
+  def zmq_send_message(msg = '')
+    # 0x02 indicates a 64-bit message length
+    sock.put(
+      "\x01\x00" \
+      "\x02#{[msg.length].pack('Q>')}#{msg}"
+    )
+  end
+
+  # NOTE: This is Salt-specific code to serialize a cleartext MessagePack "load"
+  def serialize_clear_load(load_hash = {})
+    clear_load = {
+      'enc' => 'clear',
+      'load' => load_hash
+    }
+
+    # XXX: Strings NEED to be UTF-8 here, NOT binary!
+    # rubocop:disable Security/Eval
+    eval(clear_load.to_s.force_encoding(::Encoding::UTF_8)).to_msgpack
+    # rubocop:enable Security/Eval
+  end
+
+end

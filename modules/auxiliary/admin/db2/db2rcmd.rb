@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '4180' ],
           [ 'BID', '9821' ],
         ],
-      'DisclosureDate' => 'Mar 4 2004'))
+      'DisclosureDate' => '2004-03-04'))
 
       register_options(
         [
@@ -31,12 +31,14 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin']),
           OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'])
         ])
+
+      deregister_options('SMB::ProtocolVersion')
   end
 
   def run
 
     print_status("Connecting to the server...")
-    connect()
+    connect(versions: [1])
 
     print_status("Authenticating as user '#{datastore['SMBUser']}' with pass '#{datastore['SMBPass']}'...")
 

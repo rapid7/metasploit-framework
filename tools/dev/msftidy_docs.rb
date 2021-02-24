@@ -116,7 +116,7 @@ class MsftidyDoc
   def check_start_with_vuln_app
     unless @lines.first =~ /^## Vulnerable Application$/
       warn('Docs should start with ## Vulnerable Application')
-    end 
+    end
   end
 
   def has_h2_headings
@@ -215,8 +215,17 @@ class MsftidyDoc
     @lines.each do |ln|
       idx += 1
 
-      if ln.scan(/```/).length.odd?
-        in_codeblock = !in_codeblock
+      tback = ln.scan(/```/)
+      if tback.length > 0
+        if tback.length.even?
+          warn("Should use single backquotes (`) for single line literals instead of triple backquotes (```)", idx)
+        else
+          in_codeblock = !in_codeblock
+        end
+
+        if ln =~ /^\s+```/
+          warn("Code blocks using triple backquotes (```) should not be indented", idx)
+        end
       end
 
       if ln =~ /## Options/
@@ -250,7 +259,7 @@ class MsftidyDoc
       end
 
       l = 140
-      if ln.length > l && !in_codeblock
+      if ln.rstrip.length > l && !in_codeblock
         warn("Line too long (#{ln.length}).  Consider a newline (which resolves to a space in markdown) to break it up around #{l} characters.", idx)
       end
 

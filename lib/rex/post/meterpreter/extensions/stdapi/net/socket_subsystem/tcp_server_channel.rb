@@ -29,15 +29,15 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   #
   # This is the request handler which is registered to the respective meterpreter instance via
   # Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket. All incoming requests from the meterpreter
-  # for a 'tcp_channel_open' will be processed here. We create a new TcpClientChannel for each request
+  # for a COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN will be processed here. We create a new TcpClientChannel for each request
   # received and store it in the respective tcp server channels list of new pending client channels.
   # These new tcp client channels are passed off via a call the the tcp server channels accept() method.
   #
   def self.request_handler(client, packet)
-    return false unless packet.method == "tcp_channel_open"
+    return false unless packet.method == COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN
 
-    cid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_ID )
-    pid       = packet.get_tlv_value( TLV_TYPE_CHANNEL_PARENTID )
+    cid = packet.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+    pid = packet.get_tlv_value(TLV_TYPE_CHANNEL_PARENTID)
 
     return false if cid.nil? || pid.nil?
 

@@ -29,9 +29,8 @@ def require_deps
   $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
   require 'rex'
-  require 'msf/ui'
-  require 'msf/base'
   require 'msf/core/payload_generator'
+  require 'msf/core/constants'
 
   @framework_loaded = true
 end
@@ -49,10 +48,10 @@ def init_framework(create_opts={})
   ]
 
   create_opts[:module_types].map! do |type|
-    type = Msf.const_get("MODULE_#{type.upcase}")
+    Msf.const_get("MODULE_#{type.upcase}")
   end
 
-  @framework = ::Msf::Simple::Framework.create
+  @framework = ::Msf::Simple::Framework.create(create_opts)
 end
 
 # Cached framework object

@@ -8,7 +8,7 @@ module Msf::DBManager::Task
 
   def report_task(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     opts = opts.clone()
     opts.delete(:workspace)
@@ -52,7 +52,7 @@ module Msf::DBManager::Task
   # This methods returns a list of all tasks in the database
   #
   def tasks(wspace=framework.db.workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.tasks
   }
   end

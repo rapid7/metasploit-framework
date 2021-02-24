@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/linux/system'
 
 module Msf::Post::Unix
 

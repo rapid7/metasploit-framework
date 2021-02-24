@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/dns'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Enumeration
   include Msf::Auxiliary::Report
@@ -22,9 +20,9 @@ class MetasploitModule < Msf::Auxiliary
           More precisely, this module uses multiple data sources (in order ViewDNS.info, DNS enumeration
           and Censys) to collect assigned (or have been assigned) IP addresses from the targeted site or domain
           that uses the following:
-            * Amazon Cloudflare, Amazon CloudFront, ArvanCloud, Envoy Proxy, Fastly, Stackpath Fireblade,
-              Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Microsoft AzureCDN,
-              Netlify and Sucuri.
+          * Cloudflare, Amazon CloudFront, ArvanCloud, Envoy Proxy, Fastly, Stackpath Fireblade,
+          Stackpath MaxCDN, Imperva Incapsula, InGen Security (BinarySec EasyWAF), KeyCDN, Microsoft AzureCDN,
+          Netlify and Sucuri.
         },
         'Author' => [
           'mekhalleh (RAMELLA Sébastien)' # https://www.pirates.re/
@@ -36,62 +34,90 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Actions' => [
           ['Automatic', {}],
-          ['Amazon CloudFlare', {
-            'Description' => 'Cloud based Web application firewall of Amazon',
-            'Signatures' => ['server: cloudflare']
-          }],
-          ['Amazon CloudFront', {
-            'Description' => 'Content Delivery Network services of Amazon',
-            'Signatures' => ['x-amz-cf-id:']
-          }],
-          ['ArvanCloud CDN', {
-            'Description' => 'ArvanCloud CDN comprises tens of PoP sites in important locations all around the world to deliver online content to the users',
-            'Signatures' => ['server: ArvanCloud']
-          }],
-          ['AzureCDN', {
-            'Description' => 'Microsoft Azure Content Delivery Network (CDN) is a global content distribution network solution for delivering high bandwidth content',
-            'Signatures' => []
-          }],
-          ['Envoy Proxy', {
-            'Description' => 'An open source edge and service proxy, designed for Cloud-Native applications',
-            'Signatures' => ['server: envoy']
-          }],
-          ['Fastly', {
-            'Description' => 'Another widely used CDN/WAF solution',
-            'Signatures' => ['Fastly-SSL']
-          }],
-          ['Imperva Incapsula', {
-            'Description' => 'Cloud based Web application firewall of Imperva',
-            'Signatures' => ['X-CDN: Incapsula', '_incap_']
-          }],
-          ['InGen Security (BinarySec EasyWAF)', { # Reunion island powa!
-            'Description' => 'Cloud based Web application firewall of InGen Security and BinarySec',
-            'Signatures' => ['binarysec', 'server: gatejs']
-          }],
-          ['KeyCDN', {
-            'Description' => 'KeyCDN is a high performance content delivery network that has been built for the future', # lol
-            'Signatures' => ['Server: keycdn-engine']
-          }],
-          ['Netlifi', {
-            'Description' => 'One workflow, from local development to global deployment',
-            'Signatures' => ['x-nf-request-id:']
-          }],
-          ['NoWAFBypass', {
-            'Description' => 'Do NOT check any bypass method',
-            'Signatures' => []
-          }],
-          ['Stackpath Fireblade', {
-            'Description' => 'Enterprise Website Security & DDoS Protection',
-            'Signatures' => ['Server: fbs']
-          }],
-          ['Stackpath MaxCDN', {
-            'Description' => 'Speed Up your Content Delivery',
-            'Signatures' => ['Server: NetDNA-cache']
-          }],
-          ['Sucuri', {
-            'Description' => 'Cloud based Web application firewall of Sucuri',
-            'Signatures' => ['x-sucuri-id:']
-          }],
+          [
+            'CloudFlare', {
+              'Description' => 'Cloudflare provides SaaS based CDN, WAF, DNS and DDoS mitigation services.',
+              'Signatures' => ['server: cloudflare']
+            }
+          ],
+          [
+            'Amazon CloudFront', {
+              'Description' => 'Content Delivery Network services of Amazon',
+              'Signatures' => ['x-amz-cf-id:']
+            }
+          ],
+          [
+            'ArvanCloud CDN', {
+              'Description' => 'ArvanCloud CDN comprises tens of PoP sites in important locations all around the world to deliver online content to the users',
+              'Signatures' => ['server: ArvanCloud']
+            }
+          ],
+          [
+            'AzureCDN', {
+              'Description' => 'Microsoft Azure Content Delivery Network (CDN) is a global content distribution network solution for delivering high bandwidth content',
+              'Signatures' => []
+            }
+          ],
+          [
+            'Envoy Proxy', {
+              'Description' => 'An open source edge and service proxy, designed for Cloud-Native applications',
+              'Signatures' => ['server: envoy']
+            }
+          ],
+          [
+            'Fastly', {
+              'Description' => 'Another widely used CDN/WAF solution',
+              'Signatures' => ['Fastly-SSL']
+            }
+          ],
+          [
+            'Imperva Incapsula', {
+              'Description' => 'Cloud based Web application firewall of Imperva',
+              'Signatures' => ['X-CDN: Incapsula', '_incap_']
+            }
+          ],
+          [
+            'InGen Security (BinarySec EasyWAF)', { # Reunion island powa!
+              'Description' => 'Cloud based Web application firewall of InGen Security and BinarySec',
+              'Signatures' => ['binarysec', 'server: gatejs']
+            }
+          ],
+          [
+            'KeyCDN', {
+              'Description' => 'KeyCDN is a high performance content delivery network that has been built for the future', # lol
+              'Signatures' => ['Server: keycdn-engine']
+            }
+          ],
+          [
+            'Netlifi', {
+              'Description' => 'One workflow, from local development to global deployment',
+              'Signatures' => ['x-nf-request-id:']
+            }
+          ],
+          [
+            'NoWAFBypass', {
+              'Description' => 'Do NOT check any bypass method',
+              'Signatures' => []
+            }
+          ],
+          [
+            'Stackpath Fireblade', {
+              'Description' => 'Enterprise Website Security & DDoS Protection',
+              'Signatures' => ['Server: fbs']
+            }
+          ],
+          [
+            'Stackpath MaxCDN', {
+              'Description' => 'Speed Up your Content Delivery',
+              'Signatures' => ['Server: NetDNA-cache']
+            }
+          ],
+          [
+            'Sucuri', {
+              'Description' => 'Cloud based Web application firewall of Sucuri',
+              'Signatures' => ['x-sucuri-id:']
+            }
+          ],
         ],
         'DefaultAction' => 'Automatic'
       )
@@ -130,7 +156,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # ------------------------------------------------------------------------- #
-
 
   # auxiliary/gather/censys_search.rb
   def censys_search(keyword, search_type, uid, secret)
@@ -313,7 +338,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           # Searches for the chain to compare in the defined tag.
           found = true if html.at(datastore['TAG']).to_s.include? fingerprint.to_s.encode('utf-8')
-        rescue NoMethodError, Encoding::CompatibilityError
+        rescue NoMethodError, ::Encoding::CompatibilityError
           return false
         end
 
@@ -333,7 +358,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_line("      --> responded with HTTP status code: #{response.code} to #{response.headers['location']}")
         begin
           found = true if response.headers['location'].include?(datastore['hostname'])
-        rescue NoMethodError, Encoding::CompatibilityError
+        rescue NoMethodError, ::Encoding::CompatibilityError
           return false
         end
 

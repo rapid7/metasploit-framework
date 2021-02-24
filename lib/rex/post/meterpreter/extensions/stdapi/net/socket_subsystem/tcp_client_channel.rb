@@ -101,7 +101,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
   def shutdown(how = 1)
     return false if self.cid.nil?
 
-    request = Packet.create_request('stdapi_net_socket_tcp_shutdown')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_SOCKET_TCP_SHUTDOWN)
 
     request.add_tlv(TLV_TYPE_SHUTDOWN_HOW, how)
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)

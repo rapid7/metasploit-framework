@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
 
 module Msf
 class Post
@@ -32,11 +31,6 @@ module Priv
   #
   # Multiple functions to simulate native commands added
   #
-
-  def download_cmd(remote_path, local_path)
-    file_origin = read_file(remote_path)
-    `echo "#{file_origin}" > #{local_path}`
-  end
 
   def touch_cmd(new_path_file)
     cmd_exec("> #{new_path_file}")

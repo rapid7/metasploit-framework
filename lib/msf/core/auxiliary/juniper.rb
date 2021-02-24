@@ -26,17 +26,19 @@ module Auxiliary::Juniper
       :os_name => 'Juniper ScreenOS'
     })
 
-    credential_data = {
-      address: thost,
-      port: tport,
-      protocol: 'tcp',
-      workspace_id: myworkspace.id,
-      origin_type: :service,
-      service_name: '',
-      private_type: :nonreplayable_hash,
-      module_fullname: self.fullname,
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }
+    if framework.db.active
+      credential_data = {
+        address: thost,
+        port: tport,
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        service_name: '',
+        private_type: :nonreplayable_hash,
+        module_fullname: self.fullname,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+    end
 
     store_loot('juniper.netscreen.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper Netscreen Configuration')
 
@@ -48,6 +50,7 @@ module Auxiliary::Juniper
       admin_name = result[0].strip
       admin_hash = result[1].strip
       print_good("Admin user #{admin_name} found with password hash #{admin_hash}")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:username] = admin_name
       cred[:private_data] = admin_hash
@@ -66,6 +69,7 @@ module Auxiliary::Juniper
       user_enable = result[4].strip
       user_hash = result[3].strip
       print_good("User #{user_uid} named #{user_name} found with password hash #{user_hash}. Enable permission: #{user_enable}")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:username] = user_name
       cred[:jtr_format] = 'sha1'
@@ -80,6 +84,7 @@ module Auxiliary::Juniper
       snmp_community = result[0].strip
       snmp_permissions = result[1].strip
       print_good("SNMP community #{snmp_community} with permissions #{snmp_permissions}")
+      next unless framework.db.active
       cred = credential_data.dup
       if snmp_permissions.downcase == 'read-write'
         cred[:access_level] = 'RW'
@@ -105,10 +110,11 @@ module Auxiliary::Juniper
       ppp_hash = result[3].strip
       ppp_authtype = result[1].strip
       print_good("PPTP Profile #{ppp_name} with username #{ppp_username} hash #{ppp_hash} via #{ppp_authtype}")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:username] = ppp_username
       cred[:private_data] = ppp_hash
-      cred[:service_name] = 'PPTP'
+      cred[:service_name] = 'pptp'
       cred[:port] = 1723
       create_credential_and_login(cred)
     end
@@ -122,10 +128,11 @@ module Auxiliary::Juniper
       ike_password = result[2].strip
       ike_method = result[3].strip
       print_good("IKE Profile #{ike_name} to #{ike_address} with password #{ike_password} via #{ike_method}")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:private_data] = ike_password
       cred[:private_type] = :password
-      cred[:service_name] = 'IKE'
+      cred[:service_name] = 'ike'
       cred[:port] = 500
       cred[:address] = ike_address
       cred[:protocol] = 'udp'
@@ -143,17 +150,19 @@ module Auxiliary::Juniper
     })
 
 
-    credential_data = {
-      address: thost,
-      port: tport,
-      protocol: 'tcp',
-      workspace_id: myworkspace.id,
-      origin_type: :service,
-      private_type: :nonreplayable_hash,
-      service_name: '',
-      module_fullname: self.fullname,
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }
+    if framework.db.active
+      credential_data = {
+        address: thost,
+        port: tport,
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        private_type: :nonreplayable_hash,
+        service_name: '',
+        module_fullname: self.fullname,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+    end
 
     store_loot('juniper.junos.config', 'text/plain', thost, config.strip, 'config.txt', 'Juniper JunOS Configuration')
 
@@ -171,11 +180,13 @@ module Auxiliary::Juniper
       jtr_format = identify_hash root_hash
 
       print_good("root password hash: #{root_hash}")
-      cred = credential_data.dup
-      cred[:username] = 'root'
-      cred[:jtr_format] = jtr_format
-      cred[:private_data] = root_hash
-      create_credential_and_login(cred)
+      if framework.db.active
+        cred = credential_data.dup
+        cred[:username] = 'root'
+        cred[:jtr_format] = jtr_format
+        cred[:private_data] = root_hash
+        create_credential_and_login(cred)
+      end
     end
 
     # access privileges https://kb.juniper.net/InfoCenter/index?page=content&id=KB10902
@@ -187,6 +198,7 @@ module Auxiliary::Juniper
       jtr_format = identify_hash user_hash
 
       print_good("User #{user_uid} named #{user_name} in group #{user_permission} found with password hash #{user_hash}.")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:username] = user_name
       cred[:jtr_format] = jtr_format
@@ -199,6 +211,7 @@ module Auxiliary::Juniper
       snmp_community = result[0].strip
       snmp_permissions = result[1].strip
       print_good("SNMP community #{snmp_community} with permissions read-#{snmp_permissions}")
+      next unless framework.db.active
       cred = credential_data.dup
       if snmp_permissions.downcase == 'write'
         cred[:access_level] = 'RW'
@@ -217,6 +230,7 @@ module Auxiliary::Juniper
       radius_hash = result[1].strip
       radius_server = result[0].strip
       print_good("radius server #{radius_server} password hash: #{radius_hash}")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:address] = radius_server
       cred[:port] = 1812
@@ -230,6 +244,7 @@ module Auxiliary::Juniper
       ppp_username = result[0].strip
       ppp_hash = result[1].strip
       print_good("PPTP username #{ppp_username} hash #{ppp_hash} via PAP")
+      next unless framework.db.active
       cred = credential_data.dup
       cred[:username] = ppp_username
       cred[:private_data] = ppp_hash

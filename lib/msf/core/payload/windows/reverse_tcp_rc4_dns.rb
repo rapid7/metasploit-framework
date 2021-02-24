@@ -1,10 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/reverse_tcp_rc4'
-require 'msf/core/payload/windows/reverse_tcp_dns'
-
 module Msf
 
 ###

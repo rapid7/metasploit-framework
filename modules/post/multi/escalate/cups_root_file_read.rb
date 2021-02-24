@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
           "Jann Horn", # discovery
           "joev" # metasploit module
         ],
-      'DisclosureDate' => 'Nov 20 2012',
+      'DisclosureDate' => '2012-11-20',
       'Platform'       => %w{ linux osx }
     }))
     register_options([

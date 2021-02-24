@@ -1,5 +1,3 @@
-require 'rex/parser/nexpose_raw_nokogiri'
-require 'rex/parser/nexpose_xml'
 
 module Msf::DBManager::Import::Nexpose::Raw
   def import_nexpose_raw_noko_stream(args, &block)

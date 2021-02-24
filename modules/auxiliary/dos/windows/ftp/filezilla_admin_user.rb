@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '1336' ],
           [ 'OSVDB', '20817' ]
         ],
-      'DisclosureDate' => 'Nov 07 2005'))
+      'DisclosureDate' => '2005-11-07'))
   end
 
   def run

@@ -58,28 +58,29 @@ module Exe
 
     def create_thread_stub_x64
       <<-EOS
+        push rbp
+        mov rbp, rsp
+        sub rsp, 38h
+        and rsp, 0xfffffffffffffff0 ; Ensure RSP is 16 byte aligned
+
         mov rcx, hook_libname
-        sub rsp, 30h
         mov rax, iat_LoadLibraryA
         call [rax]
-        add rsp, 30h
 
         mov rdx, hook_funcname
         mov rcx, rax
-        sub rsp, 30h
         mov rax, iat_GetProcAddress
         call [rax]
-        add rsp, 30h
 
-        push 0
-        push 0
-        mov r9, 0
+        xor ecx, ecx
+        mov qword ptr [rsp+28h], rcx
+        mov qword ptr [rsp+20h], rcx
+        mov r9, rcx
         mov r8, thread_hook
-        mov rdx, 0
-        mov rcx, 0
+        mov rdx, rcx
         call rax
-        add rsp,10h ; clean up the push 0 above
 
+        leave
         jmp entrypoint
 
         hook_libname db 'kernel32', 0

@@ -5,6 +5,7 @@ module CommandDispatcher
 class Evasion
 
   include Msf::Ui::Console::ModuleCommandDispatcher
+  include Msf::Ui::Console::ModuleOptionTabCompletion
 
   def commands
     super.update({
@@ -50,21 +51,31 @@ class Evasion
 
   alias cmd_rexploit cmd_rerun
 
-  def cmd_exploit_tabs(str, words)
+  #
+  # Tab completion for the run command
+  #
+  def cmd_run_tabs(str, words)
     fmt = {
-      '-e' => [ framework.encoders.map { |refname, mod| refname } ],
-      '-f' => [ nil                                               ],
-      '-h' => [ nil                                               ],
-      '-j' => [ nil                                               ],
-      '-J' => [ nil                                               ],
-      '-n' => [ framework.nops.map { |refname, mod| refname }     ],
-      '-o' => [ true                                              ],
-      '-p' => [ framework.payloads.map { |refname, mod| refname } ],
-      '-t' => [ true                                              ],
-      '-z' => [ nil                                               ]
+        '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+        '-f' => [ nil                                               ],
+        '-h' => [ nil                                               ],
+        '-j' => [ nil                                               ],
+        '-J' => [ nil                                               ],
+        '-n' => [ framework.nops.map { |refname, mod| refname }     ],
+        '-o' => [ true                                              ],
+        '-p' => [ framework.payloads.map { |refname, mod| refname } ],
+        '-t' => [ true                                              ],
+        '-z' => [ nil                                               ]
     }
-    tab_complete_generic(fmt, str, words)
+    flags = tab_complete_generic(fmt, str, words)
+    options = tab_complete_option(active_module, str, words)
+    flags + options
   end
+
+  #
+  # Tab completion for the exploit command
+  #
+  alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_to_handler(*_args)
     handler = framework.modules.create('exploit/multi/handler')

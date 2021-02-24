@@ -1,9 +1,7 @@
 require 'rack'
-require 'msf/core/web_services/metasploit_api_app'
 require 'metasploit/framework/parsed_options/remote_db'
-require 'rex/ui/text/output/stdio'
 
-class HttpDBManagerService
+class Msf::WebServices::HttpDBManagerService
 
   def start(opts)
     parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
@@ -26,7 +24,7 @@ class HttpDBManagerService
 
   def start_http_server(opts)
 
-    Rack::Handler::Thin.run(MetasploitApiApp, opts) do |server|
+    Rack::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, opts) do |server|
 
       if opts[:ssl] && opts[:ssl] = true
         print_good('SSL Enabled')
@@ -40,7 +38,7 @@ class HttpDBManagerService
   end
 
   def init_db
-    DBManagerProxy.instance
+    Msf::WebServices::DBManagerProxy.instance
   end
 
   def require_environment!(parsed_options)

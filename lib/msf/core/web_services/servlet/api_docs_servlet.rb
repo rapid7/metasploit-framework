@@ -22,7 +22,7 @@ load 'documentation/api/v1/vuln_attempt_api_doc.rb'
 load 'documentation/api/v1/workspace_api_doc.rb'
 
 
-module ApiDocsServlet
+module Msf::WebServices::ApiDocsServlet
   include Swagger::Blocks
 
   def self.json_path
@@ -34,8 +34,8 @@ module ApiDocsServlet
   end
 
   def self.registered(app)
-    app.get ApiDocsServlet.json_path, &get_api_docs
-    app.get ApiDocsServlet.html_path do
+    app.get Msf::WebServices::ApiDocsServlet.json_path, &get_api_docs
+    app.get Msf::WebServices::ApiDocsServlet.html_path do
       erb :api_docs
     end
   end

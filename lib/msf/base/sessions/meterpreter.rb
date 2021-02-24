@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/ui/console'
 
 module Msf
 module Sessions
@@ -29,7 +27,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   # Override for server implementations that can't do SSL
   def supports_ssl?
@@ -130,16 +128,20 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
       session.init_ui(self.user_input, self.user_output)
 
-      session.tlv_enc_key = session.core.negotiate_tlv_encryption
+      verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
+      begin
+        session.tlv_enc_key = session.core.negotiate_tlv_encryption(timeout: verification_timeout)
+      rescue Rex::TimeoutError
+      end
 
-      unless datastore['AutoVerifySession'] == false
-        unless session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
-          print_error("Meterpreter session #{session.sid} is not valid and will be closed")
-          # Terminate the session without cleanup if it did not validate
-          session.skip_cleanup = true
-          session.kill
-          return nil
-        end
+      if session.tlv_enc_key.nil?
+        # Fail-closed if TLV encryption can't be negotiated (close the session as invalid)
+        dlog("Session #{session.sid} failed to negotiate TLV encryption")
+        print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+        # Terminate the session without cleanup if it did not validate
+        session.skip_cleanup = true
+        session.kill
+        return nil
       end
 
       # always make sure that the new session has a new guid if it's not already known
@@ -152,6 +154,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       else
         # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
+
+      session.commands.concat(session.core.get_loaded_extension_commands('core'))
 
       # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
       if datastore['AutoUnhookProcess'] == true
@@ -409,25 +413,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.disable_output = original
   end
 
-  #
-  # Validate session information by checking for a machine_id response
-  #
-  def is_valid_session?(timeout=10)
-    return true if self.machine_id
-
-    begin
-      self.machine_id = self.core.machine_id(timeout)
-
-      return true
-    rescue ::Rex::Post::Meterpreter::RequestError
-      # This meterpreter doesn't support core_machine_id
-      return true
-    rescue ::Exception => e
-      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
-    end
-    false
-  end
-
   def update_session_info
     # sys.config.getuid, and fs.dir.getwd cache their results, so update them
     fs.dir.getwd
@@ -497,7 +482,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # there
         return if !(framework.db && framework.db.active)
 
-        ::ActiveRecord::Base.connection_pool.with_connection {
+        ::ApplicationRecord.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host

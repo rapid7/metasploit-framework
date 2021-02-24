@@ -953,7 +953,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/reverse_python_ssl'
                           ],
-                          dynamic_size: true,
+                          dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_python_ssl'
   end
@@ -3768,6 +3768,215 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/patchupmeterpreter/reverse_tcp_rc4_dns'
   end
 
+  context 'windows/peinject/bind_hidden_ipknock_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_hidden_ipknock_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_hidden_ipknock_tcp'
+  end
+
+  context 'windows/peinject/bind_hidden_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_hidden_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_hidden_tcp'
+  end
+
+  context 'windows/peinject/bind_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_ipv6_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_ipv6_tcp'
+  end
+
+  context 'windows/peinject/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_ipv6_tcp_uuid',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_ipv6_tcp_uuid'
+  end
+
+  context 'windows/peinject/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_named_pipe',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_named_pipe'
+  end
+
+  context 'windows/peinject/bind_nonx_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_nonx_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_nonx_tcp'
+  end
+
+  context 'windows/peinject/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_tcp'
+  end
+
+  context 'windows/peinject/bind_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_tcp_rc4',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_tcp_rc4'
+  end
+
+  context 'windows/peinject/bind_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/bind_tcp_uuid',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/bind_tcp_uuid'
+  end
+
+  context 'windows/peinject/find_tag' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/findtag_ord',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/find_tag'
+  end
+
+  context 'windows/peinject/reverse_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_ipv6_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_ipv6_tcp'
+  end
+
+  context 'windows/peinject/reverse_nonx_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_nonx_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_nonx_tcp'
+  end
+
+  context 'windows/peinject/reverse_ord_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_ord_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_ord_tcp'
+  end
+
+  context 'windows/peinject/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp'
+  end
+
+  context 'windows/peinject/reverse_tcp_allports' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp_allports',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp_allports'
+  end
+
+  context 'windows/peinject/reverse_tcp_dns' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp_dns',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp_dns'
+  end
+
+  context 'windows/peinject/reverse_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp_rc4',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp_rc4'
+  end
+
+  context 'windows/peinject/reverse_tcp_rc4_dns' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp_rc4_dns',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp_rc4_dns'
+  end
+
+  context 'windows/peinject/reverse_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_tcp_uuid',
+                              'stages/windows/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/peinject/reverse_tcp_uuid'
+  end
+
   context 'windows/pingback_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4581,6 +4790,116 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter_reverse_tcp'
+  end
+
+  context 'windows/x64/peinject/bind_ipv6_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_ipv6_tcp',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_ipv6_tcp'
+  end
+
+  context 'windows/x64/peinject/bind_ipv6_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_ipv6_tcp_uuid',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_ipv6_tcp_uuid'
+  end
+
+  context 'windows/x64/peinject/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_named_pipe',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_named_pipe'
+  end
+
+  context 'windows/x64/peinject/bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_tcp'
+  end
+
+  context 'windows/x64/peinject/bind_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp_rc4',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_tcp_rc4'
+  end
+
+  context 'windows/x64/peinject/bind_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/bind_tcp_uuid',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/bind_tcp_uuid'
+  end
+
+  context 'windows/x64/peinject/reverse_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_named_pipe',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/reverse_named_pipe'
+  end
+
+  context 'windows/x64/peinject/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_tcp',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/reverse_tcp'
+  end
+
+  context 'windows/x64/peinject/reverse_tcp_rc4' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_tcp_rc4',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/reverse_tcp_rc4'
+  end
+
+  context 'windows/x64/peinject/reverse_tcp_uuid' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_tcp_uuid',
+                              'stages/windows/x64/peinject'
+                          ],
+                          dynamic_size: true,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/peinject/reverse_tcp_uuid'
   end
 
   context 'windows/x64/powershell_bind_tcp' do

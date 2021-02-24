@@ -56,7 +56,7 @@ module Metasploit
             if @version.nil? || @version !~ /^[2349]/
               return "Unsupported version ('#{@version}')"
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
 

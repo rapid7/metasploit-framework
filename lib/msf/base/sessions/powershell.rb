@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base/sessions/command_shell'
 
 class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #
@@ -13,7 +12,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       username = $1
       hostname = $2
       self.info = "#{username} @ #{hostname}"
-    else
+    elsif initial_output
       self.info = initial_output.gsub(/[\r\n]/, ' ')
     end
 

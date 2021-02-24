@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           'xistence'  # Vulnerability discovery and Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Jan 28 2014"
+      'DisclosureDate' => '2014-01-28'
     ))
 
     register_options(

@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 require 'rex/text'
 require 'tmpdir'
 require 'nokogiri'
@@ -28,7 +27,7 @@ class Msf::Payload::Apk
 
   def run_cmd(cmd)
     begin
-      stdin, stdout, stderr = Open3.popen3(cmd)
+      stdin, stdout, stderr = Open3.popen3(*cmd)
       return stdout.read + stderr.read
     rescue Errno::ENOENT
       return nil
@@ -125,7 +124,7 @@ class Msf::Payload::Apk
 
   def parse_orig_cert_data(orig_apkfile)
     orig_cert_data = Array[]
-    keytool_output = run_cmd(%Q{keytool -J-Duser.language=en -printcert -jarfile "#{orig_apkfile}"})
+    keytool_output = run_cmd(['keytool', '-J-Duser.language=en', '-printcert', '-jarfile', orig_apkfile])
     owner_line = keytool_output.match(/^Owner:.+/)[0]
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
     orig_cert_data.push("#{orig_cert_dname}")
@@ -146,7 +145,7 @@ class Msf::Payload::Apk
       raise RuntimeError, "Invalid template: #{apkfile}"
     end
 
-    apktool = run_cmd("apktool -version")
+    apktool = run_cmd(%w[apktool -version])
     unless apktool != nil
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
@@ -166,17 +165,17 @@ class Msf::Payload::Apk
     end
 
     if signature
-      keytool = run_cmd("keytool")
+      keytool = run_cmd(['keytool'])
       unless keytool != nil
         raise RuntimeError, "keytool not found. If it's not in your PATH, please add it."
       end
 
-      jarsigner = run_cmd("jarsigner")
+      jarsigner = run_cmd(['jarsigner'])
       unless jarsigner != nil
         raise RuntimeError, "jarsigner not found. If it's not in your PATH, please add it."
       end
 
-      zipalign = run_cmd("zipalign")
+      zipalign = run_cmd(['zipalign'])
       unless zipalign != nil
         raise RuntimeError, "zipalign not found. If it's not in your PATH, please add it."
       end
@@ -191,16 +190,17 @@ class Msf::Payload::Apk
       orig_cert_validity = orig_cert_data[2]
 
       print_status "Creating signing key and keystore..\n"
-      run_cmd("keytool -genkey -v -keystore #{keystore} \
-      -alias #{keyalias} -storepass #{storepass} -keypass #{keypass} -keyalg RSA \
-      -keysize 2048 -startdate '#{orig_cert_startdate}' \
-      -validity #{orig_cert_validity} -dname '#{orig_cert_dname}'")
+      run_cmd([
+        'keytool', '-genkey', '-v', '-keystore', keystore, '-alias', keyalias, '-storepass', storepass,
+        '-keypass', keypass, '-keyalg', 'RSA', '-keysize', '2048', '-startdate', orig_cert_startdate,
+        '-validity', orig_cert_validity, '-dname', orig_cert_dname
+      ])
     end
 
     print_status "Decompiling original APK..\n"
-    run_cmd("apktool d #{tempdir}/original.apk -o #{tempdir}/original")
+    run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
     print_status "Decompiling payload APK..\n"
-    run_cmd("apktool d #{tempdir}/payload.apk -o #{tempdir}/payload")
+    run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
 
     amanifest = parse_manifest("#{tempdir}/original/AndroidManifest.xml")
 
@@ -276,7 +276,7 @@ class Msf::Payload::Apk
     end
 
     print_status "Rebuilding apk with meterpreter injection as #{injected_apk}\n"
-    apktool_output = run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
+    apktool_output = run_cmd(['apktool', 'b', '-o', injected_apk, "#{tempdir}/original"])
     unless File.readable?(injected_apk)
       print_error apktool_output
       raise RuntimeError, "Unable to rebuild apk with apktool"
@@ -284,9 +284,12 @@ class Msf::Payload::Apk
 
     if signature
       print_status "Signing #{injected_apk}\n"
-      run_cmd("jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore #{keystore} -storepass #{storepass} -keypass #{keypass} #{injected_apk} #{keyalias}")
+      run_cmd([
+        'jarsigner', '-sigalg', 'SHA1withRSA', '-digestalg', 'SHA1', '-keystore', keystore,
+        '-storepass', storepass, '-keypass', keypass, injected_apk, keyalias
+      ])
       print_status "Aligning #{injected_apk}\n"
-      run_cmd("zipalign 4 #{injected_apk} #{aligned_apk}")
+      run_cmd(['zipalign', '4', injected_apk, aligned_apk])
     else
       aligned_apk = injected_apk
     end

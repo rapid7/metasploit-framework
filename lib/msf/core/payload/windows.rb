@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 #
@@ -11,7 +10,6 @@ require 'msf/core'
 ###
 module Msf::Payload::Windows
 
-  require 'msf/core/payload/windows/prepend_migrate'
 
   # Provides the #prepends method
   # XXX: For some unfathomable reason, the order of requires here is
@@ -20,14 +18,6 @@ module Msf::Payload::Windows
   # somehow not have PrependMigrate despite having Payload::Windows,
   # which leads to a NoMethodError on #prepends
   include Msf::Payload::Windows::PrependMigrate
-
-  require 'msf/core/payload/windows/dllinject'
-  require 'msf/core/payload/windows/exec'
-  require 'msf/core/payload/windows/loadlibrary'
-  require 'msf/core/payload/windows/meterpreter_loader'
-  require 'msf/core/payload/windows/x64/meterpreter_loader'
-  require 'msf/core/payload/windows/reflectivedllinject'
-  require 'msf/core/payload/windows/x64/reflectivedllinject'
 
   #
   # ROR hash associations for some of the exit technique routines.

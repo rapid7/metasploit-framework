@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/reflective_dll_loader'
-require 'rex/payloads/meterpreter/config'
 
 module Msf
 

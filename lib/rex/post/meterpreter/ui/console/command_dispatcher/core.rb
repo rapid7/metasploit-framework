@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'set'
 require 'rex/post/meterpreter'
-require 'rex/parser/arguments'
+require 'rex'
 
 module Rex
 module Post
@@ -47,7 +47,7 @@ class Console::CommandDispatcher::Core
   # List of supported commands.
   #
   def commands
-    c = {
+    cmds = {
       '?'                        => 'Help menu',
       'background'               => 'Backgrounds the current session',
       'bg'                       => 'Alias for background',
@@ -69,55 +69,57 @@ class Console::CommandDispatcher::Core
       'run'                      => 'Executes a meterpreter script or Post module',
       'bgrun'                    => 'Executes a meterpreter script as a background thread',
       'bgkill'                   => 'Kills a background meterpreter script',
-      'get_timeouts'             => 'Get the current session timeout values',
-      'set_timeouts'             => 'Set the current session timeout values',
       'sessions'                 => 'Quickly switch to another session',
       'bglist'                   => 'Lists running background scripts',
       'write'                    => 'Writes data to a channel',
       'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
-      'disable_unicode_encoding' => 'Disables encoding of unicode strings'
+      'disable_unicode_encoding' => 'Disables encoding of unicode strings',
+      'migrate'                  => 'Migrate the server to another process',
+      'pivot'                    => 'Manage pivot listeners',
+      # transport related commands
+      'detach'                   => 'Detach the meterpreter session (for http/https)',
+      'sleep'                    => 'Force Meterpreter to go quiet, then re-establish session',
+      'transport'                => 'Manage the transport mechanisms',
+      'get_timeouts'             => 'Get the current session timeout values',
+      'set_timeouts'             => 'Set the current session timeout values',
+      'ssl_verify'               => 'Modify the SSL certificate verification setting'
     }
 
-    if client.passive_service
-      c['detach'] = 'Detach the meterpreter session (for http/https)'
-    end
-
-    # Currently we have some windows-specific core commands`
-    if client.platform == 'windows'
-      # only support the SSL switching for HTTPS
-      if client.passive_service && client.sock.type? == 'tcp-ssl'
-        c['ssl_verify'] = 'Modify the SSL certificate verification setting'
-      end
-
-      c['pivot'] = 'Manage pivot listeners'
-    end
-
-    if client.platform == 'windows' || client.platform == 'linux'
-      # Migration only supported on windows and linux
-      c['migrate'] = 'Migrate the server to another process'
-    end
-
-    # TODO: This code currently checks both platform and architecture for the python
-    # and java types because technically the platform should be updated to indicate
-    # the OS platform rather than the meterpreter arch. When we've properly implemented
-    # the platform update feature we can remove some of these conditions
-    if client.platform == 'windows' || client.platform == 'linux' ||
-        client.platform == 'python' || client.arch == ARCH_PYTHON ||
-        client.platform == 'java' || client.arch == ARCH_JAVA ||
-        client.platform == 'android' || client.arch == ARCH_DALVIK
-      # Yet to implement transport hopping for other meterpreters.
-      c['transport'] = 'Change the current transport mechanism'
-
-      # sleep functionality relies on the transport features, so only
-      # wire that in with the transport stuff.
-      c['sleep'] = 'Force Meterpreter to go quiet, then re-establish session.'
-    end
-
     if msf_loaded?
-      c['info'] = 'Displays information about a Post module'
+      cmds['info'] = 'Displays information about a Post module'
     end
 
-    c
+    reqs = {
+      'load'         => [COMMAND_ID_CORE_LOADLIB],
+      'machine_id'   => [COMMAND_ID_CORE_MACHINE_ID],
+      'migrate'      => [COMMAND_ID_CORE_MIGRATE],
+      'pivot'        => [COMMAND_ID_CORE_PIVOT_ADD, COMMAND_ID_CORE_PIVOT_REMOVE],
+      'secure'       => [COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION],
+      # channel related commands
+      'read'         => [COMMAND_ID_CORE_CHANNEL_READ],
+      'write'        => [COMMAND_ID_CORE_CHANNEL_WRITE],
+      'close'        => [COMMAND_ID_CORE_CHANNEL_CLOSE],
+      # transport related commands
+      'sleep'        => [COMMAND_ID_CORE_TRANSPORT_SLEEP],
+      'ssl_verify'   => [COMMAND_ID_CORE_TRANSPORT_GETCERTHASH, COMMAND_ID_CORE_TRANSPORT_SETCERTHASH],
+      'transport'    => [
+        COMMAND_ID_CORE_TRANSPORT_ADD,
+        COMMAND_ID_CORE_TRANSPORT_CHANGE,
+        COMMAND_ID_CORE_TRANSPORT_LIST,
+        COMMAND_ID_CORE_TRANSPORT_NEXT,
+        COMMAND_ID_CORE_TRANSPORT_PREV,
+        COMMAND_ID_CORE_TRANSPORT_REMOVE
+      ],
+      'get_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+      'set_timeouts' => [COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS],
+    }
+
+    # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
+    # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+    # filtering for Windows which supports all the filtered commands anyways.
+    reqs.clear if client.base_platform == 'windows'
+
+    filter_commands(cmds, reqs)
   end
 
   #
@@ -137,7 +139,7 @@ class Console::CommandDispatcher::Core
     '-h' => [false, 'View help']
   )
 
-  @@pivot_supported_archs = [ARCH_X64, ARCH_X86]
+  @@pivot_supported_archs = [Rex::Arch::ARCH_X64, Rex::Arch::ARCH_X86]
   @@pivot_supported_platforms = ['windows']
 
   def cmd_pivot_help
@@ -508,6 +510,10 @@ class Console::CommandDispatcher::Core
   # Disconnects the session
   #
   def cmd_detach(*args)
+    unless client.passive_service
+      print_error('The detach command is not applicable with the current transport')
+      return
+    end
     client.shutdown_passive_dispatcher
     shell.stop
   end
@@ -718,7 +724,7 @@ class Console::CommandDispatcher::Core
   @@ssl_verify_opts = Rex::Parser::Arguments.new(
     '-e' => [ false, 'Enable SSL certificate verification' ],
     '-d' => [ false, 'Disable SSL certificate verification' ],
-    '-q' => [ false, 'Query the statis of SSL certificate verification' ],
+    '-q' => [ false, 'Query the status of SSL certificate verification' ],
     '-h' => [ false, 'Help menu' ])
 
   #
@@ -738,6 +744,11 @@ class Console::CommandDispatcher::Core
   def cmd_ssl_verify(*args)
     if ( args.length == 0 or args.include?("-h") )
       cmd_ssl_verify_help
+      return
+    end
+
+    unless client.passive_service && client.sock.type? == 'tcp-ssl'
+      print_error('The ssl_verify command is not applicable with the current transport')
       return
     end
 
@@ -1259,23 +1270,7 @@ class Console::CommandDispatcher::Core
           # Use API to get list of extensions from the gem
           exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
         else
-          msf_path = MetasploitPayloads.msf_meterpreter_dir
-          gem_path = MetasploitPayloads.local_meterpreter_dir
-          [msf_path, gem_path].each do |path|
-            ::Dir.entries(path).each { |f|
-              if (::File.file?(::File.join(path, f)))
-                client.binary_suffix.each { |s|
-                  if (f =~ /ext_server_(.*)\.#{s}/ )
-                    if (client.binary_suffix.size > 1)
-                      exts.add($1 + ".#{s}")
-                    else
-                      exts.add($1)
-                    end
-                  end
-                }
-              end
-            }
-          end
+          exts.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
         end
         print(exts.to_a.join("\n") + "\n")
 
@@ -1289,6 +1284,14 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+
+      # Temporary hack to pivot mimikatz over to kiwi until
+      # everyone remembers to do it themselves
+      if md == 'mimikatz'
+        print_warning('The "mimikatz" extension has been replaced by "kiwi". Please use this in future.')
+        md = 'kiwi'
+      end
+
       modulenameprovided = md
 
       if client.binary_suffix and client.binary_suffix.size > 1
@@ -1299,8 +1302,9 @@ class Console::CommandDispatcher::Core
           end
         }
       end
+
       if (extensions.include?(md))
-        print_error("The '#{md}' extension has already been loaded.")
+        print_error("The \"#{md}\" extension has already been loaded.")
         next
       end
 
@@ -1314,6 +1318,7 @@ class Console::CommandDispatcher::Core
       rescue
         print_line
         log_error("Failed to load extension: #{$!}")
+
         next
       end
 
@@ -1326,30 +1331,9 @@ class Console::CommandDispatcher::Core
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
     if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
-      # Use API to get list of extensions from the gem
-      MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']).each { |f|
-        if !extensions.include?(f.split('.').first)
-          tabs.add(f)
-        end
-      }
+      tabs.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
     else
-      msf_path = MetasploitPayloads.msf_meterpreter_dir
-      gem_path = MetasploitPayloads.local_meterpreter_dir
-      [msf_path, gem_path].each do |path|
-      ::Dir.entries(path).each { |f|
-        if (::File.file?(::File.join(path, f)))
-          client.binary_suffix.each { |s|
-            if (f =~ /ext_server_(.*)\.#{s}/ )
-              if (client.binary_suffix.size > 1 && !extensions.include?($1 + ".#{s}"))
-                tabs.add($1 + ".#{s}")
-              elsif (!extensions.include?($1))
-                tabs.add($1)
-              end
-            end
-          }
-        end
-      }
-      end
+      tabs.merge(client.binary_suffix.map { |suffix| MetasploitPayloads.list_meterpreter_extensions(suffix) }.flatten)
     end
     return tabs.to_a
   end
@@ -1434,13 +1418,21 @@ class Console::CommandDispatcher::Core
           return
         end
 
-        opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-        reloaded_mod.run_simple(
+        opts = ''
+        if reloaded_mod.is_a?(Msf::Exploit)
+          # set the payload as one of the first options, allowing it to be overridden by the user
+          opts << "PAYLOAD=#{client.via_payload.delete_prefix('payload/')}," if client.via_payload
+        end
+
+        opts  << (args + [ "SESSION=#{client.sid}" ]).join(',')
+        result = reloaded_mod.run_simple(
           #'RunAsJob' => true,
           'LocalInput'  => shell.input,
           'LocalOutput' => shell.output,
           'OptionStr'   => opts
         )
+
+        print_status("Session #{result.sid} created in the background.") if result.is_a?(Msf::Session)
       else
         # the rest of the arguments get passed in through the binding
         client.execute_script(script_name, args)
@@ -1455,10 +1447,7 @@ class Console::CommandDispatcher::Core
     tabs = []
     unless words[1] && words[1].match(/^\//)
       begin
-        if msf_loaded?
-          tabs += tab_complete_postmods
-        end
-
+        tabs += tab_complete_modules(str, words) if msf_loaded?
         [
           ::Msf::Sessions::Meterpreter.script_base,
           ::Msf::Sessions::Meterpreter.user_script_base
@@ -1584,9 +1573,8 @@ class Console::CommandDispatcher::Core
     end
   end
 
-  def cmd_info_tabs(*args)
-    return unless msf_loaded?
-    tab_complete_postmods
+  def cmd_info_tabs(str, words)
+    tab_complete_modules(str, words) if msf_loaded?
   end
 
   #
@@ -1824,18 +1812,16 @@ protected
     self.extensions << mod
   end
 
-  def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name,klass|
-      mod = client.framework.modules.post.create(name)
-      if mod and mod.session_compatible?(client)
-        mod.fullname.dup
-      else
-        nil
-      end
-    }
-
-    # nils confuse readline
-    tabs.compact
+  def tab_complete_modules(str, words)
+    tabs = []
+    client.framework.modules.post.map do |name,klass|
+      tabs << 'post/' + name
+    end
+    client.framework.modules.module_names('exploit').
+      grep(/(multi|#{Regexp.escape(client.platform)})\/local\//).each do |name|
+      tabs << 'exploit/' + name
+    end
+    return tabs.sort
   end
 
   def tab_complete_channels

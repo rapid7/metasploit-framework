@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/command_dispatcher/db'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   include_context 'Msf::DBManager'
@@ -236,8 +234,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    service1  open   ",
-          "192.168.0.1  1025  tcp    service2  open   "
+          "192.168.0.1  1024  udp    service1  open",
+          "192.168.0.1  1025  tcp    service2  open"
         ]
       end
     end
@@ -269,8 +267,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
             "",
             "host         port  proto  name  state  info",
             "----         ----  -----  ----  -----  ----",
-            "192.168.0.2  1025  snmp         open   ",
-            "192.168.0.2  1026  snmp         open   "
+            "192.168.0.2  1025  snmp         open",
+            "192.168.0.2  1026  snmp         open"
           ]
         }
       end

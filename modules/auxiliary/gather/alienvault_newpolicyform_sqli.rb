@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
       'Privileged'     => false,
-      'DisclosureDate' => "May 9 2014"))
+      'DisclosureDate' => '2014-05-09'))
 
       register_options([
         Opt::RPORT(443),

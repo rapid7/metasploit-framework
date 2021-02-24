@@ -1,9 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/packet_response_waiter'
-require 'rex/logging'
 require 'rex/exceptions'
-require 'msf/core/payload/uuid'
 
 module Rex
 module Post
@@ -15,8 +13,21 @@ module Meterpreter
 #
 ###
 class RequestError < ArgumentError
-  def initialize(method, einfo, ecode=nil)
-    @method = method
+  def initialize(command_id, einfo, ecode=nil)
+    extension_id = command_id - (command_id % 1000)
+    if extension_id == 0  # this is the meterpreter core
+      mod = Rex::Post::Meterpreter
+    else
+      mod_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(extension_id)
+      mod = Rex::Post::Meterpreter::ExtensionMapper.get_extension_module(mod_name)
+    end
+
+    if mod
+      command_name = mod.constants.select { |c| c.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
+      command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
+    end
+
+    @method = command_name || "##{command_id}"
     @result = einfo
     @code   = ecode || einfo
   end
@@ -128,6 +139,9 @@ module PacketDispatcher
       session_guid = opts[:session_guid]
       tlv_enc_key = opts[:tlv_enc_key]
     end
+
+    # Uncomment this line if you want to see outbound packets in the console.
+    #STDERR.puts("SEND: #{packet.inspect}\n")
 
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
@@ -243,7 +257,7 @@ module PacketDispatcher
         self.alive = false
       end
     else
-      pkt = Packet.create_request('core_channel_eof')
+      pkt = Packet.create_request(COMMAND_ID_CORE_CHANNEL_EOF)
       pkt.add_tlv(TLV_TYPE_CHANNEL_ID, 0)
       add_response_waiter(pkt, Proc.new { @ping_sent = false })
       send_packet(pkt)
@@ -366,7 +380,7 @@ module PacketDispatcher
             tmp_command << pkt
             next
           end
-          if(pkt.method == "core_channel_close")
+          if(pkt.method == COMMAND_ID_CORE_CHANNEL_CLOSE)
             tmp_close << pkt
             next
           end
@@ -558,6 +572,9 @@ module PacketDispatcher
   #
   def dispatch_inbound_packet(packet)
     handled = false
+
+    # Uncomment this line if you want to see inbound packets in the console
+    #STDERR.puts("RECV: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = Time.now

@@ -1,13 +1,12 @@
-require 'msf/core/web_services'
 
-module ModuleSearchServlet
+module Msf::WebServices::ModuleSearchServlet
 
   def self.api_path
     '/api/v1/modules'
   end
 
   def self.registered(app)
-    app.get ModuleSearchServlet.api_path, &search_modules
+    app.get self.api_path, &search_modules
   end
 
   #######

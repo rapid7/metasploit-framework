@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
-require 'msf/windows_error'
 
 module Msf
 module Sessions

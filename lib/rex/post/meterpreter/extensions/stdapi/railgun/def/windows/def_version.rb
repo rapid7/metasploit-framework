@@ -29,7 +29,7 @@ class Def_windows_version
     dll.add_function('VerQueryValueA', 'BOOL',[
       ["LPVOID","pBlock","in"],
       ["PCHAR","lpSubBlock","in"],
-      ["PDWORD","lplpBuffer","out"],
+      ["PULONG_PTR","lplpBuffer","out"],
       ["PDWORD","puLen","out"]
     ])
 

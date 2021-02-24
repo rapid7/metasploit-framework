@@ -1,6 +1,6 @@
 require 'singleton'
 
-class JobProcessor
+class Msf::WebServices::JobProcessor
   include Singleton
 
   def submit_job(job_args, &job)

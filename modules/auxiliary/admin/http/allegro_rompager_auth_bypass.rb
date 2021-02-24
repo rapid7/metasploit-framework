@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
                   ['URL', 'http://mis.fortunecook.ie/misfortune-cookie-suspected-vulnerable.pdf'], # list of likely vulnerable devices
                   ['URL', 'http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf'] # 31C3 presentation with POC
               ],
-              'DisclosureDate' => 'Dec 17 2014',
+              'DisclosureDate' => '2014-12-17',
               'License' => MSF_LICENSE
           ))
 
@@ -190,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
             {:name=>'ZyXEL', :model=>'P-660R-T3', :values=>[
                 [107369567, 21]
             ]},
-        :'ALL'=> # Used when `ForceAttempt` === true
+        ALL=> # Used when `ForceAttempt` === true
             {:name=>'Unknown', :model=>'Forced', :values=>[]
             },
     }
@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     known_devices.collect { |_, v| v[:values] }.each do |list|
       all_cookies += list
     end
-    known_devices[:'ALL'][:values] = all_cookies.uniq
+    known_devices[:ALL][:values] = all_cookies.uniq
     known_devices
   end
 
@@ -227,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
     model = check_response_fingerprint(res, Exploit::CheckCode::Detected)
     if model != Exploit::CheckCode::Detected
       devices = devices_list[model.to_sym]
-      devices = devices_list['ALL'.to_sym] if devices.nil? && datastore['ForceAttempt']
+      devices = devices_list[:ALL] if devices.nil? && datastore['ForceAttempt']
       if devices != nil
         print_good("Detected device:#{devices[:name]} #{devices[:model]}")
         devices[:values].each { |value|

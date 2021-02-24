@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -13,11 +12,6 @@ module Text
 ###
 class Output < Rex::Ui::Output
 
-  require 'rex/ui/text/output/stdio'
-  require 'rex/ui/text/output/socket'
-  require 'rex/ui/text/output/buffer'
-  require 'rex/ui/text/output/file'
-  require 'rex/ui/text/output/tee'
   require 'rex/text/color'
 
   include Rex::Text::Color

@@ -1,6 +1,6 @@
 module Msf::DBManager::VulnAttempt
   def report_vuln_attempt(vuln, opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     return if not vuln
     info = {}
 
@@ -22,7 +22,7 @@ module Msf::DBManager::VulnAttempt
   # This methods returns a list of all vulnerability attempts in the database
   #
   def vuln_attempts(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     # If we have the ID, there is no point in creating a complex query.
     if opts[:id] && !opts[:id].to_s.empty?
       return Array.wrap(Mdm::VulnAttempt.find(opts[:id]))

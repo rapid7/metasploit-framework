@@ -3,7 +3,7 @@ module Msf::DBManager::Service
   def delete_service(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     deleted = []
     opts[:ids].each do |service_id|
       service = Mdm::Service.find(service_id)
@@ -22,7 +22,7 @@ module Msf::DBManager::Service
   # Iterates over the services table calling the supplied block with the
   # service instance of each entry.
   def each_service(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.services.each do |service|
       block.call(service)
     end
@@ -31,14 +31,6 @@ module Msf::DBManager::Service
 
   def find_or_create_service(opts)
     report_service(opts)
-  end
-
-  def get_service(wspace, host, proto, port)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    host = get_host(:workspace => wspace, :address => host)
-    return if !host
-    return host.services.find_by_proto_and_port(proto, port)
-  }
   end
 
   #
@@ -58,7 +50,7 @@ module Msf::DBManager::Service
   #
   def report_service(opts)
     return if !active
-  ::ActiveRecord::Base.connection_pool.with_connection { |conn|
+  ::ApplicationRecord.connection_pool.with_connection { |conn|
     addr  = opts.delete(:host) || return
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
@@ -151,7 +143,7 @@ module Msf::DBManager::Service
     order_args = [:port]
     order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     # If we have the ID, there is no point in creating a complex query.
     if opts[:id] && !opts[:id].to_s.empty?
       return Array.wrap(Mdm::Service.find(opts[:id]))
@@ -173,7 +165,7 @@ module Msf::DBManager::Service
     opts = opts.clone() # it is not polite to change arguments passed from callers
     opts.delete(:workspace) # Workspace isn't used with Mdm::Service. So strip it if it's present.
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     id = opts.delete(:id)
     service = Mdm::Service.find(id)
     service.update!(opts)

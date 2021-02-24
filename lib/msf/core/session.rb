@@ -1,63 +1,8 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf
 
-###
-#
-# Event notifications that affect sessions.
-#
-###
-module SessionEvent
 
-  #
-  # Called when a session is opened.
-  #
-  def on_session_open(session)
-  end
-
-  #
-  # Called when a session is closed.
-  #
-  def on_session_close(session, reason='')
-  end
-
-  #
-  # Called when the user interacts with a session.
-  #
-  def on_session_interact(session)
-  end
-
-  #
-  # Called when the user writes data to a session.
-  #
-  def on_session_command(session, command)
-  end
-
-  #
-  # Called when output comes back from a user command.
-  #
-  def on_session_output(session, output)
-  end
-
-  #
-  # Called when a file is uploaded.
-  #
-  def on_session_upload(session, local_path, remote_path)
-  end
-
-  #
-  # Called when a file is downloaded.
-  #
-  def on_session_download(session, remote_path, local_path)
-  end
-
-  #
-  # Called when a file is deleted.
-  #
-  def on_session_filedelete(session, path)
-  end
-end
 
 ###
 #
@@ -85,16 +30,7 @@ module Session
   end
 
   # Direct descendants
-  require 'msf/core/session/interactive'
-  require 'msf/core/session/basic'
-  require 'msf/core/session/comm'
-
   # Provider interfaces
-  require 'msf/core/session/provider/single_command_execution'
-  require 'msf/core/session/provider/multi_command_execution'
-  require 'msf/core/session/provider/single_command_shell'
-  require 'msf/core/session/provider/multi_command_shell'
-
   def self.type
     "unknown"
   end
@@ -284,7 +220,7 @@ module Session
   #
   def cleanup
     if db_record and framework.db.active
-      ::ActiveRecord::Base.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection {
         framework.db.update_session(id: db_record.id, closed_at: Time.now.utc, close_reason: db_record.close_reason)
         db_record = nil
       }

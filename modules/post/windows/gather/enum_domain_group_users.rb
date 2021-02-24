@@ -73,6 +73,7 @@ class MetasploitModule < Msf::Post
 
     # Usernames start somewhere around line 6
     results = results.slice(6, results.length)
+    return members if results.nil?
     # Get group members from the output
     results.each do |line|
       line.split("  ").compact.each do |user|

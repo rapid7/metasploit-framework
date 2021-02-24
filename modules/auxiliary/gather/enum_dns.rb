@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/dns'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Enumeration
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         'Nixawk'
       ],
       'License'        => MSF_LICENSE,
-      'References' 	   => [
+      'References'     => [
         ['CVE', '1999-0532'],
         ['OSVDB', '492']
       ]))
@@ -62,10 +61,22 @@ class MetasploitModule < Msf::Auxiliary
     datastore['DnsClientRetryInterval'] = datastore['RETRY_INTERVAL']
     datastore['DnsClientTcpDns'] = datastore['TCP_DNS']
 
+    begin
+      setup_resolver
+    rescue RuntimeError => e
+      fail_with(Failure::BadConfig, "Resolver setup failed - exception: #{e}")
+    end
+
     domain = datastore['DOMAIN']
     is_wildcard = dns_wildcard_enabled?(domain)
 
-    dns_axfr(domain) if datastore['ENUM_AXFR']
+    # All exceptions should be being handled by the library
+    # but catching here as well, just in case.
+    begin
+      dns_axfr(domain) if datastore['ENUM_AXFR']
+    rescue => e
+      print_error("AXFR failed: #{e}")
+    end
     dns_get_a(domain) if datastore['ENUM_A']
     dns_get_cname(domain) if datastore['ENUM_CNAME']
     dns_get_ns(domain) if datastore['ENUM_NS']
@@ -83,242 +94,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       dns_bruteforce(domain, datastore['WORDLIST'], threads)
     end
-  end
-
-  def get_ptr(ip)
-    resp = dns_query(ip, nil)
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::PTR
-      records << r.ptr.to_s
-      print_good("#{ip}: PTR: #{r.ptr} ")
-    end
-    return if records.blank?
-    save_note(ip, 'DNS PTR records', records)
-    records
-  end
-
-  def get_a(domain, type='DNS A records')
-    resp = dns_query(domain, 'A')
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::A
-      records << r.address.to_s
-      print_good("#{domain} A: #{r.address} ") if datastore['ENUM_BRT']
-    end
-    return if records.blank?
-    save_note(domain, type, records)
-    records
-  end
-
-  def get_cname(domain)
-    print_status("querying DNS CNAME records for #{domain}")
-    resp = dns_query(domain, 'CNAME')
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::CNAME
-      records << r.cname.to_s
-      print_good("#{domain} CNAME: #{r.cname}")
-    end
-    return if records.blank?
-    save_note(domain, 'DNS CNAME records', records)
-    records
-  end
-
-  def get_ns(domain)
-    print_status("querying DNS NS records for #{domain}")
-    resp = dns_query(domain, 'NS')
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::NS
-      records << r.nsdname.to_s
-      print_good("#{domain} NS: #{r.nsdname}")
-    end
-    return if records.blank?
-    save_note(domain, 'DNS NS records', records)
-    records
-  end
-
-  def get_mx(domain)
-    print_status("querying DNS MX records for #{domain}")
-    begin
-      resp = dns_query(domain, 'MX')
-      return if resp.blank? || resp.answer.blank?
-
-      records = []
-      resp.answer.each do |r|
-        next unless r.class == Net::DNS::RR::MX
-        records << r.exchange.to_s
-        print_good("#{domain} MX: #{r.exchange}")
-      end
-    rescue SocketError => e
-      print_error("Query #{domain} DNS MX - exception: #{e}")
-    ensure
-      return if records.blank?
-      save_note(domain, 'DNS MX records', records)
-      records
-    end
-  end
-
-  def get_soa(domain)
-    print_status("querying DNS SOA records for #{domain}")
-    resp = dns_query(domain, 'SOA')
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::SOA
-      records << r.mname.to_s
-      print_good("#{domain} SOA: #{r.mname}")
-    end
-    return if records.blank?
-    save_note(domain, 'DNS SOA records', records)
-    records
-  end
-
-  def get_txt(domain)
-    print_status("querying DNS TXT records for #{domain}")
-    resp = dns_query(domain, 'TXT')
-    return if resp.blank? || resp.answer.blank?
-
-    records = []
-    resp.answer.each do |r|
-      next unless r.class == Net::DNS::RR::TXT
-      records << r.txt.to_s
-      print_good("#{domain} TXT: #{r.txt}")
-    end
-    return if records.blank?
-    save_note(domain, 'DNS TXT records', records)
-    records
-  end
-
-  def get_tld(domain)
-    begin
-      print_status("querying DNS TLD records for #{domain}")
-      domain_ = domain.split('.')
-      domain_.pop
-      domain_ = domain_.join('.')
-
-      tlds = [
-        'com', 'org', 'net', 'edu', 'mil', 'gov', 'uk', 'af', 'al', 'dz',
-        'as', 'ad', 'ao', 'ai', 'aq', 'ag', 'ar', 'am', 'aw', 'ac', 'au',
-        'at', 'az', 'bs', 'bh', 'bd', 'bb', 'by', 'be', 'bz', 'bj', 'bm',
-        'bt', 'bo', 'ba', 'bw', 'bv', 'br', 'io', 'bn', 'bg', 'bf', 'bi',
-        'kh', 'cm', 'ca', 'cv', 'ky', 'cf', 'td', 'cl', 'cn', 'cx', 'cc',
-        'co', 'km', 'cd', 'cg', 'ck', 'cr', 'ci', 'hr', 'cu', 'cy', 'cz',
-        'dk', 'dj', 'dm', 'do', 'tp', 'ec', 'eg', 'sv', 'gq', 'er', 'ee',
-        'et', 'fk', 'fo', 'fj', 'fi', 'fr', 'gf', 'pf', 'tf', 'ga', 'gm',
-        'ge', 'de', 'gh', 'gi', 'gr', 'gl', 'gd', 'gp', 'gu', 'gt', 'gg',
-        'gn', 'gw', 'gy', 'ht', 'hm', 'va', 'hn', 'hk', 'hu', 'is', 'in',
-        'id', 'ir', 'iq', 'ie', 'im', 'il', 'it', 'jm', 'jp', 'je', 'jo',
-        'kz', 'ke', 'ki', 'kp', 'kr', 'kw', 'kg', 'la', 'lv', 'lb', 'ls',
-        'lr', 'ly', 'li', 'lt', 'lu', 'mo', 'mk', 'mg', 'mw', 'my', 'mv',
-        'ml', 'mt', 'mh', 'mq', 'mr', 'mu', 'yt', 'mx', 'fm', 'md', 'mc',
-        'mn', 'ms', 'ma', 'mz', 'mm', 'na', 'nr', 'np', 'nl', 'an', 'nc',
-        'nz', 'ni', 'ne', 'ng', 'nu', 'nf', 'mp', 'no', 'om', 'pk', 'pw',
-        'pa', 'pg', 'py', 'pe', 'ph', 'pn', 'pl', 'pt', 'pr', 'qa', 're',
-        'ro', 'ru', 'rw', 'kn', 'lc', 'vc', 'ws', 'sm', 'st', 'sa', 'sn',
-        'sc', 'sl', 'sg', 'sk', 'si', 'sb', 'so', 'za', 'gz', 'es', 'lk',
-        'sh', 'pm', 'sd', 'sr', 'sj', 'sz', 'se', 'ch', 'sy', 'tw', 'tj',
-        'tz', 'th', 'tg', 'tk', 'to', 'tt', 'tn', 'tr', 'tm', 'tc', 'tv',
-        'ug', 'ua', 'ae', 'gb', 'us', 'um', 'uy', 'uz', 'vu', 've', 'vn',
-        'vg', 'vi', 'wf', 'eh', 'ye', 'yu', 'za', 'zr', 'zm', 'zw', 'int',
-        'gs', 'info', 'biz', 'su', 'name', 'coop', 'aero']
-
-      records = []
-      tlds.each do |tld|
-        tldr = get_a("#{domain_}.#{tld}", 'DNS TLD records')
-        next if tldr.blank?
-        records |= tldr
-        print_good("#{domain_}.#{tld}: TLD: #{tldr.join(',')}")
-      end
-    rescue ArgumentError => e
-      print_error("Query #{domain} DNS TLD - exception: #{e}")
-    ensure
-      return if records.blank?
-      records
-    end
-  end
-
-  def get_srv(domain)
-    print_status("querying DNS SRV records for #{domain}")
-    srv_protos = %w(tcp udp tls)
-    srv_record_types = %w(
-      gc kerberos ldap test sips sip aix finger ftp http
-      nntp telnet whois h323cs h323be h323ls sipinternal sipinternaltls
-      sipfederationtls jabber jabber-client jabber-server xmpp-server xmpp-client
-      imap certificates crls pgpkeys pgprevokations cmp svcp crl oscp pkixrep
-      smtp hkp hkps)
-
-    srv_records_data = []
-    srv_record_types.each do |srv_record_type|
-      srv_protos.each do |srv_proto|
-        srv_record = "_#{srv_record_type}._#{srv_proto}.#{domain}"
-        resp = dns_query(srv_record, Net::DNS::SRV)
-        next if resp.blank? || resp.answer.blank?
-        srv_record_data = []
-        resp.answer.each do |r|
-          next if r.type == Net::DNS::RR::CNAME
-          host = r.host.gsub(/\.$/, '')
-          data = {
-            host: host,
-            port: r.port,
-            priority: r.priority
-          }
-          print_good("#{srv_record} SRV: #{data}")
-          srv_record_data << data
-        end
-        srv_records_data << {
-          srv_record => srv_record_data
-        }
-        report_note(
-          type: srv_record,
-          data: srv_record_data
-        )
-      end
-    end
-    return if srv_records_data.empty?
-  end
-
-  def axfr(domain)
-    nameservers = get_ns(domain)
-    return if nameservers.blank?
-    records = []
-    nameservers.each do |nameserver|
-      next if nameserver.blank?
-      print_status("Attempting DNS AXFR for #{domain} from #{nameserver}")
-      dns = Net::DNS::Resolver.new
-      dns.use_tcp = datastore['TCP_DNS']
-      dns.udp_timeout = datastore['TIMEOUT']
-      dns.retry_number = datastore['RETRY']
-      dns.retry_interval = datastore['RETRY_INTERVAL']
-
-      ns_a_records = []
-      # try to get A record for nameserver from target NS, which may fail
-      target_ns_a = get_a(nameserver, 'DNS AXFR records')
-      ns_a_records |= target_ns_a if target_ns_a
-      ns_a_records << ::Rex::Socket.resolv_to_dotted(nameserver)
-      begin
-        dns.nameservers -= dns.nameservers
-        dns.nameservers = ns_a_records
-        zone = dns.axfr(domain)
-      rescue ResolverArgumentError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-        print_error("Query #{domain} DNS AXFR - exception: #{e}")
-      end
-      next if zone.blank?
-      records << zone
-      print_good("#{domain} Zone Transfer: #{zone}")
-    end
-    return if records.blank?
-    records
   end
 
   def save_note(target, type, records)

@@ -7,7 +7,7 @@ module Msf::DBManager::Session
   def sessions(opts)
     return if not active
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Session.find(opts[:id]))
@@ -31,7 +31,7 @@ module Msf::DBManager::Session
   # (or returns nil)
   def get_session(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     addr   = opts[:addr] || opts[:address] || opts[:host] || return
     host = get_host(:workspace => wspace, :host => addr)
@@ -106,7 +106,7 @@ module Msf::DBManager::Session
   def report_session(opts)
     return if not active
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     if opts[:session]
       session = opts[:session]
       s = create_mdm_session_from_session(opts)
@@ -137,7 +137,7 @@ module Msf::DBManager::Session
   def report_session_dto(session_dto)
     return if not active
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       host_data = session_dto[:host_data]
       workspace = workspaces({ name: host_data[:workspace] }).first
       h_opts = {
@@ -188,7 +188,7 @@ module Msf::DBManager::Session
   def update_session(opts)
     return if not active
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       id = opts.delete(:id)
       session = ::Mdm::Session.find(id)
       session.update!(opts)
@@ -201,7 +201,7 @@ module Msf::DBManager::Session
   def remove_stale_sessions(last_seen_interval)
     return unless active
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       ::Mdm::Session.where(closed_at: nil).each do |db_session|
         next unless db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2 * last_seen_interval))
         db_session.closed_at    = db_session.last_seen || Time.now.utc
@@ -219,7 +219,7 @@ module Msf::DBManager::Session
   # @param wspace [Mdm::Workspace]
   # @return [void]
   def infer_vuln_from_session(session, wspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       s = session.db_record
       host = s.host
 
@@ -276,7 +276,7 @@ module Msf::DBManager::Session
   end
 
   def create_mdm_session_from_session(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       session = opts[:session]
       raise ArgumentError.new("Invalid :session, expected Msf::Session") unless session.kind_of? Msf::Session
 
@@ -324,7 +324,7 @@ module Msf::DBManager::Session
   end
 
   def create_mdm_session_from_host(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       host = opts[:host]
       raise ArgumentError.new("Invalid :host, expected Host object") unless host.kind_of? ::Mdm::Host
       sess_data = {
@@ -349,7 +349,7 @@ module Msf::DBManager::Session
   end
 
   def infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
 
       vuln_info_dto = session_dto[:vuln_info]
       host = session_db_record.host

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/auxiliary/juniper'
 
 RSpec.describe Msf::Auxiliary::Juniper do
   class DummyJuniperClass
@@ -200,7 +199,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
           protocol: "tcp",
           workspace_id: workspace.id,
           origin_type: :service,
-          service_name: 'PPTP',
+          service_name: 'pptp',
           module_fullname: "auxiliary/scanner/snmp/juniper_dummy",
           username: "username",
           private_data: "fzSzAn31N4Sbh/sukoCDLvhJEdn0DVK7vA==",
@@ -230,7 +229,7 @@ RSpec.describe Msf::Auxiliary::Juniper do
           protocol: "udp",
           workspace_id: workspace.id,
           origin_type: :service,
-          service_name: 'IKE',
+          service_name: 'ike',
           module_fullname: "auxiliary/scanner/snmp/juniper_dummy",
           private_data: "netscreen",
           private_type: :password,

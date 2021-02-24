@@ -8,9 +8,6 @@
 #  on the system as JCL to JES2
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/mainframe_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
   CachedSize = 8993

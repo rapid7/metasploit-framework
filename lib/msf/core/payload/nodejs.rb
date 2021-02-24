@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf::Payload::NodeJS
   # Outputs a javascript snippet that spawns a bind TCP shell

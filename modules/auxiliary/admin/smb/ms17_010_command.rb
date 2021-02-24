@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
       ],
-      'DisclosureDate' => 'Mar 14 2017',
+      'DisclosureDate' => '2017-03-14',
       'Notes' =>
           {
               'AKA' => [
@@ -64,6 +64,8 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run_host(ip)
@@ -98,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
 
     # Try and authenticate with given credentials
-    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
+    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, delay: datastore['DELAY'], retries: datastore['RETRY'])
 
     # Report output
     print_good("Command completed successfully!")

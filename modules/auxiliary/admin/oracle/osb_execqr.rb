@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpujan2009.html' ],
           [ 'ZDI', '09-003' ],
         ],
-      'DisclosureDate' => 'Jan 14 2009'))
+      'DisclosureDate' => '2009-01-14'))
 
     register_options(
       [

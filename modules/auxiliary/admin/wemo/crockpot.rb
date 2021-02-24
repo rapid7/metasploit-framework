@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(update_info(info,
@@ -42,8 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true]),
-      OptBool.new('ForceExploit', [true, 'Override check result', false])
+      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true])
     ])
   end
 
@@ -70,15 +70,6 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['DefangedMode']
       print_error('Running in defanged mode')
       return
-    end
-
-    checkcode = check
-
-    unless datastore['ForceExploit']
-      unless checkcode == Exploit::CheckCode::Appears
-        print_error("#{checkcode[1]}. Set ForceExploit to override.")
-        return
-      end
     end
 
     case action.name

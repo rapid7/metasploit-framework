@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         => 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Oct 22 2014'
+      'DisclosureDate' => '2014-10-22'
     ))
 
     register_options(

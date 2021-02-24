@@ -1,14 +1,14 @@
-module WebServlet
+module Msf::WebServices::WebServlet
 
   def self.api_path
     '/api/v1/webs'
   end
 
   def self.registered(app)
-    app.post WebServlet.api_path, &report_web
-    app.post "#{WebServlet.api_path}/page", &report_web_page
-    app.post "#{WebServlet.api_path}/form", &report_web_form
-    app.post "#{WebServlet.api_path}/vuln", &report_web_vuln
+    app.post self.api_path, &report_web
+    app.post "#{self.api_path}/page", &report_web_page
+    app.post "#{self.api_path}/form", &report_web_form
+    app.post "#{self.api_path}/vuln", &report_web_vuln
 
   end
 

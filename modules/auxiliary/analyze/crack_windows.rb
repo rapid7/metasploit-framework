@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/password_cracker'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::PasswordCracker
@@ -37,9 +36,11 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('NTLM',  [false, 'Crack NTLM hashes', true]),
-        OptBool.new('LANMAN',[false, 'Crack LANMAN hashes', true]),
-        OptBool.new('INCREMENTAL',[false, 'Run in incremental mode', true]),
-        OptBool.new('WORDLIST',[false, 'Run in wordlist mode', true])
+        OptBool.new('LANMAN', [false, 'Crack LANMAN hashes', true]),
+        OptBool.new('MSCASH', [false, 'Crack M$ CASH hashes (1 and 2)', true]),
+        OptBool.new('INCREMENTAL', [false, 'Run in incremental mode', true]),
+        OptBool.new('WORDLIST', [false, 'Run in wordlist mode', true]),
+        OptBool.new('NORMAL', [false, 'Run in normal mode (John the Ripper only)', true])
       ]
     )
 
@@ -63,6 +64,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def print_results(tbl, cracked_hashes)
     cracked_hashes.each do |row|
+      # 'core_id' field is stored as an Integer in cracked_hashes (first
+      # element) and table rows are all strings. This field needs to be
+      # converted to string before checking if the row already exists in the
+      # table, otherwise, the comparison will be done between a number and a
+      # string. Also, the entry needs to be dup'ed to avoid modifying the
+      # original array of hashes.
+      row = row.dup
+      row[0] = row[0].to_s if row[0].is_a?(Numeric)
       unless tbl.rows.include? row
         tbl << row
       end
@@ -95,44 +104,58 @@ class MetasploitModule < Msf::Auxiliary
         password_line.chomp!
         next if password_line.blank?
         fields = password_line.split(":")
-        # If we don't have an expected minimum number of fields, this is probably not a hash line
         if action.name == 'john'
-          next unless fields.count >=7
+          # If we don't have an expected minimum number of fields, this is probably not a hash line
+          next unless fields.count > 2
           cred = {}
           cred['username'] = fields.shift
           cred['core_id']  = fields.pop
-          2.times { fields.pop } # Get rid of extra :
-          nt_hash = fields.pop
-          lm_hash = fields.pop
-          id = fields.pop
-          password = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-          if hash_type == 'lm' && password.blank?
-            if nt_hash == Metasploit::Credential::NTLMHash::BLANK_NT_HASH
-              password = ''
-            else
-              next
+          case hash_type
+          when 'lm', 'nt'
+            # If we don't have an expected minimum number of fields, this is probably not a NTLM hash
+            next unless fields.count >= 6
+            2.times { fields.pop } # Get rid of extra :
+            nt_hash = fields.pop
+            lm_hash = fields.pop
+            id = fields.pop
+            password = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+            if hash_type == 'lm' && password.blank?
+              if nt_hash == Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+                password = ''
+              else
+                next
+              end
             end
-          end
 
-          # password can be nil if the hash is broken (i.e., the NT and
-          # LM sides don't actually match) or if john was only able to
-          # crack one half of the LM hash. In the latter case, we'll
-          # have a line like:
-          #  username:???????WORD:...:...:::
-          cred['password'] = john_lm_upper_to_ntlm(password, nt_hash)
+            # password can be nil if the hash is broken (i.e., the NT and
+            # LM sides don't actually match) or if john was only able to
+            # crack one half of the LM hash. In the latter case, we'll
+            # have a line like:
+            #  username:???????WORD:...:...:::
+            cred['password'] = john_lm_upper_to_ntlm(password, nt_hash)
+          when 'mscash', 'mscash2'
+            cred['password'] = fields.shift
+          end
           next if cred['password'].nil?
           results = process_crack(results, hashes, cred, hash_type, method)
         elsif action.name == 'hashcat'
           next unless fields.count >= 2
           hash = fields.shift
-          password = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
           next if hash.include?("Hashfile '") && hash.include?("' on line ") # skip error lines
           hashes.each do |h|
-            if hash_type == 'lm'
+            case hash_type
+            when 'lm'
               next unless h['hash'].split(':')[0] == hash
-            elsif hash_type == 'nt'
+            when 'nt'
               next unless h['hash'].split(':')[1] == hash
+            when 'mscash'
+              salt = fields.first
+              next unless h['hash'].start_with?("M\$#{salt}##{hash}")
+              password = fields[1..-1].join(':') # Anything after the salt must be the password. This accounts for passwords with : in them
+            when 'mscash2'
+              next unless h['hash'].split(':')[0] == hash
             end
+            password ||= fields.join(':') # If not already set, anything left must be the password. This accounts for passwords with : in them
             cred = {'core_id' => h['id'],
                     'username' => h['un'],
                     'password' => password}
@@ -157,6 +180,10 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['NTLM']
       hashes_regex << 'nt'
     end
+    if datastore['MSCASH']
+      hashes_regex << 'mscash'
+      hashes_regex << 'mscash2'
+    end
 
     # check we actually have an action to perform
     fail_with(Failure::BadConfig, 'Please enable at least one database type to crack') if hashes_regex.empty?
@@ -165,14 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
 
-    cracker = new_password_cracker
-    cracker.cracker = action.name
-
-    cracker_version = cracker.cracker_version
-    if action.name == 'john' and not cracker_version.include?'jumbo'
-      fail_with(Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
-    end
-    print_good("#{action.name} Version Detected: #{cracker_version}")
+    cracker = new_password_cracker(action.name)
 
     # create the hash file first, so if there aren't any hashes we can quit early
     # hashes is a reference list used by hashcat only
@@ -213,14 +233,16 @@ class MetasploitModule < Msf::Auxiliary
         results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Single')
         vprint_good(print_results(tbl, results))
 
-        print_status "Cracking #{format} hashes in normal mode"
-        cracker_instance.mode_normal
-        show_command cracker_instance
-        cracker_instance.crack do |line|
-          vprint_status line.chomp
+        if datastore['NORMAL']
+          print_status "Cracking #{format} hashes in normal mode"
+          cracker_instance.mode_normal
+          show_command cracker_instance
+          cracker_instance.crack do |line|
+            vprint_status line.chomp
+          end
+          results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Normal')
+          vprint_good(print_results(tbl, results))
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, hashes, 'Normal')
-        vprint_good(print_results(tbl, results))
       end
 
       if datastore['INCREMENTAL']
@@ -268,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
     hashlist = Rex::Quickfile.new("hashes_tmp")
     # Convert names from JtR to DB
     hashes_regex = hashes_regex.join('|')
-    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NTLMHash').each do |core|
+    framework.db.creds(workspace: myworkspace).each do |core|
       regex = Regexp.new hashes_regex
       next unless core.private.jtr_format =~ regex
       # only add hashes which havne't been cracked

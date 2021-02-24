@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         of the device, which may be unintentionally published to the world.
       },
       'Author'         => [ 'aushack' ],
-      'DisclosureDate' => 'Dec 14 2011', # Looks like this module is first real reference
+      'DisclosureDate' => '2011-12-14', # Looks like this module is first real reference
       'References'     =>
         [
           # aushack - None? Stumbled across, probably an old bug/feature but unsure.

@@ -64,7 +64,7 @@ module Metasploit
         #   @return [Mdm::Workspace] the workspace this cracker is for.
         attr_accessor :workspace
 
-        validates :custom_wordlist, :'Metasploit::Framework::File_path' => true, if: 'custom_wordlist.present?'
+        validates :custom_wordlist, :'Metasploit::Framework::File_path' => true, if: -> { 'custom_wordlist.present?' }
 
         validates :mutate,
                   inclusion: { in: [true, false], message: "must be true or false"  }

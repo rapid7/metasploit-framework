@@ -9,8 +9,6 @@ GEMFILE_EXTENSIONS = [
 msfenv_real_pathname = Pathname.new(__FILE__).realpath
 root = msfenv_real_pathname.parent.parent
 
-require File.expand_path('../rails_bigdecimal_fix', __FILE__)
-
 unless ENV['BUNDLE_GEMFILE']
   require 'pathname'
 

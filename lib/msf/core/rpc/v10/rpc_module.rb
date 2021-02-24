@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'json'
-require 'msf/util/document_generator'
 
 module Msf
 module RPC
@@ -348,7 +347,16 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.compatible_sessions', 'windows/wlan/wlan_profile')
   def rpc_compatible_sessions(mname)
-    m   = _find_module('post',mname)
+    if mname.start_with? 'exploit/'
+      m = _find_module('exploit',mname)
+    else
+      m = _find_module('post',mname)
+    end
+
+    unless m.respond_to? :compatible_sessions
+      error(500, "Cannot determine compatible sessions for non-local module: #{mname}")
+    end
+
     res = {}
     res['sessions'] = m.compatible_sessions
 

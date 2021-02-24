@@ -2,7 +2,7 @@ module Msf::DBManager::Host
   # TODO: doesn't appear to have any callers. How is this used?
   # Deletes a host and associated data matching this address/comm
   def del_host(wspace, address, comm='')
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     address, scope = address.split('%', 2)
     host = wspace.hosts.find_by_address_and_comm(address, comm)
     host.destroy if host
@@ -16,7 +16,7 @@ module Msf::DBManager::Host
   def delete_host(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |host_id|
         host = Mdm::Host.find(host_id)
@@ -37,7 +37,7 @@ module Msf::DBManager::Host
   # instance of each entry.
   #
   def each_host(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.hosts.each do |host|
       block.call(host)
     end
@@ -119,7 +119,7 @@ module Msf::DBManager::Host
       address = opts[:addr] || opts[:address] || opts[:host] || return
       return address if address.kind_of? ::Mdm::Host
     end
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     address = Msf::Util::Host.normalize_host(address)
@@ -129,7 +129,7 @@ module Msf::DBManager::Host
 
   # Look for an address across all comms
   def has_host?(wspace,addr)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     address, scope = addr.split('%', 2)
     wspace.hosts.find_by_address(addr)
   }
@@ -137,7 +137,7 @@ module Msf::DBManager::Host
 
   # Returns a list of all hosts in the database
   def hosts(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Host.find(opts[:id]))
@@ -196,7 +196,7 @@ module Msf::DBManager::Host
       return
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     opts = opts.clone
     opts.delete(:workspace)
@@ -227,18 +227,6 @@ module Msf::DBManager::Host
       # Truncate the name field at the maximum field length
       if opts[:name]
         opts[:name] = opts[:name][0,255]
-      end
-
-      if opts[:os_name]
-        os_name, os_flavor = split_windows_os_name(opts[:os_name])
-        opts[:os_name] = os_name if os_name.present?
-        if opts[:os_flavor].present?
-          if os_flavor.present? # only prepend if there is a value that needs it
-            opts[:os_flavor] = os_flavor + opts[:os_flavor]
-          end
-        else
-          opts[:os_flavor] = os_flavor
-        end
       end
 
       opts.each do |k,v|
@@ -289,7 +277,7 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts = opts.clone()
@@ -300,12 +288,5 @@ module Msf::DBManager::Host
       host.update!(opts)
       return host
     }
-  end
-
-  def split_windows_os_name(os_name)
-    return [] if os_name.nil?
-    flavor_match = os_name.match(/Windows\s+(.*)/)
-    return [] if flavor_match.nil?
-    ["Windows", flavor_match.captures.first]
   end
 end

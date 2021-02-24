@@ -37,20 +37,29 @@ class DataStore < Hash
     unless opt.nil?
       if opt.validate_on_assignment?
         unless opt.valid?(v, check_empty: false)
-          raise OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
+          raise Msf::OptionValidateError.new(["Value '#{v}' is not valid for option '#{k}'"])
         end
         v = opt.normalize(v)
       end
     end
 
-    super(k,v)
+    if v.is_a? Hash
+      v.each { |key, value| self[key] = value }
+    else
+      super(k,v)
+    end
   end
 
   #
   # Case-insensitive wrapper around hash lookup
   #
   def [](k)
-    super(find_key_case(k))
+    k = find_key_case(k)
+    if options[k].respond_to? :calculate_value
+      options[k].calculate_value(self)
+    else
+      super(k)
+    end
   end
 
   #
@@ -328,70 +337,6 @@ class DataStore < Hash
     return k
   end
 
-end
-
-###
-#
-# DataStore wrapper for modules that will attempt to back values against the
-# framework's datastore if they aren't found in the module's datastore.  This
-# is done to simulate global data store values.
-#
-###
-class ModuleDataStore < DataStore
-
-  def initialize(m)
-    super()
-
-    @_module = m
-  end
-
-  #
-  # Fetch the key from the local hash first, or from the framework datastore
-  # if we can't directly find it
-  #
-  def fetch(key)
-    key = find_key_case(key)
-    val = nil
-    val = super if(@imported_by[key] != 'self')
-    if (val.nil? and @_module and @_module.framework)
-      val = @_module.framework.datastore[key]
-    end
-    val = super if val.nil?
-    val
-  end
-
-  #
-  # Same as fetch
-  #
-  def [](key)
-    key = find_key_case(key)
-    val = nil
-    val = super if(@imported_by[key] != 'self')
-    if (val.nil? and @_module and @_module.framework)
-      val = @_module.framework.datastore[key]
-    end
-    val = super if val.nil?
-    val
-  end
-
-  #
-  # Was this entry actually set or just using its default
-  #
-  def default?(key)
-    (@imported_by[key] == 'self')
-  end
-
-  #
-  # Return a deep copy of this datastore.
-  #
-  def copy
-    ds = self.class.new(@_module)
-    self.keys.each do |k|
-      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
-    end
-    ds.aliases = self.aliases.dup
-    ds
-  end
 end
 
 end

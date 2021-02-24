@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/windows/accounts'
-require 'msf/core/post/windows/registry'
-
 module Msf::Post::Windows::Priv
   include ::Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
@@ -403,9 +400,9 @@ module Msf::Post::Windows::Priv
         j = key[j..j+7].length
       end
     end
-    dec_data_len = decrypted_data[0].ord
+    dec_data_len = decrypted_data[0,4].unpack('<L').first
 
-    return decrypted_data[8..8+dec_data_len]
+    return decrypted_data[8, dec_data_len]
 
   end
 

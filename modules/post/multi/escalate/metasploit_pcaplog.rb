@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/local/linux'
 
 class MetasploitModule < Msf::Post
   Rank = ManualRanking
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Post
             [ 'URL', 'http://0a29.blogspot.com/2012/07/0a29-12-2-metasploit-pcaplog-plugin.html'],
             [ 'URL', 'https://community.rapid7.com/docs/DOC-1946' ],
           ],
-        'DisclosureDate' => "Jul 16 2012",
+        'DisclosureDate' => '2012-07-16',
         'Stance' => Msf::Exploit::Stance::Passive,
       }
       ))

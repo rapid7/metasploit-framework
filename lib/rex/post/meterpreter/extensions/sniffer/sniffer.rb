@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/sniffer/tlv'
-require 'rex/proto/smb/utils'
+require 'rex/post/meterpreter/extensions/sniffer/command_ids'
 
 module Rex
 module Post
@@ -16,6 +16,9 @@ module Sniffer
 ###
 class Sniffer < Extension
 
+  def self.extension_id
+    EXTENSION_ID_SNIFFER
+  end
 
   def initialize(client)
     super(client, 'sniffer')
@@ -33,8 +36,7 @@ class Sniffer < Extension
   # Enumerate the remote sniffable interfaces
   def interfaces()
     ifaces = []
-    ifacei = 0
-    request = Packet.create_request('sniffer_interfaces')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_INTERFACES)
     response = client.send_request(request)
     response.each(TLV_TYPE_SNIFFER_INTERFACES) { |p|
       vals  = p.tlvs.map{|x| x.value }
@@ -54,16 +56,16 @@ class Sniffer < Extension
 
   # Start a packet capture on an opened interface
   def capture_start(intf,maxp=200000,filter="")
-    request = Packet.create_request('sniffer_capture_start')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_START)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     request.add_tlv(TLV_TYPE_SNIFFER_PACKET_COUNT, maxp.to_i)
     request.add_tlv(TLV_TYPE_SNIFFER_ADDITIONAL_FILTER, filter) if filter.length > 0
-    response = client.send_request(request)
+    client.send_request(request)
   end
 
   # Stop an active packet capture
   def capture_stop(intf)
-    request = Packet.create_request('sniffer_capture_stop')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_STOP)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     response = client.send_request(request)
     {
@@ -74,7 +76,7 @@ class Sniffer < Extension
 
   # Retrieve stats about a current capture
   def capture_stats(intf)
-    request = Packet.create_request('sniffer_capture_stats')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_STATS)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     response = client.send_request(request)
     {
@@ -85,7 +87,7 @@ class Sniffer < Extension
 
   # Release packets from a current capture
   def capture_release(intf)
-    request = Packet.create_request('sniffer_capture_release')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_RELEASE)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     response = client.send_request(request)
     {
@@ -96,7 +98,7 @@ class Sniffer < Extension
 
   # Buffer the current capture to a readable buffer
   def capture_dump(intf)
-    request = Packet.create_request('sniffer_capture_dump')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_DUMP)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     response = client.send_request(request, 3600)
     {
@@ -108,7 +110,7 @@ class Sniffer < Extension
 
   # Retrieve the packet data for the specified capture
   def capture_dump_read(intf, len=16384)
-    request = Packet.create_request('sniffer_capture_dump_read')
+    request = Packet.create_request(COMMAND_ID_SNIFFER_CAPTURE_DUMP_READ)
     request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
     request.add_tlv(TLV_TYPE_SNIFFER_BYTE_COUNT, len.to_i)
     response = client.send_request(request, 3600)

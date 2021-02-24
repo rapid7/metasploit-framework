@@ -46,7 +46,14 @@ class Message
     type = stream.read_exactly_n_bytes(1) unless startup
     length = stream.read_exactly_n_bytes(4).to_s.unpack('N').first  # FIXME: length should be signed, not unsigned
 
-    raise ParseError unless length >= 4
+    raise ParseError if (length.nil? || length < 4)
+
+    # If we didn't read any bytes and startup was not set, then type will be nil, so don't continue.
+    unless startup
+      if type.nil?
+        return ParseError
+      end
+    end
 
     # initialize buffer
     buffer = Buffer.of_size(startup ? length : 1+length)

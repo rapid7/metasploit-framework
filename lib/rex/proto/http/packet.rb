@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/proto/http'
+
 
 module Rex
 module Proto
@@ -32,7 +32,6 @@ class Packet
     Completed        = 3
   end
 
-  require 'rex/proto/http/packet/header'
 
   #
   # Initializes an instance of an HTTP packet.

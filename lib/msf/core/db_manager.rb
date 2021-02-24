@@ -10,12 +10,6 @@ require 'rex/socket'
 # Project
 #
 require 'metasploit/framework/require'
-require 'msf/base/config'
-require 'msf/core'
-require 'msf/core/database_event'
-require 'msf/core/db_import_error'
-require 'msf/core/host_state'
-require 'msf/core/service_state'
 require 'metasploit/framework/data_service'
 
 
@@ -32,7 +26,7 @@ class Msf::DBManager
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
   autoload :Cred, 'msf/core/db_manager/cred'
-  autoload :DbExport, 'msf/core/db_manager/db_export'
+  autoload :DBExport, 'msf/core/db_manager/db_export'
   autoload :Event, 'msf/core/db_manager/event'
   autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
@@ -72,7 +66,7 @@ class Msf::DBManager
   include Msf::DBManager::Client
   include Msf::DBManager::Connection
   include Msf::DBManager::Cred
-  include Msf::DBManager::DbExport
+  include Msf::DBManager::DBExport
   include Msf::DBManager::Event
   include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
@@ -153,7 +147,7 @@ class Msf::DBManager
   # Determines if the database is functional
   #
   def check
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     res = ::Mdm::Host.first
   }
   end

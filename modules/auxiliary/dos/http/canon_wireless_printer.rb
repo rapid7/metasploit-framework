@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '2013-4615' ],
         [ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
       ],
-      'DisclosureDate' => 'Jun 18 2013'))
+      'DisclosureDate' => '2013-06-18'))
   end
 
   def is_alive?

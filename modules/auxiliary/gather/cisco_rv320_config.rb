@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
           ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
         ],
-      'DisclosureDate' => 'Jan 24 2019',
+      'DisclosureDate' => '2019-01-24',
       'DefaultOptions' =>
         {
           'SSL'   => true

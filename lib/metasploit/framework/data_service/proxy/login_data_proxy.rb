@@ -41,7 +41,11 @@ module LoginDataProxy
       core_opts[:host_ranges] = [ opts.fetch(:address) ] if opts[:address]
       core_opts[:svcs] = [ opts.fetch(:service_name) ] if opts[:service_name]
 
-      core = creds(core_opts).first
+      # searching for cores and loading the array is a mitigation for
+      # an issue seen with Rails 5 when calling first using a local database
+      cores = creds(core_opts)
+      cores = cores.to_a unless cores.kind_of?(Array)
+      core = cores.first
       if core
         core.logins.each do |login|
           login_opts = opts.slice(:access_level, :status, :last_attempted_at)

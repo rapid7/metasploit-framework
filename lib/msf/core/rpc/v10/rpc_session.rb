@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex'
-require 'rex/ui/text/output/buffer'
 
 module Msf
 module RPC
@@ -129,7 +128,7 @@ class RPC_Session < RPC_Base
   # @param [Integer] sid Session ID.
   # @param [String] lhost Local host.
   # @param [Integer] lport Local port.
-  # @return [Hash] A hash indicating the actioin was successful. It contains the following key:
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A message that says 'success'
   # @example Here's how you would use this from the client:
   #  rpc.call('session.shell_upgrade', 2, payload_lhost, payload_lport)

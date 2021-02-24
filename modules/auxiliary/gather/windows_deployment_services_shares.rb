@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/dcerpc'
-require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
@@ -136,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     deploy_shares = []
 
     begin
-      connect
+      connect(versions: [1])
       smb_login
       srvsvc_netshareenum.each do |share|
         # Ghetto unicode to ascii conversation

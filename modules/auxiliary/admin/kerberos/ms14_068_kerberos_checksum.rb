@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://blog.rapid7.com/2014/12/25/12-days-of-haxmas-ms14-068-now-in-metasploit']
         ],
       'License' => MSF_LICENSE,
-      'DisclosureDate' => 'Nov 18 2014'
+      'DisclosureDate' => '2014-11-18'
     ))
 
     register_options(

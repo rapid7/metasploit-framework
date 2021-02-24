@@ -3,12 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/reverse_tcp'
-
 module MetasploitModule
 
-  CachedSize = 316
+  CachedSize = 329
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcp

@@ -18,7 +18,7 @@
         'Author'         =>         [
             'Cale Smith',   # @0xC413
           ],
-        'DisclosureDate'  => 'Apr 17 2018',
+        'DisclosureDate'  => '2018-04-17',
         'Platform'       => 'linux',
         'SessionTypes'   => ['shell', 'meterpreter'],
         }

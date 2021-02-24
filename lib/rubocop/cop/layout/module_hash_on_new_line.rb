@@ -1,7 +1,8 @@
 module RuboCop
   module Cop
     module Layout
-      class ModuleHashOnNewLine < Cop
+      class ModuleHashOnNewLine < Base
+        extend AutoCorrector
         include Alignment
 
         MSG = "%<name>s should start on its own line"
@@ -20,22 +21,24 @@ module RuboCop
           return if update_info_node.nil?
 
           unless begins_its_line?(update_info_node.source_range)
-            add_offense(update_info_node, location: :begin)
+            add_offense(update_info_node.loc.begin, message: message(update_info_node), &autocorrector(update_info_node))
           end
 
           # Ensure every argument to update_info is on its own line, i.e. info and the hash arguments
           update_info_node.arguments.each do |argument|
             unless begins_its_line?(argument.source_range)
-              add_offense(argument)
+              add_offense(argument.source_range, message: message(argument), &autocorrector(argument))
             end
           end
 
           if missing_new_line_after_parenthesis?(update_info_node)
-            add_offense(update_info_node, location: :end, message: MISSING_NEW_LINE_MSG)
+            add_offense(update_info_node.loc.end, message: MISSING_NEW_LINE_MSG, &autocorrector(update_info_node))
           end
         end
 
-        def autocorrect(node)
+        private
+
+        def autocorrector(node)
           lambda do |corrector|
             if merge_function?(node) && missing_new_line_after_parenthesis?(node)
               # Ensure there's always a new line after `update_info(...)` to avoid `))` at the end of the `super(update_info` call
@@ -46,8 +49,6 @@ module RuboCop
             end
           end
         end
-
-        private
 
         def message(node)
           if update_info?(node)

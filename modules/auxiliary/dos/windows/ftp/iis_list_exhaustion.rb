@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS09-053'],
           [ 'URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2009-09/0040.html']
         ],
-      'DisclosureDate' => 'Sep 03 2009'))
+      'DisclosureDate' => '2009-09-03'))
   end
 
   def run

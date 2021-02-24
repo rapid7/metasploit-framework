@@ -1,6 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/post/hwbridge'
-require 'msf/core/auxiliary/report'
 
 module Rex
 module Post

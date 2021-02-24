@@ -6,7 +6,6 @@
 ##
 
 require 'rexml/document'
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles

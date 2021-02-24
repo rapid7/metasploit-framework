@@ -54,7 +54,7 @@ class Console::CommandDispatcher::Extapi
   # Name for this dispatcher
   #
   def name
-    "Extended API Extension"
+    'Extended API Extension'
   end
 
 end

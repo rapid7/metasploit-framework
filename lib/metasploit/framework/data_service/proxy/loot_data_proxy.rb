@@ -3,8 +3,8 @@ module LootDataProxy
   def report_loot(opts)
     begin
       self.data_service_operation do |data_service|
-        if !data_service.is_a?(Msf::DBManager)
-          opts[:data] = Base64.urlsafe_encode64(opts[:data].empty? ? "" : opts[:data].join('')) if opts[:data] and opts[:data].kind_of?(Array) else opts[:data]
+        unless data_service.is_a?(Msf::DBManager)
+          opts[:data] = Base64.urlsafe_encode64(opts[:data].to_s) unless opts[:data].nil?
         end
         add_opts_workspace(opts)
         data_service.report_loot(opts)

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Dec/9' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_netflow_it360_file_dl.txt' ]
         ],
-      'DisclosureDate' => 'Nov 30 2014'))
+      'DisclosureDate' => '2014-11-30'))
 
     register_options(
       [

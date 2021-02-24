@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://blog.rapid7.com/2015/12/20/cve-2015-7755-juniper-screenos-authentication-backdoor'],
         ['URL', 'https://kb.juniper.net/InfoCenter/index?page=content&id=JSA10713']
       ],
-      'DisclosureDate' => 'Dec 20 2015',
+      'DisclosureDate' => '2015-12-20',
       'License'        => MSF_LICENSE
     ))
 

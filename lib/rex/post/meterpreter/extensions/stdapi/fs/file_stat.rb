@@ -130,7 +130,7 @@ protected
   # hash to the requestor.
   #
   def stat(file)
-    request = Packet.create_request('stdapi_fs_stat')
+    request = Packet.create_request(COMMAND_ID_STDAPI_FS_STAT)
 
     request.add_tlv(TLV_TYPE_FILE_PATH, self.class.client.unicode_filter_decode( file ))
 

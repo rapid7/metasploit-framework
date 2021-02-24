@@ -4,7 +4,7 @@ require 'bindata'
 
 module Rex
 module Proto
-module NTP
+module NTP::Modes
 
   # A very generic NTP message
   #

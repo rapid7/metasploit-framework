@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           ['EDB', '31459'],
           ['URL', 'http://developer.joomla.org/security/578-20140301-core-sql-injection.html']
         ],
-      'DisclosureDate' => 'Mar 2 2014'
+      'DisclosureDate' => '2014-03-02'
     ))
 
     register_options(

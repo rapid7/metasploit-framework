@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'https://www.manageengine.com/products/service-desk/readme-9.1.html'],
         ],
-      'DisclosureDate' => "Oct 03 2015"
+      'DisclosureDate' => '2015-10-03'
     ))
 
     register_options(

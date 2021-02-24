@@ -9,17 +9,145 @@
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
+  SuggestExtensions: false
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
+  - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
+
+Layout/SpaceBeforeBrackets:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9499
+  Enabled: false
+
+Lint/AmbiguousAssignment:
+  Enabled: true
+
+Lint/DeprecatedConstants:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Description: >-
+    Disabled as it causes a lot of noise around our current exception/error handling
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: false
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/LambdaWithoutLiteralBlock:
+  Enabled: true
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
+Lint/NumberedParameterAssignment:
+  Enabled: true
+
+Lint/OrAssignmentToConstant:
+  Enabled: true
+
+Lint/RedundantDirGlobSort:
+  Enabled: true
+
+Lint/SymbolConversion:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/TripleQuotes:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: true
+
+Lint/UnmodifiedReduceAccumulator:
+  Enabled: true
+
+Style/ArgumentsForwarding:
+  Enabled: true
+
+Style/BlockComments:
+  Description: >-
+    Disabled as multiline comments are great for embedded code snippets/payloads that can
+    be copy/pasted directly into a terminal etc.
+  Enabled: false
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+Style/EndlessMethod:
+  Enabled: true
+
+Style/HashExcept:
+  Enabled: true
+
+Style/IfWithBooleanLiteralBranches:
+  Description: >-
+    Most of the time this is a valid replacement. Although it can generate subtly different
+    rewrites that might break code:
+      2.7.2 :001 > foo = nil
+      => nil
+      2.7.2 :002 > (foo && foo['key'] == 'foo') ? true : false
+      => false
+      2.7.2 :003 > foo && foo['key'] == 'foo'
+      => nil
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/MultipleComparison:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9520
+    It may also introduce subtle semantic issues if automatically applied to the
+    entire codebase without rigorous testing.
+  Enabled: false
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having an explicitly named
+    response object, it also makes it easier to put a breakpoint between the assignment
+    and return expression
+  Enabled: false
+
+Style/SwapValues:
+  Enabled: false
 
 Layout/ModuleHashOnNewLine:
   Enabled: true
 
 Layout/ModuleDescriptionIndentation:
   Enabled: true
+
+Lint/ModuleDisclosureDateFormat:
+  Enabled: true
+
+Lint/ModuleDisclosureDatePresent:
+  Include:
+    # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
+    - 'modules/exploits/**/*'
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
@@ -120,12 +248,11 @@ Style/TrailingCommaInArrayLiteral:
   Enabled: false
   Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
 
-Metrics/LineLength:
+Layout/LineLength:
   Description: >-
     Metasploit modules often pattern match against very
     long strings when identifying targets.
-  Enabled: true
-  Max: 180
+  Enabled: false
 
 Metrics/BlockLength:
   Enabled: true
@@ -172,7 +299,7 @@ Layout/EmptyLinesAroundMethodBody:
   Enabled: false
   Description: 'these are used to increase readability'
 
-Layout/ExtraSpacing:
+Layout/ExtraSpacingWithBinDataIgnored:
   Description: 'Do not use unnecessary spacing.'
   Enabled: true
   # When true, allows most uses of extra spacing if the intent is to align
@@ -182,7 +309,7 @@ Layout/ExtraSpacing:
   # When true, allows things like 'obj.meth(arg)  # comment',
   # rather than insisting on 'obj.meth(arg) # comment'.
   # If done for alignment, either this OR AllowForAlignment will allow it.
-  AllowBeforeTrailingComments: false
+  AllowBeforeTrailingComments: true
   # When true, forces the alignment of `=` in assignments on consecutive lines.
   ForceEqualSignAlignment: false
 
@@ -238,6 +365,8 @@ Style/SafeNavigation:
     configuration.
   Enabled: false
 
-Documentation:
-  Exclude:
-    - 'modules/**/*'
+Style/UnpackFirst:
+  Description: >-
+    Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
+    into a debugging REPL.
+  Enabled: false

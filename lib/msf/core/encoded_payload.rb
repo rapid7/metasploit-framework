@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 
 module Msf
 
@@ -63,8 +62,13 @@ class EncodedPayload
       # First, validate
       pinst.validate()
 
-      # Tell the payload how much space is available
-      pinst.available_space = self.space
+      # Propagate space information when set
+      unless self.space.nil?
+        # Tell the payload how much space is available
+        pinst.available_space = self.space
+        # Reserve 10% of the available space if encoding is required
+        pinst.available_space -= (self.space * 0.1).ceil if needs_encoding
+      end
 
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
@@ -125,9 +129,9 @@ class EncodedPayload
   # encoded attribute.
   #
   def encode
-    # If the exploit has bad characters, we need to run the list of encoders
-    # in ranked precedence and try to encode without them.
-    if reqs['Encoder'] || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
+    # If the exploit needs the payload to be encoded, we need to run the list of
+    # encoders in ranked precedence and try to encode with them.
+    if needs_encoding
       encoders = pinst.compatible_encoders
 
       # Make sure the encoder name from the user has the same String#encoding
@@ -275,7 +279,8 @@ class EncodedPayload
     # If there are no bad characters, then the raw is the same as the
     # encoded
     else
-      unless reqs['BadChars'].blank?
+      # NOTE: BadChars can contain whitespace, so don't use String#blank?
+      unless reqs['BadChars'].nil? || reqs['BadChars'].empty?
         ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
       end
 
@@ -515,11 +520,23 @@ protected
   #
   attr_accessor :reqs
 
+  def needs_encoding
+    reqs['Encoder'] || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
+  end
+
   def has_chars?(chars)
-    return false if chars.blank? || self.raw.blank?
+    # NOTE: BadChars can contain whitespace, so don't use String#blank?
+    if chars.nil? || chars.empty?
+      return false
+    end
+
+    # payload hasn't been set yet but we have bad characters so assume they'll need to be encoded
+    return true if self.raw.nil?
+
+    return false if self.raw.empty?
 
     chars.each_byte do |bad|
-      return true if self.raw.index(bad.chr(Encoding::ASCII_8BIT))
+      return true if self.raw.index(bad.chr(::Encoding::ASCII_8BIT))
     end
 
     false

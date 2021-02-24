@@ -23,8 +23,7 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-require 'msf/base/config'
-require 'msf/util/helper'
+require 'msfenv'
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
@@ -187,7 +186,8 @@ end
 
 def start_db
   if !Dir.exist?(@db)
-    puts "No database found at #{@db}, not starting"
+    print_error "No database found at #{@db}."
+    print_error "Has the database been initialized with \"msfdb init\" or \"msfdb init --component database\"?"
     return
   end
 
@@ -517,6 +517,14 @@ def start_web_service(expect_auth: true)
 
   # daemonize MSF web service
   print 'Attempting to start MSF web service...'
+
+  unless File.file?(@ws_ssl_key_default)
+    puts "#{'failed'.red.bold}"
+    print_error "The SSL Key needed for the webservice to connect to the database could not be found at #{@ws_ssl_key_default}."
+    print_error 'Has the webservice been initialized with "msfdb init"  or "msfdb init --component webservice"?'
+    return false
+  end
+
   if run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
@@ -533,18 +541,19 @@ def start_web_service(expect_auth: true)
     end
 
       if response_data[:state] == :online
-      puts "#{'success'.green.bold}"
-      puts 'MSF web service started and online'
-      return true
+        puts "#{'success'.green.bold}"
+        puts 'MSF web service started and online'
+        return true
       elsif response_data[:state] == :error
-      puts "#{'failed'.red.bold}"
-      print_error 'MSF web service appears to be started, but may not operate as expected.'
-      puts "#{response_data[:message]}"
-      else
-      puts "#{'failed'.red.bold}"
-      print_error 'MSF web service does not appear to be started.'
-    end
-    puts "Please see #{@ws_log} for additional details."
+        puts "#{'failed'.red.bold}"
+        print_error 'MSF web service failed and returned the following message:'
+        puts "#{response_data[:message].nil? || response_data[:message].empty? ? "No message returned." : response_data[:message]}"
+      elsif response_data[:state] == :offline
+        puts "#{'failed'.red.bold}"
+        print_error 'A connection with the web service was refused.'
+      end
+
+    puts "Please see #{@ws_log} for additional webservice details."
     return false
   else
     puts "#{'failed'.red.bold}"
@@ -1082,9 +1091,14 @@ if $PROGRAM_NAME == __FILE__
   prompt_for_deletion(command)
   if @options[:component] == :all
     @components.each { |component|
+      puts '===================================================================='
+      puts "Running the '#{command}' command for the #{component}:"
       invoke_command(commands, component.to_sym, command)
+      puts '===================================================================='
+      puts
     }
   else
+    puts "Running the '#{command}' command for the #{@options[:component].to_s}:"
     invoke_command(commands, @options[:component], command)
   end
 end

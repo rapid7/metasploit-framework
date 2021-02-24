@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
         ],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
         'Platform'       => 'android',
-        'DisclosureDate' => "Oct 11 2013"
+        'DisclosureDate' => '2013-10-11'
       }
     ))
   end

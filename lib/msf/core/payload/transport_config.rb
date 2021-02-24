@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/payload/uuid/options'
-require 'msf/core/payload/pingback/options'
-
 ##
 # This module contains helper functions for creating the transport
 # configuration stubs that are used for Meterpreter payloads.

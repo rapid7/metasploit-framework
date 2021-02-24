@@ -1,5 +1,5 @@
 
-require 'msf/core'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
@@ -47,12 +47,25 @@ class MetasploitModule < Msf::Post
     super
   end
 
+  def test_core_command_id_enumeration
+    commands = []
+
+    it "should enumerate supported core commands" do
+      commands.concat(session.core.get_loaded_extension_commands('core'))
+      !commands.empty?
+    end
+
+    # 3 is arbitrary, but it's probably a good bare minimum to include enumextcmd, machine_id, and loadlib
+    it "should support 3 or more core commands" do
+      commands.length >= 3
+    end
+  end
 
   def test_sys_process
     vprint_status("Starting process tests")
     pid = nil
 
-    if session.commands.include? "stdapi_sys_process_getpid"
+    if session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_GETPID
       it "should return its own process id" do
         pid = session.sys.process.getpid
         vprint_status("Pid: #{pid}")
@@ -66,7 +79,7 @@ class MetasploitModule < Msf::Post
       ret = true
       list = session.sys.process.get_processes
       ret &&= (list && list.length > 0)
-      if session.commands.include? "stdapi_sys_process_getpid"
+      if session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_GETPID
         pid ||= session.sys.process.getpid
         process = list.find{ |p| p['pid'] == pid }
         vprint_status("PID info: #{process.inspect}")
@@ -95,7 +108,7 @@ class MetasploitModule < Msf::Post
   end
 
   def test_net_config
-    unless (session.commands.include? "stdapi_net_config_get_interfaces")
+    unless (session.commands.include? Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
       vprint_status("This meterpreter does not implement get_interfaces, skipping tests")
       return
     end
@@ -121,7 +134,7 @@ class MetasploitModule < Msf::Post
       res
     end
 
-    if session.commands.include?("stdapi_net_config_get_routes")
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES)
       it "should return network routes" do
         routes = session.net.config.get_routes
 

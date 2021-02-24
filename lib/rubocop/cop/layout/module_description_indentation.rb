@@ -1,7 +1,8 @@
 module RuboCop
   module Cop
     module Layout
-      class ModuleDescriptionIndentation < Cop
+      class ModuleDescriptionIndentation < Base
+        extend AutoCorrector
         include Alignment
 
         MSG = "Module descriptions should be properly aligned to the 'Description' key, and within %q{ ... }"
@@ -22,13 +23,15 @@ module RuboCop
           hash.each_pair do |key, value|
             if key.value == "Description"
               if requires_correction?(key, value)
-                add_offense(value, location: :end)
+                add_offense(value.location.end, &autocorrector(value))
               end
             end
           end
         end
 
-        def autocorrect(description_value)
+        private
+
+        def autocorrector(description_value)
           lambda do |corrector|
             description_key = description_value.parent.key
             new_content = indent_description_value_correctly(description_key, description_value)
@@ -36,8 +39,6 @@ module RuboCop
             corrector.replace(description_value.source_range, new_content)
           end
         end
-
-        private
 
         def requires_correction?(description_key, description_value)
           return false if description_value.single_line?

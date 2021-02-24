@@ -113,7 +113,7 @@ class SessionManager < Hash
 
           last_seen_timer = Time.now.utc
 
-          ::ActiveRecord::Base.connection_pool.with_connection do
+          ::ApplicationRecord.connection_pool.with_connection do
             values.each do |s|
               # Update the database entry on a regular basis, marking alive threads
               # as recently seen.  This notifies other framework instances that this

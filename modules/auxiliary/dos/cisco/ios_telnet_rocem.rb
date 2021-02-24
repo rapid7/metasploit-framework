@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170317-cmp'],
           ['URL', 'https://artkond.com/2017/04/10/cisco-catalyst-remote-code-execution']
         ],
-      'DisclosureDate' => 'Mar 17 2017'))
+      'DisclosureDate' => '2017-03-17'))
 
     register_options([ Opt::RPORT(23) ])
   end

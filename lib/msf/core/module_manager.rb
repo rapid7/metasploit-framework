@@ -7,9 +7,6 @@ require 'pathname'
 #
 # Project
 #
-require 'msf/core'
-require 'msf/core/module_set'
-
 module Msf
   # Upper management decided to throw in some middle management
   # because the modules were getting out of hand.  This bad boy takes
@@ -20,15 +17,8 @@ module Msf
   class ModuleManager
     include Msf::Framework::Offspring
 
-    require 'msf/core/payload_set'
 
     # require here so that Msf::ModuleManager is already defined
-    require 'msf/core/module_manager/cache'
-    require 'msf/core/module_manager/loading'
-    require 'msf/core/module_manager/module_paths'
-    require 'msf/core/module_manager/module_sets'
-    require 'msf/core/module_manager/reloading'
-
     include Msf::ModuleManager::Cache
     include Msf::ModuleManager::Loading
     include Msf::ModuleManager::ModulePaths
@@ -37,12 +27,6 @@ module Msf
 
     include Enumerable
 
-    #
-    # CONSTANTS
-    #
-
-    # Maps module type directory to its module type.
-    TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.invert
 
     def [](key)
       names = key.split("/")
@@ -74,7 +58,7 @@ module Msf
       potential_type_or_directory = names.first
 
       # if first name is a type
-      if Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
+      if DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
         type = potential_type_or_directory
       # if first name is a type directory
       else

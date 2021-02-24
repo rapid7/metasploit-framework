@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
            [ 'URL', 'http://net.ipcalf.com/' ],
            [ 'URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html' ]
          ],
-        'DisclosureDate' => 'Sep 05 2013',
+        'DisclosureDate' => '2013-09-05',
         'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'

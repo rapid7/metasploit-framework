@@ -1,0 +1,36 @@
+on:
+  schedule:
+    - cron: "0 15 * * 1-5"
+name: Stale Bot workflow
+jobs:
+  build:
+    name: stale
+    runs-on: ubuntu-latest
+    steps:
+      - name: stale
+        id: stale
+        uses: actions/stale@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 30
+          operations-per-run: 75
+          stale-issue-message: |
+            Hi!
+
+            This issue has been left open with no activity for a while now.
+
+            We get a lot of issues, so we currently close issues after 60 days of inactivity. It’s been at least 30 days since the last update here.
+            If we missed this issue or if you want to keep it open, please reply here. You can also add the label "not stale" to keep this issue open!
+
+            As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
+          close-issue-message: |
+            Hi again!
+
+            It’s been 60 days since anything happened on this issue, so we are going to close it.
+            Please keep in mind that I’m only a robot, so if I’ve closed this issue in error please feel free to reopen this issue or create a new one if you need anything else.
+
+            As a friendly reminder: the best way to see this issue, or any other, fixed is to open a Pull Request.
+          exempt-issue-labels: |
+            not-stale,confirmed,easy,newbie-friendly,suggestion,suggestion-module,suggestion-feature,suggestion-docs,ascii-utf8-issues,database,feature,enhancement,library
+          debug-only: false

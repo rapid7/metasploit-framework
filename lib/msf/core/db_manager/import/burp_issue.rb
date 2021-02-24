@@ -1,4 +1,3 @@
-require 'rex/parser/burp_issue_nokogiri'
 
 module Msf::DBManager::Import::BurpIssue
   def import_burp_issue_xml(args={}, &block)

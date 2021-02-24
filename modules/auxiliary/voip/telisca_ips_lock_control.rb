@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'zirsalem'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 17 2015',
+      'DisclosureDate' => '2015-12-17',
       'Actions'        =>
        [
          ['LOCK', 'Description' => 'To lock a phone'],

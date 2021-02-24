@@ -51,7 +51,7 @@ class Pool < Rex::Post::Meterpreter::Channel
   # Checks to see if the EOF flag has been set on the pool.
   #
   def eof
-    request = Packet.create_request('core_channel_eof')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_EOF)
 
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
 
@@ -106,33 +106,32 @@ class Pool < Rex::Post::Meterpreter::Channel
         raise RuntimeError, "Invalid seek whence #{whence}.", caller
     end
 
-    request = Packet.create_request('core_channel_seek')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_SEEK)
 
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
     request.add_tlv(TLV_TYPE_SEEK_OFFSET, offset)
     request.add_tlv(TLV_TYPE_SEEK_WHENCE, sane)
 
     begin
-      response = self.client.send_request(request)
+      self.client.send_request(request)
+      tell
     rescue
       return -1
     end
-
-    return tell
   end
 
   #
   # Synonym for tell.
   #
   def pos
-    return tell
+    tell
   end
 
   #
   # This method returns the current file pointer position to the caller.
   #
   def tell
-    request = Packet.create_request('core_channel_tell')
+    request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_TELL)
     pos     = -1
 
     request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)

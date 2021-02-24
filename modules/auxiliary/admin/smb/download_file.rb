@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def smb_download
     vprint_status("Connecting...")
-    connect(versions: [1, 2])
+    connect
     smb_login()
 
     vprint_status("#{peer}: Mounting the remote share \\\\#{rhost}\\#{datastore['SMBSHARE']}'...")

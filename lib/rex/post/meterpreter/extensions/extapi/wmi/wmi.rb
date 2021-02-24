@@ -29,7 +29,7 @@ class Wmi
   # @return [Hash] Array of field names with associated values.
   #
   def query(query, root = nil)
-    request = Packet.create_request('extapi_wmi_query')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_WMI_QUERY)
 
     request.add_tlv(TLV_TYPE_EXT_WMI_DOMAIN, root) unless root.to_s.strip.empty?
     request.add_tlv(TLV_TYPE_EXT_WMI_QUERY, query)

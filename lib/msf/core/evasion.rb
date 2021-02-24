@@ -1,4 +1,3 @@
-require 'msf/core/module'
 
 module Msf
   class Evasion < Msf::Module

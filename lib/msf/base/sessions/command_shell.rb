@@ -1,10 +1,7 @@
 # -*- coding: binary -*-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
-
 module Msf
 module Sessions
 
@@ -27,7 +24,7 @@ class CommandShell
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   include Rex::Ui::Text::Resource
 
@@ -258,9 +255,9 @@ class CommandShell
   def cmd_shell_help()
     print_line('Usage: shell')
     print_line
-    print_line('Pop up an interactive shell via multi methods.')
+    print_line('Pop up an interactive shell via multiple methods.')
     print_line('An interactive shell means that you can use several useful commands like `passwd`, `su [username]`')
-    print_line('There are three implementation of it: ')
+    print_line('There are four implementations of it: ')
     print_line('\t1. using python `pty` module (default choice)')
     print_line('\t2. using `socat` command')
     print_line('\t3. using `script` command')
@@ -274,17 +271,13 @@ class CommandShell
       return cmd_sessions_help
     end
 
-    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case.
     # 1. Using python
-    # 1.1 Check Python installed or not
-    # We do not need to care about the python version
-    # Beacuse python2 and python3 have the same payload of spawn a shell
-    python_path = binary_exists("python")
+    python_path = binary_exists("python") || binary_exists("python3")
     if python_path != nil
-      # Payload: import pty;pty.spawn('/bin/sh')
-      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
       print_status("Using `python` to pop up an interactive shell")
-      shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
+      # Ideally use bash for a friendlier shell, but fall back to /bin/sh if it doesn't exist
+      shell_path = binary_exists("bash") || '/bin/sh'
+      shell_command("#{python_path} -c \"#{ Msf::Payload::Python.create_exec_stub("import pty; pty.spawn('#{shell_path}')") } \"")
       return
     end
 
@@ -324,7 +317,7 @@ class CommandShell
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
     binary_path = shell_command_token("which #{binary}").to_s.strip
-    if binary_path.eql?("#{binary} not found")
+    if binary_path.eql?("#{binary} not found") || binary_path == ""
       print_error(binary_path)
       return nil
     else
@@ -373,7 +366,7 @@ class CommandShell
 
     # Check if src exists
     if !file_exists(src)
-      print_error("The target file does not exists")
+      print_error("The target file does not exist")
       return
     end
 
@@ -762,26 +755,6 @@ protected
       end
       Thread.pass
     end
-  end
-end
-
-class CommandShellWindows < CommandShell
-  def initialize(*args)
-    self.platform = "windows"
-    super
-  end
-  def shell_command_token(cmd,timeout = 10)
-    shell_command_token_win32(cmd,timeout)
-  end
-end
-
-class CommandShellUnix < CommandShell
-  def initialize(*args)
-    self.platform = "unix"
-    super
-  end
-  def shell_command_token(cmd,timeout = 10)
-    shell_command_token_unix(cmd,timeout)
   end
 end
 

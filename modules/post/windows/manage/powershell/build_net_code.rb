@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/powershell'
-require 'msf/core/exploit/powershell/dot_net'
-
 class MetasploitModule < Msf::Post
   Rank = ExcellentRanking
 
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
         'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
         'Platform'       => [ 'windows' ],
         'SessionTypes'   => [ 'meterpreter' ],
-        'DisclosureDate' => 'Aug 14 2012'
+        'DisclosureDate' => '2012-08-14'
       )
     )
 

@@ -59,7 +59,6 @@ end
 # Class and Mixin finder
 $mixins = []
 $class = nil
-require 'msf/core' # Make sure this is in your path, or else all is for naught.
 
 mod.each_line do |line|
   if line.match regex[:class]

@@ -1,13 +1,7 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 require 'rex/peparsey'
-require 'msf/core/payload/uuid/options'
-require 'msf/core/payload/windows'
-require 'msf/core/payload/windows/encrypted_payload_opts'
-require 'msf/core/payload/windows/payload_db_conf'
 require 'metasploit/framework/compiler/mingw'
-require 'rex/crypto/chacha20'
 
 module Msf
 

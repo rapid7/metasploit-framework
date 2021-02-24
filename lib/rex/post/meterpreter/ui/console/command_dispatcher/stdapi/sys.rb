@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   Klass = Console::CommandDispatcher::Stdapi::Sys
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # Options used by the 'execute' command.
@@ -106,64 +108,70 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def commands
     all = {
-      "clearev"     => "Clear the event log",
-      "drop_token"  => "Relinquishes any active impersonation token.",
-      "execute"     => "Execute a command",
-      "getpid"      => "Get the current process identifier",
-      "getprivs"    => "Attempt to enable all privileges available to the current process",
-      "getuid"      => "Get the user that the server is running as",
-      "getsid"      => "Get the SID of the user that the server is running as",
-      "getenv"      => "Get one or more environment variable values",
-      "kill"        => "Terminate a process",
-      "pkill"       => "Terminate processes by name",
-      "pgrep"       => "Filter processes by name",
-      "ps"          => "List running processes",
-      "reboot"      => "Reboots the remote computer",
-      "reg"         => "Modify and interact with the remote registry",
-      "rev2self"    => "Calls RevertToSelf() on the remote machine",
-      "shell"       => "Drop into a system command shell",
-      "shutdown"    => "Shuts down the remote computer",
-      "steal_token" => "Attempts to steal an impersonation token from the target process",
-      "suspend"     => "Suspends or resumes a list of processes",
-      "sysinfo"     => "Gets information about the remote system, such as OS",
-      "localtime"   => "Displays the target system's local date and time",
+      'clearev'     => 'Clear the event log',
+      'drop_token'  => 'Relinquishes any active impersonation token.',
+      'execute'     => 'Execute a command',
+      'getpid'      => 'Get the current process identifier',
+      'getprivs'    => 'Attempt to enable all privileges available to the current process',
+      'getuid'      => 'Get the user that the server is running as',
+      'getsid'      => 'Get the SID of the user that the server is running as',
+      'getenv'      => 'Get one or more environment variable values',
+      'kill'        => 'Terminate a process',
+      'pkill'       => 'Terminate processes by name',
+      'pgrep'       => 'Filter processes by name',
+      'ps'          => 'List running processes',
+      'reboot'      => 'Reboots the remote computer',
+      'reg'         => 'Modify and interact with the remote registry',
+      'rev2self'    => 'Calls RevertToSelf() on the remote machine',
+      'shell'       => 'Drop into a system command shell',
+      'shutdown'    => 'Shuts down the remote computer',
+      'steal_token' => 'Attempts to steal an impersonation token from the target process',
+      'suspend'     => 'Suspends or resumes a list of processes',
+      'sysinfo'     => 'Gets information about the remote system, such as OS',
+      'localtime'   => 'Displays the target system local date and time',
     }
     reqs = {
-      "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
-      "drop_token"  => [ "stdapi_sys_config_drop_token" ],
-      "execute"     => [ "stdapi_sys_process_execute" ],
-      "getpid"      => [ "stdapi_sys_process_getpid"	],
-      "getprivs"    => [ "stdapi_sys_config_getprivs" ],
-      "getuid"      => [ "stdapi_sys_config_getuid" ],
-      "getsid"      => [ "stdapi_sys_config_getsid" ],
-      "getenv"      => [ "stdapi_sys_config_getenv" ],
-      "kill"        => [ "stdapi_sys_process_kill" ],
-      "pkill"       => [ "stdapi_sys_process_kill", "stdapi_sys_process_get_processes" ],
-      "pgrep"       => [ "stdapi_sys_process_get_processes" ],
-      "ps"          => [ "stdapi_sys_process_get_processes" ],
-      "reboot"      => [ "stdapi_sys_power_exitwindows" ],
-      "reg"	      => [
-        "stdapi_registry_load_key",
-        "stdapi_registry_unload_key",
-        "stdapi_registry_open_key",
-        "stdapi_registry_open_remote_key",
-        "stdapi_registry_create_key",
-        "stdapi_registry_delete_key",
-        "stdapi_registry_close_key",
-        "stdapi_registry_enum_key",
-        "stdapi_registry_set_value",
-        "stdapi_registry_query_value",
-        "stdapi_registry_delete_value",
-        "stdapi_registry_query_class",
-        "stdapi_registry_enum_value",
+      'clearev'     => [
+        COMMAND_ID_STDAPI_SYS_EVENTLOG_OPEN,
+        COMMAND_ID_STDAPI_SYS_EVENTLOG_CLEAR
       ],
-      "rev2self"    => [ "stdapi_sys_config_rev2self" ],
-      "shell"       => [ "stdapi_sys_process_execute" ],
-      "shutdown"    => [ "stdapi_sys_power_exitwindows" ],
-      "steal_token" => [ "stdapi_sys_config_steal_token" ],
-      "suspend"     => [ "stdapi_sys_process_attach"],
-      "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
-      "localtime"   => [ "stdapi_sys_config_localtime" ],
+      'drop_token'  => [COMMAND_ID_STDAPI_SYS_CONFIG_DROP_TOKEN],
+      'execute'     => [COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE],
+      'getpid'      => [COMMAND_ID_STDAPI_SYS_PROCESS_GETPID],
+      'getprivs'    => [COMMAND_ID_STDAPI_SYS_CONFIG_GETPRIVS],
+      'getuid'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETUID],
+      'getsid'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETSID],
+      'getenv'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETENV],
+      'kill'        => [COMMAND_ID_STDAPI_SYS_PROCESS_KILL],
+      'pkill'       => [
+        COMMAND_ID_STDAPI_SYS_PROCESS_KILL,
+        COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES
+      ],
+      'pgrep'       => [COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES],
+      'ps'          => [COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES],
+      'reboot'      => [COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS],
+      'reg'	      => [
+        COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_SET_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS,
+        COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE,
+      ],
+      'rev2self'    => [COMMAND_ID_STDAPI_SYS_CONFIG_REV2SELF],
+      'shell'       => [COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE],
+      'shutdown'    => [COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS],
+      'steal_token' => [COMMAND_ID_STDAPI_SYS_CONFIG_STEAL_TOKEN],
+      'suspend'     => [COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH],
+      'sysinfo'     => [COMMAND_ID_STDAPI_SYS_CONFIG_SYSINFO],
+      'localtime'   => [COMMAND_ID_STDAPI_SYS_CONFIG_LOCALTIME],
     }
     filter_commands(all, reqs)
   end
@@ -1023,13 +1031,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     print @@reg_opts.usage
     print_line("COMMANDS:")
     print_line
-    print_line("    enumkey  Enumerate the supplied registry key [-k <key>]")
-    print_line("    createkey  Create the supplied registry key  [-k <key>]")
-    print_line("    deletekey  Delete the supplied registry key  [-k <key>]")
-    print_line("    queryclass Queries the class of the supplied key [-k <key>]")
-    print_line("    setval Set a registry value [-k <key> -v <val> -d <data>]")
-    print_line("    deleteval  Delete the supplied registry value [-k <key> -v <val>]")
-    print_line("    queryval Queries the data contents of a value [-k <key> -v <val>]")
+    print_line("    enumkey     Enumerate the supplied registry key [-k <key>]")
+    print_line("    createkey   Create the supplied registry key  [-k <key>]")
+    print_line("    deletekey   Delete the supplied registry key  [-k <key>]")
+    print_line("    queryclass  Queries the class of the supplied key [-k <key>]")
+    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]")
+    print_line("    deleteval   Delete the supplied registry value [-k <key> -v <val>]")
+    print_line("    queryval    Queries the data contents of a value [-k <key> -v <val>]")
     print_line
   end
 
@@ -1097,7 +1105,6 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Columns'   => ['Name']
     )
 
-    privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
       table << [priv]
     end

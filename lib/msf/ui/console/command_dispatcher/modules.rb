@@ -1,22 +1,10 @@
 # -*- coding: binary -*-
 
-require 'rex/ui/text/output/buffer/stdout'
-require 'msf/ui/console/table_print/rank_styler'
-require 'msf/ui/console/table_print/rank_formatter'
-require 'msf/ui/console/table_print/highlight_substring_styler'
-
 
 module Msf
   module Ui
     module Console
       module CommandDispatcher
-
-        #
-        # Module Type Shorthands
-        #
-        MODULE_TYPE_SHORTHANDS = {
-          "aux" => Msf::MODULE_AUX
-        }
 
         #
         # {CommandDispatcher} for commands related to background jobs in Metasploit Framework.
@@ -117,6 +105,22 @@ module Msf
             print_line
           end
 
+          def print_module_info(mod, dump_json: false, show_doc: false)
+            if dump_json
+              print(Serializer::Json.dump_module(mod) + "\n")
+            elsif show_doc
+              f = Tempfile.new(["#{mod.shortname}_doc", '.html'])
+              begin
+                print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
+                Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
+              ensure
+                f.close if f
+              end
+            else
+              print(Serializer::ReadableText.dump_module(mod))
+            end
+          end
+
           #
           # Displays information about one or more module.
           #
@@ -135,49 +139,41 @@ module Msf
             end
 
             if (args.length == 0)
-              if (active_module)
-                if dump_json
-                  print(Serializer::Json.dump_module(active_module) + "\n")
-                elsif show_doc
-                  f = Tempfile.new(["#{active_module.shortname}_doc", '.html'])
-                  begin
-                    print_status("Generating documentation for #{active_module.shortname}, then opening #{f.path} in a browser...")
-                    Msf::Util::DocumentGenerator.spawn_module_document(active_module, f)
-                  ensure
-                    f.close if f
-                  end
-                else
-                  print(Serializer::ReadableText.dump_module(active_module))
-                end
+              if active_module
+                print_module_info(active_module, dump_json: dump_json, show_doc: show_doc)
                 return true
               else
                 cmd_info_help
                 return false
               end
-            elsif args.include? "-h"
+            elsif args.include? '-h'
               cmd_info_help
               return false
             end
 
-            args.each { |name|
+            args.each do |arg|
+              mod_name = arg
+
+              # Use a module by search index
+              index_from_list(@module_search_results, mod_name) do |mod|
+                next unless mod && mod.respond_to?(:fullname)
+
+                # Module cache object from @module_search_results
+                mod_name = mod.fullname
+              end
+
+              # Ensure we have a reference name and not a path
+              name = trim_path(mod_name, 'modules')
+
+              # Creates an instance of the module
               mod = framework.modules.create(name)
 
-              if (mod == nil)
+              if mod.nil?
                 print_error("Invalid module: #{name}")
-              elsif dump_json
-                print(Serializer::Json.dump_module(mod) + "\n")
-              elsif show_doc
-                f = Tempfile.new(["#{mod.shortname}_doc", '.html'])
-                begin
-                  print_status("Generating documentation for #{mod.shortname}, then opening #{f.path} in a browser...")
-                  Msf::Util::DocumentGenerator.spawn_module_document(mod, f)
-                ensure
-                  f.close if f
-                end
               else
-                print(Serializer::ReadableText.dump_module(mod))
+                print_module_info(mod, dump_json: dump_json, show_doc: show_doc)
               end
-            }
+            end
           end
 
           def cmd_options_help
@@ -421,7 +417,7 @@ module Msf
               if cached
                 print_status('Displaying cached results')
               else
-                search_params = parse_search_string(match)
+                search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
               end
 
@@ -472,60 +468,17 @@ module Msf
               }
             else
               print_line(tbl.to_s)
+              index_usage = "use #{@module_search_results.length - 1}"
+              index_info = "info #{@module_search_results.length - 1}"
+              name_usage = "use #{@module_search_results.last.fullname}"
+
+              print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+
               print_status("Using #{used_module}") if used_module
-
-              if @module_search_results.length > 1
-                index_usage = "use #{@module_search_results.length - 1}"
-                name_usage = "use #{@module_search_results.last.fullname}"
-
-                print("Interact with a module by name or index, for example %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
-              end
             end
 
             true
           end
-
-
-          #
-          # Parses command line search string into a hash
-          #
-          # Resulting Hash Example:
-          # {"platform"=>[["android"], []]} will match modules targeting the android platform
-          # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
-          #
-          def parse_search_string(search_string)
-            # Split search terms by space, but allow quoted strings
-            terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
-            terms.delete('')
-
-            # All terms are either included or excluded
-            res = {}
-
-            terms.each do |term|
-              keyword, search_term = term.split(":", 2)
-              unless search_term
-                search_term = keyword
-                keyword = 'text'
-              end
-              next if search_term.length == 0
-              keyword.downcase!
-              search_term.downcase!
-
-              if keyword == "type"
-                search_term = MODULE_TYPE_SHORTHANDS[search_term] if MODULE_TYPE_SHORTHANDS.key?(search_term)
-              end
-
-              res[keyword] ||=[   [],    []   ]
-              if search_term[0,1] == "-"
-                next if search_term.length == 1
-                res[keyword][1] << search_term[1,search_term.length-1]
-              else
-                res[keyword][0] << search_term
-              end
-            end
-            res
-          end
-
 
           #
           # Tab completion for the search command
@@ -698,7 +651,10 @@ module Msf
 
             # Use a module by search index
             index_from_list(@module_search_results, mod_name) do |mod|
-              return false unless mod && mod.respond_to?(:fullname)
+              unless mod && mod.respond_to?(:fullname)
+                print_error("Invalid module index: #{mod_name}")
+                return false
+              end
 
               # Module cache object from @module_search_results
               mod_name = mod.fullname
@@ -714,11 +670,21 @@ module Msf
               mod = framework.modules.create(mod_name)
 
               unless mod
+                # Checks to see if we have any load_errors for the current module.
+                # and if so, returns them to the user.
+                load_error = framework.modules.load_error_by_name(mod_name)
+                if load_error
+                  print_error("Failed to load module: #{load_error}")
+                  return false
+                end
                 unless mod_resolved
+                  elog("Module #{mod_name} not found, and no loading errors found. If you're using a custom module" \
+                    ' refer to our wiki: https://github.com/rapid7/metasploit-framework/wiki/Running-Private-Modules')
+
                   # Avoid trying to use the search result if it exactly matches
                   # the module we were trying to load. The module cannot be
                   # loaded and searching isn't going to change that.
-                  mods_found = cmd_search('-I', '-u', mod_name)
+                  mods_found = cmd_search('-I', '-u', *args)
                 end
 
                 unless mods_found
@@ -1316,7 +1282,7 @@ module Msf
                       count += 1,
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
-                      o.rank_to_s,
+                      o.rank,
                       o.has_check? ? 'Yes' : 'No',
                       o.name
                     ]
@@ -1335,6 +1301,9 @@ module Msf
                 'Prefix'     => "\n",
                 'Postfix'    => "\n",
                 'SearchTerm' => row_filter,
+                # For now, don't perform any word wrapping on the search table as it breaks the workflow of
+                # copying module names in conjunction with the `use <paste-buffer>` command
+                'Width' => ::BigDecimal::INFINITY,
                 'Columns' => [
                   '#',
                   'Name',

@@ -24,7 +24,7 @@ class Clipboard
   # (if it's supported).
   #
   def get_data(download = false)
-    request = Packet.create_request('extapi_clipboard_get_data')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA)
 
     if download
       request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD, true)
@@ -39,11 +39,11 @@ class Clipboard
   # Set the target clipboard data to a text value
   #
   def set_text(text)
-    request = Packet.create_request('extapi_clipboard_set_data')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA)
 
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT, text)
 
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
@@ -52,7 +52,7 @@ class Clipboard
   # Start the clipboard monitor if it hasn't been started.
   #
   def monitor_start(opts)
-    request = Packet.create_request('extapi_clipboard_monitor_start')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_START)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS, opts[:wincls])
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, opts[:cap_img])
     return client.send_request(request)
@@ -62,7 +62,7 @@ class Clipboard
   # Pause the clipboard monitor if it's running.
   #
   def monitor_pause
-    request = Packet.create_request('extapi_clipboard_monitor_pause')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PAUSE)
     return client.send_request(request)
   end
 
@@ -74,7 +74,7 @@ class Clipboard
     purge = opts[:purge]
     purge = true if purge.nil?
 
-    request = Packet.create_request('extapi_clipboard_monitor_dump')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_DUMP)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, pull_img)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_PURGE, purge)
 
@@ -87,7 +87,7 @@ class Clipboard
   # Resume the clipboard monitor if it has been paused.
   #
   def monitor_resume
-    request = Packet.create_request('extapi_clipboard_monitor_resume')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_RESUME)
     return client.send_request(request)
   end
 
@@ -95,7 +95,7 @@ class Clipboard
   # Purge the contents of the clipboard capture without downloading.
   #
   def monitor_purge
-    request = Packet.create_request('extapi_clipboard_monitor_purge')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PURGE)
     return client.send_request(request)
   end
 
@@ -106,7 +106,7 @@ class Clipboard
     dump = opts[:dump]
     pull_img = opts[:include_images]
 
-    request = Packet.create_request('extapi_clipboard_monitor_stop')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_STOP)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_DUMP, dump)
     request.add_tlv(TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA, pull_img)
 

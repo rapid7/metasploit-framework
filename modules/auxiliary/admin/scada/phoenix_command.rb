@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/tijldeneut/ICSSecurityScripts' ],
           [ 'CVE', '2014-9195']
         ],
-      'DisclosureDate' => 'May 20 2015'))
+      'DisclosureDate' => '2015-05-20'))
     register_options(
       [
         OptEnum.new('ACTION', [true, 'PLC CPU action, REV means reverse current CPU state', 'NOOP',

@@ -1,5 +1,4 @@
 require 'rex'
-require 'msf/util/java_deserialization'
 
 RSpec.describe Msf::Util::JavaDeserialization do
   let(:payload_name) do

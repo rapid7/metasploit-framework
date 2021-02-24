@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Post
         address: proxyhost,
         port: proxyport,
         protocol: 'tcp',
-        workspace_id: myworkspace.id,
+        workspace_id: myworkspace_id,
         origin_type: :service,
         private_type: :password,
         private_data: proxypass,

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/core/payload_generator'
 
 RSpec.describe Msf::PayloadGenerator do
   include_context 'Msf::Simple::Framework#modules loading'

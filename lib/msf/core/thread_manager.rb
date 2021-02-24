@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/plugin'
 
 =begin
 require 'active_record'
@@ -9,7 +8,7 @@ require 'active_record'
 #
 #   DEPRECATION WARNING: Database connections will not be closed automatically, please close your
 #   database connection at the end of the thread by calling `close` on your
-#   connection.  For example: ActiveRecord::Base.connection.close
+#   connection.  For example: ApplicationRecord.connection.close
 #
 # and
 #
@@ -115,12 +114,12 @@ class ThreadManager < Array
         ensure
           if framework.db && framework.db.active && framework.db.is_local?
             # NOTE: despite the Deprecation Warning's advice, this should *NOT*
-            # be ActiveRecord::Base.connection.close which causes unrelated
+            # be ApplicationRecord.connection.close which causes unrelated
             # threads to raise ActiveRecord::StatementInvalid exceptions at
             # some point in the future, presumably due to the pool manager
             # believing that the connection is still usable and handing it out
             # to another thread.
-            ::ActiveRecord::Base.connection_pool.release_connection
+            ::ApplicationRecord.connection_pool.release_connection
           end
         end
       end

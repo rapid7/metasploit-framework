@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
-require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
-require 'msf/core/payload/windows/payload_db_conf'
+require 'msf/core/exception'
 module Msf
 
   class PayloadGeneratorError < StandardError
@@ -252,6 +251,10 @@ module Msf
         @iterations = 1 if iterations < 1
 
         encoder_mod = framework.encoders.create(encoder_opt[0])
+        unless encoder_mod
+          cli_print "#{encoder_opt[0]} not found continuing..."
+          next
+        end
         encoder_mod.datastore.import_options_from_hash(datastore)
         shellcode = run_encoder(encoder_mod, shellcode)
       end
@@ -362,6 +365,7 @@ module Msf
     # produce a JAR or WAR file for the java payload.
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
+      raise PayloadGeneratorError, "A payload module was not selected" if payload_module.nil?
       payload_module.datastore.import_options_from_hash(datastore)
       case format
       when "raw", "jar"
@@ -460,6 +464,7 @@ module Msf
         end
         stdin
       else
+        raise PayloadGeneratorError, "A payload module was not selected" if payload_module.nil?
         chosen_platform = choose_platform(payload_module)
         if chosen_platform.platforms.empty?
           raise IncompatiblePlatform, "The selected platform is incompatible with the payload"
@@ -504,7 +509,7 @@ module Msf
       elsif !badchars.empty? && !badchars.nil?
         badchars_present = false
         badchars.each_byte do |bad|
-          badchars_present = true if buf.index(bad.chr(Encoding::ASCII_8BIT))
+          badchars_present = true if buf.index(bad.chr(::Encoding::ASCII_8BIT))
         end
 
         unless badchars_present

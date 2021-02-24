@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://www.davidlitchfield.com/Privilege_Escalation_via_Oracle_Indexes.pdf' ],
         ],
-      'DisclosureDate' => 'Jan 21 2015'))
+      'DisclosureDate' => '2015-01-21'))
 
     register_options(
       [

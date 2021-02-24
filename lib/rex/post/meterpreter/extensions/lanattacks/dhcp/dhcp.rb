@@ -21,17 +21,17 @@ class Dhcp
   end
 
   def start
-    client.send_request(Packet.create_request('lanattacks_start_dhcp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_START_DHCP))
     true
   end
 
   def reset
-    client.send_request(Packet.create_request('lanattacks_reset_dhcp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_RESET_DHCP))
     true
   end
 
   def set_option(name, value)
-    request = Packet.create_request('lanattacks_set_dhcp_option')
+    request = Packet.create_request(COMMAND_ID_LANATTACKS_SET_DHCP_OPTION)
     request.add_tlv(TLV_TYPE_LANATTACKS_OPTION_NAME, name)
     request.add_tlv(TLV_TYPE_LANATTACKS_OPTION, value)
     client.send_request(request)
@@ -50,12 +50,12 @@ class Dhcp
   end
 
   def stop
-    client.send_request(Packet.create_request('lanattacks_stop_dhcp'))
+    client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_STOP_DHCP))
     true
   end
 
   def log
-    response = client.send_request(Packet.create_request('lanattacks_dhcp_log'))
+    response = client.send_request(Packet.create_request(COMMAND_ID_LANATTACKS_DHCP_LOG))
     entries = []
     if( response.result == 0 )
       log = response.get_tlv_value( TLV_TYPE_LANATTACKS_RAW )

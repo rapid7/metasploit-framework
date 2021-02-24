@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/post/hwbridge'
-require 'msf/core/auxiliary/report'
-require 'rex/parser/arguments'
 
 module Rex
 module Post
@@ -57,15 +55,14 @@ class Console::CommandDispatcher::CustomMethods
   def cmd_generic_handler_help(cmd)
     @custom_methods.each do |meth|
       next unless meth["method_name"] =~ /#{cmd}$/
-        args = ""
-        args = "<args>" if meth["args"].size > 0
-        print_line("Usage: #{cmd} #{args}")
-        print_line
-        meth["args"].each do |arg|
-          req = ""
-          req = "  *required*" if arg.key? "required" and arg["required"] == true
-          print_line("  #{arg["arg_name"]}=<#{arg["arg_type"]}> #{req}")
-        end
+      args = ""
+      args = "<args>" if meth["args"].size > 0
+      print_line("Usage: #{cmd} #{args}")
+      print_line
+      meth["args"].each do |arg|
+        req = ""
+        req = "  *required*" if arg.key? "required" and arg["required"] == true
+        print_line("  #{arg["arg_name"]}=<#{arg["arg_type"]}> #{req}")
       end
     end
   end

@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/java'
-require 'msf/core/payload/java/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_java'
-require 'msf/base/sessions/meterpreter_options'
 
 
 module MetasploitModule

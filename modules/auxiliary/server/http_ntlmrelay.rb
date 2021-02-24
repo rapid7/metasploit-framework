@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/message'
-require 'rex/proto/ntlm/crypt'
 require 'rex/exceptions'
 
 
@@ -328,7 +325,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not connect to target host (#{target_host})")
       return
     end
-    ser_sock = Rex::Proto::SMB::SimpleClient.new(rsock, rport == 445 ? true : false)
+    ser_sock = Rex::Proto::SMB::SimpleClient.new(rsock, rport == 445 ? true : false, [1])
 
     if (datastore['RPORT'] == '139')
       ser_sock.client.session_request()

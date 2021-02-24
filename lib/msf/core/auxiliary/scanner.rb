@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 module Msf
 
 ###
@@ -9,6 +10,8 @@ module Msf
 
 module Auxiliary::Scanner
 
+class AttemptFailed < Msf::Auxiliary::Failed
+end
 
 #
 # Initializes an instance of a recon auxiliary module
@@ -119,6 +122,8 @@ def run
             if datastore['CHOST']
               @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
             end
+          rescue Msf::Auxiliary::Scanner::AttemptFailed => e
+            nmod.vprint_error("#{e}")
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
           rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
             raise $!
@@ -144,13 +149,11 @@ def run
         break
       end
 
-      # Assume that the oldest thread will be one of the
-      # first to finish and wait for it.  After that's
-      # done, remove any finished threads from the list
-      # and continue on.  This will open up at least one
-      # spot for a new thread
+      # Attempt to wait for the oldest thread for a second,
+      # remove any finished threads from the list
+      # and continue on.
       tla = @tl.length
-      @tl.first.join
+      @tl.first.join(1)
       @tl.delete_if { |t| not t.alive? }
       tlb = @tl.length
 
@@ -200,10 +203,12 @@ def run
             mybatch = bat.dup
             begin
               nmod.run_batch(mybatch)
-          rescue ::Rex::BindFailed
-            if datastore['CHOST']
-              @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
-            end
+            rescue ::Rex::BindFailed
+              if datastore['CHOST']
+                @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
+              end
+            rescue Msf::Auxiliary::Scanner::AttemptFailed => e
+              print_error("#{e}")
             rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
             rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
               raise $!
@@ -231,14 +236,12 @@ def run
         break
       end
 
-      # Assume that the oldest thread will be one of the
-      # first to finish and wait for it.  After that's
-      # done, remove any finished threads from the list
-      # and continue on.  This will open up at least one
-      # spot for a new thread
+      # Attempt to wait for the oldest thread for a second,
+      # remove any finished threads from the list
+      # and continue on.
       tla = 0
       @tl.map {|t| tla += t[:batch_size] }
-      @tl.first.join
+      @tl.first.join(1)
       @tl.delete_if { |t| not t.alive? }
       tlb = 0
       @tl.map {|t| tlb += t[:batch_size] }
@@ -332,6 +335,16 @@ def add_delay_jitter(_delay, _jitter)
     final_delay = delay_value.to_f / 1000.0
     vprint_status("Delaying for #{final_delay} second(s) (#{original_value}ms +/- #{jitter_value}ms)")
     sleep final_delay
+  end
+end
+
+def fail_with(reason, msg = nil, abort: false)
+  if abort
+    # raising Failed will case the run to be aborted
+    raise Msf::Auxiliary::Failed, "#{reason.to_s}: #{msg}"
+  else
+    # raising AttemptFailed will cause the run_host / run_batch to be aborted
+    raise Msf::Auxiliary::Scanner::AttemptFailed, "#{reason.to_s}: #{msg}"
   end
 end
 

@@ -35,7 +35,7 @@ module ResponseDataHelper
   #
   # @param response_wrapper [ResponseWrapper] A wrapped HTTP response containing a JSON body.
   # @param mdm_class [String] The Mdm class name the JSON will be converted to.
-  # @return [ActiveRecord::Base] An object of type mdm_class, which inherits from ActiveRecord::Base
+  # @return [ApplicationRecord] An object of type mdm_class, which inherits from ApplicationRecord
   # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse
   # @raise [RuntimeError] response_wrapper is a Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse
   # @raise [RuntimeError] response_wrapper contains an empty response
@@ -96,7 +96,7 @@ module ResponseDataHelper
   # @param [String] klass The ActiveRecord class to convert the JSON/Hash to.
   # @param [String] val The JSON string, or Hash, to convert.
   # @param [Class] base_class The base class to build back to. Used for recursion.
-  # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
+  # @return [ApplicationRecord] A klass object, which inherits from ApplicationRecord.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
     data = val.class == Hash ? val.dup : JSON.parse(val, symbolize_names: true)

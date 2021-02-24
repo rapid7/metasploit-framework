@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/x64/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x64_win'
-require 'msf/base/sessions/meterpreter_options'
 
 ###
 #
@@ -22,7 +19,7 @@ module MetasploitModule
   def initialize(info = {})
     super(update_info(info,
       'Name'          => 'Windows Meterpreter (Reflective Injection x64)',
-      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64)',
+      'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged). Requires Windows XP SP2 or newer',
       'Author'        => ['skape', 'sf', 'OJ Reeves'],
       'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi http https'},
       'License'       => MSF_LICENSE,

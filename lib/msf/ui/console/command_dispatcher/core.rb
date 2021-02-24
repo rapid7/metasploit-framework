@@ -4,24 +4,13 @@
 # Rex
 #
 
-require 'rex/ui/text/output/buffer/stdout'
 
 #
 # Project
 #
 
-require 'msf/ui/console/command_dispatcher/encoder'
-require 'msf/ui/console/command_dispatcher/exploit'
-require 'msf/ui/console/command_dispatcher/nop'
-require 'msf/ui/console/command_dispatcher/payload'
-require 'msf/ui/console/command_dispatcher/auxiliary'
-require 'msf/ui/console/command_dispatcher/post'
-require 'msf/ui/console/command_dispatcher/evasion'
-require 'msf/ui/console/command_dispatcher/jobs'
-require 'msf/ui/console/command_dispatcher/resource'
-require 'msf/ui/console/command_dispatcher/modules'
-require 'msf/ui/console/command_dispatcher/developer'
-require 'msf/util/document_generator'
+
+require 'msf/core/opt_condition'
 
 require 'optparse'
 
@@ -40,6 +29,7 @@ class Core
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
+  include Msf::Ui::Console::ModuleOptionTabCompletion
 
   # Session command options
   @@sessions_opts = Rex::Parser::Arguments.new(
@@ -113,6 +103,7 @@ class Core
       "color"      => "Toggle color",
       "debug"      => "Display information useful for debugging",
       "exit"       => "Exit the console",
+      "features"   => "Display the list of not yet released features that can be opted in to",
       "get"        => "Gets the value of a context-specific variable",
       "getg"       => "Gets the value of a global variable",
       "grep"       => "Grep the output of another command",
@@ -234,8 +225,6 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    avdwarn = nil
-
     stats       = framework.stats
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
@@ -249,23 +238,10 @@ class Core
     banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
 
     banner << "\n"
-    banner << "Metasploit tip: #{Tip.sample}\n"
-
-    if ::Msf::Framework::EICARCorrupted
-      avdwarn = []
-      avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
-      avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
-      avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
-      avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
-      avdwarn << ""
-    end
+    banner << Msf::Serializer::ReadableText.word_wrap("Metasploit tip: #{Tip.sample}\n", indent = 0, cols = 60)
 
     # Display the banner
     print_line(banner)
-
-    if(avdwarn)
-      avdwarn.map{|line| print_error(line) }
-    end
 
   end
 
@@ -562,6 +538,122 @@ class Core
   end
 
   alias cmd_quit cmd_exit
+
+  def cmd_features_help
+    print_line <<~CMD_FEATURE_HELP
+      Enable or disable unreleased features that Metasploit supports
+
+      Usage:
+        features set feature_name [true/false]
+        features print
+
+      Subcommands:
+        set - Enable or disable a given feature
+        print - show all available features and their current configuration
+
+      Examples:
+        View available features:
+          features print
+
+        Enable a feature:
+          features set new_feature true
+
+        Disable a feature:
+          features set new_feature false
+    CMD_FEATURE_HELP
+  end
+
+  #
+  # This method handles the features command which allows a user to opt into enabling
+  # features that are not yet released to everyone by default.
+  #
+  def cmd_features(*args)
+    args << 'print' if args.empty?
+
+    action, *rest = args
+    case action
+    when 'set'
+      feature_name, value = rest
+
+      unless framework.features.exists?(feature_name)
+        print_warning("Feature name '#{feature_name}' is not available. Either it has been removed, integrated by default, or does not exist in this version of Metasploit.")
+        print_warning("Currently supported features: #{framework.features.names.join(', ')}") if framework.features.all.any?
+        print_warning('There are currently no features to toggle.') if framework.features.all.empty?
+        return
+      end
+
+      unless %w[true false].include?(value)
+        print_warning('Please specify true or false to configure this feature.')
+        return
+      end
+
+      framework.features.set(feature_name, value == 'true')
+      print_line("#{feature_name} => #{value}")
+      # Reload the current module, as feature flags may impact the available module options etc
+      driver.run_single("reload") if driver.active_module
+    when 'print'
+      if framework.features.all.empty?
+        print_line 'There are no features to enable at this time. Either the features have been removed, or integrated by default.'
+        return
+      end
+
+      features_table = Table.new(
+        Table::Style::Default,
+        'Header' => 'Features table',
+        'Prefix' => "\n",
+        'Postfix' => "\n",
+        'Columns' => [
+          '#',
+          'Name',
+          'Enabled',
+          'Description',
+        ]
+      )
+
+      framework.features.all.each.with_index do |feature, index|
+        features_table << [
+          index,
+          feature[:name],
+          feature[:enabled].to_s,
+          feature[:description]
+        ]
+      end
+
+      print_line features_table.to_s
+    else
+      cmd_features_help
+    end
+  rescue StandardError => e
+    elog(e)
+    print_error(e.message)
+  end
+
+  #
+  # Tab completion for the features command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_features_tabs(_str, words)
+    if words.length == 1
+      return %w[set print]
+    end
+
+    _command_name, action, *rest = words
+    ret = []
+    case action
+    when 'set'
+      feature_name, _value = rest
+
+      if framework.features.exists?(feature_name)
+        ret += %w[true false]
+      else
+        ret += framework.features.names
+      end
+    end
+
+    ret
+  end
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
@@ -1127,6 +1219,12 @@ class Core
     # Save the console config
     driver.save_config
 
+    begin
+      FeatureManager.instance.save_config
+    rescue StandardException => e
+      elog(e)
+    end
+
     # Save the framework's datastore
     begin
       framework.save_config
@@ -1687,7 +1785,7 @@ class Core
       else
         datastore[name] = value
       end
-    rescue OptionValidateError => e
+    rescue Msf::OptionValidateError => e
       print_error(e.message)
       elog('Exception encountered in cmd_set', error: e)
     end
@@ -1716,83 +1814,14 @@ class Core
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_set_tabs(str, words)
-
     # A value has already been specified
     return [] if words.length > 2
 
     # A value needs to be specified
     if words.length == 2
-      return tab_complete_option(str, words)
+      return tab_complete_option_values(active_module, str, words, opt: words[1])
     end
-
-    res = cmd_unset_tabs(str, words) || [ ]
-    # There needs to be a better way to register global options, but for
-    # now all we have is an ad-hoc list of opts that the shell treats
-    # specially.
-    res += %w{
-      ConsoleLogging
-      LogLevel
-      MinimumRank
-      SessionLogging
-      TimestampOutput
-      Prompt
-      PromptChar
-      PromptTimeFormat
-      MeterpreterPrompt
-    }
-    mod = active_module
-
-    if (not mod)
-      return res
-    end
-
-    mod.options.sorted.each { |e|
-      name, _opt = e
-      res << name
-    }
-
-    # Exploits provide these three default options
-    if (mod.exploit?)
-      res << 'PAYLOAD'
-      res << 'NOP'
-      res << 'TARGET'
-      res << 'ENCODER'
-    elsif (mod.evasion?)
-      res << 'PAYLOAD'
-      res << 'TARGET'
-      res << 'ENCODER'
-    elsif (mod.payload?)
-      res << 'ENCODER'
-    end
-
-    if mod.kind_of?(Msf::Module::HasActions)
-      res << "ACTION"
-    end
-
-    if ((mod.exploit? or mod.evasion?) and mod.datastore['PAYLOAD'])
-      p = framework.payloads.create(mod.datastore['PAYLOAD'])
-      if (p)
-        p.options.sorted.each { |e|
-          name, _opt = e
-          res << name
-        }
-      end
-    end
-
-    unless str.blank?
-      res = res.select { |term| term.upcase.start_with?(str.upcase) }
-      res = res.map { |term|
-        if str == str.upcase
-          str + term[str.length..-1].upcase
-        elsif str == str.downcase
-          str + term[str.length..-1].downcase
-        else
-          str + term[str.length..-1]
-        end
-      }
-    end
-
-    return res
+    tab_complete_option_names(active_module, str, words)
   end
 
   def cmd_setg_help
@@ -1800,6 +1829,17 @@ class Core
     print_line
     print_line "Exactly like set -g, set a value in the global datastore."
     print_line
+  end
+
+  #
+  # Tab completion for the unset command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command
+  #   line. `words` is always at least 1 when tab completion has reached this
+  #   stage since the command itself has been completed.
+  def cmd_unset_tabs(str, words)
+    tab_complete_datastore_names(active_module, str, words)
   end
 
   #
@@ -2001,18 +2041,6 @@ class Core
 
       datastore.delete(val)
     end
-  end
-
-  #
-  # Tab completion for the unset command
-  #
-  # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command
-  #   line. `words` is always at least 1 when tab completion has reached this
-  #   stage since the command itself has been completed.
-  def cmd_unset_tabs(str, words)
-    datastore = active_module ? active_module.datastore : self.framework.datastore
-    datastore.keys
   end
 
   def cmd_unsetg_help
@@ -2258,262 +2286,6 @@ class Core
     # replace with new code that permits "nested" tab completion
     # tabs = driver.get_all_commands if (str and str =~ /\w/)
     tabs
-  end
-
-  #
-  # Provide tab completion for option values
-  #
-  def tab_complete_option(str, words)
-    opt = words[1]
-    res = []
-    mod = active_module
-
-    # With no active module, we have nothing to compare
-    if (not mod)
-      return res
-    end
-
-    # Well-known option names specific to exploits
-    if (mod.exploit?)
-      return option_values_payloads() if opt.upcase == 'PAYLOAD'
-      return option_values_targets()  if opt.upcase == 'TARGET'
-      return option_values_nops()     if opt.upcase == 'NOPS'
-      return option_values_encoders() if opt.upcase == 'STAGEENCODER'
-    elsif (mod.evasion?)
-      return option_values_payloads() if opt.upcase == 'PAYLOAD'
-      return option_values_targets()  if opt.upcase == 'TARGET'
-    end
-
-    # Well-known option names specific to modules with actions
-    if mod.kind_of?(Msf::Module::HasActions)
-      return option_values_actions() if opt.upcase == 'ACTION'
-    end
-
-    # The ENCODER option works for evasions, payloads and exploits
-    if ((mod.evasion? or mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
-      return option_values_encoders()
-    end
-
-    # Well-known option names specific to post-exploitation
-    if (mod.post? or mod.exploit?)
-      return option_values_sessions() if opt.upcase == 'SESSION'
-    end
-
-    # Is this option used by the active module?
-    mod.options.each_key do |key|
-      res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
-    end
-
-    # How about the selected payload?
-    if ((mod.evasion? or mod.exploit?) and mod.datastore['PAYLOAD'])
-      if p = framework.payloads.create(mod.datastore['PAYLOAD'])
-        p.options.each_key do |key|
-          res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
-        end
-      end
-    end
-
-    return res
-  end
-
-  # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
-  def tab_complete_source_interface(o)
-    return [] unless o.is_a?(Msf::OptAddressLocal)
-    o.interfaces
-  end
-
-  #
-  # Provide possible option values based on type
-  #
-  def option_values_dispatch(o, str, words)
-
-    res = []
-    res << o.default.to_s if o.default
-
-    case o
-    when Msf::OptAddress
-      case o.name.upcase
-      when 'RHOST'
-        option_values_target_addrs().each do |addr|
-          res << addr
-        end
-      when 'LHOST', 'SRVHOST', 'REVERSELISTENERBINDADDRESS'
-        rh = self.active_module.datastore['RHOST'] || framework.datastore['RHOST']
-        if rh and not rh.empty?
-          res << Rex::Socket.source_address(rh)
-        else
-          res += tab_complete_source_address
-          res += tab_complete_source_interface(o)
-        end
-      end
-
-    when Msf::OptAddressRange
-      case str
-      when /^file:(.*)/
-        files = tab_complete_filenames($1, words)
-        res += files.map { |f| "file:" + f } if files
-      when /\/$/
-        res << str+'32'
-        res << str+'24'
-        res << str+'16'
-      when /\-$/
-        res << str+str[0, str.length - 1]
-      else
-        option_values_target_addrs().each do |addr|
-          res << addr
-        end
-      end
-
-    when Msf::OptPort
-      case o.name.upcase
-      when 'RPORT'
-        option_values_target_ports().each do |port|
-          res << port
-        end
-      end
-
-      if (res.empty?)
-        res << (rand(65534)+1).to_s
-      end
-
-    when Msf::OptEnum
-      o.enums.each do |val|
-        res << val
-      end
-
-    when Msf::OptPath
-      files = tab_complete_filenames(str, words)
-      res += files if files
-
-    when Msf::OptBool
-      res << 'true'
-      res << 'false'
-
-    when Msf::OptString
-      if (str =~ /^file:(.*)/)
-        files = tab_complete_filenames($1, words)
-        res += files.map { |f| "file:" + f } if files
-      end
-    end
-
-    return res
-  end
-
-  #
-  # Provide valid payload options for the current exploit
-  #
-  def option_values_payloads
-    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
-      return @cache_payloads
-    end
-
-    @previous_module = active_module
-    @previous_target = active_module.target
-
-    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
-      refname
-    end
-
-    @cache_payloads
-  end
-
-  #
-  # Provide valid session options for the current post-exploit module
-  #
-  def option_values_sessions
-    if active_module.respond_to?(:compatible_sessions)
-      active_module.compatible_sessions.map { |sid| sid.to_s }
-    end
-  end
-
-  #
-  # Provide valid target options for the current exploit
-  #
-  def option_values_targets
-    res = []
-    if (active_module.targets)
-      1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
-      res += active_module.targets.map(&:name)
-    end
-    return res
-  end
-
-
-  #
-  # Provide valid action options for the current module
-  #
-  def option_values_actions
-    res = []
-    if (active_module.actions)
-      active_module.actions.each { |i| res << i.name }
-    end
-    return res
-  end
-
-  #
-  # Provide valid nops options for the current exploit
-  #
-  def option_values_nops
-    framework.nops.map { |refname, mod| refname }
-  end
-
-  #
-  # Provide valid encoders options for the current exploit or payload
-  #
-  def option_values_encoders
-    framework.encoders.map { |refname, mod| refname }
-  end
-
-  #
-  # Provide the target addresses
-  #
-  def option_values_target_addrs
-    res = [ ]
-    res << Rex::Socket.source_address()
-    return res if not framework.db.active
-
-    # List only those hosts with matching open ports?
-    mport = self.active_module.datastore['RPORT']
-    if mport
-      mport = mport.to_i
-      hosts = {}
-      framework.db.services.each do |service|
-        if service.port == mport
-          hosts[ service.host.address ] = true
-        end
-      end
-
-      hosts.keys.each do |host|
-        res << host
-      end
-
-    # List all hosts in the database
-    else
-      framework.db.hosts.each do |host|
-        res << host.address
-      end
-    end
-
-    return res
-  end
-
-  #
-  # Provide the target ports
-  #
-  def option_values_target_ports
-    res = [ ]
-    return res if not framework.db.active
-    return res if not self.active_module.datastore['RHOST']
-    host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
-    return res if not host
-
-    framework.db.services.each do |service|
-      if service.host_id == host.id
-        res << service.port.to_s
-      end
-    end
-
-    return res
   end
 
   protected

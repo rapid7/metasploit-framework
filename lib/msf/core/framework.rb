@@ -11,10 +11,8 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'msf/base/config'
-require 'msf/core'
-require 'msf/util'
-
+require 'rex/socket/ssl'
+require 'metasploit/framework/thread_factory_provider'
 module Msf
 
 ###
@@ -38,9 +36,6 @@ class Framework
 
   Revision = "$Revision$"
 
-  # EICAR canary
-  EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
-
   #
   # Mixin meant to be included into all classes that can have instances that
   # should be tied to the framework, such as modules.
@@ -54,14 +49,7 @@ class Framework
     attr_accessor :framework
   end
 
-  require 'msf/core/thread_manager'
-  require 'msf/core/module_manager'
-  require 'msf/core/session_manager'
-  require 'msf/core/plugin_manager'
   require 'metasploit/framework/data_service/proxy/core'
-  require 'msf/core/event_dispatcher'
-  require 'rex/json_hash_file'
-  require 'msf/core/cert_provider'
 
   #
   # Creates an instance of the framework context.
@@ -81,11 +69,13 @@ class Framework
     self.analyze   = Analyze.new(self)
     self.plugins   = PluginManager.new(self)
     self.browser_profiles = Hash.new
+    self.features = FeatureManager.instance
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
     # Configure the SSL certificate generator
+    require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
     subscriber = FrameworkEventSubscriber.new(self)
@@ -195,6 +185,11 @@ class Framework
   # framework objects to offer related objects/actions available.
   #
   attr_reader   :analyze
+  #
+  # The framework instance's feature manager. The feature manager is responsible
+  # for configuring feature flags that can change characteristics of framework.
+  #
+  attr_reader   :features
 
   #
   # The framework instance's dependency
@@ -242,22 +237,28 @@ class Framework
     }
   end
 
-  # TODO: Anything still using this should be ported to use metadata::cache search
-  def search(match, logger: nil)
-    # Do an in-place search
-    matches = []
-    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders, self.evasion ].each do |mset|
-      mset.each do |m|
-        begin
-          o = mset.create(m[0])
-          if o && !o.search_filter(match)
-            matches << o
-          end
-        rescue
-        end
-      end
-    end
-    matches
+  def search(search_string)
+    search_params = Msf::Modules::Metadata::Search.parse_search_string(search_string)
+    Msf::Modules::Metadata::Cache.instance.find(search_params)
+  end
+
+  #
+  # EICAR Canary
+  # @return [Boolean] Should return true if the EICAR file has been corrupted
+  def eicar_corrupted?
+    path = ::File.expand_path(::File.join(
+      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
+    )
+    return true unless ::File.exist?(path)
+
+    data = ::File.read(path)
+    return true unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
+
+    false
+
+  # If anything goes wrong assume AV got us
+  rescue ::Exception
+    true
   end
 
 protected
@@ -277,6 +278,7 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
   attr_writer   :analyze # :nodoc:
+  attr_writer   :features # :nodoc:
 
   private
 
@@ -306,7 +308,7 @@ class FrameworkEventSubscriber
     end
   end
 
-  include GeneralEventSubscriber
+  include Msf::GeneralEventSubscriber
 
   #
   # Generic handler for module events
@@ -375,7 +377,6 @@ class FrameworkEventSubscriber
     report_event(:name => "ui_start", :info => info)
   end
 
-  require 'msf/core/session'
 
   include ::Msf::SessionEvent
 
@@ -503,13 +504,13 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route(session, route)
-    framework.db.report_session_route(session, route)
+    framework.db.report_session_route({session: session, route: route})
   end
 
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route_remove(session, route)
-    framework.db.report_session_route_remove(session, route)
+    framework.db.report_session_route_remove({session: session, route: route})
   end
 
   ##
@@ -535,7 +536,6 @@ class FrameworkEventSubscriber
   #
   # This is covered by on_module_run and on_session_open, so don't bother
   #
-  #require 'msf/core/exploit'
   #include ExploitEvent
   #def on_exploit_success(exploit, session)
   #end

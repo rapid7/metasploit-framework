@@ -13,8 +13,6 @@
 ##
 
 
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
         ],
-      'DisclosureDate' => 'Jan 19 2012'
+      'DisclosureDate' => '2012-01-19'
       ))
 
     register_options(

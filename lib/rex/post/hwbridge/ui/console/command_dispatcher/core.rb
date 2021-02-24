@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'set'
 require 'rex/post/hwbridge'
-require 'rex/parser/arguments'
 
 module Rex
 module Post

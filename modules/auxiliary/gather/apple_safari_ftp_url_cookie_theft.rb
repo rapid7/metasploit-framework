@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/service_manager'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::FtpServer
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => 'Apr 8 2015'
+      'DisclosureDate' => '2015-04-08'
     ))
 
     register_options([

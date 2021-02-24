@@ -20,7 +20,7 @@ class Ntds
   end
 
   def parse(filepath)
-    request = Packet.create_request('extapi_ntds_parse')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_NTDS_PARSE)
     request.add_tlv( TLV_TYPE_NTDS_PATH, filepath)
     # wait up to 90 seconds for a response
     response = client.send_request(request, 90)

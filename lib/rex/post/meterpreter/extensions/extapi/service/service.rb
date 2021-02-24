@@ -29,7 +29,7 @@ class Service
   # Enumerate all the services on the target.
   #
   def enumerate
-    request = Packet.create_request('extapi_service_enum')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_SERVICE_ENUM)
     response = client.send_request(request)
 
     services = []
@@ -51,7 +51,7 @@ class Service
   # Query some detailed parameters about a particular service.
   #
   def query(service_name)
-    request = Packet.create_request('extapi_service_query')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_SERVICE_QUERY)
     request.add_tlv(TLV_TYPE_EXT_SERVICE_ENUM_NAME, service_name)
 
     response = client.send_request(request)
@@ -91,7 +91,7 @@ class Service
       raise ArgumentError, "Invalid operation: #{op}"
     end
 
-    request = Packet.create_request('extapi_service_control')
+    request = Packet.create_request(COMMAND_ID_EXTAPI_SERVICE_CONTROL)
     request.add_tlv(TLV_TYPE_EXT_SERVICE_CTRL_NAME, service_name)
     request.add_tlv(TLV_TYPE_EXT_SERVICE_CTRL_OP, op)
     client.send_request(request)

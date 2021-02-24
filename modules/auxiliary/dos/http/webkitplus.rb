@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bugs.webkit.org/show_bug.cgi?id=186164'],
           ['URL', 'https://datarift.blogspot.com/2018/06/cve-2018-11646-webkit.html']
         ],
-        'DisclosureDate' => 'Jun 03 2018',
+        'DisclosureDate' => '2018-06-03',
         'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'

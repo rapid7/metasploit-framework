@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '60847' ],
           [ 'URL', 'https://support.ntp.org/bugs/show_bug.cgi?id=1331' ]
         ],
-      'DisclosureDate' => 'Oct 04 2009'))
+      'DisclosureDate' => '2009-10-04'))
 
       register_options(
         [

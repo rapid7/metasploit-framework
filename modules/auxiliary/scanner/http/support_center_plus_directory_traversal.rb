@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '65199'],
           ['PACKETSTORM', '124975']
         ],
-      'DisclosureDate' => "Jan 28 2014"
+      'DisclosureDate' => '2014-01-28'
     ))
 
     register_options(

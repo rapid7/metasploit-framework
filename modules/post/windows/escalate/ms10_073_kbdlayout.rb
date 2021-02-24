@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
           [ 'EDB', '15985' ]
         ],
-      'DisclosureDate'=> "Oct 12 2010"
+      'DisclosureDate'=> '2010-10-12'
     ))
 
   end
