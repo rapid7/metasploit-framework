@@ -353,7 +353,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.3)
-    rex-text (0.2.31)
+    rex-text (0.2.33)
     rex-zip (0.1.4)
       rex-text
     rexml (3.2.4)

@@ -434,7 +434,7 @@ class Creds
       'Header'  => "Credentials",
       # For now, don't perform any word wrapping on the cred table as it breaks the workflow of
       # copying credentials and pasting them into applications
-      'Width' => ::BigDecimal::INFINITY,
+      'WordWrap' => false,
       'Columns' => cred_table_columns,
       'SearchTerm' => search_term
     }
