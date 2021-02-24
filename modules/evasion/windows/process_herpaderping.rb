@@ -8,9 +8,9 @@ require 'metasploit/framework/compiler/windows'
 class MetasploitModule < Msf::Evasion
 
   # These constants must match the constants defined in the PE loader code (ProcessHerpaderpingTemplate.cpp)
-  MAX_JUNK_SIZE    = 1024
+  MAX_JUNK_SIZE = 1024
   MAX_PAYLOAD_SIZE = 8192
-  MAX_KEY_SIZE     = 64
+  MAX_KEY_SIZE = 64
 
   def initialize(info = {})
     super(
@@ -187,7 +187,7 @@ class MetasploitModule < Msf::Evasion
         "10586) to 1703 (build 15063), including Windows 10 2016 LTSB (build 14393).\n"\
         "These versions have a bug in the kernel that crashes/BugCheck the OS\n"\
         "when executing this payload. So, to avoid this, the payload won't run if\n"\
-        "it detects the OS is one of these versions."
+        'it detects the OS is one of these versions.'
       )
     end
   end
