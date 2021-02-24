@@ -11,6 +11,9 @@
 require 'fileutils'
 require 'find'
 require 'time'
+require 'rubocop'
+require 'open3'
+require 'optparse'
 
 CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
 SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
@@ -38,7 +41,91 @@ class String
   end
 end
 
-class Msftidy
+class RuboCopRunnerException < StandardError; end
+
+# Wrapper around RuboCop that requires modules to be linted
+# In the future this class may have the responsibility of ensuring core library files are linted
+class RuboCopRunner
+
+  ##
+  # Run Rubocop on the given file
+  #
+  # @param [String] full_filepath
+  # @param [Hash] options specifying autocorrect functionality
+  # @return [Integer] RuboCop::CLI status code
+  def run(full_filepath, options = {})
+    unless requires_rubocop?(full_filepath)
+      return RuboCop::CLI::STATUS_SUCCESS
+    end
+
+    rubocop = RuboCop::CLI.new
+    args = %w[--format simple]
+    args << '-a' if options[:autocorrect]
+    args << full_filepath
+    rubocop_result = rubocop.run(args)
+
+    if rubocop_result != RuboCop::CLI::STATUS_SUCCESS
+      puts "#{full_filepath} - [#{'ERROR'.red}] Rubocop failed. Please run #{"rubocop -a #{full_filepath}".yellow} and verify all issues are resolved"
+    end
+
+    rubocop_result
+  end
+
+  private
+
+  ##
+  # For now any modules created after 3a046f01dae340c124dd3895e670983aef5fe0c5
+  # will require Rubocop to be ran.
+  #
+  # This epoch was chosen from the landing date of the initial PR to
+  # enforce consistent module formatting with Rubocop:
+  #
+  #   https://github.com/rapid7/metasploit-framework/pull/12990
+  #
+  # @param [String] full_filepath
+  # @return [Boolean] true if this file requires rubocop, false otherwise
+  def requires_rubocop?(full_filepath)
+    required_modules.include?(full_filepath)
+  end
+
+  def required_modules
+    return @required_modules if @required_modules
+
+    previously_merged_modules = new_modules_for('3a046f01dae340c124dd3895e670983aef5fe0c5..HEAD')
+    staged_modules = new_modules_for('--cached')
+
+    @required_modules = previously_merged_modules + staged_modules
+    if @required_modules.empty?
+      raise RuboCopRunnerException, 'Error retrieving new modules when verifying Rubocop'
+    end
+
+    @required_modules
+  end
+
+  def new_modules_for(commit)
+    # Example output:
+    #   M       modules/exploits/osx/local/vmware_bash_function_root.rb
+    #   A       modules/exploits/osx/local/vmware_fusion_lpe.rb
+    raw_diff_summary, status = ::Open3.capture2("git diff -b --name-status -l0 --summary #{commit}")
+
+    if !status.success? && exception
+      raise RuboCopRunnerException, "Command failed with status (#{status.exitstatus}): #{commit}"
+    end
+
+    diff_summary = raw_diff_summary.lines.map do |line|
+      status, file = line.split(' ').each(&:strip)
+      { status: status, file: file}
+    end
+
+    diff_summary.each_with_object([]) do |summary, acc|
+      next unless summary[:status] == 'A'
+
+      acc << summary[:file]
+    end
+  end
+end
+
+class MsftidyRunner
 
   # Status codes
   OK       = 0
@@ -797,7 +884,7 @@ class Msftidy
   private
 
   def load_file(file)
-    f = open(file, 'rb')
+    f = File.open(file, 'rb')
     @stat = f.stat
     buf = f.read(@stat.size)
     f.close
@@ -812,6 +899,38 @@ class Msftidy
   end
 end
 
+class Msftidy
+  def run(dirs, options = {})
+    @exit_status = 0
+
+    rubocop_runner = RuboCopRunner.new
+    dirs.each do |dir|
+      begin
+        Find.find(dir) do |full_filepath|
+          next if full_filepath =~ /\.git[\x5c\x2f]/
+          next unless File.file? full_filepath
+          next unless File.extname(full_filepath) == '.rb'
+
+          msftidy_runner = MsftidyRunner.new(full_filepath)
+          # Executable files are now assumed to be external modules
+          # but also check for some content to be sure
+          next if File.executable?(full_filepath) && msftidy_runner.source =~ /require ["']metasploit["']/
+
+          msftidy_runner.run_checks
+          @exit_status = msftidy_runner.status if (msftidy_runner.status > @exit_status.to_i)
+
+          rubocop_result = rubocop_runner.run(full_filepath, options)
+          @exit_status = MsftidyRunner::ERROR if rubocop_result != RuboCop::CLI::STATUS_SUCCESS
+        end
+      rescue Errno::ENOENT
+        $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
+      end
+    end
+
+    @exit_status.to_i
+  end
+end
+
 ##
 #
 # Main program
@@ -819,33 +938,29 @@ end
 ##
 
 if __FILE__ == $PROGRAM_NAME
+  options = {}
+  options_parser = OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename(__FILE__)} <directory or file>"
+
+    opts.on '-h', '--help', 'Help banner.' do
+      return print(opts.help)
+    end
+
+    opts.on('-a', '--auto-correct', 'Auto-correct offenses (only when safe).') do |autocorrect|
+      options[:autocorrect] = autocorrect
+    end
+  end
+  options_parser.parse!
+
   dirs = ARGV
 
-  @exit_status = 0
-
   if dirs.length < 1
-    $stderr.puts "Usage: #{File.basename(__FILE__)} <directory or file>"
+    $stderr.puts options_parser.help
     @exit_status = 1
     exit(@exit_status)
   end
 
-  dirs.each do |dir|
-    begin
-      Find.find(dir) do |full_filepath|
-        next if full_filepath =~ /\.git[\x5c\x2f]/
-        next unless File.file? full_filepath
-        next unless File.extname(full_filepath) == '.rb'
-        msftidy = Msftidy.new(full_filepath)
-        # Executable files are now assumed to be external modules
-        # but also check for some content to be sure
-        next if File.executable?(full_filepath) && msftidy.source =~ /require ["']metasploit["']/
-        msftidy.run_checks
-        @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
-      end
-    rescue Errno::ENOENT
-      $stderr.puts "#{File.basename(__FILE__)}: #{dir}: No such file or directory"
-    end
-  end
-
-  exit(@exit_status.to_i)
+  msftidy = Msftidy.new
+  exit_status = msftidy.run(dirs, options)
+  exit(exit_status)
 end

@@ -75,11 +75,11 @@ if files_to_check.empty?
 else
   puts "--- Checking new and changed module syntax with tools/dev/msftidy.rb ---"
   files_to_check.each do |fname|
-    cmd = "ruby ./tools/dev/msftidy.rb  #{fname}"
-    msftidy_output= %x[ #{cmd} ]
+    command = "bundle exec ruby ./tools/dev/msftidy.rb #{fname}"
+    msftidy_output, status = ::Open3.capture2(command)
+    valid = false unless status.success?
     puts "#{fname} - msftidy check passed" if msftidy_output.empty?
     msftidy_output.each_line do |line|
-      valid = false unless line['INFO']
       puts line
     end
   end

@@ -4,13 +4,14 @@
 # new modules.
 #
 # Updates to this file should include a 'Description' parameter for any
-# explaination needed.
+# explanation needed.
 
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
   TargetRubyVersion: 2.5
   SuggestExtensions: false
+  NewCops: disable
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
@@ -196,6 +197,7 @@ Style/Documentation:
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
+    - 'spec/file_fixtures/modules/**/*'
 
 Layout/FirstArgumentIndentation:
   Enabled: true
