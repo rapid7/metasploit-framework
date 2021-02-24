@@ -80,7 +80,10 @@ class Console::CommandDispatcher::Kiwi
   end
 
   def cmd_kiwi_cmd(*args)
-    output = client.kiwi.exec_cmd(args.join(' '))
+    # Kiwi expects instructions with arguments to be quoted so quote everything to be sure
+    # "You can pass instructions on mimikatz command line, those with arguments/spaces must be quoted."
+    # Quote from: https://github.com/gentilkiwi/mimikatz/wiki
+    output = client.kiwi.exec_cmd(args.map { |s| '"' + s + '"'}.join(' '))
     print_line(output)
   end
 
