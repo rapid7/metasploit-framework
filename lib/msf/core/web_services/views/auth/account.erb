@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
     function getNewApiToken() {
-        loadDoc("POST", "<%= AuthServlet.api_generate_token_path %>", function(xhr) {
+        loadDoc("POST", "<%= Msf::WebServices::AuthServlet.api_generate_token_path %>", function(xhr) {
             var response = JSON.parse(xhr.responseText);
             document.getElementById("api-token").innerHTML = response.data.token;
         }, errorHandler);
@@ -44,13 +44,13 @@
       <a href="javascript:void(0)" class="dropdown-btn"><%= warden.user(:user).username %></a>
       <div class="dropdown-content">
         <a href="#" onclick="getNewApiToken();">Generate New API Token</a>
-        <a href="<%= AuthServlet.api_logout_path %>">Log Out</a>
+        <a href="<%= Msf::WebServices::AuthServlet.api_logout_path %>">Log Out</a>
       </div>
     </li>
   <% else %>
-    <li><a href="<%= AuthServlet.api_login_path %>">Log In</a></li>
+    <li><a href="<%= Msf::WebServices::AuthServlet.api_login_path %>">Log In</a></li>
   <% end %>
-  <li><a href="<%= ApiDocsServlet.html_path %>">API Documentation</a></li>
+  <li><a href="<%= Msf::WebServices::ApiDocsServlet.html_path %>">API Documentation</a></li>
 </ul>
 
 <div style="padding:20px;">
@@ -62,7 +62,7 @@
       <%= !warden.user(:user).nil? && !warden.user(:user).persistence_token.nil? ? warden.user(:user).persistence_token : 'none' %>
     </div>
   <% else %>
-    <div id="not-logged-in-label">You are not currently logged in. Please click <a href="<%= AuthServlet.api_login_path %>">here</a> to be taken to the login page.</div>
+    <div id="not-logged-in-label">You are not currently logged in. Please click <a href="<%= Msf::WebServices::AuthServlet.api_login_path %>">here</a> to be taken to the login page.</div>
   <% end %>
 </div>
 
