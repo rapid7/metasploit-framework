@@ -2,6 +2,7 @@
 
 require 'bindata'
 require 'rex/socket'
+require 'rex/proto/proxy/socks5/packet'
 
 module Rex
 module Proto
