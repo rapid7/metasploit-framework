@@ -85,7 +85,9 @@ class MetasploitModule < Msf::Auxiliary
       refs: references
     )
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    # noop
   rescue ::Timeout::Error, ::Errno::EPIPE
+    # noop
   rescue ::OpenSSL::SSL::SSLError => e
     return if (e.to_s.match(/^SSL_connect /)) # strange errors / exception if SSL connection aborted
   end

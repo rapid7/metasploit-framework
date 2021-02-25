@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
   end
 
   # Count the number of currently running containers
-  def count_containers(container_type, count_inactive = true)
+  def count_containers(container_type, count_inactive: true)
     case container_type
     when 'docker'
       command = if count_inactive
@@ -93,11 +93,13 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       # LXC does some awful table formatting, lets try and fix it to be more uniform
       result = cmd_exec('lxc list').each_line.reject { |st| st =~ /^\+--/ }.map.with_index.map do |s, i|
+        # rubocop:disable Style/StringConcatenation
         if i == 0
           s.split('| ').map { |t| t.strip.ljust(t.size, ' ').gsub(/\|/, '') }.join + "\n"
         else
           s.gsub(/\| /, '').gsub(/\|/, '')
         end
+        # rubocop:enable Style/StringConcatenation
       end.join.strip
     when 'rkt'
       result = cmd_exec('rkt list')
@@ -153,12 +155,12 @@ class MetasploitModule < Msf::Post
 
     platforms.each do |platform|
       print_good("#{platform} was found on the system!")
-      num_containers = count_containers(platform, false)
+      num_containers = count_containers(platform, count_inactive: false)
 
       if num_containers == 0
         print_error("No active or inactive containers were found for #{platform}\n")
       else
-        num_running_containers = count_containers(platform, true)
+        num_running_containers = count_containers(platform, count_inactive: true)
         print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
       end
 

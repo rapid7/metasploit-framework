@@ -70,6 +70,8 @@ class MetasploitModule < Msf::Auxiliary
     headers_ajp = Array.new
     for (header_name, header_value) in headers do
       code = header2code[header_name].to_s
+
+      # rubocop:disable Style/IdenticalConditionalBranches
       if code != ''
         headers_ajp.append(code)
         headers_ajp.append(ajp_string(header_value.to_s))
@@ -77,6 +79,7 @@ class MetasploitModule < Msf::Auxiliary
         headers_ajp.append(ajp_string(header_name.to_s))
         headers_ajp.append(ajp_string(header_value.to_s))
       end
+      # rubocop:enable Style/IdenticalConditionalBranches
     end
     return int2byte(headers.length, 2), headers_ajp
   end
@@ -113,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ajp_string(message_bytes)
-    int2byte(message_bytes.length, 2) + message_bytes + "\x00"
+    "#{int2byte(message_bytes.length, 2)}#{message_bytes}\x00"
   end
 
   def int2byte(data, byte_len = 1)
@@ -165,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     message += attributes_ajp_bytes
     message.append("\xff")
     message_bytes = message.join
-    send_bytes = "\x12\x34" + ajp_string(message_bytes.to_s)
+    send_bytes = "\x12\x34#{ajp_string(message_bytes.to_s)}"
     return send_bytes
   end
 
@@ -218,7 +221,9 @@ class MetasploitModule < Msf::Auxiliary
       @header_data += "\n"
       header_num = buf[idx..(idx + 2)].unpack('n')[0]
       idx += 2
-      for i in 1..header_num
+
+      # rubocop:disable Style/IdenticalConditionalBranches
+      for _i in 1..header_num
         if buf[idx] == "\xA0"
           idx += 1
           @header_data += "#{common_response_headers[buf[idx]]}: "
@@ -234,8 +239,8 @@ class MetasploitModule < Msf::Auxiliary
           @header_data += val
         end
         @header_data += "\n"
-
       end
+      # rubocop:enable Style/IdenticalConditionalBranches
     elsif buf[idx] == "\x05"
       return 0
     elsif buf[idx] == "\x03"

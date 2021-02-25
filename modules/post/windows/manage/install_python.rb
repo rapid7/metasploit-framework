@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Post
 
   def run
     python_folder_path = File.basename(datastore['FILE_PATH'], File.extname(datastore['FILE_PATH']))
-    python_exe_path = python_folder_path + '\\python.exe'
-    python_url = datastore['PYTHON_URL'] + datastore['PYTHON_VERSION'] + '/python-' + datastore['PYTHON_VERSION'] + '-embed-win32.zip'
+    python_exe_path = "#{python_folder_path}\\python.exe"
+    python_url = "#{datastore['PYTHON_URL']}#{datastore['PYTHON_VERSION']}/python-#{datastore['PYTHON_VERSION']}-embed-win32.zip"
 
     # check if PowerShell is available
     psh_path = '\\WindowsPowerShell\\v1.0\\powershell.exe'

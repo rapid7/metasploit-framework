@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
             os_type = data.match(/os.name=\s*\S*/).to_s.split('=')[1]
             os_arch = data.match(/os.arch=\s*\S*/).to_s.split('=')[1]
             os_ver = data.match(/os.version=\s*\S*/).to_s.split('=')[1]
-            os = os_type.to_s + ' ' + os_arch.to_s + ' ' + os_ver.to_s
+            os = "#{os_type} #{os_arch} #{os_ver}"
 
             host_info = {
               host: rhost,

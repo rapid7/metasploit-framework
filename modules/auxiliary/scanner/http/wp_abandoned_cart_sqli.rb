@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       # required or you get values like <> for username and *)/?*//-?//>/?=)+ for password hash
       if payload.include?('<')
         payload.gsub!(/<>/, '=')
-        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { '0,' + Regexp.last_match(1) }
+        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { "0,#{Regexp.last_match(1)}" }
       end
 
       res = send_request_cgi({

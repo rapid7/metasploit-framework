@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       elsif node.is_a?(Nokogiri::XML::Element)
         node_name = node.name
         if node.attributes && !node.attributes.empty?
-          node_name += ' {' + node.attributes.map { |(_n, attr)| attr.name + '=' + attr.value }.join(',') + '}'
+          node_name += " {#{node.attributes.map { |(_n, attr)| "#{attr.name}=#{attr.value}" }.join(',')}}"
         end
         vprint_good "\t" * nesting + node_name
         node.children.each do |child|

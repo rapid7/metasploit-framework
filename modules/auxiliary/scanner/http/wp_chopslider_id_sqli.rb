@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://seclists.org/fulldisclosure/2020/May/26']
           ],
         'Actions' => [
-          ['List Users', 'Description' => 'Queries username, password hash for COUNT users'],
+          ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-05-12'

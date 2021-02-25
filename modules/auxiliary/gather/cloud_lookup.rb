@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => "/api/v1/search/#{search_type}",
         'agent' => datastore['USERAGENT'],
         'headers' => {
-          'Authorization' => 'Basic ' + Rex::Text.encode_base64(uid.to_s + ':' + secret.to_s)
+          'Authorization' => "Basic #{Rex::Text.encode_base64("#{uid}:#{secret}")}"
         },
         'data' => payload.to_json
       )
@@ -277,7 +277,8 @@ class MetasploitModule < Msf::Auxiliary
       response = http.send_recv(request)
       http.close
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-    rescue StandardError => e
+      # noop
+    rescue ::StandardError => e
       print_error(e.message)
     end
     return false if response.nil?
@@ -644,7 +645,7 @@ class MetasploitModule < Msf::Auxiliary
         records << ip.to_s unless is_listed
       end
     else
-      records.concat(ip_list.uniq.map { |ip| ip.to_s })
+      records.concat(ip_list.uniq.map(&:to_s))
     end
 
     # Exit if no IP address(es) has been found after cleaning.
