@@ -288,6 +288,19 @@ Style/ParenthesesAroundCondition:
   Enabled: false
   Description: 'This is used in too many places to discount, especially in ported code. Has little effect'
 
+Style/StringConcatenation:
+  Enabled: false
+  Description: >-
+    Disabled for now as it changes escape sequences when auto corrected:
+      https://github.com/rubocop/rubocop/issues/9543
+
+    Additionally seems to break with multiline string concatenation with trailing comments, example:
+      payload = "\x12" + # Size
+                "\x34" + # eip
+                "\x56"   # etc
+    With `rubocop -A` this will become:
+      payload = "\u00124V"    # etc
+
 Style/TrailingCommaInArrayLiteral:
   Enabled: false
   Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
