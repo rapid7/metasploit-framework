@@ -94,6 +94,9 @@ require 'rex/compat'
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 
+# Versions
+require 'rex/version'
+
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("
   def sleep(seconds=nil)

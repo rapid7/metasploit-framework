@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif !wordpress_xmlrpc_enabled?
       print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
       false
-    elsif Gem::Version.new(version) >= Gem::Version.new('4.4.1')
+    elsif Rex::Version.new(version) >= Rex::Version.new('4.4.1')
       print_error("#{peer}#{wordpress_url_xmlrpc} Target's version (#{version}) is not vulnerable to this attack.")
       vprint_status("Dropping CHUNKSIZE from #{datastore['CHUNKSIZE']} to 1")
       datastore['CHUNKSIZE'] = 1

@@ -14,7 +14,7 @@ module Metasploit
 
           if res && res.body.include?('phpMyAdmin')
             if res.body =~ /PMA_VERSION:"(\d+\.\d+\.\d+)"/
-              version = Gem::Version.new($1)
+              version = Rex::Version.new($1)
             end
             return version.to_s
           end

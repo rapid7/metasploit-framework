@@ -8,10 +8,10 @@ class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
 
-  VERSION_5 = Gem::Version.new('5.0')
-  VERSION_6 = Gem::Version.new('6.0')
-  VERSION_8 = Gem::Version.new('8.0')
-  VERSION_9 = Gem::Version.new('9.0')
+  VERSION_5 = Rex::Version.new('5.0')
+  VERSION_6 = Rex::Version.new('6.0')
+  VERSION_8 = Rex::Version.new('8.0')
+  VERSION_9 = Rex::Version.new('9.0')
 
   def initialize(info = {})
     super(update_info(
@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
         vprint_error("No McAfee VSE version key found in #{key}")
         next
       end
-      hash_map[hash] = Gem::Version.new(version)
+      hash_map[hash] = Rex::Version.new(version)
     end
     hash_map
   end

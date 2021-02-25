@@ -150,8 +150,8 @@ class Msf::Payload::Apk
       raise RuntimeError, "apktool not found. If it's not in your PATH, please add it."
     end
 
-    apk_v = Gem::Version.new(apktool)
-    unless apk_v >= Gem::Version.new('2.0.1')
+    apk_v = Rex::Version.new(apktool)
+    unless apk_v >= Rex::Version.new('2.0.1')
       raise RuntimeError, "apktool version #{apk_v} not supported, please download at least version 2.0.1."
     end
 
