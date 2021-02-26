@@ -15,17 +15,16 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'FortiOS Path Traversal Leak Credentials',
+        'Name' => 'FortiOS Path Traversal Credential Gatherer',
         'Description' => %q{
-          FortiOS system file leak through SSL VPN via specially crafted HTTP
-          resource requests. A path traversal vulnerability in the FortiOS SSL
-          VPN web portal may allow an unauthenticated attacker to download FortiOS
-          system files through specially crafted HTTP resource requests.
+          Fortinet FortiOS versions 5.4.6 to 5.4.12, 5.6.3 to 5.6.7 and 6.0.0 to
+          6.0.4 are vulnerable to a path traversal vulnerability within the SSL VPN
+          web portal which allows unauthenticated attackers to download FortiOS system
+          files through specially crafted HTTP requests.
 
-          This module reads logins and passwords in clear text from
-          the `/dev/cmdb/sslvpn_websession` file. This vulnerability affects
-          (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0
-          to 6.0.4).
+          This module exploits this vulnerability to read the usernames and passwords
+          of users currently logged into the FortiOS SSL VPN, which are stored in
+          plaintext in the "/dev/cmdb/sslvpn_websession" file on the VPN server.
         },
         'References' => [
           %w[CVE 2018-13379],
@@ -34,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           %w[EDB 47288]
         ],
         'Author' => [
-          'lynx (Carlos Vieira)',         # initial module author from edb
-          'mekhalleh (RAMELLA Sébastien)' # this module author (Zeop Entreprise)
+          'lynx (Carlos Vieira)', # initial module author from edb
+          'mekhalleh (RAMELLA Sébastien)' # Metasploit module author (Zeop Entreprise)
         ],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
