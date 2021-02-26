@@ -36,6 +36,10 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
+  def finish_install
+    datastore['FINISH_INSTALL']
+  end
+
   def username
     datastore['USERNAME']
   end
@@ -46,6 +50,31 @@ class MetasploitModule < Msf::Auxiliary
 
   def version
     datastore['VERSION']
+  end
+
+  def login_after_install_or_license
+    # after installing Nagios XI or signing the license agreement, we sometimes don't receive a server response
+    # this loop ensures that at least 2 login attempts are perform if this happens, as the second one usually works
+    second_attempt = false
+    while true
+      login_result = nagios_xi_login(username, password, finish_install)
+
+      break unless login_result.instance_of? Msf::Exploit::CheckCode
+      break unless login_result.message.include?('Connection failed')
+
+      if second_attempt
+        print_warning('The server is still not responding. If you wait a few seconds and rerun the module, it might still work.')
+        break
+      else
+        print_warning('No response received from the server. This can happen after installing Nagios XI or signing the license agreement')
+        print_status('The module will wait for 5 seconds and retry.')
+        second_attempt = true
+        sleep 5
+      end
+    end
+
+    return login_result
+
   end
 
   def rce_check(version, real_target = nil)
@@ -101,23 +130,65 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # obtain cookies required for authentication
-    cookies = nagios_xi_login(username, password)
-    if cookies.instance_of? Msf::Exploit::CheckCode
-      print_error(cookies.message)
-      return cookies
+    login_result = nagios_xi_login(username, password, finish_install)
+    if login_result.instance_of? Msf::Exploit::CheckCode
+      print_error(login_result.message)
+      return login_result
     end
 
-    # authenticate and obtain the Nagios XI version
+    # check if we need to complete the installation
+    if login_result == 'install_required'
+      install_result = install_nagios_xi(password)
+      if install_result.instance_of? Msf::Exploit::CheckCode
+        return install_result
+      end
+
+      login_result = login_after_install_or_license
+      if login_result.instance_of? Msf::Exploit::CheckCode
+        print_error(login_result.message)
+        return login_result
+      end
+
+      # make sure Nagios XI is fully installed now
+      if login_result == 'install_required'
+        print_error('Failed to install Nagios XI on the target.')
+        return Msf::Exploit::CheckCode::Detected
+      end
+    end
+
+    # check if we need to sign the license
+    if login_result.include?('sign_license')
+      auth_cookies, nsp = login_result[1..2]
+      sign_license_result = sign_license_agreement(auth_cookies, nsp)
+      if sign_license_result.instance_of? Msf::Exploit::CheckCode
+        return sign_license_result
+      end
+
+      login_result = login_after_install_or_license
+      if login_result.instance_of? Msf::Exploit::CheckCode
+        print_error(login_result.message)
+        return login_result
+      end
+
+      # make sure we signed the license agreement
+      if login_result.include?('sign_license')
+        print_error('Failed to sign the license agreement.')
+        return Msf::Exploit::CheckCode::Detected
+      end
+    end
+
     print_good('Successfully authenticated to Nagios XI')
-    version = nagios_xi_version_index(cookies)
-    if version.instance_of? Msf::Exploit::CheckCode
-      print_error(version.message)
-      return version
+
+    # obtain the Nagios XI version
+    nagios_version_result = nagios_xi_version(login_result)
+    if nagios_version_result.instance_of? Msf::Exploit::CheckCode
+      print_error(nagios_version_result.message)
+      return nagios_version_result
     end
 
-    print_status("Target is Nagios XI with version #{version}")
+    print_status("Target is Nagios XI with version #{nagios_version_result}")
 
     # check if the Nagios XI version matches any exploit modules
-    return rce_check(version, true)
+    return rce_check(nagios_version_result, true)
   end
 end
