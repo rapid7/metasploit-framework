@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       0,
       0,
       1,
-      Rex::Socket.gethostbyname(local_addr)[3],
+      Rex::Socket.resolv_nbo(local_addr, false),
       local_port
     ].pack('NNNNNNNA4N')
 
