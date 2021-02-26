@@ -170,8 +170,13 @@ class MetasploitModule < Msf::Auxiliary
     loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
     print_good(message("File saved to #{loot_path}"))
 
-    separator = "\x60\x01"
-    separator = "\x60\x00\x00\x00\x00\x01" if data =~ /\x60\x00\x00\x00\x00\x01/
+    return if data.length < 110
+
+    if data[73] == "\x01"
+      separator = data[72..73]
+    elsif data[105..109] == "\x00\x00\x00\x00\x01"
+      separator = data[104..109]
+    end
     data = data.split(separator)
 
     creds = []
@@ -189,4 +194,5 @@ class MetasploitModule < Msf::Auxiliary
     print_good(message("#{creds.length} credential(s) found!"))
     report_creds(creds)
   end
+
 end
