@@ -82,7 +82,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request = Packet.create_request( COMMAND_ID_STDAPI_FS_SEARCH )
 
     root = client.unicode_filter_decode(root) if root
-    root = root.chomp( self.separator ) if root
+    root = root.chomp( self.separator ) if root && !root.eql?('/')
 
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
