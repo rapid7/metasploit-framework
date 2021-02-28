@@ -243,7 +243,7 @@ class MetasploitModule < Msf::Auxiliary
       if not res or res.body.empty?
         next
       end
-      
+
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
       # Only download files that are within our interest
@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
       if not res or res.body.empty?
         next
       end
-      
+
       vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}")
 
       # We assume the string followed by the last '/' is our file name
