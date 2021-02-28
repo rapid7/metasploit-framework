@@ -17,13 +17,6 @@
     </description>
     <url>null</url>
 
-    <properties>
-        <!--important config-->
-        <mainClass>
-            com.xenoamess.metasploit.java_external_module.demo.MsfPluginEntrance
-        </mainClass>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

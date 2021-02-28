@@ -19,7 +19,7 @@
     <properties>
         <!--important config-->
         <mainClass>
-            com.xenoamess.metasploit.java_external_module.demo.MsfPluginEntrance
+            com.metasploit.java_external_module.jar_demo.MsfPluginEntrance
         </mainClass>
     </properties>
 
