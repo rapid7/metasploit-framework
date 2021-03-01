@@ -40,16 +40,17 @@ If set to `false`, will not store the captured information in notes. Use `notes 
 ## Scenarios
 
 ### Emby Scan Internal 192.168.1.0 Network
+Example with found host with port 80 open, returned server version and title.
 
   ```
 msf6 > use auxiliary/scanner/emby_scan
-msf6 auxiliary(scanner/http/title) > set RHOSTS 192.168.1.0/24
-RHOSTS => 192.168.1.0/24
-msf6 auxiliary(scanner/http/title) > set EMBY_SERVER 10.10.10.1
-RHOSTS => 192.168.1.0/24
-
+msf6 auxiliary(scanner/emby_scan) > set emby_server 10.10.200.32
+emby_server => 10.10.200.32
+msf6 auxiliary(scanner/emby_scan) > set rhosts 10.10.10.43
+rhosts => 10.10.10.43
 msf6 auxiliary(scanner/emby_scan) > run
 
+[+] 10.10.10.43:80 [C:200] [R:] [S:UPnP/1.0 DLNADOC/1.50] HP Integrated Lights-Out 2
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
   ```
