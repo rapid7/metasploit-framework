@@ -10,7 +10,9 @@
 # Tested on: Ubuntu, Windows
 # CVE: CVE-2020-26948
 ##
+# frozen_string_literal: true
 
+#MSF Auxiliary Class
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Capture
@@ -100,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
     end
-  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-  rescue ::Timeout::Error, ::Errno::EPIPE
+  #rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+  #rescue ::Timeout::Error, ::Errno::EPIPE
   end
 end
