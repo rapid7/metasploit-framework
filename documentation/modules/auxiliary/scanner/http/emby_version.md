@@ -21,24 +21,19 @@ Select which ports to check for Emby server API access. Defaults to 8096.
 ## Scenarios
 
 ### Scan network for Emby Servers
+This shows a successful scan of an Emby server using the API, and returns the URI, version, and Internal IP information.
 
   ```
 msf6 > use auxiliary/scanner/http/emby_version
-msf6 auxiliary(scanner/http/emby_version) > set rhosts 10.10.200.0/24
-rhosts => 10.10.200.0/24
-msf6 auxiliary(scanner/http/emby_version) > set threads 10
-threads => 10
+msf6 auxiliary(scanner/http/emby_version) > set rhosts 10.10.200.32
+rhosts => 10.10.200.32
 msf6 auxiliary(scanner/http/emby_version) > run
 
-[*] Scanned  26 of 256 hosts (10% complete)
-[*] Scanned  52 of 256 hosts (20% complete)
-[*] Scanned  78 of 256 hosts (30% complete)
-[*] Scanned 103 of 256 hosts (40% complete)
-[*] Scanned 130 of 256 hosts (50% complete)
-[*] Scanned 154 of 256 hosts (60% complete)
-[*] Scanned 181 of 256 hosts (70% complete)
-[*] Scanned 207 of 256 hosts (80% complete)
-[*] Scanned 231 of 256 hosts (90% complete)
-[*] Scanned 256 of 256 hosts (100% complete)
+[*] Identifying Media Server Version on 10.10.200.32:8096
+[+] [Media Server] URI: http://10.10.200.32:8096/
+[+] [Media Server] Version: 4.4.3.0
+[+] [Media Server] Internal IP: http://10.10.200.32:8096
+[*] Saving host information.
+[*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
   ```
