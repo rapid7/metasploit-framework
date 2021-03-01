@@ -77,9 +77,48 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
+  def parse_version(nagios_version)
+    # strip the xi- prefix used for Nagios XI versions in the official documentation
+    clean_version = nagios_version.downcase.delete_prefix('xi-')
+
+    # check for special case of 5r1.0, which is actually 5.1.0 but for some reason they still added the `r` used in legacy versions (this is the only version with this format)
+    if clean_version == '5r1.0'
+      clean_version = '5.1.0'
+    end
+
+    # Since we are dealing with a user provided version here, a strict regex check seems appropriate
+    # So far all modern Nagios XI versions start with 5. This regex can be updated if Nagios XI 6 ever comes out and modules for this new version are added
+    modern_check = clean_version.scan(/5\.\d{1,2}\.\d{1,2}/).flatten.first
+
+    unless modern_check.blank?
+      return ['modern', clean_version]
+    end
+
+    # Nagios XI legacy version numbers vary a lot, but they always start with a year followed by `r` and a single digit
+    legacy_check = clean_version.scan(/(20\d{2}r\d{1})/).flatten.first
+
+    unless legacy_check.blank?
+      return ['legacy', clean_version]
+    end
+
+    return 'unsupported'
+
+  end
+
   def rce_check(version, real_target = nil)
+    version_type, clean_version = parse_version(version)
+    if version_type == 'unsupported'
+      print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
+      return Msf::Exploit::CheckCode::Unknown
+    end
+
+    if version_type == 'legacy'
+      print_error("This module does not support the legacy Nagios XI version #{version}")
+      return Msf::Exploit::CheckCode::Safe
+    end
+
     begin
-      gem_version = Gem::Version.new(version)
+      gem_version = Gem::Version.new(clean_version)
     rescue ArgumentError
       print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
       return Msf::Exploit::CheckCode::Unknown
