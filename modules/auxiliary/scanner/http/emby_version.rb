@@ -74,5 +74,5 @@ class MetasploitModule < Msf::Auxiliary
       host: ip,
       info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})"
     )
-    end
+  end
 end
