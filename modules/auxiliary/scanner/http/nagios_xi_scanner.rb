@@ -129,8 +129,9 @@ class MetasploitModule < Msf::Auxiliary
       return Msf::Exploit::CheckCode::Unknown
     end
 
-    # obtain cookies required for authentication
-    login_result = nagios_xi_login(username, password, finish_install)
+    # use nagios_xi_login to try and authenticate
+    # if authentication succeeds, nagios_xi_login returns an array containing the http response body of a get request to index.php and the session cookies
+    login_result, _auth_cookies = nagios_xi_login(username, password, finish_install)
     if login_result.instance_of? Msf::Exploit::CheckCode
       print_error(login_result.message)
       return login_result
@@ -143,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
         return install_result
       end
 
-      login_result = login_after_install_or_license
+      login_result, _auth_cookies = login_after_install_or_license
       if login_result.instance_of? Msf::Exploit::CheckCode
         print_error(login_result.message)
         return login_result
@@ -164,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
         return sign_license_result
       end
 
-      login_result = login_after_install_or_license
+      login_result, _auth_cookies = login_after_install_or_license
       if login_result.instance_of? Msf::Exploit::CheckCode
         print_error(login_result.message)
         return login_result
