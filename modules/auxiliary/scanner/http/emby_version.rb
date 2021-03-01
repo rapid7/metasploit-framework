@@ -59,11 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("[Media Server] URI: http://#{ip}:#{rport}#{datastore['BASEPATH']}")
     print_good("[Media Server] Version: #{result['Version']}")
     print_good("[Media Server] Internal IP: #{result['LocalAddress']}")
-    report_service(
-      host: rhost, 
-      port: rport, 
-      name: 'emby', 
-      info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})")
+    report_service(host: rhost, port: rport, name: 'emby', info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})")
     print_status "All info: #{result}" if datastore['VERBOSE']
     report_note(
       host: ip,
