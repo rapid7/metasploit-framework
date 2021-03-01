@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
     deregister_options('VHOST', 'FILTER', 'INTERFACE', 'PCAPFILE', 'SNAPLEN', 'SSL')
-    end
+  end
 
   def to
     return 30 if datastore['TIMEOUT'].to_i.zero?
@@ -46,13 +46,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-                             'uri' => "#{datastore['BASEPATH']}System/Info/Public",
-                             'method' => 'GET'
-                           })
+      'uri' => "#{datastore['BASEPATH']}System/Info/Public",
+      'method' => 'GET'
+    })
     if res.nil? || res.code != 200
       vprint_error('[Emby Version] failed to connect')
       return
-      end
+    end
 
     result = res.get_json_document
     print_status("Identifying Media Server Version on #{peer}")
@@ -74,5 +74,5 @@ class MetasploitModule < Msf::Auxiliary
       host: ip,
       info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})"
     )
-      end
-  end
+    end
+end
