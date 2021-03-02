@@ -65,7 +65,6 @@ module Msf
             @previous_module = nil
             @module_name_stack = []
             @module_search_results = []
-            @module_show_results = []
             @@payload_show_results = []
             @dangerzone_map = nil
           end
@@ -994,6 +993,7 @@ module Msf
           # Helper method for cmd_favorite that writes modules to the fav_modules_file
           #
           def favorite_add(modules, favs_file)
+            fav_limit = 50
             # obtain useful info about the fav_modules file
             exists, writable, readable, contents = favorite_check_fav_modules(favs_file)
 
@@ -1001,12 +1001,17 @@ module Msf
             if exists
               case
               when !writable
-                print_error("Unable to save module(s) to #{favs_file} because it is not writable")
+                print_error("Unable to save module(s) to the favorite modules file because it is not writable")
                 return
               when !readable
-                print_error("Unable to save module(s) to #{favs_file} because it is not readable")
+                print_error("Unable to save module(s) to the favorite modules file because it is not readable")
                 return
               end
+            end
+
+            fav_count = 0
+            if contents
+              fav_count = contents.split.size
             end
 
             modules = modules.uniq # prevent modules from being added more than once
@@ -1018,12 +1023,18 @@ module Msf
               end
 
               if contents && contents.include?(mod.fullname)
-                print_warning("Module #{mod.fullname} has already been favorited and will not be added to #{favs_file}")
+                print_warning("Module #{mod.fullname} has already been favorited and will not be added to the favorite modules file")
                 next
               end
 
+              if fav_count >= fav_limit
+                print_error("Favorite module limit (#{fav_limit}) exceeded. No more modules will be added.")
+                return
+              end
+
               File.open(favs_file, 'a+') { |file| file.puts(mod.fullname) }
-              print_status("Added #{mod.fullname} to #{favs_file}")
+              print_good("Added #{mod.fullname} to the favorite modules file")
+              fav_count += 1
             end
             return
           end
@@ -1043,24 +1054,24 @@ module Msf
 
             case # error handling based on the existence / permissions of the fav_modules file
             when !exists
-              print_warning("Unable to #{custom_message} #{favs_file} because it does not exist")
+              print_warning("Unable to #{custom_message} the favorite modules file because it does not exist")
               return
             when !writable
-              print_error("Unable to #{custom_message} #{favs_file} because it is not writable")
+              print_error("Unable to #{custom_message} the favorite modules file because it is not writable")
               return
             when !readable
               unless delete_all
-                print_error("Unable to #{custom_message} #{favs_file} because it is not readable")
+                print_error("Unable to #{custom_message} the favorite modules file because it is not readable")
                 return
               end
             when contents.empty?
-              print_warning("Unable to #{custom_message} #{favs_file} because it is already empty")
+              print_warning("Unable to #{custom_message} the favorite modules file because it is already empty")
               return
             end
 
             if delete_all
-              print_status("Clearing the contents of #{favs_file}")
               File.write(favs_file, '')
+              print_good("Favorite modules file cleared")
               return
             end
 
@@ -1074,21 +1085,20 @@ module Msf
               end
 
               unless contents.include?(mod.fullname)
-                print_warning("Module #{mod.fullname} cannot be deleted because it is not in #{favs_file}")
+                print_warning("Module #{mod.fullname} cannot be deleted because it is not in the favorite modules file")
                 next
               end
 
-              # remove module from contents
               contents.delete(mod.fullname)
-              print_status("Removing #{mod.fullname} from #{favs_file}")
+              print_status("Removing #{mod.fullname} from the favorite modules file")
             end
 
             # clear the contents of the fav_modules file if removing the module(s) makes it empty
             if contents.length == 0
-              print_status("Clearing the contents of #{favs_file} because there are no modules left")
               File.write(favs_file, '')
               return
             end
+
             File.open(favs_file, 'w') { |file| file.puts(contents.join("\n")) }
           end
 
@@ -1100,11 +1110,10 @@ module Msf
             writable = false
             readable = false
             contents = ''
-            return_array = [exists, writable, readable, contents]
             
-            return return_array unless File.exists?(favs_file)
-
-            exists = true
+            if File.exists?(favs_file)
+              exists = true
+            end
 
             if File.writable?(favs_file)
               writable = true
@@ -1115,8 +1124,7 @@ module Msf
               contents = File.read(favs_file)
             end
 
-            return_array = [exists, writable, readable, contents]
-            return return_array
+            return exists, writable, readable, contents
           end
 
           #
@@ -1154,7 +1162,6 @@ module Msf
               end
 
               favorite_del(args, true, favs_file)
-
             when '-d'
               args.delete('-d')
               if args.empty?
@@ -1168,7 +1175,6 @@ module Msf
               end
 
               favorite_del(args, false, favs_file)
-
             else # no valid options, but there are arguments
               if args[0].start_with?('-')
                 print_error('Invalid option provided')
@@ -1316,8 +1322,14 @@ module Msf
 
           def show_favorites(regex = nil, minrank = nil, opts = nil) # :nodoc:
             favs_file = Msf::Config.fav_modules_file
-            unless File.exists?(favs_file) && !File.zero?(favs_file)
-              print_error("#{favs_file} does not exist or is empty")
+
+            unless File.exists?(favs_file)
+              print_error("The favorite modules file does not exist")
+              return
+            end
+
+            if File.zero?(favs_file)
+              print_warning("The favorite modules file is empty")
               return
             end
 
