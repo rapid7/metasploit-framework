@@ -247,7 +247,7 @@ class RPC_Module < RPC_Base
     if m.type == 'auxiliary' || m.type == 'post'
       res['actions'] = {}
       m.actions.each_index do |i|
-        res['actions'][i] = m.actions[i].name
+        res['actions'][m.actions[i].name] = m.actions[i].description
       end
 
       if m.default_action
