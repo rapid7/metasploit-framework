@@ -21,7 +21,8 @@ begin
 
   Metasploit::Framework::Profiler.start
   Metasploit::Framework::Command::Console.start
-rescue Interrupt
-  puts "\nAborting..."
+rescue Interrupt => e
+  puts "\nAborting... because:"
+  puts e
   exit(1)
 end
