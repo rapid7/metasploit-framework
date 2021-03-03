@@ -148,7 +148,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
-      "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
+      "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ]
     )
 
     opts.parse(args) { | opt, idx, val |
