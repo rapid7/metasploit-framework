@@ -3,7 +3,6 @@ require 'rex/socket/ssl'
 module Msf
 module Ssl
   module CertProvider
-    autoload :Faker, 'faker'
 
     def self.rand_vars(opts = {})
       opts ||= {}
