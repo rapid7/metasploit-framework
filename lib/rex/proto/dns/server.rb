@@ -29,7 +29,7 @@ class Server
     # @return [Array] Records found
     def find(search, type = 'A')
       self.records.select do |record,expire|
-        record.type == type and (expire < 1 or expire > Time.now.to_i) and
+        record.type == type and (expire < 1 or expire > ::Time.now.to_i) and
         (
           record.name == '*' or
           record.name == search or record.name[0..-2] == search or
@@ -53,7 +53,7 @@ class Server
       if record.is_a?(Dnsruby::RR) and
       (!record.respond_to?(:address) or Rex::Socket.is_ip_addr?(record.address.to_s)) and
       record.name.to_s.match(MATCH_HOSTNAME)
-        add(record, Time.now.to_i + record.ttl)
+        add(record, ::Time.now.to_i + record.ttl)
       else
         raise "Invalid record for cache entry - #{record.inspect}"
       end
@@ -81,7 +81,7 @@ class Server
     # Prune cache entries
     #
     # @param before [Fixnum] Time in seconds before which records are evicted
-    def prune(before = Time.now.to_i)
+    def prune(before = ::Time.now.to_i)
       self.records.select do |rec, expire|
         expire > 0 and expire < before
       end.each {|rec, exp| delete(rec)}

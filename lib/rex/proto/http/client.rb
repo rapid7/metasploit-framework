@@ -311,7 +311,7 @@ class Client
 
 
   def make_cnonce
-    Digest::MD5.hexdigest "%x" % (Time.now.to_i + rand(65535))
+    Digest::MD5.hexdigest "%x" % (::Time.now.to_i + rand(65535))
   end
 
   # Send a series of requests to complete Digest Authentication

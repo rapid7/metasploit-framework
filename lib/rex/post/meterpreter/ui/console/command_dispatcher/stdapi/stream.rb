@@ -46,7 +46,7 @@ setInterval(function() {
 </noscript>
 <pre>
 Target IP  : #{host}
-Start time : #{Time.now}
+Start time : #{::Time.now}
 Status     : <span id="status"></span>
 </pre>
 <br>

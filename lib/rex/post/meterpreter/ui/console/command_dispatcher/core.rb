@@ -681,7 +681,7 @@ class Console::CommandDispatcher::Core
 
   def print_timeouts(timeouts)
     if timeouts[:session_exp]
-      print_line("Session Expiry  : @ #{(Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
+      print_line("Session Expiry  : @ #{(::Time.now + timeouts[:session_exp]).strftime('%Y-%m-%d %H:%M:%S')}")
     end
     if timeouts[:comm_timeout]
       print_line("Comm Timeout    : #{timeouts[:comm_timeout]} seconds")

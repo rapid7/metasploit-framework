@@ -220,7 +220,7 @@ class Console::CommandDispatcher::Core
     print_status("HW Version: #{status['hw_version']}") if status.key? 'hw_version'
     print_status("Uptime: #{stats['uptime']} seconds") if stats.key? 'uptime'
     print_status("Packets Sent: #{stats['packet_stats']}") if stats.key? 'packet_stats'
-    print_status("Last packet Sent: #{Time.at(stats['last_request'])}") if stats.key? 'last_request'
+    print_status("Last packet Sent: #{::Time.at(stats['last_request'])}") if stats.key? 'last_request'
     print_status("Voltage: #{stats['voltage']}") if stats.key? 'voltage' and not stats['voltage'] == 'not supported'
   end
 
