@@ -114,7 +114,7 @@ class Client
 
   def dprint(msg)
     return if not self.debugging
-    $stderr.puts "[#{Time.now.to_s}] #{msg}"
+    $stderr.puts "[#{::Time.now.to_s}] #{msg}"
   end
 
   def send_data(call, data, inc_seq = true )

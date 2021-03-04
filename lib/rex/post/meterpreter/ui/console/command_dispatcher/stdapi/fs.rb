@@ -459,7 +459,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         opts['tries'] = true
         opts['tries_no'] = tries_no
       when "-t"
-        opts['timestamp'] = '_' + Time.now.iso8601
+        opts['timestamp'] = '_' + ::Time.now.iso8601
       when nil
         src_items << last if (last)
         last = val

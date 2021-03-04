@@ -155,7 +155,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt.from_s(data)
 
     # Store the received packet into the cache
-    @smb_recv_cache << [ pkt, data, Time.now ]
+    @smb_recv_cache << [ pkt, data, ::Time.now ]
   end
 
   # Scan the packet receive cache for a matching response
@@ -174,7 +174,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       end
 
       # Purge any packets older than 5 minutes
-      if Time.now.to_i - tstamp.to_i > 300
+      if ::Time.now.to_i - tstamp.to_i > 300
         clean << cent
       end
 

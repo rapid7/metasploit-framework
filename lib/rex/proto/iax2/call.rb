@@ -157,7 +157,7 @@ class Call
   end
 
   def ring_time
-    (self.ring_finish || Time.now).to_i - self.ring_start.to_i
+    (self.ring_finish || ::Time.now).to_i - self.ring_start.to_i
   end
 
   def timestamp
