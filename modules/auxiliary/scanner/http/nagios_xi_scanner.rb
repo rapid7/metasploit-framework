@@ -137,10 +137,22 @@ class MetasploitModule < Msf::Auxiliary
       return rce_check(version)
     end
 
-    # check if we have credentials
+    # check if we have credentials, if not, try to obtain the Nagios XI version from login.php
     if username.blank? || password.blank?
-      print_error('Please provide a valid Nagios XI USERNAME and PASSWORD, or a specific VERSION to check')
-      return Msf::Exploit::CheckCode::Unknown
+      print_warning('No credentials provided. Attempting to obtain the Nagios XI version from the login page. This will not work for newer versions.')
+      nagios_version_result = nagios_xi_version_no_auth
+
+      if nagios_version_result.instance_of? Msf::Exploit::CheckCode
+        print_error(nagios_version_result.message)
+        print_error('Please provide a valid Nagios XI USERNAME and PASSWORD, or a specific VERSION to check')
+        return nagios_version_result
+      end
+
+      print_status("Target is Nagios XI with version #{nagios_version_result}")
+
+      # check if the Nagios XI version matches any exploit modules
+      return rce_check(nagios_version_result, true)
+
     end
 
     # use nagios_xi_login to try and authenticate
