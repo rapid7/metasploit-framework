@@ -52,31 +52,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['VERSION']
   end
 
-  def login_after_install_or_license
-    # after installing Nagios XI or signing the license agreement, we sometimes don't receive a server response
-    # this loop ensures that at least 2 login attempts are perform if this happens, as the second one usually works
-    second_attempt = false
-    while true
-      login_result = nagios_xi_login(username, password, finish_install)
-
-      break unless login_result.instance_of? Msf::Exploit::CheckCode
-      break unless login_result.message.include?('Connection failed')
-
-      if second_attempt
-        print_warning('The server is still not responding. If you wait a few seconds and rerun the module, it might still work.')
-        break
-      else
-        print_warning('No response received from the server. This can happen after installing Nagios XI or signing the license agreement')
-        print_status('The module will wait for 5 seconds and retry.')
-        second_attempt = true
-        sleep 5
-      end
-    end
-
-    return login_result
-
-  end
-
   def parse_version(nagios_version)
     # strip the xi- prefix used for Nagios XI versions in the official documentation
     clean_version = nagios_version.downcase.delete_prefix('xi-')
@@ -170,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # use nagios_xi_login to try and authenticate
     # if authentication succeeds, nagios_xi_login returns an array containing the http response body of a get request to index.php and the session cookies
-    login_result, _auth_cookies = nagios_xi_login(username, password, finish_install)
+    login_result = nagios_xi_login(username, password, finish_install)
     if login_result.instance_of? Msf::Exploit::CheckCode
       print_error(login_result.message)
       return login_result
@@ -183,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
         return install_result
       end
 
-      login_result, _auth_cookies = login_after_install_or_license
+      login_result = login_after_install_or_license(username, password, finish_install)
       if login_result.instance_of? Msf::Exploit::CheckCode
         print_error(login_result.message)
         return login_result
@@ -204,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
         return sign_license_result
       end
 
-      login_result, _auth_cookies = login_after_install_or_license
+      login_result = login_after_install_or_license(username, password, finish_install)
       if login_result.instance_of? Msf::Exploit::CheckCode
         print_error(login_result.message)
         return login_result
@@ -220,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Successfully authenticated to Nagios XI')
 
     # obtain the Nagios XI version
-    nagios_version_result = nagios_xi_version(login_result)
+    nagios_version_result = nagios_xi_version(login_result[0])
     if nagios_version_result.instance_of? Msf::Exploit::CheckCode
       print_error(nagios_version_result.message)
       return nagios_version_result
