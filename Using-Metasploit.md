@@ -1,7 +1,7 @@
 Start here:
 
 * https://tryhackme.com/room/rpmetasploit
-* http://www.offensive-security.com/metasploit-unleashed/Main_Page (slightly outdated now in some areas, but still a good read)
+* http://www.offensive-security.com/metasploit-unleashed/Main_Page (slightly outdated now in some areas, but still contains a lot of good info)
 * https://metasploit.help.rapid7.com/docs/
 * https://www.kali.org/docs/tools/starting-metasploit-framework-in-kali/
 * https://github.com/rapid7/metasploitable3
