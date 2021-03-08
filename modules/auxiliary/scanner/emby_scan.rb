@@ -1,18 +1,8 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
-# Current source: https://github.com/btnz-k/msf_emby
-# Exploit Title: Emby SSRF HTTP Scanner
-# Date: 2021.03.01
-# Exploit Author: Btnz
-# Vendor Homepage: https://emby.media/
-# Software Link: https://emby.media/download.html
-# Version: Prior to 4.5
-# Tested on: Ubuntu, Windows
-# CVE: CVE-2020-26948
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
-# frozen_string_literal: true
 
-# MSF Auxiliary Class
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Capture
