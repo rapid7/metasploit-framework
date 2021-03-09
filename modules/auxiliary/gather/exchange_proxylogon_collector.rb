@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Microsoft Exchange ProxyLogon Graber',
+        'Name' => 'Microsoft Exchange ProxyLogon Collector',
         'Description' => %q{
           This module scan for a vulnerability on Microsoft Exchange Server that
           allows an attacker bypassing the authentication and impersonating as the
