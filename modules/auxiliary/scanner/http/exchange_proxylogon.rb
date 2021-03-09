@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Microsoft Exchange ProxyLogon',
+        'Name' => 'Microsoft Exchange ProxyLogon Scanner',
         'Description' => %q{
           This module scan for a vulnerability on Microsoft Exchange Server that
           allows an attacker bypassing the authentication and impersonating as the
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptEnum.new('METHOD', [true, 'HTTP Method to use (for CVE-2021-26855).', 'POST', ['GET', 'POST']])
+      OptEnum.new('METHOD', [true, 'HTTP Method to use for the check.', 'POST', ['GET', 'POST']])
     ])
   end
 
