@@ -10,7 +10,6 @@ PATH
       aws-sdk-s3
       bcrypt
       bcrypt_pbkdf
-      bit-struct
       bson
       concurrent-ruby (= 1.0.5)
       dnsruby
@@ -147,7 +146,6 @@ GEM
     bcrypt (3.1.16)
     bcrypt_pbkdf (1.1.0)
     bindata (2.4.8)
-    bit-struct (0.16)
     bson (4.12.0)
     builder (3.2.4)
     byebug (11.1.3)
