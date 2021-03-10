@@ -284,3 +284,4 @@ loader.setup # ready!
 
 # global autoload of common gems
 autoload :Faker, 'faker'
+autoload :BinData, 'bindata'
