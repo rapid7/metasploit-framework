@@ -38,13 +38,13 @@ module MetasploitModule
       ])
     register_advanced_options(
       [
-        OptBool.new('NullFreeVersion', [ false, "Null-free shellcode version", false ])
+        OptBool.new('NullFreeVersion', [ true, "Null-free shellcode version", false ])
       ])
   end
 
   def generate_stage(opts={})
     cmd             = datastore['CMD'] || ''
-    nullfreeversion = datastore['NullFreeVersion'] || false
+    nullfreeversion = datastore['NullFreeVersion']
     if !cmd.empty?
       #
       # Dynamically builds the exec payload based on the user's options.
