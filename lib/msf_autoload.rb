@@ -14,7 +14,7 @@ require 'zeitwerk'
 #   require 'msf/util/dot_net_deserialization/types/record_values'
 ###
 
-class MsfAutoLoad
+class MsfAutoload
   include Singleton
 
   def initialize
@@ -322,11 +322,9 @@ class MsfAutoLoad
   # Enables :prepend to suppress the loader finalization
   def finalize_loader(loader)
     loader.setup # ready!
-    
-    # global autoload of common gems
-    autoload :Faker, 'faker'
-    autoload :BinData, 'bindata'
   end
 end
 
-MsfAutoLoad.instance
+# global autoload of common gems
+autoload :Faker, 'faker'
+autoload :BinData, 'bindata'
