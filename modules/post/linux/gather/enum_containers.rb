@@ -93,13 +93,11 @@ class MetasploitModule < Msf::Post
     when 'lxc'
       # LXC does some awful table formatting, lets try and fix it to be more uniform
       result = cmd_exec('lxc list').each_line.reject { |st| st =~ /^\+--/ }.map.with_index.map do |s, i|
-        # rubocop:disable Style/StringConcatenation
         if i == 0
           s.split('| ').map { |t| t.strip.ljust(t.size, ' ').gsub(/\|/, '') }.join + "\n"
         else
           s.gsub(/\| /, '').gsub(/\|/, '')
         end
-        # rubocop:enable Style/StringConcatenation
       end.join.strip
     when 'rkt'
       result = cmd_exec('rkt list')
