@@ -86,6 +86,12 @@ class MetasploitModule < Msf::Auxiliary
     @data || datastore['DATA']
   end
 
+  #
+  # Constructs an URL from the current context and a provided URI
+  #
+  def build_url(uri)
+    "http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}"
+  end
 
   #
   # The fuzz() function serves as the engine for the module.  It can intelligently mutate
@@ -115,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
           trigger = base * d
           p = normalize_uri(datastore['PATH']) + trigger + f
           req = ini_request(p)
-          vprint_status("Trying: http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{p}")
+          vprint_status("Trying: #{build_url(p)}")
           res = send_request_cgi(req, 25)
           return trigger if res and res.to_s =~ datastore['PATTERN']
         end
@@ -200,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
 
       uri = normalize_uri(datastore['PATH']) + trigger + datastore['FILE']
       req = ini_request(uri)
-      vprint_status("Trying: http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}")
+      vprint_status("Trying: #{build_url(uri)}")
       res = send_request_cgi(req, 25)
       found = true if res and res.to_s =~ datastore['PATTERN']
     end
@@ -242,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
 
       next if not res or res.body.empty?
 
-      vprint_status("#{res.code.to_s} for http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}")
+      vprint_status("#{res.code.to_s} for #{build_url(uri)}")
 
       # Only download files that are within our interest
       if res.to_s =~ datastore['PATTERN']
@@ -271,7 +277,7 @@ class MetasploitModule < Msf::Auxiliary
 
       next if not res or res.body.empty?
 
-      vprint_status("#{res.code.to_s} for http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}")
+      vprint_status("#{res.code.to_s} for #{build_url(uri)}")
 
       # We assume the string followed by the last '/' is our file name
       fname = f.split("/")[-1].chop
@@ -302,7 +308,7 @@ class MetasploitModule < Msf::Auxiliary
     # Form the PUT request
     fname = Rex::Text.rand_text_alpha(rand(5) + 5) + '.txt'
     uri = normalize_uri(datastore['PATH']) + trigger + fname
-    vprint_status("Attempt to upload to: http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}")
+    vprint_status("Attempt to upload to: #{build_url(uri)}")
     req = ini_request(uri)
 
     # Upload our unique string, don't care much about the response
