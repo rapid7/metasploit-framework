@@ -3,7 +3,7 @@ require 'xmlrpc/client'
 require 'msgpack'
 
 require 'rex'
-
+require 'msf'
 
 
 module Msf
