@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => 
         [ 
-        'Brian Halbach' #msf module author
+        'Brian Halbach', #msf module author
          'Mikhail Klyuchnikov' #initial discovery and PoC
         ],
         'License' => MSF_LICENSE,
