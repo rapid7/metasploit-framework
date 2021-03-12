@@ -2,36 +2,49 @@ Instead of embedding static Java serialized objects, Metasploit offers ysoserial
 
 To use the ysoserial libraries, let's look at an example from the [`shiro_rememberme_v124_deserialize`][2] module:
 
-### Example code
+## Example code
 
 In this example:
-1. (L78) The module calls `payload.encode` to generate the command payload.
-1. (L80) Then it sets the modified type to either `bash` or `cmd` based on the target.
-1. (L81) Finally, the `ysoserial` library is used to generate a `CommonsCollections2`-based serialized object.
+1. (L11) The module includes the `Msf::Exploit::JavaDeserialization` mixin.
+    * This exposes the necessary methods.
+1. (L79) Then it uses the `generate_java_deserialization_for_payload` method to create serialized Java object based on the `CommonsCollections2` YSoSerial payload that will execute the Metasploit payload.
+    * Note that the Metasploit `payload` object is passed as-is, without any conversion.
 
 ```
-78    cmd = payload.encoded
-79    vprint_status("Execute CMD: #{cmd}")
-80    type = (target.name == 'Unix Command payload' ? 'bash' : 'cmd')
-81    java_payload = ::Msf::Util::JavaDeserialization.ysoserial_payload('CommonsCollections2', cmd, modified_type: type)
+09  include Msf::Exploit::Remote::HttpClient
+10  include Msf::Exploit::Powershell
+11  include Msf::Exploit::JavaDeserialization
+12
+13  def initialize(info = {})
+...
+78  def exploit
+79    java_payload = generate_java_deserialization_for_payload('CommonsCollections2', payload)
+80    ciphertext = aes_encrypt(java_payload)
 ```
 
 Once the serialized object is generated and stored as `java_payload`, it's then sent to the target in an exploit-specific manner.
 
-### Calling `ysoserial_payload`
+## Methods
 
-`#ysoserial_payload(payload_name, command=nil, modified_type: 'original')`
+### `#generate_java_deserialization_for_payload(name, payload)`
+This method will generate a serialized Java object that when loaded will execute the specified Metasploit payload. The payload will be converted to an operating system command using one of the supported techniques contained within this method and then passed to [`#generate_java_deserialization_for_command`](#generate_java_deserialization_for_commandname-shell-command).
  
-- **payload_name** - The payload name parameter must be one of the supported payloads stored in the `ysoserial` cache.  As of this writing, the list includes: `BeanShelll1`, `Clogure`, `CommonBeanutils1`, `CommonsCollections2`, `CommonsCollections3`, `CommonsCollections4`, `CommonsCollections5`, `CommonsCollections6`, `Groovy1`, `Hibernate1`, `JBossInterceptors1`, `JRMPClient`, `JSON1`, `JavassistWeld1`, `Jdk7u21`, `MozillaRhino1`, `Myfaces1`, `ROME`, `Spring1`, `Spring2`, and `Vaadin1`.  While `ysoserial` includes additional payloads that are not listed above, they are unsupported by the library due to the need for complex inputs.  Should there be use cases for additional payloads, please consider opening an issue and submitting a pull request to add support.
+- **name** - The payload name parameter must be one of the supported payloads stored in the `ysoserial` cache.  As of this writing, the list includes: `BeanShelll1`, `Clogure`, `CommonBeanutils1`, `CommonsCollections2`, `CommonsCollections3`, `CommonsCollections4`, `CommonsCollections5`, `CommonsCollections6`, `Groovy1`, `Hibernate1`, `JBossInterceptors1`, `JRMPClient`, `JSON1`, `JavassistWeld1`, `Jdk7u21`, `MozillaRhino1`, `Myfaces1`, `ROME`, `Spring1`, `Spring2`, and `Vaadin1`.  While `ysoserial` includes additional payloads that are not listed above, they are unsupported by the library due to the need for complex inputs.  Should there be use cases for additional payloads, please consider opening an issue and submitting a pull request to add support.
  
-- **command** - The command parameter will be executed by the remote system.  The parameter is OS-agnostic, meaning that the module must determine the OS and architecture, if necessary, before generating a payload.
+- **payload** - The payload object to execute on the remote system. This is the native Metasploit payload object and it will be automatically converted to an operating system command using a technique suitable for the target platform and architecture. For example, x86 Windows payloads will be converted using a Powershell command. Not all platforms and architecture combinations are supported. Unsupported combinations will result in a `RuntimeError` being raised which will need to be handled by the module developer.
 
-- **modified_type** - Use a modified version that invokes the specified shell (except in the case of `original`). For more information regarding the invocation, see [`CmdExecuteHelper.java`][1]. The value must be one of the following:
+### `#generate_java_deserialization_for_command(name, shell, command)`
+This method will generate a serialized Java object that when loaded will execute the specific operating system command using the specified shell. Invocation of the command through the shell effectively bypasses constraints on the characters within the operating system command.
+
+- **name** - The payload name parameter. This has the same significance as the *name* parameter for the [`#generate_java_deserialization_for_payload`](#generate_java_deserialization_for_payloadname-payload) method.
+
+- **shell** - The shell to use for invoking the command. This value must be one of the following:
 
     - **bash** - A modified version that will invoke the command using the `bash` executable
     - **cmd** - A modified version that will invoke the command using the Windows `cmd.exe` executable.
-    - **original** - The original ysoserial invocation without an OS-specific shell. **Be careful when using this option** as some ysoserial payloads (as specified using the *payload_name* parameter are incompatible with commands that contain the `"` character. For this reason, it is recommended that an OS-specific version be used when available. Some ysoserial payloads pass the OS command to execute to `Runtime.getRuntime().exec` as a string instead of an array of strings, leading to execution errors.
     - **powershell** - A modified version that will invoke the command using the Windows `powershell.exe` executable.
+
+- **command** - The operating system command to execute upon successful deserialization of the generated object.
 
 ### Regenerating the ysoserial_payload JSON file (MAINTAINERS ONLY)
 
@@ -160,4 +173,4 @@ At completion, the `data/ysoserial_payloads.json` file is overwritten and the 22
 </details>
 
 [1]: https://github.com/pimps/ysoserial-modified/blob/e71f70dbc5e8c27d72873014ac5cb7766f4b5b94/src/main/java/ysoserial/payloads/util/CmdExecuteHelper.java#L11-L30
-[2]: https://github.com/rapid7/metasploit-framework/blob/7d0cb771a5265375eb4484a986e732d8f94c2441/modules/exploits/multi/http/shiro_rememberme_v124_deserialize.rb#L78-L81
+[2]: https://github.com/rapid7/metasploit-framework/blob/d580e7d12218fbf62b190a0c0c6d25f43b8aa5be/modules/exploits/multi/http/shiro_rememberme_v124_deserialize.rb
