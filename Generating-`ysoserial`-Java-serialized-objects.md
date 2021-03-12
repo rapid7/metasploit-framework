@@ -46,7 +46,7 @@ This method will generate a serialized Java object that when loaded will execute
 
 - **command** - The operating system command to execute upon successful deserialization of the generated object.
 
-### Regenerating the ysoserial_payload JSON file (MAINTAINERS ONLY)
+## Regenerating the ysoserial_payload JSON file (MAINTAINERS ONLY)
 
 **Neither module developers nor users need to concern themselves with the following.**
 
