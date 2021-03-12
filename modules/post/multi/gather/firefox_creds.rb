@@ -263,7 +263,7 @@ class MetasploitModule < Msf::Post
 
         checkpath.each_line do |ffpath|
           ffpath.chomp!
-          if ffpath =~ /\.default$/
+          if ffpath =~ /\.default(?:-release)?$/
             vprint_good("Found profile: #{ffpath}")
             paths << "#{ffpath}"
           end
