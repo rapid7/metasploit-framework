@@ -7,7 +7,7 @@ To use the ysoserial libraries, let's look at an example from the [`shiro_rememb
 In this example:
 1. (L11) The module includes the `Msf::Exploit::JavaDeserialization` mixin.
     * This exposes the necessary methods.
-1. (L79) Then it uses the `generate_java_deserialization_for_payload` method to create serialized Java object based on the `CommonsCollections2` YSoSerial payload that will execute the Metasploit payload.
+1. (L79) Then it uses the `generate_java_deserialization_for_payload` method to create a serialized Java object based on the `CommonsCollections2` YSoSerial payload that will execute the Metasploit payload.
     * Note that the Metasploit `payload` object is passed as-is, without any conversion.
 
 ```
