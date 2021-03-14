@@ -32,13 +32,14 @@ class MetasploitModule < Msf::Auxiliary
           All components are vulnerable by default.
         },
         'Author' => [
+          'Orange Tsai', # Dicovery (Officially acknowledged by MSRC)
           'mekhalleh (RAMELLA Sébastien)' # Module author (Zeop Entreprise)
         ],
         'References' => [
           ['CVE', '2021-26855'],
           ['LOGO', 'https://proxylogon.com/images/logo.jpg'],
           ['URL', 'https://proxylogon.com/'],
-          ['URL', 'http://aka.ms/exchangevulns']
+          ['URL', 'https://aka.ms/exchangevulns']
         ],
         'DisclosureDate' => '2021-03-02',
         'License' => MSF_LICENSE,

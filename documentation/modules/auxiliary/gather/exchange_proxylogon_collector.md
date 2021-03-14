@@ -156,4 +156,6 @@ msf6 auxiliary(gather/exchange_proxylogon_collector) >
 ## References
 
 1. <https://proxylogon.com/>
-2. <https://docs.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid>
+2. <https://aka.ms/exchangevulns>
+3. <https://docs.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid>
+4. <https://github.com/3gstudent/Homework-of-Python/blob/master/ewsManage.py>

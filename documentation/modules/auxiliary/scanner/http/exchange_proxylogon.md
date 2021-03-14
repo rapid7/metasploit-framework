@@ -59,3 +59,4 @@ msf6 auxiliary(scanner/http/exchange_proxylogon) >
 
 1. <https://proxylogon.com/>
 2. <https://raw.githubusercontent.com/microsoft/CSS-Exchange/main/Security/http-vuln-cve2021-26855.nse>
+3. <https://aka.ms/exchangevulns>
