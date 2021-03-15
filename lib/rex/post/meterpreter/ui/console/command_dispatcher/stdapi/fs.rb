@@ -619,7 +619,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => "Listing: #{path}",
+      'Header'  => "Listing: #{path}".force_encoding('UTF-8'),
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,
       'Columns' => columns,
@@ -639,7 +639,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           ffstat ? ffstat.size       : '',
           ffstat ? ffstat.ftype[0,3] : '',
           ffstat ? ffstat.mtime      : '',
-          fname
+          fname.force_encoding('UTF-8')
         ]
       row.insert(4, p['FileShortName'] || '') if short
 
