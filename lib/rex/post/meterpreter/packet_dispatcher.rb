@@ -23,7 +23,7 @@ class RequestError < ArgumentError
     end
 
     if mod
-      command_name = mod.constants.select { |c| c.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
+      command_name = mod.constants.select { |c| c.to_s.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
       command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
     end
 
