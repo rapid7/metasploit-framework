@@ -162,8 +162,6 @@ Lint/DeprecatedGemVersion:
   Enabled: true
   Exclude:
     - 'metasploit-framework.gemspec'
-    - 'spec/**/*'
-    - 'lib/rex/version.rb'
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'

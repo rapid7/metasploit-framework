@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'rubocop/cop/lint/deprecated_gem_version'
 
-
 RSpec.describe RuboCop::Cop::Lint::DeprecatedGemVersion do
   subject(:cop) { described_class.new(config) }
   let(:config) { RuboCop::Config.new }

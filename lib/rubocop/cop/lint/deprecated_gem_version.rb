@@ -3,7 +3,6 @@
 module RuboCop
   module Cop
     module Lint
-
       class DeprecatedGemVersion < Base
         include RangeHelp
         extend AutoCorrector
@@ -12,14 +11,14 @@ module RuboCop
 
         # @!method gem_version_const(node)
         def_node_matcher :gem_version_const, <<~PATTERN
-             (const
-              $(const {nil? cbase} :Gem) {:Version})
+          (const
+           $(const {nil? cbase} :Gem) {:Version})
         PATTERN
 
         # @!method gem_version_const_cbase(node)
         def_node_matcher :gem_version_const_cbase, <<~PATTERN
-             (const
-              $(const {cbase} :Gem) {:Version})
+          (const
+           $(const {cbase} :Gem) {:Version})
         PATTERN
 
         def on_const(node)
