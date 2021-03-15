@@ -54,9 +54,9 @@ class MetasploitModule < Msf::Auxiliary
     })
     fail_with Failure::Unreachable, 'Connection failed' unless res
     if res && res.body =~ /idangerous.chopslider-(\d\.\d).css-css/
-      v = Gem::Version.new(Regexp.last_match(1))
+      v = Rex::Version.new(Regexp.last_match(1))
       print_status "Version detected: #{v}"
-      if v <= Gem::Version.new('3.4')
+      if v <= Rex::Version.new('3.4')
         return Msf::Exploit::CheckCode::Appears
       end
     end

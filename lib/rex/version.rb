@@ -1,3 +1,4 @@
+# rubocop:disable Lint/DeprecatedGemVersion
 class Rex::Version < Gem::Version
 
   def initialize(version)
@@ -9,3 +10,4 @@ class Rex::Version < Gem::Version
     super version
   end
 end
+# rubocop:enable Lint/DeprecatedGemVersion
