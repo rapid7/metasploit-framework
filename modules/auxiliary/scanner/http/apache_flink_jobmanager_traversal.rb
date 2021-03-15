@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Detected('Could not determine Apache Flink software version.')
     end
 
-    if Gem::Version.new(version).between?(Gem::Version.new('1.11.0'), Gem::Version.new('1.11.2'))
+    if Rex::Version.new(version).between?(Rex::Version.new('1.11.0'), Rex::Version.new('1.11.2'))
       return Exploit::CheckCode::Appears("Apache Flink version #{version} appears vulnerable.")
     end
 

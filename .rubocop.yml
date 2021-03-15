@@ -19,6 +19,7 @@ require:
   - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
+  - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -156,6 +157,13 @@ Lint/ModuleDisclosureDatePresent:
   Include:
     # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
     - 'modules/exploits/**/*'
+
+Lint/DeprecatedGemVersion:
+  Enabled: true
+  Exclude:
+    - 'metasploit-framework.gemspec'
+    - 'spec/**/*'
+    - 'lib/rex/version.rb'
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
