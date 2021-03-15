@@ -185,6 +185,8 @@ class MetasploitModule < Msf::Auxiliary
     xmlns = { 'xmlns' => 'http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a' }
 
     response = send_xml(soap_autodiscover, "#{server_name}/autodiscover/autodiscover.xml?a=~1942062522")
+    fail_with(Failure::Unknown, 'No Autodiscover information was found') if response.body =~ /<ErrorCode>500<\/ErrorCode>/
+
     xml = Nokogiri::XML.parse(response.body)
 
     legacy_dn = xml.at_xpath('//xmlns:User/xmlns:LegacyDN', xmlns).content
