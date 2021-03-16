@@ -129,6 +129,15 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
+  def is_base64?(str)
+    str.match(/^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/) ? true : false
+  end
+
+
+  def try_decode_password(str)
+    is_base64?(str) ? Rex::Text.decode_base64(str) : str
+  end
+
 
   def get_filezilla_creds(paths)
 
@@ -188,7 +197,7 @@ class MetasploitModule < Msf::Post
             port: loot['port'],
             service_name: 'ftp',
             username: loot['user'],
-            password: loot['password']
+            password: try_decode_password(loot['password'])
           )
         end
       end
@@ -212,11 +221,7 @@ class MetasploitModule < Msf::Post
         account['logontype'] = "Anonymous"
       when /1|4/
         account['user'] = sub.elements['User'].text rescue "<unknown>"
-        if sub.elements['Pass'].attributes['encoding'] == 'base64'
-          account['password'] = Rex::Text.decode_base64(sub.elements['Pass'].text) rescue "<unknown>"
-        else
-          account['password'] = sub.elements['Pass'].text rescue "<unknown>"
-        end
+        account['password'] = sub.elements['Pass'].text rescue "<unknown>"
       when /2|3/
         account['user'] = sub.elements['User'].text rescue "<unknown>"
         account['password'] = "<blank>"
@@ -245,7 +250,7 @@ class MetasploitModule < Msf::Post
       print_status("    Server: %s:%s" % [account['host'], account['port']])
       print_status("    Protocol: %s" % account['protocol'])
       print_status("    Username: %s" % account['user'])
-      print_status("    Password: %s" % account['password'])
+      print_status("    Password: %s" % try_decode_password(account['password']))
       print_line("")
     end
     return creds
