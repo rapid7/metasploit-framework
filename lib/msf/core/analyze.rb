@@ -5,9 +5,9 @@ class Msf::Analyze
   end
 
   def host(eval_host)
-    suggested_modules = {}
+    suggested_modules = []
 
-    mrefs, _mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
+    mrefs, _mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_exploit_maps
 
     unless eval_host.vulns
       return {}
@@ -15,20 +15,27 @@ class Msf::Analyze
 
     vuln_refs = []
     eval_host.vulns.each do |vuln|
-      next if vuln.service.nil?
-      vuln_refs.push(*vuln.refs)
+      vuln_refs.push(*vuln.refs.map {|r| r.name.upcase})
     end
 
     # finds all modules that have references matching those found on host vulns with service data
-    found_modules = mrefs.values_at(*(vuln_refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
-    found_modules.each do |fnd_mod|
+    found_modules = mrefs.values_at(*vuln_refs).compact.reduce(:+)
+    found_modules&.each do |fnd_mod|
       # next if exploit_filter_by_service(fnd_mod, vuln.service)
-      next unless exploit_matches_host_os(fnd_mod, eval_host)
+      if exploit_matches_host_os(fnd_mod, eval_host)
+        if fnd_mod.session_types
+          if eval_host.sessions.alive.none? { |sess| exploit_matches_session(fnd_mod, sess) }
+            suggested_modules << [fnd_mod, :session_required]
+          else
+            suggested_modules << [fnd_mod, :ready_for_test]
+          end
+        else
+          suggested_modules << [fnd_mod, :ready_for_test]
+        end
+      end
     end
 
-    suggested_modules[:modules] = found_modules
-
-    suggested_modules
+    {modules: suggested_modules}
   end
 
 
@@ -85,5 +92,9 @@ class Msf::Analyze
     end
 
     false
+  end
+
+  def exploit_matches_session(mod, session)
+    mod.session_types&.include? session.type
   end
 end
